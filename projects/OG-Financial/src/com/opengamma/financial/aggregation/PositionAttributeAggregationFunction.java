@@ -7,9 +7,11 @@ package com.opengamma.financial.aggregation;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
+import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -21,6 +23,7 @@ public class PositionAttributeAggregationFunction implements AggregationFunction
 
   private final String _attribute;
   private final String _unknownClassification;
+  private final Comparator<Position> _comparator = new SimplePositionComparator();
 
   public PositionAttributeAggregationFunction(final String attribute) {
     this(attribute, UNKNOWN);
@@ -70,5 +73,15 @@ public class PositionAttributeAggregationFunction implements AggregationFunction
   @Override
   public Collection<String> getRequiredEntries() {
     return Collections.emptyList();
+  }
+
+  @Override
+  public int compare(String o1, String o2) {
+    return o1.compareTo(o2);
+  }
+
+  @Override
+  public Comparator<Position> getPositionComparator() {
+    return _comparator;
   }
 }

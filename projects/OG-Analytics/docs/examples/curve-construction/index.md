@@ -184,13 +184,13 @@ The [com.opengamma.financial.interestrate](/{{ OG_VERSION }}/java/javadocs/com/o
 
 We will start by looking at the [Cash](/{{ OG_VERSION }}/java/javadocs/com/opengamma/financial/interestrate/cash/definition/Cash.html) class:
 
-{% set cash_class = d['/jsondocs/javadoc-data.json|javadocs']['packages']['com.opengamma.financial.interestrate.cash.definition']['classes']['Cash'] %}
+{% set cash_class = d['/jsondocs/javadoc-data.json|javadocs']['packages']['com.opengamma.financial.interestrate.cash.derivative']['classes']['Cash'] %}
 {{ cash_class['comment-text'] }}
 
 We pass the following parameters to the constructor:
 
 <pre>
-{{ cash_class['constructors']['Cash(Currency,double,double,double,String)']['raw-comment-text'] }}
+{{ cash_class['constructors']['Cash(Currency,double,double,double,double,double,String)']['raw-comment-text'] }}
 </pre>
 
 {{ d['CashExample.java|idio']['cashDemo'] }}

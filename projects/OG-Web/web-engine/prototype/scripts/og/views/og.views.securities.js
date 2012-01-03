@@ -31,7 +31,7 @@ $.register_module({
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            securities,
+            view,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
                     type: 'input',
@@ -54,15 +54,16 @@ $.register_module({
                         'OK': function () {
                             $(this).dialog('close');
                             api.rest.securities.put({
-                                handler: function (r) {
-                                    if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                    if (r.data.data.length === 1) {
-                                        routes.go(routes.hash(module.rules.load_new_securities,
-                                            $.extend({}, routes.last().args, {
-                                                id: r.data.data[0].split('|')[1], 'new': true
-                                            })
-                                        ));
-                                    } else routes.go(routes.hash(module.rules.load));
+                                handler: function (result) {
+                                    var args = routes.current().args;
+                                    if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                    view.search(args);
+                                    if (result.data.data.length !== 1)
+                                        return routes.go(routes.hash(module.rules.load, args));
+                                    routes.go(routes.hash(module.rules.load_item, args, {
+                                        add: {id: result.data.data[0].split('|')[1]},
+                                        del: ['version']
+                                    }));
                                 },
                                 scheme_type: ui.dialog({return_field_value: 'scheme-type'}),
                                 identifier: ui.dialog({return_field_value: 'identifiers'})
@@ -76,23 +77,21 @@ $.register_module({
                     message: 'Are you sure you want to permanently delete this security?',
                     buttons: {
                         'Delete': function () {
-                            var obj = {
-                                id: routes.last().args.id,
-                                handler: function (r) {
-                                    var last = routes.last();
-                                    if (r.error) return ui.dialog({type: 'error', message: r.message});
-                                    routes.go(routes.hash(module.rules.load_delete,
-                                        $.extend(true, {deleted: true}, last.args)
-                                    ));
-                                }
-                            };
                             $(this).dialog('close');
-                            api.rest.securities.del(obj);
+                            api.rest.securities.del({
+                                id: routes.last().args.id,
+                                handler: function (result) {
+                                    var args = routes.current().args;
+                                    if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                    view.search(args);
+                                    routes.go(routes.hash(module.rules.load, args));
+                                }
+                            });
                         }
                     }
                 })},
                 'versions': function () {
-                    var rule = module.rules.load_securities, args = routes.current().args;
+                    var rule = module.rules.load_item, args = routes.current().args;
                     routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
                     if (!layout.inner.state.south.isClosed && args.version) {
                         layout.inner.close('south');
@@ -104,7 +103,7 @@ $.register_module({
             },
             options = {
                 slickgrid: {
-                    'selector': '.OG-js-search', 'page_type': 'securities',
+                    'selector': '.OG-js-search', 'page_type': page_name,
                     'columns': [
                         {id: 'type', toolTip: 'type', name: null, field: 'type', width: 100},
                         {
@@ -136,12 +135,6 @@ $.register_module({
                     }
                 }
             },
-            load_securities_without = function (field, args) {
-                check_state({args: args, conditions: [{new_page: securities.load, stop: true}]});
-                delete args[field];
-                securities.search(args);
-                routes.go(routes.hash(module.rules.load_securities, args));
-            },
             default_details = og.views.common.default_details.partial(page_name, 'Securities', options),
             details_page = function (args) {
                 // load versions
@@ -159,7 +152,7 @@ $.register_module({
                         json.template_data.name = json.template_data.name || json.template_data.name.lang();
                         history.put({
                             name: json.template_data.name,
-                            item: 'history.securities.recent',
+                            item: 'history.' + page_name + '.recent',
                             value: routes.current().hash
                         });
                         api.text({module: template, handler: text_handler = function (template, error) {
@@ -190,11 +183,15 @@ $.register_module({
                             (function () {
                                 if (json.template_data['underlyingOid']) {
                                     var id = json.template_data['underlyingOid'],
-                                        rule = module.rules.load_securities,
-                                        hash = routes.hash(rule, routes.current().args, {add: {id: id}}),
+                                        rule = module.rules.load_item,
+                                        hash = routes.hash(rule, routes.current().args, {
+                                            add: {id: id},
+                                            del: ['version']
+                                        }),
                                         text = json.template_data['underlyingName'] ||
                                             json.template_data['underlyingExternalId'],
-                                        anchor = '<a href="' + routes.prefix() + hash + '">' + text + '</a>';
+                                        anchor = '<a class="og-js-live-anchor" href="' + routes.prefix() + hash + '">' +
+                                            text + '</a>';
                                         $('.ui-layout-inner-center .OG-js-underlying-id').html(anchor);
                                 }
                             }());
@@ -213,7 +210,7 @@ $.register_module({
                                 id: json.template_data.hts_id
                             });
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
@@ -229,29 +226,17 @@ $.register_module({
             state = {};
         module.rules = {
             load: {route: '/' + page_name + '/name:?/type:?', method: module.name + '.load'},
-            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?',
-                    method: module.name + '.load_filter'},
-            load_delete: {
-                route: '/' + page_name + '/:id/deleted:/name:?/type:?', method: module.name + '.load_delete'
-            },
-            load_securities: {
-                route: '/' + page_name + '/:id/name:?/version:?/type:?', method: module.name + '.load_' + page_name
-            },
-            load_new_securities: {
-                route: '/' + page_name + '/:id/new:/name:?/type:?', method: module.name + '.load_new_' + page_name
-            }
+            load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?', method: module.name + '.load_filter'},
+            load_item: {route: '/' + page_name + '/:id/name:?/version:?/type:?', method: module.name + '.load_item'}
         };
-        return securities = {
+        return view = {
+            filters: ['name', 'type'],
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        securities.search(args);
-                        masthead.menu.set_tab(page_name);
-                    }}
+                    {new_page: function (args) {view.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
-                if (args.id) return;
-                default_details();
+                if (!args.id) default_details();
             },
             load_filter: function (args) {
                 var search_filter = function () {
@@ -260,33 +245,29 @@ $.register_module({
                             return setTimeout(search_filter, 500);
                         search.filter(args);
                 };
-                check_state({args: args, conditions: [
-                    {new_page: function () {
-                        return args.id ? securities.load_securities(args) : securities.load(args);
-                    }}
-                ]});
+                check_state({args: args, conditions: [{new_value: 'id', stop: true, method: function (args) {
+                    view[args.id ? 'load_item' : 'load'](args);
+                }}]});
                 search_filter();
             },
-            load_delete: function (args) {securities.search(args), routes.go(routes.hash(module.rules.load, {}));},
-            load_new_securities: load_securities_without.partial('new'),
-            load_securities: function (args) {
+            load_item: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        securities.load(args);
+                    {new_page: function (args) {
+                        view.load(args);
                         layout.inner.options.south.onclose = null;
                         layout.inner.close.partial('south');
                     }},
-                    {new_value: 'id', method: function () {
+                    {new_value: 'id', method: function (args) {
                         layout.inner.options.south.onclose = null;
                         layout.inner.close.partial('south');
                     }}
                 ]});
-                securities.details(args);
+                view.details(args);
             },
             search: function (args) {
                 if (!search) search = common.search_results.core();
                 if (options.slickgrid.columns[0].name === 'loading')
-                    return setTimeout(securities.search.partial(args), 500);
+                    return setTimeout(view.search.partial(args), 500);
                 if (options.slickgrid.columns[0].name === null) return api.rest.securities.get({
                     meta: true,
                     handler: function (result) {
@@ -297,7 +278,7 @@ $.register_module({
                             }, '<option value="">Type</option>'),
                             '</select>'
                         ].join('');
-                        securities.search(args);
+                        view.search(args);
                     },
                     loading: function () {options.slickgrid.columns[0].name = 'loading';}
                 });

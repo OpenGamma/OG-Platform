@@ -6,6 +6,7 @@
 package com.opengamma.math.interpolation;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
@@ -50,6 +51,16 @@ public class DoubleQuadraticInterpolator1DTest {
     for (int i = 0; i < X_TEST.length; i++) {
       assertEquals(INTERPOLATOR.interpolate(DATA, X_TEST[i]), Y_TEST[i], 1e-8);
     }
+  }
+
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void samexNodesTest() {
+    final double[] xData = new double[] {0.4, 0.7, 0.9, 0.9, 1.3, 1.8 };
+    final double[] yData = new double[] {0.4, 0.5, 0.3, 0.8, 0.7, 1.0 };
+    final Interpolator1DDataBundle data = INTERPOLATOR.getDataBundle(xData, yData);
+    double y = INTERPOLATOR.interpolate(data, 1.0);
+    assertTrue("y: " + y, !Double.isNaN(y));
   }
 
   @Test

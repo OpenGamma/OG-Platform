@@ -83,7 +83,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   private final CompiledViewDefinitionWithGraphsImpl _compiledViewDefinition;
   private final ViewCycleExecutionOptions _executionOptions;
   private final VersionCorrection _versionCorrection;
-  
+
   private final ComputationResultListener _cycleFragmentResultListener;
   private final DependencyGraphExecutor<?> _dependencyGraphExecutor;
   private final GraphExecutorStatisticsGatherer _statisticsGatherer;
@@ -116,7 +116,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     _viewProcessId = viewProcessId;
     _viewProcessContext = viewProcessContext;
     _compiledViewDefinition = compiledViewDefinition;
-    
+
     _cycleFragmentResultListener = cycleFragmentResultListener;
 
     _executionOptions = executionOptions;
@@ -190,16 +190,16 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
   public Set<String> getAllCalculationConfigurationNames() {
     return new HashSet<String>(getCompiledViewDefinition().getViewDefinition().getAllCalculationConfigurationNames());
   }
-  
+
   //-------------------------------------------------------------------------
   private UniqueId getCycleId() {
     return _cycleId;
   }
-  
+
   private VersionCorrection getVersionCorrection() {
     return _versionCorrection;
   }
-  
+
   private ViewCycleExecutionOptions getExecutionOptions() {
     return _executionOptions;
   }
@@ -291,19 +291,19 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     Future<?> resultStreamConsumerJobInProgress;
     try {
       resultStreamConsumerJobInProgress = calcJobResultExecutorService.submit(calculationJobResultStreamConsumer);
-  
+
       LinkedList<Future<?>> futures = new LinkedList<Future<?>>();
-  
+
       for (String calcConfigurationName : getAllCalculationConfigurationNames()) {
         s_logger.info("Executing plans for calculation configuration {}", calcConfigurationName);
         DependencyGraph depGraph = getExecutableDependencyGraph(calcConfigurationName);
-  
+
         s_logger.info("Submitting {} for execution by {}", depGraph, getDependencyGraphExecutor());
-  
+
         Future<?> future = getDependencyGraphExecutor().execute(depGraph, calcJobResultQueue, _statisticsGatherer);
         futures.add(future);
       }
-  
+
       while (!futures.isEmpty()) {
         Future<?> future = futures.poll();
         try {
@@ -327,15 +327,15 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
           throw new OpenGammaRuntimeException("Unable to execute dependency graph", e);
         }
       }
-  
+
       _endTime = Instant.now();
     } finally {
-      calculationJobResultStreamConsumer.terminate();  
+      calculationJobResultStreamConsumer.terminate();
     }
-    
+
     //wait for StreamCalculationJobResultConsumer to finish
     try {
-      if(resultStreamConsumerJobInProgress != null){
+      if (resultStreamConsumerJobInProgress != null) {
         resultStreamConsumerJobInProgress.get();
       }
     } catch (ExecutionException e) {
@@ -383,13 +383,14 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     s_logger.debug("Populating {} market data items using snapshot {}", marketDataRequirements.size(), snapshot);
     Map<ViewComputationCache, OverrideOperation> cacheMarketDataOperation = getCacheMarketDataOperation();
     InMemoryViewComputationResultModel marketDataResultFragment = constructTemplateResultModel();
+    final Map<ValueRequirement, Object> marketDataValues = snapshot.query(marketDataRequirements.keySet());
     for (Map.Entry<ValueRequirement, ValueSpecification> marketDataRequirement : marketDataRequirements.entrySet()) {
       // REVIEW 2010-10-22 Andrew
       // If we're asking the snapshot for a "requirement" then it should give back a more detailed "specification" with the data (i.e. a
       // ComputedValue instance where the specification satisfies the requirement). Functions should then declare their requirements and
       // not the exact specification they want for market data. Alternatively, if the snapshot will give us the exact value we ask for then
       // we should be querying with a "specification" and not a requirement.
-      final Object data = snapshot.query(marketDataRequirement.getKey());
+      final Object data = marketDataValues.get(marketDataRequirement.getKey());
       final ComputedValue dataAsValue;
       if (data == null) {
         s_logger.debug("Unable to load market data value for {} from snapshot {}", marketDataRequirement, getValuationTime());
@@ -397,7 +398,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         dataAsValue = new ComputedValue(marketDataRequirement.getValue(), MissingMarketDataSentinel.getInstance());
       } else {
         dataAsValue = new ComputedValue(marketDataRequirement.getValue(), data);
-        
+
         // REVIEW jonathan 2011-11-17 -- do we really need to include all market data in the result by default?
         getResultModel().addMarketData(dataAsValue);
         addMarketDataToResultFragment(marketDataResultFragment, marketDataRequirement.getValue(), dataAsValue);
@@ -438,7 +439,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     for (Map.Entry<ViewComputationCache, OverrideOperation> cacheMarketData : cacheMarketDataInfo.entrySet()) {
       final ViewComputationCache cache = cacheMarketData.getKey();
       final ComputedValue cacheValue;
-      if (cacheMarketData.getValue() == null) {
+      if ((dataAsValue.getValue() instanceof MissingMarketDataSentinel) || (cacheMarketData.getValue() == null)) {
         cacheValue = dataAsValue;
       } else {
         final Object newValue = cacheMarketData.getValue().apply(valueRequirement, dataAsValue.getValue());
@@ -533,7 +534,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
 
   private void populateResultModel(String calcConfigurationName, DependencyGraph depGraph) {
     ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
-    
+
     for (Pair<ValueSpecification, Object> value : computationCache.getValues(getOutputSpecificationsForResultModel(depGraph), CacheSelectHint.allShared())) {
       if (value.getValue() == null) {
         continue;
@@ -545,9 +546,9 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
     getResultModel().addRequirements(depGraph.getTerminalOutputs());
   }
-  
+
   //-------------------------------------------------------------------------
-  /*package*/ void calculationJobsCompleted(List<CalculationJobResult> results) {
+  /*package*/void calculationJobsCompleted(List<CalculationJobResult> results) {
     try {
       ViewComputationResultModel fragmentResult = generateCycleFragmentResult(results);
       if (fragmentResult != null) {
@@ -557,7 +558,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       s_logger.warn("Error forming cycle fragment result after calculation jobs completed: " + results, e);
     }
   }
-  
+
   private void notifyFragmentCompleted(ViewComputationResultModel fragmentResult) {
     try {
       _cycleFragmentResultListener.resultAvailable(fragmentResult);
@@ -565,13 +566,13 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       s_logger.warn("Error notifying listener of cycle fragment completion", e);
     }
   }
-  
+
   private ViewComputationResultModel generateCycleFragmentResult(List<CalculationJobResult> calculationJobResults) {
     InMemoryViewComputationResultModel resultModel = constructTemplateResultModel();
     for (CalculationJobResult calculationJobResult : calculationJobResults) {
       String calcConfigurationName = calculationJobResult.getSpecification().getCalcConfigName();
       DependencyGraph depGraph = getCompiledViewDefinition().getDependencyGraph(calcConfigurationName);
-  
+
       ViewComputationCache computationCache = getComputationCache(calcConfigurationName);
       Set<ValueSpecification> specifications = flatMap(new HashSet<ValueSpecification>(),
           calculationJobResult.getResultItems(), new Function1<CalculationJobResultItem, Collection<ValueSpecification>>() {
@@ -585,7 +586,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
         continue;
       }
       resultModel.addRequirements(requirements);
-      
+
       for (Pair<ValueSpecification, Object> value : computationCache.getValues(specifications, CacheSelectHint.allShared())) {
         ValueSpecification valueSpec = value.getFirst();
         Object calculatedValue = value.getSecond();
@@ -601,7 +602,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
     }
     return !resultModel.getAllResults().isEmpty() ? resultModel : null;
   }
-  
+
   private void addMarketDataToResultFragment(InMemoryViewComputationResultModel result, ValueSpecification marketDataSpecification, ComputedValue marketData) {
     result.addMarketData(marketData);
     for (DependencyGraph depGraph : getCompiledViewDefinition().getAllDependencyGraphs()) {

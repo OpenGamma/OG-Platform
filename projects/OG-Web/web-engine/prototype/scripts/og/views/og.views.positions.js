@@ -28,7 +28,7 @@ $.register_module({
             routes = common.routes,
             search, layout,
             ui = common.util.ui,
-            module = this, positions,
+            module = this, view,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             get_quantities,
@@ -53,12 +53,12 @@ $.register_module({
                     buttons: {
                         'OK': function () {
                             api.rest.positions.put({
-                                handler: function (r) {
-                                    var args = routes.last().args;
-                                    if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                handler: function (result) {
+                                    var args = routes.current().args, rule = module.rules.load_item;
+                                    if (result.error) return ui.dialog({type: 'error', message: result.message});
                                     ui.dialog({type: 'input', action: 'close'});
-                                    positions.search(args);
-                                    routes.go(routes.hash(module.rules.load_positions, args, {add: {id: r.meta.id}}));
+                                    view.search(args);
+                                    routes.go(routes.hash(rule, args, {add: {id: result.meta.id}, del: ['version']}));
                                 },
                                 quantity: ui.dialog({return_field_value: 'quantity'}),
                                 scheme_type: ui.dialog({return_field_value: 'scheme-type'}),
@@ -74,18 +74,19 @@ $.register_module({
                     buttons: {
                         'Delete': function () {
                             api.rest.positions.del({
-                                handler: function (r) {
-                                    if (r.error) return ui.dialog({type: 'error', message: r.message});
+                                handler: function (result) {
+                                    var args = routes.current().args;
                                     ui.dialog({type: 'confirm', action: 'close'});
-                                    positions.search(args);
-                                    routes.go(routes.hash(module.rules.load, {}));
+                                    if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                    view.search(args);
+                                    routes.go(routes.hash(module.rules.load, args));
                                 }, id: routes.last().args.id
                             });
                         }
                     }
                 })},
                 'versions': function () {
-                    var rule = module.rules.load_positions, args = routes.current().args;
+                    var rule = module.rules.load_item, args = routes.current().args;
                     routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
                     if (!layout.inner.state.south.isClosed && args.version) {
                         layout.inner.close('south');
@@ -97,7 +98,7 @@ $.register_module({
             },
             options = {
                 slickgrid: {
-                    'selector': '.OG-js-search', 'page_type': 'positions',
+                    'selector': '.OG-js-search', 'page_type': page_name,
                     'columns': [
                         {id: 'name', name: 'Name', field: 'name', width: 300, cssClass: 'og-link', toolTip: 'name'},
                         {id: 'quantity',
@@ -144,7 +145,7 @@ $.register_module({
                         var json = result.data;
                         history.put({
                             name: json.template_data.name,
-                            item: 'history.positions.recent',
+                            item: 'history.' + page_name + '.recent',
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
@@ -172,11 +173,11 @@ $.register_module({
                             common.gadgets.positions({id: args.id, selector: '.og-js-details-positions', editable: true});
                             common.gadgets.trades({id: args.id, selector: '.og-js-trades-table'});
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
-                    cache_for: 10000,
+                    cache_for: 500,
                     version: args.version && args.version !== '*' ? args.version : void 0,
                     loading: function () {
                         ui.message({
@@ -191,9 +192,7 @@ $.register_module({
         module.rules = {
             load: {route: '/' + page_name + '/quantity:?', method: module.name + '.load'},
             load_filter: {route: '/' + page_name + '/filter:/:id?/quantity:?', method: module.name + '.load_filter'},
-            load_positions: {
-                route: '/' + page_name + '/:id/:node?/version:?/quantity:?', method: module.name + '.load_' + page_name
-            }
+            load_item: {route: '/' + page_name + '/:id/:node?/version:?/quantity:?', method: module.name + '.load_item'}
         };
         /**
          * @param {String} input text input from the quantity filter
@@ -219,40 +218,33 @@ $.register_module({
             }
             return obj;
         };
-        return positions = {
+        return view = {
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
-                    {new_page: function () {positions.search(args), masthead.menu.set_tab(page_name);}}
+                    {new_page: function (args) {view.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
                 if (!args.id) default_details();
             },
             load_filter: function (args) {
-                check_state({args: args, conditions: [
-                    {new_page: function () {
-                        state = {filter: true};
-                        positions.load(args);
-                        args.id
-                            ? routes.go(routes.hash(module.rules.load_positions, args))
-                            : routes.go(routes.hash(module.rules.load, args));
-                    }}
-                ]});
-                delete args['filter'];
-                search.filter($.extend(true, args, {filter: true}, get_quantities(args.quantity)));
+                check_state({args: args, conditions: [{new_value: 'id', stop: true, method: function (args) {
+                    view[args.id ? 'load_item' : 'load'](args);
+                }}]});
+                search.filter($.extend(true, args, get_quantities(args.quantity)));
             },
-            load_positions: function (args) {
+            load_item: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        positions.load(args);
+                    {new_page: function (args) {
+                        view.load(args);
                         layout.inner.options.south.onclose = null;
                         layout.inner.close.partial('south');
                     }},
-                    {new_value: 'id', method: function () {
+                    {new_value: 'id', method: function (args) {
                         layout.inner.options.south.onclose = null;
                         layout.inner.close.partial('south');
                     }}
                 ]});
-                positions.details(args);
+                view.details(args);
             },
             search: function (args) {
                 var obj = {};

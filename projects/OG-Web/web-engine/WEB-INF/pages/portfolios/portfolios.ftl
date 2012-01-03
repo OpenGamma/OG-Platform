@@ -7,6 +7,7 @@
   <@form method="GET" action="${uris.portfolios()}">
   <p>
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${searchRequest.name}" /></@rowin>
+    <@rowin label="Show Hidden Portfolios"><input type="checkbox" name="includeHidden" value="true" <#if searchRequest.visibility = 'HIDDEN'>checked="true"</#if> /></@rowin>
     <@rowin><input type="submit" value="Search" /></@rowin>
   </p>
   </@form>

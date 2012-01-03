@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 
 import com.opengamma.math.function.Function;
+import com.opengamma.math.function.Function1D;
 
 /**
  * 
@@ -23,102 +24,79 @@ public class JohnsonSUDeltaGammaVaRCalculatorTest {
   private static final Function<Double, Double> STD = new MyFunction(0.25);
   private static final Function<Double, Double> SKEW = new MyFunction(-0.2);
   private static final Function<Double, Double> KURTOSIS = new MyFunction(4.);
-  private static final JohnsonSUDeltaGammaVaRCalculator<Double> F = new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, STD, SKEW, KURTOSIS);
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNegativeHorizon() {
-    new JohnsonSUDeltaGammaVaRCalculator<Double>(-HORIZON, PERIODS, QUANTILE, MEAN, STD, SKEW, KURTOSIS);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNegativePeriods() {
-    new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, -PERIODS, QUANTILE, MEAN, STD, SKEW, KURTOSIS);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testHighQuantile() {
-    new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE + 1, MEAN, STD, SKEW, KURTOSIS);
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testLowQuantile() {
-    new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE - 1, MEAN, STD, SKEW, KURTOSIS);
-  }
+  private static final JohnsonSUDeltaGammaVaRCalculator<Double> F = new JohnsonSUDeltaGammaVaRCalculator<Double>(MEAN, STD, SKEW, KURTOSIS);
+  private static final NormalVaRParameters PARAMETERS = new NormalVaRParameters(HORIZON, PERIODS, QUANTILE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator1() {
-    new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, null, STD, SKEW, KURTOSIS);
+    new JohnsonSUDeltaGammaVaRCalculator<Double>(null, STD, SKEW, KURTOSIS);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator2() {
-    new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, null, SKEW, KURTOSIS);
+    new JohnsonSUDeltaGammaVaRCalculator<Double>(MEAN, null, SKEW, KURTOSIS);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator3() {
-    new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, STD, null, KURTOSIS);
+    new JohnsonSUDeltaGammaVaRCalculator<Double>(MEAN, STD, null, KURTOSIS);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullCalculator4() {
-    new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, STD, SKEW, null);
+    new JohnsonSUDeltaGammaVaRCalculator<Double>(MEAN, STD, SKEW, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullData() {
-    F.evaluate((Double[]) null);
+    F.evaluate(PARAMETERS, (Double[]) null);
+  }
+  
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullParameters() {
+    F.evaluate(null, 1.);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeKurtosis() {
     final Function<Double, Double> k = new MyFunction(-0.4);
-    final JohnsonSUDeltaGammaVaRCalculator<Double> f = new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, STD, SKEW, k);
-    f.evaluate(new Double[0]);
+    final JohnsonSUDeltaGammaVaRCalculator<Double> f = new JohnsonSUDeltaGammaVaRCalculator<Double>(MEAN, STD, SKEW, k);
+    f.evaluate(PARAMETERS, 0.);
   }
 
   @Test
   public void testNormal() {
     final Function<Double, Double> zero = new MyFunction(0.0);
-    final NormalLinearVaRCalculator<Double> normal = new NormalLinearVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, STD);
-    final JohnsonSUDeltaGammaVaRCalculator<Double> f = new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, STD, zero, zero);
-    assertEquals(normal.evaluate(0.), f.evaluate(0.), 1e-9);
+    final NormalLinearVaRCalculator<Double> normal = new NormalLinearVaRCalculator<Double>(MEAN, STD);
+    final JohnsonSUDeltaGammaVaRCalculator<Double> f = new JohnsonSUDeltaGammaVaRCalculator<Double>(MEAN, STD, zero, zero);
+    assertEquals(normal.evaluate(PARAMETERS, 0.), f.evaluate(PARAMETERS, 0.), 1e-9);
   }
 
   @Test
   public void test() {
-    assertEquals(F.evaluate(0.), 0.1376, 1e-4);
+    assertEquals(F.evaluate(PARAMETERS, 0.), 0.1376, 1e-4);
   }
 
   @Test
   public void testEqualsAndHashCode() {
-    assertEquals(F.getHorizon(), HORIZON, 0);
     assertEquals(F.getKurtosisCalculator(), KURTOSIS);
     assertEquals(F.getMeanCalculator(), MEAN);
-    assertEquals(F.getPeriods(), PERIODS, 0);
-    assertEquals(F.getQuantile(), QUANTILE, 0);
     assertEquals(F.getSkewCalculator(), SKEW);
     assertEquals(F.getStdCalculator(), STD);
-    JohnsonSUDeltaGammaVaRCalculator<Double> other = new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, STD, SKEW, KURTOSIS);
+    JohnsonSUDeltaGammaVaRCalculator<Double> other = new JohnsonSUDeltaGammaVaRCalculator<Double>(MEAN, STD, SKEW, KURTOSIS);
     assertEquals(other, F);
     assertEquals(other.hashCode(), F.hashCode());
-    other = new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON + 1, PERIODS, QUANTILE, MEAN, STD, SKEW, KURTOSIS);
+    other = new JohnsonSUDeltaGammaVaRCalculator<Double>(STD, STD, SKEW, KURTOSIS);
     assertFalse(other.equals(F));
-    other = new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS + 1, QUANTILE, MEAN, STD, SKEW, KURTOSIS);
+    other = new JohnsonSUDeltaGammaVaRCalculator<Double>(MEAN, MEAN, SKEW, KURTOSIS);
     assertFalse(other.equals(F));
-    other = new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE * 0.5, MEAN, STD, SKEW, KURTOSIS);
+    other = new JohnsonSUDeltaGammaVaRCalculator<Double>(MEAN, STD, MEAN, KURTOSIS);
     assertFalse(other.equals(F));
-    other = new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, STD, STD, SKEW, KURTOSIS);
-    assertFalse(other.equals(F));
-    other = new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, MEAN, SKEW, KURTOSIS);
-    assertFalse(other.equals(F));
-    other = new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, STD, MEAN, KURTOSIS);
-    assertFalse(other.equals(F));
-    other = new JohnsonSUDeltaGammaVaRCalculator<Double>(HORIZON, PERIODS, QUANTILE, MEAN, STD, SKEW, MEAN);
+    other = new JohnsonSUDeltaGammaVaRCalculator<Double>(MEAN, STD, SKEW, MEAN);
     assertFalse(other.equals(F));
   }
 
-  private static class MyFunction implements Function<Double, Double> {
+  private static class MyFunction extends Function1D<Double, Double> {
     private final double _x;
 
     public MyFunction(final double x) {
@@ -126,7 +104,7 @@ public class JohnsonSUDeltaGammaVaRCalculatorTest {
     }
 
     @Override
-    public Double evaluate(final Double... x) {
+    public Double evaluate(final Double x) {
       return _x;
     }
 

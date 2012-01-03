@@ -27,7 +27,7 @@ public class SimpleExample {
             "../dexy--simple-output.json",
             "../dexy--simple-fields.json"
         };
-        OpenGammaExample.main(ogargs);
+        OpenGammaExampleClass.main(ogargs);
     }
     // @end
 }

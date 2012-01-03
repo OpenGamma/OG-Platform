@@ -7,9 +7,11 @@ package com.opengamma.financial.aggregation;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -39,6 +41,8 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   
   private ExternalScheme _preferredScheme;
   private SecuritySource _secSource;;
+  private Comparator<Position> _comparator = new SimplePositionComparator();
+  
   private static final String NOT_APPLICABLE = "N/A";
   /* to make dep injection easier */
   public UnderlyingAggregationFunction(SecuritySource secSource, String preferredSchemeString) {
@@ -109,7 +113,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
       return (name != null && name.length() > 0) ? name : NOT_APPLICABLE;
     }    
   };
-  
+
   @Override
   public String classifyPosition(Position position) {
     if (_useAttributes) {
@@ -142,6 +146,24 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   @Override
   public Collection<String> getRequiredEntries() {
     return Collections.emptyList();
+  }
+
+  @Override
+  public int compare(String o1, String o2) {
+    if (o1.equals(NOT_APPLICABLE)) {
+      if (o2.equals(NOT_APPLICABLE)) {
+        return 0;
+      }
+      return 1;
+    } else if (o2.equals(NOT_APPLICABLE)) {
+      return -1;
+    }
+    return o1.compareTo(o2);
+  }
+
+  @Override
+  public Comparator<Position> getPositionComparator() {
+    return _comparator;
   }
 
 }

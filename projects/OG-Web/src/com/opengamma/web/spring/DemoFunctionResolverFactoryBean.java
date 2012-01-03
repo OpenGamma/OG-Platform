@@ -11,7 +11,6 @@ import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.function.resolver.FunctionPriority;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
-import com.opengamma.financial.analytics.MissingInputSummingFunction;
 import com.opengamma.financial.analytics.model.bond.BondPV01CountryCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPV01CurrencyCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPresentValueCountryCurveFunction;
@@ -65,7 +64,7 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
         if (function instanceof BondPV01CurrencyCurveFunction) {
           return 5;
         }
-        if ((function instanceof FilteringSummingFunction) || (function instanceof MissingInputSummingFunction)) {
+        if (function instanceof FilteringSummingFunction) {
           // Anything that filters should be lower priority than a conventional summing operation that can apply
           // to all of its inputs
           return -1;

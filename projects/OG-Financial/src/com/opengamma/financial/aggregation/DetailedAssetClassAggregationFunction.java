@@ -7,8 +7,10 @@ package com.opengamma.financial.aggregation;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
@@ -67,44 +69,45 @@ import com.opengamma.financial.security.swap.SwapSecurityVisitor;
 
 /**
  * 
- *
- * @author jim
  */
 public class DetailedAssetClassAggregationFunction implements AggregationFunction<String> {
-  /* package */static final String EQUITIES = "Equities";
-  /* package */static final String GOVERNMENT_BONDS = "Government Bonds";
-  /* package */static final String MUNICIPAL_BONDS = "Municipal Bonds";
-  /* package */static final String CORPORATE_BONDS = "Corporate Bonds";
-  /* package */static final String BOND_FUTURES = "Bond Futures";
-  /* package */static final String CURRENCY_FUTURES = "Currency Futures";
-  /* package */static final String INTEREST_RATE_FUTURES = "Interest Rate Futures";
-  /* package */static final String UNKNOWN = "Unknown Security Type";
-  /* package */static final String NAME = "Detailed Asset Class";
-  /* package */static final String AGRICULTURAL_FUTURES = "Agriculture Futures";
-  /* package */static final String METAL_FUTURES = "Metal Futures";
-  /* package */static final String ENERGY_FUTURES = "Energy Futures";
-  /* package */static final String INDEX_FUTURES = "Index Futures";
-  /* package */static final String STOCK_FUTURES = "Stock Futures";
-  /* package */static final String EQUITY_OPTIONS = "Equity Options";
-  /* package */static final String EQUITY_BARRIER_OPTIONS = "Equity Barrier Options";
-  /* package */static final String EQUITY_FUTURES = "Equity Futures";
-  /* package */static final String EQUITY_INDEX_DIVIDEND_FUTURES = "Equity Index Dividend Futures";
-  /* package */static final String EQUITY_VARIANCE_SWAPS = "Equity Variance Swaps";
-  /* package */static final String IRFUTURE_OPTIONS = "IRFuture Options";
-  /* package */static final String FX_OPTIONS = "FX Options";
-  /* package */static final String NONDELIVERABLE_FX_OPTIONS = "Non-deliverable FX Options";
-  /* package */static final String FX_BARRIER_OPTIONS = "FX Barrier Options";
-  /* package */static final String SWAPTIONS = "Swaptions";
-  /* package */static final String CASH = "Cash";
-  /* package */static final String FRAS = "FRAs";
-  /* package */static final String SWAPS = "Swaps";
-  /* package */static final String FORWARD_SWAPS = "Forward Swaps";
-  /* package */static final String EQUITY_INDEX_OPTIONS = "Equity Index Options";
-  /* package */static final String FX = "FX";
-  /* package */static final String FX_FORWARDS = "FX forwards";
-  /* package */static final String NONDELIVERABLE_FX_FORWARDS = "Non-deliverable FX forwards";
-  /* package */static final String CAP_FLOOR = "Cap/Floor";
-  /* package */static final String CAP_FLOOR_CMS_SPREAD = "Cap/Floor CMS Spread";
+  
+  private static final String NAME = "Asset Class - Detailed";
+  
+  private Comparator<Position> _comparator = new SimplePositionComparator();
+  private static final String EQUITIES = "Equities";
+  private static final String GOVERNMENT_BONDS = "Government Bonds";
+  private static final String MUNICIPAL_BONDS = "Municipal Bonds";
+  private static final String CORPORATE_BONDS = "Corporate Bonds";
+  private static final String BOND_FUTURES = "Bond Futures";
+  private static final String CURRENCY_FUTURES = "Currency Futures";
+  private static final String INTEREST_RATE_FUTURES = "Interest Rate Futures";
+  private static final String UNKNOWN = "Unknown Security Type";
+  private static final String AGRICULTURAL_FUTURES = "Agriculture Futures";
+  private static final String METAL_FUTURES = "Metal Futures";
+  private static final String ENERGY_FUTURES = "Energy Futures";
+  private static final String INDEX_FUTURES = "Index Futures";
+  private static final String STOCK_FUTURES = "Stock Futures";
+  private static final String EQUITY_OPTIONS = "Equity Options";
+  private static final String EQUITY_BARRIER_OPTIONS = "Equity Barrier Options";
+  private static final String EQUITY_FUTURES = "Equity Futures";
+  private static final String EQUITY_INDEX_DIVIDEND_FUTURES = "Equity Index Dividend Futures";
+  private static final String EQUITY_VARIANCE_SWAPS = "Equity Variance Swaps";
+  private static final String IRFUTURE_OPTIONS = "IRFuture Options";
+  private static final String FX_OPTIONS = "FX Options";
+  private static final String NONDELIVERABLE_FX_OPTIONS = "Non-deliverable FX Options";
+  private static final String FX_BARRIER_OPTIONS = "FX Barrier Options";
+  private static final String SWAPTIONS = "Swaptions";
+  private static final String CASH = "Cash";
+  private static final String FRAS = "FRAs";
+  private static final String SWAPS = "Swaps";
+  private static final String FORWARD_SWAPS = "Forward Swaps";
+  private static final String EQUITY_INDEX_OPTIONS = "Equity Index Options";
+  private static final String FX = "FX";
+  private static final String FX_FORWARDS = "FX forwards";
+  private static final String NONDELIVERABLE_FX_FORWARDS = "Non-deliverable FX forwards";
+  private static final String CAP_FLOOR = "Cap/Floor";
+  private static final String CAP_FLOOR_CMS_SPREAD = "Cap/Floor CMS Spread";
 
   @Override
   public String classifyPosition(final Position position) {
@@ -312,6 +315,16 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   @Override
   public Collection<String> getRequiredEntries() {
     return Collections.emptyList();
+  }
+
+  @Override
+  public int compare(String detailedAssetClass1, String detailedAssetClass2) {
+    return detailedAssetClass1.compareTo(detailedAssetClass2);
+  }
+
+  @Override
+  public Comparator<Position> getPositionComparator() {
+    return _comparator;
   }
 
 }

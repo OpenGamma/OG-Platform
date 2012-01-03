@@ -2,7 +2,7 @@
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.util.money.Currency;
@@ -19,10 +19,9 @@ public class CashExample {
     static double y = 0.02;
 
     public static void cashDemo(PrintStream out) {
-        Cash loan = new Cash(ccy, t, notional, r, yieldCurveName);
+        Cash loan = new Cash(ccy, 0.0, t, notional, r, t, yieldCurveName);
 
-        out.println(loan.getTradeTime());
-        out.println(loan.getYearFraction());
+        out.println(loan.getInterestAmount());
     }
 
     // @export "yieldCurveBundle"
@@ -36,7 +35,7 @@ public class CashExample {
 
     // @export "parRateDemo"
     public static void parRateDemo(PrintStream out) {
-        Cash loan = new Cash(ccy, t, notional, r, yieldCurveName);
+        Cash loan = new Cash(ccy, 0.0, t, notional, r, t, yieldCurveName);
         YieldCurveBundle bundle = getBundle();
 
         ParRateCalculator parRateCalculator = ParRateCalculator.getInstance();
@@ -46,7 +45,7 @@ public class CashExample {
 
     // @export "presentValueDemo"
     public static void presentValueDemo(PrintStream out) {
-        Cash loan = new Cash(ccy, t, notional, r, yieldCurveName);
+        Cash loan = new Cash(ccy, 0.0, t, notional, r, t, yieldCurveName);
         YieldCurveBundle bundle = getBundle();
 
         PresentValueCalculator presentValueCalculator = PresentValueCalculator.getInstance();
@@ -61,6 +60,6 @@ public class CashExample {
             "../dexy--cash-output.json",
             "../dexy--cash-fields.json"
         };
-        OpenGammaExample.main(ogargs);
+        OpenGammaExampleClass.main(ogargs);
     }
 }

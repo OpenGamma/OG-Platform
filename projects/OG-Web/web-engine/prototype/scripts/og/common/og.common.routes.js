@@ -19,7 +19,22 @@ $.register_module({
                     go(location);
                 };
                 // listen to all clicks that bubble up and capture their titles
-                $('a[href]').live('click', function (e) {title = $(e.target).attr('title');});
+                // overwrite href with new filter values
+                $('a[href]').live('click', function (e) {
+                    var anchor = $(e.target), current, parsed, rule, page, add, href;
+                    title = anchor.attr('title');
+                    if (!anchor.is('.og-js-live-anchor')) return;
+                    page = (parsed = routes.parse(anchor.attr('href'))).page.slice(1);
+                    current = routes.current();
+                    if (current.page !== parsed.page) return;
+                    if (!og.views[page].filters || !og.views[page].filters.length) return;
+                    add = og.views[page].filters.reduce(function (acc, val) {
+                        return (acc[val] = current.args[val]), acc;
+                    }, {});
+                    rule = parsed.args.id ? 'load_item' : 'load';
+                    href = routes.prefix() + routes.hash(og.views[page].rules[rule], parsed.args, {add: add});
+                    anchor.attr('href', href);
+                });
                 $(window).bind('hashchange', function () {
                     routes.handler();
                     set_title(title || routes.current().hash);

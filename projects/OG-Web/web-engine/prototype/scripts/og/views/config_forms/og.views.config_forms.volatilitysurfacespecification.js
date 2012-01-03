@@ -8,9 +8,8 @@ $.register_module({
     obj: function () {
         var module = this, Form = og.common.util.ui.Form,
             INDX = '<INDEX>', SFIP = 'surfaceInstrumentProvider', UCAS = 'useCallAboveStrikeValue',
-            ZPFT = 'zeroPadFirstTenor', ZPST = 'zeroPadSecondTenor';
-        return og.views.config_forms['default'].preload({
-            type_map: [
+            ZPFT = 'zeroPadFirstTenor', ZPST = 'zeroPadSecondTenor',
+            type_map = [
                 ['0',                                   Form.type.STR],
                 ['currency',                            Form.type.STR],
                 ['name',                                Form.type.STR],
@@ -29,7 +28,10 @@ $.register_module({
                 [['target', 'currency'].join('.'),      Form.type.STR],
                 [['target', 'currency1'].join('.'),     Form.type.STR],
                 [['target', 'currency2'].join('.'),     Form.type.STR]
-            ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {})
-        });
+            ].reduce(function (acc, val) {return acc[val[0]] = val[1], acc;}, {}),
+            constructor;
+        constructor = og.views.config_forms['default'].preload({type_map: type_map});
+        constructor.type_map = type_map;
+        return constructor;
     }
 });

@@ -31,11 +31,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.aggregation.BottomPositionValues;
 import com.opengamma.financial.aggregation.SortedPositionValues;
 import com.opengamma.financial.aggregation.TopPositionValues;
-import com.opengamma.financial.analytics.DummyPortfolioNodeFunction;
 import com.opengamma.financial.analytics.DummyPortfolioNodeMultipleCurrencyAmountFunction;
 import com.opengamma.financial.analytics.FilteringSummingFunction;
 import com.opengamma.financial.analytics.LastHistoricalValueFunction;
-import com.opengamma.financial.analytics.MissingInputSummingFunction;
 import com.opengamma.financial.analytics.PositionScalingFunction;
 import com.opengamma.financial.analytics.PositionTradeScalingFunction;
 import com.opengamma.financial.analytics.SummingFunction;
@@ -184,6 +182,7 @@ import com.opengamma.financial.currency.SecurityCurrencyConversionFunction;
 import com.opengamma.financial.currency.SecurityDefaultCurrencyFunction;
 import com.opengamma.financial.equity.future.pricing.EquityFuturePricerFactory;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
+import com.opengamma.financial.property.AggregationDefaultPropertyFunction;
 import com.opengamma.financial.property.PortfolioNodeCalcConfigDefaultPropertyFunction;
 import com.opengamma.financial.property.PositionCalcConfigDefaultPropertyFunction;
 import com.opengamma.financial.property.PositionDefaultPropertyFunction;
@@ -227,24 +226,22 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(UnitPositionTradeScalingFunction.class, requirementName));
   }
 
-  protected static void addDummyFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
-    functionConfigs.add(functionConfiguration(DummyPortfolioNodeFunction.class, requirementName, "0"));
-  }
-
   protected static void addDummyMultipleCurrencyAmountFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     functionConfigs.add(functionConfiguration(DummyPortfolioNodeMultipleCurrencyAmountFunction.class, requirementName));
   }
 
   protected static void addSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     functionConfigs.add(functionConfiguration(SummingFunction.class, requirementName));
-    functionConfigs.add(functionConfiguration(MissingInputSummingFunction.class, requirementName));
+    functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, requirementName, SummingFunction.AGGREGATION_STYLE_FULL));
   }
+  
+  // TODO: Is there a reason why we can't just include both the normal and filtered summing functions all the time? Filtering is a lower priority.
 
   protected static void addFilteredSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     functionConfigs.add(functionConfiguration(FilteringSummingFunction.class, requirementName));
-    functionConfigs.add(functionConfiguration(MissingInputSummingFunction.class, requirementName));
+    functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, requirementName, FilteringSummingFunction.AGGREGATION_STYLE_FILTERED));
   }
-
+  
   protected static void addValueGreekAndSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     functionConfigs.add(functionConfiguration(OptionGreekToValueGreekConverterFunction.class, requirementName));
     addFilteredSummingFunction(functionConfigs, requirementName);
@@ -254,9 +251,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(PortfolioNodeCurrencyConversionFunction.class, requirementName));
     functionConfigs.add(functionConfiguration(PositionCurrencyConversionFunction.class, requirementName));
     functionConfigs.add(functionConfiguration(SecurityCurrencyConversionFunction.class, requirementName));
-    functionConfigs.add(functionConfiguration(PortfolioNodeDefaultCurrencyFunction.Strict.class, requirementName));
-    functionConfigs.add(functionConfiguration(PositionDefaultCurrencyFunction.Strict.class, requirementName));
-    functionConfigs.add(functionConfiguration(SecurityDefaultCurrencyFunction.Strict.class, requirementName));
+    functionConfigs.add(functionConfiguration(PortfolioNodeDefaultCurrencyFunction.Permissive.class, requirementName));
+    functionConfigs.add(functionConfiguration(PositionDefaultCurrencyFunction.Permissive.class, requirementName));
+    functionConfigs.add(functionConfiguration(SecurityDefaultCurrencyFunction.Permissive.class, requirementName));
   }
 
   protected static void addCurrencyConversionFunctions(final List<FunctionConfiguration> functionConfigs) {
@@ -309,7 +306,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   protected static void addHistoricalDataFunctions(final List<FunctionConfiguration> functionConfigs, final String requirementName) {
-    addDummyFunction(functionConfigs, requirementName);
     addUnitScalingFunction(functionConfigs, requirementName);
     functionConfigs.add(functionConfiguration(LastHistoricalValueFunction.class, requirementName));
   }
@@ -335,7 +331,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     // equity and portfolio
     functionConfigs.add(functionConfiguration(PositionExchangeTradedPnLFunction.class));
     functionConfigs.add(functionConfiguration(PortfolioExchangeTradedPnLFunction.class));
-    functionConfigs.add(functionConfiguration(PortfolioExchangeTradedDailyPnLFunction.class));
+    functionConfigs.add(functionConfiguration(PortfolioExchangeTradedDailyPnLFunction.Impl.class));
+    functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, ValueRequirementNames.DAILY_PNL, PortfolioExchangeTradedDailyPnLFunction.Impl.AGGREGATION_STYLE_FULL));
     
     addPnLCalculators(functionConfigs);
     addVaRCalculators(functionConfigs);
@@ -353,9 +350,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addForexForwardCalculators(functionConfigs);
     addInterestRateFutureOptionCalculators(functionConfigs);
     addEquityDerivativesFunctions(functionConfigs);
-
-    addDummyFunction(functionConfigs, ValueRequirementNames.PAR_RATE);
-    addDummyFunction(functionConfigs, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
 
     addScalingFunction(functionConfigs, ValueRequirementNames.FAIR_VALUE);
 
@@ -421,42 +415,6 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.PAR_RATE);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
 
-    addDummyFunction(functionConfigs, ValueRequirementNames.DELTA);
-    addDummyFunction(functionConfigs, ValueRequirementNames.DELTA_BLEED);
-    addDummyFunction(functionConfigs, ValueRequirementNames.STRIKE_DELTA);
-    addDummyFunction(functionConfigs, ValueRequirementNames.DRIFTLESS_THETA);
-    addDummyFunction(functionConfigs, ValueRequirementNames.GAMMA);
-    addDummyFunction(functionConfigs, ValueRequirementNames.GAMMA_P);
-    addDummyFunction(functionConfigs, ValueRequirementNames.STRIKE_GAMMA);
-    addDummyFunction(functionConfigs, ValueRequirementNames.GAMMA_BLEED);
-    addDummyFunction(functionConfigs, ValueRequirementNames.GAMMA_P_BLEED);
-    addDummyFunction(functionConfigs, ValueRequirementNames.VEGA);
-    addDummyFunction(functionConfigs, ValueRequirementNames.VEGA_P);
-    addDummyFunction(functionConfigs, ValueRequirementNames.VARIANCE_VEGA);
-    addDummyFunction(functionConfigs, ValueRequirementNames.VEGA_BLEED);
-    addDummyFunction(functionConfigs, ValueRequirementNames.THETA);
-    addDummyFunction(functionConfigs, ValueRequirementNames.RHO);
-    addDummyFunction(functionConfigs, ValueRequirementNames.CARRY_RHO);
-    addDummyFunction(functionConfigs, ValueRequirementNames.ZETA);
-    addDummyFunction(functionConfigs, ValueRequirementNames.ZETA_BLEED);
-    addDummyFunction(functionConfigs, ValueRequirementNames.DZETA_DVOL);
-    addDummyFunction(functionConfigs, ValueRequirementNames.ELASTICITY);
-    addDummyFunction(functionConfigs, ValueRequirementNames.PHI);
-    addDummyFunction(functionConfigs, ValueRequirementNames.ZOMMA);
-    addDummyFunction(functionConfigs, ValueRequirementNames.ZOMMA_P);
-    addDummyFunction(functionConfigs, ValueRequirementNames.ULTIMA);
-    addDummyFunction(functionConfigs, ValueRequirementNames.VARIANCE_ULTIMA);
-    addDummyFunction(functionConfigs, ValueRequirementNames.SPEED);
-    addDummyFunction(functionConfigs, ValueRequirementNames.SPEED_P);
-    addDummyFunction(functionConfigs, ValueRequirementNames.VANNA);
-    addDummyFunction(functionConfigs, ValueRequirementNames.VARIANCE_VANNA);
-    addDummyFunction(functionConfigs, ValueRequirementNames.DVANNA_DVOL);
-    addDummyFunction(functionConfigs, ValueRequirementNames.VOMMA);
-    addDummyFunction(functionConfigs, ValueRequirementNames.VOMMA_P);
-    addDummyFunction(functionConfigs, ValueRequirementNames.VARIANCE_VOMMA);
-
-    addDummyFunction(functionConfigs, ValueRequirementNames.BOND_TENOR);
-
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FAIR_VALUE);
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PV01);
@@ -468,26 +426,15 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_CURVE_SENSITIVITY);
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PRICE_SERIES);
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PNL_SERIES);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
     addSummingFunction(functionConfigs, ValueRequirementNames.WEIGHT);
 
-    addDummyFunction(functionConfigs, ValueRequirementNames.MARKET_CLEAN_PRICE);
-    addDummyFunction(functionConfigs, ValueRequirementNames.MARKET_DIRTY_PRICE);
-    addDummyFunction(functionConfigs, ValueRequirementNames.MARKET_YTM);
-    addDummyFunction(functionConfigs, ValueRequirementNames.CLEAN_PRICE);
-    addDummyFunction(functionConfigs, ValueRequirementNames.YTM);
-    addDummyFunction(functionConfigs, ValueRequirementNames.DIRTY_PRICE);
-    addDummyFunction(functionConfigs, ValueRequirementNames.MODIFIED_DURATION);
-    addDummyFunction(functionConfigs, ValueRequirementNames.Z_SPREAD);
     addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY);
-    addDummyFunction(functionConfigs, ValueRequirementNames.IMPLIED_REPO);
-    addDummyFunction(functionConfigs, ValueRequirementNames.CONVEXITY);
-    addDummyFunction(functionConfigs, ValueRequirementNames.MACAULAY_DURATION);
     addSummingFunction(functionConfigs, ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES);
     addScalingFunction(functionConfigs, ValueRequirementNames.BOND_COUPON_PAYMENT_TIMES);
 
     addScalingFunction(functionConfigs, ValueRequirementNames.FX_PRESENT_VALUE);
     addScalingFunction(functionConfigs, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
-    addDummyFunction(functionConfigs, ValueRequirementNames.FX_CURVE_SENSITIVITIES);
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.FX_CURVE_SENSITIVITIES);
 
     addScalingFunction(functionConfigs, ValueRequirementNames.VEGA_MATRIX);
@@ -541,7 +488,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   private static void addPnLCalculators(final List<FunctionConfiguration> functionConfigs) {
     final String defaultCurveCalculationMethod = MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING;
-    final String defaultReturnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_STRICT;
+    final String defaultReturnCalculatorName = TimeSeriesReturnCalculatorFactory.SIMPLE_NET_LENIENT;
     final String defaultSamplingPeriodName = "P2Y";
     final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
     final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;

@@ -14,13 +14,16 @@ import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.function.FunctionDefinition;
+import com.opengamma.financial.analytics.MissingInputsFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.bond.BondSecurity;
 
 /**
  * 
  */
 public class PortfolioExchangeTradedDailyPnLFunction extends AbstractPortfolioDailyPnLFunction {
-  
+
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
     if (target.getType() == ComputationTargetType.PORTFOLIO_NODE) {
@@ -28,7 +31,7 @@ public class PortfolioExchangeTradedDailyPnLFunction extends AbstractPortfolioDa
       final Set<Position> allPositions = PositionAccumulator.getAccumulatedPositions(node);
       for (Position position : allPositions) {
         Security positionSecurity = position.getSecurity();
-        if (!FinancialSecurityUtils.isExchangedTraded(positionSecurity)) {
+        if (!FinancialSecurityUtils.isExchangedTraded(positionSecurity) && !(positionSecurity instanceof BondSecurity)) {
           return false;
         }
       }
@@ -36,10 +39,21 @@ public class PortfolioExchangeTradedDailyPnLFunction extends AbstractPortfolioDa
     }
     return false;
   }
-  
+
   @Override
   public String getShortName() {
     return "PortfolioDailyEquityPnL";
   }
-  
+
+  /**
+   * Declared implementation.
+   */
+  public static class Impl extends MissingInputsFunction {
+
+    public Impl() {
+      super((FunctionDefinition) new PortfolioExchangeTradedDailyPnLFunction());
+    }
+
+  }
+
 }

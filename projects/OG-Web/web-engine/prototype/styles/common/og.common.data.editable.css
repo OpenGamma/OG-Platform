@@ -13,7 +13,7 @@
 
 [data-og-editable]:after {
   background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
-  content: "";
+  content: '';
   cursor: pointer;
   background-position: 0 -16px;
   height: 8px;
