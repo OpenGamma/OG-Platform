@@ -33,10 +33,10 @@
           id : "name",
           name : "Target",
           field : "name",
-          width : 450,
+          width : 300,
           formatter : formatTargetName
         };
-      var gridColumns = SlickGridHelper.makeGridColumns(self, targetColumn, _primitivesDetails.columns, _userConfig);
+      var gridColumns = SlickGridHelper.makeGridColumns(self, [targetColumn], _primitivesDetails.columns, 150, _userConfig);
       
       var gridOptions = {
           editable: false,

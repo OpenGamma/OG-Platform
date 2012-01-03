@@ -52,6 +52,10 @@ public abstract class DoubleValueFormatter {
    */
   protected abstract BigDecimal process(BigDecimal value);
   
+  public BigDecimal getRoundedValue(BigDecimal value) {
+    return process(value);
+  }
+  
   public String format(BigDecimal value) {
     BigDecimal processedValue = process(value);
     return transformPlainNumberString(processedValue.toPlainString());

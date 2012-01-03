@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.tuple.DoublesPair;
@@ -94,6 +95,14 @@ public class SumUtils {
     }
     throw new IllegalArgumentException("Can only add Doubles, BigDecimal, DoubleTimeSeries and LabelledMatrix1D (Double, LocalDate and ZonedDateTime), " +
         "or present value curve sensitivities right now.");
+  }
+  
+  public static ValueProperties addProperties(final ValueProperties currentIntersection, final ValueProperties properties) {
+    if (currentIntersection == null) {
+      return properties;
+    } else {
+      return currentIntersection.intersect(properties);
+    }
   }
 
 }

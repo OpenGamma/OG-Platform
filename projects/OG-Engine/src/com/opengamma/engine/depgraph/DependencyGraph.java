@@ -482,7 +482,29 @@ public class DependencyGraph {
           for (ValueSpecification unnecessaryValue : unnecessaryValues) {
             DependencyNode removed = _specification2DependencyNode.remove(unnecessaryValue);
             if (removed == null) {
-              throw new IllegalStateException("A value specification " + unnecessaryValue + " wasn't mapped");
+              throw new IllegalStateException("A value specification " + unnecessaryValue + " wasn't mapped to a node");
+            }
+            final Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>> specifications = _valueRequirement2Specifications.get(unnecessaryValue.getValueName());
+            if (specifications == null) {
+              throw new IllegalStateException("A value specification " + unnecessaryValue + " wasn't mapped by its requirement name");
+            }
+            final List<Pair<DependencyNode, ValueSpecification>> nodes = specifications.get(unnecessaryValue.getTargetSpecification());
+            if (nodes == null) {
+              throw new IllegalStateException("A value specification " + unnecessaryValue + " wasn't mapped by its target");
+            }
+            final Iterator<Pair<DependencyNode, ValueSpecification>> itr = nodes.iterator();
+            while (itr.hasNext()) {
+              final Pair<DependencyNode, ValueSpecification> output = itr.next();
+              if (unnecessaryValue.equals(output.getValue())) {
+                itr.remove();
+                break;
+              }
+            }
+            if (nodes.isEmpty()) {
+              specifications.remove(unnecessaryValue.getTargetSpecification());
+              if (specifications.isEmpty()) {
+                _valueRequirement2Specifications.remove(unnecessaryValue.getValueName());
+              }
             }
           }
         }

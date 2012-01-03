@@ -77,6 +77,10 @@
         font-weight: bold;
         margin: 0 4px;
       }
+      
+      .right {
+        text-align: right;
+      }
 
       .cell-effort-driven {
         text-align: center;

@@ -5,6 +5,7 @@
  */
 package com.opengamma.master.holiday;
 
+import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.master.AbstractMaster;
 import com.opengamma.util.PublicSPI;
 
@@ -15,7 +16,7 @@ import com.opengamma.util.PublicSPI;
  * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
-public interface HolidayMaster extends AbstractMaster<HolidayDocument> {
+public interface HolidayMaster extends AbstractMaster<HolidayDocument>, ChangeProvider {
 
   /**
    * Queries the meta-data about the master.

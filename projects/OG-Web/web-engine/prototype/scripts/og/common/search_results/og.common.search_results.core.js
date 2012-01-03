@@ -36,19 +36,18 @@ $.register_module({
                     og.common.search.filter({location: obj.selector});
                     // Handle click
                     $(obj.selector).undelegate().delegate('[row]', 'click', function (e) {
-                        var last = routes.last(), obj_url = obj.url,
+                        var current = routes.current().args, args = obj.url,
                             params = {
                                 id: slick_manager.data[$(e.currentTarget).attr('row')].id,
-                                name: (last && last.args.name) || '',
-                                quantity: (last && last.args.quantity) || '',
-                                type: (last && last.args.type) || '',
+                                name: current.name || '',
+                                quantity: current.quantity || '',
+                                type: current.type || '',
                                 filter: slick_manager.data[$(e.currentTarget).attr('row')].filter,
                                 version: '',
                                 sync: ''
                             };
-                        delete obj_url.node;
-                        routes.go(routes.hash(
-                            og.views[obj.page_type].rules['load_' + obj.page_type], $.extend({}, obj.url, params)));
+                        delete args.node;
+                        routes.go(routes.hash(og.views[obj.page_type].rules.load_item, args, {add: params}));
                     });
 
                     grid.onViewportChanged.subscribe(function () {
@@ -71,11 +70,10 @@ $.register_module({
                     grid.onViewportChanged.notify();
 
                 },
-                filter = function (obj) {
+                filter = function (filters_obj) {
                     var vp = grid.getViewport();
-                    filters_obj = obj;
                     slick_manager.ensure_data({
-                        from: vp.top, to: vp.bottom, filters: filters_obj, filter_being_applied: obj.filter
+                        from: vp.top, to: vp.bottom, filters: filters_obj, filter_being_applied: filters_obj.filter
                     });
                 };
             return {load: load, filter: filter}

@@ -8,6 +8,7 @@ package com.opengamma.web.server;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
@@ -31,10 +32,9 @@ import com.opengamma.core.change.ChangeListener;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
+import com.opengamma.engine.marketdata.live.LiveMarketDataSourceRegistry;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.execution.ExecutionFlags;
@@ -259,8 +259,8 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
   private void sendInitData(boolean includeSnapshots) {
     Map<String, Object> reply = new HashMap<String, Object>();
     
-    List<String> availableViewNames = getViewNames();
-    reply.put("viewNames", availableViewNames);
+    Object availableViewDefinitions = getViewDefinitions();
+    reply.put("viewDefinitions", availableViewDefinitions);
     
     List<String> aggregatorNames = getAggregatorNames();
     reply.put("aggregatorNames", aggregatorNames);
@@ -275,14 +275,28 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     getBayeux().getChannel("/initData", true).publish(getClient(), reply, null);
   }
 
-  private List<String> getViewNames() {
-    List<String> result = new ArrayList<String>();
+  private List<Map<String, String>> getViewDefinitions() {
+    List<Map<String, String>> result = new ArrayList<Map<String, String>>();
     Map<UniqueId, String> availableViewEntries = _viewProcessor.getViewDefinitionRepository().getDefinitionEntries();
     s_logger.debug("Available view entries: " + availableViewEntries);
     for (Map.Entry<UniqueId, String> entry : availableViewEntries.entrySet()) {
-      result.add(entry.getValue());
+      if (s_guidPattern.matcher(entry.getValue()).find()) {
+        s_logger.debug("Ignoring view definition which appears to have an auto-generated name: {}", entry.getValue());
+        continue;
+      }
+      Map<String, String> resultEntry = new HashMap<String, String>();
+      resultEntry.put("id", entry.getKey().toString());
+      resultEntry.put("name", entry.getValue());
+      result.add(resultEntry);
     }
-    Collections.sort(result, String.CASE_INSENSITIVE_ORDER);
+    Collections.sort(result, new Comparator<Map<String, String>>() {
+
+      @Override
+      public int compare(Map<String, String> o1, Map<String, String> o2) {
+        return o1.get("name").compareTo(o2.get("name"));
+      }
+      
+    });
     return result;
   }
   
@@ -339,39 +353,69 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
 
   @SuppressWarnings("unchecked")
   public void processChangeViewRequest(Client remote, Message message) {
-    Map<String, Object> data = (Map<String, Object>) message.getData();
-    
-    String viewDefinitionName = (String) data.get("viewName");
-    UniqueId baseViewDefinitionId = getViewDefinitionId(viewDefinitionName);
-    String aggregatorName = (String) data.get("aggregatorName");
-    
-    String marketDataType = (String) data.get("marketDataType");
-    MarketDataSpecification marketDataSpec;
-    EnumSet<ViewExecutionFlags> flags;
-    if ("snapshot".equals(marketDataType)) {
-      String snapshotIdString = (String) data.get("snapshotId");
-      UniqueId snapshotId = !StringUtils.isBlank(snapshotIdString) ? UniqueId.parse(snapshotIdString) : null;
-      marketDataSpec = MarketData.user(snapshotId.toLatest());
-      flags = ExecutionFlags.none().triggerOnMarketData().get();
-    } else if ("live".equals(marketDataType)) {
-      String liveMarketDataProvider = (String) data.get("provider");
-      if (StringUtils.isBlank(liveMarketDataProvider) || DEFAULT_LIVE_MARKET_DATA_NAME.equals(liveMarketDataProvider)) {
-        marketDataSpec = MarketData.live();
-      } else {
-        marketDataSpec = MarketData.live(liveMarketDataProvider);
+    try {
+      Map<String, Object> data = (Map<String, Object>) message.getData();
+      
+      String viewIdString = (String) data.get("viewId");
+      UniqueId baseViewDefinitionId;
+      try {
+        baseViewDefinitionId = UniqueId.parse(viewIdString);
+      } catch (IllegalArgumentException e) {
+        sendChangeViewError(remote, "Invalid view definition identifier format: '" + viewIdString);
+        return;
       }
-      flags = ExecutionFlags.triggersEnabled().get();
-    } else {
-      throw new OpenGammaRuntimeException("Unknown market data type: " + marketDataType);
+      if (!validateViewDefinitionId(baseViewDefinitionId)) {
+        sendChangeViewError(remote, "No view definition with identifier " + baseViewDefinitionId + " could be found");
+        return;
+      }
+      String aggregatorName = (String) data.get("aggregatorName");
+      String marketDataType = (String) data.get("marketDataType");
+      
+      MarketDataSpecification marketDataSpec;
+      EnumSet<ViewExecutionFlags> flags;
+      if ("snapshot".equals(marketDataType)) {
+        String snapshotIdString = (String) data.get("snapshotId");
+        if (StringUtils.isBlank(snapshotIdString)) {
+          sendChangeViewError(remote, "Unknown snapshot");
+          return;
+        }
+        UniqueId snapshotId = UniqueId.parse(snapshotIdString);
+        marketDataSpec = MarketData.user(snapshotId.toLatest());
+        flags = ExecutionFlags.none().triggerOnMarketData().get();
+      } else if ("live".equals(marketDataType)) {
+        String liveMarketDataProvider = (String) data.get("provider");
+        if (StringUtils.isBlank(liveMarketDataProvider) || DEFAULT_LIVE_MARKET_DATA_NAME.equals(liveMarketDataProvider)) {
+          marketDataSpec = MarketData.live();
+        } else {
+          marketDataSpec = MarketData.live(liveMarketDataProvider);
+        }
+        flags = ExecutionFlags.triggersEnabled().get();
+      } else {
+        throw new OpenGammaRuntimeException("Unknown market data type: " + marketDataType);
+      }
+      ViewExecutionOptions executionOptions = ExecutionOptions.infinite(marketDataSpec, flags);
+      s_logger.info("Initializing view '{}', aggregated by '{}' with execution options '{}' for client '{}'", new Object[] {baseViewDefinitionId, aggregatorName, executionOptions, remote});
+      initializeClientView(remote, baseViewDefinitionId, aggregatorName, executionOptions, getUser(remote));
+    } catch (Exception e) {
+      sendChangeViewError(remote, "Unexpected error with message: " + e.getMessage());
     }
-    ViewExecutionOptions executionOptions = ExecutionOptions.infinite(marketDataSpec, flags);
-    s_logger.info("Initializing view '{}', aggregated by '{}' with execution options '{}' for client '{}'", new Object[] {viewDefinitionName, aggregatorName, executionOptions, remote});
-    initializeClientView(remote, baseViewDefinitionId, aggregatorName, executionOptions, getUser(remote));
+  }
+
+  private void sendChangeViewError(Client remote, String errorMessage) {
+    s_logger.info("Notifying client of error changing view: " + errorMessage);
+    Map<String, String> reply = new HashMap<String, String>();
+    reply.put("isError", "true");
+    reply.put("message", "Unable to change view. " + errorMessage + ".");
+    remote.deliver(getClient(), "/changeView", reply, null);
   }
   
-  private UniqueId getViewDefinitionId(String viewDefinitionName) {
-    ViewDefinition view = _viewProcessor.getViewDefinitionRepository().getDefinition(viewDefinitionName);
-    return view.getUniqueId().toLatest();
+  private boolean validateViewDefinitionId(UniqueId viewDefinitionId) {
+    try {
+      return _viewProcessor.getViewDefinitionRepository().getDefinition(viewDefinitionId) != null;
+    } catch (Exception e) {
+      s_logger.warn("Error validating view definition ID " + viewDefinitionId, e);
+      return false;
+    }
   }
   
   public void processPauseRequest(Client remote, Message message) {

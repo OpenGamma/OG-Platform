@@ -44,7 +44,7 @@ public class CurrencyPairsConfigPopulator {
           CurrencyPair pair = CurrencyPair.of(pairStr.trim());
           pairs.add(pair);
         } catch (IllegalArgumentException e) {
-          s_logger.warn("Unable to create currency pair from " + pairStr, e);
+          s_logger.debug/*warn*/("Unable to create currency pair from " + pairStr, e);
         }
       }
     } catch (IOException ex) {

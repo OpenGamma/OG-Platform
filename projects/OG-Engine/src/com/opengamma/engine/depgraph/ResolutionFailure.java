@@ -351,6 +351,7 @@ public final class ResolutionFailure implements Cloneable {
                       case NO_FUNCTIONS:
                       case RECURSIVE_REQUIREMENT:
                       case UNSATISFIED:
+                        itrThis.previous();
                         break scanFailureEvent;
                       default:
                         throw new IllegalStateException("event = " + eventThis);

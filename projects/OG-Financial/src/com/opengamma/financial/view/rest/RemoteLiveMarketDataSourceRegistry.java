@@ -9,7 +9,7 @@ import java.net.URI;
 import java.util.Collection;
 import java.util.List;
 
-import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
+import com.opengamma.engine.marketdata.live.LiveMarketDataSourceRegistry;
 import com.opengamma.util.rest.FudgeRestClient;
 
 /**

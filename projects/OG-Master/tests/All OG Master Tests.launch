@@ -21,9 +21,10 @@
 <listEntry value="com.opengamma.master.historicaltimeseries.impl"/>
 <listEntry value="com.opengamma.master.holiday"/>
 <listEntry value="com.opengamma.master.holiday.impl"/>
-<listEntry value="com.opengamma.master.listener"/>
 <listEntry value="com.opengamma.master.marketdatasnapshot"/>
 <listEntry value="com.opengamma.master.marketdatasnapshot.impl"/>
+<listEntry value="com.opengamma.master.portfolio"/>
+<listEntry value="com.opengamma.master.portfolio.impl"/>
 <listEntry value="com.opengamma.master.position"/>
 <listEntry value="com.opengamma.master.position.impl"/>
 <listEntry value="com.opengamma.master.region"/>

@@ -8,19 +8,25 @@ package com.opengamma.transport;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 
+import com.opengamma.transport.jms.JmsByteArrayRequestSender;
+import com.opengamma.transport.jms.JmsEndPointDescriptionProvider;
 import com.opengamma.transport.socket.AbstractServerSocketProcess;
 import com.opengamma.transport.socket.SocketFudgeRequestSender;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
+import com.opengamma.util.jms.JmsConnector;
 
 /**
- * Creates a {@link FudgeRequestSender} based on an end-point description. Typically an end-point is
- * determined by a REST query to the host.
+ * Creates a {@link FudgeRequestSender} based on an end-point description. An end-point
+ * could be a determined at runtime by a REST request to another host, or specified
+ * statically. Examples of end points include TCP/IP host/socket pairs, REST URLs, and JMS
+ * topic names.
  */
 public class FudgeRequestSenderFactoryBean extends SingletonFactoryBean<FudgeRequestSender> {
 
   private FudgeContext _fudgeContext;
   private EndPointDescriptionProvider _endPointDescriptionProvider;
+  private JmsConnector _jmsConnector;
 
   public void setFudgeContext(final FudgeContext fudgeContext) {
     _fudgeContext = fudgeContext;
@@ -38,23 +44,44 @@ public class FudgeRequestSenderFactoryBean extends SingletonFactoryBean<FudgeReq
     return _endPointDescriptionProvider;
   }
 
+  public void setJmsConnector(final JmsConnector jmsConnector) {
+    _jmsConnector = jmsConnector;
+  }
+
+  public JmsConnector getJmsConnector() {
+    return _jmsConnector;
+  }
+
   private FudgeMsg resolveEndPointDescription() {
     if (_endPointDescriptionProvider != null) {
-      ArgumentChecker.notNull(getFudgeContext(), "fudgeContext");
+      ArgumentChecker.notNullInjected(getFudgeContext(), "fudgeContext");
       return _endPointDescriptionProvider.getEndPointDescription(getFudgeContext());
     } else {
       return null;
     }
   }
 
+  private FudgeRequestSender createSocketFudgeRequestSender(final FudgeMsg endPoint) {
+    final SocketFudgeRequestSender sender = new SocketFudgeRequestSender(getFudgeContext());
+    sender.setServer(endPoint);
+    return sender;
+  }
+
+  private FudgeRequestSender createJmsFudgeRequestSender(final FudgeMsg endPoint) {
+    ArgumentChecker.notNullInjected(getJmsConnector(), "jmsConnector");
+    final String topic = endPoint.getString(JmsEndPointDescriptionProvider.TOPIC_KEY);
+    return new ByteArrayFudgeRequestSender(new JmsByteArrayRequestSender(topic, getJmsConnector().getJmsTemplateTopic()), getFudgeContext());
+  }
+
   @Override
   protected FudgeRequestSender createObject() {
     final FudgeMsg endPoint = resolveEndPointDescription();
-    ArgumentChecker.notNull(endPoint, "endPointDescription");
+    ArgumentChecker.notNullInjected(endPoint, "endPointDescription");
     if (AbstractServerSocketProcess.TYPE_VALUE.equals(endPoint.getString(AbstractServerSocketProcess.TYPE_KEY))) {
-      final SocketFudgeRequestSender sender = new SocketFudgeRequestSender(getFudgeContext());
-      sender.setServer(endPoint);
-      return sender;
+      return createSocketFudgeRequestSender(endPoint);
+    }
+    if (JmsEndPointDescriptionProvider.TYPE_VALUE.equals(endPoint.getString(JmsEndPointDescriptionProvider.TYPE_KEY))) {
+      return createJmsFudgeRequestSender(endPoint);
     }
     throw new IllegalArgumentException("Don't know how to create end-point " + endPoint);
   }

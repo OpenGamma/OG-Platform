@@ -19,9 +19,9 @@ $.register_module({
             },
             render_regions = function (selector, json) {
                 $(selector).html(json.reduce(function (acc, val) {
-                    acc.push('<tr><td><a href="#',
-                        routes.hash(og.views.regions.rules.load_regions, {id: val.id}),
-                        '">', val.name, '</a></td></tr>'
+                    acc.push('<tr><td><a class="og-js-live-anchor" href="',
+                        routes.prefix() + routes.hash(og.views.regions.rules.load_item, {id: val.id}), '">', val.name,
+                        '</a></td></tr>'
                     );
                     return acc;
                 }, []).join('') || '<tr><td>No regions</td></tr>');
