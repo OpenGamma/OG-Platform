@@ -7,6 +7,7 @@ package com.opengamma.masterdb.batch;
 
 import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import com.opengamma.engine.view.listener.ViewResultListener;
+import com.opengamma.financial.batch.BatchRunWriter;
 
 public class BatchDbViewResultListenerFactory implements ViewResultListenerFactory {
 

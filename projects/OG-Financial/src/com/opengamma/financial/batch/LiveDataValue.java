@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.batch;
+package com.opengamma.financial.batch;
 
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;

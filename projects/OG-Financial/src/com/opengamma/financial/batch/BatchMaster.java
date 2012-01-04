@@ -3,16 +3,21 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.batch;
+package com.opengamma.financial.batch;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
-import com.opengamma.masterdb.batch.BatchRunWriter;
 
 /**
  * A master for storing and managing batch job runs.
  */
 public interface BatchMaster extends BatchRunWriter {
+
+  /**
+   * The default scheme for unique identifiers.
+   */
+  public static final String IDENTIFIER_SCHEME_DEFAULT = "DbBat";
+
 
   /**
    * Searches for batches matching the specified search criteria.

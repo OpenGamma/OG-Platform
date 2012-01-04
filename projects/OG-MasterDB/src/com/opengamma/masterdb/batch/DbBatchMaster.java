@@ -6,7 +6,7 @@
 package com.opengamma.masterdb.batch;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.financial.batch.RunCreationMode;
+import com.opengamma.financial.batch.*;
 import com.opengamma.id.UniqueId;
 import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.util.ArgumentChecker;
@@ -39,11 +39,6 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbBatchMaster.class);
 
-  /**
-   * The default scheme for unique identifiers.
-   */
-  public static final String IDENTIFIER_SCHEME_DEFAULT = "DbBat";
-
   
   final private DbBatchWriter _dbBatchWriter; 
   /**
@@ -57,6 +52,23 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster {
   }  
 
   
+  /*public BatchDocument(Long riskRunId, UniqueId viewDefinitionUid, UniqueId marketDataSnapshotUid, 
+                         Instant valuationTime, VersionCorrection versionCorrection, BatchStatus batchStatus,
+                         Instant creationTime, Instant startTime, Instant endTime, Int numRestarts) {
+      this(
+        UniqueId.of(BatchMaster.IDENTIFIER_SCHEME_DEFAULT, Long.toString(riskRunId),
+        UniqueId.parse(viewDefinitionUid),
+        UniqueId.parse(marketDataSnapshotUid),
+          valuationTime,
+          versionCorrection,
+          batchStatus,
+          creationTime,
+          startTime,
+          endTime,
+          numRestarts);
+    }*/
+
+
   @Override
   public BatchDocument get(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
@@ -67,7 +79,18 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster {
       public BatchDocument doInHibernate(Session session) throws HibernateException, SQLException {
         RiskRun run = _dbBatchWriter.getRiskRunById(id);
         if (run != null) {
-          return new BatchDocument(run);
+          return new BatchDocument(
+            UniqueId.of(BatchMaster.IDENTIFIER_SCHEME_DEFAULT, Long.toString(run.getId())),
+            UniqueId.parse(run.getViewDefinition().getViewDefinitionUid()),
+            UniqueId.parse(run.getLiveDataSnapshot().getMarketDataSnapshotUid()),
+            run.getValuationTime(),
+            com.opengamma.id.VersionCorrection.of(run.getVersionCorrection().getAsOf(), run.getVersionCorrection().getCorrectedTo()),
+            (run.isComplete() ? BatchStatus.COMPLETE : BatchStatus.RUNNING),
+            run.getCreateInstant(),
+            run.getStartInstant(),
+            run.getEndInstant(),
+            run.getNumRestarts()
+          );
         } else {
           return null;
         }
@@ -133,8 +156,19 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster {
             request.getPagingRequest().getPagingSize());
         }
 
-        for (RiskRun riskRun : runs) {
-          BatchDocument doc = new BatchDocument(riskRun);
+        for (RiskRun run : runs) {
+          BatchDocument doc = new BatchDocument(
+            UniqueId.of(BatchMaster.IDENTIFIER_SCHEME_DEFAULT, Long.toString(run.getId())),
+            UniqueId.parse(run.getViewDefinition().getViewDefinitionUid()),
+            UniqueId.parse(run.getLiveDataSnapshot().getMarketDataSnapshotUid()),
+            run.getValuationTime(),
+            com.opengamma.id.VersionCorrection.of(run.getVersionCorrection().getAsOf(), run.getVersionCorrection().getCorrectedTo()),
+            (run.isComplete() ? BatchStatus.COMPLETE : BatchStatus.RUNNING),
+            run.getCreateInstant(),
+            run.getStartInstant(),
+            run.getEndInstant(),
+            run.getNumRestarts()
+          );
           result.getDocuments().add(doc);
         }
 
@@ -205,7 +239,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster {
       });
     }
   
-    @Override
+    //@Override
     public LiveDataSnapshot createLiveDataSnapshot(final UniqueId marketDataSnapshotUniqueId) {
       return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<LiveDataSnapshot>() {
         @Override
@@ -225,7 +259,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster {
       });
     }
   
-    @Override
+    //@Override
     public VersionCorrection createVersionCorrection(final com.opengamma.id.VersionCorrection versionCorrection) {
       return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<VersionCorrection>() {
         @Override

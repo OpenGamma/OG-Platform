@@ -22,7 +22,7 @@ import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.extsql.ExtSqlBundle;
-import com.opengamma.financial.batch.RunCreationMode;
+import com.opengamma.financial.batch.*;
 import com.opengamma.financial.conversion.ResultConverter;
 import com.opengamma.financial.conversion.ResultConverterCache;
 import com.opengamma.id.UniqueId;

@@ -17,7 +17,7 @@ import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.calcnode.InvocationResult;
-import com.opengamma.financial.batch.RunCreationMode;
+import com.opengamma.financial.batch.*;
 import com.opengamma.id.*;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.masterdb.DbMasterTestUtils;

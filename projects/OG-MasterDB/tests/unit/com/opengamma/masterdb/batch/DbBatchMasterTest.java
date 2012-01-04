@@ -12,7 +12,7 @@ import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.CycleInfo;
-import com.opengamma.financial.batch.RunCreationMode;
+import com.opengamma.financial.batch.*;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;

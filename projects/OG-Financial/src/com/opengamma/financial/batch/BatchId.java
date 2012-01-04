@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.batch;
+package com.opengamma.financial.batch;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;

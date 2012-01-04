@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.batch;
+package com.opengamma.financial.batch;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.financial.batch.RunCreationMode;
@@ -54,23 +54,23 @@ public interface BatchRunWriter {
   void addJobResults(UniqueId batchUniqueId, ViewComputationResultModel result);
 
   //-------------------------------------------------------------------------
-  /**
-   * Creates a LiveData snapshot in the database. 
-   * If the snapshot already exists, does nothing.
-   * 
-   * @param snapshotId The market data specification of the snapshot, not null
-   * @return the snapshot
-   */
-  LiveDataSnapshot createLiveDataSnapshot(UniqueId snapshotId);
-
-  /**
-   * Craetes a version correction in the database.
-   * If the version correction already exists, does nothing.
-   *
-   * @param versionCorrection The version correction, not null
-   * @return the databse version correction
-   */
-  VersionCorrection createVersionCorrection(com.opengamma.id.VersionCorrection versionCorrection);
+//  /**
+//   * Creates a LiveData snapshot in the database. 
+//   * If the snapshot already exists, does nothing.
+//   * 
+//   * @param snapshotId The market data specification of the snapshot, not null
+//   * @return the snapshot
+//   */
+//  LiveDataSnapshot createLiveDataSnapshot(UniqueId snapshotId);
+//
+//  /**
+//   * Craetes a version correction in the database.
+//   * If the version correction already exists, does nothing.
+//   *
+//   * @param versionCorrection The version correction, not null
+//   * @return the databse version correction
+//   */
+//  VersionCorrection createVersionCorrection(com.opengamma.id.VersionCorrection versionCorrection);
 
   /**
    * Adds market data fixings to an existing LiveData snapshot. The

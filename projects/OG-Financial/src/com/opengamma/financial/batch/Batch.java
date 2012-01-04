@@ -3,14 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.masterdb.batch;
+package com.opengamma.financial.batch;
 
 import com.google.common.collect.Maps;
 import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.id.*;
-import com.opengamma.id.VersionCorrection;
 import org.joda.beans.*;
-import org.joda.beans.impl.direct.*;
+
 import java.util.Map;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;

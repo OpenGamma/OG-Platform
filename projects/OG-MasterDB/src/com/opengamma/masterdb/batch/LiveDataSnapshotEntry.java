@@ -5,6 +5,7 @@
  */
 package com.opengamma.masterdb.batch;
 
+import com.opengamma.financial.batch.LiveDataValue;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
 /**

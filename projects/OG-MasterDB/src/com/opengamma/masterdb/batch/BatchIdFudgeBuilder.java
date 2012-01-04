@@ -7,9 +7,9 @@ package com.opengamma.masterdb.batch;
 
 import javax.time.Instant;
 
+import com.opengamma.financial.batch.BatchId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.masterdb.batch.BatchId;
 import org.apache.commons.lang.Validate;
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;

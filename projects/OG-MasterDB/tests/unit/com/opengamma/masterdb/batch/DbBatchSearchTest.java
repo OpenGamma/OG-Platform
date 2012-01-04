@@ -5,6 +5,8 @@
  */
 package com.opengamma.masterdb.batch;
 
+import com.opengamma.financial.batch.BatchSearchRequest;
+import com.opengamma.financial.batch.BatchSearchResult;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.DbTest;
