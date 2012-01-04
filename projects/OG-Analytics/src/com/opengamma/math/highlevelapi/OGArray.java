@@ -25,7 +25,23 @@ public class OGArray extends DenseMatrix {
 
   @Override
   public double[] getData() {
-    return Arrays.copyOf(super.getData() , super.getData().length);
+    return Arrays.copyOf(super.getData(), super.getData().length);
   }
 
+  @Override
+  public String toString() {
+    final StringBuffer sb = new StringBuffer();
+    final int rows = super.getNumberOfRows();
+    final int cols = super.getNumberOfColumns();
+    final double[] data = super.getData();
+    sb.append("\n{\n");
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        sb.append(String.format("%12.8f ", data[i * cols + j]));
+      }
+      sb.append("\n");
+    }
+    sb.append("}");
+    return sb.toString();
+  }
 }

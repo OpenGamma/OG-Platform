@@ -6,6 +6,7 @@
 package com.opengamma.math.highlevelapi;
 
 import com.opengamma.math.BLAS.BLAS2;
+import com.opengamma.math.utilities.Reverse;
 
 /**
  * This wraps all the functions for the high level API such that they are just exposed as is.
@@ -102,6 +103,45 @@ public class OGFunctions {
   }
 
   /**
+   * Transpose a matrix, this is the mathematical transpose of a matrix.
+   * @param thisArray the array to transpose
+   * @return the transpose of the matrix.
+   */
+  public static OGArray transpose(OGArray thisArray) {
+    catchNull(thisArray);
+    final int rows = thisArray.getNumberOfRows();
+    final int cols = thisArray.getNumberOfColumns();
+    double[][] tmp = new double[cols][rows];
+    double[] data = thisArray.getData();
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        tmp[j][i] = data[i * cols + j];
+      }
+    }
+    return new OGArray(tmp);
+  }
+
+  /**
+   * Transpose a matrix, this is the mathematical transpose of a matrix.
+   * @param thisArray the array to transpose
+   * @return the transpose of the matrix.
+   */
+  public static OGIndex transpose(OGIndex thisArray) {
+    catchNull(thisArray);
+    final int rows = thisArray.getNumberOfRows();
+    final int cols = thisArray.getNumberOfColumns();
+    int[][] tmp = new int[cols][rows];
+    int[] data = thisArray.getData();
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        tmp[j][i] = data[i * cols + j];
+      }
+    }
+    return new OGIndex(tmp);
+  }
+
+  // array manipulation
+  /**
    * Does reshape(). The number of elements must be preserved. i.e. a 6x4 matrix can be converted to a 8x3 but not a 8x4.
    * The reshape is performed as a row wise unwind of the original matrix followed by a wrap to the new matrix size.
    * @param thisArray is the array from which the unique values are to be calculated
@@ -157,12 +197,210 @@ public class OGFunctions {
     return new OGIndex(newData);
   }
 
-  // printin
+  /**
+   * Flips left-to-right (i.e. horizontally) an array
+   * @param thisArray the array to be flipped
+   * @return a horizontally flipped version of thisArray
+   */
+  public static OGArray fliplr(OGArray thisArray) {
+    catchNull(thisArray);
+    int rows = thisArray.getNumberOfRows();
+    // flip each row.
+    double[][] flipped = new double[rows][];
+    for (int i = 0; i < rows; i++) {
+      flipped[i] = Reverse.stateless(thisArray.getFullRow(i));
+    }
+    return new OGArray(flipped);
+  }
 
+  /**
+   * Flips left-to-right (i.e. horizontally) an array
+   * @param thisArray the array to be flipped
+   * @return a horizontally flipped version of thisArray
+   */
+  public static OGIndex fliplr(OGIndex thisArray) {
+    catchNull(thisArray);
+    int rows = thisArray.getNumberOfRows();
+    // flip each row.
+    int[][] flipped = new int[rows][];
+    for (int i = 0; i < rows; i++) {
+      flipped[i] = Reverse.stateless(thisArray.getFullRow(i).getData());
+    }
+    return new OGIndex(flipped);
+  }
+
+  /**
+   * Flips top-to-bottom (i.e. vertically) an array
+   * @param thisArray the array to be flipped
+   * @return a vertically flipped version of thisArray
+   */
+  public static OGArray flipud(OGArray thisArray) {
+    catchNull(thisArray);
+    int rows = thisArray.getNumberOfRows();
+    // move columns by row at a time.
+    double[][] flipped = new double[rows][];
+    for (int i = 0; i < rows; i++) {
+      flipped[i] = thisArray.getFullRow(rows - 1 - i);
+    }
+    return new OGArray(flipped);
+  }
+
+  /**
+   * Flips top-to-bottom (i.e. vertically) an array
+   * @param thisArray the array to be flipped
+   * @return a vertically flipped version of thisArray
+   */
+  public static OGIndex flipud(OGIndex thisArray) {
+    catchNull(thisArray);
+    int rows = thisArray.getNumberOfRows();
+    // move columns by row at a time.
+    int[][] flipped = new int[rows][];
+    for (int i = 0; i < rows; i++) {
+      flipped[i] = thisArray.getFullRow(rows - 1 - i).getData();
+    }
+    return new OGIndex(flipped);
+  }
+
+  /**
+   * Horizontally concatenate arrays
+   * @param theseArrays a number of OGArrays to concatenate horizontally (to the right) in the order specified in vargin.
+   * @return the horizontal concatenation of the arrays specified in vargin.
+   */
+  public static OGArray horzcat(OGArray... theseArrays) {
+    catchNull(theseArrays[0]);
+
+    final int baseRows = theseArrays[0].getNumberOfRows();
+    int colCount = theseArrays[0].getNumberOfColumns();
+    // check the arrays commute.
+    for (int i = 1; i < theseArrays.length; i++) {
+      catchNull(theseArrays[i]);
+      if (theseArrays[i].getNumberOfRows() != baseRows) {
+        throw new MathsException("Dimension mismatch for horizontal concatenation. Number of rows in first argument is " + baseRows + " whereas arguement " + i + "has " +
+            theseArrays[i].getNumberOfRows() + "rows");
+      }
+      colCount += theseArrays[0].getNumberOfColumns();
+    }
+    // malloc
+    double[][] tmp = new double[baseRows][colCount];
+    int localCols;
+    int cumCols = 0;
+    for (int i = 0; i < theseArrays.length; i++) {
+      localCols = theseArrays[i].getNumberOfColumns();
+      for (int j = 0; j < baseRows; j++) {
+        System.arraycopy(theseArrays[i].getFullRow(j), 0, tmp[j], cumCols, localCols);
+      }
+      cumCols += localCols;
+    }
+
+    return new OGArray(tmp);
+  }
+
+  /**
+   * Horizontally concatenate arrays
+   * @param theseArrays a number of OGIndexs to concatenate horizontally (to the right) in the order specified in vargin.
+   * @return the horizontal concatenation of the arrays specified in vargin.
+   */
+  public static OGIndex horzcat(OGIndex... theseArrays) {
+    catchNull(theseArrays[0]);
+
+    final int baseRows = theseArrays[0].getNumberOfRows();
+    int colCount = theseArrays[0].getNumberOfColumns();
+    // check the arrays commute.
+    for (int i = 1; i < theseArrays.length; i++) {
+      catchNull(theseArrays[i]);
+      if (theseArrays[i].getNumberOfRows() != baseRows) {
+        throw new MathsException("Dimension mismatch for horizontal concatenation. Number of rows in first argument is " + baseRows + " whereas arguement " + i + "has " +
+            theseArrays[i].getNumberOfRows() + "rows");
+      }
+      colCount += theseArrays[0].getNumberOfColumns();
+    }
+    // malloc
+    int[][] tmp = new int[baseRows][colCount];
+    int localCols;
+    int cumCols = 0;
+    for (int i = 0; i < theseArrays.length; i++) {
+      localCols = theseArrays[i].getNumberOfColumns();
+      for (int j = 0; j < baseRows; j++) {
+        System.arraycopy(theseArrays[i].getFullRow(j).getData(), 0, tmp[j], cumCols, localCols);
+      }
+      cumCols += localCols;
+    }
+
+    return new OGIndex(tmp);
+  }
+
+  /**
+   * Vertically concatenate arrays
+   * @param theseArrays a number of OGArrays to concatenate vertically (to the bottom) in the order specified in vargin.
+   * @return the vertical concatenation of the arrays specified in vargin.
+   */
+  public static OGArray vertcat(OGArray... theseArrays) {
+    catchNull(theseArrays[0]);
+
+    final int baseCols = theseArrays[0].getNumberOfColumns();
+    int rowCount = theseArrays[0].getNumberOfRows();
+    // check the arrays commute.
+    for (int i = 1; i < theseArrays.length; i++) {
+      catchNull(theseArrays[i]);
+      if (theseArrays[i].getNumberOfColumns() != baseCols) {
+        throw new MathsException("Dimension mismatch for horizontal concatenation. Number of rows in first argument is " + baseCols + " whereas arguement " + i + "has " +
+            theseArrays[i].getNumberOfRows() + "rows");
+      }
+      rowCount += theseArrays[0].getNumberOfRows();
+    }
+    // malloc
+    double[][] tmp = new double[rowCount][baseCols];
+    int ptr = 0;
+    for (int i = 0; i < theseArrays.length; i++) {
+      final int lim = theseArrays[i].getNumberOfRows();
+      for (int j = 0; j < lim; j++) {
+        System.arraycopy(theseArrays[i].getFullRow(j), 0, tmp[ptr], 0, baseCols);
+        ptr++;
+      }
+    }
+    return new OGArray(tmp);
+  }
+
+  /**
+   * Vertically concatenate arrays
+   * @param theseArrays a number of OGIndexs to concatenate vertically (to the bottom) in the order specified in vargin.
+   * @return the vertical concatenation of the arrays specified in vargin.
+   */
+  public static OGIndex vertcat(OGIndex... theseArrays) {
+    catchNull(theseArrays[0]);
+
+    final int baseCols = theseArrays[0].getNumberOfColumns();
+    int rowCount = theseArrays[0].getNumberOfRows();
+    // check the arrays commute.
+    for (int i = 1; i < theseArrays.length; i++) {
+      catchNull(theseArrays[i]);
+      if (theseArrays[i].getNumberOfColumns() != baseCols) {
+        throw new MathsException("Dimension mismatch for horizontal concatenation. Number of rows in first argument is " + baseCols + " whereas arguement " + i + "has " +
+            theseArrays[i].getNumberOfRows() + "rows");
+      }
+      rowCount += theseArrays[0].getNumberOfRows();
+    }
+    // malloc
+    int[][] tmp = new int[rowCount][baseCols];
+    int ptr = 0;
+    for (int i = 0; i < theseArrays.length; i++) {
+      final int lim = theseArrays[i].getNumberOfRows();
+      for (int j = 0; j < lim; j++) {
+        System.arraycopy(theseArrays[i].getFullRow(j).getData(), 0, tmp[ptr], 0, baseCols);
+        ptr++;
+      }
+    }
+    return new OGIndex(tmp);
+  }
+
+  // printin
+  @Deprecated
   public static void print(int thisInt) {
     System.out.format("Integer = %12d%n", thisInt);
   }
 
+  @Deprecated
+  //CSIGNORE
   public static void print(OGArray thisArray) {
     final int rows = thisArray.getNumberOfRows();
     final int cols = thisArray.getNumberOfColumns();
@@ -171,6 +409,22 @@ public class OGFunctions {
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
         System.out.format("%12.8f ", data[i * cols + j]);
+      }
+      System.out.println("");
+    }
+    System.out.println("}");
+  }
+
+  @Deprecated
+  //CSIGNORE
+  public static void print(OGIndex thisArray) {
+    final int rows = thisArray.getNumberOfRows();
+    final int cols = thisArray.getNumberOfColumns();
+    final int[] data = thisArray.getData();
+    System.out.println("{");
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        System.out.format("%12d ", data[i * cols + j]);
       }
       System.out.println("");
     }

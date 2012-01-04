@@ -163,11 +163,16 @@ public class OGIndex {
    */
   @Override
   public String toString() {
-    return "OGIndex:" +
-        "\ndata = " + Arrays.toString(_data) +
-        "\nrows = " + _rows +
-        "\ncols = " + _cols +
-        "\nrowPtr = " + Arrays.toString(_rowPtr);
+    final StringBuffer sb = new StringBuffer();
+    sb.append("\n{\n");
+    for (int i = 0; i < _rows; i++) {
+      for (int j = 0; j < _cols; j++) {
+        sb.append(String.format("%12d ", _data[i * _cols + j]));
+      }
+      sb.append("\n");
+    }
+    sb.append("}");
+    return sb.toString();
   }
 
   @Override
