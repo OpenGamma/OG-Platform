@@ -31,6 +31,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
    * The present value inflation calculator (for the different parts of the bond transaction).
    */
   private static final PresentValueInflationCalculator PVIC = PresentValueInflationCalculator.getInstance();
+  //TODO: REVIEW: Method depends on Calculator; Calculator would depend on Method (code duplicated to avoid circularity).
   /**
    * The root bracket used for yield finding.
    */
@@ -123,7 +124,7 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
    * @param yield The bond yield.
    * @return The dirty price.
    */
-  public double dirtyPriceRealFromYieldReal(final BondCapitalIndexedSecurity<?> bond, final double yield) {
+  public double dirtyRealPriceFromYieldReal(final BondCapitalIndexedSecurity<?> bond, final double yield) {
     Validate.isTrue(bond.getNominal().getNumberOfPayments() == 1, "Yield: more than one nominal repayment.");
     final int nbCoupon = bond.getCoupon().getNumberOfPayments();
     if (bond.getYieldConvention().equals(SimpleYieldConvention.US_IL_REAL)) {
@@ -147,14 +148,14 @@ public final class BondCapitalIndexedSecurityDiscountingMethod implements Pricin
    * @param dirtyPrice The bond dirty price.
    * @return The yield.
    */
-  public double yieldRealFromDirtyPriceReal(final BondCapitalIndexedSecurity<?> bond, final double dirtyPrice) {
+  public double yieldRealFromDirtyRealPrice(final BondCapitalIndexedSecurity<?> bond, final double dirtyPrice) {
     /**
      * Inner function used to find the yield.
      */
     final Function1D<Double, Double> priceResidual = new Function1D<Double, Double>() {
       @Override
       public Double evaluate(final Double y) {
-        return dirtyPriceRealFromYieldReal(bond, y) - dirtyPrice;
+        return dirtyRealPriceFromYieldReal(bond, y) - dirtyPrice;
       }
     };
     final double[] range = BRACKETER.getBracketedPoints(priceResidual, -0.05, 0.10);
