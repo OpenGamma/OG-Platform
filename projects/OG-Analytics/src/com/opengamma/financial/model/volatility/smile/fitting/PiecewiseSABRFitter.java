@@ -136,6 +136,8 @@ public class PiecewiseSABRFitter {
 
   private double getWeight(final double strike, final int index) {
     return (_strikes[index + 1] - strike) / (_strikes[index + 1] - _strikes[index]);
+    //double cos = Math.cos(Math.PI / 2 * (strike - _strikes[index]) / (_strikes[index + 1] - _strikes[index]));
+    //return cos * cos;
   }
 
   private int getLowerBoundIndex(final double strike) {

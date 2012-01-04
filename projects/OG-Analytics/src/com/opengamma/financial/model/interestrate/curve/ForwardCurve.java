@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.curve.Curve;
 import com.opengamma.math.curve.FunctionalDoublesCurve;
+import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 
@@ -69,7 +70,7 @@ public class ForwardCurve {
   }
 
   /**
-   * Forward curve with constant drift 
+   * Forward curve with constant drift
    * @param spot  The spot
    * @param drift The drift
    */
@@ -87,7 +88,7 @@ public class ForwardCurve {
 
   /**
    * Forward curve with functional drift.
-   * <b>Warning</b> This will be slow if you want access to the forward at many times 
+   * <b>Warning</b> This will be slow if you want access to the forward at many times
    * @param spot The spot rate
    * @param driftCurve The drift curve
    */
@@ -140,6 +141,25 @@ public class ForwardCurve {
 
   public double getSpot() {
     return _spot;
+  }
+
+  /**
+   * shifts the spot (and the rest of the forward curve proportionally) but the given amount, i.e. the drift curve
+   * remains unchanged
+   * @param shift the shift amount
+   * @return
+   */
+  public ForwardCurve withShiftedSpot(final double shift) {
+    Validate.isTrue(_spot > shift, "The shift is bigger than the spot");
+    final double percentage = (_spot + shift) / _spot;
+
+    Function<Double, Double> func = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(Double... t) {
+        return percentage * _fwdCurve.getYValue(t[0]);
+      }
+    };
+    return new ForwardCurve(FunctionalDoublesCurve.from(func), _drift);
   }
 
 }

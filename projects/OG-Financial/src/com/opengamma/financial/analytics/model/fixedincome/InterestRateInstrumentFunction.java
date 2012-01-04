@@ -93,7 +93,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext
-        .getConventionBundleSource(context);
+    .getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, conventionSource);
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
@@ -104,10 +104,12 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
     _visitor =
-        FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-            .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
-            .futureSecurityVisitor(futureConverter)
-            .bondSecurityVisitor(bondConverter).create();
+      FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
+      .cashSecurityVisitor(cashConverter)
+      .fraSecurityVisitor(fraConverter)
+      .swapSecurityVisitor(swapConverter)
+      .futureSecurityVisitor(futureConverter)
+      .bondSecurityVisitor(bondConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
 
@@ -164,9 +166,8 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final String fundingCurve = fundingCurves.iterator().next();
     if (forwardCurve.equals(fundingCurve)) {
       return Collections.singleton(getCurveRequirement(target, forwardCurve, null, null));
-    } else {
-      return Sets.newHashSet(getCurveRequirement(target, forwardCurve, forwardCurve, fundingCurve), getCurveRequirement(target, fundingCurve, forwardCurve, fundingCurve));
     }
+    return Sets.newHashSet(getCurveRequirement(target, forwardCurve, forwardCurve, fundingCurve), getCurveRequirement(target, fundingCurve, forwardCurve, fundingCurve));
   }
 
   protected Set<ValueSpecification> getResults(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {
@@ -180,14 +181,13 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     if (inputs.size() == 1) {
       final String curveName = inputs.keySet().iterator().next().getProperty(ValuePropertyNames.CURVE);
       return getResults(target, curveName, curveName);
-    } else {
-      assert inputs.size() == 2;
-      // Only need to check one; the advisory forward/funding will be correct on either
-      final ValueSpecification spec = inputs.keySet().iterator().next();
-      final String forwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
-      final String fundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-      return getResults(target, forwardCurveName, fundingCurveName);
     }
+    assert inputs.size() == 2;
+    // Only need to check one; the advisory forward/funding will be correct on either
+    final ValueSpecification spec = inputs.keySet().iterator().next();
+    final String forwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+    final String fundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    return getResults(target, forwardCurveName, fundingCurveName);
   }
 
   @Override

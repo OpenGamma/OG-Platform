@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.math.MathException;
 import com.opengamma.math.differentiation.FiniteDifferenceType;
 import com.opengamma.math.function.Function1D;
@@ -479,6 +480,51 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
 
     //    testVolatilityAdjoint(option, data, 1e-6);
     //    testVolatilityAdjoint(CALL_ATM, data, 1e-5);
+  }
+
+  /**
+   *Calculate the true SABR delta and gamma and compare with that found by finite difference
+   */
+  public void testGreeks() {
+    double eps = 1e-3;
+    double f = 1.2;
+    double k = 1.4;
+    double t = 5.0;
+    double alpha = 0.3;
+    double beta = 0.6;
+    double rho = -0.4;
+    double nu = 0.4;
+    SABRFormulaData sabrData = new SABRFormulaData(alpha, beta, rho, nu);
+
+    SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
+    double[] vol = sabr.getVolatilityAdjoint(new EuropeanVanillaOption(k, t, true), f, sabrData);
+    double bsDelta = BlackFormulaRepository.delta(f, k, t, vol[0], true);
+    double bsVega = BlackFormulaRepository.vega(f, k, t, vol[0]);
+    double volForwardSense = vol[1];
+    double delta = bsDelta + bsVega * volForwardSense;
+
+    double volUp = sabr.getVolatility(f + eps, k, t, alpha, beta, rho, nu);
+    double volDown = sabr.getVolatility(f - eps, k, t, alpha, beta, rho, nu);
+    double priceUp = BlackFormulaRepository.price(f + eps, k, t, volUp, true);
+    double price = BlackFormulaRepository.price(f, k, t, vol[0], true);
+    double priceDown = BlackFormulaRepository.price(f - eps, k, t, volDown, true);
+    double fdDelta = (priceUp - priceDown) / 2 / eps;
+    assertEquals(fdDelta, delta, 1e-6);
+
+    double bsVanna = BlackFormulaRepository.vanna(f, k, t, vol[0]);
+    double bsGamma = BlackFormulaRepository.gamma(f, k, t, vol[0]);
+
+    double[] volD1 = new double[5];
+    double[][] volD2 = new double[2][2];
+    sabr.getVolatilityAdjoint2(new EuropeanVanillaOption(k, t, true), f, sabrData, volD1, volD2);
+    double d2Sigmad2Fwd = volD2[0][0];
+    double gamma = bsGamma + 2 * bsVanna * vol[1] + bsVega * d2Sigmad2Fwd;
+    double fdGamma = (priceUp + priceDown - 2 * price) / eps / eps;
+
+    double d2Sigmad2FwdFD = (volUp + volDown - 2 * vol[0]) / eps / eps;
+    assertEquals(d2Sigmad2FwdFD, d2Sigmad2Fwd, 1e-4);
+
+    assertEquals(fdGamma, gamma, 1e-2);
   }
 
   private enum SABRParameter {

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
@@ -17,7 +17,6 @@ import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
@@ -30,18 +29,14 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ *
  */
 public class InterestRateFutureOptionSABRSensitivitiesFunction extends InterestRateFutureOptionFunction {
   private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
 
-  public InterestRateFutureOptionSABRSensitivitiesFunction(String forwardCurveName, String fundingCurveName, final String surfaceName) {
-    super(forwardCurveName, fundingCurveName, surfaceName);
-  }
-
   @Override
-  protected Set<ComputedValue> getResults(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, final Set<ValueRequirement> desiredValues, final FunctionInputs inputs,
-      final ComputationTarget target) {
+  protected Set<ComputedValue> getResults(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, final ComputationTarget target,
+      final FunctionInputs inputs, final String forwardCurveName, final String fundingCurveName, final String surfaceName) {
     final PresentValueSABRSensitivityDataBundle sensitivities = CALCULATOR.visit(irFutureOption, data);
     final Map<DoublesPair, Double> alphaSensitivities = sensitivities.getAlpha().getMap();
     final Map<DoublesPair, Double> nuSensitivities = sensitivities.getNu().getMap();
@@ -50,15 +45,20 @@ public class InterestRateFutureOptionSABRSensitivitiesFunction extends InterestR
       throw new OpenGammaRuntimeException("Can only handle sensitivities at one (t, T) point for now");
     }
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    results.add(new ComputedValue(getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY), getMatrix(alphaSensitivities)));
-    results.add(new ComputedValue(getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY), getMatrix(nuSensitivities)));
-    results.add(new ComputedValue(getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY), getMatrix(rhoSensitivities)));
+    final ValueSpecification alphaSpec = getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, forwardCurveName, fundingCurveName, surfaceName);
+    final ValueSpecification nuSpec = getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, forwardCurveName, fundingCurveName, surfaceName);
+    final ValueSpecification rhoSpec = getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, forwardCurveName, fundingCurveName, surfaceName);
+    results.add(new ComputedValue(alphaSpec, getMatrix(alphaSensitivities)));
+    results.add(new ComputedValue(nuSpec, getMatrix(nuSensitivities)));
+    results.add(new ComputedValue(rhoSpec, getMatrix(rhoSensitivities)));
     return results;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Sets.newHashSet(getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY), getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY),
+    return Sets.newHashSet(
+        getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY),
+        getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY),
         getResultSpec(target, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY));
   }
 
@@ -67,10 +67,22 @@ public class InterestRateFutureOptionSABRSensitivitiesFunction extends InterestR
     return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Double[] {entry.getKey().second}, new double[][] {new double[] {entry.getValue()}});
   }
 
-  private ValueSpecification getResultSpec(ComputationTarget target, String valueRequirementName) {
-    ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName()).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
-        .with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+  private ValueSpecification getResultSpec(final ComputationTarget target, final String valueRequirementName) {
+    final ValueProperties properties = createValueProperties()
+      .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
+      .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+      .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+      .withAny(ValuePropertyNames.SURFACE).get();
+    return new ValueSpecification(valueRequirementName, target.toSpecification(), properties);
+  }
+
+  private ValueSpecification getResultSpec(final ComputationTarget target, final String valueRequirementName, final String forwardCurveName,
+      final String fundingCurveName, final String surfaceName) {
+    final ValueProperties properties = createValueProperties()
+      .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
+      .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+      .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+      .with(ValuePropertyNames.SURFACE, surfaceName).get();
     return new ValueSpecification(valueRequirementName, target.toSpecification(), properties);
   }
 }

@@ -213,6 +213,7 @@ public class DupireLocalVolatilityCalculator {
         if (t == 0) {
           return vol;
         }
+
         final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, k, vol);
         double var;
         if (k == 0) {
