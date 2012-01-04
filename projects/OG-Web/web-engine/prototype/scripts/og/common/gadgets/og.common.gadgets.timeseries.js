@@ -287,7 +287,7 @@ $.register_module({
                     // if the number of data points between the indices is less than 10, add more
                     // this doesn't change the viewable data, just the yaxis range
                     while (idx_to - idx_from < 10) {
-                        if (idx_to !== cur.length -1) ++idx_to;
+                        if (idx_to !== cur.length - 1) ++idx_to;
                         if (idx_from !== 0) --idx_from;
                     }
                     sliced = data_arr[i].data.slice(idx_from, idx_to);
