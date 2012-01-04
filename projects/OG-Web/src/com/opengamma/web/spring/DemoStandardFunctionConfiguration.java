@@ -448,7 +448,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addSummingFunction(functionConfigs, ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES);
 
     addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
-    addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
+    //addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
     addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
     addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
 

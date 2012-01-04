@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -447,6 +448,9 @@ public final class DependencyGraphBuilder {
       ResolveTask task;
       synchronized (_requirements) {
         Map<ResolveTask, ResolveTask> tasks = _requirements.get(valueRequirement);
+        // Review 2012-01-03 Andrew -- We don't really want a map. The test for similar tasks is a subset operation. We
+        // should use a structure that allows us to test quickly whether there are any existing tasks whose parent
+        // requirement set is a subset of this tasks parent requirement set.
         if (tasks == null) {
           tasks = new HashMap<ResolveTask, ResolveTask>();
           _requirements.put(valueRequirement, tasks);
@@ -564,8 +568,43 @@ public final class DependencyGraphBuilder {
       producer.release(this);
     }
 
+    private boolean abortLoops() {
+      s_loggerBuilder.debug("Checking for active tasks to abort");
+      List<ResolveTask> activeTasks = null;
+      synchronized (_specifications) {
+        for (Map<ResolveTask, ResolvedValueProducer> tasks : _specifications.values()) {
+          for (ResolveTask task : tasks.keySet()) {
+            if (task.isActive()) {
+              if (activeTasks == null) {
+                activeTasks = new LinkedList<ResolveTask>();
+              }
+              activeTasks.add(task);
+            }
+          }
+        }
+      }
+      if (activeTasks != null) {
+        final Set<Object> visited = new HashSet<Object>();
+        int cancelled = 0;
+        for (ResolveTask task : activeTasks) {
+          cancelled += task.cancelLoopMembers(this, visited);
+        }
+        s_loggerContext.info("Cancelled {} looped tasks", cancelled);
+        return cancelled > 0;
+      } else {
+        s_loggerContext.debug("No looped tasks");
+      }
+      return false;
+    }
+
     // Collation
 
+    /**
+     * Merge information from the other context into this (a root context). The caller must be the thread
+     * that was working with the other context.
+     * 
+     * @param context the other context
+     */
     private synchronized void mergeThreadContext(final GraphBuildingContext context) {
       if (_exceptions == null) {
         _exceptions = new HashMap<ExceptionWrapper, ExceptionWrapper>();
@@ -636,10 +675,15 @@ public final class DependencyGraphBuilder {
       //s_loggerContext.info("Used memory = {}M", (double) (rt.totalMemory() - rt.freeMemory()) / 1e6);
     }
 
-    private synchronized void discardIntermediateState() {
-      s_loggerContext.debug("Discarding intermediate state {} requirements, {} specifications", _requirements.size(), _specifications.size());
-      _requirements.clear();
-      _specifications.clear();
+    private void discardIntermediateState() {
+      synchronized (_requirements) {
+        s_loggerContext.debug("Discarding intermediate state {} requirements", _requirements.size());
+        _requirements.clear();
+      }
+      synchronized (_specifications) {
+        s_loggerContext.debug("Discarding intermediate state {} specifications", _specifications.size());
+        _specifications.clear();
+      }
     }
 
   };
@@ -934,44 +978,53 @@ public final class DependencyGraphBuilder {
       boolean jobsLeftToRun;
       int completed = 0;
       do {
-        s_loggerBuilder.info("Build fraction = {}", estimateBuildFraction());
-        // Create a new context for each logical block so that an exception from the build won't leave us with
-        // an inconsistent context.
-        final GraphBuildingContext context = new GraphBuildingContext(getContext());
         do {
-          try {
-            jobsLeftToRun = buildGraph(context);
-            completed++;
-            /*if ((completed % 500) == 0) {
-              s_loggerBuilder.info("Build fraction = {}", estimateBuildFraction());
-            }*/
-          } catch (Throwable t) {
-            s_loggerBuilder.warn("Graph builder exception", t);
-            _context.exception(t);
-            jobsLeftToRun = false;
+          s_loggerBuilder.info("Build fraction = {}", estimateBuildFraction());
+          // Create a new context for each logical block so that an exception from the build won't leave us with
+          // an inconsistent context.
+          final GraphBuildingContext context = new GraphBuildingContext(getContext());
+          do {
+            try {
+              jobsLeftToRun = buildGraph(context);
+              completed++;
+              /*if ((completed % 500) == 0) {
+                s_loggerBuilder.info("Build fraction = {}", estimateBuildFraction());
+              }*/
+            } catch (Throwable t) {
+              s_loggerBuilder.warn("Graph builder exception", t);
+              _context.exception(t);
+              jobsLeftToRun = false;
+            }
+          } while (!_poison && jobsLeftToRun);
+          s_loggerBuilder.debug("Merging thread context");
+          getContext().mergeThreadContext(context);
+          s_loggerBuilder.debug("Building job stopping");
+          int activeJobs = _activeJobCount.decrementAndGet();
+          // Watch for late arrivals in the run queue; they might have seen the old value
+          // of activeJobs and not started anything.
+          while (!_runQueue.isEmpty() && (activeJobs < getMaxAdditionalThreads()) && !_poison) {
+            if (_activeJobCount.compareAndSet(activeJobs, activeJobs + 1)) {
+              s_loggerBuilder.debug("Building job resuming");
+              // Note the log messages may go from "resuming" to stopped if the poison arrives between
+              // the check above and the check below. This might look odd, but what the hey - they're
+              // only DEBUG level messages.
+              jobsLeftToRun = true;
+              break;
+            }
+            activeJobs = _activeJobCount.get();
           }
         } while (!_poison && jobsLeftToRun);
-        s_loggerBuilder.debug("Merging thread context");
-        getContext().mergeThreadContext(context);
-        s_loggerBuilder.debug("Building job stopping");
-        int activeJobs = _activeJobCount.decrementAndGet();
-        // Watch for late arrivals in the run queue; they might have seen the old value
-        // of activeJobs and not started anything.
-        while (!_runQueue.isEmpty() && (activeJobs < getMaxAdditionalThreads()) && !_poison) {
-          if (_activeJobCount.compareAndSet(activeJobs, activeJobs + 1)) {
-            s_loggerBuilder.debug("Building job resuming");
-            // Note the log messages may go from "resuming" to stopped if the poison arrives between
-            // the check above and the check below. This might look odd, but what the hey - they're
-            // only DEBUG level messages.
-            jobsLeftToRun = true;
+        synchronized (_activeJobs) {
+          _activeJobs.remove(this);
+          if (!_activeJobs.isEmpty() || !_runQueue.isEmpty()) {
+            // Stopping because there are active jobs; skip the "abortLoop" stage
             break;
           }
-          activeJobs = _activeJobCount.get();
         }
-      } while (!_poison && jobsLeftToRun);
-      synchronized (_activeJobs) {
-        _activeJobs.remove(this);
-      }
+        // Any tasks that are still active have created a reciprocal loop disjoint from the runnable
+        // graph of tasks. Aborting them at this point is easier and possibly more efficient than
+        // the overhead of trying to stop the loops forming in the first place.
+      } while (!_poison && getContext().abortLoops());
       s_loggerBuilder.info("Building job {} stopped after {} operations", _objectId, completed);
     }
 
@@ -1012,14 +1065,23 @@ public final class DependencyGraphBuilder {
    * @return true if the graph has been built, false if it is outstanding
    */
   public boolean isGraphBuilt() {
-    synchronized (_activeJobs) {
-      if (!_activeJobs.isEmpty()) {
-        // One or more active jobs, so can't be built yet
-        return false;
+    do {
+      synchronized (_activeJobs) {
+        if (!_activeJobs.isEmpty()) {
+          // One or more active jobs, so can't be built yet
+          return false;
+        }
+        if (!_runQueue.isEmpty()) {
+          // No active jobs, but there are jobs on the run queue
+          return false;
+        }
       }
-      // no active jobs, so built if there is nothing in the run queue
-      return _runQueue.isEmpty();
-    }
+      // Any tasks that are still active have created a reciprocal loop disjoint from the runnable
+      // graph of tasks. Aborting them at this point is easier and possibly more efficient than
+      // the overhead of trying to stop the loops forming in the first place.
+    } while (getContext().abortLoops());
+    // No active tasks to restart so must have finished
+    return true;
   }
 
   /**
@@ -1148,10 +1210,7 @@ public final class DependencyGraphBuilder {
         } else {
           return null;
         }
-      } while (true);
-      if (!isGraphBuilt()) {
-        throw new CancellationException("Dependency graph building incomplete");
-      }
+      } while (!isGraphBuilt());
     }
     return createDependencyGraph();
   }
@@ -1168,6 +1227,7 @@ public final class DependencyGraphBuilder {
     //graph.dumpStructureASCII(System.out);
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
       final PrintStream ps = openDebugStream("dependencyGraph");
+      ps.println("Configuration = " + getCalculationConfigurationName());
       graph.dumpStructureASCII(ps);
       ps.close();
     }
