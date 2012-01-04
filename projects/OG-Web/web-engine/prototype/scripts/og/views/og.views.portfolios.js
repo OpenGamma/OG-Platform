@@ -443,7 +443,7 @@ $.register_module({
                     {new_value: 'id', stop: true, method: function (args) {
                         view[args.id ? 'load_item' : 'load'](args);
                     }},
-                    {new_value: 'node', stop: true, method: function (args) {
+                    {new_value: 'node', method: function (args) {
                         view[args.node ? 'load_item' : 'load'](args);
                     }}
                 ]});
