@@ -73,7 +73,7 @@ public final class CouponFixedDiscountingMethod {
     list.add(s);
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     result.put(curveName, list);
-    return new InterestRateCurveSensitivity();
+    return new InterestRateCurveSensitivity(result);
   }
 
   /**

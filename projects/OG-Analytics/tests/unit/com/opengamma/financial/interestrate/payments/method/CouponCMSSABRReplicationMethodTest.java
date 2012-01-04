@@ -105,7 +105,7 @@ public class CouponCMSSABRReplicationMethodTest {
   private static final PresentValueSABRCalculator PVC_SABR = PresentValueSABRCalculator.getInstance();
   private static final PresentValueCurveSensitivitySABRCalculator PVCSC_SABR = PresentValueCurveSensitivitySABRCalculator.getInstance();
   private static final PresentValueSABRSensitivitySABRCalculator PVSSC_SABR = PresentValueSABRSensitivitySABRCalculator.getInstance();
-  private static final CouponCMSSABRReplicationMethod METHOD = CouponCMSSABRReplicationMethod.getDefaultInstance();
+  private static final CouponCMSSABRReplicationMethod METHOD = CouponCMSSABRReplicationMethod.getInstance();
   private static final CapFloorCMSSABRReplicationMethod METHOD_CAP = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
   private static final CouponCMSGenericMethod METHOD_GENERIC = new CouponCMSGenericMethod(METHOD_CAP);
 
