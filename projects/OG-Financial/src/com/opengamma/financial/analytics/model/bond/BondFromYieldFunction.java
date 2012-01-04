@@ -35,8 +35,8 @@ public abstract class BondFromYieldFunction extends BondFunction<Double> {
   protected Set<ComputedValue> calculate(final ZonedDateTime date, final BondSecurity bondSecurity, final Double data, final ComputationTarget target, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String riskFreeCurveName = desiredValue.getConstraint(TYPE_RISK_FREE);
-    final String creditCurveName = desiredValue.getConstraint(TYPE_CREDIT);
+    final String riskFreeCurveName = desiredValue.getConstraint(PROPERTY_RISK_FREE_CURVE);
+    final String creditCurveName = desiredValue.getConstraint(PROPERTY_CREDIT_CURVE);
     final ValueProperties.Builder properties = createValueProperties();
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
     final BondFixedSecurityDefinition definition = (BondFixedSecurityDefinition) bondSecurity.accept(getConverter());
@@ -55,11 +55,11 @@ public abstract class BondFromYieldFunction extends BondFunction<Double> {
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<String> riskFreeCurves = desiredValue.getConstraints().getValues(TYPE_RISK_FREE);
+    final Set<String> riskFreeCurves = desiredValue.getConstraints().getValues(PROPERTY_RISK_FREE_CURVE);
     if (riskFreeCurves == null || riskFreeCurves.size() != 1) {
       return null;
     }
-    final Set<String> creditCurves = desiredValue.getConstraints().getValues(TYPE_CREDIT);
+    final Set<String> creditCurves = desiredValue.getConstraints().getValues(PROPERTY_CREDIT_CURVE);
     if (creditCurves == null || creditCurves.size() != 1) {
       return null;
     }

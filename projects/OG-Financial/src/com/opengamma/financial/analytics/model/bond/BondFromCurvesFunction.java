@@ -40,8 +40,8 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
   protected Set<ComputedValue> calculate(final ZonedDateTime date, final BondSecurity bondSecurity, final YieldCurveBundle data, final ComputationTarget target, final FunctionInputs inputs,
       final Set<ValueRequirement> desiredValues) {
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String riskFreeCurveName = desiredValue.getConstraint(TYPE_RISK_FREE);
-    final String creditCurveName = desiredValue.getConstraint(TYPE_CREDIT);
+    final String riskFreeCurveName = desiredValue.getConstraint(PROPERTY_RISK_FREE_CURVE);
+    final String creditCurveName = desiredValue.getConstraint(PROPERTY_CREDIT_CURVE);
     final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, creditCurveName);
     final ValueSpecification resultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
     final BondFixedSecurityDefinition definition = (BondFixedSecurityDefinition) bondSecurity.accept(getConverter());
@@ -55,12 +55,12 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
       throw new OpenGammaRuntimeException("This function " + getShortName() + " only provides a single output");
     }
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String riskFreeCurveName = desiredValue.getConstraint(TYPE_RISK_FREE);
+    final String riskFreeCurveName = desiredValue.getConstraint(PROPERTY_RISK_FREE_CURVE);
     final Object riskFreeCurveObject = inputs.getValue(getCurveRequirement(target, riskFreeCurveName));
     if (riskFreeCurveObject == null) {
       throw new OpenGammaRuntimeException("Risk free curve was null");
     }
-    final String creditCurveName = desiredValue.getConstraint(TYPE_CREDIT);
+    final String creditCurveName = desiredValue.getConstraint(PROPERTY_CREDIT_CURVE);
     final Object creditCurveObject = inputs.getValue(getCurveRequirement(target, creditCurveName));
     if (creditCurveObject == null) {
       throw new OpenGammaRuntimeException("Credit curve was null");
@@ -72,11 +72,11 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<String> riskFreeCurves = desiredValue.getConstraints().getValues(TYPE_RISK_FREE);
+    final Set<String> riskFreeCurves = desiredValue.getConstraints().getValues(PROPERTY_RISK_FREE_CURVE);
     if (riskFreeCurves == null || riskFreeCurves.size() != 1) {
       return null;
     }
-    final Set<String> creditCurves = desiredValue.getConstraints().getValues(TYPE_CREDIT);
+    final Set<String> creditCurves = desiredValue.getConstraints().getValues(PROPERTY_CREDIT_CURVE);
     if (creditCurves == null || creditCurves.size() != 1) {
       return null;
     }
@@ -103,15 +103,15 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
 
   private ValueProperties.Builder getResultProperties() {
     return createValueProperties()
-        .withAny(TYPE_RISK_FREE)
-        .withAny(TYPE_CREDIT)
+        .withAny(PROPERTY_RISK_FREE_CURVE)
+        .withAny(PROPERTY_CREDIT_CURVE)
         .with(ValuePropertyNames.CALCULATION_METHOD, FROM_CURVES_METHOD);
   }
 
   private ValueProperties.Builder getResultProperties(final String riskFreeCurveName, final String creditCurveName) {
     return createValueProperties()
-        .with(TYPE_RISK_FREE, riskFreeCurveName)
-        .with(TYPE_CREDIT, creditCurveName)
+        .with(PROPERTY_RISK_FREE_CURVE, riskFreeCurveName)
+        .with(PROPERTY_CREDIT_CURVE, creditCurveName)
         .with(ValuePropertyNames.CALCULATION_METHOD, FROM_CURVES_METHOD);
   }
 }

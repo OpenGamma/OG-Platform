@@ -36,13 +36,12 @@ import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingM
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public class BondZSpreadPresentValueSensitivityFunction extends AbstractFunction.NonCompiledInvoker {
+public abstract class BondZSpreadPresentValueSensitivityFunction extends AbstractFunction.NonCompiledInvoker {
   private static final BondSecurityDiscountingMethod CALCULATOR = BondSecurityDiscountingMethod.getInstance();
   private BondSecurityConverter _visitor;
 
@@ -62,7 +61,7 @@ public class BondZSpreadPresentValueSensitivityFunction extends AbstractFunction
       throw new OpenGammaRuntimeException("This function " + getShortName() + " only provides a single output");
     }
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String riskFreeCurveName = desiredValue.getConstraint(BondFunction.TYPE_RISK_FREE);
+    final String riskFreeCurveName = desiredValue.getConstraint(BondFunction.PROPERTY_RISK_FREE_CURVE);
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     final Object riskFreeCurveObject = inputs.getValue(getCurveRequirement(target, riskFreeCurveName));
     if (riskFreeCurveObject == null) {
@@ -72,9 +71,9 @@ public class BondZSpreadPresentValueSensitivityFunction extends AbstractFunction
     if (curveObject == null) {
       throw new OpenGammaRuntimeException("Curve was null");
     }
-    final Object cleanPriceObject = inputs.getValue(getCleanPriceRequirement(target));
+    final Object cleanPriceObject = inputs.getValue(getCleanPriceRequirement(target, desiredValue));
     if (cleanPriceObject == null) {
-      throw new OpenGammaRuntimeException("Could not get market clean price requirement");
+      throw new OpenGammaRuntimeException("Could not get clean price requirement");
     }
     final Double cleanPrice = (Double) cleanPriceObject;
     final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, curveName);
@@ -85,21 +84,6 @@ public class BondZSpreadPresentValueSensitivityFunction extends AbstractFunction
     final YieldAndDiscountCurve riskFreeCurve = (YieldAndDiscountCurve) riskFreeCurveObject;
     final YieldCurveBundle data = new YieldCurveBundle(new String[] {curveName, riskFreeCurveName}, new YieldAndDiscountCurve[] {curve, riskFreeCurve});
     return Sets.newHashSet(new ComputedValue(resultSpec, CALCULATOR.presentValueZSpreadSensitivityFromCurvesAndClean(bond, data, cleanPrice)));
-  }
-
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<String> riskFreeCurves = desiredValue.getConstraints().getValues(BondFunction.TYPE_RISK_FREE);
-    if (riskFreeCurves == null || riskFreeCurves.size() != 1) {
-      return null;
-    }
-    final Set<String> curves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
-    if (curves == null || curves.size() != 1) {
-      return null;
-    }
-    final String riskFreeCurveName = riskFreeCurves.iterator().next();
-    final String curveName = curves.iterator().next();
-    return Sets.newHashSet(getCurveRequirement(target, riskFreeCurveName), getCurveRequirement(target, curveName), getCleanPriceRequirement(target));
   }
 
   @Override
@@ -121,25 +105,25 @@ public class BondZSpreadPresentValueSensitivityFunction extends AbstractFunction
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY, target.toSpecification(), properties.get()));
   }
 
-  private ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName) {
+  protected abstract ValueRequirement getCleanPriceRequirement(final ComputationTarget target, final ValueRequirement desiredValue);
+
+  protected abstract String getCalculationMethod();
+
+  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
     final ValueProperties.Builder properties = ValueProperties.with(ValuePropertyNames.CURVE, curveName);
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
   }
 
-  private ValueRequirement getCleanPriceRequirement(final ComputationTarget target) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getSecurity().getUniqueId());
-  }
-
   private ValueProperties.Builder getResultProperties() {
     return createValueProperties()
-        .withAny(BondFunction.TYPE_RISK_FREE)
+        .withAny(BondFunction.PROPERTY_RISK_FREE_CURVE)
         .withAny(ValuePropertyNames.CURVE);
   }
 
   private ValueProperties.Builder getResultProperties(final String riskFreeCurveName, final String curveName) {
     return createValueProperties()
-        .with(BondFunction.TYPE_RISK_FREE, riskFreeCurveName)
+        .with(BondFunction.PROPERTY_RISK_FREE_CURVE, riskFreeCurveName)
         .with(ValuePropertyNames.CURVE, curveName);
   }
 }

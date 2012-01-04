@@ -38,9 +38,9 @@ public abstract class BondFunction<T> extends AbstractFunction.NonCompiledInvoke
   /** String indicating that the calculator used the yield */
   public static final String FROM_YIELD_METHOD = "FromYield";
   /** String indicating the name for the risk-free curve */
-  public static final String TYPE_RISK_FREE = "RiskFree";
+  public static final String PROPERTY_RISK_FREE_CURVE = "RiskFree";
   /** String indicating the name for the credit curve */
-  public static final String TYPE_CREDIT = "Credit";
+  public static final String PROPERTY_CREDIT_CURVE = "Credit";
   private BondSecurityConverter _visitor;
 
   @Override

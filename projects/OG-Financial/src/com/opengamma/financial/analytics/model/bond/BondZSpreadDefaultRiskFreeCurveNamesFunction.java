@@ -20,18 +20,15 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class BondDefaultCurveNameFunction extends DefaultPropertyFunction {
+public class BondZSpreadDefaultRiskFreeCurveNamesFunction extends DefaultPropertyFunction {
   private final String[] _valueNames;
   private final String _riskFreeCurve;
-  private final String _creditCurve;
 
-  public BondDefaultCurveNameFunction(final String riskFreeCurve, final String creditCurve, final String... valueNames) {
+  public BondZSpreadDefaultRiskFreeCurveNamesFunction(final String riskFreeCurve, final String... valueNames) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(riskFreeCurve, "risk-free curve name");
-    ArgumentChecker.notNull(creditCurve, "credit curve name");
     ArgumentChecker.notNull(valueNames, "value names");
     _riskFreeCurve = riskFreeCurve;
-    _creditCurve = creditCurve;
     _valueNames = valueNames;
   }
 
@@ -46,19 +43,16 @@ public class BondDefaultCurveNameFunction extends DefaultPropertyFunction {
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueName : _valueNames) {
-      defaults.addValuePropertyName(valueName, BondFunction.TYPE_CREDIT);
-      defaults.addValuePropertyName(valueName, BondFunction.TYPE_RISK_FREE);
+      defaults.addValuePropertyName(valueName, BondFunction.PROPERTY_RISK_FREE_CURVE);
     }
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (BondFunction.TYPE_CREDIT.equals(propertyName)) {
-      return Collections.singleton(_creditCurve);
-    }
-    if (BondFunction.TYPE_RISK_FREE.equals(propertyName)) {
+    if (BondFunction.PROPERTY_RISK_FREE_CURVE.equals(propertyName)) {
       return Collections.singleton(_riskFreeCurve);
     }
     return null;
   }
+
 }

@@ -48,7 +48,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveShiftFunction;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromYieldFunction;
 import com.opengamma.financial.analytics.model.bond.BondCouponPaymentDiaryFunction;
-import com.opengamma.financial.analytics.model.bond.BondDefaultCurveNameFunction;
+import com.opengamma.financial.analytics.model.bond.BondDefaultCurveNamesFunction;
 import com.opengamma.financial.analytics.model.bond.BondDirtyPriceFromCurvesFunction;
 import com.opengamma.financial.analytics.model.bond.BondDirtyPriceFromYieldFunction;
 import com.opengamma.financial.analytics.model.bond.BondMacaulayDurationFromCurvesFunction;
@@ -60,8 +60,11 @@ import com.opengamma.financial.analytics.model.bond.BondModifiedDurationFromCurv
 import com.opengamma.financial.analytics.model.bond.BondModifiedDurationFromYieldFunction;
 import com.opengamma.financial.analytics.model.bond.BondTenorFunction;
 import com.opengamma.financial.analytics.model.bond.BondYieldFromCurvesFunction;
-import com.opengamma.financial.analytics.model.bond.BondZSpreadFunction;
-import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFunction;
+import com.opengamma.financial.analytics.model.bond.BondZSpreadDefaultRiskFreeCurveNamesFunction;
+import com.opengamma.financial.analytics.model.bond.BondZSpreadFromCurveCleanPriceFunction;
+import com.opengamma.financial.analytics.model.bond.BondZSpreadFromMarketCleanPriceFunction;
+import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction;
+import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFutureYieldCurveNodeSensitivityFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
@@ -593,12 +596,16 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(BondDirtyPriceFromYieldFunction.class));
     functionConfigs.add(functionConfiguration(BondMacaulayDurationFromYieldFunction.class));
     functionConfigs.add(functionConfiguration(BondModifiedDurationFromYieldFunction.class));
-    functionConfigs.add(functionConfiguration(BondZSpreadFunction.class));
-    functionConfigs.add(functionConfiguration(BondZSpreadPresentValueSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(BondZSpreadFromCurveCleanPriceFunction.class));
+    functionConfigs.add(functionConfiguration(BondZSpreadFromMarketCleanPriceFunction.class));
+    functionConfigs.add(functionConfiguration(BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction.class));
+    functionConfigs.add(functionConfiguration(BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction.class));
     functionConfigs.add(functionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class));
-    functionConfigs.add(functionConfiguration(BondDefaultCurveNameFunction.class, "FUNDING", "FUNDING", ValueRequirementNames.CLEAN_PRICE, 
-        ValueRequirementNames.DIRTY_PRICE, ValueRequirementNames.MACAULAY_DURATION, ValueRequirementNames.MODIFIED_DURATION, ValueRequirementNames.YTM, 
-        ValueRequirementNames.Z_SPREAD, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY));
+    functionConfigs.add(functionConfiguration(BondDefaultCurveNamesFunction.class, "FUNDING", "FUNDING", ValueRequirementNames.CLEAN_PRICE, 
+        ValueRequirementNames.DIRTY_PRICE, ValueRequirementNames.MACAULAY_DURATION, ValueRequirementNames.MODIFIED_DURATION, ValueRequirementNames.YTM,
+        ValueRequirementNames.Z_SPREAD));
+//    functionConfigs.add(functionConfiguration(BondZSpreadDefaultRiskFreeCurveNamesFunction.class, "FUNDING", ValueRequirementNames.Z_SPREAD, 
+//        ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY));
   }
 
   private static void addForexSingleBarrierOptionCalculators(List<FunctionConfiguration> functionConfigs) {
