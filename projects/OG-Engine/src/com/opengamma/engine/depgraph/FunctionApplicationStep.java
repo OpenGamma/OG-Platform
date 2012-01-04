@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.google.common.collect.Sets;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.depgraph.ResolveTask.State;
+import com.opengamma.engine.depgraph.ResolvedValueCallback.ResolvedValueCallbackChain;
 import com.opengamma.engine.function.CompiledFunctionDefinition;
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
@@ -339,7 +340,7 @@ import com.opengamma.util.tuple.Pair;
       }
       s_logger.debug("Resolving additional requirements for {} on {}", getFunction(), inputs);
       final AtomicInteger lock = new AtomicInteger(1);
-      final ResolvedValueCallback callback = new ResolvedValueCallback() {
+      final ResolvedValueCallback callback = new ResolvedValueCallbackChain() {
 
         private final AtomicBoolean _pumped = new AtomicBoolean(false);
 
@@ -367,6 +368,15 @@ import com.opengamma.util.tuple.Pair;
               pump(context);
             }
           }
+        }
+
+        @Override
+        public int cancelLoopMembers(final GraphBuildingContext context, final Set<Object> visited) {
+          int result = getWorker().cancelLoopMembers(context, visited);
+          if (substituteWorker != null) {
+            result += substituteWorker.cancelLoopMembers(context, visited);
+          }
+          return result;
         }
 
         @Override

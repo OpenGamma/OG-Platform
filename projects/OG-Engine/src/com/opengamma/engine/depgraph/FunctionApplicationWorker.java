@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -348,6 +349,19 @@ import com.opengamma.engine.value.ValueSpecification;
    */
   protected boolean isActive() {
     return !_closed;
+  }
+
+  @Override
+  public int cancelLoopMembers(final GraphBuildingContext context, final Set<Object> visited) {
+    FunctionApplicationStep.PumpingState state;
+    synchronized (this) {
+      state = _taskState;
+    }
+    int result = super.cancelLoopMembers(context, visited);
+    if (state != null) {
+      result += state.cancelLoopMembers(context, visited);
+    }
+    return result;
   }
 
 }

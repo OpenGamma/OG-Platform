@@ -91,23 +91,23 @@ public final class ViewDefinitionCompiler {
   }
 
   private static Map<String, DependencyGraph> processDependencyGraphs(ViewCompilationContext context) {
-    final ExecutorCompletionService<DependencyGraphBuilder> completer = new ExecutorCompletionService<DependencyGraphBuilder>(context.getServices().getExecutorService());
+    final ExecutorCompletionService<Pair<DependencyGraphBuilder, DependencyGraph>> completer = new ExecutorCompletionService<Pair<DependencyGraphBuilder, DependencyGraph>>(context.getServices()
+        .getExecutorService());
     final AtomicInteger count = new AtomicInteger();
     for (final DependencyGraphBuilder builder : context.getBuilders().values()) {
       count.incrementAndGet();
-      completer.submit(new Callable<DependencyGraphBuilder>() {
+      completer.submit(new Callable<Pair<DependencyGraphBuilder, DependencyGraph>>() {
         @Override
-        public DependencyGraphBuilder call() {
-          builder.getDependencyGraph(/*false*/);
-          return builder;
+        public Pair<DependencyGraphBuilder, DependencyGraph> call() {
+          return Pair.of(builder, builder.getDependencyGraph());
         }
       });
     }
     Map<String, DependencyGraph> result = new HashMap<String, DependencyGraph>();
     while (count.getAndDecrement() > 0) {
       try {
-        final DependencyGraphBuilder builder = completer.take().get();
-        result.put(builder.getCalculationConfigurationName(), builder.getDependencyGraph());
+        final Pair<DependencyGraphBuilder, DependencyGraph> builderAndGraph = completer.take().get();
+        result.put(builderAndGraph.getFirst().getCalculationConfigurationName(), builderAndGraph.getSecond());
       } catch (Exception e) {
         throw new OpenGammaRuntimeException("Caught exception", e);
       }
