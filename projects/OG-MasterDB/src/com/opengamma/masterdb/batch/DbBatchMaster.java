@@ -51,23 +51,6 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster {
     _dbBatchWriter = new DbBatchWriter(dbConnector);
   }  
 
-  
-  /*public BatchDocument(Long riskRunId, UniqueId viewDefinitionUid, UniqueId marketDataSnapshotUid, 
-                         Instant valuationTime, VersionCorrection versionCorrection, BatchStatus batchStatus,
-                         Instant creationTime, Instant startTime, Instant endTime, Int numRestarts) {
-      this(
-        UniqueId.of(BatchMaster.IDENTIFIER_SCHEME_DEFAULT, Long.toString(riskRunId),
-        UniqueId.parse(viewDefinitionUid),
-        UniqueId.parse(marketDataSnapshotUid),
-          valuationTime,
-          versionCorrection,
-          batchStatus,
-          creationTime,
-          startTime,
-          endTime,
-          numRestarts);
-    }*/
-
 
   @Override
   public BatchDocument get(final UniqueId uniqueId) {
