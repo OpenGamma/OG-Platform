@@ -265,7 +265,6 @@ public class PDEDataBundleProvider {
     return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), payoff);
   }
 
-
   public ConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final double strike, final double maturity, final boolean isCall,
       final LocalVolatilitySurface localVol) {
 
@@ -281,7 +280,6 @@ public class PDEDataBundleProvider {
       }
     };
 
-
     final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
 
       @Override
@@ -295,7 +293,6 @@ public class PDEDataBundleProvider {
 
     return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0), ConstantDoublesSurface.from(0), payoff);
   }
-
 
   public ConvectionDiffusionPDEDataBundle getForwardLocalVol(final ForwardCurve forward, final double beta, final boolean isCall,
       final AbsoluteLocalVolatilitySurface localVol) {
@@ -379,6 +376,56 @@ public class PDEDataBundleProvider {
     };
 
     return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0), ConstantDoublesSurface.from(0), payoff);
+  }
+
+  public ConvectionDiffusionPDEDataBundle getForwardLocalVolMoneyness(final double spot, final boolean isCall,
+      final LocalVolatilitySurface localVol) {
+    final double lambda = 100;
+
+    final Function<Double, Double> a = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tx) {
+        Validate.isTrue(tx.length == 2);
+        final double t = tx[0];
+        final double x = tx[1];
+
+        double l1 = 1 + lambda * t;
+        double l2 = Math.sqrt(l1);
+        double k = spot * Math.exp(-x / l2);
+        final double temp = localVol.getVolatility(t, k);
+        return -0.5 * temp * temp / l1;
+      }
+    };
+
+    final Function<Double, Double> b = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tx) {
+        Validate.isTrue(tx.length == 2);
+        final double t = tx[0];
+        final double x = tx[1];
+
+        double l1 = 1 + lambda * t;
+        double l2 = Math.sqrt(l1);
+        double k = spot * Math.exp(-x / l2);
+        final double vol = localVol.getVolatility(t, k);
+        return -0.5 * (lambda * x / l1 - vol * vol / l2);
+      }
+    };
+
+    final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double x) {
+
+        double k = spot * Math.exp(-x);
+        if (isCall) {
+          return Math.max(0, spot - k);
+        }
+        return Math.max(0, k - spot);
+      }
+    };
+
+    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(0), payoff);
   }
 
   public ExtendedConvectionDiffusionPDEDataBundle getFokkerPlank(final ForwardCurve forward, final double beta, final AbsoluteLocalVolatilitySurface localVol) {

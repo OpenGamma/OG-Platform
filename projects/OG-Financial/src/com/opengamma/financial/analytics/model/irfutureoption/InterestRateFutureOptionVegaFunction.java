@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
@@ -45,34 +45,30 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * 
+ *
  */
 public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOptionFunction {
   private static final LinearInterpolator1D LINEAR = Interpolator1DFactory.LINEAR_INSTANCE;
   private static final GridInterpolator2D NODE_SENSITIVITY_CALCULATOR = new GridInterpolator2D(LINEAR, LINEAR);
-  private VolatilitySurfaceDefinition<?, ?> _definition;
-
-  public InterestRateFutureOptionVegaFunction(String forwardCurveName, String fundingCurveName, final String surfaceName) {
-    super(forwardCurveName, fundingCurveName, surfaceName);
-  }
+  private ConfigDBVolatilitySurfaceDefinitionSource _volSurfaceDefinitionSource;
 
   @Override
   public void init(final FunctionCompilationContext context) {
     super.init(context);
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBVolatilitySurfaceDefinitionSource volSurfaceDefinitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
-    _definition = volSurfaceDefinitionSource.getDefinition(getSurfaceName(), "IR_FUTURE_OPTION");
-    if (_definition == null) {
-      throw new OpenGammaRuntimeException("Couldn't find volatility surface definition for IR future option surface called " + getSurfaceName());
-    }
+    _volSurfaceDefinitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
   }
 
   @SuppressWarnings({"unchecked" })
   @Override
-  protected Set<ComputedValue> getResults(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, final Set<ValueRequirement> desiredValues, final FunctionInputs inputs,
-      final ComputationTarget target) {
+  protected Set<ComputedValue> getResults(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, final ComputationTarget target,
+      final FunctionInputs inputs, final String forwardCurveName, final String fundingCurveName, final String surfaceName) {
+    final VolatilitySurfaceDefinition<?, ?> definition = _volSurfaceDefinitionSource.getDefinition(surfaceName, "IR_FUTURE_OPTION");
+    if (definition == null) {
+      throw new OpenGammaRuntimeException("Couldn't find volatility surface definition for IR future option surface called " + surfaceName);
+    }
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-    final ValueProperties sensitivityProperties = getModelSensitivityProperties(ccy.getCode());
+    final ValueProperties sensitivityProperties = getModelSensitivityProperties(ccy.getCode(), forwardCurveName, fundingCurveName, surfaceName);
     final Object alphaSensitivityObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.getTrade(), sensitivityProperties));
     if (alphaSensitivityObject == null) {
       throw new OpenGammaRuntimeException("Could not get alpha sensitivity");
@@ -85,12 +81,12 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
     if (rhoSensitivityObject == null) {
       throw new OpenGammaRuntimeException("Could not get rho sensitivity");
     }
-    final ValueRequirement surfacesRequirement = getSurfaceRequirement(target);
+    final ValueRequirement surfacesRequirement = getSurfaceRequirement(target, surfaceName);
     final Object sabrSurfacesObject = inputs.getValue(surfacesRequirement);
     if (sabrSurfacesObject == null) {
       throw new OpenGammaRuntimeException("Could not get SABR fitted surfaces");
     }
-    final ValueRequirement fittedDataRequirement = getFittedDataRequirement(ccy);
+    final ValueRequirement fittedDataRequirement = getFittedDataRequirement(ccy, surfaceName);
     final Object fittedDataObject = inputs.getValue(fittedDataRequirement);
     if (fittedDataObject == null) {
       throw new OpenGammaRuntimeException("Could not get fitted data points information");
@@ -115,8 +111,9 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
     final DoublesPair expiryMaturity = DoublesPair.of(expiry, maturity);
     final double[] expiryValues = alphaSurface.getXDataAsPrimitive();
     final DoubleMatrix2D result = SABRVegaCalculationUtils.getVegaSurface(alpha, rho, nu, alphaDataBundle, rhoDataBundle, nuDataBundle, inverseJacobians, expiryMaturity, NODE_SENSITIVITY_CALCULATOR,
-        fittedData.getData(), (VolatilitySurfaceDefinition<Object, Object>) _definition);
-    return Collections.singleton(new ComputedValue(getResultSpec(target), VegaMatrixHelper.getVegaIRFutureOptionQuoteMatrixInStandardForm(_definition, result, expiryValues)));
+        fittedData.getData(), (VolatilitySurfaceDefinition<Object, Object>) definition);
+    final ValueSpecification resultSpec = getResultSpec(target, forwardCurveName, fundingCurveName, surfaceName);
+    return Collections.singleton(new ComputedValue(resultSpec, VegaMatrixHelper.getVegaIRFutureOptionQuoteMatrixInStandardForm(definition, result, expiryValues)));
   }
 
   @Override
@@ -127,31 +124,64 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>(super.getRequirements(context, target, desiredValue));
+    final Set<String> forwardCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+    if (forwardCurves == null || forwardCurves.size() != 1) {
+      return null;
+    }
+    final Set<String> fundingCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    if (fundingCurves == null || fundingCurves.size() != 1) {
+      return null;
+    }
+    final Set<String> surfaceNames = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE);
+    if (surfaceNames == null || surfaceNames.size() != 1) {
+      return null;
+    }
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
     final String ccyCode = ccy.getCode();
-    final ValueProperties sensitivityProperties = getModelSensitivityProperties(ccyCode);
+    final String forwardCurveName = forwardCurves.iterator().next();
+    final String fundingCurveName = fundingCurves.iterator().next();
+    final String surfaceName = surfaceNames.iterator().next();
+    final ValueProperties sensitivityProperties = getModelSensitivityProperties(ccyCode, forwardCurveName, fundingCurveName, surfaceName);
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.getTrade(), sensitivityProperties));
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY, target.getTrade(), sensitivityProperties));
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY, target.getTrade(), sensitivityProperties));
-    requirements.add(getFittedDataRequirement(ccy));
+    requirements.add(getFittedDataRequirement(ccy, surfaceName));
     return requirements;
   }
 
   private ValueSpecification getResultSpec(final ComputationTarget target) {
-    return new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(), createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode()).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName()).with(ValuePropertyNames.SURFACE, getSurfaceName())
+    return new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(),
+        createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
+        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .withAny(ValuePropertyNames.SURFACE)
         .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get());
   }
 
-  private ValueProperties getModelSensitivityProperties(final String ccyCode) {
-    return ValueProperties.builder().with(ValuePropertyNames.CURRENCY, ccyCode).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName()).with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+  private ValueSpecification getResultSpec(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName,
+      final String surfaceName) {
+    return new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(),
+        createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get());
   }
 
-  private ValueRequirement getFittedDataRequirement(final Currency ccy) {
-    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).with(ValuePropertyNames.SURFACE, getSurfaceName())
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
+  private ValueProperties getModelSensitivityProperties(final String ccyCode, final String forwardCurveName, final String fundingCurveName, final String surfaceName) {
+    return ValueProperties.builder().with(ValuePropertyNames.CURRENCY, ccyCode)
+    .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+    .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+    .with(ValuePropertyNames.SURFACE, surfaceName).get();
+  }
+
+  private ValueRequirement getFittedDataRequirement(final Currency ccy, final String surfaceName) {
+    final ValueProperties properties = ValueProperties.builder()
+      .with(ValuePropertyNames.CURRENCY, ccy.getCode())
+      .with(ValuePropertyNames.SURFACE, surfaceName)
+      .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
     return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_FITTED_POINTS, ccy, properties);
   }
 }

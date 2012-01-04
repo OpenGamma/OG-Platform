@@ -195,7 +195,7 @@ public class TwoStateMarkovChainLocalVolFitter {
     //Solve the forward PDE with the local vol overlay to check match with data
     final TwoStateMarkovChainPricer pricer = new TwoStateMarkovChainPricer(forward, chainData, lvOverlay);
     final PDEFullResults1D res = pricer.solve(grid, 1.0);
-    final Map<DoublesPair, Double> modelVols = PDEUtilityTools.priceToImpliedVol(forward, res, minT, maxT, minK, maxK);
+    final Map<DoublesPair, Double> modelVols = PDEUtilityTools.priceToImpliedVol(forward, res, minT, maxT, minK, maxK, true);
     final Map<Double, Interpolator1DDataBundle> volData = GRID_INTERPOLATOR2D.getDataBundle(modelVols);
 
     final Iterator<Entry<DoublesPair, Double>> iter = marketVolsMap.entrySet().iterator();

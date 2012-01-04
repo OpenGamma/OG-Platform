@@ -132,7 +132,7 @@ $.register_module({
                 if (!args.id) default_details();
             },
             load_filter: function (args) {
-                check_state({args: args, conditions: [{new_value: 'id', stop: true, method: function (args) {
+                check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
                     view[args.id ? 'load_item' : 'load'](args);
                 }}]});
                 search.filter(args);
