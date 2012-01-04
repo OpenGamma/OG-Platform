@@ -116,4 +116,8 @@ public class PDEFullResults1D implements PDEResults1D {
     return _grid;
   }
 
+  public PDEFullResults1D withGrid(final PDEGrid1D grid) {
+    return new PDEFullResults1D(grid, _f);
+  }
+
 }
