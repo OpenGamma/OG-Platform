@@ -176,7 +176,7 @@
     }
     
     this.openExplain = function($cell, colId, rowId, popupTitle) {
-      if (_dataView.rows[rowId][colId] == false) {
+      if (_dataView.getItemById(rowId)[colId] == false) {
         // Not in dep graph
         return;
       }
