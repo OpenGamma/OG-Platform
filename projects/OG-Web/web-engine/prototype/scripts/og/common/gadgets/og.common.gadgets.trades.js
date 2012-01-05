@@ -44,11 +44,10 @@ $.register_module({
                         return expander + (trade[field].replace(/.*~/, '')).lang();
                     }).join('</td><td>'), end);
                     (function () { // display attributes if available
-                        var attr, attr_type, attr_obj, key, html = [], keys = Object.keys, trd_attr = trade.attributes;
-                        if (!keys(trd_attr['dealAttributes']).length && !keys(trd_attr['userAttributes']).length) return;
+                        if (!trade.attributes) return;
+                        var attr, attr_type, attr_obj, key, html = [];
                         for (attr_type in trade.attributes) {
                             attr_obj = trade.attributes[attr_type], attr = [];
-                            if (!Object.keys(attr_obj).length) continue;
                             for (key in attr_obj) attr.push(
                                 start, key.replace(/.+~(.+)/, '$1').lang(), ':</td><td>', attr_obj[key].lang(), end
                             );
