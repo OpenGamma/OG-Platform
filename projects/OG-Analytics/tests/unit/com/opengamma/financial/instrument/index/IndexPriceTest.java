@@ -17,7 +17,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Tests related to the construction of price index.
  */
-public class PriceIndexTest {
+public class IndexPriceTest {
 
   private static final String NAME = "Euro HICP x";
   private static final Currency CUR = Currency.EUR;
