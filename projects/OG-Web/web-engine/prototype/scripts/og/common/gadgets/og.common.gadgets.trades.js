@@ -72,11 +72,32 @@ $.register_module({
                         });
                     } else $this.find('.og-icon-expand').css('visibility', 'hidden');
                 });
-//                $(selector).append(
-//                    '<a href="#" class="OG-link-add" style="position: relative; left: 2px; top: 3px;">add new trade</a>'
-//                ).bind('click', function (e) {
-//                    e.preventDefault();
-//                });
+                // Add trades functionality
+//                (function () {
+//                    var link = '<a href="#" class="OG-link-add" \
+//                        style="position: relative; left: 2px; top: 3px;">add new trade</a>';
+//                    $(selector).append(link).find('.OG-link-add').bind('click', function (e) {
+//                        e.preventDefault();
+//                        ui.dialog({
+//                            type: 'input',
+//                            title: 'Add New Trade',
+//                            minWidth: 400,
+//                            minHeight: 400,
+//                            fields: [
+//                                {type: 'input', name: 'Quantity', id: 'quantity'},
+//                                {type: 'input', name: 'Counterparty', id: 'counterparty'},
+//                                {type: 'input', name: 'Trade Date / Time', id: 'trade_date'},
+//                                {type: 'input', name: 'Premium', id: 'premium'},
+//                                {type: 'input', name: 'Premium Date / Time', id: 'premium_date'}
+//                            ],
+//                            buttons: {
+//                                'OK': function () {
+//                                    $(this).dialog('close');
+//                                }
+//                            }
+//                        })
+//                    });
+//                }());
                 $(selector + ' > .OG-table > tbody > tr:not(".og-js-attribute"):last td').css('padding-bottom', '10px');
                 $(selector + ' .OG-table').awesometable({height: 400});
             };

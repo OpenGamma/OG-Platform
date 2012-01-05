@@ -102,7 +102,6 @@ $.register_module({
                                 displayOnly: true,                          // This is an OG custom configuration
                                 specialDates: json.dates                    // This is an OG custom configuration
                             });
-                            details.favorites();
                             ui.toolbar(options.toolbar.active);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             details.calendar_ui_changes(json.dates);
