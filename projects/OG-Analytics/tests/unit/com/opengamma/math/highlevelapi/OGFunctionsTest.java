@@ -6,11 +6,13 @@
 package com.opengamma.math.highlevelapi;
 
 import static com.opengamma.math.highlevelapi.OGFunctions.abs;
+import static com.opengamma.math.highlevelapi.OGFunctions.diag;
 import static com.opengamma.math.highlevelapi.OGFunctions.fliplr;
 import static com.opengamma.math.highlevelapi.OGFunctions.flipud;
 import static com.opengamma.math.highlevelapi.OGFunctions.horzcat;
 import static com.opengamma.math.highlevelapi.OGFunctions.multiply;
 import static com.opengamma.math.highlevelapi.OGFunctions.print;
+import static com.opengamma.math.highlevelapi.OGFunctions.repmat;
 import static com.opengamma.math.highlevelapi.OGFunctions.reshape;
 import static com.opengamma.math.highlevelapi.OGFunctions.transpose;
 import static com.opengamma.math.highlevelapi.OGFunctions.unique;
@@ -112,6 +114,42 @@ public class OGFunctionsTest {
     System.out.println("transpose"+transpose(ogDoubleMatrixData).toString());
   }
 
+  @Test
+  public void testOGArrayRepmat() {
+    System.out.println("repmat = "+repmat(ogDoubleMatrixData,4,3).toString());
+  }
+
+  @Test
+  public void testOGArrayDiag() {
+    System.out.println("mat = "+ogDoubleMatrixData.toString());
+    System.out.println("diag(mat) = "+diag(ogDoubleMatrixData).toString());
+    System.out.println("diag(mat,1) = "+diag(ogDoubleMatrixData,1).toString());
+    System.out.println("diag(mat,2) = "+diag(ogDoubleMatrixData,2).toString());
+    System.out.println("diag(mat,3) = "+diag(ogDoubleMatrixData,3).toString());
+    System.out.println("diag(mat,4) = "+diag(ogDoubleMatrixData,4).toString());
+
+    System.out.println("diag(transpose(mat)) = "+diag(transpose(ogDoubleMatrixData)).toString());
+    System.out.println("diag(transpose(mat),1) = "+diag(transpose(ogDoubleMatrixData),1).toString());
+    System.out.println("diag(transpose(mat),2) = "+diag(transpose(ogDoubleMatrixData),2).toString());
+
+    System.out.println("diag(mat,-1) = "+diag(ogDoubleMatrixData,-1).toString());
+    System.out.println("diag(mat,-2) = "+diag(ogDoubleMatrixData,-2).toString());
+
+    System.out.println("diag(transpose(mat)) = "+diag(transpose(ogDoubleMatrixData)).toString());
+    System.out.println("diag(transpose(mat),-1) = "+diag(transpose(ogDoubleMatrixData),-1).toString());
+    System.out.println("diag(transpose(mat),-2) = "+diag(transpose(ogDoubleMatrixData),-2).toString());
+    System.out.println("diag(transpose(mat),-3) = "+diag(transpose(ogDoubleMatrixData),-3).toString());
+    System.out.println("diag(transpose(mat),-4) = "+diag(transpose(ogDoubleMatrixData),-4).toString());
+
+    System.out.println("diag(vect,-1) = "+diag(ogDoubleVectorData,-1).toString());
+    System.out.println("diag(vect,-4) = "+diag(ogDoubleVectorData,-4).toString());
+    System.out.println("diag(vect,7) = "+diag(ogDoubleVectorData,7).toString());
+    System.out.println("diag(vect,0) = "+diag(ogDoubleVectorData,0).toString());
+    System.out.println("diag(vect) = "+diag(ogDoubleVectorData).toString());
+
+  }
+
+
   /* TEST OGIndex */
   @Test
   public void testOGIndexUnique() {
@@ -141,6 +179,11 @@ public class OGFunctionsTest {
   @Test
   public void testOGIndextranspose() {
     System.out.println("transpose"+transpose(horzcat(ogIntMatrixData, ogIntMatrixData, ogIntRepeatMatrixData)).toString());
+  }
+
+  @Test
+  public void testOGIndexRepmat() {
+    System.out.println("repmat = "+repmat(ogIntMatrixData,2,3).toString());
   }
 
 }

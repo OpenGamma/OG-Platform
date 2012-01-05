@@ -6,6 +6,7 @@
 package com.opengamma.math.highlevelapi;
 
 import com.opengamma.math.BLAS.BLAS2;
+import com.opengamma.math.utilities.Min;
 import com.opengamma.math.utilities.Reverse;
 
 /**
@@ -392,6 +393,230 @@ public class OGFunctions {
     }
     return new OGIndex(tmp);
   }
+
+  /**
+   * Repmat, creates a new matrix by repeatedly copying a matrix tiling it "n" times in the horizontal and "m" in the vertical
+   * @param thisArray the array to be tiled
+   * @param m the number of tiles in the vertical direction
+   * @param n the number of tiles in the horizontal direction
+   * @return tmp a new matrix made from m x n tiles of thisArray
+   */
+  public static OGArray repmat(OGArray thisArray, int m, int n) {
+    catchNull(thisArray);
+    if (n < 1 | m < 1) {
+      throw new MathsException("The number of tiles in the m and n directions must be greater than 1 (" + m + " x " + n + "given).");
+    }
+    int rows = thisArray.getNumberOfRows();
+    int cols = thisArray.getNumberOfColumns();
+    double[][] tmp = new double[m * rows][n * cols];
+    double[] localRow;
+    int offsetRows;
+    for (int i = 0; i < m; i++) {
+      offsetRows = i * rows;
+      for (int k = 0; k < rows; k++) {
+        localRow = thisArray.getFullRow(k);
+        for (int j = 0; j < n; j++) {
+          System.arraycopy(localRow, 0, tmp[offsetRows + k], j * cols, cols);
+        }
+      }
+    }
+    return new OGArray(tmp);
+  }
+
+  /**
+   * Repmat, creates a new matrix by repeatedly copying a matrix tiling it "n" times in the horizontal and "m" in the vertical
+   * @param thisArray the array to be tiled
+   * @param m the number of tiles in the vertical direction
+   * @param n the number of tiles in the horizontal direction
+   * @return tmp a new matrix made from m x n tiles of thisArray
+   */
+  public static OGIndex repmat(OGIndex thisArray, int m, int n) {
+    catchNull(thisArray);
+    if (n < 1 | m < 1) {
+      throw new MathsException("The number of tiles in the m and n directions must be greater than 1 (" + m + " x " + n + "given).");
+    }
+    int rows = thisArray.getNumberOfRows();
+    int cols = thisArray.getNumberOfColumns();
+    int[][] tmp = new int[m * rows][n * cols];
+    int[] localRow;
+    int offsetRows;
+    for (int i = 0; i < m; i++) {
+      offsetRows = i * rows;
+      for (int k = 0; k < rows; k++) {
+        localRow = thisArray.getFullRow(k).getData();
+        for (int j = 0; j < n; j++) {
+          System.arraycopy(localRow, 0, tmp[offsetRows + k], j * cols, cols);
+        }
+      }
+    }
+    return new OGIndex(tmp);
+  }
+
+  /**
+   * Diag performs operations on the matrix diagonals.
+   * @param thisArray
+   * @return
+   */
+  public static OGArray diag(OGArray thisArray) {
+    catchNull(thisArray);
+    final int rows = thisArray.getNumberOfRows();
+    final int cols = thisArray.getNumberOfColumns();
+    double[][] tmp = null;
+    if (rows == 1 || cols == 1) { // we are creating a diagonal matrix
+      final int dim = rows == 1 ? cols : rows;
+      tmp = new double[dim][dim];
+      double[] dptr = thisArray.getData();
+      for (int i = 0; i < dim; i++) {
+        tmp[i][i] = dptr[i];
+      }
+    } else { // we are extracting the diagonal from a matrix
+      final int dim = rows < cols ? rows : cols;
+      tmp = new double[1][dim];
+      double[] dptr = thisArray.getData();
+      for (int i = 0; i < dim; i++) {
+        tmp[0][i] = dptr[i * cols + i];
+      }
+    }
+    return new OGArray(tmp);
+  }
+
+  /**
+   * Diag performs operations on the matrix diagonals.
+   * @param thisArray
+   * @return
+   */
+  public static OGIndex diag(OGIndex thisArray) {
+    catchNull(thisArray);
+    final int rows = thisArray.getNumberOfRows();
+    final int cols = thisArray.getNumberOfColumns();
+    int[][] tmp = null;
+    int[] dptr = thisArray.getData();
+    if (rows == 1 || cols == 1) { // we are creating a diagonal matrix
+      final int dim = rows == 1 ? cols : rows;
+      tmp = new int[dim][dim];
+      for (int i = 0; i < dim; i++) {
+        tmp[i][i] = dptr[i];
+      }
+    } else { // we are extracting the diagonal from a matrix
+      final int dim = rows < cols ? rows : cols;
+      tmp = new int[1][dim];
+      for (int i = 0; i < dim; i++) {
+        tmp[0][i] = dptr[i * cols + i];
+      }
+    }
+    return new OGIndex(tmp);
+  }
+
+  /**
+   * Diag performs operations on the matrix diagonals.
+   * @param thisArray
+   * @return
+   */
+  public static OGArray diag(OGArray thisArray, int k) {
+    catchNull(thisArray);
+    final int rows = thisArray.getNumberOfRows();
+    final int cols = thisArray.getNumberOfColumns();
+
+    double[] dptr = thisArray.getData();
+    // do the calc
+    double[][] tmp = null;
+    if (rows == 1 || cols == 1) { // we are creating a kth diagonal matrix
+      final int dim = rows == 1 ? cols + Math.abs(k) : rows + Math.abs(k);
+      tmp = new double[dim][dim];
+      if (k > 0) { // k in upper triangle
+        for (int i = 0; i < dim - k; i++) {
+          tmp[i][i + k] = dptr[i];
+        }
+      } else { // k on diag or in lower triangle
+        for (int i = 0; i < dim + k; i++) {
+          tmp[i - k][i] = dptr[i];
+        }
+      }
+    } else { // we are extracting the kth diagonal from a matrix
+      if (k > 0 && k > cols - 1) {
+        throw new MathsException("The + " + k + "^th diagonal was requested but the matrix only has " + cols + " columns.");
+      }
+      if (k < 0 && -k > rows - 1) {
+        throw new MathsException("The + " + k + "^th diagonal was requested but the matrix only has " + rows + " rows.");
+      }
+      // shortcut for 0 k.
+      if (k == 0) {
+        return diag(thisArray);
+      }
+      if (k > 0) {
+        int mlen = Min.value(new int[] {cols - k, rows });
+        tmp = new double[1][mlen];
+        for (int i = 0; i < mlen; i++) {
+          tmp[0][i] = dptr[i * cols + i + k];
+        }
+      } else {
+        int pk = -k;
+        int mlen = Min.value(new int[] {rows - pk, cols});
+        tmp = new double[1][mlen];
+        for (int i = 0; i < mlen; i++) {
+          tmp[0][i] = dptr[pk * cols + i * cols + i];
+        }
+      }
+
+    }
+    return new OGArray(tmp);
+  }
+
+  /**
+   * Diag performs operations on the matrix diagonals.
+   * @param thisArray
+   * @return
+   */
+  public static OGIndex diag(OGIndex thisArray, int k) {
+    catchNull(thisArray);
+    final int rows = thisArray.getNumberOfRows();
+    final int cols = thisArray.getNumberOfColumns();
+
+    int[] dptr = thisArray.getData();
+    // do the calc
+    int[][] tmp = null;
+    if (rows == 1 || cols == 1) { // we are creating a kth diagonal matrix
+      final int dim = rows == 1 ? cols + Math.abs(k) : rows + Math.abs(k);
+      tmp = new int[dim][dim];
+      if (k > 0) { // k in upper triangle
+        for (int i = 0; i < dim - k; i++) {
+          tmp[i][i + k] = dptr[i];
+        }
+      } else { // k on diag or in lower triangle
+        for (int i = 0; i < dim + k; i++) {
+          tmp[i - k][i] = dptr[i];
+        }
+      }
+    } else { // we are extracting the kth diagonal from a matrix
+      if (k > 0 && k > cols - 1) {
+        throw new MathsException("The + " + k + "^th diagonal was requested but the matrix only has " + cols + " columns.");
+      }
+      if (k < 0 && -k > rows - 1) {
+        throw new MathsException("The + " + k + "^th diagonal was requested but the matrix only has " + rows + " rows.");
+      }
+      // shortcut for 0 k.
+      if (k == 0) {
+        return diag(thisArray);
+      }
+      if (k > 0) {
+        int mlen = Min.value(new int[] {cols - k, rows });
+        tmp = new int[1][mlen];
+        for (int i = 0; i < mlen; i++) {
+          tmp[0][i] = dptr[i * cols + i + k];
+        }
+      } else {
+        int pk = -k;
+        int mlen = Min.value(new int[] {rows - pk, cols});
+        tmp = new int[1][mlen];
+        for (int i = 0; i < mlen; i++) {
+          tmp[0][i] = dptr[pk * cols + i * cols + i];
+        }
+      }
+
+    }
+    return new OGIndex(tmp);
+  }
+
 
   // printin
   @Deprecated
