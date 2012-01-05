@@ -34,7 +34,7 @@ public class InMemoryFunctionRepository implements FunctionRepository {
   public synchronized void addFunction(AbstractFunction function) {
     ArgumentChecker.notNull(function, "Function definition");
     if (function.getUniqueId() == null) {
-      function.setUniqueId(Integer.toString(_functions.size() + 1) + " (" + function.getClass().getSimpleName() + ")");
+      function.setUniqueId(Integer.toString(_functions.size() + 1) + " (" + function.getShortName() + ")");
     }
     _functions.add(function);
   }

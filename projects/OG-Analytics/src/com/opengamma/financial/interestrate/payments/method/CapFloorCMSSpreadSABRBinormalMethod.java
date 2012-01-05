@@ -47,7 +47,7 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
   /**
    * The method to compute the price o CMS coupons.
    */
-  private static final CouponCMSSABRReplicationMethod METHOD_CMS_COUPON = CouponCMSSABRReplicationMethod.getDefaultInstance();
+  private static final CouponCMSSABRReplicationMethod METHOD_CMS_COUPON = CouponCMSSABRReplicationMethod.getInstance();
   /**
    * The par rate calculator.
    */

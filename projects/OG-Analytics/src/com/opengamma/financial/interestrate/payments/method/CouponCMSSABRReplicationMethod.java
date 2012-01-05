@@ -21,7 +21,7 @@ public class CouponCMSSABRReplicationMethod {
    * Method returning a default instance. The default integration interval is 1.00 (100%).
    * @return A default instance
    */
-  public static CouponCMSSABRReplicationMethod getDefaultInstance() {
+  public static CouponCMSSABRReplicationMethod getInstance() {
     return INSTANCE;
   }
 
