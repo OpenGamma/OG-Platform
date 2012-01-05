@@ -10,9 +10,15 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
@@ -30,15 +36,13 @@ import com.opengamma.livedata.server.distribution.MarketDataDistributor;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * A {@link AbstractLiveDataServer} which delegates all the work to a set of {@link AbstractLiveDataServer} 
- * NOTE: this is only really a partial implementation of AbstractLiveDataServer
- *        e.g. Entitlement checking will have to be set up on this client as well as on the underlyings 
+ * A {@link AbstractLiveDataServer} which delegates all the work to a set of {@link AbstractLiveDataServer}  
  */
 public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
-  //TODO: things include Entitlement checking
   
   private static final Logger s_logger = LoggerFactory.getLogger(CombiningLiveDataServer.class);
 
+  private final ExecutorService _subscriptionExecutor = Executors.newCachedThreadPool();
   private final Set<AbstractLiveDataServer> _underlyings;
 
   public CombiningLiveDataServer(AbstractLiveDataServer... otherUnderlyings) {
@@ -119,20 +123,38 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
       }
     });
   }
-  private <T> Collection<T> forEachServer(Collection<LiveDataSpecification> specifications, Function<Pair<AbstractLiveDataServer, Collection<LiveDataSpecification>>, Collection<T>> operation)
+  private <T> Collection<T> forEachServer(Collection<LiveDataSpecification> specifications, final Function<Pair<AbstractLiveDataServer, Collection<LiveDataSpecification>>, Collection<T>> operation)
   {
     Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> mapped = groupByServer(specifications);
 
-    Collection<T> responses = new ArrayList<T>(specifications.size());
-
-    //TODO: should probably be asynchronous 
-    for (Entry<AbstractLiveDataServer, Collection<LiveDataSpecification>> entry : mapped.entrySet()) {
+    Collection<Future<Collection<T>>> futures = new ArrayList<Future<Collection<T>>>(mapped.size());
+    for (final Entry<AbstractLiveDataServer, Collection<LiveDataSpecification>> entry : mapped.entrySet()) {
       if (entry.getValue().isEmpty()) {
         continue;
       }
-      Collection<T> partitionResponse = operation.apply(Pair.of(entry.getKey(), entry.getValue()));
+      Future<Collection<T>> future = _subscriptionExecutor.submit(new Callable<Collection<T>>() {
+
+        @Override
+        public Collection<T> call() throws Exception {
+          return operation.apply(Pair.of(entry.getKey(), entry.getValue()));
+        }
+      });
       
-      responses.addAll(partitionResponse);
+      futures.add(future);
+    }
+    List<T> responses = new ArrayList<T>(specifications.size());
+    for (Future<Collection<T>> future : futures) {
+      try {
+        responses.addAll(future.get());
+      } catch (InterruptedException ex) {
+        //Should be rare, since the subscription methods should bundle everything into the response
+        s_logger.error("Unexpected exception when delegating subscription", ex);
+        throw new OpenGammaRuntimeException(ex.getMessage(), ex);
+      } catch (ExecutionException ex) {
+        //Should be rare, since the subscription methods should bundle everything into the response
+        s_logger.error("Unexpected exception when delegating subscription", ex);
+        throw new OpenGammaRuntimeException(ex.getMessage(), ex);
+      }
     }
     return responses;
   }
