@@ -398,16 +398,16 @@ $.register_module({
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             setTimeout(layout.inner.resizeAll);
                             /* POC */
-//                            (function () {
-//                                $('.OG-js-details-panel')
-//                                    .prepend('<input style="width: 300px; margin: 20px 0" id="timestamp" />');
-//                                api.text({module: 'og.data.timezone', handler: function (timezone_data) {
-//                                    $('#timestamp').datetimepicker({
-//                                        firstDay: 1, showTimezone: true,
-//                                        timezoneList: $.parseJSON(timezone_data)
-//                                    });
-//                                }});
-//                            }());
+                            (function () {
+                                $('.OG-js-details-panel')
+                                    .prepend('<input style="width: 300px; margin: 20px 0" id="timestamp" />');
+                                api.text({data: 'og.data.timezone', handler: function (timezone_data) {
+                                    $('#timestamp').datetimepicker({
+                                        firstDay: 1, showTimezone: true,
+                                        timezoneList: timezone_data
+                                    });
+                                }});
+                            }());
                         }});
                     },
                     id: args.id,
