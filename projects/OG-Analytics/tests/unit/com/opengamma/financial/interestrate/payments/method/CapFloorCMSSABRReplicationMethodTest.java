@@ -27,7 +27,7 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexSwap;
-import com.opengamma.financial.instrument.index.SwapGenerator;
+import com.opengamma.financial.instrument.index.GeneratorSwap;
 import com.opengamma.financial.instrument.index.generator.USD6MLIBOR3M;
 import com.opengamma.financial.instrument.payment.CapFloorCMSDefinition;
 import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
@@ -117,7 +117,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
   private static final PresentValueSABRSensitivitySABRCalculator PVSSC_SABR = PresentValueSABRSensitivitySABRCalculator.getInstance();
   private static final CapFloorCMSSABRReplicationMethod METHOD = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
 
-  private static final SwapGenerator USD_GENERATOR = new USD6MLIBOR3M(CALENDAR);
+  private static final GeneratorSwap USD_GENERATOR = new USD6MLIBOR3M(CALENDAR);
   private static final IndexSwap USD_SWAP_10Y = new IndexSwap(USD_GENERATOR, Period.ofYears(5));
   private static final ZonedDateTime SPOT_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, USD_GENERATOR.getIborIndex().getSpotLag(), CALENDAR);
 

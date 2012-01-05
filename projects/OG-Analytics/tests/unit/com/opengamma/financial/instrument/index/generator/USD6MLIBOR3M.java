@@ -9,13 +9,13 @@ import javax.time.calendar.Period;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.index.SwapGenerator;
+import com.opengamma.financial.instrument.index.GeneratorSwap;
 import com.opengamma.financial.instrument.index.iborindex.USDLIBOR3M;
 
 /**
  * Swap generator for the USD semi-annual 30/360 vs Libor 3M.
  */
-public class USD6MLIBOR3M extends SwapGenerator {
+public class USD6MLIBOR3M extends GeneratorSwap {
 
   /**
    * Constructor.
