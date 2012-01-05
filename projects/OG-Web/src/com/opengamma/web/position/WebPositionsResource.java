@@ -11,12 +11,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalTime;
-import javax.time.calendar.ZoneOffset;
-import javax.time.calendar.ZonedDateTime;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
 import javax.ws.rs.GET;
@@ -35,15 +30,9 @@ import com.opengamma.web.server.push.rest.SubscribeMaster;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
-import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
-import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
@@ -62,7 +51,6 @@ import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
-import com.opengamma.util.money.Currency;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
 
@@ -238,63 +226,6 @@ public class WebPositionsResource extends AbstractWebPositionResource {
       result = loaded.get(id);
     }
     return result;
-  }
-
-  private Set<ManageableTrade> parseTrades(String tradesJson) {
-    Set<ManageableTrade> trades = Sets.newHashSet();
-    try {
-      JSONObject jsonObject = new JSONObject(tradesJson);
-      if (jsonObject.has("trades")) {
-        JSONArray jsonArray = jsonObject.getJSONArray("trades");
-        for (int i = 0; i < jsonArray.length(); i++) {
-          JSONObject tradeJson = jsonArray.getJSONObject(i);
-          ManageableTrade trade = new ManageableTrade();
-          ZoneOffset offset = ZoneOffset.UTC;
-          if (tradeJson.has("offset")) {
-            String offsetId = StringUtils.trimToNull(tradeJson.getString("offset"));
-            if (offsetId != null) {
-              offset = ZoneOffset.of(offsetId);
-            } 
-          }
-          if (tradeJson.has("premium")) {
-            trade.setPremium(tradeJson.getDouble("premium"));
-          }
-          if (tradeJson.has("counterParty")) {
-            trade.setCounterpartyExternalId(ExternalId.of(Counterparty.DEFAULT_SCHEME, tradeJson.getString("counterParty")));
-          }
-          if (tradeJson.has("premiumCurrency")) {
-            trade.setPremiumCurrency(Currency.of(tradeJson.getString("premiumCurrency")));
-          }
-          if (tradeJson.has("premiumDate")) {
-            LocalDate premiumDate = LocalDate.parse(tradeJson.getString("premiumDate"));
-            trade.setPremiumDate(premiumDate);
-            if (tradeJson.has("premiumTime")) {
-              LocalTime premiumTime = LocalTime.parse(tradeJson.getString("premiumTime"));
-              ZonedDateTime zonedDateTime = ZonedDateTime.of(premiumDate, premiumTime, offset.toTimeZone());
-              trade.setPremiumTime(zonedDateTime.toOffsetTime());
-            }
-          }
-          if (tradeJson.has("quantity")) {
-            trade.setQuantity(new BigDecimal(tradeJson.getString("quantity")));
-          }
-          if (tradeJson.has("tradeDate")) {
-            LocalDate tradeDate = LocalDate.parse(tradeJson.getString("tradeDate"));
-            trade.setTradeDate(tradeDate);
-            if (tradeJson.has("tradeTime")) {
-              LocalTime tradeTime = LocalTime.parse(tradeJson.getString("tradeTime"));
-              ZonedDateTime zonedDateTime = ZonedDateTime.of(tradeDate, tradeTime, offset.toTimeZone());
-              trade.setTradeTime(zonedDateTime.toOffsetTime());
-            }    
-          }
-          trades.add(trade);
-        }
-      } else {
-        throw new OpenGammaRuntimeException("missing trades field in trades json document");
-      }
-    } catch (JSONException ex) {
-      throw new OpenGammaRuntimeException("Error parsing Json document for Trades", ex);
-    }
-    return trades;
   }
 
   private URI addPosition(BigDecimal quantity, UniqueId secUid) {

@@ -1,0 +1,16 @@
+{
+    "template_data": {
+        "name": "50 x AAPL US Equity",
+        "object_id": "MemPos~1",
+        "security_name": "APPLE INC",
+        "security_unique_id": "Mock~1",
+        "security_type": "EQUITY",
+        "quantity": "50"
+    },
+    "securities": [
+        {
+            "scheme": "BLOOMBERG_TICKER",
+            "value": "AAPL US Equity"
+        }
+    ]
+}

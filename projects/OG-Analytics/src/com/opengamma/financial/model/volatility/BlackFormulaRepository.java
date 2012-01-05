@@ -158,10 +158,17 @@ public abstract class BlackFormulaRepository {
   @ExternalFunction
   public static double gamma(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
     Validate.isTrue(lognormalVol >= 0.0, "negative vol");
-    if (forward == 0) {
+    if (forward == 0 || strike == 0.0) {
       return 0.0;
     }
     final double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
+    if (sigmaRootT == 0.0) {
+      if (forward != strike) {
+        return 0.0;
+      }
+      //The gamma is infinite in this case
+      return Double.POSITIVE_INFINITY;
+    }
     final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
 
     return NORMAL.getPDF(d1) / forward / sigmaRootT;
@@ -233,6 +240,11 @@ public abstract class BlackFormulaRepository {
     }
     final double rootT = Math.sqrt(timeToExpiry);
     final double sigmaRootT = lognormalVol * rootT;
+
+    if (sigmaRootT < SMALL || strike < SMALL) {
+      return 0.0;
+    }
+
     final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
     final double d2 = d1 - sigmaRootT;
     return -NORMAL.getPDF(d1) * d2 / lognormalVol;
@@ -253,6 +265,11 @@ public abstract class BlackFormulaRepository {
     }
     final double rootT = Math.sqrt(timeToExpiry);
     final double sigmaRootT = lognormalVol * rootT;
+
+    if (sigmaRootT < SMALL || strike < SMALL) {
+      return 0.0;
+    }
+
     final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
     final double d2 = d1 - sigmaRootT;
     return forward * NORMAL.getPDF(d1) * rootT * d1 * d2 / lognormalVol;

@@ -1,0 +1,22 @@
+<ivy-module version="2.0">
+    <info organisation="com.opengamma" module="og-maths" status="integration"/>
+
+    <publications>
+      <artifact name="og-maths" type="jar"/>
+      <artifact name="og-maths" type="source" ext="jar" />
+    </publications>
+    <dependencies>
+      <dependency name="og-util" rev="latest.integration" />
+
+      <dependency org="org.jfree" name="jfreechart" rev="1.0.13"/>
+      <dependency org="cern" name="colt" rev="1.2.0"/>
+      <dependency org="cern" name="parallelcolt" rev="0.9.1"/>
+      <dependency org="latexlet" name="latexlet" rev="1.11"/>
+      <dependency org="org.apache.commons" name="commons-math" rev="2.1"/>
+
+      <dependency org="it.dexy" name="json-doclet" rev="0.3.1"/>
+      <dependency org="org.json" name="simple" rev="1.1"/>
+      <exclude org="org.junit" />
+    </dependencies>
+</ivy-module>
+

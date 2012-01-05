@@ -48,8 +48,11 @@ $.register_module({
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': page_name,
                     'columns': [
-                        {id: 'name', field: 'name',width: 300, cssClass: 'og-link', toolTip: 'name',
-                            name: '<input type="text" placeholder="Name" class="og-js-name-filter" style="width: 280px;">'}
+                        {
+                            id: 'name', field: 'name',width: 300, cssClass: 'og-link', toolTip: 'name',
+                            name: '<input type="text" placeholder="Name" class="og-js-name-filter" ' +
+                                'style="width: 280px;">'
+                        }
                     ]
                 }
             },
@@ -108,7 +111,7 @@ $.register_module({
                 if (!args.id) default_details();
             },
             load_filter: function (args) {
-                check_state({args: args, conditions: [{new_value: 'id', stop: true, method: function (args) {
+                check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
                     view[args.id ? 'load_item' : 'load'](args);
                 }}]});
                 search.filter(args);

@@ -7,6 +7,8 @@ package com.opengamma.web.position;
 
 import java.math.BigDecimal;
 import java.net.URI;
+import java.util.Collection;
+import java.util.Collections;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -27,6 +29,7 @@ import com.google.common.base.Objects;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 
 /**
@@ -81,7 +84,7 @@ public class WebPositionResource extends AbstractWebPositionResource {
       String html = getFreemarker().build("positions/position-update.ftl", out);
       return Response.ok(html).build();
     }
-    URI uri = updatePosition(doc, quantity);
+    URI uri = updatePosition(doc, quantity, Collections.<ManageableTrade>emptyList());
     return Response.seeOther(uri).build();
   }
 
@@ -89,21 +92,31 @@ public class WebPositionResource extends AbstractWebPositionResource {
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
   public Response putJSON(
-      @FormParam("quantity") String quantityStr) {
+      @FormParam("quantity") String quantityStr, @FormParam("tradesJson") String tradesJson) {
     PositionDocument doc = data().getPosition();
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     quantityStr = StringUtils.replace(StringUtils.trimToNull(quantityStr), ",", "");
+    tradesJson = StringUtils.trimToNull(tradesJson);
+    Collection<ManageableTrade> trades = null;
+    if (tradesJson != null) {
+      trades = parseTrades(tradesJson);
+    } else {
+      trades = Collections.<ManageableTrade>emptyList();
+    }
     BigDecimal quantity = quantityStr != null && NumberUtils.isNumber(quantityStr) ? new BigDecimal(quantityStr) : null;
-    updatePosition(doc, quantity);
+    updatePosition(doc, quantity, trades);
     return Response.ok().build();
   }
 
-  private URI updatePosition(PositionDocument doc, BigDecimal quantity) {
+  private URI updatePosition(PositionDocument doc, BigDecimal quantity, Collection<ManageableTrade> trades) {
     ManageablePosition position = doc.getPosition();
-    if (Objects.equal(position.getQuantity(), quantity) == false) {
+    if (Objects.equal(position.getQuantity(), quantity) == false || !trades.isEmpty()) {
       position.setQuantity(quantity);
+      for (ManageableTrade trade : trades) {
+        position.addTrade(trade);
+      }
       doc = data().getPositionMaster().update(doc);
       data().setPosition(doc);
     }
