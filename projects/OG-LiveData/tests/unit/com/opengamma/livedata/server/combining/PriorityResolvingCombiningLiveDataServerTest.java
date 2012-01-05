@@ -2,15 +2,20 @@ package com.opengamma.livedata.server.combining;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import java.util.Collections;
+
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.livedata.entitlement.AbstractEntitlementChecker;
+import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
 import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
@@ -23,6 +28,9 @@ import com.opengamma.livedata.server.MockLiveDataServer;
 
 public class PriorityResolvingCombiningLiveDataServerTest {
 
+    private static final UserPrincipal unauthorizedUser = new UserPrincipal("unauthorized", "127.0.0.1");
+    private static final UserPrincipal authorizedUser = new UserPrincipal("authorized", "127.0.0.1");
+  
     
     private ExternalScheme _domainB;
     private ExternalScheme _domainC;
@@ -37,11 +45,13 @@ public class PriorityResolvingCombiningLiveDataServerTest {
       _domainB = ExternalScheme.of("B");
       _serverB = new MockLiveDataServer(_domainB);
       _serverB.setDistributionSpecificationResolver(new MockDistributionSpecificationResolver(_domainB));
+      setEntitlementChecker(_serverB);
       _serverB.connect();
       
       _domainC = ExternalScheme.of("C");
       _serverC = new MockLiveDataServer(_domainC);
       _serverC.setDistributionSpecificationResolver(new MockDistributionSpecificationResolver(_domainC));
+      setEntitlementChecker(_serverC);
       _serverC.connect();
       
       _combiningServer = new PriorityResolvingCombiningLiveDataServer(Lists.newArrayList(_serverB, _serverC));
@@ -49,6 +59,29 @@ public class PriorityResolvingCombiningLiveDataServerTest {
       
       assertEquals(AbstractLiveDataServer.ConnectionStatus.CONNECTED, _combiningServer.getConnectionStatus());
       _domainD = ExternalScheme.of("D");
+    }
+
+    private void setEntitlementChecker(MockLiveDataServer server) {
+      server.setEntitlementChecker(getEntitlementChecker(server.getUniqueIdDomain()));
+    }
+
+    private LiveDataEntitlementChecker getEntitlementChecker(ExternalScheme domain) {
+      return new AbstractEntitlementChecker() {
+        @Override
+        public boolean isEntitled(UserPrincipal user, LiveDataSpecification requestedSpecification) {
+          if (user == unauthorizedUser)
+          {
+            return false;
+          }
+          else if (user == authorizedUser)
+          {
+            return true;
+          }
+          else{
+            throw new OpenGammaRuntimeException("Unexpected request for user "+user);
+          }
+        }
+      };
     }
     
     @AfterMethod
@@ -114,5 +147,37 @@ public class PriorityResolvingCombiningLiveDataServerTest {
       DistributionSpecification combined = _combiningServer.getDefaultDistributionSpecificationResolver().resolve(spec);
       DistributionSpecification direct = _serverC.getDistributionSpecificationResolver().resolve(spec);
       assertEquals(direct, combined);
+    }
+    
+    //TODO test snapshot
+    
+    @Test
+    public void entitled() {
+      LiveDataSpecification spec = new LiveDataSpecification("No Normalization", ExternalId.of(_domainC, "X"));
+      LiveDataSubscriptionRequest request = new LiveDataSubscriptionRequest(authorizedUser, SubscriptionType.NON_PERSISTENT, Collections.singleton(spec));
+      LiveDataSubscriptionResponseMsg responseMsg = _combiningServer.subscriptionRequestMade(request);
+      assertEquals(responseMsg.getRequestingUser(), authorizedUser);
+      assertEquals(1, responseMsg.getResponses().size());
+      for (LiveDataSubscriptionResponse response : responseMsg.getResponses()) {
+        assertEquals(LiveDataSubscriptionResult.SUCCESS, response.getSubscriptionResult()); 
+      }
+      
+      assertEquals(0, _serverB.getSubscriptions().size());
+      assertEquals(1, _serverC.getSubscriptions().size());
+    }
+    
+    @Test
+    public void notEntitled() {
+      LiveDataSpecification spec = new LiveDataSpecification("No Normalization", ExternalId.of(_domainC, "X"));
+      LiveDataSubscriptionRequest request = new LiveDataSubscriptionRequest(unauthorizedUser, SubscriptionType.NON_PERSISTENT, Collections.singleton(spec));
+      LiveDataSubscriptionResponseMsg responseMsg = _combiningServer.subscriptionRequestMade(request);
+      assertEquals(responseMsg.getRequestingUser(), unauthorizedUser);
+      assertEquals(1, responseMsg.getResponses().size());
+      for (LiveDataSubscriptionResponse response : responseMsg.getResponses()) {
+        assertEquals(LiveDataSubscriptionResult.NOT_AUTHORIZED, response.getSubscriptionResult()); 
+      }
+      
+      assertEquals(0, _serverB.getSubscriptions().size());
+      assertEquals(0, _serverC.getSubscriptions().size());
     }
 }
