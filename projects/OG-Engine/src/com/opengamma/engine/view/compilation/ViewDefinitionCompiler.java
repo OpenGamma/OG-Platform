@@ -89,6 +89,8 @@ public final class ViewDefinitionCompiler {
   }
 
   private static Map<String, DependencyGraph> processDependencyGraphs(ViewCompilationContext context) {
+    // TODO: support one of two modes; sequential build of the graphs (below) or parallel build using the executor service from the compilation services
+    // TODO: perhaps a heuristic to determine which is better, or a global setting
     final Map<String, DependencyGraph> result = new HashMap<String, DependencyGraph>();
     final Iterator<Pair<DependencyGraphBuilder, Set<ValueRequirement>>> itr = context.getBuilders().iterator();
     while (itr.hasNext()) {
