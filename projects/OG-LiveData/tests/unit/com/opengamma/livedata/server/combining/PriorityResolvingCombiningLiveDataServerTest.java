@@ -4,6 +4,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Collections;
 
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -13,6 +15,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
+import com.opengamma.livedata.LiveDataValueUpdateBean;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.entitlement.AbstractEntitlementChecker;
 import com.opengamma.livedata.entitlement.LiveDataEntitlementChecker;
@@ -149,7 +152,26 @@ public class PriorityResolvingCombiningLiveDataServerTest {
       assertEquals(direct, combined);
     }
     
-    //TODO test snapshot
+    @Test
+    public void snapshot() {
+      MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
+      msg.add("FIELD", "VALUE");
+      _serverC.addMarketDataMapping("X", msg);
+      LiveDataSpecification spec = new LiveDataSpecification("No Normalization", ExternalId.of(_domainC, "X"));
+      LiveDataSubscriptionRequest request = new LiveDataSubscriptionRequest(authorizedUser, SubscriptionType.SNAPSHOT, Collections.singleton(spec));
+      LiveDataSubscriptionResponseMsg responseMsg = _combiningServer.subscriptionRequestMade(request);
+      assertEquals(responseMsg.getRequestingUser(), authorizedUser);
+      assertEquals(1, responseMsg.getResponses().size());
+      for (LiveDataSubscriptionResponse response : responseMsg.getResponses()) {
+        assertEquals(LiveDataSubscriptionResult.SUCCESS, response.getSubscriptionResult());
+        LiveDataValueUpdateBean snap = response.getSnapshot();
+        assertEquals("VALUE", snap.getFields().getString("FIELD"));
+        assertEquals(1, snap.getFields().getNumFields());
+      }
+      
+      assertEquals(0, _serverB.getSubscriptions().size());
+      assertEquals(0, _serverC.getSubscriptions().size());
+    }
     
     @Test
     public void entitled() {
