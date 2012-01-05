@@ -15,8 +15,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.SortedMap;
-import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.cometd.Client;
@@ -84,14 +82,6 @@ public class WebViewDepGraphGrid extends WebViewGrid {
     _cacheQuery.setCalculationConfigurationName(calcConfigName);
     _cacheQuery.setValueSpecifications(new HashSet<ValueSpecification>(_rowIdMap.keySet()));
     
-    // Not doing viewport for now, so tell it that everything is in the viewport
-    SortedMap<Integer, Long> viewportMap = new TreeMap<Integer, Long>();
-    for (IntSet rowIds : rowIdMap.values()) {
-      for (int rowId : rowIds) {
-        viewportMap.put(rowId, null);
-      }
-    }
-    setViewport(viewportMap);
     return true;
   }
   

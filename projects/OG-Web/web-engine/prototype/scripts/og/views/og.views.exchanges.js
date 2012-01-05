@@ -30,10 +30,10 @@ $.register_module({
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            exchanges,
+            view,
             options = {
                 slickgrid: {
-                    'selector': '.OG-js-search', 'page_type': 'exchanges',
+                    'selector': '.OG-js-search', 'page_type': page_name,
                     'columns': [
                         {
                             id: 'name', field: 'name', width: 300, cssClass: 'og-link', toolTip: 'name',
@@ -74,7 +74,7 @@ $.register_module({
                         var json = result.data;
                         history.put({
                             name: json.template_data.name,
-                            item: 'history.exchanges.recent',
+                            item: 'history.' + page_name + '.recent',
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
@@ -86,7 +86,7 @@ $.register_module({
                             layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             ui.toolbar(options.toolbar.active);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
@@ -100,30 +100,25 @@ $.register_module({
         module.rules = {
             load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
             load_filter: {route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'},
-            load_exchanges: {route: '/' + page_name + '/:id/name:?', method: module.name + '.load_' + page_name}
+            load_item: {route: '/' + page_name + '/:id/name:?', method: module.name + '.load_item'}
         };
-        return exchanges = {
+        return view = {
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        exchanges.search(args);
-                        masthead.menu.set_tab(page_name);
-                    }}
+                    {new_page: function (args) {view.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
-                if (args.id) return;
-                default_details();
+                if (!args.id) default_details();
             },
             load_filter: function (args) {
-                check_state({args: args, conditions: [
-                    {new_value: 'id', stop: true, method: function () {if (args.id) exchanges.load_exchanges(args);}},
-                    {new_page: function () {exchanges.load(args);}}
-                ]});
+                check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
+                    view[args.id ? 'load_item' : 'load'](args);
+                }}]});
                 search.filter(args);
             },
-            load_exchanges: function (args) {
-                check_state({args: args, conditions: [{new_page: exchanges.load}]});
-                exchanges.details(args);
+            load_item: function (args) {
+                check_state({args: args, conditions: [{new_page: view.load}]});
+                view.details(args);
             },
             search: function (args) {
                 if (!search) search = common.search_results.core();

@@ -7,9 +7,12 @@ package com.opengamma.financial.aggregation;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
@@ -27,23 +30,66 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
 
   private static final String UNKNOWN = "Unknown";
   private boolean _useAttributes;
+  private final Comparator<Position> _comparator = new SimplePositionComparator();
 
   /**
    * Enumerated type representing how specific the GICS code should be interpreted.
    */
-  public enum Level { SECTOR, INDUSTRY_GROUP, INDUSTRY, SUB_INDUSTRY }
+  public enum Level {
+    
+    /**
+     * Sector
+     */
+    SECTOR("Sector"),
+    
+    /**
+     * Industry Group
+     */
+    INDUSTRY_GROUP("Industry Group"),
+    
+    /**
+     * Industry
+     */
+    INDUSTRY("Industry"),
+    
+    /**
+     * Sub-industry
+     */
+    SUB_INDUSTRY("Sub-industry");
+    
+    private final String _displayName;
+    
+    private Level(String displayName) {
+      _displayName = displayName;
+    }
+    
+    public String getDisplayName() {
+      return _displayName;
+    }
+    
+    public int getNumber() {
+      return ordinal() + 1;
+    }
+    
+  }
 
   private Level _level;
-  private SecuritySource _secSource;;
+  private SecuritySource _secSource;
+  private boolean _includeEmptyCategories;;
   
   public GICSAggregationFunction(SecuritySource secSource, Level level) {
     this(secSource, level, true);
   }
   
   public GICSAggregationFunction(SecuritySource secSource, Level level, boolean useAttributes) {
+    this(secSource, level, useAttributes, true);
+  }
+  
+  public GICSAggregationFunction(SecuritySource secSource, Level level, boolean useAttributes, boolean includeEmptyCategories) {
     _secSource = secSource;
     _level = level;
     _useAttributes = useAttributes;
+    _includeEmptyCategories = includeEmptyCategories;
   }
   
   public GICSAggregationFunction(SecuritySource secSource, String level) {
@@ -88,7 +134,7 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
       return UNKNOWN;
     }    
   };
-  
+    
   @Override
   public String classifyPosition(Position position) {
     if (_useAttributes) {
@@ -111,28 +157,50 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
 
   @Override
   public String getName() {
-    return "GICS by " + _level;
+    return "GICS - level " + _level.getNumber() + " (" + _level.getDisplayName() + ")";
   }
 
   @Override
   public Collection<String> getRequiredEntries() {
-    Collection<String> baseList = new ArrayList<String>();
-    switch (_level) {
-      case SECTOR:
-        baseList.addAll(GICSCode.getAllSectorDescriptions());
-        break;
-      case INDUSTRY_GROUP:
-        baseList.addAll(GICSCode.getAllIndustryGroupDescriptions());
-        break;
-      case INDUSTRY:
-        baseList.addAll(GICSCode.getAllIndustryDescriptions());
-        break;
-      case SUB_INDUSTRY:
-        baseList.addAll(GICSCode.getAllSubIndustryDescriptions());
-        break;
+    if (_includeEmptyCategories) {
+      Collection<String> baseList = new ArrayList<String>();
+      switch (_level) {
+        case SECTOR:
+          baseList.addAll(GICSCode.getAllSectorDescriptions());
+          break;
+        case INDUSTRY_GROUP:
+          baseList.addAll(GICSCode.getAllIndustryGroupDescriptions());
+          break;
+        case INDUSTRY:
+          baseList.addAll(GICSCode.getAllIndustryDescriptions());
+          break;
+        case SUB_INDUSTRY:
+          baseList.addAll(GICSCode.getAllSubIndustryDescriptions());
+          break;
+      }
+      baseList.add(UNKNOWN);
+      return baseList;
+    } else {
+      return Collections.emptyList();
     }
-    baseList.add(UNKNOWN);
-    return baseList;
+  }
+
+  @Override
+  public int compare(String o1, String o2) {
+    if (o1.equals(UNKNOWN)) {
+      if (o2.equals(UNKNOWN)) {
+        return 0;
+      }
+      return 1;
+    } else if (o2.equals(UNKNOWN)) {
+      return -1;
+    }
+    return o1.compareTo(o2);
+  }
+
+  @Override
+  public Comparator<Position> getPositionComparator() {
+    return _comparator;
   }
 
 }

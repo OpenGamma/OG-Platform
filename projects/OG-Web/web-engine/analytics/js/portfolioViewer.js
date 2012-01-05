@@ -31,14 +31,23 @@
       }
       _dataView.setFilter(dataViewFilter);
       _dataView.endUpdate();
-      var positionColumn = {
-          id : "position",
-          name : "Position",
-          field : "position",
-          width : 450,
-          formatter : formatPositionName
-        };
-      var gridColumns = SlickGridHelper.makeGridColumns(self, positionColumn, _portfolioDetails.columns, _userConfig);
+      var leadingColumns = [
+          {
+            id : "position",
+            name : "Position",
+            field : "position",
+            width : 300,
+            formatter : formatPositionName
+          },
+          {
+            id : "quantity",
+            name : "Quantity",
+            field : "quantity",
+            width : 60,
+            formatter : formatQuantity
+          }
+        ];
+      var gridColumns = SlickGridHelper.makeGridColumns(self, leadingColumns, _portfolioDetails.columns, 110, _userConfig);
       
       var gridOptions = {
           enableAddRow: false,
@@ -82,7 +91,7 @@
       }
       
       var col = _grid.getColumns()[colIdx];
-      if (col.id != "position") {
+      if (col.id != "position" && col.id != "quantity") {
         var row = _dataView.rows[rowIdx];
         var $cell = $(e.target).closest(".slick-cell");
         var popupTitle = col.name + " on " + row['position'];
@@ -132,6 +141,18 @@
       }
       html += "<span class='cell-title'>" + value + "</span>";
       return html;
+    }
+    
+    function formatQuantity(row, cell, value, columnDef, dataContext) {
+      if (value) {
+        var cssClass = "cell-title right";
+        if (value < 0) {
+          cssClass += " negative";
+        }
+        return "<div class='" + cssClass + "'>" + value + "</div>";
+      } else {
+        return "";
+      }
     }
     
     //-----------------------------------------------------------------------

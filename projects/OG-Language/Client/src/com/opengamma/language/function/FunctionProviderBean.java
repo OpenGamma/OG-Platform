@@ -38,6 +38,13 @@ public class FunctionProviderBean extends AbstractFunctionProvider implements In
     _functions = new ArrayList<PublishedFunction>(functions);
   }
 
+  public void addFunction(final PublishedFunction function) {
+    if (_functions == null) {
+      _functions = new ArrayList<PublishedFunction>();
+    }
+    _functions.add(function);
+  }
+
   private Collection<PublishedFunction> getFunctionsInternal() {
     return _functions;
   }

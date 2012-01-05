@@ -43,7 +43,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
   public static enum PriorityClass {
 
     /**
-     * Must apply before other default properties.
+     * Must apply before the "normal" properties.
      */
     ABOVE_NORMAL(1),
     /**
@@ -51,13 +51,18 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
      */
     NORMAL(0),
     /**
-     * Must apply after other default properties.
+     * Must apply after the "normal" properties.
      */
-    BELOW_NORMAL(-1);
+    BELOW_NORMAL(-1),
+    /**
+     * Must apply after other properties.
+     */
+    LOWEST(-2);
 
     private final int _level;
 
     private PriorityClass(final int level) {
+      assert (level >= MIN_ADJUST) && (level <= MAX_ADJUST);
       _level = level;
     }
 
@@ -78,7 +83,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
     /**
      * Minimum integer that can be returned by {@link #getPriorityAdjust}.
      */
-    public static final int MIN_ADJUST = -1;
+    public static final int MIN_ADJUST = -2;
 
   };
 

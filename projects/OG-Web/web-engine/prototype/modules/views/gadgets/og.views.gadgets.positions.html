@@ -12,7 +12,9 @@
      {{/if}}
     </a></td>
     <td>
-      <strong class="og-quantity" {{if editable}} data-og-editable="quantity" {{/if}}>${template_data.quantity}</strong>
+      <strong class="og-quantity" {{if editable}}
+        data-og-editable="quantity" data-og-id="${template_data.object_id}"
+      {{/if}}">${template_data.quantity}</strong>
     </td>
     <td>${template_data.security_type}</td>
   </tr>

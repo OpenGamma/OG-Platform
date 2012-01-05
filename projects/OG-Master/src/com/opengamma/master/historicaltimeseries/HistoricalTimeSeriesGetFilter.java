@@ -24,7 +24,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.base.Objects;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.PublicSPI;
 
@@ -40,12 +39,6 @@ import com.opengamma.util.PublicSPI;
 @BeanDefinition
 public class HistoricalTimeSeriesGetFilter extends DirectBean {
 
-  /**
-   * The object identifier of the time-series data points.
-   * This must not be null for a valid search.
-   */
-  @PropertyDefinition
-  private ObjectId _objectId;
   /**
    * The version-correction locator to search at, not null.
    */
@@ -72,6 +65,16 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean {
    */
   @PropertyDefinition
   private Integer _maxPoints;
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates an instance that retrieves all points in the series.
+   * 
+   * @return the mutable request, not null
+   */
+  public static HistoricalTimeSeriesGetFilter ofAll() {
+    return new HistoricalTimeSeriesGetFilter();
+  }
 
   /**
    * Creates an instance that retrieves the latest value for the series.
@@ -191,8 +194,6 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 90495162:  // objectId
-        return getObjectId();
       case -2031293866:  // versionCorrection
         return getVersionCorrection();
       case 239226785:  // earliestDate
@@ -208,9 +209,6 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case 90495162:  // objectId
-        setObjectId((ObjectId) newValue);
-        return;
       case -2031293866:  // versionCorrection
         setVersionCorrection((VersionCorrection) newValue);
         return;
@@ -234,8 +232,7 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       HistoricalTimeSeriesGetFilter other = (HistoricalTimeSeriesGetFilter) obj;
-      return JodaBeanUtils.equal(getObjectId(), other.getObjectId()) &&
-          JodaBeanUtils.equal(getVersionCorrection(), other.getVersionCorrection()) &&
+      return JodaBeanUtils.equal(getVersionCorrection(), other.getVersionCorrection()) &&
           JodaBeanUtils.equal(getEarliestDate(), other.getEarliestDate()) &&
           JodaBeanUtils.equal(getLatestDate(), other.getLatestDate()) &&
           JodaBeanUtils.equal(getMaxPoints(), other.getMaxPoints());
@@ -246,40 +243,11 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
-    hash += hash * 31 + JodaBeanUtils.hashCode(getObjectId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVersionCorrection());
     hash += hash * 31 + JodaBeanUtils.hashCode(getEarliestDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLatestDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaxPoints());
     return hash;
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the object identifier of the time-series data points.
-   * This must not be null for a valid search.
-   * @return the value of the property
-   */
-  public ObjectId getObjectId() {
-    return _objectId;
-  }
-
-  /**
-   * Sets the object identifier of the time-series data points.
-   * This must not be null for a valid search.
-   * @param objectId  the new value of the property
-   */
-  public void setObjectId(ObjectId objectId) {
-    this._objectId = objectId;
-  }
-
-  /**
-   * Gets the the {@code objectId} property.
-   * This must not be null for a valid search.
-   * @return the property, not null
-   */
-  public final Property<ObjectId> objectId() {
-    return metaBean().objectId().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -400,11 +368,6 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code objectId} property.
-     */
-    private final MetaProperty<ObjectId> _objectId = DirectMetaProperty.ofReadWrite(
-        this, "objectId", HistoricalTimeSeriesGetFilter.class, ObjectId.class);
-    /**
      * The meta-property for the {@code versionCorrection} property.
      */
     private final MetaProperty<VersionCorrection> _versionCorrection = DirectMetaProperty.ofReadWrite(
@@ -429,7 +392,6 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean {
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
-        "objectId",
         "versionCorrection",
         "earliestDate",
         "latestDate",
@@ -444,8 +406,6 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case 90495162:  // objectId
-          return _objectId;
         case -2031293866:  // versionCorrection
           return _versionCorrection;
         case 239226785:  // earliestDate
@@ -474,14 +434,6 @@ public class HistoricalTimeSeriesGetFilter extends DirectBean {
     }
 
     //-----------------------------------------------------------------------
-    /**
-     * The meta-property for the {@code objectId} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<ObjectId> objectId() {
-      return _objectId;
-    }
-
     /**
      * The meta-property for the {@code versionCorrection} property.
      * @return the meta-property, not null

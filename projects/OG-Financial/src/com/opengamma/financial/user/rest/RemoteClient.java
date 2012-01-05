@@ -15,15 +15,15 @@ import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.historicaltimeseries.rest.RemoteHistoricalTimeSeriesMaster;
 import com.opengamma.financial.marketdatasnapshot.rest.RemoteMarketDataSnapshotMaster;
-import com.opengamma.financial.portfolio.rest.RemotePortfolioMaster;
-import com.opengamma.financial.position.rest.RemotePositionMaster;
 import com.opengamma.financial.security.rest.RemoteSecurityMaster;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.rest.RemoteManageableViewDefinitionRepository;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.portfolio.impl.RemotePortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.position.impl.RemotePositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
@@ -185,13 +185,13 @@ public class RemoteClient {
 
     @Override
     public URI getPortfolioMaster() {
-      // The remote portfolio master is broken and assumes a "portfolio" prefix on its URLs 
+      // The remote portfolio master is broken and assumes a "prtMaster/portfolio" prefix on its URLs 
       return _baseTarget.getURI();
     }
 
     @Override
     public URI getPositionMaster() {
-      // The remote position master is broken and assumes a "position" prefix on its URLs
+      // The remote position master is broken and assumes a "posMaster/position" prefix on its URLs
       return _baseTarget.getURI();
     }
 

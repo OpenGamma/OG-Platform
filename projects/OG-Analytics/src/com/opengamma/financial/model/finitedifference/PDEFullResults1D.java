@@ -50,9 +50,48 @@ public class PDEFullResults1D implements PDEResults1D {
     return _terminalResults.getFirstSpatialDerivative(spaceIndex);
   }
 
+  public double getFirstSpatialDerivative(int spaceIndex, int timeIndex) {
+    double[] coeff;
+    double res = 0;
+    final int n = _grid.getNumSpaceNodes();
+    int offset;
+    if (spaceIndex == 0) {
+      coeff = _grid.getFirstDerivativeForwardCoefficients(spaceIndex);
+      offset = 0;
+    } else if (spaceIndex == n - 1) {
+      coeff = _grid.getFirstDerivativeBackwardCoefficients(spaceIndex);
+      offset = -coeff.length + 1;
+    } else {
+      coeff = _grid.getFirstDerivativeCoefficients(spaceIndex);
+      offset = -(coeff.length - 1) / 2;
+    }
+    for (int i = 0; i < coeff.length; i++) {
+      res += coeff[i] * _f[timeIndex][spaceIndex + i + offset];
+    }
+    return res;
+  }
+
   @Override
   public double getSecondSpatialDerivative(int spaceIndex) {
     return _terminalResults.getSecondSpatialDerivative(spaceIndex);
+  }
+
+  public double getSecondSpatialDerivative(int spaceIndex, int timeIndex) {
+    final double[] coeff = _grid.getSecondDerivativeCoefficients(spaceIndex);
+    double res = 0;
+    int offset;
+    if (spaceIndex == 0) {
+      offset = 0;
+    } else if (spaceIndex == _grid.getNumSpaceNodes() - 1) {
+      offset = -2;
+    } else {
+      offset = -1;
+    }
+
+    for (int i = 0; i < coeff.length; i++) {
+      res += coeff[i] * _f[timeIndex][spaceIndex + i + offset];
+    }
+    return res;
   }
 
   @Override
@@ -75,6 +114,10 @@ public class PDEFullResults1D implements PDEResults1D {
   @Override
   public PDEGrid1D getGrid() {
     return _grid;
+  }
+
+  public PDEFullResults1D withGrid(final PDEGrid1D grid) {
+    return new PDEFullResults1D(grid, _f);
   }
 
 }

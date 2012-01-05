@@ -30,10 +30,10 @@ $.register_module({
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            holidays,
+            view,
             options = {
                 slickgrid: {
-                    'selector': '.OG-js-search', 'page_type': 'holidays',
+                    'selector': '.OG-js-search', 'page_type': page_name,
                     'columns': [
                         {
                             id: 'name', field: 'name', width: 100, cssClass: 'og-link', toolTip: 'name',
@@ -83,7 +83,7 @@ $.register_module({
                         var json = result.data;
                         history.put({
                             name: json.template_data.name,
-                            item: 'history.holidays.recent',
+                            item: 'history.' + page_name + '.recent',
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
@@ -102,11 +102,10 @@ $.register_module({
                                 displayOnly: true,                          // This is an OG custom configuration
                                 specialDates: json.dates                    // This is an OG custom configuration
                             });
-                            details.favorites();
                             ui.toolbar(options.toolbar.active);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             details.calendar_ui_changes(json.dates);
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
@@ -121,31 +120,25 @@ $.register_module({
         module.rules = {
             load: {route: '/' + page_name + '/name:?/type:?', method: module.name + '.load'},
             load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?', method: module.name + '.load_filter'},
-            load_holidays:
-                {route: '/' + page_name + '/:id/name:?/type:?', method: module.name + '.load_' + page_name}
+            load_item: {route: '/' + page_name + '/:id/name:?/type:?', method: module.name + '.load_item'}
         };
-        return holidays = {
+        return view = {
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        holidays.search(args);
-                        masthead.menu.set_tab(page_name);
-                    }}
+                    {new_page: function (args) {view.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
-                if (args.id) return;
-                default_details();
+                if (!args.id) default_details();
             },
             load_filter: function (args) {
-                check_state({args: args, conditions: [
-                    {new_value: 'id', stop: true, method: function () {if (args.id) holidays.load_holidays(args);}},
-                    {new_page: function () {holidays.load(args);}}
-                ]});
+                check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
+                    view[args.id ? 'load_item' : 'load'](args);
+                }}]});
                 search.filter(args);
             },
-            load_holidays: function (args) {
-                check_state({args: args, conditions: [{new_page: holidays.load}]});
-                holidays.details(args);
+            load_item: function (args) {
+                check_state({args: args, conditions: [{new_page: view.load}]});
+                view.details(args);
             },
             search: function (args) {
                 if (!search) search = common.search_results.core();

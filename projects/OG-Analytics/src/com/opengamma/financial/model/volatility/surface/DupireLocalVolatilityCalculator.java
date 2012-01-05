@@ -8,6 +8,8 @@ package com.opengamma.financial.model.volatility.surface;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
@@ -73,7 +75,15 @@ public class DupireLocalVolatilityCalculator {
 
   }
 
-  public LocalVolatilitySurface getLocalVolatility(final PriceSurface priceSurface, final double spot, final double rate) {
+  /**
+   * Classic Dupire local volatility formula
+   * @param priceSurface present value (i.e. discounted) value of options on underlying at various expiries and strikes
+   * @param spot The current value of the underlying
+   * @param r The risk free rate (or domestic rate in FX)
+   * @param q The dividend yield (or foreign rate in FX)
+   * @return The local volatility surface
+   */
+  public LocalVolatilitySurface getLocalVolatility(final PriceSurface priceSurface, final double spot, final double r, final double q) {
 
     final Function<Double, Double> locVol = new Function<Double, Double>() {
 
@@ -87,8 +97,10 @@ public class DupireLocalVolatilityCalculator {
         final double divT = getFirstTimeDev(priceSurface.getSurface(), t, k, price);
         final double divK = getFirstStrikeDev(priceSurface.getSurface(), t, k, price, spot);
         final double divK2 = getSecondStrikeDev(priceSurface.getSurface(), t, k, price, spot);
-
-        final double var = 2. * (divT + rate * k * divK) / (k * k * divK2);
+        final double var = 2. * (divT + q * price + (r - q) * k * divK) / (k * k * divK2);
+        if (var < 0) {
+          throw new MathException("Negative var in getLocalVolatility");
+        }
         return Math.sqrt(var);
       }
     };
@@ -114,15 +126,16 @@ public class DupireLocalVolatilityCalculator {
         final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, s, vol);
         double var;
         if (s == 0) {
-          var = vol * vol + 2 * vol * t * (divT);
+          var = 0.0;
         } else {
           final double divK = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, s, vol, spot);
           final double divK2 = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, s, vol, spot);
-          final double d1 = (Math.log(spot / s) + (rate + vol * vol / 2) * t) / vol;
-          final double d2 = d1 - vol * t;
-          var = (vol * vol + 2 * vol * t * (divT + rate * s * divK)) / (1 + 2 * d1 * s * divK + s * s * (d1 * d2 * divK * divK + t * vol * divK2));
+          final double h1 = (Math.log(spot / s) + (rate + vol * vol / 2) * t) / vol;
+          final double h2 = h1 - vol * t;
+          var = (vol * vol + 2 * vol * t * (divT + rate * s * divK)) / (1 + 2 * h1 * s * divK + s * s * (h1 * h2 * divK * divK + t * vol * divK2));
           if (var < 0.0) {
-            var = 0.0;
+            throw new MathException("negative variance");
+            //var = 0.0;
             //TODO log error
           }
         }
@@ -133,6 +146,15 @@ public class DupireLocalVolatilityCalculator {
     return new AbsoluteLocalVolatilitySurface(FunctionalDoublesSurface.from(locVol));
   }
 
+  /**
+   * Local vol in terms of
+   * @param impliedVolatilitySurface
+   * @param spot
+   * @param rate
+   * @return
+   * @deprecated don't use
+   */
+  @Deprecated
   public LocalVolatilitySurface getLocalVolatility(final BlackVolatilitySurface impliedVolatilitySurface, final double spot, final double rate) {
 
     final Function<Double, Double> locVol = new Function<Double, Double>() {
@@ -155,10 +177,55 @@ public class DupireLocalVolatilityCalculator {
         } else {
           final double divK = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, s, vol, spot);
           final double divK2 = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, s, vol, spot);
-          final double d1 = (Math.log(spot / s) + (rate + vol * vol / 2) * t) / vol;
-          final double d2 = d1 - vol * t;
-          var = (vol * vol + 2 * vol * t * (divT + rate * s * divK)) / (1 + 2 * d1 * s * divK + s * s * (d1 * d2 * divK * divK + t * vol * divK2));
+          final double h1 = (Math.log(spot / s) + (rate + vol * vol / 2) * t) / vol;
+          final double h2 = h1 - vol * t;
+          var = (vol * vol + 2 * vol * t * (divT + rate * s * divK)) / (1 + 2 * h1 * s * divK + s * s * (h1 * h2 * divK * divK + t * vol * divK2));
           if (var < 0.0) {
+            var = 0.0;
+            //TODO log error
+          }
+        }
+        return Math.sqrt(var);
+      }
+    };
+
+    return new LocalVolatilitySurface(FunctionalDoublesSurface.from(locVol));
+  }
+
+  /**
+   * Get the local volatility in the case where the option price is a function of the forward price
+   * @param impliedVolatilitySurface The Black implied volatility surface
+   * @param forwardCurve Curve of forward prices
+   * @return The local volatility
+   */
+  public LocalVolatilitySurface getLocalVolatility(final BlackVolatilitySurface impliedVolatilitySurface, final ForwardCurve forwardCurve) {
+
+    final Function<Double, Double> locVol = new Function<Double, Double>() {
+
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public Double evaluate(final Double... tk) {
+        final double t = tk[0];
+        final double k = tk[1];
+        final double forward = forwardCurve.getForward(t);
+
+        final double vol = impliedVolatilitySurface.getVolatility(t, k);
+        if (t == 0) {
+          return vol;
+        }
+
+        final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, k, vol);
+        double var;
+        if (k == 0) {
+          var = vol * vol + 2 * vol * t * (divT);
+        } else {
+          final double divK = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, k, vol, forward);
+          final double divK2 = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, k, vol, forward);
+          final double h1 = (Math.log(forward / k) + (vol * vol / 2) * t) / vol;
+          final double h2 = h1 - vol * t;
+          var = (vol * vol + 2 * vol * t * divT) / (1 + 2 * h1 * k * divK + k * k * (h1 * h2 * divK * divK + t * vol * divK2));
+          if (var < 0.0) {
+            //  throw new MathException("negative variance");
             var = 0.0;
             //TODO log error
           }

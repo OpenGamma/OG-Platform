@@ -6,15 +6,22 @@ $.register_module({
     name: 'og.common.util.history',
     dependencies: ['og.common.util.HashQueue', 'og.dev'],
     obj: function () {
-        var HashQueue = og.common.util.HashQueue, queues = {}, queue, module = this;
+        var HashQueue = og.common.util.HashQueue, queues = {}, queue, module = this, cache = window['localStorage'];
+        remove = function (item) {
+            try { // if cahce is restricted, bail
+                cache['removeItem'](item);
+            } catch (error) {
+                og.dev.warn(module.name + ': ' + item + ' remove failed\n', error);
+            }
+        },
         queue = function (item) {
             if (typeof item !== 'string') throw new TypeError(module.name + ': item should be a string');
             if (queues[item]) return queues[item];
             try {
-                queues[item] = new HashQueue(localStorage.getItem(item) || 10);
+                queues[item] = new HashQueue(cache['getItem'](item) || 10);
             } catch (error) {
-                og.dev.warn('queues[' + item + '] failed to load ' + localStorage.getItem(item) + '\n' + error.message);
-                localStorage.removeItem(item);
+                og.dev.warn(module.name + ': queues[' + item + '] failed to load\n' + error.message);
+                remove(item);
                 queues[item] = new HashQueue(10);
             }
             return queues[item];
@@ -30,10 +37,10 @@ $.register_module({
                 // TODO use interface checker to validate object
                 var item = obj.item, value = obj.value, name = obj.name, history = queue(item).set(name, value);
                 try {
-                    localStorage.setItem(item, history.serialize());
+                    cache['setItem'](item, history.serialize());
                 } catch (error) {
-                    og.dev.warn(item + ' storage failed\n', error);
-                    localStorage.removeItem(item);
+                    og.dev.warn(module.name + ': ' + item + ' storage failed\n', error);
+                    remove(item);
                 }
             }
         }

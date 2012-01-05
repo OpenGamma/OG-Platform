@@ -9,6 +9,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang.Validate;
@@ -21,7 +22,12 @@ import cern.jet.random.engine.RandomEngine;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.BasisFunctionAggregation;
 import com.opengamma.math.interpolation.BasisFunctionGenerator;
+import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
+import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
+import com.opengamma.math.interpolation.FlatExtrapolator1D;
+import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.PSplineFitter;
+import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 
@@ -268,6 +274,75 @@ public class GeneralizedLeastSquareTest {
         System.out.println(X[i] + "\t" + Y[i]);
       }
     }
+  }
+
+  @Test
+  public void testPSplineFit2() {
+    final BasisFunctionGenerator generator = new BasisFunctionGenerator();
+    List<Function1D<Double, Double>> basisFuncs = generator.generateSet(0, 12, 100, 3);
+    List<Function1D<Double, Double>> basisFuncsLog = generator.generateSet(-5, 3, 100, 3);
+
+    final GeneralizedLeastSquare gls = new GeneralizedLeastSquare();
+
+    final Interpolator1D interpolator = new CombinedInterpolatorExtrapolator(new DoubleQuadraticInterpolator1D(), new FlatExtrapolator1D());
+
+    //  final double[] xData = new double[] {0.4, 0.9, 1.0, 1.8, 2.8, 5 };
+    //  final double[] yData = new double[] {0.8, 4., 4.1, 5.6, 7., 8.1 };
+
+    final double[] xData = new double[] {7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5, 10 };
+    final double[] yData = new double[] {0.972452371,
+        0.749039802,
+        0.759792085,
+        0.714206462,
+        0.604446956,
+        0.517955313,
+        0.474807307,
+        0.443532132,
+        0.2404755,
+        0.197128583,
+
+    };
+
+    final int n = xData.length;
+    final double[] lnX = new double[n];
+    final double[] yData2 = new double[n];
+    for (int i = 0; i < n; i++) {
+      lnX[i] = Math.log(xData[i]);
+      yData2[i] = yData[i] * yData[i] * xData[i];
+    }
+
+    Interpolator1DDataBundle db = interpolator.getDataBundle(xData, yData);
+    Interpolator1DDataBundle dbLog = interpolator.getDataBundle(lnX, yData);
+    Interpolator1DDataBundle dbVar = interpolator.getDataBundle(xData, yData2);
+    Interpolator1DDataBundle dbVarLog = interpolator.getDataBundle(lnX, yData2);
+
+    final double[] sigma = new double[n];
+    Arrays.fill(sigma, 0.01);
+    final GeneralizedLeastSquareResults<Double> results = gls.solve(xData, yData, sigma, basisFuncs, 1000.0, 2);
+    final Function1D<Double, Double> spline = results.getFunction();
+    final GeneralizedLeastSquareResults<Double> resultsLog = gls.solve(lnX, yData, sigma, basisFuncsLog, 1000.0, 2);
+    final Function1D<Double, Double> splineLog = resultsLog.getFunction();
+    final GeneralizedLeastSquareResults<Double> resultsVar = gls.solve(xData, yData2, sigma, basisFuncs, 1000.0, 2);
+    final Function1D<Double, Double> splineVar = resultsVar.getFunction();
+    final GeneralizedLeastSquareResults<Double> resultsVarLog = gls.solve(lnX, yData2, sigma, basisFuncsLog, 1000.0, 2);
+    final Function1D<Double, Double> splineVarLog = resultsVarLog.getFunction();
+
+    if (PRINT) {
+      System.out.println("Chi^2:\t" + results.getChiSq());
+      System.out.println("weights:\t" + results.getFitParameters());
+
+      for (int i = 0; i < 101; i++) {
+        final double logX = -5 + 8 * i / 100.;
+        final double x = Math.exp(logX);
+        System.out.println(x + "\t" + +logX + "\t" + spline.evaluate(x) + "\t" + interpolator.interpolate(db, x) + "\t"
+            + splineLog.evaluate(logX) + "\t" + interpolator.interpolate(dbLog, logX) + "\t" + splineVar.evaluate(x) + "\t"
+            + interpolator.interpolate(dbVar, x) + "\t" + splineVarLog.evaluate(logX) + "\t" + interpolator.interpolate(dbVarLog, logX));
+      }
+      for (int i = 0; i < n; i++) {
+        System.out.println(lnX[i] + "\t" + yData[i]);
+      }
+    }
+
   }
 
   @Test

@@ -19,7 +19,7 @@ $.register_module({
         'og.views.common.default_details'
     ],
     obj: function () {
-        var api = og.api.rest, routes = og.common.routes, module = this, regions,
+        var api = og.api.rest, routes = og.common.routes, module = this, view,
             masthead = og.common.masthead, search, layout, details = og.common.details,
             ui = og.common.util.ui, history = og.common.util.history,
             page_name = module.name.split('.').pop(),
@@ -46,24 +46,23 @@ $.register_module({
                     }
                 },
                 slickgrid: {
-                    'selector': '.OG-js-search', 'page_type': 'regions',
+                    'selector': '.OG-js-search', 'page_type': page_name,
                     'columns': [
-                        {id: 'name', field: 'name',width: 300, cssClass: 'og-link', toolTip: 'name',
-                            name: '<input type="text" placeholder="Name" class="og-js-name-filter" style="width: 280px;">'}
+                        {
+                            id: 'name', field: 'name',width: 300, cssClass: 'og-link', toolTip: 'name',
+                            name: '<input type="text" placeholder="Name" class="og-js-name-filter" ' +
+                                'style="width: 280px;">'
+                        }
                     ]
                 }
             },
-            default_details = og.views.common.default_details.partial(page_name, 'Regions', options),
-            new_page = function (args) {
-                masthead.menu.set_tab(page_name);
-                regions.search(args);
-            };
+            default_details = og.views.common.default_details.partial(page_name, 'Regions', options);
         module.rules = {
             load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
             load_filter: {route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'},
-            load_regions: {route: '/' + page_name + '/:id/:node?/name:?', method: module.name + '.load_' + page_name}
+            load_item: {route: '/' + page_name + '/:id/:node?/name:?', method: module.name + '.load_item'}
         };
-        return regions = {
+        return view = {
             details: function (args) {
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
@@ -75,7 +74,7 @@ $.register_module({
                         var json = result.data;
                         history.put({
                             name: json.template_data.name,
-                            item: 'history.regions.recent',
+                            item: 'history.' + page_name + '.recent',
                             value: routes.current().hash
                         });
                         og.api.text({module: module.name, handler: function (template) {
@@ -90,7 +89,7 @@ $.register_module({
                             f.render_regions('.OG-region .og-js-child_regions', json.child);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             ui.toolbar(options.toolbar.active);
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
@@ -100,24 +99,26 @@ $.register_module({
                             message: {0: 'loading...', 3000: 'still loading...'}
                         });
                     },
-                    update: regions.details.partial(args)
+                    update: view.details.partial(args)
                 });
             },
+            filters: ['name'],
             load: function (args) {
                 layout = og.views.common.layout;
-                check_state({args: args, conditions: [{new_page: new_page}]});
+                check_state({args: args, conditions: [
+                    {new_page: function (args) {view.search(args), masthead.menu.set_tab(page_name);}}
+                ]});
                 if (!args.id) default_details();
             },
             load_filter: function (args) {
-                check_state({args: args, conditions: [
-                    {new_value: 'id', stop: true, method: function () {if (args.id) regions.load_regions(args);}},
-                    {new_page: function () {regions.load(args);}}
-                ]});
+                check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
+                    view[args.id ? 'load_item' : 'load'](args);
+                }}]});
                 search.filter(args);
             },
-            load_regions: function (args) {
-                check_state({args: args, conditions: [{new_page: regions.load}]});
-                regions.details(args);
+            load_item: function (args) {
+                check_state({args: args, conditions: [{new_page: view.load}]});
+                view.details(args);
             },
             search: function (args) {
                 if (!search) search = og.common.search_results.core();

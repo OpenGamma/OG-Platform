@@ -98,7 +98,8 @@ $.register_module({
                                 if (!val.name) throw new Error('val.name is required for an input field');
                                 if (!val.id) throw new Error('val.id is required for an input field');
                                 str = '<label for="[PLACEHOLDER]">' + val.name + '</label>'
-                                    + '<input type="text" id="[PLACEHOLDER]" name="[PLACEHOLDER]" />';
+                                    + '<input type="text" id="[PLACEHOLDER]" name="[PLACEHOLDER]"' +
+                                          'value="' + (val.value ? val.value : '') + '" />';
                                 str = str.replace(/\[PLACEHOLDER\]/g, 'og-js-dialog-' + val.id);
                             }
                             if (val.type === 'textarea') {
@@ -122,7 +123,10 @@ $.register_module({
                             }
                             return '<div>' + str + '</div>';
                         })();
-                    }, ''));
+                    }, '<form class="OG-dialog-form">') + '</form>').find('form').unbind().submit(function (e) {
+                        e.preventDefault();
+                        $obj.dialog('option', 'buttons')['OK']();
+                    });
                 }
                 $obj.dialog($.extend(true, default_options.input.jquery, obj));
             }

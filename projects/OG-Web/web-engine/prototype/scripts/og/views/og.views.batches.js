@@ -30,10 +30,10 @@ $.register_module({
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            batches,
+            view,
             options = {
                 slickgrid: {
-                    'selector': '.OG-js-search', 'page_type': 'batches',
+                    'selector': '.OG-js-search', 'page_type': page_name,
                     'columns': [
                         {
                             id: 'ob_date', field: 'date', width: 130, cssClass: 'og-link',
@@ -85,7 +85,7 @@ $.register_module({
                         var f = details.batch_functions, json = result.data;
                         history.put({
                             name: json.template_data.name,
-                            item: 'history.batches.recent',
+                            item: 'history.' + page_name + '.recent',
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
@@ -99,7 +99,7 @@ $.register_module({
                             f.errors('.OG-batch .og-js-errors', json.data.batch_errors);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             ui.toolbar(options.toolbar.active);
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
@@ -114,30 +114,25 @@ $.register_module({
             load: {route: '/' + page_name + '/ob_date:?/ob_time:?', method: module.name + '.load'},
             load_filter: {route: '/' + page_name + '/filter:/:id?/ob_date:?/ob_time:?',
                 method: module.name + '.load_filter'},
-            load_batches: {route: '/' + page_name + '/:id', method: module.name + '.load_batches'}
+            load_item: {route: '/' + page_name + '/:id', method: module.name + '.load_item'}
         };
-        return batches = {
+        return view = {
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
-                    {new_page: function (args) {
-                        batches.search(args);
-                        masthead.menu.set_tab(page_name);
-                    }}
+                    {new_page: function (args) {view.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
-                if (args.id) return;
-                default_details();
+                if (!args.id) default_details();
             },
             load_filter: function (args) {
-                check_state({args: args, conditions: [
-                    {new_value: 'id', stop: true, method: function () {if (args.id) batches.load_batches(args);}},
-                    {new_page: function () {batches.load(args);}}
-                ]});
+                check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
+                    view[args.id ? 'load_item' : 'load'](args);
+                }}]});
                 search.filter(args);
             },
-            load_batches: function (args) {
-                check_state({args: args, conditions: [{new_page: batches.load}]});
-                batches.details(args);
+            load_item: function (args) {
+                check_state({args: args, conditions: [{new_page: view.load}]});
+                view.details(args);
             },
             search: function (args) {
                 if (!search) search = common.search_results.core();

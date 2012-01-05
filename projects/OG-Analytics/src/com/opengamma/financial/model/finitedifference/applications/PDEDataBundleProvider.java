@@ -14,6 +14,7 @@ import com.opengamma.financial.model.finitedifference.ExtendedCoupledPDEDataBund
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurface;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
@@ -264,6 +265,35 @@ public class PDEDataBundleProvider {
     return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), payoff);
   }
 
+  public ConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final double strike, final double maturity, final boolean isCall,
+      final LocalVolatilitySurface localVol) {
+
+    final Function<Double, Double> a = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... ts) {
+        Validate.isTrue(ts.length == 2);
+        final double tau = ts[0];
+        final double s = ts[1];
+        final double t = maturity - tau;
+        final double temp = s * localVol.getVolatility(t, s);
+        return -0.5 * temp * temp;
+      }
+    };
+
+    final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double x) {
+        if (isCall) {
+          return Math.max(0, x - strike);
+        }
+        return Math.max(0, strike - x);
+      }
+    };
+
+    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0), ConstantDoublesSurface.from(0), payoff);
+  }
+
   public ConvectionDiffusionPDEDataBundle getForwardLocalVol(final ForwardCurve forward, final double beta, final boolean isCall,
       final AbsoluteLocalVolatilitySurface localVol) {
     Validate.isTrue(beta >= 0.0, "Need beta >=0");
@@ -275,6 +305,10 @@ public class PDEDataBundleProvider {
         final double k = tk[1];
 
         final double temp = Math.pow(k, beta) * localVol.getVolatility(t, k);
+        //debug
+        if (Double.isNaN(temp)) {
+          System.out.println("problem with a: " + temp);
+        }
         return -0.5 * temp * temp;
       }
     };
@@ -285,7 +319,12 @@ public class PDEDataBundleProvider {
         Validate.isTrue(tk.length == 2);
         final double t = tk[0];
         final double k = tk[1];
-        return k * forward.getDrift(t);
+        final double res = k * forward.getDrift(t);
+        //debug
+        if (Double.isNaN(res)) {
+          System.out.println("problem with b: " + res);
+        }
+        return res;
       }
     };
 
@@ -297,6 +336,92 @@ public class PDEDataBundleProvider {
           return Math.max(0, forward.getSpot() - k);
         }
         return Math.max(0, k - forward.getSpot());
+      }
+    };
+
+    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(0), payoff);
+  }
+
+  /**
+   * Set up for running forward PDE with local volatility
+   * @param spot Time zero value of underlying
+   * @param isCall True for call
+   * @param localVol A local volatility surface
+   * @return a ConvectionDiffusionPDEDataBundle
+   */
+  public ConvectionDiffusionPDEDataBundle getForwardLocalVol(final double spot, final boolean isCall,
+      final LocalVolatilitySurface localVol) {
+
+    final Function<Double, Double> a = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tk) {
+        Validate.isTrue(tk.length == 2);
+        final double t = tk[0];
+        final double k = tk[1];
+
+        final double temp = k * localVol.getVolatility(t, k);
+        return -0.5 * temp * temp;
+      }
+    };
+
+    final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double k) {
+        if (isCall) {
+          return Math.max(0, spot - k);
+        }
+        return Math.max(0, k - spot);
+      }
+    };
+
+    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0), ConstantDoublesSurface.from(0), payoff);
+  }
+
+  public ConvectionDiffusionPDEDataBundle getForwardLocalVolMoneyness(final double spot, final boolean isCall,
+      final LocalVolatilitySurface localVol) {
+    final double lambda = 100;
+
+    final Function<Double, Double> a = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tx) {
+        Validate.isTrue(tx.length == 2);
+        final double t = tx[0];
+        final double x = tx[1];
+
+        double l1 = 1 + lambda * t;
+        double l2 = Math.sqrt(l1);
+        double k = spot * Math.exp(-x / l2);
+        final double temp = localVol.getVolatility(t, k);
+        return -0.5 * temp * temp / l1;
+      }
+    };
+
+    final Function<Double, Double> b = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tx) {
+        Validate.isTrue(tx.length == 2);
+        final double t = tx[0];
+        final double x = tx[1];
+
+        double l1 = 1 + lambda * t;
+        double l2 = Math.sqrt(l1);
+        double k = spot * Math.exp(-x / l2);
+        final double vol = localVol.getVolatility(t, k);
+        return -0.5 * (lambda * x / l1 - vol * vol / l2);
+      }
+    };
+
+    final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double x) {
+
+        double k = spot * Math.exp(-x);
+        if (isCall) {
+          return Math.max(0, spot - k);
+        }
+        return Math.max(0, k - spot);
       }
     };
 

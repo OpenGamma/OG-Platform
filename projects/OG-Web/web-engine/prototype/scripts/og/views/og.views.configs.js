@@ -36,7 +36,7 @@ $.register_module({
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            configs,
+            view,
             config_types = [], // used to populate the dropdown in the new button
             toolbar_buttons = {
                 'new': function () {ui.dialog({
@@ -66,7 +66,7 @@ $.register_module({
                                 handler: function (result) {
                                     if (result.error) return ui.dialog({type: 'error', message: result.message});
                                     delete args.id;
-                                    configs.search(args);
+                                    view.search(args);
                                     routes.go(routes.hash(module.rules.load, args));
                                 }, id: routes.current().args.id
                             });
@@ -76,7 +76,7 @@ $.register_module({
             },
             options = {
                 slickgrid: {
-                    'selector': '.OG-js-search', 'page_type': 'configs',
+                    'selector': '.OG-js-search', 'page_type': page_name,
                     'columns': [
                         {
                             id: 'type', toolTip: 'type', name: null, field: 'type', width: 100
@@ -107,7 +107,7 @@ $.register_module({
                     meta: true,
                     handler: function (result) {
                         config_types = result.data.types.sort().map(function (val) {return {name: val, value: val};});
-                        $('.OG-tools .og-js-new').removeClass('OG-disabled').click(toolbar_buttons['new']);
+                        ui.toolbar(options);
                     },
                     cache_for: 60 * 60 * 1000 // an hour
                 });
@@ -117,7 +117,11 @@ $.register_module({
             default_details = og.views.common.default_details
                 .partial(page_name, 'Configurations', null, toolbar.partial(options.toolbar['default'])),
             details_page = function (args, new_config_type) {
-                var rest_options, is_new = !!new_config_type, rest_handler = function (result) {
+                var rest_options, is_new = !!new_config_type, rest_handler;
+                rest_handler = function (result) {
+                    var details_json = result.data, too_large = result.meta.content_length > 0.75 * 1024 * 1024,
+                        config_type = details_json.template_data.type.toLowerCase().split('.').reverse()[0],
+                        render_type, render_options;
                     if (result.error) return ui.dialog({type: 'error', message: result.message});
                     if (is_new) {
                         if (!result.data)
@@ -126,18 +130,22 @@ $.register_module({
                         result.data.template_data.name = 'UNTITLED';
                         result.data.template_data.configJSON.name = 'UNTITLED';
                     }
-                    var details_json = result.data,
-                        config_type = details_json.template_data.type.toLowerCase().split('.').reverse()[0];
                     if (!is_new) history.put({
                         name: details_json.template_data.name,
-                        item: 'history.configs.recent',
+                        item: 'history.' + page_name + '.recent',
                         value: routes.current().hash
                     });
                     if (!og.views.config_forms[config_type]) {
                         ui.message({location: '.ui-layout-inner-center', destroy: true});
                         return ui.dialog({type: 'error', message: 'No renderer for: ' + config_type});
                     }
-                    og.views.config_forms[config_type]({
+                    if (too_large && !og.views.config_forms[config_type].is_default) ui.dialog({
+                        type: 'error',
+                        message: 'This configuration is using the default form because it contains too much data (' +
+                            result.meta.content_length + ' bytes)'
+                    });
+                    render_type = too_large ? 'default' : config_type;
+                    render_options = {
                         is_new: is_new,
                         data: details_json,
                         loading: function () {
@@ -150,8 +158,8 @@ $.register_module({
                                 ui.message({location: '.ui-layout-inner-center', destroy: true});
                                 return ui.dialog({type: 'error', message: result.message});
                             }
-                            configs.search(args);
-                            routes.go(routes.hash(module.rules.load_configs, args));
+                            view.search(args);
+                            routes.go(routes.hash(module.rules.load_item, args));
                         },
                         save_handler: function (result) {
                             var args = routes.current().args;
@@ -160,7 +168,7 @@ $.register_module({
                                 return ui.dialog({type: 'error', message: result.message});
                             }
                             ui.message({location: '.ui-layout-inner-center', message: 'saved'});
-                            setTimeout(function () {configs.search(args), details_page(args);}, 300);
+                            setTimeout(function () {view.search(args), details_page(args);}, 300);
                         },
                         handler: function (form) {
                             var json = details_json.template_data,
@@ -194,11 +202,14 @@ $.register_module({
                                 location: '.OG-tools'
                             });
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         },
                         selector: '.ui-layout-inner-center .ui-layout-content',
                         type: details_json.template_data.type
-                    });
+                    };
+                    if (render_type !== config_type)
+                        render_options.type_map = og.views.config_forms[config_type].type_map;
+                    og.views.config_forms[render_type](render_options);
                 };
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('south');
@@ -216,18 +227,15 @@ $.register_module({
             };
         module.rules = {
             load: {route: '/' + page_name + '/name:?/type:?', method: module.name + '.load'},
-            load_configs: {route: '/' + page_name + '/:id/name:?/type:?', method: module.name + '.load_' + page_name},
+            load_item: {route: '/' + page_name + '/:id/name:?/type:?', method: module.name + '.load_item'},
             load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?', method: module.name + '.load_filter'},
             load_new: {route: '/' + page_name + '/new/:config_type/name:?/type:?', method: module.name + '.load_new'}
         };
-        return configs = {
+        return view = {
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
-                    {new_page: function (args) {
-                        configs.search(args);
-                        masthead.menu.set_tab(page_name);
-                    }}
+                    {new_page: function (args) {view.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
                 if (!args.id && !args.config_type) default_details();
             },
@@ -238,26 +246,23 @@ $.register_module({
                         return setTimeout(search_filter, 500);
                     search.filter($.extend(args, {filter: true}));
                 };
-                check_state({args: args, conditions: [
-                    {new_value: 'id', stop: true, method: function () {if (args.id) configs.load_configs(args);}},
-                    {new_page: function () {configs.load(args);}}
-                ]});
+                check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
+                    view[args.id ? 'load_item' : 'load'](args);
+                }}]});
                 search_filter();
             },
-            load_configs: function (args) {
-                check_state({args: args, conditions: [
-                    {new_page: configs.load},
-                    {new_value: 'id', method: configs.details}
-                ]});
+            load_item: function (args) {
+                check_state({args: args, conditions: [{new_page: view.load}]});
+                view.details(args);
             },
             load_new: function (args) {
-                check_state({args: args, conditions: [{new_page: configs.load}]});
-                configs.details(args, args.config_type);
+                check_state({args: args, conditions: [{new_page: view.load}]});
+                view.details(args, args.config_type);
             },
             search: function (args) {
                 if (!search) search = common.search_results.core();
                 if (options.slickgrid.columns[0].name === 'loading')
-                    return setTimeout(configs.search.partial(args), 500);
+                    return setTimeout(view.search.partial(args), 500);
                 if (options.slickgrid.columns[0].name === null) return api.rest.configs.get({
                     meta: true,
                     handler: function (result) {
@@ -269,7 +274,7 @@ $.register_module({
                             }, '<option value="">Type</option>'),
                             '</select>'
                         ].join('');
-                        configs.search(args);
+                        view.search(args);
                     },
                     loading: function () {
                         options.slickgrid.columns[0].name = 'loading';

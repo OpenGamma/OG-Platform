@@ -4,23 +4,13 @@
  *
  *  This file overwrites Jquery UI CSS from @see /styles/lib/jquery/ui/jquery.ui.core.css
  */
-.ui-icon {
-    background-image: none!important;
+
+.ui-widget-content {
+  color: #555;
 }
 
 .ui-icon.ui-icon-closethick {
     background-position: -64px 0;
-}
-
-.ui-state-hover,
-.ui-widget-content .ui-state-hover,
-.ui-widget-header .ui-state-hover,
-.ui-state-focus,
-.ui-widget-content .ui-state-focus,
-.ui-widget-header .ui-state-focus {
-    border: none;
-    background: inherit;
-    color: #fee;
 }
 
 .ui-state-highlight,
@@ -45,6 +35,6 @@
 
 .ie8 .ui-widget-overlay,
 .ie9 .ui-widget-overlay {
-  opacity: 0.3;
-  filter: alpha(opacity=30);
+  opacity: 0.2;
+  filter: alpha(opacity=20);
 }

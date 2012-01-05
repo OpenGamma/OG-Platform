@@ -15,6 +15,9 @@ import javax.time.Instant;
 
 import com.google.common.base.Supplier;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.core.holiday.HolidayType;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdSupplier;
@@ -56,12 +59,25 @@ public class InMemoryHolidayMaster implements HolidayMaster {
    * The supplied of identifiers.
    */
   private final Supplier<ObjectId> _objectIdSupplier;
+  /**
+   * The change manager.
+   */
+  private final ChangeManager _changeManager;
 
   /**
-   * Creates an empty master using the default scheme for any {@link ObjectId}s created.
+   * Creates an instance.
    */
   public InMemoryHolidayMaster() {
     this(new ObjectIdSupplier(DEFAULT_OID_SCHEME));
+  }
+
+  /**
+   * Creates an instance specifying the change manager.
+   * 
+   * @param changeManager  the change manager, not null
+   */
+  public InMemoryHolidayMaster(final ChangeManager changeManager) {
+    this(new ObjectIdSupplier(DEFAULT_OID_SCHEME), changeManager);
   }
 
   /**
@@ -70,8 +86,21 @@ public class InMemoryHolidayMaster implements HolidayMaster {
    * @param objectIdSupplier  the supplier of object identifiers, not null
    */
   public InMemoryHolidayMaster(final Supplier<ObjectId> objectIdSupplier) {
+    this(objectIdSupplier, new BasicChangeManager());
+  }
+
+
+  /**
+   * Creates an instance specifying the supplier of object identifiers and change manager.
+   * 
+   * @param objectIdSupplier  the supplier of object identifiers, not null
+   * @param changeManager  the change manager, not null
+   */
+  public InMemoryHolidayMaster(final Supplier<ObjectId> objectIdSupplier, final ChangeManager changeManager) {
     ArgumentChecker.notNull(objectIdSupplier, "objectIdSupplier");
+    ArgumentChecker.notNull(changeManager, "changeManager");
     _objectIdSupplier = objectIdSupplier;
+    _changeManager = changeManager;
   }
 
   //-------------------------------------------------------------------------
@@ -137,6 +166,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     document.setCorrectionFromInstant(now);
     document.setCorrectionToInstant(null);
     _store.put(objectId, document);
+    _changeManager.entityChanged(ChangeType.ADDED, null, uniqueId, now);
     return document;
   }
 
@@ -161,6 +191,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     if (_store.replace(uniqueId.getObjectId(), storedDocument, document) == false) {
       throw new IllegalArgumentException("Concurrent modification");
     }
+    _changeManager.entityChanged(ChangeType.UPDATED, uniqueId, document.getUniqueId(), now);
     return document;
   }
 
@@ -171,6 +202,7 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     if (_store.remove(uniqueId.getObjectId()) == null) {
       throw new DataNotFoundException("Holiday not found: " + uniqueId);
     }
+    _changeManager.entityChanged(ChangeType.REMOVED, uniqueId, null, Instant.now());
   }
 
   //-------------------------------------------------------------------------
@@ -192,6 +224,12 @@ public class InMemoryHolidayMaster implements HolidayMaster {
     }
     result.setPaging(Paging.ofAll(result.getDocuments()));
     return result;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public ChangeManager changeManager() {
+    return _changeManager;
   }
 
 }

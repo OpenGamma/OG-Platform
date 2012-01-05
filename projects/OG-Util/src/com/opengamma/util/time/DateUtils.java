@@ -15,6 +15,7 @@ import javax.time.calendar.DayOfWeek;
 import javax.time.calendar.ISOChronology;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
+import javax.time.calendar.OffsetDateTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.DateTimeFormatter;
@@ -516,4 +517,16 @@ public final class DateUtils {
   }
 
   // TODO useful to have methods such as # weeks between.
+
+  //-------------------------------------------------------------------------
+  /**
+   * Parses an instant.
+   * 
+   * @param text  the instant text to parse
+   * @return the instant, not null
+   */
+  public static Instant parseInstant(String text) {
+    return OffsetDateTime.parse(text).toInstant();
+  }
+
 }

@@ -39,6 +39,7 @@
   <@form method="PUT" action="${uris.portfolio()}">
   <p>
     <@rowin label="Name"><input type="text" size="30" maxlength="80" name="name" value="${portfolio.name}" /></@rowin>
+    <@rowin label="Hidden"><input type="checkbox" name="hidden" value="true" <#if portfolioDoc.visibility = 'HIDDEN'>checked="true"</#if> /></@rowin>
     <@rowin><input type="submit" value="Update" /></@rowin>
   </p>
   </@form>

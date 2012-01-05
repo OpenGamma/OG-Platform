@@ -6,19 +6,14 @@
 package com.opengamma.master;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
 
 /**
- * An {@code ExchangeSource} implemented using an underlying {@code ExchangeMaster}.
- * <p>
- * The {@link ExchangeSource} interface provides exchanges to the application via a narrow API.
- * This class provides the source on top of a standard {@link ExchangeMaster}.
+ * An abstract source built on top of an underlying master.
  * 
  * @param <D>  the type of the document
  * @param <M>  the type of the master

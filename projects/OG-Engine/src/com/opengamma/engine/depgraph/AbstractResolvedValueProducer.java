@@ -8,6 +8,7 @@ package com.opengamma.engine.depgraph;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -18,12 +19,10 @@ import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 
-/* package */abstract class AbstractResolvedValueProducer implements ResolvedValueProducer {
+/* package */abstract class AbstractResolvedValueProducer implements ResolvedValueProducer, ResolvedValueProducer.Chain {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractResolvedValueProducer.class);
   private static final AtomicInteger s_nextObjectId = new AtomicInteger();
-
-  // TODO: the locking here is not very efficient; rewrite if this causes a bottleneck
 
   private final class Callback implements ResolutionPump, Cancelable {
 
@@ -291,6 +290,40 @@ import com.opengamma.engine.value.ValueSpecification;
     assert _refCount > 0;
     s_logger.debug("Release called on {}, refCount={}", this, _refCount);
     return --_refCount;
+  }
+
+  @Override
+  public int cancelLoopMembers(final GraphBuildingContext context, final Set<Object> visited) {
+    final List<Callback> pumped;
+    synchronized (this) {
+      if (_pumped.isEmpty()) {
+        s_logger.debug("Callback {} has no pumped callbacks", this);
+        // No callbacks pumped (or has already finished), so can't be in a loop
+        return 0;
+      }
+      pumped = new ArrayList<Callback>(_pumped);
+    }
+    int result = 0;
+    for (Callback callback : pumped) {
+      if (callback._callback instanceof Chain) {
+        if (visited.add(callback)) {
+          result += ((Chain) callback._callback).cancelLoopMembers(context, visited);
+          visited.remove(callback);
+        } else {
+          // The callback is in a loop; cancel it
+          s_logger.info("Detected loop at {}, callback {}", this, callback);
+          if (callback.cancel(context)) {
+            s_logger.debug("Canceled callback; signalling failure");
+            callback._callback.failed(context, getValueRequirement(), ResolutionFailure.recursiveRequirement(getValueRequirement()));
+            result++;
+          } else {
+            s_logger.debug("Already canceled");
+          }
+        }
+      }
+    }
+    s_logger.info("Processed {} pumped callbacks, canceled {}", pumped.size(), result);
+    return result;
   }
 
 }

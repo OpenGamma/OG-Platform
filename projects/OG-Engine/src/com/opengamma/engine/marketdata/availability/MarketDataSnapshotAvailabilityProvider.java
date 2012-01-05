@@ -7,7 +7,7 @@ package com.opengamma.engine.marketdata.availability;
 
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
-import com.opengamma.engine.marketdata.UserMarketDataSnapshot;
+import com.opengamma.engine.marketdata.snapshot.UserMarketDataSnapshot;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.util.ArgumentChecker;
 

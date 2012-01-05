@@ -131,7 +131,7 @@ $.register_module({
                     var SLICK_SELECTOR = '.OG-timeseries .og-data-points .og-slick-' + index, slick, data,
                     columns = [
                         {id: 'time', name: 'Time', field: 'time', width: 200,
-                            formatter: function (row, cell, value, columnDef, dataContext) {
+                            formatter: function (row, cell, value) {
                                 return og.common.util.date(value);
                             }
                         },
@@ -149,6 +149,11 @@ $.register_module({
                         return acc.push({time: val[0], value: val[1]}) && acc;
                     }, []);
                     $(SLICK_SELECTOR).css({opacity: '0.1'});
+                    columns = og.common.slickgrid.calibrate_columns({
+                        container: SLICK_SELECTOR,
+                        columns: columns,
+                        buffer: 17
+                    });
                     try {slick = new Slick.Grid(SLICK_SELECTOR, data, columns, options);}
                     catch(e) {$(SLICK_SELECTOR + ' .og-loading').html('' + e);}
                     finally {$(SLICK_SELECTOR).animate({opacity: '1'});}
@@ -277,12 +282,12 @@ $.register_module({
                     // This only needs to be done for one series
                     if (!idx_from) data_arr[0].data.map(function (v, i) {
                         if (!idx_from && v[0] >= state.from) i < 2 ? idx_from = 0 : idx_from = i - 1;
-                        if (!idx_to && v[0] >= state.to) i > cur.length -3 ? idx_to = cur.length - 1 : idx_to = i;
+                        if (!idx_to && v[0] >= state.to) i > cur.length - 3 ? idx_to = cur.length - 1 : idx_to = i;
                     });
                     // if the number of data points between the indices is less than 10, add more
                     // this doesn't change the viewable data, just the yaxis range
-                    while (idx_to - idx_from < 10) {
-                        if (idx_to !== cur.length -1) ++idx_to;
+                    while (idx_to - idx_from < Math.min(10, cur.length - 1)) {
+                        if (idx_to !== cur.length - 1) ++idx_to;
                         if (idx_from !== 0) --idx_from;
                     }
                     sliced = data_arr[i].data.slice(idx_from, idx_to);

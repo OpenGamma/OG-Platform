@@ -55,7 +55,7 @@ public abstract class AbstractFunction implements FunctionDefinition {
     public final FunctionDefinition getFunctionDefinition() {
       return AbstractFunction.this;
     }
-    
+
     /**
      * Default implementation returns the same results as {@link #getResults (FunctionCompilationContext, ComputationTarget)}.
      * @param context The compilation context with view-specific parameters and configurations.
@@ -174,7 +174,9 @@ public abstract class AbstractFunction implements FunctionDefinition {
 
   @Override
   public String getShortName() {
-    return getClass().getSimpleName();
+    // Note: don't use simple name as some are inner classes called "Impl" or similarly unhelpful
+    final String s = getClass().getName();
+    return s.substring(s.lastIndexOf('.') + 1);
   }
 
   //-------------------------------------------------------------------------

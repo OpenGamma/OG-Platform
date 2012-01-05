@@ -31,6 +31,7 @@
     <fragment>/styles/common/og.common.OG-table.css</fragment>
     <fragment>/styles/common/og.common.OG-tools.css</fragment>
     <fragment>/styles/common/og.common.OG-lang.css</fragment>
+    <fragment>/styles/common/og.common.OG-dialog-form.css</fragment>
   </bundle>
   <bundle id="common.util.css">
     <fragment>/styles/common/util/og.common.util.OG-clearFix.css</fragment>
@@ -102,6 +103,7 @@
     <fragment>/styles/lib/jquery/ui/jquery.ui.core.css</fragment>
     <fragment>/styles/lib/jquery/ui/jquery.ui.datepicker.css</fragment>
     <fragment>/styles/lib/jquery/ui/jquery.ui.resizable.css</fragment>
+    <fragment>/styles/lib/jquery/ui/jquery.ui.sliders.css</fragment>
     <fragment>/styles/lib/jquery/jquery-layout-default.css</fragment>
   </bundle>
   <bundle id="slickgrid.css">
@@ -112,6 +114,8 @@
     <fragment>/styles/common/jquery/ui/og.common.jquery.ui.core.css</fragment>
     <fragment>/styles/common/jquery/ui/og.common.jquery.ui.dialog.css</fragment>
     <fragment>/styles/common/jquery/ui/og.common.jquery.ui.autocomplete.css</fragment>
+    <fragment>/styles/common/jquery/ui/og.common.jquery.datepicker.css</fragment>
+    <fragment>/styles/common/jquery/ui/og.common.jquery.ui.sliders.css</fragment>
   </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />
@@ -158,6 +162,8 @@
     <fragment>/scripts/lib/jquery/ui/jquery.ui.autocomplete.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.dialog.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.datepicker.js</fragment>
+    <fragment>/scripts/lib/jquery/ui/jquery.ui.slider.js</fragment>
+    <fragment>/scripts/lib/jquery/ui/jquery-ui-timepicker-addon.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.event.drag-2.0.min.js</fragment>
     <fragment>/scripts/lib/jquery/flot/jquery.flot.js</fragment>
     <fragment>/scripts/lib/jquery/flot/jquery.flot.selection.js</fragment>
@@ -239,7 +245,7 @@
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.volatilitysurfacespecification.js</fragment>
     <fragment>/scripts/og/views/config_forms/og.views.config_forms.yieldcurvedefinition.js</fragment>
     <!-- /config forms -->
-    <fragment>/scripts/og/views/og.views.portfolios_sync.js</fragment>
+    <fragment>/scripts/og/views/extras/og.views.extras.portfolios_sync.js</fragment>
     <fragment>/scripts/og/views/og.views.portfolios.js</fragment>
     <fragment>/scripts/og/views/og.views.positions.js</fragment>
     <fragment>/scripts/og/views/og.views.securities.js</fragment>

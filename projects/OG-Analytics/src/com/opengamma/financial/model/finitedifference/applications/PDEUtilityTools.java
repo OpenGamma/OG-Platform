@@ -13,8 +13,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
@@ -54,16 +54,18 @@ public class PDEUtilityTools {
 
   /**
    * Takes the results from a forward PDE solve - grid of option prices by maturity and strike and returns a map between a DoublesPair (i.e. maturity and strike) and
-   * the Black implied volatility 
-   * @param forward The forward
-   * @param prices The prices
+   * the Black implied volatility
+   * @param forwardCurve The forward
+   * @param prices The forward (i.e. not discounted) option prices
    * @param minT Data before this time is ignored (not included in map)
    * @param maxT Data after this time is ignored (not included in map)
    * @param minK Strikes less than this are ignored (not included in map)
    * @param maxK Strikes greater than this are ignored (not included in map)
+   * @param isCall true if call
    * @return The price to implied volatility map
    */
-  public static Map<DoublesPair, Double> priceToImpliedVol(final ForwardCurve forward, final PDEFullResults1D prices, final double minT, final double maxT, final double minK, final double maxK) {
+  public static Map<DoublesPair, Double> priceToImpliedVol(final ForwardCurve forwardCurve, final PDEFullResults1D prices, final double minT, final double maxT, final double minK, final double maxK,
+      boolean isCall) {
     final int xNodes = prices.getNumberSpaceNodes();
     final int tNodes = prices.getNumberTimeNodes();
     final int n = xNodes * tNodes;
@@ -72,15 +74,16 @@ public class PDEUtilityTools {
 
     for (int i = 0; i < tNodes; i++) {
       final double t = prices.getTimeValue(i);
+      final double forward = forwardCurve.getForward(t);
       if (t >= minT && t <= maxT) {
-        final BlackFunctionData data = new BlackFunctionData(forward.getForward(t), forward.getSpot() / forward.getForward(t), 0);
+        //  final BlackFunctionData data = new BlackFunctionData(forward.getForward(t), forward.getSpot() / forward.getForward(t), 0);
         for (int j = 0; j < xNodes; j++) {
           final double k = prices.getSpaceValue(j);
           if (k >= minK && k <= maxK) {
             final double price = prices.getFunctionValue(j, i);
-            final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+
             try {
-              final double impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, option, price);
+              final double impVol = BlackFormulaRepository.impliedVolatility(price, forward, k, t, isCall);
               if (Math.abs(impVol) > 1e-15) {
                 final DoublesPair pair = new DoublesPair(prices.getTimeValue(i), prices.getSpaceValue(j));
                 out.put(pair, impVol);
@@ -96,6 +99,52 @@ public class PDEUtilityTools {
     //    if (count > 0) {
     //      System.err.println(count + " out of " + xNodes * tNodes + " data points removed");
     //    }
+    return out;
+  }
+
+  /**
+   * Takes the results from a forward PDE solve - grid of option prices by maturity and strike and returns a map between a DoublesPair (i.e. maturity and strike) and
+   * the Black implied volatility
+   * @param forwardCurve The forward
+   * @param yieldCurve The discount curve
+   * @param prices The option prices
+   * @param minT Data before this time is ignored (not included in map)
+   * @param maxT Data after this time is ignored (not included in map)
+   * @param minK Strikes less than this are ignored (not included in map)
+   * @param maxK Strikes greater than this are ignored (not included in map)
+   * @return The price to implied volatility map
+   */
+  public static Map<DoublesPair, Double> priceToImpliedVol(final ForwardCurve forwardCurve,
+      final YieldAndDiscountCurve discountCurve, final PDEFullResults1D prices, final double minT, final double maxT, final double minK, final double maxK) {
+    final int xNodes = prices.getNumberSpaceNodes();
+    final int tNodes = prices.getNumberTimeNodes();
+    final int n = xNodes * tNodes;
+    final Map<DoublesPair, Double> out = new HashMap<DoublesPair, Double>(n);
+    int count = tNodes * xNodes;
+
+    for (int i = 0; i < tNodes; i++) {
+      final double t = prices.getTimeValue(i);
+      final double forward = forwardCurve.getForward(t);
+      final double df = discountCurve.getDiscountFactor(t);
+      if (t >= minT && t <= maxT) {
+        for (int j = 0; j < xNodes; j++) {
+          final double k = prices.getSpaceValue(j);
+          if (k >= minK && k <= maxK) {
+            final double forwardPrice = prices.getFunctionValue(j, i) / df;
+            try {
+              final double impVol = BlackFormulaRepository.impliedVolatility(forwardPrice, forward, k, t, true);
+              if (Math.abs(impVol) > 1e-15) {
+                final DoublesPair pair = new DoublesPair(prices.getTimeValue(i), prices.getSpaceValue(j));
+                out.put(pair, impVol);
+                count--;
+              }
+            } catch (final Exception e) {
+            }
+          }
+        }
+      }
+    }
+
     return out;
   }
 

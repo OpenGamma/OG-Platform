@@ -137,12 +137,6 @@
           <property name="functions">
             <list>
               <bean class="com.opengamma.language.curve.GetCurveYValuesFunction" />
-              <!-- The next thing to be added to the "value" package should give it a loader -->
-              <bean class="com.opengamma.language.value.ExpandComputedValuesFunction" />
-              <bean class="com.opengamma.language.value.MarketDataRequirementNamesFunction" />
-              <bean class="com.opengamma.language.value.ValueRequirementNamesFunction" />
-              <bean class="com.opengamma.language.financial.currency.CurrencyPairFunction" />
-              <bean class="com.opengamma.language.financial.currency.FxRateFunction" />
             </list>
           </property>
         </bean>
@@ -205,6 +199,12 @@
     <property name="sessionContextFactory" ref="sessionContextFactory" />
     <property name="userContextFactory" ref="userContextFactory" />
   </bean>
+
+  <!-- Currency pairs -->
+  <bean id="currencyPairsLoader" class="com.opengamma.language.financial.currency.Loader">
+    <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="configuration" ref="defaultConfiguration" />
+  </bean>
   
   <!-- Exchange -->
   <bean id="exchangeLoader" class="com.opengamma.language.exchange.Loader">
@@ -248,9 +248,10 @@
     <property name="configuration" ref="defaultConfiguration" />
   </bean>
 
-  <!-- Currency pairs -->
-  <bean id="currencyPairsLoader" class="com.opengamma.language.financial.currency.Loader">
+  <!-- Values -->
+  <bean id="valuesLoader" class="com.opengamma.language.value.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
+    <property name="fudgeContext" ref="engineFudgeContext" />
     <property name="configuration" ref="defaultConfiguration" />
   </bean>
   

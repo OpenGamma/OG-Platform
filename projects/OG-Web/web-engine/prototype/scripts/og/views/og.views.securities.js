@@ -31,7 +31,7 @@ $.register_module({
             module = this,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            securities,
+            view,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
                     type: 'input',
@@ -57,10 +57,10 @@ $.register_module({
                                 handler: function (result) {
                                     var args = routes.current().args;
                                     if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                    securities.search(args);
+                                    view.search(args);
                                     if (result.data.data.length !== 1)
                                         return routes.go(routes.hash(module.rules.load, args));
-                                    routes.go(routes.hash(module.rules.load_securities, args, {
+                                    routes.go(routes.hash(module.rules.load_item, args, {
                                         add: {id: result.data.data[0].split('|')[1]},
                                         del: ['version']
                                     }));
@@ -83,7 +83,7 @@ $.register_module({
                                 handler: function (result) {
                                     var args = routes.current().args;
                                     if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                    securities.search(args);
+                                    view.search(args);
                                     routes.go(routes.hash(module.rules.load, args));
                                 }
                             });
@@ -91,7 +91,7 @@ $.register_module({
                     }
                 })},
                 'versions': function () {
-                    var rule = module.rules.load_securities, args = routes.current().args;
+                    var rule = module.rules.load_item, args = routes.current().args;
                     routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
                     if (!layout.inner.state.south.isClosed && args.version) {
                         layout.inner.close('south');
@@ -103,7 +103,7 @@ $.register_module({
             },
             options = {
                 slickgrid: {
-                    'selector': '.OG-js-search', 'page_type': 'securities',
+                    'selector': '.OG-js-search', 'page_type': page_name,
                     'columns': [
                         {id: 'type', toolTip: 'type', name: null, field: 'type', width: 100},
                         {
@@ -152,7 +152,7 @@ $.register_module({
                         json.template_data.name = json.template_data.name || json.template_data.name.lang();
                         history.put({
                             name: json.template_data.name,
-                            item: 'history.securities.recent',
+                            item: 'history.' + page_name + '.recent',
                             value: routes.current().hash
                         });
                         api.text({module: template, handler: text_handler = function (template, error) {
@@ -183,7 +183,7 @@ $.register_module({
                             (function () {
                                 if (json.template_data['underlyingOid']) {
                                     var id = json.template_data['underlyingOid'],
-                                        rule = module.rules.load_securities,
+                                        rule = module.rules.load_item,
                                         hash = routes.hash(rule, routes.current().args, {
                                             add: {id: id},
                                             del: ['version']
@@ -210,7 +210,7 @@ $.register_module({
                                 id: json.template_data.hts_id
                             });
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
-                            layout.inner.resizeAll();
+                            setTimeout(layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
@@ -227,22 +227,16 @@ $.register_module({
         module.rules = {
             load: {route: '/' + page_name + '/name:?/type:?', method: module.name + '.load'},
             load_filter: {route: '/' + page_name + '/filter:/:id?/name:?/type:?', method: module.name + '.load_filter'},
-            load_securities: {
-                route: '/' + page_name + '/:id/name:?/version:?/type:?', method: module.name + '.load_' + page_name
-            }
+            load_item: {route: '/' + page_name + '/:id/name:?/version:?/type:?', method: module.name + '.load_item'}
         };
-        return securities = {
+        return view = {
             filters: ['name', 'type'],
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        securities.search(args);
-                        masthead.menu.set_tab(page_name);
-                    }}
+                    {new_page: function (args) {view.search(args), masthead.menu.set_tab(page_name);}}
                 ]});
-                if (args.id) return;
-                default_details();
+                if (!args.id) default_details();
             },
             load_filter: function (args) {
                 var search_filter = function () {
@@ -251,30 +245,29 @@ $.register_module({
                             return setTimeout(search_filter, 500);
                         search.filter(args);
                 };
-                check_state({args: args, conditions: [
-                    {new_value: 'id', stop: true, method: function () {if (args.id) securities.load_securities(args);}},
-                    {new_page: function () {securities.load(args);}}
-                ]});
+                check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
+                    view[args.id ? 'load_item' : 'load'](args);
+                }}]});
                 search_filter();
             },
-            load_securities: function (args) {
+            load_item: function (args) {
                 check_state({args: args, conditions: [
-                    {new_page: function () {
-                        securities.load(args);
+                    {new_page: function (args) {
+                        view.load(args);
                         layout.inner.options.south.onclose = null;
                         layout.inner.close.partial('south');
                     }},
-                    {new_value: 'id', method: function () {
+                    {new_value: 'id', method: function (args) {
                         layout.inner.options.south.onclose = null;
                         layout.inner.close.partial('south');
                     }}
                 ]});
-                securities.details(args);
+                view.details(args);
             },
             search: function (args) {
                 if (!search) search = common.search_results.core();
                 if (options.slickgrid.columns[0].name === 'loading')
-                    return setTimeout(securities.search.partial(args), 500);
+                    return setTimeout(view.search.partial(args), 500);
                 if (options.slickgrid.columns[0].name === null) return api.rest.securities.get({
                     meta: true,
                     handler: function (result) {
@@ -285,7 +278,7 @@ $.register_module({
                             }, '<option value="">Type</option>'),
                             '</select>'
                         ].join('');
-                        securities.search(args);
+                        view.search(args);
                     },
                     loading: function () {options.slickgrid.columns[0].name = 'loading';}
                 });

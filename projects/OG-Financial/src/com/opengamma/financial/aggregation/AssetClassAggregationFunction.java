@@ -5,10 +5,14 @@
  */
 package com.opengamma.financial.aggregation;
 
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.Security;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -63,6 +67,23 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String CAP_FLOOR_CMS_SPREAD = "Cap/Floor CMS Spread";
   /* package */static final String UNKNOWN = "Unknown Security Type";
   /* package */static final String NAME = "Asset Class";
+  
+  private final Comparator<Position> _comparator = new SimplePositionComparator();
+  
+  /* package */static final List<String> ALL_CATEGORIES = Arrays.asList(FX_OPTIONS, NONDELIVERABLE_FX_FORWARDS, FX_BARRIER_OPTIONS, BONDS, CASH, EQUITIES, 
+                                                       FRAS, FUTURES, EQUITY_INDEX_OPTIONS, EQUITY_OPTIONS, EQUITY_BARRIER_OPTIONS, 
+                                                       EQUITY_VARIANCE_SWAPS, SWAPTIONS, IRFUTURE_OPTIONS, EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS, 
+                                                       SWAPS, FX, FX_FORWARDS, NONDELIVERABLE_FX_FORWARDS, CAP_FLOOR, CAP_FLOOR_CMS_SPREAD, 
+                                                       UNKNOWN);
+  private boolean _includeEmptyCategories;
+  
+  public AssetClassAggregationFunction() {
+    this(false);
+  }
+    
+  public AssetClassAggregationFunction(boolean includeEmptyCategories) {
+    _includeEmptyCategories = includeEmptyCategories;
+  }
 
   @Override
   public String classifyPosition(final Position position) {
@@ -189,6 +210,19 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
 
   @Override
   public Collection<String> getRequiredEntries() {
-    return Collections.emptyList();
+    if (_includeEmptyCategories) {
+      return ALL_CATEGORIES;
+    } else {
+      return Collections.emptyList();
+    }
+  }
+
+  @Override
+  public int compare(String assetClass1, String assetClass2) {
+    return ALL_CATEGORIES.indexOf(assetClass2) - ALL_CATEGORIES.indexOf(assetClass1);
+  }
+  
+  public Comparator<Position> getPositionComparator() {
+    return _comparator;
   }
 }

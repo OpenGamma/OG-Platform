@@ -37,14 +37,14 @@ import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
- * 
+ *
  */
 public class WebView {
   private static final Logger s_logger = LoggerFactory.getLogger(WebView.class);
-  
+
   private static final String STARTED_DISPLAY_NAME = "Live";
   private static final String PAUSED_DISPLAY_NAME = "Paused";
-  
+
   private final Client _local;
   private final Client _remote;
   private final ViewClient _client;
@@ -54,24 +54,24 @@ public class WebView {
   private final ViewExecutionOptions _executionOptions;
   private final ExecutorService _executorService;
   private final ResultConverterCache _resultConverterCache;
-  
+
   private final ReentrantLock _updateLock = new ReentrantLock();
-  
+
   private boolean _awaitingNextUpdate;
   private boolean _continueUpdateThread;
   private boolean _updateThreadRunning;
-  
+
   private AtomicBoolean _isInit = new AtomicBoolean(false);
-  
+
   private final Map<String, WebViewGrid> _gridsByName;
   private RequirementBasedWebViewGrid _portfolioGrid;
   private RequirementBasedWebViewGrid _primitivesGrid;
-  
+
   private final AtomicInteger _activeDepGraphCount = new AtomicInteger();
 
   public WebView(final Client local, final Client remote, final ViewClient client, final UniqueId baseViewDefinitionId,
-      final String aggregatorName, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions,
-      final UserPrincipal user, final ExecutorService executorService, final ResultConverterCache resultConverterCache) {
+                 final String aggregatorName, final UniqueId viewDefinitionId, final ViewExecutionOptions executionOptions,
+                 final UserPrincipal user, final ExecutorService executorService, final ResultConverterCache resultConverterCache) {
     ArgumentChecker.notNull(executionOptions, "executionOptions");
     _local = local;
     _remote = remote;
@@ -85,19 +85,19 @@ public class WebView {
     _gridsByName = new HashMap<String, WebViewGrid>();
 
     _client.setResultListener(new AbstractViewResultListener() {
-      
+
       @Override
       public UserPrincipal getUser() {
         // Authentication needed
         return UserPrincipal.getLocalUser();
       }
-      
+
       @Override
-      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {     
+      public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
         s_logger.info("View definition compiled: {}", compiledViewDefinition.getViewDefinition().getName());
         initGrids(compiledViewDefinition);
       }
-      
+
       @Override
       public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
         s_logger.info("New result arrived for view '{}'", getViewDefinitionId());
@@ -113,16 +113,16 @@ public class WebView {
       }
 
     });
-    
+
     client.attachToViewProcess(viewDefinitionId, executionOptions);
   }
-  
+
   //-------------------------------------------------------------------------
   // Initialisation
-  
+
   private void initGrids(CompiledViewDefinition compiledViewDefinition) {
     _isInit.set(true);
-    
+
     RequirementBasedWebViewGrid portfolioGrid = new WebViewPortfolioGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
     if (portfolioGrid.getGridStructure().isEmpty()) {
       _portfolioGrid = null;
@@ -130,7 +130,7 @@ public class WebView {
       _portfolioGrid = portfolioGrid;
       _gridsByName.put(_portfolioGrid.getName(), _portfolioGrid);
     }
-    
+
     RequirementBasedWebViewGrid primitivesGrid = new WebViewPrimitivesGrid(getViewClient(), compiledViewDefinition, getResultConverterCache(), getLocal(), getRemote());
     if (primitivesGrid.getGridStructure().isEmpty()) {
       _primitivesGrid = null;
@@ -138,73 +138,80 @@ public class WebView {
       _primitivesGrid = primitivesGrid;
       _gridsByName.put(_primitivesGrid.getName(), _primitivesGrid);
     }
-    
+
     notifyInitialized();
   }
-  
+
   private void notifyInitialized() {
     getRemote().deliver(getLocal(), "/changeView", getInitialJsonGridStructures(), null);
   }
-  
+
   /*package*/ void reconnected() {
     if (_isInit.get()) {
       notifyInitialized();
     }
   }
-  
+
   //-------------------------------------------------------------------------
   // Update control
-  
+
   public void pause() {
     getViewClient().pause();
     sendViewStatus(false, PAUSED_DISPLAY_NAME);
   }
-  
+
   public void resume() {
     getViewClient().resume();
     sendViewStatus(true, STARTED_DISPLAY_NAME);
   }
-  
+
   public void shutdown() {
     // Removes all listeners
     getViewClient().shutdown();
   }
-  
+
   public UniqueId getBaseViewDefinitionId() {
     return _baseViewDefinitionId;
   }
-  
+
   public String getAggregatorName() {
     return _aggregatorName;
   }
-  
+
   public UniqueId getViewDefinitionId() {
     return _viewDefinitionId;
   }
-  
+
   public ViewExecutionOptions getExecutionOptions() {
     return _executionOptions;
   }
-  
+
   public boolean matches(UniqueId baseViewDefinitionId, String aggregatorName, ViewExecutionOptions executionOptions) {
     return getBaseViewDefinitionId().equals(baseViewDefinitionId)
         && ObjectUtils.equals(getAggregatorName(), aggregatorName) && ObjectUtils.equals(getExecutionOptions(), executionOptions);
   }
-  
+
   public WebViewGrid getGridByName(String name) {
     return _gridsByName.get(name);
   }
-  
+
   @SuppressWarnings("unchecked")
   public void triggerUpdate(Message message) {
     Map<String, Object> dataMap = (Map<String, Object>) message.getData();
     boolean immediateResponse = (Boolean) dataMap.get("immediateResponse");
-    
+
     if (getPortfolioGrid() != null) {
       Map<String, Object> portfolioViewport = (Map<String, Object>) dataMap.get("portfolioViewport");
       getPortfolioGrid().setViewport(processViewportData(portfolioViewport));
+      
+      Map<String, Map<String, Object>> depGraphViewportMap = (Map<String, Map<String, Object>>) dataMap.get("depGraphViewport");
+      for (Map.Entry<String, Map<String, Object>> depGraphViewportEntry : depGraphViewportMap.entrySet()) {
+        WebGridCell depGraphCell = processCellId(depGraphViewportEntry.getKey());
+        SortedMap<Integer, Long> viewportMap = processViewportData(depGraphViewportEntry.getValue());
+        getPortfolioGrid().setDepGraphViewport(depGraphCell, viewportMap);
+      }
     }
-    
+
     if (getPrimitivesGrid() != null) {
       Map<String, Object> primitiveViewport = (Map<String, Object>) dataMap.get("primitiveViewport");
       getPrimitivesGrid().setViewport(processViewportData(primitiveViewport));
@@ -212,7 +219,7 @@ public class WebView {
 
     // Can only provide an immediate response if there is a result available
     immediateResponse &= getViewClient().isResultAvailable();
-    
+
     _updateLock.lock();
     try {
       if (immediateResponse) {
@@ -224,8 +231,15 @@ public class WebView {
       _updateLock.unlock();
     }
   }
+
+  private static WebGridCell processCellId(String encodedCellId) {
+    String[] rowColumn = encodedCellId.split("-");
+    int rowId = Integer.parseInt(rowColumn[0]);
+    int colId = Integer.parseInt(rowColumn[1]);
+    return new WebGridCell(rowId, colId);
+  }
   
-  private SortedMap<Integer, Long> processViewportData(Map<String, Object> viewportData) {
+  private static SortedMap<Integer, Long> processViewportData(Map<String, Object> viewportData) {
     SortedMap<Integer, Long> result = new TreeMap<Integer, Long>();
     if (viewportData.isEmpty()) {
       return result;
@@ -248,7 +262,7 @@ public class WebView {
     }
     return result;
   }
-  
+
   private void sendImmediateUpdate() {
     _updateLock.lock();
     try {
@@ -269,12 +283,12 @@ public class WebView {
       public void run() {
         do {
           ViewComputationResultModel update = getViewClient().getLatestResult();
-          
+
           getRemote().startBatch();
-          
+
           long valuationTimeMillis = update.getValuationTime().toEpochMillisLong();
           long calculationDurationMillis = update.getCalculationDuration().toMillisLong();
-          
+
           sendStartMessage(valuationTimeMillis, calculationDurationMillis);
           try {
             processResult(update);
@@ -282,13 +296,13 @@ public class WebView {
             s_logger.error("Error processing result from view cycle " + update.getViewCycleId(), e);
           }
           sendEndMessage();
-          
+
           getRemote().endBatch();
         } while (continueUpdateThread());
       }
     });
   }
-  
+
   private boolean continueUpdateThread() {
     _updateLock.lock();
     try {
@@ -303,16 +317,16 @@ public class WebView {
       _updateLock.unlock();
     }
   }
-  
+
   private void processResult(ViewComputationResultModel resultModel) {
     long resultTimestamp = resultModel.getCalculationTime().toEpochMillisLong();
-    
+
     if (getPrimitivesGrid() != null) {
       for (ComputationTargetSpecification target : getPrimitivesGrid().getGridStructure().getTargets().keySet()) {
         getPrimitivesGrid().processTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
       }
     }
-    
+
     if (getPortfolioGrid() != null) {
       for (ComputationTargetSpecification target : getPortfolioGrid().getGridStructure().getTargets().keySet()) {
         getPortfolioGrid().processTargetResult(target, resultModel.getTargetResult(target), resultTimestamp);
@@ -320,7 +334,7 @@ public class WebView {
       getPortfolioGrid().processDepGraphs(resultTimestamp);
     }
   }
-  
+
   /**
    * Tells the remote client that updates are starting.
    */
@@ -337,16 +351,16 @@ public class WebView {
   private void sendEndMessage() {
     getRemote().deliver(getLocal(), "/updates/control/end", new HashMap<String, Object>(), null);
   }
-  
+
   private void sendViewStatus(boolean isRunning, String status) {
     Map<String, Object> output = new HashMap<String, Object>();
     output.put("isRunning", isRunning);
     output.put("status", status);
     getRemote().deliver(getLocal(), "/status", output, null);
   }
-  
+
   //-------------------------------------------------------------------------
-  
+
   public Map<String, Object> getInitialJsonGridStructures() {
     Map<String, Object> gridStructures = new HashMap<String, Object>();
     if (getPrimitivesGrid() != null) {
@@ -357,12 +371,12 @@ public class WebView {
     }
     return gridStructures;
   }
-  
+
   public void setIncludeDepGraph(String parentGridName, WebGridCell cell, boolean includeDepGraph) {
     if (!getPortfolioGrid().getName().equals(parentGridName)) {
       throw new OpenGammaRuntimeException("Invalid or unknown grid for dependency graph viewing: " + parentGridName);
     }
-    
+
     if (includeDepGraph) {
       if (_activeDepGraphCount.getAndIncrement() == 0) {
         getViewClient().setViewCycleAccessSupported(true);
@@ -381,7 +395,7 @@ public class WebView {
       }
     }
   }
-  
+
   public Pair<Instant, String> getGridContentsAsCsv(String gridName) {
     WebViewGrid grid = getGridByName(gridName);
     if (grid == null) {
@@ -394,45 +408,45 @@ public class WebView {
     String csv = grid.dumpContentsToCsv(latestResult);
     return Pair.of(latestResult.getValuationTime(), csv);
   }
-  
+
   //-------------------------------------------------------------------------
-  
+
   private void registerGrid(WebViewGrid grid) {
     _gridsByName.put(grid.getName(), grid);
   }
-  
+
   private void unregisterGrid(String gridName) {
     _gridsByName.remove(gridName);
   }
-  
+
   //-------------------------------------------------------------------------
-  
+
   private ExecutorService getExecutorService() {
     return _executorService;
   }
-  
+
   private RequirementBasedWebViewGrid getPortfolioGrid() {
     return _portfolioGrid;
   }
-  
+
   private RequirementBasedWebViewGrid getPrimitivesGrid() {
     return _primitivesGrid;
   }
-  
+
   private ViewClient getViewClient() {
     return _client;
   }
-  
+
   private Client getLocal() {
     return _local;
   }
-  
+
   private Client getRemote() {
     return _remote;
   }
-  
+
   private ResultConverterCache getResultConverterCache() {
     return _resultConverterCache;
   }
-  
+
 }

@@ -254,14 +254,20 @@ public class RequirementBasedGridStructure {
     }
     return null;
   }
-  
+
+  /**
+   * Returns the column numbers of the cells which are unsatisfied in the dependency graph.
+   * @param rowId The zero based row index
+   * @return The column indices of cells on the specified row which are unsatisfied in the dependency graph
+   */
   public Set<Integer> getUnsatisfiedCells(int rowId) {
     return _unsatisfiedCells.get(rowId);
   }
 
   //-------------------------------------------------------------------------
   private static String getColumnHeader(RequirementBasedColumnKey requirementBasedKey) {
-    if ("default".equals(requirementBasedKey.getCalcConfigName().toLowerCase())) {
+    String normalizedCalcConfigName = requirementBasedKey.getCalcConfigName().toLowerCase().trim();
+    if ("default".equals(normalizedCalcConfigName) || "portfolio".equals(normalizedCalcConfigName)) {
       return requirementBasedKey.getValueName();
     }
     return requirementBasedKey.getCalcConfigName() + "/" + requirementBasedKey.getValueName();

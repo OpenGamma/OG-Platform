@@ -89,7 +89,7 @@ import com.opengamma.util.money.Currency;
  */
 @Test
 public class DefaultPropertyFunctionsTest {
-
+  
   public class TradeScalingFunction extends PropertyPreservingFunction {
 
     @Override
@@ -239,6 +239,7 @@ public class DefaultPropertyFunctionsTest {
     functions.addFunction(new TradeCalcConfigDefaultPropertyFunction.Generic());
     functions.addFunction(new TradeCalcConfigDefaultPropertyFunction.Specific());
     functions.addFunction(new TradeDefaultPropertyFunction());
+    functions.addFunction(new AggregationDefaultPropertyFunction("Present Value", SummingFunction.AGGREGATION_STYLE_FULL));
     // Basic scaling and aggregation
     functions.addFunction(new SummingFunction("Present Value"));
     functions.addFunction(new PositionScalingFunction("Present Value"));

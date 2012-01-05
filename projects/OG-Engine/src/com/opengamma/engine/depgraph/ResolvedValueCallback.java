@@ -32,49 +32,7 @@ import com.opengamma.engine.value.ValueRequirement;
    */
   void failed(GraphBuildingContext context, ValueRequirement value, ResolutionFailure failure);
 
-  /**
-   * {@link ContextRunnable} form of the {@link #resolved} method.
-   */
-  class Resolved implements ContextRunnable {
-
-    private final ResolvedValueCallback _instance;
-    private final ValueRequirement _valueRequirement;
-    private final ResolvedValue _resolvedValue;
-    private final ResolutionPump _pump;
-
-    public Resolved(final ResolvedValueCallback instance, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
-      _instance = instance;
-      _valueRequirement = valueRequirement;
-      _resolvedValue = resolvedValue;
-      _pump = pump;
-    }
-
-    @Override
-    public void run(final GraphBuildingContext context) {
-      _instance.resolved(context, _valueRequirement, _resolvedValue, _pump);
-    }
-
-  }
-
-  /**
-   * {@link ContextRunnable} form of the {@link #failed} method.
-   */
-  class Failed implements ContextRunnable {
-
-    private final ResolvedValueCallback _instance;
-    private final ValueRequirement _value;
-    private final ResolutionFailure _failure;
-
-    public Failed(final ResolvedValueCallback instance, final ValueRequirement value, final ResolutionFailure failure) {
-      _instance = instance;
-      _value = value;
-      _failure = failure;
-    }
-
-    @Override
-    public void run(final GraphBuildingContext context) {
-      _instance.failed(context, _value, _failure);
-    }
+  interface ResolvedValueCallbackChain extends ResolvedValueCallback, ResolvedValueProducer.Chain {
 
   }
 

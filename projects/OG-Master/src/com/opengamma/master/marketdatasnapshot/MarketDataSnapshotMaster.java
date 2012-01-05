@@ -12,9 +12,11 @@ import com.opengamma.util.PublicSPI;
 /**
  * A general-purpose market data snapshot master.
  * <p>
+ * The snapshot master provides a uniform view over a set of snapshot definitions.
+ * This interface provides methods that allow the master to be searched and updated.
  */
 @PublicSPI
-public interface MarketDataSnapshotMaster extends AbstractMaster<MarketDataSnapshotDocument>,  ChangeProvider {
+public interface MarketDataSnapshotMaster extends AbstractMaster<MarketDataSnapshotDocument>, ChangeProvider {
 
   /**
    * Searches for snasphots matching the specified search criteria.
@@ -35,5 +37,5 @@ public interface MarketDataSnapshotMaster extends AbstractMaster<MarketDataSnaps
    * @throws IllegalArgumentException if the request is invalid
    */
   MarketDataSnapshotHistoryResult history(MarketDataSnapshotHistoryRequest request);
-  
+
 }

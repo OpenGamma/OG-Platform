@@ -114,7 +114,7 @@ public class SimpleFXFuturePresentValueFunction extends AbstractFunction.NonComp
     final ValueProperties properties = createValueProperties()
       .with(ValuePropertyNames.PAY_CURVE, _payCurveName)
       .with(ValuePropertyNames.RECEIVE_CURVE, _receiveCurveName)
-      .withAny(ValuePropertyNames.CURRENCY).get();
+      .with(ValuePropertyNames.CURRENCY, ((FXFutureSecurity) target.getSecurity()).getDenominator().getCode()).get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties));
   }
 

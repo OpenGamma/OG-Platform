@@ -54,21 +54,21 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring-security/jars/spring-security-core-2.0.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring-security/jars/spring-security-core-tiger-2.0.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-collections/jars/commons-collections-3.2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-codec/jars/commons-codec-1.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/jars/commons-lang-2.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.aspectj/aspectj/jars/aspectj-lib-1.5.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.aspectj/aspectj/jars/aspectj-rt-1.5.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mindrot/jBCrypt/jars/jBCrypt-0.3.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-codec/jars/commons-codec-1.5.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/javadocs/commons-logging-javadoc-1.1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.aopalliance/aopalliance/javadocs/aopalliance-javadoc-1.0.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring-security/javadocs/spring-security-javadoc-2.0.5.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-collections/javadocs/commons-collections-javadoc-3.2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-codec/javadocs/commons-codec-javadoc-1.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/javadocs/commons-lang-docs-2.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.aspectj/aspectj/javadocs/aspectj-runtime-1.5.4.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.aspectj/aspectj/javadocs/aspectj-jdk5runtime-1.5.4.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-codec/javadocs/commons-codec-javadoc-1.5.jar!/" />
         </JAVADOC>
         <SOURCES>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring/sources/spring-context-src-3.0.4.jar!/" />
@@ -85,9 +85,9 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring-security/sources/spring-security-core-tiger-2.0.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring-security/sources/spring-security-core-2.0.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-collections/sources/commons-collections-src-3.2.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-codec/sources/commons-codec-sources-1.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/sources/commons-lang-src-2.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mindrot/jBCrypt/sources/jBCrypt-src-0.3.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-codec/sources/commons-codec-sources-1.5.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>

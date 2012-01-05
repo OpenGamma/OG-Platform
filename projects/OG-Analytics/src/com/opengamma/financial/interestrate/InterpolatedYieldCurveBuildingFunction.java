@@ -9,8 +9,8 @@ import java.util.LinkedHashMap;
 import java.util.Set;
 
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.math.curve.Curve;
 import com.opengamma.math.curve.InterpolatedCurveBuildingFunction;
+import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 
@@ -18,10 +18,10 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
  * 
  */
 public class InterpolatedYieldCurveBuildingFunction extends YieldCurveBundleBuildingFunction {
-  
+
   private final InterpolatedCurveBuildingFunction _curveBuilder;
-  
-  public InterpolatedYieldCurveBuildingFunction(final LinkedHashMap<String, double[]> knotPoints, 
+
+  public InterpolatedYieldCurveBuildingFunction(final LinkedHashMap<String, double[]> knotPoints,
       LinkedHashMap<String, Interpolator1D> interpolators) {
     _curveBuilder = new InterpolatedCurveBuildingFunction(knotPoints, interpolators);
   }
@@ -29,12 +29,12 @@ public class InterpolatedYieldCurveBuildingFunction extends YieldCurveBundleBuil
   @Override
   public YieldCurveBundle evaluate(DoubleMatrix1D x) {
     YieldCurveBundle res = new YieldCurveBundle();
-    LinkedHashMap<String, Curve<Double, Double>> curves = _curveBuilder.evaluate(x);
+    LinkedHashMap<String, InterpolatedDoublesCurve> curves = _curveBuilder.evaluate(x);
     Set<String> names = curves.keySet();
     for (String name : names) {
       res.setCurve(name, new YieldCurve(curves.get(name)));
     }
-    
+
     return res;
   }
 }
