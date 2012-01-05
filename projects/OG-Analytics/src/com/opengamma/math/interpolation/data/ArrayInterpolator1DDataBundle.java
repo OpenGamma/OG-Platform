@@ -35,6 +35,13 @@ public class ArrayInterpolator1DDataBundle implements Interpolator1DDataBundle {
     if (!inputsSorted) {
       parallelBinarySort();
     }
+    checkSameKeys();
+  }
+
+  private void checkSameKeys() {
+    for (int i = 1; i < _n; i++) {
+      Validate.isTrue(Double.doubleToLongBits(_keys[i - 1]) != Double.doubleToLongBits(_keys[i]), "Equal nodes in interpolator");
+    }
   }
 
   /**

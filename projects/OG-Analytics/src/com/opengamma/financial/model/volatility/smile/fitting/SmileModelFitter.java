@@ -30,7 +30,7 @@ import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 public abstract class SmileModelFitter<T extends SmileModelData> {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
   private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare(DecompositionFactory.SV_COLT, MA, 1e-6);
-  private static final Function1D<DoubleMatrix1D, Boolean> UNCONSTAINED = new Function1D<DoubleMatrix1D, Boolean>() {
+  private static final Function1D<DoubleMatrix1D, Boolean> UNCONSTRAINED = new Function1D<DoubleMatrix1D, Boolean>() {
     @Override
     public Boolean evaluate(DoubleMatrix1D x) {
       return false;
@@ -102,7 +102,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
     NonLinearTransformFunction transFunc = new NonLinearTransformFunction(getModelValueFunction(), getModelJacobianFunction(), transform);
 
     LeastSquareResults solRes = SOLVER.solve(_marketValues, _errors, transFunc.getFittingFunction(), transFunc.getFittingJacobian(),
-        transform.transform(start), getConstaintFunction(transform));
+        transform.transform(start), getConstraintFunction(transform));
     return new LeastSquareResultsWithTransform(solRes, transform);
   }
 
@@ -137,8 +137,8 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
 
   protected abstract T toSmileModelData(final DoubleMatrix1D modelParameters);
 
-  protected Function1D<DoubleMatrix1D, Boolean> getConstaintFunction(final  NonLinearParameterTransforms t) {
-    return UNCONSTAINED;
+  protected Function1D<DoubleMatrix1D, Boolean> getConstraintFunction(final  NonLinearParameterTransforms t) {
+    return UNCONSTRAINED;
   }
 
 }

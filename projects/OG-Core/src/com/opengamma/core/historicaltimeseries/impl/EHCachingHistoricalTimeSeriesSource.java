@@ -430,7 +430,8 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   /*
    * PLAT-1589
    */
-  private final class SubSeriesKey {
+  private static final class SubSeriesKey implements Serializable {
+    private static final long serialVersionUID = 1L;
     private final LocalDate _start;
     private final boolean _includeStart;
     private final LocalDate _end;

@@ -8,6 +8,7 @@ package com.opengamma.masterdb.batch;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
+import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
@@ -140,11 +141,11 @@ public class ViewClientTest {
    * Avoids the ConcurrentHashMap-based implementation of InMemoryLKVSnapshotProvider, where the LKV map can appear to
    * lag behind if accessed from a different thread immediately after a change.
    */
-  private static class SynchronousInMemoryLKVSnapshotProvider extends AbstractMarketDataProvider implements MarketDataInjector,
-    MarketDataAvailabilityProvider {
-
+  private static class SynchronousInMemoryLKVSnapshotProvider extends AbstractMarketDataProvider implements MarketDataInjector, 
+      MarketDataAvailabilityProvider {
+    
     private static final Logger s_logger = LoggerFactory.getLogger(SynchronousInMemoryLKVSnapshotProvider.class);
-
+    
     private final Map<ValueRequirement, Object> _lastKnownValues = new HashMap<ValueRequirement, Object>();
     private final MarketDataPermissionProvider _permissionProvider = new PermissiveMarketDataPermissionProvider();
 
@@ -158,7 +159,7 @@ public class ViewClientTest {
       // No actual subscription to make, but we still need to acknowledge it.
       subscriptionSucceeded(valueRequirements);
     }
-
+    
     @Override
     public void unsubscribe(UserPrincipal user, ValueRequirement valueRequirement) {
     }
@@ -183,7 +184,7 @@ public class ViewClientTest {
     public boolean isCompatible(MarketDataSpecification marketDataSpec) {
       return true;
     }
-
+    
     @Override
     public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
       synchronized (_lastKnownValues) {
@@ -201,14 +202,14 @@ public class ViewClientTest {
       }
       // Don't notify listeners of the change - we'll kick off a computation cycle manually in the tests
     }
-
+    
     @Override
     public void addValue(ExternalId identifier, String valueName, Object value) {
     }
 
     @Override
     public void removeValue(ValueRequirement valueRequirement) {
-      synchronized (_lastKnownValues) {
+      synchronized(_lastKnownValues) {
         _lastKnownValues.remove(valueRequirement);
       }
       // Don't notify listeners of the change - we'll kick off a computation cycle manually in the tests
@@ -227,8 +228,8 @@ public class ViewClientTest {
     }
 
   }
-
-  private static class SynchronousInMemoryLKVSnapshot implements MarketDataSnapshot {
+  
+  private static class SynchronousInMemoryLKVSnapshot extends AbstractMarketDataSnapshot {
 
     private final Map<ValueRequirement, Object> _snapshot;
     private final Instant _snapshotTime = Instant.now();
@@ -239,20 +240,12 @@ public class ViewClientTest {
 
     @Override
     public UniqueId getUniqueId() {
-      return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "SynchronousInMemoryLKVSnapshot:" + getSnapshotTime());
+      return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "SynchronousInMemoryLKVSnapshot:"+getSnapshotTime());
     }
 
     @Override
     public Instant getSnapshotTimeIndication() {
       return _snapshotTime;
-    }
-
-    @Override
-    public void init() {
-    }
-
-    @Override
-    public void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit) {
     }
 
     @Override

@@ -67,7 +67,6 @@
               });
               if (!valid) {
                 // remove invalid value, as it didn't match anything
-                $(this).val("");
                 select.val("");
                 return false;
               }
@@ -113,7 +112,7 @@
   
   function onInitDataReceived(initData) {
     if (_init) {
-      updateList($("#viewlist"), initData.viewNames);
+      updateViewDefinitions($("#viewlist"), initData.viewDefinitions);
     } else {
       initControls(initData);
     }
@@ -121,14 +120,13 @@
   
   function initControls(initData) {
     $('#viewcontrols').show();
-    
-    viewList = initData.viewNames;
+
     var $views = $('#views');
     var $backingViewList = $("<select id='viewlist'></select>").appendTo($views);
     var $backingAggregatorsList = $("<select id='aggregatorslist'></select>");
     var $backingSnapshotList = $("<select id='snapshotlist'></select>");
 
-    updateList($backingViewList, initData.viewNames);
+    updateViewDefinitions($backingViewList, initData.viewDefinitions);
     $backingViewList.combobox({
       change: function(item) {
         populateSnapshots($backingSnapshotList, initData.liveSources, initData.snapshots, $(item).val());
@@ -178,12 +176,12 @@
     _init = true;
   }
   
-  function updateList($backingList, contents) {
+  function updateViewDefinitions($backingList, contents) {
     var existingSelection = $backingList.val();
     $backingList.empty();
     $('<option value=""></option>').appendTo($backingList);
-    $.each(contents, function() {
-      var $opt = $('<option value="' + this + '">' + this + '</option>');
+    $.each(contents, function(idx, viewDef) {
+      var $opt = $('<option value="' + viewDef.id + '">' + viewDef.name + '</option>');
       $opt.appendTo($backingList);
     });
     $backingList.val(existingSelection);
@@ -263,19 +261,17 @@
       return;
     }
     
-    var view = $('#viewlist option:selected').attr('value');
+    var viewId = $('#viewlist option:selected').attr('value');
+    var viewText = $('#viewlist option:selected').attr('text');
+    var viewInputText = $('#viewlist').next().val();
     
-    if (!view || view == "") {
-      $("<div title='Error'><div style='margin-top:10px'><span class='ui-icon ui-icon-alert' style='float:left; margin:0 7px 50px 0;'></span>A view must be chosen from the list before it can be loaded.</div></div>").dialog({
-        modal: true,
-        buttons: {
-          Ok: function() {
-            $(this).dialog("close");
-            $('#viewlist').next().focus();
-          }
-        },
-        resizable: false
-      });
+    if (!viewId || viewText != viewInputText) {
+      // Assume the user has manually entered an ID
+      viewId = viewInputText;
+    }
+    
+    if (!viewId || viewId == "") {
+      showViewError("A view must be chosen from the list before it can be loaded.");
       return;
     }
     
@@ -287,6 +283,10 @@
     
     var $selectedMarketData = $('#snapshotlist option:selected');
     var marketDataId = $selectedMarketData.attr('value');
+    if (!marketDataId) {
+      showViewError("Invalid market data source");
+      return;
+    }
     var isLive = $selectedMarketData.hasClass('standard-entry');
     var marketDataSpecification = {};
     if (isLive) {
@@ -298,7 +298,7 @@
     }
     
     prepareChangeView();
-    _liveResultsClient.changeView(view, aggregatorName, marketDataSpecification);
+    _liveResultsClient.changeView(viewId, aggregatorName, marketDataSpecification);
   }
   
   function prepareChangeView() {
@@ -323,7 +323,7 @@
     disablePauseResumeButtons();
   }
   
-  function onViewInitialized(gridStructures) {
+  function onViewChanged(gridStructures) {
     if (_isRunning) {
       // Unsolicited re-initialization
       prepareChangeView();
@@ -333,6 +333,29 @@
     // Ask the client to start
     document.body.style.cursor = "default";
     _liveResultsClient.resume();
+  }
+  
+  function onViewChangeFailed(errorMessage) {
+    if (_isRunning) {
+      // Unsolicited re-initialization
+      prepareChangeView();
+    }
+    $('#resultsViewer').empty();
+    document.body.style.cursor = "default";
+    showViewError(errorMessage);
+  }
+  
+  function showViewError(errorMessage) {
+    $("<div title='Error'><div style='margin-top:10px'><span class='ui-icon ui-icon-alert' style='float:left; margin:0 7px 50px 0;'></span>" + errorMessage + "</div></div>").dialog({
+      modal: true,
+      buttons: {
+        Ok: function() {
+          $(this).dialog("close");
+          $('#viewlist').next().focus();
+        }
+      },
+      resizable: false
+    });    
   }
   
   //-----------------------------------------------------------------------
@@ -406,7 +429,8 @@
     _liveResultsClient.onConnected.subscribe(onConnected);
     _liveResultsClient.onDisconnected.subscribe(onDisconnected);
     _liveResultsClient.onInitDataReceived.subscribe(onInitDataReceived);
-    _liveResultsClient.onViewInitialized.subscribe(onViewInitialized);
+    _liveResultsClient.onViewChanged.subscribe(onViewChanged);
+    _liveResultsClient.onViewChangeFailed.subscribe(onViewChangeFailed);
     _liveResultsClient.onStatusUpdateReceived.subscribe(onStatusUpdateReceived);
     
     // Disconnect when the page unloads (client needs to time out on the server if this call is not made) 

@@ -33,7 +33,7 @@ public class DoubleMatrix1D implements Matrix<Double> {
   /**
    * @param data The data, not null
    */
-  public DoubleMatrix1D(final double[] data) {
+  public DoubleMatrix1D(final double... data) {
     Validate.notNull(data);
     _elements = data.length;
     _data = Arrays.copyOf(data, _elements);
@@ -42,14 +42,14 @@ public class DoubleMatrix1D implements Matrix<Double> {
   /**
    * Returns the underlying vector data. If this is changed so is the vector.
    * @see #toArray to get a copy of data
-   * @return An array containing the vector elements 
+   * @return An array containing the vector elements
    */
   public double[] getData() {
     return _data;
   }
 
   /**
-   * Convert the vector to a double array. 
+   * Convert the vector to a double array.
    * As its elements are copied, the array is independent from the vector data.
    * @return An array containing a copy of vector elements
    */

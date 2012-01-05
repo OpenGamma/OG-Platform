@@ -15,8 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.analytics.ircurve.rest.InterpolatedYieldCurveDefinitionMasterResource;
 import com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotMasterResource;
-import com.opengamma.financial.portfolio.rest.DataPortfoliosResource;
-import com.opengamma.financial.position.rest.DataPositionsResource;
 import com.opengamma.financial.security.rest.SecurityMasterResource;
 import com.opengamma.financial.user.UserInterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.user.UserManageableViewDefinitionRepository;
@@ -25,6 +23,8 @@ import com.opengamma.financial.user.UserPositionMaster;
 import com.opengamma.financial.user.UserSecurityMaster;
 import com.opengamma.financial.user.UserSnapshotMaster;
 import com.opengamma.financial.view.rest.DataManageableViewDefinitionRepositoryResource;
+import com.opengamma.master.portfolio.impl.DataPortfoliosResource;
+import com.opengamma.master.position.impl.DataPositionsResource;
 
 /**
  * RESTful resource representing a user's client session.
@@ -34,13 +34,13 @@ public class ClientResource {
   private static final Logger s_logger = LoggerFactory.getLogger(ClientResource.class);
 
   /**
-   * The path used to retrieve user portfolios
+   * The path used to retrieve user portfolios.
    */
-  public static final String PORTFOLIOS_PATH = "portfolios";
+  public static final String PORTFOLIOS_PATH = "prtMaster"; // Note that the RemotePositionMaster is hard coded to assume this is always "prtMaster" from the URI given to it
   /**
    * The path used to retrieve user positions
    */
-  public static final String POSITIONS_PATH = "positions";
+  public static final String POSITIONS_PATH = "posMaster"; // Note that the RemotePositionMaster is hard coded to assume this is always "posMaster" from the URI given to it
   /**
    * The path used to retrieve user securities
    */

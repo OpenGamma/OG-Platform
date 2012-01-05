@@ -7,9 +7,12 @@ package com.opengamma.financial.aggregation;
 
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Map;
 
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -35,6 +38,7 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.util.CompareUtils;
 
 /**
  * Function to classify positions by Currency.
@@ -45,9 +49,11 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
     
   private static final String NAME = "Stocks/Puts/Calls";
   private static final String NA = "N/A"; 
-  private static final String STOCKS = "Long";
+  private static final String STOCKS = "Stocks";
   private static final String PUTS = "Puts";
   private static final String CALLS = "Calls";
+
+  private static final List<String> REQUIRED_ENTRIES = Arrays.asList(STOCKS, CALLS, PUTS, NA);
   private SecuritySource _secSource;
   
   public StocksPutsCallsAggregationFunction(SecuritySource secSource) {
@@ -193,6 +199,16 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
 
   @Override
   public Collection<String> getRequiredEntries() {
-    return Arrays.asList(STOCKS, CALLS, PUTS, NA);
+    return REQUIRED_ENTRIES;
+  }
+
+  @Override
+  public int compare(String entry1, String entry2) {
+    return CompareUtils.compareByList(REQUIRED_ENTRIES, entry1, entry2);
+  }
+
+  @Override
+  public Comparator<Position> getPositionComparator() {
+    return new SimplePositionComparator();
   }
 }

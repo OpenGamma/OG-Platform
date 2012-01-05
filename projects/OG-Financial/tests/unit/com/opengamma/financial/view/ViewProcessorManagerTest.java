@@ -31,7 +31,7 @@ import com.opengamma.engine.function.CachingFunctionRepositoryCompiler;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.InMemoryFunctionRepository;
-import com.opengamma.engine.marketdata.LiveMarketDataSourceRegistry;
+import com.opengamma.engine.marketdata.live.LiveMarketDataSourceRegistry;
 import com.opengamma.engine.test.MockFunction;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.ViewProcess;

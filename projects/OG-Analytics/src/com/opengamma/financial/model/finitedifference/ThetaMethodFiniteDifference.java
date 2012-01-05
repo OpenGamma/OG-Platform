@@ -16,8 +16,8 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.surface.Surface;
 
 /**
- * A theta (i.e. weighted between explicit and implicit time stepping) scheme using SOR algorithm to solve the matrix system at each time step 
- * This uses the exponentially fitted scheme of duffy 
+ * A theta (i.e. weighted between explicit and implicit time stepping) scheme using SOR algorithm to solve the matrix system at each time step
+ * This uses the exponentially fitted scheme of duffy
  */
 public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver {
   private static final Decomposition<?> DCOMP = new LUDecompositionCommons();
@@ -25,7 +25,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
   private final boolean _showFullResults;
 
   /**
-   * Sets up a standard Crank-Nicolson scheme 
+   * Sets up a standard Crank-Nicolson scheme
    */
   public ThetaMethodFiniteDifference() {
     _theta = 0.5;
@@ -33,9 +33,9 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
   }
 
   /**
-   * Sets up a scheme that is the weighted average of an explicit and an implicit scheme 
+   * Sets up a scheme that is the weighted average of an explicit and an implicit scheme
    * @param theta The weight. theta = 0 - fully explicit, theta = 0.5 - Crank-Nicolson, theta = 1.0 - fully implicit
-   * @param showFullResults Show the full results 
+   * @param showFullResults Show the full results
    */
   public ThetaMethodFiniteDifference(final double theta, final boolean showFullResults) {
     Validate.isTrue(theta >= 0 && theta <= 1.0, "theta must be in the range 0 to 1");
@@ -129,6 +129,11 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       initialise();
 
       for (int n = 1; n < getGrid().getNumTimeNodes(); n++) {
+        //debug
+        if (_t1 == 4.4) {
+          System.out.print("arrggg " + _t1 + " " + _t2);
+        }
+
         setT2(getGrid().getTimeNode(n));
         updateRHSVector();
         updateRHSBoundary();
@@ -298,7 +303,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
             correction = Math.max(correction, _freeBoundary.getZValue(getT2(), getGrid().getSpaceNode(j)) - getF(j));
           }
           errorSqr += correction * correction;
-          setF(j, getF(j) + correction); //TODO don't like this 
+          setF(j, getF(j) + correction); //TODO don't like this
           scale += getF(j) * getF(j);
         }
         count++;
@@ -315,6 +320,10 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
      */
     private double getFittingParameter(final PDEGrid1D grid, final double a, final double b, final int i) {
       double rho;
+      if (a == 0 && b == 0) {
+        return 0.0;
+      }
+
       final double[] x1st = grid.getFirstDerivativeCoefficients(i);
       final double[] x2nd = grid.getSecondDerivativeCoefficients(i);
       final double bdx1 = (b * grid.getSpaceStep(i - 1));
@@ -322,7 +331,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
 
       // convection dominated
       if (Math.abs(bdx1) > 10 * Math.abs(a) || Math.abs(bdx2) > 10 * Math.abs(a)) {
-        // a > 0 is unphysical as it corresponds to a negative diffusion 
+        // a > 0 is unphysical as it corresponds to a negative diffusion
         double sign = (a > 0.0 ? -1.0 : 1.0);
         if (b > 0) {
           rho = sign * b * x1st[0] / x2nd[0];
@@ -438,8 +447,8 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
    * @param grid the grid
    * @param freeBoundary the free boundary
    * @param xNodes x nodes
-   * @param f f 
-   * @param q q 
+   * @param f f
+   * @param q q
    * @param m m
    * @param t2 t2
    * @return an int

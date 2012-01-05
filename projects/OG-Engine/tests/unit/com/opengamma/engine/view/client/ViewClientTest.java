@@ -16,7 +16,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 
@@ -29,6 +28,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
+import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
@@ -606,7 +606,7 @@ public class ViewClientTest {
 
   }
   
-  private static class SynchronousInMemoryLKVSnapshot implements MarketDataSnapshot {
+  private static class SynchronousInMemoryLKVSnapshot extends AbstractMarketDataSnapshot {
 
     private final Map<ValueRequirement, Object> _snapshot;
     private final Instant _snapshotTime = Instant.now();
@@ -623,14 +623,6 @@ public class ViewClientTest {
     @Override
     public Instant getSnapshotTimeIndication() {
       return _snapshotTime;
-    }
-
-    @Override
-    public void init() {
-    }
-    
-    @Override
-    public void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit) {
     }
 
     @Override

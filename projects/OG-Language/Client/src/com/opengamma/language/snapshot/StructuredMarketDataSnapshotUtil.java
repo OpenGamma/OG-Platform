@@ -43,11 +43,11 @@ import com.opengamma.util.tuple.Pair;
     if (!s_curveName.validate(parsed)) {
       return null;
     }
-    return new YieldCurveKey(Currency.of(parsed[1]), parsed[0]);
+    return new YieldCurveKey(Currency.of(parsed[0]), parsed[1]);
   }
 
   public static String fromYieldCurveKey(final YieldCurveKey key) {
-    return s_curveName.create(key.getName(), key.getCurrency().getCode());
+    return s_curveName.create(key.getCurrency().getCode(), key.getName());
   }
 
   public static VolatilitySurfaceKey toVolatilitySurfaceKey(final String name) {

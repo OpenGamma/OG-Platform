@@ -21,11 +21,8 @@ $.register_module({
                     handler: function (r) {
                         var cols = '<colgroup></colgroup><colgroup></colgroup><colgroup></colgroup>',
                         build_url = function (version) {
-                            var current = routes.current().args, page = routes.current().page.substring(1);
-                            delete current.node; // not supported yet
-                            return routes.hash(
-                                og.views[page].rules['load_' + page], $.extend({}, current, {version: version})
-                            );
+                            var args = routes.current().args, page = routes.current().page.substring(1);
+                            return routes.hash(og.views[page].rules.load_item, args, {add: {version: version}});
                         },
                         $list = $(r.data.data.reduce(function (acc, val, i) {
                             var arr = val.split('|'), cur, sel, ver = routes.current().args.version;

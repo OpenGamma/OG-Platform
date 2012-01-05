@@ -176,10 +176,4 @@ import com.opengamma.engine.value.ValueRequirement;
     return isIdentifier() ? PriorityClass.ABOVE_NORMAL : PriorityClass.NORMAL;
   }
 
-  @Override
-  public String getShortName() {
-    final Class<?> clazz = getClass();
-    return clazz.getSuperclass().getSimpleName() + "." + clazz.getSimpleName();
-  }
-
 }

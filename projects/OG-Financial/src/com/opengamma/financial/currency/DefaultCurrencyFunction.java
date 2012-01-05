@@ -39,9 +39,9 @@ public class DefaultCurrencyFunction extends StaticDefaultPropertyFunction {
   }
 
   @Override
-  public String getShortName() {
-    final Class<?> clazz = getClass();
-    return clazz.getSuperclass().getSimpleName() + "." + clazz.getSimpleName();
+  public PriorityClass getPriority() {
+    // Currency injection should be after conventional property injection.
+    return PriorityClass.LOWEST;
   }
 
 }

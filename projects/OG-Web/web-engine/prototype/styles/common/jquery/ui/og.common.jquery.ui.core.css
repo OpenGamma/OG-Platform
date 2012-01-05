@@ -45,6 +45,6 @@
 
 .ie8 .ui-widget-overlay,
 .ie9 .ui-widget-overlay {
-  opacity: 0.3;
-  filter: alpha(opacity=30);
+  opacity: 0.2;
+  filter: alpha(opacity=20);
 }

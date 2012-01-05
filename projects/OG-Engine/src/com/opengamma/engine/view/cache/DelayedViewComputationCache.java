@@ -18,6 +18,9 @@ public abstract class DelayedViewComputationCache extends FilteredViewComputatio
   public DelayedViewComputationCache(ViewComputationCache cache, CacheSelectHint filter) {
     super(cache, filter);
   }
+
+  // REVIEW 2011-12-13 andrew -- DeferredViewComputationCache would be a better name
+
   public abstract void putValues(final Collection<ComputedValue> values, final DeferredInvocationStatistics statistics);
   
   /**

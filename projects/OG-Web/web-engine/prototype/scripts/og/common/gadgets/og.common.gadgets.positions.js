@@ -35,30 +35,27 @@ $.register_module({
                 $timeseries.css(height_obj), $hover_msg.css(height_obj);
                 api.rest.timeseries.get({
                     dependencies: ['id', 'node'],
-                    handler: function (r) {
-                        var template_data = r.data.template_data, vals,
-                            extra = template_data.data_field.lang() + ': ' + template_data.data_source.lang();
-                        if (r.error) {
-                            common.util.ui.dialog({type: 'error', message: r.message});
-                            $timeseries_extra.html('error loading timeseries data');
-                            return;
+                    handler: function (result) {
+                        var template_data = result.data.template_data, vals;
+                        if (result.error) {
+                            common.util.ui.dialog({type: 'error', message: result.message});
+                            return $timeseries_extra.html('error loading timeseries data');
                         }
-                        vals = get_values(r.data.timeseries.data);
+                        vals = get_values(result.data.timeseries.data);
                         timeseries_options.yaxis.min = vals.min;
                         timeseries_options.yaxis.max = vals.max;
-                        $.plot($timeseries, [r.data.timeseries.data], timeseries_options);
-                        $timeseries_extra.html(extra);
-                        $(selector + ' .og-timeseries-container').hover(
-                            function () {$hover_msg.show();}, function () {$hover_msg.hide();}
-                        ).click(function (e) {
-                            e.preventDefault();
-                            routes.go(routes.hash(og.views.timeseries.rules.load_timeseries,
-                                $.extend({}, routes.last().args, {id: id})
-                            ));
-                        });
+                        $.plot($timeseries, [result.data.timeseries.data], timeseries_options);
+                        $timeseries_extra
+                            .html(template_data.data_field.lang() + ': ' + template_data.data_source.lang());
+                        $(selector + ' .og-timeseries-container')
+                            .hover(function () {$hover_msg.show();}, function () {$hover_msg.hide();})
+                            .click(function (e) {
+                                e.preventDefault();
+                                routes.go(routes.hash(og.views.timeseries.rules.load_item, {id: id}));
+                            });
                     },
                     id: id,
-                    cache_for: 60000
+                    cache_for: 500
                 });
             };
             api.rest.positions.get({
@@ -72,14 +69,12 @@ $.register_module({
                         timeseries(result, $(selector + ' .og-js-sec-time').outerHeight() - 2);
                         if ((!args.version || args.version === '*') && config.editable) {
                             common.util.ui.content_editable({
-                                attribute: 'data-og-editable',
                                 handler: function () {views.positions.search(args), views.positions.details(args);}
                             });
                         }
                     }});
                 },
                 id: config.id,
-                cache_for: 10000,
                 loading: function () {}
             });
         }

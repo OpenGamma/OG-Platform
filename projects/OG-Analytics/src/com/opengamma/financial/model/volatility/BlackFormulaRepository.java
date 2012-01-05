@@ -63,7 +63,15 @@ public abstract class BlackFormulaRepository {
     return data.getDiscountFactor() * price(data.getForward(), data.getStrike(), data.getTimeToExpiry(), lognormalVol, data.isCall());
   }
 
-  //TODO other greeks
+  /**
+   * The forward (i.e. driftless) delta
+   * @param forward The forward value of the underlying
+   * @param strike The Strike
+   * @param timeToExpiry The time-to-expiry
+   * @param lognormalVol The log-normal volatility
+   * @param isCall true for call
+   * @return The forward delta
+   */
   @ExternalFunction
   public static double delta(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall) {
     Validate.isTrue(lognormalVol >= 0.0, "negative vol");
@@ -80,6 +88,111 @@ public abstract class BlackFormulaRepository {
     final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
 
     return sign * NORMAL.getCDF(sign * d1);
+  }
+
+  public static double strikeForDelta(final double forward, final double forwardDelta, final double timeToExpiry, final double lognormalVol, final boolean isCall) {
+    Validate.isTrue((isCall && forwardDelta > 0 && forwardDelta < 1) || (!isCall && forwardDelta > -1 && forwardDelta < 0), "delta out of range");
+
+    final int sign = isCall ? 1 : -1;
+    final double d1 = sign * NORMAL.getInverseCDF(sign * forwardDelta);
+    return forward * Math.exp(-d1 * lognormalVol * Math.sqrt(timeToExpiry) + lognormalVol * lognormalVol * timeToExpiry);
+  }
+
+  /**
+   * The driftless dual delta (first derivative of option price with respect to strike)
+   * @param forward The forward value of the underlying
+   * @param strike The Strike
+   * @param timeToExpiry The time-to-expiry
+   * @param lognormalVol The log-normal volatility
+   * @param isCall true for call
+   * @return The dual delta
+   */
+  @ExternalFunction
+  public static double dualDelta(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall) {
+    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
+
+    final int sign = isCall ? 1 : -1;
+    final double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
+
+    final double d2 = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
+
+    return -sign * NORMAL.getCDF(sign * d2);
+  }
+
+  /**
+   * The simple delta
+   * @param forward The forward value of the underlying
+   * @param strike The Strike
+   * @param timeToExpiry The time-to-expiry
+   * @param lognormalVol The log-normal volatility
+   * @param isCall true for call
+   * @return The forward delta
+   */
+  @ExternalFunction
+  public static double simpleDelta(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall) {
+    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
+    if (strike < SMALL) {
+      return isCall ? 1.0 : 0.0;
+    }
+    final int sign = isCall ? 1 : -1;
+    final double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
+
+    if (sigmaRootT < SMALL) {
+      return (isCall ? (forward > strike ? 1.0 : 0.0) : (forward > strike ? 0.0 : -1.0));
+    }
+
+    final double d = Math.log(forward / strike) / sigmaRootT;
+
+    return sign * NORMAL.getCDF(sign * d);
+  }
+
+  /**
+   * The forward (i.e. driftless) gamma
+   * @param forward The forward value of the underlying
+   * @param strike The Strike
+   * @param timeToExpiry The time-to-expiry
+   * @param lognormalVol The log-normal volatility
+   * @param isCall true for call
+   * @return The forward gamma
+   */
+  @ExternalFunction
+  public static double gamma(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
+    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
+    if (forward == 0 || strike == 0.0) {
+      return 0.0;
+    }
+    final double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
+    if (sigmaRootT == 0.0) {
+      if (forward != strike) {
+        return 0.0;
+      }
+      //The gamma is infinite in this case
+      return Double.POSITIVE_INFINITY;
+    }
+    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+
+    return NORMAL.getPDF(d1) / forward / sigmaRootT;
+  }
+
+  /**
+   * The driftless dual gamma
+   * @param forward The forward value of the underlying
+   * @param strike The Strike
+   * @param timeToExpiry The time-to-expiry
+   * @param lognormalVol The log-normal volatility
+   * @param isCall true for call
+   * @return The dual gamma
+   */
+  @ExternalFunction
+  public static double dualGamma(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
+    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
+    if (strike == 0) {
+      return 0.0;
+    }
+    final double sigmaRootT = lognormalVol * Math.sqrt(timeToExpiry);
+    final double d2 = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
+
+    return NORMAL.getPDF(d2) / strike / sigmaRootT;
   }
 
   /**
@@ -110,6 +223,56 @@ public abstract class BlackFormulaRepository {
   @ExternalFunction
   public static double vega(final SimpleOptionData data, final double lognormalVol) {
     return data.getDiscountFactor() * vega(data.getForward(), data.getStrike(), data.getTimeToExpiry(), lognormalVol);
+  }
+
+  /**
+   * The driftless vanna of an option, i.e.second order derivative of the option value, once to the underlying spot price and once to volatility.
+   * divide by the the numeraire)
+   * @param forward The forward value of the underlying
+   * @param strike The Strike
+   * @param timeToExpiry The time-to-expiry
+   * @param lognormalVol The log-normal volatility
+   * @return The forward vanna
+   */
+  public static double vanna(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
+    if (forward == 0.0 || strike == 0.0) {
+      return 0.0;
+    }
+    final double rootT = Math.sqrt(timeToExpiry);
+    final double sigmaRootT = lognormalVol * rootT;
+
+    if (sigmaRootT < SMALL || strike < SMALL) {
+      return 0.0;
+    }
+
+    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    final double d2 = d1 - sigmaRootT;
+    return -NORMAL.getPDF(d1) * d2 / lognormalVol;
+  }
+
+  /**
+   * The driftless vanna of an option, i.e.second order derivative of the option value, once to the underlying spot price and once to volatility.
+   * divide by the the numeraire)
+   * @param forward The forward value of the underlying
+   * @param strike The Strike
+   * @param timeToExpiry The time-to-expiry
+   * @param lognormalVol The log-normal volatility
+   * @return The forward vanna
+   */
+  public static double vomma(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
+    if (forward == 0.0 || strike == 0.0) {
+      return 0.0;
+    }
+    final double rootT = Math.sqrt(timeToExpiry);
+    final double sigmaRootT = lognormalVol * rootT;
+
+    if (sigmaRootT < SMALL || strike < SMALL) {
+      return 0.0;
+    }
+
+    final double d1 = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    final double d2 = d1 - sigmaRootT;
+    return forward * NORMAL.getPDF(d1) * rootT * d1 * d2 / lognormalVol;
   }
 
   /**

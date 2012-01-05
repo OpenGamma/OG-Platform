@@ -104,11 +104,6 @@
       border-bottom: 11px solid transparent;
     }
 
-    .OG-breadcrumb li:last-child:after,
-    .OG-breadcrumb li:last-child a:after {
-      border-left: 10px solid transparent;
-    }
-
     .OG-breadcrumb li:first-child {
         -webkit-border-top-left-radius: 2px;
         -webkit-border-bottom-left-radius: 2px;
@@ -134,6 +129,20 @@
       .OG-breadcrumb .og-current {
           background: #9f9f9e;
           border: 1px solid #999;
+          padding-right: 10px;
+      }
+
+      .OG-breadcrumb .og-current:after {
+          border: none;
+      }
+
+      .OG-breadcrumb .og-current a:after {
+          background-position: -8px -16px;
+          width: 7px;
+          height: 8px;
+          border: none;
+          top: 6px;
+          right: -10px;
       }
 
       .OG-breadcrumb .og-current:before {
@@ -152,6 +161,35 @@
           cursor: default;
       }
 
+/*
+ * content editable
+ */
+
+      .OG-breadcrumb .og-current:hover {
+          background-color: #fffee5;
+          border: 1px solid #fffee5;
+      }
+
+      .OG-breadcrumb .og-current:hover a {
+          text-shadow: none;
+          color: #999;
+      }
+
+      .OG-breadcrumb .og-current:hover:before {
+          border-top: 11px solid #fffee5;
+          border-left: 10px outset transparent;
+          border-bottom: 11px solid #fffee5;
+      }
+
+      .OG-breadcrumb .og-current:hover a:before {
+          border-top: 11px solid #fffee5;
+          border-left: 10px outset transparent;
+          border-bottom: 11px solid #fffee5;
+      }
+
+      .OG-breadcrumb .og-current:hover a:after {
+          background-position: 0 -16px;
+      }
 
 /*
  * Turn off fancy stuff for IE8

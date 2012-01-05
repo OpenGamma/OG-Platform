@@ -14,7 +14,7 @@ import com.opengamma.financial.interestrate.PresentValueNodeSensitivityCalculato
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
-import com.opengamma.financial.interestrate.cash.definition.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -158,7 +158,7 @@ public class CurveConstructionExample {
     static YieldCurveBundle bundle = getBundle(y);
 
     public static void interestRateDerivativeDemo(PrintStream out) {
-        Cash loan = new Cash(ccy, t, notional, r, yieldCurveName);
+        Cash loan = new Cash(ccy, 0.0, t, notional, r, t, yieldCurveName);
 
         // @export "interestRateDerivatives-presentValue"
         YieldCurveBundle bundle = getBundle(y);
@@ -233,7 +233,7 @@ public class CurveConstructionExample {
 
     public static void main(String[] args) throws Exception {
         String[] ogargs = {"CurveConstructionExample", "../dexy--output.json"};
-        OpenGammaExample.main(ogargs);
+        OpenGammaExampleClass.main(ogargs);
     }
 
     // @export "identityMatrix"

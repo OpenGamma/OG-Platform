@@ -15,9 +15,8 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.SABRTermStructureParameters;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.volatility.VolatilityModel1D;
-import com.opengamma.math.curve.Curve;
-import com.opengamma.math.curve.CurveBuildingFunction;
 import com.opengamma.math.curve.InterpolatedCurveBuildingFunction;
+import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.TransformedInterpolator1D;
@@ -39,9 +38,9 @@ public class CapletStrippingFunction extends Function1D<DoubleMatrix1D, DoubleMa
   // private final LinkedHashMap<String, double[]> _knotPoints;
   // private final LinkedHashMap<String, Interpolator1D> _interpolators;
   // private final LinkedHashMap<String, ParameterLimitsTransform> _parameterTransforms;
-  private final LinkedHashMap<String, Curve<Double, Double>> _knownParameterTermSturctures;
+  private final LinkedHashMap<String, InterpolatedDoublesCurve> _knownParameterTermSturctures;
 
-  private final CurveBuildingFunction<Double> _curveBuilder;
+  private final InterpolatedCurveBuildingFunction _curveBuilder;
 
   // private final int _totalNodes;
 
@@ -49,7 +48,7 @@ public class CapletStrippingFunction extends Function1D<DoubleMatrix1D, DoubleMa
       final LinkedHashMap<String, double[]> knotPoints,
       final LinkedHashMap<String, Interpolator1D> interpolators,
       final LinkedHashMap<String, ParameterLimitsTransform> parameterTransforms,
-      final LinkedHashMap<String, Curve<Double, Double>> knownParameterTermSturctures) {
+      final LinkedHashMap<String, InterpolatedDoublesCurve> knownParameterTermSturctures) {
     Validate.notNull(caps, "caps null");
     Validate.notNull(knotPoints, "null node points");
     Validate.notNull(interpolators, "null interpolators");
@@ -80,7 +79,7 @@ public class CapletStrippingFunction extends Function1D<DoubleMatrix1D, DoubleMa
 
     _curveBuilder = new InterpolatedCurveBuildingFunction(knotPoints, transInterpolators);
 
-    //  _parameterTransforms = parameterTransforms; //TODO all the check for this 
+    //  _parameterTransforms = parameterTransforms; //TODO all the check for this
 
     _capPricers = new ArrayList<CapFloorPricer>(caps.size());
     for (CapFloor cap : caps) {
@@ -101,7 +100,7 @@ public class CapletStrippingFunction extends Function1D<DoubleMatrix1D, DoubleMa
   @Override
   public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
 
-    LinkedHashMap<String, Curve<Double, Double>> curves = _curveBuilder.evaluate(x);
+    LinkedHashMap<String, InterpolatedDoublesCurve> curves = _curveBuilder.evaluate(x);
 
     // set any known (i.e. fixed) curves
     if (_knownParameterTermSturctures != null) {
@@ -109,7 +108,7 @@ public class CapletStrippingFunction extends Function1D<DoubleMatrix1D, DoubleMa
     }
 
     //TODO for now this is tied to SABRTermStructureParameters - what to be able to drop in any volatility model that has a term structure of
-    //parameters 
+    //parameters
     VolatilityModel1D volModel = new SABRTermStructureParameters(curves.get(ALPHA), curves.get(BETA), curves.get(RHO), curves.get(NU));
 
     double[] res = new double[_capPricers.size()];

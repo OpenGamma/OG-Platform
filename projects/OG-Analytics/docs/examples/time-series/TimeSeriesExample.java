@@ -28,6 +28,6 @@ public class TimeSeriesExample {
 
     public static void main(String[] args) throws Exception {
         String[] ogargs = {"TimeSeriesExample", "../dexy--time-series-output.json"};
-        OpenGammaExample.main(ogargs);
+        OpenGammaExampleClass.main(ogargs);
     }
 }

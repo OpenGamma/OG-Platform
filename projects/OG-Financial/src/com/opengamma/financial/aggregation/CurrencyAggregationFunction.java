@@ -7,8 +7,10 @@ package com.opengamma.financial.aggregation;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
 /**
@@ -19,6 +21,7 @@ public class CurrencyAggregationFunction implements AggregationFunction<String> 
 
   private static final String NAME = "Currency";
   private static final String NO_CURRENCY = "No or multiple currencies";
+  private final Comparator<Position> _comparator = new SimplePositionComparator();
   
   @Override
   public String classifyPosition(Position position) {
@@ -40,5 +43,14 @@ public class CurrencyAggregationFunction implements AggregationFunction<String> 
   @Override
   public Collection<String> getRequiredEntries() {
     return Collections.emptyList();
+  }
+
+  @Override
+  public int compare(String currency1, String currency2) {
+    return currency1.compareTo(currency2);
+  }
+  
+  public Comparator<Position> getPositionComparator() {
+    return _comparator;
   }
 }

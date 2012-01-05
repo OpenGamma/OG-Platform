@@ -12,14 +12,15 @@ import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 
+import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.UniqueId;
 
 /**
  * 
  */
-public class CombinedMarketDataSnapshot implements MarketDataSnapshot {
-
+public class CombinedMarketDataSnapshot extends AbstractMarketDataSnapshot {
+  
   private final Map<MarketDataProvider, MarketDataSnapshot> _snapshotByProvider;
   private final MarketDataSnapshot _prefferedSnapshot;
   private final CombinedMarketDataProvider _combinedMarketDataProvider;
@@ -29,10 +30,10 @@ public class CombinedMarketDataSnapshot implements MarketDataSnapshot {
     _snapshotByProvider = snapshotByProvider;
     _combinedMarketDataProvider = combinedMarketDataProvider;
   }
-
+  
   @Override
   public UniqueId getUniqueId() {
-    return _prefferedSnapshot.getUniqueId();
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "CombinedMarketDataSnapshot:"+getSnapshotTime());
   }
 
   @Override
@@ -70,4 +71,18 @@ public class CombinedMarketDataSnapshot implements MarketDataSnapshot {
     }
     return _snapshotByProvider.get(provider).query(requirement);
   }
+
+  @Override
+  public Map<ValueRequirement, Object> query(final Set<ValueRequirement> requirements) {
+    final Map<ValueRequirement, Object> result = Maps.newHashMapWithExpectedSize(requirements.size());
+    final Map<MarketDataProvider, Set<ValueRequirement>> groupByProvider = _combinedMarketDataProvider.groupByProvider(requirements);
+    for (Entry<MarketDataProvider, Set<ValueRequirement>> entry : groupByProvider.entrySet()) {
+      final Map<ValueRequirement, Object> values = _snapshotByProvider.get(entry.getKey()).query(entry.getValue());
+      if (values != null) {
+        result.putAll(values);
+      }
+    }
+    return result;
+  }
+
 }

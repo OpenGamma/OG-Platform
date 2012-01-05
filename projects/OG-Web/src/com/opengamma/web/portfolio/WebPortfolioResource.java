@@ -18,10 +18,12 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.DocumentVisibility;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
@@ -71,38 +73,41 @@ public class WebPortfolioResource extends AbstractWebPortfolioResource {
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.TEXT_HTML)
-  public Response putHTML(@FormParam("name") String name) {
+  public Response putHTML(@FormParam("name") String name, @FormParam("hidden") Boolean isHidden) {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     
     name = StringUtils.trimToNull(name);
+    DocumentVisibility visibility = BooleanUtils.isTrue(isHidden) ? DocumentVisibility.HIDDEN : DocumentVisibility.VISIBLE;
     if (name == null) {
       FlexiBean out = createRootData();
       out.put("err_nameMissing", true);
       String html = getFreemarker().build("portfolios/portfolio-update.ftl", out);
       return Response.ok(html).build();
     }
-    URI uri = updatePortfolio(name, doc);
+    URI uri = updatePortfolio(name, visibility, doc);
     return Response.seeOther(uri).build();
   }
 
   @PUT
   @Consumes(MediaType.APPLICATION_FORM_URLENCODED)
   @Produces(MediaType.APPLICATION_JSON)
-  public Response putJSON(@FormParam("name") String name) {
+  public Response putJSON(@FormParam("name") String name, @FormParam("hidden") Boolean isHidden) {
     PortfolioDocument doc = data().getPortfolio();
     if (doc.isLatest() == false) {
       return Response.status(Status.FORBIDDEN).entity(getHTML()).build();
     }
     name = StringUtils.trimToNull(name);
-    updatePortfolio(name, doc);
+    DocumentVisibility visibility = BooleanUtils.isTrue(isHidden) ? DocumentVisibility.HIDDEN : DocumentVisibility.VISIBLE;
+    updatePortfolio(name, visibility, doc);
     return Response.ok().build();
   }
 
-  private URI updatePortfolio(String name, PortfolioDocument doc) {
+  private URI updatePortfolio(String name, DocumentVisibility visibility, PortfolioDocument doc) {
     doc.getPortfolio().setName(name);
+    doc.setVisibility(visibility);
     doc = data().getPortfolioMaster().update(doc);
     data().setPortfolio(doc);
     URI uri = WebPortfolioResource.uri(data());

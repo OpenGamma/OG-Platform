@@ -1,10 +1,4 @@
 {
-        "api.html|hd|ft|jinja|split" : {
-            "allinputs" : true,
-            "priority" : 10,
-            "canonical-name" : "index.html",
-            "disabled" : false
-        },
         "@list-files.sh|jinja|sh" : { "final" : false, "propagate" : true, "contents" : "cd ../{{ s.canonical_dir() }}; find -printf '%P\n'" },
         "writing-docs.tex|hd|ft|jinja|latex" : {
             "title" : "Writing OpenGamma Examples",
@@ -16,8 +10,13 @@
             "allinputs" : true,
             "priority" : 10
         },
+        "og-analytics.tex|hd|ft|ogjinja|latex" : {
+            "allinputs" : true,
+            "header" : "_header_book.tex",
+            "footer" : "_footer_book.tex",
+            "priority" : 10
+        },
         "og_docs_yield_curve_maths.tex|hd|ft|jinja|latex" : {
-            "disabled" : true,
             "allinputs" : true,
             "title" : "Yield Curve Maths",
             "priority" : 10

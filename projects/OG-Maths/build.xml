@@ -1,0 +1,55 @@
+<project name="og-maths" default="compile">
+    <property file="build.properties"/>
+	<property name="build.dir" value="build" />
+    <property name="docs.dir" value="${build.dir}/docs" />
+
+    <import file="${common.dir}/common.xml"/>
+
+    <target name="javadoc" depends="load-ivy"
+        description="--> build Javadocs (with LaTeX support) for the project">
+        <mkdir dir="${docs.dir}" />
+        <mkdir dir="${docs.dir}/javadoc" />
+        <javadoc
+            sourcepath="${src.dir}"
+            destdir="${docs.dir}/javadoc"
+            classpathref="lib.path.id"
+            author="false"
+            windowtitle="${javadocs.windowtitle}"
+            doctitle="${javadocs.doctitle}"
+            bottom="${javadocs.footer}"
+            >
+            <taglet name="latexlet.InlineBlockLaTeXlet" path="${toString:lib.path.id}"/>
+            <taglet name="latexlet.BlockLaTeXlet" path="${toString:lib.path.id}"/>
+            <taglet name="latexlet.InlineLaTeXlet" path="${toString:lib.path.id}"/>
+            <group title="Maths" packages="com.opengamma.maths.*"/>
+        </javadoc>
+    </target>
+    <target name="jsondoc" depends="resolve"
+        description="--> exports Javadoc info to JSON">
+        <javadoc
+            sourcepath="${src.dir}"
+            destdir="docs/jsondocs/javadoc-data.json"
+            classpathref="lib.path.id"
+            doclet="it.dexy.jsondoclet.Doclet"
+            docletpath="${lib.path.jar.file}"
+            >
+        </javadoc>
+    </target>
+    <target name="jsondoc-test" depends="resolve"
+        description="--> exports Javadoc info to JSON">
+        <javadoc
+            sourcepath="tests"
+            destdir="docs/jsondocs/maths-test.json"
+            classpathref="lib.path.id"
+            doclet="it.dexy.jsondoclet.Doclet"
+            docletpath="${lib.path.jar.file}"
+            >
+        </javadoc>
+    </target>
+    <target name="dexydocs" depends="jsondoc"
+        description="Create dexy docs">
+        <exec executable="dexy" dir="docs" searchpath="true">
+           <arg line="--global OG_VERSION=${module.version.target} --setup"/>
+        </exec>
+    </target>
+</project>

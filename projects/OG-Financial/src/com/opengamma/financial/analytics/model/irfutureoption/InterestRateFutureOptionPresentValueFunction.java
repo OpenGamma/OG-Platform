@@ -14,7 +14,6 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValuePropertyNames;
-import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
@@ -29,29 +28,37 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 public class InterestRateFutureOptionPresentValueFunction extends InterestRateFutureOptionFunction {
   private static final PresentValueSABRCalculator CALCULATOR = PresentValueSABRCalculator.getInstance();
 
-  public InterestRateFutureOptionPresentValueFunction(String forwardCurveName, String fundingCurveName, final String surfaceName) {
-    super(forwardCurveName, fundingCurveName, surfaceName);
-  }
-
   @Override
-  protected Set<ComputedValue> getResults(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, 
-      final Set<ValueRequirement> desiredValues, final FunctionInputs inputs, final ComputationTarget target) {
+  protected Set<ComputedValue> getResults(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data,
+      final ComputationTarget target, final FunctionInputs inputs, final String forwardCurveName,
+      final String fundingCurveName, final String surfaceName) {
     final double presentValue = CALCULATOR.visit(irFutureOption, data);
-    return Collections.singleton(new ComputedValue(getSpecification(target), presentValue));
+    return Collections.singleton(new ComputedValue(getSpecification(target, forwardCurveName, fundingCurveName, surfaceName), presentValue));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Sets.newHashSet(getSpecification(target));
   }
-  
+
   private ValueSpecification getSpecification(final ComputationTarget target) {
     return new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(),
         createValueProperties()
-            .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
-            .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
-            .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName())
-            .with(ValuePropertyNames.SURFACE, getSurfaceName())
-            .with(ValuePropertyNames.SMILE_FITTING_METHOD, "SABR").get());
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
+        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .withAny(ValuePropertyNames.SURFACE)
+        .with(ValuePropertyNames.SMILE_FITTING_METHOD, SURFACE_FITTING_NAME).get());
+  }
+
+  private ValueSpecification getSpecification(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName,
+      final String surfaceName) {
+    return new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(),
+        createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(ValuePropertyNames.SMILE_FITTING_METHOD, SURFACE_FITTING_NAME).get());
   }
 }
