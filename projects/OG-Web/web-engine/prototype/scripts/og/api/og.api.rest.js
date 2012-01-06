@@ -391,8 +391,8 @@ $.register_module({
                 put: function (config) {
                     var root = this.root, method = [root], data = {}, meta,
                         id = str(config.id), version = str(config.version),
-                        fields = ['identifier', 'quantity', 'scheme_type'],
-                        api_fields = ['idvalue', 'quantity', 'idscheme'];
+                        fields = ['identifier', 'quantity', 'scheme_type', 'trades'],
+                        api_fields = ['idvalue', 'quantity', 'idscheme', 'tradesJson'];
                     meta = check({
                         bundle: {method: root + '#put', config: config},
                         dependencies: [{fields: ['version'], require: 'id'}],
