@@ -9,13 +9,13 @@ import javax.time.calendar.Period;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.index.SwapGenerator;
+import com.opengamma.financial.instrument.index.GeneratorSwap;
 import com.opengamma.financial.instrument.index.iborindex.DKKCIBOR6M;
 
 /**
  * Swap generator for the DKK Annual 30/360 vs Cibor 6M.
  */
-public class DKK1YCIBOR6M extends SwapGenerator {
+public class DKK1YCIBOR6M extends GeneratorSwap {
 
   /**
    * Constructor.

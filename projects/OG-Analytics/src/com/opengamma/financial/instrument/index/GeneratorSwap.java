@@ -17,7 +17,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Class with the description of swap characteristics.
  */
-public class SwapGenerator {
+public class GeneratorSwap {
 
   /**
    * Name of the index.
@@ -44,7 +44,7 @@ public class SwapGenerator {
    * @param fixedLegDayCount The day count convention associated to the fixed leg.
    * @param iborIndex The Ibor index of the floating leg.
    */
-  public SwapGenerator(Period fixedLegPeriod, DayCount fixedLegDayCount, IborIndex iborIndex) {
+  public GeneratorSwap(Period fixedLegPeriod, DayCount fixedLegDayCount, IborIndex iborIndex) {
     Validate.notNull(fixedLegPeriod, "fixed leg period");
     Validate.notNull(fixedLegDayCount, "fixed leg day count");
     Validate.notNull(iborIndex, "ibor index");
@@ -129,7 +129,7 @@ public class SwapGenerator {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    SwapGenerator other = (SwapGenerator) obj;
+    GeneratorSwap other = (GeneratorSwap) obj;
     if (!ObjectUtils.equals(_fixedLegDayCount, other._fixedLegDayCount)) {
       return false;
     }
