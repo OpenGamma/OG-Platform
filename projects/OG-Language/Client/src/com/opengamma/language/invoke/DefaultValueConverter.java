@@ -72,17 +72,6 @@ public class DefaultValueConverter extends ValueConverter {
 
     // TODO: build a set to speed up the visit lookups
 
-    public boolean visited(final TypeConverter converter) {
-      State s = this;
-      do {
-        if (converter == s._nextStateConverter) {
-          return true;
-        }
-        s = s._nextState;
-      } while (s != null);
-      return false;
-    }
-
     public boolean visited(final JavaTypeInfo<?> type) {
       State s = this;
       do {
@@ -275,26 +264,24 @@ public class DefaultValueConverter extends ValueConverter {
     do {
       consideredConverters.clear();
       for (TypeConverter converter : getConvertersTo(conversionContext, explore.getTargetType())) {
-        if (!explore.visited(converter)) {
-          final Map<JavaTypeInfo<?>, Integer> alternativeTypes = converter.getConversionsTo(explore.getTargetType());
-          if ((alternativeTypes != null) && !alternativeTypes.isEmpty()) {
-            for (Map.Entry<JavaTypeInfo<?>, Integer> alternativeType : alternativeTypes.entrySet()) {
-              // Only try types not already used on the chain, and only use the first converter (most recently added) for a type
-              if (!explore.visited(alternativeType.getKey()) && consideredConverters.add(alternativeType.getKey())) {
-                final State nextState = new State(alternativeType.getKey(), converter, explore, alternativeType.getValue());
-                final Integer key = (Integer) nextState.getCost();
-                if (key > 100) {
-                  // Ignore expensive chains 
-                  continue;
-                }
-                Queue<State> states = searchStates.get(key);
-                if (states == null) {
-                  states = new LinkedList<State>();
-                  searchStates.put(key, states);
-                }
-                states.add(nextState);
-                statesStored++;
+        final Map<JavaTypeInfo<?>, Integer> alternativeTypes = converter.getConversionsTo(explore.getTargetType());
+        if ((alternativeTypes != null) && !alternativeTypes.isEmpty()) {
+          for (Map.Entry<JavaTypeInfo<?>, Integer> alternativeType : alternativeTypes.entrySet()) {
+            // Only try types not already used on the chain, and only use the first converter (most recently added) for a type
+            if (!explore.visited(alternativeType.getKey()) && consideredConverters.add(alternativeType.getKey())) {
+              final State nextState = new State(alternativeType.getKey(), converter, explore, alternativeType.getValue());
+              final Integer key = (Integer) nextState.getCost();
+              if (key > 100) {
+                // Ignore expensive chains 
+                continue;
               }
+              Queue<State> states = searchStates.get(key);
+              if (states == null) {
+                states = new LinkedList<State>();
+                searchStates.put(key, states);
+              }
+              states.add(nextState);
+              statesStored++;
             }
           }
         }
