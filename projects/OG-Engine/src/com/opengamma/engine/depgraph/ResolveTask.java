@@ -32,7 +32,7 @@ import com.opengamma.engine.value.ValueSpecification;
    * State within a task. As the task executes, the execution is delegated to the
    * current state object.
    */
-  protected abstract static class State {
+  protected abstract static class State implements ResolvedValueProducer.Chain {
 
     private final int _objectId = s_nextObjectId.getAndIncrement();
     private final ResolveTask _task;
@@ -98,6 +98,11 @@ import com.opengamma.engine.value.ValueSpecification;
     protected void pump(final GraphBuildingContext context) {
       // No-op; happens if a worker "finishes" a function application PumpingState and it progresses to the next natural
       // state in advance of the pump from the abstract value producer
+    }
+
+    @Override
+    public int cancelLoopMembers(final GraphBuildingContext context, final Set<Object> visited) {
+      return getTask().cancelLoopMembers(context, visited);
     }
 
     /**
@@ -184,6 +189,15 @@ import com.opengamma.engine.value.ValueSpecification;
 
   public boolean isFinished() {
     return _state == null;
+  }
+
+  public boolean isActive() {
+    final State state = getState();
+    if (state != null) {
+      return state.isActive();
+    } else {
+      return false;
+    }
   }
 
   @Override

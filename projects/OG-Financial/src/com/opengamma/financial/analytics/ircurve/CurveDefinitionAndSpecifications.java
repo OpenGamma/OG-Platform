@@ -390,7 +390,8 @@ public class CurveDefinitionAndSpecifications {
     final Map<Currency, CurveSpecificationBuilderConfiguration> configurations = new HashMap<Currency, CurveSpecificationBuilderConfiguration>();
     final CurveSpecificationBuilderConfiguration usdConfig = new CurveSpecificationBuilderConfiguration(buildStandardBloombergDepositInstrumentProvider("US"),
         buildStandardBloomberg3MFRAInstrumentProvider("US"), buildStandardBloomberg6MFRAInstrumentProvider("US"), buildStandardBloombergLiborInstrumentProvider("US", "O/N", "T/N"), null, null, null,
-        null, buildStandardBloombergFutureInstrumentProvider("ED"), null, buildStandardBloomberg3MSwapInstrumentProvider("US", ""), null, null, buildStandardBloombergOISSwapInstrumentProvider("USSO"));
+        null, buildStandardBloombergFutureInstrumentProvider("ED"), null, buildStandardBloomberg3MSwapInstrumentProvider("US", ""), null, null, 
+        buildStandardBloombergOISSwapInstrumentProvider("USSO"));
     configurations.put(Currency.USD, usdConfig);
     final CurveSpecificationBuilderConfiguration eurConfig = new CurveSpecificationBuilderConfiguration(buildStandardBloombergDepositInstrumentProvider("EU"),
         buildStandardBloomberg3MFRAInstrumentProvider("EU"), buildStandardBloomberg6MFRAInstrumentProvider("EU"), null, buildStandardBloombergEuriborInstrumentProvider(), null, null, null,

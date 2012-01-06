@@ -44,11 +44,10 @@ $.register_module({
                         return expander + (trade[field].replace(/.*~/, '')).lang();
                     }).join('</td><td>'), end);
                     (function () { // display attributes if available
-                        var attr, attr_type, attr_obj, key, html = [], keys = Object.keys, trd_attr = trade.attributes;
-                        if (!keys(trd_attr['dealAttributes']).length && !keys(trd_attr['userAttributes']).length) return;
+                        if (!trade.attributes) return;
+                        var attr, attr_type, attr_obj, key, html = [];
                         for (attr_type in trade.attributes) {
                             attr_obj = trade.attributes[attr_type], attr = [];
-                            if (!Object.keys(attr_obj).length) continue;
                             for (key in attr_obj) attr.push(
                                 start, key.replace(/.+~(.+)/, '$1').lang(), ':</td><td>', attr_obj[key].lang(), end
                             );
@@ -72,11 +71,32 @@ $.register_module({
                         });
                     } else $this.find('.og-icon-expand').css('visibility', 'hidden');
                 });
-//                $(selector).append(
-//                    '<a href="#" class="OG-link-add" style="position: relative; left: 2px; top: 3px;">add new trade</a>'
-//                ).bind('click', function (e) {
-//                    e.preventDefault();
-//                });
+                // Add trades functionality
+//                (function () {
+//                    var link = '<a href="#" class="OG-link-add" \
+//                        style="position: relative; left: 2px; top: 3px;">add new trade</a>';
+//                    $(selector).append(link).find('.OG-link-add').bind('click', function (e) {
+//                        e.preventDefault();
+//                        ui.dialog({
+//                            type: 'input',
+//                            title: 'Add New Trade',
+//                            minWidth: 400,
+//                            minHeight: 400,
+//                            fields: [
+//                                {type: 'input', name: 'Quantity', id: 'quantity'},
+//                                {type: 'input', name: 'Counterparty', id: 'counterparty'},
+//                                {type: 'input', name: 'Trade Date / Time', id: 'trade_date'},
+//                                {type: 'input', name: 'Premium', id: 'premium'},
+//                                {type: 'input', name: 'Premium Date / Time', id: 'premium_date'}
+//                            ],
+//                            buttons: {
+//                                'OK': function () {
+//                                    $(this).dialog('close');
+//                                }
+//                            }
+//                        })
+//                    });
+//                }());
                 $(selector + ' > .OG-table > tbody > tr:not(".og-js-attribute"):last td').css('padding-bottom', '10px');
                 $(selector + ' .OG-table').awesometable({height: 400});
             };
