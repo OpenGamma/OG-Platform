@@ -5,6 +5,7 @@
  */
 package com.opengamma.masterdb.batch;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.financial.batch.*;
 import com.opengamma.id.UniqueId;
@@ -75,7 +76,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster {
             run.getNumRestarts()
           );
         } else {
-          return null;
+          throw new DataNotFoundException("Batch run not found: " + id);
         }
       }
     });

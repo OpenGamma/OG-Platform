@@ -35,7 +35,6 @@ import static org.testng.Assert.assertNotNull;
 public class DbBatchMasterTest extends DbTest {
 
   private DbBatchMaster _batchMaster;
-  private BatchId _batchId;
   private CycleInfo _cycleInfoStub;
   private ComputationTargetSpecification _compTargetSpec;
   private ValueRequirement _requirement;
@@ -118,11 +117,6 @@ public class DbBatchMasterTest extends DbTest {
       }
     };
 
-    _batchId = new BatchId(
-      _cycleInfoStub.getMarketDataSnapshotUniqueId(),
-      _cycleInfoStub.getViewDefinitionUid(),
-      _cycleInfoStub.getVersionCorrection(),
-      _cycleInfoStub.getValuationTime());
   }
 
   @Test
@@ -172,104 +166,5 @@ public class DbBatchMasterTest extends DbTest {
     assertEquals(item.getValuationTime(), batch.getBatchId().getValuationTime());
     assertEquals(BatchStatus.RUNNING, item.getStatus());
   }
-
-
-/*  @Test(expectedExceptions = DataNotFoundException.class)
-  public void getDataNonexistentBatch() {
-    Batch batch = new Batch(_batchId, _cycleInfoStub);
-
-    BatchGetRequest request = new BatchGetRequest();
-
-    String viewDefinitionUid = "viewDefinitionUid~1";
-    String marketDataSnapshotUid = "marketDataSnapshotUid~1";
-    String valuationTime = Instant.now().toString();
-    String versionCorrection = VersionCorrection.of(Instant.now(), Instant.now()).toString();
-
-
-    request.setUniqueId(UniqueId.of("DbBat", Joiner.on(BatchDocument.BATCH_DOCUMENT_UNIQUE_ID_DELIMITER).
-      join(newArrayList(viewDefinitionUid, marketDataSnapshotUid, valuationTime, versionCorrection))));
-
-    _batchMaster.get(request);
-  }
-
-
-  @Test
-  public void getDataExistingBatch() {
-    final Batch batch = new Batch(_batchId, _cycleInfoStub);
-
-    final BatchGetRequest request = new BatchGetRequest();
-
-    _batchMaster.getDbConnector().getTransactionTemplate().execute(new TransactionCallback<Void>() {
-      @Override
-      public Void doInTransaction(TransactionStatus status) {
-
-
-        _batchWriter.createLiveDataSnapshot(_batchId.getMarketDataSnapshotUid());
-        _batchWriter.startBatch(batch);
-
-        String viewDefinitionUid = _batchId.getViewDefinitionUid().toString();
-        String marketDataSnapshotUid = _batchId.getMarketDataSnapshotUid().toString();
-        String valuationTime = _batchId.getValuationTime().toString();
-        String versionCorrection = _batchId.getVersionCorrection().toString();
-
-        UniqueId batchUniqueIdStr = UniqueId.of("DbBat", Joiner.on(BatchDocument.BATCH_DOCUMENT_UNIQUE_ID_DELIMITER).
-          join(newArrayList(viewDefinitionUid, marketDataSnapshotUid, valuationTime, versionCorrection)));
-
-        request.setUniqueId(batchUniqueIdStr);
-        return null;
-      }
-    });
-
-    _batchMaster.getDbConnector().getTransactionTemplate().execute(new TransactionCallback<Void>() {
-      @Override
-      public Void doInTransaction(TransactionStatus status) {
-        BatchDocument result = _batchMaster.get(request);
-        assertNotNull(result);
-        assertTrue(result.getData().isEmpty());
-        return null;
-      }
-    });
-  }
-
-  @Test
-  public void getErrorsExistingBatch() {
-    final Batch batch = new Batch(_batchId, _cycleInfoStub);
-    final BatchGetRequest request = new BatchGetRequest();
-
-    _batchMaster.getDbConnector().getTransactionTemplate().execute(new TransactionCallback<Void>() {
-      @Override
-      public Void doInTransaction(TransactionStatus status) {
-
-        _batchWriter.createLiveDataSnapshot(_batchId.getMarketDataSnapshotUid());
-        _batchWriter.startBatch(batch);
-
-        String viewDefinitionUid = _batchId.getViewDefinitionUid().toString();
-        String marketDataSnapshotUid = _batchId.getMarketDataSnapshotUid().toString();
-        String valuationTime = _batchId.getValuationTime().toString();
-        String versionCorrection = _batchId.getVersionCorrection().toString();
-
-        UniqueId batchUniqueIdStr = UniqueId.of("DbBat", Joiner.on(BatchDocument.BATCH_DOCUMENT_UNIQUE_ID_DELIMITER).
-          join(newArrayList(viewDefinitionUid, marketDataSnapshotUid, valuationTime, versionCorrection)));
-
-        request.setUniqueId(batchUniqueIdStr);
-        request.setDataPagingRequest(PagingRequest.NONE);
-        request.setErrorPagingRequest(PagingRequest.ALL);
-
-        return null;
-      }
-    });
-
-    _batchMaster.getDbConnector().getTransactionTemplate().execute(new TransactionCallback<Void>() {
-      @Override
-      public Void doInTransaction(TransactionStatus status) {
-
-        BatchDocument result = _batchMaster.get(request);
-        assertNotNull(result);
-        assertTrue(result.getErrors().isEmpty());
-
-        return null;
-      }
-    });
-  }*/
 
 }
