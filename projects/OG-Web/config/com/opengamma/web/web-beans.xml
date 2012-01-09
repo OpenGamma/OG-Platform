@@ -152,16 +152,6 @@
     <property name="scheduler" ref="scheduler" />
   </bean>
 
-  <!-- Portfolios RESTful service -->
-  <bean id="dataPortfoliosRestBean" class="com.opengamma.master.portfolio.impl.DataPortfoliosResource">
-    <constructor-arg ref="centralPortfolioMaster" />
-  </bean>
-
-  <!-- Positions RESTful service -->
-  <bean id="dataPositionsRestBean" class="com.opengamma.master.position.impl.DataPositionsResource">
-    <constructor-arg ref="centralPositionMaster" />
-  </bean>
-  
   <!-- ============================================================================== -->
   <!-- Distributed component configuration data -->
   <bean id="configurationResource" class="com.opengamma.util.rest.ConfigurationResource">
@@ -270,13 +260,13 @@
             </entry>
             <entry key="portfolioMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/data/prtMaster/portfolios" />
+                <property name="local" value="/jax/components/portfolioMaster/central/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
             <entry key="positionMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/data/posMaster/positions" />
+                <property name="local" value="/jax/components/positionMaster/central/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
