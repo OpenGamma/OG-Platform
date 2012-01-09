@@ -123,7 +123,7 @@ $.register_module({
                             }
                             return '<div>' + str + '</div>';
                         })();
-                    }, '<form>') + '</form>').find('form').unbind().submit(function (e) {
+                    }, '<form class="OG-dialog-form">') + '</form>').find('form').unbind().submit(function (e) {
                         e.preventDefault();
                         $obj.dialog('option', 'buttons')['OK']();
                     });

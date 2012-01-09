@@ -266,7 +266,8 @@ public class RequirementBasedGridStructure {
 
   //-------------------------------------------------------------------------
   private static String getColumnHeader(RequirementBasedColumnKey requirementBasedKey) {
-    if ("default".equals(requirementBasedKey.getCalcConfigName().toLowerCase())) {
+    String normalizedCalcConfigName = requirementBasedKey.getCalcConfigName().toLowerCase().trim();
+    if ("default".equals(normalizedCalcConfigName) || "portfolio".equals(normalizedCalcConfigName)) {
       return requirementBasedKey.getValueName();
     }
     return requirementBasedKey.getCalcConfigName() + "/" + requirementBasedKey.getValueName();

@@ -31,6 +31,7 @@ public class AUConventions {
     final BusinessDayConvention following = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
     final DayCount act365 = DayCountFactory.INSTANCE.getDayCount("Actual/365");
     final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
+    final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
     final Frequency annual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.ANNUAL_NAME);
 
     conventionMaster.addConventionBundle(
@@ -84,6 +85,15 @@ public class AUConventions {
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("AU0012M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD LIBOR 12m"),
             ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "AUDLIBORP12M")), "AUD LIBOR 12m", act365, following, Period.ofMonths(12), 2, false, null);
+
+    conventionMaster.addConventionBundle(
+        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("BBSW3M Index"), SecurityUtils.ricSecurityId("AUBABSL3M=AFMA"),
+            ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD Bank Bill 3m"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "AUDBBP3M")), "AUD Bank Bill 3m",
+        act365, following, Period.ofMonths(3), 1, false, null);
+    conventionMaster.addConventionBundle(
+        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("BBSW6M Index"), SecurityUtils.ricSecurityId("AUBABSL6M=AFMA"),
+            ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD Bank Bill 6m"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "AUDBBP6M")), "AUD Bank Bill 6m",
+        act365, following, Period.ofMonths(6), 1, false, null);
 
     //TODO need to check that these are right for deposit rates
     conventionMaster.addConventionBundle(
@@ -160,6 +170,11 @@ public class AUConventions {
     final ExternalId au = RegionUtils.financialRegionId("AU");
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_SWAP")), "AUD_SWAP", act365, modified, semiAnnual, 1, au, act365,
         modified, semiAnnual, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD LIBOR 6m"), au, true);
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_3M_SWAP")), "AUD_3M_SWAP", act365, modified, quarterly, 1, au,
+        act365, modified, quarterly, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD LIBOR 3m"), au, true);
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_6M_SWAP")), "AUD_6M_SWAP", act365, modified, semiAnnual, 1, au,
+        act365, modified, semiAnnual, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD LIBOR 6m"), au, true);
+    //TODO: Change the reference index to BBSW. Unfortunately we don't have the BBSW time series for the moment.
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_OIS_SWAP")), "AUD_OIS_SWAP", act365, modified, annual, 0, au,
         act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBA OVERNIGHT CASH RATE"), au, true);
     conventionMaster

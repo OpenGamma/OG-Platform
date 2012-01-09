@@ -99,8 +99,27 @@ private:
 			LOGWARN (TEXT ("No RuntimeLib found for JRE v") << szVersion);
 			return NULL;
 		}
-		LOGINFO (TEXT ("Runtime library ") << szPath << TEXT (" found from registry"));
 		RegCloseKey (hkeyJRE);
+		HANDLE hFile = CreateFile (szPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		if (hFile == INVALID_HANDLE_VALUE) {
+			// JDK1.6 puts the wrong path into the registry. It ends \client\jvm.dll but should be \server\jvm.dll
+			int cchPath = _tcslen (szPath);
+			if ((cchPath > 15) && !_tcscmp (szPath + cchPath - 15, TEXT ("\\client\\jvm.dll"))) {
+				LOGDEBUG (TEXT ("Applying hack for broken JDK installer"));
+				memcpy (szPath + cchPath - 14, TEXT ("server"), sizeof (TCHAR) * 6);
+				hFile = CreateFile (szPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+				if (hFile == INVALID_HANDLE_VALUE) {
+					LOGWARN (TEXT ("JVM runtime ") << szPath << TEXT (" can't be opened (modified value used), error ") << GetLastError ());
+				} else {
+					CloseHandle (hFile);
+				}
+			} else {
+				LOGWARN (TEXT ("JVM runtime ") << szPath << TEXT (" can't be opened, error ") << GetLastError ());
+			}
+		} else {
+			CloseHandle (hFile);
+		}
+		LOGINFO (TEXT ("Runtime library ") << szPath << TEXT (" found from registry"));
 		return _tcsdup (szPath);
 	}
 #endif /* ifndef _WIN32 */

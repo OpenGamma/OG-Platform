@@ -456,7 +456,9 @@ import com.opengamma.engine.value.ValueSpecification;
         if (node == null) {
           s_logger.error("Resolved {} to {} but couldn't create one or more dependency nodes", valueRequirement, resolvedValue.getValueSpecification());
         } else {
+          assert node.getOutputValues().contains(resolvedValue.getValueSpecification());
           synchronized (GetTerminalValuesCallback.this) {
+            assert _graphNodes.contains(node);
             _resolvedValues.put(valueRequirement, resolvedValue.getValueSpecification());
           }
         }

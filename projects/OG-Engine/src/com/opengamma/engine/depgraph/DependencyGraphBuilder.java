@@ -14,6 +14,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Queue;
@@ -564,8 +565,43 @@ public final class DependencyGraphBuilder {
       producer.release(this);
     }
 
+    private boolean abortLoops() {
+      s_loggerBuilder.debug("Checking for active tasks to abort");
+      List<ResolveTask> activeTasks = null;
+      synchronized (_specifications) {
+        for (Map<ResolveTask, ResolvedValueProducer> tasks : _specifications.values()) {
+          for (ResolveTask task : tasks.keySet()) {
+            if (task.isActive()) {
+              if (activeTasks == null) {
+                activeTasks = new LinkedList<ResolveTask>();
+              }
+              activeTasks.add(task);
+            }
+          }
+        }
+      }
+      if (activeTasks != null) {
+        final Set<Object> visited = new HashSet<Object>();
+        int cancelled = 0;
+        for (ResolveTask task : activeTasks) {
+          cancelled += task.cancelLoopMembers(this, visited);
+        }
+        s_loggerContext.info("Cancelled {} looped tasks", cancelled);
+        return cancelled > 0;
+      } else {
+        s_loggerContext.debug("No looped tasks");
+      }
+      return false;
+    }
+
     // Collation
 
+    /**
+     * Merge information from the other context into this (a root context). The caller must be the thread
+     * that was working with the other context.
+     * 
+     * @param context the other context
+     */
     private synchronized void mergeThreadContext(final GraphBuildingContext context) {
       if (_exceptions == null) {
         _exceptions = new HashMap<ExceptionWrapper, ExceptionWrapper>();
@@ -597,49 +633,37 @@ public final class DependencyGraphBuilder {
       if (!s_loggerContext.isInfoEnabled()) {
         return;
       }
-      //final List<ResolveTask> discards = new ArrayList<ResolveTask>();
       synchronized (_requirements) {
         int count = 0;
         for (Map.Entry<ValueRequirement, Map<ResolveTask, ResolveTask>> requirements : _requirements.entrySet()) {
           final Map<ResolveTask, ResolveTask> entries = requirements.getValue();
-          if (!entries.isEmpty()) {
-            /*boolean allFinished = true;
-            for (ResolveTask task : entries.keySet()) {
-              if (!task.isFinished()) {
-                allFinished = false;
-                break;
-              }
-            }
-            if (allFinished) {
-              discards.addAll(entries.keySet());
-              entries.clear();
-            } else {*/
-            count += entries.size();
-            //}
-          }
-        }
-        s_loggerContext.info("Requirements cache = {} tasks for {} requirements", count, _requirements.size());
-        /*s_loggerContext.info("Discarding {} finished tasks", discards.size());
-        for (ResolveTask discard : discards) {
-          discard.release(this);
-        }*/
-      }
-      synchronized (_specifications) {
-        int count = 0;
-        for (Map<ResolveTask, ResolvedValueProducer> entries : _specifications.values()) {
           count += entries.size();
         }
-        s_loggerContext.info("Specifications cache = {} tasks for {} specifications", count, _specifications.size());
+        s_loggerContext.info("Requirements cache = {} tasks for {} requirements", count, _requirements.size());
+      }
+      if (s_loggerContext.isInfoEnabled()) {
+        synchronized (_specifications) {
+          int count = 0;
+          for (Map<ResolveTask, ResolvedValueProducer> entries : _specifications.values()) {
+            count += entries.size();
+          }
+          s_loggerContext.info("Specifications cache = {} tasks for {} specifications", count, _specifications.size());
+        }
       }
       //final Runtime rt = Runtime.getRuntime();
       //rt.gc();
       //s_loggerContext.info("Used memory = {}M", (double) (rt.totalMemory() - rt.freeMemory()) / 1e6);
     }
 
-    private synchronized void discardIntermediateState() {
-      s_loggerContext.debug("Discarding intermediate state {} requirements, {} specifications", _requirements.size(), _specifications.size());
-      _requirements.clear();
-      _specifications.clear();
+    private void discardIntermediateState() {
+      synchronized (_requirements) {
+        s_loggerContext.debug("Discarding intermediate state {} requirements", _requirements.size());
+        _requirements.clear();
+      }
+      synchronized (_specifications) {
+        s_loggerContext.debug("Discarding intermediate state {} specifications", _specifications.size());
+        _specifications.clear();
+      }
     }
 
   };
@@ -969,8 +993,19 @@ public final class DependencyGraphBuilder {
           activeJobs = _activeJobCount.get();
         }
       } while (!_poison && jobsLeftToRun);
+      final boolean abortLoops;
       synchronized (_activeJobs) {
         _activeJobs.remove(this);
+        abortLoops = _activeJobs.isEmpty() && _runQueue.isEmpty();
+      }
+      if (abortLoops) {
+        // Any tasks that are still active have created a reciprocal loop disjoint from the runnable
+        // graph of tasks. Aborting them at this point is easier and possibly more efficient than
+        // the overhead of trying to stop the loops forming in the first place.
+        getContext().abortLoops();
+        // If any loops were aborted, new jobs will go onto the run queue, and possibly a new active
+        // job started (this one is officially dead but could be restarted using logic similar to
+        // above update the activeJobCount and activeJobs set.
       }
       s_loggerBuilder.info("Building job {} stopped after {} operations", _objectId, completed);
     }
@@ -1012,14 +1047,23 @@ public final class DependencyGraphBuilder {
    * @return true if the graph has been built, false if it is outstanding
    */
   public boolean isGraphBuilt() {
-    synchronized (_activeJobs) {
-      if (!_activeJobs.isEmpty()) {
-        // One or more active jobs, so can't be built yet
-        return false;
+    do {
+      synchronized (_activeJobs) {
+        if (!_activeJobs.isEmpty()) {
+          // One or more active jobs, so can't be built yet
+          return false;
+        }
+        if (!_runQueue.isEmpty()) {
+          // No active jobs, but there are jobs on the run queue
+          return false;
+        }
       }
-      // no active jobs, so built if there is nothing in the run queue
-      return _runQueue.isEmpty();
-    }
+      // Any tasks that are still active have created a reciprocal loop disjoint from the runnable
+      // graph of tasks. Aborting them at this point is easier and possibly more efficient than
+      // the overhead of trying to stop the loops forming in the first place.
+    } while (getContext().abortLoops());
+    // No active tasks to restart so must have finished
+    return true;
   }
 
   /**
@@ -1148,10 +1192,7 @@ public final class DependencyGraphBuilder {
         } else {
           return null;
         }
-      } while (true);
-      if (!isGraphBuilt()) {
-        throw new CancellationException("Dependency graph building incomplete");
-      }
+      } while (!isGraphBuilt());
     }
     return createDependencyGraph();
   }
@@ -1168,6 +1209,7 @@ public final class DependencyGraphBuilder {
     //graph.dumpStructureASCII(System.out);
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
       final PrintStream ps = openDebugStream("dependencyGraph");
+      ps.println("Configuration = " + getCalculationConfigurationName());
       graph.dumpStructureASCII(ps);
       ps.close();
     }

@@ -14,9 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
+import com.opengamma.engine.depgraph.ResolvedValueCallback.ResolvedValueCallbackChain;
 import com.opengamma.engine.value.ValueRequirement;
 
-/* package */class AggregateResolvedValueProducer extends AbstractResolvedValueProducer implements ResolvedValueCallback {
+/* package */class AggregateResolvedValueProducer extends AbstractResolvedValueProducer implements ResolvedValueCallbackChain {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AggregateResolvedValueProducer.class);
 

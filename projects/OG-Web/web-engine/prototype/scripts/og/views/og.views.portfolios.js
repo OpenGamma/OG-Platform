@@ -358,7 +358,7 @@ $.register_module({
                         if (result.error) return alert(result.message); // TODO: replace with UI error dialog
                         json = result.data;
                         history.put({
-                            name: portfolio_name = json.template_data.name,
+                            name: portfolio_name = json.template_data.portfolio_name || json.template_data.name,
                             item: 'history.' + page_name + '.recent',
                             value: routes.current().hash
                         });

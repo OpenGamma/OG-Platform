@@ -170,7 +170,9 @@ $.register_module({
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
-                            common.gadgets.positions({id: args.id, selector: '.og-js-details-positions', editable: true});
+                            common.gadgets.positions({
+                                id: args.id, selector: '.og-js-details-positions', editable: true
+                            });
                             common.gadgets.trades({id: args.id, selector: '.og-js-trades-table'});
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             setTimeout(layout.inner.resizeAll);

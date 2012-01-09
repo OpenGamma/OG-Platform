@@ -58,10 +58,109 @@ public class ELExpressionParser extends UserExpressionParser {
     getContext().setFunction(object, name, method);
   }
 
+  /**
+   * Parse the EL expression by wrapping it in "${...}". Note that a single equals sign (assignment) is converted
+   * to the double equal comparison operation. I.e. "x=4" gets parsed as "${x==4}".
+   * 
+   * @param fragment text expression
+   * @return the parsed expression
+   */
   private UserExpression elParse(final String fragment) {
     // TODO: escape the string if it contains "${}" characters
+    StringBuilder sb = new StringBuilder(fragment.length() + 10);
+    sb.append("${");
+    int state = 0;
+    for (int i = 0; i < fragment.length(); i++) {
+      final char c = fragment.charAt(i);
+      switch (state) {
+        case 0:
+          sb.append(c);
+          switch (c) {
+            case '=':
+              state = 1;
+              break;
+            case '\"':
+              state = 2;
+              break;
+            case '\'':
+              state = 3;
+              break;
+            case '!':
+            case '<':
+            case '>':
+              state = 4;
+              break;
+          }
+          break;
+        case 1:
+          switch (c) {
+            case '=':
+              sb.append('=');
+              state = 0;
+              break;
+            case '\"':
+              sb.append("=\"");
+              state = 2;
+              break;
+            case '\'':
+              sb.append("='");
+              state = 3;
+              break;
+            default:
+              sb.append('=');
+              sb.append(c);
+              state = 0;
+              break;
+          }
+          break;
+        case 2:
+          sb.append(c);
+          switch (c) {
+            case '\"':
+              state = 0;
+              break;
+            case '\\':
+              i++;
+              if (i < fragment.length()) {
+                sb.append(fragment.charAt(i));
+              }
+              break;
+          }
+          break;
+        case 3:
+          sb.append(c);
+          switch (c) {
+            case '\'':
+              state = 0;
+              break;
+            case '\\':
+              i++;
+              if (i < fragment.length()) {
+                sb.append(fragment.charAt(i));
+              }
+              break;
+          }
+          break;
+        case 4:
+          sb.append(c);
+          switch (c) {
+            case '\"':
+              state = 2;
+              break;
+            case '\'':
+              state = 3;
+              break;
+            default:
+              state = 0;
+              break;
+          }
+          break;
+      }
+    }
+    sb.append('}');
+    s_logger.warn("Evaluating {}", sb);
     try {
-      return new ELExpression(this, getFactory().createValueExpression(getContext(), "${" + fragment + "}", Object.class));
+      return new ELExpression(this, getFactory().createValueExpression(getContext(), sb.toString(), Object.class));
     } catch (ELException e) {
       s_logger.warn("EL exception = {}", e.getMessage());
       throw new IllegalArgumentException(fragment);

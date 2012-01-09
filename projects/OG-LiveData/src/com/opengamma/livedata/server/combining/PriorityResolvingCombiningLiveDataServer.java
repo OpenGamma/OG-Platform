@@ -24,8 +24,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ehcache.EHCacheUtils;
 
 /**
- * Combines live data servers by chosing the first server which can resolve the ID
- * If non can then the first server is returned ( which will fail )
+ * Combines live data servers by choosing the first server which can resolve the ID
+ * If none can then the first server is returned ( which will fail )
  */
 public class PriorityResolvingCombiningLiveDataServer extends CombiningLiveDataServer {
   private final List<? extends AbstractLiveDataServer> _servers;
