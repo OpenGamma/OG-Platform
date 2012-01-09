@@ -3,10 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.batch;
+package com.opengamma.master.batch;
 
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.financial.batch.RunCreationMode;
 import com.opengamma.id.UniqueId;
 
 import java.util.Set;

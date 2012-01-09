@@ -7,8 +7,8 @@ package com.opengamma.masterdb.batch;
 
 import com.opengamma.DataNotFoundException;
 import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.financial.batch.*;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.batch.*;
 import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;

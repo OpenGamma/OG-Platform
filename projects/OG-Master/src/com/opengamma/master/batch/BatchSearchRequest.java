@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.batch;
+package com.opengamma.master.batch;
 
 import java.util.Map;
 

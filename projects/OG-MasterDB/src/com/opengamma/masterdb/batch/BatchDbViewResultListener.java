@@ -11,11 +11,11 @@ import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
-import com.opengamma.financial.batch.Batch;
-import com.opengamma.financial.batch.BatchRunWriter;
-import com.opengamma.financial.batch.RunCreationMode;
-import com.opengamma.financial.batch.SnapshotMode;
+import com.opengamma.master.batch.RunCreationMode;
+import com.opengamma.master.batch.SnapshotMode;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.batch.Batch;
+import com.opengamma.master.batch.BatchRunWriter;
 
 import javax.time.Instant;
 

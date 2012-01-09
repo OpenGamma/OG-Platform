@@ -6,9 +6,9 @@
 package com.opengamma.financial.batch.rest;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.batch.*;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.batch.*;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.mockito.Mock;

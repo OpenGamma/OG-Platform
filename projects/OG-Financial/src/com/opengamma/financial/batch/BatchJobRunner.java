@@ -15,6 +15,7 @@ import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.batch.RunCreationMode;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
 import org.apache.activemq.ActiveMQConnectionFactory;

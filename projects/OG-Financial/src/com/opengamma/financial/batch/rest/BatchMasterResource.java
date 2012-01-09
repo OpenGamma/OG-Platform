@@ -6,10 +6,10 @@
 package com.opengamma.financial.batch.rest;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.financial.batch.BatchMaster;
-import com.opengamma.financial.batch.BatchSearchRequest;
-import com.opengamma.financial.batch.BatchSearchResult;
+import com.opengamma.master.batch.BatchSearchRequest;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.batch.BatchMaster;
+import com.opengamma.master.batch.BatchSearchResult;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 
@@ -47,8 +47,8 @@ public class BatchMasterResource extends AbstractResource<BatchMaster> {
 
     @DELETE
     public FudgeMsgEnvelope delete() {
-      try {        
-        getUnderlying().delete(_uid);        
+      try {
+        getUnderlying().delete(_uid);
         return null;
       } catch (DataNotFoundException e) {
         throw new WebApplicationException(Response.Status.NOT_FOUND);

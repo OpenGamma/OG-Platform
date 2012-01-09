@@ -5,16 +5,14 @@
  */
 package com.opengamma.financial.batch.rest;
 
-import com.opengamma.financial.batch.BatchMaster;
-import com.opengamma.financial.historicaltimeseries.rest.HistoricalTimeSeriesMasterResource;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.batch.BatchMaster;
 import com.opengamma.util.rest.AbstractResourceService;
 import org.fudgemsg.FudgeContext;
 
 import javax.ws.rs.Path;
 
 /**
- * RESTful backend for {@link com.opengamma.financial.batch.BatchMaster}.
+ * RESTful backend for {@link com.opengamma.master.batch.BatchMaster}.
  */
 @Path("batchMaster")
 public class BatchMasterService extends AbstractResourceService<BatchMaster, BatchMasterResource> {

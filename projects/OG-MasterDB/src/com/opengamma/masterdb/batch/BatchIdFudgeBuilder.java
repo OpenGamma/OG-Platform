@@ -7,7 +7,7 @@ package com.opengamma.masterdb.batch;
 
 import javax.time.Instant;
 
-import com.opengamma.financial.batch.BatchId;
+import com.opengamma.master.batch.BatchId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import org.apache.commons.lang.Validate;

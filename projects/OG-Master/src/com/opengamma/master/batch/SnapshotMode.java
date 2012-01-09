@@ -1,4 +1,4 @@
-package com.opengamma.financial.batch;
+package com.opengamma.master.batch;
 
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
