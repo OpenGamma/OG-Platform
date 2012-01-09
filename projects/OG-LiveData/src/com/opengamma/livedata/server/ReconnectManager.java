@@ -120,7 +120,7 @@ public class ReconnectManager implements Lifecycle {
   // called by the timer task
   private void check() {
     if (_server.getConnectionStatus() == ConnectionStatus.NOT_CONNECTED) {
-      s_logger.warn("Connection to market data API down. Attemping to reconnect.");
+      s_logger.warn("Connection to market data API down. Attemping to reconnect to {}.", _server);
       
       try {
         _server.connect();

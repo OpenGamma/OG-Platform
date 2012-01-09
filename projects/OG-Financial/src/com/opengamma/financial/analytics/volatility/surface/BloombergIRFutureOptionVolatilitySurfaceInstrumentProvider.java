@@ -7,6 +7,7 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import java.text.DecimalFormat;
 
+import javax.time.calendar.Clock;
 import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
@@ -52,7 +53,13 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
   private final String _postfix;
   private final String _dataFieldName; // expecting MarketDataRequirementNames.IMPLIED_VOLATILITY or OPT_IMPLIED_VOLATILITY_MID
   private final Double _useCallAboveStrike;
-
+  
+  /**
+   * @param futureOptionPrefix the prefix to the resulting code
+   * @param postfix the postfix to the resulting code
+   * @param dataFieldName the name of the data field e.g. PX_LAST
+   * @param useCallAboveStrike the strike above which to use calls rather than puts
+   */
   public BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider(final String futureOptionPrefix, final String postfix, final String dataFieldName, final Double useCallAboveStrike) {
     Validate.notNull(futureOptionPrefix, "future option prefix");
     Validate.notNull(postfix, "postfix");
@@ -86,6 +93,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
     }
     futureOptionCode.append(s_monthCode.get(futureOptionExpiry.getMonthOfYear()));
     // TODO: TIMEZONE
+    
     final LocalDate today = LocalDate.now();
     if (futureOptionExpiry.isBefore(today.minus(Period.ofMonths(3)))) {
       final int yearsNum = futureOptionExpiry.getYear() % 100;

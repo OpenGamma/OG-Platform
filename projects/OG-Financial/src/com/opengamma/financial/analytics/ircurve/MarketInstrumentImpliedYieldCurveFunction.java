@@ -356,8 +356,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
   }
 
   private Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final ComputationTargetSpecification targetSpec, final String curveName,
-      final InterpolatedYieldCurveSpecificationWithSecurities specificationWithSecurities, final Map<ExternalId, Double> marketDataMap, final boolean createYieldCurve,
-      final boolean createJacobian, final boolean createSensitivities) {
+      final InterpolatedYieldCurveSpecificationWithSecurities specificationWithSecurities, final Map<ExternalId, Double> marketDataMap, final boolean createYieldCurve, final boolean createJacobian,
+      final boolean createSensitivities) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
@@ -434,8 +434,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     if (createSensitivities) {
       final double[] couponSensitivities = new double[derivatives.size()];
       int ii = 0;
-      final String[] curveNames = new String[] {curveName, curveName };
-      final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {curve, curve };
+      final String[] curveNames = new String[] {curveName, curveName};
+      final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {curve, curve};
       final YieldCurveBundle curveBundle = new YieldCurveBundle(curveNames, curves);
       for (final InstrumentDerivative derivative : derivatives) {
         couponSensitivities[ii++] = getCouponSensitivityCalculator().visit(derivative, curveBundle);
@@ -501,8 +501,6 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
         final InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity);
         derivative = getDefinitionConverter().convert(financialSecurity, definition, now, curveNames, dataSource);
       } catch (Exception e) {
-        @SuppressWarnings("unused")
-        final InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity);
         s_logger.error("Caught exception {} for {}", e, financialSecurity);
       }
       if (derivative == null) {
@@ -544,8 +542,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       rootFinder = new BroydenVectorRootFinder(1e-4, 1e-4, 10000, DecompositionFactory.getDecomposition(DecompositionFactory.SV_COLT_NAME));
       yields = rootFinder.getRoot(curveCalculator, jacobianCalculator, new DoubleMatrix1D(initialRatesGuess)).getData();
     } catch (final Exception eSV) {
-      s_logger.warn("Could not find root using SV decomposition and " + _calculationType + " method for curves " + fundingCurveName + " and " + forwardCurveName
-          + ". Error was: " + eSV.getMessage());
+      s_logger.warn("Could not find root using SV decomposition and " + _calculationType + " method for curves " + fundingCurveName + " and " + forwardCurveName + ". Error was: " + eSV.getMessage());
       throw new OpenGammaRuntimeException("Could not find curves " + fundingCurveName + " (" + targetSpec.getUniqueId().getValue() + "), " + forwardCurveName + " ("
           + targetSpec.getUniqueId().getValue() + ") using SV decomposition and calculation method " + _calculationType);
     }
@@ -573,8 +570,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     if (createSensitivities) {
       final double[] couponSensitivities = new double[derivatives.size()];
       int ii = 0;
-      final String[] curveNames = new String[] {forwardCurveName, fundingCurveName };
-      final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {forwardCurve, fundingCurve };
+      final String[] curveNames = new String[] {forwardCurveName, fundingCurveName};
+      final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {forwardCurve, fundingCurve};
       final YieldCurveBundle curveBundle = new YieldCurveBundle(curveNames, curves);
       for (final InstrumentDerivative derivative : derivatives) {
         couponSensitivities[ii++] = getCouponSensitivityCalculator().visit(derivative, curveBundle);
