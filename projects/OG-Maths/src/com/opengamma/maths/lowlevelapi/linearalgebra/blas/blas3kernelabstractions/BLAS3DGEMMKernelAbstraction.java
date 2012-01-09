@@ -6,7 +6,7 @@
 package com.opengamma.maths.lowlevelapi.linearalgebra.blas.blas3kernelabstractions;
 
 import com.opengamma.math.matrix.Matrix;
-import com.opengamma.math.matrix.MatrixPrimitive;
+import com.opengamma.maths.lowlevelapi.datatypes.primitive.MatrixPrimitive;
 
 /**
  * BLAS2*KernelAbstraction classes are used to kinda emulate function pointer passing.
@@ -18,10 +18,10 @@ import com.opengamma.math.matrix.MatrixPrimitive;
  * @param <TYPEA> a kind of matrix A
  * @param <TYPEB> a kind of matrix B
  * @param <TYPEC> a kind of matrix C
- *
+ * @param <TYPER> return type. TODO: Fix this, needs to happen via visitors or similar. 
  * Function names starting with "dm_" are "direct mathematics" functions, their names are deliberately written with
  * underscores in to split out the mathematical operations they perform for ease of reading.
- *
+ * 
  */
 public abstract class BLAS3DGEMMKernelAbstraction<TYPER extends Matrix<Double>, TYPEA extends Matrix<Double>, TYPEB extends Matrix<Double>, TYPEC extends Matrix<Double>> {
   // yet another everything with everything combo magic situation, think we have something like 8 types which means 8!/(6!)=56 variants to implement!

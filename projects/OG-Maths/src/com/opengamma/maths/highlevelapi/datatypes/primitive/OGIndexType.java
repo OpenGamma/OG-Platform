@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.NotImplementedException;
 
-import com.opengamma.math.matrix.MatrixPrimitiveUtils;
+import com.opengamma.maths.lowlevelapi.datatypes.primitive.MatrixPrimitiveUtils;
 
 /**
  * The OGIndex class provides access to the typically understood notion of a matrix, i.e. A Fully populated array.

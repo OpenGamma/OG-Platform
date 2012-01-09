@@ -5,7 +5,6 @@
  */
 package com.opengamma.maths.lowlevelapi.datatypes.primitive;
 
-import com.opengamma.math.matrix.MatrixPrimitive;
 
 /**
  * Essentially just a wrapper for the many sparse matrix format types

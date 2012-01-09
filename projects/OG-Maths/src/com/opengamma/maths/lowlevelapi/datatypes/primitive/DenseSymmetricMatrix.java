@@ -6,7 +6,6 @@
 package com.opengamma.maths.lowlevelapi.datatypes.primitive;
 
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.matrix.MatrixPrimitiveUtils;
 
 /**
  * SymmetricMatrix class provides a storage method for symmetric matrices in the PackedMatrix {@link PackedMatrix} form.

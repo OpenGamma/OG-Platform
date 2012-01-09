@@ -8,8 +8,6 @@ package com.opengamma.maths.lowlevelapi.datatypes.primitive;
 import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.matrix.MatrixPrimitive;
-import com.opengamma.math.matrix.MatrixPrimitiveUtils;
 
 /**
  * SparseMatrix is a class to wrap the underlying sparse storage types.
@@ -21,16 +19,19 @@ import com.opengamma.math.matrix.MatrixPrimitiveUtils;
  */
 public class SparseMatrix implements MatrixPrimitive {
   private SparseMatrixType _type;
-/**
- * majorness is an enumerated type that is used to specify the anticipated access pattern of the sparse data.
- * The column enumeration is used to indicate column major access (ideal for the RHS of Matrix * Matrix)
- * The row enumeration is used to indicate row major access (ideal for the LHS of Matrix * Matrix and indeed most BLAS2 operations)
- */
-  public enum majorness { column, row };
 
-/**
- *  Constructors
- */
+  /**
+   * majorness is an enumerated type that is used to specify the anticipated access pattern of the sparse data.
+   * The column enumeration is used to indicate column major access (ideal for the RHS of Matrix * Matrix)
+   * The row enumeration is used to indicate row major access (ideal for the LHS of Matrix * Matrix and indeed most BLAS2 operations)
+   */
+  public enum majorness {
+    column, row
+  };
+
+  /**
+   *  Constructors
+   */
 
   /**
    * Constructs a sparse matrix from double array of arrays data.
@@ -75,7 +76,6 @@ public class SparseMatrix implements MatrixPrimitive {
       }
     }
 
-
     // test nnz and return something sane?! 0.6 is a magic number roughly based on memory density estimates
     // TODO: Come up with a more intelligent estimate of memory density patterns to pick optimal formats. Load testing needed.
     int nnz = MatrixPrimitiveUtils.numberOfNonZeroElementsInMatrix(tmp);
@@ -110,7 +110,6 @@ public class SparseMatrix implements MatrixPrimitive {
   public SparseMatrix(DoubleMatrix2D indata, int m, int n) {
     this(indata.toArray(), m, n);
   }
-
 
   /**
    * Constructs a sparse matrix from the DoubleMatrix2D type
@@ -158,7 +157,6 @@ public class SparseMatrix implements MatrixPrimitive {
     this(indata.toArray(), m, n, t);
   }
 
-
   /**
    * Constructs a sparse matrix from the DoubleMatrix2D type
    * @param indata is a DoubleMatrix2D containing data to be turned into a sparse matrix representation
@@ -169,9 +167,6 @@ public class SparseMatrix implements MatrixPrimitive {
   public SparseMatrix(DoubleMatrix2D indata, majorness t) {
     this(indata.toArray(), indata.getNumberOfRows(), indata.getNumberOfColumns(), t);
   }
-
-
-
 
   /**
    * Methods
@@ -257,7 +252,6 @@ public class SparseMatrix implements MatrixPrimitive {
     return _type.getNumberOfColumns();
   }
 
-
   /**
    * {@inheritDoc}
    */
@@ -291,4 +285,3 @@ public class SparseMatrix implements MatrixPrimitive {
   }
 
 }
-

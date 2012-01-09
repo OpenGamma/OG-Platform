@@ -6,8 +6,6 @@
 package com.opengamma.maths.lowlevelapi.datatypes.primitive;
 
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.matrix.MatrixPrimitiveUtils;
-
 
 
 /**
