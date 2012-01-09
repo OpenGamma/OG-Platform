@@ -139,13 +139,7 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
         for (int i = 0; i < jsonArray.length(); i++) {
           JSONObject tradeJson = jsonArray.getJSONObject(i);
           ManageableTrade trade = new ManageableTrade();
-          ZoneOffset offset = ZoneOffset.UTC;
-          if (tradeJson.has("offset")) {
-            String offsetId = StringUtils.trimToNull(tradeJson.getString("offset"));
-            if (offsetId != null) {
-              offset = ZoneOffset.of(offsetId);
-            } 
-          }
+     
           if (tradeJson.has("premium")) {
             trade.setPremium(tradeJson.getDouble("premium"));
           }
@@ -160,7 +154,8 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
             trade.setPremiumDate(premiumDate);
             if (tradeJson.has("premiumTime")) {
               LocalTime premiumTime = LocalTime.parse(tradeJson.getString("premiumTime"));
-              ZonedDateTime zonedDateTime = ZonedDateTime.of(premiumDate, premiumTime, offset.toTimeZone());
+              ZoneOffset premiumOffset = getOffset(tradeJson, "premiumOffset");
+              ZonedDateTime zonedDateTime = ZonedDateTime.of(premiumDate, premiumTime, premiumOffset.toTimeZone());
               trade.setPremiumTime(zonedDateTime.toOffsetTime());
             }
           }
@@ -172,7 +167,8 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
             trade.setTradeDate(tradeDate);
             if (tradeJson.has("tradeTime")) {
               LocalTime tradeTime = LocalTime.parse(tradeJson.getString("tradeTime"));
-              ZonedDateTime zonedDateTime = ZonedDateTime.of(tradeDate, tradeTime, offset.toTimeZone());
+              ZoneOffset tradeOffset = getOffset(tradeJson, "tradeOffset");
+              ZonedDateTime zonedDateTime = ZonedDateTime.of(tradeDate, tradeTime, tradeOffset.toTimeZone());
               trade.setTradeTime(zonedDateTime.toOffsetTime());
             }    
           }
@@ -185,6 +181,17 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
       throw new OpenGammaRuntimeException("Error parsing Json document for Trades", ex);
     }
     return trades;
+  }
+
+  private ZoneOffset getOffset(JSONObject tradeJson, String fieldName) throws JSONException {
+    ZoneOffset premiumOffset = ZoneOffset.UTC;
+    if (tradeJson.has(fieldName)) {
+      String offsetId = StringUtils.trimToNull(tradeJson.getString(fieldName));
+      if (offsetId != null) {
+        premiumOffset = ZoneOffset.of(offsetId);
+      } 
+    }
+    return premiumOffset;
   }
   
 }
