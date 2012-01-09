@@ -20,6 +20,11 @@
     <property name="shared" value="true"/>
   </bean>
 
+  <!-- Source of slave threads -->  
+  <bean id="slaveThreads" class="com.opengamma.util.ExecutorServiceFactoryBean">
+    <property name="styleName" value="CACHED" />
+  </bean>
+  
   <!-- Historical data source -->
   <bean id="historicalTimeSeriesSource" class="com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource">
     <constructor-arg>
@@ -27,6 +32,7 @@
         <constructor-arg ref="fudgeContext" />
         <constructor-arg>
           <bean class="com.opengamma.transport.jaxrs.RestTarget">
+            <constructor-arg ref="slaveThreads" />
             <constructor-arg ref="fudgeContext" />
             <constructor-arg>
               <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
@@ -47,6 +53,7 @@
         <constructor-arg ref="fudgeContext" />
         <constructor-arg>
           <bean class="com.opengamma.transport.jaxrs.RestTarget">
+            <constructor-arg ref="slaveThreads" />
             <constructor-arg ref="fudgeContext" />
             <constructor-arg>
               <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
@@ -67,6 +74,7 @@
         <constructor-arg ref="fudgeContext" />
         <constructor-arg>
           <bean class="com.opengamma.transport.jaxrs.RestTarget">
+            <constructor-arg ref="slaveThreads" />
             <constructor-arg ref="fudgeContext" />
             <constructor-arg>
               <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
@@ -87,6 +95,7 @@
         <constructor-arg ref="fudgeContext" />
         <constructor-arg>
           <bean class="com.opengamma.transport.jaxrs.RestTarget">
+            <constructor-arg ref="slaveThreads" />
             <constructor-arg ref="fudgeContext" />
             <constructor-arg>
               <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
@@ -165,6 +174,7 @@
         <constructor-arg ref="fudgeContext" />
         <constructor-arg>
           <bean class="com.opengamma.transport.jaxrs.RestTarget">
+            <constructor-arg ref="slaveThreads" />
             <constructor-arg ref="fudgeContext" />
             <constructor-arg>
               <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
@@ -183,6 +193,7 @@
     <constructor-arg ref="fudgeContext" />
     <constructor-arg>
       <bean class="com.opengamma.transport.jaxrs.RestTarget">
+        <constructor-arg ref="slaveThreads" />
         <constructor-arg ref="fudgeContext" />
         <constructor-arg>
           <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
@@ -198,6 +209,7 @@
     <constructor-arg ref="fudgeContext" />
     <constructor-arg>
       <bean class="com.opengamma.transport.jaxrs.RestTarget">
+        <constructor-arg ref="slaveThreads" />
         <constructor-arg ref="fudgeContext" />
         <constructor-arg>
           <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
@@ -213,6 +225,7 @@
     <constructor-arg ref="fudgeContext" />
     <constructor-arg>
       <bean class="com.opengamma.transport.jaxrs.RestTarget">
+        <constructor-arg ref="slaveThreads" />
         <constructor-arg ref="fudgeContext" />
         <constructor-arg>
           <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
@@ -226,6 +239,7 @@
     <constructor-arg ref="fudgeContext" />
     <constructor-arg>
       <bean class="com.opengamma.transport.jaxrs.RestTarget">
+        <constructor-arg ref="slaveThreads" />
         <constructor-arg ref="fudgeContext" />
         <constructor-arg>
           <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
@@ -242,6 +256,7 @@
     <constructor-arg ref="fudgeContext" />
     <constructor-arg>
       <bean class="com.opengamma.transport.jaxrs.RestTarget">
+        <constructor-arg ref="slaveThreads" />
         <constructor-arg ref="fudgeContext" />
         <constructor-arg>
           <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
@@ -250,11 +265,6 @@
         </constructor-arg>
       </bean>
     </constructor-arg>
-  </bean>
-  
-  <!-- Source of slave threads -->  
-  <bean id="slaveThreads" class="com.opengamma.util.ExecutorServiceFactoryBean">
-    <property name="styleName" value="CACHED" />
   </bean>
   
   <!-- View Computation Cache -->
@@ -350,6 +360,7 @@
             <constructor-arg ref="fudgeContext" />
             <constructor-arg>
               <bean class="com.opengamma.transport.jaxrs.RestTarget">
+                <constructor-arg ref="slaveThreads" />
                 <constructor-arg ref="fudgeContext" />
                 <constructor-arg>
                   <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
