@@ -61,9 +61,11 @@ public class PDEUtilityTools {
    * @param maxT Data after this time is ignored (not included in map)
    * @param minK Strikes less than this are ignored (not included in map)
    * @param maxK Strikes greater than this are ignored (not included in map)
+   * @param isCall true if call
    * @return The price to implied volatility map
    */
-  public static Map<DoublesPair, Double> priceToImpliedVol(final ForwardCurve forwardCurve, final PDEFullResults1D prices, final double minT, final double maxT, final double minK, final double maxK) {
+  public static Map<DoublesPair, Double> priceToImpliedVol(final ForwardCurve forwardCurve, final PDEFullResults1D prices, final double minT, final double maxT, final double minK, final double maxK,
+      boolean isCall) {
     final int xNodes = prices.getNumberSpaceNodes();
     final int tNodes = prices.getNumberTimeNodes();
     final int n = xNodes * tNodes;
@@ -81,7 +83,7 @@ public class PDEUtilityTools {
             final double price = prices.getFunctionValue(j, i);
 
             try {
-              final double impVol = BlackFormulaRepository.impliedVolatility(price, forward, k, t, true);
+              final double impVol = BlackFormulaRepository.impliedVolatility(price, forward, k, t, isCall);
               if (Math.abs(impVol) > 1e-15) {
                 final DoublesPair pair = new DoublesPair(prices.getTimeValue(i), prices.getSpaceValue(j));
                 out.put(pair, impVol);

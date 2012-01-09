@@ -100,7 +100,7 @@ public class TwoStateMarkovChainFitterTest {
     PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
     PDE_RESULTS = mc.solve(grid, THETA);
 
-    DATA = PDEUtilityTools.priceToImpliedVol(FORWARD_CURVE, PDE_RESULTS, 0.01, 5.0, SPOT / 10, 6 * SPOT);
+    DATA = PDEUtilityTools.priceToImpliedVol(FORWARD_CURVE, PDE_RESULTS, 0.01, 5.0, SPOT / 10, 6 * SPOT, true);
     DATABUNDLE = GRID_INTERPOLATOR2D.getDataBundle(DATA);
 
     MARKET_VOLS = new ArrayList<Pair<double[], Double>>(EXPIRY_AND_STRIKES.size());

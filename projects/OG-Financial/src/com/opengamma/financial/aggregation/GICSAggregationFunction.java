@@ -8,9 +8,11 @@ package com.opengamma.financial.aggregation;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Map;
 
 import com.opengamma.core.position.Position;
+import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
@@ -28,6 +30,7 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
 
   private static final String UNKNOWN = "Unknown";
   private boolean _useAttributes;
+  private final Comparator<Position> _comparator = new SimplePositionComparator();
 
   /**
    * Enumerated type representing how specific the GICS code should be interpreted.
@@ -131,7 +134,7 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
       return UNKNOWN;
     }    
   };
-  
+    
   @Override
   public String classifyPosition(Position position) {
     if (_useAttributes) {
@@ -180,6 +183,24 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
     } else {
       return Collections.emptyList();
     }
+  }
+
+  @Override
+  public int compare(String o1, String o2) {
+    if (o1.equals(UNKNOWN)) {
+      if (o2.equals(UNKNOWN)) {
+        return 0;
+      }
+      return 1;
+    } else if (o2.equals(UNKNOWN)) {
+      return -1;
+    }
+    return o1.compareTo(o2);
+  }
+
+  @Override
+  public Comparator<Position> getPositionComparator() {
+    return _comparator;
   }
 
 }

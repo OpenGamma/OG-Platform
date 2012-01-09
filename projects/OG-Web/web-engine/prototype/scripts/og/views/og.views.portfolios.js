@@ -358,7 +358,7 @@ $.register_module({
                         if (result.error) return alert(result.message); // TODO: replace with UI error dialog
                         json = result.data;
                         history.put({
-                            name: portfolio_name = json.template_data.name,
+                            name: portfolio_name = json.template_data.portfolio_name || json.template_data.name,
                             item: 'history.' + page_name + '.recent',
                             value: routes.current().hash
                         });
@@ -443,7 +443,7 @@ $.register_module({
                     {new_value: 'id', stop: true, method: function (args) {
                         view[args.id ? 'load_item' : 'load'](args);
                     }},
-                    {new_value: 'node', stop: true, method: function (args) {
+                    {new_value: 'node', method: function (args) {
                         view[args.node ? 'load_item' : 'load'](args);
                     }}
                 ]});

@@ -170,7 +170,9 @@ $.register_module({
                                 layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
-                            common.gadgets.positions({id: args.id, selector: '.og-js-details-positions', editable: true});
+                            common.gadgets.positions({
+                                id: args.id, selector: '.og-js-details-positions', editable: true
+                            });
                             common.gadgets.trades({id: args.id, selector: '.og-js-trades-table'});
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             setTimeout(layout.inner.resizeAll);
@@ -227,7 +229,7 @@ $.register_module({
                 if (!args.id) default_details();
             },
             load_filter: function (args) {
-                check_state({args: args, conditions: [{new_value: 'id', stop: true, method: function (args) {
+                check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
                     view[args.id ? 'load_item' : 'load'](args);
                 }}]});
                 search.filter($.extend(true, args, get_quantities(args.quantity)));

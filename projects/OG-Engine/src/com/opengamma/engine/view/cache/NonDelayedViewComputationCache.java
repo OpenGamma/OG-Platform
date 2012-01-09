@@ -11,7 +11,7 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.view.calcnode.DeferredInvocationStatistics;
 
 /**
- *  A {@link DelayedViewComputationCache} which doesn't reschule the puts
+ *  A {@link DelayedViewComputationCache} which doesn't reschedule the puts
  */
 public class NonDelayedViewComputationCache extends DelayedViewComputationCache {
 

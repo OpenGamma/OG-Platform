@@ -1,0 +1,175 @@
+/*
+ * @copyright 2012 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+.ui-datepicker {
+    padding: 1px;
+}
+
+.ui-datepicker table {
+    margin: 0;
+}
+
+.ui-datepicker td {
+  width: 32px;
+}
+
+.ui-datepicker-week-end,
+.ui-datepicker-week-end.ui-state-disabled {
+    background-color: #ecf5fa;
+}
+
+.ui-datepicker-calendar {
+    border-bottom: 1px solid #fff;
+}
+
+.ui-timepicker-div {
+    border-top: 1px solid #ebebeb;
+}
+
+.ui-datepicker .ui-datepicker-buttonpane {
+    margin: 0;
+}
+
+#ui-datepicker-div {
+    -webkit-box-shadow: 0 3px 3px rgba(50, 50, 50, 0.2);
+    -moz-box-shadow: 0 3px 3px rgba(50, 50, 50, 0.2);
+    box-shadow: 0 3px 3px rgba(50, 50, 50, 0.2);
+}
+
+/* Inline calendar */
+
+    .ui-datepicker-inline {
+        width: 600px!important;
+    }
+
+    .ui-datepicker-multi-3 .ui-datepicker-group {
+        width: 200px;
+    }
+
+    .ui-datepicker-inline .ui-datepicker-group table {
+        width: 100%;
+        height: 200px;
+        margin: 0;
+    }
+
+/* Header */
+
+    .ui-datepicker-header {
+        background-color: #ebebeb;
+        font-weight: normal;
+        position: relative;
+        border-bottom:  1px solid #fff;
+    }
+
+    .ui-datepicker-header:before {
+      border-bottom-right-radius: 2px;
+      border-bottom-left-radius: 2px;
+      background: white;
+      bottom: 50%;
+      content: '';
+      left: 1px;
+      opacity: 0.3;
+      filter: alpha(opacity=30);
+      position: absolute;
+      top: 1px;
+      right: 1px;
+    }
+
+    .ie8 .ui-datepicker-header:before {
+        content: none;
+    }
+
+    .ui-datepicker .ui-datepicker-prev,
+    .ui-datepicker .ui-datepicker-next {
+        background-color: #c7c7c7;
+        -webkit-border-radius: 2px;
+        -moz-border-radius: 2px;
+        border-radius: 2px;
+        top: 3px;
+        width: 19px;
+        height: 19px;
+    }
+
+    .ui-datepicker .ui-datepicker-prev {
+        left: 3px;
+    }
+
+    .ui-datepicker .ui-datepicker-next {
+        right: 3px;
+    }
+
+    .ui-datepicker-prev:hover,
+    .ui-datepicker-next:hover {
+        background: #fcfcfc;
+        border: 1px solid #d5d5d5;
+    }
+
+
+    .ui-icon.ui-icon-circle-triangle-e {
+        background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAICAYAAAArzdW1AAAANUlEQVQYV2NkwAI+f/78n5eXlxEmBWcgqwUpAvFhChlhAthMhCkkqAikkDqKQO4izuHEBAEABlUfuaCBB0IAAAAASUVORK5CYII=) no-repeat;
+    }
+
+    .ui-datepicker-next:hover .ui-icon.ui-icon-circle-triangle-e {
+       background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAICAYAAAArzdW1AAAANUlEQVQYV2NkwAIOHDjw38HBgREmBWcgqwUpAvFhChlhAthMhCkkqAikkDqKQO4izuHEBAEADQ0eh+w47RIAAAAASUVORK5CYII=) no-repeat;
+    }
+
+    .ui-icon.ui-icon-circle-triangle-w {
+        background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAICAYAAAArzdW1AAAAOUlEQVQYV2NkQAKfP3/+z8vLy4gsBmLDBUAKQAI4FcEUoJsA4zMSUgC2jihFIJWEFBLvcJgDcQUBAF4xH2nJDT04AAAAAElFTkSuQmCC) no-repeat;
+    }
+
+    .ui-datepicker-prev:hover .ui-icon.ui-icon-circle-triangle-w {
+      background:url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAkAAAAICAYAAAArzdW1AAAAOUlEQVQYV2NkQAIHDhz47+DgwIgsBmLDBUAKQAI4FcEUoJsA4zMSUgC2jihFIJWEFBLvcJgDcQUBAMtBHQU/1B0iAAAAAElFTkSuQmCC) no-repeat;
+    }
+
+    .ui-datepicker .ui-datepicker-prev span,
+    .ui-datepicker .ui-datepicker-next span {
+        margin-top: -4px;
+        margin-left: -4px;
+    }
+
+/* Default */
+
+    .ui-datepicker .ui-state-highlight {
+        background-color: #ecf5fa;
+        border: none;
+        font-weight: bold;
+    }
+
+/* Hover */
+
+    .ui-datepicker .ui-datepicker-calendar .ui-state-hover {
+        color: #fff;
+        font-weight: bold;
+        background-color: #a3ceec;
+    }
+
+/* Timezone plugin */
+
+    .ui-timepicker-div {
+        padding: 3px;
+    }
+
+    .ui-timepicker-div .ui_tpicker_timezone select {
+        font-family: monospace;
+        width: 196px;
+    }
+
+    .ui-timepicker-div dt,
+    .ui-timepicker-div dd {
+        display: inline-block;
+        width: 95px;
+    }
+
+    .ui-timepicker-div .ui_tpicker_second_label,
+    .ui-timepicker-div .ui_tpicker_second,
+    .ui-timepicker-div .ui_tpicker_millisec,
+    .ui-timepicker-div .ui_tpicker_millisec_label {
+      display: none;
+    }
+
+    .ui-timepicker-div .ui_tpicker_timezone_label {
+      display: block;
+    }
+

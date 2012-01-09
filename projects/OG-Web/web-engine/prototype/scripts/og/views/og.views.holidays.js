@@ -102,7 +102,6 @@ $.register_module({
                                 displayOnly: true,                          // This is an OG custom configuration
                                 specialDates: json.dates                    // This is an OG custom configuration
                             });
-                            details.favorites();
                             ui.toolbar(options.toolbar.active);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             details.calendar_ui_changes(json.dates);
@@ -132,7 +131,7 @@ $.register_module({
                 if (!args.id) default_details();
             },
             load_filter: function (args) {
-                check_state({args: args, conditions: [{new_value: 'id', stop: true, method: function (args) {
+                check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
                     view[args.id ? 'load_item' : 'load'](args);
                 }}]});
                 search.filter(args);

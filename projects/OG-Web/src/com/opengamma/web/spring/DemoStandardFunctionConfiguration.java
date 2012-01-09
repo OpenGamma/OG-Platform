@@ -122,6 +122,7 @@ import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionVegaQuote
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
+import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionDefaultValuesFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionHestonPresentValueFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionSABRSensitivitiesFunction;
@@ -448,7 +449,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addSummingFunction(functionConfigs, ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES);
 
     addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
-    addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
+    //addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_DELTA);
     addScalingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
     addSummingFunction(functionConfigs, ValueRequirementNames.VALUE_RHO);
 
@@ -680,14 +681,21 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addInterestRateFutureOptionCalculators(List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionPresentValueFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionPresentValueFunction.class, "FORWARD_6M", "FUNDING", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class, "FORWARD_6M", "FUNDING", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionVegaFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionVegaFunction.class, "FORWARD_6M", "FUNDING", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class, "FORWARD_6M", "FUNDING", "DEFAULT"));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionVegaFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionDefaultValuesFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT", 
+        ValueRequirementNames.PRESENT_VALUE,
+        ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY,
+        ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY,
+        ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY,
+        ValueRequirementNames.VEGA_QUOTE_MATRIX));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionDefaultValuesFunction.class, "FORWARD_6M", "FUNDING", "DEFAULT", 
+        ValueRequirementNames.PRESENT_VALUE,
+        ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY,
+        ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY,
+        ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY,
+        ValueRequirementNames.VEGA_QUOTE_MATRIX));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction.class, "FORWARD_6M", "FUNDING", "DEFAULT"));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction.class, "USD", "DEFAULT"));

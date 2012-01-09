@@ -69,7 +69,7 @@ public class SABRPresentValueCurveSensitivityCapFloorCMSSpreadFunction extends S
 
       @Override
       public Double evaluate(Double x) {
-        return 1.;
+        return 0.8;
       }
 
     };

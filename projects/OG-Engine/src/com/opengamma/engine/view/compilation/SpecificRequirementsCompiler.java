@@ -6,10 +6,10 @@
 package com.opengamma.engine.view.compilation;
 
 import java.util.EnumSet;
+import java.util.Set;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
@@ -33,7 +33,7 @@ public final class SpecificRequirementsCompiler {
     EnumSet<ComputationTargetType> specificTargetTypes = EnumSet.noneOf(ComputationTargetType.class);
     ResultModelDefinition resultModelDefinition = compilationContext.getViewDefinition().getResultModelDefinition();
     for (ViewCalculationConfiguration calcConfig : compilationContext.getViewDefinition().getAllCalculationConfigurations()) {
-      DependencyGraphBuilder builder = compilationContext.getBuilders().get(calcConfig.getName());
+      final Set<ValueRequirement> requirements = compilationContext.getValueRequirements(calcConfig.getName());
       for (ValueRequirement requirement : calcConfig.getSpecificRequirements()) {
         ComputationTargetSpecification targetSpecification = requirement.getTargetSpecification();
         if (resultModelDefinition.getOutputMode(targetSpecification.getType()) == ResultOutputMode.NONE) {
@@ -41,7 +41,7 @@ public final class SpecificRequirementsCompiler {
           // automatically if it is needed for some other terminal output.
           continue;
         }
-        builder.addTarget(requirement);
+        requirements.add(requirement);
         specificTargetTypes.add(requirement.getTargetSpecification().getType());
       }
     }
