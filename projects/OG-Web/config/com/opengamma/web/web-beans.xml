@@ -255,9 +255,7 @@
       <map>
         <entry key="0">
           <map>
-            <entry key="activeMQ">
-              <value>${activeMQ.brokerURL}</value>
-            </entry>
+            <entry key="activeMQ" value="${activeMQ.brokerURL}" />
             <entry key="adHocBatchDbManager">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/adHocBatchDbManager/" />
@@ -288,6 +286,7 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
+            <entry key="description" value="Default OpenGamma installation" />
             <entry key="exchangeSource">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/exchangeSource/0/" />
@@ -391,20 +390,6 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
-            <!-- BEGIN DEPRECATED -->
-            <entry key="sharedSecurityMaster">
-              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/securityMaster/0/" />
-                <property name="port" value="${jetty.port}" />
-              </bean>
-            </entry>
-            <entry key="sharedMarketDataSnapshotMaster">
-              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/marketDataSnapshotMaster/0/" />
-                <property name="port" value="${jetty.port}" />
-              </bean>
-            </entry>
-            <!-- END DEPRECATED -->
             <entry key="userData">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/data/users/" />

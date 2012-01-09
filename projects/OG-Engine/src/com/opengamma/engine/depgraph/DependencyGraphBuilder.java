@@ -448,9 +448,6 @@ public final class DependencyGraphBuilder {
       ResolveTask task;
       synchronized (_requirements) {
         Map<ResolveTask, ResolveTask> tasks = _requirements.get(valueRequirement);
-        // Review 2012-01-03 Andrew -- We don't really want a map. The test for similar tasks is a subset operation. We
-        // should use a structure that allows us to test quickly whether there are any existing tasks whose parent
-        // requirement set is a subset of this tasks parent requirement set.
         if (tasks == null) {
           tasks = new HashMap<ResolveTask, ResolveTask>();
           _requirements.put(valueRequirement, tasks);
@@ -636,39 +633,22 @@ public final class DependencyGraphBuilder {
       if (!s_loggerContext.isInfoEnabled()) {
         return;
       }
-      //final List<ResolveTask> discards = new ArrayList<ResolveTask>();
       synchronized (_requirements) {
         int count = 0;
         for (Map.Entry<ValueRequirement, Map<ResolveTask, ResolveTask>> requirements : _requirements.entrySet()) {
           final Map<ResolveTask, ResolveTask> entries = requirements.getValue();
-          if (!entries.isEmpty()) {
-            /*boolean allFinished = true;
-            for (ResolveTask task : entries.keySet()) {
-              if (!task.isFinished()) {
-                allFinished = false;
-                break;
-              }
-            }
-            if (allFinished) {
-              discards.addAll(entries.keySet());
-              entries.clear();
-            } else {*/
-            count += entries.size();
-            //}
-          }
-        }
-        s_loggerContext.info("Requirements cache = {} tasks for {} requirements", count, _requirements.size());
-        /*s_loggerContext.info("Discarding {} finished tasks", discards.size());
-        for (ResolveTask discard : discards) {
-          discard.release(this);
-        }*/
-      }
-      synchronized (_specifications) {
-        int count = 0;
-        for (Map<ResolveTask, ResolvedValueProducer> entries : _specifications.values()) {
           count += entries.size();
         }
-        s_loggerContext.info("Specifications cache = {} tasks for {} specifications", count, _specifications.size());
+        s_loggerContext.info("Requirements cache = {} tasks for {} requirements", count, _requirements.size());
+      }
+      if (s_loggerContext.isInfoEnabled()) {
+        synchronized (_specifications) {
+          int count = 0;
+          for (Map<ResolveTask, ResolvedValueProducer> entries : _specifications.values()) {
+            count += entries.size();
+          }
+          s_loggerContext.info("Specifications cache = {} tasks for {} specifications", count, _specifications.size());
+        }
       }
       //final Runtime rt = Runtime.getRuntime();
       //rt.gc();

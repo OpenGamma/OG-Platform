@@ -92,8 +92,11 @@ window.innerShiv = (function () {
     $.fn.init = function (selector, context, root) {
         var nodes;
         if (typeof selector === 'string' && ~selector.indexOf('>') && ~selector.indexOf('<'))
-            return (nodes = innerShiv(selector, false)).length ? new init(nodes, context, root)
-                : new init(selector, context, root);
+            return (nodes = innerShiv(selector, false)).length ?
+            // for innerShiv + HTML5 to work, the REAL DOM needs to be touched,
+            // it's insufficient to just have nodes in memory (all in IE8)
+                (new init(nodes, context, root)).appendTo('body').remove()
+                    : new init(selector, context, root);
         return new init(selector, context, root);
     };
     // overwrite so that $(selector).html(html_string) gets innerShiv treatment

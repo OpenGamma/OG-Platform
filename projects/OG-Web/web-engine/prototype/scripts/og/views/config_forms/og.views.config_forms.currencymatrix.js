@@ -9,7 +9,7 @@ $.register_module({
         'og.common.util.ui'
     ],
     obj: function () {
-        var module = this, Form = og.common.util.ui.Form,
+        var module = this, Form = og.common.util.ui.Form, constructor,
             INDX = '<INDEX>',
             CRCV = 'crossConvert', UNIQ = 'uniqueId',
             VLRQ = 'valueReq', VLNM = 'valueName', CPTI = 'computationTargetIdentifier',

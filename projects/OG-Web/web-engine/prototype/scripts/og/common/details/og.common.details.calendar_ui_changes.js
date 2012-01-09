@@ -13,26 +13,24 @@ $.register_module({
             build_selector = function (dates) {
                 var html = [], i;
                 for (i in dates) if (dates.hasOwnProperty(i)) html.push('<option value="', i, '">', i, '</option>');
-                return '<select>' + html.join('') + '</select>';
+                return '<div class="og-pagination og-js-pagination"><select>' + html.join('') + '</select></div>';
             },
             update_pagination = function () {
                 var year = +$('.ui-datepicker-year').html();
-                $('.OG-holiday .og-js-prev').html(year - 1);
-                $('.OG-holiday .og-js-next').html(year + 1);
+                if ($(this).is('.ui-datepicker-next')) ++year;
+                if ($(this).is('.ui-datepicker-prev')) --year;
                 $('.OG-holiday .og-js-pagination select').val(year);
             };
         return calendar_ui_changes = function (dates) {
-            var year = +$('.ui-datepicker-year').html(),
-                $prev = $('.ui-datepicker-prev').html(year - 1).addClass('og-js-prev'),
-                $next = $('.ui-datepicker-next').html(year + 1).addClass('og-js-next');
-            $('.OG-holiday .og-js-pagination').css('display', 'inline').append($prev).append(build_selector(dates))
-                .append($next).find('select').css('display', 'inline').change(function (e) {
+            var year = +$('.ui-datepicker-year').html();
+            $('.ui-datepicker-next, .ui-datepicker-prev').live('mouseup', update_pagination);
+            $('.OG-holiday .og-js-calendar').prepend(build_selector(dates))
+                .find('select').change(function () {
                     var year = +$('.ui-datepicker-year').html(), val = +$(this).val();
-                    (new Function($next.attr('onclick').replace('+12', (val - year) * 12)))();
+                    (new Function($('.ui-datepicker-next').attr('onclick').replace('+12', (val - year) * 12)))();
                     update_pagination();
                 });
             $('.OG-holiday .og-js-pagination select').val(year);
-            $('.og-js-pagination a').click(update_pagination);
         };
     }
 });
