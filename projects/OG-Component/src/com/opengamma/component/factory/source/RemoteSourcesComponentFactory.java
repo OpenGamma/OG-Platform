@@ -41,7 +41,13 @@ import com.opengamma.core.position.impl.RemotePositionSource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.region.impl.RemoteRegionSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.core.security.impl.RemoteSecuritySource;
+import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.financial.currency.CurrencyMatrixSource;
+import com.opengamma.financial.currency.CurrencyPairsSource;
+import com.opengamma.financial.currency.rest.RemoteCurrencyMatrixSource;
+import com.opengamma.financial.currency.rest.RemoteCurrencyPairsSource;
+import com.opengamma.financial.function.rest.RemoteRepositoryConfigurationSource;
+import com.opengamma.financial.security.RemoteFinancialSecuritySource;
 import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.jms.JmsConnector;
 
@@ -56,13 +62,16 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
    */
   private final Map<Class<?>, Class<?>> _remoteWrappers = new HashMap<Class<?>, Class<?>>();
   {
+    _remoteWrappers.put(CurrencyMatrixSource.class, RemoteCurrencyMatrixSource.class);
+    _remoteWrappers.put(CurrencyPairsSource.class, RemoteCurrencyPairsSource.class);
     _remoteWrappers.put(ExchangeSource.class, RemoteExchangeSource.class);
-    _remoteWrappers.put(HolidaySource.class, RemoteHolidaySource.class);
-    _remoteWrappers.put(RegionSource.class, RemoteRegionSource.class);
-    _remoteWrappers.put(MarketDataSnapshotSource.class, RemoteMarketDataSnapshotSource.class);
-    _remoteWrappers.put(SecuritySource.class, RemoteSecuritySource.class);
-    _remoteWrappers.put(PositionSource.class, RemotePositionSource.class);
     _remoteWrappers.put(HistoricalTimeSeriesSource.class, RemoteHistoricalTimeSeriesSource.class);
+    _remoteWrappers.put(HolidaySource.class, RemoteHolidaySource.class);
+    _remoteWrappers.put(MarketDataSnapshotSource.class, RemoteMarketDataSnapshotSource.class);
+    _remoteWrappers.put(RegionSource.class, RemoteRegionSource.class);
+    _remoteWrappers.put(RepositoryConfigurationSource.class, RemoteRepositoryConfigurationSource.class);
+    _remoteWrappers.put(PositionSource.class, RemotePositionSource.class);
+    _remoteWrappers.put(SecuritySource.class, RemoteFinancialSecuritySource.class);
   }
 
   /**

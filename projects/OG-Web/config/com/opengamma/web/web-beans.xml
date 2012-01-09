@@ -72,10 +72,6 @@
   </bean>
   
   <!-- Function repository configuration -->
-  <bean id="functionRepositoryConfigurationRestBean" class="com.opengamma.financial.function.rest.RepositoryConfigurationSourceService">
-    <constructor-arg ref="fudgeContext" />
-    <property name="underlying" ref="sharedRepositoryConfigurationSource" />
-  </bean>
   <bean id="functionRepositoryRestBean" class="com.opengamma.financial.function.rest.FunctionRepositoryService">
     <constructor-arg ref="fudgeContext" />
     <property name="underlying">
