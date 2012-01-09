@@ -37,7 +37,7 @@ public class DataSecurityResourceTest {
   @BeforeMethod
   public void setUp() {
     _underlying = mock(SecurityMaster.class);
-    _resource = new DataSecurityResource(new DataSecuritiesResource(_underlying), OID.getObjectId());
+    _resource = new DataSecurityResource(new DataSecurityMasterResource(_underlying), OID.getObjectId());
   }
 
   //-------------------------------------------------------------------------

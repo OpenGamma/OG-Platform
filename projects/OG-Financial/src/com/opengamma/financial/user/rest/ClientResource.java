@@ -23,8 +23,8 @@ import com.opengamma.financial.user.UserPositionMaster;
 import com.opengamma.financial.user.UserSecurityMaster;
 import com.opengamma.financial.user.UserSnapshotMaster;
 import com.opengamma.financial.view.rest.DataManageableViewDefinitionRepositoryResource;
-import com.opengamma.master.portfolio.impl.DataPortfoliosResource;
-import com.opengamma.master.position.impl.DataPositionsResource;
+import com.opengamma.master.portfolio.impl.DataPortfolioMasterResource;
+import com.opengamma.master.position.impl.DataPositionMasterResource;
 
 /**
  * RESTful resource representing a user's client session.
@@ -62,8 +62,8 @@ public class ClientResource {
    */
   public static final String HEARTBEAT_PATH = "heartbeat";
   
-  private DataPortfoliosResource _portfolioMaster;
-  private DataPositionsResource _positionMaster;
+  private DataPortfolioMasterResource _portfolioMaster;
+  private DataPositionMasterResource _positionMaster;
   private SecurityMasterResource _securitiesResource;
   private DataManageableViewDefinitionRepositoryResource _viewDefinitionsResource;
   private InterpolatedYieldCurveDefinitionMasterResource _interpolatedYieldCurveDefinitionsResource;
@@ -117,23 +117,23 @@ public class ClientResource {
    */
 
   @Path(PORTFOLIOS_PATH)
-  public DataPortfoliosResource getPortfolios() {
+  public DataPortfolioMasterResource getPortfolios() {
     _lastAccessed = System.currentTimeMillis();
     if (_portfolioMaster == null) {
       s_logger.debug("Creating UserPositionMaster for {}/{}", getUserName(), getClientName());
       UsersResourceContext context = _data.getContext();
-      _portfolioMaster = new DataPortfoliosResource(new UserPortfolioMaster(getUserName(), getClientName(), _data.getUserDataTracker(), context.getPortfolioMaster()));
+      _portfolioMaster = new DataPortfolioMasterResource(new UserPortfolioMaster(getUserName(), getClientName(), _data.getUserDataTracker(), context.getPortfolioMaster()));
     }
     return _portfolioMaster;
   }
 
   @Path(POSITIONS_PATH)
-  public DataPositionsResource getPositions() {
+  public DataPositionMasterResource getPositions() {
     _lastAccessed = System.currentTimeMillis();
     if (_positionMaster == null) {
       s_logger.debug("Creating UserPositionMaster for {}/{}", getUserName(), getClientName());
       UsersResourceContext context = _data.getContext();
-      _positionMaster = new DataPositionsResource(new UserPositionMaster(getUserName(), getClientName(), _data.getUserDataTracker(), context.getPositionMaster()));
+      _positionMaster = new DataPositionMasterResource(new UserPositionMaster(getUserName(), getClientName(), _data.getUserDataTracker(), context.getPositionMaster()));
     }
     return _positionMaster;
   }

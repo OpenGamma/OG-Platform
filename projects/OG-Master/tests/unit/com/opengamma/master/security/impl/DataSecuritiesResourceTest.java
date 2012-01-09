@@ -35,14 +35,14 @@ public class DataSecuritiesResourceTest {
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");
   private SecurityMaster _underlying;
   private UriInfo _uriInfo;
-  private DataSecuritiesResource _resource;
+  private DataSecurityMasterResource _resource;
 
   @BeforeMethod
   public void setUp() {
     _underlying = mock(SecurityMaster.class);
     _uriInfo = mock(UriInfo.class);
     when(_uriInfo.getBaseUri()).thenReturn(URI.create("testhost"));
-    _resource = new DataSecuritiesResource(_underlying);
+    _resource = new DataSecurityMasterResource(_underlying);
   }
 
   //-------------------------------------------------------------------------

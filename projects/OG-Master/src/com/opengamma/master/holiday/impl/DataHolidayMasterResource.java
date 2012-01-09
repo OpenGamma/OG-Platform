@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.security.impl;
+package com.opengamma.master.holiday.impl;
 
 import java.net.URI;
 
@@ -21,95 +21,95 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectId;
-import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.master.security.SecurityMetaDataRequest;
-import com.opengamma.master.security.SecurityMetaDataResult;
-import com.opengamma.master.security.SecuritySearchRequest;
-import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.holiday.HolidayMetaDataRequest;
+import com.opengamma.master.holiday.HolidayMetaDataResult;
+import com.opengamma.master.holiday.HolidaySearchRequest;
+import com.opengamma.master.holiday.HolidaySearchResult;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for securities.
+ * RESTful resource for holidays.
  * <p>
- * The securities resource receives and processes RESTful calls to the security master.
+ * The holidays resource receives and processes RESTful calls to the holiday master.
  */
-@Path("/secMaster")
-public class DataSecuritiesResource extends AbstractDataResource {
+@Path("/holMaster")
+public class DataHolidayMasterResource extends AbstractDataResource {
 
   /**
-   * The security master.
+   * The holiday master.
    */
-  private final SecurityMaster _secMaster;
+  private final HolidayMaster _holMaster;
 
   /**
    * Creates the resource, exposing the underlying master over REST.
    * 
-   * @param securityMaster  the underlying security master, not null
+   * @param holidayMaster  the underlying holiday master, not null
    */
-  public DataSecuritiesResource(final SecurityMaster securityMaster) {
-    ArgumentChecker.notNull(securityMaster, "securityMaster");
-    _secMaster = securityMaster;
+  public DataHolidayMasterResource(final HolidayMaster holidayMaster) {
+    ArgumentChecker.notNull(holidayMaster, "holidayMaster");
+    _holMaster = holidayMaster;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the security master.
+   * Gets the holiday master.
    * 
-   * @return the security master, not null
+   * @return the holiday master, not null
    */
-  public SecurityMaster getSecurityMaster() {
-    return _secMaster;
+  public HolidayMaster getHolidayMaster() {
+    return _holMaster;
   }
 
   //-------------------------------------------------------------------------
   @GET
   @Path("metaData")
   public Response metaData(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    SecurityMetaDataRequest request = new SecurityMetaDataRequest();
+    HolidayMetaDataRequest request = new HolidayMetaDataRequest();
     if (msgBase64 != null) {
-      request = decodeBean(SecurityMetaDataRequest.class, providers, msgBase64);
+      request = decodeBean(HolidayMetaDataRequest.class, providers, msgBase64);
     }
-    SecurityMetaDataResult result = getSecurityMaster().metaData(request);
+    HolidayMetaDataResult result = getHolidayMaster().metaData(request);
     return Response.ok(result).build();
   }
 
   @HEAD
-  @Path("securities")
+  @Path("holidays")
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
     return Response.ok().build();
   }
 
   @GET
-  @Path("securities")
+  @Path("holidays")
   public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    SecuritySearchRequest request = decodeBean(SecuritySearchRequest.class, providers, msgBase64);
-    SecuritySearchResult result = getSecurityMaster().search(request);
+    HolidaySearchRequest request = decodeBean(HolidaySearchRequest.class, providers, msgBase64);
+    HolidaySearchResult result = getHolidayMaster().search(request);
     return Response.ok(result).build();
   }
 
   @POST
-  @Path("securities")
+  @Path("holidays")
   @Consumes(FudgeRest.MEDIA)
-  public Response add(@Context UriInfo uriInfo, SecurityDocument request) {
-    SecurityDocument result = getSecurityMaster().add(request);
-    URI createdUri = DataSecurityResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+  public Response add(@Context UriInfo uriInfo, HolidayDocument request) {
+    HolidayDocument result = getHolidayMaster().add(request);
+    URI createdUri = DataHolidayResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
     return Response.created(createdUri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
-  @Path("securities/{securityId}")
-  public DataSecurityResource findSecurity(@PathParam("securityId") String idStr) {
+  @Path("holidays/{holidayId}")
+  public DataHolidayResource findHoliday(@PathParam("holidayId") String idStr) {
     ObjectId id = ObjectId.parse(idStr);
-    return new DataSecurityResource(this, id);
+    return new DataHolidayResource(this, id);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for security meta-data.
+   * Builds a URI for holiday meta-data.
    * 
    * @param baseUri  the base URI, not null
    * @param searchMsg  the search message, may be null
@@ -124,14 +124,14 @@ public class DataSecuritiesResource extends AbstractDataResource {
   }
 
   /**
-   * Builds a URI for all securities.
+   * Builds a URI for all holidays.
    * 
    * @param baseUri  the base URI, not null
    * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/securities");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/holidays");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }

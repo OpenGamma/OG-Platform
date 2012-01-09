@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.exchange.impl;
+package com.opengamma.master.position.impl;
 
 import java.net.URI;
 
@@ -21,89 +21,89 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectId;
-import com.opengamma.master.exchange.ExchangeDocument;
-import com.opengamma.master.exchange.ExchangeMaster;
-import com.opengamma.master.exchange.ExchangeSearchRequest;
-import com.opengamma.master.exchange.ExchangeSearchResult;
+import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.position.PositionSearchRequest;
+import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for exchanges.
+ * RESTful resource for positions.
  * <p>
- * The exchanges resource receives and processes RESTful calls to the exchange master.
+ * The positions resource receives and processes RESTful calls to the position master.
  */
-@Path("/exgMaster")
-public class DataExchangesResource extends AbstractDataResource {
+@Path("/posMaster")
+public class DataPositionMasterResource extends AbstractDataResource {
 
   /**
-   * The exchange master.
+   * The position master.
    */
-  private final ExchangeMaster _exgMaster;
+  private final PositionMaster _posMaster;
 
   /**
    * Creates the resource, exposing the underlying master over REST.
    * 
-   * @param exchangeMaster  the underlying exchange master, not null
+   * @param positionMaster  the underlying position master, not null
    */
-  public DataExchangesResource(final ExchangeMaster exchangeMaster) {
-    ArgumentChecker.notNull(exchangeMaster, "exchangeMaster");
-    _exgMaster = exchangeMaster;
+  public DataPositionMasterResource(final PositionMaster positionMaster) {
+    ArgumentChecker.notNull(positionMaster, "positionMaster");
+    _posMaster = positionMaster;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the exchange master.
+   * Gets the position master.
    * 
-   * @return the exchange master, not null
+   * @return the position master, not null
    */
-  public ExchangeMaster getExchangeMaster() {
-    return _exgMaster;
+  public PositionMaster getPositionMaster() {
+    return _posMaster;
   }
 
   //-------------------------------------------------------------------------
   @HEAD
-  @Path("exchanges")
+  @Path("positions")
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
     return Response.ok().build();
   }
 
   @GET
-  @Path("exchanges")
+  @Path("positions")
   public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    ExchangeSearchRequest request = decodeBean(ExchangeSearchRequest.class, providers, msgBase64);
-    ExchangeSearchResult result = getExchangeMaster().search(request);
+    PositionSearchRequest request = decodeBean(PositionSearchRequest.class, providers, msgBase64);
+    PositionSearchResult result = getPositionMaster().search(request);
     return Response.ok(result).build();
   }
 
   @POST
-  @Path("exchanges")
+  @Path("positions")
   @Consumes(FudgeRest.MEDIA)
-  public Response add(@Context UriInfo uriInfo, ExchangeDocument request) {
-    ExchangeDocument result = getExchangeMaster().add(request);
-    URI createdUri = DataExchangeResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+  public Response add(@Context UriInfo uriInfo, PositionDocument request) {
+    PositionDocument result = getPositionMaster().add(request);
+    URI createdUri = DataPositionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
     return Response.created(createdUri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
-  @Path("exchanges/{exchangeId}")
-  public DataExchangeResource findExchange(@PathParam("exchangeId") String idStr) {
+  @Path("positions/{positionId}")
+  public DataPositionResource findPosition(@PathParam("positionId") String idStr) {
     ObjectId id = ObjectId.parse(idStr);
-    return new DataExchangeResource(this, id);
+    return new DataPositionResource(this, id);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for all exchanges.
+   * Builds a URI for all positions.
    * 
    * @param baseUri  the base URI, not null
    * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/positions");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }

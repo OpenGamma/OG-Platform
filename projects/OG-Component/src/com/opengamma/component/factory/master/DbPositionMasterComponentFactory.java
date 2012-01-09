@@ -24,7 +24,7 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.position.PositionMaster;
-import com.opengamma.master.position.impl.DataPositionsResource;
+import com.opengamma.master.position.impl.DataPositionMasterResource;
 import com.opengamma.masterdb.position.DbPositionMaster;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
@@ -97,7 +97,7 @@ public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
     
     // publish
     if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataPositionsResource(master));
+      repo.getRestComponents().publish(info, new DataPositionMasterResource(master));
     }
   }
 

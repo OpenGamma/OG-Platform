@@ -36,13 +36,12 @@ import com.opengamma.util.time.DateUtils;
 /**
  * RESTful resource for a portfolio.
  */
-@Path("/prtMaster/portfolios/{portfolioId}")
 public class DataPortfolioResource extends AbstractDataResource {
 
   /**
    * The portfolios resource.
    */
-  private final DataPortfoliosResource _portfoliosResource;
+  private final DataPortfolioMasterResource _portfoliosResource;
   /**
    * The identifier specified in the URI.
    */
@@ -54,7 +53,7 @@ public class DataPortfolioResource extends AbstractDataResource {
    * @param portfoliosResource  the parent resource, not null
    * @param portfolioId  the portfolio unique identifier, not null
    */
-  public DataPortfolioResource(final DataPortfoliosResource portfoliosResource, final ObjectId portfolioId) {
+  public DataPortfolioResource(final DataPortfolioMasterResource portfoliosResource, final ObjectId portfolioId) {
     ArgumentChecker.notNull(portfoliosResource, "portfoliosResource");
     ArgumentChecker.notNull(portfolioId, "portfolio");
     _portfoliosResource = portfoliosResource;
@@ -67,7 +66,7 @@ public class DataPortfolioResource extends AbstractDataResource {
    * 
    * @return the portfolios resource, not null
    */
-  public DataPortfoliosResource getPortfoliosResource() {
+  public DataPortfolioMasterResource getPortfoliosResource() {
     return _portfoliosResource;
   }
 

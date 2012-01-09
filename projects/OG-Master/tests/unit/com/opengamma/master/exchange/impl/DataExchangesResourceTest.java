@@ -36,14 +36,14 @@ public class DataExchangesResourceTest {
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");
   private ExchangeMaster _underlying;
   private UriInfo _uriInfo;
-  private DataExchangesResource _resource;
+  private DataExchangeMasterResource _resource;
 
   @BeforeMethod
   public void setUp() {
     _underlying = mock(ExchangeMaster.class);
     _uriInfo = mock(UriInfo.class);
     when(_uriInfo.getBaseUri()).thenReturn(URI.create("testhost"));
-    _resource = new DataExchangesResource(_underlying);
+    _resource = new DataExchangeMasterResource(_underlying);
   }
 
   //-------------------------------------------------------------------------

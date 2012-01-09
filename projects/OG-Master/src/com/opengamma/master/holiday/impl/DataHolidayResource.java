@@ -36,13 +36,12 @@ import com.opengamma.util.time.DateUtils;
 /**
  * RESTful resource for a holiday.
  */
-@Path("/holMaster/holidays/{holidayId}")
 public class DataHolidayResource extends AbstractDataResource {
 
   /**
    * The holidays resource.
    */
-  private final DataHolidaysResource _holidaysResource;
+  private final DataHolidayMasterResource _holidaysResource;
   /**
    * The identifier specified in the URI.
    */
@@ -54,7 +53,7 @@ public class DataHolidayResource extends AbstractDataResource {
    * @param holidaysResource  the parent resource, not null
    * @param holidayId  the holiday unique identifier, not null
    */
-  public DataHolidayResource(final DataHolidaysResource holidaysResource, final ObjectId holidayId) {
+  public DataHolidayResource(final DataHolidayMasterResource holidaysResource, final ObjectId holidayId) {
     ArgumentChecker.notNull(holidaysResource, "holidaysResource");
     ArgumentChecker.notNull(holidayId, "holiday");
     _holidaysResource = holidaysResource;
@@ -67,7 +66,7 @@ public class DataHolidayResource extends AbstractDataResource {
    * 
    * @return the holidays resource, not null
    */
-  public DataHolidaysResource getHolidaysResource() {
+  public DataHolidayMasterResource getHolidaysResource() {
     return _holidaysResource;
   }
 

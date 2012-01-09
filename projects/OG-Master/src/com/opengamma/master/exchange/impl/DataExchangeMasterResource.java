@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.region.impl;
+package com.opengamma.master.exchange.impl;
 
 import java.net.URI;
 
@@ -21,89 +21,89 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectId;
-import com.opengamma.master.region.RegionDocument;
-import com.opengamma.master.region.RegionMaster;
-import com.opengamma.master.region.RegionSearchRequest;
-import com.opengamma.master.region.RegionSearchResult;
+import com.opengamma.master.exchange.ExchangeDocument;
+import com.opengamma.master.exchange.ExchangeMaster;
+import com.opengamma.master.exchange.ExchangeSearchRequest;
+import com.opengamma.master.exchange.ExchangeSearchResult;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for regions.
+ * RESTful resource for exchanges.
  * <p>
- * The regions resource receives and processes RESTful calls to the region master.
+ * The exchanges resource receives and processes RESTful calls to the exchange master.
  */
-@Path("/regMaster")
-public class DataRegionsResource extends AbstractDataResource {
+@Path("/exgMaster")
+public class DataExchangeMasterResource extends AbstractDataResource {
 
   /**
-   * The region master.
+   * The exchange master.
    */
-  private final RegionMaster _regMaster;
+  private final ExchangeMaster _exgMaster;
 
   /**
    * Creates the resource, exposing the underlying master over REST.
    * 
-   * @param regionMaster  the underlying region master, not null
+   * @param exchangeMaster  the underlying exchange master, not null
    */
-  public DataRegionsResource(final RegionMaster regionMaster) {
-    ArgumentChecker.notNull(regionMaster, "regionMaster");
-    _regMaster = regionMaster;
+  public DataExchangeMasterResource(final ExchangeMaster exchangeMaster) {
+    ArgumentChecker.notNull(exchangeMaster, "exchangeMaster");
+    _exgMaster = exchangeMaster;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the region master.
+   * Gets the exchange master.
    * 
-   * @return the region master, not null
+   * @return the exchange master, not null
    */
-  public RegionMaster getRegionMaster() {
-    return _regMaster;
+  public ExchangeMaster getExchangeMaster() {
+    return _exgMaster;
   }
 
   //-------------------------------------------------------------------------
   @HEAD
-  @Path("regions")
+  @Path("exchanges")
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
     return Response.ok().build();
   }
 
   @GET
-  @Path("regions")
+  @Path("exchanges")
   public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    RegionSearchRequest request = decodeBean(RegionSearchRequest.class, providers, msgBase64);
-    RegionSearchResult result = getRegionMaster().search(request);
+    ExchangeSearchRequest request = decodeBean(ExchangeSearchRequest.class, providers, msgBase64);
+    ExchangeSearchResult result = getExchangeMaster().search(request);
     return Response.ok(result).build();
   }
 
   @POST
-  @Path("regions")
+  @Path("exchanges")
   @Consumes(FudgeRest.MEDIA)
-  public Response add(@Context UriInfo uriInfo, RegionDocument request) {
-    RegionDocument result = getRegionMaster().add(request);
-    URI createdUri = DataRegionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+  public Response add(@Context UriInfo uriInfo, ExchangeDocument request) {
+    ExchangeDocument result = getExchangeMaster().add(request);
+    URI createdUri = DataExchangeResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
     return Response.created(createdUri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
-  @Path("regions/{regionId}")
-  public DataRegionResource findRegion(@PathParam("regionId") String idStr) {
+  @Path("exchanges/{exchangeId}")
+  public DataExchangeResource findExchange(@PathParam("exchangeId") String idStr) {
     ObjectId id = ObjectId.parse(idStr);
-    return new DataRegionResource(this, id);
+    return new DataExchangeResource(this, id);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for all regions.
+   * Builds a URI for all exchanges.
    * 
    * @param baseUri  the base URI, not null
    * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/regions");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }

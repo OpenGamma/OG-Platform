@@ -39,7 +39,6 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 /**
  * RESTful resource for accessing time-series data points.
  */
-@Path("/htsMaster/dataPoints/{dpId}")
 public class DataHistoricalDataPointsResource extends AbstractDataResource {
 
   /**

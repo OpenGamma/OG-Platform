@@ -36,7 +36,7 @@ public class DataMarketDataSnapshotResourceTest {
   @BeforeMethod
   public void setUp() {
     _underlying = mock(MarketDataSnapshotMaster.class);
-    _resource = new DataMarketDataSnapshotResource(new DataMarketDataSnapshotsResource(_underlying), OID.getObjectId());
+    _resource = new DataMarketDataSnapshotResource(new DataMarketDataSnapshotMasterResource(_underlying), OID.getObjectId());
   }
 
   //-------------------------------------------------------------------------

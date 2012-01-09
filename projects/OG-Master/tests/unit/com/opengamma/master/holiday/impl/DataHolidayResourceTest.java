@@ -40,7 +40,7 @@ public class DataHolidayResourceTest {
   @BeforeMethod
   public void setUp() {
     _underlying = mock(HolidayMaster.class);
-    _resource = new DataHolidayResource(new DataHolidaysResource(_underlying), OID.getObjectId());
+    _resource = new DataHolidayResource(new DataHolidayMasterResource(_underlying), OID.getObjectId());
   }
 
   //-------------------------------------------------------------------------

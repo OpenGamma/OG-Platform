@@ -37,13 +37,12 @@ import com.opengamma.util.time.DateUtils;
 /**
  * RESTful resource for a config.
  */
-@Path("/exgMaster/configs/{configId}")
 public class DataConfigResource extends AbstractDataResource {
 
   /**
    * The configs resource.
    */
-  private final DataConfigsResource _configsResource;
+  private final DataConfigMasterResource _configsResource;
   /**
    * The identifier specified in the URI.
    */
@@ -55,7 +54,7 @@ public class DataConfigResource extends AbstractDataResource {
    * @param configsResource  the parent resource, not null
    * @param configId  the config unique identifier, not null
    */
-  public DataConfigResource(final DataConfigsResource configsResource, final ObjectId configId) {
+  public DataConfigResource(final DataConfigMasterResource configsResource, final ObjectId configId) {
     ArgumentChecker.notNull(configsResource, "configsResource");
     ArgumentChecker.notNull(configId, "config");
     _configsResource = configsResource;
@@ -68,7 +67,7 @@ public class DataConfigResource extends AbstractDataResource {
    * 
    * @return the configs resource, not null
    */
-  public DataConfigsResource getConfigsResource() {
+  public DataConfigMasterResource getConfigsResource() {
     return _configsResource;
   }
 

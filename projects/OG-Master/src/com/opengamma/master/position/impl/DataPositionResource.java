@@ -37,13 +37,12 @@ import com.opengamma.util.time.DateUtils;
 /**
  * RESTful resource for a position.
  */
-@Path("/posMaster/positions/{positionId}")
 public class DataPositionResource extends AbstractDataResource {
 
   /**
    * The positions resource.
    */
-  private final DataPositionsResource _positionsResource;
+  private final DataPositionMasterResource _positionsResource;
   /**
    * The identifier specified in the URI.
    */
@@ -55,7 +54,7 @@ public class DataPositionResource extends AbstractDataResource {
    * @param positionsResource  the parent resource, not null
    * @param positionId  the position unique identifier, not null
    */
-  public DataPositionResource(final DataPositionsResource positionsResource, final ObjectId positionId) {
+  public DataPositionResource(final DataPositionMasterResource positionsResource, final ObjectId positionId) {
     ArgumentChecker.notNull(positionsResource, "positionsResource");
     ArgumentChecker.notNull(positionId, "position");
     _positionsResource = positionsResource;
@@ -68,7 +67,7 @@ public class DataPositionResource extends AbstractDataResource {
    * 
    * @return the positions resource, not null
    */
-  public DataPositionsResource getPositionsResource() {
+  public DataPositionMasterResource getPositionsResource() {
     return _positionsResource;
   }
 

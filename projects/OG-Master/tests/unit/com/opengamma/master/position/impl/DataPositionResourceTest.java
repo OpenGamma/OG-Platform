@@ -38,7 +38,7 @@ public class DataPositionResourceTest {
   @BeforeMethod
   public void setUp() {
     _underlying = mock(PositionMaster.class);
-    _resource = new DataPositionResource(new DataPositionsResource(_underlying), OID.getObjectId());
+    _resource = new DataPositionResource(new DataPositionMasterResource(_underlying), OID.getObjectId());
   }
 
   //-------------------------------------------------------------------------

@@ -36,13 +36,12 @@ import com.opengamma.util.time.DateUtils;
 /**
  * RESTful resource for an region.
  */
-@Path("/regMaster/regions/{regionId}")
 public class DataRegionResource extends AbstractDataResource {
 
   /**
    * The regions resource.
    */
-  private final DataRegionsResource _regionsResource;
+  private final DataRegionMasterResource _regionsResource;
   /**
    * The identifier specified in the URI.
    */
@@ -54,7 +53,7 @@ public class DataRegionResource extends AbstractDataResource {
    * @param regionsResource  the parent resource, not null
    * @param regionId  the region unique identifier, not null
    */
-  public DataRegionResource(final DataRegionsResource regionsResource, final ObjectId regionId) {
+  public DataRegionResource(final DataRegionMasterResource regionsResource, final ObjectId regionId) {
     ArgumentChecker.notNull(regionsResource, "regionsResource");
     ArgumentChecker.notNull(regionId, "region");
     _regionsResource = regionsResource;
@@ -67,7 +66,7 @@ public class DataRegionResource extends AbstractDataResource {
    * 
    * @return the regions resource, not null
    */
-  public DataRegionsResource getRegionsResource() {
+  public DataRegionMasterResource getRegionsResource() {
     return _regionsResource;
   }
 

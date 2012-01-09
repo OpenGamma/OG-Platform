@@ -37,7 +37,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * The portfolios resource receives and processes RESTful calls to the portfolio master.
  */
 @Path("/prtMaster")
-public class DataPortfoliosResource extends AbstractDataResource {
+public class DataPortfolioMasterResource extends AbstractDataResource {
 
   /**
    * The portfolio master.
@@ -49,7 +49,7 @@ public class DataPortfoliosResource extends AbstractDataResource {
    * 
    * @param portfolioMaster  the underlying portfolio master, not null
    */
-  public DataPortfoliosResource(final PortfolioMaster portfolioMaster) {
+  public DataPortfolioMasterResource(final PortfolioMaster portfolioMaster) {
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
     _prtMaster = portfolioMaster;
   }

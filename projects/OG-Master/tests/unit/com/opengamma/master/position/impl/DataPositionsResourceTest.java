@@ -35,14 +35,14 @@ public class DataPositionsResourceTest {
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");
   private PositionMaster _underlying;
   private UriInfo _uriInfo;
-  private DataPositionsResource _resource;
+  private DataPositionMasterResource _resource;
 
   @BeforeMethod
   public void setUp() {
     _underlying = mock(PositionMaster.class);
     _uriInfo = mock(UriInfo.class);
     when(_uriInfo.getBaseUri()).thenReturn(URI.create("testhost"));
-    _resource = new DataPositionsResource(_underlying);
+    _resource = new DataPositionMasterResource(_underlying);
   }
 
   //-------------------------------------------------------------------------

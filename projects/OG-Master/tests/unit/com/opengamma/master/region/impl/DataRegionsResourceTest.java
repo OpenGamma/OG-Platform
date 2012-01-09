@@ -34,14 +34,14 @@ public class DataRegionsResourceTest {
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");
   private RegionMaster _underlying;
   private UriInfo _uriInfo;
-  private DataRegionsResource _resource;
+  private DataRegionMasterResource _resource;
 
   @BeforeMethod
   public void setUp() {
     _underlying = mock(RegionMaster.class);
     _uriInfo = mock(UriInfo.class);
     when(_uriInfo.getBaseUri()).thenReturn(URI.create("testhost"));
-    _resource = new DataRegionsResource(_underlying);
+    _resource = new DataRegionMasterResource(_underlying);
   }
 
   //-------------------------------------------------------------------------

@@ -36,13 +36,12 @@ import com.opengamma.util.time.DateUtils;
 /**
  * RESTful resource for a security.
  */
-@Path("/secMaster/securities/{securityId}")
 public class DataSecurityResource extends AbstractDataResource {
 
   /**
    * The securities resource.
    */
-  private final DataSecuritiesResource _securitiesResource;
+  private final DataSecurityMasterResource _securitiesResource;
   /**
    * The identifier specified in the URI.
    */
@@ -54,7 +53,7 @@ public class DataSecurityResource extends AbstractDataResource {
    * @param securitiesResource  the parent resource, not null
    * @param securityId  the security unique identifier, not null
    */
-  public DataSecurityResource(final DataSecuritiesResource securitiesResource, final ObjectId securityId) {
+  public DataSecurityResource(final DataSecurityMasterResource securitiesResource, final ObjectId securityId) {
     ArgumentChecker.notNull(securitiesResource, "securitiesResource");
     ArgumentChecker.notNull(securityId, "security");
     _securitiesResource = securitiesResource;
@@ -67,7 +66,7 @@ public class DataSecurityResource extends AbstractDataResource {
    * 
    * @return the securities resource, not null
    */
-  public DataSecuritiesResource getSecuritiesResource() {
+  public DataSecurityMasterResource getSecuritiesResource() {
     return _securitiesResource;
   }
 

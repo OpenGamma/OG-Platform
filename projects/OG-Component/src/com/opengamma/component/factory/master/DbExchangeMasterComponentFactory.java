@@ -24,7 +24,7 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.exchange.ExchangeMaster;
-import com.opengamma.master.exchange.impl.DataExchangesResource;
+import com.opengamma.master.exchange.impl.DataExchangeMasterResource;
 import com.opengamma.masterdb.exchange.DbExchangeMaster;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
@@ -97,7 +97,7 @@ public class DbExchangeMasterComponentFactory extends AbstractComponentFactory {
     
     // publish
     if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataExchangesResource(master));
+      repo.getRestComponents().publish(info, new DataExchangeMasterResource(master));
     }
   }
 

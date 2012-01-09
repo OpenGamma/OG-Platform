@@ -51,7 +51,7 @@ public class RemotePortfolioMaster extends AbstractRemoteMaster implements Portf
     ArgumentChecker.notNull(request, "request");
     
     String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataPortfoliosResource.uri(getBaseUri(), msgBase64);
+    URI uri = DataPortfolioMasterResource.uri(getBaseUri(), msgBase64);
     return accessRemote(uri).get(PortfolioSearchResult.class);
   }
 
@@ -84,7 +84,7 @@ public class RemotePortfolioMaster extends AbstractRemoteMaster implements Portf
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
     ArgumentChecker.notNull(document.getPortfolio().getRootNode(), "document.portfolio.rootNode");
     
-    URI uri = DataPortfoliosResource.uri(getBaseUri(), null);
+    URI uri = DataPortfolioMasterResource.uri(getBaseUri(), null);
     return accessRemote(uri).post(PortfolioDocument.class, document);
   }
 

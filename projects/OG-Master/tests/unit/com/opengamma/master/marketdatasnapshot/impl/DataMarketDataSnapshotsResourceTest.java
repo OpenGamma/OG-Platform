@@ -34,14 +34,14 @@ public class DataMarketDataSnapshotsResourceTest {
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");
   private MarketDataSnapshotMaster _underlying;
   private UriInfo _uriInfo;
-  private DataMarketDataSnapshotsResource _resource;
+  private DataMarketDataSnapshotMasterResource _resource;
 
   @BeforeMethod
   public void setUp() {
     _underlying = mock(MarketDataSnapshotMaster.class);
     _uriInfo = mock(UriInfo.class);
     when(_uriInfo.getBaseUri()).thenReturn(URI.create("testhost"));
-    _resource = new DataMarketDataSnapshotsResource(_underlying);
+    _resource = new DataMarketDataSnapshotMasterResource(_underlying);
   }
 
   //-------------------------------------------------------------------------

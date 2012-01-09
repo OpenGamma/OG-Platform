@@ -24,7 +24,7 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
-import com.opengamma.master.marketdatasnapshot.impl.DataMarketDataSnapshotsResource;
+import com.opengamma.master.marketdatasnapshot.impl.DataMarketDataSnapshotMasterResource;
 import com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
@@ -97,7 +97,7 @@ public class DbMarketDataSnapshotMasterComponentFactory extends AbstractComponen
     
     // publish
     if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataMarketDataSnapshotsResource(master));
+      repo.getRestComponents().publish(info, new DataMarketDataSnapshotMasterResource(master));
     }
   }
 

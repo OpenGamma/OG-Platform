@@ -32,7 +32,7 @@ public class DataPortfolioNodeResourceTest {
   @BeforeMethod
   public void setUp() {
     _underlying = mock(PortfolioMaster.class);
-    _resource = new DataPortfolioNodeResource(new DataPortfoliosResource(_underlying), UID);
+    _resource = new DataPortfolioNodeResource(new DataPortfolioMasterResource(_underlying), UID);
   }
 
   //-------------------------------------------------------------------------

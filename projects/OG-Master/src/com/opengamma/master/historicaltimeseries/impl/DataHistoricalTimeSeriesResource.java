@@ -36,7 +36,6 @@ import com.opengamma.util.time.DateUtils;
 /**
  * RESTful resource for accessing time-series info.
  */
-@Path("/htsMaster/infos/{infoId}")
 public class DataHistoricalTimeSeriesResource extends AbstractDataResource {
 
   /**

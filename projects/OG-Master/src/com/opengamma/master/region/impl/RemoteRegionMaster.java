@@ -50,7 +50,7 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
     ArgumentChecker.notNull(request, "request");
     
     String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataRegionsResource.uri(getBaseUri(), msgBase64);
+    URI uri = DataRegionMasterResource.uri(getBaseUri(), msgBase64);
     return accessRemote(uri).get(RegionSearchResult.class);
   }
 
@@ -82,7 +82,7 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getRegion(), "document.region");
     
-    URI uri = DataRegionsResource.uri(getBaseUri(), null);
+    URI uri = DataRegionMasterResource.uri(getBaseUri(), null);
     return accessRemote(uri).post(RegionDocument.class, document);
   }
 

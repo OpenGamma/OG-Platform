@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.holiday.impl;
+package com.opengamma.master.config.impl;
 
 import java.net.URI;
 
@@ -21,95 +21,96 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectId;
-import com.opengamma.master.holiday.HolidayDocument;
-import com.opengamma.master.holiday.HolidayMaster;
-import com.opengamma.master.holiday.HolidayMetaDataRequest;
-import com.opengamma.master.holiday.HolidayMetaDataResult;
-import com.opengamma.master.holiday.HolidaySearchRequest;
-import com.opengamma.master.holiday.HolidaySearchResult;
+import com.opengamma.master.config.ConfigDocument;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.config.ConfigMetaDataRequest;
+import com.opengamma.master.config.ConfigMetaDataResult;
+import com.opengamma.master.config.ConfigSearchRequest;
+import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for holidays.
+ * RESTful resource for configs.
  * <p>
- * The holidays resource receives and processes RESTful calls to the holiday master.
+ * The configs resource receives and processes RESTful calls to the config master.
  */
-@Path("/holMaster")
-public class DataHolidaysResource extends AbstractDataResource {
+@Path("/cfgMaster")
+public class DataConfigMasterResource extends AbstractDataResource {
 
   /**
-   * The holiday master.
+   * The config master.
    */
-  private final HolidayMaster _holMaster;
+  private final ConfigMaster _cfgMaster;
 
   /**
    * Creates the resource, exposing the underlying master over REST.
    * 
-   * @param holidayMaster  the underlying holiday master, not null
+   * @param configMaster  the underlying config master, not null
    */
-  public DataHolidaysResource(final HolidayMaster holidayMaster) {
-    ArgumentChecker.notNull(holidayMaster, "holidayMaster");
-    _holMaster = holidayMaster;
+  public DataConfigMasterResource(final ConfigMaster configMaster) {
+    ArgumentChecker.notNull(configMaster, "configMaster");
+    _cfgMaster = configMaster;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the holiday master.
+   * Gets the config master.
    * 
-   * @return the holiday master, not null
+   * @return the config master, not null
    */
-  public HolidayMaster getHolidayMaster() {
-    return _holMaster;
+  public ConfigMaster getConfigMaster() {
+    return _cfgMaster;
   }
 
   //-------------------------------------------------------------------------
   @GET
   @Path("metaData")
   public Response metaData(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    HolidayMetaDataRequest request = new HolidayMetaDataRequest();
+    ConfigMetaDataRequest request = new ConfigMetaDataRequest();
     if (msgBase64 != null) {
-      request = decodeBean(HolidayMetaDataRequest.class, providers, msgBase64);
+      request = decodeBean(ConfigMetaDataRequest.class, providers, msgBase64);
     }
-    HolidayMetaDataResult result = getHolidayMaster().metaData(request);
+    ConfigMetaDataResult result = getConfigMaster().metaData(request);
     return Response.ok(result).build();
   }
 
   @HEAD
-  @Path("holidays")
+  @Path("configs")
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
     return Response.ok().build();
   }
 
   @GET
-  @Path("holidays")
+  @Path("configs")
   public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    HolidaySearchRequest request = decodeBean(HolidaySearchRequest.class, providers, msgBase64);
-    HolidaySearchResult result = getHolidayMaster().search(request);
+    ConfigSearchRequest<?> request = decodeBean(ConfigSearchRequest.class, providers, msgBase64);
+    ConfigSearchResult<?> result = getConfigMaster().search(request);
     return Response.ok(result).build();
   }
 
+  @SuppressWarnings({"rawtypes", "unchecked" })  // necessary to stop Jersey issuing warnings due to <?>
   @POST
-  @Path("holidays")
+  @Path("configs")
   @Consumes(FudgeRest.MEDIA)
-  public Response add(@Context UriInfo uriInfo, HolidayDocument request) {
-    HolidayDocument result = getHolidayMaster().add(request);
-    URI createdUri = DataHolidayResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+  public Response add(@Context UriInfo uriInfo, ConfigDocument request) {
+    ConfigDocument<?> result = getConfigMaster().add(request);
+    URI createdUri = DataConfigResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId(), result.getType());
     return Response.created(createdUri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
-  @Path("holidays/{holidayId}")
-  public DataHolidayResource findHoliday(@PathParam("holidayId") String idStr) {
+  @Path("configs/{configId}")
+  public DataConfigResource findConfig(@PathParam("configId") String idStr) {
     ObjectId id = ObjectId.parse(idStr);
-    return new DataHolidayResource(this, id);
+    return new DataConfigResource(this, id);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for holiday meta-data.
+   * Builds a URI for config meta-data.
    * 
    * @param baseUri  the base URI, not null
    * @param searchMsg  the search message, may be null
@@ -124,14 +125,14 @@ public class DataHolidaysResource extends AbstractDataResource {
   }
 
   /**
-   * Builds a URI for all holidays.
+   * Builds a URI for all configs.
    * 
    * @param baseUri  the base URI, not null
    * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/holidays");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/configs");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }

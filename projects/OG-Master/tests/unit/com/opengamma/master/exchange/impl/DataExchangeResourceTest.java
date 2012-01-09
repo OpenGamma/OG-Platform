@@ -38,7 +38,7 @@ public class DataExchangeResourceTest {
   @BeforeMethod
   public void setUp() {
     _underlying = mock(ExchangeMaster.class);
-    _resource = new DataExchangeResource(new DataExchangesResource(_underlying), OID.getObjectId());
+    _resource = new DataExchangeResource(new DataExchangeMasterResource(_underlying), OID.getObjectId());
   }
 
   //-------------------------------------------------------------------------

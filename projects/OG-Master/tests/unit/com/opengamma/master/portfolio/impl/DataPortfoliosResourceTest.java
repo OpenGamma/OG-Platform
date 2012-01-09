@@ -35,14 +35,14 @@ public class DataPortfoliosResourceTest {
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");
   private PortfolioMaster _underlying;
   private UriInfo _uriInfo;
-  private DataPortfoliosResource _resource;
+  private DataPortfolioMasterResource _resource;
 
   @BeforeMethod
   public void setUp() {
     _underlying = mock(PortfolioMaster.class);
     _uriInfo = mock(UriInfo.class);
     when(_uriInfo.getBaseUri()).thenReturn(URI.create("testhost"));
-    _resource = new DataPortfoliosResource(_underlying);
+    _resource = new DataPortfolioMasterResource(_underlying);
   }
 
   //-------------------------------------------------------------------------

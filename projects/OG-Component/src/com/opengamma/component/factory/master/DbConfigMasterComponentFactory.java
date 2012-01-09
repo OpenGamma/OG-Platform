@@ -24,7 +24,7 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.impl.DataConfigsResource;
+import com.opengamma.master.config.impl.DataConfigMasterResource;
 import com.opengamma.masterdb.config.DbConfigMaster;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
@@ -97,7 +97,7 @@ public class DbConfigMasterComponentFactory extends AbstractComponentFactory {
     
     // publish
     if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataConfigsResource(master));
+      repo.getRestComponents().publish(info, new DataConfigMasterResource(master));
     }
   }
 

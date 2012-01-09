@@ -28,7 +28,7 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.master.region.RegionMaster;
-import com.opengamma.master.region.impl.DataRegionsResource;
+import com.opengamma.master.region.impl.DataRegionMasterResource;
 import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.master.region.impl.RegionFileReader;
 import com.opengamma.util.jms.JmsConnector;
@@ -87,7 +87,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
     
     // publish
     if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataRegionsResource(master));
+      repo.getRestComponents().publish(info, new DataRegionMasterResource(master));
     }
   }
 

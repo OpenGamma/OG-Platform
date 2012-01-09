@@ -35,7 +35,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * The snapshots resource receives and processes RESTful calls to the snapshot master.
  */
 @Path("/snpMaster")
-public class DataMarketDataSnapshotsResource extends AbstractDataResource {
+public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
 
   /**
    * The snapshot master.
@@ -47,7 +47,7 @@ public class DataMarketDataSnapshotsResource extends AbstractDataResource {
    * 
    * @param snapshotMaster  the underlying snapshot master, not null
    */
-  public DataMarketDataSnapshotsResource(final MarketDataSnapshotMaster snapshotMaster) {
+  public DataMarketDataSnapshotMasterResource(final MarketDataSnapshotMaster snapshotMaster) {
     ArgumentChecker.notNull(snapshotMaster, "snapshotMaster");
     _snpMaster = snapshotMaster;
   }

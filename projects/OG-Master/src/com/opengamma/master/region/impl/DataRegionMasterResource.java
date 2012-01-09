@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.position.impl;
+package com.opengamma.master.region.impl;
 
 import java.net.URI;
 
@@ -21,89 +21,89 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectId;
-import com.opengamma.master.position.PositionDocument;
-import com.opengamma.master.position.PositionMaster;
-import com.opengamma.master.position.PositionSearchRequest;
-import com.opengamma.master.position.PositionSearchResult;
+import com.opengamma.master.region.RegionDocument;
+import com.opengamma.master.region.RegionMaster;
+import com.opengamma.master.region.RegionSearchRequest;
+import com.opengamma.master.region.RegionSearchResult;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for positions.
+ * RESTful resource for regions.
  * <p>
- * The positions resource receives and processes RESTful calls to the position master.
+ * The regions resource receives and processes RESTful calls to the region master.
  */
-@Path("/posMaster")
-public class DataPositionsResource extends AbstractDataResource {
+@Path("/regMaster")
+public class DataRegionMasterResource extends AbstractDataResource {
 
   /**
-   * The position master.
+   * The region master.
    */
-  private final PositionMaster _posMaster;
+  private final RegionMaster _regMaster;
 
   /**
    * Creates the resource, exposing the underlying master over REST.
    * 
-   * @param positionMaster  the underlying position master, not null
+   * @param regionMaster  the underlying region master, not null
    */
-  public DataPositionsResource(final PositionMaster positionMaster) {
-    ArgumentChecker.notNull(positionMaster, "positionMaster");
-    _posMaster = positionMaster;
+  public DataRegionMasterResource(final RegionMaster regionMaster) {
+    ArgumentChecker.notNull(regionMaster, "regionMaster");
+    _regMaster = regionMaster;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the position master.
+   * Gets the region master.
    * 
-   * @return the position master, not null
+   * @return the region master, not null
    */
-  public PositionMaster getPositionMaster() {
-    return _posMaster;
+  public RegionMaster getRegionMaster() {
+    return _regMaster;
   }
 
   //-------------------------------------------------------------------------
   @HEAD
-  @Path("positions")
+  @Path("regions")
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
     return Response.ok().build();
   }
 
   @GET
-  @Path("positions")
+  @Path("regions")
   public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    PositionSearchRequest request = decodeBean(PositionSearchRequest.class, providers, msgBase64);
-    PositionSearchResult result = getPositionMaster().search(request);
+    RegionSearchRequest request = decodeBean(RegionSearchRequest.class, providers, msgBase64);
+    RegionSearchResult result = getRegionMaster().search(request);
     return Response.ok(result).build();
   }
 
   @POST
-  @Path("positions")
+  @Path("regions")
   @Consumes(FudgeRest.MEDIA)
-  public Response add(@Context UriInfo uriInfo, PositionDocument request) {
-    PositionDocument result = getPositionMaster().add(request);
-    URI createdUri = DataPositionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+  public Response add(@Context UriInfo uriInfo, RegionDocument request) {
+    RegionDocument result = getRegionMaster().add(request);
+    URI createdUri = DataRegionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
     return Response.created(createdUri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
-  @Path("positions/{positionId}")
-  public DataPositionResource findPosition(@PathParam("positionId") String idStr) {
+  @Path("regions/{regionId}")
+  public DataRegionResource findRegion(@PathParam("regionId") String idStr) {
     ObjectId id = ObjectId.parse(idStr);
-    return new DataPositionResource(this, id);
+    return new DataRegionResource(this, id);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for all positions.
+   * Builds a URI for all regions.
    * 
    * @param baseUri  the base URI, not null
    * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/positions");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/regions");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }

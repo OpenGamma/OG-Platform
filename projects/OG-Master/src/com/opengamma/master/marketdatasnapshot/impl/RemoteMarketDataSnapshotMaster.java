@@ -50,7 +50,7 @@ public class RemoteMarketDataSnapshotMaster extends AbstractRemoteMaster impleme
     ArgumentChecker.notNull(request, "request");
     
     String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataMarketDataSnapshotsResource.uri(getBaseUri(), msgBase64);
+    URI uri = DataMarketDataSnapshotMasterResource.uri(getBaseUri(), msgBase64);
     return accessRemote(uri).get(MarketDataSnapshotSearchResult.class);
   }
 
@@ -82,7 +82,7 @@ public class RemoteMarketDataSnapshotMaster extends AbstractRemoteMaster impleme
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
     
-    URI uri = DataMarketDataSnapshotsResource.uri(getBaseUri(), null);
+    URI uri = DataMarketDataSnapshotMasterResource.uri(getBaseUri(), null);
     return accessRemote(uri).post(MarketDataSnapshotDocument.class, document);
   }
 

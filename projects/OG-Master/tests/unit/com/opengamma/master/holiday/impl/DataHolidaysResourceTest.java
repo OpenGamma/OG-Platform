@@ -37,14 +37,14 @@ public class DataHolidaysResourceTest {
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");
   private HolidayMaster _underlying;
   private UriInfo _uriInfo;
-  private DataHolidaysResource _resource;
+  private DataHolidayMasterResource _resource;
 
   @BeforeMethod
   public void setUp() {
     _underlying = mock(HolidayMaster.class);
     _uriInfo = mock(UriInfo.class);
     when(_uriInfo.getBaseUri()).thenReturn(URI.create("testhost"));
-    _resource = new DataHolidaysResource(_underlying);
+    _resource = new DataHolidayMasterResource(_underlying);
   }
 
   //-------------------------------------------------------------------------

@@ -24,7 +24,7 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.master.holiday.HolidayMaster;
-import com.opengamma.master.holiday.impl.DataHolidaysResource;
+import com.opengamma.master.holiday.impl.DataHolidayMasterResource;
 import com.opengamma.masterdb.holiday.DbHolidayMaster;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.jms.JmsConnector;
@@ -97,7 +97,7 @@ public class DbHolidayMasterComponentFactory extends AbstractComponentFactory {
     
     // publish
     if (isPublishRest()) {
-      repo.getRestComponents().publish(info, new DataHolidaysResource(master));
+      repo.getRestComponents().publish(info, new DataHolidayMasterResource(master));
     }
   }
 

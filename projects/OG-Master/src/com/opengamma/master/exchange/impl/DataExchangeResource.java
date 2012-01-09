@@ -36,13 +36,12 @@ import com.opengamma.util.time.DateUtils;
 /**
  * RESTful resource for an exchange.
  */
-@Path("/exgMaster/exchanges/{exchangeId}")
 public class DataExchangeResource extends AbstractDataResource {
 
   /**
    * The exchanges resource.
    */
-  private final DataExchangesResource _exchangesResource;
+  private final DataExchangeMasterResource _exchangesResource;
   /**
    * The identifier specified in the URI.
    */
@@ -54,7 +53,7 @@ public class DataExchangeResource extends AbstractDataResource {
    * @param exchangesResource  the parent resource, not null
    * @param exchangeId  the exchange unique identifier, not null
    */
-  public DataExchangeResource(final DataExchangesResource exchangesResource, final ObjectId exchangeId) {
+  public DataExchangeResource(final DataExchangeMasterResource exchangesResource, final ObjectId exchangeId) {
     ArgumentChecker.notNull(exchangesResource, "exchangesResource");
     ArgumentChecker.notNull(exchangeId, "exchange");
     _exchangesResource = exchangesResource;
@@ -67,7 +66,7 @@ public class DataExchangeResource extends AbstractDataResource {
    * 
    * @return the exchanges resource, not null
    */
-  public DataExchangesResource getExchangesResource() {
+  public DataExchangeMasterResource getExchangesResource() {
     return _exchangesResource;
   }
 

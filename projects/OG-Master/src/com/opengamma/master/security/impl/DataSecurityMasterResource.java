@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.config.impl;
+package com.opengamma.master.security.impl;
 
 import java.net.URI;
 
@@ -21,96 +21,95 @@ import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectId;
-import com.opengamma.master.config.ConfigDocument;
-import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.master.config.ConfigMetaDataRequest;
-import com.opengamma.master.config.ConfigMetaDataResult;
-import com.opengamma.master.config.ConfigSearchRequest;
-import com.opengamma.master.config.ConfigSearchResult;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.SecurityMetaDataRequest;
+import com.opengamma.master.security.SecurityMetaDataResult;
+import com.opengamma.master.security.SecuritySearchRequest;
+import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for configs.
+ * RESTful resource for securities.
  * <p>
- * The configs resource receives and processes RESTful calls to the config master.
+ * The securities resource receives and processes RESTful calls to the security master.
  */
-@Path("/cfgMaster")
-public class DataConfigsResource extends AbstractDataResource {
+@Path("/secMaster")
+public class DataSecurityMasterResource extends AbstractDataResource {
 
   /**
-   * The config master.
+   * The security master.
    */
-  private final ConfigMaster _cfgMaster;
+  private final SecurityMaster _secMaster;
 
   /**
    * Creates the resource, exposing the underlying master over REST.
    * 
-   * @param configMaster  the underlying config master, not null
+   * @param securityMaster  the underlying security master, not null
    */
-  public DataConfigsResource(final ConfigMaster configMaster) {
-    ArgumentChecker.notNull(configMaster, "configMaster");
-    _cfgMaster = configMaster;
+  public DataSecurityMasterResource(final SecurityMaster securityMaster) {
+    ArgumentChecker.notNull(securityMaster, "securityMaster");
+    _secMaster = securityMaster;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the config master.
+   * Gets the security master.
    * 
-   * @return the config master, not null
+   * @return the security master, not null
    */
-  public ConfigMaster getConfigMaster() {
-    return _cfgMaster;
+  public SecurityMaster getSecurityMaster() {
+    return _secMaster;
   }
 
   //-------------------------------------------------------------------------
   @GET
   @Path("metaData")
   public Response metaData(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    ConfigMetaDataRequest request = new ConfigMetaDataRequest();
+    SecurityMetaDataRequest request = new SecurityMetaDataRequest();
     if (msgBase64 != null) {
-      request = decodeBean(ConfigMetaDataRequest.class, providers, msgBase64);
+      request = decodeBean(SecurityMetaDataRequest.class, providers, msgBase64);
     }
-    ConfigMetaDataResult result = getConfigMaster().metaData(request);
+    SecurityMetaDataResult result = getSecurityMaster().metaData(request);
     return Response.ok(result).build();
   }
 
   @HEAD
-  @Path("configs")
+  @Path("securities")
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
     return Response.ok().build();
   }
 
   @GET
-  @Path("configs")
+  @Path("securities")
   public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    ConfigSearchRequest<?> request = decodeBean(ConfigSearchRequest.class, providers, msgBase64);
-    ConfigSearchResult<?> result = getConfigMaster().search(request);
+    SecuritySearchRequest request = decodeBean(SecuritySearchRequest.class, providers, msgBase64);
+    SecuritySearchResult result = getSecurityMaster().search(request);
     return Response.ok(result).build();
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })  // necessary to stop Jersey issuing warnings due to <?>
   @POST
-  @Path("configs")
+  @Path("securities")
   @Consumes(FudgeRest.MEDIA)
-  public Response add(@Context UriInfo uriInfo, ConfigDocument request) {
-    ConfigDocument<?> result = getConfigMaster().add(request);
-    URI createdUri = DataConfigResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId(), result.getType());
+  public Response add(@Context UriInfo uriInfo, SecurityDocument request) {
+    SecurityDocument result = getSecurityMaster().add(request);
+    URI createdUri = DataSecurityResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
     return Response.created(createdUri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
-  @Path("configs/{configId}")
-  public DataConfigResource findConfig(@PathParam("configId") String idStr) {
+  @Path("securities/{securityId}")
+  public DataSecurityResource findSecurity(@PathParam("securityId") String idStr) {
     ObjectId id = ObjectId.parse(idStr);
-    return new DataConfigResource(this, id);
+    return new DataSecurityResource(this, id);
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for config meta-data.
+   * Builds a URI for security meta-data.
    * 
    * @param baseUri  the base URI, not null
    * @param searchMsg  the search message, may be null
@@ -125,14 +124,14 @@ public class DataConfigsResource extends AbstractDataResource {
   }
 
   /**
-   * Builds a URI for all configs.
+   * Builds a URI for all securities.
    * 
    * @param baseUri  the base URI, not null
    * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/configs");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/securities");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }

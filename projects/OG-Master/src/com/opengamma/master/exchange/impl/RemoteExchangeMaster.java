@@ -50,7 +50,7 @@ public class RemoteExchangeMaster extends AbstractRemoteMaster implements Exchan
     ArgumentChecker.notNull(request, "request");
     
     String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataExchangesResource.uri(getBaseUri(), msgBase64);
+    URI uri = DataExchangeMasterResource.uri(getBaseUri(), msgBase64);
     return accessRemote(uri).get(ExchangeSearchResult.class);
   }
 
@@ -82,7 +82,7 @@ public class RemoteExchangeMaster extends AbstractRemoteMaster implements Exchan
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getExchange(), "document.exchange");
     
-    URI uri = DataExchangesResource.uri(getBaseUri(), null);
+    URI uri = DataExchangeMasterResource.uri(getBaseUri(), null);
     return accessRemote(uri).post(ExchangeDocument.class, document);
   }
 

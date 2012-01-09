@@ -36,7 +36,7 @@ public class DataRegionResourceTest {
   @BeforeMethod
   public void setUp() {
     _underlying = mock(RegionMaster.class);
-    _resource = new DataRegionResource(new DataRegionsResource(_underlying), OID.getObjectId());
+    _resource = new DataRegionResource(new DataRegionMasterResource(_underlying), OID.getObjectId());
   }
 
   //-------------------------------------------------------------------------

@@ -36,13 +36,12 @@ import com.opengamma.util.time.DateUtils;
 /**
  * RESTful resource for a snapshot.
  */
-@Path("/snpMaster/snapshots/{snapshotId}")
 public class DataMarketDataSnapshotResource extends AbstractDataResource {
 
   /**
    * The snapshots resource.
    */
-  private final DataMarketDataSnapshotsResource _snapshotsResource;
+  private final DataMarketDataSnapshotMasterResource _snapshotsResource;
   /**
    * The identifier specified in the URI.
    */
@@ -54,7 +53,7 @@ public class DataMarketDataSnapshotResource extends AbstractDataResource {
    * @param snapshotsResource  the parent resource, not null
    * @param snapshotId  the snapshot unique identifier, not null
    */
-  public DataMarketDataSnapshotResource(final DataMarketDataSnapshotsResource snapshotsResource, final ObjectId snapshotId) {
+  public DataMarketDataSnapshotResource(final DataMarketDataSnapshotMasterResource snapshotsResource, final ObjectId snapshotId) {
     ArgumentChecker.notNull(snapshotsResource, "snapshotsResource");
     ArgumentChecker.notNull(snapshotId, "snapshot");
     _snapshotsResource = snapshotsResource;
@@ -67,7 +66,7 @@ public class DataMarketDataSnapshotResource extends AbstractDataResource {
    * 
    * @return the snapshots resource, not null
    */
-  public DataMarketDataSnapshotsResource getMarketDataSnapshotsResource() {
+  public DataMarketDataSnapshotMasterResource getMarketDataSnapshotsResource() {
     return _snapshotsResource;
   }
 
