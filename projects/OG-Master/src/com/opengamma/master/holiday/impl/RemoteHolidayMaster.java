@@ -105,8 +105,8 @@ public class RemoteHolidayMaster extends AbstractRemoteMaster implements Holiday
     ArgumentChecker.notNull(document.getHoliday(), "document.holiday");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataHolidayResource.uri(getBaseUri(), document.getUniqueId(), VersionCorrection.LATEST);
-    return accessRemote(uri).put(HolidayDocument.class, document);
+    URI uri = DataHolidayResource.uri(getBaseUri(), document.getUniqueId(), null);
+    return accessRemote(uri).post(HolidayDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -114,7 +114,7 @@ public class RemoteHolidayMaster extends AbstractRemoteMaster implements Holiday
   public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataHolidayResource.uri(getBaseUri(), uniqueId, VersionCorrection.LATEST);
+    URI uri = DataHolidayResource.uri(getBaseUri(), uniqueId, null);
     accessRemote(uri).delete();
   }
 
@@ -137,7 +137,7 @@ public class RemoteHolidayMaster extends AbstractRemoteMaster implements Holiday
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataHolidayResource.uriVersion(getBaseUri(), document.getUniqueId());
-    return accessRemote(uri).get(HolidayDocument.class);
+    return accessRemote(uri).post(HolidayDocument.class, document);
   }
 
 }

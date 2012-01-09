@@ -110,8 +110,8 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
     ArgumentChecker.notNull(document.getInfo(), "document.info");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataHistoricalTimeSeriesResource.uri(getBaseUri(), document.getUniqueId(), VersionCorrection.LATEST);
-    return accessRemote(uri).put(HistoricalTimeSeriesInfoDocument.class, document);
+    URI uri = DataHistoricalTimeSeriesResource.uri(getBaseUri(), document.getUniqueId(), null);
+    return accessRemote(uri).post(HistoricalTimeSeriesInfoDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -119,7 +119,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
   public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataHistoricalTimeSeriesResource.uri(getBaseUri(), uniqueId, VersionCorrection.LATEST);
+    URI uri = DataHistoricalTimeSeriesResource.uri(getBaseUri(), uniqueId, null);
     accessRemote(uri).delete();
   }
 
@@ -142,7 +142,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataHistoricalTimeSeriesResource.uriVersion(getBaseUri(), document.getUniqueId());
-    return accessRemote(uri).get(HistoricalTimeSeriesInfoDocument.class);
+    return accessRemote(uri).post(HistoricalTimeSeriesInfoDocument.class, document);
   }
 
   //-------------------------------------------------------------------------

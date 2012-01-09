@@ -95,8 +95,8 @@ public class RemotePositionMaster extends AbstractRemoteMaster implements Positi
     ArgumentChecker.notNull(document.getPosition(), "document.position");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataPositionResource.uri(getBaseUri(), document.getUniqueId(), VersionCorrection.LATEST);
-    return accessRemote(uri).put(PositionDocument.class, document);
+    URI uri = DataPositionResource.uri(getBaseUri(), document.getUniqueId(), null);
+    return accessRemote(uri).post(PositionDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -104,7 +104,7 @@ public class RemotePositionMaster extends AbstractRemoteMaster implements Positi
   public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataPositionResource.uri(getBaseUri(), uniqueId, VersionCorrection.LATEST);
+    URI uri = DataPositionResource.uri(getBaseUri(), uniqueId, null);
     accessRemote(uri).delete();
   }
 
@@ -127,7 +127,7 @@ public class RemotePositionMaster extends AbstractRemoteMaster implements Positi
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataPositionResource.uriVersion(getBaseUri(), document.getUniqueId());
-    return accessRemote(uri).get(PositionDocument.class);
+    return accessRemote(uri).post(PositionDocument.class, document);
   }
 
   //-------------------------------------------------------------------------

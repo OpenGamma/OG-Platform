@@ -93,8 +93,8 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
     ArgumentChecker.notNull(document.getRegion(), "document.region");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataRegionResource.uri(getBaseUri(), document.getUniqueId(), VersionCorrection.LATEST);
-    return accessRemote(uri).put(RegionDocument.class, document);
+    URI uri = DataRegionResource.uri(getBaseUri(), document.getUniqueId(), null);
+    return accessRemote(uri).post(RegionDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -102,7 +102,7 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
   public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataRegionResource.uri(getBaseUri(), uniqueId, VersionCorrection.LATEST);
+    URI uri = DataRegionResource.uri(getBaseUri(), uniqueId, null);
     accessRemote(uri).delete();
   }
 
@@ -125,7 +125,7 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataRegionResource.uriVersion(getBaseUri(), document.getUniqueId());
-    return accessRemote(uri).get(RegionDocument.class);
+    return accessRemote(uri).post(RegionDocument.class, document);
   }
 
 }

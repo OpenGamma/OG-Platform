@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.security.impl;
+package com.opengamma.master.region.impl;
 
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
@@ -19,39 +19,39 @@ import javax.ws.rs.core.UriInfo;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.region.ManageableRegion;
+import com.opengamma.master.region.RegionDocument;
+import com.opengamma.master.region.RegionMaster;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
- * Tests DataSecuritiesResource.
+ * Test.
  */
-public class DataSecuritiesResourceTest {
+public class DataRegionMasterResourceTest {
 
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");
-  private SecurityMaster _underlying;
+  private RegionMaster _underlying;
   private UriInfo _uriInfo;
-  private DataSecurityMasterResource _resource;
+  private DataRegionMasterResource _resource;
 
   @BeforeMethod
   public void setUp() {
-    _underlying = mock(SecurityMaster.class);
+    _underlying = mock(RegionMaster.class);
     _uriInfo = mock(UriInfo.class);
     when(_uriInfo.getBaseUri()).thenReturn(URI.create("testhost"));
-    _resource = new DataSecurityMasterResource(_underlying);
+    _resource = new DataRegionMasterResource(_underlying);
   }
 
   //-------------------------------------------------------------------------
   @Test
-  public void testAddSecurity() {
-    final ManageableSecurity target = new ManageableSecurity(null, "Name", "Type", ExternalIdBundle.of("C", "D"));
-    final SecurityDocument request = new SecurityDocument(target);
+  public void testAddRegion() {
+    final ManageableRegion target = new ManageableRegion();
+    target.setFullName("Bananaville");
+    final RegionDocument request = new RegionDocument(target);
     
-    final SecurityDocument result = new SecurityDocument(target);
+    final RegionDocument result = new RegionDocument(target);
     result.setUniqueId(UID);
     when(_underlying.add(same(request))).thenReturn(result);
     
@@ -61,10 +61,10 @@ public class DataSecuritiesResourceTest {
   }
 
   @Test
-  public void testFindSecurity() {
-    DataSecurityResource test = _resource.findSecurity("Test~A");
-    assertSame(_resource, test.getSecuritiesResource());
-    assertEquals(ObjectId.of("Test", "A"), test.getUrlSecurityId());
+  public void testFindRegion() {
+    DataRegionResource test = _resource.findRegion("Test~A");
+    assertSame(_resource, test.getRegionsResource());
+    assertEquals(ObjectId.of("Test", "A"), test.getUrlRegionId());
   }
 
 }

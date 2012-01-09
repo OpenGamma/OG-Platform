@@ -121,8 +121,8 @@ public class RemoteConfigMaster extends AbstractRemoteMaster implements ConfigMa
     ArgumentChecker.notNull(document.getValue(), "document.config");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataConfigResource.uri(getBaseUri(), document.getUniqueId(), VersionCorrection.LATEST, null);
-    return accessRemote(uri).put(ConfigDocument.class, document);
+    URI uri = DataConfigResource.uri(getBaseUri(), document.getUniqueId(), null, null);
+    return accessRemote(uri).post(ConfigDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -130,7 +130,7 @@ public class RemoteConfigMaster extends AbstractRemoteMaster implements ConfigMa
   public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataConfigResource.uri(getBaseUri(), uniqueId, VersionCorrection.LATEST, null);
+    URI uri = DataConfigResource.uri(getBaseUri(), uniqueId, null, null);
     accessRemote(uri).delete();
   }
 
@@ -155,7 +155,7 @@ public class RemoteConfigMaster extends AbstractRemoteMaster implements ConfigMa
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataConfigResource.uriVersion(getBaseUri(), document.getUniqueId(), null);
-    return accessRemote(uri).get(ConfigDocument.class);
+    return accessRemote(uri).post(ConfigDocument.class, document);
   }
 
 }

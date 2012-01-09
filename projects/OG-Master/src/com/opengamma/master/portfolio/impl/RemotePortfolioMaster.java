@@ -95,8 +95,8 @@ public class RemotePortfolioMaster extends AbstractRemoteMaster implements Portf
     ArgumentChecker.notNull(document.getPortfolio(), "document.portfolio");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataPortfolioResource.uri(getBaseUri(), document.getUniqueId(), VersionCorrection.LATEST);
-    return accessRemote(uri).put(PortfolioDocument.class, document);
+    URI uri = DataPortfolioResource.uri(getBaseUri(), document.getUniqueId(), null);
+    return accessRemote(uri).post(PortfolioDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -104,7 +104,7 @@ public class RemotePortfolioMaster extends AbstractRemoteMaster implements Portf
   public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataPortfolioResource.uri(getBaseUri(), uniqueId, VersionCorrection.LATEST);
+    URI uri = DataPortfolioResource.uri(getBaseUri(), uniqueId, null);
     accessRemote(uri).delete();
   }
 
@@ -127,7 +127,7 @@ public class RemotePortfolioMaster extends AbstractRemoteMaster implements Portf
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataPortfolioResource.uriVersion(getBaseUri(), document.getUniqueId());
-    return accessRemote(uri).put(PortfolioDocument.class, document);
+    return accessRemote(uri).post(PortfolioDocument.class, document);
   }
 
   //-------------------------------------------------------------------------

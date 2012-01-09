@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.holiday.impl;
+package com.opengamma.master.position.impl;
 
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
@@ -11,10 +11,9 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
+import java.math.BigDecimal;
 import java.net.URI;
-import java.util.ArrayList;
 
-import javax.time.calendar.LocalDate;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -23,37 +22,37 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.holiday.HolidayDocument;
-import com.opengamma.master.holiday.HolidayMaster;
-import com.opengamma.master.holiday.ManageableHoliday;
-import com.opengamma.util.money.Currency;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.PositionDocument;
+import com.opengamma.master.position.PositionMaster;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
- * Tests DataHolidaysResource.
+ * Test.
  */
-public class DataHolidaysResourceTest {
+public class DataPositionMasterResourceTest {
 
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");
-  private HolidayMaster _underlying;
+  private PositionMaster _underlying;
   private UriInfo _uriInfo;
-  private DataHolidayMasterResource _resource;
+  private DataPositionMasterResource _resource;
 
   @BeforeMethod
   public void setUp() {
-    _underlying = mock(HolidayMaster.class);
+    _underlying = mock(PositionMaster.class);
     _uriInfo = mock(UriInfo.class);
     when(_uriInfo.getBaseUri()).thenReturn(URI.create("testhost"));
-    _resource = new DataHolidayMasterResource(_underlying);
+    _resource = new DataPositionMasterResource(_underlying);
   }
 
   //-------------------------------------------------------------------------
   @Test
-  public void testAddHoliday() {
-    final ManageableHoliday target = new ManageableHoliday(Currency.GBP, new ArrayList<LocalDate>());
-    final HolidayDocument request = new HolidayDocument(target);
+  public void testAddPosition() {
+    final ManageablePosition target = new ManageablePosition();
+    target.setQuantity(BigDecimal.ONE);
+    final PositionDocument request = new PositionDocument(target);
     
-    final HolidayDocument result = new HolidayDocument(target);
+    final PositionDocument result = new PositionDocument(target);
     result.setUniqueId(UID);
     when(_underlying.add(same(request))).thenReturn(result);
     
@@ -63,10 +62,10 @@ public class DataHolidaysResourceTest {
   }
 
   @Test
-  public void testFindHoliday() {
-    DataHolidayResource test = _resource.findHoliday("Test~A");
-    assertSame(_resource, test.getHolidaysResource());
-    assertEquals(ObjectId.of("Test", "A"), test.getUrlHolidayId());
+  public void testFindPosition() {
+    DataPositionResource test = _resource.findPosition("Test~A");
+    assertSame(_resource, test.getPositionsResource());
+    assertEquals(ObjectId.of("Test", "A"), test.getUrlPositionId());
   }
 
 }

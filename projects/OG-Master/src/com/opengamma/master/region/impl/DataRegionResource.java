@@ -7,17 +7,17 @@ package com.opengamma.master.region.impl;
 
 import java.net.URI;
 
-import javax.time.Instant;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectId;
@@ -31,7 +31,6 @@ import com.opengamma.master.region.RegionMaster;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * RESTful resource for an region.
@@ -92,25 +91,25 @@ public class DataRegionResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
-    Instant v = (versionAsOf != null ? DateUtils.parseInstant(versionAsOf) : null);
-    Instant c = (correctedTo != null ? DateUtils.parseInstant(correctedTo) : null);
-    RegionDocument result = getRegionMaster().get(getUrlRegionId(), VersionCorrection.of(v, c));
+    VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
+    RegionDocument result = getRegionMaster().get(getUrlRegionId(), vc);
     return Response.ok(result).build();
   }
 
-  @PUT
+  @POST
   @Consumes(FudgeRest.MEDIA)
-  public Response put(RegionDocument request) {
+  public Response update(@Context UriInfo uriInfo, RegionDocument request) {
     if (getUrlRegionId().equals(request.getUniqueId().getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     RegionDocument result = getRegionMaster().update(request);
-    return Response.ok(result).build();
+    URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    return Response.created(uri).entity(result).build();
   }
 
   @DELETE
   @Consumes(FudgeRest.MEDIA)
-  public Response delete() {
+  public Response remove() {
     getRegionMaster().remove(getUrlRegionId().atLatestVersion());
     return Response.noContent().build();
   }
@@ -130,8 +129,22 @@ public class DataRegionResource extends AbstractDataResource {
   @GET
   @Path("versions/{versionId}")
   public Response getVersioned(@PathParam("versionId") String versionId) {
-    RegionDocument result = getRegionMaster().get(getUrlRegionId().atVersion(versionId));
+    UniqueId uniqueId = getUrlRegionId().atVersion(versionId);
+    RegionDocument result = getRegionMaster().get(uniqueId);
     return Response.ok(result).build();
+  }
+
+  @POST
+  @Path("versions/{versionId}")
+  @Consumes(FudgeRest.MEDIA)
+  public Response correct(@Context UriInfo uriInfo, @PathParam("versionId") String versionId, RegionDocument request) {
+    UniqueId uniqueId = getUrlRegionId().atVersion(versionId);
+    if (uniqueId.equals(request.getUniqueId()) == false) {
+      throw new IllegalArgumentException("Document uniqueId does not match URI");
+    }
+    RegionDocument result = getRegionMaster().correct(request);
+    URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    return Response.created(uri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
@@ -139,26 +152,24 @@ public class DataRegionResource extends AbstractDataResource {
    * Builds a URI for the resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param objectId  the resource identifier, not null
-   * @param versionCorrection  the version-correction locator, null for latest
+   * @param objectId  the object identifier, not null
+   * @param vc  the version-correction locator, null for latest
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/regions/{regionId}");
-    if (versionCorrection != null && versionCorrection.getVersionAsOf() != null) {
-      b.queryParam("versionAsOf", versionCorrection.getVersionAsOf());
+  public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection vc) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/regions/{regionId}");
+    if (vc != null) {
+      bld.queryParam("versionAsOf", vc.getVersionAsOfString());
+      bld.queryParam("correctedTo", vc.getCorrectedToString());
     }
-    if (versionCorrection != null && versionCorrection.getCorrectedTo() != null) {
-      b.queryParam("correctedTo", versionCorrection.getCorrectedTo());
-    }
-    return b.build(objectId.getObjectId());
+    return bld.build(objectId.getObjectId());
   }
 
   /**
    * Builds a URI for the versions of the resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param objectId  the resource identifier, not null
+   * @param objectId  the object identifier, not null
    * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
@@ -174,12 +185,12 @@ public class DataRegionResource extends AbstractDataResource {
    * Builds a URI for a specific version of the resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param uniqueId  the resource unique identifier, not null
+   * @param uniqueId  the unique identifier, not null
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
-    return UriBuilder.fromUri(baseUri).path("/regions/{regionId}/versions/{versionId}")
-      .build(uniqueId.toLatest(), uniqueId.getVersion());
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/regions/{regionId}/versions/{versionId}");
+    return bld.build(uniqueId.toLatest(), uniqueId.getVersion());
   }
 
 }

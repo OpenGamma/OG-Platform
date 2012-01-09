@@ -28,9 +28,9 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
- * Tests DataPortfoliosResource.
+ * Test.
  */
-public class DataPortfoliosResourceTest {
+public class DataPortfolioMasterResourceTest {
 
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");
   private PortfolioMaster _underlying;

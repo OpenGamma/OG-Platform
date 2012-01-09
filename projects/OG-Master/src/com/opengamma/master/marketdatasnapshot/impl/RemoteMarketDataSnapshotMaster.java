@@ -94,7 +94,7 @@ public class RemoteMarketDataSnapshotMaster extends AbstractRemoteMaster impleme
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataMarketDataSnapshotResource.uri(getBaseUri(), document.getUniqueId(), VersionCorrection.LATEST);
-    return accessRemote(uri).put(MarketDataSnapshotDocument.class, document);
+    return accessRemote(uri).post(MarketDataSnapshotDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -125,7 +125,7 @@ public class RemoteMarketDataSnapshotMaster extends AbstractRemoteMaster impleme
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataMarketDataSnapshotResource.uriVersion(getBaseUri(), document.getUniqueId());
-    return accessRemote(uri).get(MarketDataSnapshotDocument.class);
+    return accessRemote(uri).post(MarketDataSnapshotDocument.class, document);
   }
 
 }

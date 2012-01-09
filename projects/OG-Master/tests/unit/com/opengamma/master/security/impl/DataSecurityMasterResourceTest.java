@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.exchange.impl;
+package com.opengamma.master.security.impl;
 
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
@@ -13,7 +13,6 @@ import static org.testng.AssertJUnit.assertSame;
 
 import java.net.URI;
 
-import javax.time.calendar.TimeZone;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -23,36 +22,36 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.exchange.ExchangeDocument;
-import com.opengamma.master.exchange.ExchangeMaster;
-import com.opengamma.master.exchange.ManageableExchange;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityDocument;
+import com.opengamma.master.security.SecurityMaster;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
- * Tests DataExchangesResource.
+ * Test.
  */
-public class DataExchangesResourceTest {
+public class DataSecurityMasterResourceTest {
 
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");
-  private ExchangeMaster _underlying;
+  private SecurityMaster _underlying;
   private UriInfo _uriInfo;
-  private DataExchangeMasterResource _resource;
+  private DataSecurityMasterResource _resource;
 
   @BeforeMethod
   public void setUp() {
-    _underlying = mock(ExchangeMaster.class);
+    _underlying = mock(SecurityMaster.class);
     _uriInfo = mock(UriInfo.class);
     when(_uriInfo.getBaseUri()).thenReturn(URI.create("testhost"));
-    _resource = new DataExchangeMasterResource(_underlying);
+    _resource = new DataSecurityMasterResource(_underlying);
   }
 
   //-------------------------------------------------------------------------
   @Test
-  public void testAddExchange() {
-    final ManageableExchange target = new ManageableExchange(ExternalIdBundle.of("A", "B"), "Test", ExternalIdBundle.EMPTY, TimeZone.of("Europe/London"));
-    final ExchangeDocument request = new ExchangeDocument(target);
+  public void testAddSecurity() {
+    final ManageableSecurity target = new ManageableSecurity(null, "Name", "Type", ExternalIdBundle.of("C", "D"));
+    final SecurityDocument request = new SecurityDocument(target);
     
-    final ExchangeDocument result = new ExchangeDocument(target);
+    final SecurityDocument result = new SecurityDocument(target);
     result.setUniqueId(UID);
     when(_underlying.add(same(request))).thenReturn(result);
     
@@ -62,10 +61,10 @@ public class DataExchangesResourceTest {
   }
 
   @Test
-  public void testFindExchange() {
-    DataExchangeResource test = _resource.findExchange("Test~A");
-    assertSame(_resource, test.getExchangesResource());
-    assertEquals(ObjectId.of("Test", "A"), test.getUrlExchangeId());
+  public void testFindSecurity() {
+    DataSecurityResource test = _resource.findSecurity("Test~A");
+    assertSame(_resource, test.getSecuritiesResource());
+    assertEquals(ObjectId.of("Test", "A"), test.getUrlSecurityId());
   }
 
 }

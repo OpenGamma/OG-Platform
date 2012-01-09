@@ -27,9 +27,9 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
- * Tests DataMarketDataSnapshotsResource.
+ * Test.
  */
-public class DataMarketDataSnapshotsResourceTest {
+public class DataMarketDataSnapshotMasterResourceTest {
 
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");
   private MarketDataSnapshotMaster _underlying;

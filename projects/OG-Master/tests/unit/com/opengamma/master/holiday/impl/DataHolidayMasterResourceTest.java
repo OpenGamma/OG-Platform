@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.master.region.impl;
+package com.opengamma.master.holiday.impl;
 
 import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
@@ -12,7 +12,9 @@ import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
 import java.net.URI;
+import java.util.ArrayList;
 
+import javax.time.calendar.LocalDate;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
@@ -21,37 +23,37 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.region.ManageableRegion;
-import com.opengamma.master.region.RegionDocument;
-import com.opengamma.master.region.RegionMaster;
+import com.opengamma.master.holiday.HolidayDocument;
+import com.opengamma.master.holiday.HolidayMaster;
+import com.opengamma.master.holiday.ManageableHoliday;
+import com.opengamma.util.money.Currency;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
- * Tests DataRegionsResource.
+ * Test.
  */
-public class DataRegionsResourceTest {
+public class DataHolidayMasterResourceTest {
 
   private static final UniqueId UID = UniqueId.of("Test", "A", "B");
-  private RegionMaster _underlying;
+  private HolidayMaster _underlying;
   private UriInfo _uriInfo;
-  private DataRegionMasterResource _resource;
+  private DataHolidayMasterResource _resource;
 
   @BeforeMethod
   public void setUp() {
-    _underlying = mock(RegionMaster.class);
+    _underlying = mock(HolidayMaster.class);
     _uriInfo = mock(UriInfo.class);
     when(_uriInfo.getBaseUri()).thenReturn(URI.create("testhost"));
-    _resource = new DataRegionMasterResource(_underlying);
+    _resource = new DataHolidayMasterResource(_underlying);
   }
 
   //-------------------------------------------------------------------------
   @Test
-  public void testAddRegion() {
-    final ManageableRegion target = new ManageableRegion();
-    target.setFullName("Bananaville");
-    final RegionDocument request = new RegionDocument(target);
+  public void testAddHoliday() {
+    final ManageableHoliday target = new ManageableHoliday(Currency.GBP, new ArrayList<LocalDate>());
+    final HolidayDocument request = new HolidayDocument(target);
     
-    final RegionDocument result = new RegionDocument(target);
+    final HolidayDocument result = new HolidayDocument(target);
     result.setUniqueId(UID);
     when(_underlying.add(same(request))).thenReturn(result);
     
@@ -61,10 +63,10 @@ public class DataRegionsResourceTest {
   }
 
   @Test
-  public void testFindRegion() {
-    DataRegionResource test = _resource.findRegion("Test~A");
-    assertSame(_resource, test.getRegionsResource());
-    assertEquals(ObjectId.of("Test", "A"), test.getUrlRegionId());
+  public void testFindHoliday() {
+    DataHolidayResource test = _resource.findHoliday("Test~A");
+    assertSame(_resource, test.getHolidaysResource());
+    assertEquals(ObjectId.of("Test", "A"), test.getUrlHolidayId());
   }
 
 }

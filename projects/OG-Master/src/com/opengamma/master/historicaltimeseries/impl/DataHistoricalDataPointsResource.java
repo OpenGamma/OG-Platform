@@ -7,7 +7,6 @@ package com.opengamma.master.historicaltimeseries.impl;
 
 import java.net.URI;
 
-import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -33,7 +32,6 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
-import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -95,9 +93,7 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   public Response get(@Context Providers providers, @QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo, @QueryParam("filter") String filterBase64) {
-    Instant v = (versionAsOf != null ? DateUtils.parseInstant(versionAsOf) : null);
-    Instant c = (correctedTo != null ? DateUtils.parseInstant(correctedTo) : null);
-    VersionCorrection vc = VersionCorrection.of(v, c);
+    VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     HistoricalTimeSeriesGetFilter filter = decodeBean(HistoricalTimeSeriesGetFilter.class, providers, filterBase64);
     if (filter != null) {
       ManageableHistoricalTimeSeries result = getHistoricalTimeSeriesMaster().getTimeSeries(getUrlDataPointsId(), vc, filter);
@@ -154,77 +150,75 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
    * Builds a URI for the resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param objectId  the resource identifier, not null
-   * @param versionCorrection  the version-correction locator, null for latest
+   * @param objectId  the object identifier, not null
+   * @param vc  the version-correction locator, null for latest
    * @param filterMsg  the filter message, may be null
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection versionCorrection, String filterMsg) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/dataPoints/{dpId}");
-    if (versionCorrection != null && versionCorrection.getVersionAsOf() != null) {
-      b.queryParam("versionAsOf", versionCorrection.getVersionAsOf());
-    }
-    if (versionCorrection != null && versionCorrection.getCorrectedTo() != null) {
-      b.queryParam("correctedTo", versionCorrection.getCorrectedTo());
+  public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection vc, String filterMsg) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/dataPoints/{dpId}");
+    if (vc != null) {
+      bld.queryParam("versionAsOf", vc.getVersionAsOfString());
+      bld.queryParam("correctedTo", vc.getCorrectedToString());
     }
     if (filterMsg != null) {
-      b.queryParam("filter", filterMsg);
+      bld.queryParam("filter", filterMsg);
     }
-    return b.build(objectId.getObjectId());
+    return bld.build(objectId.getObjectId());
   }
 
   /**
    * Builds a URI for a specific version of the resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param uniqueId  the resource unique identifier, not null
+   * @param uniqueId  the unique identifier, not null
    * @param filterMsg  the filter message, may be null
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId, String filterMsg) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/dataPoints/{dpId}/versions/{versionId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/dataPoints/{dpId}/versions/{versionId}");
     if (filterMsg != null) {
-      b.queryParam("filter", filterMsg);
+      bld.queryParam("filter", filterMsg);
     }
-    return b.build(uniqueId.toLatest(), uniqueId.getVersion());
+    return bld.build(uniqueId.toLatest(), uniqueId.getVersion());
   }
 
   /**
    * Builds a URI for the corrections resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param objectId  the resource identifier, not null
+   * @param objectId  the object identifier, not null
    * @return the URI, not null
    */
   public static URI uriUpdates(URI baseUri, ObjectIdentifiable objectId) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/dataPoints/{dpId}/updates");
-    return b.build(objectId.getObjectId());
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/dataPoints/{dpId}/updates");
+    return bld.build(objectId.getObjectId());
   }
 
   /**
    * Builds a URI for the corrections resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param objectId  the resource identifier, not null
+   * @param objectId  the object identifier, not null
    * @return the URI, not null
    */
   public static URI uriCorrections(URI baseUri, ObjectIdentifiable objectId) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/dataPoints/{dpId}/corrections");
-    return b.build(objectId.getObjectId());
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/dataPoints/{dpId}/corrections");
+    return bld.build(objectId.getObjectId());
   }
 
   /**
    * Builds a URI for the corrections resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param objectId  the resource identifier, not null
+   * @param objectId  the object identifier, not null
    * @param fromDateInclusive  the start date, may be null
    * @param toDateInclusive  the end date, may be null
    * @return the URI, not null
    */
   public static URI uriRemovals(URI baseUri, ObjectIdentifiable objectId, LocalDate fromDateInclusive, LocalDate toDateInclusive) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/dataPoints/{dpId}/removals/{startDate}/{endDate}");
-    return b.build(objectId.getObjectId(), ObjectUtils.toString(fromDateInclusive, ""), ObjectUtils.toString(toDateInclusive, ""));
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/dataPoints/{dpId}/removals/{startDate}/{endDate}");
+    return bld.build(objectId.getObjectId(), ObjectUtils.toString(fromDateInclusive, ""), ObjectUtils.toString(toDateInclusive, ""));
   }
 
 }
