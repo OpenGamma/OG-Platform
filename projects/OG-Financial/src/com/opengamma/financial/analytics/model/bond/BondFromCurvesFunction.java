@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.model.bond;
 
 import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
@@ -56,12 +57,21 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
     }
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String riskFreeCurveName = desiredValue.getConstraint(PROPERTY_RISK_FREE_CURVE);
-    final Object riskFreeCurveObject = inputs.getValue(getCurveRequirement(target, riskFreeCurveName));
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    final ValueProperties.Builder riskFreeCurveProperties = ValueProperties
+        .with(ValuePropertyNames.CURVE, riskFreeCurveName);
+    final ValueRequirement riskFreeCurveRequirement =
+        new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), riskFreeCurveProperties.get());
+    final Object riskFreeCurveObject = inputs.getValue(riskFreeCurveRequirement);
     if (riskFreeCurveObject == null) {
       throw new OpenGammaRuntimeException("Risk free curve was null");
     }
     final String creditCurveName = desiredValue.getConstraint(PROPERTY_CREDIT_CURVE);
-    final Object creditCurveObject = inputs.getValue(getCurveRequirement(target, creditCurveName));
+    final ValueProperties.Builder creditCurveProperties = ValueProperties
+        .with(ValuePropertyNames.CURVE, creditCurveName);
+    final ValueRequirement creditCurveRequirement =
+        new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), creditCurveProperties.get());
+    final Object creditCurveObject = inputs.getValue(creditCurveRequirement);
     if (creditCurveObject == null) {
       throw new OpenGammaRuntimeException("Credit curve was null");
     }
@@ -82,7 +92,18 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
     }
     final String riskFreeCurveName = riskFreeCurves.iterator().next();
     final String creditCurveName = creditCurves.iterator().next();
-    return Sets.newHashSet(getCurveRequirement(target, riskFreeCurveName), getCurveRequirement(target, creditCurveName));
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    final ValueProperties.Builder riskFreeCurveProperties = ValueProperties
+        .with(ValuePropertyNames.CURVE, riskFreeCurveName)
+        .withOptional(PROPERTY_RISK_FREE_CURVE);
+    final ValueRequirement riskFreeCurveRequirement =
+        new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), riskFreeCurveProperties.get());
+    final ValueProperties.Builder creditCurveProperties = ValueProperties
+        .with(ValuePropertyNames.CURVE, creditCurveName)
+        .withOptional(PROPERTY_CREDIT_CURVE);
+    final ValueRequirement creditCurveRequirement =
+        new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), creditCurveProperties.get());
+    return Sets.newHashSet(riskFreeCurveRequirement, creditCurveRequirement);
   }
 
   @Override
@@ -91,15 +112,44 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));
   }
 
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    String riskFreeCurveName = null;
+    String creditCurveName = null;
+    if (inputs.size() == 1) {
+      final String curveName = inputs.keySet().iterator().next().getProperty(ValuePropertyNames.CURVE);
+      riskFreeCurveName = curveName;
+      creditCurveName = curveName;
+    } else {
+      assert inputs.size() == 2;
+      for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
+        if (input.getValue().getConstraints().getValues(PROPERTY_RISK_FREE_CURVE) != null) {
+          final Set<String> riskFreeCurves = input.getValue().getConstraints().getValues(ValuePropertyNames.CURVE);
+          if (riskFreeCurves == null || riskFreeCurves.size() != 1) {
+            return null;
+          } else {
+            riskFreeCurveName = riskFreeCurves.iterator().next();
+          }
+        }
+        if (input.getValue().getConstraints().getValues(PROPERTY_CREDIT_CURVE) != null) {
+          final Set<String> creditCurves = input.getValue().getConstraints().getValues(ValuePropertyNames.CURVE);
+          if (creditCurves == null || creditCurves.size() != 1) {
+            return null;
+          } else {
+            creditCurveName = creditCurves.iterator().next();
+          }
+        }
+      }
+    }
+    assert riskFreeCurveName != null;
+    assert creditCurveName != null;
+    final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, creditCurveName);
+    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));
+  }
+
   protected abstract AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Double> getCalculator();
 
   protected abstract String getValueRequirementName();
-
-  private ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName) {
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    final ValueProperties.Builder properties = ValueProperties.with(ValuePropertyNames.CURVE, curveName);
-    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
-  }
 
   private ValueProperties.Builder getResultProperties() {
     return createValueProperties()

@@ -30,13 +30,9 @@ public class ForexSingleBarrierOptionVegaFunction extends ForexSingleBarrierOpti
   private static final PresentValueForexVegaSensitivityCalculator CALCULATOR = PresentValueForexVegaSensitivityCalculator.getInstance();
   private static final DecimalFormat DELTA_FORMATTER = new DecimalFormat("##");
 
-  public ForexSingleBarrierOptionVegaFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName,
-      final String surfaceName) {
-    super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
-  }
-
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative fxSingleBarrierOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxSingleBarrierOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target,
+      final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, final String surfaceName) {
     final PresentValueVolatilityNodeSensitivityDataBundle result = CALCULATOR.visit(fxSingleBarrierOption, data);
     final double[] expiries = result.getExpiries().getData();
     final double[] delta = result.getDelta().getData();
@@ -59,16 +55,20 @@ public class ForexSingleBarrierOptionVegaFunction extends ForexSingleBarrierOpti
         values[i][j] = vega[j][i];
       }
     }
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName(), getPutForwardCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName()).with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    final ValueProperties properties = createValueProperties()
+        .with(ValuePropertyNames.PAY_CURVE, putFundingCurveName, putForwardCurveName)
+        .with(ValuePropertyNames.RECEIVE_CURVE, callFundingCurveName, callForwardCurveName)
+        .with(ValuePropertyNames.SURFACE, surfaceName).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.VEGA_MATRIX, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, new DoubleLabelledMatrix2D(rowValues, rowLabels, columnValues, columnLabels, values)));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName(), getPutForwardCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName()).with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    final ValueProperties properties = createValueProperties()
+        .withAny(ValuePropertyNames.PAY_CURVE)
+        .withAny(ValuePropertyNames.RECEIVE_CURVE)
+        .withAny(ValuePropertyNames.SURFACE).get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.VEGA_MATRIX, target.toSpecification(), properties));
   }
 

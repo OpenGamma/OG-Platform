@@ -10,8 +10,6 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -46,45 +44,50 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledInvoker {
-  private final String _putFundingCurveName;
-  private final String _putForwardCurveName;
-  private final String _callFundingCurveName;
-  private final String _callForwardCurveName;
-  private final String _surfaceName;
+  public static final String PROPERTY_PUT_FUNDING_CURVE_NAME = "PutFundingCurve";
+  public static final String PROPERTY_PUT_FORWARD_CURVE_NAME = "PutForwardCurve";
+  public static final String PROPERTY_CALL_FUNDING_CURVE_NAME = "CallFundingCurve";
+  public static final String PROPERTY_CALL_FORWARD_CURVE_NAME = "CallForwardCurve";
+  public static final String PROPERTY_FX_VOLATILITY_SURFACE_NAME = "FXVolatilitySurface";
+  //  private final String _putFundingCurveName;
+  //  private final String _putForwardCurveName;
+  //  private final String _callFundingCurveName;
+  //  private final String _callForwardCurveName;
+  //  private final String _surfaceName;
   private ForexSecurityConverter _visitor;
 
-  public ForexOptionFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, final String surfaceName) {
-    Validate.notNull(putFundingCurveName, "put funding curve name");
-    Validate.notNull(putForwardCurveName, "put forward curve name");
-    Validate.notNull(callFundingCurveName, "call funding curve name");
-    Validate.notNull(callForwardCurveName, "call forward curve name");
-    Validate.notNull(surfaceName, "surface name");
-    _putFundingCurveName = putFundingCurveName;
-    _putForwardCurveName = putForwardCurveName;
-    _callFundingCurveName = callFundingCurveName;
-    _callForwardCurveName = callForwardCurveName;
-    _surfaceName = surfaceName;
-  }
-
-  protected String getPutFundingCurveName() {
-    return _putFundingCurveName;
-  }
-
-  protected String getPutForwardCurveName() {
-    return _putForwardCurveName;
-  }
-
-  protected String getCallFundingCurveName() {
-    return _callFundingCurveName;
-  }
-
-  protected String getCallForwardCurveName() {
-    return _callForwardCurveName;
-  }
-
-  protected String getSurfaceName() {
-    return _surfaceName;
-  }
+  //  public ForexOptionFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, final String surfaceName) {
+  //    Validate.notNull(putFundingCurveName, "put funding curve name");
+  //    Validate.notNull(putForwardCurveName, "put forward curve name");
+  //    Validate.notNull(callFundingCurveName, "call funding curve name");
+  //    Validate.notNull(callForwardCurveName, "call forward curve name");
+  //    Validate.notNull(surfaceName, "surface name");
+  //    _putFundingCurveName = putFundingCurveName;
+  //    _putForwardCurveName = putForwardCurveName;
+  //    _callFundingCurveName = callFundingCurveName;
+  //    _callForwardCurveName = callForwardCurveName;
+  //    _surfaceName = surfaceName;
+  //  }
+  //
+  //  protected String getPutFundingCurveName() {
+  //    return _putFundingCurveName;
+  //  }
+  //
+  //  protected String getPutForwardCurveName() {
+  //    return _putForwardCurveName;
+  //  }
+  //
+  //  protected String getCallFundingCurveName() {
+  //    return _callFundingCurveName;
+  //  }
+  //
+  //  protected String getCallForwardCurveName() {
+  //    return _callForwardCurveName;
+  //  }
+  //
+  //  protected String getSurfaceName() {
+  //    return _surfaceName;
+  //  }
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -100,32 +103,42 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     final Currency putCurrency = getPutCurrency(security);
     final Currency callCurrency = getCallCurrency(security);
     final ExternalId spotIdentifier = getSpotIdentifier(security);
-    final String putFundingCurveName = _putFundingCurveName + "_" + putCurrency.getCode();
-    final String callFundingCurveName = _callFundingCurveName + "_" + callCurrency.getCode();
-    final String putForwardCurveName = _putForwardCurveName + "_" + putCurrency.getCode();
-    final String callForwardCurveName = _callForwardCurveName + "_" + callCurrency.getCode();
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final String putFundingCurveName = "FUNDING";
+    final String putForwardCurveName = "FORWARD_3M";
+    final String callFundingCurveName = "FUNDING";
+    final String callForwardCurveName = "FORWARD_6M";
+    final String surfaceName = "DEFAULT";
+    //    final String putFundingCurveName = desiredValue.getConstraints().getValues(PROPERTY_PUT_FUNDING_CURVE_NAME).iterator().next();
+    //    final String putForwardCurveName = desiredValue.getConstraints().getValues(PROPERTY_PUT_FORWARD_CURVE_NAME).iterator().next();
+    //    final String callFundingCurveName = desiredValue.getConstraints().getValues(PROPERTY_CALL_FUNDING_CURVE_NAME).iterator().next();
+    //    final String callForwardCurveName = desiredValue.getConstraints().getValues(PROPERTY_CALL_FORWARD_CURVE_NAME).iterator().next();
+    final String fullPutFundingCurveName = putFundingCurveName + "_" + putCurrency.getCode();
+    final String fullCallFundingCurveName = callFundingCurveName + "_" + callCurrency.getCode();
+    final String fullPutForwardCurveName = putForwardCurveName + "_" + putCurrency.getCode();
+    final String fullCallForwardCurveName = callForwardCurveName + "_" + callCurrency.getCode();
     final String[] curveNames;
     if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
-      curveNames = new String[] {putFundingCurveName, callFundingCurveName};
+      curveNames = new String[] {fullPutFundingCurveName, fullCallFundingCurveName};
     } else {
-      curveNames = new String[] {callFundingCurveName, putFundingCurveName};
+      curveNames = new String[] {fullCallFundingCurveName, fullPutFundingCurveName};
     }
-    final Object putFundingCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(putCurrency, _putFundingCurveName, _putForwardCurveName, _putFundingCurveName));
+    final Object putFundingCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(putCurrency, putFundingCurveName, putForwardCurveName, putFundingCurveName));
     if (putFundingCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + putFundingCurveName + " curve");
     }
     final YieldAndDiscountCurve putFundingCurve = (YieldAndDiscountCurve) putFundingCurveObject;
-    final Object putForwardCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(putCurrency, _putForwardCurveName, _putForwardCurveName, _putFundingCurveName));
+    final Object putForwardCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(putCurrency, putForwardCurveName, putForwardCurveName, putFundingCurveName));
     if (putForwardCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + putForwardCurveName + " curve");
     }
     final YieldAndDiscountCurve putForwardCurve = (YieldAndDiscountCurve) putForwardCurveObject;
-    final Object callFundingCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(callCurrency, _callFundingCurveName, _callForwardCurveName, _callFundingCurveName));
+    final Object callFundingCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(callCurrency, callFundingCurveName, callForwardCurveName, callFundingCurveName));
     if (callFundingCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + callFundingCurveName + " curve");
     }
     final YieldAndDiscountCurve callFundingCurve = (YieldAndDiscountCurve) callFundingCurveObject;
-    final Object callForwardCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(callCurrency, _callForwardCurveName, _callForwardCurveName, _callFundingCurveName));
+    final Object callForwardCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(callCurrency, callForwardCurveName, callForwardCurveName, callFundingCurveName));
     if (callForwardCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + callForwardCurveName + " curve");
     }
@@ -138,10 +151,10 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
       ccy1 = putCurrency;
       ccy2 = callCurrency;
       curves = new YieldAndDiscountCurve[] {putFundingCurve, putForwardCurve, callFundingCurve, callForwardCurve};
-      allCurveNames = new String[] {putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName};
+      allCurveNames = new String[] {fullPutFundingCurveName, fullPutForwardCurveName, fullCallFundingCurveName, fullCallForwardCurveName};
     } else {
       curves = new YieldAndDiscountCurve[] {callFundingCurve, callForwardCurve, putFundingCurve, putForwardCurve};
-      allCurveNames = new String[] {callFundingCurveName, callForwardCurveName, putFundingCurveName, putForwardCurveName};
+      allCurveNames = new String[] {fullCallFundingCurveName, fullCallForwardCurveName, fullPutFundingCurveName, fullPutForwardCurveName};
       ccy1 = callCurrency;
       ccy2 = putCurrency;
     }
@@ -161,8 +174,9 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     } else {
       spot = (Double) spotObject;
     }
-    final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, _surfaceName)
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
+    //    final String surfaceName = desiredValue.getConstraints().getValues(PROPERTY_FX_VOLATILITY_SURFACE_NAME).iterator().next();
+    final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE).get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(putCurrency, callCurrency);
     final ValueRequirement fxVolatilitySurfaceRequirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
     final Object volatilitySurfaceObject = inputs.getValue(fxVolatilitySurfaceRequirement);
@@ -172,14 +186,15 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     final SmileDeltaTermStructureParameter smiles = (SmileDeltaTermStructureParameter) volatilitySurfaceObject;
     final FXMatrix fxMatrix = new FXMatrix(ccy1, ccy2, spot);
     final SmileDeltaTermStructureDataBundle smileBundle = new SmileDeltaTermStructureDataBundle(yieldCurves, fxMatrix, smiles, Pair.of(ccy1, ccy2));
-    return getResult(fxOption, smileBundle, inputs, target);
+    return getResult(fxOption, smileBundle, inputs, target, putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
   }
 
   protected ForexSecurityConverter getVisitor() {
     return _visitor;
   }
 
-  protected abstract Set<ComputedValue> getResult(InstrumentDerivative forex, SmileDeltaTermStructureDataBundle data, FunctionInputs inputs, ComputationTarget target);
+  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative forex, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target,
+      final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, final String surfaceName);
 
   protected abstract InstrumentDefinition<?> getDefinition(FinancialSecurity target);
 

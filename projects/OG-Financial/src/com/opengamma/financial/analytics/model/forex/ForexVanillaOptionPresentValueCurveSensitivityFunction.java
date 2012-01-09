@@ -30,15 +30,13 @@ import com.opengamma.util.money.Currency;
 public class ForexVanillaOptionPresentValueCurveSensitivityFunction extends ForexVanillaOptionFunction {
   private static final PresentValueCurveSensitivityBlackForexCalculator CALCULATOR = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
 
-  public ForexVanillaOptionPresentValueCurveSensitivityFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName,
-      final String callForwardCurveName, final String surfaceName) {
-    super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
-  }
-
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName(), getPutForwardCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName()).with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target,
+      final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, final String surfaceName) {
+    final ValueProperties properties = createValueProperties()
+        .with(ValuePropertyNames.PAY_CURVE, putFundingCurveName, putForwardCurveName)
+        .with(ValuePropertyNames.RECEIVE_CURVE, callFundingCurveName, callForwardCurveName)
+        .with(ValuePropertyNames.SURFACE, surfaceName).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(), properties);
     final MultipleCurrencyInterestRateCurveSensitivity result = CALCULATOR.visit(fxOption, data);
     Validate.isTrue(result.getCurrencies().size() == 1, "Only one currency");
@@ -48,8 +46,10 @@ public class ForexVanillaOptionPresentValueCurveSensitivityFunction extends Fore
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName(), getPutForwardCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName()).with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    final ValueProperties properties = createValueProperties()
+        .withAny(ValuePropertyNames.PAY_CURVE)
+        .withAny(ValuePropertyNames.RECEIVE_CURVE)
+        .withAny(ValuePropertyNames.SURFACE).get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(), properties));
   }
 }

@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.volatility.surface.fitting;
+package com.opengamma.financial.analytics.model.volatility.surface;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.google.common.collect.Sets;
@@ -116,31 +117,41 @@ public class HestonFourierIRFutureSurfaceFittingFunction extends AbstractFunctio
     final DoubleArrayList rhoList = new DoubleArrayList();
     final DoubleArrayList chiSqList = new DoubleArrayList();
     final Map<DoublesPair, DoubleMatrix2D> inverseJacobians = new HashMap<DoublesPair, DoubleMatrix2D>();
-    for (Double t : x) {
-      List<ObjectsPair<Double, Double>> strip = volatilitySurfaceData.getYValuesForX(t);
-      int n = strip.size();
-      int strikeIndex = n - 1;
-      final double[] strikes = new double[n];
-      final double[] sigma = new double[n];
-      final double[] errors = new double[n];
-      double forward = 1 - futurePriceData.getFuturePrice(t);
-      if (strip.size() > 4) {
-        for (ObjectsPair<Double, Double> value : strip) {
-          strikes[strikeIndex] = 1 - value.first / 100;
-          sigma[strikeIndex] = value.second;
-          errors[strikeIndex--] = ERROR;
+    for (final Double t : x) {
+      final List<ObjectsPair<Double, Double>> strip = volatilitySurfaceData.getYValuesForX(t);
+      final int n = strip.size();
+      final DoubleArrayList strikesList = new DoubleArrayList(n);
+      final DoubleArrayList sigmaList = new DoubleArrayList(n);
+      final DoubleArrayList errorsList = new DoubleArrayList(n);
+      final Double futurePrice = futurePriceData.getFuturePrice(t);
+      if (strip.size() > 4 && futurePrice != null) {
+        final double forward = 1 - futurePrice;
+        for (final ObjectsPair<Double, Double> value : strip) {
+          if (value.first != null && value.second != null) {
+            strikesList.add(1 - value.first / 100);
+            sigmaList.add(value.second);
+            errorsList.add(ERROR);
+          }
         }
-        final LeastSquareResultsWithTransform fittedResult = new HestonModelFitter(forward, strikes, t, sigma, errors, HESTON_FUNCTION).solve(HESTON_INITIAL_VALUES);
-        final DoubleMatrix1D parameters = fittedResult.getModelParameters();
-        fittedOptionExpiryList.add(t);
-        futureDelayList.add(0);
-        kappaList.add(parameters.getEntry(0));
-        thetaList.add(parameters.getEntry(1));
-        vol0List.add(parameters.getEntry(2));
-        omegaList.add(parameters.getEntry(3));
-        rhoList.add(parameters.getEntry(4));
-        inverseJacobians.put(DoublesPair.of(t.doubleValue(), 0.), fittedResult.getModelParameterSensitivityToData());
-        chiSqList.add(fittedResult.getChiSq());
+        if (!strikesList.isEmpty()) {
+          final double[] strikes = strikesList.toDoubleArray();
+          final double[] sigma = sigmaList.toDoubleArray();
+          final double[] errors = errorsList.toDoubleArray();
+          ArrayUtils.reverse(strikes);
+          ArrayUtils.reverse(sigma);
+          ArrayUtils.reverse(errors);
+          final LeastSquareResultsWithTransform fittedResult = new HestonModelFitter(forward, strikes, t, sigma, errors, HESTON_FUNCTION).solve(HESTON_INITIAL_VALUES);
+          final DoubleMatrix1D parameters = fittedResult.getModelParameters();
+          fittedOptionExpiryList.add(t);
+          futureDelayList.add(0);
+          kappaList.add(parameters.getEntry(0));
+          thetaList.add(parameters.getEntry(1));
+          vol0List.add(parameters.getEntry(2));
+          omegaList.add(parameters.getEntry(3));
+          rhoList.add(parameters.getEntry(4));
+          inverseJacobians.put(DoublesPair.of(t.doubleValue(), 0.), fittedResult.getModelParameterSensitivityToData());
+          chiSqList.add(fittedResult.getChiSq());
+        }
       }
     }
     if (fittedOptionExpiryList.size() < 5) { //don't have sufficient fits to construct a surface

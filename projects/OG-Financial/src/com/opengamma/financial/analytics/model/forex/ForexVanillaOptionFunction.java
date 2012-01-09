@@ -31,11 +31,6 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  */
 public abstract class ForexVanillaOptionFunction extends ForexOptionFunction {
 
-  public ForexVanillaOptionFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, 
-      final String surfaceName) {
-    super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
-  }
-
   @Override
   protected InstrumentDefinition<?> getDefinition(final FinancialSecurity target) {
     final FXOptionSecurity security = (FXOptionSecurity) target;
@@ -77,17 +72,38 @@ public abstract class ForexVanillaOptionFunction extends ForexOptionFunction {
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
-    final String putFundingCurveName = getPutFundingCurveName();
-    final String putForwardCurveName = getPutForwardCurveName();
-    final String callFundingCurveName = getCallFundingCurveName();
-    final String callForwardCurveName = getCallForwardCurveName();
-    final String surfaceName = getSurfaceName();
+    final Set<String> putFundingCurveNames = desiredValue.getConstraints().getValues(PROPERTY_PUT_FUNDING_CURVE_NAME);
+    if (putFundingCurveNames == null || putFundingCurveNames.size() != 1) {
+      return null;
+    }
+    final Set<String> putForwardCurveNames = desiredValue.getConstraints().getValues(PROPERTY_PUT_FORWARD_CURVE_NAME);
+    if (putForwardCurveNames == null || putForwardCurveNames.size() != 1) {
+      return null;
+    }
+    final Set<String> callFundingCurveNames = desiredValue.getConstraints().getValues(PROPERTY_CALL_FUNDING_CURVE_NAME);
+    if (callFundingCurveNames == null || callFundingCurveNames.size() != 1) {
+      return null;
+    }
+    final Set<String> callForwardCurveNames = desiredValue.getConstraints().getValues(PROPERTY_CALL_FORWARD_CURVE_NAME);
+    if (callForwardCurveNames == null || callForwardCurveNames.size() != 1) {
+      return null;
+    }
+    final Set<String> surfaceNames = desiredValue.getConstraints().getValues(PROPERTY_FX_VOLATILITY_SURFACE_NAME);
+    if (surfaceNames == null || surfaceNames.size() != 1) {
+      return null;
+    }
+
+    final String putFundingCurveName = "FUNDING";
+    final String putForwardCurveName = "FORWARD_3M";
+    final String callFundingCurveName = "FUNDING";
+    final String callForwardCurveName = "FORWARD_6M";
+    final String surfaceName = "DEFAULT";
     final ValueRequirement putFundingCurve = YieldCurveFunction.getCurveRequirement(fxOption.getPutCurrency(), putFundingCurveName, putForwardCurveName, putFundingCurveName);
     final ValueRequirement putForwardCurve = YieldCurveFunction.getCurveRequirement(fxOption.getPutCurrency(), putForwardCurveName, putForwardCurveName, putFundingCurveName);
     final ValueRequirement callFundingCurve = YieldCurveFunction.getCurveRequirement(fxOption.getCallCurrency(), callFundingCurveName, callForwardCurveName, callFundingCurveName);
     final ValueRequirement callForwardCurve = YieldCurveFunction.getCurveRequirement(fxOption.getCallCurrency(), callForwardCurveName, callForwardCurveName, callFundingCurveName);
     final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE).get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(fxOption.getPutCurrency(), fxOption.getCallCurrency());
     final ValueRequirement fxVolatilitySurface = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
     final ExternalId spotIdentifier = FXUtils.getSpotIdentifier(fxOption);

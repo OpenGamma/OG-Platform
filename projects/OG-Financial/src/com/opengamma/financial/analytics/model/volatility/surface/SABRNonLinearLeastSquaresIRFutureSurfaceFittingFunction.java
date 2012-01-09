@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.volatility.surface.fitting;
+package com.opengamma.financial.analytics.model.volatility.surface;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
@@ -36,6 +36,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveData;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
+import com.opengamma.financial.analytics.volatility.surface.fitting.SurfaceFittedSmileDataPoints;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.model.volatility.smile.fitting.SABRModelFitter;

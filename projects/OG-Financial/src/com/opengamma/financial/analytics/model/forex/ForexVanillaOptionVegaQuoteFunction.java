@@ -29,28 +29,27 @@ import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDa
 public class ForexVanillaOptionVegaQuoteFunction extends ForexVanillaOptionFunction {
   private static final PresentValueForexVegaQuoteSensitivityCalculator CALCULATOR = PresentValueForexVegaQuoteSensitivityCalculator.getInstance();
 
-  public ForexVanillaOptionVegaQuoteFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName,
-      final String surfaceName) {
-    super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
-  }
-
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target,
+      final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, final String surfaceName) {
     final PresentValueVolatilityQuoteSensitivityDataBundle result = CALCULATOR.visit(fxOption, data);
-    return Collections.singleton(new ComputedValue(getResultSpec(target), VegaMatrixHelper.getVegaFXQuoteMatrixInStandardForm(result)));
+    final ValueProperties properties = createValueProperties()
+        .with(ValuePropertyNames.PAY_CURVE, putFundingCurveName)
+        .with(ValuePropertyNames.RECEIVE_CURVE, callFundingCurveName)
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE).get();
+    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(), properties);
+    return Collections.singleton(new ComputedValue(resultSpec, VegaMatrixHelper.getVegaFXQuoteMatrixInStandardForm(result)));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    return Collections.singleton(getResultSpec(target));
+    final ValueProperties properties = createValueProperties()
+        .withAny(ValuePropertyNames.PAY_CURVE)
+        .withAny(ValuePropertyNames.RECEIVE_CURVE)
+        .withAny(ValuePropertyNames.SURFACE)
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE).get();
+    final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(), properties);
+    return Collections.singleton(resultSpec);
   }
-  
-  private ValueSpecification getResultSpec(final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName())
-                                                              .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName())
-                                                              .with(ValuePropertyNames.SURFACE, getSurfaceName())
-                                                              .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION").get();
-    return new ValueSpecification(ValueRequirementNames.VEGA_QUOTE_MATRIX, target.toSpecification(), properties);
-  }
-
 }

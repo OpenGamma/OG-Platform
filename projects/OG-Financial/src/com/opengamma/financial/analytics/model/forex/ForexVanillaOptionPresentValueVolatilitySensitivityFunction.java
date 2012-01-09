@@ -41,13 +41,9 @@ public class ForexVanillaOptionPresentValueVolatilitySensitivityFunction extends
   private static final DecimalFormat TIME_FORMATTER = new DecimalFormat("##.###");
   private static final DecimalFormat STRIKE_FORMATTER = new DecimalFormat("###.#####");
 
-  public ForexVanillaOptionPresentValueVolatilitySensitivityFunction(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName,
-      final String callForwardCurveName, final String surfaceName) {
-    super(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
-  }
-
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target,
+      final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, final String surfaceName) {
     final PresentValueForexBlackVolatilitySensitivity result = CALCULATOR.visit(fxOption, data);
     final Map<DoublesPair, Double> vega = result.getVega().getMap();
     final List<Double> rowValue = new ArrayList<Double>();
@@ -70,8 +66,10 @@ public class ForexVanillaOptionPresentValueVolatilitySensitivityFunction extends
       rowLabel.add(getFormattedStrike(k, result.getCurrencyPair()));
       values[0][0] = entry.getValue();
     }
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName(), getPutForwardCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName()).with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    final ValueProperties properties = createValueProperties()
+        .with(ValuePropertyNames.PAY_CURVE, putFundingCurveName, putForwardCurveName)
+        .with(ValuePropertyNames.RECEIVE_CURVE, callFundingCurveName, callForwardCurveName)
+        .with(ValuePropertyNames.SURFACE, surfaceName).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES, target.toSpecification(), properties);
     return Collections
         .singleton(new ComputedValue(spec, new DoubleLabelledMatrix2D(columnValue.toArray(EMPTY_ARRAY), columnLabel.toArray(), rowValue.toArray(EMPTY_ARRAY), rowLabel.toArray(), values)));
@@ -79,8 +77,10 @@ public class ForexVanillaOptionPresentValueVolatilitySensitivityFunction extends
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPutFundingCurveName(), getPutForwardCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getCallFundingCurveName(), getCallForwardCurveName()).with(ValuePropertyNames.SURFACE, getSurfaceName()).get();
+    final ValueProperties properties = createValueProperties()
+        .withAny(ValuePropertyNames.PAY_CURVE)
+        .withAny(ValuePropertyNames.RECEIVE_CURVE)
+        .withAny(ValuePropertyNames.SURFACE).get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES, target.toSpecification(), properties));
   }
 

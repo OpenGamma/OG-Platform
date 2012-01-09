@@ -42,7 +42,6 @@ import com.opengamma.financial.analytics.UnitPositionTradeScalingFunction;
 import com.opengamma.financial.analytics.equity.SecurityMarketPriceFunction;
 import com.opengamma.financial.analytics.ircurve.DefaultYieldCurveMarketDataShiftFunction;
 import com.opengamma.financial.analytics.ircurve.DefaultYieldCurveShiftFunction;
-import com.opengamma.financial.analytics.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataShiftFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveShiftFunction;
 import com.opengamma.financial.analytics.model.bond.BondCleanPriceFromCurvesFunction;
@@ -60,7 +59,6 @@ import com.opengamma.financial.analytics.model.bond.BondModifiedDurationFromCurv
 import com.opengamma.financial.analytics.model.bond.BondModifiedDurationFromYieldFunction;
 import com.opengamma.financial.analytics.model.bond.BondTenorFunction;
 import com.opengamma.financial.analytics.model.bond.BondYieldFromCurvesFunction;
-import com.opengamma.financial.analytics.model.bond.BondZSpreadDefaultRiskFreeCurveNamesFunction;
 import com.opengamma.financial.analytics.model.bond.BondZSpreadFromCurveCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondZSpreadFromMarketCleanPriceFunction;
 import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction;
@@ -109,6 +107,7 @@ import com.opengamma.financial.analytics.model.forex.ForexForwardCurrencyExposur
 import com.opengamma.financial.analytics.model.forex.ForexForwardPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.forex.ForexOptionDefaultCurveNamesFunction;
 import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionCurrencyExposureFunction;
 import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.ForexSingleBarrierOptionPresentValueFunction;
@@ -125,6 +124,7 @@ import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionVegaQuote
 import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
+import com.opengamma.financial.analytics.model.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionDefaultValuesFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionHestonPresentValueFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionPresentValueFunction;
@@ -169,13 +169,13 @@ import com.opengamma.financial.analytics.model.var.PortfolioHistoricalVaRDefault
 import com.opengamma.financial.analytics.model.var.PortfolioHistoricalVaRFunction;
 import com.opengamma.financial.analytics.model.var.PositionHistoricalVaRDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.var.PositionHistoricalVaRFunction;
+import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
+import com.opengamma.financial.analytics.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.model.volatility.surface.HestonFourierIRFutureSurfaceFittingFunction;
+import com.opengamma.financial.analytics.model.volatility.surface.SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction;
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
-import com.opengamma.financial.analytics.volatility.cube.fitting.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
 import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
-import com.opengamma.financial.analytics.volatility.surface.fitting.BlackScholesMertonImpliedVolatilitySurfaceFunction;
-import com.opengamma.financial.analytics.volatility.surface.fitting.HestonFourierIRFutureSurfaceFittingFunction;
-import com.opengamma.financial.analytics.volatility.surface.fitting.SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction;
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.DefaultCurrencyInjectionFunction;
@@ -350,8 +350,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addBondCalculators(functionConfigs);
     addBondFutureCalculators(functionConfigs);
     addSABRCalculators(functionConfigs);
-    addForexVanillaOptionCalculators(functionConfigs);
-    addForexSingleBarrierOptionCalculators(functionConfigs);
+    addForexOptionCalculators(functionConfigs);
     addForexForwardCalculators(functionConfigs);
     addInterestRateFutureOptionCalculators(functionConfigs);
     addEquityDerivativesFunctions(functionConfigs);
@@ -604,71 +603,40 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class));
     functionConfigs.add(functionConfiguration(BondDefaultCurveNamesFunction.class, "FUNDING", "FUNDING", ValueRequirementNames.CLEAN_PRICE, 
         ValueRequirementNames.DIRTY_PRICE, ValueRequirementNames.MACAULAY_DURATION, ValueRequirementNames.MODIFIED_DURATION, ValueRequirementNames.YTM,
-        ValueRequirementNames.Z_SPREAD));
-//    functionConfigs.add(functionConfiguration(BondZSpreadDefaultRiskFreeCurveNamesFunction.class, "FUNDING", ValueRequirementNames.Z_SPREAD, 
-//        ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY));
+        ValueRequirementNames.Z_SPREAD, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY));
   }
 
-  private static void addForexSingleBarrierOptionCalculators(List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionPresentValueFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionPresentValueFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionPresentValueFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionPresentValueFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionCurrencyExposureFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionCurrencyExposureFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionCurrencyExposureFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionCurrencyExposureFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionPresentValueCurveSensitivityFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionPresentValueCurveSensitivityFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionPresentValueCurveSensitivityFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionPresentValueCurveSensitivityFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionPresentValueVolatilitySensitivityFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionPresentValueVolatilitySensitivityFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionPresentValueVolatilitySensitivityFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionPresentValueVolatilitySensitivityFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionVegaFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionVegaFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionVegaFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionVegaFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionVegaQuoteFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionVegaQuoteFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionVegaQuoteFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionVegaQuoteFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-  }
-
-  private static void addForexVanillaOptionCalculators(List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionCurrencyExposureFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionCurrencyExposureFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionCurrencyExposureFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionCurrencyExposureFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueCurveSensitivityFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueCurveSensitivityFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueCurveSensitivityFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueCurveSensitivityFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueVolatilitySensitivityFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueVolatilitySensitivityFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueVolatilitySensitivityFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueVolatilitySensitivityFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionVegaFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionVegaFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionVegaFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionVegaFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionVegaQuoteFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionVegaQuoteFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionVegaQuoteFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionVegaQuoteFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT"));
+  private static void addForexOptionCalculators(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(ForexVanillaOptionCurrencyExposureFunction.class));
+    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueCurveSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueVolatilitySensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(ForexVanillaOptionVegaFunction.class));
+    functionConfigs.add(functionConfiguration(ForexVanillaOptionVegaQuoteFunction.class));
+    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionCurrencyExposureFunction.class));
+    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionPresentValueCurveSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionPresentValueVolatilitySensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionYieldCurveNodeSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionVegaFunction.class));
+    functionConfigs.add(functionConfiguration(ForexSingleBarrierOptionVegaQuoteFunction.class));
+//    functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT", 
+//        ValueRequirementNames.PRESENT_VALUE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, ValueRequirementNames.FX_CURVE_SENSITIVITIES, 
+//        ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ValueRequirementNames.VEGA_MATRIX,
+//        ValueRequirementNames.VEGA_QUOTE_MATRIX));
+    functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M", "DEFAULT", 
+        ValueRequirementNames.PRESENT_VALUE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, ValueRequirementNames.FX_CURVE_SENSITIVITIES, 
+        ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ValueRequirementNames.VEGA_MATRIX,
+        ValueRequirementNames.VEGA_QUOTE_MATRIX));
+//    functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M", "DEFAULT", 
+//        ValueRequirementNames.PRESENT_VALUE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, ValueRequirementNames.FX_CURVE_SENSITIVITIES, 
+//        ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ValueRequirementNames.VEGA_MATRIX,
+//        ValueRequirementNames.VEGA_QUOTE_MATRIX));
+//    functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_6M", "DEFAULT", 
+//        ValueRequirementNames.PRESENT_VALUE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, ValueRequirementNames.FX_CURVE_SENSITIVITIES, 
+//        ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ValueRequirementNames.VEGA_MATRIX,
+//        ValueRequirementNames.VEGA_QUOTE_MATRIX));
   }
 
   private static void addForexForwardCalculators(List<FunctionConfiguration> functionConfigs) {
@@ -692,7 +660,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   private static void addInterestRateFutureOptionCalculators(List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class, ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class, ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionVegaFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionDefaultValuesFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT", 
         ValueRequirementNames.PRESENT_VALUE,

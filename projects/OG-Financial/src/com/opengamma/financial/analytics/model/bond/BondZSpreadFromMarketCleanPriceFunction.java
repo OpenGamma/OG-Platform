@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.analytics.model.bond;
 
+import java.util.Collections;
+import java.util.Map;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
@@ -14,7 +16,8 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
+import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
 
 /**
  * 
@@ -31,31 +34,38 @@ public class BondZSpreadFromMarketCleanPriceFunction extends BondZSpreadFunction
     if (curves == null || curves.size() != 1) {
       return null;
     }
+    final Set<String> creditCurves = desiredValue.getConstraints().getValues(BondFunction.PROPERTY_CREDIT_CURVE);
+    if (creditCurves == null || creditCurves.size() != 1) {
+      return null;
+    }
     final String riskFreeCurveName = riskFreeCurves.iterator().next();
     final String curveName = curves.iterator().next();
     return Sets.newHashSet(getCurveRequirement(target, riskFreeCurveName), getCurveRequirement(target, curveName), getCleanPriceRequirement(target, desiredValue));
   }
 
   @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    String curveName = null;
+    for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
+      if (ValueRequirementNames.YIELD_CURVE.equals(input.getKey().getValueName())) {
+        curveName = input.getKey().getProperty(ValuePropertyNames.CURVE);
+      }
+    }
+    assert curveName != null;
+    final String riskFreeCurveName = curveName;
+    final String creditCurveName = riskFreeCurveName;
+    final ValueProperties.Builder properties = getResultProperties(riskFreeCurveName, creditCurveName, curveName);
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.Z_SPREAD, target.toSpecification(), properties.get()));
+  }
+
+  @Override
   protected ValueRequirement getCleanPriceRequirement(final ComputationTarget target, final ValueRequirement desiredValue) {
-    return new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.SECURITY, target.getSecurity().getUniqueId());
+    return new ValueRequirement(ValueRequirementNames.MARKET_CLEAN_PRICE, ComputationTargetType.SECURITY, target.getSecurity().getUniqueId());
   }
 
   @Override
-  protected ValueProperties.Builder getResultProperties() {
-    return createValueProperties()
-        .withAny(BondFunction.PROPERTY_RISK_FREE_CURVE)
-        //.withAny(BondFunction.PROPERTY_CREDIT_CURVE)
-        .withAny(ValuePropertyNames.CURVE)
-        .with(ValuePropertyNames.CALCULATION_METHOD, BondFunction.FROM_CLEAN_PRICE_METHOD);
+  protected String getCalculationMethodName() {
+    return BondFunction.FROM_CLEAN_PRICE_METHOD;
   }
 
-  @Override
-  protected ValueProperties.Builder getResultProperties(final String riskFreeCurveName, final String curveName) {
-    return createValueProperties()
-        .with(BondFunction.PROPERTY_RISK_FREE_CURVE, riskFreeCurveName)
-        //.withAny(BondFunction.PROPERTY_CREDIT_CURVE)
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.CALCULATION_METHOD, BondFunction.FROM_CLEAN_PRICE_METHOD);
-  }
 }
