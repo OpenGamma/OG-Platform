@@ -5,6 +5,9 @@
  */
 package com.opengamma.transport.jaxrs;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.transport.EndPointDescriptionProvider;
@@ -15,8 +18,11 @@ import com.opengamma.util.SingletonFactoryBean;
  */
 public class RestTargetFactoryBean extends SingletonFactoryBean<RestTarget> {
 
+  private static final ExecutorService DEFAULT_EXECUTOR = Executors.newCachedThreadPool();
+
   private FudgeContext _fudgeContext;
   private EndPointDescriptionProvider _endPointDescriptionProvider;
+  private ExecutorService _executorService;
   
   public FudgeContext getFudgeContext() {
     return _fudgeContext;
@@ -34,6 +40,14 @@ public class RestTargetFactoryBean extends SingletonFactoryBean<RestTarget> {
     _endPointDescriptionProvider = provider;
   }
   
+  public ExecutorService getExecutorService() {
+    return _executorService;
+  }
+
+  public void setExecutorService(final ExecutorService executorService) {
+    _executorService = executorService;
+  }
+
   @Override
   protected RestTarget createObject() {
     if (getFudgeContext() == null) {
@@ -42,7 +56,11 @@ public class RestTargetFactoryBean extends SingletonFactoryBean<RestTarget> {
     if (getEndPointDescriptionProvider() == null) {
       throw new IllegalArgumentException("endPointDescriptionProvider must be set");
     }
-    return new RestTarget(getFudgeContext(), getEndPointDescriptionProvider());
+    ExecutorService executor = getExecutorService();
+    if (executor == null) {
+      executor = DEFAULT_EXECUTOR;
+    }
+    return new RestTarget(executor, getFudgeContext(), getEndPointDescriptionProvider());
   }
 
 }

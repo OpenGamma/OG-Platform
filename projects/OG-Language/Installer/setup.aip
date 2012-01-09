@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<DOCUMENT Type="Advanced Installer" CreateVersion="8.6" version="8.6" Modules="enterprise" RootPath="." Language="en" Id="{C1CCBC25-A80D-4985-B72C-F63708C7AE48}">
+<DOCUMENT Type="Advanced Installer" CreateVersion="8.6" version="8.7.1" Modules="enterprise" RootPath="." Language="en" Id="{C1CCBC25-A80D-4985-B72C-F63708C7AE48}">
   <COMPONENT cid="caphyon.advinst.msicomp.MsiPropsComponent">
+    <ROW Property="AI_MINJREVERSION" MultiBuildValue="MSI_32:1.6#MSI_64:1.6" ValueLocId="-"/>
     <ROW Property="ALLUSERS" Value="2" MultiBuildValue="MSI_32:1#MSI_64:1"/>
     <ROW Property="ARPCOMMENTS" Value="This installer database contains the logic and data required to install [|ProductName]." ValueLocId="*"/>
     <ROW Property="ARPHELPLINK" Value="http://developers.opengamma.com/"/>
@@ -134,7 +135,7 @@
     <ROW File="com.opengamma_og_security_og_security.jar" Component_="jar" FileName="comope~3.jar|com.opengamma-og-security-og-security.jar" Attributes="0" SourcePath="..\build\jar\com.opengamma-og-security-og-security.jar" SelfReg="false" NextFile="com.opengamma_og_util_og_util.jar"/>
     <ROW File="com.opengamma_og_util_og_util.jar" Component_="jar" FileName="comope~4.jar|com.opengamma-og-util-og-util.jar" Attributes="0" SourcePath="..\build\jar\com.opengamma-og-util-og-util.jar" SelfReg="false" NextFile="org.springframework_spring_spring_core.jar"/>
     <ROW File="com.opengamma_region_og_regions.jar" Component_="jar" FileName="comope~1.jar|com.opengamma-region-og-regions.jar" Attributes="0" SourcePath="..\build\jar\com.opengamma-region-og-regions.jar" SelfReg="false" NextFile="org.apache.commons_commons_codec_commons_codec.jar"/>
-    <ROW File="com.rabbitmq_java_client_rabbitmq_client.jar" Component_="jar" FileName="comrab~1.jar|com.rabbitmq-java-client-rabbitmq-client.jar" Attributes="0" SourcePath="..\build\jar\com.rabbitmq-java-client-rabbitmq-client.jar" SelfReg="false" NextFile="org.apache.commons_commons_beanutils_commons_beanutils.jar"/>
+    <ROW File="com.rabbitmq_java_client_rabbitmq_client.jar" Component_="jar" FileName="comrab~1.jar|com.rabbitmq-java-client-rabbitmq-client.jar" Attributes="0" SourcePath="..\build\jar\com.rabbitmq-java-client-rabbitmq-client.jar" SelfReg="false" NextFile="org.apache.activemq_activemq_kahadb.jar"/>
     <ROW File="com.sleepycat_je_je.jar" Component_="jar" FileName="comsle~1.jar|com.sleepycat-je-je.jar" Attributes="0" SourcePath="..\build\jar\com.sleepycat-je-je.jar" SelfReg="false" NextFile="org.springframework_spring_spring_jms.jar"/>
     <ROW File="com.sun.jersey_jersey_jersey_client.jar" Component_="jar" FileName="comsun~3.jar|com.sun.jersey-jersey-jersey-client.jar" Attributes="0" SourcePath="..\build\jar\com.sun.jersey-jersey-jersey-client.jar" SelfReg="false" NextFile="org.joda_joda_beans_joda_beans.jar"/>
     <ROW File="com.sun.jersey_jersey_jersey_core.jar" Component_="jar" FileName="comsun~2.jar|com.sun.jersey-jersey-jersey-core.jar" Attributes="0" SourcePath="..\build\jar\com.sun.jersey-jersey-jersey-core.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_zh_TW.jar"/>
@@ -206,9 +207,7 @@
     <ROW File="org.apache.activemq_activemq_activemq_pool.jar" Component_="jar" FileName="orgap~28.jar|org.apache.activemq-activemq-activemq-pool.jar" Attributes="0" SourcePath="..\build\jar\org.apache.activemq-activemq-activemq-pool.jar" SelfReg="false" NextFile="us.fed.fs_optimization_optimization.jar"/>
     <ROW File="org.apache.activemq_activemq_kahadb.jar" Component_="jar" FileName="orgap~22.jar|org.apache.activemq-activemq-kahadb.jar" Attributes="0" SourcePath="..\build\jar\org.apache.activemq-activemq-kahadb.jar" SelfReg="false" NextFile="org.jboss_javassist_javassist.jar"/>
     <ROW File="org.apache.ant_ant_ant.jar" Component_="jar" FileName="orgapa~9.jar|org.apache.ant-ant-ant.jar" Attributes="0" SourcePath="..\build\jar\org.apache.ant-ant-ant.jar" SelfReg="false" NextFile="edu.emory.mathcs_csparsej_csparsej.jar"/>
-    <ROW File="org.apache.commons_commons_beanutils_commons_beanutils.jar" Component_="jar" FileName="orgap~21.jar|org.apache.commons-commons-beanutils-commons-beanutils.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-beanutils-commons-beanutils.jar" SelfReg="false" NextFile="org.apache.activemq_activemq_kahadb.jar"/>
-    <ROW File="org.apache.commons_commons_beanutils_commons_beanutils_bean_collectio" Component_="jar" FileName="orgapa~4.jar|org.apache.commons-commons-beanutils-commons-beanutils-bean-collections.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-beanutils-commons-beanutils-bean-collections.jar" SelfReg="false" NextFile="org.springframework_spring_spring_transaction.jar"/>
-    <ROW File="org.apache.commons_commons_beanutils_commons_beanutils_core.jar" Component_="jar" FileName="orgap~26.jar|org.apache.commons-commons-beanutils-commons-beanutils-core.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-beanutils-commons-beanutils-core.jar" SelfReg="false" NextFile="org.ehcache_ehcache_ehcache.jar"/>
+    <ROW File="org.apache.commons_commons_beanutils_commons_beanutils_core.jar" Component_="jar" FileName="orgap~26.jar|org.apache.commons-commons-beanutils-commons-beanutils-core.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-beanutils-commons-beanutils-core.jar" SelfReg="false" NextFile="org.slf4j_slf4j_log4j_over_slf4j.jar"/>
     <ROW File="org.apache.commons_commons_cli_commons_cli.jar" Component_="jar" FileName="orgap~37.jar|org.apache.commons-commons-cli-commons-cli.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-cli-commons-cli.jar" SelfReg="false" NextFile="org.beanshell_bsh_bsh.jar"/>
     <ROW File="org.apache.commons_commons_codec_commons_codec.jar" Component_="jar" FileName="orgapa~5.jar|org.apache.commons-commons-codec-commons-codec.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-codec-commons-codec.jar" SelfReg="false" NextFile="com.sun.jersey_jersey_jersey_server.jar"/>
     <ROW File="org.apache.commons_commons_collections_commons_collections.jar" Component_="jar" FileName="orgap~27.jar|org.apache.commons-commons-collections-commons-collections.jar" Attributes="0" SourcePath="..\build\jar\org.apache.commons-commons-collections-commons-collections.jar" SelfReg="false" NextFile="javax.mail_javamail_imap.jar"/>
@@ -244,7 +243,7 @@
     <ROW File="org.aspectj_aspectj_aspectj_rt.jar" Component_="jar" FileName="orgasp~1.jar|org.aspectj-aspectj-aspectj-rt.jar" Attributes="0" SourcePath="..\build\jar\org.aspectj-aspectj-aspectj-rt.jar" SelfReg="false" NextFile="com.opengamma_region_og_regions.jar"/>
     <ROW File="org.beanshell_bsh_bsh.jar" Component_="jar" FileName="orgbea~1.jar|org.beanshell-bsh-bsh.jar" Attributes="0" SourcePath="..\build\jar\org.beanshell-bsh-bsh.jar" SelfReg="false" NextFile="javax.activation_jaf_activation.jar"/>
     <ROW File="org.dom4j_dom4j_dom4j.jar" Component_="jar" FileName="orgdom~1.jar|org.dom4j-dom4j-dom4j.jar" Attributes="0" SourcePath="..\build\jar\org.dom4j-dom4j-dom4j.jar" SelfReg="false" NextFile="javax.time_jsr_310_ri_jsr_310_ri.jar"/>
-    <ROW File="org.ehcache_ehcache_ehcache.jar" Component_="jar" FileName="orgehc~1.jar|org.ehcache-ehcache-ehcache.jar" Attributes="0" SourcePath="..\build\jar\org.ehcache-ehcache-ehcache.jar" SelfReg="false" NextFile="org.slf4j_slf4j_log4j_over_slf4j.jar"/>
+    <ROW File="org.ehcache_ehcache_ehcache.jar" Component_="jar" FileName="orgehc~1.jar|org.ehcache-ehcache-ehcache.jar" Attributes="0" SourcePath="..\build\jar\org.ehcache-ehcache-ehcache.jar" SelfReg="false"/>
     <ROW File="org.freemarker_freemarker_freemarker.jar" Component_="jar" FileName="orgfre~1.jar|org.freemarker-freemarker-freemarker.jar" Attributes="0" SourcePath="..\build\jar\org.freemarker-freemarker-freemarker.jar" SelfReg="false" NextFile="org.fudgemsg_fudge_java_fudge_java.jar"/>
     <ROW File="org.fudgemsg_fudge_java_fudge_java.jar" Component_="jar" FileName="orgfud~1.jar|org.fudgemsg-fudge-java-fudge-java.jar" Attributes="0" SourcePath="..\build\jar\org.fudgemsg-fudge-java-fudge-java.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_pl.jar"/>
     <ROW File="org.hibernate_hibernate_hibernate.jar" Component_="jar" FileName="orghib~1.jar|org.hibernate-hibernate-hibernate.jar" Attributes="0" SourcePath="..\build\jar\org.hibernate-hibernate-hibernate.jar" SelfReg="false" NextFile="org.testng_testng_testng.jar"/>
@@ -252,14 +251,14 @@
     <ROW File="org.jboss_javassist_javassist.jar" Component_="jar" FileName="orgjbo~1.jar|org.jboss-javassist-javassist.jar" Attributes="0" SourcePath="..\build\jar\org.jboss-javassist-javassist.jar" SelfReg="false" NextFile="javax.transaction_jta_jta.zip"/>
     <ROW File="org.joda_joda_beans_joda_beans.jar" Component_="jar" FileName="orgjod~1.jar|org.joda-joda-beans-joda-beans.jar" Attributes="0" SourcePath="..\build\jar\org.joda-joda-beans-joda-beans.jar" SelfReg="false" NextFile="org.springframework_spring_security_spring_security_core.jar"/>
     <ROW File="org.joda_joda_convert_joda_convert.jar" Component_="jar" FileName="orgjod~2.jar|org.joda-joda-convert-joda-convert.jar" Attributes="0" SourcePath="..\build\jar\org.joda-joda-convert-joda-convert.jar" SelfReg="false" NextFile="javax.el_juel_juel_impl.jar"/>
-    <ROW File="org.json_json_json.jar" Component_="jar" FileName="orgjso~1.jar|org.json-json-json.jar" Attributes="0" SourcePath="..\build\jar\org.json-json-json.jar" SelfReg="false" NextFile="org.apache.commons_commons_beanutils_commons_beanutils_bean_collectio"/>
+    <ROW File="org.json_json_json.jar" Component_="jar" FileName="orgjso~1.jar|org.json-json-json.jar" Attributes="0" SourcePath="..\build\jar\org.json-json-json.jar" SelfReg="false" NextFile="org.springframework_spring_spring_transaction.jar"/>
     <ROW File="org.mindrot_jBCrypt_jBCrypt.jar" Component_="jar" FileName="orgmin~1.jar|org.mindrot-jBCrypt-jBCrypt.jar" Attributes="0" SourcePath="..\build\jar\org.mindrot-jBCrypt-jBCrypt.jar" SelfReg="false" NextFile="org.scannotation_scannotation_scannotation.jar"/>
     <ROW File="org.mongodb_java_driver_mongo.jar" Component_="jar" FileName="orgmon~1.jar|org.mongodb-java-driver-mongo.jar" Attributes="0" SourcePath="..\build\jar\org.mongodb-java-driver-mongo.jar" SelfReg="false" NextFile="org.aspectj_aspectj_aspectj_rt.jar"/>
     <ROW File="org.netlib_jarpack_jarpack.jar" Component_="jar" FileName="orgnet~3.jar|org.netlib-jarpack-jarpack.jar" Attributes="0" SourcePath="..\build\jar\org.netlib-jarpack-jarpack.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_de_DE.jar"/>
     <ROW File="org.netlib_jplasma_jplasma.jar" Component_="jar" FileName="orgnet~2.jar|org.netlib-jplasma-jplasma.jar" Attributes="0" SourcePath="..\build\jar\org.netlib-jplasma-jplasma.jar" SelfReg="false" NextFile="com.opengamma_og_engine_og_engine.jar"/>
     <ROW File="org.netlib_netlib_java_netlib_java.jar" Component_="jar" FileName="orgnet~1.jar|org.netlib-netlib-java-netlib-java.jar" Attributes="0" SourcePath="..\build\jar\org.netlib-netlib-java-netlib-java.jar" SelfReg="false" NextFile="org.apache.commons_commons_logging_commons_logging_adapters.jar"/>
     <ROW File="org.postgresql_postgresql_jdbc_postgresql_jdbc3.jar" Component_="jar" FileName="orgpos~1.jar|org.postgresql-postgresql-jdbc-postgresql-jdbc3.jar" Attributes="0" SourcePath="..\build\jar\org.postgresql-postgresql-jdbc-postgresql-jdbc3.jar" SelfReg="false" NextFile="org.apache.commons_commons_collections_commons_collections.jar"/>
-    <ROW File="org.postgresql_postgresql_jdbc_postgresql_jdbc4.jar" Component_="jar" FileName="orgpos~2.jar|org.postgresql-postgresql-jdbc-postgresql-jdbc4.jar" Attributes="0" SourcePath="..\build\jar\org.postgresql-postgresql-jdbc-postgresql-jdbc4.jar" SelfReg="false"/>
+    <ROW File="org.postgresql_postgresql_jdbc_postgresql_jdbc4.jar" Component_="jar" FileName="orgpos~2.jar|org.postgresql-postgresql-jdbc-postgresql-jdbc4.jar" Attributes="0" SourcePath="..\build\jar\org.postgresql-postgresql-jdbc-postgresql-jdbc4.jar" SelfReg="false" NextFile="org.ehcache_ehcache_ehcache.jar"/>
     <ROW File="org.scannotation_scannotation_scannotation.jar" Component_="jar" FileName="orgsca~1.jar|org.scannotation-scannotation-scannotation.jar" Attributes="0" SourcePath="..\build\jar\org.scannotation-scannotation-scannotation.jar" SelfReg="false" NextFile="org.apache.commons_commons_beanutils_commons_beanutils_core.jar"/>
     <ROW File="org.slf4j_slf4j_jcl_over_slf4j.jar" Component_="jar" FileName="orgslf~2.jar|org.slf4j-slf4j-jcl-over-slf4j.jar" Attributes="0" SourcePath="..\build\jar\org.slf4j-slf4j-jcl-over-slf4j.jar" SelfReg="false" NextFile="org.hibernate_hibernate_hibernate.jar"/>
     <ROW File="org.slf4j_slf4j_log4j_over_slf4j.jar" Component_="jar" FileName="orgslf~3.jar|org.slf4j-slf4j-log4j-over-slf4j.jar" Attributes="0" SourcePath="..\build\jar\org.slf4j-slf4j-log4j-over-slf4j.jar" SelfReg="false" NextFile="net.sf.opencsv_opencsv_opencsv.jar"/>
@@ -292,7 +291,7 @@
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="MSI_32" BuildName="MSI_32" BuildOrder="1" BuildType="1" PackageFolder="." PackageFileName="OG-Language-[|ProductVersion]-32-bit" Languages="en" InstallationType="4"/>
     <ROW BuildKey="MSI_64" BuildName="MSI_64" BuildOrder="2" BuildType="1" PackageFolder="." PackageFileName="OG-Language-[|ProductVersion]-64-bit" Languages="en" InstallationType="4" MsiPackageType="x64"/>
-    <ATTRIBUTE name="CurrentBuild" value="MSI_32"/>
+    <ATTRIBUTE name="CurrentBuild" value="MSI_64"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
     <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
@@ -390,6 +389,7 @@
     <ROW Action="AI_AppSearchEx" Type="1" Source="Prereq.dll" Target="DoAppSearchEx"/>
     <ROW Action="AI_CleanPrereq" Type="65" Source="Prereq.dll" Target="CleanPrereq" WithoutSeq="true"/>
     <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
+    <ROW Action="AI_DetectJRE" Type="1" Source="aicustact.dll" Target="RequiredJreExists"/>
     <ROW Action="AI_DownloadPrereq" Type="1" Source="Prereq.dll" Target="DownloadPrereq"/>
     <ROW Action="AI_ExtractPrereq" Type="65" Source="Prereq.dll" Target="ExtractPrereq"/>
     <ROW Action="AI_FwConfig" Type="11265" Source="NetFirewall.dll" Target="OnFwConfig" WithoutSeq="true"/>
@@ -442,6 +442,7 @@
     <ROW Action="AI_VerifyPrereq" Sequence="1201"/>
     <ROW Action="AI_FwInstall" Condition="(VersionNT &gt;= 501) AND (REMOVE &lt;&gt; &quot;ALL&quot;)" Sequence="5849"/>
     <ROW Action="AI_FwUninstall" Condition="(VersionNT &gt;= 501) AND (REMOVE=&quot;ALL&quot;)" Sequence="1699"/>
+    <ROW Action="AI_DetectJRE" Condition="1" Sequence="399" Builds="MSI_32;MSI_64"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="745"/>
@@ -453,8 +454,10 @@
     <ROW Action="AI_InstallPostPrerequisite" Sequence="1301"/>
     <ROW Action="AI_ExtractPrereq" Sequence="1282"/>
     <ROW Action="AI_DownloadPrereq" Sequence="1281"/>
+    <ROW Action="AI_DetectJRE" Condition="1" Sequence="399" Builds="MSI_32;MSI_64"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
+    <ROW Condition="AI_JREVERFOUND = 1" Description="[ProductName] cannot be installed on systems with JRE version lower than [AI_MINJREVERSION]" DescriptionLocId="AI.LaunchCondition.Jre" IsPredefined="true" Builds="MSI_32;MSI_64"/>
     <ROW Condition="VersionNT" Description="[ProductName] cannot be installed on [WindowsType9XDisplay]" DescriptionLocId="AI.LaunchCondition.No9X" IsPredefined="true" Builds="MSI_32;MSI_64"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRegLocatorComponent">
@@ -496,17 +499,13 @@
     <ROW UpgradeCode="[|UpgradeCode]" VersionMin="[|ProductVersion]" Attributes="2" ActionProperty="AI_NEWERPRODUCTFOUND"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.PreReqComponent">
-    <ROW PrereqKey="A36DC7A_AF70_4CF0_B489_B30E0828F882" DisplayName="Visual C++ 2010 Redistributable x86" SetupFileUrl="http://download.microsoft.com/download/5/B/C/5BC5DBB3-652D-4DCE-B14A-475AB85EEF6E/vcredist_x86.exe" Location="1" ExactSize="0" Win9xVersions="Windows 9x/ME" WinNTVersions="Windows NT 4.0, Windows NT 4.0 Service Pack 1, Windows NT 4.0 Service Pack 2, Windows NT 4.0 Service Pack 3, Windows NT 4.0 Service Pack 4, Windows NT 4.0 Service Pack 5, Windows NT 4.0 Service Pack 6, Windows 2000, Windows 2000 Service Pack 1, Windows 2000 Service Pack 2, Windows 2000 Service Pack 3, Windows 2000 Service Pack 4, Windows XP x86, Windows XP x86 Service Pack 1, Windows XP x86 Service Pack 2" WinNT64Versions="Windows XP x64, Windows XP x64 ServicePack 1, Windows XP x64 ServicePack 2, Windows Server 2003 x64, Windows Server 2003 x64 Service Pack 1, Windows Server 2003 x64 Service pack 2" Operator="1" TargetName="Visual C++ 2010 Redistributable x86" Type="1" Feature="A36DC7A_AF70_4CF0_B489_B30E0828F882"/>
-    <ROW PrereqKey="D47E8ACA_EC67_4483_872C_C8478728E5E9" DisplayName="Visual C++ 2010 Redistributable x64" SetupFileUrl="http://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe" Location="1" ExactSize="0" Win9xVersions="Windows 9x/ME" WinNTVersions="Windows NT/2k/XP/Vista/Windows7 x86" WinNT64Versions="Windows XP x64, Windows XP x64 ServicePack 1, Windows XP x64 ServicePack 2, Windows Server 2003 x64, Windows Server 2003 x64 Service Pack 1, Windows Server 2003 x64 Service pack 2" Operator="1" Options="x" TargetName="Visual C++ 2010 Redistributable x64" Type="1" Feature="D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
-    <ROW PrereqKey="EC39D_0B8D_4C2E_A373_7F11E2281A4C" DisplayName="Java Runtime Environment" VersionMin="1.6" SetupFileUrl="http://www.java.com" Location="2" ExactSize="0" Operator="1" Options="x"/>
-    <ATTRIBUTE name="PrereqsOrder" value="EC39D_0B8D_4C2E_A373_7F11E2281A4C A36DC7A_AF70_4CF0_B489_B30E0828F882 D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
+    <ROW PrereqKey="A36DC7A_AF70_4CF0_B489_B30E0828F882" DisplayName="Visual C++ 2010 Redistributable x86" SetupFileUrl="http://download.microsoft.com/download/5/B/C/5BC5DBB3-652D-4DCE-B14A-475AB85EEF6E/vcredist_x86.exe" Location="1" ExactSize="0" Win9xVersions="Windows 9x/ME" WinNTVersions="Windows NT 4.0, Windows NT 4.0 Service Pack 1, Windows NT 4.0 Service Pack 2, Windows NT 4.0 Service Pack 3, Windows NT 4.0 Service Pack 4, Windows NT 4.0 Service Pack 5, Windows NT 4.0 Service Pack 6, Windows 2000, Windows 2000 Service Pack 1, Windows 2000 Service Pack 2, Windows 2000 Service Pack 3, Windows 2000 Service Pack 4, Windows XP x86, Windows XP x86 Service Pack 1, Windows XP x86 Service Pack 2" WinNT64Versions="Windows XP x64, Windows Server 2003 x64, Windows Server 2003 x64 Service Pack 1" Operator="0" TargetName="Visual C++ 2010 Redistributable x86" Type="1" Feature="A36DC7A_AF70_4CF0_B489_B30E0828F882"/>
+    <ROW PrereqKey="D47E8ACA_EC67_4483_872C_C8478728E5E9" DisplayName="Visual C++ 2010 Redistributable x64" SetupFileUrl="http://download.microsoft.com/download/3/2/2/3224B87F-CFA0-4E70-BDA3-3DE650EFEBA5/vcredist_x64.exe" Location="1" ExactSize="0" Win9xVersions="Windows 9x/ME" WinNTVersions="Windows NT/2k/XP/Vista/Windows7 x86" WinNT64Versions="Windows XP x64, Windows Server 2003 x64, Windows Server 2003 x64 Service Pack 1" Operator="0" Options="x" TargetName="Visual C++ 2010 Redistributable x64" Type="1" Feature="D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
+    <ATTRIBUTE name="PrereqsOrder" value="A36DC7A_AF70_4CF0_B489_B30E0828F882 D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.PreReqSearchComponent">
-    <ROW SearchKey="A36DC7A_AF70_4CF0_B489_B30E0828F882_VC_2010_SEARCH_1" Prereq="A36DC7A_AF70_4CF0_B489_B30E0828F882" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86\Rbld" RefContent="G1" Order="2" Property="AI_VC_2010_PREREQSEARCH_1_PROP_1"/>
-    <ROW SearchKey="A36DC7A_AF70_4CF0_B489_B30E0828F882_VC_2010_SEARCH_2" Prereq="A36DC7A_AF70_4CF0_B489_B30E0828F882" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86\Rbld" RefContent="M1" Order="1" Property="AI_VC_2010_PREREQSEARCH_1_PROP"/>
-    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_1" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Rbld" RefContent="G1" Order="2" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP"/>
-    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_2" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Rbld" RefContent="M1" Order="1" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP_1"/>
-    <ROW SearchKey="EC39D_0B8D_4C2E_A373_7F11E2281A4C_JRE_SEARCH" Prereq="EC39D_0B8D_4C2E_A373_7F11E2281A4C" SearchType="1" SearchString="HKLM\SOFTWARE\JavaSoft\Java Runtime Environment" VerMin="1.0" Order="1" Property="AI_JRE_PREREQSEARCH_PROP"/>
+    <ROW SearchKey="A36DC7A_AF70_4CF0_B489_B30E0828F882_VC_2010_SEARCH_1" Prereq="A36DC7A_AF70_4CF0_B489_B30E0828F882" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86\Installed" RefContent="M1" Order="1" Property="AI_VC_2010_PREREQSEARCH_1_PROP_1"/>
+    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_2" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Installed" RefContent="M1" Order="1" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP_1" Platform="1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.SynchronizedFolderComponent">
     <ROW Directory_="jar_Dir" SourcePath="..\build\jar" Feature="Java" ExcludePattern="*~|#*#|%*%|._|CVS|.cvsignore|SCCS|vssver.scc|mssccprj.scc|vssver2.scc|.svn|.DS_Store" ExcludeFlags="6"/>

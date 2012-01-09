@@ -70,7 +70,7 @@ public class SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction extends SA
 
       @Override
       public Double evaluate(Double x) {
-        return 1.;
+        return 0.8;
       }
 
     };

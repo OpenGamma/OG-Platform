@@ -18,7 +18,6 @@ import com.opengamma.math.function.Function;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
-import com.opengamma.math.interpolation.MonotonicIncreasingInterpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 
@@ -33,7 +32,6 @@ public class PiecewiseSABRSurfaceFitter {
   private final double[] _forwards;
   private final double[] _expiries;
   private final double[][] _strikes;
-  private final double[] _atmVols;
   private final double[][] _vols;
   private final int _nExpiries;
 
@@ -63,7 +61,6 @@ public class PiecewiseSABRSurfaceFitter {
     _forwardCurve = new ForwardCurve(InterpolatedDoublesCurve.from(_expiries, _forwards, EXTRAPOLATOR));
     _strikes = new double[_nExpiries][];
     _vols = new double[_nExpiries][];
-    _atmVols = atms;
     for (int i = 0; i < _nExpiries; i++) {
       SmileDeltaParameter cal = new SmileDeltaParameter(_expiries[i], atms[i], deltas,
           new double[] {riskReversals[0][i], riskReversals[1][i] }, new double[] {strangle[0][i], strangle[1][i] });
@@ -96,7 +93,6 @@ public class PiecewiseSABRSurfaceFitter {
     _forwards = forwards;
     _strikes = strikes;
     _vols = impliedVols;
-    _atmVols = null;
 
     checkVols();
 
@@ -146,11 +142,6 @@ public class PiecewiseSABRSurfaceFitter {
     _forwards = Arrays.copyOf(from._forwards, from._nExpiries);
     _expiries = Arrays.copyOf(from._expiries, from._nExpiries);
     _forwardCurve = new ForwardCurve(InterpolatedDoublesCurve.from(_expiries, _forwards, EXTRAPOLATOR));
-    if (from._atmVols != null) {
-      _atmVols = Arrays.copyOf(from._atmVols, from._nExpiries);
-    } else {
-      _atmVols = null;
-    }
     _strikes = new double[_nExpiries][];
     _vols = new double[_nExpiries][];
     _fitters = new PiecewiseSABRFitter[_nExpiries];
@@ -159,10 +150,6 @@ public class PiecewiseSABRSurfaceFitter {
       _vols[i] = Arrays.copyOf(from._vols[i], from._nExpiries);
       _fitters[i] = from._fitters[i]; //shallow copy of fitters
     }
-  }
-
-  public BlackVolatilitySurface getImpliedVolatilitySurface() {
-    return getSurfaceDoubleQuad();
   }
 
   public PiecewiseSABRSurfaceFitter withBumpedPoint(final int expiryIndex, final int strikeIndex, final double amount) {
@@ -182,6 +169,14 @@ public class PiecewiseSABRSurfaceFitter {
     return res;
   }
 
+  /**
+   * For a given expiry and strike, perform a linear interpolation between the integrated variances of points with
+   * the same strike on the two adjacent fitted smiles. This guarantees a monotonically increasing integrated variance
+   * (hence no calendar arbitrage and a real positive local volatility), but at the cost of having jumps in the local
+   * volatility surface
+   * @return A interpolated implied Volatility surface
+   */
+  @SuppressWarnings("unused")
   private BlackVolatilitySurface getSurfaceLinear() {
     Function<Double, Double> surFunc = new Function<Double, Double>() {
 
@@ -234,256 +229,19 @@ public class PiecewiseSABRSurfaceFitter {
     return new BlackVolatilitySurface(FunctionalDoublesSurface.from(surFunc));
   }
 
-  private double interpolatedATMVol(final double t) {
+  /**
+   * For a given expiry and strike, perform an interpolation between either the volatility or integrated variances
+   *  of points with the same moneyness on the fitted smiles. There is no guarantees a monotonically increasing integrated variance
+   * (hence no calendar arbitrage and a real positive local volatility), but using log time to better space out the x-points
+   * help.
+   * @return A interpolated implied Volatility surface
+   * @param useLogTime The x-axis is the log of time
+   * @param useIntegratedVar the y-points are integrated variance (rather than volatility)
+   * @param lambda zero the strikes are (almost) the same across fitted smiles, large lambda they scale as root-time
+   * @return Implied volatility surface
+   */
+  public BlackVolatilitySurface getImpliedVolatilitySurface(final boolean useLogTime, final boolean useIntegratedVar, final double lambda) {
 
-    if (t <= _expiries[0]) { //
-      return _atmVols[0];
-    }
-    if (t >= _expiries[_nExpiries - 1]) {
-      return _atmVols[_nExpiries - 1];
-    }
-
-    int index = getLowerBoundIndex(t);
-
-    double[] sample = new double[2];
-    double[] times = new double[2];
-    int lower;
-    if (index == 0) {
-      lower = 0;
-    } else if (index >= _nExpiries - 1) {
-      lower = index - 1;
-    } else {
-      lower = index;
-    }
-    for (int i = 0; i < 2; i++) {
-      double vol = _atmVols[i + lower]; //TODO this can be done in constructor
-      sample[i] = vol * vol * _expiries[i + lower]; //interpolate the variance
-      if (i > 0) {
-        Validate.isTrue(sample[i] >= sample[i - 1], "variance must increase");
-      }
-    }
-    times = Arrays.copyOfRange(_expiries, lower, lower + 2);
-
-    double dt = times[1] - times[0];
-    double var = ((times[1] - t) * sample[0] + (t - times[0]) * sample[1]) / dt;
-
-    // double var = INTERPOLATOR_1D.interpolate(db, t);
-    if (var >= 0) {
-      return Math.sqrt(var / t);
-    } else {
-      throw new MathException("negative var " + var);
-    }
-  }
-
-  private double getD1(final double f, final double k, final double sigma, final double t) {
-    final double sigmaRootT = sigma * Math.sqrt(t);
-    return Math.log(f / k) / sigmaRootT + 0.5 * sigmaRootT;
-  }
-
-  private double getStrike(final double d1,
-      final double f1, final double sigma1, final double t1) {
-    return f1 * Math.exp(-d1 * sigma1 * Math.sqrt(t1) + sigma1 * sigma1 * t1);
-  }
-
-  private BlackVolatilitySurface getSurfaceDelta() {
-    Function<Double, Double> surFunc = new Function<Double, Double>() {
-
-      @Override
-      public Double evaluate(Double... tk) {
-        double t = tk[0];
-        double k = tk[1];
-
-        final double atmVol = interpolatedATMVol(t);
-        final double forward = _forwardCurve.getForward(t);
-
-        if (t < 1e-6) {
-          t = 1e-6;
-        }
-
-        final double d1 = getD1(forward, k, atmVol, t);
-
-        if (t <= _expiries[0]) {
-          double k1 = getStrike(d1, _forwards[0], _atmVols[0], _expiries[0]);
-          return _fitters[0].getVol(k1);
-        }
-        if (t >= _expiries[_nExpiries - 1]) {
-          double k1 = getStrike(d1, _forwards[_nExpiries - 1], _atmVols[_nExpiries - 1], _expiries[_nExpiries - 1]);
-          return _fitters[_nExpiries - 1].getVol(k1);
-        }
-
-        int index = getLowerBoundIndex(t);
-
-        int lower;
-        if (index == 0) {
-          lower = 0;
-        } else if (index >= _nExpiries - 1) {
-          lower = index - 1;
-        } else {
-          lower = index;
-        }
-
-        final double t1 = _expiries[lower];
-        final double t2 = _expiries[lower + 1];
-        double k1 = getStrike(d1, _forwards[lower], _atmVols[lower], t1);
-        double k2 = getStrike(d1, _forwards[lower + 1], _atmVols[lower + 1], t2);
-
-        double vol1 = _fitters[lower].getVol(k1);
-        double vol2 = _fitters[lower + 1].getVol(k2);
-
-        double intVar1 = vol1 * vol1 * t1;
-        double intVar2 = vol2 * vol2 * t2;
-
-        Validate.isTrue(intVar2 > intVar1, "variance must increase");
-
-        double dt = t2 - t1;
-        double var = ((t2 - t) * intVar1 + (t - t1) * intVar2) / dt;
-
-        if (var >= 0) {
-          return Math.sqrt(var / t);
-        } else {
-          throw new MathException("negative var " + var);
-        }
-      }
-    };
-
-    return new BlackVolatilitySurface(FunctionalDoublesSurface.from(surFunc));
-  }
-
-  private BlackVolatilitySurface getSurfaceMoneyness() {
-    final double lambda = 100;
-
-    Function<Double, Double> surFunc = new Function<Double, Double>() {
-
-      @Override
-      public Double evaluate(Double... tk) {
-        double t = tk[0];
-        double k = tk[1];
-
-        final double forward = _forwardCurve.getForward(t);
-
-        //        if (t < 1e-6) {
-        //          t = 1e-6;
-        //        }
-
-        final double x = Math.log(forward / k) / Math.sqrt(1 + lambda * t);
-
-        if (t <= _expiries[0]) {
-          //         double k1 = _forwards[0] * Math.exp(Math.log(k / forward) * Math.sqrt((_expiries[0] + eps) / (t + eps)));
-          double k1 = _forwards[0] * Math.exp(-Math.sqrt(1 + lambda * _expiries[0]) * x);
-          return _fitters[0].getVol(k1);
-        }
-        if (t >= _expiries[_nExpiries - 1]) {
-          double k1 = _forwards[_nExpiries - 1] * Math.exp(-Math.sqrt(1 + lambda * _expiries[_nExpiries - 1]) * x);
-          return _fitters[_nExpiries - 1].getVol(k1);
-        }
-
-        int index = getLowerBoundIndex(t);
-
-        int lower;
-        if (index == 0) {
-          lower = 0;
-        } else if (index >= _nExpiries - 1) {
-          lower = index - 1;
-        } else {
-          lower = index;
-        }
-
-        final double t1 = _expiries[lower];
-        final double t2 = _expiries[lower + 1];
-        double k1 = _forwards[lower] * Math.exp(-Math.sqrt(1 + lambda * t1) * x);
-        double k2 = _forwards[lower + 1] * Math.exp(-Math.sqrt(1 + lambda * t2) * x);
-
-        double vol1 = _fitters[lower].getVol(k1);
-        double vol2 = _fitters[lower + 1].getVol(k2);
-
-        double intVar1 = vol1 * vol1 * t1;
-        double intVar2 = vol2 * vol2 * t2;
-
-        Validate.isTrue(intVar2 >= intVar1, "variance must increase");
-
-        double dt = t2 - t1;
-        double var = ((t2 - t) * intVar1 + (t - t1) * intVar2) / dt;
-
-        if (var >= 0) {
-          return Math.sqrt(var / t);
-        } else {
-          throw new MathException("negative var " + var);
-        }
-      }
-    };
-
-    return new BlackVolatilitySurface(FunctionalDoublesSurface.from(surFunc));
-  }
-
-  private BlackVolatilitySurface getSurfaceMoneynessMonotonic() {
-    final double eps = 1e-4;
-    final Interpolator1D interpolator = new MonotonicIncreasingInterpolator1D();
-
-    Function<Double, Double> surFunc = new Function<Double, Double>() {
-
-      @Override
-      public Double evaluate(Double... tk) {
-        double t = tk[0];
-        double k = tk[1];
-
-        final double forward = _forwardCurve.getForward(t);
-
-        //        if (t < 1e-6) {
-        //          t = 1e-6;
-        //        }
-
-        //        if (t <= _expiries[0]) {
-        //          //         double k1 = _forwards[0] * Math.exp(Math.log(k / forward) * Math.sqrt((_expiries[0] + eps) / (t + eps)));
-        //          return _fitters[0].getVol(k);
-        //        }
-        //        if (t >= _expiries[_nExpiries - 1]) {
-        //          double k1 = _forwards[_nExpiries - 1] * Math.exp(Math.log(k / forward) * Math.sqrt(_expiries[_nExpiries - 1] / t));
-        //          return _fitters[_nExpiries - 1].getVol(k1);
-        //        }
-
-        final double x = Math.log(k / forward) / Math.sqrt(t);
-
-        int index = getLowerBoundIndex(t);
-
-        int lower;
-        if (index == 0) {
-          lower = 0;
-        } else if (index >= _nExpiries - 1) {
-          lower = index - 1;
-        } else {
-          lower = index;
-        }
-
-        double[] invars = new double[_nExpiries];
-        for (int i = 0; i < _nExpiries; i++) {
-          double strike = _forwards[i] * Math.exp(Math.sqrt(_expiries[i]) * x);
-          double vol = _fitters[lower].getVol(strike);
-          invars[i] = vol * vol * _expiries[i];
-          if (i > 0) {
-            Validate.isTrue(invars[i] >= invars[i - 1], "variance must increase");
-          }
-        }
-
-        if (t > 4 && x < 0.5 && x > -0.5) {
-          System.out.println("debug");
-        }
-
-        Interpolator1DDataBundle db = interpolator.getDataBundle(_expiries, invars);
-        double var = interpolator.interpolate(db, t);
-
-        if (var >= 0) {
-          return Math.sqrt(var / t);
-        } else {
-          throw new MathException("negative var " + var);
-        }
-      }
-    };
-
-    return new BlackVolatilitySurface(FunctionalDoublesSurface.from(surFunc));
-  }
-
-  private BlackVolatilitySurface getSurfaceDoubleQuad() {
-    final double lambda = 100;
 
     Function<Double, Double> surFunc = new Function<Double, Double>() {
 
@@ -495,17 +253,12 @@ public class PiecewiseSABRSurfaceFitter {
         //       final double atmVol = interpolatedATMVol(t);
         final double forward = _forwardCurve.getForward(t);
 
-        final double x = Math.log(forward / k) / Math.sqrt(1 + lambda * t);
+        final double d = Math.log(forward / k) / Math.sqrt(1 + lambda * t);
         //
         if (t <= _expiries[0]) {
-          double k1 = _forwards[0] * Math.exp(-x * Math.sqrt(1 + lambda * _expiries[0]));
+          double k1 = _forwards[0] * Math.exp(-d * Math.sqrt(1 + lambda * _expiries[0]));
           return _fitters[0].getVol(k1);
         }
-        //
-        //        if (t >= _expiries[_nExpiries - 1]) {
-        //          double k1 = _forwards[_nExpiries - 1] * Math.exp(-x * Math.sqrt(1 + lambda * _expiries[_nExpiries - 1]));
-        //          return _fitters[_nExpiries - 1].getVol(k1);
-        //        }
 
         int index = getLowerBoundIndex(t);
 
@@ -520,27 +273,48 @@ public class PiecewiseSABRSurfaceFitter {
           lower = index - 1;
         }
         final double[] times = Arrays.copyOfRange(_expiries, lower, lower + 4);
-        final double[] logTimes = new double[4];
-        for (int i = 0; i < 4; i++) {
-          logTimes[i] = Math.log(times[i]);
+        double[] xs = new double[4];
+        double x = 0;
+        if (useLogTime) {
+          for (int i = 0; i < 4; i++) {
+            xs[i] = Math.log(times[i]);
+            x = Math.log(t);
+          }
+        } else {
+          xs = times;
+          x = t;
         }
-        // final double[] forwards = Arrays.copyOfRange(_forwards, lower, lower + 4);
-        // final double[] atm = Arrays.copyOfRange(_atmVols, lower, lower + 4);
+
         final double[] strikes = new double[4];
         final double[] vols = new double[4];
         final double[] intVar = new double[4];
+        double[] y = null;
 
         for (int i = 0; i < 4; i++) {
-          strikes[i] = _forwards[lower + i] * Math.exp(-x * Math.sqrt(1 + lambda * times[i]));
+          strikes[i] = _forwards[lower + i] * Math.exp(-d * Math.sqrt(1 + lambda * times[i]));
           vols[i] = _fitters[lower + i].getVol(strikes[i]);
-          //   intVar[i] = vols[i] * vols[i] * times[i];
-          //          if(i>0) {
-          //            Validate.isTrue(intVar[i] > intVar[i-1], "variance must increase");
-          //          }
+
+          intVar[i] = vols[i] * vols[i] * times[i];
+          if (i > 0) {
+            Validate.isTrue(intVar[i] > intVar[i - 1], "variance must increase");
+          }
+          if (useIntegratedVar) {
+            y = intVar;
+          } else {
+            y = vols;
+          }
         }
 
-        Interpolator1DDataBundle db = EXTRAPOLATOR.getDataBundle(logTimes, vols);
-        double sigma = (EXTRAPOLATOR.interpolate(db, Math.log(t)));
+        Interpolator1DDataBundle db = EXTRAPOLATOR.getDataBundle(xs, y);
+        double sigma;
+
+        double res = EXTRAPOLATOR.interpolate(db, x);
+        if (useIntegratedVar) {
+          Validate.isTrue(res >= 0.0, "Negative integrated variance");
+          sigma = Math.sqrt(res / t);
+        } else {
+          sigma = res;
+        }
         return sigma;
       }
     };

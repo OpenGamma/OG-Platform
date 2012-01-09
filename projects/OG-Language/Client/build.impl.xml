@@ -37,7 +37,11 @@
   </target>
 
   <target name="compile-tests" depends="common.compile-tests">
-    <echo file="${test.properties.dir}/${test.properties}">language.ext.path=${build.dir}/ext</echo>
+    <property file="${common.dir}/tests.properties" />
+    <echo file="${test.properties.dir}/${test.properties}">language.ext.path=${build.dir}/ext
+opengamma.engine.host=${opengamma.engine.host}
+opengamma.engine.port=${opengamma.engine.port}
+opengamma.engine.path=${opengamma.engine.path}</echo>
   </target>
 
 </project>
