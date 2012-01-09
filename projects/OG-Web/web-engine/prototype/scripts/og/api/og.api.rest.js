@@ -400,6 +400,8 @@ $.register_module({
                     });
                     meta.type = id ? 'PUT' : 'POST';
                     fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
+                    if (config['trades']) // the trades data structure needs to be serialized and sent as a string
+                        data['tradesJson'] = JSON.stringify({trades: config['trades']});
                     if (id) method = method.concat(version ? [id, 'versions', version] : id);
                     return request(method, {data: data, meta: meta});
                 },
