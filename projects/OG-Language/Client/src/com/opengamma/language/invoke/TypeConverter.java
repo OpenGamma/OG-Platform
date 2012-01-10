@@ -18,6 +18,8 @@ public interface TypeConverter {
 
   /**
    * Tests whether the type converter will attempt to produce a value of the given type.
+   * <p>
+   * This answers the question 'can something be converted into the given type?'.
    * 
    * @param targetType  the desired type, not null
    * @return true if the type can be produced, false if it can never be produced
@@ -26,6 +28,8 @@ public interface TypeConverter {
 
   /**
    * Returns the set of types the converter will attempt to convert directly into the given type.
+   * <p>
+   * This answers the question 'which types can be converted into the given type?'.
    * 
    * @param targetType  the desired type, not null. This will only be invoked for types that return true from {@link #canConvertTo}.
    * @return the types it can convert to the target type with the conversion cost, not empty, not null
