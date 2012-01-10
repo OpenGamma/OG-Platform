@@ -63,6 +63,11 @@
 
 .OG-table thead tr th {
     background-color: #fff;
+    white-space: nowrap;
+}
+
+.OG-table tbody td {
+    vertical-align: top;
 }
 
 .OG-table th:after {
