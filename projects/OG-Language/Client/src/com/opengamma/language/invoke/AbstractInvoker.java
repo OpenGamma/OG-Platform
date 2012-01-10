@@ -16,9 +16,11 @@ import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.error.InvokeResultConversionException;
 import com.opengamma.language.function.AbstractFunctionInvoker;
+import com.opengamma.language.livedata.AbstractLiveDataConnector;
+import com.opengamma.language.procedure.AbstractProcedureInvoker;
 
 /**
- * Base implementation for {@link AbstractFunctionInvoker}, {@link AbstractLiveDataInvoker} and {@link AbstractProcedureInvoker}.
+ * Base implementation for {@link AbstractFunctionInvoker}, {@link AbstractLiveDataConnector} and {@link AbstractProcedureInvoker}.
  */
 public abstract class AbstractInvoker {
 
