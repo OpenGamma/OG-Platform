@@ -108,7 +108,10 @@
   </target>
 
   <target name="set-version">
-    <property name="module.version" value="${module.version.target}" />
+    <echo file="${basedir}/.version">module.version=${module.version.target}</echo>
+    <replaceregexp file="${basedir}/.version" match="(=\d+\.\d+\.\d+)\w*$" replace="\1" />
+    <property file="${basedir}/.version" />
+    <delete file="${basedir}/.version" />
     <echo file="${basedir}/version.h">// Automatically generated file -- do not modify
 
 #ifndef __inc_og_language_version_h
@@ -132,9 +135,9 @@
 
 #endif /* ifndef __inc_og_language_version_h */
     </echo>
-    <replaceregexp file="${basedir}/version.h" match="vermajor(\d+)\.\d+\.\w+" replace="\1" flags="m" />
-    <replaceregexp file="${basedir}/version.h" match="verminor\d+\.(\d+)\.\w+" replace="\1" flags="m" />
-    <replaceregexp file="${basedir}/version.h" match="revision\d+\.\d+\.(\d+)\w*" replace="\1" flags="m" />
+    <replaceregexp file="${basedir}/version.h" match="vermajor(\d+)\.\d+\.\d+" replace="\1" flags="m" />
+    <replaceregexp file="${basedir}/version.h" match="verminor\d+\.(\d+)\.\d+" replace="\1" flags="m" />
+    <replaceregexp file="${basedir}/version.h" match="revision\d+\.\d+\.(\d+)" replace="\1" flags="m" />
   </target>
 
   <target name="make-config">
