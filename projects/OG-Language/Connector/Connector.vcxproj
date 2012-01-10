@@ -172,9 +172,12 @@
     <ClInclude Include="com_opengamma_language_function_Result.h" />
     <ClInclude Include="com_opengamma_language_livedata_Available.h" />
     <ClInclude Include="com_opengamma_language_livedata_Available_Entry.h" />
+    <ClInclude Include="com_opengamma_language_livedata_Connect.h" />
     <ClInclude Include="com_opengamma_language_livedata_Custom.h" />
     <ClInclude Include="com_opengamma_language_livedata_Definition.h" />
     <ClInclude Include="com_opengamma_language_livedata_QueryAvailable.h" />
+    <ClInclude Include="com_opengamma_language_livedata_QueryValue.h" />
+    <ClInclude Include="com_opengamma_language_livedata_Result.h" />
     <ClInclude Include="com_opengamma_language_procedure_Available.h" />
     <ClInclude Include="com_opengamma_language_procedure_Available_Entry.h" />
     <ClInclude Include="com_opengamma_language_procedure_Custom.h" />
@@ -259,6 +262,9 @@
     <ClCompile Include="com_opengamma_language_livedata_Available_Entry.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
+    <ClCompile Include="com_opengamma_language_livedata_Connect.c">
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
     <ClCompile Include="com_opengamma_language_livedata_Custom.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
@@ -266,6 +272,12 @@
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <ClCompile Include="com_opengamma_language_livedata_QueryAvailable.c">
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_livedata_QueryValue.c">
+      <CompileAs>CompileAsCpp</CompileAs>
+    </ClCompile>
+    <ClCompile Include="com_opengamma_language_livedata_Result.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <ClCompile Include="com_opengamma_language_procedure_Available.c">
