@@ -48,7 +48,7 @@ public class MockLiveDataServer extends AbstractLiveDataServer {
   }
   
   @Override
-  protected ExternalScheme getUniqueIdDomain() {
+  public ExternalScheme getUniqueIdDomain() {
     return _domain;
   }
 

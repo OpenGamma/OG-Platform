@@ -1,0 +1,39 @@
+/*
+ * @copyright 2012 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+.ui-slider .ui-slider-handle {
+    border: 1px solid #aaa;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+    background-color: #ebebeb;
+}
+
+.ui-slider .ui-slider-handle:hover {
+    background: #fcfcfc;
+    border: 1px solid #d5d5d5;
+}
+
+.ui-slider.ui-slider-horizontal {
+    background: #f8f8f8;
+    border: 1px solid #ddd;
+    -webkit-border-radius: 2px;
+    -moz-border-radius: 2px;
+    border-radius: 2px;
+}
+
+.ui-slider .ui-slider-handle:after {
+    border-bottom-right-radius: 2px;
+    border-bottom-left-radius: 2px;
+    background: white;
+    bottom: 50%;
+    content: '';
+    left: 1px;
+    opacity: 0.5;
+    filter: alpha(opacity=30);
+    position: absolute;
+    top: 1px;
+    right: 1px;
+}

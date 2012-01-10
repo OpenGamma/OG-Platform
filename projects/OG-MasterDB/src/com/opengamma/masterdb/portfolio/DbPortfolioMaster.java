@@ -10,6 +10,7 @@ import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map.Entry;
@@ -368,6 +369,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     private long _lastNodeId = -1;
     private ManageablePortfolio _portfolio;
     private ManageablePortfolioNode _node;
+    private Set<ObjectId> _nodePositionIds; //Should always === _node.getPositionIds(), but has fast contains
     private List<PortfolioDocument> _documents = new ArrayList<PortfolioDocument>();
     private final Stack<LongObjectPair<ManageablePortfolioNode>> _nodes = new Stack<LongObjectPair<ManageablePortfolioNode>>();
 
@@ -392,8 +394,10 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
         final String posIdValue = rs.getString("POS_KEY_VALUE");
         if (posIdScheme != null && posIdValue != null) {
           UniqueId id = UniqueId.of(posIdScheme, posIdValue);
-          if (!_node.getPositionIds().contains(id.getObjectId())) {
+          if (!_nodePositionIds.contains(id.getObjectId())) {
             _node.addPosition(id);
+            _nodePositionIds.add(id.getObjectId()); //have to add to both to maintain invariant
+            assert (_nodePositionIds.size() == _node.getPositionIds().size());
           }
         }
         
@@ -432,6 +436,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       final long treeRight = rs.getLong("TREE_RIGHT");
       final String name = StringUtils.defaultString(rs.getString("NODE_NAME"));
       _node = new ManageablePortfolioNode(name);
+      _nodePositionIds = new HashSet<ObjectId>(); //To maintain invariant this becomes is empty
       _node.setUniqueId(createUniqueId(nodeOid, nodeId));
       _node.setPortfolioId(_portfolio.getUniqueId());
       if (_nodes.size() == 0) {

@@ -91,7 +91,7 @@ import de.odysseus.el.util.SimpleResolver;
       public Object getValue(final ELContext context, final Object base, final Object property) {
         if (base == null) {
           context.setPropertyResolved(true);
-          final Object value = evaluator.getVariable((String) property);
+          final Object value = evaluator.evaluateVariable((String) property);
           if (value == NA) {
             throw new PropertyNotFoundException("Variable " + property + " not defined");
           } else {
@@ -103,7 +103,14 @@ import de.odysseus.el.util.SimpleResolver;
             context.setPropertyResolved(true);
             return synthetic.getSecond().apply(base);
           } else {
-            return super.getValue(context, base, property);
+            Object value = super.getValue(context, base, property);
+            if (!context.isPropertyResolved()) {
+              value = evaluator.evaluateAttribute(base, (String) property);
+              if (value != NA) {
+                context.setPropertyResolved(true);
+              }
+            }
+            return value;
           }
         } else {
           return super.getValue(context, base, property);
@@ -114,7 +121,7 @@ import de.odysseus.el.util.SimpleResolver;
       public Class<?> getType(final ELContext context, final Object base, final Object property) {
         if (base == null) {
           context.setPropertyResolved(true);
-          final Object value = evaluator.getVariable((String) property);
+          final Object value = evaluator.evaluateVariable((String) property);
           if (value == NA) {
             throw new PropertyNotFoundException("Variable " + property + " not defined");
           } else {
@@ -126,7 +133,15 @@ import de.odysseus.el.util.SimpleResolver;
             context.setPropertyResolved(true);
             return synthetic.getFirst();
           } else {
-            return super.getType(context, base, property);
+            Class<?> type = super.getType(context, base, property);
+            if (!context.isPropertyResolved()) {
+              final Object value = evaluator.evaluateAttribute(base, (String) property);
+              if (value != NA) {
+                context.setPropertyResolved(true);
+                type = value.getClass();
+              }
+            }
+            return type;
           }
         } else {
           return super.getType(context, base, property);

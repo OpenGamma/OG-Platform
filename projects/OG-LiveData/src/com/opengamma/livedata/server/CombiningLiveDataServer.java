@@ -14,11 +14,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.ExternalScheme;
@@ -27,17 +33,16 @@ import com.opengamma.livedata.msg.LiveDataSubscriptionRequest;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponseMsg;
 import com.opengamma.livedata.server.distribution.MarketDataDistributor;
+import com.opengamma.util.tuple.Pair;
 
 /**
- * A {@link AbstractLiveDataServer} which delegates all the work to a set of {@link AbstractLiveDataServer} 
- * NOTE: this is only really a partial implementation of AbstractLiveDataServer
- *        e.g. Entitlement checking will have to be set up on this client as well as on the underlyings 
+ * A {@link AbstractLiveDataServer} which delegates all the work to a set of {@link AbstractLiveDataServer}  
  */
 public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
-  //TODO: things include Entitlement checking
   
   private static final Logger s_logger = LoggerFactory.getLogger(CombiningLiveDataServer.class);
 
+  private final ExecutorService _subscriptionExecutor = Executors.newCachedThreadPool();
   private final Set<AbstractLiveDataServer> _underlyings;
 
   public CombiningLiveDataServer(AbstractLiveDataServer... otherUnderlyings) {
@@ -52,59 +57,106 @@ public abstract class CombiningLiveDataServer extends AbstractLiveDataServer {
 
   
   @Override
-  public Collection<LiveDataSubscriptionResponse> subscribe(
-      Collection<LiveDataSpecification> liveDataSpecificationsFromClient, boolean persistent) {
+  public Collection<LiveDataSubscriptionResponse> subscribe(Collection<LiveDataSpecification> liveDataSpecificationsFromClient, final boolean persistent) {
+    return subscribeByServer(
+        liveDataSpecificationsFromClient,
+        new SubscribeAction() {
 
-    Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> mapped = groupByServer(liveDataSpecificationsFromClient);
-
-    Collection<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>(
-        liveDataSpecificationsFromClient.size());
-
-    //TODO: should probably be asynchronous 
-    for (Entry<AbstractLiveDataServer, Collection<LiveDataSpecification>> entry : mapped.entrySet()) {
-      if (entry.getValue().isEmpty()) {
-        continue;
-      }
-      AbstractLiveDataServer server = entry.getKey();
-      s_logger.debug("Sending subscription for {} to underlying server {}", entry.getValue(), server);
-      //NOTE: we call up to subscriptionRequestMade to get the exception catching
-      Collection<LiveDataSubscriptionResponse> response = server.subscribe(entry.getValue(), persistent);
-
-      responses.addAll(response);
-    }
-    return responses;
+          @Override
+          public Collection<LiveDataSubscriptionResponse> subscribe(AbstractLiveDataServer server, Collection<LiveDataSpecification> specifications) {
+            return  server.subscribe(specifications, persistent);
+          }
+          
+          @Override
+          public String getName() {
+            return "Subscribe";
+          }
+        });
   }
 
   @Override
-  public LiveDataSubscriptionResponseMsg subscriptionRequestMadeImpl(LiveDataSubscriptionRequest subscriptionRequest) {
-    //TODO dedupe with subscribe
+  public LiveDataSubscriptionResponseMsg subscriptionRequestMadeImpl(final LiveDataSubscriptionRequest subscriptionRequest) {
     //Need to override here as well in order to catch the resolution/entitlement checking
-    List<LiveDataSpecification> specs = subscriptionRequest.getSpecifications();
-    Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> mapped = groupByServer(specs);
+    
+    Collection<LiveDataSubscriptionResponse> responses = subscribeByServer(
+        subscriptionRequest.getSpecifications(),
+        new SubscribeAction() {
+          @Override
+          public Collection<LiveDataSubscriptionResponse> subscribe(AbstractLiveDataServer server, Collection<LiveDataSpecification> specifications) {
+            LiveDataSubscriptionRequest liveDataSubscriptionRequest = buildSubRequest(subscriptionRequest, specifications);
+            //NOTE: we call up to subscriptionRequestMade to get the exception catching
+            LiveDataSubscriptionResponseMsg response = server.subscriptionRequestMade(liveDataSubscriptionRequest);
 
-    Collection<LiveDataSubscriptionResponse> responses = new ArrayList<LiveDataSubscriptionResponse>(
-        subscriptionRequest.getSpecifications().size());
+            //Check that we know how to combine these responses
+            if (response.getRequestingUser() != subscriptionRequest.getUser()) {
+              throw new OpenGammaRuntimeException("Unexpected user in response " + response.getRequestingUser());
+            }
+            return response.getResponses();
+          }
 
-    //TODO: should probably be asynchronous 
-    for (Entry<AbstractLiveDataServer, Collection<LiveDataSpecification>> entry : mapped.entrySet()) {
+          @Override
+          public String getName() {
+            return "SubscriptionRequestMade";
+          }
+        });
+    return new LiveDataSubscriptionResponseMsg(subscriptionRequest.getUser(), responses);
+  }
+  
+  private LiveDataSubscriptionRequest buildSubRequest(final LiveDataSubscriptionRequest subscriptionRequest, Collection<LiveDataSpecification> specifications) {
+    LiveDataSubscriptionRequest liveDataSubscriptionRequest = new LiveDataSubscriptionRequest(subscriptionRequest.getUser(), subscriptionRequest.getType(), specifications);
+    return liveDataSubscriptionRequest;
+  }
+  
+  private interface SubscribeAction {
+    Collection<LiveDataSubscriptionResponse> subscribe(AbstractLiveDataServer server, Collection<LiveDataSpecification> specifications);
+    String getName();
+  }
+  private Collection<LiveDataSubscriptionResponse> subscribeByServer(Collection<LiveDataSpecification> specifications, final SubscribeAction action)
+  {
+    return forEachServer(specifications, new Function<Pair<AbstractLiveDataServer, Collection<LiveDataSpecification>>, Collection<LiveDataSubscriptionResponse>>() {
+      @Override
+      public Collection<LiveDataSubscriptionResponse> apply(Pair<AbstractLiveDataServer, Collection<LiveDataSpecification>> input) {
+        AbstractLiveDataServer specs = input.getFirst();
+        Collection<LiveDataSpecification> server = input.getSecond();
+        s_logger.debug("Sending subscription ({}) for {} to underlying server {}", new Object[] {action.getName(), specs, server});
+        return action.subscribe(specs, server);
+      }
+    });
+  }
+  private <T> Collection<T> forEachServer(Collection<LiveDataSpecification> specifications, final Function<Pair<AbstractLiveDataServer, Collection<LiveDataSpecification>>, Collection<T>> operation)
+  {
+    Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> mapped = groupByServer(specifications);
+
+    Collection<Future<Collection<T>>> futures = new ArrayList<Future<Collection<T>>>(mapped.size());
+    for (final Entry<AbstractLiveDataServer, Collection<LiveDataSpecification>> entry : mapped.entrySet()) {
       if (entry.getValue().isEmpty()) {
         continue;
       }
-      LiveDataSubscriptionRequest liveDataSubscriptionRequest = new LiveDataSubscriptionRequest(
-          subscriptionRequest.getUser(), subscriptionRequest.getType(), entry.getValue());
-      AbstractLiveDataServer server = entry.getKey();
-      s_logger.debug("Sending subscription requests for {} to underlying server {}", liveDataSubscriptionRequest,
-          server);
-      //NOTE: we call up to subscriptionRequestMade to get the exception catching
-      LiveDataSubscriptionResponseMsg response = server.subscriptionRequestMade(liveDataSubscriptionRequest);
+      Future<Collection<T>> future = _subscriptionExecutor.submit(new Callable<Collection<T>>() {
 
-      //Check that we know how to combine these responses
-      if (response.getRequestingUser() != subscriptionRequest.getUser()) {
-        throw new OpenGammaRuntimeException("Unexpected user in response " + response.getRequestingUser());
-      }
-      responses.addAll(response.getResponses());
+        @Override
+        public Collection<T> call() throws Exception {
+          return operation.apply(Pair.of(entry.getKey(), entry.getValue()));
+        }
+      });
+      
+      futures.add(future);
     }
-    return new LiveDataSubscriptionResponseMsg(subscriptionRequest.getUser(), responses);
+    List<T> responses = new ArrayList<T>(specifications.size());
+    for (Future<Collection<T>> future : futures) {
+      try {
+        responses.addAll(future.get());
+      } catch (InterruptedException ex) {
+        //Should be rare, since the subscription methods should bundle everything into the response
+        s_logger.error("Unexpected exception when delegating subscription", ex);
+        throw new OpenGammaRuntimeException(ex.getMessage(), ex);
+      } catch (ExecutionException ex) {
+        //Should be rare, since the subscription methods should bundle everything into the response
+        s_logger.error("Unexpected exception when delegating subscription", ex);
+        throw new OpenGammaRuntimeException(ex.getMessage(), ex);
+      }
+    }
+    return responses;
   }
 
   protected abstract Map<AbstractLiveDataServer, Collection<LiveDataSpecification>> groupByServer(

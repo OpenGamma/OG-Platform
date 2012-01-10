@@ -191,6 +191,7 @@
     <ClCompile Include="Asynchronous.cpp" />
     <ClCompile Include="BufferedInput.cpp" />
     <ClCompile Include="DllVersion.cpp" />
+    <ClCompile Include="Fudge.cpp" />
     <ClCompile Include="Logging.cpp" />
     <ClCompile Include="NamedPipe.cpp" />
     <ClCompile Include="Process.cpp" />

@@ -20,7 +20,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.util.money.Currency;
 
-public class SwapGeneratorTest {
+public class GeneratorSwapTest {
   //Libor3m
   private static final Period IBOR_TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
@@ -32,7 +32,7 @@ public class SwapGeneratorTest {
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_IBOR, BUSINESS_DAY, IS_EOM);
   private static final Period FIXED_LEG_PERIOD = Period.ofMonths(6);
   private static final DayCount DAY_COUNT_FIXED = DayCountFactory.INSTANCE.getDayCount("30/360");
-  private static final SwapGenerator GENERATOR = new SwapGenerator(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX);
+  private static final GeneratorSwap GENERATOR = new GeneratorSwap(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX);
 
   @Test
   public void testGetter() {
@@ -47,17 +47,17 @@ public class SwapGeneratorTest {
   @Test
   public void testEqualHash() {
     assertEquals(GENERATOR, GENERATOR);
-    SwapGenerator generatorDuplicate = new SwapGenerator(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX);
+    GeneratorSwap generatorDuplicate = new GeneratorSwap(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX);
     assertEquals(GENERATOR, generatorDuplicate);
     assertEquals(GENERATOR.hashCode(), generatorDuplicate.hashCode());
-    SwapGenerator generatorModified;
+    GeneratorSwap generatorModified;
     Period otherPeriod = Period.ofMonths(12);
-    generatorModified = new SwapGenerator(otherPeriod, DAY_COUNT_FIXED, IBOR_INDEX);
+    generatorModified = new GeneratorSwap(otherPeriod, DAY_COUNT_FIXED, IBOR_INDEX);
     assertFalse(GENERATOR.equals(generatorModified));
-    generatorModified = new SwapGenerator(FIXED_LEG_PERIOD, DAY_COUNT_IBOR, IBOR_INDEX);
+    generatorModified = new GeneratorSwap(FIXED_LEG_PERIOD, DAY_COUNT_IBOR, IBOR_INDEX);
     assertFalse(GENERATOR.equals(generatorModified));
     IborIndex otherIborIndex = new IborIndex(CUR, IBOR_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT_IBOR, BUSINESS_DAY, !IS_EOM);
-    generatorModified = new SwapGenerator(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, otherIborIndex);
+    generatorModified = new GeneratorSwap(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, otherIborIndex);
     assertFalse(GENERATOR.equals(generatorModified));
     assertFalse(GENERATOR.equals(null));
     assertFalse(GENERATOR.equals(CUR));

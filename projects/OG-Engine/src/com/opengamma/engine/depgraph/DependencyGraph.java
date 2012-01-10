@@ -241,6 +241,9 @@ public class DependencyGraph {
    * @return the node and exact value specification, null if there is none
    */
   public Pair<DependencyNode, ValueSpecification> getNodeSatisfying(final ValueRequirement requirement) {
+    // REVIEW 2012-01-09 Andrew -- Nothing uses this anymore (apart from a unit test); this was used by the old
+    // graph builder but not the new one. Suggest we delete it and also the valueRequirement2Specifications data
+    // structure used to produce the result. 
     final Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>> targets = _valueRequirement2Specifications.get(requirement.getValueName());
     if (targets == null) {
       return null;
@@ -277,6 +280,8 @@ public class DependencyGraph {
    * @return the nodes and exact value specifications, null if there are none
    */
   public Collection<Pair<DependencyNode, ValueSpecification>> getNodesSatisfying(final ValueRequirement requirement) {
+    // REVIEW 2012-01-09 Andrew -- Nothing uses this anymore; this was used by the old graph builder but not the new one. Suggest we delete it
+    // and also the valueRequirement2Specifications data structure used to produce the result. 
     final Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>> targets = _valueRequirement2Specifications.get(requirement.getValueName());
     if (targets == null) {
       return null;
