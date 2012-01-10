@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.common.gadgets.trades',
     dependencies: ['og.common.util.ui.dialog'],
     obj: function () {
-        var ui = og.common.util.ui, template_data, table = '\
+        var ui = og.common.util.ui, template_data, original_config_object, table = '\
           <table class="OG-table">\
             <thead>\
               <tr>\
@@ -29,6 +29,7 @@ $.register_module({
           </tr>\
         ',
         sub_head = '<tbody><tr><td class="og-header" colspan="2">{ATTRIBUTES}</td></tr></tbody>',
+        reload = function () {og.common.gadgets.trades(original_config_object);},
         get_trades = function (handler, id) {
             og.api.rest.positions.get({dependencies: ['id', 'node'], handler: handler, id: id});
         },
@@ -75,7 +76,7 @@ $.register_module({
                 quantity: template_data.quantity,
                 handler: function (result) {
                     if (result.error) return ui.dialog({type: 'error', message: result.message});
-                    og.views.positions.details(og.common.routes.current().args);
+                    reload();
                 }
             });
         },
@@ -140,6 +141,7 @@ $.register_module({
         return function (config) {
             get_trades(function (result) {
                 if (result.error) return alert(result.message);
+                original_config_object = config;
                 template_data = result.data.template_data;
                 var trades = result.data.trades, selector = config.selector, tbody, has_attributes = false,
                     fields = ['id', 'quantity', 'counterParty', 'trade_date_time', 'premium', 'premium_date_time'];
