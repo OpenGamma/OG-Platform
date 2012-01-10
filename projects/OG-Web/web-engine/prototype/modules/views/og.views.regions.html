@@ -1,42 +1,60 @@
 <article>
   <header class="OG-header-generic">
     <div class="OG-tools"></div>
-    <h1>{{html name}}</h1>
+    <h1>{{html template_data.name}}</h1>
   </header>
   <section>
-    <div class="OG-details-content OG-region OG-js-details-panel">
-      <section>
-        <div class="OG-field-box">
-          <div class="og-lbl">
-            <div>Full Name</div>
-            <div>Classification</div>
-          </div>
-          <div>
-            <div><strong class="OG-editable" og-edit="name">${full_name}</strong></div>
-            <div><strong class="OG-editable" og-edit="name">${classification}</strong></div>
-          </div>
-        </div>
-        <div class="OG-field-box og-js-keys"></div>
-        <div class="og-treeLines">
-            <table class="OG-table-style-01">
-              <thead>
-                <tr>
-                  <td><strong>Parent regions</strong></td>
-                </tr>
-              </thead>
-              <tbody class="og-js-parent_regions"></tbody>
-            </table>
-          </div>
-        <div class="og-treeLines og-treeLinesLast">
-            <table class="OG-table-style-01">
+    <div class="OG-details-content OG-js-details-panel">
+      <section style="width: 800px">
+          <table class="OG-table">
+            <col style="width: 40%" />
+            <col style="width: 60%" />
             <thead>
+              <tr><th><span>Region details</span></th><th>&nbsp;</th></tr>
+            </thead>
+            <tbody class="og-js-info">
               <tr>
-                <td><strong>Child regions</strong></td>
+                <td><span>Full Name</span></td>
+                <td>${template_data.full_name}</td>
               </tr>
+              <tr>
+                <td><span>Classification</span></td>
+                <td>${template_data.classification}</td>
+              </tr>
+              <tr>
+                <td><span>FInancial Region</span></td>
+                <td>${keys.FINANCIAL_REGION}</td>
+              </tr>
+              <tr>
+                <td><span>ISO Country code</span></td>
+                <td>${keys.ISO_COUNTRY_ALPHA2}</td>
+              </tr>
+              <tr>
+                <td><span>ISO Currency code</span></td>
+                <td>${keys.ISO_CURRENCY_ALPHA3}</td>
+              </tr>
+            </tbody>
+          </table>
+      </section>
+      <section style="width: 800px">
+          <table class="OG-table">
+            <col style="width: 40%" />
+            <col style="width: 60%" />
+            <thead>
+              <tr><th><span>Parent regions</span></th><th>&nbsp;</th></tr>
+            </thead>
+            <tbody class="og-js-parent_regions"></tbody>
+          </table>
+      </section>
+      <section style="width: 800px">
+          <table class="OG-table">
+            <col style="width: 40%" />
+            <col style="width: 60%" />
+            <thead>
+              <tr><th><span>Child regions</span></th><th>&nbsp;</th></tr>
             </thead>
             <tbody class="og-js-child_regions"></tbody>
           </table>
-        </div>
       </section>
     </div>
   </section>
