@@ -47,7 +47,7 @@ public class Loader extends ContextInitializationBean {
       return;
     }
     s_logger.info("Configuring security support");
-    globalContext.setVolatilityCubeDefinitionSource(new RemoteVolatilityCubeDefinitionSource(getConfiguration().getFudgeContext(), restTarget));
+    globalContext.setVolatilityCubeDefinitionSource(new RemoteVolatilityCubeDefinitionSource(restTarget.getURI()));
   }
-  
+
 }

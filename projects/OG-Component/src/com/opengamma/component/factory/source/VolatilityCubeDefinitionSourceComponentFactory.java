@@ -27,6 +27,7 @@ import com.opengamma.financial.analytics.volatility.cube.AggregatingVolatilityCu
 import com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
+import com.opengamma.financial.analytics.volatility.cube.rest.DataVolatilityCubeDefinitionSourceResource;
 
 /**
  * Component factory providing the {@code VolatilityCubeDefinitionSource}.
@@ -39,6 +40,11 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
    */
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
+  /**
+   * The flag determining whether the component should be published by REST.
+   */
+  @PropertyDefinition
+  private boolean _publishRest;
   /**
    * The config source to wrap.
    */
@@ -59,8 +65,14 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
       VolatilityCubeDefinitionSource bbg = new BloombergVolatilityCubeDefinitionSource();
       VolatilityCubeDefinitionSource combined = new AggregatingVolatilityCubeDefinitionSource(Arrays.asList(bbg, base));
       repo.registerComponent(info, combined);
+      if (isPublishRest()) {
+        repo.getRestComponents().publish(info, new DataVolatilityCubeDefinitionSourceResource(combined));
+      }
     } else {
       repo.registerComponent(info, base);
+      if (isPublishRest()) {
+        repo.getRestComponents().publish(info, new DataVolatilityCubeDefinitionSourceResource(base));
+      }
     }
   }
 
@@ -87,6 +99,8 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         return getClassifier();
+      case -614707837:  // publishRest
+        return isPublishRest();
       case 195157501:  // configSource
         return getConfigSource();
       case 1218257467:  // bloomberg
@@ -100,6 +114,9 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
     switch (propertyName.hashCode()) {
       case -281470431:  // classifier
         setClassifier((String) newValue);
+        return;
+      case -614707837:  // publishRest
+        setPublishRest((Boolean) newValue);
         return;
       case 195157501:  // configSource
         setConfigSource((ConfigSource) newValue);
@@ -126,6 +143,7 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
     if (obj != null && obj.getClass() == this.getClass()) {
       VolatilityCubeDefinitionSourceComponentFactory other = (VolatilityCubeDefinitionSourceComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
+          JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
           JodaBeanUtils.equal(isBloomberg(), other.isBloomberg()) &&
           super.equals(obj);
@@ -137,6 +155,7 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(isBloomberg());
     return hash ^ super.hashCode();
@@ -166,6 +185,31 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
    */
   public final Property<String> classifier() {
     return metaBean().classifier().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the flag determining whether the component should be published by REST.
+   * @return the value of the property
+   */
+  public boolean isPublishRest() {
+    return _publishRest;
+  }
+
+  /**
+   * Sets the flag determining whether the component should be published by REST.
+   * @param publishRest  the new value of the property
+   */
+  public void setPublishRest(boolean publishRest) {
+    this._publishRest = publishRest;
+  }
+
+  /**
+   * Gets the the {@code publishRest} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> publishRest() {
+    return metaBean().publishRest().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -235,6 +279,11 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
         this, "classifier", VolatilityCubeDefinitionSourceComponentFactory.class, String.class);
     /**
+     * The meta-property for the {@code publishRest} property.
+     */
+    private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
+        this, "publishRest", VolatilityCubeDefinitionSourceComponentFactory.class, Boolean.TYPE);
+    /**
      * The meta-property for the {@code configSource} property.
      */
     private final MetaProperty<ConfigSource> _configSource = DirectMetaProperty.ofReadWrite(
@@ -250,6 +299,7 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
+        "publishRest",
         "configSource",
         "bloomberg");
 
@@ -264,6 +314,8 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
       switch (propertyName.hashCode()) {
         case -281470431:  // classifier
           return _classifier;
+        case -614707837:  // publishRest
+          return _publishRest;
         case 195157501:  // configSource
           return _configSource;
         case 1218257467:  // bloomberg
@@ -294,6 +346,14 @@ public class VolatilityCubeDefinitionSourceComponentFactory extends AbstractComp
      */
     public final MetaProperty<String> classifier() {
       return _classifier;
+    }
+
+    /**
+     * The meta-property for the {@code publishRest} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> publishRest() {
+      return _publishRest;
     }
 
     /**
