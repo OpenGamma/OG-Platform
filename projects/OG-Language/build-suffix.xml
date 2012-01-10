@@ -132,9 +132,9 @@
 
 #endif /* ifndef __inc_og_language_version_h */
     </echo>
-    <replaceregexp file="${basedir}/version.h" match="vermajor(\d+)\.\d+\.\d+" replace="\1" flags="m" />
-    <replaceregexp file="${basedir}/version.h" match="verminor\d+\.(\d+)\.\d+" replace="\1" flags="m" />
-    <replaceregexp file="${basedir}/version.h" match="revision\d+\.\d+\.(\d+)" replace="\1" flags="m" />
+    <replaceregexp file="${basedir}/version.h" match="vermajor(\d+)\.\d+\.\w+" replace="\1" flags="m" />
+    <replaceregexp file="${basedir}/version.h" match="verminor\d+\.(\d+)\.\w+" replace="\1" flags="m" />
+    <replaceregexp file="${basedir}/version.h" match="revision\d+\.\d+\.(\d+)\w*" replace="\1" flags="m" />
   </target>
 
   <target name="make-config">
