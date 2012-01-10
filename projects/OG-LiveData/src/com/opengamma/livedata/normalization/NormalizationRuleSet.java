@@ -11,6 +11,8 @@ import java.util.List;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 import com.opengamma.livedata.resolver.JmsTopicNameResolver;
@@ -22,6 +24,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * An ordered set of normalization rules.
  */
 public class NormalizationRuleSet {
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(NormalizationRuleSet.class);
+  
   private final String _id;
   private final String _jmsTopicSuffix;
   private final List<NormalizationRule> _rules;
@@ -73,6 +78,7 @@ public class NormalizationRuleSet {
         break;
       }
     }
+    s_logger.debug("Applying rule set {} to message {} produced normalized message {}", new Object[] {getId(), msg, normalizedMsg});
     return normalizedMsg;
   }
   

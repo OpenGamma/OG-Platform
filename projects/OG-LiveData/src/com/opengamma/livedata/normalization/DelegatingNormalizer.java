@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.fudgemsg.FudgeMsg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableMap;
 import com.opengamma.id.ExternalId;
@@ -17,10 +19,13 @@ import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.LiveDataSpecification;
 
 /**
- * 
+ * A normalization service that uses the external ID scheme of each value to be normalized to choose between multiple
+ * underlying normalization services.
  */
 public class DelegatingNormalizer implements Normalizer {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(DelegatingNormalizer.class);
+  
   private final Map<ExternalScheme, Normalizer> _normalizers;
   
   @SuppressWarnings("unchecked")
@@ -50,6 +55,7 @@ public class DelegatingNormalizer implements Normalizer {
       Normalizer normalizer = getNormalizer(dataEntry.getKey());
       if (normalizer == null) {
         // Pass through unnormalized
+        s_logger.warn("No normalizer found for {}; passing value through unnormalized", dataEntry.getKey());
         combinedResults.put(dataEntry.getKey(), dataEntry.getValue());
         continue;
       }
@@ -61,6 +67,7 @@ public class DelegatingNormalizer implements Normalizer {
       normalizerData.put(dataEntry.getKey(), dataEntry.getValue());
     }
     for (Map.Entry<Normalizer, Map<LiveDataSpecification, FudgeMsg>> bucket : bucketedData.entrySet()) {
+      s_logger.debug("Using {} to normalize {}", bucket.getKey(), bucket.getValue());
       Map<LiveDataSpecification, FudgeMsg> normalizerResult = bucket.getKey().normalizeValues(bucket.getValue());
       combinedResults.putAll(normalizerResult);
     }

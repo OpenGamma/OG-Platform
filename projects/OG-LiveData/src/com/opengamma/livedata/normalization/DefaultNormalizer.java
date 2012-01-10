@@ -8,6 +8,8 @@ package com.opengamma.livedata.normalization;
 import java.util.Map;
 
 import org.fudgemsg.FudgeMsg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Maps;
 import com.opengamma.id.ExternalId;
@@ -22,6 +24,8 @@ import com.opengamma.livedata.server.FieldHistoryStore;
  */
 public class DefaultNormalizer implements Normalizer {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(DefaultNormalizer.class);
+  
   private final NormalizationRuleResolver _ruleResolver;
   private final IdResolver _idResolver;
 
@@ -46,10 +50,11 @@ public class DefaultNormalizer implements Normalizer {
    */
   protected FudgeMsg normalizeValues(final ExternalId id, final String ruleSet, final FudgeMsg data) {
     final NormalizationRuleSet rules = getRuleResolver().resolve(ruleSet);
-    if (rules != null) {
-      return rules.getNormalizedMessage(data, id.getValue(), new FieldHistoryStore());
+    if (rules == null) {
+      s_logger.warn("No rule set found with ID {}; message will be dropped", ruleSet);
+      return null;
     }
-    return null;
+    return rules.getNormalizedMessage(data, id.getValue(), new FieldHistoryStore());
   }
 
   @Override
