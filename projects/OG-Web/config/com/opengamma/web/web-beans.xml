@@ -72,11 +72,10 @@
   </bean>
   
   <!-- Function repository configuration -->
-  <bean id="functionRepositoryRestBean" class="com.opengamma.financial.function.rest.FunctionRepositoryService">
-    <constructor-arg ref="fudgeContext" />
-    <property name="underlying">
+  <bean id="functionRepositoryRestBean" class="com.opengamma.financial.function.rest.DataFunctionRepositoryResource">
+    <constructor-arg>
       <bean factory-bean="demoFunctionCompilation" factory-method="getFunctionRepository" />
-    </property>
+    </constructor-arg>
   </bean>
   
   <!-- Ad hoc batches -->
