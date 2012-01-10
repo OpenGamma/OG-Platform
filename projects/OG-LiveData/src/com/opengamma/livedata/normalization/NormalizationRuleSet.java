@@ -75,6 +75,7 @@ public class NormalizationRuleSet {
       normalizedMsg = rule.apply(normalizedMsg, securityUniqueId, fieldHistory);
       if (normalizedMsg == null) {
         // One of the rules rejected the message entirely.
+        s_logger.debug("Rule {} in rule set {} rejected message {}", new Object[] {rule, getId(), normalizedMsg});
         break;
       }
     }
