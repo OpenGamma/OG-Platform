@@ -77,7 +77,7 @@ $.register_module({
                 if (!obj.message) throw new Error('obj.message is required for a confirm dialog');
                 $obj = $(css_class);
                 $obj.attr('title', obj.title);
-                $obj.find('p').html(obj.message);
+                $obj.html(obj.message);
                 $obj.dialog($.extend(true, default_options.confirm.jquery, obj));
             }
             /**
