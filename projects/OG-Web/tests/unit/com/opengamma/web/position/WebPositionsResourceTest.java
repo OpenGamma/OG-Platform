@@ -28,7 +28,6 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.security.ManageableSecurityLink;
-import com.opengamma.web.WebResourceTestUtils;
 
 /**
  * Test {@link WebPositionsResource}.
@@ -88,9 +87,4 @@ public class WebPositionsResourceTest extends AbstractWebPositionResourceTestCas
     }
    
   }
-
-  private String getTradesJson() throws Exception {
-    return WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesJson.txt").toString();
-  }
-  
 }

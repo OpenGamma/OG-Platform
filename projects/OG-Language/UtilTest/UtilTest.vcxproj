@@ -203,6 +203,7 @@
     <ClCompile Include="AsynchronousTest.cpp" />
     <ClCompile Include="BufferedInputTest.cpp" />
     <ClCompile Include="DllVersionTest.cpp" />
+    <ClCompile Include="FudgeTest.cpp" />
     <ClCompile Include="LoggingTest.cpp" />
     <ClCompile Include="NamedPipeTest.cpp" />
     <ClCompile Include="stdafx.cpp">

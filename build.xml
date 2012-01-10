@@ -60,7 +60,7 @@
 	<!-- this task sets the og.user.and.password.set property if the environment variables OG_USER and OG_PASSWORD are set -->
 	<!-- which overrides the manual prompt so we can do automated builds from within Bamboo -->
 	<target name="check-user-env-and-password-present">
-	    <condition property="og.user.and.password.set">
+		<condition property="og.user.and.password.set">
 		  <and>
 		  	<isset property="env.OG_USER"/>
 		  	<isset property="env.OG_PASSWORD"/>
@@ -68,6 +68,11 @@
 		</condition>
 	</target>
 
+	<target name="checkout-prompt" unless="git.branch">
+		<echo message="Please enter the branch you with to 'git checkout' in each project"/>
+		<input message="${line.separator}Branch name" defaultvalue="master" addproperty="git.branch"/>
+	</target>
+	
 	<target name="buildlist" depends="load-ivy">
 		<mkdir dir="projects" />
 		<ivy:buildlist reference="build-path">
