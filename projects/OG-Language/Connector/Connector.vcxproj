@@ -274,10 +274,10 @@
     <ClCompile Include="com_opengamma_language_livedata_QueryAvailable.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
-    <ClCompile Include="com_opengamma_language_livedata_QueryValue">
+    <ClCompile Include="com_opengamma_language_livedata_QueryValue.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
-    <ClCompile Include="com_opengamma_language_livedata_Result">
+    <ClCompile Include="com_opengamma_language_livedata_Result.c">
       <CompileAs>CompileAsCpp</CompileAs>
     </ClCompile>
     <ClCompile Include="com_opengamma_language_procedure_Available.c">
