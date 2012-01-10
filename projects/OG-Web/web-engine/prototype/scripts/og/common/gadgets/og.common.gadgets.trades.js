@@ -38,7 +38,7 @@ $.register_module({
         add_trade = function (trade) {
             get_trades(function (result) {
                 if (result.error) return alert(result.message);
-                var trades = result.data.trades;
+                var trades = result.data.trades || [];
                 trades.push(trade);
                 put_trades(format_trades(trades));
             }, template_data.object_id);
@@ -143,8 +143,8 @@ $.register_module({
                 template_data = result.data.template_data;
                 var trades = result.data.trades, selector = config.selector, tbody, has_attributes = false,
                     fields = ['id', 'quantity', 'counterParty', 'trade_date_time', 'premium', 'premium_date_time'];
-                if (!trades)
-                    return $(selector).html(table.replace('{TBODY}', '<tr><td colspan="6">No Trades</td></tr>'));
+                if (!trades) return $(selector).html(table.replace('{TBODY}',
+                    '<tr><td colspan="6">No Trades</td></tr>')), add_trades_link(selector);
                 tbody = trades.reduce(function (acc, trade) {
                     acc.push('<tr class="og-row"><td>', fields.map(function (field, i) {
                         var expander;
