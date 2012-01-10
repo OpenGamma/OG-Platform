@@ -10,7 +10,7 @@ import java.net.URI;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
-import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveDefinitionMaster;
+import com.opengamma.financial.analytics.ircurve.rest.old.RemoteInterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.historicaltimeseries.rest.RemoteHistoricalTimeSeriesMaster;

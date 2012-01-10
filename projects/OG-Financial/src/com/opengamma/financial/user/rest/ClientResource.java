@@ -13,7 +13,7 @@ import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.analytics.ircurve.rest.InterpolatedYieldCurveDefinitionMasterResource;
+import com.opengamma.financial.analytics.ircurve.rest.old.InterpolatedYieldCurveDefinitionMasterResource;
 import com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotMasterResource;
 import com.opengamma.financial.security.rest.SecurityMasterResource;
 import com.opengamma.financial.user.UserInterpolatedYieldCurveDefinitionMaster;

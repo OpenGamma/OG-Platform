@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.ircurve.rest;
+package com.opengamma.financial.analytics.ircurve.rest.old;
 
 import javax.time.calendar.LocalDate;
 import javax.ws.rs.POST;

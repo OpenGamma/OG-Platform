@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.ircurve.rest;
+package com.opengamma.financial.analytics.ircurve.rest.old;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
@@ -28,7 +28,7 @@ import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * RESTful master.
  */
 public class RemoteInterpolatedYieldCurveDefinitionMaster implements InterpolatedYieldCurveDefinitionMaster {
 

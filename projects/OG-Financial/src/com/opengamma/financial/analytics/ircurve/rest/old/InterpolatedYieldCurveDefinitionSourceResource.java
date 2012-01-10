@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.ircurve.rest;
+package com.opengamma.financial.analytics.ircurve.rest.old;
 
 import javax.time.Instant;
 import javax.ws.rs.GET;
