@@ -211,7 +211,7 @@ public class PresentValueSensitivityCalculatorTest {
     final IborIndex INDEX = new IborIndex(CUR, indexTenor, settlementDays, CALENDAR, dayCount, businessDayConvention, isEOM);
     final AnnuityCouponIborDefinition iborAnnuityDefinition = AnnuityCouponIborDefinition.from(settleDate, Period.ofYears(5), notional, INDEX, !isPayer);
 
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final GenericAnnuity<? extends Payment> iborAnnuity1Curve = iborAnnuityDefinition.toDerivative(REFERENCE_DATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
     final GenericAnnuity<? extends Payment> iborAnnuity = iborAnnuityDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
@@ -460,7 +460,7 @@ public class PresentValueSensitivityCalculatorTest {
   @Test
   public void testFixedCouponSwap() {
     double eps = 1e-9;
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
 
     GenericAnnuity<CouponFixed> fixedLeg = SWAP_PAYER.getFirstLeg();
     GenericAnnuity<Coupon> floatLeg = SWAP_PAYER.getSecondLeg();

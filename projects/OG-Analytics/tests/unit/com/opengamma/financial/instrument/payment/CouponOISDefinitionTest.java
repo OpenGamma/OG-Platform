@@ -19,7 +19,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IndexON;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
@@ -66,7 +66,7 @@ public class CouponOISDefinitionTest {
   private static final CouponOISDefinition EONIA_COUPON_DEFINITION = new CouponOISDefinition(EUR_CUR, PAYMENT_DATE, START_ACCRUAL_DATE, END_ACCRUAL_DATE, PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS,
       START_ACCRUAL_DATE, END_ACCRUAL_DATE);
 
-  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
+  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[0]);
 
   @Test(expectedExceptions = IllegalArgumentException.class)

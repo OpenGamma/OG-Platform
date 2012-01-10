@@ -17,7 +17,7 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.future.calculator.PresentValueFromFuturePriceCalculator;
@@ -82,7 +82,7 @@ public class BondFutureSecurityHullWhiteMethodTest {
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String REPO_CURVE_NAME = "Repo";
   private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME };
-  private static final YieldCurveBundle CURVES = TestsDataSets.createCurvesBond2();
+  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurvesBond2();
   private static final BondFixedSecurity[] BASKET = new BondFixedSecurity[NB_BOND];
   private static final BondFixedSecurity[] STANDARD = new BondFixedSecurity[NB_BOND];
   static {

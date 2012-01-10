@@ -25,7 +25,7 @@ import com.opengamma.math.surface.InterpolatedDoublesSurface;
 /**
  * Sets of market data used in tests.
  */
-public class TestsDataSets {
+public class TestsDataSetsSABR {
 
   /**
    * The linear interpolator/ flat extrapolator.  Used for SABR parameters interpolation.

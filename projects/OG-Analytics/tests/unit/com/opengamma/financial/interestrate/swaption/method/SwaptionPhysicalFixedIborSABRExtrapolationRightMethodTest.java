@@ -31,7 +31,7 @@ import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRExtrapolationCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
@@ -106,8 +106,8 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
    */
   @Test
   public void testPresentValueNoExtra() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final double priceLongPayer = METHOD_EXTRAPOLATION.presentValue(SWAPTION_LONG_PAYER, sabrBundle);
     final double priceShortPayer = METHOD_EXTRAPOLATION.presentValue(SWAPTION_SHORT_PAYER, sabrBundle);
@@ -130,8 +130,8 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
    */
   @Test
   public void testPresentValueLimit() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final double highStrike = 0.0801;
     final SwapFixedIborDefinition swapPayerHighStrike = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, highStrike, FIXED_IS_PAYER);
@@ -157,8 +157,8 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
    */
   @Test
   public void testPresentValueExtra() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final double highStrike = 0.10;
     final SwapFixedIborDefinition swapDefinitionPayerHighStrike = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, highStrike, FIXED_IS_PAYER);
@@ -187,8 +187,8 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
    * Test the present value sensitivity for a swaption with strike above the cut-off strike.
    */
   public void testPresentValueSensitivityExtra() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final double highStrike = 0.10;
     final SwapFixedIborDefinition swapDefinitionPayerHighStrike = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, highStrike, FIXED_IS_PAYER);
@@ -279,8 +279,8 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
    * Test the present value sensitivity to SABR parameters for a swaption with strike above the cut-off strike.
    */
   public void testPresentValueSABRSensitivity() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final double highStrike = 0.10;
     final SwapFixedIborDefinition swapDefinitionPayerHighStrike = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, highStrike, FIXED_IS_PAYER);
@@ -300,7 +300,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     final DoublesPair expectedExpiryTenor = new DoublesPair(swaptionLongPayerHighStrike.getTimeToExpiry(), ANNUITY_TENOR_YEAR);
     final double shift = 0.000005;
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSets.createSABR1AlphaBumped(shift);
+    final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shift);
     final SABRInterestRateDataBundle sabrBundleAlphaBumped = new SABRInterestRateDataBundle(sabrParameterAlphaBumped, curves);
     final double pvLongPayerAlphaBumped = METHOD_EXTRAPOLATION.presentValue(swaptionLongPayerHighStrike, sabrBundleAlphaBumped);
     final double expectedAlphaSensi = (pvLongPayerAlphaBumped - pvLongPayer) / shift;
@@ -308,7 +308,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     assertEquals("Alpha sensitivity expiry/tenor", pvsLongPayer.getAlpha().getMap().keySet().contains(expectedExpiryTenor), true);
     assertEquals("Alpha sensitivity value", expectedAlphaSensi, pvsLongPayer.getAlpha().getMap().get(expectedExpiryTenor), 2.0E+3);
     // Rho sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSets.createSABR1RhoBumped(shift);
+    final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSetsSABR.createSABR1RhoBumped(shift);
     final SABRInterestRateDataBundle sabrBundleRhoBumped = new SABRInterestRateDataBundle(sabrParameterRhoBumped, curves);
     final double pvLongPayerRhoBumped = METHOD_EXTRAPOLATION.presentValue(swaptionLongPayerHighStrike, sabrBundleRhoBumped);
     final double expectedRhoSensi = (pvLongPayerRhoBumped - pvLongPayer) / shift;
@@ -316,7 +316,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     assertEquals("Rho sensitivity expiry/tenor", pvsLongPayer.getRho().getMap().keySet().contains(expectedExpiryTenor), true);
     assertEquals("Rho sensitivity value", expectedRhoSensi, pvsLongPayer.getRho().getMap().get(expectedExpiryTenor), 1.0E+0);
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSets.createSABR1NuBumped(shift);
+    final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSetsSABR.createSABR1NuBumped(shift);
     final SABRInterestRateDataBundle sabrBundleNuBumped = new SABRInterestRateDataBundle(sabrParameterNuBumped, curves);
     final double pvLongPayerNuBumped = METHOD_EXTRAPOLATION.presentValue(swaptionLongPayerHighStrike, sabrBundleNuBumped);
     final double expectedNuSensi = (pvLongPayerNuBumped - pvLongPayer) / shift;
@@ -330,8 +330,8 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
    * Tests of performance. "enabled = false" for the standard testing.
    */
   public void testPerformance() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final double cutOffStrike = 0.08;
     final double mu = 10.0;
