@@ -28,9 +28,10 @@ $.register_module({
                         buttons: {'Cancel': function () {$(this).dialog('close')}},
                         open: function () {
                             if (obj.type === 'input')
-                                    // Set the focus in the first form element
-                                    // Doest work without setTimeout!
-                                    setTimeout(function () {$(css_class).find('[id^="og-js-dialog-"]')[0].focus()}, 1);
+                                // Set the focus in the first form element
+                                // Doest work without setTimeout!
+                                var $first_input = $(css_class).find('[id^="og-js-dialog-"]')[0];
+                                if ($first_input) setTimeout(function () {$first_input.focus()}, 1);
                         }
                     }
                 },
@@ -51,6 +52,10 @@ $.register_module({
             $.each(default_options, function (key) {
                 if (key === obj.type) $.extend(true, default_options[key], default_options.all);
             });
+
+            // if the html isn't already in the dom, add it, else clear it
+            $(css_class).length === 0 ? $('body').append(default_options[obj.type].html) : $(css_class).html('');
+
             /**
              * Create error dialog
              */
@@ -58,8 +63,6 @@ $.register_module({
                 delete default_options.error.jquery.buttons['Cancel'];
                 // Check required data
                 if (!obj.message) throw new Error('obj.message is required for an error dialog');
-                // if the html isnt already in the dom, add it
-                if ($(css_class).length === 0) $('body').append(default_options.error.html);
                 $obj = $(css_class);
                 $obj.attr('title', obj.title || 'Oops, something seem to have gone wrong');
                 $obj.html(obj.message);
@@ -72,8 +75,6 @@ $.register_module({
                 // Check required data
                 if (!obj.title) throw new Error('obj.title is required for a confirm dialog');
                 if (!obj.message) throw new Error('obj.message is required for a confirm dialog');
-                // if the html isnt already in the dom, add it
-                if ($(css_class).length === 0) $('body').append(default_options.confirm.html);
                 $obj = $(css_class);
                 $obj.attr('title', obj.title);
                 $obj.find('p').html(obj.message);
@@ -85,11 +86,11 @@ $.register_module({
             if (obj.type === 'input') {
                 // Check required data
                 if (!obj.title) throw new Error('obj.title is required for an input dialog');
-                // if the html isn't already in the dom, add it, else clear it
-                $(css_class).length === 0 ? $('body').append(default_options.input.html) : $(css_class).html('');
                 $obj = $(css_class);
                 $obj.attr('title', obj.title);
-                // Add requested form fields
+                /*
+                 * Create basic form via obj.fields
+                 */
                 if (obj.fields) {
                     $obj.append(obj.fields.reduce(function (acc, val) {
                         return acc + (function () {
@@ -127,6 +128,30 @@ $.register_module({
                         e.preventDefault();
                         $obj.dialog('option', 'buttons')['OK']();
                     });
+                }
+                /*
+                 * Create advanced form via og.common.util.ui.Form
+                 */
+                if (obj.form) {
+                    $(css_class).html('Loading form...');
+                    var form = new og.common.util.ui.Form($.extend(obj.form, {selector: css_class, data: {}}));
+                    form.attach([
+                        {type: 'form:load', handler: function () {
+                            $('.og-js-datetimepicker').datetimepicker({
+                                firstDay: 1, showTimezone: true, timeFormat: 'hh:mm ttz'
+                            });
+                            $('.OG-add-trades .og-inline-form').click(function (e) {
+                                e.preventDefault();
+                                $(this).prev().find('input').datetimepicker('setDate', new Date());
+                            });
+                        }}
+                    ]);
+                    form.children = [
+                        new form.Field({module: 'og.views.forms.currency', generator: function (handler, template) {
+                            handler(template);
+                        }})
+                    ];
+                    form.dom();
                 }
                 $obj.dialog($.extend(true, default_options.input.jquery, obj));
             }

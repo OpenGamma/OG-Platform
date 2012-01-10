@@ -98,6 +98,7 @@
   <bundle id="views.css">
     <fragment>/styles/views/analytics/og.views.OG-analytics.css</fragment>
     <fragment>/styles/views/forms/configs/og.views.forms.configs.OG-form-column-sets.css</fragment>
+	<fragment>/styles/views/forms/og.views.forms.OG-add-trades.css</fragment>
   </bundle>
   <bundle id="libs.css">
     <fragment>/styles/lib/jquery/ui/jquery.ui.core.css</fragment>
@@ -106,16 +107,16 @@
     <fragment>/styles/lib/jquery/ui/jquery.ui.sliders.css</fragment>
     <fragment>/styles/lib/jquery/jquery-layout-default.css</fragment>
   </bundle>
-  <bundle id="slickgrid.css">
-    <fragment>/styles/lib/jquery/slick_grid/slick.grid.css</fragment>
-    <fragment>/styles/common/slickgrid/og.common.slickgrid.css</fragment>
-  </bundle>
   <bundle id="jquery.css">
     <fragment>/styles/common/jquery/ui/og.common.jquery.ui.core.css</fragment>
     <fragment>/styles/common/jquery/ui/og.common.jquery.ui.dialog.css</fragment>
     <fragment>/styles/common/jquery/ui/og.common.jquery.ui.autocomplete.css</fragment>
     <fragment>/styles/common/jquery/ui/og.common.jquery.datepicker.css</fragment>
     <fragment>/styles/common/jquery/ui/og.common.jquery.ui.sliders.css</fragment>
+  </bundle>
+  <bundle id="slickgrid.css">
+    <fragment>/styles/lib/jquery/slick_grid/slick.grid.css</fragment>
+    <fragment>/styles/common/slickgrid/og.common.slickgrid.css</fragment>
   </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />
@@ -126,8 +127,8 @@
     <bundle idref="common.forms.css"/>
     <bundle idref="views.css"/>
     <bundle idref="libs.css" />
-    <bundle idref="slickgrid.css" />
     <bundle idref="jquery.css" />
+    <bundle idref="slickgrid.css" />
   </bundle>
   <!--                                -->
   <!--  JavaScript                    -->

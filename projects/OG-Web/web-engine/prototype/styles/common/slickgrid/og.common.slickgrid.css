@@ -40,7 +40,7 @@
 
 /* Highlight rows on hover */
 .slick-row:hover {
-  background-color: #d7e7f2!important;
+  background-color: #ecf5fa!important;
 }
 
 /* contexual button */
@@ -80,18 +80,6 @@
 
 .slick-row .selected {
   font-weight: bold;
-}
-
-.ui-state-default,
-.ui-widget-content .ui-state-default,
-.ui-widget-header .ui-state-default {
-  background: none;
-}
-
-.ui-state-default,
-.ui-widget-content .ui-state-default,
-.ui-widget-header .ui-state-default {
-  border: none;
 }
 
 .slick-header {
@@ -151,6 +139,7 @@
   border-style: none;
   padding-left: 7px;
   height: 20px;
+  background: none;
 }
 
 .slick-column-name {
