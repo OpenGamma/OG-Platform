@@ -91,7 +91,7 @@ $.register_module({
                 var premium, tradeDate;
                 if (trade.premium) {
                     premium = trade.premium.toString().split(' ');
-                    trade.premium = +premium[0];
+                    trade.premium = premium[0].replace(/[,.]/g, '');
                     if (premium[1]) trade.premiumCurrency = premium[1];
                 } else delete trade.premium;
                 if (trade.premium_date_time) {
@@ -111,7 +111,7 @@ $.register_module({
                 }
                 if (trade.counterParty) trade.counterParty =
                     trade.counterParty.split('~')[1] || trade.counterParty;
-                if (trade.quantity) trade.quantity = trade.quantity.replace(',', '');
+                if (trade.quantity) trade.quantity = trade.quantity.replace(/[,.]/g, '');
                 if (trade.currency) trade.premiumCurrency = trade.currency, delete trade.currency;
                 delete trade.premium_date_time,
                 delete trade.trade_date_time,
