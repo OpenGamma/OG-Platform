@@ -47,7 +47,7 @@ static void ConnectInvalid () {
 	CLiveDataConnect connect (g_poConnector);
 	connect.SetComponentId (INT_MAX);
 	connect.SetConnectionId (1);
-	ASSERTY (connect.Send ());
+	ASSERT (connect.Send ());
 	com_opengamma_language_livedata_Result *pResult = connect.Recv (CRequestBuilder::GetDefaultTimeout ());
 	ASSERT (pResult);
 	ASSERT (!pResult->_connection);
