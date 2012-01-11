@@ -43,7 +43,7 @@ public class NormalizerClient extends FudgeSynchronousClient implements Normaliz
     try {
       responseMessage = sendRequestAndWaitForResponse(requestMessage, request.getCorrelationId());
     } catch (RuntimeException e) {
-      s_logger.warn("Couldn't send normalization request", e.getMessage());
+      s_logger.warn("Couldn't send normalization request", e);
       s_logger.debug("Exception", e);
       return null;
     }

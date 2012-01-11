@@ -23,7 +23,7 @@ import com.opengamma.util.tuple.DoublesPair;
 public class SABRSensitivityNodeCalculatorTest {
 
   private static final SABRSensitivityNodeCalculator NODE_CALCULATOR = new SABRSensitivityNodeCalculator();
-  private static final SABRInterestRateParameters SABR_PARAMETERS = TestsDataSets.createSABR2();
+  private static final SABRInterestRateParameters SABR_PARAMETERS = TestsDataSetsSABR.createSABR2();
 
   private static final double TOLERANCE = 1.0E-10;
 

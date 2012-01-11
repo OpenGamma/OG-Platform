@@ -7,11 +7,15 @@
 package com.opengamma.language.debug;
 
 import java.util.Collections;
+import java.util.List;
 import java.util.Random;
+import java.util.Timer;
+import java.util.TimerTask;
 
-import com.opengamma.language.Data;
-import com.opengamma.language.DataUtils;
+import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.MetaParameter;
+import com.opengamma.language.livedata.AbstractLiveDataConnector;
 import com.opengamma.language.livedata.MetaLiveData;
 import com.opengamma.language.livedata.PublishedLiveData;
 
@@ -20,16 +24,30 @@ import com.opengamma.language.livedata.PublishedLiveData;
  */
 public class DebugLiveDataRandom implements PublishedLiveData {
 
-  private final Random _random = new Random();
-
-  private Data execute() {
-    return DataUtils.of(_random.nextInt());
-  }
-
   @Override
   public MetaLiveData getMetaLiveData() {
-    // TODO: invocation
-    return new MetaLiveData("DebugLiveDataRandom", Collections.<MetaParameter>emptyList());
+    final List<MetaParameter> args = Collections.emptyList();
+    return new MetaLiveData(Categories.DEBUG, "DebugLiveDataRandom", args, new AbstractLiveDataConnector(args) {
+
+      @Override
+      protected void connectImpl(final SessionContext context, final Object[] parameters, final AbstractConnection connection) {
+        final Random random = new Random();
+        final Timer timer = new Timer();
+        connection.setCancelHandler(new Runnable() {
+          @Override
+          public void run() {
+            timer.cancel();
+          }
+        });
+        timer.scheduleAtFixedRate(new TimerTask() {
+          @Override
+          public void run() {
+            connection.setValue(random.nextInt());
+          }
+        }, 1000, 1000);
+      }
+
+    });
   }
 
 }

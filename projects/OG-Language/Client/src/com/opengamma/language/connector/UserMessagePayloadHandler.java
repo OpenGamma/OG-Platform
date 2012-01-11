@@ -102,7 +102,7 @@ public class UserMessagePayloadHandler implements UserMessagePayloadVisitor<User
   }
 
   @Override
-  public UserMessagePayload visitLiveData(final LiveData message, final SessionContext session) {
+  public UserMessagePayload visitLiveData(final LiveData message, final SessionContext session) throws AsynchronousExecution {
     return message.accept(_liveDataVisitor, session);
   }
 

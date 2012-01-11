@@ -71,7 +71,7 @@ public class DefaultValueConverter extends ValueConverter {
     }
 
     // TODO: build a set to speed up the visit lookups
-
+    
     public boolean visited(final TypeConverter converter) {
       State s = this;
       do {
