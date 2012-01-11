@@ -201,14 +201,14 @@ opengamma.configuration.failOnMissing=${opengamma.configuration.failOnMissing}
     <tstamp>
       <format property="now" pattern="yyyyMMddHHmmss" />
     </tstamp>
-    <property name="version" value="${module.version}-local-${now}" />
+    <property name="version" value="${module.version.target}-local-${now}" />
     <!-- TODO: should propogate the 'now' part into the build-number -->
   </target>
   <target name="version">
     <tstamp>
       <format property="now" pattern="yyyyMMddHHmmss" />
     </tstamp>
-    <property name="version" value="${module.version}" />
+    <property name="version" value="${module.version.target}" />
   </target>
   <target name="publish" depends="dist,version">
     <!-- TODO -->
