@@ -34,7 +34,7 @@ import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueHullWhiteMonteCarloCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRHullWhiteMonteCarloCalculator;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
@@ -82,7 +82,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
   private static final double[] FLOOR_COEF = new double[] {0.50, 0.00, 0.0200};
   private static final double[] CAP_COEF = new double[] {1.00, 0.00, 0.0300};
   private static final double FIRST_CPN_RATE = 0.04;
-  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
+  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[0]);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 9, 5);
 
@@ -254,7 +254,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
    * Tests the pricing with calibration to SABR cap/floor prices.
    */
   public void presentValueFixedWithCalibration() {
-    SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, CURVES);
     PresentValueSABRHullWhiteMonteCarloCalculator calculatorMC = PresentValueSABRHullWhiteMonteCarloCalculator.getInstance();
     double pvMC = calculatorMC.visit(ANNUITY_RATCHET_FIXED, sabrBundle);

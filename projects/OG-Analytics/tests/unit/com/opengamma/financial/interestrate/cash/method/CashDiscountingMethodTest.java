@@ -21,7 +21,7 @@ import com.opengamma.financial.instrument.cash.DepositDefinition;
 import com.opengamma.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.financial.instrument.index.generator.EURDeposit;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
@@ -50,8 +50,8 @@ public class CashDiscountingMethodTest {
   private static final double DEPOSIT_AF = GENERATOR.getDayCount().getDayCountFraction(SPOT_DATE, END_DATE);
   private static final DepositDefinition DEPOSIT_DEFINITION = new DepositDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, RATE, DEPOSIT_AF);
 
-  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves2();
-  private static final String[] CURVES_NAME = TestsDataSets.curves2Names();
+  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves2();
+  private static final String[] CURVES_NAME = TestsDataSetsSABR.curves2Names();
 
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
 

@@ -10,6 +10,7 @@ import javax.time.calendar.Period;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.money.Currency;
@@ -100,6 +101,30 @@ public class GeneratorSwap {
    */
   public Calendar getCalendar() {
     return _iborIndex.getCalendar();
+  }
+
+  /**
+   * Gets the generator business day convention.
+   * @return The convention.
+   */
+  public BusinessDayConvention getBusinessDayConvention() {
+    return _iborIndex.getBusinessDayConvention();
+  }
+
+  /**
+   * Gets the generator spot lag.
+   * @return The lag (in days).
+   */
+  public int getSpotLag() {
+    return _iborIndex.getSpotLag();
+  }
+
+  /**
+   * Gets the generator end-of-month rule.
+   * @return The EOM.
+   */
+  public Boolean isEndOfMonth() {
+    return _iborIndex.isEndOfMonth();
   }
 
   @Override

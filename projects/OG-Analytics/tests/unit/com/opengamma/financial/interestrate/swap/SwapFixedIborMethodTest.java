@@ -19,7 +19,7 @@ import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.payments.Coupon;
@@ -94,7 +94,7 @@ public class SwapFixedIborMethodTest {
 
   @Test
   public void testPVBPSensitivity() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
 
     final double eps = 1e-8;
     final int nbPayDate = SWAP_PAYER.getFixedLeg().getPayments().length;
