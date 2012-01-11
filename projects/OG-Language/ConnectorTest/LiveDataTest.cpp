@@ -39,12 +39,24 @@ static void QueryAvailable () {
 	ASSERT (pAvailable->fudgeCountLiveData > 0);
 	int i;
 	for (i = 0; i < pAvailable->fudgeCountLiveData; i++) {
-		LOGDEBUG (TEXT ("Function ") << i << TEXT (": ") << pAvailable->_liveData[i]->_definition->fudgeParent._name << TEXT (" (") << pAvailable->_liveData[i]->_identifier << TEXT (")"));
+		LOGDEBUG (TEXT ("Live data ") << i << TEXT (": ") << pAvailable->_liveData[i]->_definition->fudgeParent._name << TEXT (" (") << pAvailable->_liveData[i]->_identifier << TEXT (")"));
 	}
+}
+
+static void ConnectInvalid () {
+	CLiveDataConnect connect (g_poConnector);
+	connect.SetComponentId (INT_MAX);
+	connect.SetConnectionId (1);
+	ASSERT (connect.Send ());
+	com_opengamma_language_livedata_Result *pResult = connect.Recv (CRequestBuilder::GetDefaultTimeout ());
+	ASSERT (pResult);
+	ASSERT (!pResult->_connection);
+	ASSERT (!pResult->_result);
 }
 
 BEGIN_TESTS(LiveDataTest)
 	TEST (QueryAvailable)
+	TEST (ConnectInvalid)
 	BEFORE_TEST (StartConnector)
 	AFTER_TEST (StopConnector)
 END_TESTS
