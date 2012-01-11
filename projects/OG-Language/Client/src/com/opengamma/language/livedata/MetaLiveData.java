@@ -13,6 +13,7 @@ import java.io.ObjectOutputStream;
 import java.util.List;
 
 import com.opengamma.language.definition.Parameter;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A full description of a live data element, including invocation details. 
@@ -32,11 +33,33 @@ public class MetaLiveData extends Definition {
     throw new NotSerializableException();
   }
 
-  public MetaLiveData(final String name, final List<? extends Parameter> parameters) {
+  private final LiveDataConnector _connector;
+
+  public MetaLiveData(final String category, final String name, final List<? extends Parameter> parameters, final LiveDataConnector connector) {
     super(name);
+    ArgumentChecker.notNull(connector, "connector");
+    _connector = connector;
+    setCategory(category);
     setParameter(parameters);
   }
 
-  // TODO: invocation details
+  protected MetaLiveData(final MetaLiveData copyFrom) {
+    super(copyFrom);
+    _connector = copyFrom.getConnector();
+  }
+
+  public MetaLiveData description(final String description) {
+    super.setDescription(description);
+    return this;
+  }
+
+  public LiveDataConnector getConnector() {
+    return _connector;
+  }
+
+  @Override
+  public MetaLiveData clone() {
+    return new MetaLiveData(this);
+  }
 
 }

@@ -26,7 +26,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
@@ -74,7 +74,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
 
   @Test
   public void parRate() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final double forward = FRA_METHOD.parRate(FRA, curves);
     final double dfForwardCurveStart = curves.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(FRA.getFixingPeriodStartTime());
     final double dfForwardCurveEnd = curves.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(FRA.getFixingPeriodEndTime());
@@ -84,7 +84,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
 
   @Test
   public void presentValue() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final double forward = FRA_METHOD.parRate(FRA, curves);
     final double dfSettle = curves.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(FRA.getPaymentTime());
     final double expectedPv = FRA.getNotional() * dfSettle * FRA.getPaymentYearFraction() * (forward - FRA_RATE) / (1 + FRA.getPaymentYearFraction() * forward);
@@ -94,7 +94,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
 
   @Test
   public void presentValueMethodVsCalculator() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final CurrencyAmount pvMethod = FRA_METHOD.presentValue(FRA, curves);
     final PresentValueCalculator calculator = PresentValueCalculator.getInstance();
     final double pvCalculator = calculator.visit(FRA, curves);
@@ -103,7 +103,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
 
   @Test
   public void presentValueBuySellParity() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final ForwardRateAgreementDefinition fraDefinitionSell = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, -NOTIONAL,
         FIXING_DATE, INDEX, FRA_RATE);
     final ForwardRateAgreement fraSell = (ForwardRateAgreement) fraDefinitionSell.toDerivative(REFERENCE_DATE, CURVES);
@@ -114,7 +114,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
 
   @Test
   public void sensitivity() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     // Par rate sensitivity
     final InterestRateCurveSensitivity prsFra = FRA_METHOD.parRateCurveSensitivity(FRA, curves);
     final InterestRateCurveSensitivity pvsFra = FRA_METHOD.presentValueCurveSensitivity(FRA, curves);
@@ -186,7 +186,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
 
   @Test
   public void sensitivityMethod() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-8;
     final double pv = FRA_METHOD.presentValue(FRA, curves).getAmount();
@@ -252,7 +252,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
 
   @Test
   public void presentValueSensitivityMethodVsCalculator() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final InterestRateCurveSensitivity pvcsMethod = FRA_METHOD.presentValueCurveSensitivity(FRA, curves);
     final PresentValueCurveSensitivityCalculator calculator = PresentValueCurveSensitivityCalculator.getInstance();
     final Map<String, List<DoublesPair>> pvcsCalculator = calculator.visit(FRA, curves);

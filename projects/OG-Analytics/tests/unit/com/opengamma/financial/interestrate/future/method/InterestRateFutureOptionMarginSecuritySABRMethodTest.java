@@ -15,7 +15,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
@@ -68,8 +68,8 @@ public class InterestRateFutureOptionMarginSecuritySABRMethodTest {
   private static final InterestRateFutureOptionMarginSecurity OPTION_EDU2 = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME, STRIKE, IS_CALL);
   private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD = InterestRateFutureOptionMarginSecuritySABRMethod.getInstance();
 
-  final YieldCurveBundle CURVES_BUNDLE = TestsDataSets.createCurves1();
-  final SABRInterestRateParameters SABR_PARAMETER = TestsDataSets.createSABR1();
+  final YieldCurveBundle CURVES_BUNDLE = TestsDataSetsSABR.createCurves1();
+  final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETER, CURVES_BUNDLE);
 
   @Test

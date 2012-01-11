@@ -114,7 +114,9 @@ public class WebPositionResource extends AbstractWebPositionResource {
     ManageablePosition position = doc.getPosition();
     if (Objects.equal(position.getQuantity(), quantity) == false || !trades.isEmpty()) {
       position.setQuantity(quantity);
+      position.getTrades().clear();
       for (ManageableTrade trade : trades) {
+        trade.setSecurityLink(position.getSecurityLink());
         position.addTrade(trade);
       }
       doc = data().getPositionMaster().update(doc);

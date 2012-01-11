@@ -132,5 +132,9 @@ public abstract class AbstractWebPositionResourceTestCase {
       _positionMaster.add(positionDocument);
     }
   }
+  
+  protected String getTradesJson() throws Exception {
+    return WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesJson.txt").toString();
+  }
 
 }

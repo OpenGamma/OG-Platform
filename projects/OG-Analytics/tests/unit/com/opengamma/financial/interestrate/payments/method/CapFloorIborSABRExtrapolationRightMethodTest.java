@@ -30,7 +30,7 @@ import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRExtrapolationCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRExtrapolationCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
@@ -97,8 +97,8 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
   private static final CapFloorIbor FLOOR_SHORT = (CapFloorIbor) FLOOR_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final CapFloorIbor FLOOR_HIGH_SHORT = (CapFloorIbor) FLOOR_HIGH_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   // Data
-  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
-  private static final SABRInterestRateParameters SABR_PARAMETERS = TestsDataSets.createSABR1();
+  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
+  private static final SABRInterestRateParameters SABR_PARAMETERS = TestsDataSetsSABR.createSABR1();
   private static final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETERS, CURVES);
 
   @Test
@@ -207,8 +207,8 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
    * Test the present value rate sensitivity against a finite difference computation; strike below the cut-off strike. Test sensitivity long/short parity.
    */
   public void testPresentValueSensitivityBelowCutOff() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     InterestRateCurveSensitivity pvsCapLong = METHOD.presentValueSensitivity(CAP_LONG, sabrBundle);
     final InterestRateCurveSensitivity pvsCapShort = METHOD.presentValueSensitivity(CAP_SHORT, sabrBundle);
@@ -252,8 +252,8 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
    * Test the present value rate sensitivity against a finite difference computation; strike above the cut-off strike. Test sensitivity long/short parity.
    */
   public void testPresentValueSensitivityAboveCutOff() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     InterestRateCurveSensitivity pvsCapLong = METHOD.presentValueSensitivity(CAP_HIGH_LONG, sabrBundle);
     final InterestRateCurveSensitivity pvsCapShort = METHOD.presentValueSensitivity(CAP_HIGH_SHORT, sabrBundle);
@@ -309,8 +309,8 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
    * Test the present value SABR parameters sensitivity against a finite difference computation; strike below the cut-off strike.
    */
   public void testPresentValueSABRSensitivityBelowCutOff() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final CurrencyAmount pv = METHOD.presentValue(CAP_LONG, sabrBundle);
     final PresentValueSABRSensitivityDataBundle pvsCapLong = METHOD.presentValueSABRSensitivity(CAP_LONG, sabrBundle);
@@ -323,7 +323,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     final double shiftAlpha = 0.00001;
     final DoublesPair expectedExpiryTenor = new DoublesPair(CAP_LONG.getFixingTime(), CAP_LONG.getFixingPeriodEndTime() - CAP_LONG.getFixingPeriodStartTime());
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSets.createSABR1AlphaBumped(shiftAlpha);
+    final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shiftAlpha);
     final SABRInterestRateDataBundle sabrBundleAlphaBumped = new SABRInterestRateDataBundle(sabrParameterAlphaBumped, curves);
     final CurrencyAmount pvLongPayerAlphaBumped = METHOD.presentValue(CAP_LONG, sabrBundleAlphaBumped);
     final double expectedAlphaSensi = (pvLongPayerAlphaBumped.getAmount() - pv.getAmount()) / shiftAlpha;
@@ -331,7 +331,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     assertEquals("Alpha sensitivity expiry/tenor", pvsCapLong.getAlpha().getMap().keySet().contains(expectedExpiryTenor), true);
     assertEquals("Alpha sensitivity value", expectedAlphaSensi, pvsCapLong.getAlpha().getMap().get(expectedExpiryTenor), 2.0E-1);
     // Rho sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSets.createSABR1RhoBumped();
+    final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSetsSABR.createSABR1RhoBumped();
     final SABRInterestRateDataBundle sabrBundleRhoBumped = new SABRInterestRateDataBundle(sabrParameterRhoBumped, curves);
     final CurrencyAmount pvLongPayerRhoBumped = METHOD.presentValue(CAP_LONG, sabrBundleRhoBumped);
     final double expectedRhoSensi = (pvLongPayerRhoBumped.getAmount() - pv.getAmount()) / shift;
@@ -339,7 +339,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     assertEquals("Rho sensitivity expiry/tenor", pvsCapLong.getRho().getMap().keySet().contains(expectedExpiryTenor), true);
     assertEquals("Rho sensitivity value", pvsCapLong.getRho().getMap().get(expectedExpiryTenor), expectedRhoSensi, 1.0E-2);
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSets.createSABR1NuBumped();
+    final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSetsSABR.createSABR1NuBumped();
     final SABRInterestRateDataBundle sabrBundleNuBumped = new SABRInterestRateDataBundle(sabrParameterNuBumped, curves);
     final CurrencyAmount pvLongPayerNuBumped = METHOD.presentValue(CAP_LONG, sabrBundleNuBumped);
     final double expectedNuSensi = (pvLongPayerNuBumped.getAmount() - pv.getAmount()) / shift;
@@ -353,8 +353,8 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
    * Test the present value SABR parameters sensitivity against a finite difference computation; strike above the cut-off strike.
    */
   public void testPresentValueSABRSensitivityAboveCutOff() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final CurrencyAmount pv = METHOD.presentValue(CAP_HIGH_LONG, sabrBundle);
     final PresentValueSABRSensitivityDataBundle pvsCapLong = METHOD.presentValueSABRSensitivity(CAP_HIGH_LONG, sabrBundle);
@@ -367,7 +367,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     final double shiftAlpha = 0.00001;
     final DoublesPair expectedExpiryTenor = new DoublesPair(CAP_HIGH_LONG.getFixingTime(), CAP_HIGH_LONG.getFixingPeriodEndTime() - CAP_HIGH_LONG.getFixingPeriodStartTime());
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSets.createSABR1AlphaBumped(shiftAlpha);
+    final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shiftAlpha);
     final SABRInterestRateDataBundle sabrBundleAlphaBumped = new SABRInterestRateDataBundle(sabrParameterAlphaBumped, curves);
     final CurrencyAmount pvLongPayerAlphaBumped = METHOD.presentValue(CAP_HIGH_LONG, sabrBundleAlphaBumped);
     final double expectedAlphaSensi = (pvLongPayerAlphaBumped.getAmount() - pv.getAmount()) / shiftAlpha;
@@ -375,7 +375,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     assertEquals("Alpha sensitivity expiry/tenor", pvsCapLong.getAlpha().getMap().keySet().contains(expectedExpiryTenor), true);
     assertEquals("Alpha sensitivity value", expectedAlphaSensi, pvsCapLong.getAlpha().getMap().get(expectedExpiryTenor), 1.0E-0);
     // Rho sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSets.createSABR1RhoBumped();
+    final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSetsSABR.createSABR1RhoBumped();
     final SABRInterestRateDataBundle sabrBundleRhoBumped = new SABRInterestRateDataBundle(sabrParameterRhoBumped, curves);
     final CurrencyAmount pvLongPayerRhoBumped = METHOD.presentValue(CAP_HIGH_LONG, sabrBundleRhoBumped);
     final double expectedRhoSensi = (pvLongPayerRhoBumped.getAmount() - pv.getAmount()) / shift;
@@ -383,7 +383,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     assertEquals("Rho sensitivity expiry/tenor", pvsCapLong.getRho().getMap().keySet().contains(expectedExpiryTenor), true);
     assertEquals("Rho sensitivity value", pvsCapLong.getRho().getMap().get(expectedExpiryTenor), expectedRhoSensi, 1.0E-1);
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSets.createSABR1NuBumped();
+    final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSetsSABR.createSABR1NuBumped();
     final SABRInterestRateDataBundle sabrBundleNuBumped = new SABRInterestRateDataBundle(sabrParameterNuBumped, curves);
     final CurrencyAmount pvLongPayerNuBumped = METHOD.presentValue(CAP_HIGH_LONG, sabrBundleNuBumped);
     final double expectedNuSensi = (pvLongPayerNuBumped.getAmount() - pv.getAmount()) / shift;

@@ -15,7 +15,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.ParRateCalculator;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.calculator.PriceFromCurvesDiscountingCalculator;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
@@ -68,7 +68,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
       FUTURE_FACTOR, NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
   private static final InterestRateFutureDiscountingMethod METHOD = InterestRateFutureDiscountingMethod.getInstance();
   private static final PriceFromCurvesDiscountingCalculator PRICE_CALCULATOR = PriceFromCurvesDiscountingCalculator.getInstance();
-  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
+  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
 
   @Test
   /**
