@@ -13,7 +13,7 @@
     	<key column="user_group_id"/>
     	<many-to-many column="user_id" class="User"/>
     </set>
-    <set name="authorities" table="user_group_to_authority">
+    <set name="authorities" table="user_group_to_authority" lazy="false">
     	<key column="group_id"/>
     	<many-to-many column="authority_id" class="Authority"/>
     </set>
