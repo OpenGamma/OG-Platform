@@ -3,7 +3,9 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.math.matrix;
+package com.opengamma.maths.lowlevelapi.datatypes.primitive;
+
+import com.opengamma.math.matrix.Matrix;
 
 /**
  *

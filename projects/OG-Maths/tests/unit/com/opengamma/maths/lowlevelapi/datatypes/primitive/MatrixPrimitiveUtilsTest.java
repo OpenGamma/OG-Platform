@@ -12,9 +12,6 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.math.matrix.MatrixPrimitiveUtils;
-
-
 /**
  * Tests for MatrixPrimitiveUtils methods
  */

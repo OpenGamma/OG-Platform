@@ -11,8 +11,6 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.matrix.MatrixPrimitive;
-import com.opengamma.math.matrix.MatrixPrimitiveUtils;
 
 /**
  * Converts or instantiates a matrix to Packed Matrix format. This class is reserved for expert use only.

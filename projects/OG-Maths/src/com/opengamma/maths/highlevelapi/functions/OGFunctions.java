@@ -5,7 +5,7 @@
  */
 package com.opengamma.maths.highlevelapi.functions;
 
-import com.opengamma.math.highlevelapi.MathsException;
+import com.opengamma.maths.highlevelapi.exceptions.MathsExceptionGeneric;
 import com.opengamma.maths.highlevelapi.datatypes.primitive.OGArrayType;
 import com.opengamma.maths.highlevelapi.datatypes.primitive.OGIndexType;
 import com.opengamma.maths.lowlevelapi.functions.utilities.Min;
@@ -31,7 +31,7 @@ public class OGFunctions {
     final int rowsArray2 = thatArray.getNumberOfRows();
 
     if (colsArray1 != rowsArray2) {
-      throw new MathsException("Arguments do not conform: thisArray is " + rowsArray1 + "x" + colsArray1 + ", thatArray is " + rowsArray2 + "x" + colsArray2 + ".");
+      throw new MathsExceptionGeneric("Arguments do not conform: thisArray is " + rowsArray1 + "x" + colsArray1 + ", thatArray is " + rowsArray2 + "x" + colsArray2 + ".");
     }
 
     double[][] answer = null;
@@ -50,7 +50,7 @@ public class OGFunctions {
         answer[0][i] = tmp[i];
       }
     } else { // BLAS3.DGEMM
-      throw new MathsException("BLAS3 DGEMM not implemented yet");
+      throw new MathsExceptionGeneric("BLAS3 DGEMM not implemented yet");
     }
     return new OGArrayType(answer);
   }
@@ -159,7 +159,7 @@ public class OGFunctions {
     int cols = thisArray.getNumberOfColumns();
 
     if (thisArray.getNumberOfElements() != newRows * newCols) {
-      throw new MathsException("Cannot reshape array, number of elements are not conformant.\n  thisArray is " + rows + "x" + cols + ". Requested reshape is: " + newRows + " x " + newCols);
+      throw new MathsExceptionGeneric("Cannot reshape array, number of elements are not conformant.\n  thisArray is " + rows + "x" + cols + ". Requested reshape is: " + newRows + " x " + newCols);
     }
     double[] data = thisArray.getData();
     int ptr = 0;
@@ -187,7 +187,7 @@ public class OGFunctions {
     int cols = thisArray.getNumberOfColumns();
 
     if (thisArray.getNumberOfElements() != newRows * newCols) {
-      throw new MathsException("Cannot reshape array, number of elements are not conformant.\n  thisArray is " + rows + "x" + cols + ". Requested reshape is: " + newRows + " x " + newCols);
+      throw new MathsExceptionGeneric("Cannot reshape array, number of elements are not conformant.\n  thisArray is " + rows + "x" + cols + ". Requested reshape is: " + newRows + " x " + newCols);
     }
     int[] data = thisArray.getData();
     int ptr = 0;
@@ -279,7 +279,7 @@ public class OGFunctions {
     for (int i = 1; i < theseArrays.length; i++) {
       catchNull(theseArrays[i]);
       if (theseArrays[i].getNumberOfRows() != baseRows) {
-        throw new MathsException("Dimension mismatch for horizontal concatenation. Number of rows in first argument is " + baseRows + " whereas arguement " + i + "has " +
+        throw new MathsExceptionGeneric("Dimension mismatch for horizontal concatenation. Number of rows in first argument is " + baseRows + " whereas arguement " + i + "has " +
             theseArrays[i].getNumberOfRows() + "rows");
       }
       colCount += theseArrays[0].getNumberOfColumns();
@@ -313,7 +313,7 @@ public class OGFunctions {
     for (int i = 1; i < theseArrays.length; i++) {
       catchNull(theseArrays[i]);
       if (theseArrays[i].getNumberOfRows() != baseRows) {
-        throw new MathsException("Dimension mismatch for horizontal concatenation. Number of rows in first argument is " + baseRows + " whereas arguement " + i + "has " +
+        throw new MathsExceptionGeneric("Dimension mismatch for horizontal concatenation. Number of rows in first argument is " + baseRows + " whereas arguement " + i + "has " +
             theseArrays[i].getNumberOfRows() + "rows");
       }
       colCount += theseArrays[0].getNumberOfColumns();
@@ -347,7 +347,7 @@ public class OGFunctions {
     for (int i = 1; i < theseArrays.length; i++) {
       catchNull(theseArrays[i]);
       if (theseArrays[i].getNumberOfColumns() != baseCols) {
-        throw new MathsException("Dimension mismatch for horizontal concatenation. Number of rows in first argument is " + baseCols + " whereas arguement " + i + "has " +
+        throw new MathsExceptionGeneric("Dimension mismatch for horizontal concatenation. Number of rows in first argument is " + baseCols + " whereas arguement " + i + "has " +
             theseArrays[i].getNumberOfRows() + "rows");
       }
       rowCount += theseArrays[0].getNumberOfRows();
@@ -379,7 +379,7 @@ public class OGFunctions {
     for (int i = 1; i < theseArrays.length; i++) {
       catchNull(theseArrays[i]);
       if (theseArrays[i].getNumberOfColumns() != baseCols) {
-        throw new MathsException("Dimension mismatch for horizontal concatenation. Number of rows in first argument is " + baseCols + " whereas arguement " + i + "has " +
+        throw new MathsExceptionGeneric("Dimension mismatch for horizontal concatenation. Number of rows in first argument is " + baseCols + " whereas arguement " + i + "has " +
             theseArrays[i].getNumberOfRows() + "rows");
       }
       rowCount += theseArrays[0].getNumberOfRows();
@@ -407,7 +407,7 @@ public class OGFunctions {
   public static OGArrayType repmat(OGArrayType thisArray, int m, int n) {
     catchNull(thisArray);
     if (n < 1 | m < 1) {
-      throw new MathsException("The number of tiles in the m and n directions must be greater than 1 (" + m + " x " + n + "given).");
+      throw new MathsExceptionGeneric("The number of tiles in the m and n directions must be greater than 1 (" + m + " x " + n + "given).");
     }
     int rows = thisArray.getNumberOfRows();
     int cols = thisArray.getNumberOfColumns();
@@ -436,7 +436,7 @@ public class OGFunctions {
   public static OGIndexType repmat(OGIndexType thisArray, int m, int n) {
     catchNull(thisArray);
     if (n < 1 | m < 1) {
-      throw new MathsException("The number of tiles in the m and n directions must be greater than 1 (" + m + " x " + n + "given).");
+      throw new MathsExceptionGeneric("The number of tiles in the m and n directions must be greater than 1 (" + m + " x " + n + "given).");
     }
     int rows = thisArray.getNumberOfRows();
     int cols = thisArray.getNumberOfColumns();
@@ -537,10 +537,10 @@ public class OGFunctions {
       }
     } else { // we are extracting the kth diagonal from a matrix
       if (k > 0 && k > cols - 1) {
-        throw new MathsException("The + " + k + "^th diagonal was requested but the matrix only has " + cols + " columns.");
+        throw new MathsExceptionGeneric("The + " + k + "^th diagonal was requested but the matrix only has " + cols + " columns.");
       }
       if (k < 0 && -k > rows - 1) {
-        throw new MathsException("The + " + k + "^th diagonal was requested but the matrix only has " + rows + " rows.");
+        throw new MathsExceptionGeneric("The + " + k + "^th diagonal was requested but the matrix only has " + rows + " rows.");
       }
       // shortcut for 0 k.
       if (k == 0) {
@@ -592,10 +592,10 @@ public class OGFunctions {
       }
     } else { // we are extracting the kth diagonal from a matrix
       if (k > 0 && k > cols - 1) {
-        throw new MathsException("The + " + k + "^th diagonal was requested but the matrix only has " + cols + " columns.");
+        throw new MathsExceptionGeneric("The + " + k + "^th diagonal was requested but the matrix only has " + cols + " columns.");
       }
       if (k < 0 && -k > rows - 1) {
-        throw new MathsException("The + " + k + "^th diagonal was requested but the matrix only has " + rows + " rows.");
+        throw new MathsExceptionGeneric("The + " + k + "^th diagonal was requested but the matrix only has " + rows + " rows.");
       }
       // shortcut for 0 k.
       if (k == 0) {
@@ -673,7 +673,7 @@ public class OGFunctions {
   //catches nulls else throws pain
   private static void catchNull(OGArrayType thisArray) {
     if (thisArray == null) {
-      throw new MathsException("OGArray passed to function that points to NULL");
+      throw new MathsExceptionGeneric("OGArray passed to function that points to NULL");
     }
   }
 
@@ -690,7 +690,7 @@ public class OGFunctions {
   //catches nulls else throws pain
   private static void catchNull(OGIndexType thisArray) {
     if (thisArray == null) {
-      throw new MathsException("OGIndex passed to function that points to NULL");
+      throw new MathsExceptionGeneric("OGIndex passed to function that points to NULL");
     }
   }
 

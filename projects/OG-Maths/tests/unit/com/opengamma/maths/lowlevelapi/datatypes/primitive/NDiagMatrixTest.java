@@ -8,7 +8,6 @@ package com.opengamma.maths.lowlevelapi.datatypes.primitive;
 import org.testng.annotations.Test;
 
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.matrix.MatrixPrimitiveUtils;
 import com.opengamma.maths.lowlevelapi.datatypes.primitive.NDiagMatrix;
 
 /**
