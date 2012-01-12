@@ -354,6 +354,9 @@ $.register_module({
                 } else layout.inner.close('south');
                 api.rest.portfolios.get({
                     dependencies: ['id'],
+                    update: function () {
+                        console.log('UPDATE! arguments:', arguments);
+                    },
                     handler: function (result) {
                         if (result.error) return alert(result.message); // TODO: replace with UI error dialog
                         json = result.data;
