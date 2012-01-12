@@ -6,6 +6,7 @@
 
 package com.opengamma.language.livedata;
 
+import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.connector.LiveData;
 
 /**
@@ -16,10 +17,14 @@ import com.opengamma.language.connector.LiveData;
  */
 public interface LiveDataVisitor<T1, T2> {
 
-  T1 visitCustom(Custom message, T2 data);
+  T1 visitConnect(Connect message, T2 data) throws AsynchronousExecution;
 
-  T1 visitQueryAvailable(QueryAvailable message, T2 data);
+  T1 visitCustom(Custom message, T2 data) throws AsynchronousExecution;
 
-  T1 visitUnexpected(LiveData message, T2 data);
+  T1 visitQueryAvailable(QueryAvailable message, T2 data) throws AsynchronousExecution;
+
+  T1 visitQueryValue(QueryValue message, T2 data) throws AsynchronousExecution;
+
+  T1 visitUnexpected(LiveData message, T2 data) throws AsynchronousExecution;
 
 }

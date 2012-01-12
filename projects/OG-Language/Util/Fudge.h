@@ -38,4 +38,7 @@ public:
 };
 #endif /* ifdef __cplusplus */
 
+size_t FudgeMsg_hash (const FudgeMsg msg);
+int FudgeMsg_compare (const FudgeMsg a, const FudgeMsg b);
+
 #endif /* ifndef __inc_og_language_util_fudge_h */

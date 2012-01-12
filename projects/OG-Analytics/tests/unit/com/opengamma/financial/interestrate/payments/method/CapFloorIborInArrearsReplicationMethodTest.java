@@ -25,7 +25,7 @@ import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
@@ -90,8 +90,8 @@ public class CapFloorIborInArrearsReplicationMethodTest {
   private static final CapFloorIborInArrearsGenericReplicationMethod METHOD_SABREXTRA_CAP_IA = new CapFloorIborInArrearsGenericReplicationMethod(METHOD_SABREXTRA_STD);
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
 
-  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
-  private static final SABRInterestRateParameters SABR_PARAMETERS = TestsDataSets.createSABR1();
+  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
+  private static final SABRInterestRateParameters SABR_PARAMETERS = TestsDataSetsSABR.createSABR1();
   private static final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETERS, CURVES);
 
   @Test

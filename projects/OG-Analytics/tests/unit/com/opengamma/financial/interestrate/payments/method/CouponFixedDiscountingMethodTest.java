@@ -19,7 +19,7 @@ import com.opengamma.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.financial.instrument.index.generator.EURDeposit;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.interestrate.PresentValueParallelCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -44,8 +44,8 @@ public class CouponFixedDiscountingMethodTest {
   private static final double FIXED_RATE = 0.0250;
   private static final CouponFixedDefinition CPN_DEFINITION = CouponFixedDefinition.from(START_DATE, CPN_TENOR, DEPOSIT_EUR, NOTIONAL, FIXED_RATE);
 
-  private static final YieldCurveBundle YC_BUNDLE = TestsDataSets.createCurves2();
-  private static final String[] CURVES_NAME = TestsDataSets.curves2Names();
+  private static final YieldCurveBundle YC_BUNDLE = TestsDataSetsSABR.createCurves2();
+  private static final String[] CURVES_NAME = TestsDataSetsSABR.curves2Names();
 
   private static final CouponFixed CPN = CPN_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 

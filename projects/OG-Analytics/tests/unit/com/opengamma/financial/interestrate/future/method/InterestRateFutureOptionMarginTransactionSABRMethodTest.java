@@ -30,7 +30,7 @@ import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalc
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
@@ -88,8 +88,8 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
   private static final InterestRateFutureOptionMarginTransactionSABRMethod METHOD = InterestRateFutureOptionMarginTransactionSABRMethod.getInstance();
   private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD_SECURITY = InterestRateFutureOptionMarginSecuritySABRMethod.getInstance();
 
-  private static final YieldCurveBundle CURVES_BUNDLE = TestsDataSets.createCurves1();
-  private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSets.createSABR1();
+  private static final YieldCurveBundle CURVES_BUNDLE = TestsDataSetsSABR.createCurves1();
+  private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   private static final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETER, CURVES_BUNDLE);
   private static final PresentValueSABRCalculator PVC = PresentValueSABRCalculator.getInstance();
 
@@ -110,8 +110,8 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
    * Test the present value from the future price.
    */
   public void presentValueFromFuturePrice() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final double priceFuture = 0.9905;
     final InterestRateFutureOptionMarginTransaction transactionNoPremium = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
@@ -199,7 +199,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
     double delay = EDU2.getLastTradingTime() - OPTION_EDU2.getExpirationTime();
     final DoublesPair expectedExpiryDelay = new DoublesPair(OPTION_EDU2.getExpirationTime(), delay);
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSets.createSABR1AlphaBumped(shift);
+    final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shift);
     final SABRInterestRateDataBundle sabrBundleAlphaBumped = new SABRInterestRateDataBundle(sabrParameterAlphaBumped, CURVES_BUNDLE);
     final double pvAlphaBumped = METHOD.presentValue(TRANSACTION, sabrBundleAlphaBumped).getAmount();
     final double expectedAlphaSensi = (pvAlphaBumped - pv) / shift;
@@ -207,7 +207,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
     assertEquals("Alpha sensitivity expiry/tenor", pvcs.getAlpha().getMap().keySet().contains(expectedExpiryDelay), true);
     assertEquals("Alpha sensitivity value", pvcs.getAlpha().getMap().get(expectedExpiryDelay), expectedAlphaSensi, 1.0E+1);
     // Rho sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSets.createSABR1RhoBumped(shift);
+    final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSetsSABR.createSABR1RhoBumped(shift);
     final SABRInterestRateDataBundle sabrBundleRhoBumped = new SABRInterestRateDataBundle(sabrParameterRhoBumped, CURVES_BUNDLE);
     final double pvRhoBumped = METHOD.presentValue(TRANSACTION, sabrBundleRhoBumped).getAmount();
     final double expectedRhoSensi = (pvRhoBumped - pv) / shift;
@@ -215,7 +215,7 @@ public class InterestRateFutureOptionMarginTransactionSABRMethodTest {
     assertEquals("Rho sensitivity expiry/tenor", pvcs.getRho().getMap().keySet().contains(expectedExpiryDelay), true);
     assertEquals("Rho sensitivity value", pvcs.getRho().getMap().get(expectedExpiryDelay), expectedRhoSensi, 1.0E+0);
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSets.createSABR1NuBumped(shift);
+    final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSetsSABR.createSABR1NuBumped(shift);
     final SABRInterestRateDataBundle sabrBundleNuBumped = new SABRInterestRateDataBundle(sabrParameterNuBumped, CURVES_BUNDLE);
     final double pvNuBumped = METHOD.presentValue(TRANSACTION, sabrBundleNuBumped).getAmount();
     final double expectedNuSensi = (pvNuBumped - pv) / shift;

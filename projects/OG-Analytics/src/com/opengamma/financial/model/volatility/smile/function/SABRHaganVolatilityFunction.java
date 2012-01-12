@@ -132,7 +132,8 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
     final double cutoff = forward * CUTOFF_MONEYNESS;
     final double k;
     if (strike < cutoff) {
-      s_logger.info("Given strike of " + strike + " is less than cutoff at " + cutoff + ", therefore the strike is taken as " + cutoff);
+      s_logger.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}",
+          new Object[] {strike, cutoff, cutoff});
       k = cutoff;
     } else {
       k = strike;
@@ -194,7 +195,8 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
     double strike = option.getStrike();
     final double cutoff = forward * CUTOFF_MONEYNESS;
     if (strike < cutoff) {
-      s_logger.info("Given strike of " + strike + " is less than cutoff at " + cutoff + ", therefore the strike is taken as " + cutoff);
+      s_logger.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}",
+          new Object[] {strike, cutoff, cutoff});
       strike = cutoff;
     }
 
@@ -432,7 +434,8 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
     double strike = option.getStrike();
     final double cutoff = forward * CUTOFF_MONEYNESS;
     if (strike < cutoff) {
-      s_logger.info("Given strike of " + strike + " is less than cutoff at " + cutoff + ", therefore the strike is taken as " + cutoff);
+      s_logger.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}",
+          new Object[] {strike, cutoff, cutoff});
       strike = cutoff;
     }
 
