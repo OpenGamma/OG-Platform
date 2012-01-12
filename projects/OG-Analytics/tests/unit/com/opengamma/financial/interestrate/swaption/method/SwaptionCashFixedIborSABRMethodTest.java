@@ -136,7 +136,7 @@ public class SwaptionCashFixedIborSABRMethodTest {
     final double priceShortReceiver = PVC.visit(SWAPTION_SHORT_RECEIVER, sabrBundle);
     // From previous run
     final double expectedPriceLongPayer = 5107666.869;
-    //    assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
+    assertEquals(expectedPriceLongPayer, priceLongPayer, 1E-2);
     final double forward = PRC.visit(SWAP_PAYER, curves);
     final double pvbp = SwapFixedDiscountingMethod.getAnnuityCash(SWAP_PAYER, forward);
     final double maturity = SWAP_PAYER.getFirstLeg().getNthPayment(SWAP_PAYER.getFirstLeg().getNumberOfPayments() - 1).getPaymentTime() - SWAPTION_LONG_PAYER.getSettlementTime();
