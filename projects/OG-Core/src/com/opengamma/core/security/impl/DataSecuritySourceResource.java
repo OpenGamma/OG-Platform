@@ -101,7 +101,7 @@ public class DataSecuritySourceResource extends AbstractDataResource {
   public Response getBulk(
       @QueryParam("id") List<String> uniqueIdStrs) {
     final List<UniqueId> uids = IdUtils.parseUniqueIds(uniqueIdStrs);
-    Map<UniqueId, Security> result = getSecuritySource().getSecurity(uids);
+    Map<UniqueId, Security> result = getSecuritySource().getSecurities(uids);
     return Response.ok(FudgeListWrapper.of(result.values())).build();
   }
 

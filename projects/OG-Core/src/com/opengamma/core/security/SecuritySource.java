@@ -50,7 +50,7 @@ public interface SecuritySource extends ChangeProvider {
    * @param uniqueIds  the unique identifiers to query, not null
    * @return the map of results, if there is no data for an identifier it will be missing from the map, not null
    */
-  Map<UniqueId, Security> getSecurity(Collection<UniqueId> uniqueIds);
+  Map<UniqueId, Security> getSecurities(Collection<UniqueId> uniqueIds);
 
   /**
    * Gets a security by object identifier and version-correction.

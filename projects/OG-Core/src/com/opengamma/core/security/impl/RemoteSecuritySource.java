@@ -84,7 +84,7 @@ public class RemoteSecuritySource extends AbstractRemoteClient implements Securi
 
   @SuppressWarnings("unchecked")
   @Override
-  public Map<UniqueId, Security> getSecurity(final Collection<UniqueId> uniqueIds) {
+  public Map<UniqueId, Security> getSecurities(final Collection<UniqueId> uniqueIds) {
     ArgumentChecker.notNull(uniqueIds, "uniqueIds");
     
     URI uri = DataSecuritySourceResource.uriBulk(getBaseUri(), uniqueIds);
