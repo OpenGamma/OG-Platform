@@ -23,7 +23,7 @@
   <!-- View processor service -->
   <bean id="viewProcessorRestBean" class="com.opengamma.financial.view.rest.RestViewProcessorFactoryBean">
     <property name="viewProcessor" ref="demoViewProcessor" />
-    <property name="jmsConnector" ref="jmsConnector" />
+    <property name="jmsConnector" ref="standardJmsConnector" />
     <property name="fudgeContext" ref="standardFudgeContext" />
     <property name="executorService" ref="scheduler" />
   </bean>

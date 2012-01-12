@@ -15,20 +15,7 @@
   </bean>
 
   <!-- ================================================================== -->
-  <!-- Active MQ -->
-  <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
-    <constructor-arg value="${activeMQ.brokerURL}" />
-    <property name="WatchTopicAdvisories" value="false" /> <!-- IGN-94 -->
-  </bean>
-  <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop"> 
-    <constructor-arg ref="activeMQConnectionFactory"/>
-  </bean>
-  <bean id="jmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean">
-    <property name="name" value="Masters"/>
-    <property name="connectionFactory" ref="jmsConnectionFactory"/>
-  </bean>
-
-  <!--  Remote masters -->
+  <!-- Expose component infrastructure -->
   <bean class="com.opengamma.financial.spring.ComponentRepositoryBeanPostProcessor" />
 
   <!-- ================================================================== -->
