@@ -19,9 +19,6 @@
   <bean class="com.opengamma.financial.spring.ComponentRepositoryBeanPostProcessor" />
 
   <!-- ================================================================== -->
-  <!-- marketDataProviderResolver -->
-  <import resource="classpath:marketData-${opengamma.platform.runmode}.xml" />
-  
   <bean id="testUser" class="${testUser.factory}" />  
 
   <!-- Functions -->
@@ -159,13 +156,13 @@
   <bean id="demoViewProcessor" class="com.opengamma.engine.view.ViewProcessorFactoryBean">
     <property name="id" value="0" />
     <property name="viewDefinitionRepository" ref="combinedViewDefinitionRepository" />
-    <property name="liveMarketDataSourceRegistry" ref="liveMarketDataSourceRegistry" />
+    <property name="liveMarketDataSourceRegistry" ref="standardLiveMarketDataSourceRegistry" />
     <property name="securitySource" ref="combinedSecuritySource" />
     <property name="positionSource" ref="combinedPositionSource" />
     <property name="computationTargetResolver" ref="demoTargetResolver" />
     <property name="functionCompilationService" ref="demoFunctionCompilation" />
     <property name="functionResolver" ref="demoFunctionResolver" />
-    <property name="marketDataProviderResolver" ref="marketDataProviderResolver" />
+    <property name="marketDataProviderResolver" ref="standardMarketDataProviderResolver" />
     <property name="computationCacheSource" ref="demoComputationCacheSource" />
     <property name="computationJobDispatcher" ref="demoComputationJobDispatcher" />
     <property name="viewProcessorQueryReceiver" ref="demoViewProcessorQueryReceiver" />

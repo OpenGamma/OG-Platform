@@ -36,7 +36,7 @@
     <property name="underlying">
       <bean class="com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResourceContextBean">
         <property name="compiledFunctionService" ref="demoFunctionCompilation" />
-        <property name="marketDataProviderResolver" ref="marketDataProviderResolver" />
+        <property name="marketDataProviderResolver" ref="standardMarketDataProviderResolver" />
         <property name="computationTargetResolver" ref="demoTargetResolver" />
         <property name="functionResolver" ref="demoFunctionResolver" />
       </bean>
