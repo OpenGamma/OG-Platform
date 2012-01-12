@@ -7,6 +7,9 @@ package com.opengamma.util;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
+import java.util.Iterator;
+import java.util.List;
 
 import org.springframework.util.ClassUtils;
 
@@ -69,6 +72,35 @@ public final class ReflectionUtils {
         throw new OpenGammaRuntimeException(ex.getMessage(), ex2);
       }
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Finds a constructor from a Class.
+   * 
+   * @param <T> the type
+   * @param type  the type to create, not null
+   * @param arguments  the arguments, not null
+   * @return the constructor, not null
+   * @throws RuntimeException if the class cannot be loaded
+   */
+  @SuppressWarnings("unchecked")
+  public static <T> Constructor<T> findConstructorByArguments(final Class<T> type, final Object... arguments) {
+    Class<?>[] paramTypes = new Class<?>[arguments.length];
+    for (int i = 0; i < arguments.length; i++) {
+      paramTypes[i] = (arguments[i] != null ? arguments[i].getClass() : null);
+    }
+    List<Constructor<?>> constructors = Arrays.asList(type.getConstructors());
+    for (Iterator<Constructor<?>> it = constructors.iterator(); it.hasNext(); ) {
+      Constructor<?> constructor = (Constructor<?>) it.next();
+      if (org.apache.commons.lang.ClassUtils.isAssignable(paramTypes, constructor.getParameterTypes()) == false) {
+        it.remove();
+      }
+    }
+    if (constructors.size() != 1) {
+      throw new OpenGammaRuntimeException("Unable to match single constructor: " + type);
+    }
+    return (Constructor<T>) constructors.get(0);
   }
 
   //-------------------------------------------------------------------------
