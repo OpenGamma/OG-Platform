@@ -16,11 +16,9 @@ import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
@@ -35,7 +33,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class ForexVanillaOptionPresentValueVolatilitySensitivityFunction extends ForexVanillaOptionFunction {
+public class ForexVanillaOptionPresentValueVolatilitySensitivityFunction extends ForexOptionFunction {
   private static final Double[] EMPTY_ARRAY = ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY;
   private static final PresentValueVolatilitySensitivityBlackForexCalculator CALCULATOR = PresentValueVolatilitySensitivityBlackForexCalculator.getInstance();
   private static final DecimalFormat TIME_FORMATTER = new DecimalFormat("##.###");
@@ -66,22 +64,36 @@ public class ForexVanillaOptionPresentValueVolatilitySensitivityFunction extends
       rowLabel.add(getFormattedStrike(k, result.getCurrencyPair()));
       values[0][0] = entry.getValue();
     }
-    final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.PAY_CURVE, putFundingCurveName, putForwardCurveName)
-        .with(ValuePropertyNames.RECEIVE_CURVE, callFundingCurveName, callForwardCurveName)
-        .with(ValuePropertyNames.SURFACE, surfaceName).get();
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES, target.toSpecification(), properties);
+    final ValueProperties.Builder properties = getResultProperties(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName, target);
+    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
     return Collections
         .singleton(new ComputedValue(spec, new DoubleLabelledMatrix2D(columnValue.toArray(EMPTY_ARRAY), columnLabel.toArray(), rowValue.toArray(EMPTY_ARRAY), rowLabel.toArray(), values)));
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties()
-        .withAny(ValuePropertyNames.PAY_CURVE)
-        .withAny(ValuePropertyNames.RECEIVE_CURVE)
-        .withAny(ValuePropertyNames.SURFACE).get();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES, target.toSpecification(), properties));
+  protected String getValueRequirementName() {
+    return ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES;
+  }
+
+  @Override
+  protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
+    return createValueProperties()
+        .withAny(PROPERTY_PUT_FUNDING_CURVE_NAME)
+        .withAny(PROPERTY_PUT_FORWARD_CURVE_NAME)
+        .withAny(PROPERTY_CALL_FUNDING_CURVE_NAME)
+        .withAny(PROPERTY_CALL_FORWARD_CURVE_NAME)
+        .withAny(PROPERTY_FX_VOLATILITY_SURFACE_NAME);
+  }
+
+  @Override
+  protected ValueProperties.Builder getResultProperties(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName,
+      final String callForwardCurveName, final String surfaceName, final ComputationTarget target) {
+    return createValueProperties()
+        .with(PROPERTY_PUT_FUNDING_CURVE_NAME, putFundingCurveName)
+        .with(PROPERTY_PUT_FORWARD_CURVE_NAME, putForwardCurveName)
+        .with(PROPERTY_CALL_FUNDING_CURVE_NAME, callFundingCurveName)
+        .with(PROPERTY_CALL_FORWARD_CURVE_NAME, callForwardCurveName)
+        .with(PROPERTY_FX_VOLATILITY_SURFACE_NAME, surfaceName);
   }
 
   private String getFormattedTime(final double t) {

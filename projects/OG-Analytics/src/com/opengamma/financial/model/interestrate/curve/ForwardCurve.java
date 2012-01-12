@@ -24,7 +24,6 @@ public class ForwardCurve {
   private final Curve<Double, Double> _drift;
   private final double _spot;
 
-  @SuppressWarnings("unused")
   private ForwardCurve(final Curve<Double, Double> fwdCurve, final Curve<Double, Double> driftCurve) {
     Validate.notNull(fwdCurve, "null fwdCurve");
     Validate.notNull(driftCurve, "null driftCurve");
@@ -153,9 +152,9 @@ public class ForwardCurve {
     Validate.isTrue(_spot > shift, "The shift is bigger than the spot");
     final double percentage = (_spot + shift) / _spot;
 
-    Function<Double, Double> func = new Function<Double, Double>() {
+    final Function<Double, Double> func = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... t) {
+      public Double evaluate(final Double... t) {
         return percentage * _fwdCurve.getYValue(t[0]);
       }
     };

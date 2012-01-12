@@ -34,8 +34,7 @@ import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
-import com.opengamma.financial.security.fx.FXUtils;
-import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -47,18 +46,21 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends ForexVanillaOptionFunction {
+public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends ForexOptionFunction {
   private static final PresentValueYieldCurveNodeSensitivityForexCalculator CALCULATOR = PresentValueYieldCurveNodeSensitivityForexCalculator.getInstance();
 
   @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target,
       final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, final String surfaceName) {
-    final Currency putCurrency = ((FXOptionSecurity) target.getSecurity()).getPutCurrency();
-    final Currency callCurrency = ((FXOptionSecurity) target.getSecurity()).getCallCurrency();
-    final String fullPutFundingCurveName = putFundingCurveName + "_" + putCurrency.getCode();
-    final String fullPutForwardCurveName = putForwardCurveName + "_" + putCurrency.getCode();
-    final String fullCallFundingCurveName = callFundingCurveName + "_" + callCurrency.getCode();
-    final String fullCallForwardCurveName = callForwardCurveName + "_" + callCurrency.getCode();
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    final String putCurrencyString = putCurrency.getCode();
+    final String callCurrencyString = callCurrency.getCode();
+    final String fullPutFundingCurveName = putFundingCurveName + "_" + putCurrencyString;
+    final String fullPutForwardCurveName = putForwardCurveName + "_" + putCurrencyString;
+    final String fullCallFundingCurveName = callFundingCurveName + "_" + callCurrencyString;
+    final String fullCallForwardCurveName = callForwardCurveName + "_" + callCurrencyString;
     final Object putJacobianObject = inputs.getValue(YieldCurveFunction.getJacobianRequirement(putCurrency, putForwardCurveName, putFundingCurveName,
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     if (putJacobianObject == null) {
@@ -118,20 +120,31 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
     callArrayResult = CALCULATOR.calculate(curveSensitivities, callCurveBundle, callCouponSensitivity, callJacobian);
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(fullPutFundingCurveName, data, putArrayResult.get(fullPutFundingCurveName), putFundingCurveSpec,
-        getResultSpecForCurve(target, putCurrency.getCode(), putFundingCurveName)));
+        getResultSpecForCurve(target, putCurrencyString, putFundingCurveName, putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName)));
     result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(fullPutForwardCurveName, data, putArrayResult.get(fullPutForwardCurveName), putForwardCurveSpec,
-        getResultSpecForCurve(target, putCurrency.getCode(), putForwardCurveName)));
+        getResultSpecForCurve(target, putCurrencyString, putForwardCurveName, putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName)));
     result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(callFundingCurveName, data, callArrayResult.get(callFundingCurveName), callFundingCurveSpec,
-        getResultSpecForCurve(target, callCurrency.getCode(), callFundingCurveName)));
+        getResultSpecForCurve(target, callCurrencyString, callFundingCurveName, putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName)));
     result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(callForwardCurveName, data, callArrayResult.get(callForwardCurveName), callForwardCurveSpec,
-        getResultSpecForCurve(target, callCurrency.getCode(), callForwardCurveName)));
+        getResultSpecForCurve(target, callCurrencyString, callForwardCurveName, putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName)));
     return result;
   }
 
   @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final String putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor()).getCode();
+    final String callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor()).getCode();
+    final ValueProperties putProperties = getResultProperties(putCurrency).get();
+    final ValueSpecification putResultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), putProperties);
+    final ValueProperties callProperties = getResultProperties(callCurrency).get();
+    final ValueSpecification callResultSpec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), callProperties);
+    return Sets.newHashSet(putResultSpec, callResultSpec);
+  }
+
+  @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-    final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Set<String> putFundingCurveNames = desiredValue.getConstraints().getValues(PROPERTY_PUT_FUNDING_CURVE_NAME);
     if (putFundingCurveNames == null || putFundingCurveNames.size() != 1) {
       return null;
@@ -157,55 +170,119 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
     final String callFundingCurveName = callFundingCurveNames.iterator().next();
     final String callForwardCurveName = callForwardCurveNames.iterator().next();
     final String surfaceName = surfaceNames.iterator().next();
-    final Currency putCurrency = fxOption.getPutCurrency();
-    final Currency callCurrency = fxOption.getCallCurrency();
-    final ExternalId spotIdentifier = FXUtils.getSpotIdentifier(fxOption, true);
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    final ExternalId spotIdentifier = security.accept(ForexVisitors.getSpotIdentifierVisitor());
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
-    final ExternalId inverseSpotIdentifier = FXUtils.getSpotIdentifier(fxOption, true);
+    final ExternalId inverseSpotIdentifier = security.accept(ForexVisitors.getInverseSpotIdentifierVisitor());
     final ValueRequirement inverseSpotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, inverseSpotIdentifier);
     final ValueProperties surfaceProperties = ValueProperties.with(ValuePropertyNames.SURFACE, surfaceName)
         .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE).get();
-    final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(fxOption.getPutCurrency(), fxOption.getCallCurrency());
+    final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(putCurrency, callCurrency);
     final ValueRequirement fxVolatilitySurface = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
-    result.add(YieldCurveFunction.getCurveRequirement(putCurrency, putFundingCurveName, putForwardCurveName, putFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getCurveRequirement(putCurrency, putForwardCurveName, putForwardCurveName, putFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getCurveRequirement(callCurrency, callFundingCurveName, callForwardCurveName, callFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getCurveRequirement(callCurrency, callForwardCurveName, callForwardCurveName, callFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getJacobianRequirement(putCurrency, putForwardCurveName, putFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getJacobianRequirement(callCurrency, callForwardCurveName, callFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    result.add(YieldCurveFunction.getCouponSensitivityRequirement(putCurrency, putForwardCurveName, putFundingCurveName));
-    result.add(YieldCurveFunction.getCouponSensitivityRequirement(callCurrency, callForwardCurveName, callFundingCurveName));
-    result.add(getCurveSensitivitiesRequirement(target, putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName));
-    result.add(spotRequirement);
-    result.add(inverseSpotRequirement);
-    result.add(fxVolatilitySurface);
-    result.add(getCurveSpecRequirement(putCurrency, putFundingCurveName));
-    result.add(getCurveSpecRequirement(putCurrency, putForwardCurveName));
-    result.add(getCurveSpecRequirement(callCurrency, callFundingCurveName));
-    result.add(getCurveSpecRequirement(callCurrency, callForwardCurveName));
-    return result;
+    final ValueRequirement putFundingCurve = getCurveRequirement(putFundingCurveName, PROPERTY_PUT_FUNDING_CURVE_NAME, putCurrency);
+    final ValueRequirement putForwardCurve = getCurveRequirement(putForwardCurveName, PROPERTY_PUT_FORWARD_CURVE_NAME, putCurrency);
+    final ValueRequirement callFundingCurve = getCurveRequirement(callFundingCurveName, PROPERTY_CALL_FUNDING_CURVE_NAME, callCurrency);
+    final ValueRequirement callForwardCurve = getCurveRequirement(callForwardCurveName, PROPERTY_CALL_FORWARD_CURVE_NAME, callCurrency);
+    final ValueRequirement putJacobian =
+        YieldCurveFunction.getJacobianRequirement(putCurrency, putForwardCurveName, putFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+    final ValueRequirement callJacobian =
+        YieldCurveFunction.getJacobianRequirement(callCurrency, callForwardCurveName, callFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+    final ValueRequirement putCouponSensitivity = YieldCurveFunction.getCouponSensitivityRequirement(putCurrency, putForwardCurveName, putFundingCurveName);
+    final ValueRequirement callCouponSensitivity = YieldCurveFunction.getCouponSensitivityRequirement(callCurrency, callForwardCurveName, callFundingCurveName);
+    final ValueRequirement curveSensitivities = getCurveSensitivitiesRequirement(target, putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName);
+    final ValueRequirement putFundingCurveSpec = getCurveSpecRequirement(putCurrency, putFundingCurveName);
+    final ValueRequirement putForwardCurveSpec = getCurveSpecRequirement(putCurrency, putForwardCurveName);
+    final ValueRequirement callFundingCurveSpec = getCurveSpecRequirement(callCurrency, callFundingCurveName);
+    final ValueRequirement callForwardCurveSpec = getCurveSpecRequirement(callCurrency, callForwardCurveName);
+    return Sets.newHashSet(putFundingCurve, putForwardCurve, callFundingCurve, callForwardCurve, fxVolatilitySurface, spotRequirement, inverseSpotRequirement,
+        putJacobian, callJacobian, putCouponSensitivity, callCouponSensitivity, curveSensitivities, putFundingCurveSpec, putForwardCurveSpec,
+        callFundingCurveSpec, callForwardCurveSpec);
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
-    final Currency putCurrency = fxOption.getPutCurrency();
-    final Currency callCurrency = fxOption.getCallCurrency();
-    final ValueProperties putProperties = createValueProperties()
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    String putFundingCurveName = null;
+    String putForwardCurveName = null;
+    String callFundingCurveName = null;
+    String callForwardCurveName = null;
+    String surfaceName = null;
+    if (inputs.size() == 5) {
+      for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
+        if (input.getValue().getConstraints().getValues(PROPERTY_PUT_FUNDING_CURVE_NAME) != null) {
+          putFundingCurveName = input.getKey().getProperty(ValuePropertyNames.CURVE);
+          putForwardCurveName = putFundingCurveName;
+        } else if (input.getValue().getConstraints().getValues(PROPERTY_CALL_FUNDING_CURVE_NAME) != null) {
+          callFundingCurveName = input.getKey().getProperty(ValuePropertyNames.CURVE);
+          callForwardCurveName = callFundingCurveName;
+        } else if (input.getValue().getConstraints().getValues(PROPERTY_FX_VOLATILITY_SURFACE_NAME) != null) {
+          surfaceName = input.getKey().getProperty(ValuePropertyNames.SURFACE);
+        }
+      }
+    } else if (inputs.size() == 7) {
+      for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
+        if (input.getValue().getConstraints().getValues(PROPERTY_PUT_FUNDING_CURVE_NAME) != null) {
+          putFundingCurveName = input.getKey().getProperty(ValuePropertyNames.CURVE);
+        } else if (input.getValue().getConstraints().getValues(PROPERTY_PUT_FORWARD_CURVE_NAME) != null) {
+          putForwardCurveName = input.getKey().getProperty(ValuePropertyNames.CURVE);
+        } else if (input.getValue().getConstraints().getValues(PROPERTY_CALL_FUNDING_CURVE_NAME) != null) {
+          callFundingCurveName = input.getKey().getProperty(ValuePropertyNames.CURVE);
+        } else if (input.getValue().getConstraints().getValues(PROPERTY_CALL_FORWARD_CURVE_NAME) != null) {
+          callForwardCurveName = input.getKey().getProperty(ValuePropertyNames.CURVE);
+        } else if (input.getValue().getConstraints().getValues(PROPERTY_FX_VOLATILITY_SURFACE_NAME) != null) {
+          surfaceName = input.getKey().getProperty(ValuePropertyNames.SURFACE);
+        }
+      }
+    } else {
+      throw new OpenGammaRuntimeException("Unexpected number of inputs"); //TODO need to add ability to handle funding name == forward name for one of the currencies
+    }
+    assert putFundingCurveName != null;
+    assert putForwardCurveName != null;
+    assert callFundingCurveName != null;
+    assert callForwardCurveName != null;
+    assert surfaceName != null;
+    final String putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor()).getCode();
+    final String callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor()).getCode();
+    final ValueSpecification putFundingResult = getResultSpecForCurve(target, putCurrency, putFundingCurveName,
+        putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
+    final ValueSpecification putForwardResult = getResultSpecForCurve(target, putCurrency, putForwardCurveName,
+        putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
+    final ValueSpecification callFundingResult = getResultSpecForCurve(target, callCurrency, callFundingCurveName,
+        putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
+    final ValueSpecification callForwardResult = getResultSpecForCurve(target, callCurrency, callForwardCurveName,
+        putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName);
+    return Sets.newHashSet(putFundingResult, putForwardResult, callFundingResult, callForwardResult);
+  }
+
+  @Override
+  protected String getValueRequirementName() {
+    return ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
+  }
+
+  protected ValueProperties.Builder getResultProperties(final String ccy) {
+    return createValueProperties()
         .withAny(ValuePropertyNames.CURVE)
-        .withAny(ValuePropertyNames.CURVE_CURRENCY)
-        .with(ValuePropertyNames.CURRENCY, putCurrency.getCode()).get();
-    final ValueSpecification putResultSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), putProperties);
-    final ValueProperties callProperties = createValueProperties()
-        .withAny(ValuePropertyNames.CURVE)
-        .withAny(ValuePropertyNames.CURVE_CURRENCY)
-        .with(ValuePropertyNames.CURRENCY, callCurrency.getCode()).get();
-    final ValueSpecification callResultSpec = new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), callProperties);
-    return Sets.newHashSet(putResultSpec, callResultSpec);
-    //    return Sets.newHashSet(getResultSpecForCurve(target, putCurrency.getCode(), getPutFundingCurveName()),
-    //        getResultSpecForCurve(target, putCurrency.getCode(), getPutForwardCurveName()),
-    //        getResultSpecForCurve(target, callCurrency.getCode(), getCallFundingCurveName()),
-    //        getResultSpecForCurve(target, callCurrency.getCode(), getCallForwardCurveName()));
+        .with(ValuePropertyNames.CURVE_CURRENCY, ccy)
+        .with(ValuePropertyNames.CURRENCY, ccy)
+        .withAny(PROPERTY_PUT_FUNDING_CURVE_NAME)
+        .withAny(PROPERTY_PUT_FORWARD_CURVE_NAME)
+        .withAny(PROPERTY_CALL_FUNDING_CURVE_NAME)
+        .withAny(PROPERTY_CALL_FORWARD_CURVE_NAME)
+        .withAny(PROPERTY_FX_VOLATILITY_SURFACE_NAME);
+  }
+
+  private ValueProperties.Builder getResultProperties(final String ccy, final String curveName, final String putFundingCurveName, final String putForwardCurveName,
+      final String callFundingCurveName, final String callForwardCurveName, final String surfaceName) {
+    return createValueProperties()
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(ValuePropertyNames.CURVE_CURRENCY, ccy)
+        .with(ValuePropertyNames.CURRENCY, ccy)
+        .with(PROPERTY_PUT_FUNDING_CURVE_NAME, putFundingCurveName)
+        .with(PROPERTY_PUT_FORWARD_CURVE_NAME, putForwardCurveName)
+        .with(PROPERTY_CALL_FUNDING_CURVE_NAME, callFundingCurveName)
+        .with(PROPERTY_CALL_FORWARD_CURVE_NAME, callForwardCurveName)
+        .with(PROPERTY_FX_VOLATILITY_SURFACE_NAME, surfaceName);
   }
 
   private ValueRequirement getCurveSensitivitiesRequirement(final ComputationTarget target, final String putFundingCurveName, final String putForwardCurveName,
@@ -221,12 +298,9 @@ public class ForexVanillaOptionYieldCurveNodeSensitivitiesFunction extends Forex
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
   }
 
-  private ValueSpecification getResultSpecForCurve(final ComputationTarget target, final String currency, final String curveName) {
-    final ValueProperties properties = createValueProperties()
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
-        .with(ValuePropertyNames.CURRENCY, currency)
-        .get();
-    return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
+  private ValueSpecification getResultSpecForCurve(final ComputationTarget target, final String currency, final String curveName, final String putFundingCurveName, final String putForwardCurveName,
+      final String callFundingCurveName, final String callForwardCurveName, final String surfaceName) {
+    final ValueProperties properties = getResultProperties(currency, curveName, putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName).get();
+    return new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties);
   }
 }

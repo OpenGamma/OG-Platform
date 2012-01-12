@@ -118,6 +118,9 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
     String creditCurveName = null;
     if (inputs.size() == 1) {
       final String curveName = inputs.keySet().iterator().next().getProperty(ValuePropertyNames.CURVE);
+      if (curveName == null) {
+        throw new OpenGammaRuntimeException("Missing or non-unique curve name");
+      }
       riskFreeCurveName = curveName;
       creditCurveName = curveName;
     } else {
@@ -126,15 +129,14 @@ public abstract class BondFromCurvesFunction extends BondFunction<YieldCurveBund
         if (input.getValue().getConstraints().getValues(PROPERTY_RISK_FREE_CURVE) != null) {
           final Set<String> riskFreeCurves = input.getValue().getConstraints().getValues(ValuePropertyNames.CURVE);
           if (riskFreeCurves == null || riskFreeCurves.size() != 1) {
-            return null;
+            throw new OpenGammaRuntimeException("Missing or non-unique risk-free curve name");
           } else {
             riskFreeCurveName = riskFreeCurves.iterator().next();
           }
-        }
-        if (input.getValue().getConstraints().getValues(PROPERTY_CREDIT_CURVE) != null) {
+        } else if (input.getValue().getConstraints().getValues(PROPERTY_CREDIT_CURVE) != null) {
           final Set<String> creditCurves = input.getValue().getConstraints().getValues(ValuePropertyNames.CURVE);
           if (creditCurves == null || creditCurves.size() != 1) {
-            return null;
+            throw new OpenGammaRuntimeException("Missing or non-unique credit curve name");
           } else {
             creditCurveName = creditCurves.iterator().next();
           }
