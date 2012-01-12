@@ -11,6 +11,7 @@ import com.google.common.collect.Multimap;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeEvent;
 import com.opengamma.core.change.ChangeListener;
+import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -152,7 +153,13 @@ import java.util.Set;
   @Override
   public void entityChanged(ChangeEvent event) {
     synchronized (_lock) {
-      Collection<String> urls = _entityUrls.removeAll(event.getAfterId().getObjectId());
+      ObjectId objectId;
+      if (event.getType() == ChangeType.REMOVED) {
+        objectId = event.getBeforeId().getObjectId();
+      } else {
+        objectId = event.getAfterId().getObjectId();
+      }
+      Collection<String> urls = _entityUrls.removeAll(objectId);
       removeSubscriptions(urls);
       if (!urls.isEmpty()) {
         _listener.itemsUpdated(urls);
