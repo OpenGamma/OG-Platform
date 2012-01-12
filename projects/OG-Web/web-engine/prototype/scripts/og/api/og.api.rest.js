@@ -527,6 +527,7 @@ $.register_module({
             api.id = result.data['clientId'];
             subscribe = function () {
                 api.updates.get({handler: function (result) {
+                    if (result.error) return og.dev.warn(module.name + ': subscription failed\n', result.message);
                     console.log('update result.data', result.data);
                     subscribe();
                 }});
