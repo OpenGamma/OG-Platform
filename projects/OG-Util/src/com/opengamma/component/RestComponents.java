@@ -46,9 +46,20 @@ public class RestComponents extends DirectBean {
   @PropertyDefinition(validate = "notNull")
   private final List<ComponentInfo> _remoteComponents = new ArrayList<ComponentInfo>();
   /**
+   * The set of root resources.
+   * These are not managed by {@link DataComponentsResource}.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Set<Object> _rootResourceSingletons = new LinkedHashSet<Object>();
+  /**
+   * The set of root resource factories.
+   * These are not managed by {@link DataComponentsResource}.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final Set<RestResourceFactory> _rootResourceFactories = new LinkedHashSet<RestResourceFactory>();
+  /**
    * The set of additional singleton JAX-RS helper objects that are used by JAX-RS.
-   * This may include filters, providers, consumer and resources that should
-   * be used directly by JAX-RS and not managed by {@link DataComponentsResource}.
+   * This may include filters, providers and consumers that should be used directly by JAX-RS.
    */
   @PropertyDefinition(validate = "notNull")
   private final Set<Object> _helpers = new LinkedHashSet<Object>();
@@ -65,6 +76,7 @@ public class RestComponents extends DirectBean {
    * <p>
    * The instance is a JAX_RS class annotated with {@code Path} on the methods.
    * Any {@code Path} at the class level is ignored.
+   * See {@link DataComponentsResource}.
    * 
    * @param info  the managed component info, not null
    * @param instance  the JAX-RS singleton instance, not null
@@ -83,7 +95,8 @@ public class RestComponents extends DirectBean {
   /**
    * Adds a JAX-RS helper instance to the known set.
    * <p>
-   * This is used for JAX-RS consumers, producers and filters.
+   * This is used for JAX-RS consumers, producers and filters and unmanaged singleton resources.
+   * These classes are not managed by {@code DataComponentsResource}.
    * 
    * @param instance  the JAX-RS singleton instance, not null
    */
@@ -91,6 +104,34 @@ public class RestComponents extends DirectBean {
     ArgumentChecker.notNull(instance, "instance");
     
     getHelpers().add(instance);
+  }
+
+  /**
+   * Adds a JAX-RS root resource to the known set.
+   * <p>
+   * This is used for JAX-RS unmanaged resources.
+   * The class is not managed by {@code DataComponentsResource}.
+   * 
+   * @param singletonInstance  the unmanaged singleton instance, not null
+   */
+  public void publishResource(Object singletonInstance) {
+    ArgumentChecker.notNull(singletonInstance, "singletonInstance");
+    
+    getRootResourceSingletons().add(singletonInstance);
+  }
+
+  /**
+   * Adds a JAX-RS root resource to the known set.
+   * <p>
+   * This is used for JAX-RS unmanaged resources.
+   * These classes are not managed by {@code DataComponentsResource}.
+   * 
+   * @param factory  the factory for creating the resource per request, not null
+   */
+  public void publishResource(RestResourceFactory factory) {
+    ArgumentChecker.notNull(factory, "factory");
+    
+    getRootResourceFactories().add(factory);
   }
 
   /**
@@ -119,6 +160,21 @@ public class RestComponents extends DirectBean {
     Set<Object> set = new LinkedHashSet<Object>();
     set.add(dcr);
     set.addAll(getHelpers());
+    set.addAll(getRootResourceSingletons());
+    set.addAll(getRootResourceFactories());
+    return set;
+  }
+
+  /**
+   * Gets the complete set of JaxRs classes.
+   * 
+   * @return the complete set of classes, not null
+   */
+  public Set<Class<?>> getJaxRsClasses() {
+    Set<Class<?>> set = new LinkedHashSet<Class<?>>();
+    for (RestResourceFactory factory : getRootResourceFactories()) {
+      set.add(factory.getType());
+    }
     return set;
   }
 
@@ -147,6 +203,10 @@ public class RestComponents extends DirectBean {
         return getLocalComponents();
       case 329529340:  // remoteComponents
         return getRemoteComponents();
+      case -392070920:  // rootResourceSingletons
+        return getRootResourceSingletons();
+      case -122531336:  // rootResourceFactories
+        return getRootResourceFactories();
       case 805824133:  // helpers
         return getHelpers();
     }
@@ -163,6 +223,12 @@ public class RestComponents extends DirectBean {
       case 329529340:  // remoteComponents
         setRemoteComponents((List<ComponentInfo>) newValue);
         return;
+      case -392070920:  // rootResourceSingletons
+        setRootResourceSingletons((Set<Object>) newValue);
+        return;
+      case -122531336:  // rootResourceFactories
+        setRootResourceFactories((Set<RestResourceFactory>) newValue);
+        return;
       case 805824133:  // helpers
         setHelpers((Set<Object>) newValue);
         return;
@@ -174,6 +240,8 @@ public class RestComponents extends DirectBean {
   protected void validate() {
     JodaBeanUtils.notNull(_localComponents, "localComponents");
     JodaBeanUtils.notNull(_remoteComponents, "remoteComponents");
+    JodaBeanUtils.notNull(_rootResourceSingletons, "rootResourceSingletons");
+    JodaBeanUtils.notNull(_rootResourceFactories, "rootResourceFactories");
     JodaBeanUtils.notNull(_helpers, "helpers");
     super.validate();
   }
@@ -187,6 +255,8 @@ public class RestComponents extends DirectBean {
       RestComponents other = (RestComponents) obj;
       return JodaBeanUtils.equal(getLocalComponents(), other.getLocalComponents()) &&
           JodaBeanUtils.equal(getRemoteComponents(), other.getRemoteComponents()) &&
+          JodaBeanUtils.equal(getRootResourceSingletons(), other.getRootResourceSingletons()) &&
+          JodaBeanUtils.equal(getRootResourceFactories(), other.getRootResourceFactories()) &&
           JodaBeanUtils.equal(getHelpers(), other.getHelpers());
     }
     return false;
@@ -197,6 +267,8 @@ public class RestComponents extends DirectBean {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getLocalComponents());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRemoteComponents());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRootResourceSingletons());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getRootResourceFactories());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHelpers());
     return hash;
   }
@@ -261,9 +333,66 @@ public class RestComponents extends DirectBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the set of root resources.
+   * These are not managed by {@link DataComponentsResource}.
+   * @return the value of the property, not null
+   */
+  public Set<Object> getRootResourceSingletons() {
+    return _rootResourceSingletons;
+  }
+
+  /**
+   * Sets the set of root resources.
+   * These are not managed by {@link DataComponentsResource}.
+   * @param rootResourceSingletons  the new value of the property
+   */
+  public void setRootResourceSingletons(Set<Object> rootResourceSingletons) {
+    this._rootResourceSingletons.clear();
+    this._rootResourceSingletons.addAll(rootResourceSingletons);
+  }
+
+  /**
+   * Gets the the {@code rootResourceSingletons} property.
+   * These are not managed by {@link DataComponentsResource}.
+   * @return the property, not null
+   */
+  public final Property<Set<Object>> rootResourceSingletons() {
+    return metaBean().rootResourceSingletons().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the set of root resource factories.
+   * These are not managed by {@link DataComponentsResource}.
+   * @return the value of the property, not null
+   */
+  public Set<RestResourceFactory> getRootResourceFactories() {
+    return _rootResourceFactories;
+  }
+
+  /**
+   * Sets the set of root resource factories.
+   * These are not managed by {@link DataComponentsResource}.
+   * @param rootResourceFactories  the new value of the property
+   */
+  public void setRootResourceFactories(Set<RestResourceFactory> rootResourceFactories) {
+    this._rootResourceFactories.clear();
+    this._rootResourceFactories.addAll(rootResourceFactories);
+  }
+
+  /**
+   * Gets the the {@code rootResourceFactories} property.
+   * These are not managed by {@link DataComponentsResource}.
+   * @return the property, not null
+   */
+  public final Property<Set<RestResourceFactory>> rootResourceFactories() {
+    return metaBean().rootResourceFactories().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the set of additional singleton JAX-RS helper objects that are used by JAX-RS.
-   * This may include filters, providers, consumer and resources that should
-   * be used directly by JAX-RS and not managed by {@link DataComponentsResource}.
+   * This may include filters, providers and consumers that should be used directly by JAX-RS.
    * @return the value of the property, not null
    */
   public Set<Object> getHelpers() {
@@ -272,8 +401,7 @@ public class RestComponents extends DirectBean {
 
   /**
    * Sets the set of additional singleton JAX-RS helper objects that are used by JAX-RS.
-   * This may include filters, providers, consumer and resources that should
-   * be used directly by JAX-RS and not managed by {@link DataComponentsResource}.
+   * This may include filters, providers and consumers that should be used directly by JAX-RS.
    * @param helpers  the new value of the property
    */
   public void setHelpers(Set<Object> helpers) {
@@ -283,8 +411,7 @@ public class RestComponents extends DirectBean {
 
   /**
    * Gets the the {@code helpers} property.
-   * This may include filters, providers, consumer and resources that should
-   * be used directly by JAX-RS and not managed by {@link DataComponentsResource}.
+   * This may include filters, providers and consumers that should be used directly by JAX-RS.
    * @return the property, not null
    */
   public final Property<Set<Object>> helpers() {
@@ -314,6 +441,18 @@ public class RestComponents extends DirectBean {
     private final MetaProperty<List<ComponentInfo>> _remoteComponents = DirectMetaProperty.ofReadWrite(
         this, "remoteComponents", RestComponents.class, (Class) List.class);
     /**
+     * The meta-property for the {@code rootResourceSingletons} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<Object>> _rootResourceSingletons = DirectMetaProperty.ofReadWrite(
+        this, "rootResourceSingletons", RestComponents.class, (Class) Set.class);
+    /**
+     * The meta-property for the {@code rootResourceFactories} property.
+     */
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    private final MetaProperty<Set<RestResourceFactory>> _rootResourceFactories = DirectMetaProperty.ofReadWrite(
+        this, "rootResourceFactories", RestComponents.class, (Class) Set.class);
+    /**
      * The meta-property for the {@code helpers} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -326,6 +465,8 @@ public class RestComponents extends DirectBean {
         this, null,
         "localComponents",
         "remoteComponents",
+        "rootResourceSingletons",
+        "rootResourceFactories",
         "helpers");
 
     /**
@@ -341,6 +482,10 @@ public class RestComponents extends DirectBean {
           return _localComponents;
         case 329529340:  // remoteComponents
           return _remoteComponents;
+        case -392070920:  // rootResourceSingletons
+          return _rootResourceSingletons;
+        case -122531336:  // rootResourceFactories
+          return _rootResourceFactories;
         case 805824133:  // helpers
           return _helpers;
       }
@@ -377,6 +522,22 @@ public class RestComponents extends DirectBean {
      */
     public final MetaProperty<List<ComponentInfo>> remoteComponents() {
       return _remoteComponents;
+    }
+
+    /**
+     * The meta-property for the {@code rootResourceSingletons} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Set<Object>> rootResourceSingletons() {
+      return _rootResourceSingletons;
+    }
+
+    /**
+     * The meta-property for the {@code rootResourceFactories} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Set<RestResourceFactory>> rootResourceFactories() {
+      return _rootResourceFactories;
     }
 
     /**

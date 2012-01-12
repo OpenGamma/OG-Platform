@@ -66,15 +66,7 @@ public class OpenGammaSpringServlet extends SpringServlet {
 
   @Override
   protected void initiate(ResourceConfig rc, WebApplication wa) {
-    ComponentRepository repo = ComponentRepository.getThreadLocal();
-    final Set<Object> published = repo.getRestComponents().getJaxRsSingletons();
-    Application app = new Application() {
-      @Override
-      public Set<Object> getSingletons() {
-        return published;
-      }
-    };
-    
+    Application app = createApplication();
     try {
       // initialize the Jetty system
       rc.add(app);
@@ -84,6 +76,28 @@ public class OpenGammaSpringServlet extends SpringServlet {
       s_logger.error("Exception occurred during intialization", ex);
       throw ex;
     }
+  }
+
+  /**
+   * Creates the JaxRs application from the repository.
+   * 
+   * @return the application, not null
+   */
+  protected Application createApplication() {
+    ComponentRepository repo = ComponentRepository.getThreadLocal();
+    final Set<Object> singletons = repo.getRestComponents().getJaxRsSingletons();
+    final Set<Class<?>> classes = repo.getRestComponents().getJaxRsClasses();
+    Application app = new Application() {
+      @Override
+      public Set<Class<?>> getClasses() {
+        return classes;
+      }
+      @Override
+      public Set<Object> getSingletons() {
+        return singletons;
+      }
+    };
+    return app;
   }
 
 }

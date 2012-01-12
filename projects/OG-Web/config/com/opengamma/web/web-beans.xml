@@ -3,10 +3,6 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="
     http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans.xsd">
-    
-
-  <!--  import resources from OG-Util -->
-  <import resource="classpath:com/opengamma/transport/jaxrs/beans.xml" />
 
   <!-- Property file configuration -->
   <bean id="beansProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -271,21 +267,6 @@
   
   <!-- ============================================================================== -->
   <!-- Web -->
-  <bean id="webHomeRestBean" class="com.opengamma.web.WebHomeResource" scope="request">
-  </bean>
-
-  <bean id="webConfigsRestBean" class="com.opengamma.web.config.WebConfigsResource" scope="request">
-    <constructor-arg ref="centralConfigMaster" />
-  </bean>
-  <bean id="webExchangesRestBean" class="com.opengamma.web.exchange.WebExchangesResource" scope="request">
-    <constructor-arg ref="centralExchangeMaster" />
-  </bean>
-  <bean id="webHolidaysRestBean" class="com.opengamma.web.holiday.WebHolidaysResource" scope="request">
-    <constructor-arg ref="centralHolidayMaster" />
-  </bean>
-  <bean id="webRegionsRestBean" class="com.opengamma.web.region.WebRegionsResource" scope="request">
-    <constructor-arg ref="centralRegionMaster" />
-  </bean>
   <bean id="webSecuritiesRestBean" class="com.opengamma.web.security.WebSecuritiesResource" scope="request">
     <constructor-arg ref="centralSecurityMaster" />
     <constructor-arg ref="securityLoader"/>
@@ -299,22 +280,12 @@
     <constructor-arg ref="centralHistoricalTimeSeriesMaster"/>
     <constructor-arg ref="sharedConfigSource"/>
   </bean>
-  <bean id="webPortfoliosRestBean" class="com.opengamma.web.portfolio.WebPortfoliosResource" scope="request">
-    <constructor-arg ref="centralPortfolioMaster" />
-    <constructor-arg ref="centralPositionMaster" />
-  </bean>
 
-  <bean id="webBatchesRestBean" class="com.opengamma.web.batch.WebBatchesResource" scope="request">
-    <constructor-arg ref="sharedBatchMaster" />
-  </bean>
   <bean id="webTimeSeriesRestBean" class="com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource" scope="request">
     <constructor-arg ref="centralHistoricalTimeSeriesMaster" />
     <constructor-arg ref="htsLoader"/>
   </bean>
-  
-  <!-- ValueRequirementNames RESTful service -->
-  <bean id="webValueRequirementNamesRestBean" class="com.opengamma.web.valuerequirementname.WebValueRequirementNamesResource" scope="request" />
-  
+
   <!-- ============================================================================== -->
   <!-- Bundles RESTful service -->
   <bean id="bundleManager" class="com.opengamma.web.spring.BundleManagerFactoryBean">
