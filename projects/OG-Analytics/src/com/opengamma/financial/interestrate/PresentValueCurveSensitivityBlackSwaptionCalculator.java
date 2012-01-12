@@ -10,7 +10,9 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
+import com.opengamma.financial.interestrate.swaption.method.SwaptionCashFixedIborBlackMethod;
 import com.opengamma.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborBlackMethod;
 import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.util.tuple.DoublesPair;
@@ -43,6 +45,18 @@ public final class PresentValueCurveSensitivityBlackSwaptionCalculator extends P
    * Methods.
    */
   private static final SwaptionPhysicalFixedIborBlackMethod METHOD_SWAPTION_PHYSICAL = SwaptionPhysicalFixedIborBlackMethod.getInstance();
+  private static final SwaptionCashFixedIborBlackMethod METHOD_SWAPTION_CASH = SwaptionCashFixedIborBlackMethod.getInstance();
+
+  @Override
+  public Map<String, List<DoublesPair>> visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
+    Validate.notNull(swaption);
+    Validate.notNull(curves);
+    if (curves instanceof YieldCurveWithBlackSwaptionBundle) {
+      final YieldCurveWithBlackSwaptionBundle curvesBlack = (YieldCurveWithBlackSwaptionBundle) curves;
+      return METHOD_SWAPTION_CASH.presentValueCurveSensitivity(swaption, curvesBlack).getSensitivities();
+    }
+    throw new UnsupportedOperationException("The PresentValueCurveSensitivityBlackSwaptionCalculator visitor visitSwaptionCashFixedIbor requires a YieldCurveWithBlackSwaptionBundle as data.");
+  }
 
   @Override
   public Map<String, List<DoublesPair>> visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
