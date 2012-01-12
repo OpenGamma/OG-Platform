@@ -7,7 +7,9 @@ package com.opengamma.component;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -60,6 +62,17 @@ public class ComponentRepository implements Lifecycle {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets all the instances.
+   * <p>
+   * This method will return infrastructure instances.
+   * 
+   * @return the instance map, not null
+   */
+  public Map<ComponentKey, Object> getInstanceMap() {
+    return new HashMap<ComponentKey, Object>(_instanceMap);
+  }
+
   /**
    * Gets an instance of a component.
    * <p>

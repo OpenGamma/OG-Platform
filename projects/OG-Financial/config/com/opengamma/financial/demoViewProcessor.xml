@@ -28,13 +28,6 @@
     <property name="connectionFactory" ref="jmsConnectionFactory"/>
   </bean>
 
-  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-    <property name="shared" value="true"/>
-  </bean>
-
-  <!-- A global Fudge context configured with all of the relevant builders --> 
-  <bean id="fudgeContext" class="com.opengamma.util.fudgemsg.OpenGammaFudgeContext" factory-method="getInstance" />
-  
   <!--  Remote masters -->
   <bean class="com.opengamma.financial.spring.ComponentRepositoryBeanPostProcessor" />
 
@@ -69,11 +62,11 @@
   <!-- Calculation nodes -->
   <!--
   <bean id="demoComputationCacheSource" class="com.opengamma.engine.view.cache.BerkeleyDBViewComputationCacheSourceFactoryBean">
-    <property name="fudgeContext" ref="fudgeContext" />
+    <property name="fudgeContext" ref="standardFudgeContext" />
   </bean>
   -->
   <bean id="demoComputationCacheSource" class="com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource">
-    <constructor-arg ref="fudgeContext" />
+    <constructor-arg ref="standardFudgeContext" />
   </bean>
   <bean id="demoViewProcessorQueryReceiver" class="com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver" />
   <bean id="demoViewProcessorQuerySender" class="com.opengamma.engine.view.calcnode.ViewProcessorQuerySender">
@@ -98,7 +91,7 @@
         <constructor-arg ref="combinedPositionSource" />
       </bean>
     </constructor-arg>
-    <constructor-arg ref="cacheManager" />
+    <constructor-arg ref="standardCacheManager" />
   </bean>
   <bean id="jobDispatchStatistics" class="com.opengamma.engine.view.calcnode.stats.TotallingNodeStatisticsGatherer" />
   <bean id="functionCosts" class="com.opengamma.engine.view.calcnode.stats.FunctionCosts">
@@ -136,14 +129,14 @@
         <constructor-arg ref="demoComputationCacheSource" />
       </bean>
     </constructor-arg>
-    <constructor-arg ref="fudgeContext" />
+    <constructor-arg ref="standardFudgeContext" />
   </bean>
   <bean id="calcNodeQueryServer" class="com.opengamma.transport.socket.ServerSocketFudgeRequestDispatcher" init-method="start" destroy-method="stop">
     <constructor-arg ref="demoViewProcessorQueryReceiver" />
-    <constructor-arg ref="fudgeContext" />
+    <constructor-arg ref="standardFudgeContext" />
   </bean>
   <bean id="calcNodeJobServer" class="com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver" init-method="start" destroy-method="stop">
-    <constructor-arg ref="fudgeContext" />
+    <constructor-arg ref="standardFudgeContext" />
     <constructor-arg>
       <bean class="com.opengamma.engine.view.calcnode.RemoteNodeServer">
         <constructor-arg ref="demoComputationJobDispatcher" />
@@ -232,43 +225,22 @@
   -->
   
   <!-- JMX instrumentation -->
-  <bean class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
-    <property name="autodetect" value="true"/>
-  </bean>
-  <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
-    <property name="locateExistingServerIfPossible" value="true" />
-  </bean>
-  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-    <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans"/>
-    <property name="arguments">
-      <list>
-        <ref bean="cacheManager" />
-        <ref bean="mbeanServer" />
-        <value>true</value>
-        <value>true</value>
-        <value>true</value>
-        <value>true</value>
-      </list>
-    </property>
-  </bean>
   <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
     <property name="staticMethod" value="com.opengamma.engine.view.calc.jmx.MultipleNodeExecutor.registerMBeans" />
     <property name="arguments">
       <list>
         <ref bean="graphExecutor" />
-        <ref bean="mbeanServer" />
+        <ref bean="standardMBeanServer" />
       </list>
     </property>
   </bean>
-  
-  <!-- Expose ViewProcessor as MBean -->
   <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
     <property name="staticMethod" value="com.opengamma.engine.management.ManagementService.registerMBeans" />
     <property name="arguments">
       <list>
         <ref bean="demoViewProcessor" />
         <ref bean="graphExecutionStatistics" />
-        <ref bean="mbeanServer" />
+        <ref bean="standardMBeanServer" />
       </list>
     </property>
   </bean>

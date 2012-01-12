@@ -14,7 +14,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * Components are defined in terms of a type and classifier.
  */
-final class ComponentKey implements Serializable {
+public final class ComponentKey implements Serializable {
 
   /** Serialization version.*/
   private static final long serialVersionUID = 1L;
@@ -72,6 +72,16 @@ final class ComponentKey implements Serializable {
    */
   public String getClassifier() {
     return _classifier;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the equivalent name in Spring.
+   * 
+   * @return the name in Spring, not null
+   */
+  public String toSpringName() {
+    return _classifier + _type.getSimpleName();
   }
 
   //-------------------------------------------------------------------------

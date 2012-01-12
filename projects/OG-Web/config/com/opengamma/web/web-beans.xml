@@ -24,15 +24,15 @@
   <bean id="viewProcessorRestBean" class="com.opengamma.financial.view.rest.RestViewProcessorFactoryBean">
     <property name="viewProcessor" ref="demoViewProcessor" />
     <property name="jmsConnector" ref="jmsConnector" />
-    <property name="fudgeContext" ref="fudgeContext" />
+    <property name="fudgeContext" ref="standardFudgeContext" />
     <property name="executorService" ref="scheduler" />
   </bean>
   <bean id="availableOutputsRestBean" class="com.opengamma.financial.view.rest.AvailableOutputsService">
     <constructor-arg ref="demoAvailableOutputsProvider" />
-    <constructor-arg ref="fudgeContext" />
+    <constructor-arg ref="standardFudgeContext" />
   </bean>
   <bean id="dependencyGraphDebugRestBean" class="com.opengamma.financial.depgraph.rest.DependencyGraphBuilderService">
-    <constructor-arg ref="fudgeContext" />
+    <constructor-arg ref="standardFudgeContext" />
     <property name="underlying">
       <bean class="com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResourceContextBean">
         <property name="compiledFunctionService" ref="demoFunctionCompilation" />
@@ -59,12 +59,12 @@
   <!-- Ad hoc batches -->
   <bean id="adHocBatchRestBean" class="com.opengamma.financial.batch.AdHocBatchDbManagerService">
     <constructor-arg ref="sharedBatchMaster" />
-    <constructor-arg ref="fudgeContext" />
+    <constructor-arg ref="standardFudgeContext" />
   </bean>
 
   <!-- Users resource context -->
   <bean id="usersResourceContext" class="com.opengamma.financial.user.rest.UsersResourceContext">
-    <property name="fudgeContext" ref="fudgeContext" />
+    <property name="fudgeContext" ref="standardFudgeContext" />
     <property name="userPortfolioMaster" ref="userPortfolioMaster" />
     <property name="userPositionMaster" ref="userPositionMaster" />
     <property name="userSecurityMaster" ref="userSecurityMaster" />
@@ -93,7 +93,7 @@
   <!-- ============================================================================== -->
   <!-- Distributed component configuration data -->
   <bean id="configurationResource" class="com.opengamma.util.rest.ConfigurationResource">
-    <constructor-arg ref="fudgeContext" />
+    <constructor-arg ref="standardFudgeContext" />
     <constructor-arg>
       <map>
         <entry key="0">
@@ -307,7 +307,7 @@
         <constructor-arg ref="yuiCompressorOptions" />
       </bean>
     </constructor-arg>
-    <constructor-arg ref="cacheManager" />
+    <constructor-arg ref="standardCacheManager" />
   </bean>
   
   <bean id="webBundlesRestBean" class="com.opengamma.web.bundle.WebBundlesResource" scope="request">
@@ -394,7 +394,7 @@
     <constructor-arg ref="userPositionMaster" />
     <constructor-arg ref="userViewDefinitionRepository" />
     <constructor-arg ref="testUser" />
-    <constructor-arg ref="fudgeContext" />
+    <constructor-arg ref="standardFudgeContext" />
     <constructor-arg ref="portfolioAggregationFunctions" />
   </bean>
 
@@ -461,7 +461,7 @@
         <property name="styleName" value="CACHED" />
       </bean>
     </property>
-    <property name="fudgeContext" ref="fudgeContext" />
+    <property name="fudgeContext" ref="standardFudgeContext" />
   </bean>
   <bean class="com.opengamma.web.analytics.WebAnalyticsResource">
     <constructor-arg ref="webInterfaceBean" />

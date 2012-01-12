@@ -6,6 +6,7 @@
 package com.opengamma.financial.spring;
 
 import java.util.Map;
+import java.util.Map.Entry;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -19,9 +20,8 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
-import com.opengamma.component.ComponentInfo;
+import com.opengamma.component.ComponentKey;
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.ComponentTypeInfo;
 
 /**
  * Spring bean factory post processor that exposes the component repository.
@@ -33,11 +33,8 @@ public class ComponentRepositoryBeanPostProcessor extends DirectBean implements 
   @Override
   public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
     ComponentRepository repo = ComponentRepository.getThreadLocal();
-    for (ComponentTypeInfo typeInfo : repo.getTypeInfo()) {
-      for (ComponentInfo info : typeInfo.getInfoMap().values()) {
-        String beanName = info.getClassifier() + info.getType().getSimpleName();
-        beanFactory.registerSingleton(beanName, repo.getInstance(info.getType(), info.getClassifier()));
-      }
+    for (Entry<ComponentKey, Object> entry : repo.getInstanceMap().entrySet()) {
+      beanFactory.registerSingleton(entry.getKey().toSpringName(), entry.getValue());
     }
   }
 
