@@ -11,12 +11,12 @@ import javax.ws.rs.core.UriInfo;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.AbstractWebResource;
+import com.opengamma.web.AbstractPerRequestWebResource;
 
 /**
  * Abstract base class for RESTful bundle resources.
  */
-public abstract class AbstractWebBundleResource extends AbstractWebResource {
+public abstract class AbstractWebBundleResource extends AbstractPerRequestWebResource {
 
   /**
    * The backing bean.

@@ -12,7 +12,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.AbstractWebResource;
+import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.exchange.WebExchangeData;
 import com.opengamma.web.exchange.WebExchangeUris;
@@ -22,7 +22,7 @@ import com.opengamma.web.region.WebRegionUris;
 /**
  * Abstract base class for RESTful holiday resources.
  */
-public abstract class AbstractWebHolidayResource extends AbstractWebResource {
+public abstract class AbstractWebHolidayResource extends AbstractPerRequestWebResource {
 
   /**
    * The backing bean.

@@ -35,7 +35,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
-import com.opengamma.web.AbstractWebResource;
+import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.security.WebSecuritiesData;
 import com.opengamma.web.security.WebSecuritiesUris;
@@ -43,7 +43,7 @@ import com.opengamma.web.security.WebSecuritiesUris;
 /**
  * Abstract base class for RESTful position resources.
  */
-public abstract class AbstractWebPositionResource extends AbstractWebResource {
+public abstract class AbstractWebPositionResource extends AbstractPerRequestWebResource {
   
   /**
    * The backing bean.

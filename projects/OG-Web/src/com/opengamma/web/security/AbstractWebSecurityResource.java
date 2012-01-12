@@ -55,13 +55,13 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.AbstractWebResource;
+import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
 
 /**
  * Abstract base class for RESTful security resources.
  */
-public abstract class AbstractWebSecurityResource extends AbstractWebResource {
+public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebResource {
 
   /**
    * The backing bean.
