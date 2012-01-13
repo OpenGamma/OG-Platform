@@ -48,7 +48,6 @@ public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase
     PositionDocument addedPos = _positionMaster.add(new PositionDocument(manageablePosition));
     
     WebPositionResource positionResource = _webPositionsResource.findPosition(addedPos.getUniqueId().toString());
-    
     String json = positionResource.getJSON();
     assertNotNull(json);
     assertJSONObjectEquals(loadJson("com/opengamma/web/position/position.txt"), new JSONObject(json));
@@ -60,25 +59,14 @@ public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase
     PositionDocument addedPos = _positionMaster.add(new PositionDocument(manageablePosition));
     
     WebPositionResource positionResource = _webPositionsResource.findPosition(addedPos.getUniqueId().toString());
-    
     String json = positionResource.getJSON();
     assertNotNull(json);
     assertJSONObjectEquals(loadJson("com/opengamma/web/position/positionWithoutTrades.txt"), new JSONObject(json));
   }
   
   @Test
-  public void testUpdatePositionTrades() throws Exception {
-    ManageableTrade origTrade = new ManageableTrade(BigDecimal.valueOf(50), SEC_ID, LocalDate.parse("2011-12-07"), OffsetTime.of(LocalTime.of(15, 4), ZONE_OFFSET), COUNTER_PARTY);
-    origTrade.setPremium(10.0);
-    origTrade.setPremiumCurrency(Currency.USD);
-    origTrade.setPremiumDate(LocalDate.parse("2011-12-08"));
-    origTrade.setPremiumTime(OffsetTime.of(LocalTime.of(15, 4), ZONE_OFFSET));
-    
-    ManageablePosition manageablePosition = new ManageablePosition(origTrade.getQuantity(), SEC_ID);
-    manageablePosition.addTrade(origTrade);
-    PositionDocument addedPos = _positionMaster.add(new PositionDocument(manageablePosition));
-    UniqueId uid = addedPos.getUniqueId();
-    
+  public void testUpdatePositionWithTrades() throws Exception {
+    UniqueId uid = addPosition();
     WebPositionResource positionResource = _webPositionsResource.findPosition(uid.toString());
     
     Long updatedQuantity = Long.valueOf(100);
@@ -102,6 +90,57 @@ public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase
       trade.setSecurityLink(new ManageableSecurityLink(SEC_ID));
       assertTrue(_trades.contains(trade));
     }
+  }
+  
+  @Test
+  public void testUpdatePositionWithoutTrades() throws Exception {
+    UniqueId uid = addPosition();
+    WebPositionResource positionResource = _webPositionsResource.findPosition(uid.toString());
     
+    Long updatedQuantity = Long.valueOf(100);
+    Response response = positionResource.putJSON(updatedQuantity.toString(), null);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    
+    PositionDocument positionDocument = _positionMaster.get(uid);
+    assertNotNull(positionDocument);
+    
+    ManageablePosition position = positionDocument.getPosition();
+    assertEquals(BigDecimal.valueOf(updatedQuantity), position.getQuantity());
+    List<ManageableTrade> trades = position.getTrades();
+    assertTrue(trades.isEmpty());
+  }
+  
+  @Test
+  public void testUpdatePositionWithEmptyTrades() throws Exception {
+    UniqueId uid = addPosition();
+    WebPositionResource positionResource = _webPositionsResource.findPosition(uid.toString());
+    
+    Long updatedQuantity = Long.valueOf(100);
+    Response response = positionResource.putJSON(updatedQuantity.toString(), EMPTY_TRADES);
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    
+    PositionDocument positionDocument = _positionMaster.get(uid);
+    assertNotNull(positionDocument);
+    
+    ManageablePosition position = positionDocument.getPosition();
+    assertEquals(BigDecimal.valueOf(updatedQuantity), position.getQuantity());
+    List<ManageableTrade> trades = position.getTrades();
+    assertTrue(trades.isEmpty());
+  }
+
+  private UniqueId addPosition() {
+    ManageableTrade origTrade = new ManageableTrade(BigDecimal.valueOf(50), SEC_ID, LocalDate.parse("2011-12-07"), OffsetTime.of(LocalTime.of(15, 4), ZONE_OFFSET), COUNTER_PARTY);
+    origTrade.setPremium(10.0);
+    origTrade.setPremiumCurrency(Currency.USD);
+    origTrade.setPremiumDate(LocalDate.parse("2011-12-08"));
+    origTrade.setPremiumTime(OffsetTime.of(LocalTime.of(15, 4), ZONE_OFFSET));
+    
+    ManageablePosition manageablePosition = new ManageablePosition(origTrade.getQuantity(), SEC_ID);
+    manageablePosition.addTrade(origTrade);
+    PositionDocument addedPos = _positionMaster.add(new PositionDocument(manageablePosition));
+    UniqueId uid = addedPos.getUniqueId();
+    return uid;
   }
 }
