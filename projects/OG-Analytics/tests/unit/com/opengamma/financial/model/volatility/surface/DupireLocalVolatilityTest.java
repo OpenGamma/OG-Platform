@@ -17,15 +17,12 @@ import com.opengamma.financial.model.finitedifference.ExponentialMeshing;
 import com.opengamma.financial.model.finitedifference.HyperbolicMeshing;
 import com.opengamma.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.financial.model.finitedifference.NeumannBoundaryCondition;
-import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.financial.model.finitedifference.ThetaMethodFiniteDifference;
 import com.opengamma.financial.model.finitedifference.applications.PDEDataBundleProvider;
 import com.opengamma.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
@@ -43,6 +40,7 @@ import com.opengamma.math.surface.FunctionalDoublesSurface;
  * 
  */
 public class DupireLocalVolatilityTest {
+
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
   private static final CombinedInterpolatorExtrapolator EXTRAPOLATOR_1D = new CombinedInterpolatorExtrapolator(INTERPOLATOR_1D, new FlatExtrapolator1D());
   @SuppressWarnings("unused")
@@ -59,8 +57,9 @@ public class DupireLocalVolatilityTest {
   private static final double RHO = -0.2;
   private static final double NU = 0.3;
   private static final SABRFormulaData SABR_DATA;
-  private static final double RATE = 0.00; //turn back to 5%
-  private static final ForwardCurve FORWARD_CURVE = new ForwardCurve(SPOT, RATE);
+  private static final double RATE = 0.05; //turn back to 5%
+  private static final double YIELD = 0.02;
+  private static final ForwardCurve FORWARD_CURVE = new ForwardCurve(SPOT, RATE - YIELD);
 
   private static final PriceSurface PRICE_SURFACE;
   private static final BlackVolatilitySurface SABR_SURFACE;
@@ -82,31 +81,26 @@ public class DupireLocalVolatilityTest {
         final double k = x[1];
         final SABRFormulaData sabrdata = new SABRFormulaData(ALPHA, BETA, RHO, NU);
         final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-        final Function1D<SABRFormulaData, Double> func = SABR.getVolatilityFunction(option, SPOT * Math.exp(RATE * t));
+        final Function1D<SABRFormulaData, Double> func = SABR.getVolatilityFunction(option, FORWARD_CURVE.getForward(t));
         return func.evaluate(sabrdata);
       }
     };
 
     SABR_SURFACE = new BlackVolatilitySurface(FunctionalDoublesSurface.from(sabrSurface));
 
-    final BlackPriceFunction func = new BlackPriceFunction();
-
     final Function<Double, Double> priceSurface = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(final Double... x) {
-        final double t = x[0];
-        final double k = x[1];
-        final double sigma = sabrSurface.evaluate(x);
+      public Double evaluate(final Double... tk) {
+        final double t = tk[0];
+        final double k = tk[1];
+        final double sigma = sabrSurface.evaluate(tk);
         final double df = Math.exp(-RATE * t);
-        final BlackFunctionData data = new BlackFunctionData(SPOT / df, df, sigma);
-        final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-        final Function1D<BlackFunctionData, Double> pfunc = func.getPriceFunction(option);
-        final double price = pfunc.evaluate(data);
+        final double price = BlackFormulaRepository.price(FORWARD_CURVE.getForward(t), k, t, sigma, true);
         if (Double.isNaN(price)) {
-          System.out.println("fuck");
+          System.out.println("Error");
         }
-        return price;
+        return price * df;
       }
     };
 
@@ -117,12 +111,23 @@ public class DupireLocalVolatilityTest {
 
   }
 
-  @SuppressWarnings("deprecation")
+
   @Test
-  public void debugTest() {
-    final double t = 3.0;
-    final double f = 0.04;
-    DUPIRE.debug(PRICE_SURFACE, SABR_SURFACE, SPOT, RATE, t, f);
+  public void testImpliedVolCal() {
+    LocalVolatilitySurface lv = DUPIRE.getLocalVolatility(PRICE_SURFACE, SPOT, RATE, YIELD);
+    double vol1 = lv.getVolatility(EXPIRY, STRIKE);
+    double vol2 = LOCAL_VOL.getVolatility(EXPIRY, STRIKE);
+    assertEquals(vol1, vol2, 1e-6);
+  }
+
+  @Test
+  public void testImpliedVolMoneynessCal() {
+    LocalVolatilitySurface lv = DUPIRE.getLocalVolatility(PRICE_SURFACE, SPOT, RATE, YIELD);
+    double vol1 = lv.getVolatility(EXPIRY, STRIKE);
+    BlackVolatilityMoneynessSurface miv = BlackVolatilitySurfaceConverter.toMoneynessSurface(SABR_SURFACE, FORWARD_CURVE);
+    LocalVolatilityMoneynessSurface lvm = DUPIRE.getLocalVolatility(miv);
+    double vol2 = lvm.getVolatility(EXPIRY, STRIKE);
+    assertEquals(vol1, vol2, 1e-6);
   }
 
   @Test(enabled = false)
@@ -141,73 +146,73 @@ public class DupireLocalVolatilityTest {
   }
 
   //TODO move test
-  @SuppressWarnings("deprecation")
-  @Test(enabled =false)
-  public void pdePriceTest() {
-    final double shift = 1e-3 * SPOT;
-    PDEDataBundleProvider provider = new PDEDataBundleProvider();
-    ConvectionDiffusionPDEDataBundle db = provider.getForwardLocalVol(SPOT, true, LOCAL_VOL);
-    LocalVolatilitySurface lvUp = DUPIRE.getLocalVolatility(SABR_SURFACE, SPOT + shift, RATE);
-    LocalVolatilitySurface lvDown = DUPIRE.getLocalVolatility(SABR_SURFACE, SPOT - shift, RATE);
-    ConvectionDiffusionPDEDataBundle dbUp = provider.getForwardLocalVol(SPOT + shift, true, lvUp);
-    ConvectionDiffusionPDEDataBundle dbDown = provider.getForwardLocalVol(SPOT - shift, true, lvDown);
-    //ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(FORWARD_CURVE, 1.1 * SPOT, 5.0, 0.0, true, ABS_LOCAL_VOL2);
-    ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, true);
-
-    int nStrikeNodes = 100;
-    int nTimeNodes = 50;
-    double upperLevel = 3.5 * SPOT;
-    BoundaryCondition lower = new DirichletBoundaryCondition(SPOT, 0);
-    BoundaryCondition lowerUp = new DirichletBoundaryCondition(SPOT + shift, 0);
-    BoundaryCondition lowerDown = new DirichletBoundaryCondition(SPOT - shift, 0);
-    BoundaryCondition upper = new NeumannBoundaryCondition(0.0, upperLevel, false);
-    MeshingFunction timeMesh = new ExponentialMeshing(0.0, EXPIRY, nTimeNodes, 3.0);
-    MeshingFunction spaceMesh = new ExponentialMeshing(0.0, upperLevel, nStrikeNodes, 0.1);
-    PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    PDEFullResults1D res = (PDEFullResults1D) solver.solve(db, grid, lower, upper);
-    PDEFullResults1D resUp = (PDEFullResults1D) solver.solve(dbUp, grid, lowerUp, upper);
-    PDEFullResults1D resDown = (PDEFullResults1D) solver.solve(dbDown, grid, lowerDown, upper);
-    //  PDEUtilityTools.printSurface("pde results", res);
-
-    //  Map<DoublesPair, Double> vol = PDEUtilityTools.priceToImpliedVol(FORWARD_CURVE, res, 0, 5.0, 0.4 * SPOT, 2.2 * SPOT);
-
-    SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
-    double[] d1 = new double[5];
-    double[][] d2 = new double[2][2];
-
-    int tIndex = nTimeNodes - 1;
-    double t = grid.getTimeNode(tIndex);
-    final int n = grid.getNumSpaceNodes();
-    for (int i = 0; i < n; i++) {
-      double k = grid.getSpaceNode(i);
-      if (k >= 0.2 * SPOT && k < 3.0 * SPOT) {
-        EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-
-        double sabrVol = SABR_SURFACE.getVolatility(t, k);
-        double price = res.getFunctionValue(i, tIndex);
-        double modelVol = BlackFormulaRepository.impliedVolatility(price, SPOT, k, t, true);
-        double sabrUp = sabr.getVolatility(option, SPOT + shift, SABR_DATA);
-        double sabrDown = sabr.getVolatility(option, SPOT - shift, SABR_DATA);
-        double priceUp = BlackFormulaRepository.price(SPOT + shift, k, t, sabrUp, true);
-        double priceDown = BlackFormulaRepository.price(SPOT - shift, k, t, sabrDown, true);
-        // assertEquals(sabrVol, modelVol, 2e-4); //2bps error
-
-        double bsDelta = BlackFormulaRepository.delta(SPOT, k, t, sabrVol, true);
-        double bsVega = BlackFormulaRepository.vega(SPOT, k, t, sabrVol);
-        double bsGamma = BlackFormulaRepository.gamma(SPOT, k, t, sabrVol);
-        double bsVanna = BlackFormulaRepository.vanna(SPOT, k, t, sabrVol);
-        sabr.getVolatilityAdjoint2(new EuropeanVanillaOption(k, t, true), SPOT, SABR_DATA, d1, d2);
-        double delta = bsDelta + bsVega * d1[0];
-        @SuppressWarnings("unused")
-        double gamma = bsGamma + 2 * bsVanna * d1[0] + bsVega * d2[0][0];
-
-        double deltaFD = (priceUp - priceDown) / 2 / shift;
-        double deltaPDE = (resUp.getFunctionValue(i, tIndex) - resDown.getFunctionValue(i, tIndex)) / 2 / shift;
-        //    assertEquals(deltaFD, delta, 2e-4);
-        System.out.println(k + "\t" + sabrVol + "\t" + modelVol + "\t" + bsDelta + "\t" + delta + "\t" + deltaPDE + "\t" + deltaFD);
-      }
-    }
-  }
+  //  @SuppressWarnings("deprecation")
+  //  @Test(enabled =false)
+  //  public void pdePriceTest() {
+  //    final double shift = 1e-3 * SPOT;
+  //    PDEDataBundleProvider provider = new PDEDataBundleProvider();
+  //    ConvectionDiffusionPDEDataBundle db = provider.getForwardLocalVol(SPOT, true, LOCAL_VOL);
+  //    LocalVolatilitySurface lvUp = DUPIRE.getLocalVolatility(SABR_SURFACE, SPOT + shift, RATE);
+  //    LocalVolatilitySurface lvDown = DUPIRE.getLocalVolatility(SABR_SURFACE, SPOT - shift, RATE);
+  //    ConvectionDiffusionPDEDataBundle dbUp = provider.getForwardLocalVol(SPOT + shift, true, lvUp);
+  //    ConvectionDiffusionPDEDataBundle dbDown = provider.getForwardLocalVol(SPOT - shift, true, lvDown);
+  //    //ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(FORWARD_CURVE, 1.1 * SPOT, 5.0, 0.0, true, ABS_LOCAL_VOL2);
+  //    ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, true);
+  //
+  //    int nStrikeNodes = 100;
+  //    int nTimeNodes = 50;
+  //    double upperLevel = 3.5 * SPOT;
+  //    BoundaryCondition lower = new DirichletBoundaryCondition(SPOT, 0);
+  //    BoundaryCondition lowerUp = new DirichletBoundaryCondition(SPOT + shift, 0);
+  //    BoundaryCondition lowerDown = new DirichletBoundaryCondition(SPOT - shift, 0);
+  //    BoundaryCondition upper = new NeumannBoundaryCondition(0.0, upperLevel, false);
+  //    MeshingFunction timeMesh = new ExponentialMeshing(0.0, EXPIRY, nTimeNodes, 3.0);
+  //    MeshingFunction spaceMesh = new ExponentialMeshing(0.0, upperLevel, nStrikeNodes, 0.1);
+  //    PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+  //    PDEFullResults1D res = (PDEFullResults1D) solver.solve(db, grid, lower, upper);
+  //    PDEFullResults1D resUp = (PDEFullResults1D) solver.solve(dbUp, grid, lowerUp, upper);
+  //    PDEFullResults1D resDown = (PDEFullResults1D) solver.solve(dbDown, grid, lowerDown, upper);
+  //    //  PDEUtilityTools.printSurface("pde results", res);
+  //
+  //    //  Map<DoublesPair, Double> vol = PDEUtilityTools.priceToImpliedVol(FORWARD_CURVE, res, 0, 5.0, 0.4 * SPOT, 2.2 * SPOT);
+  //
+  //    SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
+  //    double[] d1 = new double[5];
+  //    double[][] d2 = new double[2][2];
+  //
+  //    int tIndex = nTimeNodes - 1;
+  //    double t = grid.getTimeNode(tIndex);
+  //    final int n = grid.getNumSpaceNodes();
+  //    for (int i = 0; i < n; i++) {
+  //      double k = grid.getSpaceNode(i);
+  //      if (k >= 0.2 * SPOT && k < 3.0 * SPOT) {
+  //        EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+  //
+  //        double sabrVol = SABR_SURFACE.getVolatility(t, k);
+  //        double price = res.getFunctionValue(i, tIndex);
+  //        double modelVol = BlackFormulaRepository.impliedVolatility(price, SPOT, k, t, true);
+  //        double sabrUp = sabr.getVolatility(option, SPOT + shift, SABR_DATA);
+  //        double sabrDown = sabr.getVolatility(option, SPOT - shift, SABR_DATA);
+  //        double priceUp = BlackFormulaRepository.price(SPOT + shift, k, t, sabrUp, true);
+  //        double priceDown = BlackFormulaRepository.price(SPOT - shift, k, t, sabrDown, true);
+  //        // assertEquals(sabrVol, modelVol, 2e-4); //2bps error
+  //
+  //        double bsDelta = BlackFormulaRepository.delta(SPOT, k, t, sabrVol, true);
+  //        double bsVega = BlackFormulaRepository.vega(SPOT, k, t, sabrVol);
+  //        double bsGamma = BlackFormulaRepository.gamma(SPOT, k, t, sabrVol);
+  //        double bsVanna = BlackFormulaRepository.vanna(SPOT, k, t, sabrVol);
+  //        sabr.getVolatilityAdjoint2(new EuropeanVanillaOption(k, t, true), SPOT, SABR_DATA, d1, d2);
+  //        double delta = bsDelta + bsVega * d1[0];
+  //        @SuppressWarnings("unused")
+  //        double gamma = bsGamma + 2 * bsVanna * d1[0] + bsVega * d2[0][0];
+  //
+  //        double deltaFD = (priceUp - priceDown) / 2 / shift;
+  //        double deltaPDE = (resUp.getFunctionValue(i, tIndex) - resDown.getFunctionValue(i, tIndex)) / 2 / shift;
+  //        //    assertEquals(deltaFD, delta, 2e-4);
+  //        System.out.println(k + "\t" + sabrVol + "\t" + modelVol + "\t" + bsDelta + "\t" + delta + "\t" + deltaPDE + "\t" + deltaFD);
+  //      }
+  //    }
+  //  }
 
   @Test
   public void pdeGreekTest() {

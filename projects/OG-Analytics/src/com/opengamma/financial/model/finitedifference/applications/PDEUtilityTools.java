@@ -102,6 +102,40 @@ public class PDEUtilityTools {
     return out;
   }
 
+  public static Map<DoublesPair, Double> modifiedPriceToImpliedVol(final PDEFullResults1D prices, final double minT, final double maxT,
+      final double minM, final double maxM, boolean isCall) {
+    final int xNodes = prices.getNumberSpaceNodes();
+    final int tNodes = prices.getNumberTimeNodes();
+    final int n = xNodes * tNodes;
+    final Map<DoublesPair, Double> out = new HashMap<DoublesPair, Double>(n);
+    int count = tNodes * xNodes;
+
+    for (int i = 0; i < tNodes; i++) {
+      final double t = prices.getTimeValue(i);
+      if (t >= minT && t <= maxT) {
+        //  final BlackFunctionData data = new BlackFunctionData(forward.getForward(t), forward.getSpot() / forward.getForward(t), 0);
+        for (int j = 0; j < xNodes; j++) {
+          final double m = prices.getSpaceValue(j);
+          if (m >= minM && m <= maxM) {
+            final double price = prices.getFunctionValue(j, i);
+
+            try {
+              final double impVol = BlackFormulaRepository.impliedVolatility(price, 1.0, m, t, isCall);
+              if (Math.abs(impVol) > 1e-15) {
+                final DoublesPair pair = new DoublesPair(prices.getTimeValue(i), prices.getSpaceValue(j));
+                out.put(pair, impVol);
+                count--;
+              }
+            } catch (final Exception e) {
+            }
+          }
+        }
+      }
+    }
+
+    return out;
+  }
+
   /**
    * Takes the results from a forward PDE solve - grid of option prices by maturity and strike and returns a map between a DoublesPair (i.e. maturity and strike) and
    * the Black implied volatility

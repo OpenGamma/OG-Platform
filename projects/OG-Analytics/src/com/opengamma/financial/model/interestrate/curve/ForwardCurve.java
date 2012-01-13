@@ -38,20 +38,20 @@ public class ForwardCurve {
     _fwdCurve = fwdCurve;
 
     final Function1D<Double, Double> drift = new Function1D<Double, Double>() {
-      private final double _eps = 1e-5;
+      private final double _eps = 1e-3;
 
       @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double t) {
 
-        final double mid = _fwdCurve.getYValue(t);
-        final double up = _fwdCurve.getYValue(t + _eps);
+        final double up = Math.log(_fwdCurve.getYValue(t + _eps));
 
         if (t < _eps) {
-          return (up - mid) / mid / _eps;
+          final double mid = Math.log(_fwdCurve.getYValue(t));
+          return (up - mid) / _eps;
         }
-        final double down = _fwdCurve.getYValue(t - _eps);
-        return (up - down) / mid / 2 / _eps;
+        final double down = Math.log(_fwdCurve.getYValue(t - _eps));
+        return (up - down) / 2 / _eps;
       }
     };
 
@@ -147,8 +147,10 @@ public class ForwardCurve {
    * shifts the spot (and the rest of the forward curve proportionally) but the given amount, i.e. the drift curve
    * remains unchanged
    * @param shift the shift amount
-   * @return
+   * @return shifted curve
+   * @deprecated use withFractionalShift instead
    */
+  @Deprecated
   public ForwardCurve withShiftedSpot(final double shift) {
     Validate.isTrue(_spot > shift, "The shift is bigger than the spot");
     final double percentage = (_spot + shift) / _spot;
@@ -157,6 +159,24 @@ public class ForwardCurve {
       @Override
       public Double evaluate(Double... t) {
         return percentage * _fwdCurve.getYValue(t[0]);
+      }
+    };
+    return new ForwardCurve(FunctionalDoublesCurve.from(func), _drift);
+  }
+
+  /**
+   * Shift the forward curve by a fractional amount, shift, such that the new curve FPrime(T) = (1+shift)*F(T), has
+   * an unchanged drift
+   * @param shift fraction shift amount, i.e. 0.1 with produce a curve 10% larger than the original
+   * @return The shifted curve
+   */
+  public ForwardCurve withFractionalShift(final double shift) {
+    Validate.isTrue(shift > -1, "shift must be > -1");
+
+    Function<Double, Double> func = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(Double... t) {
+        return (1 + shift) * _fwdCurve.getYValue(t[0]);
       }
     };
     return new ForwardCurve(FunctionalDoublesCurve.from(func), _drift);

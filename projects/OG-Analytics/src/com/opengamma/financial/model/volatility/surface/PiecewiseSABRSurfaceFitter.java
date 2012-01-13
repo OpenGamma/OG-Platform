@@ -242,7 +242,6 @@ public class PiecewiseSABRSurfaceFitter {
    */
   public BlackVolatilitySurface getImpliedVolatilitySurface(final boolean useLogTime, final boolean useIntegratedVar, final double lambda) {
 
-
     Function<Double, Double> surFunc = new Function<Double, Double>() {
 
       @Override
@@ -296,7 +295,9 @@ public class PiecewiseSABRSurfaceFitter {
 
           intVar[i] = vols[i] * vols[i] * times[i];
           if (i > 0) {
-            Validate.isTrue(intVar[i] > intVar[i - 1], "variance must increase");
+            if (intVar[i] < intVar[i - 1]) {
+              //            Validate.isTrue(intVar[i] >= intVar[i - 1], "variance must increase");
+            }
           }
           if (useIntegratedVar) {
             y = intVar;
