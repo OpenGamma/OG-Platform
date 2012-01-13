@@ -21,7 +21,7 @@ public final class DefaultSessionContextEventHandler implements SessionContextEv
   @Override
   public void doneContext(final MutableSessionContext context) {
     s_logger.info("Destroying session context {}", context);
-    // No-op
+    context.getConnections().cancelAll();
   }
 
   @Override

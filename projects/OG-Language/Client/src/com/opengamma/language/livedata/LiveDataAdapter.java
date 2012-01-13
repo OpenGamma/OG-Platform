@@ -6,6 +6,7 @@
 
 package com.opengamma.language.livedata;
 
+import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.connector.LiveData;
 
 /**
@@ -27,17 +28,27 @@ public class LiveDataAdapter<T1, T2> implements LiveDataVisitor<T1, T2> {
   }
 
   @Override
-  public T1 visitCustom(final Custom message, final T2 data) {
+  public T1 visitConnect(final Connect message, final T2 data) throws AsynchronousExecution {
+    return getUnderlying().visitConnect(message, data);
+  }
+
+  @Override
+  public T1 visitCustom(final Custom message, final T2 data) throws AsynchronousExecution {
     return getUnderlying().visitCustom(message, data);
   }
 
   @Override
-  public T1 visitQueryAvailable(final QueryAvailable message, final T2 data) {
+  public T1 visitQueryAvailable(final QueryAvailable message, final T2 data) throws AsynchronousExecution {
     return getUnderlying().visitQueryAvailable(message, data);
   }
 
   @Override
-  public T1 visitUnexpected(final LiveData message, final T2 data) {
+  public T1 visitQueryValue(final QueryValue message, final T2 data) throws AsynchronousExecution {
+    return getUnderlying().visitQueryValue(message, data);
+  }
+
+  @Override
+  public T1 visitUnexpected(final LiveData message, final T2 data) throws AsynchronousExecution {
     return getUnderlying().visitUnexpected(message, data);
   }
 

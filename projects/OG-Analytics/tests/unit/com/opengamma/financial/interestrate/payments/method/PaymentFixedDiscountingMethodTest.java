@@ -19,7 +19,7 @@ import com.opengamma.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.financial.instrument.index.generator.EURDeposit;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.interestrate.PresentValueParallelCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -43,8 +43,8 @@ public class PaymentFixedDiscountingMethodTest {
   private static final double AMOUNT = 100000000;
   private static final PaymentFixedDefinition PAYMENT_DEFINITION = new PaymentFixedDefinition(DEPOSIT_EUR.getCurrency(), PAYMENT_DATE, AMOUNT);
 
-  private static final YieldCurveBundle YC_BUNDLE = TestsDataSets.createCurves2();
-  private static final String[] CURVES_NAME = TestsDataSets.curves2Names();
+  private static final YieldCurveBundle YC_BUNDLE = TestsDataSetsSABR.createCurves2();
+  private static final String[] CURVES_NAME = TestsDataSetsSABR.curves2Names();
 
   private static final PaymentFixed PAYMENT = PAYMENT_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 

@@ -187,7 +187,6 @@
     <fragment>/scripts/og/common/og.common.routes.js</fragment>
     <fragment>/scripts/og/common/og.common.lang.js</fragment>
     <fragment>/scripts/og/api/og.api.text.js</fragment>
-    <fragment>/scripts/og/api/og.api.live.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.js</fragment>
   </bundle>
   <bundle id="util.js">

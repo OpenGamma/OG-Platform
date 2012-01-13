@@ -6,10 +6,10 @@
  */
 $.register_module({
     name: 'og.api.rest',
-    dependencies: ['og.dev', 'og.api.common', 'og.api.live', 'og.common.routes'],
+    dependencies: ['og.dev', 'og.api.common', 'og.common.routes'],
     obj: function () {
         var module = this, live_data_root = module.live_data_root, api,
-            common = og.api.common, live = og.api.live, routes = og.common.routes, start_loading = common.start_loading,
+            common = og.api.common, routes = og.common.routes, start_loading = common.start_loading,
             end_loading = common.end_loading, encode = window['encodeURIComponent'], cache = window['sessionStorage'],
             outstanding_requests = {}, registrations = [],
             meta_data = {configs: null, holidays: null, securities: null, viewrequirementnames: null},
@@ -25,26 +25,24 @@ $.register_module({
             request_id = 0,
             MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, SOON = 120000 /* 2m */, FOREVER = 7200000 /* 2h */,
             /** @ignore */
-            register = function (obj) {
-                var url = obj.url, current = obj.current, update = obj.config.meta.update,
-                    dependencies = obj.config.meta.dependencies || [], id = obj.id;
-                if (!update) return;
-                registrations.push({id: id, dependencies: dependencies, update: update, url: url, current: current});
-                live.register(registrations.map(function (val) {return val.url;}));
+            register = function (req) {
+                return !req.config.meta.update ? true
+                    : !api.id ? false
+                        : !!registrations.push({
+                            id: req.id, dependencies: req.config.meta.dependencies || [],
+                            update: req.config.meta.update, url: req.url, current: req.current
+                        });
             },
-            /** @ignore */
-            filter_registrations = function (filter) {registrations = registrations.filter(filter);},
             /** @ignore */
             deliver_updates = function (updates) {
                 var current = routes.current(), handlers = [];
-                filter_registrations(function (val) {
+                resgistrations = registrations.filter(function (val) {
                     return request_expired(val, current) ? false : !updates.some(function (url) {
                         var match = url === val.url;
                         return match && handlers.push(val), match;
                     });
                 });
                 handlers.forEach(function (val) {val.update(val);});
-                live.register(registrations.map(function (val) {return val.url;}));
             },
             /** @ignore */
             get_cache = function (key) {
@@ -76,10 +74,11 @@ $.register_module({
             request = function (method, config) {
                 var id = request_id++, no_post_body = {GET: 0, DELETE: 0},
                     is_get = config.meta.type === 'GET',
-                    url = config.meta.type in no_post_body ? // build GET/DELETE URLs instead of letting $.ajax do it
+                    // build GET/DELETE URLs instead of letting $.ajax do it
+                    url = config.url || (config.meta.type in no_post_body ?
                         [live_data_root + method.map(encode).join('/'), $.param(config.data, true)]
                             .filter(Boolean).join('?')
-                                : live_data_root + method.map(encode).join('/'),
+                                : live_data_root + method.map(encode).join('/')),
                     current = routes.current(),
                     /** @ignore */
                     send = function () {
@@ -87,7 +86,7 @@ $.register_module({
                         outstanding_requests[id].ajax = $.ajax({
                             url: url,
                             type: is_get ? 'POST' : config.meta.type,
-                            data: config.meta.type in no_post_body ? (is_get ? {method: 'GET'} : {}) : config.data,
+                            data: is_get ? $.extend(config.data, {method: 'GET'}) : config.data,
                             headers: {'Accept': 'application/json'},
                             dataType: 'json',
                             timeout: is_get ? SOON : FOREVER,
@@ -124,13 +123,15 @@ $.register_module({
                         });
                         return id;
                     };
-                if (is_get)
-                    register({id: id, config: config, current: current, url: url});
-                else
+                if (is_get && !register({id: id, config: config, current: current, url: url})){
+                    console.log('about to re-send');
+                    return (setTimeout(request.partial(method, config), 500)), id;
+                }else
                     if (og.app.READ_ONLY) return setTimeout(config.meta.handler.partial({
                         error: true, data: null, meta: {}, message: 'This application is in read-only mode.'
                     }), 0), id;
                 if (config.meta.update && !is_get) og.dev.warn(module.name + ': update functions are only for GETs');
+                if (config.meta.update && is_get) config.data['clientId'] = api.id;
                 if (config.meta.cache_for && !is_get)
                     og.dev.warn(module.name + ': only GETs can be cached'), delete config.meta.cache_for;
                 start_loading(config.meta.loading);
@@ -226,7 +227,7 @@ $.register_module({
                 og.dev.warn(module.name + ': cache initalize failed\n', error);
             }
         })();
-        return api = {
+        api = {
             abort: function (id) {
                 var xhr = outstanding_requests[id] && outstanding_requests[id].ajax;
                 api.deregister(id);
@@ -296,8 +297,7 @@ $.register_module({
                 del: default_del
             },
             deregister: function (id) {
-                filter_registrations(function (val) {return val.id !== id;});
-                live.register(registrations.map(function (val) {return val.url;}));
+                registrations = registrations.filter(function (val) {return val.id !== id;});
             },
             exchanges: { // all requests that begin with /exchanges
                 root: 'exchanges',
@@ -305,12 +305,24 @@ $.register_module({
                 put: not_implemented.partial('put'),
                 del: not_implemented.partial('del')
             },
+            handshake: { // all requests that begin with /handshake
+                root: 'handshake',
+                get: function (config) {
+                    if (api.id) og.dev.warn(module.name + ': handshake has already been called');
+                    var root = this.root, data = {}, meta;
+                    meta = check({bundle: {method: root + '#get', config: config}});
+                    return request(null, {url: '/handshake', data: data, meta: meta});
+                },
+                put: not_available.partial('put'),
+                del: not_available.partial('del')
+            },
             holidays: { // all requests that begin with /holidays
                 root: 'holidays',
                 get: default_get.partial(['name', 'type', 'currency'], null),
                 put: not_implemented.partial('put'),
                 del: not_implemented.partial('del')
             },
+            id: null,
             portfolios: { // all requests that begin with /portfolios
                 root: 'portfolios',
                 get: function (config) {
@@ -483,7 +495,16 @@ $.register_module({
                 },
                 del: default_del
             },
-            update : deliver_updates,
+            updates: { // all requests that begin with /updates
+                root: 'updates',
+                get: function (config) {
+                    var root = this.root, data = {}, meta;
+                    meta = check({bundle: {method: root + '#get', config: config}});
+                    return request(null, {url: ['', root, api.id].join('/'), data: data, meta: meta});
+                },
+                put: not_available.partial('put'),
+                del: not_available.partial('del')
+            },
             valuerequirementnames: {
                 root: 'valuerequirementnames',
                 get: function (config) {
@@ -500,5 +521,19 @@ $.register_module({
                 del: not_implemented.partial('del')
             }
         };
+        api.handshake.get({handler: function (result) {
+            var subscribe;
+            if (result.error) return og.dev.warn(module.name + ': handshake failed\n', result.message);
+            api.id = result.data['clientId'];
+            subscribe = function () {
+                api.updates.get({handler: function (result) {
+                    if (result.error) return og.dev.warn(module.name + ': subscription failed\n', result.message);
+                    console.log('update result.data', result.data);
+                    subscribe();
+                }});
+            };
+            subscribe();
+        }});
+        return api;
     }
 });

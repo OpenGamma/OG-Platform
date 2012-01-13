@@ -12,7 +12,7 @@ namespace com.opengamma.language.livedata {
   abstract message Custom extends connector.LiveData  {
   
     binding Java {
-      body  "public <T1,T2> T1 accept (final LiveDataVisitor<T1,T2> visitor, final T2 data) { return visitor.visitCustom (this, data); }";
+      body  "public <T1,T2> T1 accept (final LiveDataVisitor<T1,T2> visitor, final T2 data) throws com.opengamma.language.async.AsynchronousExecution { return visitor.visitCustom (this, data); }";
     }
   
   }
