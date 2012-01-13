@@ -36,7 +36,7 @@ $.register_module({
             /** @ignore */
             deliver_updates = function (updates) {
                 var current = routes.current(), handlers = [];
-                resgistrations = registrations.filter(function (val) {
+                registrations = registrations.filter(function (val) {
                     return request_expired(val, current) ? false : !updates.some(function (url) {
                         var match = url === val.url;
                         return match && handlers.push(val), match;
@@ -529,6 +529,7 @@ $.register_module({
                 api.updates.get({handler: function (result) {
                     if (result.error) return og.dev.warn(module.name + ': subscription failed\n', result.message);
                     console.log('update result.data', result.data);
+                    if (result.data && result.data.updates) deliver_updates(result.data.updates);
                     subscribe();
                 }});
             };
