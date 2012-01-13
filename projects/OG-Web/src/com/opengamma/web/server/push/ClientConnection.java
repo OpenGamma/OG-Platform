@@ -159,8 +159,6 @@ import java.util.Set;
   @Override
   public void entityChanged(ChangeEvent event) {
     s_logger.debug("Received ChangeEvent {}", event);
-    // TODO if notifications aren't sent for an object when a child is added or removed will have to get the object and walk the hierarchy
-    // for EACH possible type that has a tree structure.  ugh
     synchronized (_lock) {
       ObjectId objectId;
       if (event.getType() == ChangeType.REMOVED) {
