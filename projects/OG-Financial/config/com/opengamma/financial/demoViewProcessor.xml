@@ -7,9 +7,7 @@
     <property name="ignoreUnresolvablePlaceholders" value="true" />
     <property name="locations">
       <list>
-        <value>classpath:com/opengamma/financial/demoViewProcessor-common.properties</value>
         <value>classpath:demoViewProcessor-${opengamma.platform.runmode}.properties</value>
-        <value>classpath:demoMasters-${opengamma.platform.runmode}.properties</value>
       </list>
     </property>
   </bean>
