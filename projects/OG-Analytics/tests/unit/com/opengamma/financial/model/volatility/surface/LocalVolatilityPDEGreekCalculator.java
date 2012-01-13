@@ -53,6 +53,7 @@ public class LocalVolatilityPDEGreekCalculator {
 
   private final PiecewiseSABRSurfaceFitter _surfaceFitter;
   private final LocalVolatilitySurface _localVolatility;
+  // private final LocalVolatilityMoneynessSurface _localVolatilityMoneyness;
   private final ForwardCurve _forwardCurve;
   private final double[] _expiries;
   private final double[][] _strikes;
@@ -90,7 +91,7 @@ public class LocalVolatilityPDEGreekCalculator {
 
     _modMoneynessParameter = 100.0;
 
-    _theta = 0.55;
+    _theta = 0.5; //0.55;
     _timeSteps = 100;
     _spaceSteps = 100;
     _timeGridBunching = 5.0;
@@ -104,6 +105,36 @@ public class LocalVolatilityPDEGreekCalculator {
     _surfaceFitter = new PiecewiseSABRSurfaceFitter(forwards, expiries, strikes, impliedVols);
     final BlackVolatilitySurface impVolSurface = _surfaceFitter.getImpliedVolatilitySurface(true, false, _modMoneynessParameter);
     _localVolatility = DUPIRE.getLocalVolatility(impVolSurface, forwardCurve);
+
+    //    BlackVolatilityMoneynessSurface impVolMSurface = BlackVolatilitySurfaceConverter.toMoneynessSurface(impVolSurface, forwardCurve);
+    //    _localVolatilityMoneyness = DUPIRE.getLocalVolatility(impVolMSurface);
+  }
+
+  /**
+   * Run  a backwards PDE solver for the given option (i.e. expiry and strike), and print out the values of initial forward (F(0,T)), forward price,
+   * and implied volatility
+   * @param ps a print stream
+   * @param expiry the expiry of the option
+   * @param strike the option's strike
+   */
+  public void runBackwardsPDESolver(final PrintStream ps, final double expiry, final double strike) {
+
+    final double forward = _forwardCurve.getForward(expiry);
+    final double maxSpot = 3.5 * forward;
+
+    final PDEResults1D res = runBackwardsPDESolver(strike, _localVolatility, _isCall, _theta, expiry, maxSpot,
+        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, forward);
+    final int n = res.getGrid().getNumSpaceNodes();
+    for (int i = 0; i < n; i++) {
+      final double price = res.getFunctionValue(i);
+      final double f = res.getSpaceValue(i);
+      try {
+        final double vol = BlackFormulaRepository.impliedVolatility(price, f, strike, expiry, _isCall);
+        ps.println(f + "\t" + price + "\t" + vol);
+      } catch (final Exception e) {
+
+      }
+    }
   }
 
   /**
@@ -130,14 +161,14 @@ public class LocalVolatilityPDEGreekCalculator {
     minK /= 2;
     maxK *= 1.5;
 
-    final double spot = _forwardCurve.getSpot();
     final double maxT = _expiries[_nExpiries - 1];
-    final double maxStrike = 3.5 * _forwardCurve.getForward(maxT);
+    final double maxMoneyness = 3.5;
 
-    final PDEFullResults1D pdeRes = runForwardPDESolver(_forwardCurve, _localVolatility, _isCall, _theta, maxT, maxStrike,
-        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, spot);
-    final BlackVolatilitySurface pdeVolSurface = priceToVolSurface(_forwardCurve, pdeRes, 0, maxT, minK, maxK);
-
+    final PDEFullResults1D pdeRes = runForwardPDESolver(_forwardCurve, _localVolatility, _isCall, _theta, maxT, maxMoneyness,
+        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, 1.0);
+    //  PDEUtilityTools.printSurface("prices", pdeRes);
+    final BlackVolatilitySurface pdeVolSurface = modifiedPriceToVolSurface(_forwardCurve, pdeRes, 0, maxT, 0.3, 3.0);
+    //  PDEUtilityTools.printSurface("vol surface", pdeVolSurface.getSurface(), 0, maxT, 0.3, 3.0);
     double chiSq = 0;
     for (int i = 0; i < _nExpiries; i++) {
       final int m = _strikes[i].length;
@@ -147,7 +178,7 @@ public class LocalVolatilityPDEGreekCalculator {
 
         final double mrtVol = _impliedVols[i][j];
         final double modelVol = pdeVolSurface.getVolatility(t, k);
-        System.out.println(_expiries[i] + "\t" + k + "\t" + mrtVol + "\t" + modelVol);
+        ps.println(_expiries[i] + "\t" + k + "\t" + mrtVol + "\t" + modelVol);
         chiSq += (mrtVol - modelVol) * (mrtVol - modelVol);
       }
     }
@@ -196,78 +227,78 @@ public class LocalVolatilityPDEGreekCalculator {
    * @param strike the strike of test option
    * @param localVol The local volatility
    */
-  public void deltaAndGamma(final PrintStream ps, final double expiry, final double strike, final LocalVolatilitySurface localVol) {
+  public void deltaAndGamma(final PrintStream ps, final double expiry, final double strike,
+      final LocalVolatilitySurface localVol) {
 
-    double minK = Double.POSITIVE_INFINITY;
-    double maxK = 0.0;
-    for (int i = 0; i < _nExpiries; i++) {
-      final int m = _strikes[i].length;
-      for (int j = 0; j < m; j++) {
-        final double k = _strikes[i][j];
-        if (k < minK) {
-          minK = k;
-        }
-        if (k > maxK) {
-          maxK = k;
-        }
-      }
-    }
-    minK /= 2;
-    maxK *= 1.5;
+    //    double minK = Double.POSITIVE_INFINITY;
+    //    double maxK = 0.0;
+    //    for (int i = 0; i < _nExpiries; i++) {
+    //      final int m = _strikes[i].length;
+    //      for (int j = 0; j < m; j++) {
+    //        double k = _strikes[i][j];
+    //        if (k < minK) {
+    //          minK = k;
+    //        }
+    //        if (k > maxK) {
+    //          maxK = k;
+    //        }
+    //      }
+    //    }
+    //    minK /= 2;
+    //    maxK *= 1.5;
 
-    final double spot = _forwardCurve.getSpot();
     final double forward = _forwardCurve.getForward(expiry);
-    final double shift = 5e-2 * spot;
-    final double maxT = _expiries[_nExpiries - 1];
-    final double maxStrike = 3.5 * _forwardCurve.getForward(maxT);
-    final double maxSpot = 3.5 * Math.max(strike, _forwardCurve.getForward(maxT));
 
-    final PDEFullResults1D pdeRes = runForwardPDESolver(_forwardCurve, localVol, _isCall, _theta, maxT, maxStrike,
-        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, spot);
-    final PDEFullResults1D pdeResUp = runForwardPDESolver(_forwardCurve.withShiftedSpot(shift), localVol, _isCall,
-        _theta, maxT, maxStrike, _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, spot);
-    final PDEFullResults1D pdeResDown = runForwardPDESolver(_forwardCurve.withShiftedSpot(-shift), localVol, _isCall,
-        _theta, maxT, maxStrike, _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, spot);
+    final double shift = 5e-2;
 
-    final BlackVolatilitySurface modelSurface = priceToVolSurface(_forwardCurve, pdeRes, 0.0, maxT, 0, maxStrike);
-    final double[] timeNodes = pdeRes.getGrid().getTimeNodes();
+    final double maxForward = 3.5 * Math.max(strike, _forwardCurve.getForward(expiry));
+    final double maxMoneyness = 3.5;
 
-    //adjust the expiry to the nearest grid point
-    //TODO should be able to adjust the grid instead
-    int tIndex = getLowerBoundIndex(timeNodes, expiry);
-    if (tIndex < timeNodes.length - 1) {
-      final double dT1 = (expiry - timeNodes[tIndex]);
-      final double dT2 = (timeNodes[tIndex + 1] - expiry);
-      if (dT1 > dT2) {
-        tIndex++;
-      }
-    }
-    final double actExpiry = timeNodes[tIndex];
-    ps.println("Requied expiry: " + expiry + " Actual grid time: " + actExpiry);
+    final PDEFullResults1D pdeRes = runForwardPDESolver(_forwardCurve, localVol, _isCall, _theta, expiry, maxMoneyness,
+        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, 1.0);
 
-    //get dual delta & gamma by finite difference on grid, and (normal) delta and gamma by fd on separate grids, for
-    // a range of strikes (i.e. the spot is fixed0
+    final PDEFullResults1D pdeResUp = runForwardPDESolver(_forwardCurve.withFractionalShift(shift), localVol, _isCall,
+        _theta, expiry, maxMoneyness, _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, 1.0);
+    final PDEFullResults1D pdeResDown = runForwardPDESolver(_forwardCurve.withFractionalShift(-shift), localVol, _isCall,
+        _theta, expiry, maxMoneyness, _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, 1.0);
+
     final int n = pdeRes.getNumberSpaceNodes();
+
     ps.println("Result of running Forward PDE solver - this gives you a grid of prices at expiries and strikes for a spot " +
         "and forward curve. Dual delta and gamma are calculated by finite difference on the PDE grid. Spot delta and " +
         "gamma are calculated by ");
     ps.println("Strike\tVol\tBS Delta\tDelta\tBS Dual Delta\tDual Delta\tBS Gamma\tGamma\tBS Dual Gamma\tDual Gamma");
+
     for (int i = 0; i < n; i++) {
-      final double k = pdeRes.getSpaceValue(i);
-      final double bsVol = modelSurface.getVolatility(actExpiry, k);
-      final double bsDelta = BlackFormulaRepository.delta(forward, k, actExpiry, bsVol, _isCall);
-      final double bsDualDelta = BlackFormulaRepository.dualDelta(forward, k, actExpiry, bsVol, _isCall);
-      final double bsGamma = BlackFormulaRepository.gamma(forward, k, actExpiry, bsVol);
-      final double bsDualGamma = BlackFormulaRepository.dualGamma(forward, k, actExpiry, bsVol);
-      final double modelDelta = (pdeResUp.getFunctionValue(i, tIndex) - pdeResDown.getFunctionValue(i, tIndex)) / 2 / shift;
-      final double modelDD = pdeRes.getFirstSpatialDerivative(i, tIndex);
-      final double modelGamma = (pdeResUp.getFunctionValue(i, tIndex) + pdeResDown.getFunctionValue(i, tIndex) -
-          2 * pdeRes.getFunctionValue(i, tIndex)) / shift / shift;
-      final double modelDG = pdeRes.getSecondSpatialDerivative(i, tIndex);
-      //      ps.println("debug\t" + k + "\t" + modelDelta + "\t" + pdeResUp.getFunctionValue(i, tIndex) +
-      //          "\t" + pdeResDown.getFunctionValue(i, tIndex) + "\t" + pdeRes.getFunctionValue(i, tIndex));
-      ps.println(k + "\t" + bsVol + "\t" + bsDelta + "\t" + modelDelta + "\t" + bsDualDelta + "\t" + modelDD
-          + "\t" + bsGamma + "\t" + modelGamma + "\t" + bsDualGamma + "\t" + modelDG);
+      final double m = pdeRes.getSpaceValue(i);
+      if (m > 0.3 && m < 3.0) {
+        final double k = m * forward;
+
+        final double mPrice = pdeRes.getFunctionValue(i);
+        double impVol = 0;
+        try {
+          impVol = BlackFormulaRepository.impliedVolatility(mPrice, 1.0, m, expiry, _isCall);
+        } catch (final Exception e) {
+        }
+        final double bsDelta = BlackFormulaRepository.delta(forward, k, expiry, impVol, _isCall);
+        final double bsDualDelta = BlackFormulaRepository.dualDelta(forward, k, expiry, impVol, _isCall);
+        final double bsGamma = BlackFormulaRepository.gamma(forward, k, expiry, impVol);
+        final double bsDualGamma = BlackFormulaRepository.dualGamma(forward, k, expiry, impVol);
+
+        final double modelDD = pdeRes.getFirstSpatialDerivative(i);
+        final double fixedSurfaceDelta = mPrice - m * modelDD; //i.e. the delta if the moneyness parameterised local vol surface was invariant to forward
+        final double surfaceDelta = (pdeResUp.getFunctionValue(i) - pdeResDown.getFunctionValue(i)) / 2 / forward / shift;
+        final double modelDelta = fixedSurfaceDelta + forward * surfaceDelta;
+
+        final double modelDG = pdeRes.getSecondSpatialDerivative(i) / forward;
+        final double fixedSurfaceGamma = m * m * modelDG;
+        final double surfaceVanna = (pdeResUp.getFirstSpatialDerivative(i) - pdeResDown.getFirstSpatialDerivative(i)) / 2 / forward / shift;
+        final double surfaceGamma = (pdeResUp.getFunctionValue(i) + pdeResDown.getFunctionValue(i) - 2 * pdeRes.getFunctionValue(i)) / forward / shift / shift;
+        final double modelGamma = fixedSurfaceGamma + 2 * surfaceDelta - 2 * m * surfaceVanna + surfaceGamma;
+
+        ps.println(k + "\t" + impVol + "\t" + bsDelta + "\t" + modelDelta + "\t" + bsDualDelta + "\t" + modelDD
+            + "\t" + bsGamma + "\t" + modelGamma + "\t" + bsDualGamma + "\t" + modelDG);
+      }
     }
     ps.print("\n");
 
@@ -276,45 +307,51 @@ public class LocalVolatilityPDEGreekCalculator {
         " single expiry and strike. Delta and gamma are calculated by finite difference on the grid");
     ps.println("Spot\tVol\tBS Delta\tDelta\tBS Gamma\tGamma");
 
-    PDEResults1D res = runBackwardsPDESolver(strike, localVol, _isCall, _theta, actExpiry, maxSpot,
-        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, spot);
-    final double[] impVol = new double[n];
+    PDEResults1D res = runBackwardsPDESolver(strike, localVol, _isCall, _theta, expiry, maxForward,
+        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, forward);
+
     for (int i = 0; i < n; i++) {
       final double price = res.getFunctionValue(i);
-      final double gridSpot = res.getGrid().getSpaceNode(i);
+      final double fwd = res.getGrid().getSpaceNode(i);
+      double impVol = 0;
       try {
-        impVol[i] = BlackFormulaRepository.impliedVolatility(price, gridSpot, strike, actExpiry, _isCall);
+        impVol = BlackFormulaRepository.impliedVolatility(price, fwd, strike, expiry, _isCall);
       } catch (final Exception e) {
       }
-      final double bsDelta = BlackFormulaRepository.delta(gridSpot, strike, actExpiry, impVol[i], _isCall);
-      final double bsGamma = BlackFormulaRepository.gamma(gridSpot, strike, actExpiry, impVol[i]);
+      final double bsDelta = BlackFormulaRepository.delta(fwd, strike, expiry, impVol, _isCall);
+      final double bsGamma = BlackFormulaRepository.gamma(fwd, strike, expiry, impVol);
 
       final double modelDelta = res.getFirstSpatialDerivative(i);
       final double modelGamma = res.getSecondSpatialDerivative(i);
 
-      ps.println(gridSpot + "\t" + impVol[i] + "\t" + bsDelta + "\t" + modelDelta + "\t" + bsGamma + "\t" + modelGamma);
+      ps.println(fwd + "\t" + impVol + "\t" + bsDelta + "\t" + modelDelta + "\t" + bsGamma + "\t" + modelGamma);
     }
     ps.print("\n");
 
-    //finally run the backwards PDE solver 100 times with different strikes
-    final int xIndex = res.getGrid().getLowerBoundIndexForSpace(spot);
-    final double actSpot = res.getSpaceValue(xIndex);
-    ps.println("True Spot: " + spot + ", grid spot: " + actSpot);
+    //finally run the backwards PDE solver 100 times with different strikes,  interpolating to get vol, delta and gamma at the forward
+    final int xIndex = res.getGrid().getLowerBoundIndexForSpace(forward);
+    final double actForward = res.getSpaceValue(xIndex);
+    final double f1 = res.getSpaceValue(xIndex);
+    final double f2 = res.getSpaceValue(xIndex + 1);
+    final double w = (f2 - forward) / (f2 - f1);
+    ps.println("True forward: " + forward + ", grid forward: " + actForward);
     ps.println("Result of running 100 backwards PDE solvers all with different strikes. Delta and gamma for each strike" +
         " is calculated from finite difference on the grid");
     ps.println("Strike\tVol\tDelta\tGamma");
     for (int i = 0; i < 100; i++) {
-      final double k = minK + (maxK - minK) * i / 99.0;
-      res = runBackwardsPDESolver(k, localVol, _isCall, _theta, actExpiry, maxSpot,
-          _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, spot);
-      final double price = res.getFunctionValue(xIndex);
+      final double k = forward * (0.3 + 2.7 * i / 99.0);
+      res = runBackwardsPDESolver(k, localVol, _isCall, _theta, expiry, maxForward,
+          _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, forward);
+
       double vol = 0;
       try {
-        vol = BlackFormulaRepository.impliedVolatility(price, actSpot, k, actExpiry, _isCall);
+        final double vol1 = BlackFormulaRepository.impliedVolatility(res.getFunctionValue(xIndex), f1, k, expiry, _isCall);
+        final double vol2 = BlackFormulaRepository.impliedVolatility(res.getFunctionValue(xIndex), f1, k, expiry, _isCall);
+        vol = w * vol1 + (1 - w) * vol2;
       } catch (final Exception e) {
       }
-      final double modelDelta = res.getFirstSpatialDerivative(xIndex);
-      final double modelGamma = res.getSecondSpatialDerivative(xIndex);
+      final double modelDelta = w * res.getFirstSpatialDerivative(xIndex) + (1 - w) * res.getFirstSpatialDerivative(xIndex + 1);
+      final double modelGamma = w * res.getSecondSpatialDerivative(xIndex) + (1 - w) * res.getSecondSpatialDerivative(xIndex + 1);
       ps.println(k + "\t" + vol + "\t" + modelDelta + "\t" + modelGamma);
     }
   }
@@ -329,14 +366,14 @@ public class LocalVolatilityPDEGreekCalculator {
 
     final double forward = _forwardCurve.getForward(option.getTimeToExpiry());
     final double maxT = option.getTimeToExpiry();
-    final double maxStrike = 3.5 * _forwardCurve.getForward(maxT);
+    final double maxMoneyness = 3.5;
+    final double x = option.getStrike() / forward;
 
-    final PDEFullResults1D pdeRes = runForwardPDESolver(_forwardCurve, _localVolatility, _isCall, _theta, maxT, maxStrike,
-        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, option.getStrike());
-    //    final PDEFullResults1D pdeRes = runForwardPDESolver(_forwardCurve, localVol, _isCall, _theta, maxT, maxStrike,
-    //        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, spot);
-    final double[] strikeNodes = pdeRes.getGrid().getSpaceNodes();
-    int index = getLowerBoundIndex(strikeNodes, option.getStrike());
+    final PDEFullResults1D pdeRes = runForwardPDESolver(_forwardCurve, _localVolatility, _isCall, _theta, maxT, maxMoneyness,
+        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, 1.0);
+
+    final double[] xNodes = pdeRes.getGrid().getSpaceNodes();
+    int index = getLowerBoundIndex(xNodes, x);
     if (index >= 1) {
       index--;
     }
@@ -347,14 +384,14 @@ public class LocalVolatilityPDEGreekCalculator {
       }
     }
     final double[] vols = new double[4];
-    final double[] strikes = new double[4];
-    System.arraycopy(strikeNodes, index, strikes, 0, 4);
+    final double[] moneyness = new double[4];
+    System.arraycopy(xNodes, index, moneyness, 0, 4);
     for (int i = 0; i < 4; i++) {
-      vols[i] = BlackFormulaRepository.impliedVolatility(pdeRes.getFunctionValue(index + i), forward, strikes[i],
+      vols[i] = BlackFormulaRepository.impliedVolatility(pdeRes.getFunctionValue(index + i), 1.0, moneyness[i],
           option.getTimeToExpiry(), option.isCall());
     }
-    Interpolator1DDoubleQuadraticDataBundle db = INTERPOLATOR_1D.getDataBundle(strikes, vols);
-    final double exampleVol = INTERPOLATOR_1D.interpolate(db, option.getStrike());
+    Interpolator1DDoubleQuadraticDataBundle db = INTERPOLATOR_1D.getDataBundle(moneyness, vols);
+    final double exampleVol = INTERPOLATOR_1D.interpolate(db, x);
 
     final double shiftAmount = 1e-4; //1bps
 
@@ -368,13 +405,13 @@ public class LocalVolatilityPDEGreekCalculator {
         final BlackVolatilitySurface bumpedSurface = fitter.getImpliedVolatilitySurface(true, false, _modMoneynessParameter);
         final LocalVolatilitySurface bumpedLV = DUPIRE.getLocalVolatility(bumpedSurface, _forwardCurve);
         final PDEFullResults1D pdeResBumped = runForwardPDESolver(_forwardCurve, bumpedLV, _isCall, _theta, maxT,
-            maxStrike, _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, option.getStrike());
+            maxMoneyness, _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, 1.0);
         for (int k = 0; k < 4; k++) {
-          vols[k] = BlackFormulaRepository.impliedVolatility(pdeResBumped.getFunctionValue(index + k), forward, strikes[k],
+          vols[k] = BlackFormulaRepository.impliedVolatility(pdeResBumped.getFunctionValue(index + k), 1.0, moneyness[k],
               option.getTimeToExpiry(), option.isCall());
         }
-        db = INTERPOLATOR_1D.getDataBundle(strikes, vols);
-        final double vol = INTERPOLATOR_1D.interpolate(db, option.getStrike());
+        db = INTERPOLATOR_1D.getDataBundle(moneyness, vols);
+        final double vol = INTERPOLATOR_1D.interpolate(db, x);
         res[i][j] = (vol - exampleVol) / shiftAmount;
       }
     }
@@ -397,15 +434,15 @@ public class LocalVolatilityPDEGreekCalculator {
    * @param option test option
    */
   public void bucketedVegaBackwardsPDE(final PrintStream ps, final EuropeanVanillaOption option) {
-    final double spot = _forwardCurve.getSpot();
-    final double forward = _forwardCurve.getForward(option.getTimeToExpiry());
-    final double maxSpot = 3.5 * Math.max(option.getStrike(), forward);
-    final PDEResults1D pdeRes = runBackwardsPDESolver(option.getStrike(), _localVolatility, option.isCall(), _theta, option.getTimeToExpiry(),
-        maxSpot, _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, option.getStrike());
 
-    double exampleVol;
-    final double[] spotNodes = pdeRes.getGrid().getSpaceNodes();
-    int index = getLowerBoundIndex(spotNodes, spot);
+    final double forward = _forwardCurve.getForward(option.getTimeToExpiry());
+    final double maxFwd = 3.5 * Math.max(option.getStrike(), forward);
+    final PDEResults1D pdeRes = runBackwardsPDESolver(option.getStrike(), _localVolatility, option.isCall(), _theta, option.getTimeToExpiry(),
+        maxFwd, _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, option.getStrike());
+
+    final double exampleVol;
+    final double[] fwdNodes = pdeRes.getGrid().getSpaceNodes();
+    int index = getLowerBoundIndex(fwdNodes, forward);
     if (index >= 1) {
       index--;
     }
@@ -416,13 +453,13 @@ public class LocalVolatilityPDEGreekCalculator {
       }
     }
     final double[] vols = new double[4];
-    final double[] spots = new double[4];
-    System.arraycopy(spotNodes, index, spots, 0, 4);
+    final double[] fwds = new double[4];
+    System.arraycopy(fwdNodes, index, fwds, 0, 4);
     for (int i = 0; i < 4; i++) {
-      vols[i] = BlackFormulaRepository.impliedVolatility(pdeRes.getFunctionValue(index + i), spots[i], option.getStrike(), option.getTimeToExpiry(), option.isCall());
+      vols[i] = BlackFormulaRepository.impliedVolatility(pdeRes.getFunctionValue(index + i), fwds[i], option.getStrike(), option.getTimeToExpiry(), option.isCall());
     }
-    Interpolator1DDoubleQuadraticDataBundle db = INTERPOLATOR_1D.getDataBundle(spots, vols);
-    exampleVol = INTERPOLATOR_1D.interpolate(db, spot);
+    Interpolator1DDoubleQuadraticDataBundle db = INTERPOLATOR_1D.getDataBundle(fwds, vols);
+    exampleVol = INTERPOLATOR_1D.interpolate(db, forward);
 
     final double shiftAmount = 1e-4; //1bps
 
@@ -436,12 +473,12 @@ public class LocalVolatilityPDEGreekCalculator {
         final BlackVolatilitySurface bumpedSurface = fitter.getImpliedVolatilitySurface(true, false, _modMoneynessParameter);
         final LocalVolatilitySurface bumpedLV = DUPIRE.getLocalVolatility(bumpedSurface, _forwardCurve);
         final PDEResults1D pdeResBumped = runBackwardsPDESolver(option.getStrike(), bumpedLV, option.isCall(), _theta, option.getTimeToExpiry(),
-            maxSpot, _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, option.getStrike());
+            maxFwd, _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, option.getStrike());
         for (int k = 0; k < 4; k++) {
-          vols[k] = BlackFormulaRepository.impliedVolatility(pdeResBumped.getFunctionValue(index + k), spots[k], option.getStrike(), option.getTimeToExpiry(), option.isCall());
+          vols[k] = BlackFormulaRepository.impliedVolatility(pdeResBumped.getFunctionValue(index + k), fwds[k], option.getStrike(), option.getTimeToExpiry(), option.isCall());
         }
-        db = INTERPOLATOR_1D.getDataBundle(spots, vols);
-        final double vol = INTERPOLATOR_1D.interpolate(db, spot);
+        db = INTERPOLATOR_1D.getDataBundle(fwds, vols);
+        final double vol = INTERPOLATOR_1D.interpolate(db, forward);
         res[i][j] = (vol - exampleVol) / shiftAmount;
       }
     }
@@ -477,47 +514,53 @@ public class LocalVolatilityPDEGreekCalculator {
    * @param localVol the local volatility
    */
   public void vega(final PrintStream ps, final EuropeanVanillaOption option, final LocalVolatilitySurface localVol) {
-    final double spot = _forwardCurve.getSpot();
     final double forward = _forwardCurve.getForward(option.getTimeToExpiry());
     final double maxT = option.getTimeToExpiry();
-    final double maxStrike = 3.5 * _forwardCurve.getForward(maxT);
+    final double maxMoneyness = 3.5;
     final double volShift = 1e-4;
-    final double spotShift = 5e-2 * spot;
+    final double fwdShift = 5e-2;
 
     final LocalVolatilitySurface lvUp = new LocalVolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(localVol.getSurface(), volShift, true));
     final LocalVolatilitySurface lvDown = new LocalVolatilitySurface(SurfaceShiftFunctionFactory.getShiftedSurface(localVol.getSurface(), -volShift, true));
 
     //first order shifts
-    final PDEFullResults1D pdeRes = runForwardPDESolver(_forwardCurve, localVol, _isCall, _theta, maxT, maxStrike,
-        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, option.getStrike());
-    final PDEResults1D pdeResUp = runForwardPDESolver(_forwardCurve, lvUp, _isCall, _theta, maxT, maxStrike,
-        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, option.getStrike());
-    final PDEResults1D pdeResDown = runForwardPDESolver(_forwardCurve, lvDown, _isCall, _theta, maxT, maxStrike,
-        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, option.getStrike());
+    final PDEFullResults1D pdeRes = runForwardPDESolver(_forwardCurve, localVol, _isCall, _theta, maxT, maxMoneyness,
+        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, 1.0);
+    final PDEResults1D pdeResUp = runForwardPDESolver(_forwardCurve, lvUp, _isCall, _theta, maxT, maxMoneyness,
+        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, 1.0);
+    final PDEResults1D pdeResDown = runForwardPDESolver(_forwardCurve, lvDown, _isCall, _theta, maxT, maxMoneyness,
+        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, 1.0);
 
     //second order shifts
-    final PDEResults1D pdeResUpUp = runForwardPDESolver(_forwardCurve.withShiftedSpot(spotShift), lvUp, _isCall, _theta, maxT, maxStrike,
-        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, option.getStrike());
-    final PDEFullResults1D pdeResUpDown = runForwardPDESolver(_forwardCurve.withShiftedSpot(spotShift), lvDown, _isCall, _theta, maxT, maxStrike,
-        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, option.getStrike());
-    final PDEFullResults1D pdeResDownUp = runForwardPDESolver(_forwardCurve.withShiftedSpot(-spotShift), lvUp, _isCall, _theta, maxT, maxStrike,
-        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, option.getStrike());
-    final PDEFullResults1D pdeResDownDown = runForwardPDESolver(_forwardCurve.withShiftedSpot(-spotShift), lvDown, _isCall, _theta, maxT, maxStrike,
-        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, option.getStrike());
+    final PDEResults1D pdeResUpUp = runForwardPDESolver(_forwardCurve.withFractionalShift(fwdShift), lvUp, _isCall, _theta, maxT, maxMoneyness,
+        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, 1.0);
+    final PDEFullResults1D pdeResUpDown = runForwardPDESolver(_forwardCurve.withFractionalShift(fwdShift), lvDown, _isCall, _theta, maxT, maxMoneyness,
+        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, 1.0);
+    final PDEFullResults1D pdeResDownUp = runForwardPDESolver(_forwardCurve.withFractionalShift(-fwdShift), lvUp, _isCall, _theta, maxT, maxMoneyness,
+        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, 1.0);
+    final PDEFullResults1D pdeResDownDown = runForwardPDESolver(_forwardCurve.withFractionalShift(-fwdShift), lvDown, _isCall, _theta, maxT, maxMoneyness,
+        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, 1.0);
 
     ps.println("Strike\tBS Vega\tVega\tBS Vanna\tVanna\tBS Vomma\tVomma");
     final int n = pdeRes.getNumberSpaceNodes();
     for (int i = 0; i < n; i++) {
-      final double k = pdeRes.getSpaceValue(i);
-      final double price = pdeRes.getFunctionValue(i);
+      final double x = pdeRes.getSpaceValue(i);
+      final double k = x * forward;
+      final double mPrice = pdeRes.getFunctionValue(i);
       try {
-        final double bsVol = BlackFormulaRepository.impliedVolatility(price, forward, k, maxT, _isCall);
+        final double bsVol = BlackFormulaRepository.impliedVolatility(mPrice, 1.0, x, maxT, _isCall);
         final double bsVega = BlackFormulaRepository.vega(forward, k, maxT, bsVol);
         final double bsVanna = BlackFormulaRepository.vanna(forward, k, maxT, bsVol);
         final double bsVomma = BlackFormulaRepository.vomma(forward, k, maxT, bsVol);
         final double modelVega = (pdeResUp.getFunctionValue(i) - pdeResDown.getFunctionValue(i)) / 2 / volShift;
-        final double modelVanna = (pdeResUpUp.getFunctionValue(i) + pdeResDownDown.getFunctionValue(i) -
-            pdeResUpDown.getFunctionValue(i) - pdeResDownUp.getFunctionValue(i)) / 4 / spotShift / volShift;
+
+        //xVanna is the vanna if the moneyness parameterised local vol surface was invariant to changes in the forward curve
+        final double xVanna = (pdeResUp.getFunctionValue(i) - pdeResDown.getFunctionValue(i)
+            - x * (pdeResUp.getFirstSpatialDerivative(i) - pdeResDown.getFirstSpatialDerivative(i))) / 2 / volShift;
+        //this is the vanna coming purely from deformation of the local volatility surface
+        final double surfaceVanna = (pdeResUpUp.getFunctionValue(i) + pdeResDownDown.getFunctionValue(i) -
+            pdeResUpDown.getFunctionValue(i) - pdeResDownUp.getFunctionValue(i)) / 4 / fwdShift / volShift;
+        final double modelVanna = xVanna + surfaceVanna;
         final double modelVomma = (pdeResUp.getFunctionValue(i) + pdeResDown.getFunctionValue(i)
             - 2 * pdeRes.getFunctionValue(i)) / volShift / volShift;
         ps.println(k + "\t" + bsVega + "\t" + modelVega + "\t" + bsVanna + "\t" + modelVanna + "\t" + bsVomma + "\t" + modelVomma);
@@ -534,62 +577,102 @@ public class LocalVolatilityPDEGreekCalculator {
    * @param isCall
    * @param theta The theta parameters of the PDE solver
    * @param maxT
-   * @param maxStrike
+   * @param maxMoneyness
    * @param nTimeSteps
    * @param nStrikeSteps
    * @param timeMeshLambda
    * @param strikeMeshBunching
    * @return
    */
-  private PDEFullResults1D runForwardPDESolver(final ForwardCurve forwardCurve, final LocalVolatilitySurface localVolatility, final boolean isCall,
-      final double theta, final double maxT, final double maxStrike, final int
-      nTimeSteps, final int nStrikeSteps, final double timeMeshLambda, final double strikeMeshBunching, final double centreStrike) {
+  private PDEFullResults1D runForwardPDESolver(final LocalVolatilityMoneynessSurface localVolatility, final boolean isCall,
+      final double theta, final double maxT, final double maxMoneyness, final int
+      nTimeSteps, final int nStrikeSteps, final double timeMeshLambda, final double strikeMeshBunching, final double centreMoneyness) {
 
     final PDEDataBundleProvider provider = new PDEDataBundleProvider();
-    final ConvectionDiffusionPDEDataBundle db = provider.getForwardLocalVol(forwardCurve.getSpot(), isCall, localVolatility);
+    final ConvectionDiffusionPDEDataBundle db = provider.getForwardLocalVol(localVolatility, isCall);
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(theta, true);
 
     BoundaryCondition lower;
     BoundaryCondition upper;
     if (isCall) {
       //call option with strike zero is worth the forward, while a put is worthless
-      lower = new DirichletBoundaryCondition(forwardCurve.getForwardCurve().toFunction1D(), 0.0);
-      upper = new DirichletBoundaryCondition(0.0, maxStrike);
-      //upper = new NeumannBoundaryCondition(0, maxStrike, false);
-      //upper = new FixedSecondDerivativeBoundaryCondition(0, maxStrike, false);
+      lower = new DirichletBoundaryCondition(1.0, 0.0);
+      upper = new DirichletBoundaryCondition(0.0, maxMoneyness);
     } else {
       lower = new DirichletBoundaryCondition(0.0, 0.0);
-      upper = new NeumannBoundaryCondition(1.0, maxStrike, false);
+      upper = new NeumannBoundaryCondition(1.0, maxMoneyness, false);
     }
 
     final MeshingFunction timeMesh = new ExponentialMeshing(0.0, maxT, nTimeSteps, timeMeshLambda);
-    final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxStrike, centreStrike, nStrikeSteps, strikeMeshBunching);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxMoneyness, centreMoneyness, nStrikeSteps, strikeMeshBunching);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
     final PDEFullResults1D res = (PDEFullResults1D) solver.solve(db, grid, lower, upper);
     return res;
   }
 
-  private PDEResults1D runBackwardsPDESolver(final double strike, final LocalVolatilitySurface localVolatility, final boolean isCall,
-      final double theta, final double expiry, final double maxSpot, final int
-      nTimeSteps, final int nSpotSteps, final double timeMeshLambda, final double spotMeshBunching, final double centreSpot) {
+  private PDEFullResults1D runForwardPDESolver(final ForwardCurve forwardCurve, final LocalVolatilitySurface localVolatility,
+      final boolean isCall, final double theta, final double maxT, final double maxMoneyness, final int
+      nTimeSteps, final int nStrikeSteps, final double timeMeshLambda, final double strikeMeshBunching, final double centreMoneyness) {
 
     final PDEDataBundleProvider provider = new PDEDataBundleProvider();
-    final ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(strike, expiry, isCall, localVolatility);
+    final ConvectionDiffusionPDEDataBundle db = provider.getForwardLocalVol(localVolatility, forwardCurve, isCall);
+    final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(theta, true);
+
+    BoundaryCondition lower;
+    BoundaryCondition upper;
+    if (isCall) {
+      //call option with strike zero is worth the forward, while a put is worthless
+      lower = new DirichletBoundaryCondition(1.0, 0.0);
+      upper = new DirichletBoundaryCondition(0.0, maxMoneyness);
+    } else {
+      lower = new DirichletBoundaryCondition(0.0, 0.0);
+      upper = new NeumannBoundaryCondition(1.0, maxMoneyness, false);
+    }
+
+    final MeshingFunction timeMesh = new ExponentialMeshing(0.0, maxT, nTimeSteps, timeMeshLambda);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxMoneyness, centreMoneyness, nStrikeSteps, strikeMeshBunching);
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    final PDEFullResults1D res = (PDEFullResults1D) solver.solve(db, grid, lower, upper);
+    return res;
+  }
+
+  /**
+   * Runs a backwards PDE (i.e the initial condition is at t = expiry, and the final solution is a t = 0) on a grid of time and forward, F(t,T), points
+   * for an option with a given strike under a local volatility model
+   * @param strike The strike of the option
+   * @param localVolatility Local volatility surface
+   * @param isCall true for call
+   * @param theta Balance between fully explicit (theta = 0) and fully implicit (theta = 1) time marching schemes. Theta = 0.5 is Crank-Nicolson
+   * @param expiry The time-to-expiry of the option
+   * @param maxFwd The maximum forward in the grid (should be a few times larger than the forward F(0,T) and/or the strike)
+   * @param nTimeNodes Number of nodes in the time direction
+   * @param nFwdNodes Number of nodes in the forward (space) direction
+   * @param timeMeshLambda for lambda > 0 the point are bunched around tau = 0
+   * @param spotMeshBunching as this -> 0 points bunched around fwdNodeCentre
+   * @param fwdNodeCentre The point with the highest concentration of space nodes
+   * @return PDEResults1D which contains the forward (i.e. non-discounted) option prices and different initial levels of the forward F(0,T)
+   */
+  private PDEResults1D runBackwardsPDESolver(final double strike, final LocalVolatilitySurface localVolatility, final boolean isCall,
+      final double theta, final double expiry, final double maxFwd, final int
+      nTimeNodes, final int nFwdNodes, final double timeMeshLambda, final double spotMeshBunching, final double fwdNodeCentre) {
+
+    final PDEDataBundleProvider provider = new PDEDataBundleProvider();
+    final ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(strike, expiry, isCall, localVolatility, _forwardCurve);
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(theta, false);
 
     BoundaryCondition lower;
     BoundaryCondition upper;
     if (isCall) {
       lower = new DirichletBoundaryCondition(0.0, 0.0); //call option with strike zero is worth 0
-      upper = new NeumannBoundaryCondition(1.0, maxSpot, false);
+      upper = new NeumannBoundaryCondition(1.0, maxFwd, false);
     } else {
       lower = new DirichletBoundaryCondition(strike, 0.0);
-      upper = new NeumannBoundaryCondition(0.0, maxSpot, false);
+      upper = new NeumannBoundaryCondition(0.0, maxFwd, false);
     }
 
-    final MeshingFunction timeMesh = new ExponentialMeshing(0.0, expiry, nTimeSteps, timeMeshLambda);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0.0, expiry, nTimeNodes, timeMeshLambda);
     //keep the grid the same regardless of spot (useful for finite-difference)
-    final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxSpot, centreSpot, nSpotSteps, spotMeshBunching);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxFwd, fwdNodeCentre, nFwdNodes, spotMeshBunching);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
     final PDEResults1D res = solver.solve(db, grid, lower, upper);
     return res;
@@ -609,6 +692,33 @@ public class LocalVolatilityPDEGreekCalculator {
     };
 
     return new BlackVolatilitySurface(FunctionalDoublesSurface.from(func));
+  }
+
+  /**
+   * Convert the results of running the forward PDE, which are forward option prices divided by the relevant forward, to an implied volatility
+   * surface parameterised by expiry and moneyness (=strike/forward)
+   * @param forwardCurve
+   * @param prices
+   * @param minT
+   * @param maxT
+   * @param minMoneyness
+   * @param maxMoneyness
+   * @return
+   */
+  private BlackVolatilityMoneynessSurface modifiedPriceToVolSurface(final ForwardCurve forwardCurve, final PDEFullResults1D prices,
+      final double minT, final double maxT, final double minMoneyness, final double maxMoneyness) {
+
+    final Map<DoublesPair, Double> vol = PDEUtilityTools.modifiedPriceToImpliedVol(prices, minT, maxT, minMoneyness, maxMoneyness, _isCall);
+    final Map<Double, Interpolator1DDataBundle> idb = GRID_INTERPOLATOR2D.getDataBundle(vol);
+
+    final Function<Double, Double> func = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tk) {
+        return GRID_INTERPOLATOR2D.interpolate(idb, new DoublesPair(tk[0], tk[1]));
+      }
+    };
+
+    return new BlackVolatilityMoneynessSurface(FunctionalDoublesSurface.from(func), forwardCurve);
   }
 
   private int getLowerBoundIndex(final double[] array, final double t) {

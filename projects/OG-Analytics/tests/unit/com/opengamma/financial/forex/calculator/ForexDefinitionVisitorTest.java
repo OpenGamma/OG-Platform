@@ -12,6 +12,7 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.financial.forex.definition.ForexNonDeliverableOptionDefinition;
+import com.opengamma.financial.forex.definition.ForexOptionDigitalDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.definition.ForexSwapDefinition;
@@ -67,6 +68,7 @@ public class ForexDefinitionVisitorTest {
   private static final ForexOptionSingleBarrierDefinition FX_SINGLE_BARRIER_OPTION_DEFINITION = ForexInstrumentsDescriptionDataSet.createForexOptionSingleBarrierDefinition();
   private static final ForexNonDeliverableForwardDefinition NDF_DEFINITION = ForexInstrumentsDescriptionDataSet.createForexNonDeliverableForwardDefinition();
   private static final ForexNonDeliverableOptionDefinition NDO_DEFINITION = ForexInstrumentsDescriptionDataSet.createForexNonDeliverableOptionDefinition();
+  private static final ForexOptionDigitalDefinition FX_OPTION_DIGITAL_DEFINITION = ForexInstrumentsDescriptionDataSet.createForexOptionDigitalDefinition();
 
   @SuppressWarnings("synthetic-access")
   private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();
@@ -86,6 +88,8 @@ public class ForexDefinitionVisitorTest {
     assertEquals(NDF_DEFINITION.accept(VISITOR, o), "ForexNonDeliverableForwardDefinition2");
     assertEquals(NDO_DEFINITION.accept(VISITOR), "ForexNonDeliverableOptionDefinition1");
     assertEquals(NDO_DEFINITION.accept(VISITOR, o), "ForexNonDeliverableOptionDefinition2");
+    assertEquals(FX_OPTION_DIGITAL_DEFINITION.accept(VISITOR), "ForexOptionDigital1");
+    assertEquals(FX_OPTION_DIGITAL_DEFINITION.accept(VISITOR, o), "ForexOptionDigital2");
   }
 
   private static class MyVisitor<T, U> implements InstrumentDefinitionVisitor<T, String> {
@@ -538,6 +542,16 @@ public class ForexDefinitionVisitorTest {
     @Override
     public String visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit) {
       return null;
+    }
+
+    @Override
+    public String visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx, T data) {
+      return "ForexOptionDigital2";
+    }
+
+    @Override
+    public String visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx) {
+      return "ForexOptionDigital1";
     }
 
   }

@@ -5,8 +5,12 @@
  */
 package com.opengamma.financial.forex.calculator;
 
+import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.financial.forex.method.ForexNonDeliverableOptionBlackMethod;
+import com.opengamma.financial.forex.method.ForexOptionDigitalBlackMethod;
 import com.opengamma.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.financial.forex.method.ForexOptionVanillaBlackMethod;
 import com.opengamma.financial.forex.method.PresentValueVolatilityNodeSensitivityDataBundle;
@@ -37,14 +41,32 @@ public final class PresentValueForexVegaSensitivityCalculator extends AbstractIn
   private PresentValueForexVegaSensitivityCalculator() {
   }
 
+  /**
+   * The methods used by the different instruments.
+   */
+  private static final ForexOptionVanillaBlackMethod METHOD_FXOPTION = ForexOptionVanillaBlackMethod.getInstance();
+  private static final ForexOptionSingleBarrierBlackMethod METHOD_FXOPTIONBARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
+  private static final ForexNonDeliverableOptionBlackMethod METHOD_NDO = ForexNonDeliverableOptionBlackMethod.getInstance();
+  private static final ForexOptionDigitalBlackMethod METHOD_FXOPTIONDIGITAL = ForexOptionDigitalBlackMethod.getInstance();
+
   @Override
   public PresentValueVolatilityNodeSensitivityDataBundle visitForexOptionVanilla(final ForexOptionVanilla option, final SmileDeltaTermStructureDataBundle data) {
-    return ForexOptionVanillaBlackMethod.getInstance().presentValueVolatilityNodeSensitivity(option, data);
+    return METHOD_FXOPTION.presentValueVolatilityNodeSensitivity(option, data);
   }
 
   @Override
   public PresentValueVolatilityNodeSensitivityDataBundle visitForexOptionSingleBarrier(final ForexOptionSingleBarrier option, final SmileDeltaTermStructureDataBundle data) {
-    return ForexOptionSingleBarrierBlackMethod.getInstance().presentValueVolatilityNodeSensitivity(option, data);
+    return METHOD_FXOPTIONBARRIER.presentValueVolatilityNodeSensitivity(option, data);
+  }
+
+  @Override
+  public PresentValueVolatilityNodeSensitivityDataBundle visitForexNonDeliverableOption(final ForexNonDeliverableOption option, final SmileDeltaTermStructureDataBundle data) {
+    return METHOD_NDO.presentValueVolatilityNodeSensitivity(option, data);
+  }
+
+  @Override
+  public PresentValueVolatilityNodeSensitivityDataBundle visitForexOptionDigital(final ForexOptionDigital option, final SmileDeltaTermStructureDataBundle data) {
+    return METHOD_FXOPTIONDIGITAL.presentValueVolatilityNodeSensitivity(option, data);
   }
 
 }

@@ -63,8 +63,8 @@ public class ForexNonDeliverableOptionBlackMethodTest {
 
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 11, 10);
 
-  private static final YieldCurveBundle CURVES = ForexTestsDataSets.createCurvesForex();
-  private static final String[] CURVE_NAMES = ForexTestsDataSets.curveNames();
+  private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
+  private static final String[] CURVE_NAMES = TestsDataSetsForex.curveNames();
   private static final double USD_KRW = 1111.11;
   private static final FXMatrix FX_MATRIX = new FXMatrix(USD, KRW, USD_KRW);
 

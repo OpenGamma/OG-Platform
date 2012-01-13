@@ -87,7 +87,7 @@ public class LocalVolatilityBackwardPDEGreekCalculator {
     final BlackVolatilitySurface impVolSurface = surfaceFitter.getImpliedVolatilitySurface(true, false, _modMoneynessParameter);
     final LocalVolatilitySurface localVolatilitySurface = DUPIRE.getLocalVolatility(impVolSurface, forwardCurve);
     PDEFullResults1D pdeRes = runBackwardsPDESolver(strike, localVolatilitySurface, isCall, _theta, maxT, maxSpot,
-        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, spot);
+        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, spot, forwardCurve);
 
     //adjust the expiry to the nearest grid point
     //TODO should be able to adjust the grid instead
@@ -122,7 +122,7 @@ public class LocalVolatilityBackwardPDEGreekCalculator {
     for (int i = 0; i < n; i++) {
       final double k = minK + (maxK - minK) * i / (n - 1);
       pdeRes = runBackwardsPDESolver(k, localVolatilitySurface, isCall, _theta, actExpiry, maxSpot,
-          _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, spot);
+          _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, spot, forwardCurve);
       final double price = pdeRes.getFunctionValue(xIndex);
       double vol = 0;
       try {
@@ -152,7 +152,7 @@ public class LocalVolatilityBackwardPDEGreekCalculator {
         final BlackVolatilitySurface bumpedSurface = fitter.getImpliedVolatilitySurface(true, false, _modMoneynessParameter);
         final LocalVolatilitySurface bumpedLV = DUPIRE.getLocalVolatility(bumpedSurface, forwardCurve);
         final PDEResults1D pdeResBumped = runBackwardsPDESolver(strike, bumpedLV, isCall, _theta, actExpiry,
-            maxSpot, _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, strike);
+            maxSpot, _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, strike, forwardCurve);
         for (int k = 0; k < 4; k++) {
           vols[k] = BlackFormulaRepository.impliedVolatility(pdeResBumped.getFunctionValue(index + k), spots[k], strike, actExpiry, isCall);
         }
@@ -164,11 +164,11 @@ public class LocalVolatilityBackwardPDEGreekCalculator {
   }
 
   private PDEFullResults1D runBackwardsPDESolver(final double strike, final LocalVolatilitySurface localVolatility, final boolean isCall,
-      final double theta, final double expiry, final double maxSpot, final int
-      nTimeSteps, final int nSpotSteps, final double timeMeshLambda, final double spotMeshBunching, final double centreSpot) {
+      final double theta, final double expiry, final double maxSpot, final int nTimeSteps, final int nSpotSteps, final double timeMeshLambda,
+      final double spotMeshBunching, final double centreSpot, final ForwardCurve forwardCurve) {
 
     final PDEDataBundleProvider provider = new PDEDataBundleProvider();
-    final ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(strike, expiry, isCall, localVolatility);
+    final ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(strike, expiry, isCall, localVolatility, forwardCurve);
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(theta, false);
 
     BoundaryCondition lower;

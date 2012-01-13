@@ -26,6 +26,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.financial.forex.definition.ForexNonDeliverableOptionDefinition;
+import com.opengamma.financial.forex.definition.ForexOptionDigitalDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.definition.ForexSwapDefinition;
@@ -624,6 +625,16 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit) {
+      return null;
+    }
+
+    @Override
+    public String visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx) {
       return null;
     }
   }

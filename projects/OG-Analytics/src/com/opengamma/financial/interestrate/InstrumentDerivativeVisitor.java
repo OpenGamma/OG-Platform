@@ -8,6 +8,7 @@ package com.opengamma.financial.interestrate;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
@@ -284,5 +285,9 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitForexNonDeliverableOption(ForexNonDeliverableOption derivative, S data);
 
   T visitForexNonDeliverableOption(ForexNonDeliverableOption derivative);
+
+  T visitForexOptionDigital(ForexOptionDigital derivative, S data);
+
+  T visitForexOptionDigital(ForexOptionDigital derivative);
 
 }

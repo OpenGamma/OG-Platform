@@ -368,7 +368,7 @@ public class LocalVolatilityForwardPDEGreekCalculator {
       final double strikeMeshBunching, final double centreStrike) {
 
     final PDEDataBundleProvider provider = new PDEDataBundleProvider();
-    final ConvectionDiffusionPDEDataBundle db = provider.getForwardLocalVol(forwardCurve.getSpot(), isCall, localVolatility);
+    final ConvectionDiffusionPDEDataBundle db = provider.getForwardLocalVol(localVolatility, forwardCurve, isCall);
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(theta, true);
 
     BoundaryCondition lower;

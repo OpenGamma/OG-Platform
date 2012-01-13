@@ -15,6 +15,7 @@ import com.opengamma.math.surface.Surface;
  */
 public class BlackVolatilitySurface extends VolatilitySurface {
 
+  //TODO get rid of this and have different types for different parameterisations
   private final StrikeParameterization _strikeParameterisation;
 
   /**
