@@ -103,13 +103,15 @@ public abstract class AbstractBundleManagerFactoryBean extends SingletonFactoryB
   protected InputStream getXMLStream() {
     InputStream xmlStream = null;
     try {
-      ClassPathResource resource = (ClassPathResource) _configResource;
-      s_logger.debug("resource.getPath() : {}", resource.getPath());
-      s_logger.debug("resource.getClassLoader() : {}", resource.getClassLoader());
-      s_logger.debug("resource.getURL().toString() : {}", resource.getURL().toString());
-      s_logger.debug("resource.getDescription() : {}", resource.getDescription());
-      
+      if (_configResource instanceof ClassPathResource) {
+        ClassPathResource resource = (ClassPathResource) _configResource;
+        s_logger.debug("resource.getPath() : {}", resource.getPath());
+        s_logger.debug("resource.getClassLoader() : {}", resource.getClassLoader());
+        s_logger.debug("resource.getURL().toString() : {}", resource.getURL().toString());
+        s_logger.debug("resource.getDescription() : {}", resource.getDescription());
+      }
       xmlStream = _configResource.getInputStream();
+      
     } catch (IOException ex) {
       throw new IllegalArgumentException("Cannot find bundle config xml file in the classpath");
     }
@@ -123,12 +125,12 @@ public abstract class AbstractBundleManagerFactoryBean extends SingletonFactoryB
    */
   protected File resolveBaseDir() {
     ServletContext servletContext = getServletContext();
-    if (servletContext != null) {
-      String baseDir = getBaseDir().startsWith("/") ? getBaseDir() : "/" + getBaseDir();
-      baseDir = servletContext.getRealPath(baseDir);
-      return new File(baseDir);
+    if (servletContext == null) {
+      throw new IllegalStateException("Bundle Manager needs web application context to work out absolute path for bundle base directory");
     }
-    throw new IllegalStateException("Bundle Manager needs web application context to work out absolute path for bundle base directory");
+    String baseDir = getBaseDir().startsWith("/") ? getBaseDir() : "/" + getBaseDir();
+    baseDir = servletContext.getRealPath(baseDir);
+    return new File(baseDir);
   }
 
 }

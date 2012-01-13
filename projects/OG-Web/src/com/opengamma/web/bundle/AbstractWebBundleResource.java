@@ -52,6 +52,7 @@ public abstract class AbstractWebBundleResource extends AbstractPerRequestWebRes
     _data = parent._data;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Setter used to inject the URIInfo.
    * This is a roundabout approach, because Spring and JSR-311 injection clash.
