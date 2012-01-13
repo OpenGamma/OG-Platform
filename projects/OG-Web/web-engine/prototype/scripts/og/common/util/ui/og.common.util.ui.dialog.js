@@ -134,18 +134,8 @@ $.register_module({
                  */
                 if (obj.form) {
                     $(css_class).html('Loading form...');
+                    // TODO: move this to trades gadget
                     var form = new og.common.util.ui.Form($.extend(obj.form, {selector: css_class, data: {}}));
-                    form.attach([
-                        {type: 'form:load', handler: function () {
-                            $('.og-js-datetimepicker').datetimepicker({
-                                firstDay: 1, showTimezone: true, timeFormat: 'hh:mm ttz'
-                            });
-                            $('.OG-add-trades .og-inline-form').click(function (e) {
-                                e.preventDefault();
-                                $(this).prev().find('input').datetimepicker('setDate', new Date());
-                            });
-                        }}
-                    ]);
                     form.children = [
                         new form.Field({module: 'og.views.forms.currency', generator: function (handler, template) {
                             handler(template);
@@ -153,6 +143,15 @@ $.register_module({
                     ];
                     form.dom();
                 }
+                /*
+                 * Delete any unwanted default buttons
+                 */
+                (function () {
+                    for (var button in obj.buttons) {
+                        if (obj.buttons.hasOwnProperty(button) && obj.buttons[button] === null)
+                            delete default_options.input.jquery.buttons[button], delete obj.buttons[button];
+                    }
+                }());
                 $obj.dialog($.extend(true, default_options.input.jquery, obj));
             }
             $obj.parent('.ui-dialog').addClass(class_name + '-container');

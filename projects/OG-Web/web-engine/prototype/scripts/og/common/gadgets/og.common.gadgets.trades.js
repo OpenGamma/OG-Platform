@@ -6,7 +6,12 @@ $.register_module({
     name: 'og.common.gadgets.trades',
     dependencies: ['og.common.util.ui.dialog'],
     obj: function () {
-        var ui = og.common.util.ui, template_data, original_config_object, table = '\
+        var ui = og.common.util.ui, api = og.api, template_data, original_config_object,
+            dependencies = ['id', 'node'], html = {}, action = {};
+        /*
+         * Templates for rendering trades table
+         */
+        html.og_table = '\
           <table class="OG-table">\
             <thead>\
               <tr>\
@@ -19,36 +24,49 @@ $.register_module({
               </tr>\
             </thead>\
             <tbody>{TBODY}</tbody>\
-          </table>\
-        ',
-        attributes = '\
+          </table>';
+        html.attributes = '\
           <tr class="og-js-attribute" style="display: none">\
             <td colspan="6" style="padding-left: 15px">\
               <table class="og-sub-list">{TBODY}</table>\
             </td>\
           </tr>\
-        ',
-        sub_head = '<tbody><tr><td class="og-header" colspan="2">{ATTRIBUTES}</td></tr></tbody>',
-        reload = function () {og.common.gadgets.trades(original_config_object);},
-        get_trades = function (handler, id) {
-            og.api.rest.positions.get({dependencies: ['id', 'node'], handler: handler, id: id});
-        },
+        ';
+        html.sub_header = '<tbody><tr><td class="og-header" colspan="2">{ATTRIBUTES}</td></tr></tbody>';
         /*
-         * Gets the latest trade information for the current position before putting the new trade
+         * CRUD operations
          */
-        add_trade = function (trade) {
-            get_trades(function (result) {
+        action.add = function (trade) {
+            var handler = function (result) {
                 if (result.error) return alert(result.message);
                 var trades = result.data.trades || [];
                 trades.push(trade);
-                put_trades(format_trades(trades));
-            }, template_data.object_id);
-        },
-        /*
-         * Gets the latest trade information for the current position before deleting a trade
-         */
-        delete_trade = function (trade_id) {
-            get_trades(function (result) {
+                action.put(format_trades(trades));
+            };
+            api.rest.positions.get({
+                dependencies: dependencies,
+                id: template_data.object_id,
+                handler: handler
+            });
+        };
+        action.replace = function (trade, trade_id) {
+            var handler = function (result) {
+                if (result.error) return alert(result.message);
+                var trades = result.data.trades || [];
+                trades.forEach(function (trade, i) {
+                    if (trade.id.split('~')[1] === trade_id) {trades.splice(i, 1);}
+                });
+                trades.push(trade);
+                action.put(format_trades(trades));
+            };
+            api.rest.positions.get({
+                dependencies: dependencies,
+                id: template_data.object_id,
+                handler: handler
+            });
+        };
+        action.del = function (trade_id) {
+            var handler = function (result) {
                 if (result.error) return alert(result.message);
                 var trades = result.data.trades;
                 trades.forEach(function (trade, i) {
@@ -60,32 +78,100 @@ $.register_module({
                     message: 'Are you sure you want to permanently delete trade ' +
                         '<strong style="white-space: nowrap">' + trade_id + '</strong>?',
                     buttons: {'Delete': function () {
-                        put_trades(format_trades(trades));
+                        action.put(format_trades(trades));
                         $(this).dialog('close');
                     }}
                 });
-            }, template_data.object_id);
-        },
-        /*
-         * Update trades
-         */
-        put_trades = function (trades) {
-            og.api.rest.positions.put({
-                trades: trades,
+            };
+            api.rest.positions.get({
+                dependencies: dependencies,
                 id: template_data.object_id,
-                quantity: template_data.quantity,
+                handler: handler
+            });
+        };
+        action.edit = function (trade_id) {
+            var handler = function (result) {
+                var trade_obj;
+                if (result.error) return alert(result.message);
+                // get the trade object that you want to edit
+                result.data.trades.forEach(function (trade) {
+                    if (trade_id === trade.id.split('~')[1]) {trade_obj = trade}
+                });
+                ui.dialog({
+                    type: 'input', title: 'Edit Trade: ' + trade_id, minWidth: 400, minHeight: 400,
+                    form: {
+                        module: 'og.views.forms.add-trades',
+                        handlers: [
+                            {type: 'form:submit', handler: function (obj) {action.replace(obj.data, trade_id);}},
+                            {type: 'form:load', handler: function () {
+                                populate_form_fields(trade_obj), attach_calendar();
+                            }}
+                        ]
+                    },
+                    buttons: {
+                        'Save': function () {$(this).dialog('close').find('form').submit();},
+                        'Save as': function () {$(this).dialog('close').find('form').submit();},
+                        'OK': null
+                    }
+                });
+            };
+            api.rest.positions.get({dependencies: dependencies, id: template_data.object_id, handler: handler});
+        };
+        action.put = function (trades) {
+            api.rest.positions.put({
+                trades: trades, id: template_data.object_id, quantity: template_data.quantity,
                 handler: function (result) {
                     if (result.error) return ui.dialog({type: 'error', message: result.message});
                     reload();
                 }
             });
-        },
+        };
+        /*
+         * Helper functions
+         */
+        var reload = function () {og.common.gadgets.trades(original_config_object);};
+        var attach_calendar = function () {
+            $('.og-js-datetimepicker').datetimepicker({firstDay: 1, showTimezone: true, timeFormat: 'hh:mm ttz'});
+            $('.OG-js-add-trades .og-inline-form').click(function (e) {
+                e.preventDefault();
+                $(this).prev().find('input').datetimepicker('setDate', new Date());
+            });
+        };
+        var attach_trades_link = function (selector) {
+            $(selector).append('<a href="#" class="OG-link-add">add trade</a>').find('.OG-link-add').css({
+                'position': 'relative', 'left': '2px', 'top': '3px', 'float': 'left'
+            }).bind('click', function (e) {
+                e.preventDefault();
+                ui.dialog({
+                    type: 'input', title: 'Add New Trade', minWidth: 400, minHeight: 400,
+                    buttons: {'OK': function () {$(this).dialog('close').find('form').submit();}},
+                    form: {
+                        module: 'og.views.forms.add-trades',
+                        handlers: [
+                            {type: 'form:submit', handler: function (obj) {action.add(obj.data);}},
+                            {type: 'form:load', handler: function () {attach_calendar();}}
+                        ]
+                    }
+                })
+            });
+        };
+        var populate_form_fields = function (trade_obj) {
+            $('.OG-js-add-trades [name]').each(function (i, val) {
+                // special case 'premium' as there are two fields for the one value
+                var attribute = $(val).attr('name'), value = trade_obj['premium'].split(' ');
+                if (attribute === 'premium') {
+                    trade_obj.premium = value[0];
+                    trade_obj.currency = value[1];
+                }
+                $(val).val(trade_obj[attribute]);
+            });
+        };
         /*
          * Formats arrays of trade objects for submission.
          * The object that we receive in the response can't be sent back as is because it's been formatted slightly
          * differently, this also applies for the form object for the new trade to be added
          */
-        format_trades = function (trades) {
+        var format_trades = function (trades) {
             var format_date = function (str) {return str.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')};
             trades.map(function (trade) {
                 var premium, tradeDate;
@@ -119,34 +205,19 @@ $.register_module({
                 return trade;
             });
             return trades;
-        },
-        /*
-         * Embeds a link that enables adding trades via a form in a dialog
-         */
-        add_trades_link = function (selector) {
-            $(selector).append('<a href="#" class="OG-link-add">add trade</a>').find('.OG-link-add').css({
-                'position': 'relative', 'left': '2px', 'top': '3px', 'float': 'left'
-            }).bind('click', function (e) {
-                e.preventDefault();
-                ui.dialog({
-                    type: 'input', title: 'Add New Trade', minWidth: 400, minHeight: 400,
-                    form: {
-                        module: 'og.views.forms.add-trades',
-                        handlers: [{type: 'form:submit', handler: function (obj) {add_trade(obj.data);}}]
-                    },
-                        buttons: {'OK': function () {$(this).dialog('close').find('form').submit();}}
-                })
-            });
         };
         return function (config) {
-            get_trades(function (result) {
+            var handler = function (result) {
+                /*
+                 * Build trades table
+                 */
                 if (result.error) return alert(result.message);
                 original_config_object = config;
                 template_data = result.data.template_data;
                 var trades = result.data.trades, selector = config.selector, tbody, has_attributes = false,
                     fields = ['id', 'quantity', 'counterParty', 'trade_date_time', 'premium', 'premium_date_time'];
-                if (!trades) return $(selector).html(table.replace('{TBODY}',
-                    '<tr><td colspan="6">No Trades</td></tr>')), add_trades_link(selector);
+                if (!trades) return $(selector).html(html.og_table.replace('{TBODY}',
+                    '<tr><td colspan="6">No Trades</td></tr>')), attach_trades_link(selector);
                 tbody = trades.reduce(function (acc, trade) {
                     acc.push('<tr class="og-row"><td>', fields.map(function (field, i) {
                         var expander;
@@ -166,16 +237,16 @@ $.register_module({
                                 ':</td><td>', attr_obj[key].lang(), '</td></tr>'
                             );
                             html.push(
-                                sub_head.replace('{ATTRIBUTES}', attr_type.lang()) +
+                                html.sub_header.replace('{ATTRIBUTES}', attr_type.lang()) +
                                 '<tbody class="OG-background-01">' + attr.join('') + '</tbody>'
                             );
                         }
-                        acc.push(attributes.replace('{TBODY}', html.join('')));
+                        acc.push(html.attributes.replace('{TBODY}', html.join('')));
                         if (html.length) has_attributes = true;
                     }());
                     return acc;
                 }, []).join('');
-                $(selector).html(table.replace('{TBODY}', tbody)).hide().fadeIn();
+                $(selector).html(html.og_table.replace('{TBODY}', tbody)).hide().fadeIn();
                 /*
                  * Remove expand links when no trade attributes are available
                  */
@@ -183,16 +254,17 @@ $.register_module({
                 $(selector + ' .OG-table > tbody > tr').each(function () {
                     var $this = $(this);
                     if ($this.next().hasClass('og-js-attribute')) {
-                        $this.find('.og-icon-expand').bind('click', function () {
+                        $this.find('.og-icon-expand').bind('click', function (e) {
+                            e.stopPropagation();
                             $(this).toggleClass('og-icon-collapse').parents('tr').next().toggle();
                         });
                     } else $this.find('.og-icon-expand').css('visibility', 'hidden');
                 });
-                add_trades_link(selector);
+                attach_trades_link(selector);
                 $(selector + ' > .OG-table > tbody > tr:not(".og-js-attribute"):last td').css('padding-bottom', '10px');
                 $(selector + ' .OG-table').awesometable({height: 400});
                 /*
-                 * Enable delete trade
+                 * Enable edit/delete trade
                  */
                 (function () {
                     var swap_css = function (elm, css) {
@@ -203,11 +275,11 @@ $.register_module({
                     };
                     $(selector + ' .og-row').hover(
                         function () {
+                            var trade_id = $(this).find('td:first-child').text();
                             swap_css(this, {'background-color': '#d7e7f2', 'cursor': 'default'});
+                            $(this).click(function () {action.edit(trade_id);});
                             $(this).find('td:last-child').append('<div class="og-del"></div>').find('.og-del')
-                                .click(function () {
-                                    delete_trade($(this).parents('tr').find('td:first-child').text());
-                                });
+                                .click(function (e) {e.stopPropagation(), action.del(trade_id);});
                         },
                         function () {
                             swap_css(this, {'background-color': '#ecf5fa'});
@@ -215,7 +287,8 @@ $.register_module({
                         }
                     )
                 }());
-            }, config.id);
+            };
+            api.rest.positions.get({dependencies: dependencies, id: config.id, handler: handler});
         }
     }
 });
