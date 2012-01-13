@@ -6,9 +6,11 @@
 package com.opengamma.financial.forex.calculator;
 
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.method.ForexNonDeliverableOptionBlackMethod;
+import com.opengamma.financial.forex.method.ForexOptionDigitalBlackMethod;
 import com.opengamma.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.financial.forex.method.ForexOptionVanillaBlackMethod;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -45,6 +47,7 @@ public final class CurrencyExposureBlackForexCalculator extends CurrencyExposure
   private static final ForexOptionVanillaBlackMethod METHOD_FXOPTION = ForexOptionVanillaBlackMethod.getInstance();
   private static final ForexOptionSingleBarrierBlackMethod METHOD_FXOPTIONBARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
   private static final ForexNonDeliverableOptionBlackMethod METHOD_NDO = ForexNonDeliverableOptionBlackMethod.getInstance();
+  private static final ForexOptionDigitalBlackMethod METHOD_FXOPTIONDIGITAL = ForexOptionDigitalBlackMethod.getInstance();
 
   @Override
   public MultipleCurrencyAmount visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
@@ -59,6 +62,11 @@ public final class CurrencyExposureBlackForexCalculator extends CurrencyExposure
   @Override
   public MultipleCurrencyAmount visitForexNonDeliverableOption(final ForexNonDeliverableOption derivative, final YieldCurveBundle data) {
     return METHOD_NDO.currencyExposure(derivative, data);
+  }
+
+  @Override
+  public MultipleCurrencyAmount visitForexOptionDigital(final ForexOptionDigital derivative, final YieldCurveBundle data) {
+    return METHOD_FXOPTIONDIGITAL.currencyExposure(derivative, data);
   }
 
 }
