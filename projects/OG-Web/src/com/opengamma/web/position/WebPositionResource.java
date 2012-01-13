@@ -84,7 +84,7 @@ public class WebPositionResource extends AbstractWebPositionResource {
       String html = getFreemarker().build("positions/position-update.ftl", out);
       return Response.ok(html).build();
     }
-    URI uri = updatePosition(doc, quantity, Collections.<ManageableTrade>emptyList());
+    URI uri = updatePosition(doc, quantity, null);
     return Response.seeOther(uri).build();
   }
 
@@ -112,7 +112,7 @@ public class WebPositionResource extends AbstractWebPositionResource {
 
   private URI updatePosition(PositionDocument doc, BigDecimal quantity, Collection<ManageableTrade> trades) {
     ManageablePosition position = doc.getPosition();
-    if (Objects.equal(position.getQuantity(), quantity) == false || !trades.isEmpty()) {
+    if (Objects.equal(position.getQuantity(), quantity) == false || trades != null) {
       position.setQuantity(quantity);
       position.getTrades().clear();
       for (ManageableTrade trade : trades) {
