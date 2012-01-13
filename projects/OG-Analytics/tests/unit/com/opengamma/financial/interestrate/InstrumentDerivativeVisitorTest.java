@@ -17,6 +17,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
@@ -634,6 +635,16 @@ public class InstrumentDerivativeVisitorTest {
 
     @Override
     public Class<?> visitDepositCounterpart(DepositCounterpart deposit) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForexOptionDigital(ForexOptionDigital derivative, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForexOptionDigital(ForexOptionDigital derivative) {
       return null;
     }
   };
