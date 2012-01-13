@@ -13,12 +13,6 @@
       </list>
     </property>
   </bean>
-  
-  <!-- Bundle Property file configuration -->
-  <bean id="bundleProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
-    <property name="ignoreUnresolvablePlaceholders" value="true" />
-    <property name="location" value="classpath:com/opengamma/web/bundle.properties"/>
-  </bean>
 
   <!-- View processor service -->
   <bean id="viewProcessorRestBean" class="com.opengamma.financial.view.rest.RestViewProcessorFactoryBean">
@@ -279,36 +273,6 @@
   <bean id="webTimeSeriesRestBean" class="com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource" scope="request">
     <constructor-arg ref="centralHistoricalTimeSeriesMaster" />
     <constructor-arg ref="htsLoader"/>
-  </bean>
-
-  <!-- ============================================================================== -->
-  <!-- Bundles RESTful service -->
-  <bean id="bundleManager" class="com.opengamma.web.spring.BundleManagerFactoryBean">
-    <property name="configResource" value="classpath:${bundle.file}" />
-    <property name="baseDir" value="${bundle.basedir}" />
-  </bean>
-  
-  <bean id="yuiCompressorOptions" class="com.opengamma.web.bundle.YUICompressorOptions">
-    <property name="lineBreakPosition" value="${yuiCompressorOptions.lineBreakPosition}" />
-    <property name="munge" value="${yuiCompressorOptions.munge}" />
-    <property name="preserveAllSemiColons" value="${yuiCompressorOptions.preserveAllSemiColons}" />
-    <property name="optimize" value="${yuiCompressorOptions.optimize}" />
-    <property name="warn" value="${yuiCompressorOptions.warn}" />
-  </bean>
-  
-  <bean id="bundleCompressor" class="com.opengamma.web.bundle.EHCachingBundleCompressor">
-    <constructor-arg>
-      <bean class="com.opengamma.web.bundle.YUIBundleCompressor">
-        <constructor-arg ref="yuiCompressorOptions" />
-      </bean>
-    </constructor-arg>
-    <constructor-arg ref="standardCacheManager" />
-  </bean>
-  
-  <bean id="webBundlesRestBean" class="com.opengamma.web.bundle.WebBundlesResource" scope="request">
-    <constructor-arg ref="bundleManager" />
-    <constructor-arg ref="bundleCompressor" />
-    <constructor-arg value="${bundle.mode}"/>
   </bean>
 
   <!-- ============================================================================== -->

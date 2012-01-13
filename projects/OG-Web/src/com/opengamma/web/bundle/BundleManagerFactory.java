@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.spring;
+package com.opengamma.web.bundle;
 
 import java.io.File;
 import java.io.IOException;
@@ -11,23 +11,24 @@ import java.io.InputStream;
 
 import javax.servlet.ServletContext;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.web.context.ServletContextAware;
 
-import com.opengamma.util.SingletonFactoryBean;
-import com.opengamma.web.bundle.BundleManager;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Abstract class for creating BundleManager for Development or Production bundles
- * from the Bundle XML configuration file.
+ * Factory to create a {@code BundleManager} from the Bundle XML configuration file.
+ * <p>
+ * This exists to handle the late arrival of the {@code ServletContext}
  */
-public abstract class AbstractBundleManagerFactoryBean extends SingletonFactoryBean<BundleManager> implements ServletContextAware {
+public class BundleManagerFactory {
 
-  
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractBundleManagerFactoryBean.class);
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(BundleManagerFactory.class);
+
   /**
    * The config resource.
    */
@@ -37,9 +38,15 @@ public abstract class AbstractBundleManagerFactoryBean extends SingletonFactoryB
    */
   private String _baseDir;
   /**
-   * The servlet context.
+   * The manager created from this factory.
    */
-  private ServletContext _servletContext;
+  private volatile BundleManager _manager;
+
+  /**
+   * Creates an instance.
+   */
+  public BundleManagerFactory() {
+  }
 
   //-------------------------------------------------------------------------
   /**
@@ -76,25 +83,47 @@ public abstract class AbstractBundleManagerFactoryBean extends SingletonFactoryB
     _baseDir = baseDir;
   }
 
-  /**
-   * Gets the servlet context.
-   * @return the servlet context
-   */
-  public ServletContext getServletContext() {
-    return _servletContext;
-  }
-
-  /**
-   * Sets the servlet context.
-   * 
-   * @param servletContext  the context, not null
-   */
-  @Override
-  public void setServletContext(ServletContext servletContext) {
-    _servletContext = servletContext;
-  }
-
   //-------------------------------------------------------------------------
+  /**
+   * Obtains a bundle manager using the servlet context.
+   * <p>
+   * This is used to obtain the manager from the servlet context, because the
+   * servlet context is usually available after the factory is setup.
+   * 
+   * @param servletContext  the servlet context, not null
+   * @return the manager, not null
+   */
+  public BundleManager get(ServletContext servletContext) {
+    BundleManager manager = _manager;
+    if (manager == null) {
+      synchronized (this) {
+        manager = _manager;
+        if (manager == null) {
+          _manager = manager = createManager(servletContext);  // CSIGNORE
+        }
+      }
+    }
+    return manager;
+  }
+
+  /**
+   * Creates a bundle manager using the servlet context.
+   * 
+   * @param servletContext  the servlet context, not null
+   * @return the manager, not null
+   */
+  protected BundleManager createManager(ServletContext servletContext) {
+    ArgumentChecker.notNull(servletContext, "servletContext");
+    InputStream xmlStream = getXMLStream();
+    try {
+      BundleParser parser = new BundleParser();
+      parser.setBaseDir(resolveBaseDir(servletContext));
+      return parser.parse(xmlStream);
+    } finally {
+      IOUtils.closeQuietly(xmlStream);
+    }
+  }
+
   /**
    * Resolves the config file.
    * 
@@ -113,6 +142,9 @@ public abstract class AbstractBundleManagerFactoryBean extends SingletonFactoryB
       xmlStream = _configResource.getInputStream();
       
     } catch (IOException ex) {
+      throw new IllegalArgumentException("Cannot find bundle config xml file in the classpath", ex);
+    }
+    if (xmlStream == null) {
       throw new IllegalArgumentException("Cannot find bundle config xml file in the classpath");
     }
     return xmlStream;
@@ -121,13 +153,10 @@ public abstract class AbstractBundleManagerFactoryBean extends SingletonFactoryB
   /**
    * Resolves the base directory.
    * 
-   * @return the base directory
+   * @param servletContext  the servlet context, not null
+   * @return the base directory, not null
    */
-  protected File resolveBaseDir() {
-    ServletContext servletContext = getServletContext();
-    if (servletContext == null) {
-      throw new IllegalStateException("Bundle Manager needs web application context to work out absolute path for bundle base directory");
-    }
+  protected File resolveBaseDir(ServletContext servletContext) {
     String baseDir = getBaseDir().startsWith("/") ? getBaseDir() : "/" + getBaseDir();
     baseDir = servletContext.getRealPath(baseDir);
     return new File(baseDir);

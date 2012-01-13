@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.bundle;
 
+import javax.servlet.ServletContext;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
@@ -26,18 +27,18 @@ public abstract class AbstractWebBundleResource extends AbstractPerRequestWebRes
   /**
    * Creates the resource.
    * 
-   * @param bundleManager  the bundle manager, not null
+   * @param bundleManagerFactory  the bundle manager, not null
    * @param compressor  the bundle compressor, not null
    * @param mode  the deploy mode, not null
    */
   protected AbstractWebBundleResource(
-      final BundleManager bundleManager, final BundleCompressor compressor, final DeployMode mode) {
-    ArgumentChecker.notNull(bundleManager, "bundleManager");
+      final BundleManagerFactory bundleManagerFactory, final BundleCompressor compressor, final DeployMode mode) {
+    ArgumentChecker.notNull(bundleManagerFactory, "bundleManagerFactory");
     ArgumentChecker.notNull(compressor, "compressedBundleSource");
     ArgumentChecker.notNull(mode, "mode");
     _data = new WebBundlesData();
-    data().setBundleManager(bundleManager);
-    data().setDevBundleManager(new DevBundleBuilder(bundleManager).getDevBundleManager());
+    
+    data().setBundleManagerFactory(bundleManagerFactory);
     data().setCompressor(compressor);
     data().setMode(mode);
   }
@@ -49,7 +50,7 @@ public abstract class AbstractWebBundleResource extends AbstractPerRequestWebRes
    */
   protected AbstractWebBundleResource(final AbstractWebBundleResource parent) {
     super(parent);
-    _data = parent._data;
+    _data = parent.data();
   }
 
   //-------------------------------------------------------------------------
@@ -62,6 +63,17 @@ public abstract class AbstractWebBundleResource extends AbstractPerRequestWebRes
   @Context
   public void setUriInfo(final UriInfo uriInfo) {
     data().setUriInfo(uriInfo);
+  }
+
+  @Override
+  @Context
+  public void setServletContext(ServletContext servletContext) {
+    super.setServletContext(servletContext);
+    
+    // initialise the manager now that we have the servlet context
+    BundleManager bundleManager = _data.getBundleManagerFactory().get(servletContext);
+    data().setBundleManager(bundleManager);
+    data().setDevBundleManager(new DevBundleBuilder(bundleManager).getDevBundleManager());
   }
 
   //-------------------------------------------------------------------------
