@@ -40,7 +40,7 @@
 
 /* Highlight rows on hover */
 .slick-row:hover {
-  background-color: #d7e7f2!important;
+  background-color: #d7e7f2;
 }
 
 /* contexual button */
@@ -60,10 +60,6 @@
 .slick-row .og-button .og-icon-delete {
   top: -6px;
   right: -5px;
-}
-
-.slick-row .og-button .og-icon-unhook {
-
 }
 
 /* Fix vertical alignment */
