@@ -7,8 +7,11 @@ package com.opengamma.util.rest;
 
 import java.net.URI;
 
+import org.fudgemsg.FudgeContext;
+
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.sun.jersey.api.client.WebResource.Builder;
 
 /**
@@ -53,6 +56,15 @@ public abstract class AbstractRemoteClient {
    */
   public FudgeRestClient getRestClient() {
     return _client;
+  }
+
+  /**
+   * Gets the Fudge context.
+   * 
+   * @return the Fudge context, not null
+   */
+  public FudgeContext getFudgeContext() {
+    return OpenGammaFudgeContext.getInstance();
   }
 
   //-------------------------------------------------------------------------

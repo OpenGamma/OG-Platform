@@ -55,13 +55,8 @@
       <bean factory-bean="demoFunctionCompilation" factory-method="getFunctionRepository" />
     </constructor-arg>
   </bean>
-  
-  <!-- Ad hoc batches -->
-  <bean id="adHocBatchRestBean" class="com.opengamma.financial.batch.AdHocBatchDbManagerService">
-    <constructor-arg ref="sharedBatchMaster" />
-    <constructor-arg ref="standardFudgeContext" />
-  </bean>
 
+  <!-- ============================================================================== -->
   <!-- Users resource context -->
   <bean id="usersResourceContext" class="com.opengamma.financial.user.rest.UsersResourceContext">
     <property name="fudgeContext" ref="standardFudgeContext" />
@@ -72,7 +67,7 @@
     <property name="userInterpolatedYieldCurveDefinitionMaster" ref="userInterpolatedYieldCurveDefinitionMaster" />
     <property name="userSnapshotMaster" ref="userMarketDataSnapshotMaster" />
   </bean>
-  
+
   <!-- Users Tracker -->
   <bean id="usersTracker" class="com.opengamma.financial.user.DefaultUsersTracker">
     <constructor-arg ref="usersResourceContext"/>
@@ -84,7 +79,7 @@
     <constructor-arg ref="usersTracker" />
     <constructor-arg ref="usersResourceContext"/>
   </bean>
-  
+
   <bean id="usersRestBeanCleaner" factory-bean="usersRestBean" factory-method="createDeleteTask">
     <property name="timeout" value="${opengamma.financial-user.timeout}" />
     <property name="scheduler" ref="scheduler" />
@@ -101,7 +96,7 @@
             <entry key="activeMQ" value="${activeMQ.brokerURL}" />
             <entry key="adHocBatchDbManager">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/adHocBatchDbManager/" />
+                <property name="local" value="/jax/components/adHocBatchDbManager/shared/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>

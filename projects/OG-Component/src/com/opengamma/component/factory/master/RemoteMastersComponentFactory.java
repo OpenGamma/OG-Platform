@@ -30,6 +30,8 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
 import com.opengamma.engine.view.calcnode.stats.RemoteFunctionCostsMaster;
+import com.opengamma.financial.batch.AdHocBatchDbManager;
+import com.opengamma.financial.batch.RemoteAdHocBatchDbManager;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.RemoteConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
@@ -62,16 +64,17 @@ public class RemoteMastersComponentFactory extends AbstractComponentFactory {
    */
   private final Map<Class<?>, Class<?>> _remoteWrappers = new HashMap<Class<?>, Class<?>>();
   {
+    _remoteWrappers.put(AdHocBatchDbManager.class, RemoteAdHocBatchDbManager.class);
     _remoteWrappers.put(ConfigMaster.class, RemoteConfigMaster.class);
     _remoteWrappers.put(ExchangeMaster.class, RemoteExchangeMaster.class);
-    _remoteWrappers.put(HolidayMaster.class, RemoteHolidayMaster.class);
-    _remoteWrappers.put(RegionMaster.class, RemoteRegionMaster.class);
-    _remoteWrappers.put(MarketDataSnapshotMaster.class, RemoteMarketDataSnapshotMaster.class);
-    _remoteWrappers.put(SecurityMaster.class, RemoteSecurityMaster.class);
-    _remoteWrappers.put(PositionMaster.class, RemotePositionMaster.class);
-    _remoteWrappers.put(PortfolioMaster.class, RemotePortfolioMaster.class);
-    _remoteWrappers.put(HistoricalTimeSeriesMaster.class, RemoteHistoricalTimeSeriesMaster.class);
     _remoteWrappers.put(FunctionCostsMaster.class, RemoteFunctionCostsMaster.class);
+    _remoteWrappers.put(HistoricalTimeSeriesMaster.class, RemoteHistoricalTimeSeriesMaster.class);
+    _remoteWrappers.put(HolidayMaster.class, RemoteHolidayMaster.class);
+    _remoteWrappers.put(MarketDataSnapshotMaster.class, RemoteMarketDataSnapshotMaster.class);
+    _remoteWrappers.put(PortfolioMaster.class, RemotePortfolioMaster.class);
+    _remoteWrappers.put(PositionMaster.class, RemotePositionMaster.class);
+    _remoteWrappers.put(RegionMaster.class, RemoteRegionMaster.class);
+    _remoteWrappers.put(SecurityMaster.class, RemoteSecurityMaster.class);
   }
 
   /**
