@@ -18,7 +18,7 @@ public class BlackVolatilitySurface extends VolatilitySurface {
   private final StrikeParameterization _strikeParameterisation;
 
   /**
-   * @param surface The time to maturity should be the first coordinate and the strike the second 
+   * @param surface The time to maturity should be the first coordinate and the strike the second
    */
   public BlackVolatilitySurface(final Surface<Double, Double, Double> surface) {
     super(surface);
@@ -26,7 +26,7 @@ public class BlackVolatilitySurface extends VolatilitySurface {
   }
 
   /**
-   * @param surface The time to maturity should be the first coordinate and the strike the second 
+   * @param surface The time to maturity should be the first coordinate and the strike the second
    * @param strikeType StrikeParameterisation defines how to interpret the strike axis
    */
   public BlackVolatilitySurface(final Surface<Double, Double, Double> surface, final StrikeParameterization strikeType) {

@@ -11,7 +11,7 @@ import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDEData
 import com.opengamma.financial.model.finitedifference.ExtendedConvectionDiffusionPDEDataBundle;
 import com.opengamma.financial.model.finitedifference.ExtendedCoupledPDEDataBundle;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurface;
+import com.opengamma.financial.model.volatility.local.LocalVolatilitySurface;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;

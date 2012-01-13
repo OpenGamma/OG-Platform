@@ -3,8 +3,9 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.model.volatility.surface;
+package com.opengamma.financial.model.volatility.local;
 
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
 

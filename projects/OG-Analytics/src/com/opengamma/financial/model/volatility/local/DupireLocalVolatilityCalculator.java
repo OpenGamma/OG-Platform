@@ -4,11 +4,14 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.model.volatility.surface;
+package com.opengamma.financial.model.volatility.local;
 
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.PriceSurface;
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
