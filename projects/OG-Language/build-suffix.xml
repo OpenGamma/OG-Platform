@@ -108,7 +108,10 @@
   </target>
 
   <target name="set-version">
-    <property name="module.version" value="${module.version.target}" />
+    <echo file="${basedir}/.version">module.version=${module.version.target}</echo>
+    <replaceregexp file="${basedir}/.version" match="(=\d+\.\d+\.\d+)\w*$" replace="\1" />
+    <property file="${basedir}/.version" />
+    <delete file="${basedir}/.version" />
     <echo file="${basedir}/version.h">// Automatically generated file -- do not modify
 
 #ifndef __inc_og_language_version_h
@@ -198,14 +201,14 @@ opengamma.configuration.failOnMissing=${opengamma.configuration.failOnMissing}
     <tstamp>
       <format property="now" pattern="yyyyMMddHHmmss" />
     </tstamp>
-    <property name="version" value="${module.version}-local-${now}" />
+    <property name="version" value="${module.version.target}-local-${now}" />
     <!-- TODO: should propogate the 'now' part into the build-number -->
   </target>
   <target name="version">
     <tstamp>
       <format property="now" pattern="yyyyMMddHHmmss" />
     </tstamp>
-    <property name="version" value="${module.version}" />
+    <property name="version" value="${module.version.target}" />
   </target>
   <target name="publish" depends="dist,version">
     <!-- TODO -->

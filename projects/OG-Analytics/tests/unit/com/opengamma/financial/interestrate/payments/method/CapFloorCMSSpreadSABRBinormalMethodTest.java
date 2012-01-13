@@ -34,12 +34,13 @@ import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalc
 import com.opengamma.financial.interestrate.PresentValueSABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
@@ -119,14 +120,17 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
   private static final CapFloorCMSSpread CMS_FLOOR_SPREAD = new CapFloorCMSSpread(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2,
       SETTLEMENT_TIME, STRIKE, !IS_CAP, FUNDING_CURVE_NAME);
 
-  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
-  private static final SABRInterestRateParameters SABR_PARAMETERS = TestsDataSets.createSABR1();
+  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
+  private static final SABRInterestRateParameters SABR_PARAMETERS = TestsDataSetsSABR.createSABR1();
   private static final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETERS, CURVES);
   private static final double CORRELATION = 0.80;
   private static final DoubleFunction1D CORRELATION_FUNCTION = new RealPolynomialFunction1D(new double[] {CORRELATION}); // Constant function
-  private static final CapFloorCMSSpreadSABRBinormalMethod METHOD = new CapFloorCMSSpreadSABRBinormalMethod(CORRELATION_FUNCTION);
+  private static final CapFloorCMSSpreadSABRBinormalMethod METHOD_CMS_SPREAD = new CapFloorCMSSpreadSABRBinormalMethod(CORRELATION_FUNCTION);
+  private static final CouponCMSSABRReplicationMethod METHOD_CMS = CouponCMSSABRReplicationMethod.getInstance();
+  private static final CouponFixedDiscountingMethod METHOD_CPN_FIXED = CouponFixedDiscountingMethod.getInstance();
+  private static final PresentValueSABRCalculator PVC_SABR = PresentValueSABRCalculator.getInstance();
 
-  private static final double TOLERANCE_PRICE = 1.0E-4; // 0.01 currency unit for 100m notional should be enough precision.
+  private static final double TOLERANCE_PRICE = 1.0E-4; // 0.01 currency unit for 100m notional.
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNotNullCorrelation() {
@@ -151,7 +155,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     final CapFloorCMSSpreadSABRBinormalMethod method = new CapFloorCMSSpreadSABRBinormalMethod(correlationFunction);
     final double cmsSpreadPrice = method.presentValue(CMS_CAP_SPREAD, SABR_BUNDLE).getAmount();
     final double discountFactorPayment = CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(PAYMENT_TIME);
-    final CouponCMSSABRReplicationMethod methodCms = CouponCMSSABRReplicationMethod.getDefaultInstance();
+    final CouponCMSSABRReplicationMethod methodCms = CouponCMSSABRReplicationMethod.getInstance();
     final CapFloorCMSSABRReplicationMethod methodCmsCap = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
     final NormalImpliedVolatilityFormula impliedVolatility = new NormalImpliedVolatilityFormula();
     final NormalPriceFunction normalPrice = new NormalPriceFunction();
@@ -192,14 +196,32 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
         IS_CAP, FUNDING_CURVE_NAME);
     SABRInterestRateCorrelationParameters sabrCorrelation = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
     SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
-    CurrencyAmount pvCapLong = METHOD.presentValue(CMS_CAP_SPREAD, sabrBundleCor);
-    CurrencyAmount pvCapShort = METHOD.presentValue(cmsCapSpreadShort, sabrBundleCor);
+    CurrencyAmount pvCapLong = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, sabrBundleCor);
+    CurrencyAmount pvCapShort = METHOD_CMS_SPREAD.presentValue(cmsCapSpreadShort, sabrBundleCor);
     assertEquals("CMS spread: Long/Short parity", pvCapLong.getAmount(), -pvCapShort.getAmount(), TOLERANCE_PRICE);
     CapFloorCMSSpread cmsFloorSpreadShort = new CapFloorCMSSpread(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, -NOTIONAL, FIXING_TIME, SWAP_1, CMS_INDEX_1, SWAP_2, CMS_INDEX_2, SETTLEMENT_TIME, STRIKE,
         !IS_CAP, FUNDING_CURVE_NAME);
-    CurrencyAmount pvFloorLong = METHOD.presentValue(CMS_FLOOR_SPREAD, sabrBundleCor);
-    CurrencyAmount pvFloorShort = METHOD.presentValue(cmsFloorSpreadShort, sabrBundleCor);
+    CurrencyAmount pvFloorLong = METHOD_CMS_SPREAD.presentValue(CMS_FLOOR_SPREAD, sabrBundleCor);
+    CurrencyAmount pvFloorShort = METHOD_CMS_SPREAD.presentValue(cmsFloorSpreadShort, sabrBundleCor);
     assertEquals("CMS spread: Long/Short parity", pvFloorLong.getAmount(), -pvFloorShort.getAmount(), TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests the present value cap/floor parity (Cap - Floor = (cms1 - cms2) - strike).
+   */
+  public void presentValueCapFloorParity() {
+    SABRInterestRateCorrelationParameters sabrCorrelation = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
+    SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
+    CurrencyAmount pvCapLong = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, sabrBundleCor);
+    CurrencyAmount pvFloorLong = METHOD_CMS_SPREAD.presentValue(CMS_FLOOR_SPREAD, sabrBundleCor);
+    CouponCMS cms1 = new CouponCMS(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, SETTLEMENT_TIME);
+    CouponCMS cms2 = new CouponCMS(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_2, SETTLEMENT_TIME);
+    CouponFixed cpnStrike = new CouponFixed(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, STRIKE);
+    Double pvCMS1 = PVC_SABR.visit(cms1, sabrBundleCor);
+    Double pvCMS2 = PVC_SABR.visit(cms2, sabrBundleCor);
+    Double pvStrike = PVC_SABR.visit(cpnStrike, sabrBundleCor);
+    assertEquals("CMS spread: Cap/Floor parity", pvCMS1 - pvCMS2 - pvStrike, pvCapLong.getAmount() - pvFloorLong.getAmount(), TOLERANCE_PRICE);
   }
 
   @Test
@@ -210,7 +232,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     final PresentValueSABRCalculator calculator = PresentValueSABRCalculator.getInstance();
     SABRInterestRateCorrelationParameters sabrCorrelation = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
     SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
-    CurrencyAmount pvMethod = METHOD.presentValue(CMS_CAP_SPREAD, sabrBundleCor);
+    CurrencyAmount pvMethod = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, sabrBundleCor);
     double pvCalculator = calculator.visit(CMS_CAP_SPREAD, sabrBundleCor);
     assertEquals("CMS spread: present value Method vs Calculator", pvMethod.getAmount(), pvCalculator, TOLERANCE_PRICE);
   }
@@ -220,8 +242,8 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    * Tests the implied correlation computation for a range of correlations.
    */
   public void impliedCorrelation() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final double[] correlation = new double[] {-0.50, 0.00, 0.50, 0.75, 0.80, 0.85, 0.90, 0.95, 0.99};
     final int nbCor = correlation.length;
@@ -240,7 +262,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    * Tests the price curve sensitivity of CMS coupon and cap/floor using replication in the SABR framework. Values are tested against finite difference values.
    */
   public void presentValueCurveSensitivityCap() {
-    InterestRateCurveSensitivity pvcsCap = METHOD.presentValueCurveSensitivity(CMS_CAP_SPREAD, SABR_BUNDLE);
+    InterestRateCurveSensitivity pvcsCap = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_CAP_SPREAD, SABR_BUNDLE);
     pvcsCap = pvcsCap.clean();
     final double deltaToleranceRelative = 2.5E-4; // Numerical imprecision, reduce to E-6 when nbInteration = 1000;
     final double deltaShift = 1.0E-6;
@@ -260,7 +282,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
       forwardTime.add(cpn.getFixingPeriodEndTime());
     }
     double[] nodeTimesForward = forwardTime.toDoubleArray();
-    double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedForward, SABR_BUNDLE, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
+    double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedForward, SABR_BUNDLE, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD_CMS_SPREAD);
     List<DoublesPair> sensiPvForward = pvcsCap.getSensitivities().get(FORWARD_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvForward.get(loopnode);
@@ -282,7 +304,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
       discTime.add(cpn.getPaymentTime());
     }
     double[] nodeTimesDisc = discTime.toDoubleArray();
-    double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedDisc, SABR_BUNDLE, FUNDING_CURVE_NAME, bumpedCurveName, nodeTimesDisc, deltaShift, METHOD);
+    double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedDisc, SABR_BUNDLE, FUNDING_CURVE_NAME, bumpedCurveName, nodeTimesDisc, deltaShift, METHOD_CMS_SPREAD);
     List<DoublesPair> sensiPvDisc = pvcsCap.getSensitivities().get(FUNDING_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiDiscMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvDisc.get(loopnode);
@@ -296,11 +318,11 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    * Tests the price curve sensitivity of CMS coupon and cap/floor using replication in the SABR framework. Values are tested against finite difference values.
    */
   public void presentValueCurveSensitivityCurveUpCap() {
-    YieldCurveBundle curvesUp = TestsDataSets.createCurves2();
+    YieldCurveBundle curvesUp = TestsDataSetsSABR.createCurves2();
     SABRInterestRateDataBundle sabrBundleCurveUp = new SABRInterestRateDataBundle(SABR_PARAMETERS, curvesUp);
-    String[] curvesUpName = TestsDataSets.curves2Names();
+    String[] curvesUpName = TestsDataSetsSABR.curves2Names();
     CapFloorCMSSpread cmsCapSpread = (CapFloorCMSSpread) CMS_CAP_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {curvesUpName[0], curvesUpName[1]});
-    InterestRateCurveSensitivity pvcsCap = METHOD.presentValueCurveSensitivity(cmsCapSpread, sabrBundleCurveUp);
+    InterestRateCurveSensitivity pvcsCap = METHOD_CMS_SPREAD.presentValueCurveSensitivity(cmsCapSpread, sabrBundleCurveUp);
     pvcsCap = pvcsCap.clean();
     final double deltaToleranceRelative = 3.0E-4; // Numerical imprecision, reduce to E-6 when nbInteration = 1000;
     final double deltaShift = 1.0E-6;
@@ -320,7 +342,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
       forwardTime.add(cpn.getFixingPeriodEndTime());
     }
     double[] nodeTimesForward = forwardTime.toDoubleArray();
-    double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedForward, sabrBundleCurveUp, curvesUpName[1], bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
+    double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedForward, sabrBundleCurveUp, curvesUpName[1], bumpedCurveName, nodeTimesForward, deltaShift, METHOD_CMS_SPREAD);
     List<DoublesPair> sensiPvForward = pvcsCap.getSensitivities().get(curvesUpName[1]);
     for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvForward.get(loopnode);
@@ -342,7 +364,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
       discTime.add(cpn.getPaymentTime());
     }
     double[] nodeTimesDisc = discTime.toDoubleArray();
-    double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedDisc, sabrBundleCurveUp, curvesUpName[0], bumpedCurveName, nodeTimesDisc, deltaShift, METHOD);
+    double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(capBumpedDisc, sabrBundleCurveUp, curvesUpName[0], bumpedCurveName, nodeTimesDisc, deltaShift, METHOD_CMS_SPREAD);
     List<DoublesPair> sensiPvDisc = pvcsCap.getSensitivities().get(curvesUpName[0]);
     for (int loopnode = 0; loopnode < sensiDiscMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvDisc.get(loopnode);
@@ -356,7 +378,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    * Tests the price curve sensitivity of CMS coupon and cap/floor using replication in the SABR framework. Values are tested against finite difference values.
    */
   public void presentValueCurveSensitivityFloor() {
-    InterestRateCurveSensitivity pvcsFloor = METHOD.presentValueCurveSensitivity(CMS_FLOOR_SPREAD, SABR_BUNDLE);
+    InterestRateCurveSensitivity pvcsFloor = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_FLOOR_SPREAD, SABR_BUNDLE);
     pvcsFloor = pvcsFloor.clean();
     final double deltaToleranceRelative = 7.0E-4; // Numerical imprecision, reduce to E-6 when nbInteration = 1000;
     final double deltaShift = 1.0E-6;
@@ -376,7 +398,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
       forwardTime.add(cpn.getFixingPeriodEndTime());
     }
     double[] nodeTimesForward = forwardTime.toDoubleArray();
-    double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(floorBumpedForward, SABR_BUNDLE, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD);
+    double[] sensiForwardMethod = SensitivityFiniteDifference.curveSensitivity(floorBumpedForward, SABR_BUNDLE, FORWARD_CURVE_NAME, bumpedCurveName, nodeTimesForward, deltaShift, METHOD_CMS_SPREAD);
     List<DoublesPair> sensiPvForward = pvcsFloor.getSensitivities().get(FORWARD_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiForwardMethod.length; loopnode++) {
       final DoublesPair pairPv = sensiPvForward.get(loopnode);
@@ -398,7 +420,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
       discTime.add(cpn.getPaymentTime());
     }
     double[] nodeTimesDisc = discTime.toDoubleArray();
-    double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(floorBumpedDisc, SABR_BUNDLE, FUNDING_CURVE_NAME, bumpedCurveName, nodeTimesDisc, deltaShift, METHOD);
+    double[] sensiDiscMethod = SensitivityFiniteDifference.curveSensitivity(floorBumpedDisc, SABR_BUNDLE, FUNDING_CURVE_NAME, bumpedCurveName, nodeTimesDisc, deltaShift, METHOD_CMS_SPREAD);
     List<DoublesPair> sensiPvDisc = pvcsFloor.getSensitivities().get(FUNDING_CURVE_NAME);
     for (int loopnode = 0; loopnode < sensiDiscMethod.length; loopnode++) {
       DoublesPair pairPv = sensiPvDisc.get(loopnode);
@@ -415,7 +437,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     final PresentValueCurveSensitivitySABRCalculator calculator = PresentValueCurveSensitivitySABRCalculator.getInstance();
     SABRInterestRateCorrelationParameters sabrCorrelation = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
     SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
-    InterestRateCurveSensitivity pvcsMethod = METHOD.presentValueCurveSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
+    InterestRateCurveSensitivity pvcsMethod = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
     InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(calculator.visit(CMS_CAP_SPREAD, sabrBundleCor));
     assertEquals("CMS spread: curve sensitivity Method vs Calculator", pvcsMethod, pvcsCalculator);
   }
@@ -429,9 +451,9 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
         IS_CAP, FUNDING_CURVE_NAME);
     SABRInterestRateCorrelationParameters sabrCorrelation = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
     SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
-    InterestRateCurveSensitivity pvcsLong = METHOD.presentValueCurveSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
+    InterestRateCurveSensitivity pvcsLong = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
     pvcsLong = pvcsLong.clean();
-    InterestRateCurveSensitivity pvcsShort = METHOD.presentValueCurveSensitivity(cmsCapSpreadShort, sabrBundleCor);
+    InterestRateCurveSensitivity pvcsShort = METHOD_CMS_SPREAD.presentValueCurveSensitivity(cmsCapSpreadShort, sabrBundleCor);
     pvcsShort = pvcsShort.multiply(-1);
     pvcsShort = pvcsShort.clean();
     assertTrue("CMS cap spread: Long/Short parity", InterestRateCurveSensitivity.compare(pvcsLong, pvcsShort, TOLERANCE_PRICE));
@@ -446,9 +468,9 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
         !IS_CAP, FUNDING_CURVE_NAME);
     SABRInterestRateCorrelationParameters sabrCorrelation = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
     SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
-    InterestRateCurveSensitivity pvcsLong = METHOD.presentValueCurveSensitivity(CMS_FLOOR_SPREAD, sabrBundleCor);
+    InterestRateCurveSensitivity pvcsLong = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_FLOOR_SPREAD, sabrBundleCor);
     pvcsLong = pvcsLong.clean();
-    InterestRateCurveSensitivity pvcsShort = METHOD.presentValueCurveSensitivity(cmsCapSpreadShort, sabrBundleCor);
+    InterestRateCurveSensitivity pvcsShort = METHOD_CMS_SPREAD.presentValueCurveSensitivity(cmsCapSpreadShort, sabrBundleCor);
     pvcsShort = pvcsShort.multiply(-1);
     pvcsShort = pvcsShort.clean();
     assertTrue("CMS floor spread: Long/Short parity", InterestRateCurveSensitivity.compare(pvcsLong, pvcsShort, TOLERANCE_PRICE));
@@ -456,11 +478,37 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
 
   @Test
   /**
+   * Tests the present value curve sensitivity cap/floor parity (Cap - Floor = (cms1 - cms2) - strike).
+   */
+  public void presentValueCurveSensitivityCapFloorParity() {
+    SABRInterestRateCorrelationParameters sabrCorrelation = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
+    SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
+    InterestRateCurveSensitivity pvcsCapLong = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
+    pvcsCapLong = pvcsCapLong.clean();
+    InterestRateCurveSensitivity pvcsFloorLong = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_FLOOR_SPREAD, sabrBundleCor);
+    pvcsFloorLong = pvcsFloorLong.clean();
+    CouponCMS cms1 = new CouponCMS(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, SETTLEMENT_TIME);
+    CouponCMS cms2 = new CouponCMS(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_2, SETTLEMENT_TIME);
+    CouponFixed cpnStrike = new CouponFixed(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, STRIKE);
+    InterestRateCurveSensitivity pvcsCMS1 = METHOD_CMS.presentValueCurveSensitivity(cms1, sabrBundleCor);
+    pvcsCMS1 = pvcsCMS1.clean();
+    InterestRateCurveSensitivity pvcsCMS2 = METHOD_CMS.presentValueCurveSensitivity(cms2, sabrBundleCor);
+    pvcsCMS2 = pvcsCMS2.clean();
+    InterestRateCurveSensitivity pvcsStrike = METHOD_CPN_FIXED.presentValueCurveSensitivity(cpnStrike, sabrBundleCor);
+    InterestRateCurveSensitivity pvcsParity1 = pvcsCMS1.add(pvcsCMS2.add(pvcsStrike).multiply(-1));
+    pvcsParity1 = pvcsParity1.clean();
+    InterestRateCurveSensitivity pvcsParity2 = pvcsCapLong.add(pvcsFloorLong.multiply(-1));
+    pvcsParity2 = pvcsParity2.clean();
+    assertTrue("CMS spread: curve sensitivity - Cap/Floor parity", InterestRateCurveSensitivity.compare(pvcsParity1, pvcsParity2, TOLERANCE_PRICE));
+  }
+
+  @Test
+  /**
    * Tests the present value SABR parameters sensitivity vs finite difference.
    */
   public void presentValueSABRSensitivity() {
-    final double pv = METHOD.presentValue(CMS_CAP_SPREAD, SABR_BUNDLE).getAmount();
-    final PresentValueSABRSensitivityDataBundle pvsCapLong = METHOD.presentValueSABRSensitivity(CMS_CAP_SPREAD, SABR_BUNDLE);
+    final double pv = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, SABR_BUNDLE).getAmount();
+    final PresentValueSABRSensitivityDataBundle pvsCapLong = METHOD_CMS_SPREAD.presentValueSABRSensitivity(CMS_CAP_SPREAD, SABR_BUNDLE);
     // SABR sensitivity vs finite difference
     final double shift = 0.0001;
     final double shiftAlpha = 0.00001;
@@ -471,27 +519,27 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
         - CMS_CAP_SPREAD.getSettlementTime();
     final DoublesPair expectedExpiryTenor2 = new DoublesPair(CMS_CAP_SPREAD.getFixingTime(), maturity2);
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSets.createSABR1AlphaBumped(shiftAlpha);
+    final SABRInterestRateParameters sabrParameterAlphaBumped = TestsDataSetsSABR.createSABR1AlphaBumped(shiftAlpha);
     final SABRInterestRateDataBundle sabrBundleAlphaBumped = new SABRInterestRateDataBundle(sabrParameterAlphaBumped, CURVES);
-    final double pvLongPayerAlphaBumped = METHOD.presentValue(CMS_CAP_SPREAD, sabrBundleAlphaBumped).getAmount();
+    final double pvLongPayerAlphaBumped = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, sabrBundleAlphaBumped).getAmount();
     final double expectedAlphaSensi = (pvLongPayerAlphaBumped - pv) / shiftAlpha;
     assertEquals("Number of alpha sensitivity", pvsCapLong.getAlpha().getMap().keySet().size(), 2);
     assertEquals("Alpha sensitivity expiry/tenor", pvsCapLong.getAlpha().getMap().keySet().contains(expectedExpiryTenor1), true);
     assertEquals("Alpha sensitivity expiry/tenor", pvsCapLong.getAlpha().getMap().keySet().contains(expectedExpiryTenor2), true);
     assertEquals("Alpha sensitivity value", expectedAlphaSensi, pvsCapLong.getAlpha().getMap().get(expectedExpiryTenor1) + pvsCapLong.getAlpha().getMap().get(expectedExpiryTenor2), 5.0E+3);
     // Rho sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSets.createSABR1RhoBumped();
+    final SABRInterestRateParameters sabrParameterRhoBumped = TestsDataSetsSABR.createSABR1RhoBumped();
     final SABRInterestRateDataBundle sabrBundleRhoBumped = new SABRInterestRateDataBundle(sabrParameterRhoBumped, CURVES);
-    final double pvLongPayerRhoBumped = METHOD.presentValue(CMS_CAP_SPREAD, sabrBundleRhoBumped).getAmount();
+    final double pvLongPayerRhoBumped = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, sabrBundleRhoBumped).getAmount();
     final double expectedRhoSensi = (pvLongPayerRhoBumped - pv) / shift;
     assertEquals("Number of rho sensitivity", pvsCapLong.getRho().getMap().keySet().size(), 2);
     assertEquals("Rho sensitivity expiry/tenor", pvsCapLong.getRho().getMap().keySet().contains(expectedExpiryTenor1), true);
     assertEquals("Rho sensitivity expiry/tenor", pvsCapLong.getRho().getMap().keySet().contains(expectedExpiryTenor2), true);
     assertEquals("Rho sensitivity value", expectedRhoSensi, pvsCapLong.getRho().getMap().get(expectedExpiryTenor1) + pvsCapLong.getRho().getMap().get(expectedExpiryTenor2), 5.0E+1);
     // Alpha sensitivity vs finite difference computation
-    final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSets.createSABR1NuBumped();
+    final SABRInterestRateParameters sabrParameterNuBumped = TestsDataSetsSABR.createSABR1NuBumped();
     final SABRInterestRateDataBundle sabrBundleNuBumped = new SABRInterestRateDataBundle(sabrParameterNuBumped, CURVES);
-    final double pvLongPayerNuBumped = METHOD.presentValue(CMS_CAP_SPREAD, sabrBundleNuBumped).getAmount();
+    final double pvLongPayerNuBumped = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, sabrBundleNuBumped).getAmount();
     final double expectedNuSensi = (pvLongPayerNuBumped - pv) / shift;
     assertEquals("Number of nu sensitivity", pvsCapLong.getNu().getMap().keySet().size(), 2);
     assertTrue("Nu sensitivity expiry/tenor", pvsCapLong.getNu().getMap().keySet().contains(expectedExpiryTenor1));
@@ -507,7 +555,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     final PresentValueSABRSensitivitySABRCalculator calculator = PresentValueSABRSensitivitySABRCalculator.getInstance();
     SABRInterestRateCorrelationParameters sabrCorrelation = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
     SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
-    PresentValueSABRSensitivityDataBundle pvcsMethod = METHOD.presentValueSABRSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
+    PresentValueSABRSensitivityDataBundle pvcsMethod = METHOD_CMS_SPREAD.presentValueSABRSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
     PresentValueSABRSensitivityDataBundle pvcsCalculator = calculator.visit(CMS_CAP_SPREAD, sabrBundleCor);
     assertEquals("CMS spread: SABR sensitivity Method vs Calculator", pvcsMethod, pvcsCalculator);
   }
@@ -521,8 +569,8 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
         IS_CAP, FUNDING_CURVE_NAME);
     SABRInterestRateCorrelationParameters sabrCorrelation = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
     SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
-    PresentValueSABRSensitivityDataBundle pvssLong = METHOD.presentValueSABRSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
-    PresentValueSABRSensitivityDataBundle pvssShort = METHOD.presentValueSABRSensitivity(cmsSpreadShort, sabrBundleCor);
+    PresentValueSABRSensitivityDataBundle pvssLong = METHOD_CMS_SPREAD.presentValueSABRSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
+    PresentValueSABRSensitivityDataBundle pvssShort = METHOD_CMS_SPREAD.presentValueSABRSensitivity(cmsSpreadShort, sabrBundleCor);
     pvssShort = PresentValueSABRSensitivityDataBundle.multiplyBy(pvssShort, -1);
     assertEquals("CMS spread: Long/Short parity", pvssLong, pvssShort);
   }
@@ -540,21 +588,21 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      pv[looptest] = METHOD.presentValue(CMS_CAP_SPREAD, SABR_BUNDLE).getAmount();
+      pv[looptest] = METHOD_CMS_SPREAD.presentValue(CMS_CAP_SPREAD, SABR_BUNDLE).getAmount();
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " CMS spread cap by replication (price): " + (endTime - startTime) + " ms");
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      pvcs[looptest] = METHOD.presentValueCurveSensitivity(CMS_CAP_SPREAD, SABR_BUNDLE);
+      pvcs[looptest] = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_CAP_SPREAD, SABR_BUNDLE);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " CMS spread cap by replication (curve risk): " + (endTime - startTime) + " ms");
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
-      pvss[looptest] = METHOD.presentValueSABRSensitivity(CMS_CAP_SPREAD, SABR_BUNDLE);
+      pvss[looptest] = METHOD_CMS_SPREAD.presentValueSABRSensitivity(CMS_CAP_SPREAD, SABR_BUNDLE);
     }
     endTime = System.currentTimeMillis();
     System.out.println(nbTest + " CMS spread cap by replication (sabr risk): " + (endTime - startTime) + " ms");

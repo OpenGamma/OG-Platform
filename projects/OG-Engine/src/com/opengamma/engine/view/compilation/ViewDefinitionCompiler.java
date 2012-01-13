@@ -8,17 +8,15 @@ package com.opengamma.engine.view.compilation;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.concurrent.Callable;
-import java.util.concurrent.ExecutorCompletionService;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Set;
 
 import javax.time.Instant;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetType;
@@ -91,26 +89,16 @@ public final class ViewDefinitionCompiler {
   }
 
   private static Map<String, DependencyGraph> processDependencyGraphs(ViewCompilationContext context) {
-    final ExecutorCompletionService<DependencyGraphBuilder> completer = new ExecutorCompletionService<DependencyGraphBuilder>(context.getServices().getExecutorService());
-    final AtomicInteger count = new AtomicInteger();
-    for (final DependencyGraphBuilder builder : context.getBuilders().values()) {
-      count.incrementAndGet();
-      completer.submit(new Callable<DependencyGraphBuilder>() {
-        @Override
-        public DependencyGraphBuilder call() {
-          builder.getDependencyGraph(/*false*/);
-          return builder;
-        }
-      });
-    }
-    Map<String, DependencyGraph> result = new HashMap<String, DependencyGraph>();
-    while (count.getAndDecrement() > 0) {
-      try {
-        final DependencyGraphBuilder builder = completer.take().get();
-        result.put(builder.getCalculationConfigurationName(), builder.getDependencyGraph());
-      } catch (Exception e) {
-        throw new OpenGammaRuntimeException("Caught exception", e);
-      }
+    // TODO: support one of two modes; sequential build of the graphs (below) or parallel build using the executor service from the compilation services
+    // TODO: perhaps a heuristic to determine which is better, or a global setting
+    final Map<String, DependencyGraph> result = new HashMap<String, DependencyGraph>();
+    final Iterator<Pair<DependencyGraphBuilder, Set<ValueRequirement>>> itr = context.getBuilders().iterator();
+    while (itr.hasNext()) {
+      final Pair<DependencyGraphBuilder, Set<ValueRequirement>> entry = itr.next();
+      entry.getFirst().addTarget(entry.getSecond());
+      result.put(entry.getFirst().getCalculationConfigurationName(), entry.getFirst().getDependencyGraph());
+      // TODO: do we want to do anything with the ValueRequirement to resolved ValueSpecification data?
+      itr.remove();
     }
     return result;
   }
@@ -147,9 +135,9 @@ public final class ViewDefinitionCompiler {
     s_logger.warn("Live data requirements -- \n{}", sb);
   }
 
-  private static void outputFailureReports(final Map<String, DependencyGraphBuilder> buildersByConfiguration) {
-    for (DependencyGraphBuilder builder : buildersByConfiguration.values()) {
-      outputFailureReport(builder);
+  private static void outputFailureReports(final Collection<Pair<DependencyGraphBuilder, Set<ValueRequirement>>> builders) {
+    for (Pair<DependencyGraphBuilder, Set<ValueRequirement>> builder : builders) {
+      outputFailureReport(builder.getFirst());
     }
   }
 

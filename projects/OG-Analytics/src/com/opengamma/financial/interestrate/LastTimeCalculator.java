@@ -53,6 +53,17 @@ public final class LastTimeCalculator extends AbstractInstrumentDerivativeVisito
   }
 
   @Override
+  public Double[] visit(final InstrumentDerivative[] derivative) {
+    Validate.notNull(derivative, "derivative");
+    Validate.noNullElements(derivative, "derivative");
+    final Double[] output = new Double[derivative.length];
+    for (int loopderivative = 0; loopderivative < derivative.length; loopderivative++) {
+      output[loopderivative] = derivative[loopderivative].accept(this);
+    }
+    return output;
+  }
+
+  @Override
   public Double visitTenorSwap(final TenorSwap<? extends Payment> swap) {
     return visitSwap(swap);
   }

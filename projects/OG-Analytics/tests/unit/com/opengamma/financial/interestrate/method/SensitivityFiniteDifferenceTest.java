@@ -20,7 +20,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
@@ -67,7 +67,7 @@ public class SensitivityFiniteDifferenceTest {
 
   @Test
   public void curveSensitivityFRA() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final double deltaShift = 1.0E-8;
     final double pv = FRA_METHOD.presentValue(FRA, curves).getAmount();
     // 1. Forward curve sensitivity
@@ -132,7 +132,7 @@ public class SensitivityFiniteDifferenceTest {
 
   @Test
   public void curveSensitivityCentered() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final double deltaShift = 1.0E-8;
     final double pv = FRA_METHOD.presentValue(FRA, curves).getAmount();
     // 1. Forward curve sensitivity

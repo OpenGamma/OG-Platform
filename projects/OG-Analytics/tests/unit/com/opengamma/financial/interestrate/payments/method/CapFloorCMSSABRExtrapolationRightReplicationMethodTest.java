@@ -32,7 +32,7 @@ import com.opengamma.financial.instrument.payment.CouponCMSDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
@@ -99,8 +99,8 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
-  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
-  private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSets.createSABR1();
+  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
+  private static final SABRInterestRateParameters SABR_PARAMETER = TestsDataSetsSABR.createSABR1();
   private static final SABRInterestRateDataBundle SABR_BUNDLE = new SABRInterestRateDataBundle(SABR_PARAMETER, CURVES);
   private static final CouponCMS CMS_COUPON = (CouponCMS) CMS_COUPON_RECEIVER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final CapFloorCMS CMS_CAP_0 = (CapFloorCMS) CMS_CAP_0_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -109,7 +109,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
   // Calculators & methods
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final CapFloorCMSSABRReplicationMethod METHOD_STANDARD_CAP = CapFloorCMSSABRReplicationMethod.getDefaultInstance();
-  private static final CouponCMSSABRReplicationMethod METHOD_STANDARD_CPN = CouponCMSSABRReplicationMethod.getDefaultInstance();
+  private static final CouponCMSSABRReplicationMethod METHOD_STANDARD_CPN = CouponCMSSABRReplicationMethod.getInstance();
   private static final double CUT_OFF_STRIKE = 0.10;
   private static final double MU = 2.50;
   private static final CapFloorCMSSABRExtrapolationRightReplicationMethod METHOD_EXTRAPOLATION_CAP = new CapFloorCMSSABRExtrapolationRightReplicationMethod(CUT_OFF_STRIKE, MU);
@@ -155,8 +155,8 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
    * The present value is tested against hard-coded value and a long/short parity is tested.
    */
   public void testPriceReplicationCap() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     // CMS cap/floor with strike 0 has the same price as a CMS coupon.
     final double priceCapLongStd = METHOD_STANDARD_CAP.presentValue(CMS_CAP_LONG, sabrBundle).getAmount();
@@ -173,8 +173,8 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
    * Test the present value rate sensitivity for a CMS cap with pricing by replication in the SABR with extrapolation framework.
    */
   public void testPresentValueRateSensitivity() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     // Swaption sensitivity
     InterestRateCurveSensitivity pvsCapLong = METHOD_EXTRAPOLATION_CAP.presentValueSensitivity(CMS_CAP_LONG, sabrBundle);
@@ -262,8 +262,8 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
    * Tests to estimate the impact of mu on the CMS coupon pricing. "enabled = false" for the standard testing.
    */
   public void testPriceMultiMu() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     final double[] mu = new double[] {1.10, 1.30, 1.55, 2.25, 3.50, 6.00, 15.0};
     final int nbMu = mu.length;
@@ -292,8 +292,8 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethodTest {
    * Tests of performance. "enabled = false" for the standard testing.
    */
   public void performance() {
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
-    final SABRInterestRateParameters sabrParameter = TestsDataSets.createSABR1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
+    final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     long startTime, endTime;
     final int nbTest = 1000;

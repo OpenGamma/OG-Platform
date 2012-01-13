@@ -23,7 +23,8 @@
             console.warn.apply(console, Array.prototype.slice.call(arguments));
         } : log.partial('[warning]'),
         top_level = window, default_module = {
-            live_data_root: '/jax/', html_root: '/prototype/modules/', obj: function () {return default_obj;}
+            live_data_root: '/jax/', html_root: '/prototype/modules/', data_root: '/prototype/',
+            obj: function () {return default_obj;}
         };
     $.extend(default_obj, {warn: warn, log: log});
     /** @private */

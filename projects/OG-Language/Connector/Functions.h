@@ -16,6 +16,7 @@
 #ifndef CLASS_com_opengamma_language_function_Invoke
 #define CLASS_com_opengamma_language_function_Invoke com_opengamma_language_function_Invoke
 #endif /* ifndef CLASS_com_opengamma_language_function_Invoke */
+
 #ifndef CLASS_com_opengamma_language_function_Result
 #define CLASS_com_opengamma_language_function_Result com_opengamma_language_function_Result
 #endif /* ifndef CLASS_com_opengamma_language_function_Result */

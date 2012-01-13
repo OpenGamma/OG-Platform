@@ -28,7 +28,7 @@ import com.opengamma.financial.instrument.payment.CouponIborGearingDefinition;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
@@ -64,7 +64,7 @@ public class CouponIborGearingDiscountingMethodTest {
   private static final CouponIborGearingDefinition COUPON_DEFINITION = new CouponIborGearingDefinition(CUR, ACCRUAL_END_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR, NOTIONAL,
       FIXING_DATE, INDEX, SPREAD, FACTOR);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2010, 12, 27);
-  private static final YieldCurveBundle CURVES_BUNDLE = TestsDataSets.createCurves1();
+  private static final YieldCurveBundle CURVES_BUNDLE = TestsDataSetsSABR.createCurves1();
   private static final String[] CURVES_NAMES = CURVES_BUNDLE.getAllNames().toArray(new String[0]);
   private static final CouponIborGearingDiscountingMethod METHOD = CouponIborGearingDiscountingMethod.getInstance();
   private static final CouponIborGearing COUPON = COUPON_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAMES);

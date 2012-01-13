@@ -233,7 +233,7 @@ public class PiecewiseSABRSurfaceFitterTest {
   }
 
   @Test
-  // (enabled = false)
+  (enabled = false)
   public void deltaAndGamma() {
     PrintStream ps = System.out;
     LocalVolatilityPDEGreekCalculator calculator = new LocalVolatilityPDEGreekCalculator(FORWARD_CURVE, EXPIRIES,

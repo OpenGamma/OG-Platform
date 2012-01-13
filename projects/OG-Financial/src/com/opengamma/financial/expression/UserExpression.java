@@ -26,12 +26,45 @@ public abstract class UserExpression {
   };
 
   /**
+   * Callback interface for registering a source of dynamic variables to an evaluation context.
+   */
+  public interface DynamicVariables {
+
+    /**
+     * Returns the value of the variable, or NA if not defined.
+     * 
+     * @param name name of the variable
+     * @return the value, or NA if not defined
+     */
+    Object getValue(String name);
+
+  }
+
+  /**
+   * Callback interface for registering a source of dynamic attributes to an evaluation context.
+   */
+  public interface DynamicAttributes {
+
+    /**
+     * Returns the value of an attribute, or NA if not defined.
+     * 
+     * @param object object the attribute is declared on
+     * @param name name of the attribute
+     * @return the value, or NA if not defined
+     */
+    Object getValue(Object object, String name);
+
+  }
+
+  /**
    * Evaluation context for an expression.
    */
   public final class Evaluator {
 
     private Map<String, Object> _variables;
     private Map<Class<?>, Object> _contexts;
+    private DynamicVariables _dynamicVariables;
+    private DynamicAttributes _dynamicAttributes;
 
     private Evaluator() {
     }
@@ -62,6 +95,51 @@ public abstract class UserExpression {
         return NA;
       }
       return result;
+    }
+
+    public void setDynamicVariables(final DynamicVariables dynamicVariables) {
+      _dynamicVariables = dynamicVariables;
+    }
+
+    public DynamicVariables getDynamicVariables() {
+      return _dynamicVariables;
+    }
+
+    /**
+     * Evaluates a variable's value. If the variable has been explicitly set, the set value is
+     * used. If it is unset and a dynamic variable provider is registered, that is queried. Otherwise
+     * NA is returned.
+     * 
+     * @param var name of the variable
+     * @return the value or NA if undefined
+     */
+    public Object evaluateVariable(final String var) {
+      assert var != null;
+      final Object value = getVariable(var);
+      if (value != NA) {
+        return value;
+      }
+      if (_dynamicVariables != null) {
+        return _dynamicVariables.getValue(var);
+      }
+      return NA;
+    }
+
+    public void setDynamicAttributes(final DynamicAttributes dynamicAttributes) {
+      _dynamicAttributes = dynamicAttributes;
+    }
+
+    public DynamicAttributes getDynamicAttributes() {
+      return _dynamicAttributes;
+    }
+
+    public Object evaluateAttribute(final Object object, final String attribute) {
+      assert object != null;
+      assert attribute != null;
+      if (_dynamicAttributes != null) {
+        return _dynamicAttributes.getValue(object, attribute);
+      }
+      return NA;
     }
 
     public Object evaluate() {

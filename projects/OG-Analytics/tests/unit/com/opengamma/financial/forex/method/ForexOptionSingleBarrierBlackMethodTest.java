@@ -81,7 +81,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
   private static final int NB_STRIKE = 2 * DELTA.length + 1;
   private static final SmileDeltaTermStructureParameter SMILE_TERM = new SmileDeltaTermStructureParameter(TIME_TO_EXPIRY, DELTA, ATM, RISK_REVERSAL, STRANGLE);
   // Methods and curves
-  private static final YieldCurveBundle CURVES = ForexTestsDataSets.createCurvesForex();
+  private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
   private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
   private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(CURVES, FX_MATRIX, SMILE_TERM, Pair.of(CUR_1, CUR_2));
   private static final ForexOptionVanillaBlackMethod METHOD_VANILLA = ForexOptionVanillaBlackMethod.getInstance();

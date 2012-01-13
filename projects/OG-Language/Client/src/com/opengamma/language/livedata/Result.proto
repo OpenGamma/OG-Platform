@@ -1,0 +1,26 @@
+/**
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.language.livedata {
+
+  /**
+   * Result from connecting to a livedata
+   */
+  message Result extends connector.LiveData {
+  
+    /**
+     * Livedata connection identifier, omitted if the connection failed
+     */
+    optional integer connection;
+
+    /**
+     * First result from the connection.
+     */
+    optional Data result;
+    
+  }
+
+}

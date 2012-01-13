@@ -44,7 +44,7 @@ import com.opengamma.util.time.DateUtils;
 @Test
 @SuppressWarnings("unused")
 public class SABRFiniteDifferenceTest {
-  private static final boolean DEBUG = true; //set to false before commit
+  private static final boolean DEBUG = false; //set to false before commit
 
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
   private static final PDEDataBundleProvider PDE_DATA_PROVIDER = new PDEDataBundleProvider();

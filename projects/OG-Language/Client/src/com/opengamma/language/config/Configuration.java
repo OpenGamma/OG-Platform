@@ -7,6 +7,7 @@
 package com.opengamma.language.config;
 
 import java.net.URI;
+import java.util.concurrent.Executors;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -65,7 +66,7 @@ public final class Configuration {
 
   protected UriEndPointDescriptionProvider.Validater getURIValidater() {
     if (_uriValidater == null) {
-      _uriValidater = UriEndPointDescriptionProvider.validater();
+      _uriValidater = UriEndPointDescriptionProvider.validater(Executors.newCachedThreadPool());
     }
     return _uriValidater;
   }

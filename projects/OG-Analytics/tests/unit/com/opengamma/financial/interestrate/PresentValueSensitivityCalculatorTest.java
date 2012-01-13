@@ -32,7 +32,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexSwap;
-import com.opengamma.financial.instrument.index.SwapGenerator;
+import com.opengamma.financial.instrument.index.GeneratorSwap;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
@@ -211,7 +211,7 @@ public class PresentValueSensitivityCalculatorTest {
     final IborIndex INDEX = new IborIndex(CUR, indexTenor, settlementDays, CALENDAR, dayCount, businessDayConvention, isEOM);
     final AnnuityCouponIborDefinition iborAnnuityDefinition = AnnuityCouponIborDefinition.from(settleDate, Period.ofYears(5), notional, INDEX, !isPayer);
 
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final GenericAnnuity<? extends Payment> iborAnnuity1Curve = iborAnnuityDefinition.toDerivative(REFERENCE_DATE, FUNDING_CURVE_NAME, FUNDING_CURVE_NAME);
     final GenericAnnuity<? extends Payment> iborAnnuity = iborAnnuityDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
@@ -452,7 +452,7 @@ public class PresentValueSensitivityCalculatorTest {
   private static final Period INDEX_TENOR = Period.ofMonths(3);
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final IborIndex IBOR_INDEX = new IborIndex(CUR, INDEX_TENOR, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM);
-  private static final SwapGenerator SWAP_GENERATOR = new SwapGenerator(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX);
+  private static final GeneratorSwap SWAP_GENERATOR = new GeneratorSwap(FIXED_PAYMENT_PERIOD, FIXED_DAY_COUNT, IBOR_INDEX);
   private static final IndexSwap CMS_INDEX = new IndexSwap(SWAP_GENERATOR, ANNUITY_TENOR);
   private static final SwapFixedIborDefinition SWAP_DEFINITION_PAYER = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, RATE, FIXED_IS_PAYER);
   private static final FixedCouponSwap<Coupon> SWAP_PAYER = SWAP_DEFINITION_PAYER.toDerivative(REFERENCE_DATE, CURVES_NAME);
@@ -460,7 +460,7 @@ public class PresentValueSensitivityCalculatorTest {
   @Test
   public void testFixedCouponSwap() {
     double eps = 1e-9;
-    final YieldCurveBundle curves = TestsDataSets.createCurves1();
+    final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
 
     GenericAnnuity<CouponFixed> fixedLeg = SWAP_PAYER.getFirstLeg();
     GenericAnnuity<Coupon> floatLeg = SWAP_PAYER.getSecondLeg();

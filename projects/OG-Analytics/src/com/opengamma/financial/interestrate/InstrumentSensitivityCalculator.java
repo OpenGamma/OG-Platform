@@ -47,6 +47,7 @@ public final class InstrumentSensitivityCalculator {
     Validate.isTrue(n == pvJacobian.getNumberOfRows());
 
     final DoubleMatrix2D invJac = MATRIX_ALGEBRA.getInverse(pvJacobian);
+    // TODO: REVIEW: do we need to inverse the Jacobian each time?
 
     final double[] res = new double[n];
     for (int i = 0; i < n; i++) {
@@ -69,8 +70,8 @@ public final class InstrumentSensitivityCalculator {
    * @param  nsc A {@link PresentValueNodeSensitivityCalculator}, not null
    * @return bucked delta
    */
-  public DoubleMatrix1D calculateFromParRate(final InstrumentDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves,
-      final DoubleMatrix2D parRateJacobian, final PresentValueNodeSensitivityCalculator nsc) {
+  public DoubleMatrix1D calculateFromParRate(final InstrumentDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves, final DoubleMatrix2D parRateJacobian,
+      final PresentValueNodeSensitivityCalculator nsc) {
     Validate.notNull(nsc, "node sensitivity calculator");
     final DoubleMatrix1D nodeSensitivities = nsc.calculateSensitivities(ird, fixedCurves, interpolatedCurves);
     final int n = nodeSensitivities.getNumberOfElements();

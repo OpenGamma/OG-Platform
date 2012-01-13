@@ -145,85 +145,17 @@ public class DupireLocalVolatilityTest {
     PDEUtilityTools.printSurface("ABs Loc Vol", ABS_LOCAL_VOL.getSurface(), 0., 5., 0.1 * SPOT, 3 * SPOT);
   }
 
-  //TODO move test
-  //  @SuppressWarnings("deprecation")
-  //  @Test(enabled =false)
-  //  public void pdePriceTest() {
-  //    final double shift = 1e-3 * SPOT;
-  //    PDEDataBundleProvider provider = new PDEDataBundleProvider();
-  //    ConvectionDiffusionPDEDataBundle db = provider.getForwardLocalVol(SPOT, true, LOCAL_VOL);
-  //    LocalVolatilitySurface lvUp = DUPIRE.getLocalVolatility(SABR_SURFACE, SPOT + shift, RATE);
-  //    LocalVolatilitySurface lvDown = DUPIRE.getLocalVolatility(SABR_SURFACE, SPOT - shift, RATE);
-  //    ConvectionDiffusionPDEDataBundle dbUp = provider.getForwardLocalVol(SPOT + shift, true, lvUp);
-  //    ConvectionDiffusionPDEDataBundle dbDown = provider.getForwardLocalVol(SPOT - shift, true, lvDown);
-  //    //ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(FORWARD_CURVE, 1.1 * SPOT, 5.0, 0.0, true, ABS_LOCAL_VOL2);
-  //    ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, true);
-  //
-  //    int nStrikeNodes = 100;
-  //    int nTimeNodes = 50;
-  //    double upperLevel = 3.5 * SPOT;
-  //    BoundaryCondition lower = new DirichletBoundaryCondition(SPOT, 0);
-  //    BoundaryCondition lowerUp = new DirichletBoundaryCondition(SPOT + shift, 0);
-  //    BoundaryCondition lowerDown = new DirichletBoundaryCondition(SPOT - shift, 0);
-  //    BoundaryCondition upper = new NeumannBoundaryCondition(0.0, upperLevel, false);
-  //    MeshingFunction timeMesh = new ExponentialMeshing(0.0, EXPIRY, nTimeNodes, 3.0);
-  //    MeshingFunction spaceMesh = new ExponentialMeshing(0.0, upperLevel, nStrikeNodes, 0.1);
-  //    PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-  //    PDEFullResults1D res = (PDEFullResults1D) solver.solve(db, grid, lower, upper);
-  //    PDEFullResults1D resUp = (PDEFullResults1D) solver.solve(dbUp, grid, lowerUp, upper);
-  //    PDEFullResults1D resDown = (PDEFullResults1D) solver.solve(dbDown, grid, lowerDown, upper);
-  //    //  PDEUtilityTools.printSurface("pde results", res);
-  //
-  //    //  Map<DoublesPair, Double> vol = PDEUtilityTools.priceToImpliedVol(FORWARD_CURVE, res, 0, 5.0, 0.4 * SPOT, 2.2 * SPOT);
-  //
-  //    SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
-  //    double[] d1 = new double[5];
-  //    double[][] d2 = new double[2][2];
-  //
-  //    int tIndex = nTimeNodes - 1;
-  //    double t = grid.getTimeNode(tIndex);
-  //    final int n = grid.getNumSpaceNodes();
-  //    for (int i = 0; i < n; i++) {
-  //      double k = grid.getSpaceNode(i);
-  //      if (k >= 0.2 * SPOT && k < 3.0 * SPOT) {
-  //        EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
-  //
-  //        double sabrVol = SABR_SURFACE.getVolatility(t, k);
-  //        double price = res.getFunctionValue(i, tIndex);
-  //        double modelVol = BlackFormulaRepository.impliedVolatility(price, SPOT, k, t, true);
-  //        double sabrUp = sabr.getVolatility(option, SPOT + shift, SABR_DATA);
-  //        double sabrDown = sabr.getVolatility(option, SPOT - shift, SABR_DATA);
-  //        double priceUp = BlackFormulaRepository.price(SPOT + shift, k, t, sabrUp, true);
-  //        double priceDown = BlackFormulaRepository.price(SPOT - shift, k, t, sabrDown, true);
-  //        // assertEquals(sabrVol, modelVol, 2e-4); //2bps error
-  //
-  //        double bsDelta = BlackFormulaRepository.delta(SPOT, k, t, sabrVol, true);
-  //        double bsVega = BlackFormulaRepository.vega(SPOT, k, t, sabrVol);
-  //        double bsGamma = BlackFormulaRepository.gamma(SPOT, k, t, sabrVol);
-  //        double bsVanna = BlackFormulaRepository.vanna(SPOT, k, t, sabrVol);
-  //        sabr.getVolatilityAdjoint2(new EuropeanVanillaOption(k, t, true), SPOT, SABR_DATA, d1, d2);
-  //        double delta = bsDelta + bsVega * d1[0];
-  //        @SuppressWarnings("unused")
-  //        double gamma = bsGamma + 2 * bsVanna * d1[0] + bsVega * d2[0][0];
-  //
-  //        double deltaFD = (priceUp - priceDown) / 2 / shift;
-  //        double deltaPDE = (resUp.getFunctionValue(i, tIndex) - resDown.getFunctionValue(i, tIndex)) / 2 / shift;
-  //        //    assertEquals(deltaFD, delta, 2e-4);
-  //        System.out.println(k + "\t" + sabrVol + "\t" + modelVol + "\t" + bsDelta + "\t" + delta + "\t" + deltaPDE + "\t" + deltaFD);
-  //      }
-  //    }
-  //  }
 
   @Test
-  public void pdeGreekTest() {
+  public void pdePriceTest() {
     PDEDataBundleProvider provider = new PDEDataBundleProvider();
-    ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(STRIKE, EXPIRY, true, LOCAL_VOL);
+    ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(STRIKE, EXPIRY, true, LOCAL_VOL,FORWARD_CURVE);
     ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, false);
     final double forward = FORWARD_CURVE.getForward(EXPIRY);
 
     final int nTimeNodes = 50;
     final int nSpotNodes = 100;
-    final double upperLevel = 3.5 * SPOT;
+    final double upperLevel = 3.5 * forward;
 
     BoundaryCondition lower = new DirichletBoundaryCondition(0, 0);
     BoundaryCondition upper = new NeumannBoundaryCondition(1.0, upperLevel, false);
@@ -232,46 +164,19 @@ public class DupireLocalVolatilityTest {
     PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
     PDEResults1D res = solver.solve(db, grid, lower, upper);
 
-    int spotIndex = grid.getLowerBoundIndexForSpace(SPOT);
-    double[] spot = new double[4];
+    int fwdIndex = grid.getLowerBoundIndexForSpace(forward);
+    double[] fwd = new double[4];
     double[] vol = new double[4];
     for (int i = 0; i < 4; i++) {
-      spot[i] = grid.getSpaceNode(i + spotIndex - 1);
-      double price = res.getFunctionValue(i + spotIndex - 1);
-      vol[i] = BlackFormulaRepository.impliedVolatility(price, forward, STRIKE, EXPIRY, true);
+      fwd[i] = grid.getSpaceNode(i + fwdIndex - 1);
+      double price = res.getFunctionValue(i + fwdIndex - 1);
+      vol[i] = BlackFormulaRepository.impliedVolatility(price, fwd[i], STRIKE, EXPIRY, true);
     }
-    Interpolator1DDoubleQuadraticDataBundle idb = INTERPOLATOR_1D.getDataBundle(spot, vol);
+    Interpolator1DDoubleQuadraticDataBundle idb = INTERPOLATOR_1D.getDataBundle(fwd, vol);
 
     double sabrVol = SABR_SURFACE.getVolatility(EXPIRY, STRIKE);
-    double modelVol = INTERPOLATOR_1D.interpolate(idb, SPOT);
+    double modelVol = INTERPOLATOR_1D.interpolate(idb, forward);
     assertEquals("Volatility test", sabrVol, modelVol, 1e-4); //1bps error
-
-    double spotValue = grid.getSpaceNode(spotIndex);
-    SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
-    double[] volAdjoint = sabr.getVolatilityAdjoint(new EuropeanVanillaOption(STRIKE, EXPIRY, true), spotValue, SABR_DATA);
-
-    sabrVol = volAdjoint[0];
-
-    double bsDelta = BlackFormulaRepository.delta(spotValue, STRIKE, EXPIRY, sabrVol, true);
-    double bsVega = BlackFormulaRepository.vega(spotValue, STRIKE, EXPIRY, sabrVol);
-
-    double delta = bsDelta + bsVega * volAdjoint[1];
-    double pdeDelta = res.getFirstSpatialDerivative(spotIndex);
-    //    System.out.println(spotValue + "\t" + grid.getSpaceNode(spotIndex) + "\t" + bsDelta + "\t" + delta + "\t" + pdeDelta);
-    assertEquals("Delta test", delta, pdeDelta, 1e-2);
-
-    double bsVanna = BlackFormulaRepository.vanna(spotValue, STRIKE, EXPIRY, sabrVol);
-    double bsGamma = BlackFormulaRepository.gamma(spotValue, STRIKE, EXPIRY, sabrVol);
-
-    double[] volD1 = new double[5];
-    double[][] volD2 = new double[2][2];
-    sabr.getVolatilityAdjoint2(new EuropeanVanillaOption(STRIKE, EXPIRY, true), spotValue, SABR_DATA, volD1, volD2);
-    double d2Sigmad2Fwd = volD2[0][0];
-
-    double gamma = bsGamma + 2 * bsVanna * volAdjoint[1] + bsVega * d2Sigmad2Fwd;
-    double pdeGamma = res.getSecondSpatialDerivative(spotIndex);
-    //TODO The gamma resolution is poor
-    assertEquals("Gamma test", gamma, pdeGamma, 3e-2 * gamma);
   }
 
   @Test(enabled = false)
