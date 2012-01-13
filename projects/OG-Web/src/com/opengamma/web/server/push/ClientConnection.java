@@ -16,6 +16,8 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.server.push.rest.MasterType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -33,6 +35,8 @@ import java.util.Set;
  */
 /* package */ class ClientConnection implements ChangeListener, MasterChangeListener {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(ClientConnection.class);
+  
   /** Login ID of the user that owns this connection TODO this isn't used yet */
   private final String _userId;
   /** Unique ID of this connection */
@@ -72,6 +76,7 @@ import java.util.Set;
     ArgumentChecker.notNull(listener, "listener");
     ArgumentChecker.notNull(clientId, "clientId");
     ArgumentChecker.notNull(timeoutTask, "timeoutTask");
+    s_logger.debug("Creating new client connection. userId: {}, clientId: {}", userId, clientId);
     _viewportFactory = viewportManager;
     _userId = userId;
     _listener = listener;
@@ -142,6 +147,7 @@ import java.util.Set;
   /* package */ void subscribe(UniqueId uid, String url) {
     ArgumentChecker.notNull(uid, "uid");
     ArgumentChecker.notNull(url, "url");
+    s_logger.debug("Subscribing to notifications for changes to {}, notification URL: {}", uid, url);
     synchronized (_lock) {
       _timeoutTask.reset();
       ObjectId objectId = uid.getObjectId();
@@ -152,6 +158,9 @@ import java.util.Set;
 
   @Override
   public void entityChanged(ChangeEvent event) {
+    s_logger.debug("Received ChangeEvent {}", event);
+    // TODO if notifications aren't sent for an object when a child is added or removed will have to get the object and walk the hierarchy
+    // for EACH possible type that has a tree structure.  ugh
     synchronized (_lock) {
       ObjectId objectId;
       if (event.getType() == ChangeType.REMOVED) {
@@ -177,6 +186,7 @@ import java.util.Set;
   /* package */ void subscribe(MasterType masterType, String url) {
     ArgumentChecker.notNull(masterType, "masterType");
     ArgumentChecker.notNull(url, "url");
+    s_logger.debug("Subscribing to notifications for changes to {} master, notification URL: {}", masterType, url);
     synchronized (_lock) {
       _timeoutTask.reset();
       _masterUrls.put(masterType, url);
@@ -186,6 +196,7 @@ import java.util.Set;
 
   @Override
   public void masterChanged(MasterType masterType) {
+    s_logger.debug("Received notification {} master changed", masterType);
     synchronized (_lock) {
       Collection<String> urls = _masterUrls.removeAll(masterType);
       removeSubscriptions(urls);
