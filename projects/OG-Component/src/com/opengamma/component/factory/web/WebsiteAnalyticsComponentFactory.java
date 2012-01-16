@@ -120,8 +120,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
     bean.setFudgeContext(getFudgeContext());
     ExecutorServiceFactoryBean execBean = new ExecutorServiceFactoryBean();
     execBean.setStyle(Style.CACHED);
-    execBean.afterPropertiesSet();
-    bean.setExecutorService(execBean.getObject());
+    bean.setExecutorService(execBean.getObjectCreating());
     
     WebAnalyticsResource resource = new WebAnalyticsResource(bean);
     repo.getRestComponents().publishResource(resource);
