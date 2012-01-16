@@ -80,7 +80,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private ViewProcessor _viewProcessor;
   /**
-   * The view processor.
+   * The portfolio aggregation functions.
    */
   @PropertyDefinition(validate = "notNull")
   private PortfolioAggregationFunctions _portfolioAggregationFunctions;
@@ -446,7 +446,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the view processor.
+   * Gets the portfolio aggregation functions.
    * @return the value of the property, not null
    */
   public PortfolioAggregationFunctions getPortfolioAggregationFunctions() {
@@ -454,7 +454,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the view processor.
+   * Sets the portfolio aggregation functions.
    * @param portfolioAggregationFunctions  the new value of the property, not null
    */
   public void setPortfolioAggregationFunctions(PortfolioAggregationFunctions portfolioAggregationFunctions) {
