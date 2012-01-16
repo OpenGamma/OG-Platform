@@ -16,7 +16,7 @@ import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedRelative
 import com.opengamma.financial.timeseries.returns.RelativeTimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * The historical high-low-close volatility of a price time series can be calculated using:
@@ -90,7 +90,7 @@ public class HistoricalVolatilityHighLowCloseCalculator extends HistoricalVolati
    * least two data points 
    */
   @Override
-  public Double evaluate(final DoubleTimeSeries<?>... x) {
+  public Double evaluate(final LocalDateDoubleTimeSeries... x) {
     testTimeSeries(x, 2);
     if (x.length < 3) {
       throw new IllegalArgumentException("Need high, low and close time series to calculate high-low-close volatility");
@@ -98,12 +98,12 @@ public class HistoricalVolatilityHighLowCloseCalculator extends HistoricalVolati
     if (x.length > 3) {
       s_logger.info("Time series array contained more than three series; only using the first three");
     }
-    final DoubleTimeSeries<?> high = x[0];
-    final DoubleTimeSeries<?> low = x[1];
-    final DoubleTimeSeries<?> close = x[2];
+    final LocalDateDoubleTimeSeries high = x[0];
+    final LocalDateDoubleTimeSeries low = x[1];
+    final LocalDateDoubleTimeSeries close = x[2];
     testHighLowClose(high, low, close);
-    final DoubleTimeSeries<?> closeReturns = _returnCalculator.evaluate(close);
-    final DoubleTimeSeries<?> highLowReturns = _relativeReturnCalculator.evaluate(new DoubleTimeSeries<?>[] {high, low});
+    final LocalDateDoubleTimeSeries closeReturns = _returnCalculator.evaluate(close);
+    final LocalDateDoubleTimeSeries highLowReturns = _relativeReturnCalculator.evaluate(new LocalDateDoubleTimeSeries[] {high, low});
     final Iterator<Double> highLowIterator = highLowReturns.valuesIterator();
     final Iterator<Double> closeReturnIterator = closeReturns.valuesIterator();
     double value, highLowValue;

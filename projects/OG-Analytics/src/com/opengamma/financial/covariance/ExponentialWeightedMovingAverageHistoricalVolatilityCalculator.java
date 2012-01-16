@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -90,9 +90,9 @@ public class ExponentialWeightedMovingAverageHistoricalVolatilityCalculator exte
    * dates in the different time series do not coincide
    */
   @Override
-  public Double evaluate(final DoubleTimeSeries<?>... x) {
+  public Double evaluate(final LocalDateDoubleTimeSeries... x) {
     testTimeSeries(x, 3);
-    final DoubleTimeSeries<?> returnTS = _returnCalculator.evaluate(x);
+    final LocalDateDoubleTimeSeries returnTS = _returnCalculator.evaluate(x);
     final Iterator<Double> iter = returnTS.valuesIterator();
     double returnValue = iter.next();
     double variance = returnValue * returnValue;

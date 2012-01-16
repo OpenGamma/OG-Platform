@@ -9,6 +9,8 @@ package com.opengamma.language.value;
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.core.value.MarketDataRequirementNamesHelper;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.MetaParameter;
@@ -16,8 +18,6 @@ import com.opengamma.language.definition.Parameter;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
-import com.opengamma.livedata.normalization.MarketDataRequirementNamesHelper;
 
 /**
  * Returns the set of all market data requirement names defined in the {@link MarketDataRequirementNames} class.

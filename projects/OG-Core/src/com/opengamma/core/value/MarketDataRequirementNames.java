@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.normalization;
+package com.opengamma.core.value;
 
 /**
  * A set of common names used to refer to market data values.
