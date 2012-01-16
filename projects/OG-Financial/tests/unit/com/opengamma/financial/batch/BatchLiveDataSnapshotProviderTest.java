@@ -51,7 +51,7 @@ public class BatchLiveDataSnapshotProviderTest {
     
     ExternalId identifier = ExternalId.of("mytimeseries", "500");
     ExternalIdBundle bundle = ExternalIdBundle.of(identifier);
-    historicalSource.storeHistoricalTimeSeries(bundle, "BLOOMBERG", "CMPL", "PX_LAST", timeSeries);
+    historicalSource.storeHistoricalTimeSeries(bundle, "BLOOMBERG", "CMPL", MarketDataRequirementNames.MARKET_VALUE, timeSeries);
     
     HistoricalMarketDataProvider snapshotProvider = new HistoricalMarketDataProvider(historicalSource, null, null);
     InMemoryLKVMarketDataProvider batchDbProvider = new InMemoryLKVMarketDataProvider();
