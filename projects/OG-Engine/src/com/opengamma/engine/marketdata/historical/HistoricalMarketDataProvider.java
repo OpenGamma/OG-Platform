@@ -37,35 +37,27 @@ public class HistoricalMarketDataProvider extends AbstractMarketDataProvider imp
   
   private final HistoricalTimeSeriesSource _historicalTimeSeriesSource;
   private final String _timeSeriesResolverKey;
-  private final HistoricalMarketDataFieldResolver _timeSeriesFieldResolver;
   private final String _timeSeriesFieldResolverKey;
   private final MarketDataPermissionProvider _permissionProvider;
-  private final HistoricalMarketDataNormalizer _normalizer;
 
   /**
    * Creates a new market data provider.
    * 
    * @param historicalTimeSeriesSource underlying source
    * @param timeSeriesResolverKey the source resolver key, or null to use the source default
-   * @param fieldResolver field name resolver, not null
    * @param fieldResolverKey the field name resolver resolution key, or null to use the resolver default
-   * @param normalizer the normalization strategy for the historical data, not null
    */
-  public HistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final String timeSeriesResolverKey, final HistoricalMarketDataFieldResolver fieldResolver,
-      final String fieldResolverKey, final HistoricalMarketDataNormalizer normalizer) {
+  public HistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final String timeSeriesResolverKey, 
+      final String fieldResolverKey) {
     ArgumentChecker.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
-    ArgumentChecker.notNull(fieldResolver, "fieldResolver");
     _historicalTimeSeriesSource = historicalTimeSeriesSource;
     _timeSeriesResolverKey = timeSeriesResolverKey;
-    _timeSeriesFieldResolver = fieldResolver;
     _timeSeriesFieldResolverKey = fieldResolverKey;
     _permissionProvider = new PermissiveMarketDataPermissionProvider();
-    _normalizer = normalizer;
   }
   
-  public HistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource, final HistoricalMarketDataFieldResolver fieldResolver,
-      final HistoricalMarketDataNormalizer normalizer) {
-    this(historicalTimeSeriesSource, null, fieldResolver, null, normalizer);
+  public HistoricalMarketDataProvider(final HistoricalTimeSeriesSource historicalTimeSeriesSource) {
+    this(historicalTimeSeriesSource, null, null);
   }
 
   //-------------------------------------------------------------------------
@@ -117,19 +109,15 @@ public class HistoricalMarketDataProvider extends AbstractMarketDataProvider imp
   @Override
   public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
     HistoricalMarketDataSpecification historicalSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return new HistoricalMarketDataSnapshot(historicalSpec, getTimeSeriesSource(), getTimeSeriesFieldResolver(), getNormalizer());
+    return new HistoricalMarketDataSnapshot(historicalSpec, getTimeSeriesSource());
   }
 
   //-------------------------------------------------------------------------
 
   @Override
   public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
-    final String fieldName = getTimeSeriesFieldResolver().resolve(requirement.getValueName(), getTimeSeriesFieldResolverKey());
-    if (fieldName == null) {
-      return MarketDataAvailability.NOT_AVAILABLE;
-    }
     final ExternalId identifier = requirement.getTargetSpecification().getIdentifier();
-    final HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(fieldName, ExternalIdBundle.of(identifier), getTimeSeriesResolverKey());
+    final HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(requirement.getValueName(), ExternalIdBundle.of(identifier), getTimeSeriesResolverKey());
     return (hts != null) ? MarketDataAvailability.AVAILABLE : MarketDataAvailability.NOT_AVAILABLE;
   }
   
@@ -141,17 +129,9 @@ public class HistoricalMarketDataProvider extends AbstractMarketDataProvider imp
   public String getTimeSeriesResolverKey() {
     return _timeSeriesResolverKey;
   }
-
-  public HistoricalMarketDataFieldResolver getTimeSeriesFieldResolver() {
-    return _timeSeriesFieldResolver;
-  }
   
   public String getTimeSeriesFieldResolverKey() {
     return _timeSeriesFieldResolverKey;
-  }
-  
-  public HistoricalMarketDataNormalizer getNormalizer() {
-    return _normalizer;
   }
 
 }

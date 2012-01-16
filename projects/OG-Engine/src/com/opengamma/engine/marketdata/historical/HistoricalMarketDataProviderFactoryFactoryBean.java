@@ -15,8 +15,6 @@ import com.opengamma.util.SingletonFactoryBean;
 public class HistoricalMarketDataProviderFactoryFactoryBean extends SingletonFactoryBean<HistoricalMarketDataProviderFactory> {
 
   private HistoricalTimeSeriesSource _timeSeriesSource;
-  private HistoricalMarketDataFieldResolver _fieldResolver;
-  private HistoricalMarketDataNormalizer _normalizer = new IdentityDataNormalizer();
   
   public HistoricalTimeSeriesSource getTimeSeriesSource() {
     return _timeSeriesSource;
@@ -26,28 +24,10 @@ public class HistoricalMarketDataProviderFactoryFactoryBean extends SingletonFac
     _timeSeriesSource = timeSeriesSource;
   }
 
-  public HistoricalMarketDataFieldResolver getFieldResolver() {
-    return _fieldResolver;
-  }
-
-  public void setFieldResolver(final HistoricalMarketDataFieldResolver fieldResolver) {
-    _fieldResolver = fieldResolver;
-  }
-
-  public HistoricalMarketDataNormalizer getNormalizer() {
-    return _normalizer;
-  }
-
-  public void setNormalizer(final HistoricalMarketDataNormalizer normalizer) {
-    _normalizer = normalizer;
-  }
-
   @Override
   protected HistoricalMarketDataProviderFactory createObject() {
     ArgumentChecker.notNullInjected(getTimeSeriesSource(), "timeSeriesSource");
-    ArgumentChecker.notNullInjected(getFieldResolver(), "fieldResolver");
-    ArgumentChecker.notNullInjected(getNormalizer(), "normalizer");
-    return new HistoricalMarketDataProviderFactory(getTimeSeriesSource(), getFieldResolver(), getNormalizer());
+    return new HistoricalMarketDataProviderFactory(getTimeSeriesSource());
   }
 
 }

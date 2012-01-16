@@ -18,36 +18,20 @@ import com.opengamma.util.ArgumentChecker;
 public class HistoricalMarketDataProviderFactory implements MarketDataProviderFactory {
 
   private final HistoricalTimeSeriesSource _timeSeriesSource;
-  private final HistoricalMarketDataFieldResolver _fieldResolver;
-  private final HistoricalMarketDataNormalizer _normalizer;
 
-  public HistoricalMarketDataProviderFactory(final HistoricalTimeSeriesSource timeSeriesSource, final HistoricalMarketDataFieldResolver fieldResolver,
-      final HistoricalMarketDataNormalizer normalizer) {
+  public HistoricalMarketDataProviderFactory(final HistoricalTimeSeriesSource timeSeriesSource) {
     ArgumentChecker.notNull(timeSeriesSource, "timeSeriesSource");
-    ArgumentChecker.notNull(fieldResolver, "fieldResolver");
-    ArgumentChecker.notNull(normalizer, "normalizer");
     _timeSeriesSource = timeSeriesSource;
-    _fieldResolver = fieldResolver;
-    _normalizer = normalizer;
   }
 
   @Override
   public MarketDataProvider create(MarketDataSpecification marketDataSpec) {
     HistoricalMarketDataSpecification historicalMarketDataSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return new HistoricalMarketDataProvider(getTimeSeriesSource(), historicalMarketDataSpec.getTimeSeriesResolverKey(), getFieldResolver(), historicalMarketDataSpec.getTimeSeriesFieldResolverKey(),
-        getNormalizer());
+    return new HistoricalMarketDataProvider(getTimeSeriesSource(), historicalMarketDataSpec.getTimeSeriesResolverKey(), historicalMarketDataSpec.getTimeSeriesFieldResolverKey());
   }
 
   private HistoricalTimeSeriesSource getTimeSeriesSource() {
     return _timeSeriesSource;
-  }
-
-  private HistoricalMarketDataFieldResolver getFieldResolver() {
-    return _fieldResolver;
-  }
-
-  private HistoricalMarketDataNormalizer getNormalizer() {
-    return _normalizer;
   }
 
 }
