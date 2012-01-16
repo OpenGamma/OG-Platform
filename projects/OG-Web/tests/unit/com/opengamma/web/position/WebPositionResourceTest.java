@@ -69,8 +69,7 @@ public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase
     UniqueId uid = addPosition();
     WebPositionResource positionResource = _webPositionsResource.findPosition(uid.toString());
     
-    Long updatedQuantity = Long.valueOf(100);
-    Response response = positionResource.putJSON(updatedQuantity.toString(), getTradesJson());
+    Response response = positionResource.putJSON(QUANTITY.toString(), getTradesJson());
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     
@@ -78,7 +77,7 @@ public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase
     assertNotNull(positionDocument);
     
     ManageablePosition position = positionDocument.getPosition();
-    assertEquals(BigDecimal.valueOf(updatedQuantity), position.getQuantity());
+    assertEquals(BigDecimal.valueOf(QUANTITY), position.getQuantity());
     List<ManageableTrade> trades = position.getTrades();
     assertEquals(3, trades.size());
     ManageableSecurityLink expectedSecurityLink = new ManageableSecurityLink(EQUITY_SECURITY.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER));
@@ -97,8 +96,7 @@ public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase
     UniqueId uid = addPosition();
     WebPositionResource positionResource = _webPositionsResource.findPosition(uid.toString());
     
-    Long updatedQuantity = Long.valueOf(100);
-    Response response = positionResource.putJSON(updatedQuantity.toString(), null);
+    Response response = positionResource.putJSON(QUANTITY.toString(), null);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     
@@ -106,7 +104,7 @@ public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase
     assertNotNull(positionDocument);
     
     ManageablePosition position = positionDocument.getPosition();
-    assertEquals(BigDecimal.valueOf(updatedQuantity), position.getQuantity());
+    assertEquals(BigDecimal.valueOf(QUANTITY), position.getQuantity());
     List<ManageableTrade> trades = position.getTrades();
     assertTrue(trades.isEmpty());
   }
@@ -116,8 +114,7 @@ public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase
     UniqueId uid = addPosition();
     WebPositionResource positionResource = _webPositionsResource.findPosition(uid.toString());
     
-    Long updatedQuantity = Long.valueOf(100);
-    Response response = positionResource.putJSON(updatedQuantity.toString(), EMPTY_TRADES);
+    Response response = positionResource.putJSON(QUANTITY.toString(), EMPTY_TRADES);
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     
@@ -125,22 +122,8 @@ public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase
     assertNotNull(positionDocument);
     
     ManageablePosition position = positionDocument.getPosition();
-    assertEquals(BigDecimal.valueOf(updatedQuantity), position.getQuantity());
+    assertEquals(BigDecimal.valueOf(QUANTITY), position.getQuantity());
     List<ManageableTrade> trades = position.getTrades();
     assertTrue(trades.isEmpty());
-  }
-
-  private UniqueId addPosition() {
-    ManageableTrade origTrade = new ManageableTrade(BigDecimal.valueOf(50), SEC_ID, LocalDate.parse("2011-12-07"), OffsetTime.of(LocalTime.of(15, 4), ZONE_OFFSET), COUNTER_PARTY);
-    origTrade.setPremium(10.0);
-    origTrade.setPremiumCurrency(Currency.USD);
-    origTrade.setPremiumDate(LocalDate.parse("2011-12-08"));
-    origTrade.setPremiumTime(OffsetTime.of(LocalTime.of(15, 4), ZONE_OFFSET));
-    
-    ManageablePosition manageablePosition = new ManageablePosition(origTrade.getQuantity(), SEC_ID);
-    manageablePosition.addTrade(origTrade);
-    PositionDocument addedPos = _positionMaster.add(new PositionDocument(manageablePosition));
-    UniqueId uid = addedPos.getUniqueId();
-    return uid;
   }
 }
