@@ -215,74 +215,6 @@
   </bean>
 
   <!-- ============================================================================== -->
-  <!-- Portfolio aggregators -->
-  <bean id="portfolioAggregationFunctions" class="org.springframework.beans.factory.config.ListFactoryBean">
-    <property name="sourceList">
-      <list>
-        <!-- TODO: shared aggregation function config -->
-        <bean class="com.opengamma.financial.aggregation.AssetClassAggregationFunction">
-          <constructor-arg value="false" />
-        </bean>
-        <bean class="com.opengamma.financial.aggregation.CurrencyAggregationFunction" />
-        <bean class="com.opengamma.financial.aggregation.DetailedAssetClassAggregationFunction" />
-        <bean class="com.opengamma.financial.aggregation.RegionAggregationFunction">
-          <constructor-arg ref="combinedSecuritySource" />
-          <constructor-arg ref="sharedRegionSource" />
-          <constructor-arg ref="sharedExchangeSource" />
-          <constructor-arg value="false" />
-          <constructor-arg value="false" />
-        </bean>
-        <bean class="com.opengamma.financial.aggregation.UnderlyingAggregationFunction">
-          <constructor-arg ref="combinedSecuritySource" />
-          <constructor-arg value="BLOOMBERG_TICKER" />
-          <constructor-arg value="false" />
-        </bean>
-        <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
-          <constructor-arg ref="combinedSecuritySource" />
-          <constructor-arg value="SECTOR" />
-          <constructor-arg value="false" />
-          <constructor-arg value="false" />
-        </bean>
-        <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
-          <constructor-arg ref="combinedSecuritySource" />
-          <constructor-arg value="INDUSTRY_GROUP" />
-          <constructor-arg value="false" />
-        </bean>
-        <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
-          <constructor-arg ref="combinedSecuritySource" />
-          <constructor-arg value="INDUSTRY" />
-          <constructor-arg value="false" />
-        </bean>
-        <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
-          <constructor-arg ref="combinedSecuritySource" />
-          <constructor-arg value="SUB_INDUSTRY" />
-          <constructor-arg value="false" />
-        </bean>
-        <bean class="com.opengamma.financial.aggregation.EquityBetaAggregationFunction">
-          <constructor-arg ref="combinedSecuritySource" />
-          <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
-          <constructor-arg value="false" />
-          <constructor-arg value="true" />
-        </bean>
-        <bean class="com.opengamma.financial.aggregation.CurrentMarketCapAggregationFunction">
-          <constructor-arg ref="combinedSecuritySource" />
-          <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
-          <constructor-arg value="false" />
-        </bean>
-        <bean class="com.opengamma.financial.aggregation.LiquidityAggregationFunction">
-          <constructor-arg ref="combinedSecuritySource" />
-          <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
-          <constructor-arg value="false" />
-        </bean>
-        <bean class="com.opengamma.financial.aggregation.LongShortAggregationFunction">
-          <constructor-arg ref="combinedSecuritySource" />
-          <constructor-arg value="false" />
-        </bean>
-      </list>
-    </property>
-  </bean>
-
-  <!-- ============================================================================== -->
   <!-- new Web-interface -->
   <bean id="liveResultsService" class="com.opengamma.web.server.push.grid.PushLiveResultsService">
     <constructor-arg ref="demoViewProcessor" />
@@ -293,7 +225,7 @@
     <constructor-arg ref="userViewDefinitionRepository" />
     <constructor-arg ref="testUser" />
     <constructor-arg ref="standardFudgeContext" />
-    <constructor-arg ref="portfolioAggregationFunctions" />
+    <constructor-arg ref="demoPortfolioAggregationFunctions" />
   </bean>
 
   <bean id="longPollingConnectionManager" class="com.opengamma.web.server.push.LongPollingConnectionManager"/>
@@ -352,7 +284,7 @@
     <property name="userPortfolioMaster" ref="userPortfolioMaster" />
     <property name="userPositionMaster" ref="userPositionMaster" />
     <property name="userViewDefinitionRepository" ref="userViewDefinitionRepository" />
-    <property name="portfolioAggregators" ref="portfolioAggregationFunctions" />
+    <property name="portfolioAggregators" ref="demoPortfolioAggregationFunctions" />
     <property name="snapshotMaster" ref="centralMarketDataSnapshotMaster" />
     <property name="executorService">
       <bean class="com.opengamma.util.ExecutorServiceFactoryBean">

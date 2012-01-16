@@ -34,6 +34,7 @@ import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProv
 import com.opengamma.engine.view.calcnode.ConfigurationResource;
 import com.opengamma.engine.view.calcnode.stats.TotallingNodeStatisticsGatherer;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
+import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResourceContextBean;
 import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderService;
@@ -93,6 +94,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     initViewProcessor(repo, appContext);
     initAvailableOutputs(repo, appContext);
     initConfiguration(repo, appContext);
+    initAggregators(repo, appContext);
     initForDebugging(repo, appContext);
   }
 
@@ -143,6 +145,16 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    */
   protected void initConfiguration(ComponentRepository repo, GenericApplicationContext appContext) {
     registerInfrastructureByType(repo, ConfigurationResource.class, appContext);
+  }
+
+  /**
+   * Registers the aggregators.
+   * 
+   * @param repo  the repository to register with, not null
+   * @param appContext  the Spring application context, not null
+   */
+  protected void initAggregators(ComponentRepository repo, GenericApplicationContext appContext) {
+    registerInfrastructureByType(repo, PortfolioAggregationFunctions.class, appContext);
   }
 
   /**

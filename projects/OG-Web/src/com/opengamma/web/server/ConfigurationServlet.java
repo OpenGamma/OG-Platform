@@ -29,10 +29,10 @@ public class ConfigurationServlet extends GenericServlet {
   public void init() throws ServletException {
     // Grab Spring's ApplicationContent
     ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
-
+    
     // Trigger service initialization
     try {
-      ((LiveResultsServiceBean) context.getBean("webInterfaceBean")).afterPropertiesSet();
+      ((LiveResultsServiceBean) context.getBean("webInterfaceBean")).init(getServletContext());
     } catch (BeansException e) {
       throw new RuntimeException("Could not obtain webInterfaceBean", e);      
     }
