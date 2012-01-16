@@ -42,7 +42,9 @@ $.register_module({
             $(this).dialog('close');
         };
         attach_calendar = function () {
-            $('.OG-js-datetimepicker').datetimepicker({firstDay: 1, showTimezone: true, timeFormat: 'hh:mm ttz'});
+            $('.OG-js-datetimepicker').datetimepicker({
+                firstDay: 1, showTimezone: true, dateFormat: 'yy-mm-dd',timeFormat: 'hh:mm ttz'
+            });
             $('.OG-js-add-trades .og-inline-form').click(function (e) {
                 e.preventDefault();
                 $(this).prev().find('input').datetimepicker('setDate', new Date());
@@ -80,7 +82,6 @@ $.register_module({
          * differently, this also applies for the form object for the new trade to be added
          */
         format_trades = function (trades) {
-            var format_date = function (str) {return str.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$1-$2')};
             trades.map(function (trade) {
                 var premium, tradeDate;
                 if (trade.premium) {
@@ -90,13 +91,13 @@ $.register_module({
                 } else delete trade.premium;
                 if (trade.premium_date_time) {
                     premium = trade.premium_date_time.split(' ');
-                    trade.premiumDate = format_date(premium[0]);
+                    trade.premiumDate = premium[0];
                     if (premium[1]) trade.premiumTime = premium[1];
                     if (premium[2]) trade.premiumOffset = premium[2].replace(/\((.*)\)/, '$1');
                 }
                 if (trade.trade_date_time) {
                     tradeDate = trade.trade_date_time.split(' ');
-                    trade.tradeDate = format_date(tradeDate[0]);
+                    trade.tradeDate = tradeDate[0];
                     if (tradeDate[1]) trade.tradeTime = tradeDate[1];
                     if (tradeDate[2]) {
                         trade.tradeOffset = tradeDate[2].replace(/\((.*)\)/, '$1');
