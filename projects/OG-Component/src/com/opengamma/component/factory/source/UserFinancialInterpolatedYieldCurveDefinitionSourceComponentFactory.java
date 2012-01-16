@@ -47,10 +47,10 @@ public class UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory
   @PropertyDefinition(validate = "notNull")
   private String _classifier;
   /**
-   * The flag determining whether the component should be published by REST.
+   * The flag determining whether the component should be published by REST (default true).
    */
   @PropertyDefinition
-  private boolean _publishRest;
+  private boolean _publishRest = true;
   /**
    * The cache manager.
    */
@@ -255,7 +255,7 @@ public class UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the flag determining whether the component should be published by REST.
+   * Gets the flag determining whether the component should be published by REST (default true).
    * @return the value of the property
    */
   public boolean isPublishRest() {
@@ -263,7 +263,7 @@ public class UserFinancialInterpolatedYieldCurveDefinitionSourceComponentFactory
   }
 
   /**
-   * Sets the flag determining whether the component should be published by REST.
+   * Sets the flag determining whether the component should be published by REST (default true).
    * @param publishRest  the new value of the property
    */
   public void setPublishRest(boolean publishRest) {
