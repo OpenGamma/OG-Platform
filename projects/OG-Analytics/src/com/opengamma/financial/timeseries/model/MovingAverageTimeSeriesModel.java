@@ -5,13 +5,14 @@
  */
 package com.opengamma.financial.timeseries.model;
 
+import javax.time.calendar.LocalDate;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -24,7 +25,7 @@ public class MovingAverageTimeSeriesModel {
     _random = random;
   }
 
-  public DoubleTimeSeries<Long> getSeries(final double[] theta, final int q, final long[] dates) {
+  public LocalDateDoubleTimeSeries getSeries(final double[] theta, final int q, final LocalDate[] dates) {
     Validate.notNull(theta, "theta");
     if (q < 1) {
       throw new IllegalArgumentException("Order must be greater than zero");
@@ -49,6 +50,6 @@ public class MovingAverageTimeSeriesModel {
       }
       data[i] = sum;
     }
-    return new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, dates, data);
+    return new ArrayLocalDateDoubleTimeSeries(dates, data);
   }
 }

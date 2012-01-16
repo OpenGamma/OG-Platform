@@ -300,7 +300,7 @@ public class VarianceSwapStaticReplicationTest {
 
   @Test
   public void testCallDeltaConstruction() {
-    @SuppressWarnings({"unused", "hiding"})
+    @SuppressWarnings({"unused"})
     final VarianceSwapStaticReplication pricer_putdelta_default_w_cutoff = new VarianceSwapStaticReplication(StrikeParameterization.CALLDELTA);
   }
 

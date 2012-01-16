@@ -10,6 +10,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.time.calendar.LocalDate;
+
 import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
@@ -19,10 +21,9 @@ import cern.jet.random.engine.RandomEngine;
 import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastListLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -34,16 +35,16 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
   private static final TimeSeriesReturnCalculator RETURN_CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
   private static final ExtremeValueDoubleTimeSeriesFilter VALUE_FILTER = new ExtremeValueDoubleTimeSeriesFilter(MIN, MAX);
   private static final ExtremeReturnDoubleTimeSeriesFilter RETURN_FILTER = new ExtremeReturnDoubleTimeSeriesFilter(MIN, MAX, RETURN_CALCULATOR);
-  private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.DATE_EPOCH_DAYS;
-
+  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
+  
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS1() {
-    VALUE_FILTER.evaluate((DoubleTimeSeries<Long>) null);
+    VALUE_FILTER.evaluate((LocalDateDoubleTimeSeries) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS2() {
-    RETURN_FILTER.evaluate((DoubleTimeSeries<Long>) null);
+    RETURN_FILTER.evaluate((LocalDateDoubleTimeSeries) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -113,42 +114,42 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
 
   @Test
   public void testEmptyTS() {
-    final FilteredTimeSeries filtered = VALUE_FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
-    assertEquals(filtered.getFilteredTS(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
-    assertEquals(filtered.getRejectedTS(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+    final FilteredTimeSeries filtered = VALUE_FILTER.evaluate(EMPTY_SERIES);
+    assertEquals(filtered.getFilteredTS(), EMPTY_SERIES);
+    assertEquals(filtered.getRejectedTS(), EMPTY_SERIES);
   }
 
   @Test
   public void test() {
-    final List<Long> dates = new ArrayList<Long>();
+    final List<LocalDate> dates = new ArrayList<LocalDate>();
     final List<Double> data = new ArrayList<Double>();
-    final List<Long> filteredDates = new ArrayList<Long>();
+    final List<LocalDate> filteredDates = new ArrayList<LocalDate>();
     final List<Double> filteredData = new ArrayList<Double>();
-    final List<Long> rejectedDates = new ArrayList<Long>();
+    final List<LocalDate> rejectedDates = new ArrayList<LocalDate>();
     final List<Double> rejectedData = new ArrayList<Double>();
     Double d;
     Double value;
     for (int i = 0; i < 100; i++) {
       d = RANDOM.nextDouble();
-      dates.add(Long.valueOf(i));
+      dates.add(LocalDate.ofEpochDays(i));
       if (d < 0.25) {
         value = d < 0.1 ? MIN - d : MAX + d;
         data.add(value);
-        rejectedDates.add(Long.valueOf(i));
+        rejectedDates.add(LocalDate.ofEpochDays(i));
         rejectedData.add(value);
       } else {
         data.add(d);
-        filteredDates.add(Long.valueOf(i));
+        filteredDates.add(LocalDate.ofEpochDays(i));
         filteredData.add(d);
       }
     }
-    final List<Long> returnFilteredDates = new ArrayList<Long>();
+    final List<LocalDate> returnFilteredDates = new ArrayList<LocalDate>();
     final List<Double> returnFilteredData = new ArrayList<Double>();
-    final List<Long> returnRejectedDates = new ArrayList<Long>();
+    final List<LocalDate> returnRejectedDates = new ArrayList<LocalDate>();
     final List<Double> returnRejectedData = new ArrayList<Double>();
-    final DoubleTimeSeries<Long> ts = new FastListLongDoubleTimeSeries(ENCODING, dates, data);
-    final DoubleTimeSeries<Long> returnTS = RETURN_CALCULATOR.evaluate(ts).toFastLongDoubleTimeSeries();
-    long date;
+    final LocalDateDoubleTimeSeries ts = new ListLocalDateDoubleTimeSeries(dates, data);
+    final LocalDateDoubleTimeSeries returnTS = RETURN_CALCULATOR.evaluate(ts);
+    LocalDate date;
     for (int i = 0; i < 99; i++) {
       date = returnTS.getTimeAt(i);
       d = returnTS.getValueAt(i);
@@ -161,10 +162,10 @@ public class ExtremeValueAndReturnDoubleTimeSeriesFiltersTest {
       }
     }
     FilteredTimeSeries result = VALUE_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries(new FastListLongDoubleTimeSeries(ENCODING, filteredDates, filteredData), new FastListLongDoubleTimeSeries(ENCODING, rejectedDates,
+    assertEquals(result, new FilteredTimeSeries(new ListLocalDateDoubleTimeSeries(filteredDates, filteredData), new ListLocalDateDoubleTimeSeries(rejectedDates,
         rejectedData)));
     result = RETURN_FILTER.evaluate(ts);
-    assertEquals(result, new FilteredTimeSeries(new FastListLongDoubleTimeSeries(ENCODING, returnFilteredDates, returnFilteredData), new FastListLongDoubleTimeSeries(ENCODING,
+    assertEquals(result, new FilteredTimeSeries(new ListLocalDateDoubleTimeSeries(returnFilteredDates, returnFilteredData), new ListLocalDateDoubleTimeSeries(
         returnRejectedDates, returnRejectedData)));
   }
 }
