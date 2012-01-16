@@ -9,9 +9,9 @@ import javax.time.calendar.LocalDate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.greeks.AbstractGreekVisitor;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -77,11 +77,11 @@ public class UnderlyingTimeSeriesProvider {
   private static class FieldGreekVisitor extends AbstractGreekVisitor<String> {
     
     public String visitDelta() {
-      return HistoricalTimeSeriesFields.LAST_PRICE;
+      return MarketDataRequirementNames.MARKET_VALUE;
     }
     
     public String visitGamma() {
-      return HistoricalTimeSeriesFields.LAST_PRICE;
+      return MarketDataRequirementNames.MARKET_VALUE;
     }
   }
 

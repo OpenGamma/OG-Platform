@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Set;
 
 import com.opengamma.core.security.Security;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -25,7 +26,6 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 
 

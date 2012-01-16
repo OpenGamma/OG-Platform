@@ -16,6 +16,7 @@ import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.FixedMarketDataAvailabilityProvider;
@@ -25,7 +26,6 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.livedata.test.TestLiveDataClient;
 
 /**

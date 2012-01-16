@@ -5,13 +5,10 @@
  */
 package com.opengamma.livedata.normalization;
 
-import static com.opengamma.livedata.normalization.MarketDataRequirementNames.ASK;
-import static com.opengamma.livedata.normalization.MarketDataRequirementNames.BID;
-import static com.opengamma.livedata.normalization.MarketDataRequirementNames.LAST;
-
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.livedata.server.FieldHistoryStore;
 
 /**
@@ -44,14 +41,14 @@ public class MarketValueCalculator implements NormalizationRule {
     
     FudgeMsg lkv = fieldHistory.getLastKnownValues();
     
-    Double bid = msg.getDouble(BID);
+    Double bid = msg.getDouble(MarketDataRequirementNames.BID);
     if (bid == null) {
-      bid = lkv.getDouble(BID);
+      bid = lkv.getDouble(MarketDataRequirementNames.BID);
     }
     
-    Double ask = msg.getDouble(ASK);
+    Double ask = msg.getDouble(MarketDataRequirementNames.ASK);
     if (ask == null) {
-      ask = lkv.getDouble(ASK);
+      ask = lkv.getDouble(MarketDataRequirementNames.ASK);
     }
     
     // If we have seen bid & ask in the past, use bid & ask midpoint.
@@ -60,9 +57,9 @@ public class MarketValueCalculator implements NormalizationRule {
       // Too big of a spread for midpoint to be meaningful?
       if (Math.abs(bid) > TOLERANCE && (Math.abs(ask - bid) / Math.abs(bid) > MAX_ACCEPTABLE_SPREAD_TO_USE_MIDPOINT)) {
         // Try to resort to last, though if this fails use midpoint anyway.
-        Double last = lkv.getDouble(LAST);
+        Double last = lkv.getDouble(MarketDataRequirementNames.LAST);
         if (last == null) {
-          last = msg.getDouble(LAST);
+          last = msg.getDouble(MarketDataRequirementNames.LAST);
         }
         
         if (last != null) {
@@ -85,7 +82,7 @@ public class MarketValueCalculator implements NormalizationRule {
     
     // Since we've not seen a bid & ask for this market data in the past,
     // try using LAST.
-    Double last = msg.getDouble(LAST);
+    Double last = msg.getDouble(MarketDataRequirementNames.LAST);
     if (last == null) {
       return lastKnownMarketValue(msg, fieldHistory);
     }
