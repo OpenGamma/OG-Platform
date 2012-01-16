@@ -21,21 +21,29 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.JerseyRestResourceFactory;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.batch.BatchMaster;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.region.RegionMaster;
+import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.web.WebHomeResource;
 import com.opengamma.web.batch.WebBatchesResource;
 import com.opengamma.web.config.WebConfigsResource;
 import com.opengamma.web.exchange.WebExchangesResource;
+import com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource;
 import com.opengamma.web.holiday.WebHolidaysResource;
 import com.opengamma.web.portfolio.WebPortfoliosResource;
+import com.opengamma.web.position.WebPositionsResource;
 import com.opengamma.web.region.WebRegionsResource;
+import com.opengamma.web.security.WebSecuritiesResource;
 
 /**
  * Component factory for the main website.
@@ -44,17 +52,17 @@ import com.opengamma.web.region.WebRegionsResource;
 public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   /**
-   * The underlying master.
+   * The config master.
    */
   @PropertyDefinition(validate = "notNull")
   private ConfigMaster _configMaster;
   /**
-   * The underlying master.
+   * The exchange master.
    */
   @PropertyDefinition(validate = "notNull")
   private ExchangeMaster _exchangeMaster;
   /**
-   * The underlying master.
+   * The holiday master.
    */
   @PropertyDefinition(validate = "notNull")
   private HolidayMaster _holidayMaster;
@@ -64,25 +72,50 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private RegionMaster _regionMaster;
   /**
-   * The underlying master.
+   * The security master.
    */
   @PropertyDefinition(validate = "notNull")
   private SecurityMaster _securityMaster;
   /**
-   * The underlying master.
+   * The security source.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private SecuritySource _securitySource;
+  /**
+   * The security loader.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private SecurityLoader _securityLoader;
+  /**
+   * The position master.
    */
   @PropertyDefinition(validate = "notNull")
   private PositionMaster _positionMaster;
   /**
-   * The underlying master.
+   * The portfolio master.
    */
   @PropertyDefinition(validate = "notNull")
   private PortfolioMaster _portfolioMaster;
   /**
-   * The underlying master.
+   * The batch master.
    */
   @PropertyDefinition(validate = "notNull")
   private BatchMaster _batchMaster;
+  /**
+   * The time-series master.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
+  /**
+   * The time-series source.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
+  /**
+   * The time-series loader.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private HistoricalTimeSeriesLoader _historicalTimeSeriesLoader;
 
   //-------------------------------------------------------------------------
   @Override
@@ -104,14 +137,20 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     JerseyRestResourceFactory reg = new JerseyRestResourceFactory(WebRegionsResource.class, getRegionMaster());
     repo.getRestComponents().publishResource(reg);
     
-//    JerseyRestResourceFactory sec = new JerseyRestResourceFactory(WebSecuritiesResource.class, getSecurityMaster());
-//    repo.getRestComponents().publishResource(sec);
-//    
-//    JerseyRestResourceFactory pos = new JerseyRestResourceFactory(WebPositionsResource.class, getPositionMaster());
-//    repo.getRestComponents().publishResource(pos);
+    JerseyRestResourceFactory sec = new JerseyRestResourceFactory(WebSecuritiesResource.class,
+        getSecurityMaster(), getSecurityLoader(), getHistoricalTimeSeriesSource());
+    repo.getRestComponents().publishResource(sec);
+    
+    JerseyRestResourceFactory pos = new JerseyRestResourceFactory(WebPositionsResource.class,
+        getPositionMaster(), getSecurityLoader(), getSecuritySource(), getHistoricalTimeSeriesSource());
+    repo.getRestComponents().publishResource(pos);
     
     JerseyRestResourceFactory prt = new JerseyRestResourceFactory(WebPortfoliosResource.class, getPortfolioMaster(), getPositionMaster());
     repo.getRestComponents().publishResource(prt);
+    
+    JerseyRestResourceFactory hts = new JerseyRestResourceFactory(WebAllHistoricalTimeSeriesResource.class,
+        getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesLoader());
+    repo.getRestComponents().publishResource(hts);
     
     JerseyRestResourceFactory bat = new JerseyRestResourceFactory(WebBatchesResource.class, getBatchMaster());
     repo.getRestComponents().publishResource(bat);
@@ -152,12 +191,22 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         return getRegionMaster();
       case -887218750:  // securityMaster
         return getSecurityMaster();
+      case -702456965:  // securitySource
+        return getSecuritySource();
+      case -903470221:  // securityLoader
+        return getSecurityLoader();
       case -1840419605:  // positionMaster
         return getPositionMaster();
       case -772274742:  // portfolioMaster
         return getPortfolioMaster();
       case -252634564:  // batchMaster
         return getBatchMaster();
+      case 173967376:  // historicalTimeSeriesMaster
+        return getHistoricalTimeSeriesMaster();
+      case 358729161:  // historicalTimeSeriesSource
+        return getHistoricalTimeSeriesSource();
+      case 157715905:  // historicalTimeSeriesLoader
+        return getHistoricalTimeSeriesLoader();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -180,6 +229,12 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       case -887218750:  // securityMaster
         setSecurityMaster((SecurityMaster) newValue);
         return;
+      case -702456965:  // securitySource
+        setSecuritySource((SecuritySource) newValue);
+        return;
+      case -903470221:  // securityLoader
+        setSecurityLoader((SecurityLoader) newValue);
+        return;
       case -1840419605:  // positionMaster
         setPositionMaster((PositionMaster) newValue);
         return;
@@ -188,6 +243,15 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         return;
       case -252634564:  // batchMaster
         setBatchMaster((BatchMaster) newValue);
+        return;
+      case 173967376:  // historicalTimeSeriesMaster
+        setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
+        return;
+      case 358729161:  // historicalTimeSeriesSource
+        setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
+        return;
+      case 157715905:  // historicalTimeSeriesLoader
+        setHistoricalTimeSeriesLoader((HistoricalTimeSeriesLoader) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -200,9 +264,14 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_holidayMaster, "holidayMaster");
     JodaBeanUtils.notNull(_regionMaster, "regionMaster");
     JodaBeanUtils.notNull(_securityMaster, "securityMaster");
+    JodaBeanUtils.notNull(_securitySource, "securitySource");
+    JodaBeanUtils.notNull(_securityLoader, "securityLoader");
     JodaBeanUtils.notNull(_positionMaster, "positionMaster");
     JodaBeanUtils.notNull(_portfolioMaster, "portfolioMaster");
     JodaBeanUtils.notNull(_batchMaster, "batchMaster");
+    JodaBeanUtils.notNull(_historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
+    JodaBeanUtils.notNull(_historicalTimeSeriesSource, "historicalTimeSeriesSource");
+    JodaBeanUtils.notNull(_historicalTimeSeriesLoader, "historicalTimeSeriesLoader");
     super.validate();
   }
 
@@ -218,9 +287,14 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getHolidayMaster(), other.getHolidayMaster()) &&
           JodaBeanUtils.equal(getRegionMaster(), other.getRegionMaster()) &&
           JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
+          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
+          JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
           JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
           JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
           JodaBeanUtils.equal(getBatchMaster(), other.getBatchMaster()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
           super.equals(obj);
     }
     return false;
@@ -234,15 +308,20 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getHolidayMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBatchMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
     return hash ^ super.hashCode();
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying master.
+   * Gets the config master.
    * @return the value of the property, not null
    */
   public ConfigMaster getConfigMaster() {
@@ -250,7 +329,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the underlying master.
+   * Sets the config master.
    * @param configMaster  the new value of the property, not null
    */
   public void setConfigMaster(ConfigMaster configMaster) {
@@ -268,7 +347,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying master.
+   * Gets the exchange master.
    * @return the value of the property, not null
    */
   public ExchangeMaster getExchangeMaster() {
@@ -276,7 +355,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the underlying master.
+   * Sets the exchange master.
    * @param exchangeMaster  the new value of the property, not null
    */
   public void setExchangeMaster(ExchangeMaster exchangeMaster) {
@@ -294,7 +373,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying master.
+   * Gets the holiday master.
    * @return the value of the property, not null
    */
   public HolidayMaster getHolidayMaster() {
@@ -302,7 +381,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the underlying master.
+   * Sets the holiday master.
    * @param holidayMaster  the new value of the property, not null
    */
   public void setHolidayMaster(HolidayMaster holidayMaster) {
@@ -346,7 +425,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying master.
+   * Gets the security master.
    * @return the value of the property, not null
    */
   public SecurityMaster getSecurityMaster() {
@@ -354,7 +433,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the underlying master.
+   * Sets the security master.
    * @param securityMaster  the new value of the property, not null
    */
   public void setSecurityMaster(SecurityMaster securityMaster) {
@@ -372,7 +451,59 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying master.
+   * Gets the security source.
+   * @return the value of the property, not null
+   */
+  public SecuritySource getSecuritySource() {
+    return _securitySource;
+  }
+
+  /**
+   * Sets the security source.
+   * @param securitySource  the new value of the property, not null
+   */
+  public void setSecuritySource(SecuritySource securitySource) {
+    JodaBeanUtils.notNull(securitySource, "securitySource");
+    this._securitySource = securitySource;
+  }
+
+  /**
+   * Gets the the {@code securitySource} property.
+   * @return the property, not null
+   */
+  public final Property<SecuritySource> securitySource() {
+    return metaBean().securitySource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security loader.
+   * @return the value of the property, not null
+   */
+  public SecurityLoader getSecurityLoader() {
+    return _securityLoader;
+  }
+
+  /**
+   * Sets the security loader.
+   * @param securityLoader  the new value of the property, not null
+   */
+  public void setSecurityLoader(SecurityLoader securityLoader) {
+    JodaBeanUtils.notNull(securityLoader, "securityLoader");
+    this._securityLoader = securityLoader;
+  }
+
+  /**
+   * Gets the the {@code securityLoader} property.
+   * @return the property, not null
+   */
+  public final Property<SecurityLoader> securityLoader() {
+    return metaBean().securityLoader().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the position master.
    * @return the value of the property, not null
    */
   public PositionMaster getPositionMaster() {
@@ -380,7 +511,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the underlying master.
+   * Sets the position master.
    * @param positionMaster  the new value of the property, not null
    */
   public void setPositionMaster(PositionMaster positionMaster) {
@@ -398,7 +529,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying master.
+   * Gets the portfolio master.
    * @return the value of the property, not null
    */
   public PortfolioMaster getPortfolioMaster() {
@@ -406,7 +537,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the underlying master.
+   * Sets the portfolio master.
    * @param portfolioMaster  the new value of the property, not null
    */
   public void setPortfolioMaster(PortfolioMaster portfolioMaster) {
@@ -424,7 +555,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying master.
+   * Gets the batch master.
    * @return the value of the property, not null
    */
   public BatchMaster getBatchMaster() {
@@ -432,7 +563,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
   }
 
   /**
-   * Sets the underlying master.
+   * Sets the batch master.
    * @param batchMaster  the new value of the property, not null
    */
   public void setBatchMaster(BatchMaster batchMaster) {
@@ -446,6 +577,84 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<BatchMaster> batchMaster() {
     return metaBean().batchMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the time-series master.
+   * @return the value of the property, not null
+   */
+  public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster() {
+    return _historicalTimeSeriesMaster;
+  }
+
+  /**
+   * Sets the time-series master.
+   * @param historicalTimeSeriesMaster  the new value of the property, not null
+   */
+  public void setHistoricalTimeSeriesMaster(HistoricalTimeSeriesMaster historicalTimeSeriesMaster) {
+    JodaBeanUtils.notNull(historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
+    this._historicalTimeSeriesMaster = historicalTimeSeriesMaster;
+  }
+
+  /**
+   * Gets the the {@code historicalTimeSeriesMaster} property.
+   * @return the property, not null
+   */
+  public final Property<HistoricalTimeSeriesMaster> historicalTimeSeriesMaster() {
+    return metaBean().historicalTimeSeriesMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the time-series source.
+   * @return the value of the property, not null
+   */
+  public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
+    return _historicalTimeSeriesSource;
+  }
+
+  /**
+   * Sets the time-series source.
+   * @param historicalTimeSeriesSource  the new value of the property, not null
+   */
+  public void setHistoricalTimeSeriesSource(HistoricalTimeSeriesSource historicalTimeSeriesSource) {
+    JodaBeanUtils.notNull(historicalTimeSeriesSource, "historicalTimeSeriesSource");
+    this._historicalTimeSeriesSource = historicalTimeSeriesSource;
+  }
+
+  /**
+   * Gets the the {@code historicalTimeSeriesSource} property.
+   * @return the property, not null
+   */
+  public final Property<HistoricalTimeSeriesSource> historicalTimeSeriesSource() {
+    return metaBean().historicalTimeSeriesSource().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the time-series loader.
+   * @return the value of the property, not null
+   */
+  public HistoricalTimeSeriesLoader getHistoricalTimeSeriesLoader() {
+    return _historicalTimeSeriesLoader;
+  }
+
+  /**
+   * Sets the time-series loader.
+   * @param historicalTimeSeriesLoader  the new value of the property, not null
+   */
+  public void setHistoricalTimeSeriesLoader(HistoricalTimeSeriesLoader historicalTimeSeriesLoader) {
+    JodaBeanUtils.notNull(historicalTimeSeriesLoader, "historicalTimeSeriesLoader");
+    this._historicalTimeSeriesLoader = historicalTimeSeriesLoader;
+  }
+
+  /**
+   * Gets the the {@code historicalTimeSeriesLoader} property.
+   * @return the property, not null
+   */
+  public final Property<HistoricalTimeSeriesLoader> historicalTimeSeriesLoader() {
+    return metaBean().historicalTimeSeriesLoader().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -484,6 +693,16 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<SecurityMaster> _securityMaster = DirectMetaProperty.ofReadWrite(
         this, "securityMaster", WebsiteBasicsComponentFactory.class, SecurityMaster.class);
     /**
+     * The meta-property for the {@code securitySource} property.
+     */
+    private final MetaProperty<SecuritySource> _securitySource = DirectMetaProperty.ofReadWrite(
+        this, "securitySource", WebsiteBasicsComponentFactory.class, SecuritySource.class);
+    /**
+     * The meta-property for the {@code securityLoader} property.
+     */
+    private final MetaProperty<SecurityLoader> _securityLoader = DirectMetaProperty.ofReadWrite(
+        this, "securityLoader", WebsiteBasicsComponentFactory.class, SecurityLoader.class);
+    /**
      * The meta-property for the {@code positionMaster} property.
      */
     private final MetaProperty<PositionMaster> _positionMaster = DirectMetaProperty.ofReadWrite(
@@ -499,6 +718,21 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<BatchMaster> _batchMaster = DirectMetaProperty.ofReadWrite(
         this, "batchMaster", WebsiteBasicsComponentFactory.class, BatchMaster.class);
     /**
+     * The meta-property for the {@code historicalTimeSeriesMaster} property.
+     */
+    private final MetaProperty<HistoricalTimeSeriesMaster> _historicalTimeSeriesMaster = DirectMetaProperty.ofReadWrite(
+        this, "historicalTimeSeriesMaster", WebsiteBasicsComponentFactory.class, HistoricalTimeSeriesMaster.class);
+    /**
+     * The meta-property for the {@code historicalTimeSeriesSource} property.
+     */
+    private final MetaProperty<HistoricalTimeSeriesSource> _historicalTimeSeriesSource = DirectMetaProperty.ofReadWrite(
+        this, "historicalTimeSeriesSource", WebsiteBasicsComponentFactory.class, HistoricalTimeSeriesSource.class);
+    /**
+     * The meta-property for the {@code historicalTimeSeriesLoader} property.
+     */
+    private final MetaProperty<HistoricalTimeSeriesLoader> _historicalTimeSeriesLoader = DirectMetaProperty.ofReadWrite(
+        this, "historicalTimeSeriesLoader", WebsiteBasicsComponentFactory.class, HistoricalTimeSeriesLoader.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -508,9 +742,14 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         "holidayMaster",
         "regionMaster",
         "securityMaster",
+        "securitySource",
+        "securityLoader",
         "positionMaster",
         "portfolioMaster",
-        "batchMaster");
+        "batchMaster",
+        "historicalTimeSeriesMaster",
+        "historicalTimeSeriesSource",
+        "historicalTimeSeriesLoader");
 
     /**
      * Restricted constructor.
@@ -531,12 +770,22 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return _regionMaster;
         case -887218750:  // securityMaster
           return _securityMaster;
+        case -702456965:  // securitySource
+          return _securitySource;
+        case -903470221:  // securityLoader
+          return _securityLoader;
         case -1840419605:  // positionMaster
           return _positionMaster;
         case -772274742:  // portfolioMaster
           return _portfolioMaster;
         case -252634564:  // batchMaster
           return _batchMaster;
+        case 173967376:  // historicalTimeSeriesMaster
+          return _historicalTimeSeriesMaster;
+        case 358729161:  // historicalTimeSeriesSource
+          return _historicalTimeSeriesSource;
+        case 157715905:  // historicalTimeSeriesLoader
+          return _historicalTimeSeriesLoader;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -598,6 +847,22 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     }
 
     /**
+     * The meta-property for the {@code securitySource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SecuritySource> securitySource() {
+      return _securitySource;
+    }
+
+    /**
+     * The meta-property for the {@code securityLoader} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SecurityLoader> securityLoader() {
+      return _securityLoader;
+    }
+
+    /**
      * The meta-property for the {@code positionMaster} property.
      * @return the meta-property, not null
      */
@@ -619,6 +884,30 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<BatchMaster> batchMaster() {
       return _batchMaster;
+    }
+
+    /**
+     * The meta-property for the {@code historicalTimeSeriesMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<HistoricalTimeSeriesMaster> historicalTimeSeriesMaster() {
+      return _historicalTimeSeriesMaster;
+    }
+
+    /**
+     * The meta-property for the {@code historicalTimeSeriesSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<HistoricalTimeSeriesSource> historicalTimeSeriesSource() {
+      return _historicalTimeSeriesSource;
+    }
+
+    /**
+     * The meta-property for the {@code historicalTimeSeriesLoader} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<HistoricalTimeSeriesLoader> historicalTimeSeriesLoader() {
+      return _historicalTimeSeriesLoader;
     }
 
   }
