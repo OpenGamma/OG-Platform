@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PlatformConfigUtils;
 
 /**
@@ -32,12 +33,33 @@ public class ComponentManager {
   /**
    * The component repository.
    */
-  private final ComponentRepository _repo = new ComponentRepository();
+  private final ComponentRepository _repo;
 
   /**
    * Creates an instance.
    */
   public ComponentManager() {
+    _repo = new ComponentRepository();
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param repo  the repository to use, not null
+   */
+  protected ComponentManager(ComponentRepository repo) {
+    ArgumentChecker.notNull(repo, "repo");
+    _repo = repo;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Initializes the components based on the specified resource.
+   * 
+   * @return the repository, not null
+   */
+  public ComponentRepository createRepository() {
+    return new ComponentRepository();
   }
 
   //-------------------------------------------------------------------------
@@ -112,7 +134,7 @@ public class ComponentManager {
   protected void initComponent(String groupName, LinkedHashMap<String, String> groupConfig) {
     LinkedHashMap<String, String> remainingConfig = new LinkedHashMap<String, String>(groupConfig);
     String typeStr = remainingConfig.remove("factory");
-    s_logger.info("Initializing component: {} with properties {}", typeStr, remainingConfig);
+    s_logger.debug("Initializing component: {} with properties {}", typeStr, remainingConfig);
     
     // load factory
     ComponentFactory factory = loadFactory(typeStr);

@@ -14,6 +14,8 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 
 import com.opengamma.util.ArgumentChecker;
@@ -29,6 +31,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ComponentRepository implements Lifecycle {
 
+  /** Logger. */
+  private static final Logger s_logger = LoggerFactory.getLogger(ComponentRepository.class);
   /**
    * The thread-local instance.
    */
@@ -189,11 +193,12 @@ public class ComponentRepository implements Lifecycle {
     
     ComponentKey key = info.toComponentKey();
     try {
-      registerInstance(key, instance);
+      registerInstance0(key, instance);
       
       _infoMap.putIfAbsent(info.getType(), new ComponentTypeInfo(info.getType()));
       ComponentTypeInfo typeInfo = getTypeInfo(info.getType());
       typeInfo.getInfoMap().put(info.getClassifier(), info);
+      registered(info, instance);
       
     } catch (RuntimeException ex) {
       _status = Status.FAILED;
@@ -221,7 +226,8 @@ public class ComponentRepository implements Lifecycle {
     
     ComponentKey key = ComponentKey.of(type, classifier);
     try {
-      registerInstance(key, instance);
+      registerInstance0(key, instance);
+      registered(key, instance);
       
     } catch (RuntimeException ex) {
       _status = Status.FAILED;
@@ -238,13 +244,13 @@ public class ComponentRepository implements Lifecycle {
    * @param instance  the component instance to register, not null
    * @throws IllegalArgumentException if unable to register
    */
-  private void registerInstance(ComponentKey key, Object instance) {
+  private void registerInstance0(ComponentKey key, Object instance) {
     Object current = _instanceMap.putIfAbsent(key, instance);
     if (current != null) {
       throw new IllegalArgumentException("Component already registered for specified information: " + key);
     }
     if (instance instanceof Lifecycle) {
-      registerLifecycle((Lifecycle) instance);
+      registerLifecycle0((Lifecycle) instance);
     }
   }
 
@@ -258,11 +264,38 @@ public class ComponentRepository implements Lifecycle {
     checkStatus(Status.CREATING);
     
     try {
-      _lifecycles.add(lifecycleObject);
+      registerLifecycle0(lifecycleObject);
+      registered(null, lifecycleObject);
       
     } catch (RuntimeException ex) {
       _status = Status.FAILED;
       throw new RuntimeException("Failed during registering lifecycle: " + lifecycleObject, ex);
+    }
+  }
+
+  /**
+   * Registers a {@code Lifecycle} instance.
+   * 
+   * @param lifecycleObject  the object that has a lifecycle, not null
+   */
+  private void registerLifecycle0(Lifecycle lifecycleObject) {
+    _lifecycles.add(lifecycleObject);
+  }
+
+  /**
+   * Called whenever an instance is registered.
+   * 
+   * @param registeredKey  the key or info of the instance that was registered, null if lifecycle only
+   * @param registeredObject  the instance that was registered, may be null
+   */
+  protected void registered(Object registeredKey, Object registeredObject) {
+    // override to handle event
+    if (registeredKey instanceof ComponentInfo) {
+      s_logger.info(" Registered component: {}", registeredKey);
+    } else if (registeredKey instanceof ComponentKey) {
+      s_logger.info(" Registered infrastructure: {}", registeredKey);
+    } else {
+      s_logger.info(" Registered Lifecycle: {}", registeredObject);
     }
   }
 

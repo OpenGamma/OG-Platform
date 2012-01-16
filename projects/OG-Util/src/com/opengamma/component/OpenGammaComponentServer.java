@@ -114,7 +114,14 @@ public class OpenGammaComponentServer {
         System.out.println(" Config file: " + configFile);
       }
     }
-    ComponentManager manager = (verbosity == 2 ? new VerboseManager() : new ComponentManager());
+    ComponentManager manager;
+    if (verbosity == 2) {
+      manager = new VerboseManager(new VerboseRepository());
+    } else if (verbosity == 1) {
+      manager = new VerboseManager();
+    } else {
+      manager = new ComponentManager();
+    }
     FileSystemResource resource = new FileSystemResource(configFile);
     try {
       manager.start(resource);
@@ -151,6 +158,12 @@ public class OpenGammaComponentServer {
    * Manager that can output more verbose messages.
    */
   private static class VerboseManager extends ComponentManager {
+    public VerboseManager() {
+      super();
+    }
+    public VerboseManager(ComponentRepository repo) {
+      super(repo);
+    }
     @Override
     protected void initComponent(String groupName, LinkedHashMap<String, String> groupData) {
       long startInstant = System.nanoTime();
@@ -166,6 +179,28 @@ public class OpenGammaComponentServer {
       System.out.println("--- Starting Lifecycle ---");
       super.start();
       System.out.println("--- Started Lifecycle ---");
+    }
+  }
+
+  /**
+   * Repository that can output more verbose messages.
+   */
+  private static class VerboseRepository extends ComponentRepository {
+    @Override
+    protected void registered(Object registeredKey, Object registeredObject) {
+      if (registeredKey instanceof ComponentInfo) {
+        ComponentInfo info = (ComponentInfo) registeredKey;
+        if (info.getAttributes().isEmpty()) {
+          System.out.println(" Registered: " + info.toComponentKey());
+        } else {
+          System.out.println(" Registered: " + info.toComponentKey() + " " + info.getAttributes());
+        }
+      } else if (registeredKey instanceof ComponentKey) {
+        System.out.println(" Registered: " + registeredKey);
+      } else {
+        System.out.println(" Registered: " + registeredObject);
+      }
+      super.registered(registeredKey, registeredObject);
     }
   }
 

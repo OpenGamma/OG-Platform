@@ -75,16 +75,6 @@ public final class ComponentKey implements Serializable {
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the equivalent name in Spring.
-   * 
-   * @return the name in Spring, not null
-   */
-  public String toSpringName() {
-    return _classifier + _type.getSimpleName();
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public boolean equals(Object obj) {
     if (obj instanceof ComponentKey) {
