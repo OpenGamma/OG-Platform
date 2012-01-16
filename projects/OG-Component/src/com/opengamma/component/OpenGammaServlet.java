@@ -85,8 +85,8 @@ public class OpenGammaServlet extends ServletContainer {
    */
   protected Application createApplication() {
     ComponentRepository repo = ComponentRepository.getThreadLocal();
-    final Set<Object> singletons = repo.getRestComponents().getJaxRsSingletons();
-    final Set<Class<?>> classes = repo.getRestComponents().getJaxRsClasses();
+    final Set<Object> singletons = repo.getRestComponents().buildJaxRsSingletons();
+    final Set<Class<?>> classes = repo.getRestComponents().buildJaxRsClasses();
     Application app = new Application() {
       @Override
       public Set<Class<?>> getClasses() {

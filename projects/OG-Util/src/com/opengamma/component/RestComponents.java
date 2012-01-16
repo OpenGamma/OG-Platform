@@ -155,7 +155,7 @@ public class RestComponents extends DirectBean {
    * 
    * @return the complete set of singletons, not null
    */
-  public Set<Object> getJaxRsSingletons() {
+  public Set<Object> buildJaxRsSingletons() {
     DataComponentsResource dcr = new DataComponentsResource(getLocalComponents(), getRemoteComponents());
     Set<Object> set = new LinkedHashSet<Object>();
     set.add(dcr);
@@ -170,7 +170,7 @@ public class RestComponents extends DirectBean {
    * 
    * @return the complete set of classes, not null
    */
-  public Set<Class<?>> getJaxRsClasses() {
+  public Set<Class<?>> buildJaxRsClasses() {
     Set<Class<?>> set = new LinkedHashSet<Class<?>>();
     for (RestResourceFactory factory : getRootResourceFactories()) {
       set.add(factory.getType());
