@@ -18,43 +18,6 @@
   <!-- Expose component infrastructure -->
   <bean class="com.opengamma.financial.spring.ComponentRepositoryBeanPostProcessor" />
 
-  <!-- ================================================================== -->
-  <!-- View processor service -->
-  <bean id="viewProcessorRestBean" class="com.opengamma.financial.view.rest.RestViewProcessorFactoryBean">
-    <property name="viewProcessor" ref="demoViewProcessor" />
-    <property name="jmsConnector" ref="standardJmsConnector" />
-    <property name="fudgeContext" ref="standardFudgeContext" />
-    <property name="executorService" ref="standardScheduledExecutorService" />
-  </bean>
-  <bean id="availableOutputsRestBean" class="com.opengamma.financial.view.rest.AvailableOutputsService">
-    <constructor-arg ref="demoAvailableOutputsProvider" />
-    <constructor-arg ref="standardFudgeContext" />
-  </bean>
-  <bean id="dependencyGraphDebugRestBean" class="com.opengamma.financial.depgraph.rest.DependencyGraphBuilderService">
-    <constructor-arg ref="standardFudgeContext" />
-    <property name="underlying">
-      <bean class="com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResourceContextBean">
-        <property name="compiledFunctionService" ref="demoCompiledFunctionService" />
-        <property name="marketDataProviderResolver" ref="standardMarketDataProviderResolver" />
-        <property name="computationTargetResolver" ref="demoComputationTargetResolver" />
-        <property name="functionResolver" ref="demoFunctionResolver" />
-      </bean>
-    </property>
-  </bean>
-
-  <!-- Snapshotter service -->
-  <bean id="snapshotterRest" class="com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshottersResource">
-    <constructor-arg name="processors" ref="viewProcessorRestBean" />
-    <constructor-arg name="volatilityCubeDefinitionSource" ref="combinedVolatilityCubeDefinitionSource" />
-  </bean>
-
-  <!-- Function repository configuration -->
-  <bean id="functionRepositoryRestBean" class="com.opengamma.financial.function.rest.DataFunctionRepositoryResource">
-    <constructor-arg>
-      <bean factory-bean="demoCompiledFunctionService" factory-method="getFunctionRepository" />
-    </constructor-arg>
-  </bean>
-
   <!-- ============================================================================== -->
   <!-- Distributed component configuration data -->
   <bean id="configurationResource" class="com.opengamma.util.rest.ConfigurationResource">
