@@ -134,14 +134,7 @@ $.register_module({
                  */
                 if (obj.form) {
                     $(css_class).html('Loading form...');
-                    // TODO: move this to trades gadget
-                    var form = new og.common.util.ui.Form($.extend(obj.form, {selector: css_class, data: {}}));
-                    form.children = [
-                        new form.Field({module: 'og.views.forms.currency', generator: function (handler, template) {
-                            handler(template);
-                        }})
-                    ];
-                    form.dom();
+                    obj.form(css_class);
                 }
                 /*
                  * Delete any unwanted default buttons
