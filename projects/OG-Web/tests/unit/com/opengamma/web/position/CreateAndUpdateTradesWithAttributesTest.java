@@ -7,6 +7,8 @@ import static org.testng.AssertJUnit.assertTrue;
 import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
@@ -16,12 +18,10 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Maps;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
-import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.util.money.Currency;
 import com.opengamma.web.WebResourceTestUtils;
 
@@ -34,6 +34,8 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
   private static final LocalDate PREMIUM_DATE = LocalDate.parse("2011-12-11");
   private static final String COUNTER_PARTY = "BACS";
   private static final double TRADE_PREMIUM = 40.0;
+  
+  private static final Pattern s_urlPattern = Pattern.compile("^(/positions/)(MemPos~[0-9]+)$");
   
   private Map<String, String> _dealAttributes;
   private Map<String, String> _userAttributes;
@@ -59,8 +61,23 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
     Response response = positionResource.putJSON(QUANTITY.toString(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithAttributes.txt").toString());
     assertNotNull(response);
     assertEquals(200, response.getStatus());
-    
-    PositionDocument positionDocument = _positionMaster.get(_positionID);
+    assertTradeWithAttributes(_positionID);
+  }
+  
+  @Test
+  public void createTradeWithAttributes() throws Exception {
+    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithAttributes.txt").toString());
+    assertNotNull(response);
+    assertEquals(201, response.getStatus());
+    String actualURL = getActualURL(response);
+    Matcher matcher = s_urlPattern.matcher(actualURL);
+    assertTrue(matcher.matches());
+    String positionId = matcher.group(2);
+    assertTradeWithAttributes(UniqueId.parse(positionId));
+  }
+
+  private void assertTradeWithAttributes(UniqueId positionId) {
+    PositionDocument positionDocument = _positionMaster.get(positionId);
     ManageableTrade trade = assertTrade(positionDocument);
     Map<String, String> attributes = trade.getAttributes();
     assertNotNull(attributes);
@@ -76,8 +93,45 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
     Response response = positionResource.putJSON(QUANTITY.toString(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyDealAttributes.txt").toString());
     assertNotNull(response);
     assertEquals(200, response.getStatus());
+    assertTradeWithEmptyDealAttributes(_positionID);
+  }
+
+  @Test
+  public void createTradeWithEmptyDealAttributes() throws Exception {
+    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyDealAttributes.txt").toString());
+    assertNotNull(response);
+    assertEquals(201, response.getStatus());
+    String actualURL = getActualURL(response);
+    Matcher matcher = s_urlPattern.matcher(actualURL);
+    assertTrue(matcher.matches());
+    String positionId = matcher.group(2);
+    assertTradeWithEmptyDealAttributes(UniqueId.parse(positionId));
+  }
+  
+  @Test
+  public void updateTradeWithNoDealAttributes() throws Exception {
+    WebPositionResource positionResource = _webPositionsResource.findPosition(_positionID.toString());
     
-    PositionDocument positionDocument = _positionMaster.get(_positionID);
+    Response response = positionResource.putJSON(QUANTITY.toString(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoDealAttributes.txt").toString());
+    assertNotNull(response);
+    assertEquals(200, response.getStatus());
+    assertTradeWithEmptyDealAttributes(_positionID);
+  }
+  
+  @Test
+  public void createTradeWithNoDealAttributes() throws Exception {
+    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoDealAttributes.txt").toString());
+    assertNotNull(response);
+    assertEquals(201, response.getStatus());
+    String actualURL = getActualURL(response);
+    Matcher matcher = s_urlPattern.matcher(actualURL);
+    assertTrue(matcher.matches());
+    String positionId = matcher.group(2);
+    assertTradeWithEmptyDealAttributes(UniqueId.parse(positionId));
+  }
+  
+  private void assertTradeWithEmptyDealAttributes(UniqueId positionId) {
+    PositionDocument positionDocument = _positionMaster.get(positionId);
     ManageableTrade trade = assertTrade(positionDocument);
     Map<String, String> attributes = trade.getAttributes();
     assertNotNull(attributes);
@@ -92,29 +146,20 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
     Response response = positionResource.putJSON(QUANTITY.toString(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyUserAttributes.txt").toString());
     assertNotNull(response);
     assertEquals(200, response.getStatus());
+    assertTradeWithEmptyUserAttributes(_positionID);
     
-    PositionDocument positionDocument = _positionMaster.get(_positionID);
-    ManageableTrade trade = assertTrade(positionDocument);
-    Map<String, String> attributes = trade.getAttributes();
-    assertNotNull(attributes);
-    assertEquals(2, attributes.size());
-    assertDealAttributes(attributes);
   }
   
   @Test
-  public void updateTradeWithNoDealAttributes() throws Exception {
-    WebPositionResource positionResource = _webPositionsResource.findPosition(_positionID.toString());
-    
-    Response response = positionResource.putJSON(QUANTITY.toString(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoDealAttributes.txt").toString());
+  public void createTradeWithEmptyUserAttributes() throws Exception {
+    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyUserAttributes.txt").toString());
     assertNotNull(response);
-    assertEquals(200, response.getStatus());
-    
-    PositionDocument positionDocument = _positionMaster.get(_positionID);
-    ManageableTrade trade = assertTrade(positionDocument);
-    Map<String, String> attributes = trade.getAttributes();
-    assertNotNull(attributes);
-    assertEquals(2, attributes.size());
-    assertUserAttributes(attributes);
+    assertEquals(201, response.getStatus());
+    String actualURL = getActualURL(response);
+    Matcher matcher = s_urlPattern.matcher(actualURL);
+    assertTrue(matcher.matches());
+    String positionId = matcher.group(2);
+    assertTradeWithEmptyUserAttributes(UniqueId.parse(positionId));
   }
   
   @Test
@@ -124,15 +169,30 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
     Response response = positionResource.putJSON(QUANTITY.toString(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoUserAttributes.txt").toString());
     assertNotNull(response);
     assertEquals(200, response.getStatus());
-    
-    PositionDocument positionDocument = _positionMaster.get(_positionID);
+    assertTradeWithEmptyUserAttributes(_positionID);
+  }
+  
+  @Test
+  public void createTradeWithNoUserAttributes() throws Exception {
+    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoUserAttributes.txt").toString());
+    assertNotNull(response);
+    assertEquals(201, response.getStatus());
+    String actualURL = getActualURL(response);
+    Matcher matcher = s_urlPattern.matcher(actualURL);
+    assertTrue(matcher.matches());
+    String positionId = matcher.group(2);
+    assertTradeWithEmptyUserAttributes(UniqueId.parse(positionId));
+  }
+  
+  private void assertTradeWithEmptyUserAttributes(UniqueId positionId) {
+    PositionDocument positionDocument = _positionMaster.get(positionId);
     ManageableTrade trade = assertTrade(positionDocument);
     Map<String, String> attributes = trade.getAttributes();
     assertNotNull(attributes);
     assertEquals(2, attributes.size());
     assertDealAttributes(attributes);
   }
-
+  
   private void assertUserAttributes(Map<String, String> attributes) {
     for (Entry<String, String> attrEntry : _userAttributes.entrySet()) {
       assertEquals(attrEntry.getValue(), attributes.get(attrEntry.getKey()));
@@ -152,9 +212,20 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     
-    PositionDocument positionDocument = _positionMaster.get(_positionID);
-    ManageableTrade trade = assertTrade(positionDocument);
-    assertTrue(trade.getAttributes().isEmpty());
+    assertTradeWithEmptyAttributes(_positionID);
+  }
+  
+  @Test
+  public void createTradeWithEmptyAttributes() throws Exception {
+    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithEmptyAttributes.txt").toString());
+    assertNotNull(response);
+    assertEquals(201, response.getStatus());
+    String actualURL = getActualURL(response);
+    Matcher matcher = s_urlPattern.matcher(actualURL);
+    assertTrue(matcher.matches());
+    String positionId = matcher.group(2);
+    
+    assertTradeWithEmptyAttributes(UniqueId.parse(positionId));
   }
 
   @Test
@@ -164,7 +235,24 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
     assertNotNull(response);
     assertEquals(200, response.getStatus());
     
-    PositionDocument positionDocument = _positionMaster.get(_positionID);
+    assertTradeWithEmptyAttributes(_positionID);
+  }
+  
+  @Test
+  public void createTradeWithNoAttributes() throws Exception {
+    Response response = _webPositionsResource.postJSON(QUANTITY.toString(), SEC_ID.getScheme().getName(), SEC_ID.getValue(), WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesWithNoAttributes.txt").toString());
+    assertNotNull(response);
+    assertEquals(201, response.getStatus());
+    String actualURL = getActualURL(response);
+    Matcher matcher = s_urlPattern.matcher(actualURL);
+    assertTrue(matcher.matches());
+    String positionId = matcher.group(2);
+    
+    assertTradeWithEmptyAttributes(UniqueId.parse(positionId));
+  }
+  
+  private void assertTradeWithEmptyAttributes(UniqueId positionId) {
+    PositionDocument positionDocument = _positionMaster.get(positionId);
     ManageableTrade trade = assertTrade(positionDocument);
     assertTrue(trade.getAttributes().isEmpty());
   }
@@ -176,9 +264,8 @@ public class CreateAndUpdateTradesWithAttributesTest extends AbstractWebPosition
     assertEquals(BigDecimal.valueOf(QUANTITY), position.getQuantity());
     assertEquals(1, position.getTrades().size());
     ManageableTrade trade = position.getTrades().iterator().next();
-    ManageableSecurityLink expectedSecurityLink = new ManageableSecurityLink(EQUITY_SECURITY.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER));
     
-    assertEquals(expectedSecurityLink, trade.getSecurityLink());
+    assertEquals(SECURITY_LINK, trade.getSecurityLink());
     assertEquals(TRADE_PREMIUM, trade.getPremium());
     assertEquals(COUNTER_PARTY, trade.getCounterpartyExternalId().getValue());
     assertEquals(Currency.USD, trade.getPremiumCurrency());

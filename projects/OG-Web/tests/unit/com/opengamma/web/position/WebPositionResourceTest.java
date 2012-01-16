@@ -22,7 +22,6 @@ import javax.ws.rs.core.Response;
 import org.json.JSONObject;
 import org.testng.annotations.Test;
 
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
@@ -80,9 +79,8 @@ public class WebPositionResourceTest extends AbstractWebPositionResourceTestCase
     assertEquals(BigDecimal.valueOf(QUANTITY), position.getQuantity());
     List<ManageableTrade> trades = position.getTrades();
     assertEquals(3, trades.size());
-    ManageableSecurityLink expectedSecurityLink = new ManageableSecurityLink(EQUITY_SECURITY.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER));
     for (ManageableTrade trade : trades) {
-      assertEquals(expectedSecurityLink, trade.getSecurityLink());
+      assertEquals(SECURITY_LINK, trade.getSecurityLink());
       
       trade.setUniqueId(null);
       trade.setParentPositionId(null);
