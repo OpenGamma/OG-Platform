@@ -9,7 +9,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.push.ConnectionManager;
 import com.opengamma.web.server.push.LongPollingServlet;
-import com.sun.jersey.api.core.ExtendedUriInfo;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.spi.container.ContainerRequest;
 import com.sun.jersey.spi.container.ContainerRequestFilter;
@@ -22,7 +21,6 @@ import org.slf4j.LoggerFactory;
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.MultivaluedMap;
-import java.security.Principal;
 import java.util.List;
 
 /**
