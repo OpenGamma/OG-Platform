@@ -6,12 +6,12 @@
 package com.opengamma.financial.covariance;
 
 import com.opengamma.math.function.Function;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
  * Interface for volatility calculation.
  */
-public interface VolatilityCalculator extends Function<DoubleTimeSeries<?>, Double> {
+public interface VolatilityCalculator extends Function<LocalDateDoubleTimeSeries, Double> {
 
 }

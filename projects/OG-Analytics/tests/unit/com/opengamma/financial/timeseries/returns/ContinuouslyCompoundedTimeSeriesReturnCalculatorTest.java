@@ -9,6 +9,8 @@ import static org.testng.Assert.assertTrue;
 
 import java.util.Arrays;
 
+import javax.time.calendar.LocalDate;
+
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -18,60 +20,56 @@ import cern.jet.random.engine.RandomEngine;
 
 import com.opengamma.math.function.Function;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
-
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 /**
  * 
  */
 
 public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
-  private static final Function<DoubleTimeSeries<?>, DoubleTimeSeries<?>> CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
-  private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.DATE_EPOCH_DAYS;
-
+  private static final Function<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> CALCULATOR = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.LENIENT);
+  
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
-    CALCULATOR.evaluate((DoubleTimeSeries<Long>) null);
+    CALCULATOR.evaluate((LocalDateDoubleTimeSeries) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyArray() {
-    CALCULATOR.evaluate(new DoubleTimeSeries[0]);
+    CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[0]);
   }
 
   @Test(expectedExceptions = TimeSeriesException.class)
   public void testWithBadInputs() {
-    final DoubleTimeSeries<Long> ts = new FastArrayLongDoubleTimeSeries(ENCODING, new long[] {1}, new double[] {4});
-    CALCULATOR.evaluate(new DoubleTimeSeries[] {ts});
+    final LocalDateDoubleTimeSeries ts = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] { LocalDate.ofEpochDays(1) }, new double[] {4});
+    CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {ts});
   }
 
-  @SuppressWarnings("unchecked")
   @Test
   public void testReturnsWithZeroesInSeries() {
     final int n = 20;
-    final long[] times = new long[n];
+    final LocalDate[] times = new LocalDate[n];
     final double[] data = new double[n];
     final double[] returns = new double[n - 3];
     double random;
     for (int i = 0; i < n - 2; i++) {
-      times[i] = i;
+      times[i] = LocalDate.ofEpochDays(i);
       random = RANDOM.nextDouble();
       data[i] = random;
       if (i > 0) {
         returns[i - 1] = Math.log(random / data[i - 1]);
       }
     }
-    times[n - 2] = n - 2;
+    times[n - 2] = LocalDate.ofEpochDays(n - 2);
     data[n - 2] = 0;
-    times[n - 1] = n - 1;
+    times[n - 1] = LocalDate.ofEpochDays(n - 1);
     data[n - 1] = RANDOM.nextDouble();
-    final DoubleTimeSeries<Long> priceTS = new FastArrayLongDoubleTimeSeries(ENCODING, times, data);
-    final DoubleTimeSeries<Long> returnTS = new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOfRange(times, 1, n - 2), returns);
+    final LocalDateDoubleTimeSeries priceTS = new ArrayLocalDateDoubleTimeSeries(times, data);
+    final LocalDateDoubleTimeSeries returnTS = new ArrayLocalDateDoubleTimeSeries(Arrays.copyOfRange(times, 1, n - 2), returns);
     final TimeSeriesReturnCalculator strict = new ContinuouslyCompoundedTimeSeriesReturnCalculator(CalculationMode.STRICT);
-    final DoubleTimeSeries<Long>[] tsArray = new DoubleTimeSeries[] {priceTS};
+    final LocalDateDoubleTimeSeries[] tsArray = new LocalDateDoubleTimeSeries[] {priceTS};
     try {
       strict.evaluate(tsArray);
       Assert.fail();
@@ -85,61 +83,61 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculatorTest {
   @Test
   public void testReturnsWithoutDividends() {
     final int n = 20;
-    final long[] times = new long[n];
+    final LocalDate[] times = new LocalDate[n];
     final double[] data = new double[n];
     final double[] returns = new double[n - 1];
     double random;
     for (int i = 0; i < n; i++) {
-      times[i] = i;
+      times[i] = LocalDate.ofEpochDays(i);
       random = RANDOM.nextDouble();
       data[i] = random;
       if (i > 0) {
         returns[i - 1] = Math.log(random / data[i - 1]);
       }
     }
-    final DoubleTimeSeries<Long> priceTS = new FastArrayLongDoubleTimeSeries(ENCODING, times, data);
-    final DoubleTimeSeries<Long> returnTS = new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOfRange(times, 1, n), returns);
-    assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] {priceTS}).equals(returnTS));
+    final LocalDateDoubleTimeSeries priceTS = new ArrayLocalDateDoubleTimeSeries(times, data);
+    final LocalDateDoubleTimeSeries returnTS = new ArrayLocalDateDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns);
+    assertTrue(CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {priceTS}).equals(returnTS));
   }
 
   @Test
   public void testReturnsWithDividendsAtDifferentTimes() {
     final int n = 20;
-    final long[] times = new long[n];
+    final LocalDate[] times = new LocalDate[n];
     final double[] data = new double[n];
     final double[] returns = new double[n - 1];
     double random;
     for (int i = 0; i < n; i++) {
-      times[i] = i;
+      times[i] = LocalDate.ofEpochDays(i);
       random = RANDOM.nextDouble();
       data[i] = random;
       if (i > 0) {
         returns[i - 1] = Math.log(random / data[i - 1]);
       }
     }
-    final DoubleTimeSeries<Long> dividendTS = new FastArrayLongDoubleTimeSeries(ENCODING, new long[] {300}, new double[] {3});
-    final DoubleTimeSeries<Long> priceTS = new FastArrayLongDoubleTimeSeries(ENCODING, times, data);
-    final DoubleTimeSeries<Long> returnTS = new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOfRange(times, 1, n), returns);
-    assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] {priceTS, dividendTS}).equals(returnTS));
+    final LocalDateDoubleTimeSeries dividendTS = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDays(300)}, new double[] {3});
+    final LocalDateDoubleTimeSeries priceTS = new ArrayLocalDateDoubleTimeSeries(times, data);
+    final LocalDateDoubleTimeSeries returnTS = new ArrayLocalDateDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns);
+    assertTrue(CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {priceTS, dividendTS}).equals(returnTS));
   }
 
   @Test
   public void testReturnsWithDividends() {
     final int n = 20;
-    final long[] times = new long[n];
+    final LocalDate[] times = new LocalDate[n];
     final double[] data = new double[n];
     final double[] returns = new double[n - 1];
     double random;
     for (int i = 0; i < n; i++) {
-      times[i] = i;
+      times[i] = LocalDate.ofEpochDays(i);
       random = RANDOM.nextDouble();
       data[i] = random;
       if (i > 0) {
         returns[i - 1] = Math.log(random / data[i - 1]);
       }
     }
-    final DoubleTimeSeries<Long> priceTS = new FastArrayLongDoubleTimeSeries(ENCODING, times, data);
-    final DoubleTimeSeries<Long> returnTS = new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOfRange(times, 1, n), returns);
-    assertTrue(CALCULATOR.evaluate(new DoubleTimeSeries[] {priceTS}).equals(returnTS));
+    final LocalDateDoubleTimeSeries priceTS = new ArrayLocalDateDoubleTimeSeries(times, data);
+    final LocalDateDoubleTimeSeries returnTS = new ArrayLocalDateDoubleTimeSeries(Arrays.copyOfRange(times, 1, n), returns);
+    assertTrue(CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {priceTS}).equals(returnTS));
   }
 }
