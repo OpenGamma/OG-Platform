@@ -5,23 +5,24 @@
  */
 package com.opengamma.financial.timeseries.returns;
 
+import javax.time.calendar.LocalDate;
+
 import org.testng.annotations.Test;
 
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
  */
 public class RelativeTimeSeriesReturnCalculatorTest {
-  private static final DoubleTimeSeries<?> TS = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 2}, new double[] {3, 4});
+  private static final LocalDateDoubleTimeSeries TS = new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.of(2000, 1, 2), LocalDate.of(2000, 1, 3)}, new double[] {3, 4});
   private static final RelativeTimeSeriesReturnCalculator STRICT = new RelativeTimeSeriesReturnCalculator(CalculationMode.STRICT) {
 
     @Override
-    public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
+    public LocalDateDoubleTimeSeries evaluate(final LocalDateDoubleTimeSeries... x) {
       testInputData(x);
       return null;
     }
@@ -29,7 +30,7 @@ public class RelativeTimeSeriesReturnCalculatorTest {
   private static final RelativeTimeSeriesReturnCalculator LENIENT = new RelativeTimeSeriesReturnCalculator(CalculationMode.LENIENT) {
 
     @Override
-    public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
+    public LocalDateDoubleTimeSeries evaluate(final LocalDateDoubleTimeSeries... x) {
       testInputData(x);
       return null;
     }
@@ -37,12 +38,12 @@ public class RelativeTimeSeriesReturnCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullArray() {
-    STRICT.evaluate((DoubleTimeSeries<?>[]) null);
+    STRICT.evaluate((LocalDateDoubleTimeSeries[]) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyArray() {
-    STRICT.evaluate(new DoubleTimeSeries<?>[0]);
+    STRICT.evaluate(new LocalDateDoubleTimeSeries[0]);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -57,21 +58,21 @@ public class RelativeTimeSeriesReturnCalculatorTest {
 
   @Test(expectedExceptions = TimeSeriesException.class)
   public void testDifferentLengthsStrict() {
-    STRICT.evaluate(TS, new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1}, new double[] {1}));
+    STRICT.evaluate(TS, new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.of(2000, 1, 1)}, new double[] {1}));
   }
 
   @Test
   public void testDifferentLengthsLenient() {
-    LENIENT.evaluate(TS, new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1}, new double[] {1}));
+    LENIENT.evaluate(TS, new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.of(2000, 1, 1)}, new double[] {1}));
   }
 
   @Test(expectedExceptions = TimeSeriesException.class)
   public void testDifferentDatesStrict() {
-    STRICT.evaluate(TS, new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 3}, new double[] {1, 2}));
+    STRICT.evaluate(TS, new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.of(2000, 1, 1)}, new double[] {1}));
   }
 
   @Test
   public void testDifferentDatessLenient() {
-    LENIENT.evaluate(TS, new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, new int[] {1, 3}, new double[] {1, 2}));
+    LENIENT.evaluate(TS, new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.of(2000, 1, 1), LocalDate.of(2000, 1, 3)}, new double[] {1, 2}));
   }
 }

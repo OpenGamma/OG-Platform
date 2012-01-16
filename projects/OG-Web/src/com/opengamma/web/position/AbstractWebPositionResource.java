@@ -12,11 +12,8 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityLoader;
@@ -46,21 +43,19 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
    * @param positionMaster  the position master, not null
    * @param securityLoader  the security loader, not null
    * @param securitySource  the security source, not null
-   * @param htsMaster       the historical time series master, not null
-   * @param cfgSource       the config source, not null
+   * @param htsResolver     the historical time series resolver, not null
    */
   protected AbstractWebPositionResource(
       final PositionMaster positionMaster, final SecurityLoader securityLoader, final SecuritySource securitySource,
-      final HistoricalTimeSeriesMaster htsMaster, final ConfigSource cfgSource) {
+      final HistoricalTimeSeriesResolver htsResolver) {
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notNull(securityLoader, "securityLoader");
     ArgumentChecker.notNull(securitySource, "securitySource");
     _data = new WebPositionsData();
+    _htsResolver = htsResolver;
     data().setPositionMaster(positionMaster);
     data().setSecurityLoader(securityLoader);
-    data().setSecuritySource(securitySource);
-    
-    _htsResolver = new DefaultHistoricalTimeSeriesResolver(htsMaster, cfgSource);    
+    data().setSecuritySource(securitySource);    
   }
 
   /**

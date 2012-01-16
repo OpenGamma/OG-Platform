@@ -8,33 +8,31 @@ package com.opengamma.master.historicaltimeseries;
 import javax.time.calendar.LocalDate;
 
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
- * Resolves an identifier, such as a security, to the appropriate historical time-series information.
- * <p>
- * Time-series information includes data source, data provider, data field and observation time.
- * This can be used to lookup the time-series itself.
+ * Resolves identifiers, such as those of a security, together with a requested data field, to the appropriate
+ * historical time-series.
  */
 @PublicSPI
 public interface HistoricalTimeSeriesResolver {
 
   /**
-   * Find the best matching time-series for an identifier and data field.
+   * Resolves a time-series from a bundle of identifiers and a data field.
    * <p>
-   * The desired series is specified by identifier bundle, typically a security,
-   * and the data type, such as "price" or "volume".
-   * However, the underlying sources of data may contain multiple matching time-series.
-   * The resolver allows the preferred series to be chosen based on a key.
-   * The meaning of the key is resolver specific, and it might be treated as a DSL or a configuration key.
+   * The desired series is specified by identifier bundle, typically a security, and the data field name, such as
+   * "price" or "volume". However, the underlying sources of data may contain multiple matching time-series. The
+   * resolver allows the preferred series to be chosen based on a key. The meaning of the key is resolver-specific, and
+   * it might be treated as a DSL or a configuration key.
    * 
-   * @param dataField  the type of data that the time-series represents, not null
    * @param identifierBundle  the bundle of identifiers to resolve, not null
    * @param identifierValidityDate  the date that the identifier must be valid on, null to use all identifiers
+   * @param dataSource  the data source name associated with the time-series, null for any
+   * @param dataProvider  the data provider name associated with the time-series, null for any
+   * @param dataField  the type of data that the time-series represents, not null
    * @param resolutionKey  a key defining how the resolution is to occur, null for the default best match
-   * @return the best matching time-series unique identifier, null if unable to find a match
+   * @return a resolution result for the best match, null if unable to find a match
    */
-  UniqueId resolve(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey);
+  HistoricalTimeSeriesResolutionResult resolve(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField, String resolutionKey);
 
 }

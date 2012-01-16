@@ -8,20 +8,26 @@ package com.opengamma.financial.timeseries.filter;
 import cern.colt.Arrays;
 
 import com.opengamma.math.function.Function1D;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
  */
-public abstract class TimeSeriesFilter extends Function1D<DoubleTimeSeries<?>, FilteredTimeSeries> {
+public abstract class TimeSeriesFilter extends Function1D<LocalDateDoubleTimeSeries, FilteredTimeSeries> {
 
-  protected FilteredTimeSeries getFilteredSeries(final FastLongDoubleTimeSeries x, final long[] filteredDates, final double[] filteredData, final int i, final long[] rejectedDates,
+  protected FilteredTimeSeries getFilteredSeries(final LocalDateDoubleTimeSeries x, final int[] filteredDates, final double[] filteredData, final int i, final int[] rejectedDates,
       final double[] rejectedData, final int j) {
-    final DateTimeNumericEncoding encoding = x.getEncoding();
-    return new FilteredTimeSeries(new FastArrayLongDoubleTimeSeries(encoding, Arrays.trimToCapacity(filteredDates, i), Arrays.trimToCapacity(filteredData, i)), new FastArrayLongDoubleTimeSeries(
-        encoding, Arrays.trimToCapacity(rejectedDates, j), Arrays.trimToCapacity(rejectedData, j)));
+    
+    FastArrayIntDoubleTimeSeries filtered = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, 
+                                                                             (int[]) Arrays.trimToCapacity(filteredDates, i), 
+                                                                             Arrays.trimToCapacity(filteredData, i));
+    FastArrayIntDoubleTimeSeries rejected = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, 
+                                                                             (int[]) Arrays.trimToCapacity(rejectedDates, j), 
+                                                                             Arrays.trimToCapacity(rejectedData, j));
+    return new FilteredTimeSeries(new ArrayLocalDateDoubleTimeSeries(filtered), 
+                                  new ArrayLocalDateDoubleTimeSeries(rejected));
   }
 }
