@@ -196,8 +196,7 @@
   <bean id="webSecuritiesRestBean" class="com.opengamma.web.security.WebSecuritiesResource" scope="request">
     <constructor-arg ref="dbSecurityMaster" />
     <constructor-arg ref="securityLoader"/>
-    <constructor-arg ref="dbHtsMaster"/>
-    <constructor-arg ref="sharedConfigSource"/>
+    <constructor-arg ref="htsResolver"/>
   </bean>
   
   <!-- Portfolios RESTful service -->
@@ -217,8 +216,7 @@
     <constructor-arg ref="dbPositionMaster" />
     <constructor-arg ref="securityLoader"/>
     <constructor-arg ref="sharedSecuritySource"/>
-    <constructor-arg ref="dbHtsMaster"/>
-    <constructor-arg ref="sharedConfigSource"/>
+    <constructor-arg ref="htsResolver"/>
   </bean>
   
   <!-- Exchanges RESTful service -->

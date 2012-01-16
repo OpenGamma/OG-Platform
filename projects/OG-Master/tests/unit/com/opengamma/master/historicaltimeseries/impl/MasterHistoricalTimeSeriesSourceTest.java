@@ -19,7 +19,6 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -28,8 +27,10 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocumen
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -93,6 +94,9 @@ public class MasterHistoricalTimeSeriesSourceTest {
     HistoricalTimeSeriesInfoSearchResult searchResult = new HistoricalTimeSeriesInfoSearchResult();
     HistoricalTimeSeriesInfoDocument doc = new HistoricalTimeSeriesInfoDocument();
     doc.setUniqueId(UID);
+    
+    when(_mockResolver.resolve(IDENTIFIERS, LocalDate.now(), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, null)).thenReturn(new HistoricalTimeSeriesResolutionResult(doc.getInfo()));
+    
     doc.getInfo().setTimeSeriesObjectId(UID.getObjectId());
     searchResult.getDocuments().add(doc);
     when(_mockMaster.search(request)).thenReturn(searchResult);
@@ -103,7 +107,6 @@ public class MasterHistoricalTimeSeriesSourceTest {
     when(_mockMaster.getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST, HistoricalTimeSeriesGetFilter.ofRange(null, null))).thenReturn(hts);
     
     HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(IDENTIFIERS, BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD);
-    verify(_mockMaster, times(1)).search(request);
     verify(_mockMaster, times(1)).getTimeSeries(UID.getObjectId(), VersionCorrection.LATEST, HistoricalTimeSeriesGetFilter.ofRange(null, null));
     
     assertEquals(UID, test.getUniqueId());
@@ -114,9 +117,11 @@ public class MasterHistoricalTimeSeriesSourceTest {
     hts.setUniqueId(UID);
     hts.setTimeSeries(randomTimeSeries());
     when(_mockMaster.getTimeSeries(UID, HistoricalTimeSeriesGetFilter.ofRange(null, null))).thenReturn(hts);
-    when(_mockResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, IDENTIFIERS, LocalDate.now(), TEST_CONFIG)).thenReturn(UID);
+    ManageableHistoricalTimeSeriesInfo tsInfo = new ManageableHistoricalTimeSeriesInfo();
+    tsInfo.setUniqueId(UID);
+    when(_mockResolver.resolve(IDENTIFIERS, LocalDate.now(), null, null, CLOSE_DATA_FIELD, TEST_CONFIG)).thenReturn(new HistoricalTimeSeriesResolutionResult(tsInfo));
     
-    HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, IDENTIFIERS, TEST_CONFIG);
+    HistoricalTimeSeries test = _tsSource.getHistoricalTimeSeries(CLOSE_DATA_FIELD, IDENTIFIERS, TEST_CONFIG);
     verify(_mockMaster, times(1)).getTimeSeries(UID, HistoricalTimeSeriesGetFilter.ofRange(null, null));
     
     assertEquals(UID, test.getUniqueId());
@@ -140,6 +145,8 @@ public class MasterHistoricalTimeSeriesSourceTest {
     doc.setUniqueId(UID);
     doc.getInfo().setTimeSeriesObjectId(UID.getObjectId());
     searchResult.getDocuments().add(doc);
+    
+    when(_mockResolver.resolve(IDENTIFIERS, LocalDate.now(), BBG_DATA_SOURCE, CMPL_DATA_PROVIDER, CLOSE_DATA_FIELD, null)).thenReturn(new HistoricalTimeSeriesResolutionResult(doc.getInfo()));
     
     for (boolean includeStart : new boolean[] {true, false})  {
       for (boolean includeEnd : new boolean[] {true, false}) {

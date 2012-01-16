@@ -16,8 +16,8 @@ import org.apache.commons.lang.Validate;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -67,7 +67,7 @@ public abstract class CAPMBetaModelFunction extends AbstractFunction.NonCompiled
     final ValueProperties constraints = desiredValue.getConstraints();
     final Period samplingPeriod = getSamplingPeriod(constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD));
     final LocalDate startDate = now.minus(samplingPeriod);
-    final HistoricalTimeSeries marketTSObject = historicalSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, bundle.getCAPMMarket(), _resolutionKey, startDate, true, now, true);
+    final HistoricalTimeSeries marketTSObject = historicalSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMMarket(), _resolutionKey, startDate, true, now, true);
     if (marketTSObject == null) {
       throw new OpenGammaRuntimeException("Could not get market time series");
     }

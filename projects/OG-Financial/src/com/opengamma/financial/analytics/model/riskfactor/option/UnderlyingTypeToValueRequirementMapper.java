@@ -9,13 +9,13 @@ import org.apache.commons.lang.NotImplementedException;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * 

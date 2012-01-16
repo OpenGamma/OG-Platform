@@ -14,7 +14,7 @@ import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 
 import com.google.common.collect.Sets;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
+import com.opengamma.core.value.MarketDataRequirementNames;
 
 /**
  * Utility methods to test the conformity of messages to standard
