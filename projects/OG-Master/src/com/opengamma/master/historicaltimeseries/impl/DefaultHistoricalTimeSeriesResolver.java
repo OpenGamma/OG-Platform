@@ -44,6 +44,7 @@ public class DefaultHistoricalTimeSeriesResolver implements HistoricalTimeSeries
     ManageableHistoricalTimeSeriesInfo selectedResult = select(timeSeriesCandidates, resolutionKey);
     if (selectedResult == null) {
       s_logger.warn("Resolver failed to find any time-series for {} using {}/{}", new Object[] {identifierBundle, dataField, resolutionKey});
+      return null;
     }
     return new HistoricalTimeSeriesResolutionResult(selectedResult);
   }
