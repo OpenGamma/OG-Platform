@@ -14,12 +14,17 @@
     </property>
   </bean>
 
+  <!-- ================================================================== -->
+  <!-- Expose component infrastructure -->
+  <bean class="com.opengamma.financial.spring.ComponentRepositoryBeanPostProcessor" />
+
+  <!-- ================================================================== -->
   <!-- View processor service -->
   <bean id="viewProcessorRestBean" class="com.opengamma.financial.view.rest.RestViewProcessorFactoryBean">
     <property name="viewProcessor" ref="demoViewProcessor" />
     <property name="jmsConnector" ref="standardJmsConnector" />
     <property name="fudgeContext" ref="standardFudgeContext" />
-    <property name="executorService" ref="scheduler" />
+    <property name="executorService" ref="standardScheduledExecutorService" />
   </bean>
   <bean id="availableOutputsRestBean" class="com.opengamma.financial.view.rest.AvailableOutputsService">
     <constructor-arg ref="demoAvailableOutputsProvider" />
@@ -29,9 +34,9 @@
     <constructor-arg ref="standardFudgeContext" />
     <property name="underlying">
       <bean class="com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResourceContextBean">
-        <property name="compiledFunctionService" ref="demoFunctionCompilation" />
+        <property name="compiledFunctionService" ref="demoCompiledFunctionService" />
         <property name="marketDataProviderResolver" ref="standardMarketDataProviderResolver" />
-        <property name="computationTargetResolver" ref="demoTargetResolver" />
+        <property name="computationTargetResolver" ref="demoComputationTargetResolver" />
         <property name="functionResolver" ref="demoFunctionResolver" />
       </bean>
     </property>
@@ -46,7 +51,7 @@
   <!-- Function repository configuration -->
   <bean id="functionRepositoryRestBean" class="com.opengamma.financial.function.rest.DataFunctionRepositoryResource">
     <constructor-arg>
-      <bean factory-bean="demoFunctionCompilation" factory-method="getFunctionRepository" />
+      <bean factory-bean="demoCompiledFunctionService" factory-method="getFunctionRepository" />
     </constructor-arg>
   </bean>
 
@@ -180,7 +185,7 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
-            <entry key="remoteCalcNode" value-ref="calcNodeSocketConfig" />
+            <entry key="remoteCalcNode" value-ref="calcNodeSocketConfigurationResource" />
             <entry key="securityMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/components/securityMaster/combined/" />
