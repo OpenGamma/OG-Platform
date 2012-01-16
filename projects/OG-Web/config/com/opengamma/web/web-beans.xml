@@ -197,19 +197,19 @@
   <!-- Web -->
   <bean id="webSecuritiesRestBean" class="com.opengamma.web.security.WebSecuritiesResource" scope="request">
     <constructor-arg ref="centralSecurityMaster" />
-    <constructor-arg ref="securityLoader"/>
+    <constructor-arg ref="standardSecurityLoader"/>
     <constructor-arg ref="sharedHistoricalTimeSeriesSource"/>
   </bean>
   <bean id="webPositionsRestBean" class="com.opengamma.web.position.WebPositionsResource" scope="request">
     <constructor-arg ref="centralPositionMaster" />
-    <constructor-arg ref="securityLoader"/>
+    <constructor-arg ref="standardSecurityLoader"/>
     <constructor-arg ref="sharedSecuritySource"/>
     <constructor-arg ref="sharedHistoricalTimeSeriesSource"/>
   </bean>
 
   <bean id="webTimeSeriesRestBean" class="com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource" scope="request">
     <constructor-arg ref="centralHistoricalTimeSeriesMaster" />
-    <constructor-arg ref="htsLoader"/>
+    <constructor-arg ref="standardHistoricalTimeSeriesLoader"/>
   </bean>
 
   <!-- ============================================================================== -->
