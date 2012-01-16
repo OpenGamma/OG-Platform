@@ -157,6 +157,28 @@ public class DependencyNode {
     _outputValues.add(outputValue);
   }
 
+  /**
+   * Removes an output value from this node. The value must not be used as an input to a dependent node.
+   * 
+   * @param outputValue the value to remove
+   */
+  public void removeOutputValue(ValueSpecification outputValue) {
+    for (DependencyNode outputNode : _dependentNodes) {
+      if (outputNode._inputValues.contains(outputValue)) {
+        throw new IllegalStateException("Can't remove output value " + outputValue + " required for input to " + outputNode);
+      }
+    }
+    if (!_outputValues.remove(outputValue)) {
+      throw new IllegalStateException("Output value " + outputValue + " not in output set of " + this);
+    }
+  }
+
+  /**
+   * Replace an output value from this node with another.
+   * 
+   * @param existingOutputValue the existing value
+   * @param newOutputValue the value to replace it with
+   */
   public void replaceOutputValue(final ValueSpecification existingOutputValue, final ValueSpecification newOutputValue) {
     if (!_outputValues.remove(existingOutputValue)) {
       throw new IllegalStateException("Existing output value " + existingOutputValue + " not in output set of " + this);

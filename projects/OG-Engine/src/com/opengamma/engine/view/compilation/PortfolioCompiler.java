@@ -93,9 +93,13 @@ public final class PortfolioCompiler {
     final Collection<Position> positions = node.getPositions();
     resolver.cachePositions(positions);
     for (Position position : positions) {
-      resolver.cacheSecurities(Collections.singleton(position.getSecurity()));
+      if (position.getSecurity() != null) {
+        resolver.cacheSecurities(Collections.singleton(position.getSecurity()));
+      }
       for (Trade trade : position.getTrades()) {
-        resolver.cacheSecurities(Collections.singleton(trade.getSecurity()));
+        if (trade.getSecurity() != null) {
+          resolver.cacheSecurities(Collections.singleton(trade.getSecurity()));
+        }
       }
       resolver.cacheTrades(position.getTrades());
     }
