@@ -14,6 +14,7 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
@@ -45,7 +46,6 @@ import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
@@ -64,25 +64,21 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
    * The backing bean.
    */
   private final WebSecuritiesData _data;
-  
-  /**
-   * The HTS resolver (for getting an HTS Id)
-   */
-  private final HistoricalTimeSeriesResolver _htsResolver;
-  
+
   /**
    * Creates the resource.
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
-   * @param htsResolver     the HTS resolver, not null (for resolving relevant HTS Id) 
+   * @param htsSource  the historical time series source, not null
    */
-  protected AbstractWebSecurityResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesResolver htsResolver) {
+  protected AbstractWebSecurityResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesSource htsSource) {
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(securityLoader, "securityLoader");
+    ArgumentChecker.notNull(htsSource, "htsSource");
     _data = new WebSecuritiesData();
-    _htsResolver = htsResolver;
     data().setSecurityMaster(securityMaster);
     data().setSecurityLoader(securityLoader);    
+    data().setHistoricalTimeSeriesSource(htsSource);
   }
 
   /**
@@ -92,7 +88,6 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
   protected AbstractWebSecurityResource(final AbstractWebSecurityResource parent) {
     super(parent);
     _data = parent._data;
-    _htsResolver = parent._htsResolver;
   }
 
   /**
@@ -126,17 +121,8 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
   protected WebSecuritiesData data() {
     return _data;
   }
-  
-  /**
-   * Gets the HTS resolver
-   * @return the HTS resolver, not null
-   */
-  protected HistoricalTimeSeriesResolver htsResolver() {
-    return _htsResolver;
-  }
-  
+
   protected void addSecuritySpecificMetaData(ManageableSecurity security, FlexiBean out) {
-    
     if (security.getSecurityType().equals(SwapSecurity.SECURITY_TYPE)) {
       SwapSecurity swapSecurity = (SwapSecurity) security;
       out.put("payLegType", swapSecurity.getPayLeg().accept(new SwapLegClassifierVisitor()));
