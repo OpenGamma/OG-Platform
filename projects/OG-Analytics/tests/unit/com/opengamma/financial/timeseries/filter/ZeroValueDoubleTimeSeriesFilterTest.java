@@ -92,13 +92,13 @@ public class ZeroValueDoubleTimeSeriesFilterTest {
         largeZeroFilteredData[m++] = d;
       }
     }
-    smallZeroFilteredDates = (LocalDate[]) Arrays.trimToCapacity(smallZeroFilteredDates, k);
+    smallZeroFilteredDates = (LocalDate[]) trimToCapacity(smallZeroFilteredDates, k);
     smallZeroFilteredData = Arrays.trimToCapacity(smallZeroFilteredData, k);
-    smallZeroRejectedDates = (LocalDate[]) Arrays.trimToCapacity(smallZeroRejectedDates, l);
+    smallZeroRejectedDates = (LocalDate[]) trimToCapacity(smallZeroRejectedDates, l);
     smallZeroRejectedData = Arrays.trimToCapacity(smallZeroRejectedData, l);
-    largeZeroFilteredDates = (LocalDate[]) Arrays.trimToCapacity(largeZeroFilteredDates, m);
+    largeZeroFilteredDates = (LocalDate[]) trimToCapacity(largeZeroFilteredDates, m);
     largeZeroFilteredData = Arrays.trimToCapacity(largeZeroFilteredData, m);
-    largeZeroRejectedDates = (LocalDate[]) Arrays.trimToCapacity(largeZeroRejectedDates, j);
+    largeZeroRejectedDates = (LocalDate[]) trimToCapacity(largeZeroRejectedDates, j);
     largeZeroRejectedData = Arrays.trimToCapacity(largeZeroRejectedData, j);
     final LocalDateDoubleTimeSeries ts = new ArrayLocalDateDoubleTimeSeries(dates, data);
     FilteredTimeSeries result = SMALL_ZERO_FILTER.evaluate(ts);
@@ -107,5 +107,11 @@ public class ZeroValueDoubleTimeSeriesFilterTest {
     result = LARGE_ZERO_FILTER.evaluate(ts);
     assertEquals(result, new FilteredTimeSeries(new ArrayLocalDateDoubleTimeSeries(largeZeroFilteredDates, largeZeroFilteredData), 
                                                 new ArrayLocalDateDoubleTimeSeries(largeZeroRejectedDates, largeZeroRejectedData)));
+  }
+  
+  private LocalDate[] trimToCapacity(final LocalDate[] source, final int k) {
+    LocalDate[] result = new LocalDate[k];
+    System.arraycopy(source, 0, result, 0, k);
+    return result;
   }
 }
