@@ -123,10 +123,7 @@ $.register_module({
                 /*
                  * Create advanced form via og.common.util.ui.Form
                  */
-                if (obj.form) {
-                    $(css_class).html('Loading form...');
-                    obj.form(css_class);
-                }
+                if (obj.form) {obj.form(css_class);}
                 $obj.dialog($.extend(true, default_options.input.jquery, obj));
             }
             $obj.parent('.ui-dialog').addClass(class_name + '-container');

@@ -18,6 +18,7 @@ $.register_module({
         reload = function () {og.common.gadgets.trades(original_config_object);};
         generate_form_function = function (load_handler) {
             return function (css_class) {
+                $(css_class).html('Loading form...');
                 var form = new og.common.util.ui.Form({
                     selector: css_class, data: {}, module: 'og.views.forms.add-trades',
                     handlers: [{type: 'form:load', handler: function () {load_handler()}}]
