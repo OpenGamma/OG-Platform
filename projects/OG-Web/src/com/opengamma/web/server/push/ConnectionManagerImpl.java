@@ -93,8 +93,8 @@ import java.util.concurrent.atomic.AtomicLong;
   public String clientConnected(String userId) {
     // TODO check args
     String clientId = Long.toString(_clientConnectionId.getAndIncrement());
-    LongPollingUpdateListener updateListener = _longPollingConnectionManager.handshake(userId, clientId);
     ConnectionTimeoutTask timeoutTask = new ConnectionTimeoutTask(this, userId, clientId, _timeout);
+    LongPollingUpdateListener updateListener = _longPollingConnectionManager.handshake(userId, clientId, timeoutTask);
     ClientConnection connection = new ClientConnection(userId, clientId, updateListener, _viewportFactory, timeoutTask);
     _changeManager.addChangeListener(connection);
     _masterChangeManager.addChangeListener(connection);
