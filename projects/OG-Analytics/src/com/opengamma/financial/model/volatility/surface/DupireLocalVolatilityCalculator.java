@@ -24,55 +24,11 @@ public class DupireLocalVolatilityCalculator {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   public DupireLocalVolatilityCalculator() {
-    _eps = 1e-5;
+    _eps = 1e-3;
   }
 
   public DupireLocalVolatilityCalculator(final double tol) {
     _eps = tol;
-  }
-
-  /**
-   * @deprecated As its name suggests this is purely for debugging and will be removed
-   * @param priceSurface The price surface
-   * @param impliedVolatilitySurface The implied volatility surface
-   * @param spot The spot value
-   * @param rate The rate
-   * @param t The time
-   * @param k The strike
-   */
-  @Deprecated
-  public void debug(final PriceSurface priceSurface, final BlackVolatilitySurface impliedVolatilitySurface, final double spot, final double rate, final double t, final double k) {
-
-    final double vol = impliedVolatilitySurface.getVolatility(t, k);
-    final double price = priceSurface.getPrice(t, k);
-    final double cdT = getFirstTimeDev(priceSurface.getSurface(), t, k, price);
-    final double cdK = getFirstStrikeDev(priceSurface.getSurface(), t, k, price, spot);
-    final double cdKK = getSecondStrikeDev(priceSurface.getSurface(), t, k, price, spot);
-
-    final double sigmadT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, k, vol);
-    final double sigmadK = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, k, vol, spot);
-    final double sigmadKK = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, k, vol, spot);
-
-    final double d1 = (Math.log(spot / k) + (rate + vol * vol / 2) * t) / vol / Math.sqrt(t);
-    final double d2 = d1 - vol * Math.sqrt(t);
-    final double nd2 = NORMAL.getCDF(d2);
-    final double nPrimed2 = NORMAL.getPDF(d2);
-    final double df = Math.exp(-rate * t);
-    final double delta = -df * nd2;
-    final double gamma = df * nPrimed2 / k / vol / Math.sqrt(t);
-    final double vega = Math.sqrt(t) * k * df * nPrimed2;
-    final double vanna = df * d1 * nPrimed2 / vol;
-    final double vomma = df * k * nPrimed2 * Math.sqrt(t) * d1 * d2 / vol;
-    final double theta = df * k * (rate * nd2 + nPrimed2 * vol / 2 / Math.sqrt(t));
-
-    final double cdTStar = theta + vega * sigmadT;
-    final double cdKStar = delta + vega * sigmadK;
-    final double cdKKStar = gamma + 2 * vanna * sigmadK + +vomma * sigmadK * sigmadK + vega * sigmadKK;
-
-    Validate.isTrue(Math.abs((cdT - cdTStar) / cdT) < 1e-5, "theta");
-    Validate.isTrue(Math.abs((cdK - cdKStar) / cdK) < 1e-5, "delta");
-    Validate.isTrue(Math.abs((cdKK - cdKKStar) / cdKK) < 1e-5, "gamma");
-
   }
 
   /**
@@ -208,6 +164,7 @@ public class DupireLocalVolatilityCalculator {
         final double t = tk[0];
         final double k = tk[1];
         final double forward = forwardCurve.getForward(t);
+        final double drift = forwardCurve.getDrift(t);
 
         final double vol = impliedVolatilitySurface.getVolatility(t, k);
         if (t == 0) {
@@ -223,7 +180,7 @@ public class DupireLocalVolatilityCalculator {
           final double divK2 = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, k, vol, forward);
           final double h1 = (Math.log(forward / k) + (vol * vol / 2) * t) / vol;
           final double h2 = h1 - vol * t;
-          var = (vol * vol + 2 * vol * t * divT) / (1 + 2 * h1 * k * divK + k * k * (h1 * h2 * divK * divK + t * vol * divK2));
+          var = (vol * vol + 2 * vol * t * (divT + k * drift * divK)) / (1 + 2 * h1 * k * divK + k * k * (h1 * h2 * divK * divK + t * vol * divK2));
           if (var < 0.0) {
             //  throw new MathException("negative variance");
             var = 0.0;
@@ -237,9 +194,50 @@ public class DupireLocalVolatilityCalculator {
     return new LocalVolatilitySurface(FunctionalDoublesSurface.from(locVol));
   }
 
+  public LocalVolatilityMoneynessSurface getLocalVolatility(final BlackVolatilityMoneynessSurface impliedVolatilitySurface) {
+
+    final Function<Double, Double> locVol = new Function<Double, Double>() {
+
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public Double evaluate(final Double... tm) {
+        final double t = tm[0];
+        final double m = tm[1];
+
+        Validate.isTrue(t >= 0, "negative t");
+        Validate.isTrue(m >= 0, "negative m");
+
+        final double vol = impliedVolatilitySurface.getVolatilityForMoneyness(t, m);
+        if (t == 0) {
+          return vol;
+        }
+
+        final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, m, vol);
+        double var;
+        if (m == 0) {
+          var = vol * vol + 2 * vol * t * (divT);
+        } else {
+          final double divM = getFirstStrikeDev(impliedVolatilitySurface.getSurface(), t, m, vol, 1.0);
+          final double divM2 = getSecondStrikeDev(impliedVolatilitySurface.getSurface(), t, m, vol, 1.0);
+          final double h1 = (-Math.log(m) + (vol * vol / 2) * t) / vol;
+          final double h2 = h1 - vol * t;
+          var = (vol * vol + 2 * vol * t * divT) / (1 + 2 * h1 * m * divM + m * m * (h1 * h2 * divM * divM + t * vol * divM2));
+          if (var < 0.0) {
+            //throw new MathException("negative variance");
+            var = 0.0;
+            //TODO log error
+          }
+        }
+        return Math.sqrt(var);
+      }
+    };
+
+    return new LocalVolatilityMoneynessSurface(FunctionalDoublesSurface.from(locVol), impliedVolatilitySurface.getForwardCurve());
+  }
+
   private double getFirstTimeDev(final Surface<Double, Double, Double> surface, final double t, final double k, final double mid) {
-    if (t == 0) {
-      final double up = surface.getZValue(_eps, k);
+    if (t <= _eps) {
+      final double up = surface.getZValue(t + _eps, k);
       return (up - mid) / _eps;
     }
     final double up = surface.getZValue(t + _eps, k);
