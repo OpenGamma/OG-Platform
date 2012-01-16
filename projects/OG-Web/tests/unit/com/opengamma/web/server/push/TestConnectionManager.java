@@ -10,6 +10,8 @@ import com.opengamma.web.server.push.rest.MasterType;
 
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.mockito.Mockito.mock;
+
 /**
  * Test subscription manager that can have a maximum of one connection.
  */
@@ -30,7 +32,7 @@ public class TestConnectionManager implements ConnectionManager {
 
   @Override
   public String clientConnected(String userId) {
-    _listener = _longPollingConnectionManager.handshake(userId, LongPollingTest.CLIENT_ID);
+    _listener = _longPollingConnectionManager.handshake(userId, LongPollingTest.CLIENT_ID, mock(ConnectionTimeoutTask.class));
     return LongPollingTest.CLIENT_ID;
   }
 
