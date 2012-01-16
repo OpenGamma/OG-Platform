@@ -41,11 +41,7 @@
     ],
     </#if>
     "securities": [
-        <#list position.securityLink.externalId.externalIds as item>{
-            "scheme": "${item.scheme.name}",
-            "value": "${item.value}"
-        }<#if item_has_next>,</#if></#list>
+        <#list position.securityLink.externalId.externalIds as item>{"scheme": "${item.scheme.name}", "value": "${item.value}" }<#if item_has_next>,</#if></#list>
     ]
-
 }
 </#escape>

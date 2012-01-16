@@ -8,6 +8,7 @@ package com.opengamma.financial.instrument;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.financial.forex.definition.ForexNonDeliverableOptionDefinition;
+import com.opengamma.financial.forex.definition.ForexOptionDigitalDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.definition.ForexSwapDefinition;
@@ -238,5 +239,9 @@ public interface InstrumentDefinitionVisitor<T, U> {
   U visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo, T data);
 
   U visitForexNonDeliverableOptionDefinition(ForexNonDeliverableOptionDefinition ndo);
+
+  U visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx, T data);
+
+  U visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx);
 
 }

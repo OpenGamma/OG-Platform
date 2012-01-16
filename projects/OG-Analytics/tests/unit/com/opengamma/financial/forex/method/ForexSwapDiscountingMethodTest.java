@@ -37,7 +37,7 @@ public class ForexSwapDiscountingMethodTest {
   private static final double FORWARD_POINTS = -0.0007;
   private static final ForexSwapDefinition FX_SWAP_DEFINITION_FIN = new ForexSwapDefinition(CUR_1, CUR_2, NEAR_DATE, FAR_DATE, NOMINAL_1, FX_RATE, FORWARD_POINTS);
 
-  private static final YieldCurveBundle CURVES = ForexTestsDataSets.createCurvesForex();
+  private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
   private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 20);
   private static final ForexSwap FX_SWAP = FX_SWAP_DEFINITION_FIN.toDerivative(REFERENCE_DATE, CURVES_NAME);
