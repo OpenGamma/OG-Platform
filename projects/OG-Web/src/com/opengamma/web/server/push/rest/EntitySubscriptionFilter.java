@@ -100,33 +100,13 @@ public class EntitySubscriptionFilter implements ResourceFilter {
     public ContainerResponse filter(ContainerRequest request, ContainerResponse response) {
       // TODO check the response status, only subscribe if successful
       // TODO don't subscribe if specific version was requested - probably need @NoSubscribe annotation on sub-resource methods for versions
-      ExtendedUriInfo uriInfo = _httpContext.getUriInfo();
-      MultivaluedMap<String,String> pathParameters = uriInfo.getPathParameters();
-      String url = _servletRequest.getRequestURI();
-      // try to get the client ID from the query params (for a GET request)
-      MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-      List<String> clientIds = queryParameters.get(LongPollingServlet.CLIENT_ID);
-      if (clientIds == null || clientIds.size() != 1) {
-        // try to get the client ID from the form params (in case it's a POST)
-        clientIds = _httpContext.getRequest().getFormParameters().get(LongPollingServlet.CLIENT_ID, String.class);
-      }
-      if (clientIds == null || clientIds.size() != 1) {
-        // don't subscribe if there's no client ID
+      String clientId = FilterUtils.getClientId(request, _httpContext);
+      // don't subscribe if there's no client ID
+      if (clientId == null) {
         return response;
       }
-      String clientId = clientIds.get(0);
-
-      Principal userPrincipal = _httpContext.getRequest().getUserPrincipal();
-      String userId;
-      if (userPrincipal == null) {
-        // TODO reinstate this if / when we have user logons
-        /*s_logger.debug("No user principal, not subscribing, url: {}", url);
-        return response;*/
-        userId = null;
-      } else {
-        userId = userPrincipal.getName();
-      }
-      subscribe(userId, clientId, url, pathParameters);
+      String userId = FilterUtils.getUserId(_httpContext);
+      subscribe(userId, clientId, _servletRequest.getRequestURI(), _httpContext.getUriInfo().getPathParameters());
       return response;
     }
 
