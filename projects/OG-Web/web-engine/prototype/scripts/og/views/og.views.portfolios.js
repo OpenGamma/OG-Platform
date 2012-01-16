@@ -354,9 +354,7 @@ $.register_module({
                 } else layout.inner.close('south');
                 api.rest.portfolios.get({
                     dependencies: ['id'],
-                    update: function () {
-                        console.log('UPDATE! arguments:', arguments);
-                    },
+                    update: view.update,
                     handler: function (result) {
                         if (result.error) return alert(result.message); // TODO: replace with UI error dialog
                         json = result.data;
@@ -433,7 +431,9 @@ $.register_module({
                 var args = routes.current().args;
                 setTimeout(routes.go.partial(routes.hash(module.rules.load_item, args, {del: ['node']})));
             },
+            details: details_page,
             filters: ['name'],
+            init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
@@ -466,13 +466,12 @@ $.register_module({
                 ]});
                 view.details(args);
             },
+            rules: module.rules,
             search: function (args) {
                 if (!search) search = common.search_results.core();
                 search.load($.extend(options.slickgrid, {url: args}));
             },
-            details: details_page,
-            init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
-            rules: module.rules
+            update: function (delivery) {view.details(routes.current().args);}
         };
     }
 });

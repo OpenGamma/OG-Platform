@@ -110,13 +110,13 @@
 /* Delete row */
 
     .OG-table .og-del {
-      position: relative;
+        position: relative;
+        cursor: pointer;
     }
 
     .OG-table .og-del:after {
         background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
         content: '';
-        cursor: pointer;
         background-position: -22px  -9px;
         height: 6px;
         margin-top: -13px;

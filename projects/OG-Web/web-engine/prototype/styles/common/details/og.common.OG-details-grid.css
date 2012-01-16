@@ -45,8 +45,8 @@
   background: #ecf5fa;
 }
 
-.OG-details-grid .ui-widget-content.slick-row {
-  background: #ecf5fa;
+.OG-details-grid .slick-row {
+  background-color: #ecf5fa;
 }
 
 .OG-details-grid .slick-header {
