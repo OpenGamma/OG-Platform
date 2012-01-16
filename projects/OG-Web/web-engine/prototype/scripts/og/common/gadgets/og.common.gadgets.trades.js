@@ -56,7 +56,10 @@ $.register_module({
                 ui.dialog({
                     type: 'input', title: 'Add New Trade', minWidth: 400, minHeight: 400,
                     form: generate_form_function(function () {attach_calendar()}),
-                    buttons: {'Create': form_create, 'OK': null}
+                    buttons: {
+                        'Create': form_create,
+                        'Cancel': function () {$(this).dialog('close');}
+                    }
                 })
             });
         };
@@ -77,7 +80,7 @@ $.register_module({
          * differently, this also applies for the form object for the new trade to be added
          */
         format_trades = function (trades) {
-            var format_date = function (str) {return str.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')};
+            var format_date = function (str) {return str.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$1-$2')};
             trades.map(function (trade) {
                 var premium, tradeDate;
                 if (trade.premium) {
@@ -180,10 +183,13 @@ $.register_module({
                     title: 'Delete trade?',
                     message: 'Are you sure you want to permanently delete trade ' +
                         '<strong style="white-space: nowrap">' + trade_id + '</strong>?',
-                    buttons: {'Delete': function () {
-                        action.put(format_trades(trades));
-                        $(this).dialog('close');
-                    }}
+                    buttons: {
+                        'Delete': function () {
+                            action.put(format_trades(trades));
+                            $(this).dialog('close');
+                        },
+                        'Cancel': function () {$(this).dialog('close');}
+                    }
                 });
             };
             api.rest.positions.get({
@@ -206,7 +212,7 @@ $.register_module({
                     buttons: {
                         'Save': form_save.partial(trade_id),
                         'Save new': form_create,
-                        'OK': null // remove default OK button
+                        'Cancel': function () {$(this).dialog('close');}
                     }
                 });
             };

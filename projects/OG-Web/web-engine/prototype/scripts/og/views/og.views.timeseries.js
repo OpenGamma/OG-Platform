@@ -74,7 +74,8 @@ $.register_module({
                                     end: ui.dialog({return_field_value: 'end'}) || '',
                                     identifier: ui.dialog({return_field_value: 'identifiers'})
                                 });
-                            }
+                            },
+                            'Cancel': function () {$(this).dialog('close');}
                         }
                     })
                 },
@@ -93,7 +94,8 @@ $.register_module({
                                         routes.go(routes.hash(rule, args));
                                     }, id: routes.current().args.id
                                 });
-                            }
+                            },
+                            'Cancel': function () {$(this).dialog('close');}
                         }
                     })
                 }

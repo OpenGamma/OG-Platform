@@ -54,7 +54,8 @@ $.register_module({
                                     },
                                     name: ui.dialog({return_field_value: 'name'})
                                 });
-                            }
+                            },
+                            'Cancel': function () {$(this).dialog('close');}
                         }
                     })
                 },
@@ -77,7 +78,8 @@ $.register_module({
                                 };
                                 $(this).dialog('close');
                                 api.rest.portfolios.del(rest_options);
-                            }
+                            },
+                            'Cancel': function () {$(this).dialog('close');}
                         }
                     })
                 },
@@ -158,7 +160,8 @@ $.register_module({
                                             if (ui.dialog({return_field_value: 'name'}) === '') return;
                                             $(this).dialog('close');
                                             do_update();
-                                        }
+                                        },
+                                        'Cancel': function () {$(this).dialog('close');}
                                     }
                                 });
                                 return false;
@@ -194,17 +197,20 @@ $.register_module({
                                 title: 'Delete sub portfolio?',
                                 message: 'Are you sure you want to permanently delete ' +
                                     '<strong style="white-space: nowrap">' + node.name + '</strong>?',
-                                buttons: {'Delete': function () {
-                                    api.rest.portfolios.del({
-                                        id: routes.current().args.id, node: node.id,
-                                        handler: function (result) {
-                                            if (result.error)
-                                                return ui.dialog({type: 'error', message: result.message});
-                                            view.details(routes.current().args);
-                                        }
-                                    });
-                                    $(this).dialog('close');
-                                }}
+                                buttons: {
+                                    'Delete': function () {
+                                        api.rest.portfolios.del({
+                                            id: routes.current().args.id, node: node.id,
+                                            handler: function (result) {
+                                                if (result.error)
+                                                    return ui.dialog({type: 'error', message: result.message});
+                                                view.details(routes.current().args);
+                                            }
+                                        });
+                                        $(this).dialog('close');
+                                    },
+                                    'Cancel': function () {$(this).dialog('close');}
+                                }
                             });
                         });
                         slick.onMouseEnter.subscribe(function (e) {
@@ -245,7 +251,8 @@ $.register_module({
                                             if (ui.dialog({return_field_value: 'name'}) === '') return;
                                             do_update();
                                             $(this).dialog('close');
-                                        }
+                                        },
+                                        'Cancel': function () {$(this).dialog('close');}
                                     }
                                 });
                                 $('#og-js-dialog-name').autocomplete({
@@ -308,20 +315,23 @@ $.register_module({
                                 message: 'Are you sure you want to remove the position '
                                     + '<strong style="white-space: nowrap">' + position_name + '</strong>'
                                     + ' from this portfolio?',
-                                buttons: {'Delete': function () {
-                                    var args = routes.current().args;
-                                    api.rest.portfolios.del({
-                                        id: args.id,
-                                        node: json.template_data.node,
-                                        position: position,
-                                        handler: function (result) {
-                                            if (result.error)
-                                                return ui.dialog({type: 'error', message: result.message});
-                                            view.details(routes.current().args);
-                                        }
-                                    });
-                                    $(this).dialog('close');
-                                }}
+                                buttons: {
+                                    'Delete': function () {
+                                        var args = routes.current().args;
+                                        api.rest.portfolios.del({
+                                            id: args.id,
+                                            node: json.template_data.node,
+                                            position: position,
+                                            handler: function (result) {
+                                                if (result.error)
+                                                    return ui.dialog({type: 'error', message: result.message});
+                                                view.details(routes.current().args);
+                                            }
+                                        });
+                                        $(this).dialog('close');
+                                    },
+                                    'Cancel': function () {$(this).dialog('close');}
+                                }
                             });
                         });
                         slick.onMouseEnter.subscribe(function (e) {

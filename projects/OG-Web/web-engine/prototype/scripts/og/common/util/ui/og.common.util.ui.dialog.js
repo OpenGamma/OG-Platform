@@ -25,7 +25,6 @@ $.register_module({
                         resizable: true, 'min-height': 140, modal: true,
                         position: 'center', dialogClass: 'OG-shadow',
                         width: '400', 'min-height': '200',
-                        buttons: {'Cancel': function () {$(this).dialog('close')}},
                         open: function () {
                             if (obj.type === 'input')
                                 // Set the focus in the first form element
@@ -35,17 +34,10 @@ $.register_module({
                         }
                     }
                 },
-                confirm: {
-                    html: '<div class="' + class_name + '"><p></p></div>',
-                    jquery: {buttons: {'Delete': function () {$(this).dialog('close')}}}
-                },
-                input: {
-                    html: '<div class="' + class_name + '"></div>',
-                    jquery: {buttons: {'OK': function () {$(this).dialog('close')}}}
-                },
+                confirm: {html: '<div class="' + class_name + '"><p></p></div>'},
+                input: {html: '<div class="' + class_name + '"></div>'},
                 'error': {
-                    html: '<div class="' + class_name + '"></div>',
-                    jquery: {buttons: {'OK': function () {$(this).dialog('close')}}}
+                    html: '<div class="' + class_name + '"></div>'
                 }
             };
             // Merge default_options.all with the options for each dialog
@@ -60,7 +52,6 @@ $.register_module({
              * Create error dialog
              */
             if (obj.type === 'error') {
-                delete default_options.error.jquery.buttons['Cancel'];
                 // Check required data
                 if (!obj.message) throw new Error('obj.message is required for an error dialog');
                 $obj = $(css_class);
@@ -136,15 +127,6 @@ $.register_module({
                     $(css_class).html('Loading form...');
                     obj.form(css_class);
                 }
-                /*
-                 * Delete any unwanted default buttons
-                 */
-                (function () {
-                    for (var button in obj.buttons) {
-                        if (obj.buttons.hasOwnProperty(button) && obj.buttons[button] === null)
-                            delete default_options.input.jquery.buttons[button], delete obj.buttons[button];
-                    }
-                }());
                 $obj.dialog($.extend(true, default_options.input.jquery, obj));
             }
             $obj.parent('.ui-dialog').addClass(class_name + '-container');

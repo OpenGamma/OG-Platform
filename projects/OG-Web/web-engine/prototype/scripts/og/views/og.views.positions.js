@@ -64,7 +64,8 @@ $.register_module({
                                 scheme_type: ui.dialog({return_field_value: 'scheme-type'}),
                                 identifier: ui.dialog({return_field_value: 'identifier'})
                             });
-                        }
+                        },
+                        'Cancel': function () {$(this).dialog('close');}
                     }
                 })},
                 'delete': function () {ui.dialog({
@@ -82,7 +83,8 @@ $.register_module({
                                     routes.go(routes.hash(module.rules.load, args));
                                 }, id: routes.last().args.id
                             });
-                        }
+                        },
+                        'Cancel': function () {$(this).dialog('close');}
                     }
                 })},
                 'versions': function () {
