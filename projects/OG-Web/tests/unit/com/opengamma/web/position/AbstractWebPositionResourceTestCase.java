@@ -65,6 +65,7 @@ public abstract class AbstractWebPositionResourceTestCase {
   protected static final ExternalId SEC_ID = EQUITY_SECURITY.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
   protected static final ManageableSecurityLink SECURITY_LINK = new ManageableSecurityLink(EQUITY_SECURITY.getExternalIdBundle());
   protected static final String EMPTY_TRADES = "{\"trades\" : []}";
+  protected static final Long QUANTITY = Long.valueOf(100);
   
   protected SecurityMaster _secMaster;
   protected SecurityLoader _secLoader;
@@ -179,6 +180,20 @@ public abstract class AbstractWebPositionResourceTestCase {
       trade.setSecurityLink(new ManageableSecurityLink(SEC_ID));
       assertTrue(_trades.contains(trade));
     }
+  }
+
+  protected UniqueId addPosition() {
+    ManageableTrade origTrade = new ManageableTrade(BigDecimal.valueOf(50), SEC_ID, LocalDate.parse("2011-12-07"), OffsetTime.of(LocalTime.of(15, 4), ZONE_OFFSET), COUNTER_PARTY);
+    origTrade.setPremium(10.0);
+    origTrade.setPremiumCurrency(Currency.USD);
+    origTrade.setPremiumDate(LocalDate.parse("2011-12-08"));
+    origTrade.setPremiumTime(OffsetTime.of(LocalTime.of(15, 4), ZONE_OFFSET));
+    
+    ManageablePosition manageablePosition = new ManageablePosition(origTrade.getQuantity(), SEC_ID);
+    manageablePosition.addTrade(origTrade);
+    PositionDocument addedPos = _positionMaster.add(new PositionDocument(manageablePosition));
+    UniqueId uid = addedPos.getUniqueId();
+    return uid;
   }
 
 }
