@@ -518,7 +518,7 @@ $.register_module({
                 api.updates.get({handler: function (result) {
                     var current = routes.current(), handlers = [];
                     if (result.error) return og.dev.warn(module.name + ': subscription failed\n', result.message);
-                    if (!result.data || !result.data.updates.length) return;
+                    if (!result.data || !result.data.updates.length) return subscribe();
                     registrations = registrations.filter(function (val) {
                         return request_expired(val, current) ? false : !result.data.updates.some(function (url) {
                             var match = url === val.url;
