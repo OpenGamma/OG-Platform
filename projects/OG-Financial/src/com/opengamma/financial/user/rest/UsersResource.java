@@ -11,6 +11,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import javax.time.calendar.Period;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Context;
@@ -28,41 +29,39 @@ import com.opengamma.financial.user.UserDataTracker;
  */
 @Path("/data/users")
 public class UsersResource {
-  
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(UsersResource.class);
+  /**
+   * The map of users.
+   */
   private final ConcurrentHashMap<String, UserResource> _userMap = new ConcurrentHashMap<String, UserResource>();
   /**
    * The backing bean.
    */
   private final UserResourceData _data;
-  
+
   /**
-   * Information about the URI injected by JSR-311.
+   * Creates an instance.
+   * 
+   * @param clientTracker  the tracker, not null
+   * @param userDataTracker  the tracker, not null
+   * @param context  the context, not null
    */
-  @Context
-  private UriInfo _uriInfo;
-  
   public UsersResource(final ClientTracker clientTracker, final UserDataTracker userDataTracker, final UsersResourceContext context) {
     _data = new UserResourceData();
     _data.setClientTracker(clientTracker);
     _data.setUserDataTracker(userDataTracker);
     _data.setContext(context);
   }
-  
-  /**
-   * Gets the URI info.
-   * @return the uri info, not null
-   */
-  public UriInfo getUriInfo() {
-    return _uriInfo;
-  }
 
+  //-------------------------------------------------------------------------
   @Path("{username}")
-  public UserResource getUser(@PathParam("username") String username) {
+  public UserResource getUser(@Context UriInfo uriInfo, @PathParam("username") String username) {
     UserResource user = _userMap.get(username);
     if (user == null) {
       _data.getClientTracker().userCreated(username);
-      _data.setUriInfo(getUriInfo());
+      _data.setUriInfo(uriInfo);
       UserResource freshUser = new UserResource(username, _data);
       user = _userMap.putIfAbsent(username, freshUser);
       if (user == null) {
@@ -72,6 +71,7 @@ public class UsersResource {
     return user;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Discards any users and clients that haven't been accessed since the given timestamp.
    * 
@@ -91,38 +91,33 @@ public class UsersResource {
     }
   }
 
-  public DeleteClientsRunnable createDeleteTask() {
-    return new DeleteClientsRunnable();
+  //-------------------------------------------------------------------------
+  /**
+   * Creates the scheduled deletion task.
+   * 
+   * @param scheduler  the scheduler, not null
+   * @param clientTimeOut  the time out for clients, not null
+   */
+  public void createDeleteTask(ScheduledExecutorService scheduler, Period clientTimeOut) {
+    long timeOutMillis = clientTimeOut.totalNanosWith24HourDays() / 1000000L;
+    DeleteClientsRunnable runnable = new DeleteClientsRunnable(timeOutMillis);
+    scheduler.scheduleWithFixedDelay(runnable, timeOutMillis, timeOutMillis, TimeUnit.MILLISECONDS);
   }
 
   /**
    * Runnable to delete clients.
    */
   class DeleteClientsRunnable implements Runnable {
-    /**
-     * The timeout.
-     */
-    private long _timeoutMillis = 1800000; // 30m default
+    private final long _timeoutMillis;
+
+    public DeleteClientsRunnable(long timeoutMillis) {
+      super();
+      _timeoutMillis = timeoutMillis;
+    }
 
     @Override
     public void run() {
       deleteClients(System.currentTimeMillis() - _timeoutMillis);
-    }
-
-    /**
-     * Sets the timeout.
-     * @param timeoutSecs  the timeout seconds
-     */
-    public void setTimeout(final long timeoutSecs) {
-      _timeoutMillis = timeoutSecs * 1000;
-    }
-
-    /**
-     * Sets the scheduler.
-     * @param scheduler  the scheduler, not null
-     */
-    public void setScheduler(final ScheduledExecutorService scheduler) {
-      scheduler.scheduleWithFixedDelay(this, _timeoutMillis, _timeoutMillis, TimeUnit.MILLISECONDS);
     }
   }
 

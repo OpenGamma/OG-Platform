@@ -51,35 +51,6 @@
   </bean>
 
   <!-- ============================================================================== -->
-  <!-- Users resource context -->
-  <bean id="usersResourceContext" class="com.opengamma.financial.user.rest.UsersResourceContext">
-    <property name="fudgeContext" ref="standardFudgeContext" />
-    <property name="userPortfolioMaster" ref="userPortfolioMaster" />
-    <property name="userPositionMaster" ref="userPositionMaster" />
-    <property name="userSecurityMaster" ref="userSecurityMaster" />
-    <property name="userViewDefinitionRepository" ref="userViewDefinitionRepository" />
-    <property name="userInterpolatedYieldCurveDefinitionMaster" ref="userInterpolatedYieldCurveDefinitionMaster" />
-    <property name="userSnapshotMaster" ref="userMarketDataSnapshotMaster" />
-  </bean>
-
-  <!-- Users Tracker -->
-  <bean id="usersTracker" class="com.opengamma.financial.user.DefaultUsersTracker">
-    <constructor-arg ref="usersResourceContext"/>
-  </bean>
-
-  <!-- User supplied data -->
-  <bean id="usersRestBean" class="com.opengamma.financial.user.rest.UsersResource">
-    <constructor-arg ref="usersTracker" />
-    <constructor-arg ref="usersTracker" />
-    <constructor-arg ref="usersResourceContext"/>
-  </bean>
-
-  <bean id="usersRestBeanCleaner" factory-bean="usersRestBean" factory-method="createDeleteTask">
-    <property name="timeout" value="${opengamma.financial-user.timeout}" />
-    <property name="scheduler" ref="scheduler" />
-  </bean>
-
-  <!-- ============================================================================== -->
   <!-- Distributed component configuration data -->
   <bean id="configurationResource" class="com.opengamma.util.rest.ConfigurationResource">
     <constructor-arg ref="standardFudgeContext" />

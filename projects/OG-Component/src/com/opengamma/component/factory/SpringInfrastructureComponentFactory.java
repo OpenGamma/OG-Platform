@@ -7,6 +7,7 @@ package com.opengamma.component.factory;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 
 import javax.management.MBeanServer;
 
@@ -51,6 +52,7 @@ public class SpringInfrastructureComponentFactory extends AbstractSpringComponen
     registerInfrastructureByType(repo, JmsConnector.class, appContext);
     registerInfrastructureByType(repo, FudgeContext.class, appContext);
     registerInfrastructureByType(repo, CacheManager.class, appContext);
+    registerInfrastructureByType(repo, ScheduledExecutorService.class, appContext);
     registerInfrastructureByType(repo, MBeanServer.class, appContext);
   }
 
