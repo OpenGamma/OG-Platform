@@ -42,6 +42,7 @@ import com.opengamma.financial.function.rest.DataFunctionRepositoryResource;
 import com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshottersResource;
 import com.opengamma.financial.view.rest.AvailableOutputsService;
 import com.opengamma.financial.view.rest.DataViewProcessorsResource;
+import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
 
@@ -95,6 +96,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     initAvailableOutputs(repo, appContext);
     initConfiguration(repo, appContext);
     initAggregators(repo, appContext);
+    initUserPrincipal(repo, appContext);
     initForDebugging(repo, appContext);
   }
 
@@ -155,6 +157,16 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    */
   protected void initAggregators(ComponentRepository repo, GenericApplicationContext appContext) {
     registerInfrastructureByType(repo, PortfolioAggregationFunctions.class, appContext);
+  }
+
+  /**
+   * Registers the user (used until proper user management present).
+   * 
+   * @param repo  the repository to register with, not null
+   * @param appContext  the Spring application context, not null
+   */
+  protected void initUserPrincipal(ComponentRepository repo, GenericApplicationContext appContext) {
+    registerInfrastructureByType(repo, UserPrincipal.class, appContext);
   }
 
   /**

@@ -223,7 +223,7 @@
     <constructor-arg ref="userPortfolioMaster" />
     <constructor-arg ref="userPositionMaster" />
     <constructor-arg ref="userViewDefinitionRepository" />
-    <constructor-arg ref="testUser" />
+    <constructor-arg ref="demoUserPrincipal" />
     <constructor-arg ref="standardFudgeContext" />
     <constructor-arg ref="demoPortfolioAggregationFunctions" />
   </bean>
@@ -274,27 +274,5 @@
   <bean id="jsonToViewport" class="com.opengamma.web.server.push.rest.ViewportDefinitionMessageBodyReader" scope="singleton"/>
 
   <bean id="reportToResponseBody" class="com.opengamma.web.server.push.rest.ReportMessageBodyWriter" scope="singleton"/>
-
-  <!-- old Cometd Web-interface -->
-  <bean id="webInterfaceBean" class="com.opengamma.web.server.LiveResultsServiceBean">
-    <property name="user" ref="testUser" />
-    <property name="viewProcessor" ref="demoViewProcessor" />
-    <property name="positionSource" ref="combinedPositionSource" />
-    <property name="securitySource" ref="combinedSecuritySource" />
-    <property name="userPortfolioMaster" ref="userPortfolioMaster" />
-    <property name="userPositionMaster" ref="userPositionMaster" />
-    <property name="userViewDefinitionRepository" ref="userViewDefinitionRepository" />
-    <property name="portfolioAggregators" ref="demoPortfolioAggregationFunctions" />
-    <property name="snapshotMaster" ref="centralMarketDataSnapshotMaster" />
-    <property name="executorService">
-      <bean class="com.opengamma.util.ExecutorServiceFactoryBean">
-        <property name="styleName" value="CACHED" />
-      </bean>
-    </property>
-    <property name="fudgeContext" ref="standardFudgeContext" />
-  </bean>
-  <bean class="com.opengamma.web.analytics.WebAnalyticsResource">
-    <constructor-arg ref="webInterfaceBean" />
-  </bean>
 
 </beans>

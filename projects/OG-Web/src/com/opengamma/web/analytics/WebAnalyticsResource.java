@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.analytics;
 
+import javax.servlet.ServletContext;
 import javax.time.Instant;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -33,6 +34,10 @@ public class WebAnalyticsResource {
   public WebAnalyticsResource(LiveResultsServiceBean liveResultsServiceBean) {
     // Have to inject the wrapper here as the actual service is not initialised until after the Bayeux service is available 
     _liveResultsServiceBean = liveResultsServiceBean;
+  }
+
+  public void init(ServletContext servletContext) {
+    _liveResultsServiceBean.init(servletContext);
   }
 
   private LiveResultsService getLiveResultsService() {
