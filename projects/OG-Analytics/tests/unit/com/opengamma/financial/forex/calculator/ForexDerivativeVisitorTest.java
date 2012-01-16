@@ -24,6 +24,8 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BillSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -122,7 +124,7 @@ public class ForexDerivativeVisitorTest {
     testException(NDO, o);
     testException(FX_OPTION_DIGITAL);
     testException(FX_OPTION_DIGITAL, o);
-    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP};
+    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP };
     try {
       VISITOR_ABSTRACT.visit(forexArray[0]);
       assertTrue(false);
@@ -711,6 +713,26 @@ public class ForexDerivativeVisitorTest {
     @Override
     public String visitForexOptionDigital(final ForexOptionDigital derivative) {
       return "ForexOptionDigital1";
+    }
+
+    @Override
+    public String visitBillSecurity(BillSecurity bill, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBillSecurity(BillSecurity bill) {
+      return null;
+    }
+
+    @Override
+    public String visitBillTransaction(BillTransaction bill, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBillTransaction(BillTransaction bill) {
+      return null;
     }
 
   }
