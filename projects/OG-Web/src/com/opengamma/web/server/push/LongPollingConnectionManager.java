@@ -21,12 +21,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
   /**
    * Creates a new connection.
+   *
    * @param userId The ID of the user who owns the connection
    * @param clientId The connection ID
+   * @param timeoutTask Connection timeout task that the listener must reset every time the connection is set up
    * @return A listener that publishes to the client when it receives a notification
    */
-  /* package */ LongPollingUpdateListener handshake(String userId, String clientId) {
-    LongPollingUpdateListener listener = new LongPollingUpdateListener(userId);
+  /* package */ LongPollingUpdateListener handshake(String userId, String clientId, ConnectionTimeoutTask timeoutTask) {
+    LongPollingUpdateListener listener = new LongPollingUpdateListener(userId, timeoutTask);
     _updateListeners.put(clientId, listener);
     return listener;
   }

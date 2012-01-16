@@ -5,6 +5,10 @@
  */
 package com.opengamma.web.position;
 
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertTrue;
+
 import java.math.BigDecimal;
 import java.util.Collection;
 import java.util.List;
@@ -39,7 +43,10 @@ import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.position.PositionSearchRequest;
+import com.opengamma.master.position.PositionSearchResult;
 import com.opengamma.master.position.impl.InMemoryPositionMaster;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
@@ -57,6 +64,8 @@ public abstract class AbstractWebPositionResourceTestCase {
   protected static final ZoneOffset ZONE_OFFSET = ZoneOffset.of("+0100");
   protected static final EquitySecurity EQUITY_SECURITY = WebResourceTestUtils.getEquitySecurity();
   protected static final ExternalId SEC_ID = EQUITY_SECURITY.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
+  protected static final ManageableSecurityLink SECURITY_LINK = new ManageableSecurityLink(EQUITY_SECURITY.getExternalIdBundle());
+  protected static final String EMPTY_TRADES = "{\"trades\" : []}";
   
   protected SecurityMaster _secMaster;
   protected SecurityLoader _secLoader;
@@ -136,6 +145,41 @@ public abstract class AbstractWebPositionResourceTestCase {
   
   protected String getTradesJson() throws Exception {
     return WebResourceTestUtils.loadJson("com/opengamma/web/position/tradesJson.txt").toString();
+  }
+  
+  protected void assertPositionWithNoTrades() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    PositionSearchResult searchResult = _positionMaster.search(request);
+    assertNotNull(searchResult);
+    List<PositionDocument> docs = searchResult.getDocuments();
+    assertNotNull(docs);
+    assertEquals(1, docs.size());
+    ManageablePosition position = docs.get(0).getPosition();
+    assertEquals(BigDecimal.TEN, position.getQuantity());
+    assertEquals(SECURITY_LINK, position.getSecurityLink());
+    assertTrue(position.getTrades().isEmpty());
+  }
+  
+  protected void assertPositionAndTrades() {
+    PositionSearchRequest request = new PositionSearchRequest();
+    PositionSearchResult searchResult = _positionMaster.search(request);
+    assertNotNull(searchResult);
+    List<PositionDocument> docs = searchResult.getDocuments();
+    assertNotNull(docs);
+    assertEquals(1, docs.size());
+    ManageablePosition position = docs.get(0).getPosition();
+    assertEquals(BigDecimal.TEN, position.getQuantity());
+    assertEquals(SECURITY_LINK, position.getSecurityLink());
+    
+    List<ManageableTrade> trades = position.getTrades();
+    assertEquals(3, trades.size());
+    for (ManageableTrade trade : trades) {
+      assertEquals(SECURITY_LINK, trade.getSecurityLink());
+      trade.setUniqueId(null);
+      trade.setParentPositionId(null);
+      trade.setSecurityLink(new ManageableSecurityLink(SEC_ID));
+      assertTrue(_trades.contains(trade));
+    }
   }
 
 }

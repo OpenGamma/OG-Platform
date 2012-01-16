@@ -80,32 +80,17 @@ public class MasterSubscriptionFilter implements ResourceFilter {
      * @param request The request
      * @param response The response
      * @return The unmodified response
-     * TODO this is copy-pasted from EntitySubscriptionFilter, common superclass? helper method / class?
      */
     @Override
     public ContainerResponse filter(ContainerRequest request, ContainerResponse response) {
       // TODO check response status
-      ExtendedUriInfo uriInfo = _httpContext.getUriInfo();
-      MultivaluedMap<String, String> queryParameters = uriInfo.getQueryParameters();
-      String url = _servletRequest.getRequestURI();
-
-      List<String> clientIds = queryParameters.get(LongPollingServlet.CLIENT_ID);
-      if (clientIds == null || clientIds.size() != 1) {
-        // don't subscribe if there's no client ID
+      String clientId = FilterUtils.getClientId(request, _httpContext);
+      // don't subscribe if there's no client ID
+      if (clientId == null) {
         return response;
       }
-      String clientId = clientIds.get(0);
-
-      Principal userPrincipal = _httpContext.getRequest().getUserPrincipal();
-      String userId;
-      if (userPrincipal == null) {
-        // TODO reinstate this if / when we have user logons
-        /*s_logger.debug("No user principal, not subscribing, url: {}", url);
-        return response;*/
-        userId = null;
-      } else {
-        userId = userPrincipal.getName();
-      }
+      String userId = FilterUtils.getUserId(_httpContext);
+      String url = _servletRequest.getRequestURI();
       // TODO should we only subscribe if there were query params, i.e. it was a search request, not just a request for the search page
       for (MasterType masterType : _masterTypes) {
         _updateManager.subscribe(userId, clientId, masterType, url);

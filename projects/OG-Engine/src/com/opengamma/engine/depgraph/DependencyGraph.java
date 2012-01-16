@@ -326,7 +326,7 @@ public class DependencyGraph {
     for (ValueSpecification output : node.getOutputValues()) {
       final DependencyNode previous = _specification2DependencyNode.put(output, node);
       if (previous != null) {
-        throw new IllegalStateException("Node producing " + output + " already in the graph (" + previous + ")");
+        throw new IllegalStateException("Node producing " + output + " already in the graph (previus = " + previous + ", this node = " + node + ")");
       }
       Map<ComputationTargetSpecification, List<Pair<DependencyNode, ValueSpecification>>> targets = _valueRequirement2Specifications.get(output.getValueName());
       if (targets == null) {
