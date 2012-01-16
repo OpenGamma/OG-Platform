@@ -101,6 +101,15 @@ public class ForexOptionDigital implements InstrumentDerivative {
     return _underlyingForex.getCurrency2();
   }
 
+  /**
+   * Gets the second currency.
+   * @return The currency.
+   */
+  public double getStrike() {
+    return -_underlyingForex.getPaymentCurrency2().getAmount() / _underlyingForex.getPaymentCurrency1().getAmount();
+
+  }
+
   @Override
   public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitForexOptionDigital(this, data);

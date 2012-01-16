@@ -76,7 +76,8 @@ public class LongPollingServlet extends SpringConfiguredServlet {
     boolean connected = (clientId != null) && _connectionManager.longPollHttpConnect(userId, clientId, continuation);
     if (!connected) {
       // couldn't get the client ID from the URL or the client ID didn't correspond to a known client
-      response.sendError(404);
+      // TODO how do I send something other than jetty's standard HTML error page?
+      response.sendError(404, "Problem accessing " + request.getRequestURI() + ".  Reason: Unknown client ID " + clientId);
       continuation.complete();
     }
     continuation.setAttribute(CLIENT_ID, clientId);

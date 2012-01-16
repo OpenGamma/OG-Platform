@@ -5,8 +5,10 @@
  */
 package com.opengamma.financial.forex.calculator;
 
+import com.opengamma.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.financial.forex.method.ForexOptionDigitalBlackMethod;
 import com.opengamma.financial.forex.method.ForexOptionSingleBarrierBlackMethod;
 import com.opengamma.financial.forex.method.ForexOptionVanillaBlackMethod;
 import com.opengamma.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
@@ -37,16 +39,27 @@ public class PresentValueVolatilitySensitivityBlackForexCalculator extends Abstr
   PresentValueVolatilitySensitivityBlackForexCalculator() {
   }
 
+  /**
+   * The methods used by the different instruments.
+   */
+  private static final ForexOptionVanillaBlackMethod METHOD_FXOPTION = ForexOptionVanillaBlackMethod.getInstance();
+  private static final ForexOptionSingleBarrierBlackMethod METHOD_FXOPTIONBARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
+  //  private static final ForexNonDeliverableOptionBlackMethod METHOD_NDO = ForexNonDeliverableOptionBlackMethod.getInstance();
+  private static final ForexOptionDigitalBlackMethod METHOD_FXOPTIONDIGITAL = ForexOptionDigitalBlackMethod.getInstance();
+
   @Override
   public PresentValueForexBlackVolatilitySensitivity visitForexOptionVanilla(final ForexOptionVanilla derivative, final YieldCurveBundle data) {
-    final ForexOptionVanillaBlackMethod method = ForexOptionVanillaBlackMethod.getInstance();
-    return method.presentValueVolatilitySensitivity(derivative, data);
+    return METHOD_FXOPTION.presentValueVolatilitySensitivity(derivative, data);
   }
 
   @Override
   public PresentValueForexBlackVolatilitySensitivity visitForexOptionSingleBarrier(final ForexOptionSingleBarrier derivative, final YieldCurveBundle data) {
-    final ForexOptionSingleBarrierBlackMethod method = ForexOptionSingleBarrierBlackMethod.getInstance();
-    return method.presentValueVolatilitySensitivity(derivative, data);
+    return METHOD_FXOPTIONBARRIER.presentValueVolatilitySensitivity(derivative, data);
+  }
+
+  @Override
+  public PresentValueForexBlackVolatilitySensitivity visitForexOptionDigital(final ForexOptionDigital derivative, final YieldCurveBundle data) {
+    return METHOD_FXOPTIONDIGITAL.presentValueVolatilitySensitivity(derivative, data);
   }
 
 }

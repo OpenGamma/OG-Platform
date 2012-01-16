@@ -34,17 +34,6 @@ $.register_module({
                         });
             },
             /** @ignore */
-            deliver_updates = function (updates) {
-                var current = routes.current(), handlers = [];
-                resgistrations = registrations.filter(function (val) {
-                    return request_expired(val, current) ? false : !updates.some(function (url) {
-                        var match = url === val.url;
-                        return match && handlers.push(val), match;
-                    });
-                });
-                handlers.forEach(function (val) {val.update(val);});
-            },
-            /** @ignore */
             get_cache = function (key) {
                 try { // if cache is restricted, bail
                     return cache['getItem'](module.name + key) ? JSON.parse(cache['getItem'](module.name + key)) : null;
@@ -527,8 +516,16 @@ $.register_module({
             api.id = result.data['clientId'];
             subscribe = function () {
                 api.updates.get({handler: function (result) {
+                    var current = routes.current(), handlers = [];
                     if (result.error) return og.dev.warn(module.name + ': subscription failed\n', result.message);
-                    console.log('update result.data', result.data);
+                    if (!result.data || !result.data.updates.length) return;
+                    registrations = registrations.filter(function (val) {
+                        return request_expired(val, current) ? false : !result.data.updates.some(function (url) {
+                            var match = url === val.url;
+                            return match && handlers.push(val), match;
+                        });
+                    });
+                    handlers.forEach(function (val) {val.update(val);});
                     subscribe();
                 }});
             };
