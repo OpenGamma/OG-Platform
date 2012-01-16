@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.LinkUtils;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
 import com.opengamma.core.position.PortfolioNode;
@@ -195,9 +196,17 @@ public final class SecurityLinkResolver {
    */
   public void resolveSecurities(final Position position) {
     Collection<SecurityLink> links = new ArrayList<SecurityLink>(position.getTrades().size() + 1);
-    links.add(position.getSecurityLink());
+    if (LinkUtils.isValid(position.getSecurityLink())) {
+      links.add(position.getSecurityLink());
+    } else {
+      s_logger.warn("Invalid link on position {}", position.getUniqueId());
+    }
     for (Trade trade : position.getTrades()) {
-      links.add(trade.getSecurityLink());
+      if (LinkUtils.isValid(trade.getSecurityLink())) {
+        links.add(trade.getSecurityLink());
+      } else {
+        s_logger.warn("Invalid link on trade {} within position {}", trade.getUniqueId(), position.getUniqueId());
+      }
     }
     resolveSecurities(links);
   }
@@ -216,9 +225,17 @@ public final class SecurityLinkResolver {
     PortfolioNodeTraverser.depthFirst(new AbstractPortfolioNodeTraversalCallback() {
       @Override
       public void preOrderOperation(Position position) {
-        links.add(position.getSecurityLink());
+        if (LinkUtils.isValid(position.getSecurityLink())) {
+          links.add(position.getSecurityLink());
+        } else {
+          s_logger.warn("Invalid link on position {}", position.getUniqueId());
+        }
         for (Trade trade : position.getTrades()) {
-          links.add(trade.getSecurityLink());
+          if (LinkUtils.isValid(trade.getSecurityLink())) {
+            links.add(trade.getSecurityLink());
+          } else {
+            s_logger.warn("Invalid link in trade {} associated with position {}", trade.getUniqueId(), position.getUniqueId());
+          }
         }
       }
     }).traverse(node);

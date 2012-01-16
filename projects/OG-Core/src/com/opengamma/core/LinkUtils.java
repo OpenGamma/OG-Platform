@@ -69,4 +69,22 @@ public class LinkUtils {
     return "";
   }
 
+  /**
+   * Tests if the link is "valid" - i.e. it contains either (or both of) an object
+   * reference or an external identifier bundle.
+   * 
+   * @param link link to check
+   * @return true if valid, false if not
+   */
+  public static boolean isValid(final Link<?> link) {
+    if (link.getObjectId() != null) {
+      return true;
+    }
+    final ExternalIdBundle externalId = link.getExternalId();
+    if (externalId == null) {
+      return false;
+    }
+    return !externalId.isEmpty();
+  }
+
 }

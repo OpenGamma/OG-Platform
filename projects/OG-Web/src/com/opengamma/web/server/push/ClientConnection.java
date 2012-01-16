@@ -132,6 +132,7 @@ import java.util.Set;
    * Closes this connection
    */
   /* package */ void disconnect() {
+    s_logger.debug("Disconnecting client connection, userId: {}, clientId: {}", _userId, _clientId);
     synchronized (_lock) {
       _timeoutTask.reset();
       _viewportFactory.closeViewport(_viewportId);
@@ -147,7 +148,7 @@ import java.util.Set;
   /* package */ void subscribe(UniqueId uid, String url) {
     ArgumentChecker.notNull(uid, "uid");
     ArgumentChecker.notNull(url, "url");
-    s_logger.debug("Subscribing to notifications for changes to {}, notification URL: {}", uid, url);
+    s_logger.debug("Client ID {} subscribing for changes to {}, URL: {}", new Object[]{_clientId, uid, url});
     synchronized (_lock) {
       _timeoutTask.reset();
       ObjectId objectId = uid.getObjectId();
