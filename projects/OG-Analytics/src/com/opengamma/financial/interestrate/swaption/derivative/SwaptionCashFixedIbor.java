@@ -92,6 +92,14 @@ public final class SwaptionCashFixedIbor extends EuropeanVanillaOption implement
   }
 
   /**
+   * Gets the time difference between the last fixed leg payment and the settlement.
+   * @return The maturity time.
+   */
+  public double getMaturityTime() {
+    return _underlyingSwap.getFixedLeg().getNthPayment(_underlyingSwap.getFixedLeg().getNumberOfPayments() - 1).getPaymentTime() - _settlementTime;
+  }
+
+  /**
    * Gets the swaption currency.
    * @return The currency.
    */

@@ -40,7 +40,10 @@ public class PiecewiseSABRSurfaceFitterTest {
   private static final double EXAMPLE_STRIKE = 1.4;
 
   private static final double[] DELTAS = new double[] {0.15, 0.25 };
-  private static final double[] FORWARDS = new double[] {1.34, 1.34, 1.34, 1.34, 1.34, 1.34, 1.34, 1.34, 1.34, 1.34 };
+  private static final double[] FORWARDS = new double[] {1.34, 1.35, 1.36, 1.38, 1.4, 1.43, 1.45, 1.48, 1.5, 1.52 };
+  // private static final double[] FORWARDS;
+  //  private static final double SPOT = 1.34;
+  //  private static double DRIFT = 0.05;
   private static final ForwardCurve FORWARD_CURVE;
   @SuppressWarnings("unused")
   private static final String[] TENORS = new String[] {"1W", "2W", "3W", "1M", "3M", "6M", "9M", "1Y", "5Y", "10Y" };
@@ -50,6 +53,9 @@ public class PiecewiseSABRSurfaceFitterTest {
     {-0.012025, -0.02015, -0.026, -0.0314, -0.0377, -0.03905, -0.0396, -0.0402, -0.02085, -0.015175 } };
   private static final double[][] BUTT = new double[][] { {0.00665, 0.00725, 0.00835, 0.009075, 0.013175, 0.01505, 0.01565, 0.0163, 0.009275, 0.007075, },
     {0.002725, 0.00335, 0.0038, 0.004, 0.0056, 0.0061, 0.00615, 0.00635, 0.00385, 0.002575 } };
+  //  private static final double[] ATM;
+  //  private static final double[][] RR;
+  //  private static final double[][] BUTT;
   private static final double[][] STRIKES;
   private static final double[][] VOLS;
   private static final int N;
@@ -59,10 +65,18 @@ public class PiecewiseSABRSurfaceFitterTest {
 
   static {
 
-    N = FORWARDS.length;
+    N = EXPIRIES.length;
+    //  FORWARDS = new double[N];
+    //   Arrays.fill(FORWARDS, 100.0);
+    //    ATM = new double[N];
+    //    Arrays.fill(ATM, 0.3);
+    //    RR = new double[2][N];
+    //    BUTT = new double[2][N];
+
     STRIKES = new double[N][];
     VOLS = new double[N][];
     for (int i = 0; i < N; i++) {
+      //  FORWARDS[i] = SPOT * Math.exp(DRIFT * EXPIRIES[i]);
       SmileDeltaParameter cal = new SmileDeltaParameter(EXPIRIES[i], ATM[i], DELTAS,
           new double[] {RR[0][i], RR[1][i] }, new double[] {BUTT[0][i], BUTT[1][i] });
       STRIKES[i] = cal.getStrike(FORWARDS[i]);
@@ -100,7 +114,8 @@ public class PiecewiseSABRSurfaceFitterTest {
   }
 
   //Fit the market data at each time slice and print the smiles and a functions of both strike and delta
-  @Test(enabled = false)
+  @Test
+  (enabled = false)
   public void fitMarketData() {
     PiecewiseSABRFitter[] fitters = new PiecewiseSABRFitter[N];
     System.out.println("Fitted smiles by strike");
@@ -147,11 +162,25 @@ public class PiecewiseSABRSurfaceFitterTest {
   @Test
   (enabled = false)
   public void printSurface() {
-    BlackVolatilitySurface surface = SURFACE_FITTER.getImpliedVolatilitySurface(true,false,LAMBDA);
+    BlackVolatilitySurface surface = SURFACE_FITTER.getImpliedVolatilitySurface(true, false, LAMBDA);
     PDEUtilityTools.printSurface("vol surface", surface.getSurface(), 0, 10, 0.3, 3.0, 200, 100);
     LocalVolatilitySurface lv = DUPIRE.getLocalVolatility(surface, FORWARD_CURVE);
     PDEUtilityTools.printSurface("LV surface", lv.getSurface(), 0, 10, 0.3, 3.0, 200, 100);
   }
+
+  //  @Test
+  //  public void testRinging() {
+  //    BlackVolatilitySurface surface = SURFACE_FITTER.getImpliedVolatilitySurface(true, false, LAMBDA);
+  //    LocalVolatilitySurface lv = DUPIRE.getLocalVolatility(surface, FORWARD_CURVE);
+  //    double vol = lv.getVolatility(EXPIRIES[8], 1.5);
+  //    System.out.println(vol);
+  //    //    double atm = FORWARDS[8];
+  //    //    for (int i = 0; i < 21; i++) {
+  //    //      double k = atm * (0.95 + 0.1 * i / 20.);
+  //    //      double vol = lv.getVolatility(EXPIRIES[8], k);
+  //    //      System.out.println(k + "\t" + vol);
+  //    //    }
+  //  }
 
   /**
    * Print the fitted implied vol surface and the derived implied vol as a function of moneyness m = log(k/f)/(1+lambda*sqrt(t))
@@ -162,7 +191,7 @@ public class PiecewiseSABRSurfaceFitterTest {
     final double xMin = 4 / Math.sqrt(1 + LAMBDA * EXPIRIES[0]) * Math.log(STRIKES[0][0] / FORWARDS[0]);
     final double xMax = 4 / Math.sqrt(1 + LAMBDA * EXPIRIES[0]) * Math.log(STRIKES[0][STRIKES[0].length - 1] / FORWARDS[0]);
 
-    BlackVolatilitySurface surface = SURFACE_FITTER.getImpliedVolatilitySurface(true,false,LAMBDA);
+    BlackVolatilitySurface surface = SURFACE_FITTER.getImpliedVolatilitySurface(true, false, LAMBDA);
     Surface<Double, Double, Double> moneyNessSurface = toMoneynessSurface(surface.getSurface());
     PDEUtilityTools.printSurface("moneyness surface", moneyNessSurface, 0, 10, xMin, xMax, 200, 100);
 
@@ -171,8 +200,6 @@ public class PiecewiseSABRSurfaceFitterTest {
     Surface<Double, Double, Double> lvMoneyNessSurface = toMoneynessSurface(lv.getSurface());
     PDEUtilityTools.printSurface("LV moneyness surface", lvMoneyNessSurface, 0.0001, 10, xMin, xMax, 200, 100);
   }
-
-
 
   @Test
   (enabled = false)
@@ -184,6 +211,15 @@ public class PiecewiseSABRSurfaceFitterTest {
     calculator.runPDESolver(ps);
   }
 
+  @Test
+  (enabled = false)
+  public void runBackwardsPDESolver() {
+    PrintStream ps = System.out;
+    LocalVolatilityPDEGreekCalculator calculator = new LocalVolatilityPDEGreekCalculator(FORWARD_CURVE, EXPIRIES,
+        STRIKES, VOLS, true);
+
+    calculator.runBackwardsPDESolver(ps, EXAMPLE_EXPIRY, EXAMPLE_STRIKE);
+  }
 
   @Test
   (enabled = false)
@@ -196,7 +232,6 @@ public class PiecewiseSABRSurfaceFitterTest {
     calculator.bucketedVegaBackwardsPDE(ps, option);
   }
 
-
   @Test
   (enabled = false)
   public void deltaAndGamma() {
@@ -205,7 +240,6 @@ public class PiecewiseSABRSurfaceFitterTest {
         STRIKES, VOLS, true);
     calculator.deltaAndGamma(ps, EXAMPLE_EXPIRY, EXAMPLE_STRIKE);
   }
-
 
   /**
    * print out vega based greeks
@@ -219,7 +253,6 @@ public class PiecewiseSABRSurfaceFitterTest {
     EuropeanVanillaOption option = new EuropeanVanillaOption(EXAMPLE_STRIKE, EXAMPLE_EXPIRY, true);
     calculator.vega(ps, option);
   }
-
 
   private Function1D<Double, Double> getStrikeForDeltaFunction(final double forward, final double expiry, final boolean isCall,
       final Function1D<Double, Double> volFunc) {

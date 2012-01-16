@@ -26,8 +26,24 @@ import java.io.IOException;
  */
 public class HandshakeServlet extends SpringConfiguredServlet {
 
+  private static final String METHOD = "method";
+  private static final String GET = "GET";
+
   @Autowired
   private ConnectionManager _connectionManager;
+
+  /**
+   * This is a hack to get round a problem with browsers caching GET requests even when they're told not to.
+   */
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    String method = req.getParameter(METHOD);
+    if (GET.equals(method)) {
+      doGet(req, resp);
+    } else {
+      resp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    }
+  }
 
   @Override
   protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {

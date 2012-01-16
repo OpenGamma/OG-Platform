@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilityDeltaSurface;
@@ -69,7 +69,7 @@ public class VarianceSwapStaticReplicationTest {
   private static final double SPOT = 80;
   private static final double FORWARD = 100;
   private static final double TEST_VOL = 0.25;
-  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
+  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final YieldAndDiscountCurve DISCOUNT = CURVES.getCurve("Funding");
 
   private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 5.0, 5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0, 10.0};

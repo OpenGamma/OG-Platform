@@ -14,6 +14,7 @@ import com.opengamma.language.function.AggregatingFunctionProvider;
 import com.opengamma.language.function.FunctionRepository;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
 import com.opengamma.language.livedata.LiveDataRepository;
+import com.opengamma.language.livedata.SessionConnections;
 import com.opengamma.language.procedure.AggregatingProcedureProvider;
 import com.opengamma.language.procedure.ProcedureRepository;
 import com.opengamma.language.view.SessionViewClients;
@@ -54,6 +55,7 @@ public abstract class SessionContext extends AbstractContext<UserContext> {
   private final FunctionRepository _functionRepository = new FunctionRepository();
   private final LiveDataRepository _liveDataRepository = new LiveDataRepository();
   private final ProcedureRepository _procedureRepository = new ProcedureRepository();
+  private final SessionConnections _connections = new SessionConnections(this);
 
   /* package */SessionContext(final UserContext userContext) {
     super(userContext);
@@ -92,6 +94,10 @@ public abstract class SessionContext extends AbstractContext<UserContext> {
 
   public ProcedureRepository getProcedureRepository() {
     return _procedureRepository;
+  }
+
+  public SessionConnections getConnections() {
+    return _connections;
   }
 
   // Standard context members

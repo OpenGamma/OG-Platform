@@ -19,12 +19,10 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.MasterHistoricalTimeSeriesSource;
 import com.opengamma.util.spring.SpringFactoryBean;
 
@@ -40,15 +38,15 @@ public class HistoricalTimeSeriesSourceFactoryBean extends SpringFactoryBean<His
   @PropertyDefinition
   private HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
   /**
+   * The HTS resolver.
+   */
+  @PropertyDefinition
+  private HistoricalTimeSeriesResolver _historicalTimeSeriesResolver;
+  /**
    * The cache manager.
    */
   @PropertyDefinition
   private CacheManager _cacheManager;
-  /**
-   * The config source.
-   */
-  @PropertyDefinition
-  private ConfigSource _configSource;
 
   /**
    * Creates an instance.
@@ -60,8 +58,7 @@ public class HistoricalTimeSeriesSourceFactoryBean extends SpringFactoryBean<His
   //-------------------------------------------------------------------------
   @Override
   protected HistoricalTimeSeriesSource createObject() {
-    HistoricalTimeSeriesResolver resolver = new DefaultHistoricalTimeSeriesResolver(getHistoricalTimeSeriesMaster(), getConfigSource());
-    HistoricalTimeSeriesSource source = new MasterHistoricalTimeSeriesSource(getHistoricalTimeSeriesMaster(), resolver);
+    HistoricalTimeSeriesSource source = new MasterHistoricalTimeSeriesSource(getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesResolver());
     if (getCacheManager() != null) {
       source = new EHCachingHistoricalTimeSeriesSource(source, getCacheManager());
     }
@@ -92,10 +89,10 @@ public class HistoricalTimeSeriesSourceFactoryBean extends SpringFactoryBean<His
     switch (propertyName.hashCode()) {
       case 173967376:  // historicalTimeSeriesMaster
         return getHistoricalTimeSeriesMaster();
+      case -946313676:  // historicalTimeSeriesResolver
+        return getHistoricalTimeSeriesResolver();
       case -1452875317:  // cacheManager
         return getCacheManager();
-      case 195157501:  // configSource
-        return getConfigSource();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -106,11 +103,11 @@ public class HistoricalTimeSeriesSourceFactoryBean extends SpringFactoryBean<His
       case 173967376:  // historicalTimeSeriesMaster
         setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
         return;
+      case -946313676:  // historicalTimeSeriesResolver
+        setHistoricalTimeSeriesResolver((HistoricalTimeSeriesResolver) newValue);
+        return;
       case -1452875317:  // cacheManager
         setCacheManager((CacheManager) newValue);
-        return;
-      case 195157501:  // configSource
-        setConfigSource((ConfigSource) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -124,8 +121,8 @@ public class HistoricalTimeSeriesSourceFactoryBean extends SpringFactoryBean<His
     if (obj != null && obj.getClass() == this.getClass()) {
       HistoricalTimeSeriesSourceFactoryBean other = (HistoricalTimeSeriesSourceFactoryBean) obj;
       return JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesResolver(), other.getHistoricalTimeSeriesResolver()) &&
           JodaBeanUtils.equal(getCacheManager(), other.getCacheManager()) &&
-          JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
           super.equals(obj);
     }
     return false;
@@ -135,8 +132,8 @@ public class HistoricalTimeSeriesSourceFactoryBean extends SpringFactoryBean<His
   public int hashCode() {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesResolver());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCacheManager());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
     return hash ^ super.hashCode();
   }
 
@@ -167,6 +164,31 @@ public class HistoricalTimeSeriesSourceFactoryBean extends SpringFactoryBean<His
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the HTS resolver.
+   * @return the value of the property
+   */
+  public HistoricalTimeSeriesResolver getHistoricalTimeSeriesResolver() {
+    return _historicalTimeSeriesResolver;
+  }
+
+  /**
+   * Sets the HTS resolver.
+   * @param historicalTimeSeriesResolver  the new value of the property
+   */
+  public void setHistoricalTimeSeriesResolver(HistoricalTimeSeriesResolver historicalTimeSeriesResolver) {
+    this._historicalTimeSeriesResolver = historicalTimeSeriesResolver;
+  }
+
+  /**
+   * Gets the the {@code historicalTimeSeriesResolver} property.
+   * @return the property, not null
+   */
+  public final Property<HistoricalTimeSeriesResolver> historicalTimeSeriesResolver() {
+    return metaBean().historicalTimeSeriesResolver().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the cache manager.
    * @return the value of the property
    */
@@ -192,31 +214,6 @@ public class HistoricalTimeSeriesSourceFactoryBean extends SpringFactoryBean<His
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the config source.
-   * @return the value of the property
-   */
-  public ConfigSource getConfigSource() {
-    return _configSource;
-  }
-
-  /**
-   * Sets the config source.
-   * @param configSource  the new value of the property
-   */
-  public void setConfigSource(ConfigSource configSource) {
-    this._configSource = configSource;
-  }
-
-  /**
-   * Gets the the {@code configSource} property.
-   * @return the property, not null
-   */
-  public final Property<ConfigSource> configSource() {
-    return metaBean().configSource().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * The meta-bean for {@code HistoricalTimeSeriesSourceFactoryBean}.
    */
   public static class Meta extends SpringFactoryBean.Meta<HistoricalTimeSeriesSource> {
@@ -231,23 +228,23 @@ public class HistoricalTimeSeriesSourceFactoryBean extends SpringFactoryBean<His
     private final MetaProperty<HistoricalTimeSeriesMaster> _historicalTimeSeriesMaster = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesMaster", HistoricalTimeSeriesSourceFactoryBean.class, HistoricalTimeSeriesMaster.class);
     /**
+     * The meta-property for the {@code historicalTimeSeriesResolver} property.
+     */
+    private final MetaProperty<HistoricalTimeSeriesResolver> _historicalTimeSeriesResolver = DirectMetaProperty.ofReadWrite(
+        this, "historicalTimeSeriesResolver", HistoricalTimeSeriesSourceFactoryBean.class, HistoricalTimeSeriesResolver.class);
+    /**
      * The meta-property for the {@code cacheManager} property.
      */
     private final MetaProperty<CacheManager> _cacheManager = DirectMetaProperty.ofReadWrite(
         this, "cacheManager", HistoricalTimeSeriesSourceFactoryBean.class, CacheManager.class);
-    /**
-     * The meta-property for the {@code configSource} property.
-     */
-    private final MetaProperty<ConfigSource> _configSource = DirectMetaProperty.ofReadWrite(
-        this, "configSource", HistoricalTimeSeriesSourceFactoryBean.class, ConfigSource.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "historicalTimeSeriesMaster",
-        "cacheManager",
-        "configSource");
+        "historicalTimeSeriesResolver",
+        "cacheManager");
 
     /**
      * Restricted constructor.
@@ -260,10 +257,10 @@ public class HistoricalTimeSeriesSourceFactoryBean extends SpringFactoryBean<His
       switch (propertyName.hashCode()) {
         case 173967376:  // historicalTimeSeriesMaster
           return _historicalTimeSeriesMaster;
+        case -946313676:  // historicalTimeSeriesResolver
+          return _historicalTimeSeriesResolver;
         case -1452875317:  // cacheManager
           return _cacheManager;
-        case 195157501:  // configSource
-          return _configSource;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -293,19 +290,19 @@ public class HistoricalTimeSeriesSourceFactoryBean extends SpringFactoryBean<His
     }
 
     /**
+     * The meta-property for the {@code historicalTimeSeriesResolver} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<HistoricalTimeSeriesResolver> historicalTimeSeriesResolver() {
+      return _historicalTimeSeriesResolver;
+    }
+
+    /**
      * The meta-property for the {@code cacheManager} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<CacheManager> cacheManager() {
       return _cacheManager;
-    }
-
-    /**
-     * The meta-property for the {@code configSource} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<ConfigSource> configSource() {
-      return _configSource;
     }
 
   }

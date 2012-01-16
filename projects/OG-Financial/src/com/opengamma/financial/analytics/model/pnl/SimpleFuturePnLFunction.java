@@ -18,9 +18,9 @@ import org.apache.commons.lang.Validate;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -77,9 +77,9 @@ public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker
     final ExternalIdBundle underlyingId = getUnderlyingIdentifier((FutureSecurity) position.getSecurity());
     final Period samplingPeriod = getSamplingPeriod(samplingPeriodName);
     final LocalDate startDate = now.minus(samplingPeriod);
-    final HistoricalTimeSeries dbTimeSeries = historicalSource.getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, underlyingId, _resolutionKey, startDate, true, now, true);
+    final HistoricalTimeSeries dbTimeSeries = historicalSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, underlyingId, _resolutionKey, startDate, true, now, true);
     if (dbTimeSeries == null) {
-      throw new OpenGammaRuntimeException("Could not get identifier / price series pair for id " + underlyingId + " for " + _resolutionKey + "/" + HistoricalTimeSeriesFields.LAST_PRICE);
+      throw new OpenGammaRuntimeException("Could not get identifier / price series pair for id " + underlyingId + " for " + _resolutionKey + "/" + MarketDataRequirementNames.MARKET_VALUE);
     }
     final DoubleTimeSeries<?> ts = dbTimeSeries.getTimeSeries();
     if (ts == null) {

@@ -28,7 +28,7 @@ import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
@@ -53,7 +53,7 @@ public class BondTransactionDiscountingMethodTest {
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME, FORWARD_CURVE_NAME};
   private static final String[] COUPON_IBOR_CURVE_NAME = new String[] {CREDIT_CURVE_NAME, FORWARD_CURVE_NAME};
-  private static final YieldCurveBundle CURVES = TestsDataSets.createCurvesBond1();
+  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurvesBond1();
   // to derivatives: first coupon
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 8, 18);
   //Fixed Coupon Semi-annual 5Y

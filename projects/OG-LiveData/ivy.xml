@@ -6,6 +6,7 @@
       <artifact name="og-livedata" type="source" ext="jar" />
     </publications>
     <dependencies>
+        <dependency name="og-core" rev="latest.integration" />
         <dependency name="og-security" rev="latest.integration" />
         <dependency name="og-util" rev="latest.integration" />
       	

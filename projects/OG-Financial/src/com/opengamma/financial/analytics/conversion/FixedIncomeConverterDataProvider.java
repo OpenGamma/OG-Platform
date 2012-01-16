@@ -13,10 +13,10 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -131,7 +131,7 @@ public class FixedIncomeConverterDataProvider {
     final ExternalIdBundle id = ExternalIdBundle.of(security.getUnderlyingId());
     final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
     final HistoricalTimeSeries ts = dataSource
-            .getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, id, null, null, startDate, true, now.toLocalDate(), false);
+            .getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, now.toLocalDate(), false);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + security);
     }
@@ -148,7 +148,7 @@ public class FixedIncomeConverterDataProvider {
     final ExternalId id = security.getUnderlyingId();
     final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
     final HistoricalTimeSeries ts = dataSource
-          .getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, ExternalIdBundle.of(id), null, null, startDate, true, now.toLocalDate(), false);
+          .getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, ExternalIdBundle.of(id), null, null, startDate, true, now.toLocalDate(), false);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + id);
     }
@@ -168,7 +168,7 @@ public class FixedIncomeConverterDataProvider {
     final ExternalId id = security.getUnderlyingId();
     final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
     final HistoricalTimeSeries ts = dataSource
-          .getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, ExternalIdBundle.of(id), null, null, startDate, true, now.toLocalDate(), false);
+          .getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, ExternalIdBundle.of(id), null, null, startDate, true, now.toLocalDate(), false);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + id);
     }
@@ -188,7 +188,7 @@ public class FixedIncomeConverterDataProvider {
     final ExternalId id = security.getUnderlyingId();
     final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
     final HistoricalTimeSeries ts = dataSource
-          .getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, ExternalIdBundle.of(id), null, null, startDate, true, now.toLocalDate(), false);
+          .getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, ExternalIdBundle.of(id), null, null, startDate, true, now.toLocalDate(), false);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + id);
     }
@@ -208,14 +208,14 @@ public class FixedIncomeConverterDataProvider {
     final ExternalId longId = security.getLongId();
     final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
     final HistoricalTimeSeries longTS = dataSource
-          .getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, ExternalIdBundle.of(longId), null, null, startDate, true, now.toLocalDate(), false);
+          .getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, ExternalIdBundle.of(longId), null, null, startDate, true, now.toLocalDate(), false);
     if (longTS == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + longId);
     }
     FastBackedDoubleTimeSeries<LocalDate> localDateLongTS = longTS.getTimeSeries();
     final ExternalId shortId = security.getShortId();
     final HistoricalTimeSeries shortTS = dataSource
-          .getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, ExternalIdBundle.of(longId), null, null, startDate, true, now.toLocalDate(), false);
+          .getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, ExternalIdBundle.of(longId), null, null, startDate, true, now.toLocalDate(), false);
     if (shortTS == null) {
       throw new OpenGammaRuntimeException("Could not get price time series for " + shortId);
     }
@@ -276,7 +276,7 @@ public class FixedIncomeConverterDataProvider {
       final LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate()
           .minusDays(7);
       final HistoricalTimeSeries ts = dataSource
-          .getHistoricalTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, id, null, null, startDate, true, now.toLocalDate(), false);
+          .getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, now.toLocalDate(), false);
       if (ts == null) {
         throw new OpenGammaRuntimeException("Could not get time series of underlying index " + id.getExternalIds().toString() + " bundle used was " + id);
       }

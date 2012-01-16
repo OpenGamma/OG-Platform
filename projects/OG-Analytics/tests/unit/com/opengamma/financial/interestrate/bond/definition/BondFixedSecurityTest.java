@@ -24,7 +24,7 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityPaymentFixedDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
@@ -57,7 +57,7 @@ public class BondFixedSecurityTest {
   private static final String CREDIT_CURVE_NAME = "Credit";
   private static final String REPO_CURVE_NAME = "Repo";
   private static final String[] CURVES_NAME = {CREDIT_CURVE_NAME, REPO_CURVE_NAME};
-  YieldCurveBundle CURVES = TestsDataSets.createCurves1();
+  YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   // to derivatives: first coupon
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private static final ZonedDateTime REFERENCE_DATE_1 = DateUtils.getUTCDate(2011, 8, 18);

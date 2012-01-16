@@ -5,7 +5,6 @@
  */
 package com.opengamma.web.spring;
 
-import static com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields.LAST_PRICE;
 import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
 
 import java.io.OutputStreamWriter;
@@ -21,6 +20,7 @@ import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.xml.FudgeXMLSettings;
 import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
 
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionDefinition;
 import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
@@ -493,10 +493,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     final String defaultSamplingPeriodName = "P2Y";
     final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
     final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
-    functionConfigs.add(functionConfiguration(TradeExchangeTradedPnLFunction.class, DEFAULT_CONFIG_NAME, LAST_PRICE, "COST_OF_CARRY"));
-    functionConfigs.add(functionConfiguration(TradeExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, LAST_PRICE, "COST_OF_CARRY"));
-    functionConfigs.add(functionConfiguration(PositionExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, LAST_PRICE, "COST_OF_CARRY"));
-    functionConfigs.add(functionConfiguration(SecurityPriceSeriesFunction.class, DEFAULT_CONFIG_NAME, LAST_PRICE));
+    functionConfigs.add(functionConfiguration(TradeExchangeTradedPnLFunction.class, DEFAULT_CONFIG_NAME, MarketDataRequirementNames.MARKET_VALUE, "COST_OF_CARRY"));
+    functionConfigs.add(functionConfiguration(TradeExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, MarketDataRequirementNames.MARKET_VALUE, "COST_OF_CARRY"));
+    functionConfigs.add(functionConfiguration(PositionExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, MarketDataRequirementNames.MARKET_VALUE, "COST_OF_CARRY"));
+    functionConfigs.add(functionConfiguration(SecurityPriceSeriesFunction.class, DEFAULT_CONFIG_NAME, MarketDataRequirementNames.MARKET_VALUE));
     functionConfigs.add(functionConfiguration(SecurityPriceSeriesDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
     functionConfigs.add(functionConfiguration(EquityPnLFunction.class));
     functionConfigs.add(functionConfiguration(EquityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName, defaultReturnCalculatorName));

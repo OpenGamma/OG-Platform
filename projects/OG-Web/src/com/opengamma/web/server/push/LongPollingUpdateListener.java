@@ -32,15 +32,18 @@ import java.util.Set;
   private final Object _lock = new Object();
   private final Set<String> _updates = new HashSet<String>();
   private final String _userId;
+  private final ConnectionTimeoutTask _timeoutTask;
 
   private Continuation _continuation;
 
   /**
    * Creates a new listener for a user.
    * @param userId Login ID of the user
+   * @param timeoutTask Connection timeout task that the listener must reset every time the connection is set up
    */
-  /* package */ LongPollingUpdateListener(String userId) {
+  /* package */ LongPollingUpdateListener(String userId, ConnectionTimeoutTask timeoutTask) {
     _userId = userId;
+    _timeoutTask = timeoutTask;
   }
 
   /**
@@ -96,6 +99,9 @@ import java.util.Set;
    */
   /* package */ void connect(Continuation continuation) {
     synchronized (_lock) {
+      // TODO why doesn't this log anything?
+      s_logger.debug("Long polling connection established, resetting timeout task {}", _timeoutTask);
+      _timeoutTask.reset();
       _continuation = continuation;
       // if there are updates queued sent them immediately otherwise save the continuation until an update
       if (!_updates.isEmpty()) {

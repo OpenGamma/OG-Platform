@@ -9,6 +9,7 @@ import org.eclipse.jetty.continuation.Continuation;
 import org.eclipse.jetty.continuation.ContinuationSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -28,6 +29,20 @@ public class LongPollingServlet extends SpringConfiguredServlet {
   /** Manages connections for each client */
   @Autowired
   private LongPollingConnectionManager _connectionManager;
+
+  private static final String METHOD = "method";
+  private static final String GET = "GET";
+
+  /** This is a hack to get round a problem with browsers caching GET requests even when they're told not to. */
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    String method = req.getParameter(METHOD);
+    if (GET.equals(method)) {
+      doGet(req, resp);
+    } else {
+      resp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    }
+  }
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -61,7 +76,8 @@ public class LongPollingServlet extends SpringConfiguredServlet {
     boolean connected = (clientId != null) && _connectionManager.longPollHttpConnect(userId, clientId, continuation);
     if (!connected) {
       // couldn't get the client ID from the URL or the client ID didn't correspond to a known client
-      response.sendError(404);
+      // TODO how do I send something other than jetty's standard HTML error page?
+      response.sendError(404, "Problem accessing " + request.getRequestURI() + ".  Reason: Unknown client ID " + clientId);
       continuation.complete();
     }
     continuation.setAttribute(CLIENT_ID, clientId);
