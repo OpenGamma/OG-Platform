@@ -9,22 +9,23 @@ import com.opengamma.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *  A surface with gives the Dupire local volatility  as a function of time to maturity and value of the underlying 
+ *  A surface with gives the Dupire local volatility  as a function of time to maturity and value of the underlying
  */
 public class LocalVolatilitySurface extends VolatilitySurface {
 
   /**
-   * @param surface The time to maturity should be the first coordinate and the strike the second 
+   * @param surface The time to maturity should be the first coordinate and the strike the second
    */
   public LocalVolatilitySurface(Surface<Double, Double, Double> surface) {
     super(surface);
   }
 
   /**
-   * 
-   * @param t time to maturity
-   * @param s value of the underlying
-   * @return The Dupire local volatility 
+   * Depending on the application the same local volatility surface can be seem either as either a function of calendar
+   * time and value of the underlying, or as a function of expiry and strike
+   * @param t time
+   * @param s value of the underlying or strike
+   * @return The Dupire local volatility
    */
   @Override
   public double getVolatility(final double t, final double s) {

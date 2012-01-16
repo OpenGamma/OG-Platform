@@ -1,0 +1,5 @@
+{
+  "trades" : [
+    {"attributes" : {"dealAttributes" : {"deal1" : "value1", "deal2" : "value2"}}, "premium" : 40.0, "counterParty" : "BACS", "premiumCurrency" : "USD", "premiumDate" : "2011-12-11", "premiumTime" : "18:04", "premiumOffset" : "+0100", "quantity" : "80", "tradeDate" : "2011-12-10", "tradeTime" : "19:04", "tradeOffset" : "+0200"}
+  ]
+}

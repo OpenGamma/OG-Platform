@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.livedata.normalization;
+package com.opengamma.core.value;
 
 import java.lang.reflect.Field;
 import java.util.HashSet;

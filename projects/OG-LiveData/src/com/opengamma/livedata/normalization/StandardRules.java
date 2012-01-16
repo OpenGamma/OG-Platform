@@ -7,6 +7,8 @@ package com.opengamma.livedata.normalization;
 
 import java.util.Collections;
 
+import com.opengamma.core.value.MarketDataRequirementNames;
+
 /**
  * Normalization rules that are known to be part of the OpenGamma standard package.
  */

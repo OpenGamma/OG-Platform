@@ -17,8 +17,8 @@ import org.apache.commons.lang.Validate;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -70,12 +70,12 @@ public abstract class JensenAlphaFunction extends AbstractFunction.NonCompiledIn
     final LocalDate startDate = now.minus(samplingPeriod);
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final HistoricalTimeSeries marketTSObject = historicalSource.getHistoricalTimeSeries(
-        HistoricalTimeSeriesFields.LAST_PRICE, bundle.getCAPMMarket(), _resolutionKey, startDate, true, now, true);
+        MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMMarket(), _resolutionKey, startDate, true, now, true);
     if (marketTSObject == null) {
       throw new OpenGammaRuntimeException("Market price series was null");
     }
     final HistoricalTimeSeries riskFreeRateTSObject = historicalSource.getHistoricalTimeSeries(
-        HistoricalTimeSeriesFields.LAST_PRICE, bundle.getCAPMRiskFreeRate(), _resolutionKey, startDate, true, now, true);
+        MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMRiskFreeRate(), _resolutionKey, startDate, true, now, true);
     if (riskFreeRateTSObject == null) {
       throw new OpenGammaRuntimeException("Risk free rate series was null");
     }
