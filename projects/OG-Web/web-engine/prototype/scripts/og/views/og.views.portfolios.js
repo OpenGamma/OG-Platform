@@ -306,7 +306,7 @@ $.register_module({
                                 common.gadgets.positions({
                                     id: position, selector: '.og-js-details-positions', editable: false
                                 });
-                                common.gadgets.trades({id: position, selector: '.og-js-trades-table'});
+                                common.gadgets.trades.render({id: position, selector: '.og-js-trades-table'});
                                 return;
                             }
                             ui.dialog({

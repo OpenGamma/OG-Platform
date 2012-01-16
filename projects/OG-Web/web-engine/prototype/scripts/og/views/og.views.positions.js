@@ -175,7 +175,7 @@ $.register_module({
                             common.gadgets.positions({
                                 id: args.id, selector: '.og-js-details-positions', editable: true
                             });
-                            common.gadgets.trades({id: args.id, selector: '.og-js-trades-table'});
+                            common.gadgets.trades.render({id: args.id, selector: '.og-js-trades-table'});
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             setTimeout(layout.inner.resizeAll);
                         }});

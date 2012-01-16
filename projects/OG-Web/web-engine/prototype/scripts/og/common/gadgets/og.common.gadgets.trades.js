@@ -10,12 +10,11 @@ $.register_module({
             template_data, original_config_object,
             dependencies = ['id', 'node'],
             html = {}, action = {},
-            reload, attach_calendar, attach_trades_link, format_trades,
+            load, reload, attach_calendar, attach_trades_link, format_trades,
             form_create, form_save, generate_form_function, populate_form_fields;
         /*
          * Helper functions
          */
-        reload = function () {og.common.gadgets.trades(original_config_object);};
         generate_form_function = function (load_handler) {
             return function (css_class) {
                 $(css_class).html('Loading form...');
@@ -228,11 +227,8 @@ $.register_module({
                 }
             });
         };
-        return function (config) {
+        load = function (config) {
             var handler = function (result) {
-                /*
-                 * Build trades table
-                 */
                 if (result.error) return alert(result.message);
                 original_config_object = config;
                 template_data = result.data.template_data;
@@ -311,6 +307,8 @@ $.register_module({
                 }());
             };
             api.rest.positions.get({dependencies: dependencies, id: config.id, handler: handler});
-        }
+        };
+        reload = function () {load(original_config_object);};
+        return {render: load, reload: reload}
     }
 });
