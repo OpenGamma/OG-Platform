@@ -422,6 +422,21 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     return repo;
   }
 
+  /**
+   * Gets the repository instance stored in the {@code ServletContext}.
+   * <p>
+   * This method should be used in preference to relying on the thread-local.
+   * 
+   * @param servletContext  the servlet context, not null
+   * @return the instance stored in the servlet context, not null
+   */
+  public static ComponentRepository getFromServletContext(ServletContext servletContext) {
+    ArgumentChecker.notNull(servletContext, "servletContext");
+    ComponentRepository repo = (ComponentRepository) servletContext.getAttribute(SERVLET_CONTEXT_KEY);
+    ArgumentChecker.notNull(repo, "ComponentRepository");
+    return repo;
+  }
+
   //-------------------------------------------------------------------------
   private void checkStatus(Status status) {
     if (_status != status) {
