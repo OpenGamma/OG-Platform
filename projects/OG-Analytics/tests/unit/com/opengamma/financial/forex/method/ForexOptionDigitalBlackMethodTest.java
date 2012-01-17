@@ -106,7 +106,7 @@ public class ForexOptionDigitalBlackMethodTest {
     final double forward = SPOT * dfForeign / dfDomestic;
     final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(TimeCalculator.getTimeBetween(REFERENCE_DATE, expiryDate), strike, forward));
     final double sigmaRootT = volatility * Math.sqrt(forexOption.getExpirationTime());
-    final double dM = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final int omega = isCall ? 1 : -1;
     final double pvExpected = Math.abs(forexOption.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dM) * (isLong ? 1.0 : -1.0);
     final MultipleCurrencyAmount pvComputed = METHOD_OPTION.presentValue(forexOption, SMILE_BUNDLE);
@@ -135,7 +135,7 @@ public class ForexOptionDigitalBlackMethodTest {
     final double forward = SPOT * dfForeign / dfDomestic;
     final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, strike, forward));
     final double sigmaRootT = volatility * Math.sqrt(forexOption.getExpirationTime());
-    final double dM = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final int omega = isCall ? 1 : -1;
     final double pvExpected = Math.abs(forexOption.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dM) * (isLong ? 1.0 : -1.0);
     final MultipleCurrencyAmount pvComputed = METHOD_OPTION.presentValue(forexOption, SMILE_BUNDLE);
@@ -144,7 +144,7 @@ public class ForexOptionDigitalBlackMethodTest {
 
   @Test
   /**
-   * Tests a EUR/USD call vs a USD/EUR put.
+   * Tests put call parity.
    */
   public void presentValuePutCallParity() {
     final double strike = 1.45;
@@ -221,7 +221,7 @@ public class ForexOptionDigitalBlackMethodTest {
     final double forward = SPOT * dfForeign / dfDomestic;
     final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(timeToExpiry, strike, forward));
     final double sigmaRootT = volatility * Math.sqrt(forexOptionCall.getExpirationTime());
-    final double dM = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final double deltaSpotCall = dfDomestic * notional * strike * NORMAL.getPDF(dM) / (sigmaRootT * SPOT);
     final double deltaSpotPut = -dfDomestic * notional * strike * NORMAL.getPDF(dM) / (sigmaRootT * SPOT);
     final MultipleCurrencyAmount priceComputedCall = METHOD_OPTION.presentValue(forexOptionCall, SMILE_BUNDLE);
@@ -337,11 +337,11 @@ public class ForexOptionDigitalBlackMethodTest {
     curvesForeign.setCurve(CURVES_NAME[1], CURVES.getCurve(CURVES_NAME[1]));
     dfForeignBumped = curveBumpedPlus.getDiscountFactor(forexForward.getPaymentTime());
     forwardBumped = SPOT * dfForeignBumped / dfDomestic;
-    dMBumped = Math.log(forwardBumped / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    dMBumped = Math.log(forwardBumped / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final double bumpedPvForeignPlus = Math.abs(forexOptionCall.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dMBumped) * (isLong ? 1.0 : -1.0);
     dfForeignBumped = curveBumpedMinus.getDiscountFactor(forexForward.getPaymentTime());
     forwardBumped = SPOT * dfForeignBumped / dfDomestic;
-    dMBumped = Math.log(forwardBumped / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    dMBumped = Math.log(forwardBumped / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final double bumpedPvForeignMinus = Math.abs(forexOptionCall.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dMBumped) * (isLong ? 1.0 : -1.0);
     final double resultForeign = (bumpedPvForeignPlus - bumpedPvForeignMinus) / (2 * deltaShift);
     assertEquals("Forex Digital option: curve sensitivity", forexForward.getPaymentTime(), sensi.getSensitivity(USD).getSensitivities().get(CURVES_NAME[0]).get(0).first, TOLERANCE_TIME);
@@ -357,12 +357,12 @@ public class ForexOptionDigitalBlackMethodTest {
     curvesDomestic.setCurve(bumpedCurveName, curveBumpedPlus);
     dfDomesticBumped = curveBumpedPlus.getDiscountFactor(forexForward.getPaymentTime());
     forwardBumped = SPOT * dfForeign / dfDomesticBumped;
-    dMBumped = Math.log(forwardBumped / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    dMBumped = Math.log(forwardBumped / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final double bumpedPvDomesticPlus = Math.abs(forexOptionCall.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomesticBumped * NORMAL.getCDF(omega * dMBumped) * (isLong ? 1.0 : -1.0);
     curvesForeign.replaceCurve(bumpedCurveName, curveBumpedMinus);
     dfDomesticBumped = curveBumpedMinus.getDiscountFactor(forexForward.getPaymentTime());
     forwardBumped = SPOT * dfForeign / dfDomesticBumped;
-    dMBumped = Math.log(forwardBumped / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    dMBumped = Math.log(forwardBumped / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final double bumpedPvDomesticMinus = Math.abs(forexOptionCall.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomesticBumped * NORMAL.getCDF(omega * dMBumped) * (isLong ? 1.0 : -1.0);
     final double resultDomestic = (bumpedPvDomesticPlus - bumpedPvDomesticMinus) / (2 * deltaShift);
     assertEquals("Forex Digital option: curve sensitivity", forexForward.getPaymentTime(), sensi.getSensitivity(USD).getSensitivities().get(CURVES_NAME[1]).get(0).first, TOLERANCE_TIME);
@@ -400,11 +400,11 @@ public class ForexOptionDigitalBlackMethodTest {
     final double volatility = SMILE_TERM.getVolatility(new Triple<Double, Double, Double>(FOREX_CALL_OPTION.getExpirationTime(), strike, forward));
 
     final double sigmaRootTPlus = (volatility + shift) * Math.sqrt(FOREX_CALL_OPTION.getExpirationTime());
-    final double dMPlus = Math.log(forward / strike) / sigmaRootTPlus + 0.5 * sigmaRootTPlus;
+    final double dMPlus = Math.log(forward / strike) / sigmaRootTPlus - 0.5 * sigmaRootTPlus;
     final double pvPlus = Math.abs(FOREX_CALL_OPTION.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dMPlus) * (FOREX_CALL_OPTION.isLong() ? 1.0 : -1.0);
 
     final double sigmaRootTMinus = (volatility - shift) * Math.sqrt(FOREX_CALL_OPTION.getExpirationTime());
-    final double dMMinus = Math.log(forward / strike) / sigmaRootTMinus + 0.5 * sigmaRootTMinus;
+    final double dMMinus = Math.log(forward / strike) / sigmaRootTMinus - 0.5 * sigmaRootTMinus;
     final double pvMinus = Math.abs(FOREX_CALL_OPTION.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dMMinus) * (FOREX_CALL_OPTION.isLong() ? 1.0 : -1.0);
 
     assertEquals("Forex Digital option: vega", (pvPlus - pvMinus) / (2 * shift), sensi.getVega().getMap().get(point), TOLERANCE_PRICE);
