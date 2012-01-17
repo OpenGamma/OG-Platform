@@ -45,6 +45,7 @@ public class BillSecurityDefinitionTest {
 
   private final static ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2012, 1, 17);
   private final static String DSC_NAME = "EUR Discounting";
+  private final static String CREDIT_NAME = "EUR BELGIUM GOVT";
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullCurrency() {
@@ -130,17 +131,19 @@ public class BillSecurityDefinitionTest {
    */
   public void toDerivative() {
     ZonedDateTime standardSettlementDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
-    BillSecurity securityConverted1 = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE, standardSettlementDate, DSC_NAME);
+    BillSecurity securityConverted1 = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE, standardSettlementDate, DSC_NAME, CREDIT_NAME);
     double standardSettlementTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, standardSettlementDate);
     double endTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, END_DATE);
-    BillSecurity securityExpected1 = new BillSecurity(EUR, standardSettlementTime, endTime, NOTIONAL, YIELD_CONVENTION, ACT360, ISSUER_BEL, DSC_NAME);
+    double accrualFactorStandard = ACT360.getDayCountFraction(standardSettlementDate, END_DATE);
+    BillSecurity securityExpected1 = new BillSecurity(EUR, standardSettlementTime, endTime, NOTIONAL, YIELD_CONVENTION, accrualFactorStandard, ISSUER_BEL, CREDIT_NAME, DSC_NAME);
     assertEquals("Bill Security Definition: toDerivative", securityExpected1, securityConverted1);
-    BillSecurity securityConverted2 = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE, DSC_NAME);
+    BillSecurity securityConverted2 = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE, DSC_NAME, CREDIT_NAME);
     assertEquals("Bill Security Definition: toDerivative", securityExpected1, securityConverted2);
     ZonedDateTime otherSettlementDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS + 1, CALENDAR);
-    BillSecurity securityConverted3 = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE, otherSettlementDate, DSC_NAME);
+    BillSecurity securityConverted3 = BILL_SEC_DEFINITION.toDerivative(REFERENCE_DATE, otherSettlementDate, DSC_NAME, CREDIT_NAME);
     double otherSettlementTime = TimeCalculator.getTimeBetween(REFERENCE_DATE, otherSettlementDate);
-    BillSecurity securityExpected3 = new BillSecurity(EUR, otherSettlementTime, endTime, NOTIONAL, YIELD_CONVENTION, ACT360, ISSUER_BEL, DSC_NAME);
+    double accrualFactorOther = ACT360.getDayCountFraction(otherSettlementDate, END_DATE);
+    BillSecurity securityExpected3 = new BillSecurity(EUR, otherSettlementTime, endTime, NOTIONAL, YIELD_CONVENTION, accrualFactorOther, ISSUER_BEL, CREDIT_NAME, DSC_NAME);
     assertEquals("Bill Security Definition: toDerivative", securityExpected3, securityConverted3);
   }
 

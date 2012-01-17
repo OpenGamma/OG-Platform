@@ -47,6 +47,7 @@ public class BillTransactionDefinitionTest {
   private final static double SETTLE_AMOUT = -NOTIONAL * QUANTITY * 99.95;
 
   private final static String DSC_NAME = "EUR Discounting";
+  private final static String CREDIT_NAME = "EUR BELGIUM GOVT";
 
   private final static BillTransactionDefinition BILL_TRA_DEFINITION = new BillTransactionDefinition(BILL_SEC_DEFINITION, QUANTITY, SETTLE_DATE, SETTLE_AMOUT);
 
@@ -102,9 +103,9 @@ public class BillTransactionDefinitionTest {
    */
   public void toDerivativeStandard() {
     ZonedDateTime referenceDateStandard = ScheduleCalculator.getAdjustedDate(SETTLE_DATE, -SETTLEMENT_DAYS, CALENDAR);
-    BillTransaction transactionConverted1 = BILL_TRA_DEFINITION.toDerivative(referenceDateStandard, DSC_NAME);
-    BillSecurity purchased1 = BILL_SEC_DEFINITION.toDerivative(referenceDateStandard, SETTLE_DATE, DSC_NAME);
-    BillSecurity standard1 = BILL_SEC_DEFINITION.toDerivative(referenceDateStandard, DSC_NAME);
+    BillTransaction transactionConverted1 = BILL_TRA_DEFINITION.toDerivative(referenceDateStandard, DSC_NAME, CREDIT_NAME);
+    BillSecurity purchased1 = BILL_SEC_DEFINITION.toDerivative(referenceDateStandard, SETTLE_DATE, DSC_NAME, CREDIT_NAME);
+    BillSecurity standard1 = BILL_SEC_DEFINITION.toDerivative(referenceDateStandard, DSC_NAME, CREDIT_NAME);
     BillTransaction transactionExpected1 = new BillTransaction(purchased1, QUANTITY, SETTLE_AMOUT, standard1);
     assertEquals("Bill Transaction: toDerivatives", transactionExpected1, transactionConverted1);
   }
@@ -115,9 +116,9 @@ public class BillTransactionDefinitionTest {
    */
   public void toDerivativeEarly() {
     ZonedDateTime referenceDateEarly = ScheduleCalculator.getAdjustedDate(SETTLE_DATE, -(SETTLEMENT_DAYS + 1), CALENDAR);
-    BillTransaction transactionConverted2 = BILL_TRA_DEFINITION.toDerivative(referenceDateEarly, DSC_NAME);
-    BillSecurity purchased2 = BILL_SEC_DEFINITION.toDerivative(referenceDateEarly, SETTLE_DATE, DSC_NAME);
-    BillSecurity standard2 = BILL_SEC_DEFINITION.toDerivative(referenceDateEarly, DSC_NAME);
+    BillTransaction transactionConverted2 = BILL_TRA_DEFINITION.toDerivative(referenceDateEarly, DSC_NAME, CREDIT_NAME);
+    BillSecurity purchased2 = BILL_SEC_DEFINITION.toDerivative(referenceDateEarly, SETTLE_DATE, DSC_NAME, CREDIT_NAME);
+    BillSecurity standard2 = BILL_SEC_DEFINITION.toDerivative(referenceDateEarly, DSC_NAME, CREDIT_NAME);
     BillTransaction transactionExpected2 = new BillTransaction(purchased2, QUANTITY, SETTLE_AMOUT, standard2);
     assertEquals("Bill Transaction: toDerivatives", transactionExpected2, transactionConverted2);
   }
@@ -128,9 +129,9 @@ public class BillTransactionDefinitionTest {
    */
   public void toDerivativeAtSettle() {
     ZonedDateTime referenceDate = SETTLE_DATE;
-    BillTransaction transactionConverted = BILL_TRA_DEFINITION.toDerivative(referenceDate, DSC_NAME);
-    BillSecurity purchased = BILL_SEC_DEFINITION.toDerivative(referenceDate, SETTLE_DATE, DSC_NAME);
-    BillSecurity standard = BILL_SEC_DEFINITION.toDerivative(referenceDate, DSC_NAME);
+    BillTransaction transactionConverted = BILL_TRA_DEFINITION.toDerivative(referenceDate, DSC_NAME, CREDIT_NAME);
+    BillSecurity purchased = BILL_SEC_DEFINITION.toDerivative(referenceDate, SETTLE_DATE, DSC_NAME, CREDIT_NAME);
+    BillSecurity standard = BILL_SEC_DEFINITION.toDerivative(referenceDate, DSC_NAME, CREDIT_NAME);
     BillTransaction transactionExpected = new BillTransaction(purchased, QUANTITY, SETTLE_AMOUT, standard);
     assertEquals("Bill Transaction: toDerivatives", transactionExpected, transactionConverted);
   }
@@ -141,9 +142,9 @@ public class BillTransactionDefinitionTest {
    */
   public void toDerivativeBetweenSettleAndMaturity() {
     ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(SETTLE_DATE, SETTLEMENT_DAYS, CALENDAR);
-    BillTransaction transactionConverted = BILL_TRA_DEFINITION.toDerivative(referenceDate, DSC_NAME);
-    BillSecurity purchased = BILL_SEC_DEFINITION.toDerivative(referenceDate, SETTLE_DATE, DSC_NAME);
-    BillSecurity standard = BILL_SEC_DEFINITION.toDerivative(referenceDate, DSC_NAME);
+    BillTransaction transactionConverted = BILL_TRA_DEFINITION.toDerivative(referenceDate, DSC_NAME, CREDIT_NAME);
+    BillSecurity purchased = BILL_SEC_DEFINITION.toDerivative(referenceDate, SETTLE_DATE, DSC_NAME, CREDIT_NAME);
+    BillSecurity standard = BILL_SEC_DEFINITION.toDerivative(referenceDate, DSC_NAME, CREDIT_NAME);
     BillTransaction transactionExpected = new BillTransaction(purchased, QUANTITY, 0.0, standard);
     assertEquals("Bill Transaction: toDerivatives", transactionExpected, transactionConverted);
   }
@@ -154,9 +155,9 @@ public class BillTransactionDefinitionTest {
    */
   public void toDerivativeBetweenJustBeforeMaturity() {
     ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(END_DATE, -1, CALENDAR);
-    BillTransaction transactionConverted = BILL_TRA_DEFINITION.toDerivative(referenceDate, DSC_NAME);
-    BillSecurity purchased = BILL_SEC_DEFINITION.toDerivative(referenceDate, SETTLE_DATE, DSC_NAME);
-    BillSecurity standard = BILL_SEC_DEFINITION.toDerivative(referenceDate, DSC_NAME);
+    BillTransaction transactionConverted = BILL_TRA_DEFINITION.toDerivative(referenceDate, DSC_NAME, CREDIT_NAME);
+    BillSecurity purchased = BILL_SEC_DEFINITION.toDerivative(referenceDate, SETTLE_DATE, DSC_NAME, CREDIT_NAME);
+    BillSecurity standard = BILL_SEC_DEFINITION.toDerivative(referenceDate, DSC_NAME, CREDIT_NAME);
     BillTransaction transactionExpected = new BillTransaction(purchased, QUANTITY, 0.0, standard);
     assertEquals("Bill Transaction: toDerivatives", transactionExpected, transactionConverted);
   }
@@ -167,9 +168,9 @@ public class BillTransactionDefinitionTest {
    */
   public void toDerivativeBetweenAtMaturity() {
     ZonedDateTime referenceDate = END_DATE;
-    BillTransaction transactionConverted = BILL_TRA_DEFINITION.toDerivative(referenceDate, DSC_NAME);
-    BillSecurity purchased = BILL_SEC_DEFINITION.toDerivative(referenceDate, SETTLE_DATE, DSC_NAME);
-    BillSecurity standard = BILL_SEC_DEFINITION.toDerivative(referenceDate, DSC_NAME);
+    BillTransaction transactionConverted = BILL_TRA_DEFINITION.toDerivative(referenceDate, DSC_NAME, CREDIT_NAME);
+    BillSecurity purchased = BILL_SEC_DEFINITION.toDerivative(referenceDate, SETTLE_DATE, DSC_NAME, CREDIT_NAME);
+    BillSecurity standard = BILL_SEC_DEFINITION.toDerivative(referenceDate, DSC_NAME, CREDIT_NAME);
     BillTransaction transactionExpected = new BillTransaction(purchased, QUANTITY, 0.0, standard);
     assertEquals("Bill Transaction: toDerivatives", transactionExpected, transactionConverted);
   }

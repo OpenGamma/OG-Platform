@@ -8,7 +8,6 @@ package com.opengamma.financial.interestrate.bond.definition;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
@@ -40,13 +39,17 @@ public class BillSecurity implements InstrumentDerivative {
    */
   private final YieldConvention _yieldConvention;
   /**
-   * The yield day count convention.
+   * The accrual factor in the bill day count between settlement and maturity.
    */
-  private final DayCount _dayCount;
+  private final double _accrualFactor;
   /**
    * The bill issuer name.
    */
   private final String _issuer;
+  /**
+   * The name of the curve used for the bill cash flows (issuer credit).
+   */
+  private final String _creditCurveName;
   /**
    * The name of the curve used for settlement amount discounting.
    */
@@ -59,16 +62,17 @@ public class BillSecurity implements InstrumentDerivative {
    * @param endTime The bill end or maturity time.
    * @param notional The bill nominal.
    * @param yieldConvention The yield (to maturity) computation convention.
-   * @param dayCount The yield day count convention.
+   * @param accrualFactor The accrual factor in the bill day count between settlement and maturity.
    * @param issuer The bill issuer name.
+   * @param creditCurveName The name of the curve used for the bill cash flows (issuer credit).
    * @param discountingCurveName The name of the curve used for settlement amount discounting.
    */
-  public BillSecurity(final Currency currency, final double settlementTime, final double endTime, double notional, final YieldConvention yieldConvention, final DayCount dayCount,
-      final String issuer, final String discountingCurveName) {
+  public BillSecurity(final Currency currency, final double settlementTime, final double endTime, double notional, final YieldConvention yieldConvention, final double accrualFactor,
+      final String issuer, final String creditCurveName, final String discountingCurveName) {
     Validate.notNull(currency, "Currency");
     Validate.notNull(yieldConvention, "Yield convention");
-    Validate.notNull(dayCount, "Day count");
     Validate.notNull(issuer, "Issuer");
+    Validate.notNull(creditCurveName, "Credit curve");
     Validate.notNull(discountingCurveName, "Discounting curve");
     Validate.isTrue(notional > 0.0, "Notional should be positive");
     Validate.isTrue(endTime >= settlementTime, "End time should be after settlement time");
@@ -76,11 +80,12 @@ public class BillSecurity implements InstrumentDerivative {
     _currency = currency;
     _endTime = endTime;
     _settlementTime = settlementTime;
-    this._notional = notional;
-    this._yieldConvention = yieldConvention;
-    this._dayCount = dayCount;
-    this._issuer = issuer;
-    this._discountingCurveName = discountingCurveName;
+    _notional = notional;
+    _yieldConvention = yieldConvention;
+    _accrualFactor = accrualFactor;
+    _issuer = issuer;
+    _creditCurveName = creditCurveName;
+    _discountingCurveName = discountingCurveName;
   }
 
   /**
@@ -124,11 +129,11 @@ public class BillSecurity implements InstrumentDerivative {
   }
 
   /**
-   * Gets the yield day count convention.
-   * @return The convention.
+   * Gets the accrual factor in the bill day count between settlement and maturity.
+   * @return The accrual factor.
    */
-  public DayCount getDayCount() {
-    return _dayCount;
+  public double getAccralFactor() {
+    return _accrualFactor;
   }
 
   /**
@@ -145,6 +150,14 @@ public class BillSecurity implements InstrumentDerivative {
    */
   public String getDiscountingCurveName() {
     return _discountingCurveName;
+  }
+
+  /**
+   * Gets the name of the curve used for the bill cash flows (issuer credit).
+   * @return The name.
+   */
+  public String getCreditCurveName() {
+    return _creditCurveName;
   }
 
   @Override
@@ -166,13 +179,15 @@ public class BillSecurity implements InstrumentDerivative {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + _currency.hashCode();
-    result = prime * result + _dayCount.hashCode();
-    result = prime * result + _discountingCurveName.hashCode();
     long temp;
+    temp = Double.doubleToLongBits(_accrualFactor);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + _creditCurveName.hashCode();
+    result = prime * result + _currency.hashCode();
+    result = prime * result + _discountingCurveName.hashCode();
     temp = Double.doubleToLongBits(_endTime);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_issuer == null) ? 0 : _issuer.hashCode());
+    result = prime * result + _issuer.hashCode();
     temp = Double.doubleToLongBits(_notional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_settlementTime);
@@ -193,10 +208,13 @@ public class BillSecurity implements InstrumentDerivative {
       return false;
     }
     BillSecurity other = (BillSecurity) obj;
-    if (!ObjectUtils.equals(_currency, other._currency)) {
+    if (Double.doubleToLongBits(_accrualFactor) != Double.doubleToLongBits(other._accrualFactor)) {
       return false;
     }
-    if (!ObjectUtils.equals(_dayCount, other._dayCount)) {
+    if (!ObjectUtils.equals(_creditCurveName, other._creditCurveName)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }
     if (!ObjectUtils.equals(_discountingCurveName, other._discountingCurveName)) {
@@ -205,7 +223,11 @@ public class BillSecurity implements InstrumentDerivative {
     if (Double.doubleToLongBits(_endTime) != Double.doubleToLongBits(other._endTime)) {
       return false;
     }
-    if (!ObjectUtils.equals(_issuer, other._issuer)) {
+    if (_issuer == null) {
+      if (other._issuer != null) {
+        return false;
+      }
+    } else if (!_issuer.equals(other._issuer)) {
       return false;
     }
     if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {

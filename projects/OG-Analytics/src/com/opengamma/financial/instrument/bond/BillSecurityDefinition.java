@@ -161,7 +161,7 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
    * Convert the "Definition" version to the "Derivative" version.
    * @param date The reference date.
    * @param settlementDate The bill settlement date.
-   * @param yieldCurveNames The yield curves names.
+   * @param yieldCurveNames The yield curves names. [0] discounting curve, [1] credit curve.
    * @return The bill security.
    */
   public BillSecurity toDerivative(ZonedDateTime date, ZonedDateTime settlementDate, String... yieldCurveNames) {
@@ -172,7 +172,8 @@ public class BillSecurityDefinition implements InstrumentDefinition<BillSecurity
     double settlementTime = TimeCalculator.getTimeBetween(date, settlementDate);
     settlementTime = Math.max(settlementTime, 0.0);
     double endTime = TimeCalculator.getTimeBetween(date, _endDate);
-    return new BillSecurity(_currency, settlementTime, endTime, _notional, _yieldConvention, _dayCount, _issuer, yieldCurveNames[0]);
+    double accrualFactor = _dayCount.getDayCountFraction(settlementDate, _endDate);
+    return new BillSecurity(_currency, settlementTime, endTime, _notional, _yieldConvention, accrualFactor, _issuer, yieldCurveNames[1], yieldCurveNames[0]);
   }
 
   @Override
