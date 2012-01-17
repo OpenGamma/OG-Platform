@@ -191,7 +191,8 @@ $.register_module({
                         slick.onClick.subscribe(function (e, dd) {
                             var rule = module.rules.load_item, node = json.portfolios[dd.row];
                             if (!$(e.target).hasClass('og-icon-delete'))
-                                return routes.go(routes.hash(rule, routes.current().args, {add: {node: node.id}}));
+                                return routes.go(routes.hash(rule, routes.current().args,
+                                    {add: {node: node.id}, del: ['position']}));
                             ui.dialog({
                                 type: 'confirm',
                                 title: 'Delete sub portfolio?',
@@ -219,6 +220,14 @@ $.register_module({
                         slick.onMouseLeave.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
                         });
+                    },
+                    render_position = function () {
+                        var position = routes.current().args.position;
+                        if (!position) return;
+                        common.gadgets.positions({
+                            id: position, selector: '.og-js-details-positions', editable: false
+                        });
+                        common.gadgets.trades.render({id: position, selector: '.og-js-trades-table'});
                     },
                     render_position_rows = function (selector, json) {
                         var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions,
@@ -303,10 +312,10 @@ $.register_module({
                         slick.onClick.subscribe(function (e, dd) {
                             var row = json.positions[dd.row], position = row.id, position_name = row.name;
                             if (!$(e.target).hasClass('og-icon-unhook')) {
-                                common.gadgets.positions({
-                                    id: position, selector: '.og-js-details-positions', editable: false
-                                });
-                                common.gadgets.trades.render({id: position, selector: '.og-js-trades-table'});
+                                routes.go(routes.hash(
+                                    module.rules.load_item, routes.current().args,
+                                    {add: {position: json.positions[dd.row].id}}
+                                ));
                                 return;
                             }
                             ui.dialog({
@@ -347,7 +356,7 @@ $.register_module({
                         api.text({module: 'og.views.portfolios.breadcrumb', handler: function (template) {
                             $(config.selector).html($.tmpl(template, data, {
                                 href: function (node) {
-                                    var change_obj = !node ? {del: ['node']} : {add: {node: node}};
+                                    var change_obj = !node ? {del: ['node', 'position']} : {add: {node: node}, del: ['position']};
                                     return routes.prefix() + routes.hash(rule, args, change_obj);
                                 },
                                 title: function (name) {return name.length > 30 ? name : ''},
@@ -396,6 +405,7 @@ $.register_module({
                             }
                             render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
                             render_position_rows('.OG-js-details-panel .og-js-positions', json);
+                            render_position();
                             if (json.template_data.path) breadcrumb({
                                 selector: '.OG-header-generic .OG-js-breadcrumb',
                                 data: json.template_data
@@ -425,11 +435,11 @@ $.register_module({
         module.rules = {
             load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
             load_filter: {
-                route: '/' + page_name + '/filter:/:id?/node:?/version:?/name:?/sync:?',
+                route: '/' + page_name + '/filter:/:id?/node:?/version:?/name:?/sync:?/position:?',
                 method: module.name + '.load_filter'
             },
             load_item: {
-                route: '/' + page_name + '/:id/node:?/version:?/name:?/sync:?', method: module.name + '.load_item'
+                route: '/' + page_name + '/:id/node:?/version:?/name:?/sync:?/position:?', method: module.name + '.load_item'
             }
         };
         return view = {

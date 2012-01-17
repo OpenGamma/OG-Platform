@@ -45,7 +45,9 @@ $.register_module({
                                 type: current.type || '',
                                 filter: slick_manager.data[dd.row].filter,
                                 version: '',
-                                sync: ''
+                                sync: '',
+                                position: '',
+                                trades: ''
                             };
                         delete args.node;
                         routes.go(routes.hash(og.views[obj.page_type].rules.load_item, args, {add: params}));
