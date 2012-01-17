@@ -5,11 +5,13 @@
  */
 package com.opengamma.financial.timeseries.model;
 
+import javax.time.calendar.LocalDate;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -24,7 +26,7 @@ public class AutoregressiveMovingAverageTimeSeriesModel {
     _arModel = new AutoregressiveTimeSeriesModel(random);
   }
 
-  public DoubleTimeSeries<Long> getSeries(final double[] phi, final int p, final double[] theta, final int q, final long[] dates) {
+  public LocalDateDoubleTimeSeries getSeries(final double[] phi, final int p, final double[] theta, final int q, final LocalDate[] dates) {
     if (phi == null && p != 0) {
       throw new IllegalArgumentException("AR coefficient array was null");
     }
@@ -58,7 +60,7 @@ public class AutoregressiveMovingAverageTimeSeriesModel {
     if (q == 0) {
       return _arModel.getSeries(phi, p, dates);
     }
-    return _arModel.getSeries(phi, p, dates).toFastLongDoubleTimeSeries().add(_maModel.getSeries(theta1, q, dates).toFastLongDoubleTimeSeries());
+    return (LocalDateDoubleTimeSeries) _arModel.getSeries(phi, p, dates).add(_maModel.getSeries(theta1, q, dates));
   }
 
 }

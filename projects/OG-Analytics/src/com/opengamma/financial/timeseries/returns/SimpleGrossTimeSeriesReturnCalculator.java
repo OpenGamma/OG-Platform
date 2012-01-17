@@ -12,9 +12,9 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * <p>
@@ -34,6 +34,7 @@ public class SimpleGrossTimeSeriesReturnCalculator extends TimeSeriesReturnCalcu
     super(mode);
   }
 
+  // REVIEW: jim 12-Jan-2012 -- this desperately needs refactoring.
   /**
    * @param x
    *          An array of DoubleTimeSeries. If the array has only one element,
@@ -54,26 +55,26 @@ public class SimpleGrossTimeSeriesReturnCalculator extends TimeSeriesReturnCalcu
    *         be one element shorter than the original price series.
    */
   @Override
-  public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
+  public LocalDateDoubleTimeSeries evaluate(final LocalDateDoubleTimeSeries... x) {
     Validate.notNull(x, "x");
     ArgumentChecker.notEmpty(x, "x");
     Validate.notNull(x[0], "first time series");
-    final FastLongDoubleTimeSeries ts = x[0].toFastLongDoubleTimeSeries();
+    final FastIntDoubleTimeSeries ts = x[0].toFastIntDoubleTimeSeries();
     if (ts.size() < 2) {
       throw new TimeSeriesException("Need at least two data points to calculate return series");
     }
-    FastLongDoubleTimeSeries d = null;
+    FastIntDoubleTimeSeries d = null;
     if (x.length > 1) {
       if (x[1] != null) {
-        d = x[1].toFastLongDoubleTimeSeries();
+        d = x[1].toFastIntDoubleTimeSeries();
       }
     }
     final int n = ts.size();
-    final long[] times = new long[n];
+    final int[] times = new int[n];
     final double[] data = new double[n];
-    final Iterator<Map.Entry<Long, Double>> iter = ts.iterator();
-    Map.Entry<Long, Double> previousEntry = iter.next();
-    Map.Entry<Long, Double> entry;
+    final Iterator<Map.Entry<Integer, Double>> iter = ts.iterator();
+    Map.Entry<Integer, Double> previousEntry = iter.next();
+    Map.Entry<Integer, Double> entry;
     double dividend;
     Double dividendTSData;
     int i = 0;
@@ -91,6 +92,6 @@ public class SimpleGrossTimeSeriesReturnCalculator extends TimeSeriesReturnCalcu
       }
       previousEntry = entry;
     }
-    return getSeries(ts, times, data, i);
+    return getSeries(x[0], times, data, i);
   }
 }

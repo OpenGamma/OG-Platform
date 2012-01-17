@@ -5,38 +5,39 @@
  */
 package com.opengamma.financial.timeseries.filter;
 
-import java.util.Iterator;
-import java.util.Map.Entry;
+import it.unimi.dsi.fastutil.ints.Int2DoubleMap;
+import it.unimi.dsi.fastutil.objects.ObjectIterator;
 
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
  */
 public class NegativeValueDoubleTimeSeriesFilter extends TimeSeriesFilter {
   private static final Logger s_logger = LoggerFactory.getLogger(NegativeValueDoubleTimeSeriesFilter.class);
+  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
 
   @Override
-  public FilteredTimeSeries evaluate(final DoubleTimeSeries<?> ts) {
+  public FilteredTimeSeries evaluate(final LocalDateDoubleTimeSeries ts) {
     Validate.notNull(ts, "ts");
     if (ts.isEmpty()) {
       s_logger.info("Time series was empty");
-      return new FilteredTimeSeries(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+      return new FilteredTimeSeries(EMPTY_SERIES, EMPTY_SERIES);
     }
     final int n = ts.size();
-    final FastLongDoubleTimeSeries x = ts.toFastLongDoubleTimeSeries();
-    final long[] filteredDates = new long[n];
+    final FastIntDoubleTimeSeries x = (FastIntDoubleTimeSeries) ts.getFastSeries();
+    final int[] filteredDates = new int[n];
     final double[] filteredData = new double[n];
-    final long[] rejectedDates = new long[n];
+    final int[] rejectedDates = new int[n];
     final double[] rejectedData = new double[n];
-    final Iterator<Entry<Long, Double>> iter = x.iterator();
-    Entry<Long, Double> entry;
+    final ObjectIterator<Int2DoubleMap.Entry> iter = x.iteratorFast();
+    Int2DoubleMap.Entry entry;
     int i = 0, j = 0;
     while (iter.hasNext()) {
       entry = iter.next();
@@ -48,7 +49,7 @@ public class NegativeValueDoubleTimeSeriesFilter extends TimeSeriesFilter {
         filteredData[i++] = entry.getValue();
       }
     }
-    return getFilteredSeries(x, filteredDates, filteredData, i, rejectedDates, rejectedData, j);
+    return getFilteredSeries(ts, filteredDates, filteredData, i, rejectedDates, rejectedData, j);
   }
 
 }

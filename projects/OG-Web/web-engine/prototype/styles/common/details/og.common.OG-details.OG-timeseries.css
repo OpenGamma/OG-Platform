@@ -258,6 +258,10 @@
   height: 254px!important;
 }
 
+.og-data-points .slick-viewport .slick-row:hover {
+  background: none;
+}
+
 .OG-timeseries .og-checking-related {
   display: inline-block;
   position: relative;

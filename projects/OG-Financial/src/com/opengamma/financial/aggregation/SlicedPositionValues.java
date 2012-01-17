@@ -68,8 +68,9 @@ public abstract class SlicedPositionValues extends AbstractSortedPositionValues 
 
   @Override
   protected void composeValueProperties(final ValueProperties.Builder builder, final ValueSpecification inputValue) {
-    builder.with(VALUE_NAME_PROPERTY, inputValue.getProperty(SortedPositionValues.VALUE_NAME_PROPERTY));
-    composePrefixedProperties(builder, inputValue.getProperties(), inputValue.getValueName() + ".");
+    final String valueName = inputValue.getProperty(SortedPositionValues.VALUE_NAME_PROPERTY);
+    builder.with(VALUE_NAME_PROPERTY, valueName);
+    composePrefixedProperties(builder, inputValue.getProperties(), valueName + ".");
   }
 
   // AbstractFunction
@@ -81,9 +82,8 @@ public abstract class SlicedPositionValues extends AbstractSortedPositionValues 
     final ValueProperties constraints = desiredValues.iterator().next().getConstraints();
     final ValueProperties.Builder properties = createValueProperties();
     composeValueProperties(properties, input.getSpecification());
-    final List<ComputedValue> values = (List<ComputedValue>) input.getValue();
-    return Collections.singleton(new ComputedValue(ValueSpecification.of(getValueName(), ComputationTargetType.PORTFOLIO_NODE, target.getUniqueId(), properties.get()), sliceResults(values,
-        constraints, properties)));
+    final List<ComputedValue> values = sliceResults((List<ComputedValue>) input.getValue(), constraints, properties);
+    return Collections.singleton(new ComputedValue(ValueSpecification.of(getValueName(), ComputationTargetType.PORTFOLIO_NODE, target.getUniqueId(), properties.get()), values));
   }
 
 }

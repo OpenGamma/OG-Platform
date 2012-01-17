@@ -118,7 +118,7 @@ public class PiecewiseSABRSurfaceFitterTest {
 
   //Fit the market data at each time slice and print the smiles and a functions of both strike and delta
   @Test
-  // (enabled = false)
+  (enabled = false)
   public void fitMarketData() {
     PiecewiseSABRFitter[] fitters = new PiecewiseSABRFitter[N];
     System.out.println("Fitted smiles by strike");
@@ -163,7 +163,7 @@ public class PiecewiseSABRSurfaceFitterTest {
    * Print the fitted implied vol surface and the derived implied vol
    */
   @Test
-  // (enabled = false)
+  (enabled = false)
   public void printSurface() {
     //   BlackVolatilitySurface surfaceK = SURFACE_FITTER.getImpliedVolatilitySurface2(true, false, LAMBDA);
     BlackVolatilitySurfaceMoneyness surface = SURFACE_FITTER.getImpliedVolatilityMoneynessSurface(true, false, LAMBDA / 10);
@@ -217,21 +217,21 @@ public class PiecewiseSABRSurfaceFitterTest {
   }
 
   @Test
-  // (enabled = false)
+  (enabled = false)
   public void runPDESolver() {
     PrintStream ps = System.out;
     CAL.runPDESolver(ps);
   }
 
   @Test
-  //(enabled = false)
+  (enabled = false)
   public void runBackwardsPDESolver() {
     PrintStream ps = System.out;
     CAL.runBackwardsPDESolver(ps, EXAMPLE_EXPIRY, EXAMPLE_STRIKE);
   }
 
   @Test
-  //(enabled = false)
+  (enabled = false)
   public void bucketedVega() {
     PrintStream ps = System.out;
     EuropeanVanillaOption option = new EuropeanVanillaOption(EXAMPLE_STRIKE, EXAMPLE_EXPIRY, true);
@@ -240,7 +240,7 @@ public class PiecewiseSABRSurfaceFitterTest {
   }
 
   @Test
-  //(enabled = false)
+  (enabled = false)
   public void deltaAndGamma() {
     PrintStream ps = System.out;
     CAL.deltaAndGamma(ps, EXAMPLE_EXPIRY, EXAMPLE_STRIKE);
@@ -250,7 +250,7 @@ public class PiecewiseSABRSurfaceFitterTest {
    * print out vega based greeks
    */
   @Test
-  //(enabled = false)
+  (enabled = false)
   public void vega() {
     PrintStream ps = System.out;
     EuropeanVanillaOption option = new EuropeanVanillaOption(EXAMPLE_STRIKE, EXAMPLE_EXPIRY, true);

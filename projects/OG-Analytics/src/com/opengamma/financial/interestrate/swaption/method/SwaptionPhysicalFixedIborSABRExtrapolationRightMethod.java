@@ -122,7 +122,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethod {
     final SABRExtrapolationRightFunction sabrExtrapolation = new SABRExtrapolationRightFunction(forward, sabrParam, _cutOffStrike, swaption.getTimeToExpiry(), _mu);
     result = pvbpDr.multiply(sabrExtrapolation.price(option));
     final double priceDF = sabrExtrapolation.priceDerivativeForward(option);
-    result = result.add(forwardDr.multiply(pvbp * priceDF));
+    result = result.plus(forwardDr.multiply(pvbp * priceDF));
     if (!swaption.isLong()) {
       result = result.multiply(-1);
     }

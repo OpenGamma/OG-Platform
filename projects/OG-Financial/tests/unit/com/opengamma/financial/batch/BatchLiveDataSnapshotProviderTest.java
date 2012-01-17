@@ -14,17 +14,15 @@ import javax.time.calendar.TimeZone;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.historicaltimeseries.impl.MockHistoricalTimeSeriesSource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
-import com.opengamma.engine.marketdata.historical.DefaultHistoricalMarketDataFieldResolver;
 import com.opengamma.engine.marketdata.historical.HistoricalMarketDataProvider;
-import com.opengamma.engine.marketdata.historical.IdentityDataNormalizer;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.batch.marketdata.BatchMarketDataProvider;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 
 /**
@@ -53,9 +51,9 @@ public class BatchLiveDataSnapshotProviderTest {
     
     ExternalId identifier = ExternalId.of("mytimeseries", "500");
     ExternalIdBundle bundle = ExternalIdBundle.of(identifier);
-    historicalSource.storeHistoricalTimeSeries(bundle, "BLOOMBERG", "CMPL", "PX_LAST", timeSeries);
+    historicalSource.storeHistoricalTimeSeries(bundle, "BLOOMBERG", "CMPL", MarketDataRequirementNames.MARKET_VALUE, timeSeries);
     
-    HistoricalMarketDataProvider snapshotProvider = new HistoricalMarketDataProvider(historicalSource, null, new DefaultHistoricalMarketDataFieldResolver(), null, new IdentityDataNormalizer());
+    HistoricalMarketDataProvider snapshotProvider = new HistoricalMarketDataProvider(historicalSource, null, null);
     InMemoryLKVMarketDataProvider batchDbProvider = new InMemoryLKVMarketDataProvider();
     
     BatchMarketDataProvider provider = new BatchMarketDataProvider(run, new DummyBatchMaster(), batchDbProvider, snapshotProvider);

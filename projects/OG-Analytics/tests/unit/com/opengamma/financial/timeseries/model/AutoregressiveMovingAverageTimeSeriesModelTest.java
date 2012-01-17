@@ -7,6 +7,8 @@ package com.opengamma.financial.timeseries.model;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import javax.time.calendar.LocalDate;
+
 import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
@@ -16,7 +18,7 @@ import com.opengamma.financial.timeseries.analysis.AutocorrelationFunctionCalcul
 import com.opengamma.financial.timeseries.analysis.AutocovarianceFunctionCalculator;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -28,22 +30,23 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
   private static final AutoregressiveTimeSeriesModel AR_MODEL = new AutoregressiveTimeSeriesModel(NORMAL);
   private static final MovingAverageTimeSeriesModel MA_MODEL = new MovingAverageTimeSeriesModel(NORMAL);
   private static final AutoregressiveMovingAverageTimeSeriesModel MODEL = new AutoregressiveMovingAverageTimeSeriesModel(NORMAL);
-  private static final long[] DATES;
+  private static final LocalDate[] DATES;
   private static final int P = 3;
   private static final int Q = 6;
-  // private static final DoubleTimeSeries<Long> ARMA;
-  private static final DoubleTimeSeries<Long> ARMA11;
-  private static final DoubleTimeSeries<Long> MA;
-  private static final DoubleTimeSeries<Long> AR;
+  // private static final LocalDateDoubleTimeSeries ARMA;
+  private static final LocalDateDoubleTimeSeries ARMA11;
+  private static final LocalDateDoubleTimeSeries MA;
+  private static final LocalDateDoubleTimeSeries AR;
   private static final double[] PHI;
   private static final double[] THETA;
+  @SuppressWarnings("unused")
   private static double LIMIT = 3;
 
   static {
     final int n = 20000;
-    DATES = new long[n];
+    DATES = new LocalDate[n];
     for (int i = 0; i < n; i++) {
-      DATES[i] = i;
+      DATES[i] = LocalDate.ofEpochDays(i);
     }
     PHI = new double[P + 1];
     PHI[0] = 0.;
@@ -106,7 +109,7 @@ public class AutoregressiveMovingAverageTimeSeriesModelTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyDates() {
-    MODEL.getSeries(PHI, P, THETA, Q, new long[0]);
+    MODEL.getSeries(PHI, P, THETA, Q, new LocalDate[0]);
   }
 
   @Test

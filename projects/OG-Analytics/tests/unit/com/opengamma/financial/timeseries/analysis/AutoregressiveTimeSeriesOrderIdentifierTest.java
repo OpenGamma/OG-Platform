@@ -7,6 +7,8 @@ package com.opengamma.financial.timeseries.analysis;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import javax.time.calendar.LocalDate;
+
 import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
@@ -15,9 +17,10 @@ import cern.jet.random.engine.MersenneTwister64;
 import com.opengamma.financial.timeseries.model.AutoregressiveTimeSeriesModel;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -26,17 +29,17 @@ public class AutoregressiveTimeSeriesOrderIdentifierTest {
   private static final AutoregressiveTimeSeriesPACFOrderIdentifier PACF_IDENTIFIER = new AutoregressiveTimeSeriesPACFOrderIdentifier(10, 0.05);
   private static final AutoregressiveTimeSeriesModel AR_MODEL =
       new AutoregressiveTimeSeriesModel(new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister.DEFAULT_SEED)));
-  private static final DoubleTimeSeries<Long> RANDOM;
-  private static final DoubleTimeSeries<Long> AR3;
-  private static final DoubleTimeSeries<Long> AR5;
+  private static final LocalDateDoubleTimeSeries RANDOM;
+  private static final LocalDateDoubleTimeSeries AR3;
+  private static final LocalDateDoubleTimeSeries AR5;
 
   static {
     final int n = 50000;
-    final long[] dates = new long[n];
+    final LocalDate[] dates = new LocalDate[n];
     final double[] random = new double[n];
     final ProbabilityDistribution<Double> normal = new NormalDistribution(2, 1, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
     for (int i = 0; i < n; i++) {
-      dates[i] = i;
+      dates[i] = LocalDate.ofEpochDays(i);
       random[i] = normal.nextRandom();
     }
     final int order = 3;
@@ -47,7 +50,7 @@ public class AutoregressiveTimeSeriesOrderIdentifierTest {
     }
     AR3 = AR_MODEL.getSeries(coeffs, order, dates);
     AR5 = AR_MODEL.getSeries(new double[] {coeffs[0], coeffs[1], coeffs[2], 0., 0., 0.1}, 5, dates);
-    RANDOM = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, dates, random);
+    RANDOM = new ArrayLocalDateDoubleTimeSeries(dates, random);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
