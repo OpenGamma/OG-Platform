@@ -8,27 +8,27 @@ package com.opengamma.financial.timeseries.filter;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
  */
 public class FilteredTimeSeries {
-  private final DoubleTimeSeries<?> _filteredTS;
-  private final DoubleTimeSeries<?> _rejectedTS;
+  private final LocalDateDoubleTimeSeries _filteredTS;
+  private final LocalDateDoubleTimeSeries _rejectedTS;
 
-  public FilteredTimeSeries(final DoubleTimeSeries<?> filteredTS, final DoubleTimeSeries<?> rejectedTS) {
+  public FilteredTimeSeries(final LocalDateDoubleTimeSeries filteredTS, final LocalDateDoubleTimeSeries rejectedTS) {
     Validate.notNull(filteredTS, "filteredTS");
     Validate.notNull(rejectedTS, "rejectedTS");
     _filteredTS = filteredTS;
     _rejectedTS = rejectedTS;
   }
 
-  public DoubleTimeSeries<?> getFilteredTS() {
+  public LocalDateDoubleTimeSeries getFilteredTS() {
     return _filteredTS;
   }
 
-  public DoubleTimeSeries<?> getRejectedTS() {
+  public LocalDateDoubleTimeSeries getRejectedTS() {
     return _rejectedTS;
   }
 

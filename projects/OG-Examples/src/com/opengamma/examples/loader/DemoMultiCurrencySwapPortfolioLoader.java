@@ -26,10 +26,10 @@ import ch.qos.logback.classic.joran.JoranConfigurator;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -240,7 +240,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
     }
     
     HistoricalTimeSeries fixedRateSeries = historicalSource.getHistoricalTimeSeries(
-        HistoricalTimeSeriesFields.LAST_PRICE, 
+        MarketDataRequirementNames.MARKET_VALUE, 
         swapRateForMaturityIdentifier.toBundle(), 
         HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, 
         tradeDate, true, tradeDate, true);
@@ -254,7 +254,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
   private Double getInitialRate(LocalDate tradeDate, ExternalId liborIdentifier) {
     HistoricalTimeSeriesSource historicalSource = _loaderContext.getHistoricalTimeSeriesSource();
     HistoricalTimeSeries initialRateSeries = historicalSource.getHistoricalTimeSeries(
-        HistoricalTimeSeriesFields.LAST_PRICE, liborIdentifier.toBundle(), 
+        MarketDataRequirementNames.MARKET_VALUE, liborIdentifier.toBundle(), 
         HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, tradeDate, true, tradeDate, true);
     if (initialRateSeries == null || initialRateSeries.getTimeSeries().isEmpty()) {
       throw new OpenGammaRuntimeException("couldn't get series for " + liborIdentifier + " on " + tradeDate);

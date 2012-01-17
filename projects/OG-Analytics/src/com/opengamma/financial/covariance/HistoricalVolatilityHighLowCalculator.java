@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.RelativeTimeSeriesReturnCalculator;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * The historical volatility of a price time series can be calculated using:
@@ -77,7 +77,7 @@ public class HistoricalVolatilityHighLowCalculator extends HistoricalVolatilityC
    * least two data points 
    */
   @Override
-  public Double evaluate(final DoubleTimeSeries<?>... x) {
+  public Double evaluate(final LocalDateDoubleTimeSeries... x) {
     testTimeSeries(x, 1);
     if (x.length < 2) {
       throw new IllegalArgumentException("Need high and low time series to calculate high-low volatility");
@@ -85,10 +85,10 @@ public class HistoricalVolatilityHighLowCalculator extends HistoricalVolatilityC
     if (x.length > 2) {
       s_logger.info("Time series array contained more than two series; only using the first two");
     }
-    final DoubleTimeSeries<?> high = x[0];
-    final DoubleTimeSeries<?> low = x[1];
+    final LocalDateDoubleTimeSeries high = x[0];
+    final LocalDateDoubleTimeSeries low = x[1];
     testHighLow(high, low);
-    final DoubleTimeSeries<?> returnTS = _returnCalculator.evaluate(new DoubleTimeSeries<?>[] {high, low});
+    final LocalDateDoubleTimeSeries returnTS = _returnCalculator.evaluate(new LocalDateDoubleTimeSeries[] {high, low});
     final int n = returnTS.size();
     final Iterator<Double> iter = returnTS.valuesIterator();
     double sum = 0;

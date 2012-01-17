@@ -9,8 +9,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * <p>
@@ -21,7 +21,7 @@ import com.opengamma.util.timeseries.TimeSeriesException;
  */
 
 public class ExcessContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeriesReturnCalculator {
-  private final Function<DoubleTimeSeries<?>, DoubleTimeSeries<?>> _returnCalculator;
+  private final Function<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> _returnCalculator;
 
   public ExcessContinuouslyCompoundedTimeSeriesReturnCalculator(final CalculationMode mode) {
     super(mode);
@@ -44,7 +44,7 @@ public class ExcessContinuouslyCompoundedTimeSeriesReturnCalculator extends Time
    * @return A DoubleTimeSeries containing the excess return series.
    */
   @Override
-  public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
+  public LocalDateDoubleTimeSeries evaluate(final LocalDateDoubleTimeSeries... x) {
     Validate.notNull(x, "x");
     if (x.length < 4) {
       throw new TimeSeriesException("Time series array must contain at least four elements");
@@ -52,8 +52,8 @@ public class ExcessContinuouslyCompoundedTimeSeriesReturnCalculator extends Time
     if (getMode() == CalculationMode.STRICT && x[0].size() != x[2].size()) {
       throw new TimeSeriesException("Asset price series and reference price series were not the same size");
     }
-    final DoubleTimeSeries<?> assetReturn = x[1] == null ? _returnCalculator.evaluate(x[0]) : _returnCalculator.evaluate(x[0], x[1]);
-    final DoubleTimeSeries<?> referenceReturn = x[3] == null ? _returnCalculator.evaluate(x[2]) : _returnCalculator.evaluate(x[2], x[3]);
-    return assetReturn.toFastLongDoubleTimeSeries().subtract(referenceReturn.toFastLongDoubleTimeSeries());
+    final LocalDateDoubleTimeSeries assetReturn = x[1] == null ? _returnCalculator.evaluate(x[0]) : _returnCalculator.evaluate(x[0], x[1]);
+    final LocalDateDoubleTimeSeries referenceReturn = x[3] == null ? _returnCalculator.evaluate(x[2]) : _returnCalculator.evaluate(x[2], x[3]);
+    return (LocalDateDoubleTimeSeries) assetReturn.subtract(referenceReturn);
   }
 }

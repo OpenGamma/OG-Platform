@@ -11,7 +11,7 @@ import static org.testng.AssertJUnit.assertFalse;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -36,7 +36,7 @@ public class HistoricalVolatilityCloseCalculatorTest extends HistoricalVolatilit
 
   @Test
   public void test() {
-    assertEquals(CALCULATOR.evaluate(new DoubleTimeSeries[] {CLOSE_TS}), 0.0173, EPS);
+    assertEquals(CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {CLOSE_TS}), 0.0173, EPS);
   }
 
   @Override

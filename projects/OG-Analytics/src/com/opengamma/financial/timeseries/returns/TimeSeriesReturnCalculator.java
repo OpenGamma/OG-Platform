@@ -11,11 +11,10 @@ import com.opengamma.math.function.Function;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.CompareUtils;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -24,7 +23,7 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
  * 
  */
 
-public abstract class TimeSeriesReturnCalculator implements Function<DoubleTimeSeries<?>, DoubleTimeSeries<?>> {
+public abstract class TimeSeriesReturnCalculator implements Function<LocalDateDoubleTimeSeries, LocalDateDoubleTimeSeries> {
   private final CalculationMode _mode;
 
   public TimeSeriesReturnCalculator(final CalculationMode mode) {
@@ -33,7 +32,7 @@ public abstract class TimeSeriesReturnCalculator implements Function<DoubleTimeS
   }
 
   @Override
-  public abstract DoubleTimeSeries<?> evaluate(DoubleTimeSeries<?>... x);
+  public abstract LocalDateDoubleTimeSeries evaluate(LocalDateDoubleTimeSeries... x);
 
   protected boolean isValueNonZero(final double value) {
     if (CompareUtils.closeEquals(value, 0)) {
@@ -49,9 +48,8 @@ public abstract class TimeSeriesReturnCalculator implements Function<DoubleTimeS
     return _mode;
   }
 
-  protected DoubleTimeSeries<?> getSeries(final FastLongDoubleTimeSeries x, final long[] filteredDates, final double[] filteredData, final int i) {
-    final DateTimeNumericEncoding encoding = x.getEncoding();
-    return new FastArrayLongDoubleTimeSeries(encoding, Arrays.trimToCapacity(filteredDates, i), Arrays.trimToCapacity(filteredData, i));
+  protected LocalDateDoubleTimeSeries getSeries(final LocalDateDoubleTimeSeries x, final int[] filteredDates, final double[] filteredData, final int i) {
+    return new ArrayLocalDateDoubleTimeSeries(new FastArrayIntDoubleTimeSeries(x.getFastSeries().getEncoding(), Arrays.trimToCapacity(filteredDates, i), Arrays.trimToCapacity(filteredData, i)));
   }
 
   @Override

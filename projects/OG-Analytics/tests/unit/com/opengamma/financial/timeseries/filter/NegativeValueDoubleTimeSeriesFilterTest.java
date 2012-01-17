@@ -9,15 +9,16 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import java.util.Arrays;
 
+import javax.time.calendar.LocalDate;
+
 import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -25,46 +26,46 @@ import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
 public class NegativeValueDoubleTimeSeriesFilterTest {
   private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final TimeSeriesFilter FILTER = new NegativeValueDoubleTimeSeriesFilter();
-  private static final DateTimeNumericEncoding ENCODING = DateTimeNumericEncoding.TIME_EPOCH_NANOS;
+  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullTS() {
-    FILTER.evaluate((DoubleTimeSeries<Long>) null);
+    FILTER.evaluate((LocalDateDoubleTimeSeries) null);
   }
 
   @Test
   public void testEmptyTS() {
-    final FilteredTimeSeries filtered = FILTER.evaluate(FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
-    assertEquals(filtered.getFilteredTS(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
-    assertEquals(filtered.getRejectedTS(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
+    final FilteredTimeSeries filtered = FILTER.evaluate(EMPTY_SERIES);
+    assertEquals(filtered.getFilteredTS(), EMPTY_SERIES);
+    assertEquals(filtered.getRejectedTS(), EMPTY_SERIES);
   }
 
   @Test
   public void test() {
     final int n = 100;
-    final long[] dates = new long[n];
+    final LocalDate[] dates = new LocalDate[n];
     final double[] data = new double[n];
-    final long[] filteredDates = new long[n];
+    final LocalDate[] filteredDates = new LocalDate[n];
     final double[] filteredData = new double[n];
-    final long[] rejectedDates = new long[n];
+    final LocalDate[] rejectedDates = new LocalDate[n];
     final double[] rejectedData = new double[n];
     Double d;
     int j = 0, k = 0;
     for (int i = 0; i < n; i++) {
       d = RANDOM.nextDouble();
-      dates[i] = i;
+      dates[i] = LocalDate.ofEpochDays(i);
       if (d < 0.25) {
         data[i] = -d;
-        rejectedDates[k] = i;
+        rejectedDates[k] = LocalDate.ofEpochDays(i);
         rejectedData[k++] = -d;
       } else {
         data[i] = d;
-        filteredDates[j] = i;
+        filteredDates[j] = LocalDate.ofEpochDays(i);
         filteredData[j++] = d;
       }
     }
-    final FilteredTimeSeries result = FILTER.evaluate(new FastArrayLongDoubleTimeSeries(ENCODING, dates, data));
-    assertEquals(result, new FilteredTimeSeries(new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOf(filteredDates, j), Arrays.copyOf(filteredData, j)),
-        new FastArrayLongDoubleTimeSeries(ENCODING, Arrays.copyOf(rejectedDates, k), Arrays.copyOf(rejectedData, k))));
+    final FilteredTimeSeries result = FILTER.evaluate(new ArrayLocalDateDoubleTimeSeries(dates, data));
+    assertEquals(result, new FilteredTimeSeries(new ArrayLocalDateDoubleTimeSeries(Arrays.copyOf(filteredDates, j), Arrays.copyOf(filteredData, j)),
+                                                new ArrayLocalDateDoubleTimeSeries(Arrays.copyOf(rejectedDates, k), Arrays.copyOf(rejectedData, k))));
   }
 }

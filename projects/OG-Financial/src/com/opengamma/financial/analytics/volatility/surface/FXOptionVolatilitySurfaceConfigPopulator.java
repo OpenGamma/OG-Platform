@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.analytics.volatility.surface;
 
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.id.UniqueIdentifiable;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
