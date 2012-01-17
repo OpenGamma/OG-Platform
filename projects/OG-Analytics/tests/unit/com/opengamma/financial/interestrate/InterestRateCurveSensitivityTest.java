@@ -52,8 +52,8 @@ public class InterestRateCurveSensitivityTest {
     Map<String, List<DoublesPair>> expectedSensi11add22 = new HashMap<String, List<DoublesPair>>();
     expectedSensi11add22.put(CURVE_NAME_1, SENSI_DATA_1);
     expectedSensi11add22.put(CURVE_NAME_2, SENSI_DATA_2);
-    assertEquals(expectedSensi11add22, pvSensi_11.add(pvSensi_22).getSensitivities());
-    assertEquals(new InterestRateCurveSensitivity(expectedSensi11add22), pvSensi_11.add(pvSensi_22));
+    assertEquals(expectedSensi11add22, pvSensi_11.plus(pvSensi_22).getSensitivities());
+    assertEquals(new InterestRateCurveSensitivity(expectedSensi11add22), pvSensi_11.plus(pvSensi_22));
     // Multiply
     List<DoublesPair> sensiData1Multiply050 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 5.0), new DoublesPair(2, 10.0), new DoublesPair(3, 15.0), new DoublesPair(4, 20.0)});
     Map<String, List<DoublesPair>> expectedSensi1Multiply05 = new HashMap<String, List<DoublesPair>>();
@@ -66,15 +66,15 @@ public class InterestRateCurveSensitivityTest {
     expectedSensiData1add2.addAll(SENSI_DATA_2);
     Map<String, List<DoublesPair>> expectedSensi11add12 = new HashMap<String, List<DoublesPair>>();
     expectedSensi11add12.put(CURVE_NAME_1, expectedSensiData1add2);
-    assertEquals(expectedSensi11add12, pvSensi_11.add(pvSensi_12).getSensitivities());
-    assertEquals(new InterestRateCurveSensitivity(expectedSensi11add12), pvSensi_11.add(pvSensi_12));
+    assertEquals(expectedSensi11add12, pvSensi_11.plus(pvSensi_12).getSensitivities());
+    assertEquals(new InterestRateCurveSensitivity(expectedSensi11add12), pvSensi_11.plus(pvSensi_12));
     // Add multi-curve
     Map<String, List<DoublesPair>> expectedSensiAddMulti = new HashMap<String, List<DoublesPair>>();
     expectedSensiAddMulti.put(CURVE_NAME_1, expectedSensiData1add2);
     expectedSensiAddMulti.put(CURVE_NAME_2, SENSI_DATA_2);
     expectedSensiAddMulti.put(CURVE_NAME_3, SENSI_DATA_3);
-    assertEquals(expectedSensiAddMulti, pvSensi_11.add(pvSensi_22.add(pvSensi_33.add(pvSensi_12))).getSensitivities());
-    assertEquals(new InterestRateCurveSensitivity(expectedSensiAddMulti), pvSensi_11.add(pvSensi_22.add(pvSensi_33.add(pvSensi_12))));
+    assertEquals(expectedSensiAddMulti, pvSensi_11.plus(pvSensi_22.plus(pvSensi_33.plus(pvSensi_12))).getSensitivities());
+    assertEquals(new InterestRateCurveSensitivity(expectedSensiAddMulti), pvSensi_11.plus(pvSensi_22.plus(pvSensi_33.plus(pvSensi_12))));
   }
 
   @Test
@@ -87,6 +87,6 @@ public class InterestRateCurveSensitivityTest {
     List<DoublesPair> expectedSensiDataClean12 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 50), new DoublesPair(2, 50), new DoublesPair(3, 50), new DoublesPair(4, 50)});
     Map<String, List<DoublesPair>> expectedSensiClean12 = new HashMap<String, List<DoublesPair>>();
     expectedSensiClean12.put(CURVE_NAME_1, expectedSensiDataClean12);
-    assertEquals((new InterestRateCurveSensitivity(expectedSensiClean12)).getSensitivities(), pvSensi_11.add(pvSensi_12).clean().getSensitivities());
+    assertEquals((new InterestRateCurveSensitivity(expectedSensiClean12)).getSensitivities(), pvSensi_11.plus(pvSensi_12).clean().getSensitivities());
   }
 }
