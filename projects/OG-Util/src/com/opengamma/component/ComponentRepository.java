@@ -14,9 +14,12 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.servlet.ServletContext;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
+import org.springframework.web.context.ServletContextAware;
 
 import com.opengamma.util.ArgumentChecker;
 
@@ -29,8 +32,12 @@ import com.opengamma.util.ArgumentChecker;
  * This class uses concurrent collections, but instances are intended to be created
  * from a single thread at startup.
  */
-public class ComponentRepository implements Lifecycle {
+public class ComponentRepository implements Lifecycle, ServletContextAware {
 
+  /**
+   * The key used to refer to repository in the servlet context.
+   */
+  public static final String SERVLET_CONTEXT_KEY = ComponentRepository.class.getName();
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ComponentRepository.class);
   /**
@@ -54,6 +61,10 @@ public class ComponentRepository implements Lifecycle {
    * The objects with {@code Lifecycle}.
    */
   private final List<Lifecycle> _lifecycles = new ArrayList<Lifecycle>();
+  /**
+   * The objects with {@code ServletContextAware}.
+   */
+  private final List<ServletContextAware> _servletContextAware = new ArrayList<ServletContextAware>();
   /**
    * The status.
    */
@@ -180,7 +191,7 @@ public class ComponentRepository implements Lifecycle {
   /**
    * Registers the component specifying the info that describes it.
    * <p>
-   * If the component implements {@code Lifecycle}, it will be registered.
+   * If the component implements {@code Lifecycle} or {@code ServletContextAware}, it will be registered.
    * 
    * @param info  the component info to register, not null
    * @param instance  the component instance to register, not null
@@ -210,7 +221,7 @@ public class ComponentRepository implements Lifecycle {
    * Registers a piece of infrastructure.
    * <p>
    * The infrastructure instance has no component information, but is otherwise equivalent
-   * to a component. If the instance implements {@code Lifecycle}, it will be registered.
+   * to a component. If the instance implements {@code Lifecycle} or {@code ServletContextAware}, it will be registered.
    * 
    * @param <T>  the type
    * @param type  the type to register under, not null
@@ -238,7 +249,7 @@ public class ComponentRepository implements Lifecycle {
   /**
    * Registers an instance.
    * <p>
-   * If the instance implements {@code Lifecycle}, it will be registered.
+   * If the instance implements {@code Lifecycle} or {@code ServletContextAware}, it will be registered.
    * 
    * @param key  the key to register under, not null
    * @param instance  the component instance to register, not null
@@ -252,8 +263,12 @@ public class ComponentRepository implements Lifecycle {
     if (instance instanceof Lifecycle) {
       registerLifecycle0((Lifecycle) instance);
     }
+    if (instance instanceof ServletContextAware) {
+      registerServletContextAware0((ServletContextAware) instance);
+    }
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Registers a non-component object implementing {@code Lifecycle}.
    * 
@@ -269,7 +284,7 @@ public class ComponentRepository implements Lifecycle {
       
     } catch (RuntimeException ex) {
       _status = Status.FAILED;
-      throw new RuntimeException("Failed during registering lifecycle: " + lifecycleObject, ex);
+      throw new RuntimeException("Failed during registering Lifecycle: " + lifecycleObject, ex);
     }
   }
 
@@ -282,10 +297,40 @@ public class ComponentRepository implements Lifecycle {
     _lifecycles.add(lifecycleObject);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Registers a non-component object implementing {@code Lifecycle}.
+   * 
+   * @param servletContextAware  the object that requires a servlet context, not null
+   */
+  public void registerServletContextAware(ServletContextAware servletContextAware) {
+    ArgumentChecker.notNull(servletContextAware, "servletContextAware");
+    checkStatus(Status.CREATING);
+    
+    try {
+      registerServletContextAware0(servletContextAware);
+      registered(null, servletContextAware);
+      
+    } catch (RuntimeException ex) {
+      _status = Status.FAILED;
+      throw new RuntimeException("Failed during registering ServletContextAware: " + servletContextAware, ex);
+    }
+  }
+
+  /**
+   * Registers a {@code ServletContextAware} instance.
+   * 
+   * @param servletContextAware  the object that requires a servlet context, not null
+   */
+  private void registerServletContextAware0(ServletContextAware servletContextAware) {
+    _servletContextAware.add(servletContextAware);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Called whenever an instance is registered.
    * 
-   * @param registeredKey  the key or info of the instance that was registered, null if lifecycle only
+   * @param registeredKey  the key or info of the instance that was registered, null if not a component
    * @param registeredObject  the instance that was registered, may be null
    */
   protected void registered(Object registeredKey, Object registeredObject) {
@@ -295,7 +340,7 @@ public class ComponentRepository implements Lifecycle {
     } else if (registeredKey instanceof ComponentKey) {
       s_logger.info(" Registered infrastructure: {}", registeredKey);
     } else {
-      s_logger.info(" Registered Lifecycle: {}", registeredObject);
+      s_logger.info(" Registered: {}", registeredObject);
     }
   }
 
@@ -340,6 +385,20 @@ public class ComponentRepository implements Lifecycle {
   @Override
   public boolean isRunning() {
     return _status == Status.RUNNING;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Sets the {@code ServletContext}.
+   * 
+   * @param servletContext  the servlet context, not null
+   */
+  @Override
+  public void setServletContext(ServletContext servletContext) {
+    servletContext.setAttribute(SERVLET_CONTEXT_KEY, this);
+    for (ServletContextAware obj : _servletContextAware) {
+      obj.setServletContext(servletContext);
+    }
   }
 
   //-------------------------------------------------------------------------
