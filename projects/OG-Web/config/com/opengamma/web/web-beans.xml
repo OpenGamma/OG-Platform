@@ -477,6 +477,9 @@
           <constructor-arg value="false" />
         </bean>
         <bean class="com.opengamma.financial.aggregation.CurrencyAggregationFunction" />
+        <bean class="com.opengamma.financial.aggregation.CurrenciesAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+        </bean>
         <bean class="com.opengamma.financial.aggregation.DetailedAssetClassAggregationFunction" />
         <bean class="com.opengamma.financial.aggregation.RegionAggregationFunction">
           <constructor-arg ref="combinedSecuritySource" />
