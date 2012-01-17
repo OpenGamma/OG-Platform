@@ -23,7 +23,7 @@ import org.testng.annotations.Test;
  * Test {@link WebPositionsResource}.
  */
 public class WebPositionsResourceTest extends AbstractWebPositionResourceTestCase {
- 
+  
   @Test
   public void testAddPositionWithTrades() throws Exception {
     String tradesJson = getTradesJson();
@@ -66,9 +66,5 @@ public class WebPositionsResourceTest extends AbstractWebPositionResourceTestCas
     String allPositions = _webPositionsResource.getJSON(null, null, null, null, null, null, queryParameters.get("positionId"), queryParameters.get("tradeId"));
     assertNotNull(allPositions);
     assertJSONObjectEquals(loadJson("com/opengamma/web/position/allPositionsJson.txt"), new JSONObject(allPositions));
-  }
-
-  private String getActualURL(Response response) {
-    return response.getMetadata().getFirst("Location").toString();
   }
 }

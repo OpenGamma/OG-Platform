@@ -103,6 +103,16 @@ public class SortedPositionValues extends AbstractSortedPositionValues {
   // AbstractFunction
 
   @Override
+  public boolean canHandleMissingRequirements() {
+    return true;
+  }
+
+  @Override
+  public boolean canHandleMissingInputs() {
+    return true;
+  }
+
+  @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final List<ComputedValue> values = new ArrayList<ComputedValue>(inputs.getAllValues());
     final ValueProperties.Builder properties = createValueProperties();

@@ -95,8 +95,8 @@ $.register_module({
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
                             layout.inner.close('north'), $('.ui-layout-inner-north').empty();
-                            f.results('.OG-batch .og-js-results', json.data.batch_results);
-                            f.errors('.OG-batch .og-js-errors', json.data.batch_errors);
+                            f.results('.OG-js-details-panel .og-js-results', json.data.batch_results);
+                            f.errors('.OG-js-details-panel .og-js-errors', json.data.batch_errors);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             ui.toolbar(options.toolbar.active);
                             setTimeout(layout.inner.resizeAll);

@@ -64,7 +64,8 @@ $.register_module({
                                 scheme_type: ui.dialog({return_field_value: 'scheme-type'}),
                                 identifier: ui.dialog({return_field_value: 'identifier'})
                             });
-                        }
+                        },
+                        'Cancel': function () {$(this).dialog('close');}
                     }
                 })},
                 'delete': function () {ui.dialog({
@@ -82,7 +83,8 @@ $.register_module({
                                     routes.go(routes.hash(module.rules.load, args));
                                 }, id: routes.last().args.id
                             });
-                        }
+                        },
+                        'Cancel': function () {$(this).dialog('close');}
                     }
                 })},
                 'versions': function () {
@@ -173,7 +175,7 @@ $.register_module({
                             common.gadgets.positions({
                                 id: args.id, selector: '.og-js-details-positions', editable: true
                             });
-                            common.gadgets.trades({id: args.id, selector: '.og-js-trades-table'});
+                            common.gadgets.trades.render({id: args.id, selector: '.og-js-trades-table'});
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             setTimeout(layout.inner.resizeAll);
                         }});

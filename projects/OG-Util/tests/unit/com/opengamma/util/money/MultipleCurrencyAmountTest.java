@@ -295,6 +295,20 @@ public class MultipleCurrencyAmountTest {
     assertSameData(expected, test);
   }
 
+
+  @Test
+  public void testMultipliedBy() {
+    final double factor = 2.5;
+    MultipleCurrencyAmount mca1 = MultipleCurrencyAmount.of(CA1);
+    MultipleCurrencyAmount multiplied1 = mca1.multipliedBy(factor);
+    MultipleCurrencyAmount expected1 = MultipleCurrencyAmount.of(CCY1, A1*factor);
+    assertEquals(expected1, multiplied1, "MultipleCurrencyAmount: multipliedBy");
+    MultipleCurrencyAmount mca2 = MultipleCurrencyAmount.of(CA2, CA3);
+    MultipleCurrencyAmount multiplied2 = mca2.multipliedBy(factor);
+    MultipleCurrencyAmount expected2 = MultipleCurrencyAmount.of(CCY2, A2*factor).plus(CCY3, A3*factor);
+    assertEquals(expected2, multiplied2, "MultipleCurrencyAmount: multipliedBy");
+  }
+
   //-------------------------------------------------------------------------
   @Test
   public void testWithout() {
