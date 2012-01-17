@@ -307,7 +307,7 @@ $.register_module({
                     )
                 }());
             };
-            api.rest.positions.get({dependencies: dependencies, id: config.id, handler: handler});
+            api.rest.positions.get({dependencies: dependencies, id: config.id, handler: handler, cache_for: 500});
         };
         reload = function () {load(original_config_object);};
         return {render: load, reload: reload}
