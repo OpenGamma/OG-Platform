@@ -42,7 +42,6 @@ import com.opengamma.util.time.DateUtils;
  * 
  */
 @Test
-@SuppressWarnings("unused")
 public class SABRFiniteDifferenceTest {
   private static final boolean DEBUG = false; //set to false before commit
 
@@ -163,7 +162,7 @@ public class SABRFiniteDifferenceTest {
    * implied volatility surface, and check the price agrees with SABR.
    */
   @Test
-  public void testBackwardsSingalStrike() {
+  public void testBackwardsSingleStrike() {
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, false);
     final int tNodes = 20;
     final int xNodes = 101;
@@ -196,7 +195,7 @@ public class SABRFiniteDifferenceTest {
    * implied volatility surface, and check the price agrees with SABR.
    */
   @Test
-  public void testClassicBackwardsSingalStrike() {
+  public void testClassicBackwardsSingleStrike() {
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, false);
     final int tNodes = 20;
     final int xNodes = 101;

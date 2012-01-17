@@ -1,0 +1,33 @@
+/**
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.model.volatility.smile.fitting.sabr;
+
+import static org.testng.AssertJUnit.assertEquals;
+
+import org.testng.annotations.Test;
+
+/**
+ * 
+ */
+public class CosineWeightingFunctionTest extends WeightingFunctionTestCase {
+
+  @Override
+  protected CosineWeightingFunction getInstance() {
+    return CosineWeightingFunction.getInstance();
+  }
+
+  @Test
+  public void testWeighting1() {
+    final double x = Math.cos(Math.PI * 0.225);
+    assertEquals(x * x, getInstance().getWeight(STRIKES, STRIKE), EPS);
+  }
+
+  @Test
+  public void testWeighting2() {
+    final double x = Math.cos(Math.PI * 0.225);
+    assertEquals(x * x, getInstance().getWeight(STRIKES, INDEX, STRIKE), EPS);
+  }
+}

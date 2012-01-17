@@ -5,15 +5,29 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting.sabr;
 
+import com.opengamma.util.ArgumentChecker;
+
 
 /**
  * 
  */
-public class CosineWeightingFunction extends WeightingFunction {
+public final class CosineWeightingFunction extends WeightingFunction {
+  private static final CosineWeightingFunction s_instance = new CosineWeightingFunction();
+
+  public static CosineWeightingFunction getInstance() {
+    return s_instance;
+  }
+
+  private CosineWeightingFunction() {
+  }
 
   @Override
-  public double getWeight(final double[] strikes, final int index, final double strike) {
-    final double cos = Math.cos(Math.PI / 2 * (strike - strikes[index]) / (strikes[index + 1] - strikes[index]));
+  public double getWeight(final double[] strikes, final int lowerBoundIndex, final double strike) {
+    ArgumentChecker.notNull(strikes, "strikes");
+    ArgumentChecker.notNegative(lowerBoundIndex, "index");
+    ArgumentChecker.isTrue(lowerBoundIndex <= strikes.length - 2, "index cannot be larger than {}, have {}", strikes.length - 2, lowerBoundIndex);
+    System.out.println((strike - strikes[lowerBoundIndex]) / (strikes[lowerBoundIndex + 1] - strikes[lowerBoundIndex]));
+    final double cos = Math.cos(Math.PI / 2 * (strike - strikes[lowerBoundIndex]) / (strikes[lowerBoundIndex + 1] - strikes[lowerBoundIndex]));
     return cos * cos;
   }
 }

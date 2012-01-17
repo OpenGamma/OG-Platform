@@ -16,8 +16,6 @@ import com.opengamma.financial.model.volatility.surface.LocalVolatilityMoneyness
 import com.opengamma.financial.model.volatility.surface.PriceSurface;
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.math.surface.Surface;
 
@@ -26,7 +24,6 @@ import com.opengamma.math.surface.Surface;
  */
 public class DupireLocalVolatilityCalculator {
   private final double _eps;
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   public DupireLocalVolatilityCalculator() {
     _eps = 1e-3;
@@ -109,10 +106,10 @@ public class DupireLocalVolatilityCalculator {
 
   /**
    * Local vol in terms of
-   * @param impliedVolatilitySurface
-   * @param spot
-   * @param rate
-   * @return
+   * @param impliedVolatilitySurface The implied volatility surface
+   * @param spot The spot
+   * @param rate The drift
+   * @return A local volatility surface
    * @deprecated don't use
    */
   @Deprecated

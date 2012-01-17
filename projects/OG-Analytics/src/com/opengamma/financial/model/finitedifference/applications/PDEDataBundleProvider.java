@@ -365,6 +365,14 @@ public class PDEDataBundleProvider {
     return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0), ConstantDoublesSurface.from(0), payoff);
   }
 
+  /**
+   * @deprecated Do not use this method
+   * @param strike The strike
+   * @param maturity The maturity
+   * @param isCall Is a call
+   * @param localVol The local volatility surface
+   * @return A data bundle
+   */
   @Deprecated
   public ConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final double strike, final double maturity, final boolean isCall,
       final LocalVolatilityMoneynessSurface localVol) {

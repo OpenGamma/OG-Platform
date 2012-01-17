@@ -8,7 +8,6 @@ package com.opengamma.financial.model.finitedifference;
 import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
-import org.apache.commons.math.analysis.interpolation.BicubicSplineInterpolatingFunction;
 
 import com.opengamma.math.linearalgebra.Decomposition;
 import com.opengamma.math.linearalgebra.DecompositionResult;
@@ -161,7 +160,7 @@ public class CoupledFiniteDifference {
       }
 
 
-      
+
       double[] temp = lowerBoundary1.getLeftMatrixCondition(pdeData1, grid, t2);
       for (int k = 0; k < temp.length; k++) {
         m[0][k] = temp[k];
@@ -231,13 +230,13 @@ public class CoupledFiniteDifference {
       //      }
       //      oldCount = count;
 
-      if (first) {      
+      if (first) {
         final DoubleMatrix2D mM = new DoubleMatrix2D(m);
         decompRes = DCOMP.evaluate(mM);
 
         // first = false;
       }
-      
+
       f = decompRes.solve(q);
 
       a1 = a2;
@@ -250,8 +249,8 @@ public class CoupledFiniteDifference {
         full2[n] = Arrays.copyOfRange(f, xNodes, 2 * xNodes);
       }
 
-      
- 
+
+
     }
     final PDEResults1D[] res = new PDEResults1D[2];
 
@@ -266,7 +265,7 @@ public class CoupledFiniteDifference {
     }
 
     return res;
-    
+
   }
 
   @SuppressWarnings("unused")

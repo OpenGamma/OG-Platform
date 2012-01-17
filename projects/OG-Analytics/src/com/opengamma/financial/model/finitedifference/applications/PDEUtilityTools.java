@@ -15,7 +15,6 @@ import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
@@ -26,8 +25,6 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public class PDEUtilityTools {
-
-  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
   private static final GridInterpolator2D GRID_INTERPOLATOR2D = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
 
@@ -65,18 +62,16 @@ public class PDEUtilityTools {
    * @return The price to implied volatility map
    */
   public static Map<DoublesPair, Double> priceToImpliedVol(final ForwardCurve forwardCurve, final PDEFullResults1D prices, final double minT, final double maxT, final double minK, final double maxK,
-      boolean isCall) {
+      final boolean isCall) {
     final int xNodes = prices.getNumberSpaceNodes();
     final int tNodes = prices.getNumberTimeNodes();
     final int n = xNodes * tNodes;
     final Map<DoublesPair, Double> out = new HashMap<DoublesPair, Double>(n);
-    int count = tNodes * xNodes;
 
     for (int i = 0; i < tNodes; i++) {
       final double t = prices.getTimeValue(i);
       final double forward = forwardCurve.getForward(t);
       if (t >= minT && t <= maxT) {
-        //  final BlackFunctionData data = new BlackFunctionData(forward.getForward(t), forward.getSpot() / forward.getForward(t), 0);
         for (int j = 0; j < xNodes; j++) {
           final double k = prices.getSpaceValue(j);
           if (k >= minK && k <= maxK) {
@@ -87,33 +82,26 @@ public class PDEUtilityTools {
               if (Math.abs(impVol) > 1e-15) {
                 final DoublesPair pair = new DoublesPair(prices.getTimeValue(i), prices.getSpaceValue(j));
                 out.put(pair, impVol);
-                count--;
               }
             } catch (final Exception e) {
-              // System.out.println("can't find vol for strike: " + prices.getSpaceValue(j) + " and expiry " + prices.getTimeValue(i) + " . Not added to data set");
             }
           }
         }
       }
     }
-    //    if (count > 0) {
-    //      System.err.println(count + " out of " + xNodes * tNodes + " data points removed");
-    //    }
     return out;
   }
 
   public static Map<DoublesPair, Double> modifiedPriceToImpliedVol(final PDEFullResults1D prices, final double minT, final double maxT,
-      final double minM, final double maxM, boolean isCall) {
+      final double minM, final double maxM, final boolean isCall) {
     final int xNodes = prices.getNumberSpaceNodes();
     final int tNodes = prices.getNumberTimeNodes();
     final int n = xNodes * tNodes;
     final Map<DoublesPair, Double> out = new HashMap<DoublesPair, Double>(n);
-    int count = tNodes * xNodes;
 
     for (int i = 0; i < tNodes; i++) {
       final double t = prices.getTimeValue(i);
       if (t >= minT && t <= maxT) {
-        //  final BlackFunctionData data = new BlackFunctionData(forward.getForward(t), forward.getSpot() / forward.getForward(t), 0);
         for (int j = 0; j < xNodes; j++) {
           final double m = prices.getSpaceValue(j);
           if (m >= minM && m <= maxM) {
@@ -124,7 +112,6 @@ public class PDEUtilityTools {
               if (Math.abs(impVol) > 1e-15) {
                 final DoublesPair pair = new DoublesPair(prices.getTimeValue(i), prices.getSpaceValue(j));
                 out.put(pair, impVol);
-                count--;
               }
             } catch (final Exception e) {
             }
@@ -140,7 +127,7 @@ public class PDEUtilityTools {
    * Takes the results from a forward PDE solve - grid of option prices by maturity and strike and returns a map between a DoublesPair (i.e. maturity and strike) and
    * the Black implied volatility
    * @param forwardCurve The forward
-   * @param yieldCurve The discount curve
+   * @param discountCurve The discount curve
    * @param prices The option prices
    * @param minT Data before this time is ignored (not included in map)
    * @param maxT Data after this time is ignored (not included in map)
@@ -154,7 +141,6 @@ public class PDEUtilityTools {
     final int tNodes = prices.getNumberTimeNodes();
     final int n = xNodes * tNodes;
     final Map<DoublesPair, Double> out = new HashMap<DoublesPair, Double>(n);
-    int count = tNodes * xNodes;
 
     for (int i = 0; i < tNodes; i++) {
       final double t = prices.getTimeValue(i);
@@ -170,7 +156,6 @@ public class PDEUtilityTools {
               if (Math.abs(impVol) > 1e-15) {
                 final DoublesPair pair = new DoublesPair(prices.getTimeValue(i), prices.getSpaceValue(j));
                 out.put(pair, impVol);
-                count--;
               }
             } catch (final Exception e) {
             }
@@ -178,12 +163,11 @@ public class PDEUtilityTools {
         }
       }
     }
-
     return out;
   }
 
   public static void printSurface(final String name, final PDEFullResults1D res) {
-    PrintStream out = System.out;
+    final PrintStream out = System.out;
     printSurface(name, res, out);
   }
 
