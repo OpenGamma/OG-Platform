@@ -113,7 +113,6 @@ $.register_module({
                         return id;
                     };
                 if (is_get && !register({id: id, config: config, current: current, url: url})){
-                    console.log('about to re-send');
                     return (setTimeout(request.partial(method, config), 500)), id;
                 }else
                     if (og.app.READ_ONLY) return setTimeout(config.meta.handler.partial({
@@ -233,10 +232,12 @@ $.register_module({
             },
             clean: function () {
                 var id, current = routes.current(), request;
-                for (id in outstanding_requests) {
+                for (id in outstanding_requests) { // clean up outstanding requests
                     if (!(request = outstanding_requests[id]).dependencies) continue;
                     if (request_expired(request, current)) api.abort(id);
                 }
+                // clean up registrations
+                registrations.filter(request_expired.partial(undefined, current)).pluck('id').forEach(api.abort);
             },
             configs: { // all requests that begin with /configs
                 root: 'configs',

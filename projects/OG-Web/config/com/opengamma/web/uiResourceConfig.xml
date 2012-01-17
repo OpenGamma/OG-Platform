@@ -141,6 +141,7 @@
     <fragment>/scripts/lib/js.ext.array.prototype.map.js</fragment>
     <fragment>/scripts/lib/js.ext.array.prototype.reduce.js</fragment>
     <fragment>/scripts/lib/js.ext.array.prototype.some.js</fragment>
+    <fragment>/scripts/lib/js.ext.array.prototype.pluck.js</fragment>
     <fragment>/scripts/lib/js.ext.string.prototype.lang.js</fragment>
     <fragment>/scripts/lib/js.ext.object.keys.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.partial.js</fragment>
@@ -178,14 +179,16 @@
     <fragment>/scripts/lib/jquery/jquery.layout.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.awesometable.js</fragment>
   </bundle>
+  <bundle id="core.js">
+      <fragment>/scripts/og/common/og.common.core.js</fragment>
+      <fragment>/scripts/og/og.dev.js</fragment>
+      <fragment>/scripts/og/og.app.js</fragment>
+      <fragment>/scripts/og/api/og.api.common.js</fragment>
+      <fragment>/scripts/og/views/common/og.views.common.layout.js</fragment>
+      <fragment>/scripts/og/common/og.common.routes.js</fragment>
+      <fragment>/scripts/og/common/og.common.lang.js</fragment>
+  </bundle>
   <bundle id="api.js">
-    <fragment>/scripts/og/common/og.common.core.js</fragment>
-    <fragment>/scripts/og/og.dev.js</fragment>
-    <fragment>/scripts/og/og.app.js</fragment>
-    <fragment>/scripts/og/api/og.api.common.js</fragment>
-    <fragment>/scripts/og/views/common/og.views.common.layout.js</fragment>
-    <fragment>/scripts/og/common/og.common.routes.js</fragment>
-    <fragment>/scripts/og/common/og.common.lang.js</fragment>
     <fragment>/scripts/og/api/og.api.text.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.js</fragment>
   </bundle>
@@ -265,6 +268,7 @@
   </bundle>
   <bundle id="og_common.js">
     <bundle idref="lib.js" />
+    <bundle idref="core.js" />
     <bundle idref="api.js" />
     <bundle idref="util.js" />
     <bundle idref="util_ui.js" />
@@ -276,6 +280,13 @@
     <bundle idref="views_default.js" />
   </bundle>
   <bundle id="og_analytics.js">
+      <bundle idref="lib.js" />
+      <bundle idref="core.js" />
+      <fragment>/scripts/og/api/og.api.text.js</fragment>
+      <bundle idref="util.js" />
+      <bundle idref="util_ui.js" />
+      <bundle idref="common.js" />
+      <bundle idref="views_common.js" />
     <bundle idref="analytics.js" />
   </bundle>
 </uiResourceConfig>

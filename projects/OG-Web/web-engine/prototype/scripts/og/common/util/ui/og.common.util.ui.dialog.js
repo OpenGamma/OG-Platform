@@ -37,7 +37,8 @@ $.register_module({
                 confirm: {html: '<div class="' + class_name + '"><p></p></div>'},
                 input: {html: '<div class="' + class_name + '"></div>'},
                 'error': {
-                    html: '<div class="' + class_name + '"></div>'
+                    html: '<div class="' + class_name + '"></div>',
+                    jquery: {buttons: {'Dismiss': function () {$(this).dialog('close')}}}
                 }
             };
             // Merge default_options.all with the options for each dialog

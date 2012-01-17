@@ -4,7 +4,7 @@
  */
 $.register_module({
     name: 'og.views.analytics',
-    dependencies: ['og.views.common.state', 'og.views.common.layout', 'og.api.rest', 'og.common.routes'],
+    dependencies: ['og.views.common.state', 'og.views.common.layout', 'og.common.routes'],
     obj: function () {
         var api = og.api.rest, routes = og.common.routes, module = this, view,
             layout = og.views.common.layout, masthead = og.common.masthead,
