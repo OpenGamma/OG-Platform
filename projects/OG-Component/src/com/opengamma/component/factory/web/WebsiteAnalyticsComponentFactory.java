@@ -36,7 +36,6 @@ import com.opengamma.util.ExecutorServiceFactoryBean.Style;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.analytics.WebAnalyticsResource;
 import com.opengamma.web.server.LiveResultsServiceBean;
-import com.opengamma.web.valuerequirementname.WebValueRequirementNamesResource;
 
 /**
  * Component factory for the main website.
@@ -98,15 +97,6 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    initValueRequirementNames(repo);
-    initAnalytics(repo);
-  }
-
-  protected void initValueRequirementNames(ComponentRepository repo) {
-    repo.getRestComponents().publishResource(new WebValueRequirementNamesResource());
-  }
-
-  protected void initAnalytics(ComponentRepository repo) {
     LiveResultsServiceBean bean = new LiveResultsServiceBean();
     bean.setViewProcessor(getViewProcessor());
     bean.setPositionSource(getPositionSource());
