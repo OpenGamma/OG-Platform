@@ -125,7 +125,7 @@ public final class BondTransactionDiscountingMethod {
     final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount, bond.getBondTransaction()
         .getRepoCurveName());
     final InterestRateCurveSensitivity pvsSettlement = new InterestRateCurveSensitivity(PVSC.visit(settlement, curves));
-    return pvsNominal.add(pvsCoupon).multiply(bond.getQuantity()).add(pvsSettlement);
+    return pvsNominal.plus(pvsCoupon).multiply(bond.getQuantity()).plus(pvsSettlement);
   }
 
   public InterestRateCurveSensitivity presentValueSensitivity(final BondIborTransaction bond, final YieldCurveBundle curves) {
@@ -136,6 +136,6 @@ public final class BondTransactionDiscountingMethod {
     final PaymentFixed settlement = new PaymentFixed(bond.getBondTransaction().getCurrency(), bond.getBondTransaction().getSettlementTime(), settlementAmount, bond.getBondTransaction()
         .getRepoCurveName());
     final InterestRateCurveSensitivity pvsSettlement = new InterestRateCurveSensitivity(PVSC.visit(settlement, curves));
-    return pvsNominal.add(pvsCoupon).multiply(bond.getQuantity()).add(pvsSettlement);
+    return pvsNominal.plus(pvsCoupon).multiply(bond.getQuantity()).plus(pvsSettlement);
   }
 }
