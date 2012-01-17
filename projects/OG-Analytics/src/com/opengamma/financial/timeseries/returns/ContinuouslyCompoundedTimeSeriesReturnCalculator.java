@@ -5,16 +5,13 @@
  */
 package com.opengamma.financial.timeseries.returns;
 
-import java.util.Iterator;
-import java.util.Map;
-
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * <p>
@@ -54,43 +51,55 @@ public class ContinuouslyCompoundedTimeSeriesReturnCalculator extends TimeSeries
    *         be one element shorter than the original price series.
    */
   @Override
-  public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
+  public LocalDateDoubleTimeSeries evaluate(final LocalDateDoubleTimeSeries... x) {
     Validate.notNull(x, "x");
     ArgumentChecker.notEmpty(x, "x");
     Validate.notNull(x[0], "first time series");
-    final FastLongDoubleTimeSeries ts = x[0].toFastLongDoubleTimeSeries();
+    final FastIntDoubleTimeSeries ts = (FastIntDoubleTimeSeries) x[0].getFastSeries();
     if (ts.size() < 2) {
       throw new TimeSeriesException("Need at least two data points to calculate return series");
     }
-    FastLongDoubleTimeSeries d = null;
+    FastIntDoubleTimeSeries d = null;
     if (x.length > 1) {
       if (x[1] != null) {
-        d = x[1].toFastLongDoubleTimeSeries();
+        d = (FastIntDoubleTimeSeries) x[1].getFastSeries();
       }
     }
-    final int n = ts.size();
-    final long[] times = new long[n];
-    final double[] data = new double[n];
-    final Iterator<Map.Entry<Long, Double>> iter = ts.iterator();
-    Map.Entry<Long, Double> previousEntry = iter.next();
-    Map.Entry<Long, Double> entry;
+
+    final int[] times = ts.timesArrayFast();
+    final double[] values = ts.valuesArrayFast();
+    
+    final int[] resultTimes = new int[times.length];
+    final double[] resultValues = new double[times.length];
+    
+    int index = 0;
+    //int previousTime = times[index];
+    double previousValue = values[index];
+    index++;
+    
     double dividend;
     Double dividendTSData;
-    int i = 0;
-    while (iter.hasNext()) {
-      entry = iter.next();
-      if (isValueNonZero(previousEntry.getValue()) && isValueNonZero(entry.getValue())) {
-        times[i] = entry.getKey();
+    int resultIndex = 0;
+    
+    while (index < times.length) {
+      int time = times[index];
+      double value = values[index];
+      index++;
+      
+      if (isValueNonZero(previousValue) && isValueNonZero(value)) {
+        resultTimes[resultIndex] = time;
         if (d == null) {
           dividend = 0;
         } else {
-          dividendTSData = d.getValue(entry.getKey());
+          dividendTSData = d.getValue(time); // Arghh, this makes it n log(n) instead of n...  Improve this.
           dividend = dividendTSData == null ? 0 : dividendTSData;
         }
-        data[i++] = Math.log((entry.getValue() + dividend) / previousEntry.getValue());
+        resultValues[resultIndex] = Math.log((value + dividend) / previousValue);
+        resultIndex++;
       }
-      previousEntry = entry;
+      //previousTime = time;
+      previousValue = value;
     }
-    return getSeries(ts, times, data, i);
+    return getSeries(x[0], resultTimes, resultValues, resultIndex);
   }
 }

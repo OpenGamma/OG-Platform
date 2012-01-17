@@ -169,10 +169,14 @@
     <property name="dbConnector" ref="htsDbConnector"/>
     <property name="uniqueIdScheme" value="${opengamma.financial.db.htsmaster.scheme}" />
   </bean>
+  <bean id="htsResolver" class="com.opengamma.financial.spring.DefaultHistoricalTimeSeriesResolverFactoryBean">
+    <property name="configSource" ref="sharedConfigSource" />
+    <property name="historicalTimeSeriesMaster" ref="dbHtsMaster" />
+  </bean>
   <bean id="sharedHistoricalTimeSeriesSource" class="com.opengamma.financial.spring.HistoricalTimeSeriesSourceFactoryBean">
     <property name="historicalTimeSeriesMaster" ref="dbHtsMaster"/>
     <property name="cacheManager" ref="cacheManager" />
-    <property name="configSource" ref="sharedConfigSource"/>
+    <property name="historicalTimeSeriesResolver" ref="htsResolver" />
   </bean>
 
   <!-- MarketDataSnapshotMaster -->

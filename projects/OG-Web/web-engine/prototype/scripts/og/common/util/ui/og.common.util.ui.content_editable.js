@@ -35,7 +35,8 @@ $.register_module({
                                 handler();
                             };
                             og.api.rest[og.common.routes.current().page.substring(1)].put(rest_properties);
-                        }
+                        },
+                        'Cancel': function () {$(this).dialog('close');}
                     }
                 });
             });

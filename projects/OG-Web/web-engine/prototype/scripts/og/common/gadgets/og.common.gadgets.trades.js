@@ -6,8 +6,115 @@ $.register_module({
     name: 'og.common.gadgets.trades',
     dependencies: ['og.common.util.ui.dialog'],
     obj: function () {
-        var ui = og.common.util.ui, api = og.api, template_data, original_config_object,
-            dependencies = ['id', 'node'], html = {}, action = {};
+        var ui = og.common.util.ui, api = og.api,
+            template_data, original_config_object,
+            dependencies = ['id', 'node'],
+            html = {}, action = {},
+            load, reload, attach_calendar, attach_trades_link, format_trades,
+            form_create, form_save, generate_form_function, populate_form_fields;
+        /*
+         * Helper functions
+         */
+        generate_form_function = function (load_handler) {
+            return function (css_class) {
+                $(css_class).html('Loading form...');
+                var form = new og.common.util.ui.Form({
+                    selector: css_class, data: {}, module: 'og.views.forms.add-trades',
+                    handlers: [{type: 'form:load', handler: function () {load_handler()}}]
+                });
+                form.children = [new form.Field({
+                    module: 'og.views.forms.currency',
+                    generator: function (handler, template) {handler(template);}
+                })];
+                form.dom();
+            }
+        };
+        form_create = function () {
+            var obj = {};
+            $(this).find('[name]').each(function (i, elm) {obj[$(elm).attr('name')] = $(elm).val();});
+            action.add(obj);
+            $(this).dialog('close');
+        };
+        form_save = function (trade_id) {
+            var obj = {};
+            $(this).find('[name]').each(function (i, elm) {obj[$(elm).attr('name')] = $(elm).val();});
+            action.replace(obj, trade_id);
+            $(this).dialog('close');
+        };
+        attach_calendar = function () {
+            $('.OG-js-datetimepicker').datetimepicker({
+                firstDay: 1, showTimezone: true, dateFormat: 'yy-mm-dd',timeFormat: 'hh:mm ttz'
+            });
+            $('.OG-js-add-trades .og-inline-form').click(function (e) {
+                e.preventDefault();
+                $(this).prev().find('input').datetimepicker('setDate', new Date());
+            });
+        };
+        attach_trades_link = function (selector) {
+            $(selector).append('<a href="#" class="OG-link-add">add trade</a>').find('.OG-link-add').css({
+                'position': 'relative', 'left': '2px', 'top': '3px', 'float': 'left'
+            }).bind('click', function (e) {
+                e.preventDefault();
+                ui.dialog({
+                    type: 'input', title: 'Add New Trade', minWidth: 400, minHeight: 400,
+                    form: generate_form_function(function () {attach_calendar()}),
+                    buttons: {
+                        'Create': form_create,
+                        'Cancel': function () {$(this).dialog('close');}
+                    }
+                })
+            });
+        };
+        populate_form_fields = function (trade_obj) {
+            $('.OG-js-add-trades [name]').each(function (i, val) {
+                // special case 'premium' as there are two fields for the one value
+                var attribute = $(val).attr('name'), value = trade_obj['premium'].split(' ');
+                if (attribute === 'premium') {
+                    trade_obj.premium = value[0];
+                    trade_obj.currency = value[1];
+                }
+                $(val).val(trade_obj[attribute]);
+            });
+        };
+        /*
+         * Formats arrays of trade objects for submission.
+         * The object that we receive in the response can't be sent back as is because it's been formatted slightly
+         * differently, this also applies for the form object for the new trade to be added
+         */
+        format_trades = function (trades) {
+            trades.map(function (trade) {
+                var premium, tradeDate;
+                if (trade.premium) {
+                    premium = trade.premium.toString().split(' ');
+                    trade.premium = premium[0].replace(/[,.]/g, '');
+                    if (premium[1]) trade.premiumCurrency = premium[1];
+                } else delete trade.premium;
+                if (trade.premium_date_time) {
+                    premium = trade.premium_date_time.split(' ');
+                    trade.premiumDate = premium[0];
+                    if (premium[1]) trade.premiumTime = premium[1];
+                    if (premium[2]) trade.premiumOffset = premium[2].replace(/\((.*)\)/, '$1');
+                }
+                if (trade.trade_date_time) {
+                    tradeDate = trade.trade_date_time.split(' ');
+                    trade.tradeDate = tradeDate[0];
+                    if (tradeDate[1]) trade.tradeTime = tradeDate[1];
+                    if (tradeDate[2]) {
+                        trade.tradeOffset = tradeDate[2].replace(/\((.*)\)/, '$1');
+                        trade.tradeOffset.toString();
+                    }
+                }
+                if (trade.counterParty) trade.counterParty =
+                    trade.counterParty.split('~')[1] || trade.counterParty;
+                if (trade.quantity) trade.quantity = trade.quantity.replace(/[,.]/g, '');
+                if (trade.currency) trade.premiumCurrency = trade.currency, delete trade.currency;
+                delete trade.premium_date_time,
+                delete trade.trade_date_time,
+                delete trade.id;
+                return trade;
+            });
+            return trades;
+        };
         /*
          * Templates for rendering trades table
          */
@@ -70,17 +177,20 @@ $.register_module({
                 if (result.error) return alert(result.message);
                 var trades = result.data.trades;
                 trades.forEach(function (trade, i) {
-                    if (trade_id === trade.id.split('~')[1]) {trades.splice(i, 1);}
+                    if (trade_id === trade.id.split('~')[1]) trades.splice(i, 1);
                 });
                 ui.dialog({
                     type: 'confirm',
                     title: 'Delete trade?',
                     message: 'Are you sure you want to permanently delete trade ' +
                         '<strong style="white-space: nowrap">' + trade_id + '</strong>?',
-                    buttons: {'Delete': function () {
-                        action.put(format_trades(trades));
-                        $(this).dialog('close');
-                    }}
+                    buttons: {
+                        'Delete': function () {
+                            action.put(format_trades(trades));
+                            $(this).dialog('close');
+                        },
+                        'Cancel': function () {$(this).dialog('close');}
+                    }
                 });
             };
             api.rest.positions.get({
@@ -99,19 +209,11 @@ $.register_module({
                 });
                 ui.dialog({
                     type: 'input', title: 'Edit Trade: ' + trade_id, minWidth: 400, minHeight: 400,
-                    form: {
-                        module: 'og.views.forms.add-trades',
-                        handlers: [
-                            {type: 'form:submit', handler: function (obj) {action.replace(obj.data, trade_id);}},
-                            {type: 'form:load', handler: function () {
-                                populate_form_fields(trade_obj), attach_calendar();
-                            }}
-                        ]
-                    },
+                    form: generate_form_function(function () {populate_form_fields(trade_obj), attach_calendar()}),
                     buttons: {
-                        'Save': function () {$(this).dialog('close').find('form').submit();},
-                        'Save as': function () {$(this).dialog('close').find('form').submit();},
-                        'OK': null
+                        'Save': form_save.partial(trade_id),
+                        'Save new': form_create,
+                        'Cancel': function () {$(this).dialog('close');}
                     }
                 });
             };
@@ -126,91 +228,8 @@ $.register_module({
                 }
             });
         };
-        /*
-         * Helper functions
-         */
-        var reload = function () {og.common.gadgets.trades(original_config_object);};
-        var attach_calendar = function () {
-            $('.og-js-datetimepicker').datetimepicker({firstDay: 1, showTimezone: true, timeFormat: 'hh:mm ttz'});
-            $('.OG-js-add-trades .og-inline-form').click(function (e) {
-                e.preventDefault();
-                $(this).prev().find('input').datetimepicker('setDate', new Date());
-            });
-        };
-        var attach_trades_link = function (selector) {
-            $(selector).append('<a href="#" class="OG-link-add">add trade</a>').find('.OG-link-add').css({
-                'position': 'relative', 'left': '2px', 'top': '3px', 'float': 'left'
-            }).bind('click', function (e) {
-                e.preventDefault();
-                ui.dialog({
-                    type: 'input', title: 'Add New Trade', minWidth: 400, minHeight: 400,
-                    buttons: {'OK': function () {$(this).dialog('close').find('form').submit();}},
-                    form: {
-                        module: 'og.views.forms.add-trades',
-                        handlers: [
-                            {type: 'form:submit', handler: function (obj) {action.add(obj.data);}},
-                            {type: 'form:load', handler: function () {attach_calendar();}}
-                        ]
-                    }
-                })
-            });
-        };
-        var populate_form_fields = function (trade_obj) {
-            $('.OG-js-add-trades [name]').each(function (i, val) {
-                // special case 'premium' as there are two fields for the one value
-                var attribute = $(val).attr('name'), value = trade_obj['premium'].split(' ');
-                if (attribute === 'premium') {
-                    trade_obj.premium = value[0];
-                    trade_obj.currency = value[1];
-                }
-                $(val).val(trade_obj[attribute]);
-            });
-        };
-        /*
-         * Formats arrays of trade objects for submission.
-         * The object that we receive in the response can't be sent back as is because it's been formatted slightly
-         * differently, this also applies for the form object for the new trade to be added
-         */
-        var format_trades = function (trades) {
-            var format_date = function (str) {return str.replace(/(\d{2})\/(\d{2})\/(\d{4})/, '$3-$2-$1')};
-            trades.map(function (trade) {
-                var premium, tradeDate;
-                if (trade.premium) {
-                    premium = trade.premium.toString().split(' ');
-                    trade.premium = premium[0].replace(/[,.]/g, '');
-                    if (premium[1]) trade.premiumCurrency = premium[1];
-                } else delete trade.premium;
-                if (trade.premium_date_time) {
-                    premium = trade.premium_date_time.split(' ');
-                    trade.premiumDate = format_date(premium[0]);
-                    if (premium[1]) trade.premiumTime = premium[1];
-                    if (premium[2]) trade.premiumOffset = premium[2].replace(/\((.*)\)/, '$1');
-                }
-                if (trade.trade_date_time) {
-                    tradeDate = trade.trade_date_time.split(' ');
-                    trade.tradeDate = format_date(tradeDate[0]);
-                    if (tradeDate[1]) trade.tradeTime = tradeDate[1];
-                    if (tradeDate[2]) {
-                        trade.tradeOffset = tradeDate[2].replace(/\((.*)\)/, '$1');
-                        trade.tradeOffset.toString();
-                    }
-                }
-                if (trade.counterParty) trade.counterParty =
-                    trade.counterParty.split('~')[1] || trade.counterParty;
-                if (trade.quantity) trade.quantity = trade.quantity.replace(/[,.]/g, '');
-                if (trade.currency) trade.premiumCurrency = trade.currency, delete trade.currency;
-                delete trade.premium_date_time,
-                delete trade.trade_date_time,
-                delete trade.id;
-                return trade;
-            });
-            return trades;
-        };
-        return function (config) {
+        load = function (config) {
             var handler = function (result) {
-                /*
-                 * Build trades table
-                 */
                 if (result.error) return alert(result.message);
                 original_config_object = config;
                 template_data = result.data.template_data;
@@ -289,6 +308,8 @@ $.register_module({
                 }());
             };
             api.rest.positions.get({dependencies: dependencies, id: config.id, handler: handler});
-        }
+        };
+        reload = function () {load(original_config_object);};
+        return {render: load, reload: reload}
     }
 });

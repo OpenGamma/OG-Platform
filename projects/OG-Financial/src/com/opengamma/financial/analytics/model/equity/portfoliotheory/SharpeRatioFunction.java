@@ -14,8 +14,8 @@ import javax.time.calendar.Period;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -67,7 +67,7 @@ public abstract class SharpeRatioFunction extends AbstractFunction.NonCompiledIn
     final Period samplingPeriod = getSamplingPeriod(constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD));
     final LocalDate startDate = now.minus(samplingPeriod);
     final HistoricalTimeSeries benchmarkTSObject = historicalSource.getHistoricalTimeSeries(
-        HistoricalTimeSeriesFields.LAST_PRICE, bundle.getCAPMMarket(), _resolutionKey, startDate, true, now, true);
+        MarketDataRequirementNames.MARKET_VALUE, bundle.getCAPMMarket(), _resolutionKey, startDate, true, now, true);
     if (benchmarkTSObject == null) {
       throw new OpenGammaRuntimeException("Benchmark time series was null");
     }
