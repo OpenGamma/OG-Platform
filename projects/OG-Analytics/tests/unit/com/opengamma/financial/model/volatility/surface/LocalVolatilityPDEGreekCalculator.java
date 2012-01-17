@@ -106,8 +106,6 @@ public class LocalVolatilityPDEGreekCalculator {
     final BlackVolatilitySurface impVolSurface = _surfaceFitter.getImpliedVolatilitySurface(true, false, _modMoneynessParameter);
     _localVolatility = DUPIRE.getLocalVolatility(impVolSurface, forwardCurve);
 
-    //    BlackVolatilityMoneynessSurface impVolMSurface = BlackVolatilitySurfaceConverter.toMoneynessSurface(impVolSurface, forwardCurve);
-    //    _localVolatilityMoneyness = DUPIRE.getLocalVolatility(impVolMSurface);
   }
 
   /**
