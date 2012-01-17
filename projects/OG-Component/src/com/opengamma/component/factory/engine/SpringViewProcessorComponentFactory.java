@@ -91,7 +91,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    GenericApplicationContext appContext = createApplicationContext();
+    GenericApplicationContext appContext = createApplicationContext(repo);
     initViewProcessor(repo, appContext);
     initAvailableOutputs(repo, appContext);
     initConfiguration(repo, appContext);

@@ -52,9 +52,10 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
   /**
    * Creates the application context.
    * 
+   * @param repo  the component repository, not null
    * @return the Spring application context, not null
    */
-  protected GenericApplicationContext createApplicationContext() {
+  protected GenericApplicationContext createApplicationContext(ComponentRepository repo) {
     DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();
     GenericApplicationContext appContext = new GenericApplicationContext(beanFactory);
     
@@ -69,6 +70,8 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
     beanDefinitionReader.loadBeanDefinitions(new FileSystemResource(getSpringFile()));
     
     appContext.getBeanFactory().registerSingleton("injectedProperties", properties);
+    appContext.getBeanFactory().registerSingleton("componentRepository", repo);
+    
     appContext.refresh();
     return appContext;
   }

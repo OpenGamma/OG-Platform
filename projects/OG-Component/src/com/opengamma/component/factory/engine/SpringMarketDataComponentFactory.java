@@ -30,7 +30,7 @@ public class SpringMarketDataComponentFactory extends AbstractSpringComponentFac
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    GenericApplicationContext appContext = createApplicationContext();
+    GenericApplicationContext appContext = createApplicationContext(repo);
     register(repo, appContext);
   }
 

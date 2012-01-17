@@ -37,14 +37,16 @@ import com.opengamma.util.rest.UnsupportedOperationExceptionMapper;
 import com.opengamma.util.rest.WebApplicationExceptionMapper;
 
 /**
- * Component definition for the database connectors defined in Spring.
+ * Component definition for the Jetty server defined in Spring.
+ * <p>
+ * This reads a Spring file to start the Jetty server.
  */
 @BeanDefinition
 public class SpringJettyComponentFactory extends AbstractSpringComponentFactory implements ComponentFactory {
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    GenericApplicationContext appContext = createApplicationContext();
+    GenericApplicationContext appContext = createApplicationContext(repo);
     
     String[] beanNames = appContext.getBeanNamesForType(Server.class);
     if (beanNames.length != 1) {
