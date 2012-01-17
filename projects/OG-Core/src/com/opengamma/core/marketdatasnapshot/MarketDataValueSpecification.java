@@ -99,23 +99,13 @@ public final class MarketDataValueSpecification {
    * Creates a Fudge representation of the value specification:
    * <pre>
    *   message {
-   *     message { // map
-   *       repeated VolatilityPoint key = 1;
-   *       repeated ValueSnapshot|indicator value = 2;
-   *     } values;
-   *     UnstructuredMarketDataSnapshot otherValues;
-   *     message { // map
-   *       repeated message { // pair
-   *         Tenor first;
-   *         Tenor second;
-   *       } key = 1;
-   *       repeated ValueSnapshot|indicator value = 2;
-   *     } strikes;
+   *     string type;
+   *     UniqueId uniqueId;
    *   }
    * </pre>
    * 
    * @param serializer Fudge serialization context, not null
-   * @return the message representation of this snapshot
+   * @return the message representation of this value specification
    */
   public MutableFudgeMsg toFudgeMsg(final FudgeSerializer serializer) {
     final MutableFudgeMsg msg = serializer.newMessage();

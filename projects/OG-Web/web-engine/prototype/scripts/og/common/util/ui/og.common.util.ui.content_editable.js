@@ -5,7 +5,7 @@
  */
 $.register_module({
     name: 'og.common.util.ui.content_editable',
-    dependencies: ['og.common.util.ui', 'og.common.routes', 'og.api.rest'],
+    dependencies: ['og.common.util.ui', 'og.common.routes'],
     obj: function () {
         var ui = og.common.util.ui;
         return function (config) {

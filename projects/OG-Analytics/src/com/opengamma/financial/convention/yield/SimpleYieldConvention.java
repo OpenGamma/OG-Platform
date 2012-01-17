@@ -59,6 +59,10 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    */
   public static final YieldConvention DISCOUNT = new SimpleYieldConvention("DISCOUNT");
   /**
+   * Bill convention (in particular for Germany, United Kingdom, Belgium)
+   */
+  public static final YieldConvention INTERESTATMTY = new SimpleYieldConvention("INTEREST@MTY");
+  /**
    * Some bonds have this code.
    */
   public static final YieldConvention STEP_FLOATER = new SimpleYieldConvention("STEP FLOATER"); // TODO: check if real yield convention

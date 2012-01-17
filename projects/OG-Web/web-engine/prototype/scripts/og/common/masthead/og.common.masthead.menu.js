@@ -37,18 +37,6 @@ $.register_module({
                 $('.og-icon-header-dropdown').parent().mouseleave(function () {
                     $(this).removeClass('open').find('.og-dd-menu').hide();
                 });
-
-                /*
-                    TODO
-                    the old live api was used here to populated views, new rest call must be made instead. the old
-                    code is left here for reference
-                    live.views.subscribe(function (message) {
-                        var views = message.data.availableViewNames.map(function (val) {
-                            return {hash: encodeURIComponent(val), title: val};
-                        });
-                        $('#OG-masthead .OG-js-analytics-menu').html($('#OG-js-analytics-menu-template').tmpl(views));
-                    });
-                */
             },
             set_tab: function (name) {
                 $('.OG-masthead a').removeClass('og-active');

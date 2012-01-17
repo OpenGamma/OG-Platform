@@ -295,8 +295,8 @@ $.register_module({
                 }
                 get_values = function (arr) {
                     var min, max, buffer;
-                    max = (function (arr) {return Math.max.apply(null, arr.map(function (v) {return v[1];}));})(arr);
-                    min = (function (arr) {return Math.min.apply(null, arr.map(function (v) {return v[1];}));})(arr);
+                    max = (function (arr) {return Math.max.apply(null, arr.pluck(1));})(arr);
+                    min = (function (arr) {return Math.min.apply(null, arr.pluck(1));})(arr);
                     buffer = (max - min) / 10, max += buffer, min -= buffer;
                     return {min: min, max: max}
                 };

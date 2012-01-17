@@ -128,7 +128,7 @@ $.register_module({
                 }
             },
             default_details = og.views.common.default_details.partial(page_name, 'Portfolios', options),
-            details_page = function (args) {
+            details_page = function (args, custom_loading) {
                 var render_portfolio_rows = function (selector, json) {
                         var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios,
                             html = '\
@@ -142,7 +142,6 @@ $.register_module({
                                 api.rest.portfolios.put({
                                     handler: function (result) {
                                         if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                        view.details(args);
                                     },
                                     name: ui.dialog({return_field_value: 'name'}),
                                     id: json.template_data.object_id,
@@ -205,7 +204,6 @@ $.register_module({
                                             handler: function (result) {
                                                 if (result.error)
                                                     return ui.dialog({type: 'error', message: result.message});
-                                                view.details(routes.current().args);
                                             }
                                         });
                                         $(this).dialog('close');
@@ -242,7 +240,6 @@ $.register_module({
                                 api.rest.portfolios.put({
                                     handler: function (result) {
                                         if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                        view.details(args);
                                     },
                                     position: id ? id.item.value : $input.val(),
                                     id: json.template_data.object_id,
@@ -265,15 +262,14 @@ $.register_module({
                                     }
                                 });
                                 $('#og-js-dialog-name').autocomplete({
-                                    source: function (obj, callback) {
+                                    source: function (obj, handler) {
                                         api.rest.positions.get({
-                                            handler: function (r) {
-                                                callback(
-                                                    r.data.data.map(function (val) {
-                                                        var arr = val.split('|');
-                                                        return {value: arr[0], label: arr[1], id: arr[0], node: arr[1]};
-                                                    })
-                                                );
+                                            handler: function (result) {
+                                                var arr = result.data.data.map(function (val) {
+                                                    var arr = val.split('|');
+                                                    return {value: arr[0], label: arr[1], id: arr[0], node: arr[1]};
+                                                });
+                                                handler(arr);
                                             },
                                             loading: '', page_size: 10, page: 1,
                                             identifier: '*' + obj.term.replace(/\s/g, '*') + '*'
@@ -334,7 +330,6 @@ $.register_module({
                                             handler: function (result) {
                                                 if (result.error)
                                                     return ui.dialog({type: 'error', message: result.message});
-                                                view.details(routes.current().args);
                                             }
                                         });
                                         $(this).dialog('close');
@@ -372,10 +367,22 @@ $.register_module({
                     if (args.sync) og.views.extras.portfolios_sync.load(args);
                 } else layout.inner.close('south');
                 api.rest.portfolios.get({
-                    dependencies: ['id'],
+                    dependencies: view.dependencies,
                     update: view.update,
                     handler: function (result) {
-                        if (result.error) return alert(result.message); // TODO: replace with UI error dialog
+                        if (result.error) {
+                            ui.message({location: '.ui-layout-inner-center', destroy: true});
+                            if (args.node) {
+                                ui.dialog({
+                                    type: 'error',
+                                    message: 'There is no sub-portfolio with the ID: ' + args.node +
+                                        '. It may have been deleted.'
+                                });
+                                routes.go(routes.hash(view.rules.load_item, args, {del: ['node']}));
+                            }else {
+                                ui.dialog({type: 'error', message: result.message});
+                            }
+                        }
                         json = result.data;
                         history.put({
                             name: portfolio_name = json.template_data.portfolio_name || json.template_data.name,
@@ -410,13 +417,8 @@ $.register_module({
                                 selector: '.OG-header-generic .OG-js-breadcrumb',
                                 data: json.template_data
                             });
-                            ui.content_editable({
-                                handler: function () {
-                                    view.search(args);
-                                    view.details(args);
-                                }
-                            });
-                            ui.message({location: '.ui-layout-inner-center', destroy: true});
+                            ui.content_editable({handler: function () {view.search(args);}});
+                            if (!custom_loading) ui.message({location: '.ui-layout-inner-center', destroy: true});
                             setTimeout(layout.inner.resizeAll);
                         }});
                     },
@@ -424,6 +426,7 @@ $.register_module({
                     node: args.node,
                     version: args.version && args.version !== '*' ? args.version : void 0,
                     loading: function () {
+                        if (custom_loading) return;
                         ui.message({
                             location: '.ui-layout-inner-center',
                             css: {left: 0},
@@ -451,6 +454,7 @@ $.register_module({
                 var args = routes.current().args;
                 setTimeout(routes.go.partial(routes.hash(module.rules.load_item, args, {del: ['node']})));
             },
+            dependencies: ['id', 'node'],
             details: details_page,
             filters: ['name'],
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
@@ -491,7 +495,14 @@ $.register_module({
                 if (!search) search = common.search_results.core();
                 search.load($.extend(options.slickgrid, {url: args}));
             },
-            update: function (delivery) {view.details(routes.current().args);}
+            update: function (delivery) {
+                ui.message({
+                    location: '.ui-layout-inner-center', css: {left: 0},
+                    message: 'This item has been updated.'
+                });
+                view.details(routes.current().args, true);
+                setTimeout(ui.message.partial({location: '.ui-layout-inner-center', destroy: true}), 2000);
+            }
         };
     }
 });

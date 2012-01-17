@@ -61,13 +61,13 @@ $.register_module({
                 return hash(rule, modified_params);
             },
             post_add: function (compiled) { // add optional debug param to all rules that don't ask for it
-                if (!~compiled.rules.keyvals.map(function (val) {return val.name;}).indexOf('debug'))
+                if (!~compiled.rules.keyvals.pluck('name').indexOf('debug'))
                     compiled.rules.keyvals.push({name: 'debug', required: false});
                 return compiled;
             },
             pre_dispatch: function (parsed) { // if the debug param exists, use it to set API debug mode
                 if (parsed.length && parsed[0].args.debug) og.dev.debug = parsed[0].args.debug === 'true';
-                og.api.rest.clean();
+                if (og.api.rest) og.api.rest.clean();
                 return parsed;
             }
         });
