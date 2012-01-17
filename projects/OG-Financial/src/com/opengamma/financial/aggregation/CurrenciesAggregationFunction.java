@@ -16,6 +16,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 /**
  * Function to classify positions by Currency.
  *
@@ -43,12 +44,18 @@ public class CurrenciesAggregationFunction implements AggregationFunction<String
           return NO_CURRENCY;
         case 1:
           return currencies.iterator().next().getCode();
-        case 2:
+        case 2: {
           Iterator<Currency> iter = currencies.iterator();
           Currency base = iter.next();
           Currency counter = iter.next();
-          return CurrencyPair.of(base, counter).getName();
-        default:
+          UnorderedCurrencyPair unordered = UnorderedCurrencyPair.of(base, counter);
+          StringBuilder sb = new StringBuilder();
+          sb.append(unordered.getFirstCurrency().getCode());
+          sb.append("/");
+          sb.append(unordered.getSecondCurrency().getCode());
+          return sb.toString();
+        }
+        default: {
           StringBuilder sb = new StringBuilder();
           Iterator<Currency> iterator = currencies.iterator();
           while (iterator.hasNext()) {
@@ -58,6 +65,7 @@ public class CurrenciesAggregationFunction implements AggregationFunction<String
             }
           }
           return sb.toString();
+        }
       }
       
     } catch (UnsupportedOperationException ex) {
