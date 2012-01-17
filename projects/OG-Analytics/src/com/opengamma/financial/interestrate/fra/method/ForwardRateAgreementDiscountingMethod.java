@@ -98,7 +98,7 @@ public final class ForwardRateAgreementDiscountingMethod implements PricingMetho
     listForward.add(new DoublesPair(fra.getFixingPeriodStartTime(), -fra.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(fra.getFixingPeriodEndTime(), -fra.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     resultMapForward.put(fra.getForwardCurveName(), listForward);
-    return result.add(new InterestRateCurveSensitivity(resultMapForward));
+    return result.plus(new InterestRateCurveSensitivity(resultMapForward));
   }
 
   /**

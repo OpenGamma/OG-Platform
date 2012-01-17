@@ -202,7 +202,7 @@ public final class BondSecurityDiscountingMethod {
     resultMap.put(bond.getRepoCurveName(), listDf);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     result = result.multiply(pv / notional);
-    result = result.add(sensiPv.multiply(1 / (df * notional)));
+    result = result.plus(sensiPv.multiply(1 / (df * notional)));
     return result;
   }
 
@@ -497,7 +497,7 @@ public final class BondSecurityDiscountingMethod {
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final BondSecurity<? extends Payment, ? extends Coupon> bond, final YieldCurveBundle curves) {
     final InterestRateCurveSensitivity pvcsNominal = new InterestRateCurveSensitivity(PVCSC.visit(bond.getNominal(), curves));
     final InterestRateCurveSensitivity pvcsCoupon = new InterestRateCurveSensitivity(PVCSC.visit(bond.getCoupon(), curves));
-    return pvcsNominal.add(pvcsCoupon);
+    return pvcsNominal.plus(pvcsCoupon);
   }
 
   /**
