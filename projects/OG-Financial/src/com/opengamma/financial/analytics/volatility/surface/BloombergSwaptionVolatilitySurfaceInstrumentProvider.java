@@ -11,8 +11,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ExternalId;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.time.Tenor;
 
 /**

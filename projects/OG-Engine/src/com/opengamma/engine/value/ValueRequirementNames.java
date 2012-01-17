@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.value;
 
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionDefinition;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * Standard names used to refer to particular computed values.

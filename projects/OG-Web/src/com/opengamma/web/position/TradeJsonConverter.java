@@ -6,7 +6,7 @@
 package com.opengamma.web.position;
 
 import java.math.BigDecimal;
-import java.util.Collection;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.time.calendar.LocalDate;
@@ -35,10 +35,6 @@ public final class TradeJsonConverter {
    * Restricted constructor.
    */
   private TradeJsonConverter() {
-  }
-  
-  public static String toJson(final Collection<ManageableTrade> trades) {
-    return null;
   }
   
   public static Set<ManageableTrade> fromJson(final String json) {
@@ -83,6 +79,7 @@ public final class TradeJsonConverter {
               trade.setTradeTime(zonedDateTime.toOffsetTime());
             }    
           }
+          addTradeAttributes(trade, tradeJson);
           trades.add(trade);
         }
       } else {
@@ -94,6 +91,30 @@ public final class TradeJsonConverter {
     return trades;
   }
   
+  private static void addTradeAttributes(ManageableTrade trade, JSONObject tradeJson) throws JSONException {
+    if (tradeJson.has("attributes")) {
+      JSONObject attributes = tradeJson.getJSONObject("attributes");
+      if (attributes.has("dealAttributes")) {
+        JSONObject dealAttributes = attributes.getJSONObject("dealAttributes");
+        addAttributes(trade, dealAttributes);
+      }
+      if (attributes.has("userAttributes")) {
+        JSONObject userAttributes = attributes.getJSONObject("userAttributes");
+        addAttributes(trade, userAttributes);
+      }
+    }
+  }
+
+  private static void addAttributes(ManageableTrade trade, JSONObject attributes) throws JSONException {
+    @SuppressWarnings("rawtypes")
+    Iterator keys = attributes.keys();
+    while (keys.hasNext()) {
+      String attrKey = (String) keys.next();
+      String attrValue = attributes.getString(attrKey);
+      trade.addAttribute(attrKey, attrValue);
+    }
+  }
+
   private static ZoneOffset getOffset(JSONObject tradeJson, String fieldName) throws JSONException {
     ZoneOffset premiumOffset = ZoneOffset.UTC;
     if (tradeJson.has(fieldName)) {

@@ -11,6 +11,7 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -31,7 +32,6 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.UniqueId;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * 

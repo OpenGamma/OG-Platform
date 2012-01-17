@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Calculates the historical volatility of a time series with a given return calculation method.
@@ -74,7 +75,7 @@ public class HistoricalVolatilityCloseCalculator extends HistoricalVolatilityCal
    * @throws IllegalArgumentException If the array is null or empty; if the first element of the array is null; if the price series does not contain at least two data points 
    */
   @Override
-  public Double evaluate(final DoubleTimeSeries<?>... x) {
+  public Double evaluate(final LocalDateDoubleTimeSeries... x) {
     testTimeSeries(x, 2);
     if (x.length > 1) {
       s_logger.info("Time series array contained more than one series; only using the first one");

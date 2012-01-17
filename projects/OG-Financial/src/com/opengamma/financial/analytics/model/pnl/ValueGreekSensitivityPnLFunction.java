@@ -52,6 +52,7 @@ import com.opengamma.financial.sensitivity.ValueGreekSensitivity;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Computes a Profit and Loss time series for a position based on value greeks.
@@ -114,8 +115,8 @@ public class ValueGreekSensitivityPnLFunction extends AbstractFunction.NonCompil
       if (underlyingType != UnderlyingType.SPOT_PRICE) {
         throw new OpenGammaRuntimeException("Have hard-coded to only use delta; should not have anything with " + underlyingType + " as the underlying type");
       }
-      final DoubleTimeSeries<?> timeSeries = underlyingTimeSeriesProvider.getSeries(GREEK, security, startDate, now);
-      final DoubleTimeSeries<?> sampledTS = samplingFunction.getSampledTimeSeries(timeSeries, schedule);      
+      final LocalDateDoubleTimeSeries timeSeries = underlyingTimeSeriesProvider.getSeries(GREEK, security, startDate, now);
+      final LocalDateDoubleTimeSeries sampledTS = samplingFunction.getSampledTimeSeries(timeSeries, schedule).toLocalDateDoubleTimeSeries();      
       tsReturns.put(underlyingType, returnCalculator.evaluate(sampledTS));
     }
     dataBundleArray[0] = new SensitivityAndReturnDataBundle(sensitivity, value, tsReturns);

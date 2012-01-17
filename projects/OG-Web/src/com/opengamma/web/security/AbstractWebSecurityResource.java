@@ -14,7 +14,6 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
@@ -46,9 +45,7 @@ import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
-import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
@@ -77,22 +74,15 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
    * Creates the resource.
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
-   * @param htsMaster       the HTS master, not null (needed for fetching HTS object ID)
-   * @param cfgSource       the config source, not null (needed for fetching HTS object ID)
+   * @param htsResolver     the HTS resolver, not null (for resolving relevant HTS Id) 
    */
-  protected AbstractWebSecurityResource(
-      final SecurityMaster securityMaster, final SecurityLoader securityLoader, 
-      final HistoricalTimeSeriesMaster htsMaster, final ConfigSource cfgSource) {
+  protected AbstractWebSecurityResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesResolver htsResolver) {
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(securityLoader, "securityLoader");
     _data = new WebSecuritiesData();
+    _htsResolver = htsResolver;
     data().setSecurityMaster(securityMaster);
-    data().setSecurityLoader(securityLoader);
-
-    //ClassPathXmlApplicationContext appContext = new ClassPathXmlApplicationContext("com/opengamma/financial/demoMasters.xml");
-    //HistoricalTimeSeriesMaster htsMaster = appContext.getBean("dbHtsMaster", HistoricalTimeSeriesMaster.class);
-    //ConfigSource cfgSource = appContext.getBean("sharedConfigSource", ConfigSource.class);
-    _htsResolver = new DefaultHistoricalTimeSeriesResolver(htsMaster, cfgSource);    
+    data().setSecurityLoader(securityLoader);    
   }
 
   /**

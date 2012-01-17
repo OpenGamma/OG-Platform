@@ -18,6 +18,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
 import javax.time.calendar.OffsetTime;
 import javax.time.calendar.ZoneOffset;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.springframework.core.io.FileSystemResourceLoader;
@@ -25,7 +26,6 @@ import org.springframework.mock.web.MockServletContext;
 import org.testng.annotations.BeforeMethod;
 
 import com.google.common.collect.Lists;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.test.MockSecuritySource;
@@ -36,7 +36,9 @@ import com.opengamma.id.ObjectIdSupplier;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
+import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesSelector;
 import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeriesMaster;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
@@ -65,11 +67,11 @@ public abstract class AbstractWebPositionResourceTestCase {
   protected static final ExternalId SEC_ID = EQUITY_SECURITY.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
   protected static final ManageableSecurityLink SECURITY_LINK = new ManageableSecurityLink(EQUITY_SECURITY.getExternalIdBundle());
   protected static final String EMPTY_TRADES = "{\"trades\" : []}";
+  protected static final Long QUANTITY = Long.valueOf(100);
   
   protected SecurityMaster _secMaster;
   protected SecurityLoader _secLoader;
-  protected HistoricalTimeSeriesMaster _htsMaster;
-  protected ConfigSource _cfgSource;
+  protected HistoricalTimeSeriesResolver _htsResolver;
   protected WebPositionsResource _webPositionsResource;
   protected MockSecuritySource _securitySource;
   protected PositionMaster _positionMaster;
@@ -82,8 +84,9 @@ public abstract class AbstractWebPositionResourceTestCase {
     _trades = getTrades();
     _secMaster = new InMemorySecurityMaster(new ObjectIdSupplier("Mock"));
     _positionMaster = new InMemoryPositionMaster();
-    _htsMaster = new InMemoryHistoricalTimeSeriesMaster();
-    _cfgSource = new MasterConfigSource(new InMemoryConfigMaster());
+    MasterConfigSource configSource = new MasterConfigSource(new InMemoryConfigMaster());
+    InMemoryHistoricalTimeSeriesMaster htsMaster = new InMemoryHistoricalTimeSeriesMaster();
+    _htsResolver = new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(configSource), htsMaster);
     _securitySource = new MockSecuritySource();
     _secLoader = new SecurityLoader() {
       
@@ -98,7 +101,7 @@ public abstract class AbstractWebPositionResourceTestCase {
       }
     };
     populateSecMaster();
-    _webPositionsResource = new WebPositionsResource(_positionMaster, _secLoader,  _securitySource, _htsMaster, _cfgSource);
+    _webPositionsResource = new WebPositionsResource(_positionMaster, _secLoader,  _securitySource, _htsResolver);
     _webPositionsResource.setServletContext(new MockServletContext("/web-engine", new FileSystemResourceLoader()));
     _webPositionsResource.setUriInfo(_uriInfo);
   }
@@ -179,6 +182,24 @@ public abstract class AbstractWebPositionResourceTestCase {
       trade.setSecurityLink(new ManageableSecurityLink(SEC_ID));
       assertTrue(_trades.contains(trade));
     }
+  }
+
+  protected UniqueId addPosition() {
+    ManageableTrade origTrade = new ManageableTrade(BigDecimal.valueOf(50), SEC_ID, LocalDate.parse("2011-12-07"), OffsetTime.of(LocalTime.of(15, 4), ZONE_OFFSET), COUNTER_PARTY);
+    origTrade.setPremium(10.0);
+    origTrade.setPremiumCurrency(Currency.USD);
+    origTrade.setPremiumDate(LocalDate.parse("2011-12-08"));
+    origTrade.setPremiumTime(OffsetTime.of(LocalTime.of(15, 4), ZONE_OFFSET));
+    
+    ManageablePosition manageablePosition = new ManageablePosition(origTrade.getQuantity(), EQUITY_SECURITY.getExternalIdBundle());
+    manageablePosition.addTrade(origTrade);
+    PositionDocument addedPos = _positionMaster.add(new PositionDocument(manageablePosition));
+    UniqueId uid = addedPos.getUniqueId();
+    return uid;
+  }
+
+  protected String getActualURL(Response response) {
+    return response.getMetadata().getFirst("Location").toString();
   }
 
 }
