@@ -309,9 +309,7 @@ $.register_module({
                             var row = json.positions[dd.row], position = row.id, position_name = row.name;
                             if (!$(e.target).hasClass('og-icon-unhook')) {
                                 routes.go(routes.hash(
-                                    module.rules.load_item, routes.current().args,
-                                    {add: {position: json.positions[dd.row].id}}
-                                ));
+                                    module.rules.load_item, routes.current().args, {add: {position: position}}));
                                 return;
                             }
                             ui.dialog({
@@ -379,7 +377,7 @@ $.register_module({
                                         '. It may have been deleted.'
                                 });
                                 routes.go(routes.hash(view.rules.load_item, args, {del: ['node']}));
-                            }else {
+                            } else {
                                 ui.dialog({type: 'error', message: result.message});
                             }
                         }
