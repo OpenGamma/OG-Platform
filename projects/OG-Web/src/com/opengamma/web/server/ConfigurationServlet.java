@@ -8,6 +8,7 @@ package com.opengamma.web.server;
 import java.io.IOException;
 
 import javax.servlet.GenericServlet;
+import javax.servlet.ServletContext;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
@@ -30,22 +31,24 @@ public class ConfigurationServlet extends GenericServlet {
 
   @Override
   public void init() throws ServletException {
+    ServletContext servletContext = getServletContext();
+    
     // try OpenGamma
-    ComponentRepository repo = ComponentRepository.getThreadLocal();
+    ComponentRepository repo = (ComponentRepository) servletContext.getAttribute(ComponentRepository.SERVLET_CONTEXT_KEY);
     if (repo != null) {
       for (Object obj : repo.getRestComponents().getRootResourceSingletons()) {
         if (obj instanceof WebAnalyticsResource) {
-          ((WebAnalyticsResource) obj).init(getServletContext());
+          ((WebAnalyticsResource) obj).init(servletContext);
           return;
         }
       }
     }
     
     // try Spring
-    ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(getServletContext());
+    ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
     if (context != null) {
       try {
-        ((LiveResultsServiceBean) context.getBean("webInterfaceBean")).init(getServletContext());
+        ((LiveResultsServiceBean) context.getBean("webInterfaceBean")).init(servletContext);
         return;
       } catch (BeansException ex) {
         // ignore

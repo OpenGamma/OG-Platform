@@ -5,26 +5,28 @@
  */
 package com.opengamma.web.server.push.rest;
 
-import com.opengamma.id.UniqueId;
-import com.opengamma.web.server.push.ConnectionManager;
-import com.sun.jersey.api.core.HttpContext;
-import com.sun.jersey.api.model.AbstractMethod;
-import com.sun.jersey.spi.container.ResourceFilter;
-import com.sun.jersey.spi.container.ResourceFilterFactory;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationContext;
-import org.springframework.web.context.support.WebApplicationContextUtils;
-
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.core.Context;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Context;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.id.UniqueId;
+import com.opengamma.web.server.push.ConnectionManager;
+import com.opengamma.web.server.push.HandshakeServlet;
+import com.opengamma.web.server.push.WebPushServletContextUtils;
+import com.sun.jersey.api.core.HttpContext;
+import com.sun.jersey.api.model.AbstractMethod;
+import com.sun.jersey.spi.container.ResourceFilter;
+import com.sun.jersey.spi.container.ResourceFilterFactory;
 
 /**
  * Creates {@link EntitySubscriptionFilter}s which create subscriptions for push notifications for changes to entities
@@ -65,8 +67,7 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
   }
 
   private ConnectionManager getUpdateManager() {
-    ApplicationContext context = WebApplicationContextUtils.getRequiredWebApplicationContext(_servletContext);
-    return context.getBean(ConnectionManager.class);
+    return WebPushServletContextUtils.getConnectionManager(_servletContext);
   }
 
   /**
@@ -75,7 +76,7 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
    * {@link UniqueId#parse(String)}.  A notification is sent when the object with the specified {@link UniqueId}
    * changes.
    * @param abstractMethod A Jersey REST method
-   * @return A filter to set up subscriptions when the method is invoked or {@code null} if the method doesn't
+   * @return A filter to set up subscriptions when the method is invoked or null if the method doesn't
    * need entity subscriptions
    */
   private ResourceFilter createEntitySubscriptionFilter(AbstractMethod abstractMethod) {
