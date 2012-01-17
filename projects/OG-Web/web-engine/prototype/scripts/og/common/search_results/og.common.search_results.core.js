@@ -25,6 +25,7 @@ $.register_module({
                         buffer: 17
                     });
                     grid = new Slick.Grid(obj.selector, slick_manager.data, obj.columns, options);
+                    grid.setSelectionModel(new Slick.RowSelectionModel());
                     window.onresize = function () {
                         setTimeout(function () {
                             grid.resizeCanvas();
@@ -34,15 +35,15 @@ $.register_module({
                     filters_obj = obj.url;
                     // Setup filter inputs
                     og.common.search.filter({location: obj.selector});
-                    // Handle click
-                    $(obj.selector).undelegate().delegate('[row]', 'click', function (e) {
+
+                    grid.onClick.subscribe(function (e, dd) {
                         var current = routes.current().args, args = obj.url,
                             params = {
-                                id: slick_manager.data[$(e.currentTarget).attr('row')].id,
+                                id: slick_manager.data[dd.row].id,
                                 name: current.name || '',
                                 quantity: current.quantity || '',
                                 type: current.type || '',
-                                filter: slick_manager.data[$(e.currentTarget).attr('row')].filter,
+                                filter: slick_manager.data[dd.row].filter,
                                 version: '',
                                 sync: ''
                             };
