@@ -194,7 +194,7 @@ $.register_module({
                                     {add: {node: node.id}, del: ['position']}));
                             ui.dialog({
                                 type: 'confirm',
-                                title: 'Delete sub portfolio?',
+                                title: 'Delete sub-portfolio?',
                                 message: 'Are you sure you want to permanently delete ' +
                                     '<strong style="white-space: nowrap">' + node.name + '</strong>?',
                                 buttons: {
@@ -376,9 +376,9 @@ $.register_module({
                                     message: 'There is no sub-portfolio with the ID: ' + args.node +
                                         '. It may have been deleted.'
                                 });
-                                routes.go(routes.hash(view.rules.load_item, args, {del: ['node']}));
+                                return routes.go(routes.hash(view.rules.load_item, args, {del: ['node']}));
                             } else {
-                                ui.dialog({type: 'error', message: result.message});
+                                return ui.dialog({type: 'error', message: result.message});
                             }
                         }
                         json = result.data;
