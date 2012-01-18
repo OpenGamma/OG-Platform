@@ -51,6 +51,7 @@ public class VolatilitySurface implements VolatilityModel<DoublesPair> {
     return getVolatility(temp);
   }
 
+
   public VolatilityCurve getSlice(final Axis axis, final double here, final Interpolator1D interpolator) {
     final Curve<Double, Double> curve = SurfaceSliceFunction.cut(_surface, axis, here, interpolator);
     return new VolatilityCurve(curve);

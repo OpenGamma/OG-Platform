@@ -285,7 +285,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
     pvcsCalculator = pvcsCalculator.clean();
     InterestRateCurveSensitivity pvcsExpected = new InterestRateCurveSensitivity();
     for (int loopcpn = 0; loopcpn < cap.getNumberOfPayments(); loopcpn++) {
-      pvcsExpected = pvcsExpected.add(new InterestRateCurveSensitivity(PVCSC_SABR.visit(cap.getNthPayment(loopcpn), SABR_BUNDLE)));
+      pvcsExpected = pvcsExpected.plus(new InterestRateCurveSensitivity(PVCSC_SABR.visit(cap.getNthPayment(loopcpn), SABR_BUNDLE)));
     }
     pvcsExpected = pvcsExpected.clean();
     assertTrue("Cap annuity - SABR pv", InterestRateCurveSensitivity.compare(pvcsExpected, pvcsCalculator, 1.0E-2));

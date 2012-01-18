@@ -40,7 +40,7 @@
 
 /* Highlight rows on hover */
 .slick-row:hover {
-  background-color: #d7e7f2!important;
+  background-color: #d7e7f2;
 }
 
 /* contexual button */
@@ -62,10 +62,6 @@
   right: -5px;
 }
 
-.slick-row .og-button .og-icon-unhook {
-
-}
-
 /* Fix vertical alignment */
 .ui-widget-content .slick-cell {
     line-height: 22px;
@@ -80,18 +76,6 @@
 
 .slick-row .selected {
   font-weight: bold;
-}
-
-.ui-state-default,
-.ui-widget-content .ui-state-default,
-.ui-widget-header .ui-state-default {
-  background: none;
-}
-
-.ui-state-default,
-.ui-widget-content .ui-state-default,
-.ui-widget-header .ui-state-default {
-  border: none;
 }
 
 .slick-header {
@@ -151,6 +135,7 @@
   border-style: none;
   padding-left: 7px;
   height: 20px;
+  background: none;
 }
 
 .slick-column-name {

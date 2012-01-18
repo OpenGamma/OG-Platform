@@ -9,7 +9,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceOld;
 
 /**
  * Market data required to price a Variance Swap
@@ -19,7 +19,7 @@ public class VarianceSwapDataBundle {
   private final YieldAndDiscountCurve _discountCurve;
   private final double _spotUnderlying;
   private final double _forwardUnderlying;
-  private final BlackVolatilitySurface _volatilitySurface;
+  private final BlackVolatilitySurfaceOld _volatilitySurface;
 
   /**
    * @param volSurf The volatility surface, 
@@ -27,7 +27,7 @@ public class VarianceSwapDataBundle {
    * @param spotUnderlying The current value of the underlying
    * @param forwardUnderlying The current value of the underlying's forward. !This is the important one!
    */
-  public VarianceSwapDataBundle(BlackVolatilitySurface volSurf, YieldAndDiscountCurve discCrv, double spotUnderlying, double forwardUnderlying) {
+  public VarianceSwapDataBundle(BlackVolatilitySurfaceOld volSurf, YieldAndDiscountCurve discCrv, double spotUnderlying, double forwardUnderlying) {
     Validate.notNull(discCrv, "discountCurve");
     Validate.notNull(volSurf, "volatilitySurface");
     _discountCurve = discCrv;
@@ -56,7 +56,7 @@ public class VarianceSwapDataBundle {
    * Gets the volatilitySurface.
    * @return the volatilitySurface
    */
-  public BlackVolatilitySurface getVolatilitySurface() {
+  public BlackVolatilitySurfaceOld getVolatilitySurface() {
     return _volatilitySurface;
   }
 

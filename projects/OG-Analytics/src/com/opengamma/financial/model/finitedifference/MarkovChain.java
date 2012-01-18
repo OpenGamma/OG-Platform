@@ -106,7 +106,7 @@ public class MarkovChain {
     return price;
   }
 
-  public double[] getMoments(final double t, final double[] sigmas) {
+  public double[] getMoments(@SuppressWarnings("unused") final double t, final double[] sigmas) {
     double sum1 = 0;
     double sum2 = 0;
     double sum3 = 0;

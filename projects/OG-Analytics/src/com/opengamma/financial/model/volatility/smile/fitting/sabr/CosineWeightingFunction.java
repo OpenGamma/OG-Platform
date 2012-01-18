@@ -26,7 +26,6 @@ public final class CosineWeightingFunction extends WeightingFunction {
     ArgumentChecker.notNull(strikes, "strikes");
     ArgumentChecker.notNegative(lowerBoundIndex, "index");
     ArgumentChecker.isTrue(lowerBoundIndex <= strikes.length - 2, "index cannot be larger than {}, have {}", strikes.length - 2, lowerBoundIndex);
-    System.out.println((strike - strikes[lowerBoundIndex]) / (strikes[lowerBoundIndex + 1] - strikes[lowerBoundIndex]));
     final double cos = Math.cos(Math.PI / 2 * (strike - strikes[lowerBoundIndex]) / (strikes[lowerBoundIndex + 1] - strikes[lowerBoundIndex]));
     return cos * cos;
   }

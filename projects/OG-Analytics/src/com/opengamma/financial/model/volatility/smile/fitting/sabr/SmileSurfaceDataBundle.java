@@ -5,9 +5,8 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting.sabr;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -37,7 +36,7 @@ public abstract class SmileSurfaceDataBundle {
         final double vol = vols[j][i];
         intVar[j] = vol * vol * expiries[j];
         if (j > 0) {
-          Validate.isTrue(intVar[j] >= intVar[j - 1], "integrated variance not increasing");
+          ArgumentChecker.isTrue(intVar[j] >= intVar[j - 1], "integrated variance not increasing, have {}, {}", intVar[j - 1], intVar[j]);
         }
       }
     }

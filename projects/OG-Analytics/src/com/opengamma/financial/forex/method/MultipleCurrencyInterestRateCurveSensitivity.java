@@ -77,7 +77,7 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
     Validate.notNull(sensitivity, "Sensitivity");
     TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
     if (_sensitivity.containsKey(ccy)) {
-      map.put(ccy, sensitivity.add(_sensitivity.get(ccy)));
+      map.put(ccy, sensitivity.plus(_sensitivity.get(ccy)));
       for (Currency loopccy : _sensitivity.keySet()) {
         if (loopccy != ccy) {
           map.put(loopccy, _sensitivity.get(loopccy));

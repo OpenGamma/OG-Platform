@@ -30,7 +30,7 @@ public class PiecewiseSABRFitter1 {
   private final WeightingFunction _weightingFunction;
 
   public PiecewiseSABRFitter1() {
-    this(0.5, new LinearWeightingFunction());
+    this(0.5, LinearWeightingFunction.getInstance());
   }
 
   public PiecewiseSABRFitter1(final double defaultBeta, final WeightingFunction weightingFunction) {

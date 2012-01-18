@@ -10,7 +10,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -49,7 +49,7 @@ public class DoubleQuadraticPiecewiseSABRSurfaceFitter implements PiecewiseSABRS
    * @return A interpolated implied volatility surface
    */
   @Override
-  public BlackVolatilitySurface getVolatilitySurface(final SmileSurfaceDataBundle data) {
+  public BlackVolatilitySurfaceStrike getVolatilitySurface(final SmileSurfaceDataBundle data) {
     final double[] expiries = data.getExpiries();
     final double[] forwards = data.getForwards();
     final double[][] strikes = data.getStrikes();
@@ -134,6 +134,6 @@ public class DoubleQuadraticPiecewiseSABRSurfaceFitter implements PiecewiseSABRS
       }
     };
 
-    return new BlackVolatilitySurface(FunctionalDoublesSurface.from(surFunc));
+    return new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surFunc));
   }
 }

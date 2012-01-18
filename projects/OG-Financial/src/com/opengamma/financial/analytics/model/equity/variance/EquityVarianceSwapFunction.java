@@ -41,7 +41,7 @@ import com.opengamma.financial.equity.variance.definition.VarianceSwapDefinition
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceOld;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.id.ExternalId;
@@ -100,7 +100,7 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
       throw new OpenGammaRuntimeException("Could not get Volatility Surface");
     }
     VolatilitySurface volSurface = (VolatilitySurface) volSurfaceObject;
-    BlackVolatilitySurface blackVolSurf = new BlackVolatilitySurface(volSurface.getSurface(), _strikeParameterizationMethod);
+    BlackVolatilitySurfaceOld blackVolSurf = new BlackVolatilitySurfaceOld(volSurface.getSurface(), _strikeParameterizationMethod);
 
     Object discountObject = inputs.getValue(getDiscountCurveRequirement(security));
     if (discountObject == null) {

@@ -20,12 +20,10 @@ public class LinearWeightingFunctionTest extends WeightingFunctionTestCase {
   }
 
   @Test
-  public void testWeighting1() {
+  public void testWeighting() {
     assertEquals(0.55, getInstance().getWeight(STRIKES, STRIKE), EPS);
-  }
-
-  @Test
-  public void testWeighting2() {
     assertEquals(0.55, getInstance().getWeight(STRIKES, INDEX, STRIKE), EPS);
+    assertEquals(1, getInstance().getWeight(STRIKES, STRIKES[3]), EPS);
+    assertEquals(1, getInstance().getWeight(STRIKES, INDEX, STRIKES[3]), EPS);
   }
 }

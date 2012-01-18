@@ -54,7 +54,8 @@ $.register_module({
                                     },
                                     name: ui.dialog({return_field_value: 'name'})
                                 });
-                            }
+                            },
+                            'Cancel': function () {$(this).dialog('close');}
                         }
                     })
                 },
@@ -77,7 +78,8 @@ $.register_module({
                                 };
                                 $(this).dialog('close');
                                 api.rest.portfolios.del(rest_options);
-                            }
+                            },
+                            'Cancel': function () {$(this).dialog('close');}
                         }
                     })
                 },
@@ -126,7 +128,7 @@ $.register_module({
                 }
             },
             default_details = og.views.common.default_details.partial(page_name, 'Portfolios', options),
-            details_page = function (args) {
+            details_page = function (args, custom_loading) {
                 var render_portfolio_rows = function (selector, json) {
                         var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios,
                             html = '\
@@ -140,7 +142,6 @@ $.register_module({
                                 api.rest.portfolios.put({
                                     handler: function (result) {
                                         if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                        view.details(args);
                                     },
                                     name: ui.dialog({return_field_value: 'name'}),
                                     id: json.template_data.object_id,
@@ -158,7 +159,8 @@ $.register_module({
                                             if (ui.dialog({return_field_value: 'name'}) === '') return;
                                             $(this).dialog('close');
                                             do_update();
-                                        }
+                                        },
+                                        'Cancel': function () {$(this).dialog('close');}
                                     }
                                 });
                                 return false;
@@ -188,23 +190,26 @@ $.register_module({
                         slick.onClick.subscribe(function (e, dd) {
                             var rule = module.rules.load_item, node = json.portfolios[dd.row];
                             if (!$(e.target).hasClass('og-icon-delete'))
-                                return routes.go(routes.hash(rule, routes.current().args, {add: {node: node.id}}));
+                                return routes.go(routes.hash(rule, routes.current().args,
+                                    {add: {node: node.id}, del: ['position']}));
                             ui.dialog({
                                 type: 'confirm',
                                 title: 'Delete sub portfolio?',
                                 message: 'Are you sure you want to permanently delete ' +
                                     '<strong style="white-space: nowrap">' + node.name + '</strong>?',
-                                buttons: {'Delete': function () {
-                                    api.rest.portfolios.del({
-                                        id: routes.current().args.id, node: node.id,
-                                        handler: function (result) {
-                                            if (result.error)
-                                                return ui.dialog({type: 'error', message: result.message});
-                                            view.details(routes.current().args);
-                                        }
-                                    });
-                                    $(this).dialog('close');
-                                }}
+                                buttons: {
+                                    'Delete': function () {
+                                        api.rest.portfolios.del({
+                                            id: routes.current().args.id, node: node.id,
+                                            handler: function (result) {
+                                                if (result.error)
+                                                    return ui.dialog({type: 'error', message: result.message});
+                                            }
+                                        });
+                                        $(this).dialog('close');
+                                    },
+                                    'Cancel': function () {$(this).dialog('close');}
+                                }
                             });
                         });
                         slick.onMouseEnter.subscribe(function (e) {
@@ -213,6 +218,14 @@ $.register_module({
                         slick.onMouseLeave.subscribe(function (e) {
                            $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
                         });
+                    },
+                    render_position = function () {
+                        var position = routes.current().args.position;
+                        if (!position) return;
+                        common.gadgets.positions({
+                            id: position, selector: '.og-js-details-positions', editable: false
+                        });
+                        common.gadgets.trades.render({id: position, selector: '.og-js-trades-table'});
                     },
                     render_position_rows = function (selector, json) {
                         var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions,
@@ -227,7 +240,6 @@ $.register_module({
                                 api.rest.portfolios.put({
                                     handler: function (result) {
                                         if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                        view.details(args);
                                     },
                                     position: id ? id.item.value : $input.val(),
                                     id: json.template_data.object_id,
@@ -245,19 +257,19 @@ $.register_module({
                                             if (ui.dialog({return_field_value: 'name'}) === '') return;
                                             do_update();
                                             $(this).dialog('close');
-                                        }
+                                        },
+                                        'Cancel': function () {$(this).dialog('close');}
                                     }
                                 });
                                 $('#og-js-dialog-name').autocomplete({
-                                    source: function (obj, callback) {
+                                    source: function (obj, handler) {
                                         api.rest.positions.get({
-                                            handler: function (r) {
-                                                callback(
-                                                    r.data.data.map(function (val) {
-                                                        var arr = val.split('|');
-                                                        return {value: arr[0], label: arr[1], id: arr[0], node: arr[1]};
-                                                    })
-                                                );
+                                            handler: function (result) {
+                                                var arr = result.data.data.map(function (val) {
+                                                    var arr = val.split('|');
+                                                    return {value: arr[0], label: arr[1], id: arr[0], node: arr[1]};
+                                                });
+                                                handler(arr);
                                             },
                                             loading: '', page_size: 10, page: 1,
                                             identifier: '*' + obj.term.replace(/\s/g, '*') + '*'
@@ -296,10 +308,8 @@ $.register_module({
                         slick.onClick.subscribe(function (e, dd) {
                             var row = json.positions[dd.row], position = row.id, position_name = row.name;
                             if (!$(e.target).hasClass('og-icon-unhook')) {
-                                common.gadgets.positions({
-                                    id: position, selector: '.og-js-details-positions', editable: false
-                                });
-                                common.gadgets.trades({id: position, selector: '.og-js-trades-table'});
+                                routes.go(routes.hash(
+                                    module.rules.load_item, routes.current().args, {add: {position: position}}));
                                 return;
                             }
                             ui.dialog({
@@ -308,20 +318,22 @@ $.register_module({
                                 message: 'Are you sure you want to remove the position '
                                     + '<strong style="white-space: nowrap">' + position_name + '</strong>'
                                     + ' from this portfolio?',
-                                buttons: {'Delete': function () {
-                                    var args = routes.current().args;
-                                    api.rest.portfolios.del({
-                                        id: args.id,
-                                        node: json.template_data.node,
-                                        position: position,
-                                        handler: function (result) {
-                                            if (result.error)
-                                                return ui.dialog({type: 'error', message: result.message});
-                                            view.details(routes.current().args);
-                                        }
-                                    });
-                                    $(this).dialog('close');
-                                }}
+                                buttons: {
+                                    'Delete': function () {
+                                        var args = routes.current().args;
+                                        api.rest.portfolios.del({
+                                            id: args.id,
+                                            node: json.template_data.node,
+                                            position: position,
+                                            handler: function (result) {
+                                                if (result.error)
+                                                    return ui.dialog({type: 'error', message: result.message});
+                                            }
+                                        });
+                                        $(this).dialog('close');
+                                    },
+                                    'Cancel': function () {$(this).dialog('close');}
+                                }
                             });
                         });
                         slick.onMouseEnter.subscribe(function (e) {
@@ -337,7 +349,7 @@ $.register_module({
                         api.text({module: 'og.views.portfolios.breadcrumb', handler: function (template) {
                             $(config.selector).html($.tmpl(template, data, {
                                 href: function (node) {
-                                    var change_obj = !node ? {del: ['node']} : {add: {node: node}};
+                                    var change_obj = !node ? {del: ['node', 'position']} : {add: {node: node}, del: ['position']};
                                     return routes.prefix() + routes.hash(rule, args, change_obj);
                                 },
                                 title: function (name) {return name.length > 30 ? name : ''},
@@ -353,9 +365,22 @@ $.register_module({
                     if (args.sync) og.views.extras.portfolios_sync.load(args);
                 } else layout.inner.close('south');
                 api.rest.portfolios.get({
-                    dependencies: ['id'],
+                    dependencies: view.dependencies,
+                    update: view.update,
                     handler: function (result) {
-                        if (result.error) return alert(result.message); // TODO: replace with UI error dialog
+                        if (result.error) {
+                            ui.message({location: '.ui-layout-inner-center', destroy: true});
+                            if (args.node) {
+                                ui.dialog({
+                                    type: 'error',
+                                    message: 'There is no sub-portfolio with the ID: ' + args.node +
+                                        '. It may have been deleted.'
+                                });
+                                routes.go(routes.hash(view.rules.load_item, args, {del: ['node']}));
+                            } else {
+                                ui.dialog({type: 'error', message: result.message});
+                            }
+                        }
                         json = result.data;
                         history.put({
                             name: portfolio_name = json.template_data.portfolio_name || json.template_data.name,
@@ -385,17 +410,13 @@ $.register_module({
                             }
                             render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
                             render_position_rows('.OG-js-details-panel .og-js-positions', json);
+                            render_position();
                             if (json.template_data.path) breadcrumb({
                                 selector: '.OG-header-generic .OG-js-breadcrumb',
                                 data: json.template_data
                             });
-                            ui.content_editable({
-                                handler: function () {
-                                    view.search(args);
-                                    view.details(args);
-                                }
-                            });
-                            ui.message({location: '.ui-layout-inner-center', destroy: true});
+                            ui.content_editable({handler: function () {view.search(args);}});
+                            if (!custom_loading) ui.message({location: '.ui-layout-inner-center', destroy: true});
                             setTimeout(layout.inner.resizeAll);
                         }});
                     },
@@ -403,6 +424,7 @@ $.register_module({
                     node: args.node,
                     version: args.version && args.version !== '*' ? args.version : void 0,
                     loading: function () {
+                        if (custom_loading) return;
                         ui.message({
                             location: '.ui-layout-inner-center',
                             css: {left: 0},
@@ -414,11 +436,11 @@ $.register_module({
         module.rules = {
             load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
             load_filter: {
-                route: '/' + page_name + '/filter:/:id?/node:?/version:?/name:?/sync:?',
+                route: '/' + page_name + '/filter:/:id?/node:?/version:?/name:?/sync:?/position:?',
                 method: module.name + '.load_filter'
             },
             load_item: {
-                route: '/' + page_name + '/:id/node:?/version:?/name:?/sync:?', method: module.name + '.load_item'
+                route: '/' + page_name + '/:id/node:?/version:?/name:?/sync:?/position:?', method: module.name + '.load_item'
             }
         };
         return view = {
@@ -430,7 +452,10 @@ $.register_module({
                 var args = routes.current().args;
                 setTimeout(routes.go.partial(routes.hash(module.rules.load_item, args, {del: ['node']})));
             },
+            dependencies: ['id', 'node'],
+            details: details_page,
             filters: ['name'],
+            init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             load: function (args) {
                 layout = og.views.common.layout;
                 check_state({args: args, conditions: [
@@ -463,13 +488,19 @@ $.register_module({
                 ]});
                 view.details(args);
             },
+            rules: module.rules,
             search: function (args) {
                 if (!search) search = common.search_results.core();
                 search.load($.extend(options.slickgrid, {url: args}));
             },
-            details: details_page,
-            init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
-            rules: module.rules
+            update: function (delivery) {
+                ui.message({
+                    location: '.ui-layout-inner-center', css: {left: 0},
+                    message: 'This item has been updated.'
+                });
+                view.details(routes.current().args, true);
+                setTimeout(ui.message.partial({location: '.ui-layout-inner-center', destroy: true}), 2000);
+            }
         };
     }
 });

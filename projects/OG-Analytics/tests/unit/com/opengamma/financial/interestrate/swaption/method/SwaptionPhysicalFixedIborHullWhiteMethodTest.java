@@ -334,7 +334,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     HullWhiteMonteCarloMethod methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
     InterestRateCurveSensitivity pvcsMC = methodMC.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, FUNDING_CURVE_NAME, BUNDLE_HW);
     pvcsMC = pvcsMC.clean();
-    InterestRateCurveSensitivity diff = pvcsExplicit.clean().add(pvcsMC.multiply(-1)).clean();
+    InterestRateCurveSensitivity diff = pvcsExplicit.clean().plus(pvcsMC.multiply(-1)).clean();
     final List<DoublesPair> sensiDsc = diff.getSensitivities().get(FUNDING_CURVE_NAME);
     int nbDsc = sensiDsc.size();
     for (int loopdsc = 0; loopdsc < nbDsc; loopdsc++) {

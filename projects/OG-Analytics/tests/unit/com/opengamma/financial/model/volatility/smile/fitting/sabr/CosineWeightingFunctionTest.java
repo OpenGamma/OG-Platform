@@ -20,14 +20,11 @@ public class CosineWeightingFunctionTest extends WeightingFunctionTestCase {
   }
 
   @Test
-  public void testWeighting1() {
+  public void testWeighting() {
     final double x = Math.cos(Math.PI * 0.225);
     assertEquals(x * x, getInstance().getWeight(STRIKES, STRIKE), EPS);
-  }
-
-  @Test
-  public void testWeighting2() {
-    final double x = Math.cos(Math.PI * 0.225);
     assertEquals(x * x, getInstance().getWeight(STRIKES, INDEX, STRIKE), EPS);
+    assertEquals(1, getInstance().getWeight(STRIKES, STRIKES[3]), EPS);
+    assertEquals(1, getInstance().getWeight(STRIKES, INDEX, STRIKES[3]), EPS);
   }
 }

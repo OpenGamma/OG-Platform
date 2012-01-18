@@ -51,7 +51,8 @@ $.register_module({
                                 args = $.extend({}, routes.last().args, {config_type: config_type});
                             $(this).dialog('close');
                             routes.go(routes.hash(module.rules.load_new, args));
-                        }
+                        },
+                        'Cancel': function () {$(this).dialog('close');}
                     }
                 })},
                 'delete': function () {ui.dialog({
@@ -70,7 +71,8 @@ $.register_module({
                                     routes.go(routes.hash(module.rules.load, args));
                                 }, id: routes.current().args.id
                             });
-                        }
+                        },
+                        'Cancel': function () {$(this).dialog('close');}
                     }
                 })}
             },

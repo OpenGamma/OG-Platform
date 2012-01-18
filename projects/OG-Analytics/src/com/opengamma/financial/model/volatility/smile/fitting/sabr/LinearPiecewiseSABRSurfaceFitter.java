@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
@@ -30,7 +30,7 @@ public class LinearPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurfaceFit
    * @return A interpolated implied Volatility surface
    */
   @Override
-  public BlackVolatilitySurface getVolatilitySurface(final SmileSurfaceDataBundle data) {
+  public BlackVolatilitySurfaceStrike getVolatilitySurface(final SmileSurfaceDataBundle data) {
     final double[] expiries = data.getExpiries();
     final double[] forwards = data.getForwards();
     final double[][] strikes = data.getStrikes();
@@ -88,7 +88,7 @@ public class LinearPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurfaceFit
       }
     };
 
-    return new BlackVolatilitySurface(FunctionalDoublesSurface.from(surFunc));
+    return new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surFunc));
   }
 
 }

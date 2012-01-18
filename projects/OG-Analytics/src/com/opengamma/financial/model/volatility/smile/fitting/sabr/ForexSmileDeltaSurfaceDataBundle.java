@@ -127,17 +127,14 @@ public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
 
   @Override
   public SmileSurfaceDataBundle withBumpedPoint(final int expiryIndex, final int strikeIndex, final double amount) {
-    final double[] forwards = getForwards();
-    final double[] expiries = getExpiries();
     final double[][] strikes = getStrikes();
-    final int nExpiries = expiries.length;
     final int nStrikes = strikes[expiryIndex].length;
     Validate.isTrue(strikeIndex >= 0 && strikeIndex < nStrikes, "strike index out of range");
     final double[][] vols = new double[nStrikes][];
-    for (int i = 0; i < nExpiries; i++) {
+    for (int i = 0; i < _nExpiries; i++) {
       System.arraycopy(_vols[i], 0, vols[i], 0, nStrikes);
     }
     vols[expiryIndex][strikeIndex] += amount;
-    return new StandardSmileSurfaceDataBundle(forwards, expiries, strikes, vols, isCallData());
+    return new StandardSmileSurfaceDataBundle(getForwardCurve(), getExpiries(), getStrikes(), vols, isCallData());
   }
 }
