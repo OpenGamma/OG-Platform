@@ -21,7 +21,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilityDeltaSurface;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilityFixedStrikeSurface;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceOld;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.math.surface.InterpolatedSurfaceAdditiveShiftFunction;
@@ -219,7 +219,7 @@ public final class VarianceSwapRatesSensitivityCalculator {
 
     // Parallel shift UP
     InterpolatedDoublesSurface bumpedUp = volShifter.evaluate(blackSurf, shift);
-    BlackVolatilitySurface volSurfUp = (strikeType == StrikeParameterization.STRIKE) ?
+    BlackVolatilitySurfaceOld volSurfUp = (strikeType == StrikeParameterization.STRIKE) ?
                                          new BlackVolatilityFixedStrikeSurface(bumpedUp) :
                                            new BlackVolatilityDeltaSurface(bumpedUp, strikeType);
     VarianceSwapDataBundle bumpedMarket = new VarianceSwapDataBundle(volSurfUp, market.getDiscountCurve(), market.getSpotUnderlying(), market.getForwardUnderlying());
@@ -227,7 +227,7 @@ public final class VarianceSwapRatesSensitivityCalculator {
 
     // Parallel shift DOWN
     InterpolatedDoublesSurface bumpedDown = volShifter.evaluate(blackSurf, -shift);
-    BlackVolatilitySurface volSurfDown = (strikeType == StrikeParameterization.STRIKE) ?
+    BlackVolatilitySurfaceOld volSurfDown = (strikeType == StrikeParameterization.STRIKE) ?
                                             new BlackVolatilityFixedStrikeSurface(bumpedDown) :
                                               new BlackVolatilityDeltaSurface(bumpedDown, strikeType);
     bumpedMarket = new VarianceSwapDataBundle(volSurfDown, market.getDiscountCurve(), market.getSpotUnderlying(), market.getForwardUnderlying());
@@ -303,7 +303,7 @@ public final class VarianceSwapRatesSensitivityCalculator {
 
     // shift UP
     final InterpolatedDoublesSurface bumpedVolUp = volShifter.evaluate(blackSurf, maturity, strike, shift);
-    final BlackVolatilitySurface volSurfUp = (strikeType == StrikeParameterization.STRIKE) ?
+    final BlackVolatilitySurfaceOld volSurfUp = (strikeType == StrikeParameterization.STRIKE) ?
                                                 new BlackVolatilityFixedStrikeSurface(bumpedVolUp) :
                                                   new BlackVolatilityDeltaSurface(bumpedVolUp, strikeType);
     final VarianceSwapDataBundle bumpedMarket = new VarianceSwapDataBundle(volSurfUp, market.getDiscountCurve(), market.getSpotUnderlying(), market.getForwardUnderlying());
@@ -311,7 +311,7 @@ public final class VarianceSwapRatesSensitivityCalculator {
 
     // shift DOWN
     final InterpolatedDoublesSurface bumpedVolDown = volShifter.evaluate(blackSurf, maturity, strike, -shift);
-    final BlackVolatilitySurface volSurfDown = (strikeType == StrikeParameterization.STRIKE) ?
+    final BlackVolatilitySurfaceOld volSurfDown = (strikeType == StrikeParameterization.STRIKE) ?
                                                   new BlackVolatilityFixedStrikeSurface(bumpedVolDown) :
                                                     new BlackVolatilityDeltaSurface(bumpedVolDown, strikeType);
     final VarianceSwapDataBundle bumpedMarketUp = new VarianceSwapDataBundle(volSurfDown, market.getDiscountCurve(), market.getSpotUnderlying(), market.getForwardUnderlying());

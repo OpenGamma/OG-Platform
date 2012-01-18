@@ -165,7 +165,7 @@ public final class ForexOptionSingleBarrierBlackMethod implements ForexPricingMe
     listDomestic.add(new DoublesPair(payTime, rDomesticBar));
     final Map<String, List<DoublesPair>> resultDomesticMap = new HashMap<String, List<DoublesPair>>();
     resultDomesticMap.put(domesticCurveName, listDomestic);
-    result = result.add(new InterestRateCurveSensitivity(resultDomesticMap));
+    result = result.plus(new InterestRateCurveSensitivity(resultDomesticMap));
     return MultipleCurrencyInterestRateCurveSensitivity.of(optionForex.getUnderlyingOption().getUnderlyingForex().getCurrency2(), result);
   }
 

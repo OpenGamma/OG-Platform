@@ -177,7 +177,7 @@ public class CapFloorCMSSABRExtrapolationRightReplicationMethod implements Prici
     resultMap.put(cmsCapFloor.getUnderlyingSwap().getFixedLeg().getNthPayment(0).getFundingCurveName(), list);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(PRSC.visit(cmsCapFloor.getUnderlyingSwap(), sabrData));
-    result = result.add(forwardDr.multiply(deltaS0));
+    result = result.plus(forwardDr.multiply(deltaS0));
     return result;
 
   }

@@ -25,9 +25,9 @@ import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.financial.model.volatility.surface.DupireLocalVolatilityCalculator;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceStrike;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -163,9 +163,9 @@ public class TwoStateMarkovChainSABRFitterTest {
   public void FokkerPlankTest() {
     final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator(1e-4);
 
-    final BlackVolatilitySurface volSurface = new BlackVolatilitySurface(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION));
+    final BlackVolatilitySurfaceStrike volSurface = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION));
 
-    final LocalVolatilitySurface localVol = cal.getLocalVolatility(volSurface, SPOT, RATE);
+    final LocalVolatilitySurfaceStrike localVol = cal.getLocalVolatility(volSurface, SPOT, RATE);
 
     final ConvectionDiffusionPDEDataBundle db1 = LocalVolDensity.getConvectionDiffusionPDEDataBundle(FORWARD_CURVE, localVol);
     final ExtendedConvectionDiffusionPDEDataBundle db2 = LocalVolDensity.getExtendedConvectionDiffusionPDEDataBundle(FORWARD_CURVE, localVol);
@@ -194,7 +194,7 @@ public class TwoStateMarkovChainSABRFitterTest {
   public void localVolFitTest() {
     final DoubleMatrix1D initialGuess = new DoubleMatrix1D(new double[] {0.2, 0.3, 0.2, 2.0, 0.95, 0.8 });
     final TwoStateMarkovChainLocalVolFitter fitter = new TwoStateMarkovChainLocalVolFitter(true);
-    fitter.fit(FORWARD_CURVE, new BlackVolatilitySurface(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION)), SABR_VOLS, initialGuess);
+    fitter.fit(FORWARD_CURVE, new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION)), SABR_VOLS, initialGuess);
     // System.out.println("chi^2:" + res.getChiSq() + "\n params: " + res.getParameters().toString());
   }
 
@@ -202,8 +202,8 @@ public class TwoStateMarkovChainSABRFitterTest {
   public void localVolTest() {
     final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
 
-    final BlackVolatilitySurface volSurface = new BlackVolatilitySurface(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION));
-    final LocalVolatilitySurface localVol = cal.getLocalVolatility(volSurface, SPOT, RATE);
+    final BlackVolatilitySurfaceStrike volSurface = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION));
+    final LocalVolatilitySurfaceStrike localVol = cal.getLocalVolatility(volSurface, SPOT, RATE);
 
     PDEUtilityTools.printSurface("localVolTest", localVol.getSurface(), 0, 5.0, SPOT / 4.0, SPOT * 4.0);
   }

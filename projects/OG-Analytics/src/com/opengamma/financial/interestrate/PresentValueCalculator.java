@@ -10,10 +10,14 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BillSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondIborSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
+import com.opengamma.financial.interestrate.bond.method.BillSecurityDiscountingMethod;
+import com.opengamma.financial.interestrate.bond.method.BillTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.cash.derivative.Cash;
@@ -74,6 +78,8 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
    */
   private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
+  private static final BillSecurityDiscountingMethod METHOD_BILL_SECURITY = BillSecurityDiscountingMethod.getInstance();
+  private static final BillTransactionDiscountingMethod METHOD_BILL_TRANSACTION = BillTransactionDiscountingMethod.getInstance();
 
   @Override
   public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
@@ -174,6 +180,20 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
     Validate.notNull(bond);
     final BondTransactionDiscountingMethod method = BondTransactionDiscountingMethod.getInstance();
     return method.presentValue(bond, curves);
+  }
+
+  @Override
+  public Double visitBillSecurity(final BillSecurity bill, final YieldCurveBundle curves) {
+    Validate.notNull(curves, "Curves");
+    Validate.notNull(bill, "Bill");
+    return METHOD_BILL_SECURITY.presentValue(bill, curves).getAmount();
+  }
+
+  @Override
+  public Double visitBillTransaction(final BillTransaction bill, final YieldCurveBundle curves) {
+    Validate.notNull(curves, "Curves");
+    Validate.notNull(bill, "Bill");
+    return METHOD_BILL_TRANSACTION.presentValue(bill, curves).getAmount();
   }
 
   @Override

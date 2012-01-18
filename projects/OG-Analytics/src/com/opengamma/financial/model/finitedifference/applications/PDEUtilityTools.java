@@ -15,7 +15,6 @@ import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
@@ -27,7 +26,6 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class PDEUtilityTools {
 
-  private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
   private static final GridInterpolator2D GRID_INTERPOLATOR2D = new GridInterpolator2D(INTERPOLATOR_1D, INTERPOLATOR_1D);
 
@@ -140,7 +138,7 @@ public class PDEUtilityTools {
    * Takes the results from a forward PDE solve - grid of option prices by maturity and strike and returns a map between a DoublesPair (i.e. maturity and strike) and
    * the Black implied volatility
    * @param forwardCurve The forward
-   * @param yieldCurve The discount curve
+   * @param discountCurve The discount curve
    * @param prices The option prices
    * @param minT Data before this time is ignored (not included in map)
    * @param maxT Data after this time is ignored (not included in map)
