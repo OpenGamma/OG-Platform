@@ -20,6 +20,7 @@ import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.convention.yield.YieldConventionFactory;
 import com.opengamma.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BillTransaction;
+import com.opengamma.financial.interestrate.bond.method.BillSecurityDiscountingMethod;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
@@ -51,6 +52,8 @@ public class BillTransactionDefinitionTest {
 
   private final static BillTransactionDefinition BILL_TRA_DEFINITION = new BillTransactionDefinition(BILL_SEC_DEFINITION, QUANTITY, SETTLE_DATE, SETTLE_AMOUT);
 
+  private static final BillSecurityDiscountingMethod METHOD_BILL_SECURITY = BillSecurityDiscountingMethod.getInstance();
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullUnderlying() {
     new BillTransactionDefinition(null, QUANTITY, SETTLE_DATE, SETTLE_AMOUT);
@@ -75,6 +78,20 @@ public class BillTransactionDefinitionTest {
     assertEquals("Bill Transaction Definition: getter", QUANTITY, BILL_TRA_DEFINITION.getQuantity());
     assertEquals("Bill Transaction Definition: getter", SETTLE_DATE, BILL_TRA_DEFINITION.getSettlementDate());
     assertEquals("Bill Transaction Definition: getter", SETTLE_AMOUT, BILL_TRA_DEFINITION.getSettlementAmount());
+  }
+
+  @Test
+  /**
+   * Tests the constructor from yield.
+   */
+  public void fromYield() {
+    double yield = 0.0020;
+    double accrualFactor = ACT360.getDayCountFraction(SETTLE_DATE, END_DATE);
+    double price = METHOD_BILL_SECURITY.priceFromYield(YIELD_CONVENTION, yield, accrualFactor);
+    double settlementAmount = -QUANTITY * price;
+    BillTransactionDefinition from = BillTransactionDefinition.fromYield(BILL_SEC_DEFINITION, QUANTITY, SETTLE_DATE, yield);
+    BillTransactionDefinition constructed = new BillTransactionDefinition(BILL_SEC_DEFINITION, QUANTITY, SETTLE_DATE, settlementAmount);
+    assertEquals("Bill Transaction Definition: fromYield", constructed, from);
   }
 
   @Test

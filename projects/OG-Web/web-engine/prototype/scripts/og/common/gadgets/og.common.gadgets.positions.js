@@ -75,6 +75,7 @@ $.register_module({
                     }});
                 },
                 id: config.id,
+                cache_for: 500,
                 loading: function () {}
             });
         }
