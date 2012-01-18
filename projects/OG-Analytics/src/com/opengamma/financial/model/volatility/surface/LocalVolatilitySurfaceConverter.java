@@ -16,7 +16,7 @@ import com.opengamma.math.surface.FunctionalDoublesSurface;
  */
 public abstract class LocalVolatilitySurfaceConverter {
 
-  public static LocalVolatilityMoneynessSurface toMoneynessSurface(final LocalVolatilitySurface from, final ForwardCurve fwdCurve) {
+  public static LocalVolatilitySurfaceMoneyness toMoneynessSurface(final LocalVolatilitySurfaceStrike from, final ForwardCurve fwdCurve) {
 
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
 
@@ -30,9 +30,23 @@ public abstract class LocalVolatilitySurfaceConverter {
       }
     };
 
-    return new LocalVolatilityMoneynessSurface(FunctionalDoublesSurface.from(surFunc), fwdCurve);
+    return new LocalVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(surFunc), fwdCurve);
   }
 
+  public static LocalVolatilitySurfaceStrike toStrikeSurface(final LocalVolatilitySurfaceMoneyness from) {
+
+    final Function<Double, Double> surFunc = new Function<Double, Double>() {
+
+      @Override
+      public Double evaluate(Double... tk) {
+        double t = tk[0];
+        double k = tk[1];
+        return from.getVolatility(t, k);
+      }
+    };
+
+    return new LocalVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surFunc));
+  }
 
   /**
    * Under the usual local volatility assumption, the expiry-strike parameterised surface is invariant to a change in the
@@ -42,7 +56,7 @@ public abstract class LocalVolatilitySurfaceConverter {
    * @param newForwardCurve New Forward Curve
    * @return New expiry-moneyness local volatility surface, such that the expiry-strike surface would be unchanged
    */
-  public static LocalVolatilityMoneynessSurface shiftForwardCurve(final LocalVolatilityMoneynessSurface from, final ForwardCurve newForwardCurve) {
+  public static LocalVolatilitySurfaceMoneyness shiftForwardCurve(final LocalVolatilitySurfaceMoneyness from, final ForwardCurve newForwardCurve) {
 
     final ForwardCurve forwardCurve = from.getForwardCurve();
 
@@ -59,7 +73,7 @@ public abstract class LocalVolatilitySurfaceConverter {
       }
     };
 
-    return new LocalVolatilityMoneynessSurface(FunctionalDoublesSurface.from(surFunc), newForwardCurve);
+    return new LocalVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(surFunc), newForwardCurve);
 
   }
 
@@ -71,7 +85,7 @@ public abstract class LocalVolatilitySurfaceConverter {
    * @param shift fraction shift amount, i.e. 0.1 with produce a forward curve 10% larger than the original
    * @return New expiry-moneyness local volatility surface, such that the expiry-strike surface would be unchanged
    */
-  public static LocalVolatilityMoneynessSurface shiftForwardCurve(final LocalVolatilityMoneynessSurface from, final double shift) {
+  public static LocalVolatilitySurfaceMoneyness shiftForwardCurve(final LocalVolatilitySurfaceMoneyness from, final double shift) {
     Validate.isTrue(shift > -1, "shift must be > -1");
     final ForwardCurve newForwardCurve = from.getForwardCurve().withFractionalShift(shift);
 
@@ -86,7 +100,7 @@ public abstract class LocalVolatilitySurfaceConverter {
       }
     };
 
-    return new LocalVolatilityMoneynessSurface(FunctionalDoublesSurface.from(surFunc), newForwardCurve);
+    return new LocalVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(surFunc), newForwardCurve);
 
   }
 
