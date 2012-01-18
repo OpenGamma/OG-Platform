@@ -13,7 +13,7 @@ import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.analytics.ircurve.rest.old.InterpolatedYieldCurveDefinitionMasterResource;
+import com.opengamma.financial.analytics.ircurve.rest.DataInterpolatedYieldCurveDefinitionMasterResource;
 import com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotMasterResource;
 import com.opengamma.financial.security.rest.SecurityMasterResource;
 import com.opengamma.financial.user.UserInterpolatedYieldCurveDefinitionMaster;
@@ -66,7 +66,7 @@ public class ClientResource {
   private DataPositionMasterResource _positionMaster;
   private SecurityMasterResource _securitiesResource;
   private DataManageableViewDefinitionRepositoryResource _viewDefinitionsResource;
-  private InterpolatedYieldCurveDefinitionMasterResource _interpolatedYieldCurveDefinitionsResource;
+  private DataInterpolatedYieldCurveDefinitionMasterResource _interpolatedYieldCurveDefinitionsResource;
   private MarketDataSnapshotMasterResource _snapshotMaster;
   private final String _clientName;
   private final String _userName;
@@ -164,13 +164,14 @@ public class ClientResource {
   }
 
   @Path(INTERPOLATED_YIELD_CURVE_DEFINITIONS_PATH)
-  public InterpolatedYieldCurveDefinitionMasterResource getInterpolatedYieldCurveDefinitions() {
+  public DataInterpolatedYieldCurveDefinitionMasterResource getInterpolatedYieldCurveDefinitions() {
     _lastAccessed = System.currentTimeMillis();
     if (_interpolatedYieldCurveDefinitionsResource == null) {
       s_logger.debug("Creating UserYieldCurveDefinitionMaster for {}/{}", getUserName(), getClientName());
       UsersResourceContext context = _data.getContext();
-      _interpolatedYieldCurveDefinitionsResource = new InterpolatedYieldCurveDefinitionMasterResource(new UserInterpolatedYieldCurveDefinitionMaster(getUserName(), getClientName(),
-          _data.getUserDataTracker(), context.getInterpolatedYieldCurveDefinitionMaster()), getFudgeContext());
+      _interpolatedYieldCurveDefinitionsResource = new DataInterpolatedYieldCurveDefinitionMasterResource(
+          new UserInterpolatedYieldCurveDefinitionMaster(getUserName(), getClientName(),
+              _data.getUserDataTracker(), context.getInterpolatedYieldCurveDefinitionMaster()));
     }
     return _interpolatedYieldCurveDefinitionsResource;
   }

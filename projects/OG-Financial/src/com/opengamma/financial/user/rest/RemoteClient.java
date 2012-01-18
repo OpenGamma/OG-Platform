@@ -10,7 +10,7 @@ import java.net.URI;
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
-import com.opengamma.financial.analytics.ircurve.rest.old.RemoteInterpolatedYieldCurveDefinitionMaster;
+import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.historicaltimeseries.rest.RemoteHistoricalTimeSeriesMaster;
@@ -63,7 +63,7 @@ public class RemoteClient {
       return notImplemented("viewDefinitionRepository");
     }
 
-    public RestTarget getInterpolatedYieldCurveDefinitionMaster() {
+    public URI getInterpolatedYieldCurveDefinitionMaster() {
       return notImplemented("interpolatedYieldCurveDefinitionMaster");
     }
 
@@ -90,7 +90,7 @@ public class RemoteClient {
     private URI _positionMaster;
     private RestTarget _securityMaster;
     private URI _viewDefinitionRepository;
-    private RestTarget _interpolatedYieldCurveDefinitionMaster;
+    private URI _interpolatedYieldCurveDefinitionMaster;
     private RestTarget _heartbeat;
     private RestTarget _marketDataSnapshotMaster;
     private RestTarget _historicalTimeSeriesMaster;
@@ -133,12 +133,12 @@ public class RemoteClient {
       return (_viewDefinitionRepository != null) ? _viewDefinitionRepository : super.getViewDefinitionRepository();
     }
 
-    public void setInterpolatedYieldCurveDefinitionMaster(final RestTarget interpolatedYieldCurveDefinitionMaster) {
+    public void setInterpolatedYieldCurveDefinitionMaster(final URI interpolatedYieldCurveDefinitionMaster) {
       _interpolatedYieldCurveDefinitionMaster = interpolatedYieldCurveDefinitionMaster;
     }
 
     @Override
-    public RestTarget getInterpolatedYieldCurveDefinitionMaster() {
+    public URI getInterpolatedYieldCurveDefinitionMaster() {
       return (_interpolatedYieldCurveDefinitionMaster != null) ? _interpolatedYieldCurveDefinitionMaster : super.getInterpolatedYieldCurveDefinitionMaster();
     }
 
@@ -206,8 +206,8 @@ public class RemoteClient {
     }
 
     @Override
-    public RestTarget getInterpolatedYieldCurveDefinitionMaster() {
-      return _baseTarget.resolveBase(ClientResource.INTERPOLATED_YIELD_CURVE_DEFINITIONS_PATH);
+    public URI getInterpolatedYieldCurveDefinitionMaster() {
+      return _baseTarget.resolveBase(ClientResource.INTERPOLATED_YIELD_CURVE_DEFINITIONS_PATH).getURI();
     }
 
     @Override
@@ -277,7 +277,7 @@ public class RemoteClient {
 
   public InterpolatedYieldCurveDefinitionMaster getInterpolatedYieldCurveDefinitionMaster() {
     if (_interpolatedYieldCurveDefinitionMaster == null) {
-      _interpolatedYieldCurveDefinitionMaster = new RemoteInterpolatedYieldCurveDefinitionMaster(_fudgeContext, _targetProvider.getInterpolatedYieldCurveDefinitionMaster());
+      _interpolatedYieldCurveDefinitionMaster = new RemoteInterpolatedYieldCurveDefinitionMaster(_targetProvider.getInterpolatedYieldCurveDefinitionMaster());
     }
     return _interpolatedYieldCurveDefinitionMaster;
   }
