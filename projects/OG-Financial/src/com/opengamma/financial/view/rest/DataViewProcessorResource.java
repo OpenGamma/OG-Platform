@@ -68,6 +68,7 @@ public class DataViewProcessorResource {
   /**
    * The stale view client expiry job. 
    */
+  @SuppressWarnings("unused")
   private final AbstractRestfulJmsResultPublisherExpiryJob<DataViewClientResource> _expiryJob;
   /**
    * The cycle manager.

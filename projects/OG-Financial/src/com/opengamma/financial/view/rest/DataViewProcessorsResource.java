@@ -24,18 +24,39 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.jms.JmsConnector;
 
 /**
- * RESTful back-end to provide access to view processors
+ * RESTful resource for view processors.
+ * <p>
+ * This resource receives and processes RESTful calls.
  */
 @Path("viewProcessors")
 public class DataViewProcessorsResource {
 
+  /**
+   * The map of view processors.
+   */
   private final Map<UniqueId, DataViewProcessorResource> _viewProcessorResourceMap;
 
+  /**
+   * Creates an instance.
+   * 
+   * @param viewProcessor  the view processor, not null
+   * @param jmsConnector  the JMS connector, not null
+   * @param fudgeContext  the Fudge context, not null
+   * @param scheduler  the scheduler, not null
+   */
   public DataViewProcessorsResource(final ViewProcessor viewProcessor, final JmsConnector jmsConnector, 
       FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
     this(Collections.singleton(viewProcessor), jmsConnector, fudgeContext, scheduler);
   }
 
+  /**
+   * Creates an instance.
+   * 
+   * @param viewProcessors  the view processor, not null
+   * @param jmsConnector  the JMS connector, not null
+   * @param fudgeContext  the Fudge context, not null
+   * @param scheduler  the scheduler, not null
+   */
   public DataViewProcessorsResource(final Collection<ViewProcessor> viewProcessors,
       final JmsConnector jmsConnector, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
     Map<UniqueId, DataViewProcessorResource> viewProcessorResourceMap = new HashMap<UniqueId, DataViewProcessorResource>();
@@ -49,14 +70,15 @@ public class DataViewProcessorsResource {
     _viewProcessorResourceMap = Collections.unmodifiableMap(viewProcessorResourceMap);
   }
 
+  //-------------------------------------------------------------------------
   @Path("{viewProcessorId}")
   public DataViewProcessorResource findViewProcessor(@PathParam("viewProcessorId") String viewProcessorId) {
     return _viewProcessorResourceMap.get(UniqueId.parse(viewProcessorId));
   }
-  
+
   @GET
   public Response get() {
     return Response.ok(_viewProcessorResourceMap.keySet()).build();
   }
-  
+
 }

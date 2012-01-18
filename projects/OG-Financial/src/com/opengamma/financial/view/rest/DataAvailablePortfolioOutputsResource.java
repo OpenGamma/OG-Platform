@@ -5,7 +5,10 @@
  */
 package com.opengamma.financial.view.rest;
 
+import java.net.URI;
+
 import javax.time.Instant;
+import javax.time.InstantProvider;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -13,6 +16,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -25,15 +29,23 @@ import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.FudgeFieldContainerBrowser;
 import com.opengamma.transport.jaxrs.FudgeRest;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * RESTful resource for accessing available outputs from a portfolio
  */
-public class AvailablePortfolioOutputsResource {
+public class DataAvailablePortfolioOutputsResource {
 
+  /**
+   * The provider.
+   */
   private final AvailableOutputsProvider _provider;
+  /**
+   * The Fudge context.
+   */
   private final FudgeContext _fudgeContext;
 
+  //-------------------------------------------------------------------------
   /**
    * Builder-style RESTful resource for accessing available outputs from a portfolio
    */
@@ -67,8 +79,8 @@ public class AvailablePortfolioOutputsResource {
       return new Instance(_provider, _fudgeContext, _instant, _maxNodes, maxPositions);
     }
 
-    @Path("{portfolio}")
-    public FudgeFieldContainerBrowser portfolioOutputsByPortfolioId(@PathParam("portfolio") String portfolioUid) {
+    @Path("{portfolioId}")
+    public FudgeFieldContainerBrowser portfolioOutputsByPortfolioId(@PathParam("portfolioId") String portfolioUid) {
       try {
         final AvailableOutputs outputs = _provider.getPortfolioOutputs(UniqueId.parse(portfolioUid), _instant, _maxNodes, _maxPositions);
         final FudgeSerializer serializer = new FudgeSerializer(_fudgeContext);
@@ -77,7 +89,7 @@ public class AvailablePortfolioOutputsResource {
         throw new WebApplicationException(Response.Status.NOT_FOUND);
       }
     }
-    
+
     @POST
     @Consumes(FudgeRest.MEDIA)
     @Produces(FudgeRest.MEDIA)
@@ -90,30 +102,65 @@ public class AvailablePortfolioOutputsResource {
         throw new WebApplicationException(Response.Status.NOT_FOUND);
       }
     }
-
   }
 
-  public AvailablePortfolioOutputsResource(final AvailableOutputsProvider provider, final FudgeContext fudgeContext) {
+  //-------------------------------------------------------------------------
+  /**
+   * Creates an instance.
+   * 
+   * @param provider  the provider, not null
+   * @param fudgeContext  the Fudge context, not null
+   */
+  public DataAvailablePortfolioOutputsResource(final AvailableOutputsProvider provider, final FudgeContext fudgeContext) {
     _provider = provider;
     _fudgeContext = fudgeContext;
   }
 
+  //-------------------------------------------------------------------------
   private AvailableOutputsProvider getProvider() {
     return _provider;
   }
-  
+
   private FudgeContext getFudgeContext() {
     return _fudgeContext;
   }
 
+  //-------------------------------------------------------------------------
   @Path("now")
   public Instance now() {
     return new Instance(getProvider(), getFudgeContext(), null);
   }
 
   @Path("{timestamp}")
-  public Instance timestamp(@PathParam("timestamp") long timestamp) {
-    return new Instance(getProvider(), getFudgeContext(), Instant.ofEpochMillis(timestamp));
+  public Instance timestamp(@PathParam("timestamp") String timestamp) {
+    Instant instant = DateUtils.parseInstant(timestamp);
+    return new Instance(getProvider(), getFudgeContext(), instant);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Builds a URI.
+   * 
+   * @param baseUri  the base URI, not null
+   * @param instantProvider  the instant, may be null
+   * @param maxNodes  the maximum nodes, may be null
+   * @param maxPositions  the maximum positions, may be null
+   * @param portfolioId  the portfolio identifier, may be null
+   * @return the URI, not null
+   */
+  public static URI uri(URI baseUri, InstantProvider instantProvider, Integer maxNodes, Integer maxPositions, UniqueId portfolioId) {
+    UriBuilder bld = UriBuilder.fromUri(DataAvailableOutputsProviderResource.uriPortfolio(baseUri));
+    bld.path(instantProvider != null ? Instant.of(instantProvider).toString() : "now");
+    if (maxNodes != null && maxNodes > 0) {
+      bld.path("nodes").path(Integer.toString(maxNodes));
+    }
+    if (maxPositions != null && maxPositions > 0) {
+      bld.path("positions").path(Integer.toString(maxPositions));
+    }
+    if (portfolioId != null) {
+      bld.path(portfolioId.toString());
+    }
+    return bld.build();
   }
 
 }
