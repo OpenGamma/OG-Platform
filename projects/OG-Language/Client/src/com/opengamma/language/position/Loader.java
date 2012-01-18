@@ -6,6 +6,8 @@
 
 package com.opengamma.language.position;
 
+import java.net.URI;
+
 import net.sf.ehcache.CacheManager;
 
 import org.slf4j.Logger;
@@ -18,7 +20,6 @@ import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
 import com.opengamma.language.function.FunctionProviderBean;
 import com.opengamma.language.procedure.ProcedureProviderBean;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -68,13 +69,13 @@ public class Loader extends ContextInitializationBean {
 
   @Override
   protected void initContext(final MutableGlobalContext globalContext) {
-    final RestTarget restTarget = getConfiguration().getRestTargetConfiguration(getConfigurationEntry());
-    if (restTarget == null) {
+    final URI uri = getConfiguration().getURIConfiguration(getConfigurationEntry());
+    if (uri == null) {
       s_logger.warn("Position support not available");
       return;
     }
     s_logger.info("Configuring position support");
-    globalContext.setPositionSource(new EHCachingPositionSource(new RemotePositionSource(restTarget.getURI()), getCacheManager()));
+    globalContext.setPositionSource(new EHCachingPositionSource(new RemotePositionSource(uri), getCacheManager()));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
         FetchPortfolioFunction.INSTANCE,
         GetPositionAttributeFunction.INSTANCE,

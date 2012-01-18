@@ -6,6 +6,8 @@
 
 package com.opengamma.language.timeseries;
 
+import java.net.URI;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,7 +18,6 @@ import com.opengamma.language.context.MutableGlobalContext;
 import com.opengamma.language.function.FunctionProviderBean;
 import com.opengamma.language.invoke.TypeConverterProviderBean;
 import com.opengamma.language.procedure.ProcedureProviderBean;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -56,13 +57,13 @@ public class Loader extends ContextInitializationBean {
 
   @Override
   protected void initContext(final MutableGlobalContext globalContext) {
-    final RestTarget restTarget = getConfiguration().getRestTargetConfiguration(getConfigurationEntry());
-    if (restTarget == null) {
+    final URI uri = getConfiguration().getURIConfiguration(getConfigurationEntry());
+    if (uri == null) {
       s_logger.warn("Time series support not available");
       return;
     }
     s_logger.info("Configuring time-series support");
-    globalContext.setHistoricalTimeSeriesSource(new RemoteHistoricalTimeSeriesSource(restTarget.getURI()));
+    globalContext.setHistoricalTimeSeriesSource(new RemoteHistoricalTimeSeriesSource(uri));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
         FetchTimeSeriesFunction.INSTANCE));
     globalContext.getProcedureProvider().addProvider(new ProcedureProviderBean(
