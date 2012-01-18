@@ -55,7 +55,7 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
   private SecuritySource _secSource;
   
   public LongShortAggregationFunction(SecuritySource secSource) {
-    this(secSource, true);
+    this(secSource, false);
   }
   
   public LongShortAggregationFunction(SecuritySource secSource, boolean useAttributes) {

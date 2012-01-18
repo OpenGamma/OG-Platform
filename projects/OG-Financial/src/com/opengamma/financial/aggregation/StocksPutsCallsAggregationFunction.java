@@ -57,7 +57,7 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
   private SecuritySource _secSource;
   
   public StocksPutsCallsAggregationFunction(SecuritySource secSource) {
-    this(secSource, true);
+    this(secSource, false);
   }
   
   public StocksPutsCallsAggregationFunction(SecuritySource secSource, boolean useAttributes) {
