@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.marketdatasnapshot.rest;
+package com.opengamma.financial.view.rest;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -20,7 +20,6 @@ import com.opengamma.id.UniqueId;
 /**
  * RESTful resource for a {@link MarketDataSnapshotter}.
  */
-@Path("/data/marketDataSnapshotters/{viewProcessorId}")
 public class MarketDataSnapshotterResource {
 
   //CSOFF: just constants
@@ -28,16 +27,15 @@ public class MarketDataSnapshotterResource {
   public static final String PATH_YIELD_CURVE_SPECS = "yieldCurveSpecs";
   //CSON: just constants
 
-  
   private final ViewProcessor _viewProcessor;
   private final MarketDataSnapshotter _snapshotter;
-  
+
   public MarketDataSnapshotterResource(ViewProcessor viewProcessor, MarketDataSnapshotter snapshotter) {
     _viewProcessor = viewProcessor;
     _snapshotter = snapshotter;
   }
 
-  
+  //-------------------------------------------------------------------------
   @GET
   @Path(PATH_CREATE_SNAPSHOT + "/{viewClientId}" + "/{viewCycleId}")
   public Response createSnapshot(@PathParam("viewClientId") String viewClientIdString, @PathParam("viewCycleId") String viewCycleIdString) {
@@ -55,7 +53,6 @@ public class MarketDataSnapshotterResource {
     }
   }
 
-  
   @GET
   @Path(PATH_YIELD_CURVE_SPECS + "/{viewClientId}" + "/{viewCycleId}")
   public Response getYieldCurveSpecs(@PathParam("viewClientId") String viewClientIdString, @PathParam("viewCycleId") String viewCycleIdString) {
@@ -73,9 +70,10 @@ public class MarketDataSnapshotterResource {
       cycleReference.release();
     }
   }
-  
+
   @GET
   public Response get() {
     return Response.ok("Snapshotter").build();
   }
+
 }

@@ -40,7 +40,6 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitio
 import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResourceContextBean;
 import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderService;
 import com.opengamma.financial.function.rest.DataFunctionRepositoryResource;
-import com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshottersResource;
 import com.opengamma.financial.view.rest.DataAvailableOutputsProviderResource;
 import com.opengamma.financial.view.rest.DataViewProcessorsResource;
 import com.opengamma.livedata.UserPrincipal;
@@ -114,14 +113,9 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     repo.registerComponent(info, viewProcessor);
     
     if (isPublishRest()) {
-      DataViewProcessorsResource vpResource = new DataViewProcessorsResource(viewProcessor, getJmsConnector(), getFudgeContext(), getScheduler());
+      DataViewProcessorsResource vpResource = new DataViewProcessorsResource(
+          viewProcessor, getVolatilityCubeDefinitionSource(), getJmsConnector(), getFudgeContext(), getScheduler());
       repo.getRestComponents().publish(info, vpResource);
-      
-      // TODO: The snapshotters resource shouldn't depend on DataViewProcessorsResource
-      if (getVolatilityCubeDefinitionSource() != null) {
-        MarketDataSnapshottersResource snpResource = new MarketDataSnapshottersResource(vpResource, getVolatilityCubeDefinitionSource());
-        repo.getRestComponents().publishResource(snpResource);
-      }
     }
   }
 
