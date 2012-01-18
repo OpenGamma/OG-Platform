@@ -15,7 +15,7 @@ import com.opengamma.transport.EndPointDescriptionProvider;
  * A configuration resource detailing the connection end-points for the services remote calculation nodes
  * need to connect to the view processor.
  */
-public class ConfigurationResource {
+public class CalcNodeSocketConfiguration {
 
   /**
    * The end point for the computation cache.

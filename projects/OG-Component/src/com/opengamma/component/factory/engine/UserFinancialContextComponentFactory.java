@@ -120,7 +120,7 @@ public class UserFinancialContextComponentFactory extends AbstractComponentFacto
       DefaultUsersTracker tracker = new DefaultUsersTracker(context);
       UsersResource resource = new UsersResource(tracker, tracker, context);
       resource.createDeleteTask(getScheduler(), getClientTimeOut());
-      repo.getRestComponents().publishResource(resource);
+      repo.getRestComponents().publish(info, resource);
     }
   }
 

@@ -32,7 +32,7 @@ import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.calc.MultipleNodeExecutorTuner;
 import com.opengamma.engine.view.calc.stats.TotallingGraphStatisticsGathererProvider;
-import com.opengamma.engine.view.calcnode.ConfigurationResource;
+import com.opengamma.engine.view.calcnode.CalcNodeSocketConfiguration;
 import com.opengamma.engine.view.calcnode.stats.TotallingNodeStatisticsGatherer;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
@@ -91,10 +91,11 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
 
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+    // TODO: Lifecycle beans
     GenericApplicationContext appContext = createApplicationContext(repo);
     initViewProcessor(repo, appContext);
     initAvailableOutputs(repo, appContext);
-    initConfiguration(repo, appContext);
+    initCalcNodeSocketConfiguration(repo, appContext);
     initAggregators(repo, appContext);
     initUserPrincipal(repo, appContext);
     initFunctions(repo, appContext);
@@ -142,8 +143,10 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    * @param repo  the repository to register with, not null
    * @param appContext  the Spring application context, not null
    */
-  protected void initConfiguration(ComponentRepository repo, GenericApplicationContext appContext) {
-    registerInfrastructureByType(repo, ConfigurationResource.class, appContext);
+  protected void initCalcNodeSocketConfiguration(ComponentRepository repo, GenericApplicationContext appContext) {
+    CalcNodeSocketConfiguration calcNodeSocketConfig = appContext.getBean(CalcNodeSocketConfiguration.class);
+    ComponentInfo info = new ComponentInfo(CalcNodeSocketConfiguration.class, getClassifier());
+    repo.registerComponent(info, calcNodeSocketConfig);
   }
 
   /**
