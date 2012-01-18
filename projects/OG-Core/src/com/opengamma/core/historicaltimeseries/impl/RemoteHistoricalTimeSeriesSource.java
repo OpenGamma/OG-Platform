@@ -17,7 +17,6 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.FudgeMapWrapper;
 import com.opengamma.util.rest.AbstractRemoteClient;
@@ -36,17 +35,6 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
    */
   public RemoteHistoricalTimeSeriesSource(final URI baseUri) {
     super(baseUri);
-  }
-
-  /**
-   * Creates an instance.
-   * 
-   * @param restTarget  the base target URI, not null
-   * @deprecated currently used by market data configuration
-   */
-  @Deprecated
-  public RemoteHistoricalTimeSeriesSource(final RestTarget restTarget) {
-    super(restTarget.getURI());
   }
 
   //-------------------------------------------------------------------------
