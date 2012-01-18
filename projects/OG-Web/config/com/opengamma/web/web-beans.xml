@@ -16,7 +16,7 @@
 
   <!-- ================================================================== -->
   <!-- Expose component infrastructure -->
-  <bean class="com.opengamma.financial.spring.ComponentRepositoryBeanPostProcessor" />
+  <bean class="com.opengamma.component.factory.ComponentRepositoryBeanPostProcessor" />
 
   <!-- ============================================================================== -->
   <!-- Distributed component configuration data -->
