@@ -118,52 +118,18 @@
   </bean>
   
   <!-- Config Source -->
-  <!-- TODO [PLAT-432] -->
-  <bean id="configSource" class="com.opengamma.master.config.impl.MasterConfigSource">
+  <bean id="configSourceTarget" class="com.opengamma.transport.jaxrs.RestTarget">
+    <constructor-arg ref="slaveThreads" />
+    <constructor-arg ref="fudgeContext" />
     <constructor-arg>
-      <bean class="com.opengamma.masterdb.config.DbConfigMaster">
-        <constructor-arg>
-          <bean class="com.opengamma.util.db.DbConnectorFactoryBean">
-            <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />
-            <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
-            <property name="name" value="Config"/>
-            <property name="dataSource">
-              <bean id="cfgDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-                <property name="driverClassName">
-                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.jdbc.driver" />
-                  </bean>
-                </property>
-                <property name="url">
-                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.jdbc.url" />
-                  </bean>
-                </property>
-                <property name="username">
-                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.jdbc.username" />
-                  </bean>
-                </property>
-                <property name="password">
-                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.jdbc.password" />
-                  </bean>
-                </property>
-              </bean>
-            </property>
-            <property name="dialectName">
-              <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-                <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.db.dbdialect"/>
-              </bean>
-            </property>
-          </bean>
-        </constructor-arg>  
-        <property name="uniqueIdScheme">
-          <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-            <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.db.configmaster.scheme" />
-          </bean>
-        </property>
+      <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
+        <property name="uri" value="${opengamma.engine.configuration.url}/configSource" />
       </bean>
+    </constructor-arg>
+  </bean>
+  <bean id="configSource" class="com.opengamma.master.config.impl.RemoteConfigMaster">
+    <constructor-arg>
+      <bean factory-bean="configSourceTarget" factory-method="getURI" />
     </constructor-arg>
   </bean>
   

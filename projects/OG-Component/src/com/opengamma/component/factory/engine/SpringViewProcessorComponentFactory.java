@@ -115,7 +115,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     
     if (isPublishRest()) {
       DataViewProcessorsResource vpResource = new DataViewProcessorsResource(viewProcessor, getJmsConnector(), getFudgeContext(), getScheduler());
-      repo.getRestComponents().publishResource(vpResource);
+      repo.getRestComponents().publish(info, vpResource);
       
       // TODO: The snapshotters resource shouldn't depend on DataViewProcessorsResource
       if (getVolatilityCubeDefinitionSource() != null) {
@@ -137,7 +137,8 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     repo.registerComponent(info, availableOutputs);
     
     if (isPublishRest()) {
-      repo.getRestComponents().publishResource(new AvailableOutputsService(availableOutputs, getFudgeContext()));
+      AvailableOutputsService aoResource = new AvailableOutputsService(availableOutputs, getFudgeContext());
+      repo.getRestComponents().publish(info, aoResource);
     }
   }
 
@@ -179,10 +180,10 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
    */
   protected void initFunctions(ComponentRepository repo, GenericApplicationContext appContext) {
     CompiledFunctionService compiledFunctionService = appContext.getBean(CompiledFunctionService.class);
-    ComponentInfo info = new ComponentInfo(CompiledFunctionService.class, _classifier);
-    repo.registerComponent(info, compiledFunctionService);
+    ComponentInfo infoCFS = new ComponentInfo(CompiledFunctionService.class, getClassifier());
+    repo.registerComponent(infoCFS, compiledFunctionService);
     
-    ComponentInfo infoFR = new ComponentInfo(FunctionRepository.class, _classifier);
+    ComponentInfo infoFR = new ComponentInfo(FunctionRepository.class, getClassifier());
     repo.registerComponent(infoFR, compiledFunctionService.getFunctionRepository());
     
     // These objects are not exposed to the component repository (a Good Thing).
@@ -199,7 +200,10 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
       bean.setFunctionResolver(functionResolver);
       bean.setMarketDataProviderResolver(getMarketDataProviderResolver());
       resource.setUnderlying(bean);
-      repo.getRestComponents().publishResource(resource);
+      
+      // TODO: not really designed as a "component"
+      ComponentInfo infoDGB = new ComponentInfo(DependencyGraphBuilderService.class, getClassifier());
+      repo.getRestComponents().publish(infoDGB, resource);
     }
   }
 

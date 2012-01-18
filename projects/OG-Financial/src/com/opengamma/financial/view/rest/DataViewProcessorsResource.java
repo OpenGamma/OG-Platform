@@ -26,7 +26,7 @@ import com.opengamma.util.jms.JmsConnector;
 /**
  * RESTful back-end to provide access to view processors
  */
-@Path("/data/viewProcessors")
+@Path("viewProcessors")
 public class DataViewProcessorsResource {
 
   private final Map<UniqueId, DataViewProcessorResource> _viewProcessorResourceMap;

@@ -35,7 +35,13 @@
             </entry>
             <entry key="availableOutputs">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/availableOutputs/" />
+                <property name="local" value="/jax/components/availableOutputsProvider/demo/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+            <entry key="configSource">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/components/configSource/shared/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
@@ -53,7 +59,7 @@
             </entry>
             <entry key="dependencyGraphBuilder">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/dependencyGraphBuilder/0/" />
+                <property name="local" value="/jax/components/dependencyGraphBuilderService/demo/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
@@ -169,7 +175,7 @@
             </entry>
             <entry key="viewProcessor">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/data/viewProcessors/Vp~0/" />
+                <property name="local" value="/jax/components/viewProcessor/demo/Vp~0/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
@@ -181,14 +187,6 @@
         <entry key="graphExecutionStatistics" value-ref="graphExecutionStatistics" />
         <!-- ENG-240 & ENG-248 -->
         <entry key="executorTuner" value-ref="graphExecutorTuner" />
-        <!-- DVI-135; remove when there are remote implementations of all sources -->
-        <entry key="DVI-135">
-          <bean class="org.springframework.beans.factory.config.PropertiesFactoryBean">
-            <property name="location">
-              <value>classpath:demoMasters-${opengamma.platform.runmode}.properties</value>
-            </property>
-          </bean>
-        </entry>
       </map>
     </constructor-arg>
   </bean>
