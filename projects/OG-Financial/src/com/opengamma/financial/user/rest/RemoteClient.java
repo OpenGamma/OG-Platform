@@ -13,18 +13,18 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitio
 import com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.convention.ConventionBundleMaster;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.historicaltimeseries.rest.RemoteHistoricalTimeSeriesMaster;
-import com.opengamma.financial.marketdatasnapshot.rest.RemoteMarketDataSnapshotMaster;
-import com.opengamma.financial.security.rest.RemoteSecurityMaster;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.rest.RemoteManageableViewDefinitionRepository;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.impl.RemoteHistoricalTimeSeriesMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
+import com.opengamma.master.marketdatasnapshot.impl.RemoteMarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.impl.RemotePortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.RemotePositionMaster;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.master.security.impl.RemoteSecurityMaster;
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
@@ -55,7 +55,7 @@ public class RemoteClient {
       return notImplemented("positionMaster");
     }
 
-    public RestTarget getSecurityMaster() {
+    public URI getSecurityMaster() {
       return notImplemented("securityMaster");
     }
 
@@ -71,11 +71,11 @@ public class RemoteClient {
       return notImplemented("heartbeat");
     }
 
-    public RestTarget getMarketDataSnapshotMaster() {
+    public URI getMarketDataSnapshotMaster() {
       return notImplemented("marketDataSnapshotMaster");
     }
 
-    public RestTarget getHistoricalTimeSeriesMaster() {
+    public URI getHistoricalTimeSeriesMaster() {
       return notImplemented("historicalTimeSeriesMaster");
     }
 
@@ -88,12 +88,12 @@ public class RemoteClient {
 
     private URI _portfolioMaster;
     private URI _positionMaster;
-    private RestTarget _securityMaster;
+    private URI _securityMaster;
     private URI _viewDefinitionRepository;
     private URI _interpolatedYieldCurveDefinitionMaster;
     private RestTarget _heartbeat;
-    private RestTarget _marketDataSnapshotMaster;
-    private RestTarget _historicalTimeSeriesMaster;
+    private URI _marketDataSnapshotMaster;
+    private URI _historicalTimeSeriesMaster;
 
     public void setPortfolioMaster(final URI portfolioMaster) {
       // The remote portfolio master is broken and assumes a "portfolio" prefix on its URLs 
@@ -115,12 +115,12 @@ public class RemoteClient {
       return (_positionMaster != null) ? _positionMaster : super.getPositionMaster();
     }
 
-    public void setSecurityMaster(final RestTarget securityMaster) {
+    public void setSecurityMaster(final URI securityMaster) {
       _securityMaster = securityMaster;
     }
 
     @Override
-    public RestTarget getSecurityMaster() {
+    public URI getSecurityMaster() {
       return (_securityMaster != null) ? _securityMaster : super.getSecurityMaster();
     }
 
@@ -151,24 +151,23 @@ public class RemoteClient {
       return (_heartbeat != null) ? _heartbeat : super.getHeartbeat();
     }
 
-    public void setMarketDataSnapshotMaster(final RestTarget marketDataSnapshotMaster) {
+    public void setMarketDataSnapshotMaster(final URI marketDataSnapshotMaster) {
       _marketDataSnapshotMaster = marketDataSnapshotMaster;
     }
 
     @Override
-    public RestTarget getMarketDataSnapshotMaster() {
+    public URI getMarketDataSnapshotMaster() {
       return (_marketDataSnapshotMaster != null) ? _marketDataSnapshotMaster : super.getMarketDataSnapshotMaster();
     }
 
-    public void setHistoricalTimeSeriesMaster(final RestTarget historicalTimeSeriesMaster) {
+    public void setHistoricalTimeSeriesMaster(final URI historicalTimeSeriesMaster) {
       _historicalTimeSeriesMaster = historicalTimeSeriesMaster;
     }
 
     @Override
-    public RestTarget getHistoricalTimeSeriesMaster() {
+    public URI getHistoricalTimeSeriesMaster() {
       return (_historicalTimeSeriesMaster != null) ? _historicalTimeSeriesMaster : super.getHistoricalTimeSeriesMaster();
     }
-
   }
 
   /**
@@ -196,8 +195,8 @@ public class RemoteClient {
     }
 
     @Override
-    public RestTarget getSecurityMaster() {
-      return _baseTarget.resolveBase(ClientResource.SECURITIES_PATH);
+    public URI getSecurityMaster() {
+      return _baseTarget.resolveBase(ClientResource.SECURITIES_PATH).getURI();
     }
 
     @Override
@@ -216,8 +215,8 @@ public class RemoteClient {
     }
 
     @Override
-    public RestTarget getMarketDataSnapshotMaster() {
-      return _baseTarget.resolveBase(ClientResource.MARKET_DATA_SNAPSHOTS_PATH);
+    public URI getMarketDataSnapshotMaster() {
+      return _baseTarget.resolveBase(ClientResource.MARKET_DATA_SNAPSHOTS_PATH).getURI();
     }
 
     // TODO: user timeseries?
@@ -263,7 +262,7 @@ public class RemoteClient {
 
   public SecurityMaster getSecurityMaster() {
     if (_securityMaster == null) {
-      _securityMaster = new RemoteSecurityMaster(_fudgeContext, _targetProvider.getSecurityMaster());
+      _securityMaster = new RemoteSecurityMaster(_targetProvider.getSecurityMaster());
     }
     return _securityMaster;
   }
@@ -284,14 +283,14 @@ public class RemoteClient {
 
   public MarketDataSnapshotMaster getMarketDataSnapshotMaster() {
     if (_marketDataSnapshotMaster == null) {
-      _marketDataSnapshotMaster = new RemoteMarketDataSnapshotMaster(_fudgeContext, _targetProvider.getMarketDataSnapshotMaster());
+      _marketDataSnapshotMaster = new RemoteMarketDataSnapshotMaster(_targetProvider.getMarketDataSnapshotMaster());
     }
     return _marketDataSnapshotMaster;
   }
 
   public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster() {
     if (_historicalTimeSeriesMaster == null) {
-      _historicalTimeSeriesMaster = new RemoteHistoricalTimeSeriesMaster(_fudgeContext, _targetProvider.getHistoricalTimeSeriesMaster());
+      _historicalTimeSeriesMaster = new RemoteHistoricalTimeSeriesMaster(_targetProvider.getHistoricalTimeSeriesMaster());
     }
     return _historicalTimeSeriesMaster;
   }

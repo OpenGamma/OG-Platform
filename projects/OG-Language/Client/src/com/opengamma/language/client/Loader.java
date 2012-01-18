@@ -134,9 +134,9 @@ public class Loader extends ContextInitializationBean {
     final ExternalTargetProvider targets = new ExternalTargetProvider();
     targets.setPositionMaster(getConfiguration().getURIConfiguration(getPositionMaster()));
     targets.setPortfolioMaster(getConfiguration().getURIConfiguration(getPortfolioMaster()));
-    targets.setSecurityMaster(getConfiguration().getRestTargetConfiguration(getSecurityMaster()));
-    targets.setMarketDataSnapshotMaster(getConfiguration().getRestTargetConfiguration(getMarketDataSnapshotMaster()));
-    targets.setHistoricalTimeSeriesMaster(getConfiguration().getRestTargetConfiguration(getHistoricalTimeSeriesMaster()));
+    targets.setSecurityMaster(getConfiguration().getURIConfiguration(getSecurityMaster()));
+    targets.setMarketDataSnapshotMaster(getConfiguration().getURIConfiguration(getMarketDataSnapshotMaster()));
+    targets.setHistoricalTimeSeriesMaster(getConfiguration().getURIConfiguration(getHistoricalTimeSeriesMaster()));
     globalContext.setClient(new RemoteClient(null, getConfiguration().getFudgeContext(), targets));
   }
 

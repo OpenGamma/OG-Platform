@@ -9,13 +9,10 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.UriInfo;
 
-import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.analytics.ircurve.rest.DataInterpolatedYieldCurveDefinitionMasterResource;
-import com.opengamma.financial.marketdatasnapshot.rest.MarketDataSnapshotMasterResource;
-import com.opengamma.financial.security.rest.SecurityMasterResource;
 import com.opengamma.financial.user.UserInterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.user.UserManageableViewDefinitionRepository;
 import com.opengamma.financial.user.UserPortfolioMaster;
@@ -23,8 +20,10 @@ import com.opengamma.financial.user.UserPositionMaster;
 import com.opengamma.financial.user.UserSecurityMaster;
 import com.opengamma.financial.user.UserSnapshotMaster;
 import com.opengamma.financial.view.rest.DataManageableViewDefinitionRepositoryResource;
+import com.opengamma.master.marketdatasnapshot.impl.DataMarketDataSnapshotMasterResource;
 import com.opengamma.master.portfolio.impl.DataPortfolioMasterResource;
 import com.opengamma.master.position.impl.DataPositionMasterResource;
+import com.opengamma.master.security.impl.DataSecurityMasterResource;
 
 /**
  * RESTful resource representing a user's client session.
@@ -64,10 +63,10 @@ public class ClientResource {
   
   private DataPortfolioMasterResource _portfolioMaster;
   private DataPositionMasterResource _positionMaster;
-  private SecurityMasterResource _securitiesResource;
+  private DataSecurityMasterResource _securitiesResource;
   private DataManageableViewDefinitionRepositoryResource _viewDefinitionsResource;
   private DataInterpolatedYieldCurveDefinitionMasterResource _interpolatedYieldCurveDefinitionsResource;
-  private MarketDataSnapshotMasterResource _snapshotMaster;
+  private DataMarketDataSnapshotMasterResource _snapshotMaster;
   private final String _clientName;
   private final String _userName;
   private final UserResourceData _data;
@@ -84,11 +83,6 @@ public class ClientResource {
     _data = data;
   }
 
-  public FudgeContext getFudgeContext() {
-    UsersResourceContext context = _data.getContext();
-    return context.getFudgeContext();
-  }
-  
   /**
    * Gets the URI info.
    * @return the uri info, not null
@@ -96,7 +90,7 @@ public class ClientResource {
   public UriInfo getUriInfo() {
     return _data.getUriInfo();
   }
-  
+
   public String getClientName() {
     return _clientName;
   }
@@ -104,7 +98,6 @@ public class ClientResource {
   public String getUserName() {
     return _userName;
   }
-
 
   public long getLastAccessed() {
     return _lastAccessed;
@@ -122,7 +115,8 @@ public class ClientResource {
     if (_portfolioMaster == null) {
       s_logger.debug("Creating UserPositionMaster for {}/{}", getUserName(), getClientName());
       UsersResourceContext context = _data.getContext();
-      _portfolioMaster = new DataPortfolioMasterResource(new UserPortfolioMaster(getUserName(), getClientName(), _data.getUserDataTracker(), context.getPortfolioMaster()));
+      UserPortfolioMaster master = new UserPortfolioMaster(getUserName(), getClientName(), _data.getUserDataTracker(), context.getPortfolioMaster());
+      _portfolioMaster = new DataPortfolioMasterResource(master);
     }
     return _portfolioMaster;
   }
@@ -133,19 +127,20 @@ public class ClientResource {
     if (_positionMaster == null) {
       s_logger.debug("Creating UserPositionMaster for {}/{}", getUserName(), getClientName());
       UsersResourceContext context = _data.getContext();
-      _positionMaster = new DataPositionMasterResource(new UserPositionMaster(getUserName(), getClientName(), _data.getUserDataTracker(), context.getPositionMaster()));
+      UserPositionMaster master = new UserPositionMaster(getUserName(), getClientName(), _data.getUserDataTracker(), context.getPositionMaster());
+      _positionMaster = new DataPositionMasterResource(master);
     }
     return _positionMaster;
   }
 
   @Path(SECURITIES_PATH)
-  public SecurityMasterResource getSecurities() {
+  public DataSecurityMasterResource getSecurities() {
     _lastAccessed = System.currentTimeMillis();
     if (_securitiesResource == null) {
       s_logger.debug("Creating UserSecurityMaster for {}/{}", getUserName(), getClientName());
       UsersResourceContext context = _data.getContext();
-      _securitiesResource = new SecurityMasterResource(new UserSecurityMaster(getUserName(), getClientName(), _data.getUserDataTracker(), context.getSecurityMaster()),
-          getFudgeContext());
+      UserSecurityMaster master = new UserSecurityMaster(getUserName(), getClientName(), _data.getUserDataTracker(), context.getSecurityMaster());
+      _securitiesResource = new DataSecurityMasterResource(master);
     }
     return _securitiesResource;
   }
@@ -156,9 +151,8 @@ public class ClientResource {
     if (_viewDefinitionsResource == null) {
       s_logger.debug("Creating UserViewDefinitionRepository for {}/{}", getUserName(), getClientName());
       UsersResourceContext context = _data.getContext();
-      _viewDefinitionsResource = new DataManageableViewDefinitionRepositoryResource(
-          new UserManageableViewDefinitionRepository(getUserName(), getClientName(),
-              _data.getUserDataTracker(), context.getViewDefinitionRepository()));
+      UserManageableViewDefinitionRepository master = new UserManageableViewDefinitionRepository(getUserName(), getClientName(), _data.getUserDataTracker(), context.getViewDefinitionRepository());
+      _viewDefinitionsResource = new DataManageableViewDefinitionRepositoryResource(master);
     }
     return _viewDefinitionsResource;
   }
@@ -169,25 +163,25 @@ public class ClientResource {
     if (_interpolatedYieldCurveDefinitionsResource == null) {
       s_logger.debug("Creating UserYieldCurveDefinitionMaster for {}/{}", getUserName(), getClientName());
       UsersResourceContext context = _data.getContext();
-      _interpolatedYieldCurveDefinitionsResource = new DataInterpolatedYieldCurveDefinitionMasterResource(
-          new UserInterpolatedYieldCurveDefinitionMaster(getUserName(), getClientName(),
-              _data.getUserDataTracker(), context.getInterpolatedYieldCurveDefinitionMaster()));
+      UserInterpolatedYieldCurveDefinitionMaster master = new UserInterpolatedYieldCurveDefinitionMaster(getUserName(), getClientName(),
+          _data.getUserDataTracker(), context.getInterpolatedYieldCurveDefinitionMaster());
+      _interpolatedYieldCurveDefinitionsResource = new DataInterpolatedYieldCurveDefinitionMasterResource(master);
     }
     return _interpolatedYieldCurveDefinitionsResource;
   }
 
   @Path(MARKET_DATA_SNAPSHOTS_PATH)
-  public MarketDataSnapshotMasterResource getSnapshots() {
+  public DataMarketDataSnapshotMasterResource getSnapshots() {
     _lastAccessed = System.currentTimeMillis();
     if (_snapshotMaster == null) {
       s_logger.debug("Creating UserSnapshotMaster for {}/{}", getUserName(), getClientName());
       UsersResourceContext context = _data.getContext();
-      UserSnapshotMaster userMaster = new UserSnapshotMaster(getUserName(), getClientName(), _data.getUserDataTracker(), context.getSnapshotMaster());
-      _snapshotMaster = new MarketDataSnapshotMasterResource(userMaster, context.getFudgeContext());
+      UserSnapshotMaster master = new UserSnapshotMaster(getUserName(), getClientName(), _data.getUserDataTracker(), context.getSnapshotMaster());
+      _snapshotMaster = new DataMarketDataSnapshotMasterResource(master);
     }
     return _snapshotMaster;
   }
-  
+
   @POST
   @Path(HEARTBEAT_PATH)
   public void heartbeat() {
