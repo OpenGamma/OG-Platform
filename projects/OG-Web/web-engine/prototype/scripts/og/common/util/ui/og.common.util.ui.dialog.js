@@ -25,41 +25,36 @@ $.register_module({
                         resizable: true, 'min-height': 140, modal: true,
                         position: 'center', dialogClass: 'OG-shadow',
                         width: '400', 'min-height': '200',
-                        buttons: {'Cancel': function () {$(this).dialog('close')}},
                         open: function () {
                             if (obj.type === 'input')
-                                    // Set the focus in the first form element
-                                    // Doest work without setTimeout!
-                                    setTimeout(function () {$(css_class).find('[id^="og-js-dialog-"]')[0].focus()}, 1);
+                                // Set the focus in the first form element
+                                // Doest work without setTimeout!
+                                var $first_input = $(css_class).find('[id^="og-js-dialog-"]')[0];
+                                if ($first_input) setTimeout(function () {$first_input.focus()}, 1);
                         }
                     }
                 },
-                confirm: {
-                    html: '<div class="' + class_name + '"><p></p></div>',
-                    jquery: {buttons: {'Delete': function () {$(this).dialog('close')}}}
-                },
-                input: {
-                    html: '<div class="' + class_name + '"></div>',
-                    jquery: {buttons: {'OK': function () {$(this).dialog('close')}}}
-                },
+                confirm: {html: '<div class="' + class_name + '"><p></p></div>'},
+                input: {html: '<div class="' + class_name + '"></div>'},
                 'error': {
                     html: '<div class="' + class_name + '"></div>',
-                    jquery: {buttons: {'OK': function () {$(this).dialog('close')}}}
+                    jquery: {buttons: {'Dismiss': function () {$(this).dialog('close')}}}
                 }
             };
             // Merge default_options.all with the options for each dialog
             $.each(default_options, function (key) {
                 if (key === obj.type) $.extend(true, default_options[key], default_options.all);
             });
+
+            // if the html isn't already in the dom, add it, else clear it
+            $(css_class).length === 0 ? $('body').append(default_options[obj.type].html) : $(css_class).html('');
+
             /**
              * Create error dialog
              */
             if (obj.type === 'error') {
-                delete default_options.error.jquery.buttons['Cancel'];
                 // Check required data
                 if (!obj.message) throw new Error('obj.message is required for an error dialog');
-                // if the html isnt already in the dom, add it
-                if ($(css_class).length === 0) $('body').append(default_options.error.html);
                 $obj = $(css_class);
                 $obj.attr('title', obj.title || 'Oops, something seem to have gone wrong');
                 $obj.html(obj.message);
@@ -72,11 +67,9 @@ $.register_module({
                 // Check required data
                 if (!obj.title) throw new Error('obj.title is required for a confirm dialog');
                 if (!obj.message) throw new Error('obj.message is required for a confirm dialog');
-                // if the html isnt already in the dom, add it
-                if ($(css_class).length === 0) $('body').append(default_options.confirm.html);
                 $obj = $(css_class);
                 $obj.attr('title', obj.title);
-                $obj.find('p').html(obj.message);
+                $obj.html(obj.message);
                 $obj.dialog($.extend(true, default_options.confirm.jquery, obj));
             }
             /**
@@ -85,11 +78,11 @@ $.register_module({
             if (obj.type === 'input') {
                 // Check required data
                 if (!obj.title) throw new Error('obj.title is required for an input dialog');
-                // if the html isn't already in the dom, add it, else clear it
-                $(css_class).length === 0 ? $('body').append(default_options.input.html) : $(css_class).html('');
                 $obj = $(css_class);
                 $obj.attr('title', obj.title);
-                // Add requested form fields
+                /*
+                 * Create basic form via obj.fields
+                 */
                 if (obj.fields) {
                     $obj.append(obj.fields.reduce(function (acc, val) {
                         return acc + (function () {
@@ -128,6 +121,10 @@ $.register_module({
                         $obj.dialog('option', 'buttons')['OK']();
                     });
                 }
+                /*
+                 * Create advanced form via og.common.util.ui.Form
+                 */
+                if (obj.form) {obj.form(css_class);}
                 $obj.dialog($.extend(true, default_options.input.jquery, obj));
             }
             $obj.parent('.ui-dialog').addClass(class_name + '-container');

@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.fudgemsg.MutableFudgeMsg;
 import org.testng.annotations.Test;
 
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.livedata.server.FieldHistoryStore;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 

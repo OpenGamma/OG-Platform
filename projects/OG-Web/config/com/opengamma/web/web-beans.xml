@@ -196,8 +196,7 @@
   <bean id="webSecuritiesRestBean" class="com.opengamma.web.security.WebSecuritiesResource" scope="request">
     <constructor-arg ref="dbSecurityMaster" />
     <constructor-arg ref="securityLoader"/>
-    <constructor-arg ref="dbHtsMaster"/>
-    <constructor-arg ref="sharedConfigSource"/>
+    <constructor-arg ref="htsResolver"/>
   </bean>
   
   <!-- Portfolios RESTful service -->
@@ -217,8 +216,7 @@
     <constructor-arg ref="dbPositionMaster" />
     <constructor-arg ref="securityLoader"/>
     <constructor-arg ref="sharedSecuritySource"/>
-    <constructor-arg ref="dbHtsMaster"/>
-    <constructor-arg ref="sharedConfigSource"/>
+    <constructor-arg ref="htsResolver"/>
   </bean>
   
   <!-- Exchanges RESTful service -->
@@ -479,6 +477,9 @@
           <constructor-arg value="false" />
         </bean>
         <bean class="com.opengamma.financial.aggregation.CurrencyAggregationFunction" />
+        <bean class="com.opengamma.financial.aggregation.CurrenciesAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+        </bean>
         <bean class="com.opengamma.financial.aggregation.DetailedAssetClassAggregationFunction" />
         <bean class="com.opengamma.financial.aggregation.RegionAggregationFunction">
           <constructor-arg ref="combinedSecuritySource" />

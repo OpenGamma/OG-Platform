@@ -26,7 +26,7 @@ import com.opengamma.math.surface.FunctionalDoublesSurface;
  */
 public class PiecewiseSABRSurfaceFitter {
 
-  private static Interpolator1D EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+  private static final Interpolator1D EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
 
   private final ForwardCurve _forwardCurve;
   private final double[] _forwards;
@@ -177,7 +177,7 @@ public class PiecewiseSABRSurfaceFitter {
    * @return A interpolated implied Volatility surface
    */
   @SuppressWarnings("unused")
-  private BlackVolatilitySurface getSurfaceLinear() {
+  private BlackVolatilitySurfaceStrike getSurfaceLinear() {
     Function<Double, Double> surFunc = new Function<Double, Double>() {
 
       @Override
@@ -226,21 +226,21 @@ public class PiecewiseSABRSurfaceFitter {
       }
     };
 
-    return new BlackVolatilitySurface(FunctionalDoublesSurface.from(surFunc));
+    return new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surFunc));
   }
 
   /**
    * For a given expiry and strike, perform an interpolation between either the volatility or integrated variances
-   *  of points with the same moneyness on the fitted smiles. There is no guarantees a monotonically increasing integrated variance
+   *  of points with the same modified log-moneyness (d = Math.log(forward / k) / Math.sqrt(1 + lambda * t)) on the fitted smiles.
+   *  There is no guarantees a monotonically increasing integrated variance
    * (hence no calendar arbitrage and a real positive local volatility), but using log time to better space out the x-points
    * help.
-   * @return A interpolated implied Volatility surface
    * @param useLogTime The x-axis is the log of time
    * @param useIntegratedVar the y-points are integrated variance (rather than volatility)
    * @param lambda zero the strikes are (almost) the same across fitted smiles, large lambda they scale as root-time
    * @return Implied volatility surface
    */
-  public BlackVolatilitySurface getImpliedVolatilitySurface(final boolean useLogTime, final boolean useIntegratedVar, final double lambda) {
+  public BlackVolatilitySurfaceStrike getImpliedVolatilitySurface(final boolean useLogTime, final boolean useIntegratedVar, final double lambda) {
 
     Function<Double, Double> surFunc = new Function<Double, Double>() {
 
@@ -294,11 +294,11 @@ public class PiecewiseSABRSurfaceFitter {
           vols[i] = _fitters[lower + i].getVol(strikes[i]);
 
           intVar[i] = vols[i] * vols[i] * times[i];
-          if (i > 0) {
-            if (intVar[i] < intVar[i - 1]) {
-              //            Validate.isTrue(intVar[i] >= intVar[i - 1], "variance must increase");
-            }
-          }
+          //     if (i > 0) {
+          //            if (intVar[i] < intVar[i - 1]) {
+          //              //            Validate.isTrue(intVar[i] >= intVar[i - 1], "variance must increase");
+          //            }
+          // }
           if (useIntegratedVar) {
             y = intVar;
           } else {
@@ -320,8 +320,174 @@ public class PiecewiseSABRSurfaceFitter {
       }
     };
 
-    return new BlackVolatilitySurface(FunctionalDoublesSurface.from(surFunc));
+    return new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surFunc));
   }
+
+  /**
+   * For a given expiry and strike, perform an interpolation between either the volatility or integrated variances
+   *  of points with the same modified log-moneyness (d = Math.log(forward / k) / Math.sqrt(1 + lambda * t)) on the fitted smiles.
+   *  The interpolation is a natural cubic spline using the four nearest points.
+   *  There is no guarantees a monotonically increasing integrated variance
+   * (hence no calendar arbitrage and a real positive local volatility), but using log time to better space out the x-points
+   * help.
+   * @param useLogTime The x-axis is the log of time
+   * @param useIntegratedVar the y-points are integrated variance (rather than volatility)
+   * @param lambda zero the strikes are (almost) the same across fitted smiles, large lambda they scale as root-time
+   * @return Implied volatility surface parameterised by time and moneyness
+   */
+  public BlackVolatilitySurfaceMoneyness getImpliedVolatilityMoneynessSurface(final boolean useLogTime, final boolean useIntegratedVar, final double lambda) {
+
+    Function<Double, Double> surFunc = new Function<Double, Double>() {
+
+      @Override
+      public Double evaluate(Double... tm) {
+        double t = tm[0];
+        double m = tm[1];
+
+        //       final double atmVol = interpolatedATMVol(t);
+        //  final double forward = _forwardCurve.getForward(t);
+
+        final double d = -Math.log(m) / Math.sqrt(1 + lambda * t);
+        //
+        if (t <= _expiries[0]) {
+          double k1 = _forwards[0] * Math.exp(-d * Math.sqrt(1 + lambda * _expiries[0]));
+          return _fitters[0].getVol(k1);
+        }
+
+        int index = getLowerBoundIndex(t);
+
+        int lower;
+        if (index == 0) {
+          lower = 0;
+        } else if (index == _nExpiries - 2) {
+          lower = index - 2;
+        } else if (index == _nExpiries - 1) {
+          lower = index - 3;
+        } else {
+          lower = index - 1;
+        }
+        final double[] times = Arrays.copyOfRange(_expiries, lower, lower + 4);
+        double[] xs = new double[4];
+        double x = 0;
+        if (useLogTime) {
+          for (int i = 0; i < 4; i++) {
+            xs[i] = Math.log(times[i]);
+            x = Math.log(t);
+          }
+        } else {
+          xs = times;
+          x = t;
+        }
+
+        final double[] strikes = new double[4];
+        final double[] vols = new double[4];
+        final double[] intVar = new double[4];
+        double[] y = null;
+
+        for (int i = 0; i < 4; i++) {
+          strikes[i] = _forwards[lower + i] * Math.exp(-d * Math.sqrt(1 + lambda * times[i]));
+          vols[i] = _fitters[lower + i].getVol(strikes[i]);
+
+          intVar[i] = vols[i] * vols[i] * times[i];
+          //the condition on increasing integrated variance need not hold along lines of constant modified log-moneyness, d = ln(f/k)/sqrt(1+lambda*t)
+          //          if (i > 0) {
+          //            if (intVar[i] < intVar[i - 1]) {
+          //              Validate.isTrue(intVar[i] >= intVar[i - 1], "variance must increase");
+          //            }
+          //          }
+          if (useIntegratedVar) {
+            y = intVar;
+          } else {
+            y = vols;
+          }
+        }
+
+        Interpolator1DDataBundle db = EXTRAPOLATOR.getDataBundle(xs, y);
+        double sigma;
+
+        double res = EXTRAPOLATOR.interpolate(db, x);
+        if (useIntegratedVar) {
+          Validate.isTrue(res >= 0.0, "Negative integrated variance");
+          sigma = Math.sqrt(res / t);
+        } else {
+          sigma = res;
+        }
+        return sigma;
+      }
+    };
+
+    return new BlackVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(surFunc), _forwardCurve);
+  }
+
+  //  public BlackVolatilityMoneynessSurface getImpliedVolatilityMoneynessSurface(final boolean useLogTime, final boolean useIntegratedVar, final double lambda) {
+  //
+  //    Function<Double, Double> surFunc = new Function<Double, Double>() {
+  //
+  //      @Override
+  //      public Double evaluate(Double... tm) {
+  //        double t = tm[0];
+  //        double m = tm[1];
+  //
+  //        //       final double atmVol = interpolatedATMVol(t);
+  //        // final double forward = _forwardCurve.getForward(t);
+  //
+  //        final double d = -Math.log(m) / Math.sqrt(1 + lambda * t);
+  //        //
+  //        if (t <= _expiries[0]) {
+  //          double k1 = _forwards[0] * Math.exp(-d * Math.sqrt(1 + lambda * _expiries[0]));
+  //          return _fitters[0].getVol(k1);
+  //        }
+  //
+  //        double[] xs = new double[_nExpiries];
+  //        double x = 0;
+  //        if (useLogTime) {
+  //          for (int i = 0; i < _nExpiries; i++) {
+  //            xs[i] = Math.log(_expiries[i]);
+  //            x = Math.log(t);
+  //          }
+  //        } else {
+  //          xs = _expiries;
+  //          x = t;
+  //        }
+  //
+  //        final double[] strikes = new double[_nExpiries];
+  //        final double[] vols = new double[_nExpiries];
+  //        final double[] intVar = new double[_nExpiries];
+  //        double[] y = null;
+  //
+  //        for (int i = 0; i < _nExpiries; i++) {
+  //          strikes[i] = _forwards[i] * Math.exp(-d * Math.sqrt(1 + lambda * _expiries[i]));
+  //          vols[i] = _fitters[i].getVol(strikes[i]);
+  //
+  //          intVar[i] = vols[i] * vols[i] * _expiries[i];
+  //          if (i > 0) {
+  //            if (intVar[i] < intVar[i - 1]) {
+  //              //  Validate.isTrue(intVar[i] >= intVar[i - 1], "variance must increase");
+  //            }
+  //          }
+  //          if (useIntegratedVar) {
+  //            y = intVar;
+  //          } else {
+  //            y = vols;
+  //          }
+  //        }
+  //
+  //        Interpolator1DDataBundle db = EXTRAPOLATOR.getDataBundle(xs, y);
+  //        double sigma;
+  //
+  //        double res = EXTRAPOLATOR.interpolate(db, x);
+  //        if (useIntegratedVar) {
+  //          Validate.isTrue(res >= 0.0, "Negative integrated variance");
+  //          sigma = Math.sqrt(res / t);
+  //        } else {
+  //          sigma = res;
+  //        }
+  //        return sigma;
+  //      }
+  //    };
+  //
+  //    return new BlackVolatilityMoneynessSurface(FunctionalDoublesSurface.from(surFunc), _forwardCurve);
+  //  }
 
   private int getLowerBoundIndex(final double t) {
     if (t < _expiries[0]) {

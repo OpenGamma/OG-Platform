@@ -4,58 +4,77 @@
     <h1>{{html name}}</h1>
   </header>
   <section>
-    <div class="OG-details-content OG-batch">
-      <section class="OG-field-box">
-        <div class="og-lbl">
-          <div>Observation date</div>
-          <div>Observation time</div>
-          <div>Status</div>
-          <div>Total results</div>
-          <div>Total errors</div>
-        </div>
-        <div>
-          <div>${date}</div>
-          <div>${time}</div>
-          <div>${version}</div>
-          <div>${total_results}</div>
-          <div>${total_errors}</div>
-        </div>
+    <div class="OG-details-content OG-js-details-panel">
+      <section style="width: 800px">
+          <table class="OG-table">
+            <col style="width: 40%" />
+            <col style="width: 60%" />
+            <thead>
+              <tr><th><span>Details</span></th><th>&nbsp;</th></tr>
+            </thead>
+            <tbody class="og-js-info">
+              <tr>
+                <td><span>Observation date</span></td>
+                <td>${date}</td>
+              </tr>
+              <tr>
+                <td><span>Observation time</span></td>
+                <td>${time}</td>
+              </tr>
+              <tr>
+                <td><span>Status</span></td>
+                <td>${status}</td>
+              </tr>
+              <tr>
+                <td><span>Total results</span></td>
+                <td>${total_results}</td>
+              </tr>
+              <tr>
+                <td><span>Total errors</span></td>
+                <td>${total_errors}</td>
+              </tr>
+              <tr>
+                <td><span>Main Server</span></td>
+                <td>${main_server}</td>
+              </tr>
+              <tr>
+                <td><span>Number of restarts</span></td>
+                <td>${number_restarts}</td>
+              </tr>
+            </tbody>
+          </table>
       </section>
-      <section>
-        <h2>Results</h2>
-        <div class="og-treeLines">
-        <table class="OG-table-style-01">
-          <thead>
-            <tr>
-              <td>Calculation configuration</td>
-              <td>Computation target</td>
-              <td>Value name</td>
-              <td>Function unique id</td>
-              <td>Value</td>
-            </tr>
-          </thead>
-          <tbody class="og-js-results"></tbody>
-        </table>
-        </div>
-      </section>
-      <section>
-        <h2>Errors</h2>
-        <div class="og-treeLines og-treeLinesLast OG-JS-positions">
-          <table class="OG-table-style-01">
+      <section style="min-width: 800px">
+          <table class="OG-table">
             <thead>
               <tr>
-                <td>Calculation configuration</td>
-                <td>Computation target</td>
-                <td>Value name</td>
-                <td>Function unique id</td>
-                <td>Exception class</td>
-                <td>Exception message</td>
-                <td>Stack trace</td>
+                <th><span>Results</span></th>
+                <th>Calculation configuration</th>
+                <th>Computation target</th>
+                <th>Value name</th>
+                <th>Function unique id</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody class="og-js-results"></tbody>
+          </table>
+      </section>
+      <section style="min-width: 800px">
+          <table class="OG-table">
+            <thead>
+              <tr>
+                <th><span>Errors</span></th>
+                <th>Calculation configuration</th>
+                <th>Computation target</th>
+                <th>Value name</th>
+                <th>Function unique id</th>
+                <th>Exception class</th>
+                <th>Exception message</th>
+                <th>Stack trace</th>
               </tr>
             </thead>
             <tbody class="og-js-errors"></tbody>
           </table>
-        </div>
       </section>
     </div>
   </section>

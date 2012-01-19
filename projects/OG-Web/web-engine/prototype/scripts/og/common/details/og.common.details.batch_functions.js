@@ -9,13 +9,14 @@ $.register_module({
         var batch_functions,
             rows = function (empty, columns, selector, json) {
                 if (!json[0]) return $(selector).html(empty);
-                $(selector).html(json.map(function (val) {
+                $(selector).html(json.map(function (val, i) {
+                    val = i+1 + '|' + val;
                     return '<tr><td>' + val.split('|').slice(0, columns).join('</td><td>') + '</td></tr>';
                 }).join(''));
             };
         return batch_functions = {
-            results: rows.partial('<tr><td colspan="5">No results</td></tr>', 5),
-            errors: rows.partial('<tr><td colspan="7">No errors</td></tr>', 7)
+            results: rows.partial('<tr><td colspan="6">No results</td></tr>', 6),
+            errors: rows.partial('<tr><td colspan="8">No errors</td></tr>', 8)
         };
     }
 });

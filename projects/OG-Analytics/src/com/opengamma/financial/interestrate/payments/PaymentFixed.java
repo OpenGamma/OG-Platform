@@ -34,6 +34,15 @@ public class PaymentFixed extends Payment {
   }
 
   /**
+   * Create a new fixed payment with the same characteristic except the amount which is the given amount.
+   * @param paymentAmount The amount.
+   * @return The fixed payment.
+   */
+  public PaymentFixed withAmount(final double paymentAmount) {
+    return new PaymentFixed(getCurrency(), getPaymentTime(), paymentAmount, getFundingCurveName());
+  }
+
+  /**
    * Gets the amount paid.
    * @return The amount.
    */

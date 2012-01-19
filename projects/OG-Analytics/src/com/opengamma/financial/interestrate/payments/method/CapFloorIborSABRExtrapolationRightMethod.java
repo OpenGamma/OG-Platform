@@ -148,7 +148,7 @@ public class CapFloorIborSABRExtrapolationRightMethod implements PricingMethod {
       bsDforward = sabrExtrapolation.priceDerivativeForward(option);
     }
     result = result.multiply(bsPrice);
-    result = result.add(forwardDr.multiply(bsDforward));
+    result = result.plus(forwardDr.multiply(bsDforward));
     result = result.multiply(cap.getNotional() * cap.getPaymentYearFraction());
     return result;
   }

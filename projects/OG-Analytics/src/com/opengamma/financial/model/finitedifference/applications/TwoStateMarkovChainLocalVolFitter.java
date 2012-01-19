@@ -19,9 +19,9 @@ import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.financial.model.volatility.surface.DupireLocalVolatilityCalculator;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceStrike;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
@@ -60,7 +60,7 @@ public class TwoStateMarkovChainLocalVolFitter {
    *  (which must be greater than the vol in normal state); transition rate from normal to excited; transition rate from excited to normal;
    * probability of starting in normal state; and the CEV parameter, beta
    */
-  public void fit(final ForwardCurve forward, final BlackVolatilitySurface marketVolSurface, final List<Pair<double[], Double>> marketVols,
+  public void fit(final ForwardCurve forward, final BlackVolatilitySurfaceStrike marketVolSurface, final List<Pair<double[], Double>> marketVols,
       final DoubleMatrix1D initialGuess) {
 
     final Map<DoublesPair, Double> marketVolsMap = convertFormatt(marketVols);
@@ -329,8 +329,8 @@ public class TwoStateMarkovChainLocalVolFitter {
   }
 
   @SuppressWarnings("unused")
-  private Map<DoublesPair, Double> getLocalVolOverlay(final LocalVolatilitySurface marketLocalVol, final PDEFullResults1D[] denRes, final TwoStateMarkovChainDataBundle chainData,
-      final LocalVolatilitySurface lvOverlay) {
+  private Map<DoublesPair, Double> getLocalVolOverlay(final LocalVolatilitySurfaceStrike marketLocalVol, final PDEFullResults1D[] denRes, final TwoStateMarkovChainDataBundle chainData,
+      final LocalVolatilitySurfaceStrike lvOverlay) {
 
     final int tNodes = denRes[0].getNumberTimeNodes();
     final int xNodes = denRes[0].getNumberSpaceNodes();

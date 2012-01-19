@@ -67,7 +67,7 @@ public final class CouponCMSDiscountingMethod {
     final InterestRateCurveSensitivity swapRateSens = new InterestRateCurveSensitivity(parRateSensCal.visit(cmsCoupon.getUnderlyingSwap(), curves));
     final InterestRateCurveSensitivity payDFSens = new InterestRateCurveSensitivity(PresentValueCurveSensitivityCalculator.discountFactorSensitivity(fundingCurveName, fundingCurve, paymentTime));
     InterestRateCurveSensitivity result = swapRateSens.multiply(paymentDiscountFactor);
-    result = result.add(payDFSens.multiply(swapRate));
+    result = result.plus(payDFSens.multiply(swapRate));
     result = result.multiply(cmsCoupon.getNotional() * cmsCoupon.getPaymentYearFraction());
     return result;
 

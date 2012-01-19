@@ -30,6 +30,7 @@ import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -55,7 +56,7 @@ public class EquityPnLFunction extends AbstractFunction.NonCompiledInvoker {
     final Set<String> returnCalculatorNames = desiredValues.iterator().next().getConstraints().getValues(ValuePropertyNames.RETURN_CALCULATOR);
     final Double fairValue = (Double) fairValueObj;
     final TimeSeriesReturnCalculator returnCalculator = getTimeSeriesReturnCalculator(returnCalculatorNames);
-    final DoubleTimeSeries<?> returnSeries = returnCalculator.evaluate((DoubleTimeSeries<?>) priceSeriesObj);
+    final LocalDateDoubleTimeSeries returnSeries = (LocalDateDoubleTimeSeries) returnCalculator.evaluate((LocalDateDoubleTimeSeries) priceSeriesObj);
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, fairValueCV.getSpecification().getProperty(ValuePropertyNames.CURRENCY))
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName)

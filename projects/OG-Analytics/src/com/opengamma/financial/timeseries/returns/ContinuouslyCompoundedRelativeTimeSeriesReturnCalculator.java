@@ -12,9 +12,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesException;
-import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -28,20 +28,20 @@ public class ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator extends Re
   }
 
   @Override
-  public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?>... x) {
+  public LocalDateDoubleTimeSeries evaluate(final LocalDateDoubleTimeSeries... x) {
     testInputData(x);
     if (x.length > 2) {
       s_logger.info("Have more than two time series in array; only using first two");
     }
-    final FastLongDoubleTimeSeries ts1 = x[0].toFastLongDoubleTimeSeries();
-    final FastLongDoubleTimeSeries ts2 = x[1].toFastLongDoubleTimeSeries();
+    final FastIntDoubleTimeSeries ts1 = (FastIntDoubleTimeSeries) x[0].getFastSeries();
+    final FastIntDoubleTimeSeries ts2 = (FastIntDoubleTimeSeries) x[1].getFastSeries();
     final int n = ts1.size();
-    final long[] times = new long[n];
+    final int[] times = new int[n];
     final double[] returns = new double[n];
-    final Iterator<Entry<Long, Double>> iter1 = ts1.iterator();
-    Entry<Long, Double> entry1;
+    final Iterator<Entry<Integer, Double>> iter1 = ts1.iterator();
+    Entry<Integer, Double> entry1;
     Double value2;
-    long t;
+    Integer t;
     int i = 0;
     while (iter1.hasNext()) {
       entry1 = iter1.next();
@@ -56,6 +56,6 @@ public class ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator extends Re
         returns[i++] = Math.log(entry1.getValue() / value2);
       }
     }
-    return getSeries(ts1, times, returns, i);
+    return getSeries(x[0], times, returns, i);
   }
 }

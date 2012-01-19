@@ -21,9 +21,10 @@ import javax.ws.rs.core.Response.Status;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.web.FreemarkerCustomRenderer;
 
@@ -122,12 +123,16 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     FlexiBean out = super.createRootData();
     SecurityDocument doc = data().getSecurity();
     
+    // REVIEW jonathan 2012-01-12 -- we are throwing away any adjuster that may be required, e.g. to apply
+    // normalisation to the time-series. This reproduces the previous behaviour but probably indicates that the
+    // time-series information is in the wrong place.
+    
     // Get the last price HTS for the security
-    UniqueId htsId = htsResolver().resolve(HistoricalTimeSeriesFields.LAST_PRICE, doc.getSecurity().getExternalIdBundle(), null, null);
+    HistoricalTimeSeriesResolutionResult htsResolutionResult = htsResolver().resolve(doc.getSecurity().getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
     
     out.put("securityDoc", doc); 
     out.put("security", doc.getSecurity());
-    out.put("timeSeriesId", htsId == null ? null : htsId.getObjectId());
+    out.put("timeSeriesId", htsResolutionResult == null ? null : htsResolutionResult.getHistoricalTimeSeriesInfo().getTimeSeriesObjectId());
     out.put("deleted", !doc.isLatest());
     addSecuritySpecificMetaData(doc.getSecurity(), out);
     out.put("customRenderer", FreemarkerCustomRenderer.INSTANCE);

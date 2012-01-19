@@ -170,7 +170,7 @@ public class BondTransactionDiscountingMethodTest {
     final InterestRateCurveSensitivity pvsNominal = new InterestRateCurveSensitivity(PVSC.visit(NOMINAL_TR_FIXED_3, CURVES));
     final InterestRateCurveSensitivity pvsCoupon = new InterestRateCurveSensitivity(PVSC.visit(COUPON_TR_FIXED_3, CURVES));
     final InterestRateCurveSensitivity pvsSettlement = new InterestRateCurveSensitivity(PVSC.visit(BOND_SETTLEMENT_FIXED_3, CURVES));
-    final InterestRateCurveSensitivity expectedPvs = pvsNominal.add(pvsCoupon).multiply(QUANTITY_FRN).add(pvsSettlement).clean();
+    final InterestRateCurveSensitivity expectedPvs = pvsNominal.plus(pvsCoupon).multiply(QUANTITY_FRN).plus(pvsSettlement).clean();
     assertEquals("Fixed bond present value sensitivity", expectedPvs, pvs.clean());
   }
 
@@ -202,7 +202,7 @@ public class BondTransactionDiscountingMethodTest {
     final InterestRateCurveSensitivity pvsNominal = new InterestRateCurveSensitivity(PVSC.visit(NOMINAL_TR_1_FRN, CURVES));
     final InterestRateCurveSensitivity pvsCoupon = new InterestRateCurveSensitivity(PVSC.visit(COUPON_TR_1_FRN, CURVES));
     final InterestRateCurveSensitivity pvsSettlement = new InterestRateCurveSensitivity(PVSC.visit(BOND_SETTLEMENT_FRN, CURVES));
-    final InterestRateCurveSensitivity expectedPvs = pvsNominal.add(pvsCoupon).multiply(QUANTITY_FRN).add(pvsSettlement).clean();
+    final InterestRateCurveSensitivity expectedPvs = pvsNominal.plus(pvsCoupon).multiply(QUANTITY_FRN).plus(pvsSettlement).clean();
     assertEquals("FRN present value sensitivity", expectedPvs, pvs.clean());
   }
 }

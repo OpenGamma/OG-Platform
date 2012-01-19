@@ -11,8 +11,8 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -21,6 +21,7 @@ public class ExtremeReturnDoubleTimeSeriesFilter extends TimeSeriesFilter {
   private static final Logger s_logger = LoggerFactory.getLogger(ExtremeReturnDoubleTimeSeriesFilter.class);
   private TimeSeriesReturnCalculator _returnCalculator;
   private final ExtremeValueDoubleTimeSeriesFilter _filter;
+  private static final LocalDateDoubleTimeSeries EMPTY_SERIES = new ArrayLocalDateDoubleTimeSeries();
 
   public ExtremeReturnDoubleTimeSeriesFilter(final double minValue, final double maxValue, final TimeSeriesReturnCalculator returnCalculator) {
     Validate.notNull(returnCalculator, "return calculator");
@@ -46,13 +47,13 @@ public class ExtremeReturnDoubleTimeSeriesFilter extends TimeSeriesFilter {
   }
 
   @Override
-  public FilteredTimeSeries evaluate(final DoubleTimeSeries<?> ts) {
+  public FilteredTimeSeries evaluate(final LocalDateDoubleTimeSeries ts) {
     Validate.notNull(ts, "ts");
     if (ts.isEmpty()) {
       s_logger.info("Time series was empty");
-      return new FilteredTimeSeries(FastArrayLongDoubleTimeSeries.EMPTY_SERIES, null);
+      return new FilteredTimeSeries(EMPTY_SERIES, null);
     }
-    final DoubleTimeSeries<?> returnTS = _returnCalculator.evaluate(ts);
+    final LocalDateDoubleTimeSeries returnTS = _returnCalculator.evaluate(ts);
     return _filter.evaluate(returnTS);
   }
 

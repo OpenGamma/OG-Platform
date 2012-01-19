@@ -10,34 +10,25 @@ import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSerie
 import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.STAR_VALUE;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
-import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import javax.time.calendar.LocalDate;
 
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
-import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdBundleWithDates;
-import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.config.impl.InMemoryConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.util.time.DateUtils;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 
 /**
- * Test {@link DefaultHistoricalTimeSeriesResolver}.
+ * Test {@link DefaultHistoricalTimeSeriesSelector}.
  */
 @Test
 public class DefaultHistoricalTimeSeriesResolverTest {
@@ -59,7 +50,7 @@ public class DefaultHistoricalTimeSeriesResolverTest {
   public void setUp() throws Exception {
     InMemoryConfigMaster configMaster = new InMemoryConfigMaster();
     populateConfigMaster(configMaster);
-    _infoResolver = new DefaultHistoricalTimeSeriesResolver(_htsMaster, new MasterConfigSource(configMaster));
+    _infoResolver = new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(new MasterConfigSource(configMaster)), _htsMaster);
   }
 
   private void populateConfigMaster(InMemoryConfigMaster configMaster) {
@@ -95,46 +86,15 @@ public class DefaultHistoricalTimeSeriesResolverTest {
 
   //-------------------------------------------------------------------------
   public void test() throws Exception {
-    List<ExternalIdBundleWithDates> identifiers = addAndTestTimeSeries();
+    List<ExternalIdBundleWithDates> identifiers = HistoricalTimeSeriesMasterPopulator.populateAndTestMaster(_htsMaster, TS_DATASET_SIZE, DATA_SOURCES, DATA_PROVIDERS, DATA_FIELDS, LCLOSE_OBSERVATION_TIME);
     for (ExternalIdBundleWithDates identifierBundleWithDates : identifiers) {
-      UniqueId uniqueId = _infoResolver.resolve(HistoricalTimeSeriesFields.LAST_PRICE, identifierBundleWithDates.toBundle(), null, CONFIG_DOC_NAME);
-      assertNotNull(uniqueId);
-      HistoricalTimeSeriesInfoDocument doc = _htsMaster.get(uniqueId);
+      HistoricalTimeSeriesResolutionResult resolutionResult = _infoResolver.resolve(identifierBundleWithDates.toBundle(), null, null, null, "PX_LAST", CONFIG_DOC_NAME);
+      assertNotNull(resolutionResult);
+      HistoricalTimeSeriesInfoDocument doc = _htsMaster.get(resolutionResult.getHistoricalTimeSeriesInfo().getUniqueId());
       assertEquals(DEFAULT_DATA_SOURCE, doc.getInfo().getDataSource());
       assertEquals(DEFAULT_DATA_PROVIDER, doc.getInfo().getDataProvider());
       assertEquals("PX_LAST", doc.getInfo().getDataField());
     }
-  }
-
-  protected List<ExternalIdBundleWithDates> addAndTestTimeSeries() {
-    List<ExternalIdBundleWithDates> result = new ArrayList<ExternalIdBundleWithDates>(); 
-    for (int i = 0; i < TS_DATASET_SIZE; i++) {
-      ExternalIdBundle identifiers = ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("ticker" + i), SecurityUtils.bloombergBuidSecurityId("buid" + i));
-      result.add(ExternalIdBundleWithDates.of(identifiers));
-      
-      LocalDate start = DateUtils.previousWeekDay().minusDays(7);
-      for (String dataSource : DATA_SOURCES) {
-        for (String dataProvider : DATA_PROVIDERS) {
-          for (String datafield : DATA_FIELDS) {
-            ManageableHistoricalTimeSeriesInfo series = new ManageableHistoricalTimeSeriesInfo();
-            series.setDataField(datafield);
-            series.setDataProvider(dataProvider);
-            series.setDataSource(dataSource);
-            series.setObservationTime(LCLOSE_OBSERVATION_TIME);
-            series.setExternalIdBundle(ExternalIdBundleWithDates.of(identifiers));
-            HistoricalTimeSeriesInfoDocument doc = _htsMaster.add(new HistoricalTimeSeriesInfoDocument(series));
-            assertNotNull(doc);
-            assertNotNull(doc.getUniqueId());
-            
-            LocalDateDoubleTimeSeries timeSeries = RandomTimeSeriesGenerator.makeRandomTimeSeries(start, 7);
-            assertTrue(timeSeries.size() == 7);
-            assertEquals(start, timeSeries.getEarliestTime());
-            _htsMaster.updateTimeSeriesDataPoints(doc.getInfo().getTimeSeriesObjectId(), timeSeries);
-          }
-        }
-      }
-    }
-    return result;
   }
 
 }
