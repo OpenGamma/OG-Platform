@@ -68,9 +68,9 @@ public class AbstractExceptionMapper {
       case 1:
         return stackTrace[0].toString();
       case 2:
-        return stackTrace[0].toString() + '\n' + stackTrace[1].toString();
+        return stackTrace[0].toString() + " \n" + stackTrace[1].toString();
       default:
-        return stackTrace[0].toString() + '\n' + stackTrace[1].toString() + '\n' + stackTrace[2].toString();
+        return stackTrace[0].toString() + " \n" + stackTrace[1].toString() + " \n" + stackTrace[2].toString();
     }
   }
 
