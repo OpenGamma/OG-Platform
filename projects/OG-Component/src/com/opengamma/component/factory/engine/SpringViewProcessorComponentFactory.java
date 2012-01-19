@@ -183,7 +183,6 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     ComponentInfo infoFR = new ComponentInfo(FunctionRepository.class, getClassifier());
     repo.registerComponent(infoFR, compiledFunctionService.getFunctionRepository());
     
-    // These objects are not exposed to the component repository (a Good Thing).
     FunctionResolver functionResolver = appContext.getBean(FunctionResolver.class);
     ComputationTargetResolver targetResolver = appContext.getBean(ComputationTargetResolver.class);
     
