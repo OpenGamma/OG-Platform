@@ -25,10 +25,9 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.impl.RemotePositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.RemoteSecurityMaster;
-import com.opengamma.transport.jaxrs.RestClient;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.GUIDGenerator;
+import com.opengamma.util.rest.FudgeRestClient;
 
 /**
  * Provides access to a remote representation of a "client". A client is defined as a set of coherent
@@ -67,7 +66,7 @@ public class RemoteClient {
       return notImplemented("interpolatedYieldCurveDefinitionMaster");
     }
 
-    public RestTarget getHeartbeat() {
+    public URI getHeartbeat() {
       return notImplemented("heartbeat");
     }
 
@@ -91,7 +90,7 @@ public class RemoteClient {
     private URI _securityMaster;
     private URI _viewDefinitionRepository;
     private URI _interpolatedYieldCurveDefinitionMaster;
-    private RestTarget _heartbeat;
+    private URI _heartbeat;
     private URI _marketDataSnapshotMaster;
     private URI _historicalTimeSeriesMaster;
 
@@ -142,12 +141,12 @@ public class RemoteClient {
       return (_interpolatedYieldCurveDefinitionMaster != null) ? _interpolatedYieldCurveDefinitionMaster : super.getInterpolatedYieldCurveDefinitionMaster();
     }
 
-    public void setHeartbeat(final RestTarget heartbeat) {
+    public void setHeartbeat(final URI heartbeat) {
       _heartbeat = heartbeat;
     }
 
     @Override
-    public RestTarget getHeartbeat() {
+    public URI getHeartbeat() {
       return (_heartbeat != null) ? _heartbeat : super.getHeartbeat();
     }
 
@@ -174,57 +173,54 @@ public class RemoteClient {
    * Source of targets built from a single "base" URI.
    */
   public static final class BaseUriTargetProvider extends TargetProvider {
+    private final URI _baseUri;
+    private final String _userName;
+    private final String _clientName;
 
-    private final RestTarget _baseTarget;
-
-    public BaseUriTargetProvider(final RestTarget baseTarget) {
-      ArgumentChecker.notNull(baseTarget, "baseTarget");
-      _baseTarget = baseTarget;
-    }
-
-    @Override
-    public URI getPortfolioMaster() {
-      // The remote portfolio master is broken and assumes a "prtMaster/portfolio" prefix on its URLs 
-      return _baseTarget.getURI();
-    }
-
-    @Override
-    public URI getPositionMaster() {
-      // The remote position master is broken and assumes a "posMaster/position" prefix on its URLs
-      return _baseTarget.getURI();
+    public BaseUriTargetProvider(URI baseUri, String userName, String clientName) {
+      ArgumentChecker.notNull(baseUri, "baseUri");
+      _baseUri = baseUri;
+      _userName = userName;
+      _clientName = clientName;
     }
 
     @Override
     public URI getSecurityMaster() {
-      return _baseTarget.resolveBase(ClientResource.SECURITIES_PATH).getURI();
+      return DataFinancialClientResource.uriSecurityMaster(_baseUri, _userName, _clientName);
+    }
+
+    @Override
+    public URI getPositionMaster() {
+      return DataFinancialClientResource.uriPositionMaster(_baseUri, _userName, _clientName);
+    }
+
+    @Override
+    public URI getPortfolioMaster() {
+      return DataFinancialClientResource.uriPortfolioMaster(_baseUri, _userName, _clientName);
     }
 
     @Override
     public URI getViewDefinitionRepository() {
-      return _baseTarget.resolveBase(ClientResource.VIEW_DEFINITIONS_PATH).getURI();
+      return DataFinancialClientResource.uriViewDefinitionMaster(_baseUri, _userName, _clientName);
     }
 
     @Override
     public URI getInterpolatedYieldCurveDefinitionMaster() {
-      return _baseTarget.resolveBase(ClientResource.INTERPOLATED_YIELD_CURVE_DEFINITIONS_PATH).getURI();
-    }
-
-    @Override
-    public RestTarget getHeartbeat() {
-      return _baseTarget.resolve(ClientResource.HEARTBEAT_PATH);
+      return DataFinancialClientResource.uriInterpolatedYieldCurveDefinitionMaster(_baseUri, _userName, _clientName);
     }
 
     @Override
     public URI getMarketDataSnapshotMaster() {
-      return _baseTarget.resolveBase(ClientResource.MARKET_DATA_SNAPSHOTS_PATH).getURI();
+      return DataFinancialClientResource.uriSnapshotMaster(_baseUri, _userName, _clientName);
     }
 
-    // TODO: user timeseries?
-
+    @Override
+    public URI getHeartbeat() {
+      return DataFinancialClientResource.uriHeartbeat(_baseUri, _userName, _clientName);
+    }
   }
 
   private final String _clientId;
-  private final FudgeContext _fudgeContext;
   private final TargetProvider _targetProvider;
   private volatile PortfolioMaster _portfolioMaster;
   private volatile PositionMaster _positionMaster;
@@ -238,7 +234,6 @@ public class RemoteClient {
 
   public RemoteClient(String clientId, FudgeContext fudgeContext, TargetProvider uriProvider) {
     _clientId = clientId;
-    _fudgeContext = fudgeContext;
     _targetProvider = uriProvider;
   }
 
@@ -312,33 +307,34 @@ public class RemoteClient {
    * @return a runnable sender. Each invocation of {@link Runnable#run} will send a heartbeat signal
    */
   public Runnable createHeartbeatSender() {
-    final RestClient client = RestClient.getInstance(_fudgeContext, null);
-    final RestTarget target = _targetProvider.getHeartbeat();
+    final FudgeRestClient client = FudgeRestClient.create();
+    final URI uri = _targetProvider.getHeartbeat();
     return new Runnable() {
       @Override
       public void run() {
-        client.post(target);
+        client.access(uri).post();
       }
     };
   }
 
+  //-------------------------------------------------------------------------
   /**
    * A hack to allow the Excel side to get hold of a RemoteClient without it having to be aware of the URI. Eventually
    * we will need a UserMaster to host users and their clients, and the entry point for Excel will be a
    * RemoteUserMaster.
    *
-   * @param fudgeContext  the Fudge context
-   * @param usersUri  uri as far as /users
-   * @param username  the username
+   * @param fudgeContext  the Fudge context, not null
+   * @param baseUserManagerUri  base URI for the user manager, does not include "users/{user}", not null
+   * @param userName  the username
    * @return  a {@link RemoteClient} instance for the new client
    */
-  public static RemoteClient forNewClient(FudgeContext fudgeContext, RestTarget usersUri, String username) {
-    return forClient(fudgeContext, usersUri, username, GUIDGenerator.generate().toString());
+  public static RemoteClient forNewClient(FudgeContext fudgeContext, URI baseUserManagerUri, String userName) {
+    String clientName = GUIDGenerator.generate().toString();
+    return forClient(fudgeContext, baseUserManagerUri, userName, clientName);
   }
 
-  public static RemoteClient forClient(FudgeContext fudgeContext, RestTarget usersUri, String username, String clientId) {
-    RestTarget uri = usersUri.resolveBase(username).resolveBase("clients").resolveBase(clientId);
-    return new RemoteClient(clientId, fudgeContext, new BaseUriTargetProvider(uri));
+  public static RemoteClient forClient(FudgeContext fudgeContext, URI baseUserManagerUri, String userName, String clientName) {
+    return new RemoteClient(clientName, fudgeContext, new BaseUriTargetProvider(baseUserManagerUri, userName, clientName));
   }
 
 }

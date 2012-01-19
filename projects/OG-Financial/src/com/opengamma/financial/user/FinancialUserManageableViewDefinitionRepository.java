@@ -20,13 +20,21 @@ import com.opengamma.id.UniqueId;
  * Wraps a view definition repository to trap calls to record user based information to allow clean up and
  * hooks for access control logics if needed.
  */
-public class UserManageableViewDefinitionRepository implements ManageableViewDefinitionRepository {
+public class FinancialUserManageableViewDefinitionRepository extends AbstractFinancialUserService implements ManageableViewDefinitionRepository {
 
-  private final UserDataTrackerWrapper _tracker;
+  /**
+   * The underlying master.
+   */
   private final ManageableViewDefinitionRepository _underlying;
 
-  public UserManageableViewDefinitionRepository(final String userName, final String clientName, final UserDataTracker tracker, final ManageableViewDefinitionRepository underlying) {
-    _tracker = new UserDataTrackerWrapper(tracker, userName, clientName, UserDataType.VIEW_DEFINITION);
+  /**
+   * Creates an instance.
+   * 
+   * @param client  the client, not null
+   * @param underlying  the underlying master, not null
+   */
+  public FinancialUserManageableViewDefinitionRepository(FinancialClient client, ManageableViewDefinitionRepository underlying) {
+    super(client, FinancialUserDataType.VIEW_DEFINITION);
     _underlying = underlying;
   }
 
@@ -34,7 +42,7 @@ public class UserManageableViewDefinitionRepository implements ManageableViewDef
   @Override
   public UniqueId addViewDefinition(AddViewDefinitionRequest request) {
     UniqueId viewDefinitionId = _underlying.addViewDefinition(request);
-    _tracker.created(request.getViewDefinition().getUniqueId());
+    created(request.getViewDefinition().getUniqueId());
     
     return viewDefinitionId;
   }
@@ -47,7 +55,7 @@ public class UserManageableViewDefinitionRepository implements ManageableViewDef
   @Override
   public void removeViewDefinition(UniqueId definitionId) {
     _underlying.removeViewDefinition(definitionId);
-    _tracker.deleted(definitionId);
+    deleted(definitionId);
   }
 
   @Override

@@ -8,7 +8,7 @@ package com.opengamma.financial.user;
 /**
  * Tracks user/client construction and destruction events.
  */
-public interface ClientTracker {
+public interface FinancialClientTracker {
 
   /**
    * Called when a user representation is created - this will happen before any other notifications for the user. Due to

@@ -20,29 +20,25 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
  * Wraps a snapshot master to trap calls to record user based information to allow clean up and
  * hooks for access control logics if needed.
  */
-public class UserSnapshotMaster implements MarketDataSnapshotMaster {
+public class FinancialUserSnapshotMaster extends AbstractFinancialUserService implements MarketDataSnapshotMaster {
 
-  private final String _userName;
-  private final String _clientName;
-  private final UserDataTracker _tracker;
+  /**
+   * The underlying master.
+   */
   private final MarketDataSnapshotMaster _underlying;
 
   /**
    * Creates an instance.
    * 
-   * @param userName  the user name, not null
-   * @param clientName  the client name, not null
-   * @param tracker  the tracker of user data, not null
+   * @param client  the client, not null
    * @param underlying  the underlying master, not null
    */
-  public UserSnapshotMaster(final String userName, final String clientName, final UserDataTracker tracker,
-      final MarketDataSnapshotMaster underlying) {
-    _userName = userName;
-    _clientName = clientName;
-    _tracker = tracker;
+  public FinancialUserSnapshotMaster(FinancialClient client, MarketDataSnapshotMaster underlying) {
+    super(client, FinancialUserDataType.MARKET_DATA_SNAPSHOT);
     _underlying = underlying;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public MarketDataSnapshotDocument get(UniqueId uniqueId) {
     return _underlying.get(uniqueId);
@@ -57,7 +53,7 @@ public class UserSnapshotMaster implements MarketDataSnapshotMaster {
   public MarketDataSnapshotDocument add(MarketDataSnapshotDocument document) {
     document = _underlying.add(document);
     if (document.getUniqueId() != null) {
-      _tracker.created(_userName, _clientName, UserDataType.MARKET_DATA_SNAPSHOT, document.getUniqueId());
+      created(document.getUniqueId());
     }
     return document;
   }
@@ -70,7 +66,7 @@ public class UserSnapshotMaster implements MarketDataSnapshotMaster {
   @Override
   public void remove(UniqueId uniqueId) {
     _underlying.remove(uniqueId);
-    _tracker.deleted(_userName, _clientName, UserDataType.MARKET_DATA_SNAPSHOT, uniqueId);
+    deleted(uniqueId);
   }
 
   @Override

@@ -6,6 +6,7 @@
 
 package com.opengamma.language.client;
 
+import java.net.URI;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -23,7 +24,6 @@ import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
 import com.opengamma.language.context.MutableSessionContext;
 import com.opengamma.language.context.MutableUserContext;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -165,8 +165,8 @@ public class Loader extends ContextInitializationBean {
 
   @Override
   protected void initContext(final MutableSessionContext sessionContext) {
-    final RestTarget target = getConfiguration().getRestTargetConfiguration(getUserData());
-    if (target == null) {
+    final URI uri = getConfiguration().getURIConfiguration(getUserData());
+    if (uri == null) {
       s_logger.warn("Per-user remote engine clients not available");
       return;
     }
@@ -175,12 +175,12 @@ public class Loader extends ContextInitializationBean {
       final String clientId = msg.getString(CLIENTID_STASH_FIELD);
       if (clientId != null) {
         s_logger.info("Recovering old remote engine client {}", clientId);
-        initClient(sessionContext, RemoteClient.forClient(getConfiguration().getFudgeContext(), target, sessionContext.getUserContext().getUserName(), clientId));
+        initClient(sessionContext, RemoteClient.forClient(getConfiguration().getFudgeContext(), uri, sessionContext.getUserContext().getUserName(), clientId));
         return;
       }
     }
     s_logger.info("Creating new remote engine client");
-    final RemoteClient client = RemoteClient.forNewClient(getConfiguration().getFudgeContext(), target, sessionContext.getUserContext().getUserName());
+    final RemoteClient client = RemoteClient.forNewClient(getConfiguration().getFudgeContext(), uri, sessionContext.getUserContext().getUserName());
     final MutableFudgeMsg stash = FudgeContext.GLOBAL_DEFAULT.newMessage();
     stash.add(CLIENTID_STASH_FIELD, client.getClientId());
     sessionContext.getStashMessage().put(stash);

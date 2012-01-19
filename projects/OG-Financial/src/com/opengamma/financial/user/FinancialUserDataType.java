@@ -8,7 +8,7 @@ package com.opengamma.financial.user;
 /**
  * Enumeration of the user supplied data masters.
  */
-public enum UserDataType {
+public enum FinancialUserDataType {
 
   /**
    * Value from an InterpolatedYieldCurveDefinitionMaster

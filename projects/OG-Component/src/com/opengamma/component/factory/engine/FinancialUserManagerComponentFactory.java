@@ -27,9 +27,10 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
-import com.opengamma.financial.user.DefaultUsersTracker;
-import com.opengamma.financial.user.rest.UsersResource;
-import com.opengamma.financial.user.rest.UsersResourceContext;
+import com.opengamma.financial.user.DefaultFinancialUsersTracker;
+import com.opengamma.financial.user.FinancialUserManager;
+import com.opengamma.financial.user.FinancialUserServices;
+import com.opengamma.financial.user.rest.DataFinancialUserManagerResource;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -38,12 +39,12 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
- * Component factory for the user financial information.
+ * Component factory for the user financial manager.
  * <p>
  * This mainly exists for RESTful publishing of user information.
  */
 @BeanDefinition
-public class UserFinancialContextComponentFactory extends AbstractComponentFactory {
+public class FinancialUserManagerComponentFactory extends AbstractComponentFactory {
 
   /**
    * The classifier that the factory should publish under.
@@ -104,22 +105,23 @@ public class UserFinancialContextComponentFactory extends AbstractComponentFacto
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    UsersResourceContext context = new UsersResourceContext();
-    context.setFudgeContext(getFudgeContext());
-    context.setUserSecurityMaster(getSecurityMaster());
-    context.setUserPositionMaster(getPositionMaster());
-    context.setUserPortfolioMaster(getPortfolioMaster());
-    context.setUserSnapshotMaster(getSnapshotMaster());
-    context.setUserViewDefinitionRepository((ManageableViewDefinitionRepository) getViewDefinitionMaster());
-    context.setUserInterpolatedYieldCurveDefinitionMaster(getYieldCurveDefinitionMaster());
+    FinancialUserServices services = new FinancialUserServices();
+    services.setFudgeContext(getFudgeContext());
+    services.setUserSecurityMaster(getSecurityMaster());
+    services.setUserPositionMaster(getPositionMaster());
+    services.setUserPortfolioMaster(getPortfolioMaster());
+    services.setUserSnapshotMaster(getSnapshotMaster());
+    services.setUserViewDefinitionRepository((ManageableViewDefinitionRepository) getViewDefinitionMaster());
+    services.setUserInterpolatedYieldCurveDefinitionMaster(getYieldCurveDefinitionMaster());
+    DefaultFinancialUsersTracker tracker = new DefaultFinancialUsersTracker(services);
+    FinancialUserManager manager = new FinancialUserManager(services, tracker, tracker);
+    manager.createDeleteTask(getScheduler(), getClientTimeOut());
     
-    ComponentInfo info = new ComponentInfo(UsersResourceContext.class, getClassifier());
-    repo.registerComponent(info, context);
+    ComponentInfo info = new ComponentInfo(FinancialUserManager.class, getClassifier());
+    repo.registerComponent(info, manager);
     
     if (isPublishRest()) {
-      DefaultUsersTracker tracker = new DefaultUsersTracker(context);
-      UsersResource resource = new UsersResource(tracker, tracker, context);
-      resource.createDeleteTask(getScheduler(), getClientTimeOut());
+      DataFinancialUserManagerResource resource = new DataFinancialUserManagerResource(manager);
       repo.getRestComponents().publish(info, resource);
     }
   }
@@ -130,16 +132,16 @@ public class UserFinancialContextComponentFactory extends AbstractComponentFacto
    * The meta-bean for {@code UserFinancialContextComponentFactory}.
    * @return the meta-bean, not null
    */
-  public static UserFinancialContextComponentFactory.Meta meta() {
-    return UserFinancialContextComponentFactory.Meta.INSTANCE;
+  public static FinancialUserManagerComponentFactory.Meta meta() {
+    return FinancialUserManagerComponentFactory.Meta.INSTANCE;
   }
   static {
-    JodaBeanUtils.registerMetaBean(UserFinancialContextComponentFactory.Meta.INSTANCE);
+    JodaBeanUtils.registerMetaBean(FinancialUserManagerComponentFactory.Meta.INSTANCE);
   }
 
   @Override
-  public UserFinancialContextComponentFactory.Meta metaBean() {
-    return UserFinancialContextComponentFactory.Meta.INSTANCE;
+  public FinancialUserManagerComponentFactory.Meta metaBean() {
+    return FinancialUserManagerComponentFactory.Meta.INSTANCE;
   }
 
   @Override
@@ -230,7 +232,7 @@ public class UserFinancialContextComponentFactory extends AbstractComponentFacto
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      UserFinancialContextComponentFactory other = (UserFinancialContextComponentFactory) obj;
+      FinancialUserManagerComponentFactory other = (FinancialUserManagerComponentFactory) obj;
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
@@ -561,57 +563,57 @@ public class UserFinancialContextComponentFactory extends AbstractComponentFacto
      * The meta-property for the {@code classifier} property.
      */
     private final MetaProperty<String> _classifier = DirectMetaProperty.ofReadWrite(
-        this, "classifier", UserFinancialContextComponentFactory.class, String.class);
+        this, "classifier", FinancialUserManagerComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code publishRest} property.
      */
     private final MetaProperty<Boolean> _publishRest = DirectMetaProperty.ofReadWrite(
-        this, "publishRest", UserFinancialContextComponentFactory.class, Boolean.TYPE);
+        this, "publishRest", FinancialUserManagerComponentFactory.class, Boolean.TYPE);
     /**
      * The meta-property for the {@code fudgeContext} property.
      */
     private final MetaProperty<FudgeContext> _fudgeContext = DirectMetaProperty.ofReadWrite(
-        this, "fudgeContext", UserFinancialContextComponentFactory.class, FudgeContext.class);
+        this, "fudgeContext", FinancialUserManagerComponentFactory.class, FudgeContext.class);
     /**
      * The meta-property for the {@code securityMaster} property.
      */
     private final MetaProperty<SecurityMaster> _securityMaster = DirectMetaProperty.ofReadWrite(
-        this, "securityMaster", UserFinancialContextComponentFactory.class, SecurityMaster.class);
+        this, "securityMaster", FinancialUserManagerComponentFactory.class, SecurityMaster.class);
     /**
      * The meta-property for the {@code positionMaster} property.
      */
     private final MetaProperty<PositionMaster> _positionMaster = DirectMetaProperty.ofReadWrite(
-        this, "positionMaster", UserFinancialContextComponentFactory.class, PositionMaster.class);
+        this, "positionMaster", FinancialUserManagerComponentFactory.class, PositionMaster.class);
     /**
      * The meta-property for the {@code portfolioMaster} property.
      */
     private final MetaProperty<PortfolioMaster> _portfolioMaster = DirectMetaProperty.ofReadWrite(
-        this, "portfolioMaster", UserFinancialContextComponentFactory.class, PortfolioMaster.class);
+        this, "portfolioMaster", FinancialUserManagerComponentFactory.class, PortfolioMaster.class);
     /**
      * The meta-property for the {@code snapshotMaster} property.
      */
     private final MetaProperty<MarketDataSnapshotMaster> _snapshotMaster = DirectMetaProperty.ofReadWrite(
-        this, "snapshotMaster", UserFinancialContextComponentFactory.class, MarketDataSnapshotMaster.class);
+        this, "snapshotMaster", FinancialUserManagerComponentFactory.class, MarketDataSnapshotMaster.class);
     /**
      * The meta-property for the {@code viewDefinitionMaster} property.
      */
     private final MetaProperty<ViewDefinitionRepository> _viewDefinitionMaster = DirectMetaProperty.ofReadWrite(
-        this, "viewDefinitionMaster", UserFinancialContextComponentFactory.class, ViewDefinitionRepository.class);
+        this, "viewDefinitionMaster", FinancialUserManagerComponentFactory.class, ViewDefinitionRepository.class);
     /**
      * The meta-property for the {@code yieldCurveDefinitionMaster} property.
      */
     private final MetaProperty<InterpolatedYieldCurveDefinitionMaster> _yieldCurveDefinitionMaster = DirectMetaProperty.ofReadWrite(
-        this, "yieldCurveDefinitionMaster", UserFinancialContextComponentFactory.class, InterpolatedYieldCurveDefinitionMaster.class);
+        this, "yieldCurveDefinitionMaster", FinancialUserManagerComponentFactory.class, InterpolatedYieldCurveDefinitionMaster.class);
     /**
      * The meta-property for the {@code scheduler} property.
      */
     private final MetaProperty<ScheduledExecutorService> _scheduler = DirectMetaProperty.ofReadWrite(
-        this, "scheduler", UserFinancialContextComponentFactory.class, ScheduledExecutorService.class);
+        this, "scheduler", FinancialUserManagerComponentFactory.class, ScheduledExecutorService.class);
     /**
      * The meta-property for the {@code clientTimeOut} property.
      */
     private final MetaProperty<Period> _clientTimeOut = DirectMetaProperty.ofReadWrite(
-        this, "clientTimeOut", UserFinancialContextComponentFactory.class, Period.class);
+        this, "clientTimeOut", FinancialUserManagerComponentFactory.class, Period.class);
     /**
      * The meta-properties.
      */
@@ -665,13 +667,13 @@ public class UserFinancialContextComponentFactory extends AbstractComponentFacto
     }
 
     @Override
-    public BeanBuilder<? extends UserFinancialContextComponentFactory> builder() {
-      return new DirectBeanBuilder<UserFinancialContextComponentFactory>(new UserFinancialContextComponentFactory());
+    public BeanBuilder<? extends FinancialUserManagerComponentFactory> builder() {
+      return new DirectBeanBuilder<FinancialUserManagerComponentFactory>(new FinancialUserManagerComponentFactory());
     }
 
     @Override
-    public Class<? extends UserFinancialContextComponentFactory> beanType() {
-      return UserFinancialContextComponentFactory.class;
+    public Class<? extends FinancialUserManagerComponentFactory> beanType() {
+      return FinancialUserManagerComponentFactory.class;
     }
 
     @Override

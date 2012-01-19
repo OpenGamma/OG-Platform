@@ -15,21 +15,30 @@ import com.opengamma.id.VersionCorrection;
  * Wraps a curve definition master to trap calls to record user based information to allow clean up and
  * hooks for access control logics if needed.
  */
-public class UserInterpolatedYieldCurveDefinitionMaster implements InterpolatedYieldCurveDefinitionMaster {
+public class FinancialUserInterpolatedYieldCurveDefinitionMaster extends AbstractFinancialUserService implements InterpolatedYieldCurveDefinitionMaster {
 
-  private final UserDataTrackerWrapper _tracker;
+  /**
+   * The underlying master.
+   */
   private final InterpolatedYieldCurveDefinitionMaster _underlying;
 
-  public UserInterpolatedYieldCurveDefinitionMaster(final String userName, final String clientName, final UserDataTracker tracker, final InterpolatedYieldCurveDefinitionMaster underlying) {
-    _tracker = new UserDataTrackerWrapper(tracker, userName, clientName, UserDataType.INTERPOLATED_YIELD_CURVE_DEFINITION);
+  /**
+   * Creates an instance.
+   * 
+   * @param client  the client, not null
+   * @param underlying  the underlying master, not null
+   */
+  public FinancialUserInterpolatedYieldCurveDefinitionMaster(FinancialClient client, InterpolatedYieldCurveDefinitionMaster underlying) {
+    super(client, FinancialUserDataType.INTERPOLATED_YIELD_CURVE_DEFINITION);
     _underlying = underlying;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public YieldCurveDefinitionDocument add(YieldCurveDefinitionDocument document) {
     document = _underlying.add(document);
     if (document.getUniqueId() != null) {
-      _tracker.created(document.getUniqueId());
+      created(document.getUniqueId());
     }
     return document;
   }
@@ -52,7 +61,7 @@ public class UserInterpolatedYieldCurveDefinitionMaster implements InterpolatedY
   @Override
   public void remove(UniqueId uniqueId) {
     _underlying.remove(uniqueId);
-    _tracker.deleted(uniqueId);
+    deleted(uniqueId);
   }
 
   @Override
@@ -64,7 +73,7 @@ public class UserInterpolatedYieldCurveDefinitionMaster implements InterpolatedY
   public YieldCurveDefinitionDocument addOrUpdate(YieldCurveDefinitionDocument document) {
     document = _underlying.addOrUpdate(document);
     if (document.getUniqueId() != null) {
-      _tracker.created(document.getUniqueId());
+      created(document.getUniqueId());
     }
     return document;
   }

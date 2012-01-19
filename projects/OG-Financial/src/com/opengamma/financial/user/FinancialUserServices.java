@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.user.rest;
+package com.opengamma.financial.user;
 
 import org.fudgemsg.FudgeContext;
 
@@ -17,7 +17,7 @@ import com.opengamma.master.security.SecurityMaster;
 /**
  * Context/configuration for the objects to pass around.
  */
-public class UsersResourceContext {
+public class FinancialUserServices {
 
   private FudgeContext _fudgeContext;
   private PortfolioMaster _userPortfolioMaster;

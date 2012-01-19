@@ -18,14 +18,14 @@ import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 
 /**
- * Wraps a position master to trap calls to record user based information to allow clean up and
+ * Wraps a portfolio master to trap calls to record user based information to allow clean up and
  * hooks for access control logics if needed.
  */
-public class UserPortfolioMaster implements PortfolioMaster {
+public class FinancialUserPortfolioMaster extends AbstractFinancialUserService implements PortfolioMaster {
 
-  private final String _userName;
-  private final String _clientName;
-  private final UserDataTracker _tracker;
+  /**
+   * The underlying master.
+   */
   private final PortfolioMaster _underlying;
 
   /**
@@ -33,13 +33,22 @@ public class UserPortfolioMaster implements PortfolioMaster {
    * 
    * @param userName  the user name, not null
    * @param clientName  the client name, not null
-   * @param tracker  the tracker of user data, not null
+   * @param tracker  the tracker, not null
    * @param underlying  the underlying master, not null
    */
-  public UserPortfolioMaster(final String userName, final String clientName, final UserDataTracker tracker, final PortfolioMaster underlying) {
-    _userName = userName;
-    _clientName = clientName;
-    _tracker = tracker;
+  public FinancialUserPortfolioMaster(String userName, String clientName, FinancialUserDataTracker tracker, PortfolioMaster underlying) {
+    super(userName, clientName, tracker, FinancialUserDataType.PORTFOLIO);
+    _underlying = underlying;
+  }
+
+  /**
+   * Creates an instance.
+   * 
+   * @param client  the client, not null
+   * @param underlying  the underlying master, not null
+   */
+  public FinancialUserPortfolioMaster(FinancialClient client, PortfolioMaster underlying) {
+    super(client, FinancialUserDataType.PORTFOLIO);
     _underlying = underlying;
   }
 
@@ -63,7 +72,7 @@ public class UserPortfolioMaster implements PortfolioMaster {
   public PortfolioDocument add(PortfolioDocument document) {
     document = _underlying.add(document);
     if (document.getUniqueId() != null) {
-      _tracker.created(_userName, _clientName, UserDataType.PORTFOLIO, document.getUniqueId());
+      created(document.getUniqueId());
     }
     return document;
   }
@@ -76,7 +85,7 @@ public class UserPortfolioMaster implements PortfolioMaster {
   @Override
   public void remove(UniqueId uniqueId) {
     _underlying.remove(uniqueId);
-    _tracker.deleted(_userName, _clientName, UserDataType.PORTFOLIO, uniqueId);
+    deleted(uniqueId);
   }
 
   @Override

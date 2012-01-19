@@ -22,13 +22,21 @@ import com.opengamma.master.security.SecuritySearchResult;
  * Wraps a security master to trap calls to record user based information to allow clean up and
  * hooks for access control logics if needed.
  */
-public class UserSecurityMaster implements SecurityMaster {
+public class FinancialUserSecurityMaster extends AbstractFinancialUserService implements SecurityMaster {
 
-  private final UserDataTrackerWrapper _tracker;
+  /**
+   * The underlying master.
+   */
   private final SecurityMaster _underlying;
 
-  public UserSecurityMaster(final String userName, final String clientName, final UserDataTracker tracker, final SecurityMaster underlying) {
-    _tracker = new UserDataTrackerWrapper(tracker, userName, clientName, UserDataType.SECURITY);
+  /**
+   * Creates an instance.
+   * 
+   * @param client  the client, not null
+   * @param underlying  the underlying master, not null
+   */
+  public FinancialUserSecurityMaster(FinancialClient client, SecurityMaster underlying) {
+    super(client, FinancialUserDataType.SECURITY);
     _underlying = underlying;
   }
 
@@ -57,7 +65,7 @@ public class UserSecurityMaster implements SecurityMaster {
   public SecurityDocument add(SecurityDocument document) {
     document = _underlying.add(document);
     if (document.getUniqueId() != null) {
-      _tracker.created(document.getUniqueId());
+      created(document.getUniqueId());
     }
     return document;
   }
@@ -70,7 +78,7 @@ public class UserSecurityMaster implements SecurityMaster {
   @Override
   public void remove(UniqueId uniqueId) {
     _underlying.remove(uniqueId);
-    _tracker.deleted(uniqueId);
+    deleted(uniqueId);
   }
 
   @Override
