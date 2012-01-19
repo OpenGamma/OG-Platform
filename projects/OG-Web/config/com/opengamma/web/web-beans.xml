@@ -154,7 +154,7 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
-            <entry key="remoteCalcNode" value-ref="calcNodeSocketConfigurationResource" />
+            <entry key="remoteCalcNode" value-ref="demoCalcNodeSocketConfiguration" />
             <entry key="securityMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/components/securityMaster/combined/" />
