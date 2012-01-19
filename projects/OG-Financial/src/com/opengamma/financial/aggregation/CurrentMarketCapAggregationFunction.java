@@ -68,7 +68,7 @@ public class CurrentMarketCapAggregationFunction implements AggregationFunction<
 
   
   public CurrentMarketCapAggregationFunction(SecuritySource secSource, HistoricalTimeSeriesSource htsSource) {
-    this(secSource, htsSource, true);
+    this(secSource, htsSource, false);
   }
   
   private EquitySecurityVisitor<Double> _equitySecurityVisitor = new EquitySecurityVisitor<Double>() {
