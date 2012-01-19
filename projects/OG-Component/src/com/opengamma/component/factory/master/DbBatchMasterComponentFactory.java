@@ -58,22 +58,23 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    ComponentInfo info = new ComponentInfo(BatchMaster.class, getClassifier());
+    ComponentInfo infoMaster = new ComponentInfo(BatchMaster.class, getClassifier());
     
-    // create
+    // master
     DbBatchMaster master = new DbBatchMaster(getDbConnector());
     if (getIdScheme() != null) {
       master.setUniqueIdScheme(getIdScheme());
     }
+    infoMaster.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, master.getUniqueIdScheme());
+    repo.registerComponent(infoMaster, master);
     
-    // register
-    info.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, master.getUniqueIdScheme());
-    repo.registerComponent(info, master);
+    // manager
+    ComponentInfo infoAdHoc = new ComponentInfo(AdHocBatchDbManager.class, getClassifier());
+    repo.registerComponent(infoAdHoc, master);
     
     // publish
     if (isPublishRest()) {
-      ComponentInfo adHocInfo = new ComponentInfo(AdHocBatchDbManager.class, getClassifier());
-      repo.getRestComponents().publish(adHocInfo, new DataAdHocBatchDbManagerResource(master));
+      repo.getRestComponents().publish(infoAdHoc, new DataAdHocBatchDbManagerResource(master));
     }
   }
 
