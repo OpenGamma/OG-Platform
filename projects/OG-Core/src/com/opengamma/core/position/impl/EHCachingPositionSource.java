@@ -245,4 +245,10 @@ public class EHCachingPositionSource implements PositionSource {
     _tradeCache.remove(latestId);
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + "[" + getUnderlying() + "]";
+  }
+
 }

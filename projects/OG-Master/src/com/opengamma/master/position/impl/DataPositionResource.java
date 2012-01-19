@@ -198,6 +198,9 @@ public class DataPositionResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
+    if (uniqueId.isLatest()) {
+      return uri(baseUri, uniqueId, null);
+    }
     return UriBuilder.fromUri(baseUri).path("/positions/{positionId}/versions/{versionId}")
       .build(uniqueId.toLatest(), uniqueId.getVersion());
   }
@@ -210,8 +213,8 @@ public class DataPositionResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriTrade(URI baseUri, UniqueId tradeId) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/positions/{positionId}/trades/{tradeId}");
-    return bld.build("-", tradeId);  // TODO: probably could do with a better URI
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("trades/{tradeId}");
+    return bld.build(tradeId);
   }
 
 }

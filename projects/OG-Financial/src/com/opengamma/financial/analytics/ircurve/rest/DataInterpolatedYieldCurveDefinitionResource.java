@@ -159,8 +159,11 @@ public class DataInterpolatedYieldCurveDefinitionResource extends AbstractDataRe
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
+    if (uniqueId.isLatest()) {
+      return uri(baseUri, uniqueId, null);
+    }
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("/definitions/{definitionId}/versions/{versionId}");
-    return bld.build(uniqueId.toLatest(), uniqueId.getVersion());
+    return bld.build(uniqueId.getObjectId(), uniqueId.getVersion());
   }
 
 }

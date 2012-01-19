@@ -14,6 +14,7 @@ import javax.ws.rs.core.UriBuilder;
 import com.opengamma.financial.user.FinancialUser;
 import com.opengamma.financial.user.FinancialUserManager;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for users.
@@ -21,7 +22,7 @@ import com.opengamma.util.ArgumentChecker;
  * This resource receives and processes RESTful calls.
  */
 @Path("userManager")
-public class DataFinancialUserManagerResource {
+public class DataFinancialUserManagerResource extends AbstractDataResource {
 
   /**
    * The user manager.

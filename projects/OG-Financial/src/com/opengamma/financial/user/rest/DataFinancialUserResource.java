@@ -8,13 +8,14 @@ package com.opengamma.financial.user.rest;
 import javax.ws.rs.Path;
 
 import com.opengamma.financial.user.FinancialUser;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for a single user.
  * <p>
  * This resource receives and processes RESTful calls.
  */
-public class DataFinancialUserResource {
+public class DataFinancialUserResource extends AbstractDataResource {
 
   /**
    * The user.

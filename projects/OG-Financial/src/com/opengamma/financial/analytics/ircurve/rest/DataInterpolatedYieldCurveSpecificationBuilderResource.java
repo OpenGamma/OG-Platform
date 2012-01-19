@@ -18,6 +18,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for the yield curve source.
@@ -25,7 +26,7 @@ import com.opengamma.util.ArgumentChecker;
  * This resource receives and processes RESTful calls to the source.
  */
 @Path("yieldCurveSpecificationBuilder")
-public class DataInterpolatedYieldCurveSpecificationBuilderResource {
+public class DataInterpolatedYieldCurveSpecificationBuilderResource extends AbstractDataResource {
 
   /**
    * The builder.

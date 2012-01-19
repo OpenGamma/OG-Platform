@@ -80,7 +80,7 @@ public class DataPositionSourceResource extends AbstractDataResource {
   @GET
   @Path("nodes/{nodeId}")
   public Response getNode(
-      @PathParam("positionId") String idStr,
+      @PathParam("nodeId") String idStr,
       @QueryParam("version") String version) {
     final ObjectId objectId = ObjectId.parse(idStr);
     final PortfolioNode result = getPositionSource().getPortfolioNode(objectId.atVersion(version));
@@ -98,9 +98,9 @@ public class DataPositionSourceResource extends AbstractDataResource {
   }
 
   @GET
-  @Path("positions/{positionId}")
+  @Path("trades/{tradeId}")
   public Response getTrade(
-      @PathParam("positionId") String idStr,
+      @PathParam("tradeId") String idStr,
       @QueryParam("version") String version) {
     final ObjectId objectId = ObjectId.parse(idStr);
     final Trade result = getPositionSource().getTrade(objectId.atVersion(version));

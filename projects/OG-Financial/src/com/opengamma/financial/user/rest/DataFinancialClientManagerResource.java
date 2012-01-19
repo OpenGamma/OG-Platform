@@ -14,13 +14,14 @@ import javax.ws.rs.core.UriBuilder;
 import com.opengamma.financial.user.FinancialClient;
 import com.opengamma.financial.user.FinancialClientManager;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for the clients of a single user.
  * <p>
  * This resource receives and processes RESTful calls.
  */
-public class DataFinancialClientManagerResource {
+public class DataFinancialClientManagerResource extends AbstractDataResource {
 
   /**
    * The client manager.

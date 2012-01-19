@@ -15,6 +15,7 @@ import javax.ws.rs.core.UriBuilder;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for repository configuration.
@@ -22,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
  * This resource receives and processes RESTful calls to the source.
  */
 @Path("/repoConfigSource")
-public class DataRepositoryConfigurationSourceResource {
+public class DataRepositoryConfigurationSourceResource extends AbstractDataResource {
 
   /**
    * The source.

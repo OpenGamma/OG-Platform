@@ -18,6 +18,7 @@ import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for currency pairs.
@@ -25,7 +26,7 @@ import com.opengamma.util.money.Currency;
  * This resource receives and processes RESTful calls to the source.
  */
 @Path("/currencyPairsSource")
-public class DataCurrencyPairsSourceResource {
+public class DataCurrencyPairsSourceResource extends AbstractDataResource {
 
   /**
    * The source.

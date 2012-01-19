@@ -21,13 +21,14 @@ import com.opengamma.master.marketdatasnapshot.impl.DataMarketDataSnapshotMaster
 import com.opengamma.master.portfolio.impl.DataPortfolioMasterResource;
 import com.opengamma.master.position.impl.DataPositionMasterResource;
 import com.opengamma.master.security.impl.DataSecurityMasterResource;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for a single client of a single user.
  * <p>
  * This resource receives and processes RESTful calls.
  */
-public class DataFinancialClientResource {
+public class DataFinancialClientResource extends AbstractDataResource {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DataFinancialClientResource.class);

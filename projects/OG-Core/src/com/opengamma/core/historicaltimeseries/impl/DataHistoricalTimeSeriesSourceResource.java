@@ -259,7 +259,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
   public static URI uriSearchSingle(
       URI baseUri, ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/hts/search");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/hts/searchSingle");
     bld.queryParam("id", identifierBundle.toStringList().toArray());
     if (dataSource != null) {
       bld.queryParam("dataSource", dataSource);
@@ -287,7 +287,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
   public static URI uriSearchSingle(
       URI baseUri, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/hts/search");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/hts/searchSingle");
     bld.queryParam("id", identifierBundle.toStringList().toArray());
     bld.queryParam("idValidityDate", (identifierValidityDate != null ? identifierValidityDate : "ALL"));
     if (dataSource != null) {

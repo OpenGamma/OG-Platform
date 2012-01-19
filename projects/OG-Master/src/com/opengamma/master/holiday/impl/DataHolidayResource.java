@@ -189,6 +189,9 @@ public class DataHolidayResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
+    if (uniqueId.isLatest()) {
+      return uri(baseUri, uniqueId, null);
+    }
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("/holidays/{holidayId}/versions/{versionId}");
     return bld.build(uniqueId.toLatest(), uniqueId.getVersion());
   }

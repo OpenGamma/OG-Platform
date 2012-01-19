@@ -22,6 +22,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinitionDocument;
 import com.opengamma.id.ObjectId;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for the yield curve master.
@@ -29,7 +30,7 @@ import com.opengamma.util.ArgumentChecker;
  * This resource receives and processes RESTful calls to the master.
  */
 @Path("yieldCurveDefinitionMaster")
-public class DataInterpolatedYieldCurveDefinitionMasterResource {
+public class DataInterpolatedYieldCurveDefinitionMasterResource extends AbstractDataResource {
 
   /**
    * The master.

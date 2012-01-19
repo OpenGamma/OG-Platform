@@ -20,6 +20,7 @@ import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitio
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for the volatility cube source.
@@ -27,7 +28,7 @@ import com.opengamma.util.money.Currency;
  * This resource receives and processes RESTful calls to the source.
  */
 @Path("volatilityCubeDefinitionSource")
-public class DataVolatilityCubeDefinitionSourceResource {
+public class DataVolatilityCubeDefinitionSourceResource extends AbstractDataResource {
 
   /**
    * The source.

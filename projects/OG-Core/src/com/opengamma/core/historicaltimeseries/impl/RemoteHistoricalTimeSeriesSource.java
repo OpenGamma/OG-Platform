@@ -230,7 +230,7 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
     
     URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchBulk(getBaseUri());
     FudgeMsg msg = DataHistoricalTimeSeriesSourceResource.uriSearchBulkData(identifierSet, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd);
-    return accessRemote(uri).post(FudgeMapWrapper.class, msg).getWrappedMap();
+    return accessRemote(uri).post(FudgeMapWrapper.class, msg).getMap();
   }
 
   //-------------------------------------------------------------------------

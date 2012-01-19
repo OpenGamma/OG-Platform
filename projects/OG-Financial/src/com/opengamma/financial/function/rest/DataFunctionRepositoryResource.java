@@ -22,6 +22,7 @@ import com.opengamma.engine.function.FunctionParameters;
 import com.opengamma.engine.function.FunctionRepository;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for the function repository intended for debugging.
@@ -29,7 +30,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * This resource receives and processes RESTful calls to the source.
  */
 @Path("functionRepository")
-public class DataFunctionRepositoryResource {
+public class DataFunctionRepositoryResource extends AbstractDataResource {
 
   /**
    * The repository.

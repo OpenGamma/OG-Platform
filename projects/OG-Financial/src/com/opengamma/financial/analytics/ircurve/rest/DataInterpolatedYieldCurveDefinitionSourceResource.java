@@ -20,6 +20,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for the yield curve source.
@@ -27,7 +28,7 @@ import com.opengamma.util.money.Currency;
  * This resource receives and processes RESTful calls to the source.
  */
 @Path("yieldCurveDefinitionSource")
-public class DataInterpolatedYieldCurveDefinitionSourceResource {
+public class DataInterpolatedYieldCurveDefinitionSourceResource extends AbstractDataResource {
 
   /**
    * The source.

@@ -176,6 +176,9 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId, String filterMsg) {
+    if (uniqueId.isLatest()) {
+      return uri(baseUri, uniqueId, null, filterMsg);
+    }
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("/dataPoints/{dpId}/versions/{versionId}");
     if (filterMsg != null) {
       bld.queryParam("filter", filterMsg);

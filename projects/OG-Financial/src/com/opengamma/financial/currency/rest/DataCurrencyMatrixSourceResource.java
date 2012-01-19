@@ -16,6 +16,7 @@ import javax.ws.rs.core.UriBuilder;
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for currency matrices.
@@ -23,7 +24,7 @@ import com.opengamma.util.ArgumentChecker;
  * This resource receives and processes RESTful calls to the source.
  */
 @Path("/currencyMatrixSource")
-public class DataCurrencyMatrixSourceResource {
+public class DataCurrencyMatrixSourceResource extends AbstractDataResource {
 
   /**
    * The source.

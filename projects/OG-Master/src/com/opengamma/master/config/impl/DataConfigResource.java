@@ -209,6 +209,9 @@ public class DataConfigResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId, Class<?> type) {
+    if (uniqueId.isLatest()) {
+      return uri(baseUri, uniqueId, null, type);
+    }
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("/configs/{configId}/versions/{versionId}");
     if (type != null) {
       bld.queryParam("type", type.getName());
