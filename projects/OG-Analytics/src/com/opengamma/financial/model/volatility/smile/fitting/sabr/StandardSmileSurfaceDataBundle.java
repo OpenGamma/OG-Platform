@@ -122,9 +122,9 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
     final int prime = 31;
     int result = 1;
     result = prime * result + _forwardCurve.hashCode();
-    result = prime * result + Arrays.hashCode(_impliedVols);
+    result = prime * result + Arrays.deepHashCode(_impliedVols);
     result = prime * result + (_isCallData ? 1231 : 1237);
-    result = prime * result + Arrays.hashCode(_strikes);
+    result = prime * result + Arrays.deepHashCode(_strikes);
     result = prime * result + Arrays.hashCode(_expiries);
     return result;
   }
@@ -144,13 +144,13 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
     if (!ObjectUtils.equals(_forwardCurve, other._forwardCurve)) {
       return false;
     }
-    if (!Arrays.equals(_strikes, other._strikes)) {
-      return false;
-    }
     if (!Arrays.equals(_expiries, other._expiries)) {
       return false;
     }
     for (int i = 0; i < _nExpiries; i++) {
+      if (!Arrays.equals(_strikes[i], other._strikes[i])) {
+        return false;
+      }
       if (!Arrays.equals(_impliedVols[i], other._impliedVols[i])) {
         return false;
       }

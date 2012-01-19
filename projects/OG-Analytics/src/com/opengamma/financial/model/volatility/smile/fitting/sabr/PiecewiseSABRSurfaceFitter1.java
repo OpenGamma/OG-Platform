@@ -6,12 +6,14 @@
 package com.opengamma.financial.model.volatility.smile.fitting.sabr;
 
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.StrikeType;
 
 /**
  * 
+ * @param <T> The parameterisation type of the volatility surface
  */
-public interface PiecewiseSABRSurfaceFitter1 {
+public interface PiecewiseSABRSurfaceFitter1<T extends StrikeType> {
 
-  BlackVolatilitySurface getVolatilitySurface(SmileSurfaceDataBundle data);
+  BlackVolatilitySurface<T> getVolatilitySurface(SmileSurfaceDataBundle data);
 
 }

@@ -8,7 +8,6 @@ package com.opengamma.financial.model.volatility.smile.fitting.sabr;
 import java.util.Arrays;
 import java.util.BitSet;
 
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -19,6 +18,7 @@ import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatili
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -34,25 +34,27 @@ public class PiecewiseSABRFitter1 {
   }
 
   public PiecewiseSABRFitter1(final double defaultBeta, final WeightingFunction weightingFunction) {
+    ArgumentChecker.isTrue(ArgumentChecker.isInRangeInclusive(0, 1, defaultBeta), "Beta must be >= 0 and <= 1; have {}", defaultBeta);
+    ArgumentChecker.notNull(weightingFunction, "weighting function");
     _defaultBeta = defaultBeta;
     _weightingFunction = weightingFunction;
   }
 
   public Function1D<Double, Double> getVolatilityFunction(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
-    Validate.notNull(strikes, "null strikes");
-    Validate.notNull(impliedVols, "null impliedVols");
+    ArgumentChecker.notNull(strikes, "strikes");
+    ArgumentChecker.notNull(impliedVols, "implied volatilities");
     final int n = strikes.length;
-    Validate.isTrue(n > 2, "cannot fit less than three points");
-    Validate.isTrue(impliedVols.length == n, "#strikes != # vols");
+    ArgumentChecker.isTrue(n > 2, "cannot fit less than three points; have {}", n);
+    ArgumentChecker.isTrue(impliedVols.length == n, "#strikes != # vols; have {} and {}", impliedVols.length, n);
     validateStrikes(strikes);
 
-    double avVol = 0;
+    double averageVol = 0;
     for (int i = 0; i < n; i++) {
-      avVol += impliedVols[i];
+      averageVol += impliedVols[i];
     }
-    avVol /= n;
-    final double appoxAlpha = avVol * Math.pow(forward, 1 - _defaultBeta);
-    DoubleMatrix1D start = new DoubleMatrix1D(appoxAlpha, _defaultBeta, 0.0, 0.3);
+    averageVol /= n;
+    final double approxAlpha = averageVol * Math.pow(forward, 1 - _defaultBeta);
+    DoubleMatrix1D start = new DoubleMatrix1D(approxAlpha, _defaultBeta, 0.0, 0.3);
     final SABRFormulaData[] modelParams = new SABRFormulaData[n - 2];
 
     double[] errors = new double[n];
@@ -124,7 +126,8 @@ public class PiecewiseSABRFitter1 {
   private void validateStrikes(final double[] strikes) {
     final int n = strikes.length;
     for (int i = 1; i < n; i++) {
-      Validate.isTrue(strikes[i] > strikes[i - 1], "strikes not in ascending order or equal strikes ");
+      ArgumentChecker.isTrue(strikes[i] > strikes[i - 1],
+          "strikes must be in ascending order; have {} (element {}) and {} (element {})", strikes[i - 1], i - 1, strikes[i], i);
     }
   }
 }

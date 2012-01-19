@@ -5,20 +5,20 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting.sabr;
 
-import org.apache.commons.lang.Validate;
+import java.util.Arrays;
+
+import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.option.definition.SmileDeltaParameter;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
-import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
-import com.opengamma.math.interpolation.Interpolator1DFactory;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
 public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
-  private static final Interpolator1D EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
   private final double[] _forwards;
   private final double[] _expiries;
   private final double[][] _strikes;
@@ -28,32 +28,37 @@ public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
   private final boolean _isCallData;
 
   public ForexSmileDeltaSurfaceDataBundle(final double[] forwards, final double[] expiries, final double[] deltas, final double[] atms, final double[][] riskReversals,
-      final double[][] strangle, final boolean isCallData) {
-    Validate.notNull(deltas, "null delta");
-    Validate.notNull(forwards, "null forwards");
-    Validate.notNull(expiries, "null expiries");
-    Validate.notNull(atms, "null atms");
-    Validate.notNull(riskReversals, "null rr");
-    Validate.notNull(strangle, "null bf");
+      final double[][] strangle, final boolean isCallData, final Interpolator1D interpolator) {
+    ArgumentChecker.notNull(deltas, "delta");
+    ArgumentChecker.notNull(forwards, "forwards");
+    ArgumentChecker.notNull(expiries, "expiries");
+    ArgumentChecker.notNull(atms, "at-the-money");
+    ArgumentChecker.notNull(riskReversals, "risk reversal");
+    ArgumentChecker.notNull(strangle, "strangle");
     _nExpiries = expiries.length;
-    Validate.isTrue(_nExpiries == forwards.length, "forwards wrong length");
-    Validate.isTrue(_nExpiries == atms.length, "atms wrong length");
+    ArgumentChecker.isTrue(_nExpiries == forwards.length, "forwards wrong length; have {}, need {}", forwards.length, _nExpiries);
+    ArgumentChecker.isTrue(_nExpiries == atms.length, "atms wrong length; have {}, need {}", atms.length, _nExpiries);
     final int n = deltas.length;
-    Validate.isTrue(n > 0, "need at lest one delta");
-    Validate.isTrue(n == riskReversals.length, "wrong number of rr sets");
-    Validate.isTrue(n == strangle.length, "wrong number of bf sets");
+    ArgumentChecker.isTrue(n > 0, "need at least one delta");
+    ArgumentChecker.isTrue(n == riskReversals.length, "wrong number of rr sets; have {}, need {}", riskReversals.length, n);
+    ArgumentChecker.isTrue(n == strangle.length, "wrong number of strangle sets; have {}, need {}", strangle.length, n);
     for (int i = 0; i < n; i++) {
-      Validate.isTrue(_nExpiries == riskReversals[i].length, "wrong number of rr");
-      Validate.isTrue(_nExpiries == strangle[i].length, "wrong number of bf");
+      ArgumentChecker.isTrue(_nExpiries == riskReversals[i].length, "wrong number of rr; have {}, need {}", riskReversals[i].length, _nExpiries);
+      ArgumentChecker.isTrue(_nExpiries == strangle[i].length, "wrong number of strangles; have {}, need {}", strangle[i].length, _nExpiries);
     }
     _forwards = forwards;
     _expiries = expiries;
-    _forwardCurve = new ForwardCurve(InterpolatedDoublesCurve.from(_expiries, _forwards, EXTRAPOLATOR));
+    _forwardCurve = new ForwardCurve(InterpolatedDoublesCurve.from(_expiries, _forwards, interpolator));
     _strikes = new double[_nExpiries][];
     _vols = new double[_nExpiries][];
     for (int i = 0; i < _nExpiries; i++) {
-      final SmileDeltaParameter cal = new SmileDeltaParameter(_expiries[i], atms[i], deltas,
-          new double[] {riskReversals[0][i], riskReversals[1][i] }, new double[] {strangle[0][i], strangle[1][i] });
+      final double[] rr = new double[n];
+      final double[] s = new double[n];
+      for (int j = 0; j < n; j++) {
+        rr[j] = riskReversals[j][i];
+        s[j] = strangle[j][i];
+      }
+      final SmileDeltaParameter cal = new SmileDeltaParameter(_expiries[i], atms[i], deltas, rr, s);
       _strikes[i] = cal.getStrike(_forwards[i]);
       _vols[i] = cal.getVolatility();
     }
@@ -63,21 +68,21 @@ public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
 
   public ForexSmileDeltaSurfaceDataBundle(final ForwardCurve forwardCurve, final double[] expiries, final double[] deltas, final double[] atms, final double[][] riskReversals,
       final double[][] strangle, final boolean isCallData) {
-    Validate.notNull(deltas, "null delta");
-    Validate.notNull(forwardCurve, "null forward curve");
-    Validate.notNull(expiries, "null expiries");
-    Validate.notNull(atms, "null atms");
-    Validate.notNull(riskReversals, "null rr");
-    Validate.notNull(strangle, "null bf");
+    ArgumentChecker.notNull(deltas, "delta");
+    ArgumentChecker.notNull(forwardCurve, "forward curve");
+    ArgumentChecker.notNull(expiries, "expiries");
+    ArgumentChecker.notNull(atms, "atms");
+    ArgumentChecker.notNull(riskReversals, "risk reversals");
+    ArgumentChecker.notNull(strangle, "strangle");
     _nExpiries = expiries.length;
-    Validate.isTrue(_nExpiries == atms.length, "atms wrong length");
+    ArgumentChecker.isTrue(_nExpiries == atms.length, "atms wrong length; have {}, need {}", atms.length, _nExpiries);
     final int n = deltas.length;
-    Validate.isTrue(n > 0, "need at lest one delta");
-    Validate.isTrue(n == riskReversals.length, "wrong number of rr sets");
-    Validate.isTrue(n == strangle.length, "wrong number of bf sets");
+    ArgumentChecker.isTrue(n > 0, "need at least one delta");
+    ArgumentChecker.isTrue(n == riskReversals.length, "wrong number of rr sets; have {}, need {}", riskReversals.length, n);
+    ArgumentChecker.isTrue(n == strangle.length, "wrong number of strangle sets; have {}, need {}", strangle.length, n);
     for (int i = 0; i < n; i++) {
-      Validate.isTrue(_nExpiries == riskReversals[i].length, "wrong number of rr");
-      Validate.isTrue(_nExpiries == strangle[i].length, "wrong number of bf");
+      ArgumentChecker.isTrue(_nExpiries == riskReversals[i].length, "wrong number of rr; have {}, need {}", riskReversals[i].length, _nExpiries);
+      ArgumentChecker.isTrue(_nExpiries == strangle[i].length, "wrong number of strangles; have {}, need {}", strangle[i].length, _nExpiries);
     }
     _forwards = new double[_nExpiries];
     _expiries = expiries;
@@ -86,8 +91,13 @@ public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
     _vols = new double[_nExpiries][];
     for (int i = 0; i < _nExpiries; i++) {
       _forwards[i] = forwardCurve.getForward(_expiries[i]);
-      final SmileDeltaParameter cal = new SmileDeltaParameter(_expiries[i], atms[i], deltas,
-          new double[] {riskReversals[0][i], riskReversals[1][i] }, new double[] {strangle[0][i], strangle[1][i] });
+      final double[] rr = new double[n];
+      final double[] s = new double[n];
+      for (int j = 0; j < n; j++) {
+        rr[j] = riskReversals[j][i];
+        s[j] = strangle[j][i];
+      }
+      final SmileDeltaParameter cal = new SmileDeltaParameter(_expiries[i], atms[i], deltas, rr, s);
       _strikes[i] = cal.getStrike(_forwards[i]);
       _vols[i] = cal.getVolatility();
     }
@@ -127,14 +137,61 @@ public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
 
   @Override
   public SmileSurfaceDataBundle withBumpedPoint(final int expiryIndex, final int strikeIndex, final double amount) {
+    ArgumentChecker.isTrue(ArgumentChecker.isInRangeExcludingHigh(0, _nExpiries, expiryIndex), "Invalid index for expiry; {}", expiryIndex);
     final double[][] strikes = getStrikes();
+    ArgumentChecker.isTrue(ArgumentChecker.isInRangeExcludingHigh(0, strikes[expiryIndex].length, strikeIndex), "Invalid index for strike; {}", strikeIndex);
     final int nStrikes = strikes[expiryIndex].length;
-    Validate.isTrue(strikeIndex >= 0 && strikeIndex < nStrikes, "strike index out of range");
-    final double[][] vols = new double[nStrikes][];
+    final double[][] vols = new double[_nExpiries][];
     for (int i = 0; i < _nExpiries; i++) {
+      vols[i] = new double[nStrikes];
       System.arraycopy(_vols[i], 0, vols[i], 0, nStrikes);
     }
     vols[expiryIndex][strikeIndex] += amount;
+    //TODO eventually, we will need to be able to back out deltas, etc., and return an object of this type
     return new StandardSmileSurfaceDataBundle(getForwardCurve(), getExpiries(), getStrikes(), vols, isCallData());
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _forwardCurve.hashCode();
+    result = prime * result + Arrays.deepHashCode(_vols);
+    result = prime * result + (_isCallData ? 1231 : 1237);
+    result = prime * result + Arrays.deepHashCode(_strikes);
+    result = prime * result + Arrays.hashCode(_expiries);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final ForexSmileDeltaSurfaceDataBundle other = (ForexSmileDeltaSurfaceDataBundle) obj;
+    if (!ObjectUtils.equals(_forwardCurve, other._forwardCurve)) {
+      return false;
+    }
+    if (!Arrays.equals(_expiries, other._expiries)) {
+      return false;
+    }
+    for (int i = 0; i < _nExpiries; i++) {
+      if (!Arrays.equals(_strikes[i], other._strikes[i])) {
+        return false;
+      }
+      if (!Arrays.equals(_vols[i], other._vols[i])) {
+        return false;
+      }
+    }
+    if (_isCallData != other._isCallData) {
+      return false;
+    }
+    return true;
   }
 }
