@@ -95,8 +95,7 @@ public class RemoteClient {
     private URI _historicalTimeSeriesMaster;
 
     public void setPortfolioMaster(final URI portfolioMaster) {
-      // The remote portfolio master is broken and assumes a "portfolio" prefix on its URLs 
-      _portfolioMaster = (portfolioMaster != null) ? portfolioMaster.resolve(".") : null;
+      _portfolioMaster = portfolioMaster;
     }
 
     @Override
@@ -105,8 +104,7 @@ public class RemoteClient {
     }
 
     public void setPositionMaster(final URI positionMaster) {
-      // The remote position master is broken and assumes a "position" prefix on its URLs
-      _positionMaster = (positionMaster != null) ? positionMaster.resolve(".") : null;
+      _positionMaster = positionMaster;
     }
 
     @Override
