@@ -13,6 +13,7 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
+import com.opengamma.financial.convention.yield.YieldConvention;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -72,13 +73,24 @@ public final class BillSecurityDiscountingMethod implements PricingMethod {
    * @return The price.
    */
   public double priceFromYield(final BillSecurity bill, final double yield) {
-    if (bill.getYieldConvention() == SimpleYieldConvention.DISCOUNT) {
-      return 1.0 - bill.getAccralFactor() * yield;
+    return priceFromYield(bill.getYieldConvention(), yield, bill.getAccralFactor());
+  }
+
+  /**
+   * Compute the bill price from the yield. The price is the relative price at settlement.
+   * @param convention The yield convention.
+   * @param yield The yield in the bill yield convention.
+   * @param accrualFactor The accrual factor between settlement and maturity.
+   * @return The price.
+   */
+  public double priceFromYield(final YieldConvention convention, final double yield, final double accrualFactor) {
+    if (convention == SimpleYieldConvention.DISCOUNT) {
+      return 1.0 - accrualFactor * yield;
     }
-    if (bill.getYieldConvention() == SimpleYieldConvention.INTERESTATMTY) {
-      return 1.0 / (1 + bill.getAccralFactor() * yield);
+    if (convention == SimpleYieldConvention.INTERESTATMTY) {
+      return 1.0 / (1 + accrualFactor * yield);
     }
-    throw new UnsupportedOperationException("The convention " + bill.getYieldConvention().getConventionName() + " is not supported.");
+    throw new UnsupportedOperationException("The convention " + convention.getConventionName() + " is not supported.");
   }
 
   /**

@@ -53,14 +53,14 @@ public class BillTransactionDiscountingMethodTest {
   private final static String ISSUER_BEL = "BELGIUM GOVT";
   private final static ZonedDateTime END_DATE = DateUtils.getUTCDate(2012, 3, 15);
   private final static double NOTIONAL = 1000;
-  //  private static final double YIELD = 0.00185; // External source
-  private static final double PRICE = 0.99971; // External source
+  private static final double YIELD = 0.00185; // External source
+  //  private static final double PRICE = 0.99971; // External source
 
   private final static ZonedDateTime SETTLE_DATE = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, SETTLEMENT_DAYS, CALENDAR);
   private final static String[] NAME_CURVES = TestsDataSetsSABR.nameCurvesBond3();
   private final static BillSecurityDefinition BILL_SEC_DEFINITION = new BillSecurityDefinition(EUR, END_DATE, NOTIONAL, SETTLEMENT_DAYS, CALENDAR, YIELD_CONVENTION, ACT360, ISSUER_BEL);
   private final static double QUANTITY = 123456.7;
-  private final static BillTransactionDefinition BILL_TRA_DEFINITION = new BillTransactionDefinition(BILL_SEC_DEFINITION, QUANTITY, SETTLE_DATE, -PRICE * NOTIONAL * QUANTITY);
+  private final static BillTransactionDefinition BILL_TRA_DEFINITION = BillTransactionDefinition.fromYield(BILL_SEC_DEFINITION, QUANTITY, SETTLE_DATE, YIELD);
   private final static BillTransaction BILL_TRA = BILL_TRA_DEFINITION.toDerivative(REFERENCE_DATE, NAME_CURVES);
 
   private final static YieldCurveBundle CURVE_BUNDLE = TestsDataSetsSABR.createCurvesBond3();

@@ -54,7 +54,7 @@ public class UnderlyingAggregationFunction implements AggregationFunction<String
   }
   
   public UnderlyingAggregationFunction(SecuritySource secSource, ExternalScheme preferredScheme) {
-    this(secSource, preferredScheme, true);
+    this(secSource, preferredScheme, false);
   }
   
   public UnderlyingAggregationFunction(SecuritySource secSource, ExternalScheme preferredScheme, boolean useAttributes) {
