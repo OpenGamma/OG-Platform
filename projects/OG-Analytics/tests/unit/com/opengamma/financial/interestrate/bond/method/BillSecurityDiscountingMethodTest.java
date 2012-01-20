@@ -27,6 +27,7 @@ import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.bond.calculator.YieldFromCurvesCalculator;
 import com.opengamma.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -64,6 +65,7 @@ public class BillSecurityDiscountingMethodTest {
   private final static BillSecurityDiscountingMethod METHOD_SECURITY = BillSecurityDiscountingMethod.getInstance();
   private final static PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private final static PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
+  private final static YieldFromCurvesCalculator YFCC = YieldFromCurvesCalculator.getInstance();
 
   private static final double TOLERANCE_PV = 1.0E-2;
   private static final double TOLERANCE_PRICE = 1.0E-8;
@@ -160,6 +162,13 @@ public class BillSecurityDiscountingMethodTest {
     double priceComputed = METHOD_SECURITY.priceFromCurves(BILL_SEC, CURVE_BUNDLE);
     double yieldExpected = METHOD_SECURITY.yieldFromPrice(BILL_SEC, priceComputed);
     assertEquals("Bill Security: discounting method - yield", yieldExpected, yieldComputed, TOLERANCE_YIELD);
+  }
+
+  @Test
+  public void yieldFromCurvesMethodVsCalculator() {
+    double yieldMethod = METHOD_SECURITY.yieldFromCurves(BILL_SEC, CURVE_BUNDLE);
+    double yieldCalculator = YFCC.visit(BILL_SEC, CURVE_BUNDLE);
+    assertEquals("Bill Security: discounting method - yield", yieldMethod, yieldCalculator, TOLERANCE_YIELD);
   }
 
   @Test

@@ -327,6 +327,13 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
+            <entry key="liveDataClient">
+              <map>
+                <entry key="subscriptionTopic" value="${liveDataClient.subscriptionTopic}" />
+                <entry key="entitlementTopic" value="${liveDataClient.entitlementTopic}" />
+                <entry key="heartbeatTopic" value="${liveDataClient.heartbeatTopic}" />
+              </map>
+            </entry>
             <entry key="marketDataSnapshotMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/marketDataSnapshotMaster/0/" />
