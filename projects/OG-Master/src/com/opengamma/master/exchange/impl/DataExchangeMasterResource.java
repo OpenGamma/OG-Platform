@@ -8,17 +8,14 @@ package com.opengamma.master.exchange.impl;
 import java.net.URI;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.exchange.ExchangeDocument;
@@ -34,7 +31,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The exchanges resource receives and processes RESTful calls to the exchange master.
  */
-@Path("/exgMaster")
+@Path("exchangeMaster")
 public class DataExchangeMasterResource extends AbstractDataResource {
 
   /**
@@ -70,10 +67,10 @@ public class DataExchangeMasterResource extends AbstractDataResource {
     return Response.ok().build();
   }
 
-  @GET
-  @Path("exchanges")
-  public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    ExchangeSearchRequest request = decodeBean(ExchangeSearchRequest.class, providers, msgBase64);
+  @POST
+  @Path("exchangeSearches")
+  @Consumes(FudgeRest.MEDIA)
+  public Response search(ExchangeSearchRequest request) {
     ExchangeSearchResult result = getExchangeMaster().search(request);
     return Response.ok(result).build();
   }
@@ -96,17 +93,24 @@ public class DataExchangeMasterResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for all exchanges.
+   * Builds a URI.
    * 
    * @param baseUri  the base URI, not null
-   * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges");
-    if (searchMsg != null) {
-      bld.queryParam("msg", searchMsg);
-    }
+  public static URI uriSearch(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("exchangeSearches");
+    return bld.build();
+  }
+
+  /**
+   * Builds a URI.
+   * 
+   * @param baseUri  the base URI, not null
+   * @return the URI, not null
+   */
+  public static URI uriAdd(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("exchanges");
     return bld.build();
   }
 

@@ -51,9 +51,8 @@ public class RemotePositionMaster extends AbstractRemoteMaster implements Positi
   public PositionSearchResult search(final PositionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataPositionMasterResource.uri(getBaseUri(), msgBase64);
-    return accessRemote(uri).get(PositionSearchResult.class);
+    URI uri = DataPositionMasterResource.uriSearch(getBaseUri());
+    return accessRemote(uri).post(PositionSearchResult.class, request);
   }
 
   //-------------------------------------------------------------------------
@@ -84,7 +83,7 @@ public class RemotePositionMaster extends AbstractRemoteMaster implements Positi
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getPosition(), "document.position");
     
-    URI uri = DataPositionMasterResource.uri(getBaseUri(), null);
+    URI uri = DataPositionMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(PositionDocument.class, document);
   }
 

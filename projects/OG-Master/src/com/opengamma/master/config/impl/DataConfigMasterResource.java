@@ -36,7 +36,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The configs resource receives and processes RESTful calls to the config master.
  */
-@Path("/cfgMaster")
+@Path("configMaster")
 public class DataConfigMasterResource extends AbstractDataResource {
 
   /**
@@ -83,10 +83,11 @@ public class DataConfigMasterResource extends AbstractDataResource {
     return Response.ok().build();
   }
 
-  @GET
-  @Path("configs")
-  public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    ConfigSearchRequest<?> request = decodeBean(ConfigSearchRequest.class, providers, msgBase64);
+  @SuppressWarnings({"rawtypes", "unchecked" })  // necessary to stop Jersey issuing warnings due to <?>
+  @POST
+  @Path("configSearches")
+  @Consumes(FudgeRest.MEDIA)
+  public Response search(ConfigSearchRequest request) {
     ConfigSearchResult<?> result = getConfigMaster().search(request);
     return Response.ok(result).build();
   }
@@ -117,7 +118,7 @@ public class DataConfigMasterResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriMetaData(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/metaData");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("metaData");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }
@@ -125,17 +126,24 @@ public class DataConfigMasterResource extends AbstractDataResource {
   }
 
   /**
-   * Builds a URI for all configs.
+   * Builds a URI.
    * 
    * @param baseUri  the base URI, not null
-   * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/configs");
-    if (searchMsg != null) {
-      bld.queryParam("msg", searchMsg);
-    }
+  public static URI uriSearch(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("configSearches");
+    return bld.build();
+  }
+
+  /**
+   * Builds a URI.
+   * 
+   * @param baseUri  the base URI, not null
+   * @return the URI, not null
+   */
+  public static URI uriAdd(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("configs");
     return bld.build();
   }
 

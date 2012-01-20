@@ -8,17 +8,14 @@ package com.opengamma.master.region.impl;
 import java.net.URI;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.region.RegionDocument;
@@ -34,7 +31,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The regions resource receives and processes RESTful calls to the region master.
  */
-@Path("/regMaster")
+@Path("regionMaster")
 public class DataRegionMasterResource extends AbstractDataResource {
 
   /**
@@ -70,10 +67,10 @@ public class DataRegionMasterResource extends AbstractDataResource {
     return Response.ok().build();
   }
 
-  @GET
-  @Path("regions")
-  public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    RegionSearchRequest request = decodeBean(RegionSearchRequest.class, providers, msgBase64);
+  @POST
+  @Path("regionSearches")
+  @Consumes(FudgeRest.MEDIA)
+  public Response search(RegionSearchRequest request) {
     RegionSearchResult result = getRegionMaster().search(request);
     return Response.ok(result).build();
   }
@@ -96,17 +93,24 @@ public class DataRegionMasterResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for all regions.
+   * Builds a URI.
    * 
    * @param baseUri  the base URI, not null
-   * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/regions");
-    if (searchMsg != null) {
-      bld.queryParam("msg", searchMsg);
-    }
+  public static URI uriSearch(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("regionSearches");
+    return bld.build();
+  }
+
+  /**
+   * Builds a URI.
+   * 
+   * @param baseUri  the base URI, not null
+   * @return the URI, not null
+   */
+  public static URI uriAdd(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("regions");
     return bld.build();
   }
 

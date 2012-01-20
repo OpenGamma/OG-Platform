@@ -61,9 +61,8 @@ public class RemoteSecurityMaster extends AbstractRemoteMaster implements Securi
   public SecuritySearchResult search(final SecuritySearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataSecurityMasterResource.uri(getBaseUri(), msgBase64);
-    return accessRemote(uri).get(SecuritySearchResult.class);
+    URI uri = DataSecurityMasterResource.uriSearch(getBaseUri());
+    return accessRemote(uri).post(SecuritySearchResult.class, request);
   }
 
   //-------------------------------------------------------------------------
@@ -94,7 +93,7 @@ public class RemoteSecurityMaster extends AbstractRemoteMaster implements Securi
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getSecurity(), "document.security");
     
-    URI uri = DataSecurityMasterResource.uri(getBaseUri(), null);
+    URI uri = DataSecurityMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(SecurityDocument.class, document);
   }
 

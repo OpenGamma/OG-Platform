@@ -62,9 +62,8 @@ public class RemoteConfigMaster extends AbstractRemoteMaster implements ConfigMa
   public <T> ConfigSearchResult<T> search(final ConfigSearchRequest<T> request) {
     ArgumentChecker.notNull(request, "request");
     
-    String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataConfigMasterResource.uri(getBaseUri(), msgBase64);
-    return accessRemote(uri).get(ConfigSearchResult.class);
+    URI uri = DataConfigMasterResource.uriSearch(getBaseUri());
+    return accessRemote(uri).post(ConfigSearchResult.class, request);
   }
 
   //-------------------------------------------------------------------------
@@ -109,7 +108,7 @@ public class RemoteConfigMaster extends AbstractRemoteMaster implements ConfigMa
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getValue(), "document.config");
     
-    URI uri = DataConfigMasterResource.uri(getBaseUri(), null);
+    URI uri = DataConfigMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(ConfigDocument.class, document);
   }
 

@@ -36,7 +36,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The holidays resource receives and processes RESTful calls to the holiday master.
  */
-@Path("/holMaster")
+@Path("holidayMaster")
 public class DataHolidayMasterResource extends AbstractDataResource {
 
   /**
@@ -83,10 +83,10 @@ public class DataHolidayMasterResource extends AbstractDataResource {
     return Response.ok().build();
   }
 
-  @GET
-  @Path("holidays")
-  public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    HolidaySearchRequest request = decodeBean(HolidaySearchRequest.class, providers, msgBase64);
+  @POST
+  @Path("holidaySearches")
+  @Consumes(FudgeRest.MEDIA)
+  public Response search(HolidaySearchRequest request) {
     HolidaySearchResult result = getHolidayMaster().search(request);
     return Response.ok(result).build();
   }
@@ -116,7 +116,7 @@ public class DataHolidayMasterResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriMetaData(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/metaData");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("metaData");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }
@@ -124,17 +124,24 @@ public class DataHolidayMasterResource extends AbstractDataResource {
   }
 
   /**
-   * Builds a URI for all holidays.
+   * Builds a URI.
    * 
    * @param baseUri  the base URI, not null
-   * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/holidays");
-    if (searchMsg != null) {
-      bld.queryParam("msg", searchMsg);
-    }
+  public static URI uriSearch(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("holidaySearches");
+    return bld.build();
+  }
+
+  /**
+   * Builds a URI.
+   * 
+   * @param baseUri  the base URI, not null
+   * @return the URI, not null
+   */
+  public static URI uriAdd(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("holidays");
     return bld.build();
   }
 

@@ -66,9 +66,8 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
   public HistoricalTimeSeriesInfoSearchResult search(final HistoricalTimeSeriesInfoSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataHistoricalTimeSeriesMasterResource.uri(getBaseUri(), msgBase64);
-    return accessRemote(uri).get(HistoricalTimeSeriesInfoSearchResult.class);
+    URI uri = DataHistoricalTimeSeriesMasterResource.uriSearch(getBaseUri());
+    return accessRemote(uri).post(HistoricalTimeSeriesInfoSearchResult.class, request);
   }
 
   //-------------------------------------------------------------------------
@@ -99,7 +98,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getInfo(), "document.info");
     
-    URI uri = DataHistoricalTimeSeriesMasterResource.uri(getBaseUri(), null);
+    URI uri = DataHistoricalTimeSeriesMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(HistoricalTimeSeriesInfoDocument.class, document);
   }
 

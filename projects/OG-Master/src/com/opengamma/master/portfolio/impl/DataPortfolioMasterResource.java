@@ -8,17 +8,14 @@ package com.opengamma.master.portfolio.impl;
 import java.net.URI;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.Providers;
 
 import com.opengamma.core.change.ChangeManagerResource;
 import com.opengamma.id.ObjectId;
@@ -36,7 +33,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The portfolios resource receives and processes RESTful calls to the portfolio master.
  */
-@Path("/prtMaster")
+@Path("portfolioMaster")
 public class DataPortfolioMasterResource extends AbstractDataResource {
 
   /**
@@ -72,10 +69,10 @@ public class DataPortfolioMasterResource extends AbstractDataResource {
     return Response.ok().build();
   }
 
-  @GET
-  @Path("portfolios")
-  public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    PortfolioSearchRequest request = decodeBean(PortfolioSearchRequest.class, providers, msgBase64);
+  @POST
+  @Path("portfolioSearches")
+  @Consumes(FudgeRest.MEDIA)
+  public Response search(PortfolioSearchRequest request) {
     PortfolioSearchResult result = getPortfolioMaster().search(request);
     return Response.ok(result).build();
   }
@@ -101,7 +98,7 @@ public class DataPortfolioMasterResource extends AbstractDataResource {
     ObjectId id = ObjectId.parse(idStr);
     return new DataPortfolioResource(this, id);
   }
-  
+
   //-------------------------------------------------------------------------
   // REVIEW jonathan 2011-12-28 -- to be removed when the change topic name is exposed as part of the component config
   @Path("portfolios/changeManager")
@@ -111,17 +108,24 @@ public class DataPortfolioMasterResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for all portfolios.
+   * Builds a URI.
    * 
    * @param baseUri  the base URI, not null
-   * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/portfolios");
-    if (searchMsg != null) {
-      bld.queryParam("msg", searchMsg);
-    }
+  public static URI uriSearch(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("portfolioSearches");
+    return bld.build();
+  }
+
+  /**
+   * Builds a URI.
+   * 
+   * @param baseUri  the base URI, not null
+   * @return the URI, not null
+   */
+  public static URI uriAdd(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("portfolios");
     return bld.build();
   }
 

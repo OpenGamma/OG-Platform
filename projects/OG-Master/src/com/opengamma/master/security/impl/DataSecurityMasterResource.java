@@ -36,7 +36,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The securities resource receives and processes RESTful calls to the security master.
  */
-@Path("/secMaster")
+@Path("securityMaster")
 public class DataSecurityMasterResource extends AbstractDataResource {
 
   /**
@@ -83,10 +83,10 @@ public class DataSecurityMasterResource extends AbstractDataResource {
     return Response.ok().build();
   }
 
-  @GET
-  @Path("securities")
-  public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    SecuritySearchRequest request = decodeBean(SecuritySearchRequest.class, providers, msgBase64);
+  @POST
+  @Path("securitySearches")
+  @Consumes(FudgeRest.MEDIA)
+  public Response search(SecuritySearchRequest request) {
     SecuritySearchResult result = getSecurityMaster().search(request);
     return Response.ok(result).build();
   }
@@ -116,7 +116,7 @@ public class DataSecurityMasterResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriMetaData(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/metaData");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("metaData");
     if (searchMsg != null) {
       bld.queryParam("msg", searchMsg);
     }
@@ -124,17 +124,24 @@ public class DataSecurityMasterResource extends AbstractDataResource {
   }
 
   /**
-   * Builds a URI for all securities.
+   * Builds a URI.
    * 
    * @param baseUri  the base URI, not null
-   * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/securities");
-    if (searchMsg != null) {
-      bld.queryParam("msg", searchMsg);
-    }
+  public static URI uriSearch(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("securitySearches");
+    return bld.build();
+  }
+
+  /**
+   * Builds a URI.
+   * 
+   * @param baseUri  the base URI, not null
+   * @return the URI, not null
+   */
+  public static URI uriAdd(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("securities");
     return bld.build();
   }
 

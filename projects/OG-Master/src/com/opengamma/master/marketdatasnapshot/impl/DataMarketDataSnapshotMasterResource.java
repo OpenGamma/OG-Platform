@@ -8,17 +8,14 @@ package com.opengamma.master.marketdatasnapshot.impl;
 import java.net.URI;
 
 import javax.ws.rs.Consumes;
-import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
@@ -34,7 +31,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The snapshots resource receives and processes RESTful calls to the snapshot master.
  */
-@Path("/snpMaster")
+@Path("snapshotMaster")
 public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
 
   /**
@@ -70,10 +67,10 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
     return Response.ok().build();
   }
 
-  @GET
-  @Path("snapshots")
-  public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    MarketDataSnapshotSearchRequest request = decodeBean(MarketDataSnapshotSearchRequest.class, providers, msgBase64);
+  @POST
+  @Path("snapshotSearches")
+  @Consumes(FudgeRest.MEDIA)
+  public Response search(MarketDataSnapshotSearchRequest request) {
     MarketDataSnapshotSearchResult result = getMarketDataSnapshotMaster().search(request);
     return Response.ok(result).build();
   }
@@ -96,17 +93,24 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
 
   //-------------------------------------------------------------------------
   /**
-   * Builds a URI for all snapshots.
+   * Builds a URI.
    * 
    * @param baseUri  the base URI, not null
-   * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/snapshots");
-    if (searchMsg != null) {
-      bld.queryParam("msg", searchMsg);
-    }
+  public static URI uriSearch(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("snapshotSearches");
+    return bld.build();
+  }
+
+  /**
+   * Builds a URI.
+   * 
+   * @param baseUri  the base URI, not null
+   * @return the URI, not null
+   */
+  public static URI uriAdd(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("snapshots");
     return bld.build();
   }
 

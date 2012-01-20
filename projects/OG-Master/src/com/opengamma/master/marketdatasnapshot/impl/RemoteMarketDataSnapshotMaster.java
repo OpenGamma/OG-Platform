@@ -49,9 +49,8 @@ public class RemoteMarketDataSnapshotMaster extends AbstractRemoteMaster impleme
   public MarketDataSnapshotSearchResult search(final MarketDataSnapshotSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataMarketDataSnapshotMasterResource.uri(getBaseUri(), msgBase64);
-    return accessRemote(uri).get(MarketDataSnapshotSearchResult.class);
+    URI uri = DataMarketDataSnapshotMasterResource.uriSearch(getBaseUri());
+    return accessRemote(uri).post(MarketDataSnapshotSearchResult.class, request);
   }
 
   //-------------------------------------------------------------------------
@@ -82,7 +81,7 @@ public class RemoteMarketDataSnapshotMaster extends AbstractRemoteMaster impleme
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getSnapshot(), "document.snapshot");
     
-    URI uri = DataMarketDataSnapshotMasterResource.uri(getBaseUri(), null);
+    URI uri = DataMarketDataSnapshotMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(MarketDataSnapshotDocument.class, document);
   }
 
