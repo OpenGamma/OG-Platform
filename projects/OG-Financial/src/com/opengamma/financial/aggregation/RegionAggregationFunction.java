@@ -61,7 +61,7 @@ public class RegionAggregationFunction implements AggregationFunction<String> {
   
     
   public RegionAggregationFunction(SecuritySource secSource, RegionSource regionSource, ExchangeSource exchangeSource) {
-    this(secSource, regionSource, exchangeSource, true);
+    this(secSource, regionSource, exchangeSource, false);
   }
   
   public RegionAggregationFunction(SecuritySource secSource, RegionSource regionSource, ExchangeSource exchangeSource, boolean useAttributes) {
