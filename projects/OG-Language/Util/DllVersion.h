@@ -40,8 +40,15 @@ private:
 	/// Version information data buffer
 	PBYTE m_pData;
 
+	/// Language code
+	WORD m_wLanguage;
+
+	/// Character set code
+	WORD m_wCharSet;
+
 	void Init (HMODULE hModule);
 	void Init (PCTSTR pszModule);
+	void GetLanguageCode ();
 	PCTSTR GetString (PCTSTR pszString) const;
 #else /* ifdef _WIN32 */
 #define ATTRIBUTE(name) \
@@ -56,6 +63,8 @@ public:
 	CDllVersion (PCTSTR pszModule);
 	~CDllVersion ();
 	static HMODULE GetCurrentModule ();
+	void SetLanguage (WORD wLanguage);
+	void SetCharSet (WORD wCharSet);
 #define ATTRIBUTE(name) \
 	const TCHAR *Get##name () const { return GetString (TEXT (#name)); }
 #else /* ifdef _WIN32 */
