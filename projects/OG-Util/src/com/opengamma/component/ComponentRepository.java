@@ -369,6 +369,9 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    */
   @Override
   public void stop() {
+    if (_status == Status.STOPPING) {
+      return;
+    }
     checkStatus(Status.RUNNING);
     _status = Status.STOPPING;
     for (Lifecycle obj : _lifecycles) {
@@ -440,7 +443,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   //-------------------------------------------------------------------------
   private void checkStatus(Status status) {
     if (_status != status) {
-      throw new IllegalStateException("Invalid repository status, expecetd" + status + " but was " + _status);
+      throw new IllegalStateException("Invalid repository status, expected " + status + " but was " + _status);
     }
   }
 
