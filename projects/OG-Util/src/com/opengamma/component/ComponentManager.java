@@ -54,17 +54,7 @@ public class ComponentManager {
 
   //-------------------------------------------------------------------------
   /**
-   * Initializes the components based on the specified resource.
-   * 
-   * @return the repository, not null
-   */
-  public ComponentRepository createRepository() {
-    return new ComponentRepository();
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Initializes the components based on the specified resource.
+   * Gets the repository of components.
    * 
    * @return the repository, not null
    */
