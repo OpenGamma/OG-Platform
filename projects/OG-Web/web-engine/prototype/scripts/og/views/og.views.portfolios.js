@@ -7,7 +7,6 @@ $.register_module({
     dependencies: [
         'og.api.rest',
         'og.api.text',
-        'og.common.masthead.menu',
         'og.common.routes',
         'og.common.search_results.core',
         'og.common.util.history',
@@ -16,8 +15,6 @@ $.register_module({
         'og.common.util.ui.toolbar',
         'og.views.common.layout',
         'og.views.common.versions',
-        'og.views.common.state',
-        'og.views.common.default_details',
         'og.views.common.versions',
         'og.views.extras.portfolios_sync'
     ],
@@ -26,13 +23,10 @@ $.register_module({
             common = og.common,
             details = common.details,
             history = common.util.history,
-            masthead = common.masthead,
             routes = common.routes,
-            search, layout,
             ui = common.util.ui,
             module = this,
             page_name = module.name.split('.').pop(),
-            check_state = og.views.common.state.check.partial('/' + page_name),
             json = {},
             view,
             toolbar_buttons = {
@@ -46,8 +40,8 @@ $.register_module({
                                 $(this).dialog('close');
                                 api.rest.portfolios.put({
                                     handler: function (result) {
-                                        var args = routes.current().args, rule = module.rules.load_item;
-                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                        var args = routes.current().args, rule = view.rules.load_item;
+                                        if (result.error) return view.error(result.message);
                                         view.search(args);
                                         routes.go(routes.hash(rule, args, {
                                             add: {id: result.meta.id}, del: ['version', 'node', 'sync']}));
@@ -70,8 +64,8 @@ $.register_module({
                                 var args = routes.current().args, rest_options = {
                                     id: args.id,
                                     handler: function (result) {
-                                        var args = routes.current().args, rule = module.rules.load;
-                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                        var args = routes.current().args, rule = view.rules.load;
+                                        if (result.error) return view.error(result.message);
                                         view.search(args);
                                         routes.go(routes.hash(rule, args));
                                     }
@@ -84,52 +78,20 @@ $.register_module({
                     })
                 },
                 'versions': function () {
-                    var rule = module.rules.load_item, args = routes.current().args;
+                    var rule = view.rules.load_item, args = routes.current().args;
                     routes.go(routes.prefix() + routes.hash(rule, args, {add: {version: '*'}}));
-                    if (!layout.inner.state.south.isClosed && args.version) {
-                        layout.inner.close('south');
-                    } else layout.inner.open('south');
-                    layout.inner.options.south.onclose = function () {
+                    if (!view.layout.inner.state.south.isClosed && args.version) {
+                        view.layout.inner.close('south');
+                    } else view.layout.inner.open('south');
+                    view.layout.inner.options.south.onclose = function () {
                         routes.go(routes.hash(rule, args, {del: ['version', 'node', 'sync']}));
                     };
                 }
-            },
-            options = {
-                slickgrid: {
-                    'selector': '.OG-js-search', 'page_type': page_name,
-                    'columns': [
-                        {
-                            id: 'name', field: 'name', width: 300, cssClass: 'og-link', toolTip: 'name',
-                            name: '<input type="text" placeholder="Name" '
-                                + 'class="og-js-name-filter" style="width: 280px;">'
-                        }
-                    ]
-                },
-                toolbar: {
-                    'default': {
-                        buttons: [
-                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
-                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
-                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
-                            {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
-                        ],
-                        location: '.OG-tools'
-                    },
-                    active: {
-                        buttons: [
-                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
-                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
-                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
-                            {id: 'delete', tooltip: 'Delete', divider: true, handler: toolbar_buttons['delete']},
-                            {id: 'versions', label: 'versions', handler: toolbar_buttons['versions']}
-                        ],
-                        location: '.OG-tools'
-                    }
-                }
-            },
-            default_details = og.views.common.default_details.partial(page_name, 'Portfolios', options),
-            details_page = function (args, custom_loading) {
-                var render_portfolio_rows = function (selector, json) {
+            };
+        return view = $.extend(new og.views.common.Core(), {
+            dependencies: ['id', 'node'],
+            details: function (args, config) {
+                var show_loading = !(config || {}).hide_loading, render_portfolio_rows = function (selector, json) {
                         var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios,
                             html = '\
                                 <h3>Portfolios</h3>\
@@ -141,7 +103,7 @@ $.register_module({
                             var do_update = function () {
                                 api.rest.portfolios.put({
                                     handler: function (result) {
-                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                        if (result.error) return view.error(result.message);
                                     },
                                     name: ui.dialog({return_field_value: 'name'}),
                                     id: json.template_data.object_id,
@@ -188,7 +150,7 @@ $.register_module({
                         slick.setColumns(display_columns);
                         slick.setSelectionModel(new Slick.RowSelectionModel());
                         slick.onClick.subscribe(function (e, dd) {
-                            var rule = module.rules.load_item, node = json.portfolios[dd.row];
+                            var rule = view.rules.load_item, node = json.portfolios[dd.row];
                             if (!$(e.target).hasClass('og-icon-delete'))
                                 return routes.go(routes.hash(rule, routes.current().args,
                                     {add: {node: node.id}, del: ['position']}));
@@ -202,8 +164,7 @@ $.register_module({
                                         api.rest.portfolios.del({
                                             id: routes.current().args.id, node: node.id,
                                             handler: function (result) {
-                                                if (result.error)
-                                                    return ui.dialog({type: 'error', message: result.message});
+                                                if (result.error) return view.error(result.message);
                                             }
                                         });
                                         $(this).dialog('close');
@@ -239,7 +200,7 @@ $.register_module({
                             var do_update = function (e, id) {
                                 api.rest.portfolios.put({
                                     handler: function (result) {
-                                        if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                        if (result.error) return view.error(result.message);
                                     },
                                     position: id ? id.item.value : $input.val(),
                                     id: json.template_data.object_id,
@@ -308,9 +269,8 @@ $.register_module({
                         slick.onClick.subscribe(function (e, dd) {
                             var row = json.positions[dd.row], position = row.id, position_name = row.name;
                             if (!$(e.target).hasClass('og-icon-unhook')) {
-                                routes.go(routes.hash(
-                                    module.rules.load_item, routes.current().args, {add: {position: position}}));
-                                return;
+                                return routes.go(routes.hash(
+                                    view.rules.load_item, routes.current().args, {add: {position: position}}));
                             }
                             ui.dialog({
                                 type: 'confirm',
@@ -326,8 +286,7 @@ $.register_module({
                                             node: json.template_data.node,
                                             position: position,
                                             handler: function (result) {
-                                                if (result.error)
-                                                    return ui.dialog({type: 'error', message: result.message});
+                                                if (result.error) return view.error(result.message);
                                             }
                                         });
                                         $(this).dialog('close');
@@ -344,13 +303,13 @@ $.register_module({
                         });
                     },
                     breadcrumb = function (config) {
-                        var data = config.data, rule = module.rules.load_item, args = routes.current().args;
+                        var data = config.data, rule = view.rules.load_item, args = routes.current().args;
                         data.path.shift();
                         api.text({module: 'og.views.portfolios.breadcrumb', handler: function (template) {
                             $(config.selector).html($.tmpl(template, data, {
                                 href: function (node) {
-                                    var change_obj = !node ? {del: ['node', 'position']} : {add: {node: node}, del: ['position']};
-                                    return routes.prefix() + routes.hash(rule, args, change_obj);
+                                    return routes.prefix() + routes.hash(rule, args, node ?
+                                        {add: {node: node}, del: ['position']} : {del: ['node', 'position']});
                                 },
                                 title: function (name) {return name.length > 30 ? name : ''},
                                 short_name: function (name) {
@@ -360,25 +319,22 @@ $.register_module({
                         }});
                     };
                 if (args.version || args.sync) { // load versions
-                    layout.inner.open('south');
+                    view.layout.inner.open('south');
                     if (args.version) og.views.common.versions.load();
                     if (args.sync) og.views.extras.portfolios_sync.load(args);
-                } else layout.inner.close('south');
+                } else view.layout.inner.close('south');
                 api.rest.portfolios.get({
                     dependencies: view.dependencies,
                     update: view.update,
                     handler: function (result) {
                         if (result.error) {
-                            ui.message({location: '.ui-layout-inner-center', destroy: true});
+                            view.notify(null);
                             if (args.node) {
-                                ui.dialog({
-                                    type: 'error',
-                                    message: 'There is no sub-portfolio with the ID: ' + args.node +
-                                        '. It may have been deleted.'
-                                });
+                                view.error('There is no sub-portfolio with the ID: ' + args.node +
+                                    '. It may have been deleted.');
                                 return routes.go(routes.hash(view.rules.load_item, args, {del: ['node']}));
                             } else {
-                                return ui.dialog({type: 'error', message: result.message});
+                                return view.error(result.message);
                             }
                         }
                         json = result.data;
@@ -398,14 +354,14 @@ $.register_module({
                             content = $.outer($html.find('> section')[0]);
                             $('.ui-layout-inner-center .ui-layout-header').html(header);
                             $('.ui-layout-inner-center .ui-layout-content').html(content);
-                            ui.toolbar(options.toolbar.active);
+                            ui.toolbar(view.options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);
-                                layout.inner.sizePane('north', '0');
-                                layout.inner.open('north');
+                                view.layout.inner.sizePane('north', '0');
+                                view.layout.inner.open('north');
                                 $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
                             } else {
-                                layout.inner.close('north');
+                                view.layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
                             render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
@@ -416,55 +372,21 @@ $.register_module({
                                 data: json.template_data
                             });
                             ui.content_editable({handler: function () {view.search(args);}});
-                            if (!custom_loading) ui.message({location: '.ui-layout-inner-center', destroy: true});
-                            setTimeout(layout.inner.resizeAll);
+                            if (show_loading) view.notify(null);
+                            setTimeout(view.layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
                     node: args.node,
                     version: args.version && args.version !== '*' ? args.version : void 0,
                     loading: function () {
-                        if (custom_loading) return;
-                        ui.message({
-                            location: '.ui-layout-inner-center',
-                            css: {left: 0},
-                            message: {0: 'loading...', 3000: 'still loading...'}
-                        });
+                        if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});
                     }
                 });
-            };
-        module.rules = {
-            load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
-            load_filter: {
-                route: '/' + page_name + '/filter:/:id?/node:?/version:?/name:?/sync:?/position:?',
-                method: module.name + '.load_filter'
             },
-            load_item: {
-                route: '/' + page_name + '/:id/node:?/version:?/name:?/sync:?/position:?', method: module.name + '.load_item'
-            }
-        };
-        return view = {
-            breadcrumb_node: function (node) {
-                var args = routes.current().args;
-                setTimeout(routes.go.partial(routes.hash(module.rules.load_item, args, {add: {node: node}})));
-            },
-            breadcrumb_root: function () {
-                var args = routes.current().args;
-                setTimeout(routes.go.partial(routes.hash(module.rules.load_item, args, {del: ['node']})));
-            },
-            dependencies: ['id', 'node'],
-            details: details_page,
             filters: ['name'],
-            init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
-            load: function (args) {
-                layout = og.views.common.layout;
-                check_state({args: args, conditions: [
-                    {new_page: function (args) {view.search(args), masthead.menu.set_tab(page_name);}}
-                ]});
-                if (!args.id) default_details();
-            },
             load_filter: function (args) {
-                check_state({args: args, conditions: [
+                view.check_state({args: args, conditions: [
                     {new_value: 'id', stop: true, method: function (args) {
                         view[args.id ? 'load_item' : 'load'](args);
                     }},
@@ -472,35 +394,54 @@ $.register_module({
                         view[args.node ? 'load_item' : 'load'](args);
                     }}
                 ]});
-                search.filter(args);
+                view.filter(args);
             },
-            load_item: function (args) {
-                check_state({args: args, conditions: [
-                    {new_page: function (args) {
-                        view.load(args);
-                        layout.inner.options.south.onclose = null;
-                        layout.inner.close.partial('south');
-                    }},
-                    {new_value: 'id', method: function (args) {
-                        layout.inner.options.south.onclose = null;
-                        layout.inner.close.partial('south');
-                    }}
-                ]});
-                view.details(args);
+            name: 'Portfolios',
+            options: {
+                slickgrid: {
+                    'selector': '.OG-js-search', 'page_type': page_name,
+                    'columns': [
+                        {
+                            id: 'name', field: 'name', width: 300, cssClass: 'og-link', toolTip: 'name',
+                            name: '<input type="text" placeholder="Name" '
+                                + 'class="og-js-name-filter" style="width: 280px;">'
+                        }
+                    ]
+                },
+                toolbar: {
+                    'default': {
+                        buttons: [
+                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
+                        ],
+                        location: '.OG-tools'
+                    },
+                    active: {
+                        buttons: [
+                            {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
+                            {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
+                            {id: 'delete', tooltip: 'Delete', divider: true, handler: toolbar_buttons['delete']},
+                            {id: 'versions', label: 'versions', handler: toolbar_buttons['versions']}
+                        ],
+                        location: '.OG-tools'
+                    }
+                }
             },
-            rules: module.rules,
-            search: function (args) {
-                if (!search) search = common.search_results.core();
-                search.load($.extend(options.slickgrid, {url: args}));
-            },
-            update: function (delivery) {
-                ui.message({
-                    location: '.ui-layout-inner-center', css: {left: 0},
-                    message: 'This item has been updated.'
-                });
-                view.details(routes.current().args, true);
-                setTimeout(ui.message.partial({location: '.ui-layout-inner-center', destroy: true}), 2000);
+            page_name: page_name,
+            rules: {
+                load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
+                load_filter: {
+                    route: '/' + page_name + '/filter:/:id?/node:?/version:?/name:?/sync:?/position:?',
+                    method: module.name + '.load_filter'
+                },
+                load_item: {
+                    route: '/' + page_name + '/:id/node:?/version:?/name:?/sync:?/position:?',
+                    method: module.name + '.load_item'
+                }
             }
-        };
+        });
     }
 });

@@ -229,7 +229,7 @@ $.register_module({
             });
         };
         load = function (config) {
-            var handler = function (result) {
+            var version = config.version !== '*' ? config.version : (void 0), handler = function (result) {
                 if (result.error) return alert(result.message);
                 original_config_object = config;
                 template_data = result.data.template_data;
@@ -307,7 +307,9 @@ $.register_module({
                     )
                 }());
             };
-            api.rest.positions.get({dependencies: dependencies, id: config.id, handler: handler, cache_for: 500});
+            api.rest.positions.get({
+                dependencies: dependencies, id: config.id, handler: handler, cache_for: 500, version: version
+            });
         };
         reload = function () {load(original_config_object);};
         return {render: load, reload: reload}
