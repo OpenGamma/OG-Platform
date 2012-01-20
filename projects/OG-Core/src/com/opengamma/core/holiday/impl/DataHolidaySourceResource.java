@@ -33,7 +33,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The holidays resource receives and processes RESTful calls to the holiday source.
  */
-@Path("/holSource")
+@Path("holidaySource")
 public class DataHolidaySourceResource extends AbstractDataResource {
 
   /**
@@ -90,7 +90,7 @@ public class DataHolidaySourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGet(URI baseUri, UniqueId uniqueId) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/holidays/{holidayId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("holidays/{holidayId}");
     if (uniqueId.getVersion() != null) {
       bld.queryParam("version", uniqueId.getVersion());
     }
@@ -106,7 +106,7 @@ public class DataHolidaySourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGet(URI baseUri, ObjectId objectId, VersionCorrection vc) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/holidays/{holidayId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("holidays/{holidayId}");
     if (vc != null) {
       bld.queryParam("versionAsOf", vc.getVersionAsOfString());
       bld.queryParam("correctedTo", vc.getCorrectedToString());
@@ -117,7 +117,7 @@ public class DataHolidaySourceResource extends AbstractDataResource {
   // deprecated
   //-------------------------------------------------------------------------
   @GET
-  @Path("holidays/searchCheck")
+  @Path("holidaySearches/check")
   public Response check(
       @QueryParam("date") String localDateStr,
       @QueryParam("holidayType") HolidayType holidayType,
@@ -146,7 +146,7 @@ public class DataHolidaySourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriSearchCheck(URI baseUri, LocalDate date, HolidayType holidayType, Currency currency, ExternalIdBundle regionOrExchangeIds) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/holidays/searchCheck");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("holidaySearches/check");
     bld.queryParam("date", date.toString());
     bld.queryParam("holidayType", holidayType.name());
     if (currency != null) {

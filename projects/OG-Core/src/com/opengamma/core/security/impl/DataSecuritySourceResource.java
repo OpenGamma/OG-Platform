@@ -37,7 +37,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The securities resource receives and processes RESTful calls to the security source.
  */
-@Path("/secSource")
+@Path("securitySource")
 public class DataSecuritySourceResource extends AbstractDataResource {
 
   /**
@@ -97,7 +97,7 @@ public class DataSecuritySourceResource extends AbstractDataResource {
   }
 
   @GET
-  @Path("securities/bulk")
+  @Path("securitySearches/bulk")
   public Response getBulk(
       @QueryParam("id") List<String> uniqueIdStrs) {
     final List<UniqueId> uids = IdUtils.parseUniqueIds(uniqueIdStrs);
@@ -115,7 +115,7 @@ public class DataSecuritySourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriSearch(URI baseUri, VersionCorrection vc, ExternalIdBundle bundle) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/securities");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("securities");
     if (vc != null) {
       bld.queryParam("versionAsof", vc.getVersionAsOfString());
       bld.queryParam("correctedTo", vc.getCorrectedToString());
@@ -132,7 +132,7 @@ public class DataSecuritySourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGet(URI baseUri, UniqueId uniqueId) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/securities/{securityId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("securities/{securityId}");
     if (uniqueId.getVersion() != null) {
       bld.queryParam("version", uniqueId.getVersion());
     }
@@ -148,7 +148,7 @@ public class DataSecuritySourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGet(URI baseUri, ObjectId objectId, VersionCorrection vc) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/securities/{securityId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("securities/{securityId}");
     if (vc != null) {
       bld.queryParam("versionAsOf", vc.getVersionAsOfString());
       bld.queryParam("correctedTo", vc.getCorrectedToString());
@@ -164,7 +164,7 @@ public class DataSecuritySourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriBulk(URI baseUri, Iterable<UniqueId> uniqueIds) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/securities/bulk");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("securitySearches/bulk");
     bld.queryParam("id", IdUtils.toStringList(uniqueIds).toArray());
     return bld.build();
   }
@@ -172,7 +172,7 @@ public class DataSecuritySourceResource extends AbstractDataResource {
   // deprecated
   //-------------------------------------------------------------------------
   @GET
-  @Path("securities/searchList")
+  @Path("securitySearches/list")
   public Response searchList(@QueryParam("id") List<String> externalIdStrs) {
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
     Collection<? extends Security> result = getSecuritySource().getSecurities(bundle);
@@ -180,7 +180,7 @@ public class DataSecuritySourceResource extends AbstractDataResource {
   }
 
   @GET
-  @Path("securities/searchSingle")
+  @Path("securitySearches/single")
   public Response searchSingle(
       @QueryParam("id") List<String> externalIdStrs,
       @QueryParam("versionAsOf") String versionAsOf,
@@ -205,7 +205,7 @@ public class DataSecuritySourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriSearchList(URI baseUri, ExternalIdBundle bundle) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/securities/searchList");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("securitySearches/list");
     bld.queryParam("id", bundle.toStringList().toArray());
     return bld.build();
   }
@@ -219,7 +219,7 @@ public class DataSecuritySourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriSearchSingle(URI baseUri, ExternalIdBundle bundle, VersionCorrection vc) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/securities/searchSingle");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("securitySearches/single");
     if (vc != null) {
       bld.queryParam("versionAsOf", vc.getVersionAsOfString());
       bld.queryParam("correctedTo", vc.getCorrectedToString());

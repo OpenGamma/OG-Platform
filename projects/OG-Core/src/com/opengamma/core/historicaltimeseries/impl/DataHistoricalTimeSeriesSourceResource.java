@@ -40,7 +40,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The time-series resource receives and processes RESTful calls to the time-series source.
  */
-@Path("/htsSource")
+@Path("htsSource")
 public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource {
 
   /**
@@ -96,7 +96,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
   }
 
   @GET
-  @Path("hts/searchSingle")
+  @Path("htsSearches/single")
   public Response searchSingle(
       @QueryParam("id") List<String> idStrs,
       @QueryParam("idValidityDate") String idValidityDateStr,
@@ -145,7 +145,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
   }
 
   @GET
-  @Path("hts/searchResolve")
+  @Path("htsSearches/resolve")
   public Response searchSingle(
       @QueryParam("id") List<String> idStrs,
       @QueryParam("idValidityDate") String idValidityDateStr,
@@ -194,7 +194,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
 
   @SuppressWarnings("unchecked")
   @POST
-  @Path("hts/searchBulk")
+  @Path("htsSearches/bulk")
   public Response searchBulk(FudgeMsgEnvelope request) {
     // non-ideal variant using POST
     FudgeMsg msg = request.getMessage();
@@ -230,7 +230,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
 
   //-------------------------------------------------------------------------
   public static URI uriGet(URI baseUri, UniqueId uniqueId) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/hts/{htsId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("hts/{htsId}");
     if (uniqueId.getVersion() != null) {
       bld.queryParam("version", uniqueId.getVersion());
     }
@@ -238,7 +238,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
   }
 
   public static URI uriGet(URI baseUri, UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/hts/{htsId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("hts/{htsId}");
     if (uniqueId.getVersion() != null) {
       bld.queryParam("version", uniqueId.getVersion());
     }
@@ -259,7 +259,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
   public static URI uriSearchSingle(
       URI baseUri, ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/hts/searchSingle");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("htsSearches/single");
     bld.queryParam("id", identifierBundle.toStringList().toArray());
     if (dataSource != null) {
       bld.queryParam("dataSource", dataSource);
@@ -287,7 +287,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
   public static URI uriSearchSingle(
       URI baseUri, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/hts/searchSingle");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("htsSearches/single");
     bld.queryParam("id", identifierBundle.toStringList().toArray());
     bld.queryParam("idValidityDate", (identifierValidityDate != null ? identifierValidityDate : "ALL"));
     if (dataSource != null) {
@@ -316,7 +316,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
   public static URI uriSearchResolve(
       URI baseUri, ExternalIdBundle identifierBundle, String dataField, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/hts/searchResolve");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("htsSearches/resolve");
     bld.queryParam("id", identifierBundle.toStringList().toArray());
     if (dataField != null) {
       bld.queryParam("dataField", dataField);
@@ -341,7 +341,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
   public static URI uriSearchResolve(
       URI baseUri, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataField, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, Integer maxPoints) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/hts/searchResolve");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("htsSearches/resolve");
     bld.queryParam("id", identifierBundle.toStringList().toArray());
     bld.queryParam("idValidityDate", (identifierValidityDate != null ? identifierValidityDate : "ALL"));
     if (dataField != null) {
@@ -365,7 +365,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
   }
 
   public static URI uriSearchBulk(URI baseUri) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/hts/searchBulk");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("htsSearches/bulk");
     return bld.build();
   }
 

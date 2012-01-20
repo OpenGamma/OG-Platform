@@ -31,7 +31,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The exchanges resource receives and processes RESTful calls to the exchange source.
  */
-@Path("/exgSource")
+@Path("exchangeSource")
 public class DataExchangeSourceResource extends AbstractDataResource {
 
   /**
@@ -100,7 +100,7 @@ public class DataExchangeSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriSearch(URI baseUri, VersionCorrection vc, ExternalIdBundle bundle) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("exchanges");
     if (vc != null) {
       bld.queryParam("versionAsOf", vc.getVersionAsOfString());
       bld.queryParam("correctedTo", vc.getCorrectedToString());
@@ -117,7 +117,7 @@ public class DataExchangeSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGet(URI baseUri, UniqueId uniqueId) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges/{exchangeId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("exchanges/{exchangeId}");
     if (uniqueId.getVersion() != null) {
       bld.queryParam("version", uniqueId.getVersion());
     }
@@ -133,7 +133,7 @@ public class DataExchangeSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGet(URI baseUri, ObjectId objectId, VersionCorrection vc) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges/{exchangeId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("exchanges/{exchangeId}");
     if (vc != null) {
       bld.queryParam("versionAsOf", vc.getVersionAsOfString());
       bld.queryParam("correctedTo", vc.getCorrectedToString());
@@ -144,7 +144,7 @@ public class DataExchangeSourceResource extends AbstractDataResource {
   // deprecated
   //-------------------------------------------------------------------------
   @GET
-  @Path("exchanges/searchSingle")
+  @Path("exchangeSearches/single")
   public Response searchSingle(@QueryParam("id") List<String> externalIdStrs) {
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
     Exchange result = getExchangeSource().getSingleExchange(bundle);
@@ -159,7 +159,7 @@ public class DataExchangeSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriSearchSingle(URI baseUri, ExternalIdBundle bundle) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/exchanges/searchSingle");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("exchangeSearches/single");
     bld.queryParam("id", bundle.toStringList().toArray());
     return bld.build();
   }

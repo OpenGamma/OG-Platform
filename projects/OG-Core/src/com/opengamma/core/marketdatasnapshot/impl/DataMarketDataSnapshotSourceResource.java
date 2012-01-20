@@ -26,7 +26,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The snapshots resource receives and processes RESTful calls to the snapshot source.
  */
-@Path("/snpSource")
+@Path("snapshotSource")
 public class DataMarketDataSnapshotSourceResource extends AbstractDataResource {
 
   /**
@@ -74,7 +74,7 @@ public class DataMarketDataSnapshotSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGet(URI baseUri, UniqueId uniqueId) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/snapshots/{snapshotId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("snapshots/{snapshotId}");
     if (uniqueId.getVersion() != null) {
       bld.queryParam("version", uniqueId.getVersion());
     }

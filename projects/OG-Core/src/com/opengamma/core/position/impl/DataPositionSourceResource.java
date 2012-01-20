@@ -30,7 +30,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The positions resource receives and processes RESTful calls to the position source.
  */
-@Path("/posSource")
+@Path("positionSource")
 public class DataPositionSourceResource extends AbstractDataResource {
 
   /**
@@ -116,7 +116,7 @@ public class DataPositionSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGetPortfolio(URI baseUri, UniqueId uniqueId) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("portfolios/{portfolioId}");
     if (uniqueId.getVersion() != null) {
       bld.queryParam("version", uniqueId.getVersion());
     }
@@ -132,7 +132,7 @@ public class DataPositionSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGetPortfolio(URI baseUri, ObjectId objectId, VersionCorrection vc) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("portfolios/{portfolioId}");
     if (vc != null) {
       bld.queryParam("versionAsOf", vc.getVersionAsOfString());
       bld.queryParam("correctedTo", vc.getCorrectedToString());
@@ -148,7 +148,7 @@ public class DataPositionSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGetNode(URI baseUri, UniqueId uniqueId) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/nodes/{nodeId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("nodes/{nodeId}");
     if (uniqueId.getVersion() != null) {
       bld.queryParam("version", uniqueId.getVersion());
     }
@@ -163,7 +163,7 @@ public class DataPositionSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGetPosition(URI baseUri, UniqueId uniqueId) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/positions/{positionId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("positions/{positionId}");
     if (uniqueId.getVersion() != null) {
       bld.queryParam("version", uniqueId.getVersion());
     }
@@ -178,7 +178,7 @@ public class DataPositionSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGetTrade(URI baseUri, UniqueId uniqueId) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/trades/{tradeId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("trades/{tradeId}");
     if (uniqueId.getVersion() != null) {
       bld.queryParam("version", uniqueId.getVersion());
     }

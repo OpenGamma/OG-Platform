@@ -31,7 +31,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * The regions resource receives and processes RESTful calls to the region source.
  */
-@Path("/regSource")
+@Path("regionSource")
 public class DataRegionSourceResource extends AbstractDataResource {
 
   /**
@@ -100,7 +100,7 @@ public class DataRegionSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriSearch(URI baseUri, VersionCorrection vc, ExternalIdBundle bundle) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/regions");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("regions");
     if (vc != null) {
       bld.queryParam("versionAsof", vc.getVersionAsOfString());
       bld.queryParam("correctedTo", vc.getCorrectedToString());
@@ -117,7 +117,7 @@ public class DataRegionSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGet(URI baseUri, UniqueId uniqueId) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/regions/{regionId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("regions/{regionId}");
     if (uniqueId.getVersion() != null) {
       bld.queryParam("version", uniqueId.getVersion());
     }
@@ -133,7 +133,7 @@ public class DataRegionSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGet(URI baseUri, ObjectId objectId, VersionCorrection vc) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/regions/{regionId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("regions/{regionId}");
     if (vc != null) {
       bld.queryParam("versionAsOf", vc.getVersionAsOfString());
       bld.queryParam("correctedTo", vc.getCorrectedToString());
@@ -144,7 +144,7 @@ public class DataRegionSourceResource extends AbstractDataResource {
   // deprecated
   //-------------------------------------------------------------------------
   @GET
-  @Path("regions/searchHighest")
+  @Path("regionSearches/highest")
   public Response searchHighest(@QueryParam("id") List<String> externalIdStrs) {
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
     Region result = getRegionSource().getHighestLevelRegion(bundle);
@@ -159,7 +159,7 @@ public class DataRegionSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriSearchHighest(URI baseUri, ExternalIdBundle bundle) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/regions/searchHighest");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("regionSearches/highest");
     bld.queryParam("id", bundle.toStringList().toArray());
     return bld.build();
   }
