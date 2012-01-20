@@ -61,7 +61,10 @@ public class ComponentServerFudgeBuilder extends AbstractFudgeBuilder implements
     FudgeMsg infos = msg.getMessage(INFOS_FIELD_NAME);
     for (FudgeField field : infos) {
       if (field.getValue() instanceof FudgeMsg) {
-        object.getComponentInfos().add(ComponentInfoFudgeBuilder.fromFudgeMsg(deserializer, (FudgeMsg) field.getValue()));
+        ComponentInfo info = ComponentInfoFudgeBuilder.fromFudgeMsg(deserializer, (FudgeMsg) field.getValue());
+        if (info.getType() != ClassNotFoundException.class) {
+          object.getComponentInfos().add(info);
+        }
       }
     }
   }

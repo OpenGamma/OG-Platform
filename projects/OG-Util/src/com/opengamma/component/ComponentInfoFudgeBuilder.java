@@ -16,7 +16,6 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 
 /**
@@ -78,7 +77,9 @@ public class ComponentInfoFudgeBuilder extends AbstractFudgeBuilder implements F
     try {
       object.setType(ComponentInfoFudgeBuilder.class.getClassLoader().loadClass(typeStr));
     } catch (ClassNotFoundException ex) {
-      throw new OpenGammaRuntimeException(ex.getMessage(), ex);
+      // ignore, as server may have classes that are not in the client classpath
+      object.setType(ClassNotFoundException.class);
+      object.addAttribute(ClassNotFoundException.class.getName(), typeStr);
     }
     object.setClassifier(msg.getString(CLASSIFIER_FIELD_NAME));
     String uriStr = msg.getString(URI_FIELD_NAME);
