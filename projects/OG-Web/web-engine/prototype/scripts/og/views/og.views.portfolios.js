@@ -88,7 +88,7 @@ $.register_module({
                     };
                 }
             };
-        return view = $.extend(new og.views.common.Core(), {
+        return view = $.extend(new og.views.common.Core(page_name, 'Portfolios'), {
             dependencies: ['id', 'node'],
             details: function (args, config) {
                 var show_loading = !(config || {}).hide_loading, render_portfolio_rows = function (selector, json) {
@@ -244,16 +244,16 @@ $.register_module({
                         }());
                         if (json.positions[0]) {
                             display_columns = [
-                                {id:"name", name:"Name", field:"name", width: 250, cssClass: 'og-link'},
-                                {id:"quantity", name:"Quantity", field:"quantity", width: 80, formatter: format}
+                                {id: 'name', name: 'Name', field: 'name', width: 250, cssClass: 'og-link'},
+                                {id: 'quantity', name: 'Quantity', field: 'quantity', width: 80, formatter: format}
                             ],
                             data_columns = [
-                                {id:"id", name:"Id", field:"id", width: 100, formatter: format}
+                                {id: 'id', name: 'Id', field: 'id', width: 100, formatter: format}
                             ];
                         } else {
                             display_columns = [
-                                {id:"name", name:"Name", field:"name", width: 250},
-                                {id:"quantity", name:"Quantity", field:"quantity", width: 80}
+                                {id: 'name', name: 'Name', field: 'name', width: 250},
+                                {id: 'quantity', name: 'Quantity', field: 'quantity', width: 80}
                             ],
                             json.positions = [{name: 'No positions', quantity:'', id: ''}]
                         }
@@ -396,7 +396,6 @@ $.register_module({
                 ]});
                 view.filter(args);
             },
-            name: 'Portfolios',
             options: {
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': page_name,
@@ -430,7 +429,6 @@ $.register_module({
                     }
                 }
             },
-            page_name: page_name,
             rules: {
                 load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
                 load_filter: {

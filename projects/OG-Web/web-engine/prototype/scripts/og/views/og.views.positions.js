@@ -119,7 +119,7 @@ $.register_module({
             }
             return obj;
         };
-        return view = $.extend(new og.views.common.Core(), {
+        return view = $.extend(new og.views.common.Core(page_name, 'Positions'), {
             details: function (args, config) {
                 var show_loading = !(config || {}).hide_loading;
                 // load versions
@@ -184,7 +184,6 @@ $.register_module({
                 }}]});
                 view.filter($.extend(true, args, get_quantities(args.quantity)));
             },
-            name: 'Positions',
             options: {
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': page_name,
@@ -221,7 +220,6 @@ $.register_module({
                     }
                 }
             },
-            page_name: page_name,
             rules: {
                 load: {route: '/' + page_name + '/quantity:?', method: module.name + '.load'},
                 load_filter: {

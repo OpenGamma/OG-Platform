@@ -7,9 +7,9 @@ $.register_module({
     dependencies: [],
     obj: function () {
         var common = og.common, ui = common.util.ui, routes = common.routes;
-        return function () {
+        return function (page_name, name) {
             var view = this, search;
-            view.check_state = function (conditions) {og.views.common.state.check('/' + view.page_name, conditions);};
+            view.check_state = function (conditions) {og.views.common.state.check('/' + page_name, conditions);};
             view.dependencies = ['id'];
             view.error = function (message) {ui.dialog({type: 'error', message: message});},
             view.filter = $.noop;
@@ -18,9 +18,9 @@ $.register_module({
             view.load = function (args) {
                 view.layout = og.views.common.layout;
                 view.check_state({args: args, conditions: [
-                    {new_page: function (args) {view.search(args), common.masthead.menu.set_tab(view.page_name);}}
+                    {new_page: function (args) {view.search(args), common.masthead.menu.set_tab(page_name);}}
                 ]});
-                if (!args.id) og.views.common.default_details(view.page_name, view.name, view.options);;
+                if (!args.id) og.views.common.default_details(page_name, name, view.options);;
             };
             view.load_item = function (args) {
                 view.check_state({args: args, conditions: [
