@@ -82,7 +82,7 @@ $.register_module({
          * differently, this also applies for the form object for the new trade to be added
          */
         format_trades = function (trades) {
-            trades.map(function (trade) {
+            return trades.map(function (trade) {
                 var premium, tradeDate;
                 if (trade.premium) {
                     premium = trade.premium.toString().split(' ');
@@ -113,7 +113,6 @@ $.register_module({
                 delete trade.id;
                 return trade;
             });
-            return trades;
         };
         /*
          * Templates for rendering trades table
@@ -312,6 +311,6 @@ $.register_module({
             });
         };
         reload = function () {load(original_config_object);};
-        return {render: load, reload: reload}
+        return {render: load, reload: reload, format: format_trades}
     }
 });

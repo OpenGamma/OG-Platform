@@ -69,7 +69,17 @@ $.register_module({
                         timeseries(result, $(selector + ' .og-js-sec-time').outerHeight() - 2);
                         if ((!args.version || args.version === '*') && config.editable) {
                             common.util.ui.content_editable({
-                                handler: function () {views.positions.search(args), views.positions.details(args);}
+                                pre_dispatch: function (rest_options, handler) {
+                                    og.api.rest.positions.get({
+                                        id: config.id,
+                                        handler: function (result) {
+                                            handler($.extend(rest_options, {
+                                                trades: og.common.gadgets.trades.format(result.data.trades)
+                                            }));
+                                        }
+                                    });
+                                },
+                                handler: function () {views.positions.search(routes.current().args);}
                             });
                         }
                     }});
