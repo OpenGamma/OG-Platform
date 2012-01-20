@@ -580,6 +580,8 @@
       <list>
         <ref bean="dbPortfolioMaster"/>
         <ref bean="dbPositionMaster"/>
+        <ref bean="dbSecurityMaster"/>
+        <ref bean="dbHtsMaster"/>
         <!--TODO what other data are we interested in?-->
       </list>
     </constructor-arg>
@@ -590,6 +592,8 @@
       <map>
         <entry key="POSITION" value-ref="dbPositionMaster"/>
         <entry key="PORTFOLIO" value-ref="dbPortfolioMaster"/>
+        <entry key="SECURITY" value-ref="dbSecurityMaster"/>
+        <entry key="TIME_SERIES" value-ref="dbHtsMaster"/>
       </map>
     </constructor-arg>
   </bean>

@@ -30,6 +30,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import com.opengamma.web.server.push.rest.MasterType;
+import com.opengamma.web.server.push.rest.Subscribe;
+import com.opengamma.web.server.push.rest.SubscribeMaster;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -77,6 +80,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
+  @SubscribeMaster(MasterType.SECURITY)
   public String getHTML(
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
@@ -95,6 +99,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @SubscribeMaster(MasterType.SECURITY)
   public String getJSON(
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
@@ -242,7 +247,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
 
   //-------------------------------------------------------------------------
   @Path("{securityId}")
-  public WebSecurityResource findSecurity(@PathParam("securityId") String idStr) {
+  public WebSecurityResource findSecurity(@Subscribe @PathParam("securityId") String idStr) {
     data().setUriSecurityId(idStr);
     UniqueId oid = UniqueId.parse(idStr);
     try {
