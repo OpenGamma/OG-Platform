@@ -19,16 +19,11 @@ $.register_module({
         'og.views.extras.portfolios_sync'
     ],
     obj: function () {
-        var api = og.api,
-            common = og.common,
-            details = common.details,
-            history = common.util.history,
-            routes = common.routes,
-            ui = common.util.ui,
-            module = this,
-            page_name = module.name.split('.').pop(),
-            json = {},
-            view,
+        var api = og.api, common = og.common,
+            details = common.details, history = common.util.history,
+            routes = common.routes, ui = common.util.ui, module = this,
+            page_name = module.name.split('.').pop(), json = {},
+            view, details_page,
             toolbar_buttons = {
                 'new': function () {
                     ui.dialog({
@@ -88,302 +83,305 @@ $.register_module({
                     };
                 }
             };
+        details_page =     function (args, config) {
+            var show_loading = !(config || {}).hide_loading,
+                render_portfolio_rows, render_position, render_position_rows, breadcrumb;
+            render_portfolio_rows = function (selector, json) {
+                var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios,
+                    html = '\
+                        <h3>Portfolios</h3>\
+                        <a href="#" class="OG-link-add OG-js-add-sub-portfolio">add new portfolio</a>\
+                        <div class="og-divider"></div>\
+                        <div class="og-js-portfolios-grid og-grid"></div>';
+                $(selector).html(html);
+                (function () { /* Hook up add button */
+                    var do_update = function () {
+                        api.rest.portfolios.put({
+                            handler: function (result) {
+                                if (result.error) return view.error(result.message);
+                            },
+                            name: ui.dialog({return_field_value: 'name'}),
+                            id: json.template_data.object_id,
+                            node: json.template_data.node,
+                            'new': true
+                        });
+                    };
+                    $('.OG-js-add-sub-portfolio').click(function () {
+                        ui.dialog({
+                            type: 'input',
+                            title: 'Add New sub Portfolio',
+                            fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
+                            buttons: {
+                                'OK': function () {
+                                    if (ui.dialog({return_field_value: 'name'}) === '') return;
+                                    $(this).dialog('close');
+                                    do_update();
+                                },
+                                'Cancel': function () {$(this).dialog('close');}
+                            }
+                        });
+                        return false;
+                    });
+                }());
+                if (json.portfolios[0]) {
+                    display_columns = [{
+                        id: 'name', name: 'Name', field: 'name', cssClass: 'og-link',
+                        width: 250, formatter: format
+                    }],
+                    data_columns = [{
+                        id: 'id', name: 'Id', field: 'id', width: 100, formatter: format
+                    }];
+                } else {
+                    display_columns = [{id: 'name', name: 'Name', field: 'name', width: 250}],
+                    json.portfolios = [{name: 'No portfolios', id: ''}]
+                }
+                display_columns = common.slickgrid.calibrate_columns({
+                    container: selector + ' .og-js-portfolios-grid',
+                    columns: display_columns,
+                    buffer: 17
+                });
+                slick = new Slick.Grid(selector + ' .og-js-portfolios-grid',
+                    json.portfolios, display_columns.concat(data_columns), {headerHeight: 33});
+                slick.setColumns(display_columns);
+                slick.setSelectionModel(new Slick.RowSelectionModel());
+                slick.onClick.subscribe(function (e, dd) {
+                    var rule = view.rules.load_item, node = json.portfolios[dd.row];
+                    if (!$(e.target).hasClass('og-icon-delete'))
+                        return routes.go(routes.hash(rule, routes.current().args,
+                            {add: {node: node.id}, del: ['position']}));
+                    ui.dialog({
+                        type: 'confirm',
+                        title: 'Delete sub-portfolio?',
+                        message: 'Are you sure you want to permanently delete ' +
+                            '<strong style="white-space: nowrap">' + node.name + '</strong>?',
+                        buttons: {
+                            'Delete': function () {
+                                api.rest.portfolios.del({
+                                    id: routes.current().args.id, node: node.id,
+                                    handler: function (result) {
+                                        if (result.error) return view.error(result.message);
+                                    }
+                                });
+                                $(this).dialog('close');
+                            },
+                            'Cancel': function () {$(this).dialog('close');}
+                        }
+                    });
+                });
+                slick.onMouseEnter.subscribe(function (e) {
+                   $(e.currentTarget).closest('.slick-row').find('.og-button').show();
+                });
+                slick.onMouseLeave.subscribe(function (e) {
+                   $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
+                });
+            };
+            render_position = function () {
+                var position = routes.current().args.position;
+                if (!position) return;
+                common.gadgets.positions({
+                    id: position, selector: '.og-js-details-positions', editable: false
+                });
+                common.gadgets.trades.render({id: position, selector: '.og-js-trades-table'});
+            };
+            render_position_rows = function (selector, json) {
+                var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions,
+                    html = '\
+                      <h3>Positions</h3>\
+                      <a href="#" class="OG-link-add OG-js-add-position">add new position</a>\
+                      <div class="og-divider"></div>\
+                      <div class="og-js-position-grid og-grid"></div>';
+                $(selector).html(html);
+                (function () { /* hook up add button */
+                    var do_update = function (e, id) {
+                        api.rest.portfolios.put({
+                            handler: function (result) {
+                                if (result.error) return view.error(result.message);
+                            },
+                            position: id ? id.item.value : $input.val(),
+                            id: json.template_data.object_id,
+                            node: json.template_data.node
+                       });
+                       ui.dialog({type: 'input', action: 'close'});
+                    };
+                    $('.OG-js-add-position').click(function () {
+                        ui.dialog({
+                            type: 'input',
+                            title: 'Add Position',
+                            fields: [{type: 'input', name: 'Identifier', id: 'name'}],
+                            buttons: {
+                                'OK': function () {
+                                    if (ui.dialog({return_field_value: 'name'}) === '') return;
+                                    do_update();
+                                    $(this).dialog('close');
+                                },
+                                'Cancel': function () {$(this).dialog('close');}
+                            }
+                        });
+                        $('#og-js-dialog-name').autocomplete({
+                            source: function (obj, handler) {
+                                api.rest.positions.get({
+                                    handler: function (result) {
+                                        var arr = result.data.data.map(function (val) {
+                                            var arr = val.split('|');
+                                            return {value: arr[0], label: arr[1], id: arr[0], node: arr[1]};
+                                        });
+                                        handler(arr);
+                                    },
+                                    loading: '', page_size: 10, page: 1,
+                                    identifier: '*' + obj.term.replace(/\s/g, '*') + '*'
+                                });
+                            },
+                            minLength: 1,
+                            select: function (e, ui) {do_update(e, ui);}
+                        });
+                        return false;
+                    });
+                }());
+                if (json.positions[0]) {
+                    display_columns = [
+                        {id: 'name', name: 'Name', field: 'name', width: 250, cssClass: 'og-link'},
+                        {id: 'quantity', name: 'Quantity', field: 'quantity', width: 80, formatter: format}
+                    ],
+                    data_columns = [
+                        {id: 'id', name: 'Id', field: 'id', width: 100, formatter: format}
+                    ];
+                } else {
+                    display_columns = [
+                        {id: 'name', name: 'Name', field: 'name', width: 250},
+                        {id: 'quantity', name: 'Quantity', field: 'quantity', width: 80}
+                    ],
+                    json.positions = [{name: 'No positions', quantity:'', id: ''}]
+                }
+                display_columns = og.common.slickgrid.calibrate_columns({
+                    container: selector + ' .og-js-position-grid',
+                    columns: display_columns,
+                    buffer: 17
+                });
+                slick = new Slick.Grid(selector + ' .og-js-position-grid',
+                    json.positions, display_columns.concat(data_columns), {headerHeight: 33});
+                slick.setColumns(display_columns);
+                slick.setSelectionModel(new Slick.RowSelectionModel());
+                slick.onClick.subscribe(function (e, dd) {
+                    var row = json.positions[dd.row], position = row.id, position_name = row.name;
+                    if (!$(e.target).hasClass('og-icon-unhook')) {
+                        return routes.go(routes.hash(
+                            view.rules.load_item, routes.current().args, {add: {position: position}}));
+                    }
+                    ui.dialog({
+                        type: 'confirm',
+                        title: 'Remove Position?',
+                        message: 'Are you sure you want to remove the position '
+                            + '<strong style="white-space: nowrap">' + position_name + '</strong>'
+                            + ' from this portfolio?',
+                        buttons: {
+                            'Delete': function () {
+                                var args = routes.current().args;
+                                api.rest.portfolios.del({
+                                    id: args.id,
+                                    node: json.template_data.node,
+                                    position: position,
+                                    handler: function (result) {
+                                        if (result.error) return view.error(result.message);
+                                    }
+                                });
+                                $(this).dialog('close');
+                            },
+                            'Cancel': function () {$(this).dialog('close');}
+                        }
+                    });
+                });
+                slick.onMouseEnter.subscribe(function (e) {
+                   $(e.currentTarget).closest('.slick-row').find('.og-button').show();
+                });
+                slick.onMouseLeave.subscribe(function (e) {
+                   $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
+                });
+            };
+            breadcrumb = function (config) {
+                var data = config.data, rule = view.rules.load_item, args = routes.current().args;
+                data.path.shift();
+                api.text({module: 'og.views.portfolios.breadcrumb', handler: function (template) {
+                    $(config.selector).html($.tmpl(template, data, {
+                        href: function (node) {
+                            return routes.prefix() + routes.hash(rule, args, node ?
+                                {add: {node: node}, del: ['position']} : {del: ['node', 'position']});
+                        },
+                        title: function (name) {return name.length > 30 ? name : ''},
+                        short_name: function (name) {
+                            return name.length > 30 ? name.slice(0, 27) + '...' : name
+                        }
+                    }));
+                }});
+            };
+            if (args.version || args.sync) { // load versions
+                view.layout.inner.open('south');
+                if (args.version) og.views.common.versions.load();
+                if (args.sync) og.views.extras.portfolios_sync.load(args);
+            } else view.layout.inner.close('south');
+            api.rest.portfolios.get({
+                dependencies: view.dependencies,
+                update: view.update,
+                handler: function (result) {
+                    if (result.error) {
+                        view.notify(null);
+                        if (args.node) {
+                            view.error('There is no sub-portfolio with the ID: ' + args.node +
+                                '. It may have been deleted.');
+                            return routes.go(routes.hash(view.rules.load_item, args, {del: ['node']}));
+                        } else {
+                            return view.error(result.message);
+                        }
+                    }
+                    json = result.data;
+                    history.put({
+                        name: portfolio_name = json.template_data.portfolio_name || json.template_data.name,
+                        item: 'history.' + page_name + '.recent',
+                        value: routes.current().hash
+                    });
+                    og.api.text({module: module.name, handler: function (template) {
+                        var error_html = '\
+                                <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
+                                    This portfolio has been deleted\
+                                </section>\
+                            ',
+                            $html = $.tmpl(template, json.template_data), header, content;
+                        header = $.outer($html.find('> header')[0]);
+                        content = $.outer($html.find('> section')[0]);
+                        $('.ui-layout-inner-center .ui-layout-header').html(header);
+                        $('.ui-layout-inner-center .ui-layout-content').html(content);
+                        ui.toolbar(view.options.toolbar.active);
+                        if (json.template_data && json.template_data.deleted) {
+                            $('.ui-layout-inner-north').html(error_html);
+                            view.layout.inner.sizePane('north', '0');
+                            view.layout.inner.open('north');
+                            $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
+                        } else {
+                            view.layout.inner.close('north');
+                            $('.ui-layout-inner-north').empty();
+                        }
+                        render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
+                        render_position_rows('.OG-js-details-panel .og-js-positions', json);
+                        render_position();
+                        if (json.template_data.path) breadcrumb({
+                            selector: '.OG-header-generic .OG-js-breadcrumb',
+                            data: json.template_data
+                        });
+                        ui.content_editable({handler: function () {view.search(args);}});
+                        if (show_loading) view.notify(null);
+                        setTimeout(view.layout.inner.resizeAll);
+                    }});
+                },
+                id: args.id,
+                node: args.node,
+                version: args.version && args.version !== '*' ? args.version : void 0,
+                loading: function () {
+                    if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});
+                }
+            });
+        };
         return view = $.extend(new og.views.common.Core(page_name, 'Portfolios'), {
             dependencies: ['id', 'node', 'version'],
-            details: function (args, config) {
-                var show_loading = !(config || {}).hide_loading, render_portfolio_rows = function (selector, json) {
-                        var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios,
-                            html = '\
-                                <h3>Portfolios</h3>\
-                                <a href="#" class="OG-link-add OG-js-add-sub-portfolio">add new portfolio</a>\
-                                <div class="og-divider"></div>\
-                                <div class="og-js-portfolios-grid og-grid"></div>';
-                        $(selector).html(html);
-                        (function () { /* Hook up add button */
-                            var do_update = function () {
-                                api.rest.portfolios.put({
-                                    handler: function (result) {
-                                        if (result.error) return view.error(result.message);
-                                    },
-                                    name: ui.dialog({return_field_value: 'name'}),
-                                    id: json.template_data.object_id,
-                                    node: json.template_data.node,
-                                    'new': true
-                                });
-                            };
-                            $('.OG-js-add-sub-portfolio').click(function () {
-                                ui.dialog({
-                                    type: 'input',
-                                    title: 'Add New sub Portfolio',
-                                    fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
-                                    buttons: {
-                                        'OK': function () {
-                                            if (ui.dialog({return_field_value: 'name'}) === '') return;
-                                            $(this).dialog('close');
-                                            do_update();
-                                        },
-                                        'Cancel': function () {$(this).dialog('close');}
-                                    }
-                                });
-                                return false;
-                            });
-                        }());
-                        if (json.portfolios[0]) {
-                            display_columns = [{
-                                id: 'name', name: 'Name', field: 'name', cssClass: 'og-link',
-                                width: 250, formatter: format
-                            }],
-                            data_columns = [{
-                                id: 'id', name: 'Id', field: 'id', width: 100, formatter: format
-                            }];
-                        } else {
-                            display_columns = [{id: 'name', name: 'Name', field: 'name', width: 250}],
-                            json.portfolios = [{name: 'No portfolios', id: ''}]
-                        }
-                        display_columns = common.slickgrid.calibrate_columns({
-                            container: selector + ' .og-js-portfolios-grid',
-                            columns: display_columns,
-                            buffer: 17
-                        });
-                        slick = new Slick.Grid(selector + ' .og-js-portfolios-grid',
-                            json.portfolios, display_columns.concat(data_columns), {headerHeight: 33});
-                        slick.setColumns(display_columns);
-                        slick.setSelectionModel(new Slick.RowSelectionModel());
-                        slick.onClick.subscribe(function (e, dd) {
-                            var rule = view.rules.load_item, node = json.portfolios[dd.row];
-                            if (!$(e.target).hasClass('og-icon-delete'))
-                                return routes.go(routes.hash(rule, routes.current().args,
-                                    {add: {node: node.id}, del: ['position']}));
-                            ui.dialog({
-                                type: 'confirm',
-                                title: 'Delete sub-portfolio?',
-                                message: 'Are you sure you want to permanently delete ' +
-                                    '<strong style="white-space: nowrap">' + node.name + '</strong>?',
-                                buttons: {
-                                    'Delete': function () {
-                                        api.rest.portfolios.del({
-                                            id: routes.current().args.id, node: node.id,
-                                            handler: function (result) {
-                                                if (result.error) return view.error(result.message);
-                                            }
-                                        });
-                                        $(this).dialog('close');
-                                    },
-                                    'Cancel': function () {$(this).dialog('close');}
-                                }
-                            });
-                        });
-                        slick.onMouseEnter.subscribe(function (e) {
-                           $(e.currentTarget).closest('.slick-row').find('.og-button').show();
-                        });
-                        slick.onMouseLeave.subscribe(function (e) {
-                           $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
-                        });
-                    },
-                    render_position = function () {
-                        var position = routes.current().args.position;
-                        if (!position) return;
-                        common.gadgets.positions({
-                            id: position, selector: '.og-js-details-positions', editable: false
-                        });
-                        common.gadgets.trades.render({id: position, selector: '.og-js-trades-table'});
-                    },
-                    render_position_rows = function (selector, json) {
-                        var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions,
-                            html = '\
-                              <h3>Positions</h3>\
-                              <a href="#" class="OG-link-add OG-js-add-position">add new position</a>\
-                              <div class="og-divider"></div>\
-                              <div class="og-js-position-grid og-grid"></div>';
-                        $(selector).html(html);
-                        (function () { /* hook up add button */
-                            var do_update = function (e, id) {
-                                api.rest.portfolios.put({
-                                    handler: function (result) {
-                                        if (result.error) return view.error(result.message);
-                                    },
-                                    position: id ? id.item.value : $input.val(),
-                                    id: json.template_data.object_id,
-                                    node: json.template_data.node
-                               });
-                               ui.dialog({type: 'input', action: 'close'});
-                            };
-                            $('.OG-js-add-position').click(function () {
-                                ui.dialog({
-                                    type: 'input',
-                                    title: 'Add Position',
-                                    fields: [{type: 'input', name: 'Identifier', id: 'name'}],
-                                    buttons: {
-                                        'OK': function () {
-                                            if (ui.dialog({return_field_value: 'name'}) === '') return;
-                                            do_update();
-                                            $(this).dialog('close');
-                                        },
-                                        'Cancel': function () {$(this).dialog('close');}
-                                    }
-                                });
-                                $('#og-js-dialog-name').autocomplete({
-                                    source: function (obj, handler) {
-                                        api.rest.positions.get({
-                                            handler: function (result) {
-                                                var arr = result.data.data.map(function (val) {
-                                                    var arr = val.split('|');
-                                                    return {value: arr[0], label: arr[1], id: arr[0], node: arr[1]};
-                                                });
-                                                handler(arr);
-                                            },
-                                            loading: '', page_size: 10, page: 1,
-                                            identifier: '*' + obj.term.replace(/\s/g, '*') + '*'
-                                        });
-                                    },
-                                    minLength: 1,
-                                    select: function (e, ui) {do_update(e, ui);}
-                                });
-                                return false;
-                            });
-                        }());
-                        if (json.positions[0]) {
-                            display_columns = [
-                                {id: 'name', name: 'Name', field: 'name', width: 250, cssClass: 'og-link'},
-                                {id: 'quantity', name: 'Quantity', field: 'quantity', width: 80, formatter: format}
-                            ],
-                            data_columns = [
-                                {id: 'id', name: 'Id', field: 'id', width: 100, formatter: format}
-                            ];
-                        } else {
-                            display_columns = [
-                                {id: 'name', name: 'Name', field: 'name', width: 250},
-                                {id: 'quantity', name: 'Quantity', field: 'quantity', width: 80}
-                            ],
-                            json.positions = [{name: 'No positions', quantity:'', id: ''}]
-                        }
-                        display_columns = og.common.slickgrid.calibrate_columns({
-                            container: selector + ' .og-js-position-grid',
-                            columns: display_columns,
-                            buffer: 17
-                        });
-                        slick = new Slick.Grid(selector + ' .og-js-position-grid',
-                            json.positions, display_columns.concat(data_columns), {headerHeight: 33});
-                        slick.setColumns(display_columns);
-                        slick.setSelectionModel(new Slick.RowSelectionModel());
-                        slick.onClick.subscribe(function (e, dd) {
-                            var row = json.positions[dd.row], position = row.id, position_name = row.name;
-                            if (!$(e.target).hasClass('og-icon-unhook')) {
-                                return routes.go(routes.hash(
-                                    view.rules.load_item, routes.current().args, {add: {position: position}}));
-                            }
-                            ui.dialog({
-                                type: 'confirm',
-                                title: 'Remove Position?',
-                                message: 'Are you sure you want to remove the position '
-                                    + '<strong style="white-space: nowrap">' + position_name + '</strong>'
-                                    + ' from this portfolio?',
-                                buttons: {
-                                    'Delete': function () {
-                                        var args = routes.current().args;
-                                        api.rest.portfolios.del({
-                                            id: args.id,
-                                            node: json.template_data.node,
-                                            position: position,
-                                            handler: function (result) {
-                                                if (result.error) return view.error(result.message);
-                                            }
-                                        });
-                                        $(this).dialog('close');
-                                    },
-                                    'Cancel': function () {$(this).dialog('close');}
-                                }
-                            });
-                        });
-                        slick.onMouseEnter.subscribe(function (e) {
-                           $(e.currentTarget).closest('.slick-row').find('.og-button').show();
-                        });
-                        slick.onMouseLeave.subscribe(function (e) {
-                           $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
-                        });
-                    },
-                    breadcrumb = function (config) {
-                        var data = config.data, rule = view.rules.load_item, args = routes.current().args;
-                        data.path.shift();
-                        api.text({module: 'og.views.portfolios.breadcrumb', handler: function (template) {
-                            $(config.selector).html($.tmpl(template, data, {
-                                href: function (node) {
-                                    return routes.prefix() + routes.hash(rule, args, node ?
-                                        {add: {node: node}, del: ['position']} : {del: ['node', 'position']});
-                                },
-                                title: function (name) {return name.length > 30 ? name : ''},
-                                short_name: function (name) {
-                                    return name.length > 30 ? name.slice(0, 27) + '...' : name
-                                }
-                            }));
-                        }});
-                    };
-                if (args.version || args.sync) { // load versions
-                    view.layout.inner.open('south');
-                    if (args.version) og.views.common.versions.load();
-                    if (args.sync) og.views.extras.portfolios_sync.load(args);
-                } else view.layout.inner.close('south');
-                api.rest.portfolios.get({
-                    dependencies: view.dependencies,
-                    update: view.update,
-                    handler: function (result) {
-                        if (result.error) {
-                            view.notify(null);
-                            if (args.node) {
-                                view.error('There is no sub-portfolio with the ID: ' + args.node +
-                                    '. It may have been deleted.');
-                                return routes.go(routes.hash(view.rules.load_item, args, {del: ['node']}));
-                            } else {
-                                return view.error(result.message);
-                            }
-                        }
-                        json = result.data;
-                        history.put({
-                            name: portfolio_name = json.template_data.portfolio_name || json.template_data.name,
-                            item: 'history.' + page_name + '.recent',
-                            value: routes.current().hash
-                        });
-                        og.api.text({module: module.name, handler: function (template) {
-                            var error_html = '\
-                                    <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
-                                        This portfolio has been deleted\
-                                    </section>\
-                                ',
-                                $html = $.tmpl(template, json.template_data), header, content;
-                            header = $.outer($html.find('> header')[0]);
-                            content = $.outer($html.find('> section')[0]);
-                            $('.ui-layout-inner-center .ui-layout-header').html(header);
-                            $('.ui-layout-inner-center .ui-layout-content').html(content);
-                            ui.toolbar(view.options.toolbar.active);
-                            if (json.template_data && json.template_data.deleted) {
-                                $('.ui-layout-inner-north').html(error_html);
-                                view.layout.inner.sizePane('north', '0');
-                                view.layout.inner.open('north');
-                                $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
-                            } else {
-                                view.layout.inner.close('north');
-                                $('.ui-layout-inner-north').empty();
-                            }
-                            render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
-                            render_position_rows('.OG-js-details-panel .og-js-positions', json);
-                            render_position();
-                            if (json.template_data.path) breadcrumb({
-                                selector: '.OG-header-generic .OG-js-breadcrumb',
-                                data: json.template_data
-                            });
-                            ui.content_editable({handler: function () {view.search(args);}});
-                            if (show_loading) view.notify(null);
-                            setTimeout(view.layout.inner.resizeAll);
-                        }});
-                    },
-                    id: args.id,
-                    node: args.node,
-                    version: args.version && args.version !== '*' ? args.version : void 0,
-                    loading: function () {
-                        if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});
-                    }
-                });
-            },
+            details: details_page,
             filters: ['name'],
             load_filter: function (args) {
                 view.check_state({args: args, conditions: [

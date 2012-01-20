@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var ui = og.common.util.ui, api = og.api,
             template_data, original_config_object,
-            dependencies = ['id', 'node'],
+            dependencies = ['id', 'node', 'version'],
             html = {}, action = {},
             load, reload, attach_calendar, attach_trades_link, format_trades,
             form_create, form_save, generate_form_function, populate_form_fields;

@@ -26,7 +26,7 @@ $.register_module({
             routes = common.routes,
             search, layout,
             ui = common.util.ui,
-            module = this, view,
+            module = this, view, details_page,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
             get_quantities,
@@ -119,65 +119,69 @@ $.register_module({
             }
             return obj;
         };
-        return view = $.extend(new og.views.common.Core(page_name, 'Positions'), {
-            details: function (args, config) {
-                var show_loading = !(config || {}).hide_loading;
-                // load versions
-                if (args.version) {
-                    view.layout.inner.open('south');
-                    og.views.common.versions.load();
-                } else view.layout.inner.close('south');
-                api.rest.positions.get({
-                    dependencies: view.dependencies,
-                    update: view.update,
-                    handler: function (result) {
-                        if (result.error) return alert(result.message);
-                        var json = result.data;
-                        history.put({
-                            name: json.template_data.name,
-                            item: 'history.' + page_name + '.recent',
-                            value: routes.current().hash
-                        });
-                        api.text({module: module.name, handler: function (template) {
-                            var error_html = '\
-                                    <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
-                                        This position has been deleted\
-                                    </section>\
-                                ',
-                                header, content;
-                            var $html = $.tmpl(template, json.template_data);
-                            header = $.outer($html.find('> header')[0]);
-                            content = $.outer($html.find('> section')[0]);
-                            $('.ui-layout-inner-center .ui-layout-header').html(header);
-                            $('.ui-layout-inner-center .ui-layout-content').html(content);
-                            ui.toolbar(view.options.toolbar.active);
-                            if (json.template_data && json.template_data.deleted) {
-                                $('.ui-layout-inner-north').html(error_html);
-                                view.layout.inner.sizePane('north', '0');
-                                view.layout.inner.open('north');
-                                $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
-                            } else {
-                                view.layout.inner.close('north');
-                                $('.ui-layout-inner-north').empty();
-                            }
-                            common.gadgets.positions({
-                                id: args.id, selector: '.og-js-details-positions', editable: true
-                            });
-                            common.gadgets.trades.render({
-                                id: args.id, version: args.version, selector: '.og-js-trades-table'
-                            });
-                            if (show_loading) view.notify(null);
-                            setTimeout(view.layout.inner.resizeAll);
-                        }});
-                    },
-                    id: args.id,
-                    cache_for: 500,
-                    version: args.version && args.version !== '*' ? args.version : void 0,
-                    loading: function () {
-                        if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});
+        details_page = function (args, config) {
+            var show_loading = !(config || {}).hide_loading;
+            // load versions
+            if (args.version) {
+                view.layout.inner.open('south');
+                og.views.common.versions.load();
+            } else view.layout.inner.close('south');
+            api.rest.positions.get({
+                dependencies: view.dependencies,
+                update: view.update,
+                handler: function (result) {
+                    if (result.error) {
+                        view.notify(null);
+                        return view.error(result.message);
                     }
-                });
-            },
+                    var json = result.data;
+                    history.put({
+                        name: json.template_data.name,
+                        item: 'history.' + page_name + '.recent',
+                        value: routes.current().hash
+                    });
+                    api.text({module: module.name, handler: function (template) {
+                        var error_html = '\
+                                <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
+                                    This position has been deleted\
+                                </section>\
+                            ',
+                            header, content;
+                        var $html = $.tmpl(template, json.template_data);
+                        header = $.outer($html.find('> header')[0]);
+                        content = $.outer($html.find('> section')[0]);
+                        $('.ui-layout-inner-center .ui-layout-header').html(header);
+                        $('.ui-layout-inner-center .ui-layout-content').html(content);
+                        ui.toolbar(view.options.toolbar.active);
+                        if (json.template_data && json.template_data.deleted) {
+                            $('.ui-layout-inner-north').html(error_html);
+                            view.layout.inner.sizePane('north', '0');
+                            view.layout.inner.open('north');
+                            $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
+                        } else {
+                            view.layout.inner.close('north');
+                            $('.ui-layout-inner-north').empty();
+                        }
+                        common.gadgets.positions({
+                            id: args.id, selector: '.og-js-details-positions', editable: true
+                        });
+                        common.gadgets.trades.render({
+                            id: args.id, version: args.version, selector: '.og-js-trades-table'
+                        });
+                        if (show_loading) view.notify(null);
+                        setTimeout(view.layout.inner.resizeAll);
+                    }});
+                },
+                id: args.id,
+                cache_for: 500,
+                version: args.version && args.version !== '*' ? args.version : void 0,
+                loading: function () {
+                    if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});
+                }
+            });
+        };
+        return view = $.extend(new og.views.common.Core(page_name, 'Positions'), {
+            details: details_page,
             load_filter: function (args) {
                 check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
                     view[args.id ? 'load_item' : 'load'](args);
