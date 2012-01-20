@@ -89,7 +89,7 @@ $.register_module({
                 }
             };
         return view = $.extend(new og.views.common.Core(page_name, 'Portfolios'), {
-            dependencies: ['id', 'node'],
+            dependencies: ['id', 'node', 'version'],
             details: function (args, config) {
                 var show_loading = !(config || {}).hide_loading, render_portfolio_rows = function (selector, json) {
                         var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios,

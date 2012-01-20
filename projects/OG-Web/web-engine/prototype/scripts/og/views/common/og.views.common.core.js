@@ -10,7 +10,7 @@ $.register_module({
         return function (page_name, name) {
             var view = this, search;
             view.check_state = function (conditions) {og.views.common.state.check('/' + page_name, conditions);};
-            view.dependencies = ['id'];
+            view.dependencies = ['id', 'version'];
             view.error = function (message) {ui.dialog({type: 'error', message: message});},
             view.filter = $.noop;
             view.init = function () {for (var rule in view.rules) routes.add(view.rules[rule]);};
