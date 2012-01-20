@@ -269,6 +269,23 @@ public final class MultipleCurrencyAmount implements Iterable<CurrencyAmount>, S
     return result;
   }
 
+
+  /**
+   * Returns a copy of this {@code MultipleCurrencyAmount} with all the amounts multiplied by the factor.
+   * <p>
+   * This instance is immutable and unaffected by this method. 
+   * 
+   * @param factor The multiplicative factor.
+   * @return An amount based on this with all the amounts multiplied by the factor. Not null
+   */
+  public MultipleCurrencyAmount multipliedBy(final double factor) {
+    TreeMap<Currency, Double> map = new TreeMap<Currency, Double>();
+    for (CurrencyAmount currencyAmount : this) {
+      map.put(currencyAmount.getCurrency(), currencyAmount.getAmount() * factor);
+    }
+    return MultipleCurrencyAmount.of(map);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Returns a copy of this {@code MultipleCurrencyAmount} with the specified currency.

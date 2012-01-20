@@ -152,7 +152,6 @@ public abstract class BlackFormulaRepository {
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
    * @param lognormalVol The log-normal volatility
-   * @param isCall true for call
    * @return The forward gamma
    */
   @ExternalFunction
@@ -180,7 +179,6 @@ public abstract class BlackFormulaRepository {
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
    * @param lognormalVol The log-normal volatility
-   * @param isCall true for call
    * @return The dual gamma
    */
   @ExternalFunction

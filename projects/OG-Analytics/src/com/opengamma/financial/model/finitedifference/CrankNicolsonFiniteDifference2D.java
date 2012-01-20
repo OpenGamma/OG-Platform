@@ -10,22 +10,22 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.cube.Cube;
 
 /**
- * <b>Note</b> this is for testing purposes and is not recommended for actual use 
+ * <b>Note</b> this is for testing purposes and is not recommended for actual use
  */
 public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESolver2D {
 
   private final double _theta;
 
   /**
-   * Sets up a standard Crank-Nicolson scheme for 2-D (two spatial dimensions) PDEs 
+   * Sets up a standard Crank-Nicolson scheme for 2-D (two spatial dimensions) PDEs
    */
   public CrankNicolsonFiniteDifference2D() {
     _theta = 0.5;
   }
 
   /**
-   * Sets up a scheme that is the weighted average of an explicit and an implicit scheme 
-   * @param theta The weight. theta = 0 - fully explicit, theta = 0.5 - Crank-Nicolson, theta = 1.0 - fully implicit 
+   * Sets up a scheme that is the weighted average of an explicit and an implicit scheme
+   * @param theta The weight. theta = 0 - fully explicit, theta = 0.5 - Crank-Nicolson, theta = 1.0 - fully implicit
    */
   public CrankNicolsonFiniteDifference2D(final double theta) {
     Validate.isTrue(theta >= 0 && theta <= 1.0, "theta must be in the range 0 to 1");
@@ -290,7 +290,8 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
   }
 
   public double[][] solve(ConvectionDiffusion2DPDEDataBundle pdeData, final double[] timeGrid, final double[] xGrid, final double[] yGrid, BoundaryCondition2D xLowerBoundary,
-      BoundaryCondition2D xUpperBoundary, BoundaryCondition2D yLowerBoundary, BoundaryCondition2D yUpperBoundary, final Cube<Double, Double, Double, Double> freeBoundary) {
+      BoundaryCondition2D xUpperBoundary, BoundaryCondition2D yLowerBoundary, BoundaryCondition2D yUpperBoundary,
+      @SuppressWarnings("unused") final Cube<Double, Double, Double, Double> freeBoundary) {
 
     Validate.notNull(pdeData, "pde data");
     int tNodes = timeGrid.length;
@@ -383,12 +384,10 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
             sum -= b * (x1st[i - 1][0] * u[index - 1] + x1st[i - 1][1] * u[index] + x1st[i - 1][2] * u[index + 1]);
             sum -= c * u[index];
             sum -= d * (y2nd[j - 1][0] * u[index - xNodes] + y2nd[j - 1][1] * u[index] + y2nd[j - 1][2] * u[index + xNodes]);
-            sum -= e
-                * (x1st[i - 1][0] * (y1st[j - 1][0] * u[index - xNodes - 1] + y1st[j - 1][1] * u[index - 1] + y1st[j - 1][2] * u[index + xNodes - 1]) + x1st[i - 1][1]
-                    * (y1st[j - 1][0] * u[index - xNodes] + y1st[j - 1][1] * u[index] + y1st[j - 1][2] * u[index + xNodes]) + x1st[i - 1][2]
-                    * (y1st[j - 1][0] * u[index - xNodes + 1] + y1st[j - 1][1] * u[index + 1] + y1st[j - 1][2] * u[index + xNodes + 1]));
+            sum -= e * (x1st[i - 1][0] * (y1st[j - 1][0] * u[index - xNodes - 1] + y1st[j - 1][1] * u[index - 1] + y1st[j - 1][2] * u[index + xNodes - 1]) + x1st[i - 1][1] *
+                (y1st[j - 1][0] * u[index - xNodes] + y1st[j - 1][1] * u[index] + y1st[j - 1][2] * u[index + xNodes]) + x1st[i - 1][2] *
+                (y1st[j - 1][0] * u[index - xNodes + 1] + y1st[j - 1][1] * u[index + 1] + y1st[j - 1][2] * u[index + xNodes + 1]));
             sum -= f * (y1st[j - 1][0] * u[index - xNodes] + y1st[j - 1][1] * u[index] + y1st[j - 1][2] * u[index + xNodes]);
-
             sum *= (1 - _theta) * dt[n - 1];
           }
           sum += u[index];

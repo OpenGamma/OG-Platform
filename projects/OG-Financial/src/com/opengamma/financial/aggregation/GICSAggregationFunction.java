@@ -78,7 +78,7 @@ public class GICSAggregationFunction implements AggregationFunction<String> {
   private boolean _includeEmptyCategories;;
   
   public GICSAggregationFunction(SecuritySource secSource, Level level) {
-    this(secSource, level, true);
+    this(secSource, level, false);
   }
   
   public GICSAggregationFunction(SecuritySource secSource, Level level, boolean useAttributes) {

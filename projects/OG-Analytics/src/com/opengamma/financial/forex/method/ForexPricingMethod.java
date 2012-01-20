@@ -31,4 +31,13 @@ public interface ForexPricingMethod {
    */
   MultipleCurrencyAmount currencyExposure(InstrumentDerivative instrument, YieldCurveBundle curves);
 
+  /**
+   * Computes the curve sensitivity of the instrument.
+   * @param instrument The instrument.
+   * @param curves The yield curves.
+   * @return The curve sensitivity.
+   */
+  MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(InstrumentDerivative instrument, YieldCurveBundle curves);
+
+  // TODO: BlackMethod?
 }

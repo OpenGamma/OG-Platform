@@ -28,6 +28,17 @@
     
   <import resource="classpath:dataLoader.xml" />
   
+  <!-- HTS Resolver -->
+  <bean id="htsResolver" class="com.opengamma.financial.spring.FieldMappingHistoricalTimeSeriesResolverFactoryBean">
+    <property name="configSource" ref="sharedConfigSource" />
+    <property name="historicalTimeSeriesMaster" ref="dbHtsMaster" />
+    <property name="fieldAdjustmentMaps">
+      <list>
+        <bean class="com.opengamma.examples.historical.normalization.MockHistoricalTimeSeriesFieldAdjustmentMapFactoryBean" />
+      </list>
+    </property>
+  </bean>
+  
   <!-- Information about the market data -->
   <bean id="liveMarketDataSourceRegistry" class="com.opengamma.engine.marketdata.live.DefaultLiveMarketDataSourceRegistry" />
   

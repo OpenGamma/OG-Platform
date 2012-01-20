@@ -14,6 +14,7 @@ import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.bond.definition.BillSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BillTransaction;
+import com.opengamma.financial.interestrate.bond.method.BillSecurityDiscountingMethod;
 
 /**
  * Describes a (Treasury) Bill transaction.
@@ -36,6 +37,10 @@ public class BillTransactionDefinition implements InstrumentDefinition<BillTrans
    * The amount paid at settlement date for the bill transaction. The amount is negative for a purchase (_quantity>0) and positive for a sell (_quantity<0).
    */
   private final double _settlementAmount;
+  /**
+   * The method used to create 
+   */
+  private static final BillSecurityDiscountingMethod METHOD_BILL_SECURITY = BillSecurityDiscountingMethod.getInstance();
 
   /**
    * Constructor.
@@ -54,7 +59,21 @@ public class BillTransactionDefinition implements InstrumentDefinition<BillTrans
     _settlementAmount = settlementAmount;
   }
 
-  // TODO: builder from yield
+  /**
+   * Builder from the yield.
+   * @param underlying The Bill security underlying the transaction.
+   * @param quantity The bill quantity.
+   * @param settlementDate The date at which the bill transaction is settled.
+   * @param yield The transaction yield. The yield should be in the bill convention.
+   * @return The bill transaction.
+   */
+  public static BillTransactionDefinition fromYield(final BillSecurityDefinition underlying, final double quantity, final ZonedDateTime settlementDate, final double yield) {
+    Validate.notNull(underlying, "Underlying");
+    Validate.notNull(settlementDate, "Settlement date");
+    double accrualFactor = underlying.getDayCount().getDayCountFraction(settlementDate, underlying.getEndDate());
+    double settlementAmount = -quantity * METHOD_BILL_SECURITY.priceFromYield(underlying.getYieldConvention(), yield, accrualFactor);
+    return new BillTransactionDefinition(underlying, quantity, settlementDate, settlementAmount);
+  }
 
   /**
    * Gets the Bill security underlying the transaction.

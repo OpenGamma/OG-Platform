@@ -50,16 +50,23 @@ public class InMemoryViewComputationResultModel extends InMemoryViewResultModel 
     }
     return this;
   }
+  
+  public InMemoryViewComputationResultModel addRequirements(Set<ValueRequirement> newRequirements, ValueSpecification specification) {
+    synchronized (_specToRequirementsMap) {
+      Set<ValueRequirement> requirements = _specToRequirementsMap.get(specification);
+      if (requirements == null) {
+        requirements = new HashSet<ValueRequirement>();
+        _specToRequirementsMap.put(specification, requirements);
+      }
+      requirements.addAll(newRequirements);
+    }
+    return this;
+  }
 
   public InMemoryViewComputationResultModel addRequirements(Map<ValueSpecification, Set<ValueRequirement>> specifications) {
     synchronized (_specToRequirementsMap) {
       for (ValueSpecification specification : specifications.keySet()) {
-        Set<ValueRequirement> requirements = _specToRequirementsMap.get(specification);
-        if (requirements == null) {
-          requirements = new HashSet<ValueRequirement>();
-          _specToRequirementsMap.put(specification, requirements);
-        }
-        requirements.addAll(specifications.get(specification));
+        addRequirements(specifications.get(specification), specification);
       }
     }
     return this;

@@ -5,7 +5,7 @@
  */
 $.register_module({
     name: 'og.common.util.ui.content_editable',
-    dependencies: ['og.common.util.ui', 'og.common.routes', 'og.api.rest'],
+    dependencies: ['og.common.util.ui', 'og.common.routes'],
     obj: function () {
         var ui = og.common.util.ui;
         return function (config) {
@@ -13,7 +13,7 @@ $.register_module({
                 css_edit = {'background-color': '#fffee5'}, css_not_edit = {'background-color': 'transparent'};
             if (typeof handler !== 'function') throw new TypeError(': config.handler must be a function');
             $attr.hover(function () {$(this).css(css_edit);}, function () {$(this).css(css_not_edit);});
-            $attr.die().live('click', function (e) {
+            $attr.unbind('click').bind('click', function (e) {
                 e.preventDefault();
                 var target = e.target, value = $(target).html(), type = $(target).attr(attr);
                 // get any additional information from data attributes on the element (like node, id, quantity)
@@ -35,7 +35,8 @@ $.register_module({
                                 handler();
                             };
                             og.api.rest[og.common.routes.current().page.substring(1)].put(rest_properties);
-                        }
+                        },
+                        'Cancel': function () {$(this).dialog('close');}
                     }
                 });
             });
