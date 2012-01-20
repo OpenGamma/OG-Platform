@@ -30,7 +30,7 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * This resource receives and processes RESTful calls to the configuration source.
  */
-@Path("/cfgSource")
+@Path("configSource")
 public class DataConfigSourceResource extends AbstractDataResource {
 
   /**
@@ -103,7 +103,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriSearch(URI baseUri, VersionCorrection vc, String name, Class<?> type) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/configs");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("configs");
     if (vc != null) {
       bld.queryParam("versionAsOf", vc.getVersionAsOfString());
       bld.queryParam("correctedTo", vc.getCorrectedToString());
@@ -124,7 +124,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGet(URI baseUri, UniqueId uniqueId, Class<?> type) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/configs/{configId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("configs/{configId}");
     if (uniqueId.getVersion() != null) {
       bld.queryParam("version", uniqueId.getVersion());
     }
@@ -144,7 +144,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriGet(URI baseUri, ObjectId objectId, VersionCorrection vc, Class<?> type) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/configs/{configId}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("configs/{configId}");
     if (vc != null) {
       bld.queryParam("versionAsOf", vc.getVersionAsOfString());
       bld.queryParam("correctedTo", vc.getCorrectedToString());
@@ -158,7 +158,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
   // deprecated
   //-------------------------------------------------------------------------
   @GET
-  @Path("configs/searchSingle")
+  @Path("configSearches/single")
   public Response searchSingle(
       @QueryParam("type") String typeStr,
       @QueryParam("versionAsOf") String versionAsOfStr,
@@ -184,7 +184,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriSearchSingle(URI baseUri, String name, Instant versionAsOf, Class<?> type) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/configs/searchSingle");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("configSearches/single");
     bld.queryParam("name", name);
     if (type != null) {
       bld.queryParam("type", type.getName());
