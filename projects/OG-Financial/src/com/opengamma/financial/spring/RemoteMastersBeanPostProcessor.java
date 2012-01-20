@@ -26,8 +26,9 @@ import org.springframework.beans.factory.config.BeanFactoryPostProcessor;
 import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 import com.opengamma.component.ComponentInfo;
-import com.opengamma.component.ComponentInfosMsg;
-import com.opengamma.component.DataComponentsResource;
+import com.opengamma.component.ComponentServer;
+import com.opengamma.component.DataComponentServerResource;
+import com.opengamma.component.RemoteComponentServer;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
 import com.opengamma.engine.view.calcnode.stats.RemoteFunctionCostsMaster;
 import com.opengamma.master.config.ConfigMaster;
@@ -48,10 +49,7 @@ import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.RemoteRegionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.RemoteSecurityMaster;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ReflectionUtils;
-import com.opengamma.util.rest.FudgeRestClient;
-import com.sun.jersey.api.client.WebResource.Builder;
 
 /**
  * Spring bean factory post processor to create the remote masters.
@@ -85,17 +83,15 @@ public class RemoteMastersBeanPostProcessor extends DirectBean implements BeanFa
   //-------------------------------------------------------------------------
   @Override
   public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
-    FudgeRestClient client = FudgeRestClient.create();
-    URI uri = DataComponentsResource.uri(_baseUri);
-    Builder accessor = client.access(uri).type(FudgeRest.MEDIA_TYPE).accept(FudgeRest.MEDIA_TYPE);
-    ComponentInfosMsg infoMsg = accessor.get(ComponentInfosMsg.class);
-    for (ComponentInfo info : infoMsg.getInfos()) {
+    RemoteComponentServer remote = new RemoteComponentServer(_baseUri);
+    ComponentServer server = remote.getComponentServer();
+    for (ComponentInfo info : server.getComponentInfos()) {
       initComponent(beanFactory, info);
     }
   }
 
   protected void initComponent(ConfigurableListableBeanFactory beanFactory, ComponentInfo info) {
-    URI componentUri = DataComponentsResource.uri(_baseUri, info);
+    URI componentUri = DataComponentServerResource.uri(_baseUri, info);
     Class<?> remoteType = _remoteWrappers.get(info.getType());
     if (remoteType != null) {
       Constructor<?> con = ReflectionUtils.findConstructor(remoteType, URI.class);

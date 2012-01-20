@@ -56,7 +56,7 @@ public class ActiveMQTestUtils {
     factory.setName("ActiveMQTestUtils");
     factory.setConnectionFactory(cf);
     factory.setTopicName(topicName);
-    return factory.createObject();
+    return factory.getObjectCreating();
   }
 
 }

@@ -33,11 +33,11 @@ public final class ComponentKey implements Serializable {
    * Obtains an instance.
    * 
    * @param type  the type of the component, typically an interface
-   * @param name  the name of the type, typically used remotely
+   * @param classifier  the classifier of the type, used to name instances of the same type
    * @return the component type, not null
    */
-  public static ComponentKey of(Class<?> type, String name) {
-    return new ComponentKey(type, name);
+  public static ComponentKey of(Class<?> type, String classifier) {
+    return new ComponentKey(type, classifier);
   }
 
   /**

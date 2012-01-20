@@ -39,7 +39,6 @@ import com.opengamma.util.jms.JmsConnector;
 /**
  * RESTful resource for a {@link ViewProcessor}.
  */
-@Path("/data/viewProcessors/{viewProcessorId}")
 public class DataViewProcessorResource {
 
   /**

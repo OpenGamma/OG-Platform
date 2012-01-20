@@ -75,18 +75,6 @@ public abstract class AbstractRemoteClient {
    * @return the resource, suitable for calling get/post/put/delete on, not null
    */
   protected Builder accessRemote(URI uri) {
-    // manipulates the URI to remove any duplicate "data"
-    // this may no longer be necessary
-    String uriStr = uri.toString();
-    int pos = uriStr.indexOf("/jax/data/");
-    if (pos > 0) {
-      pos = uriStr.indexOf("/data/", pos + 10);
-      if (pos > 0) {
-        uriStr = uriStr.substring(0, pos) + uriStr.substring(pos + 5);
-      }
-    }
-    
-    uri = URI.create(uriStr);
     return getRestClient().access(uri).type(FudgeRest.MEDIA_TYPE).accept(FudgeRest.MEDIA_TYPE);
   }
 

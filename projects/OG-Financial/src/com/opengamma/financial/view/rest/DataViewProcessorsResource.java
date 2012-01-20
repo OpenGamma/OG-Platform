@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.view.rest;
 
+import java.net.URI;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -15,6 +16,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 
 import org.fudgemsg.FudgeContext;
 
@@ -90,6 +92,18 @@ public class DataViewProcessorsResource {
   @GET
   public Response get() {
     return Response.ok(_viewProcessorResourceMap.keySet()).build();
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Builds a URI.
+   * 
+   * @param baseUri  the base URI, not null
+   * @param viewProcessorId  the view processor id, may be null
+   * @return the URI, not null
+   */
+  public static URI uri(URI baseUri, String viewProcessorId) {
+    return UriBuilder.fromUri(baseUri).path(viewProcessorId).build();
   }
 
 }

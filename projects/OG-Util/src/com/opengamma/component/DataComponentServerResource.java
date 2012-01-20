@@ -24,8 +24,8 @@ import com.opengamma.util.rest.AbstractDataResource;
  * <p>
  * This resource receives and processes RESTful calls to all managed components.
  */
-@Path("/components")
-public class DataComponentsResource extends AbstractDataResource {
+@Path("components")
+public class DataComponentServerResource extends AbstractDataResource {
 
   /**
    * The local components.
@@ -42,7 +42,7 @@ public class DataComponentsResource extends AbstractDataResource {
    * @param localComponents  the managed components, not null
    * @param remoteComponents  the republished remote components, not null
    */
-  public DataComponentsResource(final Iterable<RestComponent> localComponents, final Iterable<ComponentInfo> remoteComponents) {
+  public DataComponentServerResource(final Iterable<RestComponent> localComponents, final Iterable<ComponentInfo> remoteComponents) {
     ArgumentChecker.notNull(localComponents, "localComponents");
     _localComponents = ImmutableList.copyOf(localComponents);
     _remoteComponents = ImmutableList.copyOf(remoteComponents);
@@ -67,12 +67,13 @@ public class DataComponentsResource extends AbstractDataResource {
 
   @GET
   public Response getComponentInfos() {
-    ComponentInfosMsg infos = new ComponentInfosMsg();
-    infos.getInfos().addAll(_remoteComponents);
+    ComponentServer server = new ComponentServer();
+    server.getComponentInfos().addAll(_remoteComponents);
     for (RestComponent component : _localComponents) {
-      infos.getInfos().add(component.getInfo());
+      server.getComponentInfos().add(component.getInfo());
     }
-    return Response.ok(infos).build();
+    server.setUri(URI.create("components"));
+    return Response.ok(server).build();
   }
 
   @Path("{type}/{classifier}")
@@ -93,7 +94,7 @@ public class DataComponentsResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/components");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("components");
     return bld.build();
   }
 
@@ -105,7 +106,7 @@ public class DataComponentsResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, ComponentInfo info) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/components/{type}/{classifier}");
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("components/{type}/{classifier}");
     return bld.build(info.getType().getSimpleName(), info.getClassifier());
   }
 

@@ -162,7 +162,7 @@ public class JmsConnectorFactoryBean extends SingletonFactoryBean<JmsConnector> 
 
   //-------------------------------------------------------------------------
   @Override
-  public JmsConnector createObject() {
+  protected JmsConnector createObject() {
     ArgumentChecker.notNull(getName(), "name");
     final ConnectionFactory providedFactory = getConnectionFactory();  // store in variable to protect against change by subclass
     final JmsTemplate providedTemplateTopic = getJmsTemplateTopic();  // store in variable to protect against change by subclass

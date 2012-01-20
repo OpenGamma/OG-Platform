@@ -28,14 +28,14 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * The complete set of components published in a RESTful way by JAX-RS.
  * <p>
- * Components may be managed by {@link DataComponentsResource} or by JAX-RS directly.
+ * Components may be managed by {@link DataComponentServerResource} or by JAX-RS directly.
  */
 @BeanDefinition
 public class RestComponents extends DirectBean {
 
   /**
    * The managed components.
-   * These will be controlled by {@link DataComponentsResource}.
+   * These will be controlled by {@link DataComponentServerResource}.
    */
   @PropertyDefinition(validate = "notNull")
   private final List<RestComponent> _localComponents = new ArrayList<RestComponent>();
@@ -47,13 +47,13 @@ public class RestComponents extends DirectBean {
   private final List<ComponentInfo> _remoteComponents = new ArrayList<ComponentInfo>();
   /**
    * The set of root resources.
-   * These are not managed by {@link DataComponentsResource}.
+   * These are not managed by {@link DataComponentServerResource}.
    */
   @PropertyDefinition(validate = "notNull")
   private final Set<Object> _rootResourceSingletons = new LinkedHashSet<Object>();
   /**
    * The set of root resource factories.
-   * These are not managed by {@link DataComponentsResource}.
+   * These are not managed by {@link DataComponentServerResource}.
    */
   @PropertyDefinition(validate = "notNull")
   private final Set<RestResourceFactory> _rootResourceFactories = new LinkedHashSet<RestResourceFactory>();
@@ -76,7 +76,7 @@ public class RestComponents extends DirectBean {
    * <p>
    * The instance is a JAX_RS class annotated with {@code Path} on the methods.
    * Any {@code Path} at the class level is ignored.
-   * See {@link DataComponentsResource}.
+   * See {@link DataComponentServerResource}.
    * 
    * @param info  the managed component info, not null
    * @param instance  the JAX-RS singleton instance, not null
@@ -88,7 +88,7 @@ public class RestComponents extends DirectBean {
       throw new IllegalArgumentException("A managed component cannot set its own URI: " + info);
     }
     
-    info.setUri(DataComponentsResource.relativeUri(info));
+    info.setUri(DataComponentServerResource.relativeUri(info));
     getLocalComponents().add(new RestComponent(info, instance));
   }
 
@@ -151,12 +151,12 @@ public class RestComponents extends DirectBean {
   /**
    * Gets the complete set of singletons, handling managed components.
    * <p>
-   * This method wraps the managed components in an instance of {@link DataComponentsResource}.
+   * This method wraps the managed components in an instance of {@link DataComponentServerResource}.
    * 
    * @return the complete set of singletons, not null
    */
   public Set<Object> buildJaxRsSingletons() {
-    DataComponentsResource dcr = new DataComponentsResource(getLocalComponents(), getRemoteComponents());
+    DataComponentServerResource dcr = new DataComponentServerResource(getLocalComponents(), getRemoteComponents());
     Set<Object> set = new LinkedHashSet<Object>();
     set.add(dcr);
     set.addAll(getHelpers());
@@ -276,7 +276,7 @@ public class RestComponents extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the managed components.
-   * These will be controlled by {@link DataComponentsResource}.
+   * These will be controlled by {@link DataComponentServerResource}.
    * @return the value of the property, not null
    */
   public List<RestComponent> getLocalComponents() {
@@ -285,7 +285,7 @@ public class RestComponents extends DirectBean {
 
   /**
    * Sets the managed components.
-   * These will be controlled by {@link DataComponentsResource}.
+   * These will be controlled by {@link DataComponentServerResource}.
    * @param localComponents  the new value of the property
    */
   public void setLocalComponents(List<RestComponent> localComponents) {
@@ -295,7 +295,7 @@ public class RestComponents extends DirectBean {
 
   /**
    * Gets the the {@code localComponents} property.
-   * These will be controlled by {@link DataComponentsResource}.
+   * These will be controlled by {@link DataComponentServerResource}.
    * @return the property, not null
    */
   public final Property<List<RestComponent>> localComponents() {
@@ -334,7 +334,7 @@ public class RestComponents extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the set of root resources.
-   * These are not managed by {@link DataComponentsResource}.
+   * These are not managed by {@link DataComponentServerResource}.
    * @return the value of the property, not null
    */
   public Set<Object> getRootResourceSingletons() {
@@ -343,7 +343,7 @@ public class RestComponents extends DirectBean {
 
   /**
    * Sets the set of root resources.
-   * These are not managed by {@link DataComponentsResource}.
+   * These are not managed by {@link DataComponentServerResource}.
    * @param rootResourceSingletons  the new value of the property
    */
   public void setRootResourceSingletons(Set<Object> rootResourceSingletons) {
@@ -353,7 +353,7 @@ public class RestComponents extends DirectBean {
 
   /**
    * Gets the the {@code rootResourceSingletons} property.
-   * These are not managed by {@link DataComponentsResource}.
+   * These are not managed by {@link DataComponentServerResource}.
    * @return the property, not null
    */
   public final Property<Set<Object>> rootResourceSingletons() {
@@ -363,7 +363,7 @@ public class RestComponents extends DirectBean {
   //-----------------------------------------------------------------------
   /**
    * Gets the set of root resource factories.
-   * These are not managed by {@link DataComponentsResource}.
+   * These are not managed by {@link DataComponentServerResource}.
    * @return the value of the property, not null
    */
   public Set<RestResourceFactory> getRootResourceFactories() {
@@ -372,7 +372,7 @@ public class RestComponents extends DirectBean {
 
   /**
    * Sets the set of root resource factories.
-   * These are not managed by {@link DataComponentsResource}.
+   * These are not managed by {@link DataComponentServerResource}.
    * @param rootResourceFactories  the new value of the property
    */
   public void setRootResourceFactories(Set<RestResourceFactory> rootResourceFactories) {
@@ -382,7 +382,7 @@ public class RestComponents extends DirectBean {
 
   /**
    * Gets the the {@code rootResourceFactories} property.
-   * These are not managed by {@link DataComponentsResource}.
+   * These are not managed by {@link DataComponentServerResource}.
    * @return the property, not null
    */
   public final Property<Set<RestResourceFactory>> rootResourceFactories() {

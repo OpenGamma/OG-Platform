@@ -45,7 +45,7 @@ public class JmsSenderTest {
     JmsConnectorFactoryBean jmsFactory= new JmsConnectorFactoryBean();
     jmsFactory.setName(getClass().getSimpleName());
     jmsFactory.setConnectionFactory(cf);
-    JmsConnector jmsConnector = jmsFactory.createObject();
+    JmsConnector jmsConnector = jmsFactory.getObjectCreating();
     
     _factory = new JmsSenderFactory(jmsConnector);
     _mdd = MarketDataDistributorTest.getTestDistributor(_factory);

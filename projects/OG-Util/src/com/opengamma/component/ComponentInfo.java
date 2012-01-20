@@ -71,11 +71,22 @@ public class ComponentInfo extends DirectBean {
 
   //-------------------------------------------------------------------------
   /**
+   * Checks if this component matches the specified type and classifier.
+   * 
+   * @param type  the type of the component, typically an interface
+   * @param classifier  the classifier of the type, used to name instances of the same type
+   * @return true if it matches
+   */
+  public boolean matches(Class<?> type, String classifier) {
+    return getType().equals(type) && getClassifier().equals(classifier);
+  }
+
+  /**
    * Converts this info to a key.
    * 
    * @return the key for the component, not null
    */
-  ComponentKey toComponentKey() {
+  public ComponentKey toComponentKey() {
     return ComponentKey.of(_type, _classifier);
   }
 

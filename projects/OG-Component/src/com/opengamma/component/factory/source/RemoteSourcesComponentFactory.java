@@ -23,7 +23,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.RemoteComponents;
+import com.opengamma.component.ComponentServer;
+import com.opengamma.component.RemoteComponentServer;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.core.change.ChangeManager;
@@ -93,8 +94,9 @@ public class RemoteSourcesComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    RemoteComponents remote = new RemoteComponents(_baseUri);
-    for (ComponentInfo info : remote.getComponentInfos()) {
+    RemoteComponentServer remote = new RemoteComponentServer(_baseUri);
+    ComponentServer server = remote.getComponentServer();
+    for (ComponentInfo info : server.getComponentInfos()) {
       initComponent(repo, info);
     }
   }
