@@ -19,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.financial.user.rest.RemoteClient;
 import com.opengamma.financial.user.rest.RemoteClient.ExternalTargetProvider;
 import com.opengamma.language.config.Configuration;
+import com.opengamma.language.connector.StashMessage;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
 import com.opengamma.language.context.MutableSessionContext;
@@ -170,20 +171,27 @@ public class Loader extends ContextInitializationBean {
       s_logger.warn("Per-user remote engine clients not available");
       return;
     }
-    final FudgeMsg msg = sessionContext.getStashMessage().get();
-    if (msg != null) {
-      final String clientId = msg.getString(CLIENTID_STASH_FIELD);
-      if (clientId != null) {
-        s_logger.info("Recovering old remote engine client {}", clientId);
-        initClient(sessionContext, RemoteClient.forClient(getConfiguration().getFudgeContext(), target, sessionContext.getUserContext().getUserName(), clientId));
-        return;
+    final StashMessage stash = sessionContext.getStashMessage();
+    if (stash != null) {
+      final FudgeMsg msg = stash.get();
+      if (msg != null) {
+        final String clientId = msg.getString(CLIENTID_STASH_FIELD);
+        if (clientId != null) {
+          s_logger.info("Recovering old remote engine client {}", clientId);
+          initClient(sessionContext, RemoteClient.forClient(getConfiguration().getFudgeContext(), target, sessionContext.getUserContext().getUserName(), clientId));
+          return;
+        }
       }
     }
     s_logger.info("Creating new remote engine client");
     final RemoteClient client = RemoteClient.forNewClient(getConfiguration().getFudgeContext(), target, sessionContext.getUserContext().getUserName());
-    final MutableFudgeMsg stash = FudgeContext.GLOBAL_DEFAULT.newMessage();
-    stash.add(CLIENTID_STASH_FIELD, client.getClientId());
-    sessionContext.getStashMessage().put(stash);
+    if (stash != null) {
+      final MutableFudgeMsg msgStash = FudgeContext.GLOBAL_DEFAULT.newMessage();
+      msgStash.add(CLIENTID_STASH_FIELD, client.getClientId());
+      stash.put(msgStash);
+    } else {
+      s_logger.warn("Message stash not available - cannot resume client if JVM abends");
+    }
     initClient(sessionContext, client);
   }
 
