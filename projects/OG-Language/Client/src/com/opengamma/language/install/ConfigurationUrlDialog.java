@@ -35,6 +35,7 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.SwingUtilities;
 import javax.swing.event.DocumentEvent;
@@ -105,6 +106,7 @@ public class ConfigurationUrlDialog extends JDialog {
     inner.add(createControls(), BorderLayout.CENTER);
     inner.add(createButtons(), BorderLayout.PAGE_END);
     setModalityType(ModalityType.DOCUMENT_MODAL);
+    _configurations.addElement("");
     pack();
     final Dimension scr = Toolkit.getDefaultToolkit().getScreenSize();
     setLocation((scr.width - getWidth()) >> 1, (scr.height - getHeight() >> 1));
@@ -158,21 +160,14 @@ public class ConfigurationUrlDialog extends JDialog {
       }
     });
     panel.add(_portNumber, constraints);
-    constraints.fill = GridBagConstraints.BOTH;
     constraints.weightx = 7;
-    constraints.gridheight = 8;
-    constraints.weighty = 8;
     // TODO: event handler for _configurationList
-    _configurationList.setVisibleRowCount(8);
-    for (int i = 0; i < _configurationList.getVisibleRowCount(); i++) {
-      _configurations.addElement("x");
-    }
-    panel.add(_configurationList, constraints);
+    final JScrollPane list = new JScrollPane(_configurationList);
+    list.setMinimumSize(new Dimension(_hostName.getMinimumSize().width, _hostName.getMinimumSize().height * 8));
+    list.setPreferredSize(list.getMinimumSize());
+    panel.add(list, constraints);
     constraints.gridwidth = 1;
     constraints.weightx = 1;
-    constraints.gridheight = 1;
-    constraints.weighty = 1;
-    constraints.fill = GridBagConstraints.HORIZONTAL;
     panel.add(createLabelPanel("URL:"), constraints);
     constraints.gridwidth = GridBagConstraints.REMAINDER;
     _url.setColumns(32);

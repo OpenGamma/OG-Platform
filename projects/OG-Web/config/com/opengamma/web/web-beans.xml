@@ -327,6 +327,13 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
+            <entry key="liveDataClient">
+              <map>
+                <entry key="subscriptionTopic" value="${liveDataClient.subscriptionTopic}" />
+                <entry key="entitlementTopic" value="${liveDataClient.entitlementTopic}" />
+                <entry key="heartbeatTopic" value="${liveDataClient.heartbeatTopic}" />
+              </map>
+            </entry>
             <entry key="marketDataSnapshotMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/marketDataSnapshotMaster/0/" />
@@ -580,6 +587,8 @@
       <list>
         <ref bean="dbPortfolioMaster"/>
         <ref bean="dbPositionMaster"/>
+        <ref bean="dbSecurityMaster"/>
+        <ref bean="dbHtsMaster"/>
         <!--TODO what other data are we interested in?-->
       </list>
     </constructor-arg>
@@ -590,6 +599,8 @@
       <map>
         <entry key="POSITION" value-ref="dbPositionMaster"/>
         <entry key="PORTFOLIO" value-ref="dbPortfolioMaster"/>
+        <entry key="SECURITY" value-ref="dbSecurityMaster"/>
+        <entry key="TIME_SERIES" value-ref="dbHtsMaster"/>
       </map>
     </constructor-arg>
   </bean>
