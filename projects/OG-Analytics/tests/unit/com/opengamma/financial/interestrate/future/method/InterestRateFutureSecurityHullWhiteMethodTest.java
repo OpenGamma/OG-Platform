@@ -84,7 +84,7 @@ public class InterestRateFutureSecurityHullWhiteMethodTest {
     final double price = METHOD.price(ERU2, BUNDLE_HW);
     final YieldAndDiscountCurve forwardCurve = BUNDLE_HW.getCurve(FORWARD_CURVE_NAME);
     final double forward = (forwardCurve.getDiscountFactor(FIXING_START_TIME) / forwardCurve.getDiscountFactor(FIXING_END_TIME) - 1) / FIXING_ACCRUAL;
-    final double factor = MODEL.futureConvexityFactor(ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime(), MODEL_PARAMETERS);
+    final double factor = MODEL.futureConvexityFactor(MODEL_PARAMETERS, ERU2.getLastTradingTime(), ERU2.getFixingPeriodStartTime(), ERU2.getFixingPeriodEndTime());
     final double expectedPrice = 1.0 - factor * forward + (1 - factor) / FIXING_ACCRUAL;
     assertEquals("Future price from curves in Hull-White one factor model", expectedPrice, price);
   }

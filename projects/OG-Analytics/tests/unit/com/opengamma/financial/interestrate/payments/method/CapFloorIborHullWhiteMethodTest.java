@@ -26,7 +26,7 @@ import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
-import com.opengamma.financial.model.interestrate.HullWhiteTestsDataSet;
+import com.opengamma.financial.model.interestrate.TestsDataSetsHullWhite;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.financial.montecarlo.HullWhiteMonteCarloMethod;
@@ -67,7 +67,7 @@ public class CapFloorIborHullWhiteMethodTest {
 
   private static final CapFloorIborHullWhiteMethod METHOD_HW = new CapFloorIborHullWhiteMethod();
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
-  private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = HullWhiteTestsDataSet.createHullWhiteParameters();
+  private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = TestsDataSetsHullWhite.createHullWhiteParameters();
   private static final HullWhiteOneFactorPiecewiseConstantDataBundle BUNDLE_HW = new HullWhiteOneFactorPiecewiseConstantDataBundle(PARAMETERS_HW, CURVES);
   private static final int NB_PATH = 12500;
 
@@ -81,8 +81,8 @@ public class CapFloorIborHullWhiteMethodTest {
     double theta = CAP_LONG.getFixingTime();
     double deltaF = CAP_LONG.getFixingYearFraction();
     double deltaP = CAP_LONG.getPaymentYearFraction();
-    double alpha0 = MODEL.alpha(0.0, theta, tp, t0, PARAMETERS_HW);
-    double alpha1 = MODEL.alpha(0.0, theta, tp, t1, PARAMETERS_HW);
+    double alpha0 = MODEL.alpha(PARAMETERS_HW, 0.0, theta, tp, t0);
+    double alpha1 = MODEL.alpha(PARAMETERS_HW, 0.0, theta, tp, t1);
     double ptp = CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(tp);
     double pt0 = CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(t0);
     double pt1 = CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(t1);
