@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.server.push.rest;
 
+import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.holiday.HolidayMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -24,6 +25,8 @@ public enum MasterType {
   /** {@link SecurityMaster} */
   SECURITY,
   /** {@link HistoricalTimeSeriesMaster} */
-  TIME_SERIES
+  TIME_SERIES,
+  /** {@link ConfigMaster} */
+  CONFIG
   // TODO all the other masters
 }

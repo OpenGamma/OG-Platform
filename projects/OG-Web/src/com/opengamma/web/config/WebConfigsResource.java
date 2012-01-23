@@ -22,6 +22,9 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import com.opengamma.web.server.push.rest.MasterType;
+import com.opengamma.web.server.push.rest.Subscribe;
+import com.opengamma.web.server.push.rest.SubscribeMaster;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
@@ -64,6 +67,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
+  @SubscribeMaster(MasterType.CONFIG)
   public String getHTML(
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
@@ -81,6 +85,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @SubscribeMaster(MasterType.CONFIG)
   public String getJSON(
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
@@ -255,7 +260,7 @@ public class WebConfigsResource extends AbstractWebConfigResource {
 
   //-------------------------------------------------------------------------
   @Path("{configId}")
-  public WebConfigResource findConfig(@PathParam("configId") String idStr) {
+  public WebConfigResource findConfig(@Subscribe @PathParam("configId") String idStr) {
     data().setUriConfigId(idStr);
     UniqueId oid = UniqueId.parse(idStr);
     try {
