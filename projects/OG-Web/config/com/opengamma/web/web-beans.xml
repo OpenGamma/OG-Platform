@@ -35,7 +35,7 @@
             </entry>
             <entry key="availableOutputs">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/components/availableOutputsProvider/demo/" />
+                <property name="local" value="/jax/components/availableOutputsProvider/main/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
@@ -59,7 +59,7 @@
             </entry>
             <entry key="dependencyGraphBuilder">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/components/dependencyGraphBuilderService/demo/" />
+                <property name="local" value="/jax/components/dependencyGraphBuilderService/main/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
@@ -154,7 +154,7 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
-            <entry key="remoteCalcNode" value-ref="demoCalcNodeSocketConfiguration" />
+            <entry key="remoteCalcNode" value-ref="mainCalcNodeSocketConfiguration" />
             <entry key="securityMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/components/securityMaster/combined/" />
@@ -175,7 +175,7 @@
             </entry>
             <entry key="viewProcessor">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/components/viewProcessor/demo/Vp~0/" />
+                <property name="local" value="/jax/components/viewProcessor/main/Vp~0/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
