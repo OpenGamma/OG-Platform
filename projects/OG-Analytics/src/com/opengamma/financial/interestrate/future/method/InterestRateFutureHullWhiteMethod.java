@@ -42,7 +42,7 @@ public class InterestRateFutureHullWhiteMethod {
     double dfForwardStart = forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime());
     double dfForwardEnd = forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime());
     double forward = (dfForwardStart / dfForwardEnd - 1) / future.getFixingPeriodAccrualFactor();
-    double futureConvexityFactor = MODEL.futureConvexityFactor(future.getLastTradingTime(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime(), curves.getHullWhiteParameter());
+    double futureConvexityFactor = MODEL.futureConvexityFactor(curves.getHullWhiteParameter(), future.getLastTradingTime(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime());
     double price = 1.0 - futureConvexityFactor * forward + (1 - futureConvexityFactor) / future.getFixingPeriodAccrualFactor();
     return price;
   }
@@ -59,7 +59,7 @@ public class InterestRateFutureHullWhiteMethod {
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
     double dfForwardStart = forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime());
     double dfForwardEnd = forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime());
-    double futureConvexityFactor = MODEL.futureConvexityFactor(future.getLastTradingTime(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime(), curves.getHullWhiteParameter());
+    double futureConvexityFactor = MODEL.futureConvexityFactor(curves.getHullWhiteParameter(), future.getLastTradingTime(), future.getFixingPeriodStartTime(), future.getFixingPeriodEndTime());
     // Backward sweep
     double priceBar = 1.0;
     double forwardBar = -futureConvexityFactor * priceBar;

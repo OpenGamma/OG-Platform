@@ -26,6 +26,10 @@ public class FixedCouponSwap<R extends Coupon> extends Swap<CouponFixed, R> {
     super(fixedLeg, receiveLeg);
   }
 
+  /**
+   * Gets the annuity fixed coupon leg.
+   * @return The leg.
+   */
   public AnnuityCouponFixed getFixedLeg() {
     return (AnnuityCouponFixed) getFirstLeg();
   }
@@ -51,6 +55,16 @@ public class FixedCouponSwap<R extends Coupon> extends Swap<CouponFixed, R> {
       cpn[loopcpn] = getSecondLeg().getNthPayment(loopcpn).withNotional(notional * Math.signum(getSecondLeg().getNthPayment(loopcpn).getNotional()));
     }
     return new FixedCouponSwap<R>(legFixedNotional, new GenericAnnuity<R>((R[]) cpn));
+  }
+
+  /**
+   * Creates a new swap with the same characteristics, except that the fixed coupon rate of all coupons is the one given.
+   * @param rate The rate.
+   * @return The new swap.
+   */
+  public FixedCouponSwap<R> withCoupon(double rate) {
+    AnnuityCouponFixed legFixedNotional = getFixedLeg().withCoupon(rate);
+    return new FixedCouponSwap<R>(legFixedNotional, getSecondLeg());
   }
 
   /**
