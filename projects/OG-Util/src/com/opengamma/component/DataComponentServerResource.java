@@ -110,15 +110,4 @@ public class DataComponentServerResource extends AbstractDataResource {
     return bld.build(info.getType().getSimpleName(), info.getClassifier());
   }
 
-  /**
-   * Builds a URI for a single component.
-   * 
-   * @param info  the component info, not null
-   * @return the URI, not null
-   */
-  public static URI relativeUri(ComponentInfo info) {
-    UriBuilder bld = UriBuilder.fromPath("components/{type}/{classifier}");
-    return bld.build(info.getType().getSimpleName(), info.getClassifier());
-  }
-
 }

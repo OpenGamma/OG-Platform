@@ -5,6 +5,7 @@
  */
 package com.opengamma.component;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -33,6 +34,12 @@ import com.opengamma.util.ArgumentChecker;
 @BeanDefinition
 public class RestComponents extends DirectBean {
 
+  /**
+   * The base URI.
+   * This is normally the base URI of all the JAX-RS resources.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private final URI _baseUri = URI.create("/jax");
   /**
    * The managed components.
    * These will be controlled by {@link DataComponentServerResource}.
@@ -88,7 +95,7 @@ public class RestComponents extends DirectBean {
       throw new IllegalArgumentException("A managed component cannot set its own URI: " + info);
     }
     
-    info.setUri(DataComponentServerResource.relativeUri(info));
+    info.setUri(DataComponentServerResource.uri(getBaseUri(), info));
     getLocalComponents().add(new RestComponent(info, instance));
   }
 
@@ -199,6 +206,8 @@ public class RestComponents extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -332625701:  // baseUri
+        return getBaseUri();
       case 727200993:  // localComponents
         return getLocalComponents();
       case 329529340:  // remoteComponents
@@ -217,6 +226,11 @@ public class RestComponents extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case -332625701:  // baseUri
+        if (quiet) {
+          return;
+        }
+        throw new UnsupportedOperationException("Property cannot be written: baseUri");
       case 727200993:  // localComponents
         setLocalComponents((List<RestComponent>) newValue);
         return;
@@ -238,6 +252,7 @@ public class RestComponents extends DirectBean {
 
   @Override
   protected void validate() {
+    JodaBeanUtils.notNull(_baseUri, "baseUri");
     JodaBeanUtils.notNull(_localComponents, "localComponents");
     JodaBeanUtils.notNull(_remoteComponents, "remoteComponents");
     JodaBeanUtils.notNull(_rootResourceSingletons, "rootResourceSingletons");
@@ -253,7 +268,8 @@ public class RestComponents extends DirectBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       RestComponents other = (RestComponents) obj;
-      return JodaBeanUtils.equal(getLocalComponents(), other.getLocalComponents()) &&
+      return JodaBeanUtils.equal(getBaseUri(), other.getBaseUri()) &&
+          JodaBeanUtils.equal(getLocalComponents(), other.getLocalComponents()) &&
           JodaBeanUtils.equal(getRemoteComponents(), other.getRemoteComponents()) &&
           JodaBeanUtils.equal(getRootResourceSingletons(), other.getRootResourceSingletons()) &&
           JodaBeanUtils.equal(getRootResourceFactories(), other.getRootResourceFactories()) &&
@@ -265,12 +281,32 @@ public class RestComponents extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBaseUri());
     hash += hash * 31 + JodaBeanUtils.hashCode(getLocalComponents());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRemoteComponents());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRootResourceSingletons());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRootResourceFactories());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHelpers());
     return hash;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the base URI.
+   * This is normally the base URI of all the JAX-RS resources.
+   * @return the value of the property, not null
+   */
+  public URI getBaseUri() {
+    return _baseUri;
+  }
+
+  /**
+   * Gets the the {@code baseUri} property.
+   * This is normally the base URI of all the JAX-RS resources.
+   * @return the property, not null
+   */
+  public final Property<URI> baseUri() {
+    return metaBean().baseUri().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -429,6 +465,11 @@ public class RestComponents extends DirectBean {
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code baseUri} property.
+     */
+    private final MetaProperty<URI> _baseUri = DirectMetaProperty.ofReadWrite(
+        this, "baseUri", RestComponents.class, URI.class);
+    /**
      * The meta-property for the {@code localComponents} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
@@ -463,6 +504,7 @@ public class RestComponents extends DirectBean {
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
+        "baseUri",
         "localComponents",
         "remoteComponents",
         "rootResourceSingletons",
@@ -478,6 +520,8 @@ public class RestComponents extends DirectBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case -332625701:  // baseUri
+          return _baseUri;
         case 727200993:  // localComponents
           return _localComponents;
         case 329529340:  // remoteComponents
@@ -508,6 +552,14 @@ public class RestComponents extends DirectBean {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code baseUri} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<URI> baseUri() {
+      return _baseUri;
+    }
+
     /**
      * The meta-property for the {@code localComponents} property.
      * @return the meta-property, not null
