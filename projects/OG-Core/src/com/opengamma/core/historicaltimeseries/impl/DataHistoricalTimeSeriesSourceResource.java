@@ -109,11 +109,11 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
       @QueryParam("includeEnd") boolean includeEnd,
       @QueryParam("maxPoints") Integer maxPoints) {
     final ExternalIdBundle bundle = ExternalIdBundle.parse(idStrs);
-    final LocalDate idValidityDate = (idValidityDateStr != null ? LocalDate.parse(idValidityDateStr) : null);
     final LocalDate start = (startStr != null ? LocalDate.parse(startStr) : null);
     final LocalDate end = (endStr != null ? LocalDate.parse(endStr) : null);
     
-    if (idValidityDate != null) {
+    if (idValidityDateStr != null) {
+      final LocalDate idValidityDate = (idValidityDateStr == null || "ALL".equals(idValidityDateStr) ? null : LocalDate.parse(idValidityDateStr));
       if (start == null && end == null && maxPoints == null) {
         final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
             bundle, idValidityDate, dataSource, dataProvider, dataField);
@@ -146,7 +146,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
 
   @GET
   @Path("htsSearches/resolve")
-  public Response searchSingle(
+  public Response searchResolve(
       @QueryParam("id") List<String> idStrs,
       @QueryParam("idValidityDate") String idValidityDateStr,
       @QueryParam("dataField") String dataField,
@@ -157,11 +157,11 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
       @QueryParam("includeEnd") boolean includeEnd,
       @QueryParam("maxPoints") Integer maxPoints) {
     final ExternalIdBundle bundle = ExternalIdBundle.parse(idStrs);
-    final LocalDate idValidityDate = (idValidityDateStr != null ? LocalDate.parse(idValidityDateStr) : null);
     final LocalDate start = (startStr != null ? LocalDate.parse(startStr) : null);
     final LocalDate end = (endStr != null ? LocalDate.parse(endStr) : null);
     
-    if (idValidityDate != null) {
+    if (idValidityDateStr != null) {
+      final LocalDate idValidityDate = (idValidityDateStr == null || "ALL".equals(idValidityDateStr) ? null : LocalDate.parse(idValidityDateStr));
       if (start == null && end == null && maxPoints == null) {
         final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
             dataField, bundle, idValidityDate, resolutionKey);

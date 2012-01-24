@@ -5,12 +5,14 @@
  */
 package com.opengamma.util.rest;
 
+import java.net.URI;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.UriBuilder;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -21,25 +23,28 @@ import org.fudgemsg.mapping.FudgeSerializer;
 import com.opengamma.transport.jaxrs.FudgeFieldContainerBrowser;
 
 /**
- * Generic container for configuration objects - e.g. variant properties of a component that need
- * exposure to remote items such as network port numbers or other allocated resources.
+ * RESTful resource for providing simple a configuration map.
+ * <p>
+ * This resource receives and processes RESTful calls to part of a map of configuration.
+ * This is a basic mechanism used to expose aspects of a server at a well-known URI,
+ * such as available services and their URIs.
  */
 @Path("configuration")
-public class ConfigurationResource {
+public class DataConfigurationResource extends AbstractDataResource {
 
   private final FudgeContext _fudgeContext;
-  private final Map<Object, Object> _resources;
+  private final Map<String, Object> _resources;
 
-  public ConfigurationResource(final FudgeContext fudgeContext) {
-    this(fudgeContext, new ConcurrentHashMap<Object, Object>());
+  public DataConfigurationResource(final FudgeContext fudgeContext) {
+    this(fudgeContext, new ConcurrentHashMap<String, Object>());
   }
 
-  public ConfigurationResource(final FudgeContext fudgeContext, final Map<Object, Object> resources) {
+  public DataConfigurationResource(final FudgeContext fudgeContext, final Map<String, Object> resources) {
     _fudgeContext = fudgeContext;
     _resources = resources;
   }
 
-  protected Map<Object, Object> getResources() {
+  protected Map<String, Object> getResources() {
     return _resources;
   }
 
@@ -82,11 +87,27 @@ public class ConfigurationResource {
       return null;
     }
     if (object instanceof Map<?, ?>) {
-      return new ConfigurationResource(getFudgeContext(), (Map<Object, Object>) object);
+      return new DataConfigurationResource(getFudgeContext(), (Map<String, Object>) object);
     } else {
       FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
       return new FudgeFieldContainerBrowser(serializer.objectToFudgeMsg(object));
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Builds a URI.
+   * 
+   * @param baseUri  the base URI of this resource, not null
+   * @param parts  the parts of the configuration, not null
+   * @return the URI, not null
+   */
+  public static URI uri(URI baseUri, String... parts) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri);
+    for (String part : parts) {
+      bld.path(part);
+    }
+    return bld.build();
   }
 
 }
