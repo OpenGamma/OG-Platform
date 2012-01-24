@@ -119,8 +119,8 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       for (int loopcf = 0; loopcf < nbCf; loopcf++) {
         cfTime[loopbnd][loopcf] = cf[loopbnd].getNthPayment(loopcf).getPaymentTime();
         df[loopbnd][loopcf] = bndCurve.getDiscountFactor(cfTime[loopbnd][loopcf]);
-        alpha[loopbnd][loopcf] = MODEL.alpha(0.0, expiry, delivery, cfTime[loopbnd][loopcf], hwData.getHullWhiteParameter());
-        beta[loopbnd][loopcf] = MODEL.futureConvexityFactor(expiry, cfTime[loopbnd][loopcf], delivery, hwData.getHullWhiteParameter());
+        alpha[loopbnd][loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiry, delivery, cfTime[loopbnd][loopcf]);
+        beta[loopbnd][loopcf] = MODEL.futureConvexityFactor(hwData.getHullWhiteParameter(), expiry, cfTime[loopbnd][loopcf], delivery);
         cfaAdjusted[loopbnd][loopcf] = df[loopbnd][loopcf] / dfdelivery * beta[loopbnd][loopcf] * cf[loopbnd].getNthPayment(loopcf).getAmount() / future.getConversionFactor()[loopbnd];
         for (int looppt = 0; looppt < nbPoint; looppt++) {
           pv[looppt][loopbnd] += cfaAdjusted[loopbnd][loopcf] * Math.exp(-alpha[loopbnd][loopcf] * alpha[loopbnd][loopcf] / 2.0 - alpha[loopbnd][loopcf] * x[looppt]);
@@ -281,8 +281,8 @@ public final class BondFutureHullWhiteMethod extends BondFutureMethod {
       for (int loopcf = 0; loopcf < nbCf; loopcf++) {
         cfTime[loopbnd][loopcf] = cf[loopbnd].getNthPayment(loopcf).getPaymentTime();
         df[loopbnd][loopcf] = bndCurve.getDiscountFactor(cfTime[loopbnd][loopcf]);
-        alpha[loopbnd][loopcf] = MODEL.alpha(0.0, expiry, delivery, cfTime[loopbnd][loopcf], hwData.getHullWhiteParameter());
-        beta[loopbnd][loopcf] = MODEL.futureConvexityFactor(expiry, cfTime[loopbnd][loopcf], delivery, hwData.getHullWhiteParameter());
+        alpha[loopbnd][loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiry, delivery, cfTime[loopbnd][loopcf]);
+        beta[loopbnd][loopcf] = MODEL.futureConvexityFactor(hwData.getHullWhiteParameter(), expiry, cfTime[loopbnd][loopcf], delivery);
         cfaAdjusted[loopbnd][loopcf] = df[loopbnd][loopcf] / dfdelivery * beta[loopbnd][loopcf] * cf[loopbnd].getNthPayment(loopcf).getAmount() / future.getConversionFactor()[loopbnd];
         for (int looppt = 0; looppt < nbPoint; looppt++) {
           pv[looppt][loopbnd] += cfaAdjusted[loopbnd][loopcf] * Math.exp(-alpha[loopbnd][loopcf] * alpha[loopbnd][loopcf] / 2.0 - alpha[loopbnd][loopcf] * x[looppt]);

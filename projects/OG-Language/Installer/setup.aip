@@ -285,13 +285,18 @@
     <ROW File="stdafx.h_2" Component_="Util" FileName="stdafx.h" Attributes="0" SourcePath="..\Util\stdafx.h" SelfReg="false" NextFile="String.h"/>
     <ROW File="us.fed.fs_optimization_optimization.jar" Component_="jar" FileName="usfedf~1.jar|us.fed.fs-optimization-optimization.jar" Attributes="0" SourcePath="..\build\jar\us.fed.fs-optimization-optimization.jar" SelfReg="false" NextFile="edu.oswego.cs_concurrent_concurrent.jar"/>
   </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.AiRemoveFileComponent">
+    <ROW RemoveFile="log4cxx.connector.properties" Options="1"/>
+    <ROW RemoveFile="log4cxx.service.properties" Options="1"/>
+    <ROW RemoveFile="OpenGamma.properties" Options="1"/>
+  </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
     <ROW BootstrOptKey="GlobalOptions" GeneralOptions="o" EulaPathLocId="*" IntroTextPathLocId="*"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
     <ROW BuildKey="MSI_32" BuildName="MSI_32" BuildOrder="1" BuildType="1" PackageFolder="." PackageFileName="OG-Language-[|ProductVersion]-32-bit" Languages="en" InstallationType="4"/>
     <ROW BuildKey="MSI_64" BuildName="MSI_64" BuildOrder="2" BuildType="1" PackageFolder="." PackageFileName="OG-Language-[|ProductVersion]-64-bit" Languages="en" InstallationType="4" MsiPackageType="x64"/>
-    <ATTRIBUTE name="CurrentBuild" value="MSI_64"/>
+    <ATTRIBUTE name="CurrentBuild" value="MSI_32"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
     <ROW Path="&lt;AI_DICTS&gt;ui.ail"/>
@@ -311,6 +316,11 @@
     <ROW Fragment="Validation.aip" Path="&lt;AI_FRAGS&gt;Validation.aip"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiActionTextComponent">
+    <ROW Action="AI_AiRemoveFilesCommit" Description="Executing file removal operations" Template="Executing file removal: [1]" DescriptionLocId="ActionText.Description.AI_AiRemoveFilesCommit" TemplateLocId="ActionText.Template.AI_AiRemoveFilesCommit"/>
+    <ROW Action="AI_AiRemoveFilesDeferred_Permanent" Description="Preparing files for removal" Template="Preparing file: [1]" DescriptionLocId="ActionText.Description.AI_AiRemoveFilesDeferred_Permanent" TemplateLocId="ActionText.Template.AI_AiRemoveFilesDeferred_Permanent"/>
+    <ROW Action="AI_AiRemoveFilesDeferred_Undoable" Description="Preparing files for removal" Template="Preparing file: [1]" DescriptionLocId="ActionText.Description.AI_AiRemoveFilesDeferred_Undoable" TemplateLocId="ActionText.Template.AI_AiRemoveFilesDeferred_Undoable"/>
+    <ROW Action="AI_AiRemoveFilesImmediate" Description="Preparing files for removal" Template="Preparing file: [1]" DescriptionLocId="ActionText.Description.AI_AiRemoveFilesImmediate" TemplateLocId="ActionText.Template.AI_AiRemoveFilesImmediate"/>
+    <ROW Action="AI_AiRemoveFilesRollback" Description="Restoring removed files" Template="Restoring file: [1]" DescriptionLocId="ActionText.Description.AI_AiRemoveFilesRollback" TemplateLocId="ActionText.Template.AI_AiRemoveFilesRollback"/>
     <ROW Action="AI_DownloadPrereq" Description="Downloading prerequisite software" Template="Downloading [1]{[2] completed}" DescriptionLocId="ActionText.Description.AI_DownloadPrereq" TemplateLocId="ActionText.Template.AI_DownloadPrereq"/>
     <ROW Action="AI_ExtractPrereq" Description="Extracting prerequisite software" Template="Extracting [1]{[2] completed}" DescriptionLocId="ActionText.Description.AI_ExtractPrereq" TemplateLocId="ActionText.Template.AI_ExtractPrereq"/>
     <ROW Action="AI_FwConfig" Description="Executing Windows Firewall configurations" Template="Configuring Windows Firewall rule: &quot;[1]&quot;" DescriptionLocId="ActionText.Description.AI_FwConfig" TemplateLocId="ActionText.Template.AI_FwConfig"/>
@@ -338,6 +348,7 @@
   <COMPONENT cid="caphyon.advinst.msicomp.MsiBinaryComponent">
     <ROW Name="NetFirewall.dll" SourcePath="&lt;AI_CUSTACTS&gt;NetFirewall.dll"/>
     <ROW Name="Prereq.dll" SourcePath="&lt;AI_CUSTACTS&gt;Prereq.dll"/>
+    <ROW Name="ResourceCleaner.dll" SourcePath="&lt;AI_CUSTACTS&gt;ResourceCleaner.dll"/>
     <ROW Name="TxtUpdater.dll" SourcePath="&lt;AI_CUSTACTS&gt;TxtUpdater.dll"/>
     <ROW Name="aicustact.dll" SourcePath="&lt;AI_CUSTACTS&gt;aicustact.dll"/>
     <ROW Name="opengamma_banner.bmp" SourcePath="opengamma-banner.bmp"/>
@@ -386,6 +397,11 @@
     <ROW Dialog_="UserExit" Control_="Finish" Event="DoAction" Argument="AI_CleanPrereq" Condition="1" Ordering="101"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCustActComponent">
+    <ROW Action="AI_AiRemoveFilesCommit" Type="11777" Source="ResourceCleaner.dll" Target="OnAiRemoveFilesCommit" WithoutSeq="true"/>
+    <ROW Action="AI_AiRemoveFilesDeferred_Permanent" Type="11265" Source="ResourceCleaner.dll" Target="OnAiRemoveFilesPermanent" WithoutSeq="true"/>
+    <ROW Action="AI_AiRemoveFilesDeferred_Undoable" Type="11265" Source="ResourceCleaner.dll" Target="OnAiRemoveFilesUndoable" WithoutSeq="true"/>
+    <ROW Action="AI_AiRemoveFilesImmediate" Type="1" Source="ResourceCleaner.dll" Target="OnAiRemoveFilesImmediate"/>
+    <ROW Action="AI_AiRemoveFilesRollback" Type="11521" Source="ResourceCleaner.dll" Target="OnAiUndoRemoveFiles"/>
     <ROW Action="AI_AppSearchEx" Type="1" Source="Prereq.dll" Target="DoAppSearchEx"/>
     <ROW Action="AI_CleanPrereq" Type="65" Source="Prereq.dll" Target="CleanPrereq" WithoutSeq="true"/>
     <ROW Action="AI_DOWNGRADE" Type="19" Target="4010"/>
@@ -443,6 +459,8 @@
     <ROW Action="AI_FwInstall" Condition="(VersionNT &gt;= 501) AND (REMOVE &lt;&gt; &quot;ALL&quot;)" Sequence="5849"/>
     <ROW Action="AI_FwUninstall" Condition="(VersionNT &gt;= 501) AND (REMOVE=&quot;ALL&quot;)" Sequence="1699"/>
     <ROW Action="AI_DetectJRE" Condition="1" Sequence="399" Builds="MSI_32;MSI_64"/>
+    <ROW Action="AI_AiRemoveFilesImmediate" Sequence="3499"/>
+    <ROW Action="AI_AiRemoveFilesRollback" Sequence="3099"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="745"/>
@@ -483,6 +501,11 @@
     <ROW Registry="serviceSDDL" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="serviceSDDL" Value="D:(A;;GA;;;WD)" Component_="Settings"/>
     <ROW Registry="serviceSDDL64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="serviceSDDL" Value="D:(A;;GA;;;WD)" Component_="Settings64"/>
   </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiRemoveFileComponent">
+    <ROW FileKey="OpenGamma.properties" Component_="Settings" FileName="OpenGamma.properties" DirProperty="APPDIR" InstallMode="2"/>
+    <ROW FileKey="log4cxx.connector.properties" Component_="Settings" FileName="log4cxx.connector.properties" DirProperty="APPDIR" InstallMode="2"/>
+    <ROW FileKey="log4cxx.service.properties" Component_="Settings" FileName="log4cxx.service.properties" DirProperty="APPDIR" InstallMode="2"/>
+  </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiServCtrlComponent">
     <ROW ServiceControl="ServiceRunner32.exe" Name="OpenGammaLanguageAPI" Event="161" Wait="1" Component_="ServiceRunner.exe_32"/>
     <ROW ServiceControl="ServiceRunner64.exe" Name="OpenGammaLanguageAPI" Event="161" Wait="1" Component_="ServiceRunner.exe_64"/>
@@ -505,7 +528,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.PreReqSearchComponent">
     <ROW SearchKey="A36DC7A_AF70_4CF0_B489_B30E0828F882_VC_2010_SEARCH_1" Prereq="A36DC7A_AF70_4CF0_B489_B30E0828F882" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86\Installed" RefContent="M1" Order="1" Property="AI_VC_2010_PREREQSEARCH_1_PROP_1"/>
-    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_2" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Installed" RefContent="M1" Order="1" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP_1" Platform="1"/>
+    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_2" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Installed" RefContent="M1" Order="1" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP_1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.SynchronizedFolderComponent">
     <ROW Directory_="jar_Dir" SourcePath="..\build\jar" Feature="Java" ExcludePattern="*~|#*#|%*%|._|CVS|.cvsignore|SCCS|vssver.scc|mssccprj.scc|vssver2.scc|.svn|.DS_Store" ExcludeFlags="6"/>
@@ -514,13 +537,15 @@
     <ROW Name="Append/Create" TxtUpdateSet="OpenGamma.properties" FindPattern="# Global properties&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
     <ROW Name="Append/Create" TxtUpdateSet="log4cxx.properties" FindPattern="log4j.rootLogger=INFO, A1&#13;&#10;log4j.appender.A1=org.apache.log4j.RollingFileAppender&#13;&#10;log4j.appender.A1.maxFileSize=1MB&#13;&#10;log4j.appender.A1.maxBackupIndex=3&#13;&#10;log4j.appender.A1.layout=org.apache.log4j.PatternLayout&#13;&#10;log4j.appender.A1.file=[WindowsFolder]Temp\OG-Language-Service.log&#13;&#10;log4j.appender.A1.layout.ConversionPattern=%d [\[]%t[\]] %-5p %c:%L - %m%n&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
     <ROW Name="Append/Create" TxtUpdateSet="log4cxx.service__1_.properties" FindPattern="log4j.rootLogger=INFO, A1&#13;&#10;log4j.appender.A1=org.apache.log4j.RollingFileAppender&#13;&#10;log4j.appender.A1.maxFileSize=1MB&#13;&#10;log4j.appender.A1.maxBackupIndex=3&#13;&#10;log4j.appender.A1.layout=org.apache.log4j.PatternLayout&#13;&#10;log4j.appender.A1.file=[WindowsFolder]Temp\OG-Language-Connector&#13;&#10;log4j.appender.A1.layout.ConversionPattern=%d [\[]%t[\]] %-5p %c:%L - %m%n&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
-    <ROW Name="Replace" TxtUpdateSet="log4cxx.service__1_.properties" FindPattern="\" ReplacePattern="\\" Options="2" Order="1" FileEncoding="7"/>
-    <ROW Name="Replace" TxtUpdateSet="log4cxx.properties" FindPattern="\" ReplacePattern="\\" Options="2" Order="1" FileEncoding="0"/>
+    <ROW Name="esacpe" TxtUpdateSet="log4cxx.service__1_.properties" FindPattern="\" ReplacePattern="\\" Options="2" Order="2" FileEncoding="7"/>
+    <ROW Name="escape" TxtUpdateSet="log4cxx.properties" FindPattern="\" ReplacePattern="\\" Options="2" Order="2" FileEncoding="0"/>
+    <ROW Name="unescape" TxtUpdateSet="log4cxx.service__1_.properties" FindPattern="\\" ReplacePattern="\" Options="2" Order="1" FileEncoding="-1"/>
+    <ROW Name="unescape" TxtUpdateSet="log4cxx.properties" FindPattern="\\" ReplacePattern="\" Options="2" Order="1" FileEncoding="-1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.TxtUpdateSetComponent">
-    <ROW Key="OpenGamma.properties" Component="client.jar" FileName="OpenGamma.properties" Directory="APPDIR" Options="25"/>
-    <ROW Key="log4cxx.properties" Component="Settings" FileName="log4cxx.service.properties" Directory="APPDIR" Options="25"/>
-    <ROW Key="log4cxx.service__1_.properties" Component="Settings" FileName="log4cxx.connector.properties" Directory="APPDIR" Options="25"/>
+    <ROW Key="OpenGamma.properties" Component="client.jar" FileName="OpenGamma.properties" Directory="APPDIR" Options="17"/>
+    <ROW Key="log4cxx.properties" Component="Settings" FileName="log4cxx.service.properties" Directory="APPDIR" Options="17"/>
+    <ROW Key="log4cxx.service__1_.properties" Component="Settings" FileName="log4cxx.connector.properties" Directory="APPDIR" Options="17"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.XmlAttributeComponent">
     <ROW XmlElement="1" Name="name" Flags="14" Order="0" Value="FILE"/>

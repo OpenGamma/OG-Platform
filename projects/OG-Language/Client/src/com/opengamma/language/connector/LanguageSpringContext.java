@@ -40,7 +40,9 @@ public class LanguageSpringContext {
   /** Name of the system property specifying the location of the Spring XML config. */
   public static final String LANGUAGE_EXT_PATH = "language.ext.path";
 
-  private static final String CLIENT_FACTORY_CLASS_PROPERTY = "language.client.factory";
+  /** Name of the system property to specify an alternative client factory (e.g. for debug configurations. */
+  public static final String CLIENT_FACTORY_CLASS_PROPERTY = "language.client.factory";
+
   private static final String CLIENT_FACTORY_METHOD = "getFactory";
   private static final String SESSION_CONTEXT_FACTORY = "SessionContextFactory";
   private static final String CLIENT_CONTEXT_FACTORY = "ClientContextFactory";

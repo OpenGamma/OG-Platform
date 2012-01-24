@@ -46,9 +46,16 @@ import com.opengamma.util.tuple.Pair;
  * <identification-scheme>, <identifier-value>, <datafield>, <value>
  */
 public class SimulatedHistoricalDataGenerator {
-  private static final String OG_DATA_PROVIDER = "OG_DATA_PROVIDER";
+  
+  /**
+   * OG Simulated data provider name
+   */
+  public static final String OG_DATA_PROVIDER = "OG_DATA_PROVIDER";
 
-  private static final String OG_DATA_SOURCE = "OG_DATA_SOURCE";
+  /**
+   * OG Simulated data source name
+   */
+  public static final String OG_DATA_SOURCE = "OG_DATA_SOURCE";
 
   private static final Logger s_logger = LoggerFactory.getLogger(SimulatedHistoricalDataGenerator.class);
   
