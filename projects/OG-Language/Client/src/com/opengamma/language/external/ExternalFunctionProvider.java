@@ -49,10 +49,23 @@ public class ExternalFunctionProvider extends AbstractFunctionProvider {
     return Collections.emptyList();
   }
 
+  private static boolean isTestClass(final Class<?> clazz) {
+    String[] cs = clazz.getName().split("[\\.\\$]");
+    for (String c : cs) {
+      if (c.endsWith("Test")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private static List<MetaFunction> createFunctions(final ExternalFunctionCache cache) {
     final List<MetaFunction> functions = new ArrayList<MetaFunction>();
     try {
       for (Class<?> clazz : cache.getClasses()) {
+        if (isTestClass(clazz)) {
+          continue;
+        }
         final ExternalFunctionHandler handler = new ExternalFunctionHandler(clazz);
         functions.addAll(handler.getFunctions());
       }
