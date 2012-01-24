@@ -147,7 +147,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * This method will not find infrastructure instances.
    * 
    * @param type  the type to get, not null
-   * @param classifier  the classifier that distinguishes the component, empty for default, not null
+   * @param classifier  the classifier that distinguishes the component, not null
    * @return the component information, not null
    * @throws IllegalArgumentException if no component is available
    */
@@ -173,6 +173,49 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       }
     }
     throw new IllegalArgumentException("Unknown component instance: " + instance);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Finds the type information for the component.
+   * <p>
+   * This method is lenient, ignoring case and matching simple type names.
+   * This method will not find infrastructure instances.
+   * 
+   * @param typeName  the name of the type to get, case insensitive, not null
+   * @return the component type information, null if not found
+   */
+  public ComponentTypeInfo findTypeInfo(String typeName) {
+    ArgumentChecker.notNull(typeName, "type");
+    for (Class<?> realType : _infoMap.keySet()) {
+      if (realType.getName().equalsIgnoreCase(typeName) || realType.getSimpleName().equalsIgnoreCase(typeName)) {
+        return getTypeInfo(realType);
+      }
+    }
+    return null;
+  }
+
+  /**
+   * Finds the component information.
+   * <p>
+   * This method is lenient, ignoring case and matching simple type names.
+   * This method will not find infrastructure instances.
+   * 
+   * @param typeName  the simple name of the type to get, case insensitive, not null
+   * @param classifier  the classifier that distinguishes the component, case insensitive, not null
+   * @return the component information, null if not found
+   */
+  public ComponentInfo findInfo(String typeName, String classifier) {
+    ArgumentChecker.notNull(typeName, "type");
+    ComponentTypeInfo typeInfo = findTypeInfo(typeName);
+    if (typeInfo != null) {
+      for (String realClassifier : typeInfo.getInfoMap().keySet()) {
+        if (realClassifier.equalsIgnoreCase(classifier)) {
+          return typeInfo.getInfo(realClassifier);
+        }
+      }
+    }
+    return null;
   }
 
   //-------------------------------------------------------------------------
