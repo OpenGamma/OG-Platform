@@ -91,6 +91,12 @@ public class DataPositionMasterResource extends AbstractDataResource {
     return new DataPositionResource(this, id);
   }
 
+  @Path("trades/{tradeId}")
+  public DataTradeResource findTrade(@PathParam("tradeId") String idStr) {
+    ObjectId id = ObjectId.parse(idStr);
+    return new DataTradeResource(this, id);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Builds a URI.

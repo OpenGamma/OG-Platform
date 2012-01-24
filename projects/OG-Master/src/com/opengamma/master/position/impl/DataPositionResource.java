@@ -24,7 +24,6 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionHistoryRequest;
 import com.opengamma.master.position.PositionHistoryResult;
@@ -34,14 +33,14 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
 /**
- * RESTful resource for a position.
+ * RESTful resource for a position in the position master.
  */
 public class DataPositionResource extends AbstractDataResource {
 
   /**
-   * The positions resource.
+   * The parent resource.
    */
-  private final DataPositionMasterResource _positionsResource;
+  private final DataPositionMasterResource _parentResource;
   /**
    * The identifier specified in the URI.
    */
@@ -50,24 +49,24 @@ public class DataPositionResource extends AbstractDataResource {
   /**
    * Creates the resource.
    * 
-   * @param positionsResource  the parent resource, not null
+   * @param parentResource  the parent resource, not null
    * @param positionId  the position unique identifier, not null
    */
-  public DataPositionResource(final DataPositionMasterResource positionsResource, final ObjectId positionId) {
-    ArgumentChecker.notNull(positionsResource, "positionsResource");
+  public DataPositionResource(final DataPositionMasterResource parentResource, final ObjectId positionId) {
+    ArgumentChecker.notNull(parentResource, "parentResource");
     ArgumentChecker.notNull(positionId, "position");
-    _positionsResource = positionsResource;
+    _parentResource = parentResource;
     _urlResourceId = positionId;
   }
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the positions resource.
+   * Gets the parent resource.
    * 
-   * @return the positions resource, not null
+   * @return the parent resource, not null
    */
-  public DataPositionMasterResource getPositionsResource() {
-    return _positionsResource;
+  public DataPositionMasterResource getParentResource() {
+    return _parentResource;
   }
 
   /**
@@ -86,7 +85,7 @@ public class DataPositionResource extends AbstractDataResource {
    * @return the position master, not null
    */
   public PositionMaster getPositionMaster() {
-    return getPositionsResource().getPositionMaster();
+    return getParentResource().getPositionMaster();
   }
 
   //-------------------------------------------------------------------------
@@ -148,14 +147,6 @@ public class DataPositionResource extends AbstractDataResource {
     return Response.created(uri).entity(result).build();
   }
 
-  @GET
-  @Path("trades/{tradeId}")
-  public Response getTrade(@PathParam("tradeId") String idStr) {
-    UniqueId tradeId = UniqueId.parse(idStr);
-    ManageableTrade result = getPositionMaster().getTrade(tradeId);
-    return Response.ok(result).build();
-  }
-
   //-------------------------------------------------------------------------
   /**
    * Builds a URI for the resource.
@@ -203,18 +194,6 @@ public class DataPositionResource extends AbstractDataResource {
     }
     return UriBuilder.fromUri(baseUri).path("/positions/{positionId}/versions/{versionId}")
       .build(uniqueId.toLatest(), uniqueId.getVersion());
-  }
-
-  /**
-   * Builds a URI for a specific node.
-   * 
-   * @param baseUri  the base URI, not null
-   * @param tradeId  the unique identifier, not null
-   * @return the URI, not null
-   */
-  public static URI uriTrade(URI baseUri, UniqueId tradeId) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("trades/{tradeId}");
-    return bld.build(tradeId);
   }
 
 }

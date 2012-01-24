@@ -134,7 +134,7 @@ public class RemotePositionMaster extends AbstractRemoteMaster implements Positi
   public ManageableTrade getTrade(final UniqueId tradeId) {
     ArgumentChecker.notNull(tradeId, "tradeId");
     
-    URI uri = DataPositionResource.uriTrade(getBaseUri(), tradeId);
+    URI uri = DataTradeResource.uriVersion(getBaseUri(), tradeId);
     return accessRemote(uri).get(ManageableTrade.class);
   }
 
