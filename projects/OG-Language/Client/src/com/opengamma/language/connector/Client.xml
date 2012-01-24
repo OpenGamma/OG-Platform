@@ -202,7 +202,7 @@
   </bean>
 
   <!-- Currency pairs -->
-  <bean id="currencyPairsLoader" class="com.opengamma.language.financial.currency.Loader">
+  <bean id="currencyPairsLoader" class="com.opengamma.language.currency.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="configuration" ref="defaultConfiguration" />
   </bean>
