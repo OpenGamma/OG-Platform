@@ -24,6 +24,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractSpringComponentFactory;
+import com.opengamma.component.factory.ComponentInfoAttributes;
 import com.opengamma.engine.ComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionRepository;
@@ -74,6 +75,16 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   @PropertyDefinition(validate = "notNull")
   private JmsConnector _jmsConnector;
   /**
+   * The JMS broker URI.
+   */
+  @PropertyDefinition
+  private String _jmsBrokerUri;
+  /**
+   * The view processor id (currently needed, but may disappear).
+   */
+  @PropertyDefinition
+  private String _viewProcessorId;
+  /**
    * The scheduler.
    */
   @PropertyDefinition(validate = "notNull")
@@ -111,6 +122,12 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   protected void initViewProcessor(ComponentRepository repo, GenericApplicationContext appContext) {
     ViewProcessor viewProcessor = appContext.getBean(ViewProcessor.class);
     ComponentInfo info = new ComponentInfo(ViewProcessor.class, getClassifier());
+    if (getJmsBrokerUri() != null) {
+      info.addAttribute(ComponentInfoAttributes.JMS_BROKER_URI, getJmsBrokerUri());
+    }
+    if (getViewProcessorId() != null) {
+      info.addAttribute(ComponentInfoAttributes.VIEW_PROCESSOR_ID, getViewProcessorId());
+    }
     repo.registerComponent(info, viewProcessor);
     
     if (isPublishRest()) {
@@ -245,6 +262,10 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
         return getFudgeContext();
       case -1495762275:  // jmsConnector
         return getJmsConnector();
+      case 2047189283:  // jmsBrokerUri
+        return getJmsBrokerUri();
+      case 736640360:  // viewProcessorId
+        return getViewProcessorId();
       case -160710469:  // scheduler
         return getScheduler();
       case 1540542824:  // volatilityCubeDefinitionSource
@@ -269,6 +290,12 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
         return;
       case -1495762275:  // jmsConnector
         setJmsConnector((JmsConnector) newValue);
+        return;
+      case 2047189283:  // jmsBrokerUri
+        setJmsBrokerUri((String) newValue);
+        return;
+      case 736640360:  // viewProcessorId
+        setViewProcessorId((String) newValue);
         return;
       case -160710469:  // scheduler
         setScheduler((ScheduledExecutorService) newValue);
@@ -303,6 +330,8 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
+          JodaBeanUtils.equal(getJmsBrokerUri(), other.getJmsBrokerUri()) &&
+          JodaBeanUtils.equal(getViewProcessorId(), other.getViewProcessorId()) &&
           JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
           JodaBeanUtils.equal(getVolatilityCubeDefinitionSource(), other.getVolatilityCubeDefinitionSource()) &&
           JodaBeanUtils.equal(getMarketDataProviderResolver(), other.getMarketDataProviderResolver()) &&
@@ -318,6 +347,8 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getJmsBrokerUri());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessorId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataProviderResolver());
@@ -432,6 +463,56 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the JMS broker URI.
+   * @return the value of the property
+   */
+  public String getJmsBrokerUri() {
+    return _jmsBrokerUri;
+  }
+
+  /**
+   * Sets the JMS broker URI.
+   * @param jmsBrokerUri  the new value of the property
+   */
+  public void setJmsBrokerUri(String jmsBrokerUri) {
+    this._jmsBrokerUri = jmsBrokerUri;
+  }
+
+  /**
+   * Gets the the {@code jmsBrokerUri} property.
+   * @return the property, not null
+   */
+  public final Property<String> jmsBrokerUri() {
+    return metaBean().jmsBrokerUri().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the view processor id (currently needed, but may disappear).
+   * @return the value of the property
+   */
+  public String getViewProcessorId() {
+    return _viewProcessorId;
+  }
+
+  /**
+   * Sets the view processor id (currently needed, but may disappear).
+   * @param viewProcessorId  the new value of the property
+   */
+  public void setViewProcessorId(String viewProcessorId) {
+    this._viewProcessorId = viewProcessorId;
+  }
+
+  /**
+   * Gets the the {@code viewProcessorId} property.
+   * @return the property, not null
+   */
+  public final Property<String> viewProcessorId() {
+    return metaBean().viewProcessorId().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the scheduler.
    * @return the value of the property, not null
    */
@@ -537,6 +618,16 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     private final MetaProperty<JmsConnector> _jmsConnector = DirectMetaProperty.ofReadWrite(
         this, "jmsConnector", SpringViewProcessorComponentFactory.class, JmsConnector.class);
     /**
+     * The meta-property for the {@code jmsBrokerUri} property.
+     */
+    private final MetaProperty<String> _jmsBrokerUri = DirectMetaProperty.ofReadWrite(
+        this, "jmsBrokerUri", SpringViewProcessorComponentFactory.class, String.class);
+    /**
+     * The meta-property for the {@code viewProcessorId} property.
+     */
+    private final MetaProperty<String> _viewProcessorId = DirectMetaProperty.ofReadWrite(
+        this, "viewProcessorId", SpringViewProcessorComponentFactory.class, String.class);
+    /**
      * The meta-property for the {@code scheduler} property.
      */
     private final MetaProperty<ScheduledExecutorService> _scheduler = DirectMetaProperty.ofReadWrite(
@@ -560,6 +651,8 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
         "publishRest",
         "fudgeContext",
         "jmsConnector",
+        "jmsBrokerUri",
+        "viewProcessorId",
         "scheduler",
         "volatilityCubeDefinitionSource",
         "marketDataProviderResolver");
@@ -581,6 +674,10 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
           return _fudgeContext;
         case -1495762275:  // jmsConnector
           return _jmsConnector;
+        case 2047189283:  // jmsBrokerUri
+          return _jmsBrokerUri;
+        case 736640360:  // viewProcessorId
+          return _viewProcessorId;
         case -160710469:  // scheduler
           return _scheduler;
         case 1540542824:  // volatilityCubeDefinitionSource
@@ -637,6 +734,22 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
      */
     public final MetaProperty<JmsConnector> jmsConnector() {
       return _jmsConnector;
+    }
+
+    /**
+     * The meta-property for the {@code jmsBrokerUri} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> jmsBrokerUri() {
+      return _jmsBrokerUri;
+    }
+
+    /**
+     * The meta-property for the {@code viewProcessorId} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> viewProcessorId() {
+      return _viewProcessorId;
     }
 
     /**

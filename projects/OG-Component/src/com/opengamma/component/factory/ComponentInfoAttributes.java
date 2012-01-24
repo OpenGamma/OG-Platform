@@ -21,9 +21,17 @@ public final class ComponentInfoAttributes {
    */
   public static final String UNIQUE_ID_SCHEME = "uniqueIdScheme";
   /**
+   * The attribute name for the JMS broker.
+   */
+  public static final String JMS_BROKER_URI = "jmsBrokerUri";
+  /**
    * The attribute name for the JMS change manager topic.
    */
   public static final String JMS_CHANGE_MANAGER_TOPIC = "jmsChangeManagerTopic";
+  /**
+   * The attribute name for the view processor id.
+   */
+  public static final String VIEW_PROCESSOR_ID = "viewProcessorId";
 
   /**
    * Restricted constructor.
