@@ -18,6 +18,7 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
@@ -116,6 +117,7 @@ public class TradeFudgeBuilder implements FudgeBuilder<Trade> {
     if (trade.getParentPositionId() != null) {
       serializer.addToMessage(message, PARENT_POSITION_ID_FIELD_NAME, null, trade.getParentPositionId());
     }
+    message.add(null, FudgeSerializer.TYPES_HEADER_ORDINAL, FudgeWireType.STRING, Trade.class.getName());
     return message;
   }
 
