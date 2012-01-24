@@ -9,7 +9,6 @@ import java.net.URI;
 
 import org.fudgemsg.FudgeContext;
 
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.sun.jersey.api.client.WebResource.Builder;
@@ -75,7 +74,7 @@ public abstract class AbstractRemoteClient {
    * @return the resource, suitable for calling get/post/put/delete on, not null
    */
   protected Builder accessRemote(URI uri) {
-    return getRestClient().access(uri).type(FudgeRest.MEDIA_TYPE).accept(FudgeRest.MEDIA_TYPE);
+    return getRestClient().accessFudge(uri);
   }
 
   //-------------------------------------------------------------------------

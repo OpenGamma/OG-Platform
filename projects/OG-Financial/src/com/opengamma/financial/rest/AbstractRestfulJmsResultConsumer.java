@@ -128,14 +128,14 @@ public abstract class AbstractRestfulJmsResultConsumer {
   private void configureResultListener() throws JMSException {
     if (_listenerDemand == 0) {
       URI uri = getUri(getBaseUri(), AbstractRestfulJmsResultPublisher.PATH_STOP_JMS_RESULT_STREAM);
-      getClient().access(uri).post();
+      getClient().accessFudge(uri).post();
       closeJms();
     } else if (_listenerDemand == 1) {
       String destination = startJms();
       MutableFudgeMsg msg = FudgeContext.GLOBAL_DEFAULT.newMessage();
       msg.add(AbstractRestfulJmsResultPublisher.DESTINATION_FIELD, destination);
       URI uri = getUri(getBaseUri(), AbstractRestfulJmsResultPublisher.PATH_START_JMS_RESULT_STREAM);
-      getClient().access(uri).post(msg);
+      getClient().accessFudge(uri).post(msg);
     }
   }
   

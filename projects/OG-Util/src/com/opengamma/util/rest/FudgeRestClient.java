@@ -21,6 +21,7 @@ import com.opengamma.transport.jaxrs.FudgeRest;
 import com.sun.jersey.api.client.AsyncWebResource;
 import com.sun.jersey.api.client.Client;
 import com.sun.jersey.api.client.WebResource;
+import com.sun.jersey.api.client.WebResource.Builder;
 import com.sun.jersey.api.client.config.ClientConfig;
 import com.sun.jersey.api.client.config.DefaultClientConfig;
 
@@ -85,6 +86,18 @@ public class FudgeRestClient {
    */
   public AsyncWebResource accessAsync(final URI uri) {
     return getClient().asyncResource(uri);
+  }
+
+  /**
+   * Obtains a class that can be used to call a remote resource synchronously.
+   * <p>
+   * This sets the entity type and accepted type to be Fudge.
+   *
+   * @param uri  the URI of the resource, not null
+   * @return a class that can be used to call a remote resource, not null
+   */
+  public Builder accessFudge(final URI uri) {
+    return getClient().resource(uri).type(FudgeRest.MEDIA_TYPE).accept(FudgeRest.MEDIA_TYPE);
   }
 
   //-------------------------------------------------------------------------
