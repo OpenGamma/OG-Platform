@@ -6,9 +6,7 @@
 package com.opengamma.financial.analytics.model.pnl;
 
 import java.math.BigDecimal;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -19,6 +17,7 @@ import javax.time.calendar.LocalDate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -86,13 +85,7 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     final PositionOrTrade trade = target.getPositionOrTrade();
-    Object currentTradeValue = null;
-    for (String valueRequirementName : getValueRequirementNames()) {
-      currentTradeValue = inputs.getValue(valueRequirementName);
-      if (currentTradeValue != null) {
-        break;
-      }
-    }
+    Object currentTradeValue = inputs.getValue(ValueRequirementNames.VALUE);
     if (currentTradeValue != null) {
       final Double tradeValue = (Double) currentTradeValue;
       final Security security = trade.getSecurity();
@@ -148,21 +141,11 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
     return cachedCost == UN_AVAILABLE_COST ? 0.0d : cachedCost;
   }
 
-  //  @Override
-  //  public ComputationTargetType getTargetType() {
-  //    return _dailyPositionPnL ? ComputationTargetType.POSITION : ComputationTargetType.TRADE;
-  //  }
-
   @Override
   public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
     final PositionOrTrade positionOrTrade = target.getPositionOrTrade();
     final Security security = positionOrTrade.getSecurity();
-    final List<String> valueRequirementNames = getValueRequirementNames();
-    final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(valueRequirementNames.size());
-    for (String valueRequirementName : valueRequirementNames) {
-      requirements.add(new ValueRequirement(valueRequirementName, ComputationTargetType.SECURITY, security.getUniqueId(), getCurrencyProperty(security)));
-    }
-    return requirements;
+    return ImmutableSet.of(new ValueRequirement(ValueRequirementNames.VALUE, ComputationTargetType.SECURITY, security.getUniqueId(), getCurrencyProperty(security)));
   }
 
   protected ValueProperties getCurrencyProperty(Security security) {
@@ -172,13 +155,6 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
     } else {
       return ValueProperties.none();
     }
-  }
-
-  /**
-   * @return the value requirement names in order of preference
-   */
-  protected List<String> getValueRequirementNames() {
-    return Arrays.asList(ValueRequirementNames.FAIR_VALUE, ValueRequirementNames.PRESENT_VALUE);
   }
 
   @Override
@@ -191,11 +167,6 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
       return Sets.newHashSet(new ValueSpecification(new ValueRequirement(valueRequirementName, target.getPositionOrTrade(),
                                ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get()), getUniqueId()));
     }
-  }
-
-  @Override
-  public boolean canHandleMissingRequirements() {
-    return true;
   }
 
   @Override

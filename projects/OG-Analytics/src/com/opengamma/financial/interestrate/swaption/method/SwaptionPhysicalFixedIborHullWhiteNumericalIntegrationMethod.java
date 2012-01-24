@@ -52,7 +52,7 @@ public class SwaptionPhysicalFixedIborHullWhiteNumericalIntegrationMethod implem
     double[] df = new double[cfe.getNumberOfPayments()];
     double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
-      alpha[loopcf] = MODEL.alpha(0.0, expiryTime, expiryTime, cfe.getNthPayment(loopcf).getPaymentTime(), hwData.getHullWhiteParameter());
+      alpha[loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, cfe.getNthPayment(loopcf).getPaymentTime());
       df[loopcf] = hwData.getCurve(cfe.getDiscountCurve()).getDiscountFactor(cfe.getNthPayment(loopcf).getPaymentTime());
       discountedCashFlow[loopcf] = df[loopcf] * cfe.getNthPayment(loopcf).getAmount();
     }

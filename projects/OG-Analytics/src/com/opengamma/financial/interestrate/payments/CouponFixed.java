@@ -123,6 +123,10 @@ public class CouponFixed extends Coupon {
     return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), 1);
   }
 
+  public CouponFixed withCoupon(double rate) {
+    return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), getNotional(), rate, getAccrualStartDate(), getAccrualEndDate());
+  }
+
   @Override
   public CouponFixed withNotional(double notional) {
     return new CouponFixed(getCurrency(), getPaymentTime(), getFundingCurveName(), getPaymentYearFraction(), notional, getFixedRate(), getAccrualStartDate(), getAccrualEndDate());
