@@ -21,7 +21,6 @@ import com.opengamma.financial.model.option.definition.Barrier.KnockType;
 import com.opengamma.financial.model.option.definition.Barrier.ObservationType;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurityVisitor;
-import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
@@ -29,8 +28,6 @@ import com.opengamma.financial.security.option.FXBarrierOptionSecurityVisitor;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurityVisitor;
 import com.opengamma.financial.security.option.MonitoringType;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -89,12 +86,10 @@ public class ForexSecurityConverter implements FXOptionSecurityVisitor<Instrumen
   @Override
   public InstrumentDefinition<?> visitFXForwardSecurity(final FXForwardSecurity fxForwardSecurity) {
     Validate.notNull(fxForwardSecurity, "fx forward security");
-    final ExternalId underlyingIdentifier = fxForwardSecurity.getUnderlyingId();
-    final FXSecurity fxSecurity = (FXSecurity) _securitySource.getSecurity(ExternalIdBundle.of(underlyingIdentifier));
-    final Currency payCurrency = fxSecurity.getPayCurrency();
-    final Currency receiveCurrency = fxSecurity.getReceiveCurrency();
-    final double payAmount = fxSecurity.getPayAmount();
-    final double receiveAmount = fxSecurity.getReceiveAmount();
+    final Currency payCurrency = fxForwardSecurity.getPayCurrency();
+    final Currency receiveCurrency = fxForwardSecurity.getReceiveCurrency();
+    final double payAmount = fxForwardSecurity.getPayAmount();
+    final double receiveAmount = fxForwardSecurity.getReceiveAmount();
     final double fxRate = receiveAmount / payAmount;
     final ZonedDateTime forwardDate = fxForwardSecurity.getForwardDate();
     return new ForexDefinition(payCurrency, receiveCurrency, forwardDate, payAmount, fxRate);

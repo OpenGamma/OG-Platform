@@ -25,15 +25,16 @@ import com.opengamma.masterdb.security.hibernate.future.FutureBundleBean;
 import com.opengamma.masterdb.security.hibernate.future.FutureSecurityBean;
 import com.opengamma.masterdb.security.hibernate.future.UnitBean;
 import com.opengamma.masterdb.security.hibernate.fx.FXForwardSecurityBean;
-import com.opengamma.masterdb.security.hibernate.fx.FXSecurityBean;
 import com.opengamma.masterdb.security.hibernate.fx.NonDeliverableFXForwardSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.EquityBarrierOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.EquityIndexDividendFutureOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.EquityIndexOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.EquityOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.FXBarrierOptionSecurityBean;
+import com.opengamma.masterdb.security.hibernate.option.FXDigitalOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.FXOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.IRFutureOptionSecurityBean;
+import com.opengamma.masterdb.security.hibernate.option.NonDeliverableFXDigitalOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.NonDeliverableFXOptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.option.SwaptionSecurityBean;
 import com.opengamma.masterdb.security.hibernate.swap.SwapSecurityBean;
@@ -88,7 +89,8 @@ public final class HibernateSecurityMasterFiles implements HibernateMappingFiles
       FXBarrierOptionSecurityBean.class,
       
       SwapSecurityBean.class,
-      FXSecurityBean.class,
+      FXDigitalOptionSecurityBean.class,
+      NonDeliverableFXDigitalOptionSecurityBean.class,
       FXForwardSecurityBean.class,
       NonDeliverableFXForwardSecurityBean.class,
       CapFloorSecurityBean.class,
