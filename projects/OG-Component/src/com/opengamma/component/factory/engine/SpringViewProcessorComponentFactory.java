@@ -37,8 +37,8 @@ import com.opengamma.engine.view.calcnode.stats.TotallingNodeStatisticsGatherer;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
+import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResource;
 import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResourceContextBean;
-import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderService;
 import com.opengamma.financial.function.rest.DataFunctionRepositoryResource;
 import com.opengamma.financial.view.rest.DataAvailableOutputsProviderResource;
 import com.opengamma.financial.view.rest.DataViewProcessorsResource;
@@ -189,16 +189,16 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     if (isPublishRest()) {
       repo.getRestComponents().publishResource(new DataFunctionRepositoryResource(compiledFunctionService.getFunctionRepository()));
       
-      DependencyGraphBuilderService resource = new DependencyGraphBuilderService(getFudgeContext());
       DependencyGraphBuilderResourceContextBean bean = new DependencyGraphBuilderResourceContextBean();
       bean.setCompiledFunctionService(compiledFunctionService);
       bean.setComputationTargetResolver(targetResolver);
       bean.setFunctionResolver(functionResolver);
       bean.setMarketDataProviderResolver(getMarketDataProviderResolver());
-      resource.setUnderlying(bean);
+      DependencyGraphBuilderResource resource = new DependencyGraphBuilderResource(bean, getFudgeContext());
       
       // TODO: not really designed as a "component"
-      ComponentInfo infoDGB = new ComponentInfo(DependencyGraphBuilderService.class, getClassifier());
+      ComponentInfo infoDGB = new ComponentInfo(DependencyGraphBuilderResource.class, getClassifier());
+      repo.registerComponent(infoDGB, resource);
       repo.getRestComponents().publish(infoDGB, resource);
     }
   }
