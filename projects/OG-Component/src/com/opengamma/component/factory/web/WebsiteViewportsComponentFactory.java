@@ -37,8 +37,11 @@ import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.config.ConfigMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.server.push.ConnectionManager;
 import com.opengamma.web.server.push.ConnectionManagerImpl;
@@ -61,25 +64,40 @@ import com.opengamma.web.server.push.rest.ViewportsResource;
 public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   /**
+   * The configuration master.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ConfigMaster _configMaster;
+  /**
+   * The security master.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private SecurityMaster _securityMaster;
+  /**
    * The security source.
    */
   @PropertyDefinition(validate = "notNull")
   private SecuritySource _securitySource;
+  /**
+   * The position master.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private PositionMaster _positionMaster;
+  /**
+   * The portfolio master.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private PortfolioMaster _portfolioMaster;
   /**
    * The position source.
    */
   @PropertyDefinition(validate = "notNull")
   private PositionSource _positionSource;
   /**
-   * The underlying master.
+   * The time-series master.
    */
   @PropertyDefinition(validate = "notNull")
-  private PositionMaster _positionMaster;
-  /**
-   * The underlying master.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private PortfolioMaster _portfolioMaster;
+  private HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
   /**
    * The user master.
    */
@@ -170,6 +188,9 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     List<ChangeProvider> providers = new ArrayList<ChangeProvider>();
     providers.add(getPositionMaster());
     providers.add(getPortfolioMaster());
+    providers.add(getSecurityMaster());
+    providers.add(getHistoricalTimeSeriesMaster());
+    providers.add(getConfigMaster());
     return new AggregatingChangeManager(providers);
   }
 
@@ -177,6 +198,9 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     Map<MasterType, ChangeProvider> providers = new HashMap<MasterType, ChangeProvider>();
     providers.put(MasterType.POSITION, getPositionMaster());
     providers.put(MasterType.PORTFOLIO, getPortfolioMaster());
+    providers.put(MasterType.SECURITY, getSecurityMaster());
+    providers.put(MasterType.TIME_SERIES, getHistoricalTimeSeriesMaster());
+    providers.put(MasterType.CONFIG, getConfigMaster());
     return new MasterChangeManager(providers);
   }
 
@@ -201,14 +225,20 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case 10395716:  // configMaster
+        return getConfigMaster();
+      case -887218750:  // securityMaster
+        return getSecurityMaster();
       case -702456965:  // securitySource
         return getSecuritySource();
-      case -1655657820:  // positionSource
-        return getPositionSource();
       case -1840419605:  // positionMaster
         return getPositionMaster();
       case -772274742:  // portfolioMaster
         return getPortfolioMaster();
+      case -1655657820:  // positionSource
+        return getPositionSource();
+      case 173967376:  // historicalTimeSeriesMaster
+        return getHistoricalTimeSeriesMaster();
       case 1808868758:  // userPositionMaster
         return getUserPositionMaster();
       case 686514815:  // userPortfolioMaster
@@ -230,17 +260,26 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case 10395716:  // configMaster
+        setConfigMaster((ConfigMaster) newValue);
+        return;
+      case -887218750:  // securityMaster
+        setSecurityMaster((SecurityMaster) newValue);
+        return;
       case -702456965:  // securitySource
         setSecuritySource((SecuritySource) newValue);
-        return;
-      case -1655657820:  // positionSource
-        setPositionSource((PositionSource) newValue);
         return;
       case -1840419605:  // positionMaster
         setPositionMaster((PositionMaster) newValue);
         return;
       case -772274742:  // portfolioMaster
         setPortfolioMaster((PortfolioMaster) newValue);
+        return;
+      case -1655657820:  // positionSource
+        setPositionSource((PositionSource) newValue);
+        return;
+      case 173967376:  // historicalTimeSeriesMaster
+        setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
         return;
       case 1808868758:  // userPositionMaster
         setUserPositionMaster((PositionMaster) newValue);
@@ -269,10 +308,13 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   @Override
   protected void validate() {
+    JodaBeanUtils.notNull(_configMaster, "configMaster");
+    JodaBeanUtils.notNull(_securityMaster, "securityMaster");
     JodaBeanUtils.notNull(_securitySource, "securitySource");
-    JodaBeanUtils.notNull(_positionSource, "positionSource");
     JodaBeanUtils.notNull(_positionMaster, "positionMaster");
     JodaBeanUtils.notNull(_portfolioMaster, "portfolioMaster");
+    JodaBeanUtils.notNull(_positionSource, "positionSource");
+    JodaBeanUtils.notNull(_historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
     JodaBeanUtils.notNull(_userPositionMaster, "userPositionMaster");
     JodaBeanUtils.notNull(_userPortfolioMaster, "userPortfolioMaster");
     JodaBeanUtils.notNull(_userViewDefinitionRepository, "userViewDefinitionRepository");
@@ -290,10 +332,13 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       WebsiteViewportsComponentFactory other = (WebsiteViewportsComponentFactory) obj;
-      return JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
-          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
+      return JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
+          JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
+          JodaBeanUtils.equal(getSecuritySource(), other.getSecuritySource()) &&
           JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
           JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
+          JodaBeanUtils.equal(getPositionSource(), other.getPositionSource()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
           JodaBeanUtils.equal(getUserPositionMaster(), other.getUserPositionMaster()) &&
           JodaBeanUtils.equal(getUserPortfolioMaster(), other.getUserPortfolioMaster()) &&
           JodaBeanUtils.equal(getUserViewDefinitionRepository(), other.getUserViewDefinitionRepository()) &&
@@ -309,10 +354,13 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(getConfigMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecuritySource());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPositionSource());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserPortfolioMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserViewDefinitionRepository());
@@ -321,6 +369,58 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the configuration master.
+   * @return the value of the property, not null
+   */
+  public ConfigMaster getConfigMaster() {
+    return _configMaster;
+  }
+
+  /**
+   * Sets the configuration master.
+   * @param configMaster  the new value of the property, not null
+   */
+  public void setConfigMaster(ConfigMaster configMaster) {
+    JodaBeanUtils.notNull(configMaster, "configMaster");
+    this._configMaster = configMaster;
+  }
+
+  /**
+   * Gets the the {@code configMaster} property.
+   * @return the property, not null
+   */
+  public final Property<ConfigMaster> configMaster() {
+    return metaBean().configMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the security master.
+   * @return the value of the property, not null
+   */
+  public SecurityMaster getSecurityMaster() {
+    return _securityMaster;
+  }
+
+  /**
+   * Sets the security master.
+   * @param securityMaster  the new value of the property, not null
+   */
+  public void setSecurityMaster(SecurityMaster securityMaster) {
+    JodaBeanUtils.notNull(securityMaster, "securityMaster");
+    this._securityMaster = securityMaster;
+  }
+
+  /**
+   * Gets the the {@code securityMaster} property.
+   * @return the property, not null
+   */
+  public final Property<SecurityMaster> securityMaster() {
+    return metaBean().securityMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -351,6 +451,58 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the position master.
+   * @return the value of the property, not null
+   */
+  public PositionMaster getPositionMaster() {
+    return _positionMaster;
+  }
+
+  /**
+   * Sets the position master.
+   * @param positionMaster  the new value of the property, not null
+   */
+  public void setPositionMaster(PositionMaster positionMaster) {
+    JodaBeanUtils.notNull(positionMaster, "positionMaster");
+    this._positionMaster = positionMaster;
+  }
+
+  /**
+   * Gets the the {@code positionMaster} property.
+   * @return the property, not null
+   */
+  public final Property<PositionMaster> positionMaster() {
+    return metaBean().positionMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the portfolio master.
+   * @return the value of the property, not null
+   */
+  public PortfolioMaster getPortfolioMaster() {
+    return _portfolioMaster;
+  }
+
+  /**
+   * Sets the portfolio master.
+   * @param portfolioMaster  the new value of the property, not null
+   */
+  public void setPortfolioMaster(PortfolioMaster portfolioMaster) {
+    JodaBeanUtils.notNull(portfolioMaster, "portfolioMaster");
+    this._portfolioMaster = portfolioMaster;
+  }
+
+  /**
+   * Gets the the {@code portfolioMaster} property.
+   * @return the property, not null
+   */
+  public final Property<PortfolioMaster> portfolioMaster() {
+    return metaBean().portfolioMaster().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the position source.
    * @return the value of the property, not null
    */
@@ -377,54 +529,28 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying master.
+   * Gets the time-series master.
    * @return the value of the property, not null
    */
-  public PositionMaster getPositionMaster() {
-    return _positionMaster;
+  public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster() {
+    return _historicalTimeSeriesMaster;
   }
 
   /**
-   * Sets the underlying master.
-   * @param positionMaster  the new value of the property, not null
+   * Sets the time-series master.
+   * @param historicalTimeSeriesMaster  the new value of the property, not null
    */
-  public void setPositionMaster(PositionMaster positionMaster) {
-    JodaBeanUtils.notNull(positionMaster, "positionMaster");
-    this._positionMaster = positionMaster;
+  public void setHistoricalTimeSeriesMaster(HistoricalTimeSeriesMaster historicalTimeSeriesMaster) {
+    JodaBeanUtils.notNull(historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
+    this._historicalTimeSeriesMaster = historicalTimeSeriesMaster;
   }
 
   /**
-   * Gets the the {@code positionMaster} property.
+   * Gets the the {@code historicalTimeSeriesMaster} property.
    * @return the property, not null
    */
-  public final Property<PositionMaster> positionMaster() {
-    return metaBean().positionMaster().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
-   * Gets the underlying master.
-   * @return the value of the property, not null
-   */
-  public PortfolioMaster getPortfolioMaster() {
-    return _portfolioMaster;
-  }
-
-  /**
-   * Sets the underlying master.
-   * @param portfolioMaster  the new value of the property, not null
-   */
-  public void setPortfolioMaster(PortfolioMaster portfolioMaster) {
-    JodaBeanUtils.notNull(portfolioMaster, "portfolioMaster");
-    this._portfolioMaster = portfolioMaster;
-  }
-
-  /**
-   * Gets the the {@code portfolioMaster} property.
-   * @return the property, not null
-   */
-  public final Property<PortfolioMaster> portfolioMaster() {
-    return metaBean().portfolioMaster().createProperty(this);
+  public final Property<HistoricalTimeSeriesMaster> historicalTimeSeriesMaster() {
+    return metaBean().historicalTimeSeriesMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -620,15 +746,20 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code configMaster} property.
+     */
+    private final MetaProperty<ConfigMaster> _configMaster = DirectMetaProperty.ofReadWrite(
+        this, "configMaster", WebsiteViewportsComponentFactory.class, ConfigMaster.class);
+    /**
+     * The meta-property for the {@code securityMaster} property.
+     */
+    private final MetaProperty<SecurityMaster> _securityMaster = DirectMetaProperty.ofReadWrite(
+        this, "securityMaster", WebsiteViewportsComponentFactory.class, SecurityMaster.class);
+    /**
      * The meta-property for the {@code securitySource} property.
      */
     private final MetaProperty<SecuritySource> _securitySource = DirectMetaProperty.ofReadWrite(
         this, "securitySource", WebsiteViewportsComponentFactory.class, SecuritySource.class);
-    /**
-     * The meta-property for the {@code positionSource} property.
-     */
-    private final MetaProperty<PositionSource> _positionSource = DirectMetaProperty.ofReadWrite(
-        this, "positionSource", WebsiteViewportsComponentFactory.class, PositionSource.class);
     /**
      * The meta-property for the {@code positionMaster} property.
      */
@@ -639,6 +770,16 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
      */
     private final MetaProperty<PortfolioMaster> _portfolioMaster = DirectMetaProperty.ofReadWrite(
         this, "portfolioMaster", WebsiteViewportsComponentFactory.class, PortfolioMaster.class);
+    /**
+     * The meta-property for the {@code positionSource} property.
+     */
+    private final MetaProperty<PositionSource> _positionSource = DirectMetaProperty.ofReadWrite(
+        this, "positionSource", WebsiteViewportsComponentFactory.class, PositionSource.class);
+    /**
+     * The meta-property for the {@code historicalTimeSeriesMaster} property.
+     */
+    private final MetaProperty<HistoricalTimeSeriesMaster> _historicalTimeSeriesMaster = DirectMetaProperty.ofReadWrite(
+        this, "historicalTimeSeriesMaster", WebsiteViewportsComponentFactory.class, HistoricalTimeSeriesMaster.class);
     /**
      * The meta-property for the {@code userPositionMaster} property.
      */
@@ -679,10 +820,13 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "configMaster",
+        "securityMaster",
         "securitySource",
-        "positionSource",
         "positionMaster",
         "portfolioMaster",
+        "positionSource",
+        "historicalTimeSeriesMaster",
         "userPositionMaster",
         "userPortfolioMaster",
         "userViewDefinitionRepository",
@@ -700,14 +844,20 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 10395716:  // configMaster
+          return _configMaster;
+        case -887218750:  // securityMaster
+          return _securityMaster;
         case -702456965:  // securitySource
           return _securitySource;
-        case -1655657820:  // positionSource
-          return _positionSource;
         case -1840419605:  // positionMaster
           return _positionMaster;
         case -772274742:  // portfolioMaster
           return _portfolioMaster;
+        case -1655657820:  // positionSource
+          return _positionSource;
+        case 173967376:  // historicalTimeSeriesMaster
+          return _historicalTimeSeriesMaster;
         case 1808868758:  // userPositionMaster
           return _userPositionMaster;
         case 686514815:  // userPortfolioMaster
@@ -743,19 +893,27 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
     //-----------------------------------------------------------------------
     /**
+     * The meta-property for the {@code configMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ConfigMaster> configMaster() {
+      return _configMaster;
+    }
+
+    /**
+     * The meta-property for the {@code securityMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<SecurityMaster> securityMaster() {
+      return _securityMaster;
+    }
+
+    /**
      * The meta-property for the {@code securitySource} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<SecuritySource> securitySource() {
       return _securitySource;
-    }
-
-    /**
-     * The meta-property for the {@code positionSource} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<PositionSource> positionSource() {
-      return _positionSource;
     }
 
     /**
@@ -772,6 +930,22 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<PortfolioMaster> portfolioMaster() {
       return _portfolioMaster;
+    }
+
+    /**
+     * The meta-property for the {@code positionSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<PositionSource> positionSource() {
+      return _positionSource;
+    }
+
+    /**
+     * The meta-property for the {@code historicalTimeSeriesMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<HistoricalTimeSeriesMaster> historicalTimeSeriesMaster() {
+      return _historicalTimeSeriesMaster;
     }
 
     /**
