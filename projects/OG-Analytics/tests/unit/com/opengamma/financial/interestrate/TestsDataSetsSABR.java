@@ -276,6 +276,12 @@ public class TestsDataSetsSABR {
     return curves;
   }
 
+  public static String[] curves1Names() {
+    final String FUNDING_CURVE_NAME = "Funding";
+    final String FORWARD_CURVE_NAME = "Forward";
+    return new String[] {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
+  }
+
   public static YieldCurveBundle createCurves2() {
     final String discountingCurvename = "Discounting";
     final String forward3MCurveName = "Forward 3M";
