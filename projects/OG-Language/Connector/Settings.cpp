@@ -138,7 +138,7 @@ private:
 #ifdef _WIN32
 		HRESULT hr;
 		HKEY hkey;
-		if ((hr = RegOpenKeyEx (HKEY_LOCAL_MACHINE, TEXT ("SYSTEM\\CurrentControlSet\\service"), 0, KEY_READ, &hkey)) == ERROR_SUCCESS) {
+		if ((hr = RegOpenKeyEx (HKEY_LOCAL_MACHINE, TEXT ("SYSTEM\\CurrentControlSet\\services"), 0, KEY_READ, &hkey)) == ERROR_SUCCESS) {
 			TCHAR szImage[MAX_PATH];
 			DWORD cbImage = sizeof (szImage);
 			if ((hr = RegGetValue (hkey, pszServiceName, TEXT ("ImagePath"), RRF_RT_REG_SZ, NULL, szImage, &cbImage)) == ERROR_SUCCESS) {
@@ -155,7 +155,7 @@ private:
 			}
 			RegCloseKey (hkey);
 		} else {
-			LOGWARN (TEXT ("Couldn't open HKLM\\SYSTEM\\CurrentControlSet\\service registry key, error ") << hr);
+			LOGWARN (TEXT ("Couldn't open HKLM\\SYSTEM\\CurrentControlSet\\services registry key, error ") << hr);
 		}
 #endif /* ifdef _WIN32 */
 		return pszExecutable;

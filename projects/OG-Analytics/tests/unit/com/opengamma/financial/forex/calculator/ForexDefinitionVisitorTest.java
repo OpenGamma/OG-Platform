@@ -19,6 +19,8 @@ import com.opengamma.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
+import com.opengamma.financial.instrument.bond.BillSecurityDefinition;
+import com.opengamma.financial.instrument.bond.BillTransactionDefinition;
 import com.opengamma.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
@@ -552,6 +554,26 @@ public class ForexDefinitionVisitorTest {
     @Override
     public String visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx) {
       return "ForexOptionDigital1";
+    }
+
+    @Override
+    public String visitBillSecurityDefinition(BillSecurityDefinition bill, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBillSecurityDefinition(BillSecurityDefinition bill) {
+      return null;
+    }
+
+    @Override
+    public String visitBillTransactionDefinition(BillTransactionDefinition bill, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBillTransactionDefinition(BillTransactionDefinition bill) {
+      return null;
     }
 
   }

@@ -67,7 +67,8 @@ public class TestsDataSetsForex {
   private static final double[][] RISK_REVERSAL = new double[][] { {-0.011, -0.0060}, {-0.012, -0.0070}, {-0.013, -0.0080}, {-0.014, -0.0090}, {-0.014, -0.0090}};
   private static final double[][] STRANGLE = new double[][] { {0.0310, 0.0110}, {0.0320, 0.0120}, {0.0330, 0.0130}, {0.0340, 0.0140}, {0.0340, 0.0140}};
 
-  //  private static final int NB_STRIKE = 2 * DELTA.length + 1;
+  private static final double[][] RISK_REVERSAL_FLAT = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
+  private static final double[][] STRANGLE_FLAT = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
 
   public static SmileDeltaTermStructureParameter smile(final ZonedDateTime referenceDate) {
     final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
@@ -89,6 +90,16 @@ public class TestsDataSetsForex {
       timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
     }
     return new SmileDeltaTermStructureParameter(timeToExpiry, DELTA, atmShift, RISK_REVERSAL, STRANGLE);
+  }
+
+  public static SmileDeltaTermStructureParameter smileFlat(final ZonedDateTime referenceDate) {
+    final ZonedDateTime[] expiryDate = new ZonedDateTime[NB_EXP];
+    double[] timeToExpiry = new double[NB_EXP];
+    for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
+      expiryDate[loopexp] = ScheduleCalculator.getAdjustedDate(referenceDate, EXPIRY_PERIOD[loopexp], BUSINESS_DAY, CALENDAR, true);
+      timeToExpiry[loopexp] = TimeCalculator.getTimeBetween(referenceDate, expiryDate[loopexp]);
+    }
+    return new SmileDeltaTermStructureParameter(timeToExpiry, DELTA, ATM, RISK_REVERSAL_FLAT, STRANGLE_FLAT);
   }
 
   public static FXMatrix fxMatrix() {

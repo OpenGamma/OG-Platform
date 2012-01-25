@@ -38,6 +38,8 @@ public class GeneratorSwap {
   private final IborIndex _iborIndex;
 
   // Implementation comment: business day convention, calendar and EOM from IborIndex.
+  // REVIEW: Do we need stubShort and stubFirst flags?
+  // REVIEW: Do we need business day convention and EOM in the generator (potentially different from the one of the Ibor index)?
 
   /**
    * Constructor from all the details.
@@ -56,8 +58,8 @@ public class GeneratorSwap {
   }
 
   /**
-   * Gets the _name field.
-   * @return the _name
+   * Gets the generator name.
+   * @return The name
    */
   public String getName() {
     return _name;

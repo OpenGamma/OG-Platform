@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.timeseries.returns.SimpleNetRelativeTimeSeriesReturnCalculator;
 import com.opengamma.financial.timeseries.returns.SimpleNetTimeSeriesReturnCalculator;
 import com.opengamma.util.CalculationMode;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -53,12 +53,12 @@ public class HistoricalVolatilityHighLowCloseCalculatorTest extends HistoricalVo
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testTS() {
-    CALCULATOR.evaluate(new DoubleTimeSeries[] {HIGH_TS, LOW_TS});
+    CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {HIGH_TS, LOW_TS});
   }
 
   @Test
   public void test() {
-    assertEquals(CALCULATOR.evaluate(new DoubleTimeSeries[] {HIGH_TS, LOW_TS, CLOSE_TS}), 0.0128, EPS);
+    assertEquals(CALCULATOR.evaluate(new LocalDateDoubleTimeSeries[] {HIGH_TS, LOW_TS, CLOSE_TS}), 0.0128, EPS);
   }
 
   @Override

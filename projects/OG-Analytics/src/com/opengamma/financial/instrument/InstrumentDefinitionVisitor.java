@@ -13,6 +13,8 @@ import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefiniti
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.definition.ForexSwapDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
+import com.opengamma.financial.instrument.bond.BillSecurityDefinition;
+import com.opengamma.financial.instrument.bond.BillTransactionDefinition;
 import com.opengamma.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
@@ -81,6 +83,14 @@ public interface InstrumentDefinitionVisitor<T, U> {
   U visitBondIborSecurityDefinition(BondIborSecurityDefinition bond, T data);
 
   U visitBondIborSecurityDefinition(BondIborSecurityDefinition bond);
+
+  U visitBillSecurityDefinition(BillSecurityDefinition bill, T data);
+
+  U visitBillSecurityDefinition(BillSecurityDefinition bill);
+
+  U visitBillTransactionDefinition(BillTransactionDefinition bill, T data);
+
+  U visitBillTransactionDefinition(BillTransactionDefinition bill);
 
   U visitCashDefinition(CashDefinition cash, T data);
 

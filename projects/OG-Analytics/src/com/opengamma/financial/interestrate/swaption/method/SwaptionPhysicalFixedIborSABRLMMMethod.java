@@ -233,7 +233,7 @@ public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
       pvcsCalBase[loopcal] = pvcsCalBase[loopcal].clean();
       pvcsCalCal[loopcal] = METHOD_SWAPTION_LMM.presentValueCurveSensitivity(swaptionCalibration[loopcal], lmmBundle);
       pvcsCalCal[loopcal] = pvcsCalCal[loopcal].clean();
-      pvcsCalDiff[loopcal] = pvcsCalBase[loopcal].add(pvcsCalCal[loopcal].multiply(-1));
+      pvcsCalDiff[loopcal] = pvcsCalBase[loopcal].plus(pvcsCalCal[loopcal].multiply(-1));
       pvcsCalDiff[loopcal] = pvcsCalDiff[loopcal].clean();
     }
     CommonsMatrixAlgebra matrix = new CommonsMatrixAlgebra();
@@ -244,15 +244,15 @@ public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
     for (int loopcal1 = 0; loopcal1 < nbCal; loopcal1++) {
       dLambdadC[loopcal1] = new InterestRateCurveSensitivity();
       for (int loopcal2 = 0; loopcal2 <= loopcal1; loopcal2++) {
-        dLambdadC[loopcal1] = dLambdadC[loopcal1].add(pvcsCalDiff[loopcal2].multiply(dPvCaldLambdaMatrixInverse.getEntry(loopcal1, loopcal2)));
+        dLambdadC[loopcal1] = dLambdadC[loopcal1].plus(pvcsCalDiff[loopcal2].multiply(dPvCaldLambdaMatrixInverse.getEntry(loopcal1, loopcal2)));
       }
     }
     InterestRateCurveSensitivity pvcsAdjust = new InterestRateCurveSensitivity();
     for (int loopcal = 0; loopcal < nbCal; loopcal++) {
-      pvcsAdjust = pvcsAdjust.add(dLambdadC[loopcal].multiply(dPvAmdLambda[loopcal]));
+      pvcsAdjust = pvcsAdjust.plus(dLambdadC[loopcal].multiply(dPvAmdLambda[loopcal]));
     }
     pvcsAdjust = pvcsAdjust.clean();
-    InterestRateCurveSensitivity pvcsTot = pvcsCal.add(pvcsAdjust);
+    InterestRateCurveSensitivity pvcsTot = pvcsCal.plus(pvcsAdjust);
     pvcsTot = pvcsTot.clean();
     return pvcsTot;
   }
@@ -340,7 +340,7 @@ public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
       pvcsCalBase[loopcal] = pvcsCalBase[loopcal].clean();
       pvcsCalCal[loopcal] = METHOD_SWAPTION_LMM.presentValueCurveSensitivity(swaptionCalibration[loopcal], lmmBundle);
       pvcsCalCal[loopcal] = pvcsCalCal[loopcal].clean();
-      pvcsCalDiff[loopcal] = pvcsCalBase[loopcal].add(pvcsCalCal[loopcal].multiply(-1));
+      pvcsCalDiff[loopcal] = pvcsCalBase[loopcal].plus(pvcsCalCal[loopcal].multiply(-1));
       pvcsCalDiff[loopcal] = pvcsCalDiff[loopcal].clean();
     }
     CommonsMatrixAlgebra matrix = new CommonsMatrixAlgebra();
@@ -383,14 +383,14 @@ public class SwaptionPhysicalFixedIborSABRLMMMethod implements PricingMethod {
     for (int loopcal1 = 0; loopcal1 < nbCal; loopcal1++) {
       dLambdadC[loopcal1] = new InterestRateCurveSensitivity();
       for (int loopcal2 = 0; loopcal2 <= loopcal1; loopcal2++) {
-        dLambdadC[loopcal1] = dLambdadC[loopcal1].add(pvcsCalDiff[loopcal2].multiply(dPvCaldLambdaMatrixInverse.getEntry(loopcal1, loopcal2)));
+        dLambdadC[loopcal1] = dLambdadC[loopcal1].plus(pvcsCalDiff[loopcal2].multiply(dPvCaldLambdaMatrixInverse.getEntry(loopcal1, loopcal2)));
       }
     }
     InterestRateCurveSensitivity pvcs = new InterestRateCurveSensitivity();
     for (int loopcal = 0; loopcal < nbCal; loopcal++) {
-      pvcs = pvcs.add(dLambdadC[loopcal].multiply(dPvAmdLambda[loopcal]));
+      pvcs = pvcs.plus(dLambdadC[loopcal].multiply(dPvAmdLambda[loopcal]));
     }
-    pvcs = pvcs.add(pvcsCal);
+    pvcs = pvcs.plus(pvcsCal);
     pvcs = pvcs.clean();
     List<Object> results = new ArrayList<Object>();
     results.add(CurrencyAmount.of(swaption.getCurrency(), METHOD_SWAPTION_LMM.presentValue(swaption, lmmBundle).getAmount()));

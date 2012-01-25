@@ -130,4 +130,10 @@ public final class ForexNonDeliverableForwardDiscountingMethod implements ForexP
     return MultipleCurrencyInterestRateCurveSensitivity.of(ndf.getCurrency2(), result);
   }
 
+  @Override
+  public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof ForexNonDeliverableForward, "Forex non-deliverable forward");
+    return presentValueCurveSensitivity((ForexNonDeliverableForward) instrument, curves);
+  }
+
 }

@@ -107,7 +107,7 @@ public final class CapFloorIborSABRMethod implements PricingMethod {
     resultMap.put(cap.getFundingCurveName(), list);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     result = result.multiply(bsAdjoint[0]);
-    result = result.add(forwardDr.multiply(df * (bsAdjoint[1] + bsAdjoint[2] * volatilityAdjoint[1])));
+    result = result.plus(forwardDr.multiply(df * (bsAdjoint[1] + bsAdjoint[2] * volatilityAdjoint[1])));
     result = result.multiply(cap.getNotional() * cap.getPaymentYearFraction());
     return result;
   }

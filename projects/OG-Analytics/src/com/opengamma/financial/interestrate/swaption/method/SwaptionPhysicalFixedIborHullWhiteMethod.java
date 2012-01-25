@@ -79,7 +79,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
     double[] df = new double[cfe.getNumberOfPayments()];
     double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
-      alpha[loopcf] = MODEL.alpha(0.0, expiryTime, expiryTime, cfe.getNthPayment(loopcf).getPaymentTime(), hwData.getHullWhiteParameter());
+      alpha[loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, cfe.getNthPayment(loopcf).getPaymentTime());
       df[loopcf] = hwData.getCurve(cfe.getDiscountCurve()).getDiscountFactor(cfe.getNthPayment(loopcf).getPaymentTime());
       discountedCashFlow[loopcf] = df[loopcf] * cfe.getNthPayment(loopcf).getAmount();
     }
@@ -119,7 +119,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
     double[] df = new double[cfe.getNumberOfPayments()];
     double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
-      alpha[loopcf] = MODEL.alpha(0.0, expiryTime, expiryTime, cfe.getNthPayment(loopcf).getPaymentTime(), hwData.getHullWhiteParameter(), alphaDerivatives[loopcf]);
+      alpha[loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, cfe.getNthPayment(loopcf).getPaymentTime(), alphaDerivatives[loopcf]);
       df[loopcf] = dsc.getDiscountFactor(cfe.getNthPayment(loopcf).getPaymentTime());
       discountedCashFlow[loopcf] = df[loopcf] * cfe.getNthPayment(loopcf).getAmount();
     }
@@ -157,7 +157,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
     double[] df = new double[cfe.getNumberOfPayments()];
     double[] discountedCashFlow = new double[cfe.getNumberOfPayments()];
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
-      alpha[loopcf] = MODEL.alpha(0.0, expiryTime, expiryTime, cfe.getNthPayment(loopcf).getPaymentTime(), hwData.getHullWhiteParameter(), alphaDerivatives[loopcf]);
+      alpha[loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, cfe.getNthPayment(loopcf).getPaymentTime(), alphaDerivatives[loopcf]);
       df[loopcf] = hwData.getCurve(cfe.getDiscountCurve()).getDiscountFactor(cfe.getNthPayment(loopcf).getPaymentTime());
       discountedCashFlow[loopcf] = df[loopcf] * cfe.getNthPayment(loopcf).getAmount();
     }
@@ -187,7 +187,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethod implements PricingMethod {
     for (int loopcf = 0; loopcf < cfe.getNumberOfPayments(); loopcf++) {
       InterestRateCurveSensitivity sensiCfe = cfeCurveSensi.get(cfe.getNthPayment(loopcf).getPaymentTime());
       if (!(sensiCfe == null)) { // There is some sensitivity to that cfe.
-        sensitivity = sensitivity.add(sensiCfe.multiply(cfeAmountBar[loopcf]));
+        sensitivity = sensitivity.plus(sensiCfe.multiply(cfeAmountBar[loopcf]));
       }
     }
     return sensitivity;

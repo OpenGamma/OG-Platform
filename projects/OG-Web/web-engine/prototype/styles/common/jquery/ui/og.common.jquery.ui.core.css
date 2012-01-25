@@ -5,6 +5,10 @@
  *  This file overwrites Jquery UI CSS from @see /styles/lib/jquery/ui/jquery.ui.core.css
  */
 
+.ui-icon,
+.ui-widget-content .ui-icon,
+.ui-widget-header .ui-icon {background-image: none;}
+
 .ui-widget-content {
   color: #555;
 }
@@ -38,3 +42,10 @@
   opacity: 0.2;
   filter: alpha(opacity=20);
 }
+
+/* Date picker */
+
+    .ui-datepicker-calendar .ui-state-default {
+        background: none;
+        border: none;
+    }

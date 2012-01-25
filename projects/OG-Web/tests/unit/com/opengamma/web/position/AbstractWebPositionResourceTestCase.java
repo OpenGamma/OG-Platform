@@ -18,6 +18,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalTime;
 import javax.time.calendar.OffsetTime;
 import javax.time.calendar.ZoneOffset;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriInfo;
 
 import org.springframework.core.io.FileSystemResourceLoader;
@@ -193,11 +194,15 @@ public abstract class AbstractWebPositionResourceTestCase {
     origTrade.setPremiumDate(LocalDate.parse("2011-12-08"));
     origTrade.setPremiumTime(OffsetTime.of(LocalTime.of(15, 4), ZONE_OFFSET));
     
-    ManageablePosition manageablePosition = new ManageablePosition(origTrade.getQuantity(), SEC_ID);
+    ManageablePosition manageablePosition = new ManageablePosition(origTrade.getQuantity(), EQUITY_SECURITY.getExternalIdBundle());
     manageablePosition.addTrade(origTrade);
     PositionDocument addedPos = _positionMaster.add(new PositionDocument(manageablePosition));
     UniqueId uid = addedPos.getUniqueId();
     return uid;
+  }
+
+  protected String getActualURL(Response response) {
+    return response.getMetadata().getFirst("Location").toString();
   }
 
 }

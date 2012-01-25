@@ -77,7 +77,7 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
     Validate.notNull(sensitivity, "Sensitivity");
     TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
     if (_sensitivity.containsKey(ccy)) {
-      map.put(ccy, sensitivity.add(_sensitivity.get(ccy)));
+      map.put(ccy, sensitivity.plus(_sensitivity.get(ccy)));
       for (Currency loopccy : _sensitivity.keySet()) {
         if (loopccy != ccy) {
           map.put(loopccy, _sensitivity.get(loopccy));
@@ -108,6 +108,19 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
   }
 
   /**
+   * Create a new multiple currency sensitivity by multiplying all the sensitivities in a multiple currency sensitivity by a common factor. 
+   * @param factor The multiplicative factor.
+   * @return The new multiple currency sensitivity.
+   */
+  public MultipleCurrencyInterestRateCurveSensitivity multipliedBy(final double factor) {
+    TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
+    for (Currency loopccy : _sensitivity.keySet()) {
+      map.put(loopccy, _sensitivity.get(loopccy).multiply(factor));
+    }
+    return new MultipleCurrencyInterestRateCurveSensitivity(map);
+  }
+
+  /**
    * Returns a new multiple currency sensitivity by creating clean sensitivity for each currency (see {@link InterestRateCurveSensitivity} clean() method).
    * @return The cleaned sensitivity.
    */
@@ -118,6 +131,27 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
     }
     MultipleCurrencyInterestRateCurveSensitivity result = new MultipleCurrencyInterestRateCurveSensitivity(map);
     return result;
+  }
+
+  /**
+   * Compare two sensitivities with a given tolerance. The tolerance is used for both the time and the value. 
+   * For each currency, the two sensitivities are suppose to be in the same time order.
+   * @param sensi1 The first sensitivity.
+   * @param sensi2 The second sensitivity.
+   * @param tolerance The tolerance.
+   * @return True if the difference is below the tolerance and False if not. If the currencies or the curves are not the same it returns False.
+   */
+  public static boolean compare(final MultipleCurrencyInterestRateCurveSensitivity sensi1, final MultipleCurrencyInterestRateCurveSensitivity sensi2, double tolerance) {
+    boolean keycmp = sensi1._sensitivity.keySet().equals(sensi2._sensitivity.keySet());
+    if (!keycmp) {
+      return false;
+    }
+    for (Currency loopccy : sensi1._sensitivity.keySet()) {
+      if (!InterestRateCurveSensitivity.compare(sensi1.getSensitivity(loopccy), sensi2.getSensitivity(loopccy), tolerance)) {
+        return false;
+      }
+    }
+    return true;
   }
 
   /**

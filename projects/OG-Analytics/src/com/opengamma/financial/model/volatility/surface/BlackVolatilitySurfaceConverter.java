@@ -14,7 +14,7 @@ import com.opengamma.math.surface.FunctionalDoublesSurface;
  */
 public abstract class BlackVolatilitySurfaceConverter {
 
-  public static BlackVolatilityMoneynessSurface toMoneynessSurface(final BlackVolatilitySurface from, final ForwardCurve fwdCurve) {
+  public static BlackVolatilitySurfaceMoneyness toMoneynessSurface(final BlackVolatilitySurfaceStrike from, final ForwardCurve fwdCurve) {
 
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
 
@@ -27,8 +27,20 @@ public abstract class BlackVolatilitySurfaceConverter {
         return from.getVolatility(t, k);
       }
     };
+    return new BlackVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(surFunc), fwdCurve);
+  }
 
-    return new BlackVolatilityMoneynessSurface(FunctionalDoublesSurface.from(surFunc), fwdCurve);
+  public static BlackVolatilitySurfaceStrike toStrikeSurface(final BlackVolatilitySurfaceMoneyness from) {
 
+    final Function<Double, Double> surFunc = new Function<Double, Double>() {
+
+      @Override
+      public Double evaluate(Double... tk) {
+        double t = tk[0];
+        double k = tk[1];
+        return from.getVolatility(t, k);
+      }
+    };
+    return new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surFunc));
   }
 }

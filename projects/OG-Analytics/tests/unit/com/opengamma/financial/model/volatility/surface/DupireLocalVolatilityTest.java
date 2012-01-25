@@ -56,21 +56,21 @@ public class DupireLocalVolatilityTest {
   private static final double BETA = 0.5;
   private static final double RHO = -0.2;
   private static final double NU = 0.3;
-  private static final SABRFormulaData SABR_DATA;
+  //  private static final SABRFormulaData SABR_DATA;
   private static final double RATE = 0.05; //turn back to 5%
   private static final double YIELD = 0.02;
   private static final ForwardCurve FORWARD_CURVE = new ForwardCurve(SPOT, RATE - YIELD);
 
   private static final PriceSurface PRICE_SURFACE;
-  private static final BlackVolatilitySurface SABR_SURFACE;
+  private static final BlackVolatilitySurfaceStrike SABR_SURFACE;
   private static AbsoluteLocalVolatilitySurface ABS_LOCAL_VOL;
-  private static LocalVolatilitySurface LOCAL_VOL;
+  private static LocalVolatilitySurfaceStrike LOCAL_VOL;
   /**
    * 
    */
   static {
     ALPHA = ATM_VOL * Math.pow(SPOT, 1 - BETA);
-    SABR_DATA = new SABRFormulaData(ALPHA, BETA, RHO, NU);
+    //   SABR_DATA = new SABRFormulaData(ALPHA, BETA, RHO, NU);
 
     final Function<Double, Double> sabrSurface = new Function<Double, Double>() {
 
@@ -86,7 +86,7 @@ public class DupireLocalVolatilityTest {
       }
     };
 
-    SABR_SURFACE = new BlackVolatilitySurface(FunctionalDoublesSurface.from(sabrSurface));
+    SABR_SURFACE = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(sabrSurface));
 
     final Function<Double, Double> priceSurface = new Function<Double, Double>() {
 
@@ -114,7 +114,7 @@ public class DupireLocalVolatilityTest {
 
   @Test
   public void testImpliedVolCal() {
-    LocalVolatilitySurface lv = DUPIRE.getLocalVolatility(PRICE_SURFACE, SPOT, RATE, YIELD);
+    LocalVolatilitySurfaceStrike lv = DUPIRE.getLocalVolatility(PRICE_SURFACE, SPOT, RATE, YIELD);
     double vol1 = lv.getVolatility(EXPIRY, STRIKE);
     double vol2 = LOCAL_VOL.getVolatility(EXPIRY, STRIKE);
     assertEquals(vol1, vol2, 1e-6);
@@ -122,10 +122,10 @@ public class DupireLocalVolatilityTest {
 
   @Test
   public void testImpliedVolMoneynessCal() {
-    LocalVolatilitySurface lv = DUPIRE.getLocalVolatility(PRICE_SURFACE, SPOT, RATE, YIELD);
+    LocalVolatilitySurfaceStrike lv = DUPIRE.getLocalVolatility(PRICE_SURFACE, SPOT, RATE, YIELD);
     double vol1 = lv.getVolatility(EXPIRY, STRIKE);
-    BlackVolatilityMoneynessSurface miv = BlackVolatilitySurfaceConverter.toMoneynessSurface(SABR_SURFACE, FORWARD_CURVE);
-    LocalVolatilityMoneynessSurface lvm = DUPIRE.getLocalVolatility(miv);
+    BlackVolatilitySurfaceMoneyness miv = BlackVolatilitySurfaceConverter.toMoneynessSurface(SABR_SURFACE, FORWARD_CURVE);
+    LocalVolatilitySurfaceMoneyness lvm = DUPIRE.getLocalVolatility(miv);
     double vol2 = lvm.getVolatility(EXPIRY, STRIKE);
     assertEquals(vol1, vol2, 1e-6);
   }
@@ -207,7 +207,7 @@ public class DupireLocalVolatilityTest {
   @Test(enabled = false)
   public void priceTest() {
     final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
-    final LocalVolatilitySurface locVol = cal.getLocalVolatility(PRICE_SURFACE, SPOT, RATE, 0.0);
+    final LocalVolatilitySurfaceStrike locVol = cal.getLocalVolatility(PRICE_SURFACE, SPOT, RATE, 0.0);
     double t;
     double f;
     double vol;
@@ -230,11 +230,10 @@ public class DupireLocalVolatilityTest {
     }
   }
 
-  @SuppressWarnings("deprecation")
   @Test(enabled = false)
   public void volTest() {
     final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
-    final LocalVolatilitySurface locVol = cal.getLocalVolatility(SABR_SURFACE, SPOT, RATE);
+    final LocalVolatilitySurfaceStrike locVol = cal.getLocalVolatility(SABR_SURFACE, SPOT, RATE);
     double t;
     double f;
     double vol;

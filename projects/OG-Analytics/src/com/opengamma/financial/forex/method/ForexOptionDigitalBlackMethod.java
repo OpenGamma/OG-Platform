@@ -70,7 +70,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double forward = spot * dfForeign / dfDomestic;
     final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getExpirationTime(), optionForex.getStrike(), forward);
     final double sigmaRootT = volatility * Math.sqrt(expiry);
-    final double dM = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final int omega = optionForex.isCall() ? 1 : -1;
     final double pv = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dM) * (optionForex.isLong() ? 1.0 : -1.0);
     final CurrencyAmount priceCurrency = CurrencyAmount.of(optionForex.getUnderlyingForex().getCurrency2(), pv);
@@ -103,7 +103,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getExpirationTime(), optionForex.getStrike(), forward);
 
     final double sigmaRootT = volatility * Math.sqrt(expiry);
-    final double dM = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final int omega = optionForex.isCall() ? 1 : -1;
     final double pv = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dM) * (optionForex.isLong() ? 1.0 : -1.0);
 
@@ -147,7 +147,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double forward = spot * dfForeign / dfDomestic;
     final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getExpirationTime(), optionForex.getStrike(), forward);
     final double sigmaRootT = volatility * Math.sqrt(expiry);
-    final double dM = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final int omega = optionForex.isCall() ? 1 : -1;
     final double pv = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getCDF(omega * dM) * (optionForex.isLong() ? 1.0 : -1.0);
     // Backward sweep
@@ -168,7 +168,7 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     listDomestic.add(new DoublesPair(payTime, rDomesticBar));
     final Map<String, List<DoublesPair>> resultDomesticMap = new HashMap<String, List<DoublesPair>>();
     resultDomesticMap.put(domesticCurveName, listDomestic);
-    result = result.add(new InterestRateCurveSensitivity(resultDomesticMap));
+    result = result.plus(new InterestRateCurveSensitivity(resultDomesticMap));
     return MultipleCurrencyInterestRateCurveSensitivity.of(optionForex.getUnderlyingForex().getCurrency2(), result);
   }
 
@@ -208,12 +208,12 @@ public final class ForexOptionDigitalBlackMethod implements ForexPricingMethod {
     final double forward = spot * dfForeign / dfDomestic;
     final double volatility = smile.getVolatility(optionForex.getCurrency1(), optionForex.getCurrency2(), optionForex.getExpirationTime(), optionForex.getStrike(), forward);
     final double sigmaRootT = volatility * Math.sqrt(expiry);
-    final double dM = Math.log(forward / strike) / sigmaRootT + 0.5 * sigmaRootT;
+    final double dM = Math.log(forward / strike) / sigmaRootT - 0.5 * sigmaRootT;
     final int omega = optionForex.isCall() ? 1 : -1;
     // Backward sweep
     double pvBar = 1.0;
     final double dMBar = Math.abs(optionForex.getUnderlyingForex().getPaymentCurrency2().getAmount()) * dfDomestic * NORMAL.getPDF(omega * dM) * (optionForex.isLong() ? 1.0 : -1.0) * omega * pvBar;
-    final double sigmaRootTBar = (-Math.log(forward / strike) / (sigmaRootT * sigmaRootT) + 0.5) * dMBar;
+    final double sigmaRootTBar = (-Math.log(forward / strike) / (sigmaRootT * sigmaRootT) - 0.5) * dMBar;
     final double volatilityBar = Math.sqrt(expiry) * sigmaRootTBar;
     final DoublesPair point = DoublesPair.of(optionForex.getExpirationTime(),
         (optionForex.getCurrency1() == smile.getCurrencyPair().getFirst()) ? optionForex.getStrike() : 1.0 / optionForex.getStrike());

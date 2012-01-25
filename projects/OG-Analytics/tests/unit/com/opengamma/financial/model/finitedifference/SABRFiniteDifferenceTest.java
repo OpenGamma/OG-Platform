@@ -23,12 +23,12 @@ import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilityMoneynessSurface;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.financial.model.volatility.surface.DupireLocalVolatilityCalculator;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilityMoneynessSurface;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceConverter;
+import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
+import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceStrike;
 import com.opengamma.financial.model.volatility.surface.PriceSurface;
 import com.opengamma.math.curve.ConstantDoublesCurve;
 import com.opengamma.math.function.Function;
@@ -72,10 +72,10 @@ public class SABRFiniteDifferenceTest {
   private static BoundaryCondition UPPER;
 
   private static final PriceSurface SABR_PRICE_SURFACE;
-  private static final BlackVolatilitySurface SABR_VOL_SURFACE;
-  private static final BlackVolatilityMoneynessSurface SABR_VOL_M_SURFACE;
-  private static final LocalVolatilitySurface SABR_LOCAL_VOL;
-  private static final LocalVolatilityMoneynessSurface LV_M;
+  private static final BlackVolatilitySurfaceStrike SABR_VOL_SURFACE;
+  private static final BlackVolatilitySurfaceMoneyness SABR_VOL_M_SURFACE;
+  private static final LocalVolatilitySurfaceStrike SABR_LOCAL_VOL;
+  private static final LocalVolatilitySurfaceMoneyness LV_M;
   private static final AbsoluteLocalVolatilitySurface SABR_ABS_LOCAL_VOL;
   /**
    * 
@@ -126,7 +126,7 @@ public class SABRFiniteDifferenceTest {
       }
     };
 
-    SABR_VOL_M_SURFACE = new BlackVolatilityMoneynessSurface(FunctionalDoublesSurface.from(sabrMSurface), FORWARD_CURVE);
+    SABR_VOL_M_SURFACE = new BlackVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(sabrMSurface), FORWARD_CURVE);
 
     SABR_PRICE_SURFACE = getSABRPriceSurface(BETA, FORWARD_CURVE, YIELD_CURVE);
 
@@ -396,8 +396,8 @@ public class SABRFiniteDifferenceTest {
     final double maxStrike = 5.0 * forward;
     final double shift = 1e-3;
 
-    LocalVolatilityMoneynessSurface lvUp = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, shift);
-    LocalVolatilityMoneynessSurface lvDown = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, -shift);
+    LocalVolatilitySurfaceMoneyness lvUp = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, shift);
+    LocalVolatilitySurfaceMoneyness lvDown = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, -shift);
 
     ConvectionDiffusionPDEDataBundle pdeDataFwd = PDE_DATA_PROVIDER.getForwardLocalVol(LV_M, true);
     ConvectionDiffusionPDEDataBundle pdeDataCUp = PDE_DATA_PROVIDER.getForwardLocalVol(RATE, RATE - DRIFT, SPOT * (1 + shift), true, SABR_LOCAL_VOL);
@@ -495,8 +495,8 @@ public class SABRFiniteDifferenceTest {
     final double maxMoneyness = 5.0;
     final double shift = 1e-3;
 
-    LocalVolatilityMoneynessSurface lvUp = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, shift);
-    LocalVolatilityMoneynessSurface lvDown = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, -shift);
+    LocalVolatilitySurfaceMoneyness lvUp = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, shift);
+    LocalVolatilitySurfaceMoneyness lvDown = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, -shift);
 
     ConvectionDiffusionPDEDataBundle pdeDataFwd = PDE_DATA_PROVIDER.getForwardLocalVol(LV_M, true);
     ConvectionDiffusionPDEDataBundle pdeDataUp = PDE_DATA_PROVIDER.getForwardLocalVol(lvUp, true);
@@ -582,7 +582,7 @@ public class SABRFiniteDifferenceTest {
     final double forward = FORWARD_CURVE.getForward(T);
     final double maxMoneyness = 5.0;
     SABRFormulaData sabrData = new SABRFormulaData(ATM_VOL.evaluate(T), 1.0, RHO, NU.evaluate(T));
-    LocalVolatilitySurface locVol = getSABRLocalVolSurface(1.0, FORWARD_CURVE);
+    LocalVolatilitySurfaceStrike locVol = getSABRLocalVolSurface(1.0, FORWARD_CURVE);
 
     ConvectionDiffusionPDEDataBundle pdeDataFwd = PDE_DATA_PROVIDER.getForwardLocalVol(locVol, FORWARD_CURVE, true);
 
@@ -614,7 +614,7 @@ public class SABRFiniteDifferenceTest {
     }
   }
 
-  private static BlackVolatilitySurface getSABRImpliedVolSurface(final double beta, final ForwardCurve forwardCurve) {
+  private static BlackVolatilitySurfaceStrike getSABRImpliedVolSurface(final double beta, final ForwardCurve forwardCurve) {
 
     final Function<Double, Double> sabrSurface = new Function<Double, Double>() {
       @SuppressWarnings("synthetic-access")
@@ -631,18 +631,18 @@ public class SABRFiniteDifferenceTest {
       }
     };
 
-    return new BlackVolatilitySurface(FunctionalDoublesSurface.from(sabrSurface));
+    return new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(sabrSurface));
   }
 
-  private static LocalVolatilitySurface getSABRLocalVolSurface(final double beta, final ForwardCurve forwardCurve) {
+  private static LocalVolatilitySurfaceStrike getSABRLocalVolSurface(final double beta, final ForwardCurve forwardCurve) {
     final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
-    final BlackVolatilitySurface impVol = getSABRImpliedVolSurface(beta, forwardCurve);
+    final BlackVolatilitySurfaceStrike impVol = getSABRImpliedVolSurface(beta, forwardCurve);
     return cal.getLocalVolatility(impVol, forwardCurve);
   }
 
   private static PriceSurface getSABRPriceSurface(final double beta, final ForwardCurve forwardCurve, final YieldAndDiscountCurve discountCurve) {
 
-    final BlackVolatilitySurface impVol = getSABRImpliedVolSurface(beta, forwardCurve);
+    final BlackVolatilitySurfaceStrike impVol = getSABRImpliedVolSurface(beta, forwardCurve);
     final Function<Double, Double> priceSurface = new Function<Double, Double>() {
       @SuppressWarnings("synthetic-access")
       @Override
