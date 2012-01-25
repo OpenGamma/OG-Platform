@@ -1,15 +1,195 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
+  <!-- Spring config file to setup an example view processor -->
+  <!-- Not used by the main OG-Component servers -->
       
   <!-- Property file configuration -->
   <bean id="demoViewProcessorProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="ignoreUnresolvablePlaceholders" value="true" />
     <property name="locations">
       <list>
+        <value>classpath:com/opengamma/financial/demoViewProcessor-common.properties</value>
         <value>classpath:demoViewProcessor-${opengamma.platform.runmode}.properties</value>
       </list>
     </property>
+  </bean>
+
+  <import resource="classpath:com/opengamma/financial/demoMasters.xml" />
+
+  <bean id="htsResolver" class="com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver">
+    <constructor-arg>
+      <bean class="com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesSelector">
+        <constructor-arg ref="sharedConfigSource" />
+      </bean>
+    </constructor-arg>
+    <constructor-arg ref="dbHtsMaster" />
+  </bean>
+
+  <!-- ================================================================== -->
+  <!-- User supplied data storage -->
+  <bean id="userFinancialDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+    <property name="driverClassName" value="${opengamma.financial-user.jdbc.driver}" />
+    <property name="url" value="${opengamma.financial-user.jdbc.url}" />
+    <property name="username" value="${opengamma.financial-user.jdbc.username}" />
+    <property name="password" value="${opengamma.financial-user.jdbc.password}" />
+  </bean>
+  <bean id="userFinancialDbConnector" parent="abstractDbConnector">
+    <property name="name" value="UserFinancial"/>
+    <property name="dataSource" ref="userFinancialDataSource"/>
+    <property name="dialectName" value="${opengamma.financial-user.db.dialect}"/>
+    <property name="hibernateMappingFiles">
+      <list>
+        <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles"/>
+      </list>
+    </property>
+  </bean>
+
+  <!-- User supplied Positions --> 
+  <bean id="userFinancialPortfolioMaster" class="com.opengamma.masterdb.portfolio.DbPortfolioMaster">
+    <constructor-arg ref="userFinancialDbConnector" />
+    <property name="uniqueIdScheme" value="${opengamma.financial-user.db.portfoliomaster.scheme}" />
+  </bean>
+  <bean id="userFinancialPositionMaster" class="com.opengamma.masterdb.position.DbPositionMaster">
+    <constructor-arg ref="userFinancialDbConnector" />
+    <property name="uniqueIdScheme" value="${opengamma.financial-user.db.positionmaster.scheme}" />
+  </bean>
+  <bean id="userFinancialPositionSource" class="com.opengamma.master.position.impl.MasterPositionSource">
+    <constructor-arg ref="userFinancialPortfolioMaster" />
+    <constructor-arg ref="userFinancialPositionMaster" />
+  </bean>
+  <bean id="combinedPositionSource" class="com.opengamma.core.position.impl.DelegatingPositionSource">
+    <constructor-arg ref="sharedPositionSource" />
+    <constructor-arg>
+      <map>
+        <entry key="${opengamma.financial-user.db.portfoliomaster.scheme}" value-ref="userFinancialPositionSource" />
+      </map>
+    </constructor-arg>
+  </bean>
+  
+  <!-- User supplied Securities -->
+  <bean id="securityMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
+  <bean id="userFinancialSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
+    <constructor-arg ref="userFinancialDbConnector" />
+    <property name="changeManager" ref="securityMasterChangeManager" />
+    <property name="uniqueIdScheme" value="${opengamma.financial-user.db.securitymaster.scheme}" />
+  </bean>
+  <bean id="userFinancialSecuritySource" class="com.opengamma.financial.security.MasterFinancialSecuritySource">
+    <constructor-arg ref="userFinancialSecurityMaster" />
+  </bean>
+  <bean id="combinedSecuritySourceUnderlying" class="com.opengamma.financial.security.DelegatingFinancialSecuritySource">
+    <constructor-arg ref="sharedSecuritySource" />
+    <constructor-arg>
+      <map>
+        <entry key="${opengamma.financial-user.db.securitymaster.scheme}" value-ref="userFinancialSecuritySource" />
+      </map>
+    </constructor-arg>
+  </bean>
+  <bean id="combinedSecuritySource" class="com.opengamma.financial.security.EHCachingFinancialSecuritySource">
+    <constructor-arg ref="combinedSecuritySourceUnderlying" />
+    <constructor-arg ref="standardCacheManager" />
+  </bean>
+  
+  <!-- User market data snapshots -->
+    <bean id="userSnapshotMasterChangeManager" class="com.opengamma.core.change.JmsChangeManager" init-method="start" >
+    <constructor-arg ref="jmsConnector" />
+    <constructor-arg value="userSnapshotMasterChangeManager" />
+  </bean>
+  <bean id="userFinancialSnapshotMaster" class="com.opengamma.masterdb.marketdatasnapshot.DbMarketDataSnapshotMaster">
+    <constructor-arg ref="userFinancialDbConnector" />
+    <property name="changeManager" ref="userSnapshotMasterChangeManager" />
+    <property name="uniqueIdScheme" value="${opengamma.financial-user.db.snapshotmaster.scheme}" />
+  </bean>
+  <bean id="userFinancialSnapshotSource" class="com.opengamma.master.marketdatasnapshot.impl.MasterSnapshotSource">
+    <constructor-arg ref="userFinancialSnapshotMaster" />
+  </bean>
+  <bean id="combinedMarketDataSnapshotSource" class="com.opengamma.core.marketdatasnapshot.impl.DelegatingSnapshotSource">
+    <constructor-arg ref="sharedSnapshotSource" />
+    <constructor-arg>
+      <map>
+        <entry key="${opengamma.financial-user.db.snapshotmaster.scheme}" value-ref="userFinancialSnapshotSource" />
+      </map>
+    </constructor-arg>
+  </bean>
+  
+  <!-- User Yield curves -->
+  <bean id="userInterpolatedYieldCurveDefinitionMaster" class="com.opengamma.financial.analytics.ircurve.InMemoryInterpolatedYieldCurveDefinitionMaster">
+    <property name="uniqueIdScheme" value="UserCurves" />
+  </bean>
+  <alias name="userInterpolatedYieldCurveDefinitionMaster" alias="userInterpolatedYieldCurveDefinitionSource" />
+  <bean id="combinedInterpolatedYieldCurveDefinitionSource" class="com.opengamma.financial.analytics.ircurve.AggregatingInterpolatedYieldCurveDefinitionSource">
+    <constructor-arg>
+      <list>
+        <ref bean="userInterpolatedYieldCurveDefinitionSource" />
+        <ref bean="sharedInterpolatedYieldCurveDefinitionSource" />
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <!-- User Vol Cubes-->
+  <!-- TODO: this properly, user source and cacheing -->
+  
+  <bean id="combinedVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.AggregatingVolatilityCubeDefinitionSource">
+    <constructor-arg>
+      <list>
+        <ref bean="bloombergVolatilityCubeDefinitionSource" />
+        <ref bean="sharedVolatilityCubeDefinitionSource" />
+      </list>
+    </constructor-arg>
+  </bean>
+  
+  
+  <bean id="sharedVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.ConfigDBVolatilityCubeDefinitionSource">
+    <constructor-arg ref="sharedConfigSource" />
+  </bean>
+  
+  <bean id="bloombergVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource">
+  </bean>
+
+  <bean id="mainViewDefinitionRepository" class="com.opengamma.web.spring.ConfigDbViewDefinitionRepositoryFactoryBean">
+   <property name="configMaster" ref="dbConfigMaster" />
+  </bean>
+  
+  <bean id="userViewDefinitionRepository" class="com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository" />
+  <bean id="combinedViewDefinitionRepository" class="com.opengamma.engine.view.AggregatingViewDefinitionRepository">
+    <constructor-arg>
+      <list>
+        <ref bean="mainViewDefinitionRepository" />
+        <ref bean="userViewDefinitionRepository" />
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <!-- marketDataProviderResolver -->
+  <import resource="classpath:marketData-${opengamma.platform.runmode}.xml" />
+
+  <!-- ================================================================== -->
+  <bean id="mainFunctionCompilationContext" class="com.opengamma.financial.OpenGammaCompilationContextFactoryBean">
+    <property name="securitySource" ref="combinedSecuritySource" />
+    <property name="positionSource" ref="combinedPositionSource" />
+    <property name="regionSource" ref="sharedRegionSource"/>
+    <property name="configSource" ref="sharedConfigSource" />
+    <property name="conventionBundleSource" ref="sharedConventionBundleSource"/>
+    <property name="interpolatedYieldCurveDefinitionSource" ref="combinedInterpolatedYieldCurveDefinitionSource" />
+    <property name="interpolatedYieldCurveSpecificationBuilder" ref="sharedInterpolatedYieldCurveSpecificationBuilder" />
+    <property name="volatilityCubeDefinitionSource" ref="combinedVolatilityCubeDefinitionSource" />
+    <property name="currencyMatrixSource" ref="sharedCurrencyMatrixSource" />
+    <property name="holidaySource" ref="sharedHolidaySource" />
+    <property name="exchangeSource" ref="sharedExchangeSource" />
+  </bean>
+  <bean id="mainOverrideOperationCompiler" class="com.opengamma.financial.marketdata.MarketDataELCompiler">
+    <constructor-arg ref="sharedSecuritySource" />
+  </bean>
+  <bean id="mainFunctionExecutionContext" class="com.opengamma.financial.OpenGammaExecutionContextFactoryBean">
+    <property name="historicalTimeSeriesSource" ref="sharedHistoricalTimeSeriesSource" />
+    <property name="securitySource" ref="combinedSecuritySource" />
+    <property name="positionSource" ref="combinedPositionSource" />
+    <property name="regionSource" ref="sharedRegionSource"/>
+    <property name="exchangeSource" ref="sharedExchangeSource"/>
+    <property name="holidaySource" ref="sharedHolidaySource"/>
+    <property name="conventionBundleSource" ref="sharedConventionBundleSource"/>
+    <property name="configSource" ref="sharedConfigSource" />
+    <property name="overrideOperationCompiler" ref="mainOverrideOperationCompiler" />
   </bean>
 
   <!-- ================================================================== -->
@@ -74,7 +254,7 @@
   </bean>
   <bean id="jobDispatchStatistics" class="com.opengamma.engine.view.calcnode.stats.TotallingNodeStatisticsGatherer" />
   <bean id="functionCosts" class="com.opengamma.engine.view.calcnode.stats.FunctionCosts">
-    <constructor-arg ref="centralFunctionCostsMaster" />
+    <constructor-arg ref="dbFunctionCostsMaster" />
   </bean>
   <bean id="mainComputationJobDispatcher" class="com.opengamma.engine.view.calcnode.JobDispatcher">
     <constructor-arg>
@@ -173,7 +353,7 @@
     <property name="viewProcessor" ref="mainViewProcessor" />
     <property name="mastersAndSources">
       <map>
-        <entry key-ref="centralConfigMaster" value-ref="sharedConfigSource" />
+        <entry key-ref="dbConfigMaster" value-ref="sharedConfigSource" />
         <entry key-ref="userInterpolatedYieldCurveDefinitionMaster" value-ref="userInterpolatedYieldCurveDefinitionSource" />
       </map>
     </property>
@@ -181,7 +361,7 @@
       <set>
         <bean class="com.opengamma.financial.view.ConfigDbOverrideWatchSetProvider">
           <constructor-arg value="${opengamma.config.db.configmaster.scheme}" />
-          <constructor-arg ref="centralConfigMaster" />
+          <constructor-arg ref="dbConfigMaster" />
           <constructor-arg>
             <set>
               <value>UserCurves</value>
@@ -277,6 +457,25 @@
 
   <!-- ============================================================================== -->
   <!-- JMX instrumentation -->
+  <bean class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
+    <property name="autodetect" value="true"/>
+  </bean>
+  <bean id="standardMBeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+    <property name="locateExistingServerIfPossible" value="true" />
+  </bean>
+  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans"/>
+    <property name="arguments">
+      <list>
+        <ref bean="standardCacheManager" />
+        <ref bean="standardMBeanServer" />
+        <value>true</value>
+        <value>true</value>
+        <value>true</value>
+        <value>true</value>
+      </list>
+    </property>
+  </bean>
   <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
     <property name="staticMethod" value="com.opengamma.engine.view.calc.jmx.MultipleNodeExecutor.registerMBeans" />
     <property name="arguments">
