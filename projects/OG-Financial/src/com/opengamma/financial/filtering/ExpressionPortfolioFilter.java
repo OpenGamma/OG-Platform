@@ -12,6 +12,7 @@ import java.util.Set;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 
+import com.google.common.collect.Maps;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
@@ -95,7 +96,11 @@ public class ExpressionPortfolioFilter extends AbstractFilteringFunction {
 
     @Override
     public Map<String, String> getAttributes() {
-      return getTrade().getAttributes();
+      Map<String, String> allAttributes = Maps.newHashMap();
+      for (Trade trade : _trades) {
+        allAttributes.putAll(trade.getAttributes());
+      }
+      return allAttributes;
     }
 
     @Override
@@ -160,6 +165,8 @@ public class ExpressionPortfolioFilter extends AbstractFilteringFunction {
           final Set<Trade> trades = position.getTrades();
           if (trades.size() == 1) {
             return trades.iterator().next();
+          } else if (trades.isEmpty()) {
+            return UserExpression.NA;
           } else {
             return new AnyTradeAttribute(trades);
           }
