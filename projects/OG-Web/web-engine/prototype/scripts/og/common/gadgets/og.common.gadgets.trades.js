@@ -8,7 +8,7 @@ $.register_module({
     obj: function () {
         var ui = og.common.util.ui, api = og.api,
             template_data, original_config_object,
-            dependencies = ['id', 'node'],
+            dependencies = ['id', 'node', 'version'],
             html = {}, action = {},
             load, reload, attach_calendar, attach_trades_link, format_trades,
             form_create, form_save, generate_form_function, populate_form_fields;
@@ -82,7 +82,7 @@ $.register_module({
          * differently, this also applies for the form object for the new trade to be added
          */
         format_trades = function (trades) {
-            trades.map(function (trade) {
+            return trades.map(function (trade) {
                 var premium, tradeDate;
                 if (trade.premium) {
                     premium = trade.premium.toString().split(' ');
@@ -113,7 +113,6 @@ $.register_module({
                 delete trade.id;
                 return trade;
             });
-            return trades;
         };
         /*
          * Templates for rendering trades table
@@ -229,7 +228,7 @@ $.register_module({
             });
         };
         load = function (config) {
-            var handler = function (result) {
+            var version = config.version !== '*' ? config.version : (void 0), handler = function (result) {
                 if (result.error) return alert(result.message);
                 original_config_object = config;
                 template_data = result.data.template_data;
@@ -307,9 +306,11 @@ $.register_module({
                     )
                 }());
             };
-            api.rest.positions.get({dependencies: dependencies, id: config.id, handler: handler, cache_for: 500});
+            api.rest.positions.get({
+                dependencies: dependencies, id: config.id, handler: handler, cache_for: 500, version: version
+            });
         };
         reload = function () {load(original_config_object);};
-        return {render: load, reload: reload}
+        return {render: load, reload: reload, format: format_trades}
     }
 });

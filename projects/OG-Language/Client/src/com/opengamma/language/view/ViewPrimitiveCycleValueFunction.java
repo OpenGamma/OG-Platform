@@ -49,8 +49,8 @@ public class ViewPrimitiveCycleValueFunction extends AbstractFunctionInvoker imp
     final MetaParameter resultModel = new MetaParameter("resultModel", JavaTypeInfo.builder(ViewComputationResultModel.class).get());
     final MetaParameter targetId = new MetaParameter("targetId", JavaTypeInfo.builder(UniqueId.class).get());
     final MetaParameter valueRequirement = new MetaParameter("valueRequirement", JavaTypeInfo.builder(String.class).get());
-    final MetaParameter notAvailableValue = new MetaParameter("notAvailable_value", JavaTypeInfo.builder(String.class).get());
-    final MetaParameter flattenValue = new MetaParameter("flattenValue", JavaTypeInfo.builder(Boolean.class).get());
+    final MetaParameter notAvailableValue = new MetaParameter("notAvailable_value", JavaTypeInfo.builder(String.class).allowNull().get());
+    final MetaParameter flattenValue = new MetaParameter("flattenValue", JavaTypeInfo.builder(Boolean.class).allowNull().get());
     return Arrays.asList(resultModel, targetId, valueRequirement, notAvailableValue, flattenValue);
   }
   
@@ -63,7 +63,7 @@ public class ViewPrimitiveCycleValueFunction extends AbstractFunctionInvoker imp
     this(new DefinitionAnnotater(ViewPrimitiveCycleValueFunction.class));
   }
   
-  public static Object invoke(ViewComputationResultModel resultModel, UniqueId targetId, String calcConfigName, ValueRequirement valueRequirement, String notAvailableValue, boolean flattenValue) {
+  public static Object invoke(ViewComputationResultModel resultModel, String calcConfigName, ValueRequirement valueRequirement, String notAvailableValue, boolean flattenValue) {
     ValueSpecification valueSpec = findValueSpecification(resultModel, valueRequirement);
     if (valueSpec == null) {
       // TODO should return #NA if notAvailableValue is null
@@ -74,8 +74,7 @@ public class ViewPrimitiveCycleValueFunction extends AbstractFunctionInvoker imp
       // TODO should return #NA if notAvailableValue is null 
       return notAvailableValue;
     }
-    ComputationTargetSpecification target = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, targetId);
-    Map<Pair<String, ValueProperties>, ComputedValue> targetResults = calcResultModel.getValues(target);
+    Map<Pair<String, ValueProperties>, ComputedValue> targetResults = calcResultModel.getValues(valueSpec.getTargetSpecification());
     ComputedValue result = targetResults.get(Pair.of(valueSpec.getValueName(), valueSpec.getProperties()));
     Object resultValue = result != null ? result.getValue() : null;
     if (resultValue != null) {
@@ -91,7 +90,9 @@ public class ViewPrimitiveCycleValueFunction extends AbstractFunctionInvoker imp
     Triple<String, String, ValueProperties> requirement = ValueRequirementUtils.parseRequirement((String) parameters[2]);
     String notAvailableValue = (String) parameters[3];
     boolean flattenValue = BooleanUtils.isTrue((Boolean) parameters[4]);
-    return invoke(resultModel, targetId, requirement.getFirst(), new ValueRequirement(requirement.getSecond(), requirement.getThird()), notAvailableValue, flattenValue);
+    ComputationTargetSpecification target = new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, targetId);
+    return invoke(resultModel, requirement.getFirst(), new ValueRequirement(requirement.getSecond(), target, requirement.getThird()),
+        notAvailableValue, flattenValue);
   }
   
   @Override

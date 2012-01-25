@@ -20,6 +20,7 @@ import org.springframework.context.support.ClassPathXmlApplicationContext;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
+import com.opengamma.examples.marketdata.SimulatedHistoricalDataGenerator;
 import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
@@ -56,9 +57,9 @@ public class TimeSeriesRatingLoader {
     ConfigDocument<HistoricalTimeSeriesRating> configDoc = new ConfigDocument<HistoricalTimeSeriesRating>(HistoricalTimeSeriesRating.class);
     List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<HistoricalTimeSeriesRatingRule>();
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "BLOOMBERG", 1));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "OG_DATA_SOURCE", 2));
+    rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, SimulatedHistoricalDataGenerator.OG_DATA_SOURCE, 2));
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "CMPL", 1));
-    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, "OG_DATA_PROVIDER", 2));
+    rules.add(new HistoricalTimeSeriesRatingRule(DATA_PROVIDER_NAME, SimulatedHistoricalDataGenerator.OG_DATA_PROVIDER, 2));
     HistoricalTimeSeriesRating ratingConfig = new HistoricalTimeSeriesRating(rules);
     configDoc.setName(DEFAULT_CONFIG_NAME);
     configDoc.setValue(ratingConfig);

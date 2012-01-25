@@ -96,7 +96,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
     double[] gamma = new double[nbJump];
     double[][] cov = new double[nbJump][nbJump];
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
-      gamma[loopjump] = MODEL.beta(0.0, decisionTime[loopjump], hwData.getHullWhiteParameter());
+      gamma[loopjump] = MODEL.beta(hwData.getHullWhiteParameter(), 0.0, decisionTime[loopjump]);
       gamma[loopjump] = gamma[loopjump] * gamma[loopjump];
       cov[loopjump][loopjump] = gamma[loopjump];
       for (int j = loopjump + 1; j < nbJump; j++) {
@@ -188,7 +188,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
     double[] gamma = new double[nbJump];
     double[][] cov = new double[nbJump][nbJump];
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
-      gamma[loopjump] = MODEL.beta(0.0, decisionTime[loopjump], hwData.getHullWhiteParameter());
+      gamma[loopjump] = MODEL.beta(hwData.getHullWhiteParameter(), 0.0, decisionTime[loopjump]);
       gamma[loopjump] = gamma[loopjump] * gamma[loopjump];
       cov[loopjump][loopjump] = gamma[loopjump];
       for (int j = loopjump + 1; j < nbJump; j++) {

@@ -229,6 +229,7 @@
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>
     <fragment>/scripts/og/views/common/og.views.common.versions.js</fragment>
     <fragment>/scripts/og/views/common/og.views.common.default_details.js</fragment>
+    <fragment>/scripts/og/views/common/og.views.common.core.js</fragment>
   </bundle>
   <bundle id="views_default.js">
     <fragment>/scripts/og/views/forms/og.views.forms.constraints.js</fragment>

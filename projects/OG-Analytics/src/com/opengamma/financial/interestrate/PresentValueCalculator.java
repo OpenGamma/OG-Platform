@@ -80,6 +80,7 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
   private static final BillSecurityDiscountingMethod METHOD_BILL_SECURITY = BillSecurityDiscountingMethod.getInstance();
   private static final BillTransactionDiscountingMethod METHOD_BILL_TRANSACTION = BillTransactionDiscountingMethod.getInstance();
+  private static final CouponCMSDiscountingMethod METHOD_CMS_DISCOUNTING = CouponCMSDiscountingMethod.getInstance();
 
   @Override
   public Double visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
@@ -283,8 +284,7 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
 
   @Override
   public Double visitCouponCMS(final CouponCMS cmsCoupon, final YieldCurveBundle curves) {
-    final CouponCMSDiscountingMethod method = CouponCMSDiscountingMethod.getInstance();
-    return method.presentValue(cmsCoupon, curves);
+    return METHOD_CMS_DISCOUNTING.presentValue(cmsCoupon, curves).getAmount();
   }
 
   @Override
