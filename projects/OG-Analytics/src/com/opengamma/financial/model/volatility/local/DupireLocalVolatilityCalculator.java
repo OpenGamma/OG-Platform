@@ -10,11 +10,13 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceStrike;
 import com.opengamma.financial.model.volatility.surface.PriceSurface;
+import com.opengamma.financial.model.volatility.surface.StrikeType;
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
@@ -159,6 +161,15 @@ public class DupireLocalVolatilityCalculator {
     return new LocalVolatilitySurfaceStrike(FunctionalDoublesSurface.from(locVol));
   }
 
+  //TODO replace this
+  public <T extends StrikeType> LocalVolatilitySurface<?> getLocalVolatilitySurface(final BlackVolatilitySurface<T> impliedVolatilitySurface, final ForwardCurve forwardCurve) {
+    if (impliedVolatilitySurface instanceof BlackVolatilitySurfaceStrike) {
+      return getLocalVolatility((BlackVolatilitySurfaceStrike) impliedVolatilitySurface, forwardCurve);
+    } else if (impliedVolatilitySurface instanceof BlackVolatilitySurfaceMoneyness) {
+      return getLocalVolatility((BlackVolatilitySurfaceMoneyness) impliedVolatilitySurface);
+    }
+    throw new IllegalArgumentException();
+  }
   /**
    * Get the local volatility in the case where the option price is a function of the forward price
    * @param impliedVolatilitySurface The Black implied volatility surface

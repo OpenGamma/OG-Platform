@@ -10,6 +10,7 @@ import java.util.Arrays;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
+import com.opengamma.financial.model.volatility.surface.Strike;
 import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
@@ -18,7 +19,7 @@ import com.opengamma.math.surface.FunctionalDoublesSurface;
 /**
  * 
  */
-public class LinearPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurfaceFitter1 {
+public class LinearPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurfaceFitter1<Strike> {
   private static final PiecewiseSABRFitter1 FITTER = new PiecewiseSABRFitter1();
 
   /**

@@ -399,7 +399,7 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   public void testVolatilityAdjoint2() {
     // Price
     final double volatility = FUNCTION.getVolatilityFunction(CALL_ITM, FORWARD).evaluate(DATA);
-    final double[] volatilityAdjoint = FUNCTION.getVolatilityAdjoint(CALL_ITM, FORWARD, DATA);
+    final double[] volatilityAdjoint = FUNCTION.getVolatilityAdjointOld(CALL_ITM, FORWARD, DATA);
     final double[] volD = new double[5];
     final double[][] volD2 = new double[2][2];
     final double vol = FUNCTION.getVolatilityAdjoint2(CALL_ITM, FORWARD, DATA, volD, volD2);

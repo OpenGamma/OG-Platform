@@ -53,7 +53,6 @@ public class LocalVolatilityPDEGreekCalculator {
   private final PiecewiseSABRSurfaceFitter _surfaceFitter;
   private final LocalVolatilitySurfaceStrike _localVolatilityStrike;
   private final LocalVolatilitySurfaceMoneyness _localVolatilityMoneyness;
-  // private final LocalVolatilityMoneynessSurface _localVolatilityMoneyness;
   private final ForwardCurve _forwardCurve;
   private final double[] _expiries;
   private final double[][] _strikes;
@@ -77,7 +76,6 @@ public class LocalVolatilityPDEGreekCalculator {
     Validate.notNull(expiries, "null expiries");
     Validate.notNull(strikes, "null strikes");
     Validate.notNull(impliedVols, "null impliedVols");
-    // Validate.notNull(localVolatility, "null local vol");
 
     _nExpiries = expiries.length;
     Validate.isTrue(_nExpiries == strikes.length, "wrong number of strike sets");
@@ -104,9 +102,9 @@ public class LocalVolatilityPDEGreekCalculator {
 
     _surfaceFitter = new PiecewiseSABRSurfaceFitter(forwards, expiries, strikes, impliedVols);
     final BlackVolatilitySurfaceMoneyness impVolSurface = _surfaceFitter.getImpliedVolatilityMoneynessSurface(true, false, _modMoneynessParameter);
+
     _localVolatilityMoneyness = DUPIRE.getLocalVolatility(impVolSurface);
     _localVolatilityStrike = LocalVolatilitySurfaceConverter.toStrikeSurface(_localVolatilityMoneyness);
-
   }
 
   /**
@@ -267,7 +265,6 @@ public class LocalVolatilityPDEGreekCalculator {
         "and forward curve. Dual delta and gamma are calculated by finite difference on the PDE grid. Spot delta and " +
         "gamma are calculated by ");
     ps.println("Strike\tVol\tBS Delta\tDelta\tBS Dual Delta\tDual Delta\tBS Gamma\tGamma\tBS Dual Gamma\tDual Gamma");
-
     for (int i = 0; i < n; i++) {
       final double m = pdeRes.getSpaceValue(i);
       if (m > 0.3 && m < 3.0) {
@@ -301,58 +298,58 @@ public class LocalVolatilityPDEGreekCalculator {
     }
     ps.print("\n");
 
-    //Now run the backwards solver and get delta and gamma off the grid
-    ps.println("Result of running backwards PDE solver - this gives you a set of prices at different spot levels for a" +
-        " single expiry and strike. Delta and gamma are calculated by finite difference on the grid");
-    ps.println("Spot\tVol\tBS Delta\tDelta\tBS Gamma\tGamma");
-
-    PDEResults1D res = runBackwardsPDESolver(strike, localVol, _isCall, _theta, expiry, maxForward,
-        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, forward);
-
-    for (int i = 0; i < n; i++) {
-      final double price = res.getFunctionValue(i);
-      final double fwd = res.getGrid().getSpaceNode(i);
-      double impVol = 0;
-      try {
-        impVol = BlackFormulaRepository.impliedVolatility(price, fwd, strike, expiry, _isCall);
-      } catch (final Exception e) {
-      }
-      final double bsDelta = BlackFormulaRepository.delta(fwd, strike, expiry, impVol, _isCall);
-      final double bsGamma = BlackFormulaRepository.gamma(fwd, strike, expiry, impVol);
-
-      final double modelDelta = res.getFirstSpatialDerivative(i);
-      final double modelGamma = res.getSecondSpatialDerivative(i);
-
-      ps.println(fwd + "\t" + impVol + "\t" + bsDelta + "\t" + modelDelta + "\t" + bsGamma + "\t" + modelGamma);
-    }
-    ps.print("\n");
-
-    //finally run the backwards PDE solver 100 times with different strikes,  interpolating to get vol, delta and gamma at the forward
-    final int xIndex = res.getGrid().getLowerBoundIndexForSpace(forward);
-    final double actForward = res.getSpaceValue(xIndex);
-    final double f1 = res.getSpaceValue(xIndex);
-    final double f2 = res.getSpaceValue(xIndex + 1);
-    final double w = (f2 - forward) / (f2 - f1);
-    ps.println("True forward: " + forward + ", grid forward: " + actForward);
-    ps.println("Result of running 100 backwards PDE solvers all with different strikes. Delta and gamma for each strike" +
-        " is calculated from finite difference on the grid");
-    ps.println("Strike\tVol\tDelta\tGamma");
-    for (int i = 0; i < 100; i++) {
-      final double k = forward * (0.3 + 2.7 * i / 99.0);
-      res = runBackwardsPDESolver(k, localVol, _isCall, _theta, expiry, maxForward,
-          _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, forward);
-
-      double vol = 0;
-      try {
-        final double vol1 = BlackFormulaRepository.impliedVolatility(res.getFunctionValue(xIndex), f1, k, expiry, _isCall);
-        final double vol2 = BlackFormulaRepository.impliedVolatility(res.getFunctionValue(xIndex), f1, k, expiry, _isCall);
-        vol = w * vol1 + (1 - w) * vol2;
-      } catch (final Exception e) {
-      }
-      final double modelDelta = w * res.getFirstSpatialDerivative(xIndex) + (1 - w) * res.getFirstSpatialDerivative(xIndex + 1);
-      final double modelGamma = w * res.getSecondSpatialDerivative(xIndex) + (1 - w) * res.getSecondSpatialDerivative(xIndex + 1);
-      ps.println(k + "\t" + vol + "\t" + modelDelta + "\t" + modelGamma);
-    }
+    //    //Now run the backwards solver and get delta and gamma off the grid
+    //    ps.println("Result of running backwards PDE solver - this gives you a set of prices at different spot levels for a" +
+    //        " single expiry and strike. Delta and gamma are calculated by finite difference on the grid");
+    //    ps.println("Spot\tVol\tBS Delta\tDelta\tBS Gamma\tGamma");
+    //
+    //    PDEResults1D res = runBackwardsPDESolver(strike, localVol, _isCall, _theta, expiry, maxForward,
+    //        _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, forward);
+    //
+    //    for (int i = 0; i < n; i++) {
+    //      final double price = res.getFunctionValue(i);
+    //      final double fwd = res.getGrid().getSpaceNode(i);
+    //      double impVol = 0;
+    //      try {
+    //        impVol = BlackFormulaRepository.impliedVolatility(price, fwd, strike, expiry, _isCall);
+    //      } catch (final Exception e) {
+    //      }
+    //      final double bsDelta = BlackFormulaRepository.delta(fwd, strike, expiry, impVol, _isCall);
+    //      final double bsGamma = BlackFormulaRepository.gamma(fwd, strike, expiry, impVol);
+    //
+    //      final double modelDelta = res.getFirstSpatialDerivative(i);
+    //      final double modelGamma = res.getSecondSpatialDerivative(i);
+    //
+    //      ps.println(fwd + "\t" + impVol + "\t" + bsDelta + "\t" + modelDelta + "\t" + bsGamma + "\t" + modelGamma);
+    //    }
+    //    ps.print("\n");
+    //
+    //    //finally run the backwards PDE solver 100 times with different strikes,  interpolating to get vol, delta and gamma at the forward
+    //    final int xIndex = res.getGrid().getLowerBoundIndexForSpace(forward);
+    //    final double actForward = res.getSpaceValue(xIndex);
+    //    final double f1 = res.getSpaceValue(xIndex);
+    //    final double f2 = res.getSpaceValue(xIndex + 1);
+    //    final double w = (f2 - forward) / (f2 - f1);
+    //    ps.println("True forward: " + forward + ", grid forward: " + actForward);
+    //    ps.println("Result of running 100 backwards PDE solvers all with different strikes. Delta and gamma for each strike" +
+    //        " is calculated from finite difference on the grid");
+    //    ps.println("Strike\tVol\tDelta\tGamma");
+    //    for (int i = 0; i < 100; i++) {
+    //      final double k = forward * (0.3 + 2.7 * i / 99.0);
+    //      res = runBackwardsPDESolver(k, localVol, _isCall, _theta, expiry, maxForward,
+    //          _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, forward);
+    //
+    //      double vol = 0;
+    //      try {
+    //        final double vol1 = BlackFormulaRepository.impliedVolatility(res.getFunctionValue(xIndex), f1, k, expiry, _isCall);
+    //        final double vol2 = BlackFormulaRepository.impliedVolatility(res.getFunctionValue(xIndex), f1, k, expiry, _isCall);
+    //        vol = w * vol1 + (1 - w) * vol2;
+    //      } catch (final Exception e) {
+    //      }
+    //      final double modelDelta = w * res.getFirstSpatialDerivative(xIndex) + (1 - w) * res.getFirstSpatialDerivative(xIndex + 1);
+    //      final double modelGamma = w * res.getSecondSpatialDerivative(xIndex) + (1 - w) * res.getSecondSpatialDerivative(xIndex + 1);
+    //      ps.println(k + "\t" + vol + "\t" + modelDelta + "\t" + modelGamma);
+    //    }
   }
 
   /**

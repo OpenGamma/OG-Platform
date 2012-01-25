@@ -11,6 +11,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
+import com.opengamma.financial.model.volatility.surface.Strike;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -22,9 +23,9 @@ import com.opengamma.math.surface.FunctionalDoublesSurface;
 /**
  * 
  */
-public class DoubleQuadraticPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurfaceFitter1 {
+public class StrikePiecewiseSABRSurfaceFitter implements PiecewiseSABRSurfaceFitter1<Strike> {
   private static final PiecewiseSABRFitter1 FITTER = new PiecewiseSABRFitter1();
-  private static final Interpolator1D EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
+  private static final Interpolator1D EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
   private final boolean _useLogTime;
   private final boolean _useIntegratedVar;
   private final double _lambda;
@@ -34,7 +35,7 @@ public class DoubleQuadraticPiecewiseSABRSurfaceFitter implements PiecewiseSABRS
    * @param useIntegratedVar the y-points are integrated variance (rather than volatility)
    * @param lambda zero the strikes are (almost) the same across fitted smiles, large lambda they scale as root-time
    */
-  public DoubleQuadraticPiecewiseSABRSurfaceFitter(final boolean useLogTime, final boolean useIntegratedVar, final double lambda) {
+  public StrikePiecewiseSABRSurfaceFitter(final boolean useLogTime, final boolean useIntegratedVar, final double lambda) {
     _useLogTime = useLogTime;
     _useIntegratedVar = useIntegratedVar;
     _lambda = lambda;
@@ -71,6 +72,7 @@ public class DoubleQuadraticPiecewiseSABRSurfaceFitter implements PiecewiseSABRS
         final double d = Math.log(forward / k) / Math.sqrt(1 + _lambda * t);
         if (t <= expiries[0]) {
           final double k1 = forwards[0] * Math.exp(-d * Math.sqrt(1 + _lambda * expiries[0]));
+          final Object temp = fitters[0].evaluate(k1);
           return fitters[0].evaluate(k1);
         }
         final int index = SurfaceArrayUtils.getLowerBoundIndex(expiries, t);

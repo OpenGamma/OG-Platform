@@ -91,7 +91,6 @@ public class PiecewiseSABRFitter {
       }
 
     }
-
   }
 
   private void validateStrikes(final double[] strikes) {

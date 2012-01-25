@@ -224,8 +224,7 @@ public abstract class BlackFormulaRepository {
   }
 
   /**
-   * The driftless vanna of an option, i.e.second order derivative of the option value, once to the underlying spot price and once to volatility.
-   * divide by the the numeraire)
+   * The driftless vanna of an option, i.e. second order derivative of the option value, once to the underlying spot price and once to volatility.
    * @param forward The forward value of the underlying
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
@@ -249,13 +248,12 @@ public abstract class BlackFormulaRepository {
   }
 
   /**
-   * The driftless vanna of an option, i.e.second order derivative of the option value, once to the underlying spot price and once to volatility.
-   * divide by the the numeraire)
+   * The driftless vomma of an option, i.e. second order derivative of the option forward price with respect to the implied volatility.
    * @param forward The forward value of the underlying
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
    * @param lognormalVol The log-normal volatility
-   * @return The forward vanna
+   * @return The forward vomma
    */
   public static double vomma(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
     if (forward == 0.0 || strike == 0.0) {

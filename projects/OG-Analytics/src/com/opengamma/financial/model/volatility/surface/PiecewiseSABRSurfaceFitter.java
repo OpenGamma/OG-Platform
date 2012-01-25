@@ -256,6 +256,7 @@ public class PiecewiseSABRSurfaceFitter {
         //
         if (t <= _expiries[0]) {
           final double k1 = _forwards[0] * Math.exp(-d * Math.sqrt(1 + lambda * _expiries[0]));
+          final Object temp = _fitters[0].getVol(k1);
           return _fitters[0].getVol(k1);
         }
 

@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.finitedifference;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.Validate;
 
 /**
@@ -105,8 +107,46 @@ public class PDEFullResults1D implements PDEResults1D {
     return _grid;
   }
 
+  public double[][] getF() {
+    return _f;
+  }
+
   public PDEFullResults1D withGrid(final PDEGrid1D grid) {
     return new PDEFullResults1D(grid, _f);
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(_f);
+    result = prime * result + ((_grid == null) ? 0 : _grid.hashCode());
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final PDEFullResults1D other = (PDEFullResults1D) obj;
+    if (!Arrays.equals(_f, other._f)) {
+      return false;
+    }
+    if (_grid == null) {
+      if (other._grid != null) {
+        return false;
+      }
+    } else if (!_grid.equals(other._grid)) {
+      return false;
+    }
+    return true;
   }
 
 }

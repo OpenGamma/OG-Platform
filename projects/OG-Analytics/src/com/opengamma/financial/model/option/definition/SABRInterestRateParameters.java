@@ -215,7 +215,7 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
     final DoublesPair expiryMaturity = new DoublesPair(expiryTime, maturity);
     final SABRFormulaData data = new SABRFormulaData(getAlpha(expiryMaturity), getBeta(expiryMaturity), getRho(expiryMaturity), getNu(expiryMaturity));
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiryTime, true);
-    return sabrHaganFunction.getVolatilityAdjoint(option, forward, data);
+    return sabrHaganFunction.getVolatilityAdjointOld(option, forward, data);
   }
 
   @Override

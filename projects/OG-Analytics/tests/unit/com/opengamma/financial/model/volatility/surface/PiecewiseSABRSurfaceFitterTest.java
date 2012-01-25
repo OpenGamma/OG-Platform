@@ -20,8 +20,8 @@ import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
-import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
-import com.opengamma.math.interpolation.FlatExtrapolator1D;
+import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
+import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
@@ -33,9 +33,7 @@ import com.opengamma.math.surface.Surface;
 public class PiecewiseSABRSurfaceFitterTest {
   DupireLocalVolatilityCalculator DUPIRE = new DupireLocalVolatilityCalculator();
 
-  private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
-  //private static final CombinedInterpolatorExtrapolatorFactory FACTORY = new CIE;
-  private static final CombinedInterpolatorExtrapolator EXTRAPOLATOR_1D = new CombinedInterpolatorExtrapolator(INTERPOLATOR_1D, new FlatExtrapolator1D());
+  private static final CombinedInterpolatorExtrapolator EXTRAPOLATOR_1D = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
   //Instrument used for Vega/Greeks Reports
   private static final double EXAMPLE_EXPIRY = 0.5;
   private static final double EXAMPLE_STRIKE = 1.4;
@@ -166,21 +164,21 @@ public class PiecewiseSABRSurfaceFitterTest {
   @Test
   (enabled = false)
   public void printSurface() {
-    //   BlackVolatilitySurface surfaceK = SURFACE_FITTER.getImpliedVolatilitySurface2(true, false, LAMBDA);
-    final BlackVolatilitySurfaceMoneyness surface = SURFACE_FITTER.getImpliedVolatilityMoneynessSurface(true, false, LAMBDA / 10);
-    PDEUtilityTools.printSurface("vol surface", surface.getSurface(), 0, 10, 0.2, 2.0, 200, 100);
-    final LocalVolatilitySurfaceMoneyness lv = DUPIRE.getLocalVolatility(surface);
-    PDEUtilityTools.printSurface("LV surface", lv.getSurface(), 0, 10, 0.2, 2.0, 200, 100);
-    //    double[] t = new double[20];
-    //    double[] sigmaK = new double[20];
-    //    double[] sigmaM = new double[20];
-    //    // double[] sigmaLV = new double[20];
-    //    for (int i = 0; i < 20; i++) {
-    //      t[i] = 4.95 + 0.1 * i / 19.;
-    //      sigmaK[i] = surfaceK.getVolatility(t[i], EXAMPLE_STRIKE);
-    //      sigmaM[i] = surfaceM.getVolatility(t[i], EXAMPLE_STRIKE);
-    //      System.out.println(t[i] + "\t" + sigmaK[i]+"\t"+sigmaM[i]);
-    //    }
+    final BlackVolatilitySurfaceStrike surfaceK = SURFACE_FITTER.getImpliedVolatilitySurface(true, false, LAMBDA / 10);
+    final BlackVolatilitySurfaceMoneyness surfaceM = SURFACE_FITTER.getImpliedVolatilityMoneynessSurface(true, false, LAMBDA / 10);
+    //PDEUtilityTools.printSurface("vol surface", surface.getSurface(), 0, 10, 0.2, 2.0, 200, 100);
+    //final LocalVolatilitySurfaceMoneyness lv = DUPIRE.getLocalVolatility(surfaceM);
+    //PDEUtilityTools.printSurface("LV surface", lv.getSurface(), 0, 10, 0.2, 2.0, 200, 100);
+    final double[] t = new double[20];
+    final double[] sigmaK = new double[20];
+    final double[] sigmaM = new double[20];
+    // double[] sigmaLV = new double[20];
+    for (int i = 0; i < 20; i++) {
+      t[i] = 4.95 + 0.1 * i / 19.;
+      sigmaK[i] = surfaceK.getVolatility(t[i], EXAMPLE_STRIKE);
+      sigmaM[i] = surfaceM.getVolatility(t[i], EXAMPLE_STRIKE);
+      System.out.println(t[i] + "\t" + sigmaK[i]+"\t"+sigmaM[i]);
+    }
 
   }
 
@@ -232,7 +230,7 @@ public class PiecewiseSABRSurfaceFitterTest {
   }
 
   @Test
-
+  (enabled = false)
   public void bucketedVega() {
     final PrintStream ps = System.out;
     final EuropeanVanillaOption option = new EuropeanVanillaOption(EXAMPLE_STRIKE, EXAMPLE_EXPIRY, true);

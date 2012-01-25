@@ -228,7 +228,6 @@ public class SABRFiniteDifferenceTest {
     final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxForward, forward, xNodes, 0.1);
     final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    System.out.println("backwards PDE");
     for (int j = 0; j < 50; j++) {
       final double strike = forward * (0.5 + 1.5 * j / 49.);
       final BoundaryCondition upper = new DirichletBoundaryCondition(maxForward - strike, maxForward);
@@ -258,6 +257,7 @@ public class SABRFiniteDifferenceTest {
       final double intepVol = INTERPOLATOR_1D.interpolate(db, forward);
       final double sabrVol = SABR_VOL_SURFACE.getVolatility(T, strike);
       if (DEBUG) {
+        System.out.println("backwards PDE");
         System.out.println(strike + "\t" + intepVol + "\t" + sabrVol);
       } else {
         assertEquals("Backwards PDE vols", sabrVol, intepVol, 1.5e-3); //15bps error TODO why so large
