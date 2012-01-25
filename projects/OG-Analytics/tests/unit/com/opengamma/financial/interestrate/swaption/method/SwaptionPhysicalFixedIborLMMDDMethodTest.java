@@ -112,7 +112,8 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
   private static final SwaptionPhysicalFixedIborLMMDDMethod METHOD_LMM = new SwaptionPhysicalFixedIborLMMDDMethod();
   private static final SwaptionPhysicalFixedIborSABRMethod METHOD_SABR = SwaptionPhysicalFixedIborSABRMethod.getInstance();
-  private static final LiborMarketModelDisplacedDiffusionParameters PARAMETERS_LMM = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParameters(REFERENCE_DATE, SWAP_PAYER_DEFINITION);
+  private static final LiborMarketModelDisplacedDiffusionParameters PARAMETERS_LMM = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParameters(REFERENCE_DATE,
+      SWAP_PAYER_DEFINITION.getIborLeg());
   private static final LiborMarketModelDisplacedDiffusionDataBundle BUNDLE_LMM = new LiborMarketModelDisplacedDiffusionDataBundle(PARAMETERS_LMM, CURVES);
 
   private static final int NB_PATH = 12500;
@@ -179,10 +180,10 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     double[][] pvLmmSensi = METHOD_LMM.presentValueLMMSensitivity(SWAPTION_PAYER_LONG, BUNDLE_LMM);
 
     double shift = 1.0E-6;
-    LiborMarketModelDisplacedDiffusionParameters parameterShiftPlus = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParameters(REFERENCE_DATE, SWAP_PAYER_DEFINITION, shift);
+    LiborMarketModelDisplacedDiffusionParameters parameterShiftPlus = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParameters(REFERENCE_DATE, SWAP_PAYER_DEFINITION.getIborLeg(), shift);
     LiborMarketModelDisplacedDiffusionDataBundle bundleShiftPlus = new LiborMarketModelDisplacedDiffusionDataBundle(parameterShiftPlus, CURVES);
     CurrencyAmount pvShiftPlus = METHOD_LMM.presentValue(SWAPTION_PAYER_LONG, bundleShiftPlus);
-    LiborMarketModelDisplacedDiffusionParameters parameterShiftMinus = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParameters(REFERENCE_DATE, SWAP_PAYER_DEFINITION, -shift);
+    LiborMarketModelDisplacedDiffusionParameters parameterShiftMinus = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParameters(REFERENCE_DATE, SWAP_PAYER_DEFINITION.getIborLeg(), -shift);
     LiborMarketModelDisplacedDiffusionDataBundle bundleShiftMinus = new LiborMarketModelDisplacedDiffusionDataBundle(parameterShiftMinus, CURVES);
     CurrencyAmount pvShiftMinus = METHOD_LMM.presentValue(SWAPTION_PAYER_LONG, bundleShiftMinus);
     double pvLmmSensiTotExpected = (pvShiftPlus.getAmount() - pvShiftMinus.getAmount()) / (2 * shift);
@@ -342,7 +343,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     }
     // Calibration and price
     LiborMarketModelDisplacedDiffusionParameters lmmParameters = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParametersDisplacementAngle(REFERENCE_DATE,
-        swapCalibrationDefinition[swapTenorYear.length - 1], 0.10, Math.PI / 2);
+        swapCalibrationDefinition[swapTenorYear.length - 1].getIborLeg(), 0.10, Math.PI / 2);
     SwaptionPhysicalLMMDDCalibrationObjective objective = new SwaptionPhysicalLMMDDCalibrationObjective(lmmParameters);
     SuccessiveRootFinderCalibrationEngine calibrationEngine = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objective);
     calibrationEngine.addInstrument(swaptionCalibration2, METHOD_SABR);
@@ -375,7 +376,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     SABRInterestRateParameters sabrParameterShift;
     SABRInterestRateDataBundle sabrBundleShift;
     LiborMarketModelDisplacedDiffusionParameters lmmParametersShift = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParametersDisplacementAngle(REFERENCE_DATE,
-        swapCalibrationDefinition[swapTenorYear.length - 1], 0.10, Math.PI / 2);
+        swapCalibrationDefinition[swapTenorYear.length - 1].getIborLeg(), 0.10, Math.PI / 2);
     SwaptionPhysicalLMMDDCalibrationObjective objectiveShift = new SwaptionPhysicalLMMDDCalibrationObjective(lmmParametersShift);
     SuccessiveRootFinderCalibrationEngine calibrationEngineShift = new SwaptionPhysicalLMMDDSuccessiveRootFinderCalibrationEngine(objectiveShift);
     calibrationEngineShift.addInstrument(swaptionCalibration2, METHOD_SABR);

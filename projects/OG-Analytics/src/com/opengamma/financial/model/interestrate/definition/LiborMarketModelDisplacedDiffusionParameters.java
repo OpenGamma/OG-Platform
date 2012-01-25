@@ -12,7 +12,8 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
+import com.opengamma.financial.instrument.annuity.AnnuityCouponDefinition;
+import com.opengamma.financial.instrument.payment.CouponDefinition;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.TimeCalculator;
@@ -101,26 +102,26 @@ public class LiborMarketModelDisplacedDiffusionParameters {
   /**
    * Create model parameters adapted to a specific swap.
    * @param modelDate The pricing date.
-   * @param swap The swap to be used for the model construction.
+   * @param annuity The annuity to be used for the model construction.    swap The swap 
    * @param dayCount The Ibor day count.
    * @param displacement The displacement (common to all Ibors).
    * @param meanReversion The mean reversion.
    * @param volatilityFunction The volatility function. For a given time to Ibor period start date it provides the volatilities (or weights) of the different factors.
    * @return A Libor Market Model parameter set.
    */
-  public static LiborMarketModelDisplacedDiffusionParameters from(ZonedDateTime modelDate, SwapFixedIborDefinition swap, DayCount dayCount, double displacement, double meanReversion,
-      Function1D<Double, Double[]> volatilityFunction) {
-    int nbPeriod = swap.getIborLeg().getNumberOfPayments();
+  public static LiborMarketModelDisplacedDiffusionParameters from(ZonedDateTime modelDate, final AnnuityCouponDefinition<? extends CouponDefinition> annuity, DayCount dayCount, double displacement,
+      double meanReversion, Function1D<Double, Double[]> volatilityFunction) { // SwapFixedIborDefinition swap
+    int nbPeriod = annuity.getNumberOfPayments();
     ZonedDateTime[] iborDate = new ZonedDateTime[nbPeriod + 1];
     double[] iborTime = new double[nbPeriod + 1];
     double[] accrualFactor = new double[nbPeriod];
     double[] d = new double[nbPeriod];
     Double[] tmp = volatilityFunction.evaluate(0.0);
     double[][] vol = new double[nbPeriod][tmp.length];
-    iborDate[0] = swap.getIborLeg().getNthPayment(0).getAccrualStartDate();
+    iborDate[0] = annuity.getNthPayment(0).getAccrualStartDate();
     iborTime[0] = TimeCalculator.getTimeBetween(modelDate, iborDate[0]);
     for (int loopcf = 0; loopcf < nbPeriod; loopcf++) {
-      iborDate[loopcf + 1] = swap.getIborLeg().getNthPayment(loopcf).getPaymentDate();
+      iborDate[loopcf + 1] = annuity.getNthPayment(loopcf).getPaymentDate();
       iborTime[loopcf + 1] = TimeCalculator.getTimeBetween(modelDate, iborDate[loopcf + 1]);
       accrualFactor[loopcf] = dayCount.getDayCountFraction(iborDate[loopcf], iborDate[loopcf + 1]);
       d[loopcf] = displacement;
