@@ -80,8 +80,7 @@ $.register_module({
                                 id: routes.last().args.id,
                                 handler: function (result) {
                                     var args = routes.current().args;
-                                    if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                    view.search(args);
+                                    if (result.error) return view.error(result.message);
                                     routes.go(routes.hash(view.rules.load, args));
                                 }
                             });
@@ -190,19 +189,19 @@ $.register_module({
                 });
             },
             state = {};
-        return view = $.extend(new og.views.common.Core(page_name, 'Securities'), {
+        return view = $.extend(new og.views.common.Core(page_name), {
             filters: ['name', 'type'],
             load_filter: function (args) {
-                var search_filter = view.filter = function () {
+                view.filter = function () {
                         var filter_name = view.options.slickgrid.columns[0].name;
                         if (!filter_name || filter_name === 'loading') // wait until type filter is populated
-                            return setTimeout(search_filter, 500);
+                            return setTimeout(view.filter, 500);
                         search.filter(args);
                 };
                 check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
                     view[args.id ? 'load_item' : 'load'](args);
                 }}]});
-                search_filter();
+                view.filter();
             },
             details: details_page,
             options: {

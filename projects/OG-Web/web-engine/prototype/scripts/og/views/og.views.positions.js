@@ -77,9 +77,8 @@ $.register_module({
                                     var args = routes.current().args;
                                     ui.dialog({type: 'confirm', action: 'close'});
                                     if (result.error) return view.error(result.message);
-                                    view.search(args);
                                     routes.go(routes.hash(view.rules.load, args));
-                                }, id: routes.last().args.id
+                                }, id: routes.current().args.id
                             });
                         },
                         'Cancel': function () {$(this).dialog('close');}
@@ -180,7 +179,7 @@ $.register_module({
                 }
             });
         };
-        return view = $.extend(new og.views.common.Core(page_name, 'Positions'), {
+        return view = $.extend(new og.views.common.Core(page_name), {
             details: details_page,
             load_filter: function (args) {
                 check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
