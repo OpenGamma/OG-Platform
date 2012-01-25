@@ -13,14 +13,11 @@
   </bean>
 
   <!-- ================================================================== -->
-  <!-- Expose component infrastructure -->
-  <bean class="com.opengamma.financial.spring.ComponentRepositoryBeanPostProcessor" />
+  <bean id="mainUserPrincipal" class="${testUser.factory}" />
 
   <!-- ================================================================== -->
-  <bean id="testUser" class="${testUser.factory}" />  
-
   <!-- Functions -->
-  <bean id="demoFunctionCompilation" class="com.opengamma.engine.function.CompiledFunctionService">
+  <bean id="mainCompiledFunctionService" class="com.opengamma.engine.function.CompiledFunctionService">
     <constructor-arg>
       <bean class="com.opengamma.engine.function.config.RepositoryFactoryBean">
         <property name="repositoryConfigurationSource" ref="sharedRepositoryConfigurationSource" />
@@ -29,13 +26,13 @@
     <constructor-arg>
       <bean class="com.opengamma.engine.function.CachingFunctionRepositoryCompiler" />
     </constructor-arg>
-    <constructor-arg ref="engineFunctionCompilationContext" />
+    <constructor-arg ref="mainFunctionCompilationContext" />
   </bean>
-  <bean id="demoFunctionResolver" class="com.opengamma.web.spring.DemoFunctionResolverFactoryBean">
-    <property name="functionCompilationService" ref="demoFunctionCompilation" />
+  <bean id="mainFunctionResolver" class="com.opengamma.web.spring.DemoFunctionResolverFactoryBean">
+    <property name="functionCompilationService" ref="mainCompiledFunctionService" />
   </bean>  
-  <bean id="demoAvailableOutputsProvider" class="com.opengamma.engine.view.helper.DefaultAvailableOutputsProvider">
-    <constructor-arg ref="demoFunctionCompilation" />
+  <bean id="mainAvailableOutputsProvider" class="com.opengamma.engine.view.helper.DefaultAvailableOutputsProvider">
+    <constructor-arg ref="mainCompiledFunctionService" />
     <constructor-arg ref="combinedPositionSource" />
     <constructor-arg ref="combinedSecuritySource" />
     <constructor-arg value="*" />
@@ -43,22 +40,22 @@
   
   <!-- Calculation nodes -->
   <!--
-  <bean id="demoComputationCacheSource" class="com.opengamma.engine.view.cache.BerkeleyDBViewComputationCacheSourceFactoryBean">
+  <bean id="mainComputationCacheSource" class="com.opengamma.engine.view.cache.BerkeleyDBViewComputationCacheSourceFactoryBean">
     <property name="fudgeContext" ref="standardFudgeContext" />
   </bean>
   -->
-  <bean id="demoComputationCacheSource" class="com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource">
+  <bean id="mainComputationCacheSource" class="com.opengamma.engine.view.cache.InMemoryViewComputationCacheSource">
     <constructor-arg ref="standardFudgeContext" />
   </bean>
-  <bean id="demoViewProcessorQueryReceiver" class="com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver" />
-  <bean id="demoViewProcessorQuerySender" class="com.opengamma.engine.view.calcnode.ViewProcessorQuerySender">
+  <bean id="mainViewProcessorQueryReceiver" class="com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver" />
+  <bean id="mainViewProcessorQuerySender" class="com.opengamma.engine.view.calcnode.ViewProcessorQuerySender">
     <constructor-arg>
       <bean class="com.opengamma.transport.ByteArrayFudgeRequestSender">
         <constructor-arg>
           <bean class="com.opengamma.transport.InMemoryByteArrayRequestConduit">
             <constructor-arg>
               <bean class="com.opengamma.transport.FudgeRequestDispatcher">
-                <constructor-arg ref="demoViewProcessorQueryReceiver" />
+                <constructor-arg ref="mainViewProcessorQueryReceiver" />
               </bean>
             </constructor-arg>
           </bean>
@@ -66,7 +63,7 @@
       </bean>
     </constructor-arg>
   </bean>
-  <bean id="demoTargetResolver" class="com.opengamma.engine.DefaultCachingComputationTargetResolver">
+  <bean id="mainComputationTargetResolver" class="com.opengamma.engine.DefaultCachingComputationTargetResolver">
     <constructor-arg>
       <bean class="com.opengamma.engine.DefaultComputationTargetResolver">
         <constructor-arg ref="combinedSecuritySource" />
@@ -79,18 +76,18 @@
   <bean id="functionCosts" class="com.opengamma.engine.view.calcnode.stats.FunctionCosts">
     <constructor-arg ref="centralFunctionCostsMaster" />
   </bean>
-  <bean id="demoComputationJobDispatcher" class="com.opengamma.engine.view.calcnode.JobDispatcher">
+  <bean id="mainComputationJobDispatcher" class="com.opengamma.engine.view.calcnode.JobDispatcher">
     <constructor-arg>
       <bean class="com.opengamma.engine.view.calcnode.LocalNodeJobInvoker">
         <constructor-arg>
 				  <bean class="com.opengamma.engine.view.calcnode.LocalCalculationNodeSet">
-				    <property name="viewComputationCache" ref="demoComputationCacheSource" />
-				    <property name="functionCompilationService" ref="demoFunctionCompilation" />
-				    <property name="functionExecutionContext" ref="engineFunctionExecutionContext" />
-				    <property name="computationTargetResolver" ref="demoTargetResolver" />
-				    <property name="viewProcessorQuery" ref="demoViewProcessorQuerySender" />
+				    <property name="viewComputationCache" ref="mainComputationCacheSource" />
+				    <property name="functionCompilationService" ref="mainCompiledFunctionService" />
+				    <property name="functionExecutionContext" ref="mainFunctionExecutionContext" />
+				    <property name="computationTargetResolver" ref="mainComputationTargetResolver" />
+				    <property name="viewProcessorQuery" ref="mainViewProcessorQuerySender" />
 				    <property name="writeBehindExecutorService">
-				      <null/> <!-- The demo cache is so fast, and CPU bound, that write behind just slows us down on many core systems -->
+				      <null/> <!-- The cache is so fast, and CPU bound, that write behind just slows us down on many core systems -->
 				    </property>
 				    <property name="nodesPerCore" value="1" />
 				    <property name="nodeIdentifier" value="local" />
@@ -99,7 +96,7 @@
         </constructor-arg>
       </bean>
     </constructor-arg>
-    <!-- Maximum execution time (5 minutes) useful to keep the demo going, but not if you're testing large/long running jobs --> 
+    <!-- Maximum execution time (5 minutes) useful to keep going, but not if you're testing large/long running jobs --> 
     <property name="maxJobExecutionTime" value="300000" />
     <property name="statisticsGatherer" ref="jobDispatchStatistics" />
   </bean>
@@ -108,29 +105,29 @@
   <bean id="calcNodeCacheServer" class="com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver" init-method="start" destroy-method="stop">
     <constructor-arg>
       <bean class="com.opengamma.engine.view.cache.ViewComputationCacheServer">
-        <constructor-arg ref="demoComputationCacheSource" />
+        <constructor-arg ref="mainComputationCacheSource" />
       </bean>
     </constructor-arg>
     <constructor-arg ref="standardFudgeContext" />
   </bean>
   <bean id="calcNodeQueryServer" class="com.opengamma.transport.socket.ServerSocketFudgeRequestDispatcher" init-method="start" destroy-method="stop">
-    <constructor-arg ref="demoViewProcessorQueryReceiver" />
+    <constructor-arg ref="mainViewProcessorQueryReceiver" />
     <constructor-arg ref="standardFudgeContext" />
   </bean>
   <bean id="calcNodeJobServer" class="com.opengamma.transport.socket.ServerSocketFudgeConnectionReceiver" init-method="start" destroy-method="stop">
     <constructor-arg ref="standardFudgeContext" />
     <constructor-arg>
       <bean class="com.opengamma.engine.view.calcnode.RemoteNodeServer">
-        <constructor-arg ref="demoComputationJobDispatcher" />
+        <constructor-arg ref="mainComputationJobDispatcher" />
         <constructor-arg>
-          <bean factory-bean="demoComputationCacheSource" factory-method="getIdentifierMap" />
+          <bean factory-bean="mainComputationCacheSource" factory-method="getIdentifierMap" />
         </constructor-arg>
         <constructor-arg ref="functionCosts" />
-        <constructor-arg ref="engineFunctionCompilationContext" />
+        <constructor-arg ref="mainFunctionCompilationContext" />
       </bean>
     </constructor-arg>
   </bean>
-  <bean id="calcNodeSocketConfig" class="com.opengamma.engine.view.calcnode.ConfigurationResource">
+  <bean id="mainCalcNodeSocketConfiguration" class="com.opengamma.engine.view.calcnode.CalcNodeSocketConfiguration">
     <property name="cacheServer" ref="calcNodeCacheServer" />
     <property name="queryServer" ref="calcNodeQueryServer" />
     <property name="jobServer" ref="calcNodeJobServer" />
@@ -147,33 +144,33 @@
   </bean>
   <bean id="graphExecutorTuner" class="com.opengamma.engine.view.calc.MultipleNodeExecutorTuner">
     <constructor-arg ref="graphExecutor" />
-    <property name="jobDispatcher" ref="demoComputationJobDispatcher" />
+    <property name="jobDispatcher" ref="mainComputationJobDispatcher" />
     <property name="jobDispatchStatistics" ref="jobDispatchStatistics" />
     <property name="graphExecutionStatistics" ref="graphExecutionStatistics" />
   </bean>
-  <bean id="demoViewProcessor" class="com.opengamma.engine.view.ViewProcessorFactoryBean">
+  <bean id="mainViewProcessor" class="com.opengamma.engine.view.ViewProcessorFactoryBean">
     <property name="id" value="0" />
     <property name="viewDefinitionRepository" ref="combinedViewDefinitionRepository" />
     <property name="liveMarketDataSourceRegistry" ref="standardLiveMarketDataSourceRegistry" />
     <property name="securitySource" ref="combinedSecuritySource" />
     <property name="positionSource" ref="combinedPositionSource" />
-    <property name="computationTargetResolver" ref="demoTargetResolver" />
-    <property name="functionCompilationService" ref="demoFunctionCompilation" />
-    <property name="functionResolver" ref="demoFunctionResolver" />
+    <property name="computationTargetResolver" ref="mainComputationTargetResolver" />
+    <property name="functionCompilationService" ref="mainCompiledFunctionService" />
+    <property name="functionResolver" ref="mainFunctionResolver" />
     <property name="marketDataProviderResolver" ref="standardMarketDataProviderResolver" />
-    <property name="computationCacheSource" ref="demoComputationCacheSource" />
-    <property name="computationJobDispatcher" ref="demoComputationJobDispatcher" />
-    <property name="viewProcessorQueryReceiver" ref="demoViewProcessorQueryReceiver" />
+    <property name="computationCacheSource" ref="mainComputationCacheSource" />
+    <property name="computationJobDispatcher" ref="mainComputationJobDispatcher" />
+    <property name="viewProcessorQueryReceiver" ref="mainViewProcessorQueryReceiver" />
     <property name="dependencyGraphExecutorFactory" ref="graphExecutor" />
     <property name="graphExecutionStatistics" ref="graphExecutionStatistics" />
     <property name="viewPermissionProvider">
       <bean class="com.opengamma.engine.view.permission.DefaultViewPermissionProvider" />
     </property>
-    <property name="overrideOperationCompiler" ref="engineOverrideOperationCompiler" />
+    <property name="overrideOperationCompiler" ref="mainOverrideOperationCompiler" />
   </bean>
   
   <bean id="viewProcessorManager" class="com.opengamma.financial.view.ViewProcessorManager" init-method="start">
-    <property name="viewProcessor" ref="demoViewProcessor" />
+    <property name="viewProcessor" ref="mainViewProcessor" />
     <property name="mastersAndSources">
       <map>
         <entry key-ref="centralConfigMaster" value-ref="sharedConfigSource" />
@@ -205,7 +202,80 @@
     <property name="minimumJobCostUpperLimit" value="100000000" />
   </bean>
   -->
-  
+
+  <!-- ============================================================================== -->
+  <!-- Portfolio aggregators -->
+  <bean id="mainPortfolioAggregationFunctions" class="com.opengamma.financial.aggregation.PortfolioAggregationFunctions">
+   <constructor-arg>
+    <bean class="org.springframework.beans.factory.config.ListFactoryBean">
+     <property name="sourceList">
+      <list>
+        <!-- TODO: shared aggregation function config -->
+        <bean class="com.opengamma.financial.aggregation.AssetClassAggregationFunction">
+          <constructor-arg value="false" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.CurrencyAggregationFunction" />
+        <bean class="com.opengamma.financial.aggregation.DetailedAssetClassAggregationFunction" />
+        <bean class="com.opengamma.financial.aggregation.RegionAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg ref="sharedRegionSource" />
+          <constructor-arg ref="sharedExchangeSource" />
+          <constructor-arg value="false" />
+          <constructor-arg value="false" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.UnderlyingAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="BLOOMBERG_TICKER" />
+          <constructor-arg value="false" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="SECTOR" />
+          <constructor-arg value="false" />
+          <constructor-arg value="false" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="INDUSTRY_GROUP" />
+          <constructor-arg value="false" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="INDUSTRY" />
+          <constructor-arg value="false" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.GICSAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="SUB_INDUSTRY" />
+          <constructor-arg value="false" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.EquityBetaAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
+          <constructor-arg value="false" />
+          <constructor-arg value="true" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.CurrentMarketCapAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
+          <constructor-arg value="false" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.LiquidityAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg ref="sharedHistoricalTimeSeriesSource" />
+          <constructor-arg value="false" />
+        </bean>
+        <bean class="com.opengamma.financial.aggregation.LongShortAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+          <constructor-arg value="false" />
+        </bean>
+      </list>
+     </property>
+    </bean>
+   </constructor-arg>
+  </bean>
+
+  <!-- ============================================================================== -->
   <!-- JMX instrumentation -->
   <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
     <property name="staticMethod" value="com.opengamma.engine.view.calc.jmx.MultipleNodeExecutor.registerMBeans" />
@@ -220,13 +290,14 @@
     <property name="staticMethod" value="com.opengamma.engine.management.ManagementService.registerMBeans" />
     <property name="arguments">
       <list>
-        <ref bean="demoViewProcessor" />
+        <ref bean="mainViewProcessor" />
         <ref bean="graphExecutionStatistics" />
         <ref bean="standardMBeanServer" />
       </list>
     </property>
   </bean>
 
+  <!-- ============================================================================== -->
   <!-- Anything that needs regular scheduling -->
   <bean id="scheduler" class="org.springframework.scheduling.concurrent.ScheduledExecutorFactoryBean">
     <property name="scheduledExecutorTasks">
