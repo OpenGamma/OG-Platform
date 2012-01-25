@@ -43,6 +43,20 @@ public class ArgumentCheckerTest {
     }
   }
 
+  public void test_isTrue_ok_args() {
+    ArgumentChecker.isTrue(true, "Message {} {} {}", "A", 2, 3.);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_isTrue_false_args() {
+    try {
+      ArgumentChecker.isTrue(false, "Message {} {} {}", "A", 2, 3.);
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().equals("Message A 2 3.0"), true);
+      throw ex;
+    }
+  }
+  
   public void test_isFalse_ok() {
     ArgumentChecker.isFalse(false, "Message");
   }
@@ -57,6 +71,20 @@ public class ArgumentCheckerTest {
     }
   }
 
+  public void test_isFalse_ok_args() {
+    ArgumentChecker.isFalse(false, "Message {} {} {}", "A", 2., 3, true);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_isFalse_true_args() {
+    try {
+      ArgumentChecker.isFalse(true, "Message {} {} {} {}", "A", 2., 3, true);
+    } catch (IllegalArgumentException ex) {
+      assertEquals(ex.getMessage().equals("Message A 2.0 3 true"), true);
+      throw ex;
+    }
+  }
+  
   //-------------------------------------------------------------------------
   public void test_notNull_ok() {
     ArgumentChecker.notNull("Kirk", "name");
