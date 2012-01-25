@@ -40,6 +40,8 @@ $.register_module({
                     set_title(title || routes.current().hash);
                     title = null;
                 });
+                // escape key will break long-polling, so prevent the default action
+                $(window).bind('keydown', function (e) {if (e.keyCode === $.ui.keyCode.ESCAPE) e.preventDefault();});
                 $(function () { // in addition to binding hash change events to window, also fire it onload
                     var common = og.views.common;
                     $('.OG-js-loading').hide();

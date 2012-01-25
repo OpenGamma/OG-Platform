@@ -20,8 +20,8 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
@@ -96,7 +96,8 @@ public class CapFloorIborLMMDDMethodTest {
       COUPON_IBOR_6.getForwardCurveName(), STRIKE, IS_CAP);
   // Parameters and methods
   private static final int NB_PATH = 12500;
-  private static final LiborMarketModelDisplacedDiffusionParameters PARAMETERS_LMM = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParameters(REFERENCE_DATE, SWAP_PAYER_DEFINITION);
+  private static final LiborMarketModelDisplacedDiffusionParameters PARAMETERS_LMM = LiborMarketModelDisplacedDiffusionTestsDataSet.createLMMParameters(REFERENCE_DATE,
+      SWAP_PAYER_DEFINITION.getIborLeg());
   private static final LiborMarketModelDisplacedDiffusionDataBundle BUNDLE_LMM = new LiborMarketModelDisplacedDiffusionDataBundle(PARAMETERS_LMM, CURVES);
   private static final CapFloorIborLMMDDMethod METHOD_LMM_CAP = new CapFloorIborLMMDDMethod();
 

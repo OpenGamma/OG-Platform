@@ -53,7 +53,7 @@ public class SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod implements
     double[] dfFixed = new double[nbFixed];
     double[] discountedCashFlowFixed = new double[nbFixed];
     for (int loopcf = 0; loopcf < nbFixed; loopcf++) {
-      alphaFixed[loopcf] = MODEL.alpha(0.0, expiryTime, expiryTime, swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentTime(), hwData.getHullWhiteParameter());
+      alphaFixed[loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentTime());
       dfFixed[loopcf] = hwData.getCurve(swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getFundingCurveName()).getDiscountFactor(
           swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentTime());
       discountedCashFlowFixed[loopcf] = dfFixed[loopcf] * swaption.getUnderlyingSwap().getFixedLeg().getNthPayment(loopcf).getPaymentYearFraction()
@@ -65,7 +65,7 @@ public class SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod implements
     double[] dfIbor = new double[cfeIbor.getNumberOfPayments()];
     double[] discountedCashFlowIbor = new double[cfeIbor.getNumberOfPayments()];
     for (int loopcf = 0; loopcf < cfeIbor.getNumberOfPayments(); loopcf++) {
-      alphaIbor[loopcf] = MODEL.alpha(0.0, expiryTime, expiryTime, cfeIbor.getNthPayment(loopcf).getPaymentTime(), hwData.getHullWhiteParameter());
+      alphaIbor[loopcf] = MODEL.alpha(hwData.getHullWhiteParameter(), 0.0, expiryTime, expiryTime, cfeIbor.getNthPayment(loopcf).getPaymentTime());
       dfIbor[loopcf] = hwData.getCurve(cfeIbor.getDiscountCurve()).getDiscountFactor(cfeIbor.getNthPayment(loopcf).getPaymentTime());
       discountedCashFlowIbor[loopcf] = dfIbor[loopcf] * cfeIbor.getNthPayment(loopcf).getAmount();
     }
@@ -131,15 +131,7 @@ public class SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod implements
 
     @Override
     public Double evaluate(final Double x) {
-      double numerator = 0.0;
-      for (int loopcf = 0; loopcf < _discountedCashFlowIbor.length; loopcf++) {
-        numerator += _discountedCashFlowIbor[loopcf] * Math.exp(-(x + _alphaIbor[loopcf]) * (x + _alphaIbor[loopcf]) / 2.0);
-      }
-      double denominator = 0.0;
-      for (int loopcf = 0; loopcf < _discountedCashFlowFixed.length; loopcf++) {
-        denominator += _discountedCashFlowFixed[loopcf] * Math.exp(-(x + _alphaFixed[loopcf]) * (x + _alphaFixed[loopcf]) / 2.0);
-      }
-      double swapRate = -numerator / denominator;
+      double swapRate = MODEL.swapRate(x, _discountedCashFlowFixed, _alphaFixed, _discountedCashFlowIbor, _alphaIbor);
       final double annuityCash = 1.0 / swapRate * (1.0 - 1.0 / Math.pow(1 + swapRate / _nbFixedPaymentYear, _nbFixedPeriod));
       double dfDensity = Math.exp(-(x + _alphaIbor[0]) * (x + _alphaIbor[0]) / 2.0);
       double result;

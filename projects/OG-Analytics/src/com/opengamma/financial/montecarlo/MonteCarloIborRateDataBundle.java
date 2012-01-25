@@ -29,7 +29,7 @@ public class MonteCarloIborRateDataBundle {
 
   /**
    * Constructor.
-   * @param pathIborRate The paths Ibor rates.
+   * @param pathIborRate The paths Ibor rates. Size: nbJump x nbPeriodLMM x nbPath
    * @param delta The Libor accrual factors.
    * @param impactAmount The reference amounts at the impact dates.
    * @param impactIndex The Ibor index of each cash flow.
@@ -42,8 +42,8 @@ public class MonteCarloIborRateDataBundle {
   }
 
   /**
-   * Gets the _pathDiscountingFactors field.
-   * @return the _pathDiscountingFactors
+   * Gets the path Ibor rates. Size: nbJump x nbPeriodLMM x nbPath
+   * @return The rates.
    */
   public double[][][] getPathIborRate() {
     return _pathIborRate;

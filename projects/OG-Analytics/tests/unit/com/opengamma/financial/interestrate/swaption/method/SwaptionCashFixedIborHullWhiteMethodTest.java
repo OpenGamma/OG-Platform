@@ -34,7 +34,7 @@ import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
-import com.opengamma.financial.model.interestrate.HullWhiteTestsDataSet;
+import com.opengamma.financial.model.interestrate.TestsDataSetsHullWhite;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -86,7 +86,7 @@ public class SwaptionCashFixedIborHullWhiteMethodTest {
   // Calculator
   private static final SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod METHOD_HW_INTEGRATION = new SwaptionCashFixedIborHullWhiteNumericalIntegrationMethod();
   private static final SwaptionCashFixedIborHullWhiteApproximationMethod METHOD_HW_APPROXIMATION = new SwaptionCashFixedIborHullWhiteApproximationMethod();
-  private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = HullWhiteTestsDataSet.createHullWhiteParameters();
+  private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = TestsDataSetsHullWhite.createHullWhiteParameters();
   private static final HullWhiteOneFactorPiecewiseConstantDataBundle BUNDLE_HW = new HullWhiteOneFactorPiecewiseConstantDataBundle(PARAMETERS_HW, CURVES);
 
   @Test

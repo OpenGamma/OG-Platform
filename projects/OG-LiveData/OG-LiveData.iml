@@ -55,6 +55,7 @@
         </SOURCES>
       </library>
     </orderEntry>
+    <orderEntry type="module" module-name="OG-Core" />
   </component>
 </module>
 

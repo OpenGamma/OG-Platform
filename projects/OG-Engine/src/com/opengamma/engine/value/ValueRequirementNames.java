@@ -30,6 +30,8 @@ public final class ValueRequirementNames {
 
   // CSOFF: Because they're names that should be known by industry practitioners.
   
+  public static final String VALUE = "Value";
+  
   // Standard Analytic Models:
   public static final String DISCOUNT_CURVE = "DiscountCurve";
   public static final String YIELD_CURVE_MARKET_DATA = "YieldCurveMarketData";

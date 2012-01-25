@@ -106,7 +106,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
 
   /**
    * Fixed coupon bond builder from standard financial details. The accrual dates are unadjusted; the payment dates are adjusted according to the business day convention. 
-   * The default notional 1 and default ex-coupon days 0 are used.
+   * The default notional 1 and default ex-coupon days 0 are used; if the first coupon is non-standard, it is short; the coupon dates are computed from the maturity.
    * @param currency The currency.
    * @param maturityDate The maturity date.
    * @param firstAccrualDate The first accrual date (bond start date).
@@ -133,10 +133,11 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
     AnnuityCouponFixedDefinition coupon;
     if ((dayCount instanceof ActualActualICMA) || (dayCount instanceof ActualActualICMANormal)) {
       int couponPerYear = (int) Math.round(365.0 / (firstAccrualDate.plus(paymentPeriod).toLocalDate().toModifiedJulianDays() - firstAccrualDate.toLocalDate().toModifiedJulianDays()));
-      coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(currency, firstAccrualDate, maturityDate, paymentPeriod, couponPerYear, calendar, dayCount, businessDay, isEOM, DEFAULT_NOTIONAL,
-          rate, false);
+      coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(currency, firstAccrualDate, maturityDate, paymentPeriod, couponPerYear, true, true, calendar, dayCount, businessDay, isEOM,
+          DEFAULT_NOTIONAL, rate, false);
     } else {
-      coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(currency, firstAccrualDate, maturityDate, paymentPeriod, calendar, dayCount, businessDay, isEOM, DEFAULT_NOTIONAL, rate, false);
+      coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(currency, firstAccrualDate, maturityDate, paymentPeriod, true, true, calendar, dayCount, businessDay, isEOM, DEFAULT_NOTIONAL, rate,
+          false);
     }
     PaymentFixedDefinition[] nominalPayment = new PaymentFixedDefinition[] {new PaymentFixedDefinition(currency, businessDay.adjustDate(calendar, maturityDate), DEFAULT_NOTIONAL)};
     AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(nominalPayment);
@@ -145,7 +146,7 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
 
   /**
    * Fixed coupon bond builder from standard financial details. The accrual dates are unadjusted; the payment dates are adjusted according to the business day convention. 
-   * The default ex-coupon days 0 is used.
+   * The default ex-coupon days 0 is used; if the first coupon is non-standard, it is short; the coupon dates are computed from the maturity.
    * @param currency The currency.
    * @param maturityDate The maturity date.
    * @param firstAccrualDate The first accrual date (bond start date).
@@ -179,10 +180,10 @@ public class BondFixedSecurityDefinition extends BondSecurityDefinition<PaymentF
     AnnuityCouponFixedDefinition coupon;
     if ((dayCount instanceof ActualActualICMA) || (dayCount instanceof ActualActualICMANormal)) {
       int couponPerYear = (int) Math.round(365.0 / (firstAccrualDate.plus(paymentPeriod).toLocalDate().toModifiedJulianDays() - firstAccrualDate.toLocalDate().toModifiedJulianDays()));
-      coupon = AnnuityCouponFixedDefinition
-          .fromAccrualUnadjusted(currency, firstAccrualDate, maturityDate, paymentPeriod, couponPerYear, calendar, dayCount, businessDay, isEOM, notional, rate, false);
+      coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(currency, firstAccrualDate, maturityDate, paymentPeriod, couponPerYear, true, true, calendar, dayCount, businessDay, isEOM, notional,
+          rate, false);
     } else {
-      coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(currency, firstAccrualDate, maturityDate, paymentPeriod, calendar, dayCount, businessDay, isEOM, notional, rate, false);
+      coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(currency, firstAccrualDate, maturityDate, paymentPeriod, true, true, calendar, dayCount, businessDay, isEOM, notional, rate, false);
     }
     PaymentFixedDefinition[] nominalPayment = new PaymentFixedDefinition[] {new PaymentFixedDefinition(currency, businessDay.adjustDate(calendar, maturityDate), notional)};
     AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(nominalPayment);
