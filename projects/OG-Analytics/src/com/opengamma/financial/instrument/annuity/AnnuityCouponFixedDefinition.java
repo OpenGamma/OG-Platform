@@ -119,6 +119,8 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
    * @param settlementDate The settlement date.
    * @param maturityDate The (unadjusted) maturity date of the annuity.
    * @param period The period between payments.
+   * @param stubShort In case the the periods do not fit exactly between start and end date, is the remaining interval shorter (true) or longer (false) than the requested period.
+   * @param fromEnd The dates in the schedule can be computed from the end date (true) or from the start date (false).
    * @param calendar The calendar.
    * @param dayCount The day count.
    * @param businessDay The business day convention.
@@ -129,7 +131,8 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
    * @return The fixed annuity.
    */
   public static AnnuityCouponFixedDefinition fromAccrualUnadjusted(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Period period,
-      final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate, final boolean isPayer) {
+      final boolean stubShort, final boolean fromEnd, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional,
+      final double fixedRate, final boolean isPayer) {
     Validate.notNull(currency, "currency");
     Validate.notNull(settlementDate, "settlement date");
     Validate.notNull(maturityDate, "maturity date");
@@ -139,7 +142,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
     Validate.notNull(businessDay, "business day convention");
     Validate.isTrue(!(dayCount instanceof ActualActualICMA) | !(dayCount instanceof ActualActualICMANormal), "Coupon per year required for Actua lActual ICMA");
     final double sign = isPayer ? -1.0 : 1.0;
-    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, period);
+    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, period, stubShort, fromEnd);
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar);
     final CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
     //First coupon uses settlement date
@@ -160,6 +163,8 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
    * @param maturityDate The (unadjusted) maturity date of the annuity.
    * @param period The period between payments.
    * @param nbPaymentPerYear The number of coupon per year. Used for some day count conventions.
+   * @param stubShort In case the the periods do not fit exactly between start and end date, is the remaining interval shorter (true) or longer (false) than the requested period.
+   * @param fromEnd The dates in the schedule can be computed from the end date (true) or from the start date (false).
    * @param calendar The calendar.
    * @param dayCount The day count.
    * @param businessDay The business day convention.
@@ -170,8 +175,8 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
    * @return The fixed annuity.
    */
   public static AnnuityCouponFixedDefinition fromAccrualUnadjusted(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Period period,
-      final int nbPaymentPerYear, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate,
-      final boolean isPayer) {
+      final int nbPaymentPerYear, final boolean stubShort, final boolean fromEnd, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM,
+      final double notional, final double fixedRate, final boolean isPayer) {
     Validate.notNull(currency, "currency");
     Validate.notNull(settlementDate, "settlement date");
     Validate.notNull(maturityDate, "maturity date");
@@ -181,7 +186,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
     Validate.notNull(dayCount, "day count");
     Validate.notNull(businessDay, "business day convention");
     final double sign = isPayer ? -1.0 : 1.0;
-    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, period);
+    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, period, stubShort, fromEnd);
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar);
     final CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
     //First coupon uses settlement date

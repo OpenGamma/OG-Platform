@@ -166,11 +166,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
     int nbPath = 175000;
     HullWhiteMonteCarloMethod methodMC;
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
-    //    long startTime, endTime;
-    //    startTime = System.currentTimeMillis();
     CurrencyAmount pvIborMC = methodMC.presentValue(ratchetFixed, CUR, CURVES_NAMES[0], BUNDLE_HW);
-    //    endTime = System.currentTimeMillis();
-    //    System.out.println("PV Ratchet ibor - Hull-White MC method (" + nbPath + " paths): " + (endTime - startTime) + " ms");
     double pvIborExpected = PVC.visit(new GenericAnnuity<Payment>(iborFirstFixed), CURVES);
     assertEquals("Annuity Ratchet Ibor - Hull-White - Monte Carlo - Degenerate in Ibor leg", pvIborExpected, pvIborMC.getAmount(), 2.5E+3);
   }

@@ -191,6 +191,29 @@ public final class ScheduleCalculator {
     return dates.toArray(EMPTY_ARRAY);
   }
 
+  /**
+   * Adjust an array of date with a given convention and EOM flag.
+   * @param dates The array of unadjusted dates.
+   * @param convention The business day convention.
+   * @param calendar The calendar.
+   * @param eomApply The flag indicating if the EOM apply, i.e. if the flag is true, the adjusted date is the last business day of the unadjusted date.  
+   * @return The adjusted dates.
+   */
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar, final boolean eomApply) {
+    ZonedDateTime[] result = new ZonedDateTime[dates.length];
+    if (eomApply) {
+      BusinessDayConvention precedingDBC = new PrecedingBusinessDayConvention(); //To ensure that the date stays in the current month.
+      for (int loopdate = 0; loopdate < dates.length; loopdate++) {
+        result[loopdate] = precedingDBC.adjustDate(calendar, dates[loopdate].with(DateAdjusters.lastDayOfMonth()));
+      }
+      return result;
+    }
+    for (int loopdate = 0; loopdate < dates.length; loopdate++) {
+      result[loopdate] = convention.adjustDate(calendar, dates[loopdate]);
+    }
+    return result;
+  }
+
   // TODO: review the methods below.
 
   // -------------------------------------------------------------------------
