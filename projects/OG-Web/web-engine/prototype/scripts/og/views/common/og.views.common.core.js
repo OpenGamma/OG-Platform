@@ -4,7 +4,7 @@
  */
 $.register_module({
     name: 'og.views.common.Core',
-    dependencies: [],
+    dependencies: ['og.common.util.ui', 'og.common.routes'],
     obj: function () {
         var common = og.common, ui = common.util.ui, routes = common.routes;
         return function (page_name) {

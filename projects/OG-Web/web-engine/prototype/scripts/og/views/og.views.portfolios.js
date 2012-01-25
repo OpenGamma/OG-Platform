@@ -13,7 +13,6 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
-        'og.views.common.layout',
         'og.views.common.versions',
         'og.views.common.versions',
         'og.views.extras.portfolios_sync'
