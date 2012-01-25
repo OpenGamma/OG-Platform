@@ -21,7 +21,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.push.ConnectionManager;
-import com.opengamma.web.server.push.HandshakeServlet;
 import com.opengamma.web.server.push.WebPushServletContextUtils;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.model.AbstractMethod;
@@ -35,7 +34,6 @@ import com.sun.jersey.spi.container.ResourceFilterFactory;
  * the long-polling HTTP interface.  The annotated parameter must be a string that can be parsed by
  * {@link UniqueId#parse(String)} and must also have a {@link PathParam} annotation.
  */
-@SuppressWarnings("UnusedDeclaration")
 public class SubscribingFilterFactory implements ResourceFilterFactory {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SubscribingFilterFactory.class);
@@ -116,7 +114,7 @@ public class SubscribingFilterFactory implements ResourceFilterFactory {
    * Creates a filter that creates a subscription for a master when the method is invoked.  The method must be
    * annotated with {@link SubscribeMaster}.  A notification is sent when any data in the master changes.
    * @param abstractMethod A Jersey REST method
-   * @return A filter to set up subscriptions when the method is invoked or {@code null} if the method doesn't
+   * @return A filter to set up subscriptions when the method is invoked or null if the method doesn't
    * need master subscriptions
    */
   private ResourceFilter createMasterSubscriptionFilter(AbstractMethod abstractMethod) {
