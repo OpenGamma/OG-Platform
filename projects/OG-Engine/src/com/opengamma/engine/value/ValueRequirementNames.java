@@ -317,5 +317,13 @@ public final class ValueRequirementNames {
   
   public static final String VOLATILITY_CUBE_FITTED_POINTS = "Volatility Cube Fitted Points";
   public static final String VOLATILITY_SURFACE_FITTED_POINTS = "Volatility Surface Fitted Points";
+  
+  //Local vol
+  public static final String PIECEWISE_SABR_VOL_SURFACE = "Piecewise SABR fitted surface";
+  public static final String FORWARD_CURVE = "Forward curve";
+  public static final String LOCAL_VOLATILITY_SURFACE = "Local Volatility Surface";
+  public static final String FULL_PDE_GRID = "Full PDE Grid";
+  public static final String PDE_GREEKS = "PDE Greeks";
+  public static final String PDE_BUCKETED_VEGA = "PDE Bucketed Vega";
   //CSON
 }
