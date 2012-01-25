@@ -5,36 +5,88 @@
  */
 package com.opengamma.component;
 
-import java.util.HashMap;
+import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.Map.Entry;
+import java.util.Properties;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.joda.beans.Bean;
 import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.util.ClassUtils;
+import org.springframework.util.ResourceUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PlatformConfigUtils;
 
 /**
- * Manages the process of starting OpenGamma components.
+ * Manages the process of loading and starting OpenGamma components.
  * <p>
  * The OpenGamma logical architecture consists of a set of components.
  * This class loads and starts the components based on configuration.
  * The end result is a populated {@link ComponentRepository}.
+ * <p>
+ * Two types of config file format are recognized - properties and INI.
+ * The INI file is the primary file for loading the components, see {@link ComponentConfigLoader}.
+ * The behavior of an INI file can be controlled using properties.
+ * <p>
+ * The properties can either be specified manually before {@link #start(Resource))}
+ * is called or loaded by specifying a properties file instead of an INI file.
+ * The properties file must contain the key "MANAGER.NEXT.FILE" which is used to load the next file.
+ * The next file is normally the INI file, but could be another properties file.
+ * As such, the properties files can be chained.
+ * <p>
+ * Properties are never overwritten, thus manual properties have priority over file-based, and
+ * earlier file-based have priority over later file-based.
+ * <p>
+ * It is not intended that the manager is retained for the lifetime of
+ * the application, the repository is intended for that purpose.
  */
 public class ComponentManager {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ComponentManager.class);
+  /**
+   * The key identifying the next config file in a properties file.
+   */
+  private static final String MANAGER_NEXT_FILE = "MANAGER.NEXT.FILE";
 
   /**
    * The component repository.
    */
   private final ComponentRepository _repo;
+  /**
+   * The component properties.
+   */
+  private final ConcurrentMap<String, String> _properties = new ConcurrentHashMap<String, String>();
 
+  /**
+   * Creates a resource from a string location.
+   * <p>
+   * This accepts locations starting with "classpath:" or "file:".
+   * It also accepts plain locations, treated as "file:".
+   * 
+   * @param resourceLocation  the resource location, not null
+   * @return the resource, not null
+   */
+  public static Resource createResource(String resourceLocation) {
+    if (resourceLocation.startsWith(ResourceUtils.CLASSPATH_URL_PREFIX)) {
+      return new ClassPathResource(resourceLocation.substring(ResourceUtils.CLASSPATH_URL_PREFIX.length()), ClassUtils.getDefaultClassLoader());
+    }
+    if (resourceLocation.startsWith(ResourceUtils.FILE_URL_PREFIX)) {
+      return new FileSystemResource(resourceLocation.substring(ResourceUtils.FILE_URL_PREFIX.length()));
+    }
+    return new FileSystemResource(resourceLocation);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Creates an instance.
    */
@@ -62,19 +114,97 @@ public class ComponentManager {
     return _repo;
   }
 
+  /**
+   * Gets the properties used while loading the manager.
+   * <p>
+   * This may be populated before calling {@link #start()} if desired.
+   * This is an alternative to using a separate properties file.
+   * 
+   * @return the map of key-value properties, not null
+   */
+  public ConcurrentMap<String, String> getProperties() {
+    return _properties;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Initializes the components based on the specified resource.
+   * <p>
+   * See {@link #createResource(String)} for the valid resource location formats.
    * 
-   * @param resource  the config resource to load
+   * @param resourceLocation  the resource location, not null
+   * @return the created repository, not null
    */
-  public void start(Resource resource) {
+  public ComponentRepository start(String resourceLocation) {
+    Resource resource = createResource(resourceLocation);
+    return start(resource);
+  }
+
+  /**
+   * Initializes the components based on the specified resource.
+   * 
+   * @param resource  the config resource to load, not null
+   * @return the created repository, not null
+   */
+  public ComponentRepository start(Resource resource) {
+    if (resource.getFilename().endsWith(".properties")) {
+      String nextConfig = loadProperties(resource);
+      if (nextConfig == null) {
+        throw new IllegalArgumentException("The properties file must contain the key '" + MANAGER_NEXT_FILE + "' to specify the next file to load: " + resource);
+      }
+      return start(nextConfig);
+    }
+    if (resource.getFilename().endsWith(".ini")) {
+      loadIni(resource);
+      start();
+      return getRepository();
+    }
+    throw new IllegalArgumentException("Unknown file format: " + resource);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Loads a properties file into the replacements map.
+   * <p>
+   * The properties file must be in the standard format defined by {@link Properties}.
+   * The file must contain a key "component.ini"
+   * 
+   * @param resource  the properties resource location, not null
+   * @return the next configuration file to load, not null
+   */
+  protected String loadProperties(Resource resource) {
+    Properties properties = new Properties();
+    try {
+      properties.load(resource.getInputStream());
+    } catch (IOException ex) {
+      throw new OpenGammaRuntimeException(ex.getMessage(), ex);
+    }
+    String nextConfig = null;
+    for (Entry<Object, Object> entry : properties.entrySet()) {
+      String key = entry.getKey().toString();
+      String value = entry.getValue().toString();
+      if (key.equals(MANAGER_NEXT_FILE)) {
+        // the next config file to load
+        nextConfig = value;
+      } else {
+        // putIfAbsent allows values from an override file to be loaded and not overwritten
+        getProperties().putIfAbsent(key, value);
+      }
+    }
+    return nextConfig;
+  }
+
+  /**
+   * Loads the INI file and initializes the components based on the contents.
+   * 
+   * @param resource  the INI resource location, not null
+   */
+  protected void loadIni(Resource resource) {
     ComponentConfigLoader loader = new ComponentConfigLoader();
-    ComponentConfig config = loader.load(resource, new HashMap<String, String>());
+    ComponentConfig config = loader.load(resource, getProperties());
     _repo.pushThreadLocal();
     initGlobal(config);
     init(config);
-    start();
   }
 
   //-------------------------------------------------------------------------
@@ -207,6 +337,9 @@ public class ComponentManager {
     if (propertyType == ComponentRepository.class) {
       // set the repo
       mp.set(bean, _repo);
+      
+    } else if (propertyType == Resource.class) {
+      mp.set(bean, ComponentManager.createResource(value));
       
     } else {
       // set property by value type conversion from String

@@ -6,20 +6,19 @@
 package com.opengamma.component;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.core.io.Resource;
 
-import com.google.common.base.Objects;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
- * Loads configuration from the props/ini format file.
+ * Loads configuration from the INI format file.
  * <p>
  * The format is line-based as follows:<br>
  *  <code>#</code> or <code>;</code> for comment lines (at the start of the line)<br>
@@ -37,11 +36,11 @@ public class ComponentConfigLoader {
    * The specified properties are simple key=value pairs and must not be surrounded with ${}.
    * 
    * @param resource  the config resource to load, not null
-   * @param replacements  the default set of replacements, null ignored
+   * @param properties  the default set of replacements, not null
    * @return the config, not null
    */
-  public ComponentConfig load(Resource resource, Map<String, String> replacements) {
-    replacements = adjustReplacements(Objects.firstNonNull(replacements, new HashMap<String, String>()));
+  public ComponentConfig load(Resource resource, ConcurrentMap<String, String> properties) {
+    properties = adjustProperties(properties);
     
     List<String> lines = readLines(resource);
     ComponentConfig config = new ComponentConfig();
@@ -55,10 +54,10 @@ public class ComponentConfigLoader {
       }
       if (line.startsWith("${") && line.substring(2).contains("=") &&
           StringUtils.substringBefore(line, "=").trim().endsWith("}")) {
-        parseReplacement(line, replacements);
+        parseReplacement(line, properties);
         
       } else {
-        line = applyReplacements(line, replacements);
+        line = applyReplacements(line, properties);
         
         if (line.startsWith("[") && line.endsWith("]")) {
           group = line.substring(1, line.length() - 1);
@@ -77,21 +76,22 @@ public class ComponentConfigLoader {
   }
 
   //-------------------------------------------------------------------------
-  private Map<String, String> adjustReplacements(Map<String, String> input) {
-    Map<String, String> map = new HashMap<String, String>();
+  private ConcurrentMap<String, String> adjustProperties(ConcurrentMap<String, String> input) {
+    ConcurrentMap<String, String> map = new ConcurrentHashMap<String, String>();
     for (String key : input.keySet()) {
       map.put("${" + key + "}", input.get(key));
     }
     return map;
   }
 
-  private void parseReplacement(String line, Map<String, String> properties) {
+  private void parseReplacement(String line, ConcurrentMap<String, String> properties) {
     String key = StringUtils.substringBefore(line, "=").trim();
     String value = StringUtils.substringAfter(line, "=").trim();
-    properties.put(key, value);
+    // do not overwrite properties that were passed in
+    properties.putIfAbsent(key, value);
   }
 
-  private String applyReplacements(String line, Map<String, String> properties) {
+  private String applyReplacements(String line, ConcurrentMap<String, String> properties) {
     for (Entry<String, String> entry : properties.entrySet()) {
       line = StringUtils.replace(line, entry.getKey(), entry.getValue());
     }

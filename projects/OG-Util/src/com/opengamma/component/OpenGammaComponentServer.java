@@ -6,6 +6,8 @@
 package com.opengamma.component;
 
 import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.TreeMap;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
@@ -14,15 +16,20 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
 /**
  * Main entry point for OpenGamma component-based servers.
  * <p>
  * This class starts an OpenGamma JVM process using the specified config file.
- * The standard config file is a simple format based on INI files.
+ * <p>
+ * Two types of config file format are recognized - properties and props (INI).
+ * A properties file must be in the standard Java format and contain a key "component.ini"
+ * which is the resource location of the main INI file.
+ * The INI file is described in {@link ComponentConfigLoader}.
  */
 public class OpenGammaComponentServer {
 
@@ -122,9 +129,8 @@ public class OpenGammaComponentServer {
     } else {
       manager = new ComponentManager();
     }
-    FileSystemResource resource = new FileSystemResource(configFile);
     try {
-      manager.start(resource);
+      manager.start(configFile);
     } catch (Exception ex) {
       ex.printStackTrace(System.err);
       System.out.println("======== OPEN GAMMA FAILED ========");
@@ -163,6 +169,19 @@ public class OpenGammaComponentServer {
     }
     public VerboseManager(ComponentRepository repo) {
       super(repo);
+    }
+    @Override
+    protected void loadIni(Resource resource) {
+      System.out.println("--- Using merged properties ---");
+      Map<String, String> properties = new TreeMap<String, String>(getProperties());
+      for (String key : properties.keySet()) {
+        if (key.contains("password")) {
+          System.out.println(" " + key + " = " + StringUtils.repeat("*", properties.get(key).length()));
+        } else {
+          System.out.println(" " + key + " = " + properties.get(key));
+        }
+      }
+      super.loadIni(resource);
     }
     @Override
     protected void initComponent(String groupName, LinkedHashMap<String, String> groupData) {

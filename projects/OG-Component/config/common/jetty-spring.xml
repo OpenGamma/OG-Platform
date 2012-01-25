@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <bean id="connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
+    <property name="port" value="${jetty.port}" />
+    <property name="requestHeaderSize" value="16384" /><!-- Handle larger URIs -->
+    <property name="confidentialPort" value="${jetty.securePort}" />
+  </bean>
+
+  <bean id="webAppContext" class="org.eclipse.jetty.webapp.WebAppContext">
+    <property name="contextPath" value="/" />
+    <property name="resourceBase" value="${jetty.resourceBase}" />
+    <property name="descriptor" value="${jetty.resourceBase}/WEB-INF/web.xml" />
+    <property name="defaultsDescriptor" value="./config/webdefaults.xml" />
+    <property name="initParams">
+      <map>
+        <entry key="contextConfigLocation" value="${server.spring}" />
+      </map>
+    </property>
+    <property name="eventListeners">
+      <list>
+        <bean class="org.springframework.web.context.ContextLoaderListener" />
+        <bean class="com.opengamma.component.ComponentRepositoryServletContextListener">
+          <constructor-arg ref="componentRepository" />
+        </bean>
+      </list>
+    </property>
+  </bean>
+  
+  <bean id="server" class="org.eclipse.jetty.server.Server">
+    <property name="connectors">
+      <list>
+        <ref bean="connector" />
+      </list>
+    </property>
+
+    <property name="handler">
+      <bean id="handlerList" class="org.eclipse.jetty.server.handler.HandlerCollection">
+        <property name="handlers">
+          <list>
+            <ref bean="webAppContext" />
+            <bean class="org.eclipse.jetty.server.handler.RequestLogHandler">
+              <property name="requestLog">
+                <bean class="org.eclipse.jetty.server.NCSARequestLog">
+                  <constructor-arg value="engine-requests-yyyy_mm_dd.log"/>
+                  <property name="extended" value="true"/>
+                  <property name="append" value="true"/>
+                  <property name="logLatency" value="true"/>
+                  <property name="ignorePaths">
+                    <list><value>/cometd/*</value></list>
+                  </property>
+                  <property name="logTimeZone" value="UTC"/>
+                  <property name="retainDays" value="7"/>
+                </bean>
+              </property>
+            </bean>
+          </list>
+        </property>
+      </bean>
+    </property>
+
+    <property name="stopAtShutdown" value="true" />
+    <property name="gracefulShutdown" value="1000" />
+    <property name="sendDateHeader" value="true" />
+    <property name="sendServerVersion" value="true" />
+  </bean>
+
+</beans>

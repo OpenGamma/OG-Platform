@@ -19,7 +19,7 @@ import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.JerseyRestResourceFactory;
@@ -42,7 +42,7 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
    * The bundle configuration file.
    */
   @PropertyDefinition(validate = "notNull")
-  private String _configFile;
+  private Resource _configFile;
   /**
    * The base directory for the files to be served.
    */
@@ -106,7 +106,7 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
   protected BundleManagerFactory buildBundleManager() {
     BundleManagerFactory managerFactory = new BundleManagerFactory();
     managerFactory.setBaseDir(getBaseDir());
-    managerFactory.setConfigResource(new ClassPathResource(getConfigFile()));
+    managerFactory.setConfigResource(getConfigFile());
     return managerFactory;
   }
 
@@ -167,7 +167,7 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 831093726:  // configFile
-        setConfigFile((String) newValue);
+        setConfigFile((Resource) newValue);
         return;
       case -332642308:  // baseDir
         setBaseDir((String) newValue);
@@ -246,7 +246,7 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
    * Gets the bundle configuration file.
    * @return the value of the property, not null
    */
-  public String getConfigFile() {
+  public Resource getConfigFile() {
     return _configFile;
   }
 
@@ -254,7 +254,7 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
    * Sets the bundle configuration file.
    * @param configFile  the new value of the property, not null
    */
-  public void setConfigFile(String configFile) {
+  public void setConfigFile(Resource configFile) {
     JodaBeanUtils.notNull(configFile, "configFile");
     this._configFile = configFile;
   }
@@ -263,7 +263,7 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
    * Gets the the {@code configFile} property.
    * @return the property, not null
    */
-  public final Property<String> configFile() {
+  public final Property<Resource> configFile() {
     return metaBean().configFile().createProperty(this);
   }
 
@@ -482,8 +482,8 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
     /**
      * The meta-property for the {@code configFile} property.
      */
-    private final MetaProperty<String> _configFile = DirectMetaProperty.ofReadWrite(
-        this, "configFile", WebsiteBundleComponentFactory.class, String.class);
+    private final MetaProperty<Resource> _configFile = DirectMetaProperty.ofReadWrite(
+        this, "configFile", WebsiteBundleComponentFactory.class, Resource.class);
     /**
      * The meta-property for the {@code baseDir} property.
      */
@@ -590,7 +590,7 @@ public class WebsiteBundleComponentFactory extends AbstractComponentFactory {
      * The meta-property for the {@code configFile} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> configFile() {
+    public final MetaProperty<Resource> configFile() {
       return _configFile;
     }
 

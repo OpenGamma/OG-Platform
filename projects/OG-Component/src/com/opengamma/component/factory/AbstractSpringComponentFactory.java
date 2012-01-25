@@ -23,7 +23,7 @@ import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.ResourceEntityResolver;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.context.support.GenericApplicationContext;
-import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 
 import com.opengamma.component.ComponentFactory;
 import com.opengamma.component.ComponentRepository;
@@ -41,12 +41,12 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
    * The config for the Spring file.
    */
   @PropertyDefinition
-  private String _springFile;
+  private Resource _springFile;
   /**
    * The config for the properties file.
    */
   @PropertyDefinition
-  private String _propertiesFile;
+  private Resource _propertiesFile;
 
   //-------------------------------------------------------------------------
   /**
@@ -61,13 +61,13 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
     
     PropertyPlaceholderConfigurer properties = new PropertyPlaceholderConfigurer();
     properties.setIgnoreUnresolvablePlaceholders(true);
-    properties.setLocation(new FileSystemResource(getPropertiesFile()));
+    properties.setLocation(getPropertiesFile());
     
     XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);
     beanDefinitionReader.setValidating(true);
     beanDefinitionReader.setResourceLoader(appContext);
     beanDefinitionReader.setEntityResolver(new ResourceEntityResolver(appContext));
-    beanDefinitionReader.loadBeanDefinitions(new FileSystemResource(getSpringFile()));
+    beanDefinitionReader.loadBeanDefinitions(getSpringFile());
     
     appContext.getBeanFactory().registerSingleton("injectedProperties", properties);
     appContext.getBeanFactory().registerSingleton("componentRepository", repo);
@@ -144,10 +144,10 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case 1361354025:  // springFile
-        setSpringFile((String) newValue);
+        setSpringFile((Resource) newValue);
         return;
       case 1613702479:  // propertiesFile
-        setPropertiesFile((String) newValue);
+        setPropertiesFile((Resource) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -179,7 +179,7 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
    * Gets the config for the Spring file.
    * @return the value of the property
    */
-  public String getSpringFile() {
+  public Resource getSpringFile() {
     return _springFile;
   }
 
@@ -187,7 +187,7 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
    * Sets the config for the Spring file.
    * @param springFile  the new value of the property
    */
-  public void setSpringFile(String springFile) {
+  public void setSpringFile(Resource springFile) {
     this._springFile = springFile;
   }
 
@@ -195,7 +195,7 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
    * Gets the the {@code springFile} property.
    * @return the property, not null
    */
-  public final Property<String> springFile() {
+  public final Property<Resource> springFile() {
     return metaBean().springFile().createProperty(this);
   }
 
@@ -204,7 +204,7 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
    * Gets the config for the properties file.
    * @return the value of the property
    */
-  public String getPropertiesFile() {
+  public Resource getPropertiesFile() {
     return _propertiesFile;
   }
 
@@ -212,7 +212,7 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
    * Sets the config for the properties file.
    * @param propertiesFile  the new value of the property
    */
-  public void setPropertiesFile(String propertiesFile) {
+  public void setPropertiesFile(Resource propertiesFile) {
     this._propertiesFile = propertiesFile;
   }
 
@@ -220,7 +220,7 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
    * Gets the the {@code propertiesFile} property.
    * @return the property, not null
    */
-  public final Property<String> propertiesFile() {
+  public final Property<Resource> propertiesFile() {
     return metaBean().propertiesFile().createProperty(this);
   }
 
@@ -237,13 +237,13 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
     /**
      * The meta-property for the {@code springFile} property.
      */
-    private final MetaProperty<String> _springFile = DirectMetaProperty.ofReadWrite(
-        this, "springFile", AbstractSpringComponentFactory.class, String.class);
+    private final MetaProperty<Resource> _springFile = DirectMetaProperty.ofReadWrite(
+        this, "springFile", AbstractSpringComponentFactory.class, Resource.class);
     /**
      * The meta-property for the {@code propertiesFile} property.
      */
-    private final MetaProperty<String> _propertiesFile = DirectMetaProperty.ofReadWrite(
-        this, "propertiesFile", AbstractSpringComponentFactory.class, String.class);
+    private final MetaProperty<Resource> _propertiesFile = DirectMetaProperty.ofReadWrite(
+        this, "propertiesFile", AbstractSpringComponentFactory.class, Resource.class);
     /**
      * The meta-properties.
      */
@@ -289,7 +289,7 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
      * The meta-property for the {@code springFile} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> springFile() {
+    public final MetaProperty<Resource> springFile() {
       return _springFile;
     }
 
@@ -297,7 +297,7 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
      * The meta-property for the {@code propertiesFile} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> propertiesFile() {
+    public final MetaProperty<Resource> propertiesFile() {
       return _propertiesFile;
     }
 
