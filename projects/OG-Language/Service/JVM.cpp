@@ -255,6 +255,30 @@ static void JNICALL _notifyPause (JNIEnv *pEnv, jclass cls) {
 	ServiceSuspend ();
 }
 
+/// Implementation of the writeProperty method in the Main class.
+///
+/// @param pEnv see Java documentation
+/// @param cls see Java documentation
+static void JNICALL _writeProperty (JNIEnv *pEnv, jclass cls, jstring jstrProperty, jstring jstrValue) {
+	LOGINFO (TEXT ("WRITEPROPERTY called from JVM"));
+#ifdef _UNICODE
+	const wchar_t *pszProperty = (const wchar_t*)pEnv->GetStringChars (jstrProperty, NULL);
+	const wchar_t *pszValue = jstrValue ? (const wchar_t*)pEnv->GetStringChars (jstrValue, NULL) : NULL;
+#else /* ifdef _UNICODE */
+	const char *pszProperty = pEnv->GetStringUTFChars (jstrProperty, NULL);
+	const char *pszValue = jstrValue ? pEnv->GetStringUTFChars (jstrValue, NULL) : NULL;
+#endif /* ifdef _UNICODE */
+	CSettings oSettings;
+	oSettings.SetJvmProperty (pszProperty, pszValue);
+#ifdef _UNICODE
+	pEnv->ReleaseStringChars (jstrProperty, (const jchar*)pszProperty);
+	if (pszValue) pEnv->ReleaseStringChars (jstrValue, (const jchar*)pszValue);
+#else /* ifdef _UNICODE */
+	pEnv->ReleaseStringUTFChars (jstrProperty, pszProperty);
+	if (pszValue) pEnv->ReleaseStringUTFChars (jstrValue, pszValue);
+#endif /* ifdef _UNICODE */
+}
+
 /// Creates a new JVM instance.
 ///
 /// @return the JVM, or NULL if there was a problem
@@ -305,9 +329,10 @@ CJVM *CJVM::Create () {
 		return NULL;
 	}
 	LOGDEBUG (TEXT ("Registering native methods"));
-	JNINativeMethod methods[2] = {
+	JNINativeMethod methods[3] = {
 		{ (char*)"notifyPause", (char*)"()V", (void*)&_notifyPause },
-		{ (char*)"notifyStop", (char*)"()V", (void*)&_notifyStop }
+		{ (char*)"notifyStop", (char*)"()V", (void*)&_notifyStop },
+		{ (char*)"writeProperty", (char*)"(Ljava/lang/String;Ljava/lang/String;)V", (void*)&_writeProperty }
 	};
 	jclass cls = pEnv->FindClass (MAIN_CLASS);
 	if (!cls) {
@@ -315,7 +340,7 @@ CJVM *CJVM::Create () {
 		delete pJvm;
 		return NULL;
 	}
-	err = pEnv->RegisterNatives (cls, methods, 2);
+	err = pEnv->RegisterNatives (cls, methods, 3);
 	if (err) {
 		LOGWARN (TEXT ("Couldn't register native methods, error ") << err);
 		delete pJvm;
@@ -615,4 +640,13 @@ void CJVM::UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, 
 /// @return TRUE if it is stopped, FALSE if not or if the method couldn't be invoked
 bool CJVM::IsStopped () const {
 	return Invoke (m_pEnv, "svcIsStopped", "()Z");
+}
+
+/// Runs the configuration task
+void CJVM::Configure () {
+	if (Invoke ("svcConfigure")) {
+		LOGINFO (TEXT ("Configuration callback run"));
+	} else {
+		LOGERROR (TEXT ("Couldn't run configuration callback"));
+	}
 }

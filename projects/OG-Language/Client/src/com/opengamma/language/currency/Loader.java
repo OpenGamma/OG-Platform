@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.language.financial.currency;
+package com.opengamma.language.currency;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

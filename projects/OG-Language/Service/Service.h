@@ -16,5 +16,6 @@ void ServiceStop (bool bForce);
 void ServiceSuspend ();
 void ServiceRun (int nReason);
 bool ServiceRunning ();
+void ServiceConfigure ();
 
 #endif /* ifndef __inc_og_language_service_service_h */

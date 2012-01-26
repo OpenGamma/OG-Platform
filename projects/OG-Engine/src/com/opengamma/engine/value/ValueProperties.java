@@ -14,6 +14,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -155,7 +156,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       propertyName = ValueRequirement.getInterned(propertyName);
       final Set<String> previous = _properties.put(propertyName, Collections.singleton(propertyValue));
       if (previous != null) {
-        if (previous.isEmpty()) {
+        if (previous.isEmpty() || previous.contains(propertyValue)) {
           _properties.put(propertyName, previous);
         } else {
           final Set<String> replacement = new HashSet<String>(previous);
@@ -184,14 +185,15 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
         throw new IllegalArgumentException("propertyValues cannot contain null");
       }
       propertyName = propertyName.intern();
-      final Set<String> previous = _properties.put(propertyName, Collections.unmodifiableSet(values));
+      Set<String> valuesSet = getUnmodifiableSet(values);
+      final Set<String> previous = _properties.put(propertyName, valuesSet);
       if (previous != null) {
         if (previous.isEmpty()) {
           _properties.put(propertyName, previous);
         } else {
           final Set<String> replacement = new HashSet<String>(previous);
           replacement.addAll(propertyValues);
-          _properties.put(propertyName, Collections.unmodifiableSet(replacement));
+          _properties.put(propertyName, getUnmodifiableSet(replacement));
         }
       }
       return this;
@@ -235,15 +237,38 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
             _properties.put(optionalProperty, Collections.<String>emptySet());
           }
         }
-        return new ValuePropertiesImpl(new HashMap<String, Set<String>>(_properties), new HashSet<String>(_optional));
+        return new ValuePropertiesImpl(getSmallMap(_properties), getUnmodifiableSet(_optional));
       } else {
         if (_properties.isEmpty()) {
           return EMPTY;
         }
-        return new ValuePropertiesImpl(new HashMap<String, Set<String>>(_properties), Collections.<String>emptySet());
+        return new ValuePropertiesImpl(getSmallMap(_properties), Collections.<String>emptySet());
       }
     }
-
+    
+    private Set<String> getUnmodifiableSet(Set<String> values) {
+      switch (values.size()) {
+        case 0:
+          return Collections.emptySet();
+        case 1:
+          return Collections.singleton(values.iterator().next());
+        default:
+          return Collections.unmodifiableSet(values);
+      }
+    }
+    
+    private static <K, V> Map<K, V> getSmallMap(Map<K, V> map) {
+      switch (map.size()) {
+        case 0:
+          return Collections.emptyMap();
+        case 1:
+          for (Entry<K, V> entry : map.entrySet()) {
+            return Collections.singletonMap(entry.getKey(), entry.getValue());
+          }
+        default:
+          return new HashMap<K, V>(map);
+      }
+    }
   }
 
   /**
