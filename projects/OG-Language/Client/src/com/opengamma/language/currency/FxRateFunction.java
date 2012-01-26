@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.language.financial.currency;
+package com.opengamma.language.currency;
 
 import java.util.List;
 
@@ -12,6 +12,7 @@ import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.financial.currency.CurrencyUtils;
 import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.function.AbstractFunctionInvoker;
@@ -42,7 +43,7 @@ public class FxRateFunction implements PublishedFunction {
     MetaParameter currencyPairsName = new MetaParameter("currencyPairsName", JavaTypeInfo.builder(String.class).allowNull().get());
     currencyPairsName.setDescription("Name of the set of market convention currency pairs");
     List<MetaParameter> params = ImmutableList.of(currency1, currency2, amount1, amount2, currencyPairsName);
-    _metaFunction = new MetaFunction(null, "FXRate", params, new Invoker(params));
+    _metaFunction = new MetaFunction(Categories.CURRENCY, "FXRate", params, new Invoker(params));
     _metaFunction.setDescription("Returns the FX rate quoted using the market convention currency pair");
   }
 

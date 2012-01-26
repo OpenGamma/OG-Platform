@@ -70,9 +70,32 @@ static SERVICE_TABLE_ENTRY *_CreateDispatchTable () {
 /// @param[in] argv parameters
 int _tmain (int argc, _TCHAR* argv[]) {
 	_mainStart ();
-	if ((argc == 2) && !_tcscmp (argv[1], TEXT ("run"))) {
-		LOGDEBUG (TEXT ("Running inline"));
-		ServiceRun (SERVICE_RUN_INLINE);
+	if (argc == 2) {
+		if (!_tcscmp (argv[1], TEXT ("run"))) {
+			LOGDEBUG (TEXT ("Running inline"));
+			ServiceRun (SERVICE_RUN_INLINE);
+		} else if (!_tcscmp (argv[1], TEXT ("configure"))) {
+			SHELLEXECUTEINFO sei;
+			ZeroMemory (&sei, sizeof (sei));
+			sei.cbSize = sizeof (sei);
+			sei.fMask = SEE_MASK_NOCLOSEPROCESS;
+			sei.lpVerb = TEXT ("runas");
+			sei.lpFile = argv[0];
+			sei.lpParameters = TEXT ("configure-impl");
+			if (ShellExecuteEx (&sei)) {
+				LOGINFO (TEXT ("Started priviledged process ") << GetProcessId (sei.hProcess));
+				WaitForSingleObject (sei.hProcess, INFINITE);
+				LOGINFO (TEXT ("Priviledged process terminated"));
+				CloseHandle (sei.hProcess);
+			} else {
+				LOGERROR (TEXT ("Couldn't launch priviledged form"));
+			}
+		} else if (!_tcscmp (argv[1], TEXT ("configure-impl"))) {
+			LOGDEBUG (TEXT ("Configuring service"));
+			ServiceConfigure ();
+		} else {
+			LOGERROR (TEXT ("Unrecognised parameter - ") << argv[1]);
+		}
 	} else {
 		LOGDEBUG (TEXT ("Running as service"));
 		SERVICE_TABLE_ENTRY *pServiceEntry = _CreateDispatchTable ();
@@ -85,13 +108,25 @@ int _tmain (int argc, _TCHAR* argv[]) {
 	return 0;
 }
 #else
-/// Program entry point.
+/// Program entry point. If invoked with no parameters, runs as the service. If the "configure" parameter is
+/// given runs the interactive configuration dialogs.
 ///
 /// @param[in] argc number of parameters
 /// @param[in] argv parameters
 int main (int argc, char **argv) {
 	_mainStart ();
-	ServiceRun (SERVICE_RUN_INLINE);
+	if (argc == 2) {
+		if (!_tcscmp (argv[1], TEXT ("run"))) {
+			ServiceRun (SERVICE_RUN_INLINE);
+		} else if (!_tcscmp (argv[1], TEXT ("configure"))) {
+			LOGDEBUG (TEXT ("Configuring service"));
+			ServiceConfigure ();
+		} else {
+			LOGERROR (TEXT ("Unrecognised parameter - ") << argv[1]);
+		}
+	} else {
+		ServiceRun (SERVICE_RUN_INLINE);
+	}
 	_mainEnd ();
 	return 0;
 }

@@ -66,7 +66,6 @@ public abstract class AbstractDocumentationExporter extends AbstractRepositoryEx
     }
 
     protected String getBlurb(final D definition) {
-      // TODO: the static file import logic
       return "";
     }
 
