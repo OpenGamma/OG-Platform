@@ -116,7 +116,9 @@ int _tmain (int argc, _TCHAR* argv[]) {
 int main (int argc, char **argv) {
 	_mainStart ();
 	if (argc == 2) {
-		if (!_tcscmp (argv[1], TEXT ("configure"))) {
+		if (!_tcscmp (argv[1], TEXT ("run"))) {
+			ServiceRun (SERVICE_RUN_INLINE);
+		} else if (!_tcscmp (argv[1], TEXT ("configure"))) {
 			LOGDEBUG (TEXT ("Configuring service"));
 			ServiceConfigure ();
 		} else {
