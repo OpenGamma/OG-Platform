@@ -249,6 +249,7 @@ $.register_module({
                 result.data.trades.forEach(function (trade) {
                     if (trade_id === trade.id.split('~')[1]) {trade_obj = trade}
                 });
+                console.log('trade_obj', trade_obj);
                 deal_attributes = (trade_obj.attributes && trade_obj.attributes.dealAttributes)
                     ? trade_obj.attributes.dealAttributes : null;
                 ui.dialog({
@@ -322,13 +323,14 @@ $.register_module({
                         });
                     } else $this.find('.og-icon-expand').css('visibility', 'hidden');
                 });
-                attach_trades_link(selector);
+                if (!version) attach_trades_link(selector);
                 $(selector + ' > .OG-table > tbody > tr:not(".og-js-attribute"):last td').css('padding-bottom', '10px');
                 $(selector + ' .OG-table').awesometable({height: 400});
                 /*
                  * Enable edit/delete trade
                  */
                 (function () {
+                    if (version) return;
                     var swap_css = function (elm, css) {
                         $(elm).find('td').css(css);
                         if ($(elm).next().hasClass('og-js-attribute')) {
@@ -345,6 +347,7 @@ $.register_module({
                             $(this).find('.og-del').remove();
                         }
                     ).click(function (e) {
+                                console.log('click');
                         var trade_id = $(this).find('td:first-child').text();
                         if ($(e.target).is('.og-del')) e.stopPropagation(), action.del(trade_id);
                         else action.edit(trade_id);

@@ -22,7 +22,7 @@ $.register_module({
             details = common.details, history = common.util.history,
             routes = common.routes, ui = common.util.ui, module = this,
             page_name = module.name.split('.').pop(), json = {},
-            view, details_page,
+            view, details_page, portfolio_name,
             toolbar_buttons = {
                 'new': function () {
                     ui.dialog({
