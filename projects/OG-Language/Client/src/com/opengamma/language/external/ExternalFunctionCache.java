@@ -66,13 +66,17 @@ import org.slf4j.LoggerFactory;
    * @return the classes
    * @throws ClassNotFoundException if entries in the cache are invalid
    */
-  public Collection<Class<?>> getClasses() throws ClassNotFoundException {
+  public Collection<Class<?>> getClasses() {
     if (getClassNames().isEmpty()) {
       return Collections.emptyList();
     }
     final Collection<Class<?>> classes = new ArrayList<Class<?>>(getClassNames().size());
     for (String className : getClassNames()) {
-      classes.add(Class.forName(className));
+      try {
+        classes.add(Class.forName(className));
+      } catch (ClassNotFoundException e) {
+        s_logger.info("Class not found", e);
+      }
     }
     return classes;
   }
