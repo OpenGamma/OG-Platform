@@ -49,6 +49,7 @@ public class ExternalFunctionProvider extends AbstractFunctionProvider {
     return Collections.emptyList();
   }
 
+  @SuppressWarnings("unused")
   private static boolean isTestClass(final Class<?> clazz) {
     String[] cs = clazz.getName().split("[\\.\\$]");
     for (String c : cs) {
@@ -63,9 +64,11 @@ public class ExternalFunctionProvider extends AbstractFunctionProvider {
     final List<MetaFunction> functions = new ArrayList<MetaFunction>();
     try {
       for (Class<?> clazz : cache.getClasses()) {
-        if (isTestClass(clazz)) {
+        // Use the following test when running with the Test classes in the classpath to
+        // avoid generating documentation for them.
+        /*if (isTestClass(clazz)) {
           continue;
-        }
+        }*/
         final ExternalFunctionHandler handler = new ExternalFunctionHandler(clazz);
         functions.addAll(handler.getFunctions());
       }

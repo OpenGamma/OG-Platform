@@ -85,7 +85,9 @@ public abstract class AbstractMain {
   }
 
   protected static void main(final AbstractMain instance, final String languageId, final String[] args) {
-    System.exit(instance.main(languageId, args) ? 0 : 1);
+    if (!instance.main(languageId, args)) {
+      System.exit(1);
+    }
   }
 
   public final void runMain(final String languageId) {
