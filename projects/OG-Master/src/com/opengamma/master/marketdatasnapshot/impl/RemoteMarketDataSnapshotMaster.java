@@ -111,8 +111,7 @@ public class RemoteMarketDataSnapshotMaster extends AbstractRemoteMaster impleme
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
-    String msgBase64 = getRestClient().encodeBase64(request);
-    URI uri = DataMarketDataSnapshotResource.uriVersions(getBaseUri(), request.getObjectId(), msgBase64);
+    URI uri = DataMarketDataSnapshotResource.uriVersions(getBaseUri(), request.getObjectId(), request);
     return accessRemote(uri).get(MarketDataSnapshotHistoryResult.class);
   }
 

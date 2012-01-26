@@ -18,7 +18,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
@@ -32,6 +31,7 @@ import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.rest.AbstractDataResource;
+import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for a config.
@@ -125,8 +125,8 @@ public class DataConfigResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   @Path("versions")
-  public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    ConfigHistoryRequest<?> request = decodeBase64(ConfigHistoryRequest.class, providers, msgBase64);
+  public Response history(@Context UriInfo uriInfo) {
+    ConfigHistoryRequest<?> request = RestUtils.decodeQueryParams(uriInfo, ConfigHistoryRequest.class);
     if (getUrlConfigId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
@@ -189,13 +189,13 @@ public class DataConfigResource extends AbstractDataResource {
    * 
    * @param baseUri  the base URI, not null
    * @param objectId  the object identifier, not null
-   * @param searchMsg  the search message, may be null
+   * @param request  the search message, may be null
    * @return the URI, not null
    */
-  public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, String searchMsg) {
+  public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, ConfigHistoryRequest<?> request) {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("/configs/{configId}/versions");
-    if (searchMsg != null) {
-      bld.queryParam("msg", searchMsg);
+    if (request != null) {
+      RestUtils.encodeQueryParams(bld, request);
     }
     return bld.build(objectId.getObjectId());
   }

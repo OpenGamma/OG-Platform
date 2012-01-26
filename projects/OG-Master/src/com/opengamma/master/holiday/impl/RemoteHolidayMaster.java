@@ -51,8 +51,7 @@ public class RemoteHolidayMaster extends AbstractRemoteMaster implements Holiday
   public HolidayMetaDataResult metaData(HolidayMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    String msgBase64 = getRestClient().encodeBase64(request);
-    URI uri = DataHolidayMasterResource.uriMetaData(getBaseUri(), msgBase64);
+    URI uri = DataHolidayMasterResource.uriMetaData(getBaseUri(), request);
     return accessRemote(uri).get(HolidayMetaDataResult.class);
   }
 
@@ -123,8 +122,7 @@ public class RemoteHolidayMaster extends AbstractRemoteMaster implements Holiday
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
-    String msgBase64 = getRestClient().encodeBase64(request);
-    URI uri = DataHolidayResource.uriVersions(getBaseUri(), request.getObjectId(), msgBase64);
+    URI uri = DataHolidayResource.uriVersions(getBaseUri(), request.getObjectId(), request);
     return accessRemote(uri).get(HolidayHistoryResult.class);
   }
 

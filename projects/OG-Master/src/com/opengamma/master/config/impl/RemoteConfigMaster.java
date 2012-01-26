@@ -51,8 +51,7 @@ public class RemoteConfigMaster extends AbstractRemoteMaster implements ConfigMa
   public ConfigMetaDataResult metaData(ConfigMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    String msgBase64 = getRestClient().encodeBase64(request);
-    URI uri = DataConfigMasterResource.uriMetaData(getBaseUri(), msgBase64);
+    URI uri = DataConfigMasterResource.uriMetaData(getBaseUri(), request);
     return accessRemote(uri).get(ConfigMetaDataResult.class);
   }
 
@@ -140,8 +139,7 @@ public class RemoteConfigMaster extends AbstractRemoteMaster implements ConfigMa
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
-    String msgBase64 = getRestClient().encodeBase64(request);
-    URI uri = DataConfigResource.uriVersions(getBaseUri(), request.getObjectId(), msgBase64);
+    URI uri = DataConfigResource.uriVersions(getBaseUri(), request.getObjectId(), request);
     return accessRemote(uri).get(ConfigHistoryResult.class);
   }
 

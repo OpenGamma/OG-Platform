@@ -111,8 +111,7 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
-    String msgBase64 = getRestClient().encodeBase64(request);
-    URI uri = DataRegionResource.uriVersions(getBaseUri(), request.getObjectId(), msgBase64);
+    URI uri = DataRegionResource.uriVersions(getBaseUri(), request.getObjectId(), request);
     return accessRemote(uri).get(RegionHistoryResult.class);
   }
 

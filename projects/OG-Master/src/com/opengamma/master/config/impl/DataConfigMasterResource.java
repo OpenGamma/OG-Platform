@@ -13,12 +13,10 @@ import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.config.ConfigDocument;
@@ -30,6 +28,7 @@ import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
+import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for configs.
@@ -67,11 +66,8 @@ public class DataConfigMasterResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   @Path("metaData")
-  public Response metaData(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    ConfigMetaDataRequest request = new ConfigMetaDataRequest();
-    if (msgBase64 != null) {
-      request = decodeBase64(ConfigMetaDataRequest.class, providers, msgBase64);
-    }
+  public Response metaData(@Context UriInfo uriInfo) {
+    ConfigMetaDataRequest request = RestUtils.decodeQueryParams(uriInfo, ConfigMetaDataRequest.class);
     ConfigMetaDataResult result = getConfigMaster().metaData(request);
     return Response.ok(result).build();
   }
@@ -114,13 +110,13 @@ public class DataConfigMasterResource extends AbstractDataResource {
    * Builds a URI for config meta-data.
    * 
    * @param baseUri  the base URI, not null
-   * @param searchMsg  the search message, may be null
+   * @param request  the request, may be null
    * @return the URI, not null
    */
-  public static URI uriMetaData(URI baseUri, String searchMsg) {
+  public static URI uriMetaData(URI baseUri, ConfigMetaDataRequest request) {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("metaData");
-    if (searchMsg != null) {
-      bld.queryParam("msg", searchMsg);
+    if (request != null) {
+      RestUtils.encodeQueryParams(bld, request);
     }
     return bld.build();
   }

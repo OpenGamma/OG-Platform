@@ -113,8 +113,7 @@ public class RemotePortfolioMaster extends AbstractRemoteMaster implements Portf
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
-    String msgBase64 = getRestClient().encodeBase64(request);
-    URI uri = DataPortfolioResource.uriVersions(getBaseUri(), request.getObjectId(), msgBase64);
+    URI uri = DataPortfolioResource.uriVersions(getBaseUri(), request.getObjectId(), request);
     return accessRemote(uri).get(PortfolioHistoryResult.class);
   }
 

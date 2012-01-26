@@ -18,7 +18,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
@@ -31,6 +30,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
+import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for a position in the position master.
@@ -117,8 +117,8 @@ public class DataPositionResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   @Path("versions")
-  public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    PositionHistoryRequest request = decodeBase64(PositionHistoryRequest.class, providers, msgBase64);
+  public Response history(@Context UriInfo uriInfo) {
+    PositionHistoryRequest request = RestUtils.decodeQueryParams(uriInfo, PositionHistoryRequest.class);
     if (getUrlPositionId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
@@ -170,13 +170,13 @@ public class DataPositionResource extends AbstractDataResource {
    * 
    * @param baseUri  the base URI, not null
    * @param objectId  the object identifier, not null
-   * @param searchMsg  the search message, may be null
+   * @param request  the request, may be null
    * @return the URI, not null
    */
-  public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, String searchMsg) {
+  public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, PositionHistoryRequest request) {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("/positions/{positionId}/versions");
-    if (searchMsg != null) {
-      bld.queryParam("msg", searchMsg);
+    if (request != null) {
+      RestUtils.encodeQueryParams(bld, request);
     }
     return bld.build(objectId.getObjectId());
   }

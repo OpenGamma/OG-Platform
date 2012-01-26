@@ -113,8 +113,7 @@ public class RemotePositionMaster extends AbstractRemoteMaster implements Positi
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
-    String msgBase64 = getRestClient().encodeBase64(request);
-    URI uri = DataPositionResource.uriVersions(getBaseUri(), request.getObjectId(), msgBase64);
+    URI uri = DataPositionResource.uriVersions(getBaseUri(), request.getObjectId(), request);
     return accessRemote(uri).get(PositionHistoryResult.class);
   }
 

@@ -5,14 +5,7 @@
  */
 package com.opengamma.util.rest;
 
-import java.io.IOException;
 import java.net.URI;
-
-import javax.ws.rs.ext.MessageBodyWriter;
-import javax.ws.rs.ext.Providers;
-
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.io.output.ByteArrayOutputStream;
 
 import com.opengamma.transport.jaxrs.FudgeObjectBinaryConsumer;
 import com.opengamma.transport.jaxrs.FudgeObjectBinaryProducer;
@@ -97,27 +90,6 @@ public class FudgeRestClient {
    */
   public Builder accessFudge(final URI uri) {
     return getClient().resource(uri).type(FudgeRest.MEDIA_TYPE).accept(FudgeRest.MEDIA_TYPE);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Encodes a Fudge-serializable object in base-64 suitable for passing in the URI.
-   * 
-   * @param object  the object to encode, not null
-   * @return  the encoded version of the object, not null
-   */
-  @SuppressWarnings({ "unchecked", "rawtypes" })
-  public String encodeBase64(final Object object) {
-    Class cls = object.getClass();
-    Providers providers = getClient().getProviders();
-    ByteArrayOutputStream out = new ByteArrayOutputStream();
-    MessageBodyWriter mbw = providers.getMessageBodyWriter(cls, cls, null, FudgeRest.MEDIA_TYPE);
-    try {
-      mbw.writeTo(object, cls, cls, null, FudgeRest.MEDIA_TYPE, null, out);
-    } catch (IOException ex) {
-      throw new RuntimeException(ex);
-    }
-    return Base64.encodeBase64URLSafeString(out.toByteArray());
   }
 
 }
