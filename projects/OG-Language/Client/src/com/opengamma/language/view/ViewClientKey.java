@@ -6,8 +6,9 @@
 package com.opengamma.language.view;
 
 import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.types.IndicatorType;
 
 import com.opengamma.engine.view.client.ViewClient;
@@ -27,44 +28,27 @@ public final class ViewClientKey {
 
   private static final String DEFAULT_CLIENT_NAME = "Default";
 
-  private final String _clientDescriptorString;
   private final boolean _useSharedProcess;
   private final String _clientName;
-  private volatile ViewClientDescriptor _clientDescriptor;
+  private final ViewClientDescriptor _clientDescriptor;
 
-  public ViewClientKey(final String clientDescriptor, final boolean useSharedProcess) {
+  public ViewClientKey(final ViewClientDescriptor clientDescriptor, final boolean useSharedProcess) {
     this(clientDescriptor, useSharedProcess, DEFAULT_CLIENT_NAME);
   }
 
-  public ViewClientKey(final String clientDescriptor, final boolean useSharedProcess, final String clientName) {
+  public ViewClientKey(final ViewClientDescriptor clientDescriptor, final boolean useSharedProcess, final String clientName) {
     ArgumentChecker.notNull(clientDescriptor, "clientDescriptor");
     ArgumentChecker.notNull(clientName, "clientName");
-    _clientDescriptorString = clientDescriptor;
+    _clientDescriptor = clientDescriptor;
     _useSharedProcess = useSharedProcess;
     _clientName = clientName;
-  }
-
-  public ViewClientKey(final ViewClientDescriptor clientDescriptor, final boolean useSharedProcess) {
-    this(clientDescriptor.encode(), useSharedProcess, DEFAULT_CLIENT_NAME);
-  }
-
-  public ViewClientKey(final ViewClientDescriptor clientDescriptor, final boolean useSharedProcess, final String clientName) {
-    this(clientDescriptor.encode(), useSharedProcess, clientName);
-    _clientDescriptor = clientDescriptor;
   }
 
   public boolean isSharedProcess() {
     return _useSharedProcess;
   }
 
-  public String getClientDescriptorString() {
-    return _clientDescriptorString;
-  }
-
   public ViewClientDescriptor getClientDescriptor() {
-    if (_clientDescriptor == null) {
-      _clientDescriptor = ViewClientDescriptor.decode(getClientDescriptorString());
-    }
     return _clientDescriptor;
   }
 
@@ -75,7 +59,7 @@ public final class ViewClientKey {
   @Override
   public int hashCode() {
     int hc = 1;
-    hc += (hc << 4) + _clientDescriptorString.hashCode();
+    hc += (hc << 4) + _clientDescriptor.hashCode();
     hc += (hc << 4) + (_useSharedProcess ? 1 : 0);
     hc += (hc << 4) + _clientName.hashCode();
     return hc;
@@ -93,7 +77,7 @@ public final class ViewClientKey {
       return false;
     }
     ViewClientKey other = (ViewClientKey) obj;
-    if (!_clientDescriptorString.equals(other._clientDescriptorString)) {
+    if (!_clientDescriptor.equals(other._clientDescriptor)) {
       return false;
     }
     if (_useSharedProcess != other._useSharedProcess) {
@@ -104,16 +88,29 @@ public final class ViewClientKey {
 
   @Override
   public String toString() {
-    return "ViewClientKey[objectDescriptor=" + _clientDescriptorString + ", useSharedProcess=" + _useSharedProcess + "]";
+    return "ViewClientKey[objectDescriptor=" + _clientDescriptor + ", useSharedProcess=" + _useSharedProcess + "]";
   }
 
-  private static final String DESCRIPTOR_FIELD = "descriptor";
+  private static final String DESCRIPTOR_FIELD = "viewClient";
   private static final String USE_SHARED_PROCESS_FIELD = "useSharedProcess";
   private static final String CLIENT_NAME_FIELD = "clientName";
 
-  public FudgeMsg toFudgeMsg(final FudgeMsgFactory factory) {
-    final MutableFudgeMsg msg = factory.newMessage();
-    msg.add(DESCRIPTOR_FIELD, _clientDescriptorString);
+  /**
+   * Produces the Fudge message encoding of the ViewClientKey:
+   * <pre>
+   * message ViewClientKey {
+   *   required ViewClientDescriptor viewClient;
+   *   optional indicator useSharedProcess;
+   *   optional string clientName;
+   * }
+   * </pre>
+   * 
+   * @param fudgeSerializer the Fudge serialization service
+   * @return the Fudge message representation
+   */
+  public FudgeMsg toFudgeMsg(final FudgeSerializer fudgeSerializer) {
+    final MutableFudgeMsg msg = fudgeSerializer.newMessage();
+    msg.add(DESCRIPTOR_FIELD, _clientDescriptor.toFudgeMsg(fudgeSerializer));
     if (_useSharedProcess) {
       msg.add(USE_SHARED_PROCESS_FIELD, IndicatorType.INSTANCE);
     }
@@ -123,8 +120,8 @@ public final class ViewClientKey {
     return msg;
   }
 
-  public static ViewClientKey fromFudgeMsg(final FudgeMsg msg) {
-    final String descriptor = msg.getString(DESCRIPTOR_FIELD);
+  public static ViewClientKey fromFudgeMsg(final FudgeDeserializer fudgeDeserializer, final FudgeMsg msg) {
+    final ViewClientDescriptor descriptor = ViewClientDescriptor.fromFudgeMsg(fudgeDeserializer, msg.getMessage(DESCRIPTOR_FIELD));
     final boolean useSharedProcess = msg.hasField(USE_SHARED_PROCESS_FIELD);
     final String clientName = msg.getString(CLIENT_NAME_FIELD);
     if (clientName != null) {
