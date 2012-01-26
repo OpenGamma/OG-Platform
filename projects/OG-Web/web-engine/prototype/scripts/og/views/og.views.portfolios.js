@@ -13,7 +13,6 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
-        'og.views.common.layout',
         'og.views.common.versions',
         'og.views.common.versions',
         'og.views.extras.portfolios_sync'
@@ -61,7 +60,6 @@ $.register_module({
                                     handler: function (result) {
                                         var args = routes.current().args, rule = view.rules.load;
                                         if (result.error) return view.error(result.message);
-                                        view.search(args);
                                         routes.go(routes.hash(rule, args));
                                     }
                                 };
@@ -179,7 +177,7 @@ $.register_module({
                 var position = routes.current().args.position;
                 if (!position) return;
                 common.gadgets.positions({
-                    id: position, selector: '.og-js-details-positions', editable: false
+                    id: position, selector: '.og-js-details-positions', editable: false, update: view.update
                 });
                 common.gadgets.trades.render({id: position, selector: '.og-js-trades-table'});
             };
@@ -311,6 +309,7 @@ $.register_module({
                             return name.length > 30 ? name.slice(0, 27) + '...' : name
                         }
                     }));
+                    ui.content_editable();
                 }});
             };
             if (args.version || args.sync) { // load versions
@@ -366,7 +365,7 @@ $.register_module({
                             selector: '.OG-header-generic .OG-js-breadcrumb',
                             data: json.template_data
                         });
-                        ui.content_editable({handler: function () {view.search(args);}});
+                        ui.content_editable();
                         if (show_loading) view.notify(null);
                         setTimeout(view.layout.inner.resizeAll);
                     }});
@@ -379,7 +378,7 @@ $.register_module({
                 }
             });
         };
-        return view = $.extend(new og.views.common.Core(page_name, 'Portfolios'), {
+        return view = $.extend(new og.views.common.Core(page_name), {
             dependencies: ['id', 'node', 'version'],
             details: details_page,
             filters: ['name'],
