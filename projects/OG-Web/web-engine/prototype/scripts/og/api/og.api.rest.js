@@ -24,7 +24,8 @@ $.register_module({
             },
             request_id = 0,
             MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1,
-            RESUBSCRIBE = 30000 /* 20s */,TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */,
+            INSTANT = 10 /* 10ms */, RESUBSCRIBE = 30000 /* 20s */,
+            TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */,
             /** @ignore */
             register = function (req) {
                 return !req.config.meta.update ? true
@@ -126,7 +127,7 @@ $.register_module({
                     warn(module.name + ': only GETs can be cached'), delete config.meta.cache_for;
                 start_loading(config.meta.loading);
                 if (is_get && get_cache(url) && typeof get_cache(url) === 'object')
-                    return (setTimeout(config.meta.handler.partial(get_cache(url)), 0)), id;
+                    return (setTimeout(config.meta.handler.partial(get_cache(url)), INSTANT)), id;
                 if (is_get && get_cache(url)) return (setTimeout(request.partial(method, config), 500)), id;
                 if (is_get && config.meta.cache_for) set_cache(url, true);
                 outstanding_requests[id] = {current: current, dependencies: config.meta.dependencies};
@@ -537,9 +538,9 @@ $.register_module({
                         warn(module.name + ': subscription failed\n', result.message);
                         return setTimeout(subscribe, RESUBSCRIBE);
                     }
-                    if (!result.data || !result.data.updates.length) return listen();
+                    if (!result.data || !result.data.updates.length) return setTimeout(listen, INSTANT);;
                     fire_updates(false, result);
-                    listen();
+                    setTimeout(listen, INSTANT);
                 }});
             })();
         }});

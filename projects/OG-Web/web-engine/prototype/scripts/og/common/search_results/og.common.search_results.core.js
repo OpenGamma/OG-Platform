@@ -7,10 +7,16 @@ $.register_module({
     dependencies: ['og.common.routes', 'og.common.slickgrid.manager'],
     obj: function () {
         return function () {
-            var routes = og.common.routes, slick_manager, options, timer, grid, filters_obj = {},
+            var routes = og.common.routes, slick_manager, options, timer, grid,
+                process_args = function () {
+                    var args = $.extend({}, routes.current().args);
+                    if (args.quantity) $.extend(args, og.common.search.get_quantities(args.quantity));
+                    return args;
+                },
                 load = function (obj) {
+                    var current_args = process_args();
                     slick_manager = og.common.slickgrid.manager(
-                        $.extend({}, obj.url, {page_type: obj.page_type, selector: obj.selector})
+                        $.extend({}, process_args(), {page_type: obj.page_type, selector: obj.selector})
                     );
                     options = $.extend({}, obj.options, {
                         editable: false,
@@ -29,33 +35,29 @@ $.register_module({
                     window.onresize = function () {
                         setTimeout(function () {
                             grid.resizeCanvas();
-                            filter($.extend(true, filters_obj, {filter: false}));
+                            filter($.extend(true, process_args, {filter: false}));
                         }, 300);
                     };
-                    filters_obj = obj.url;
                     // Setup filter inputs
                     og.common.search.filter({location: obj.selector});
 
                     grid.onClick.subscribe(function (e, dd) {
-                        var current = routes.current().args, args = obj.url,
+                        var current = routes.current().args,
                             params = {
                                 id: slick_manager.data[dd.row].id,
                                 name: current.name || '',
                                 quantity: current.quantity || '',
                                 type: current.type || '',
-                                filter: slick_manager.data[dd.row].filter,
-                                version: '',
-                                sync: '',
-                                position: '',
-                                trades: ''
+                                filter: slick_manager.data[dd.row].filter
                             };
-                        delete args.node;
-                        routes.go(routes.hash(og.views[obj.page_type].rules.load_item, args, {add: params}));
+                        routes.go(routes.hash(og.views[obj.page_type].rules.load_item, routes.current().args, {
+                            del: ['node', 'version', 'sync', 'position'], add: params
+                        }));
                     });
 
                     grid.onViewportChanged.subscribe(function () {
                         clearTimeout(timer);
-                        timer = setTimeout(function () {filter($.extend({}, filters_obj, {filter: false}))}, 150);
+                        timer = setTimeout(function () {filter($.extend(process_args(), {filter: false}));}, 150);
                     });
 
                     // Prepare grid for new data
@@ -65,16 +67,12 @@ $.register_module({
                         grid.render();
                     });
 
-                    $(grid.getHeaderRow()).delegate(':input', 'change keyup', function(e) {
-                        obj.url[$(this).data('columnId')] = e.currentTarget.value;
-                    });
-
                     // load the first page
                     grid.onViewportChanged.notify();
 
                 },
                 filter = function (filters_obj) {
-                    var vp = grid.getViewport();
+                    var vp = grid.getViewport(), filters_obj = filters_obj || process_args();
                     slick_manager.ensure_data({
                         from: vp.top, to: vp.bottom, filters: filters_obj, filter_being_applied: filters_obj.filter
                     });

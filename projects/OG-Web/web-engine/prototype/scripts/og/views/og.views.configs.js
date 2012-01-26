@@ -205,7 +205,7 @@ $.register_module({
                     var filter_name = view.options.slickgrid.columns[0].name;
                     if (!filter_name || filter_name === 'loading') // wait until type filter is populated
                         return setTimeout(view.filter, 500);
-                    search.filter($.extend(args, {filter: true}));
+                    search.filter();
                 };
                 view.check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
                     view[args.id ? 'load_item' : 'load'](args);
@@ -262,7 +262,7 @@ $.register_module({
                     },
                     cache_for: 15 * 1000
                 });
-                search.load($.extend(view.options.slickgrid, {url: args}));
+                search.load(view.options.slickgrid);
             },
             details: details_page,
             rules: {
