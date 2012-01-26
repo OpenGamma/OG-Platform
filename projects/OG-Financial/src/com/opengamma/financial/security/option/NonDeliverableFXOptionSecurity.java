@@ -38,7 +38,6 @@ public class NonDeliverableFXOptionSecurity extends FinancialSecurity {
    * The security type.
    */
   public static final String SECURITY_TYPE = "NONDELIVERABLE_FX_OPTION";
-
   /**
    * The put currency.
    */
