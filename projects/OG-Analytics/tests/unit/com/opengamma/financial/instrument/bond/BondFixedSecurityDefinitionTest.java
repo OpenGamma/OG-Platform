@@ -105,16 +105,16 @@ public class BondFixedSecurityDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPositiveNominal() {
-    AnnuityCouponFixedDefinition coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, START_ACCRUAL_DATE, MATURITY_DATE, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1.0,
-        RATE, false);
+    AnnuityCouponFixedDefinition coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, START_ACCRUAL_DATE, MATURITY_DATE, PAYMENT_TENOR, true, true, CALENDAR, DAY_COUNT, BUSINESS_DAY,
+        IS_EOM, 1.0, RATE, false);
     AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, -1.0)});
     new BondFixedSecurityDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, YIELD_CONVENTION, IS_EOM);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testPositiveCoupon() {
-    AnnuityCouponFixedDefinition coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, START_ACCRUAL_DATE, MATURITY_DATE, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1.0,
-        RATE, true);
+    AnnuityCouponFixedDefinition coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, START_ACCRUAL_DATE, MATURITY_DATE, PAYMENT_TENOR, true, true, CALENDAR, DAY_COUNT, BUSINESS_DAY,
+        IS_EOM, 1.0, RATE, true);
     AnnuityPaymentFixedDefinition nominal = new AnnuityPaymentFixedDefinition(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, MATURITY_DATE, 1.0)});
     new BondFixedSecurityDefinition(nominal, coupon, 0, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, YIELD_CONVENTION, IS_EOM);
   }
@@ -127,8 +127,8 @@ public class BondFixedSecurityDefinitionTest {
     assertEquals(COUPON_PER_YEAR, BOND_SECURITY_DEFINITION.getCouponPerYear());
     assertEquals(0, BOND_SECURITY_DEFINITION.getExCouponDays()); //Default
     assertEquals(CUR, BOND_SECURITY_DEFINITION.getCurrency());
-    AnnuityCouponFixedDefinition coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, START_ACCRUAL_DATE, MATURITY_DATE, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1.0,
-        RATE, false);
+    AnnuityCouponFixedDefinition coupon = AnnuityCouponFixedDefinition.fromAccrualUnadjusted(CUR, START_ACCRUAL_DATE, MATURITY_DATE, PAYMENT_TENOR, true, true, CALENDAR, DAY_COUNT, BUSINESS_DAY,
+        IS_EOM, 1.0, RATE, false);
     assertEquals(coupon, BOND_SECURITY_DEFINITION.getCoupon());
     AnnuityDefinition<PaymentFixedDefinition> nominal = new AnnuityDefinition<PaymentFixedDefinition>(new PaymentFixedDefinition[] {new PaymentFixedDefinition(CUR, BUSINESS_DAY.adjustDate(CALENDAR,
         MATURITY_DATE), 1.0)});
@@ -141,8 +141,10 @@ public class BondFixedSecurityDefinitionTest {
   public void testDates() {
     BondFixedSecurityDefinition BOND_DEFINITION = BondFixedSecurityDefinition.from(CUR, MATURITY_DATE, START_ACCRUAL_DATE, PAYMENT_TENOR, RATE, SETTLEMENT_DAYS, CALENDAR, DAY_COUNT, BUSINESS_DAY,
         YIELD_CONVENTION, IS_EOM);
-    ZonedDateTime[] expectedPaymentDates = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 1, 13), DateUtils.getUTCDate(2012, 7, 13), DateUtils.getUTCDate(2013, 1, 14), DateUtils.getUTCDate(2013, 7, 15)};
-    ZonedDateTime[] expectedStartDates = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 7, 13), DateUtils.getUTCDate(2012, 1, 13), DateUtils.getUTCDate(2012, 7, 13), DateUtils.getUTCDate(2013, 1, 13)};
+    ZonedDateTime[] expectedPaymentDates = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 1, 13), DateUtils.getUTCDate(2012, 7, 13), DateUtils.getUTCDate(2013, 1, 14),
+        DateUtils.getUTCDate(2013, 7, 15)};
+    ZonedDateTime[] expectedStartDates = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 7, 13), DateUtils.getUTCDate(2012, 1, 13), DateUtils.getUTCDate(2012, 7, 13),
+        DateUtils.getUTCDate(2013, 1, 13)};
     ZonedDateTime[] expectedEndDates = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 1, 13), DateUtils.getUTCDate(2012, 7, 13), DateUtils.getUTCDate(2013, 1, 13), DateUtils.getUTCDate(2013, 7, 13)};
     for (int loopcpn = 0; loopcpn < BOND_DEFINITION.getCoupon().getNumberOfPayments(); loopcpn++) {
       assertEquals("Payment " + loopcpn, expectedPaymentDates[loopcpn], BOND_DEFINITION.getCoupon().getNthPayment(loopcpn).getPaymentDate());

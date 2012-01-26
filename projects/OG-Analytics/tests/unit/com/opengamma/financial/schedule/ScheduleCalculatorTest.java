@@ -27,7 +27,9 @@ import com.opengamma.financial.convention.daycount.ThirtyEThreeSixty;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.instrument.index.GeneratorDeposit;
+import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.generator.EURDeposit;
+import com.opengamma.financial.instrument.index.iborindex.EURIBOR6M;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -35,13 +37,17 @@ import com.opengamma.util.time.DateUtils;
  */
 @SuppressWarnings("synthetic-access")
 public class ScheduleCalculatorTest {
+
+  private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
+  private static final GeneratorDeposit GENERATOR_DEPOSIT = new EURDeposit(CALENDAR);
+  private static final IborIndex INDEX_EURIBOR6M = new EURIBOR6M(CALENDAR);
+
   private static final Calendar ALL = new AllCalendar();
   private static final Calendar WEEKEND = new WeekendCalendar();
   private static final Calendar FIRST = new FirstOfMonthCalendar();
   private static final ZonedDateTime NOW = DateUtils.getUTCDate(2010, 1, 1);
 
   private static final Period PAYMENT_TENOR = Period.ofMonths(6);
-  private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
   private static final boolean IS_EOM = true;
   private static final Period ANNUITY_TENOR = Period.ofYears(2);
@@ -81,6 +87,16 @@ public class ScheduleCalculatorTest {
     assertEquals("Adjusted date", aThursday, ScheduleCalculator.getAdjustedDate(aSunday, -2, CALENDAR));
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void adjustedDatesDaysNullDate() {
+    ScheduleCalculator.getAdjustedDate(null, 2, CALENDAR);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void adjustedDatesDaysNullCalendar() {
+    ScheduleCalculator.getAdjustedDate(NOW, 2, null);
+  }
+
   @Test
   /**
    * Tests the adjusted dates shifted by a number of days. Reviewed 13-Dec-2011.
@@ -111,14 +127,78 @@ public class ScheduleCalculatorTest {
     assertEquals("Adjusted date", DateUtils.getUTCDate(2012, 5, 30), ScheduleCalculator.getAdjustedDate(eom30, m6, BUSINESS_DAY, CALENDAR));
     assertEquals("Adjusted date", DateUtils.getUTCDate(2012, 5, 31), ScheduleCalculator.getAdjustedDate(eom30, m6, BUSINESS_DAY, CALENDAR, true));
     assertEquals("Adjusted date", DateUtils.getUTCDate(2012, 5, 30), ScheduleCalculator.getAdjustedDate(eom30, m6, BUSINESS_DAY, CALENDAR, false));
-    GeneratorDeposit generator = new EURDeposit(CALENDAR);
-    assertEquals("Adjusted date", stdEnd, ScheduleCalculator.getAdjustedDate(stdStart, m1, generator));
-    assertEquals("Adjusted date", ngbdEnd, ScheduleCalculator.getAdjustedDate(ngbdStart, m1, generator));
-    assertEquals("Adjusted date", DateUtils.getUTCDate(2011, 10, 31), ScheduleCalculator.getAdjustedDate(eom31NGBD, m3, generator));
-    assertEquals("Adjusted date", DateUtils.getUTCDate(2011, 9, 30), ScheduleCalculator.getAdjustedDate(eom31NGBD, m2, generator));
-    assertEquals("Adjusted date", DateUtils.getUTCDate(2012, 5, 31), ScheduleCalculator.getAdjustedDate(eom30, m6, generator));
+    assertEquals("Adjusted date", stdEnd, ScheduleCalculator.getAdjustedDate(stdStart, m1, GENERATOR_DEPOSIT));
+    assertEquals("Adjusted date", ngbdEnd, ScheduleCalculator.getAdjustedDate(ngbdStart, m1, GENERATOR_DEPOSIT));
+    assertEquals("Adjusted date", DateUtils.getUTCDate(2011, 10, 31), ScheduleCalculator.getAdjustedDate(eom31NGBD, m3, GENERATOR_DEPOSIT));
+    assertEquals("Adjusted date", DateUtils.getUTCDate(2011, 9, 30), ScheduleCalculator.getAdjustedDate(eom31NGBD, m2, GENERATOR_DEPOSIT));
+    assertEquals("Adjusted date", DateUtils.getUTCDate(2012, 5, 31), ScheduleCalculator.getAdjustedDate(eom30, m6, GENERATOR_DEPOSIT));
     //    ZonedDateTime eom31 = DateUtils.getUTCDate(2011, 10, 31);
     //    ZonedDateTime eom30NGBD = DateUtils.getUTCDate(2011, 4, 29);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void adjustedDatesPeriodNullDate() {
+    ScheduleCalculator.getAdjustedDate(null, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void adjustedDatesPeriodNullTenor() {
+    ScheduleCalculator.getAdjustedDate(NOW, null, BUSINESS_DAY, CALENDAR);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void adjustedDatesPeriodNullBusinessDay() {
+    ScheduleCalculator.getAdjustedDate(NOW, PAYMENT_TENOR, null, CALENDAR);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void adjustedDatesPeriodNullCalendar() {
+    ScheduleCalculator.getAdjustedDate(NOW, PAYMENT_TENOR, BUSINESS_DAY, null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void adjustedDatesPeriodEOMNullDate() {
+    ScheduleCalculator.getAdjustedDate(null, PAYMENT_TENOR, BUSINESS_DAY, CALENDAR, true);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void adjustedDatesPeriodEOMNullTenor() {
+    ScheduleCalculator.getAdjustedDate(NOW, null, BUSINESS_DAY, CALENDAR, true);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void adjustedDatesPeriodEOMNullBusinessDay() {
+    ScheduleCalculator.getAdjustedDate(NOW, PAYMENT_TENOR, null, CALENDAR, true);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void adjustedDatesPeriodEOMNullCalendar() {
+    ScheduleCalculator.getAdjustedDate(NOW, PAYMENT_TENOR, BUSINESS_DAY, null, true);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void adjustedDatesPeriodGeneratorNullDate() {
+    ScheduleCalculator.getAdjustedDate(null, PAYMENT_TENOR, GENERATOR_DEPOSIT);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void adjustedDatesPeriodGeneratorNullTenor() {
+    ScheduleCalculator.getAdjustedDate(NOW, null, GENERATOR_DEPOSIT);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void adjustedDatesPeriodGeneratorNullGenerator() {
+    ScheduleCalculator.getAdjustedDate(NOW, PAYMENT_TENOR, null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void adjustedDatesPeriodIndexNullDate() {
+    ScheduleCalculator.getAdjustedDate(null, INDEX_EURIBOR6M);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void adjustedDatesPeriodIndexNullIndex() {
+    ScheduleCalculator.getAdjustedDate(NOW, null);
   }
 
   @Test
@@ -189,6 +269,55 @@ public class ScheduleCalculatorTest {
     ZonedDateTime[] scheduleMonthEndFeb15MTT = ScheduleCalculator.getUnadjustedDateSchedule(monthEndFeb, monthEndFeb.plus(m15), m6, true, true);
     ZonedDateTime[] scheduleMonthEndFeb15MTTExpected = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 5, 29), DateUtils.getUTCDate(2012, 11, 29), DateUtils.getUTCDate(2013, 5, 29)};
     assertArrayEquals("Unadjusted schedule", scheduleMonthEndFeb15MTTExpected, scheduleMonthEndFeb15MTT);
+  }
+
+  @Test
+  /**
+   * Tests the adjusted date schedule. Reviewed 23-Jan-2012.
+   */
+  public void getAdjustedDateSchedule() {
+    BusinessDayConvention modFol = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+    BusinessDayConvention fol = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+    BusinessDayConvention pre = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
+    Period m6 = Period.ofMonths(6);
+    Period y2 = Period.ofYears(2);
+    Period y3 = Period.ofYears(3);
+    ZonedDateTime midMonth = DateUtils.getUTCDate(2012, 1, 19);
+    ZonedDateTime monthEndMarch = DateUtils.getUTCDate(2012, 3, 30);
+    ZonedDateTime[] midMonthUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(midMonth, midMonth.plus(y2), m6, false, false);
+    ZonedDateTime[] midMonthModFol = ScheduleCalculator.getAdjustedDateSchedule(midMonthUnadjusted, modFol, CALENDAR, false);
+    ZonedDateTime[] midMonthModFolExpected = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 7, 19), DateUtils.getUTCDate(2013, 1, 21), DateUtils.getUTCDate(2013, 7, 19),
+        DateUtils.getUTCDate(2014, 1, 20)};
+    assertArrayEquals("Adjusted schedule", midMonthModFolExpected, midMonthModFol);
+    ZonedDateTime[] midMonthFol = ScheduleCalculator.getAdjustedDateSchedule(midMonthUnadjusted, fol, CALENDAR, false);
+    assertArrayEquals("Adjusted schedule", midMonthModFolExpected, midMonthFol);
+    ZonedDateTime[] midMonthPre = ScheduleCalculator.getAdjustedDateSchedule(midMonthUnadjusted, pre, CALENDAR, false);
+    ZonedDateTime[] midMonthPreExpected = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 7, 19), DateUtils.getUTCDate(2013, 1, 18), DateUtils.getUTCDate(2013, 7, 19),
+        DateUtils.getUTCDate(2014, 1, 17)};
+    assertArrayEquals("Adjusted schedule", midMonthPreExpected, midMonthPre);
+    ZonedDateTime[] midMonthEOM = ScheduleCalculator.getAdjustedDateSchedule(midMonthUnadjusted, modFol, CALENDAR, true); // Not natural to apply EOM when in mid month, nut this is only a test!
+    ZonedDateTime[] midMonthEOMExpected = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 7, 31), DateUtils.getUTCDate(2013, 1, 31), DateUtils.getUTCDate(2013, 7, 31),
+        DateUtils.getUTCDate(2014, 1, 31)};
+    assertArrayEquals("Adjusted schedule", midMonthEOMExpected, midMonthEOM);
+    ZonedDateTime[] endMarchUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(monthEndMarch, monthEndMarch.plus(y3), m6, false, false);
+    ZonedDateTime[] endMarchModFol = ScheduleCalculator.getAdjustedDateSchedule(endMarchUnadjusted, modFol, CALENDAR, false);
+    ZonedDateTime[] endMarchModFolExpected = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 9, 28), DateUtils.getUTCDate(2013, 3, 29), DateUtils.getUTCDate(2013, 9, 30),
+        DateUtils.getUTCDate(2014, 3, 31), DateUtils.getUTCDate(2014, 9, 30), DateUtils.getUTCDate(2015, 3, 30)};
+    assertArrayEquals("Adjusted schedule", endMarchModFolExpected, endMarchModFol);
+    ZonedDateTime[] endMarchModFolEOM = ScheduleCalculator.getAdjustedDateSchedule(endMarchUnadjusted, modFol, CALENDAR, true);
+    ZonedDateTime[] endMarchModFolExpectedEOM = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 9, 28), DateUtils.getUTCDate(2013, 3, 29), DateUtils.getUTCDate(2013, 9, 30),
+        DateUtils.getUTCDate(2014, 3, 31), DateUtils.getUTCDate(2014, 9, 30), DateUtils.getUTCDate(2015, 3, 31)};
+    assertArrayEquals("Adjusted schedule", endMarchModFolExpectedEOM, endMarchModFolEOM);
+    ZonedDateTime[] endMarchPre = ScheduleCalculator.getAdjustedDateSchedule(endMarchUnadjusted, pre, CALENDAR, false);
+    ZonedDateTime[] endMarchPreExpected = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 9, 28), DateUtils.getUTCDate(2013, 3, 29), DateUtils.getUTCDate(2013, 9, 30),
+        DateUtils.getUTCDate(2014, 3, 28), DateUtils.getUTCDate(2014, 9, 30), DateUtils.getUTCDate(2015, 3, 30)};
+    assertArrayEquals("Adjusted schedule", endMarchPreExpected, endMarchPre);
+    ZonedDateTime[] endMarchFol = ScheduleCalculator.getAdjustedDateSchedule(endMarchUnadjusted, fol, CALENDAR, false);
+    ZonedDateTime[] endMarchFolExpected = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 10, 1), DateUtils.getUTCDate(2013, 4, 1), DateUtils.getUTCDate(2013, 9, 30),
+        DateUtils.getUTCDate(2014, 3, 31), DateUtils.getUTCDate(2014, 9, 30), DateUtils.getUTCDate(2015, 3, 30)};
+    assertArrayEquals("Adjusted schedule", endMarchFolExpected, endMarchFol);
+    ZonedDateTime[] endMarchFolEOM = ScheduleCalculator.getAdjustedDateSchedule(endMarchUnadjusted, fol, CALENDAR, true);
+    assertArrayEquals("Adjusted schedule", endMarchModFolExpectedEOM, endMarchFolEOM);
   }
 
   // TODO: review
