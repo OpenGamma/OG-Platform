@@ -33,6 +33,16 @@ public class G2ppPiecewiseConstantModel {
     return result;
   }
 
+  public double[] volatilityMaturityPart(final G2ppPiecewiseConstantParameters g2parameters, double u, double v) {
+    double[] a = g2parameters.getMeanReversion();
+    double[] result = new double[2];
+    double expa0u = Math.exp(-a[0] * u);
+    double expa1u = Math.exp(-a[1] * u);
+    result[0] = (expa0u - Math.exp(-a[0] * v)) / a[0];
+    result[1] = (expa1u - Math.exp(-a[1] * v)) / a[1];
+    return result;
+  }
+
   /**
    * The expiry time dependent part of the volatility.
    * @param g2parameters The model parameters.
