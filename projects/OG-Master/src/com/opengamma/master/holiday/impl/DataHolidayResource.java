@@ -118,7 +118,7 @@ public class DataHolidayResource extends AbstractDataResource {
   @GET
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    HolidayHistoryRequest request = decodeBean(HolidayHistoryRequest.class, providers, msgBase64);
+    HolidayHistoryRequest request = decodeBase64(HolidayHistoryRequest.class, providers, msgBase64);
     if (getUrlHolidayId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }

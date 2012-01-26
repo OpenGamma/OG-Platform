@@ -70,7 +70,7 @@ public class DataHistoricalTimeSeriesMasterResource extends AbstractDataResource
   public Response metaData(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     HistoricalTimeSeriesInfoMetaDataRequest request = new HistoricalTimeSeriesInfoMetaDataRequest();
     if (msgBase64 != null) {
-      request = decodeBean(HistoricalTimeSeriesInfoMetaDataRequest.class, providers, msgBase64);
+      request = decodeBase64(HistoricalTimeSeriesInfoMetaDataRequest.class, providers, msgBase64);
     }
     HistoricalTimeSeriesInfoMetaDataResult result = getHistoricalTimeSeriesMaster().metaData(request);
     return Response.ok(result).build();

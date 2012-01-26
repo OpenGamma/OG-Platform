@@ -126,7 +126,7 @@ public class DataConfigResource extends AbstractDataResource {
   @GET
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    ConfigHistoryRequest<?> request = decodeBean(ConfigHistoryRequest.class, providers, msgBase64);
+    ConfigHistoryRequest<?> request = decodeBase64(ConfigHistoryRequest.class, providers, msgBase64);
     if (getUrlConfigId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }

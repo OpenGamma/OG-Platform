@@ -118,7 +118,7 @@ public class DataPositionResource extends AbstractDataResource {
   @GET
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    PositionHistoryRequest request = decodeBean(PositionHistoryRequest.class, providers, msgBase64);
+    PositionHistoryRequest request = decodeBase64(PositionHistoryRequest.class, providers, msgBase64);
     if (getUrlPositionId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }

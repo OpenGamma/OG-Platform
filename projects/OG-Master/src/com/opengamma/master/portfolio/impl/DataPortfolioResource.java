@@ -118,7 +118,7 @@ public class DataPortfolioResource extends AbstractDataResource {
   @GET
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    PortfolioHistoryRequest request = decodeBean(PortfolioHistoryRequest.class, providers, msgBase64);
+    PortfolioHistoryRequest request = decodeBase64(PortfolioHistoryRequest.class, providers, msgBase64);
     if (getUrlPortfolioId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }

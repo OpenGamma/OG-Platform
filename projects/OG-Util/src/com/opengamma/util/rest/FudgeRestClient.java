@@ -13,7 +13,6 @@ import javax.ws.rs.ext.Providers;
 
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.io.output.ByteArrayOutputStream;
-import org.joda.beans.Bean;
 
 import com.opengamma.transport.jaxrs.FudgeObjectBinaryConsumer;
 import com.opengamma.transport.jaxrs.FudgeObjectBinaryProducer;
@@ -102,25 +101,13 @@ public class FudgeRestClient {
 
   //-------------------------------------------------------------------------
   /**
-   * Encodes a bean in base-64 suitable for passing in the URI.
-   * <p>
-   * This is used to pass a bean in the URI, such as when calling a GET method.
-   * 
-   * @param bean  the bean to encode, not null
-   * @return the encoded version of the bean, not null
-   */
-  public String encodeBean(final Bean bean) {
-    return encode(bean);
-  }
-  
-  /**
    * Encodes a Fudge-serializable object in base-64 suitable for passing in the URI.
    * 
    * @param object  the object to encode, not null
    * @return  the encoded version of the object, not null
    */
   @SuppressWarnings({ "unchecked", "rawtypes" })
-  public String encode(final Object object) {
+  public String encodeBase64(final Object object) {
     Class cls = object.getClass();
     Providers providers = getClient().getProviders();
     ByteArrayOutputStream out = new ByteArrayOutputStream();

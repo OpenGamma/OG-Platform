@@ -46,7 +46,7 @@ public class DataDependencyGraphExplorerResource extends AbstractDataResource {
   @Path(PATH_SUBGRAPH_PRODUCING)
   @GET
   public Response getSubgraphProducing(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    ValueSpecification output = decode(ValueSpecification.class, providers, msgBase64);
+    ValueSpecification output = decodeBase64(ValueSpecification.class, providers, msgBase64);
     return Response.ok(_explorer.getSubgraphProducing(output)).build();
   }
   

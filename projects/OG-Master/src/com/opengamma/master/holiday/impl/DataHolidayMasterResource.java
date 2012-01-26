@@ -70,7 +70,7 @@ public class DataHolidayMasterResource extends AbstractDataResource {
   public Response metaData(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     HolidayMetaDataRequest request = new HolidayMetaDataRequest();
     if (msgBase64 != null) {
-      request = decodeBean(HolidayMetaDataRequest.class, providers, msgBase64);
+      request = decodeBase64(HolidayMetaDataRequest.class, providers, msgBase64);
     }
     HolidayMetaDataResult result = getHolidayMaster().metaData(request);
     return Response.ok(result).build();

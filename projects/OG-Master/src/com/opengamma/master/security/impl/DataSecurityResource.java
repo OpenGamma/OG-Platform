@@ -118,7 +118,7 @@ public class DataSecurityResource extends AbstractDataResource {
   @GET
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    SecurityHistoryRequest request = decodeBean(SecurityHistoryRequest.class, providers, msgBase64);
+    SecurityHistoryRequest request = decodeBase64(SecurityHistoryRequest.class, providers, msgBase64);
     if (getUrlSecurityId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }

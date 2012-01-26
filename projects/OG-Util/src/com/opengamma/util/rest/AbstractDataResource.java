@@ -14,7 +14,6 @@ import javax.ws.rs.ext.MessageBodyReader;
 import javax.ws.rs.ext.Providers;
 
 import org.apache.commons.codec.binary.Base64;
-import org.joda.beans.Bean;
 
 import com.opengamma.transport.jaxrs.FudgeRest;
 
@@ -30,19 +29,15 @@ public abstract class AbstractDataResource {
    * This is used to pass a bean in the URI, such as when calling a GET method.
    * 
    * @param <T> the bean type
-   * @param cls  the bean class to build, not null
+   * @param type  the bean type to build, not null
    * @param providers  the providers, not null
    * @param msgBase64  the base-64 Fudge message, not null
    * @return the bean, not null
    */
-  public <T extends Bean> T decodeBean(final Class<T> cls, final Providers providers, final String msgBase64) {
-    return decode(cls, providers, msgBase64);
-  }
-  
-  public <T> T decode(final Class<T> cls, final Providers providers, final String msgBase64) {
+  protected <T> T decodeBase64(final Class<T> type, final Providers providers, final String msgBase64) {
     if (msgBase64 == null) {
       try {
-        return cls.newInstance();
+        return type.newInstance();
       } catch (InstantiationException ex) {
         throw new RuntimeException(ex);
       } catch (IllegalAccessException ex) {
@@ -51,9 +46,9 @@ public abstract class AbstractDataResource {
     }
     byte[] msg = Base64.decodeBase64(msgBase64);
     InputStream in = new ByteArrayInputStream(msg);
-    MessageBodyReader<T> mbr = providers.getMessageBodyReader(cls, cls, null, FudgeRest.MEDIA_TYPE);
+    MessageBodyReader<T> mbr = providers.getMessageBodyReader(type, type, null, FudgeRest.MEDIA_TYPE);
     try {
-      return mbr.readFrom(cls, cls, null, FudgeRest.MEDIA_TYPE, null, in);
+      return mbr.readFrom(type, type, null, FudgeRest.MEDIA_TYPE, null, in);
     } catch (IOException ex) {
       throw new RuntimeException(ex);
     }

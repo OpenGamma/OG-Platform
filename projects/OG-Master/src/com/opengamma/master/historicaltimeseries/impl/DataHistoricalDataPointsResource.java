@@ -94,7 +94,7 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
   @GET
   public Response get(@Context Providers providers, @QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo, @QueryParam("filter") String filterBase64) {
     VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
-    HistoricalTimeSeriesGetFilter filter = decodeBean(HistoricalTimeSeriesGetFilter.class, providers, filterBase64);
+    HistoricalTimeSeriesGetFilter filter = decodeBase64(HistoricalTimeSeriesGetFilter.class, providers, filterBase64);
     if (filter != null) {
       ManageableHistoricalTimeSeries result = getHistoricalTimeSeriesMaster().getTimeSeries(getUrlDataPointsId(), vc, filter);
       return Response.ok(result).build();
@@ -135,7 +135,7 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
   @GET
   @Path("versions/{versionId}")
   public Response getVersioned(@Context Providers providers, @PathParam("versionId") String versionId, @QueryParam("filter") String filterBase64) {
-    HistoricalTimeSeriesGetFilter filter = decodeBean(HistoricalTimeSeriesGetFilter.class, providers, filterBase64);
+    HistoricalTimeSeriesGetFilter filter = decodeBase64(HistoricalTimeSeriesGetFilter.class, providers, filterBase64);
     if (filter != null) {
       ManageableHistoricalTimeSeries result = getHistoricalTimeSeriesMaster().getTimeSeries(getUrlDataPointsId().atVersion(versionId), filter);
       return Response.ok(result).build();

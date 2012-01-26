@@ -35,7 +35,7 @@ public class RemoteDependencyGraphExplorer implements DependencyGraphExplorer {
   
   @Override
   public DependencyGraph getSubgraphProducing(ValueSpecification output) {
-    String encodedValueSpec = _client.encode(output);
+    String encodedValueSpec = _client.encodeBase64(output);
     URI uri = DataDependencyGraphExplorerResource.uriSubgraph(_baseUri, encodedValueSpec);
     return _client.access(uri).get(DependencyGraph.class);
   }

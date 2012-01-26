@@ -118,7 +118,7 @@ public class DataMarketDataSnapshotResource extends AbstractDataResource {
   @GET
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    MarketDataSnapshotHistoryRequest request = decodeBean(MarketDataSnapshotHistoryRequest.class, providers, msgBase64);
+    MarketDataSnapshotHistoryRequest request = decodeBase64(MarketDataSnapshotHistoryRequest.class, providers, msgBase64);
     if (getUrlMarketDataSnapshotId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }

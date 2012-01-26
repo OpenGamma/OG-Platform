@@ -51,7 +51,7 @@ public class RemoteSecurityMaster extends AbstractRemoteMaster implements Securi
   public SecurityMetaDataResult metaData(SecurityMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    String msgBase64 = getRestClient().encodeBean(request);
+    String msgBase64 = getRestClient().encodeBase64(request);
     URI uri = DataSecurityMasterResource.uriMetaData(getBaseUri(), msgBase64);
     return accessRemote(uri).get(SecurityMetaDataResult.class);
   }
@@ -123,7 +123,7 @@ public class RemoteSecurityMaster extends AbstractRemoteMaster implements Securi
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
-    String msgBase64 = getRestClient().encodeBean(request);
+    String msgBase64 = getRestClient().encodeBase64(request);
     URI uri = DataSecurityResource.uriVersions(getBaseUri(), request.getObjectId(), msgBase64);
     return accessRemote(uri).get(SecurityHistoryResult.class);
   }

@@ -70,7 +70,7 @@ public class DataConfigMasterResource extends AbstractDataResource {
   public Response metaData(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     ConfigMetaDataRequest request = new ConfigMetaDataRequest();
     if (msgBase64 != null) {
-      request = decodeBean(ConfigMetaDataRequest.class, providers, msgBase64);
+      request = decodeBase64(ConfigMetaDataRequest.class, providers, msgBase64);
     }
     ConfigMetaDataResult result = getConfigMaster().metaData(request);
     return Response.ok(result).build();

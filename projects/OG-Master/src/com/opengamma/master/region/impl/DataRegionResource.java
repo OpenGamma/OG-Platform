@@ -118,7 +118,7 @@ public class DataRegionResource extends AbstractDataResource {
   @GET
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    RegionHistoryRequest request = decodeBean(RegionHistoryRequest.class, providers, msgBase64);
+    RegionHistoryRequest request = decodeBase64(RegionHistoryRequest.class, providers, msgBase64);
     if (getUrlRegionId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }

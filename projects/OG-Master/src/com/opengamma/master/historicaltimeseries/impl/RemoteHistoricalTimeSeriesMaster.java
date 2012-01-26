@@ -56,7 +56,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
   public HistoricalTimeSeriesInfoMetaDataResult metaData(HistoricalTimeSeriesInfoMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    String msgBase64 = getRestClient().encodeBean(request);
+    String msgBase64 = getRestClient().encodeBase64(request);
     URI uri = DataHistoricalTimeSeriesMasterResource.uriMetaData(getBaseUri(), msgBase64);
     return accessRemote(uri).get(HistoricalTimeSeriesInfoMetaDataResult.class);
   }
@@ -128,7 +128,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
-    String msgBase64 = getRestClient().encodeBean(request);
+    String msgBase64 = getRestClient().encodeBase64(request);
     URI uri = DataHistoricalTimeSeriesResource.uriVersions(getBaseUri(), request.getObjectId(), msgBase64);
     return accessRemote(uri).get(HistoricalTimeSeriesInfoHistoryResult.class);
   }
@@ -162,7 +162,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     if (uniqueId.isVersioned()) {
-      String msgBase64 = getRestClient().encodeBean(filter);
+      String msgBase64 = getRestClient().encodeBase64(filter);
       URI uri = DataHistoricalDataPointsResource.uriVersion(getBaseUri(), uniqueId, msgBase64);
       return accessRemote(uri).get(ManageableHistoricalTimeSeries.class);
     } else {
@@ -182,7 +182,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
   public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, HistoricalTimeSeriesGetFilter filter) {
     ArgumentChecker.notNull(objectId, "objectId");
     
-    String msgBase64 = getRestClient().encodeBean(filter);
+    String msgBase64 = getRestClient().encodeBase64(filter);
     URI uri = DataHistoricalDataPointsResource.uri(getBaseUri(), objectId, versionCorrection, msgBase64);
     return accessRemote(uri).get(ManageableHistoricalTimeSeries.class);
   }

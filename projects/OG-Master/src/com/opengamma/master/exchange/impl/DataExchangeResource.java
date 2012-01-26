@@ -118,7 +118,7 @@ public class DataExchangeResource extends AbstractDataResource {
   @GET
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    ExchangeHistoryRequest request = decodeBean(ExchangeHistoryRequest.class, providers, msgBase64);
+    ExchangeHistoryRequest request = decodeBase64(ExchangeHistoryRequest.class, providers, msgBase64);
     if (getUrlExchangeId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }

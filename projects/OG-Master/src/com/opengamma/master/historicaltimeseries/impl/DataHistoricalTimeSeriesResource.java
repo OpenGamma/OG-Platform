@@ -118,7 +118,7 @@ public class DataHistoricalTimeSeriesResource extends AbstractDataResource {
   @GET
   @Path("versions")
   public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    HistoricalTimeSeriesInfoHistoryRequest request = decodeBean(HistoricalTimeSeriesInfoHistoryRequest.class, providers, msgBase64);
+    HistoricalTimeSeriesInfoHistoryRequest request = decodeBase64(HistoricalTimeSeriesInfoHistoryRequest.class, providers, msgBase64);
     if (getUrlInfoId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }

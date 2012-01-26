@@ -111,7 +111,7 @@ public class RemoteExchangeMaster extends AbstractRemoteMaster implements Exchan
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
-    String msgBase64 = getRestClient().encodeBean(request);
+    String msgBase64 = getRestClient().encodeBase64(request);
     URI uri = DataExchangeResource.uriVersions(getBaseUri(), request.getObjectId(), msgBase64);
     return accessRemote(uri).get(ExchangeHistoryResult.class);
   }

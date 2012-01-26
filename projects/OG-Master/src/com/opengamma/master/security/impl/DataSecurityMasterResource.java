@@ -70,7 +70,7 @@ public class DataSecurityMasterResource extends AbstractDataResource {
   public Response metaData(@Context Providers providers, @QueryParam("msg") String msgBase64) {
     SecurityMetaDataRequest request = new SecurityMetaDataRequest();
     if (msgBase64 != null) {
-      request = decodeBean(SecurityMetaDataRequest.class, providers, msgBase64);
+      request = decodeBase64(SecurityMetaDataRequest.class, providers, msgBase64);
     }
     SecurityMetaDataResult result = getSecurityMaster().metaData(request);
     return Response.ok(result).build();
