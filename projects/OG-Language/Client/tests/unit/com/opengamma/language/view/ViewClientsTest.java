@@ -75,11 +75,11 @@ public class ViewClientsTest {
 
   public void testLockView() {
     final SessionContext context = createTestUtils().createSessionContext();
-    final ViewClientKey vck = new ViewClientKey(VIEW_ID.toString(), true);
+    final ViewClientKey vck = new ViewClientKey(ViewClientDescriptor.tickingMarketData(VIEW_ID, null), true);
     final ViewClientHandle handle1 = context.getUserContext().getViewClients().lockViewClient(vck);
     final MockViewClient viewClient1 = (MockViewClient) handle1.get().getViewClient();
     assertEquals(viewClient1.getAttachedViewDefinitionId(), VIEW_ID);
-    final ViewClientHandle handle2 = context.getUserContext().getViewClients().lockViewClient(new ViewClientKey(VIEW_ID.toString(), true));
+    final ViewClientHandle handle2 = context.getUserContext().getViewClients().lockViewClient(new ViewClientKey(ViewClientDescriptor.tickingMarketData(VIEW_ID, null), true));
     final MockViewClient viewClient2 = (MockViewClient) handle2.get().getViewClient();
     assertSame(viewClient2, viewClient1);
     handle1.unlock();
@@ -91,7 +91,7 @@ public class ViewClientsTest {
   @Test(expectedExceptions = {IllegalStateException.class })
   public void testUnlockUnlock() {
     final SessionContext context = createTestUtils().createSessionContext();
-    final ViewClientHandle handle = context.getUserContext().getViewClients().lockViewClient(new ViewClientKey(VIEW_ID.toString(), true));
+    final ViewClientHandle handle = context.getUserContext().getViewClients().lockViewClient(new ViewClientKey(ViewClientDescriptor.tickingMarketData(VIEW_ID, null), true));
     handle.unlock();
     handle.unlock();
   }
@@ -99,14 +99,14 @@ public class ViewClientsTest {
   @Test(expectedExceptions = {IllegalStateException.class })
   public void testUnlockGet() {
     final SessionContext context = createTestUtils().createSessionContext();
-    final ViewClientHandle handle = context.getUserContext().getViewClients().lockViewClient(new ViewClientKey(VIEW_ID.toString(), true));
+    final ViewClientHandle handle = context.getUserContext().getViewClients().lockViewClient(new ViewClientKey(ViewClientDescriptor.tickingMarketData(VIEW_ID, null), true));
     handle.unlock();
     handle.get();
   }
 
   public void testDetachView() {
     final SessionContext context = createTestUtils().createSessionContext();
-    final ViewClientKey vck = new ViewClientKey(VIEW_ID.toString(), true);
+    final ViewClientKey vck = new ViewClientKey(ViewClientDescriptor.tickingMarketData(VIEW_ID, null), true);
     final ViewClientHandle handle1 = context.getUserContext().getViewClients().lockViewClient(vck);
     final MockViewClient viewClient1 = (MockViewClient) handle1.get().getViewClient();
     assertEquals(viewClient1.getAttachedViewDefinitionId(), VIEW_ID);

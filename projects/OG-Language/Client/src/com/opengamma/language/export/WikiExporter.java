@@ -36,7 +36,9 @@ public class WikiExporter extends Exporter {
     docExporter.init();
     setExporter(docExporter);
     super.run();
-    getPageExporter(defExporter).writePages();
+    final WikiPageExporter pageExporter = getPageExporter(defExporter);
+    pageExporter.init();
+    pageExporter.writePages();
   }
 
 }

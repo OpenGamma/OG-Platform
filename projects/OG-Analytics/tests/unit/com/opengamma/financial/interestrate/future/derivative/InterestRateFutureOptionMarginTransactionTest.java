@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.future.definition;
+package com.opengamma.financial.interestrate.future.derivative;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
@@ -17,6 +17,9 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
@@ -27,9 +30,9 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 /**
- * Tests on the construction of interest rate future option with up-front payment.
+ * Tests for the constructor of transaction on interest rate future options.
  */
-public class InterestRateFutureOptionPremiumSecurityTest {
+public class InterestRateFutureOptionMarginTransactionTest {
   //EURIBOR 3M Index
   private static final Period TENOR = Period.ofMonths(3);
   private static final int SETTLEMENT_DAYS = 2;
@@ -59,20 +62,21 @@ public class InterestRateFutureOptionPremiumSecurityTest {
   private static final double STRIKE = 0.9850;
   private static final boolean IS_CALL = true;
   private static final InterestRateFutureOptionMarginSecurity OPTION_EDU2 = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME, STRIKE, IS_CALL);
+  // Transaction
+  private static final int QUANTITY = -123;
+  private static final double TRADE_PRICE = 0.0050;
+  private static final InterestRateFutureOptionMarginTransaction OPTION_TRANSACTION = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullUnderlying() {
-    new InterestRateFutureOptionPremiumSecurity(null, EXPIRATION_TIME, STRIKE, IS_CALL);
+    new InterestRateFutureOptionMarginTransaction(null, QUANTITY, TRADE_PRICE);
   }
 
   @Test
   public void getter() {
-    assertEquals(EDU2, OPTION_EDU2.getUnderlyingFuture());
-    assertEquals(EXPIRATION_TIME, OPTION_EDU2.getExpirationTime());
-    assertEquals(STRIKE, OPTION_EDU2.getStrike());
-    assertEquals(IS_CALL, OPTION_EDU2.isCall());
-    assertEquals(DISCOUNTING_CURVE_NAME, OPTION_EDU2.getDiscountingCurveName());
-    assertEquals(FORWARD_CURVE_NAME, OPTION_EDU2.getForwardCurveName());
+    assertEquals(OPTION_EDU2, OPTION_TRANSACTION.getUnderlyingOption());
+    assertEquals(QUANTITY, OPTION_TRANSACTION.getQuantity());
+    assertEquals(TRADE_PRICE, OPTION_TRANSACTION.getReferencePrice());
   }
 
   @Test
@@ -80,16 +84,14 @@ public class InterestRateFutureOptionPremiumSecurityTest {
    * Tests the equal and hash code methods.
    */
   public void equalHash() {
-    InterestRateFutureOptionMarginSecurity newOption = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME, STRIKE, IS_CALL);
-    assertTrue(OPTION_EDU2.equals(newOption));
-    assertEquals(OPTION_EDU2.hashCode(), newOption.hashCode());
-    InterestRateFutureOptionMarginSecurity modifiedOption;
-    modifiedOption = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME - 0.01, STRIKE, IS_CALL);
-    assertFalse(OPTION_EDU2.equals(modifiedOption));
-    modifiedOption = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME, STRIKE + 0.01, IS_CALL);
-    assertFalse(OPTION_EDU2.equals(modifiedOption));
-    modifiedOption = new InterestRateFutureOptionMarginSecurity(EDU2, EXPIRATION_TIME, STRIKE, !IS_CALL);
-    assertFalse(OPTION_EDU2.equals(modifiedOption));
+    InterestRateFutureOptionMarginTransaction newTransaction = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE);
+    assertTrue(OPTION_TRANSACTION.equals(newTransaction));
+    assertEquals(OPTION_TRANSACTION.hashCode(), newTransaction.hashCode());
+    InterestRateFutureOptionMarginTransaction modifiedTransaction;
+    modifiedTransaction = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY + 1, TRADE_PRICE);
+    assertFalse(OPTION_TRANSACTION.equals(modifiedTransaction));
+    modifiedTransaction = new InterestRateFutureOptionMarginTransaction(OPTION_EDU2, QUANTITY, TRADE_PRICE + 0.001);
+    assertFalse(OPTION_TRANSACTION.equals(modifiedTransaction));
   }
 
 }

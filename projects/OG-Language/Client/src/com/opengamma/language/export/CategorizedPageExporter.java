@@ -36,7 +36,7 @@ public abstract class CategorizedPageExporter {
     _includeAliases = includeAliases;
   }
 
-  public final boolean isIncludeAlises() {
+  public final boolean isIncludeAliases() {
     return _includeAliases;
   }
 
@@ -177,15 +177,24 @@ public abstract class CategorizedPageExporter {
     return uncloseable(System.out);
   }
 
+  protected void endWriteEntryPages() {
+    // No-op
+  }
+
   public final void writeEntryPages() {
     final List<Entry> entries = getExporter().getEntries();
     for (Entry entry : entries) {
-      if (!entry.isAlias() || isIncludeAlises()) {
+      if (!entry.isAlias() || isIncludeAliases()) {
         final PrintStream ps = openEntryPage(entry);
         writeEntryPage(ps, entry);
         ps.close();
       }
     }
+    endWriteEntryPages();
+  }
+
+  public void init() {
+    // No-op
   }
 
   public final void writePages() {

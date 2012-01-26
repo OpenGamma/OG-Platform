@@ -47,7 +47,7 @@ public class ConfigureViewClientProcedureTest {
   }
 
   private UserViewClient createViewClient(final MockMarketDataInjector mockMarketDataInjector) {
-    final ViewClientKey key = new ViewClientKey("View~Test", true);
+    final ViewClientKey key = new ViewClientKey(ViewClientDescriptor.tickingMarketData(UniqueId.of("View", "Test"), null), true);
     final MockViewClient client = new MockViewClient(UniqueId.of("Client", "Test"));
     client.setLiveDataOverrideInjector(mockMarketDataInjector);
     return new UserViewClient(null, client, key);
