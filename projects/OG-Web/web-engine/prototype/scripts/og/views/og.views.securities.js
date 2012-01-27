@@ -196,7 +196,7 @@ $.register_module({
                         var filter_name = view.options.slickgrid.columns[0].name;
                         if (!filter_name || filter_name === 'loading') // wait until type filter is populated
                             return setTimeout(view.filter, 500);
-                        search.filter(args);
+                        search.filter();
                 };
                 check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
                     view[args.id ? 'load_item' : 'load'](args);

@@ -245,6 +245,9 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
     try {
       compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
+      if (isTerminated()) {
+        return; //[PLAT-1904]
+      }
     } catch (Exception e) {
       String message = MessageFormat.format("Error obtaining compiled view definition {0} for time {1} at version-correction {2}",
           getViewProcess().getDefinitionId(), compilationValuationTime, versionCorrection);
@@ -550,6 +553,10 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
       MarketDataAvailabilityProvider availabilityProvider = getMarketDataProvider().getAvailabilityProvider();
       ViewCompilationServices compilationServices = getProcessContext().asCompilationServices(availabilityProvider);
       compiledViewDefinition = ViewDefinitionCompiler.compile(_viewDefinition, compilationServices, valuationTime, versionCorrection);
+      
+      if (isTerminated()) {
+        return compiledViewDefinition; //[PLAT-1904] If we can't terminate the compilation at least avoid doing the subscribe etc.
+      }
     } catch (Exception e) {
       String message = MessageFormat.format("Error compiling view definition {0} for time {1}", getViewProcess().getDefinitionId(), valuationTime);
       viewDefinitionCompilationFailed(valuationTime, new OpenGammaRuntimeException(message, e));

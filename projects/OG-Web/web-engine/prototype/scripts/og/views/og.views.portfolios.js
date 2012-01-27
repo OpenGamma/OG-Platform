@@ -391,7 +391,7 @@ $.register_module({
                         view[args.node ? 'load_item' : 'load'](args);
                     }}
                 ]});
-                view.filter(args);
+                view.filter();
             },
             options: {
                 slickgrid: {

@@ -29,7 +29,7 @@ $.register_module({
             module = this, view, details_page,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            get_quantities,
+            get_quantities = og.common.search.get_quantities,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
                     type: 'input',
@@ -95,29 +95,6 @@ $.register_module({
                     };
                 }
             };
-        /**
-         * @param {String} input text input from the quantity filter
-         * @returns {Object} obj object with the required properties for the rest api (min_quantity, max_quantity)
-         */
-        get_quantities = function (input) {
-            var obj = {}, str = input ? input.replace(/,/g, '') : '',
-                range         = /^\s*(-{0,1}[0-9]+)\s*-\s*(-{0,1}[0-9]+)\s*$/,  // (-)x-(-)x
-                less          = /^\s*<\s*(-{0,1}[0-9]+)\s*$/,                   // <(0)x
-                more          = /^\s*>\s*(-{0,1}[0-9]+)\s*$/,                   // >(0)x
-                less_or_equal = /^\s*<\s*=\s*(-{0,1}[0-9]+)\s*$/,               // <=(0)x
-                more_or_equal = /^\s*>\s*=\s*(-{0,1}[0-9]+)\s*$/,               // >=(0)x
-                exact         = /^\s*(-{0,1}[0-9]+)\s*$/;                       // (-)x
-            switch (true) {
-                case less.test(str): obj.max_quantity = +str.replace(less, '$1') - 1; break;
-                case less_or_equal.test(str): obj.max_quantity = str.replace(less_or_equal, '$1'); break;
-                case more.test(str): obj.min_quantity = +str.replace(more, '$1') + 1; break;
-                case more_or_equal.test(str): obj.min_quantity = str.replace(more_or_equal, '$1'); break;
-                case exact.test(str): obj.min_quantity = obj.max_quantity = str.replace(exact, '$1'); break;
-                case range.test(str):
-                    obj.min_quantity = str.replace(range, '$1'), obj.max_quantity = str.replace(range, '$2'); break;
-            }
-            return obj;
-        };
         details_page = function (args, config) {
             var show_loading = !(config || {}).hide_loading;
             // load versions
@@ -185,7 +162,7 @@ $.register_module({
                 check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
                     view[args.id ? 'load_item' : 'load'](args);
                 }}]});
-                view.filter($.extend(true, args, get_quantities(args.quantity)));
+                view.filter();
             },
             options: {
                 slickgrid: {
@@ -237,9 +214,7 @@ $.register_module({
                     search = common.search_results.core();
                     view.filter = search.filter;
                 }
-                search.load($.extend(true, view.options.slickgrid, {url: args}, {
-                    url: args.quantity ? get_quantities(args.quantity) : {}
-                }));
+                search.load(view.options.slickgrid);
             }
         });
     }

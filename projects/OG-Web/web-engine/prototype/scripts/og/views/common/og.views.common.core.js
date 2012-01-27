@@ -49,7 +49,7 @@ $.register_module({
                     search = common.search_results.core();
                     view.filter = search.filter;
                 }
-                search.load($.extend(view.options.slickgrid, {url: args}));
+                search.load(view.options.slickgrid);
             };
         };
     }

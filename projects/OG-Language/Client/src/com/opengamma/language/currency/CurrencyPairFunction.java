@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.language.financial.currency;
+package com.opengamma.language.currency;
 
 import java.util.List;
 
@@ -12,6 +12,7 @@ import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.language.async.AsynchronousExecution;
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
 import com.opengamma.language.function.AbstractFunctionInvoker;
@@ -38,7 +39,7 @@ public class CurrencyPairFunction implements PublishedFunction {
     MetaParameter currencyPairsName = new MetaParameter("currencyPairsName", JavaTypeInfo.builder(String.class).allowNull().get());
     currencyPairsName.setDescription("Name of the set of market convention currency pairs");
     List<MetaParameter> params = ImmutableList.of(currency1, currency2, currencyPairsName);
-    _metaFunction = new MetaFunction(null, "CurrencyPair", params, new Invoker(params));
+    _metaFunction = new MetaFunction(Categories.CURRENCY, "CurrencyPair", params, new Invoker(params));
     _metaFunction.setDescription("Returns the market convention currency pair for the two currencies");
   }
 

@@ -17,6 +17,11 @@ public final class Categories {
   // (e.g. to group by function, such as database access, rather than by object type)
 
   /**
+   * Anything concerned with currency manipulation.
+   */
+  public static final String CURRENCY = "Currency";
+
+  /**
    * Anything concerned with curve objects.
    */
   public static final String CURVE = "Curve";

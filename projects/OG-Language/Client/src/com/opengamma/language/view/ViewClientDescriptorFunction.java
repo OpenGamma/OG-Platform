@@ -143,8 +143,8 @@ public abstract class ViewClientDescriptorFunction extends AbstractFunctionInvok
   // AbstractFunctionInvoker
 
   @Override
-  protected final Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
-    return invokeImpl(parameters).encode();
+  protected final ViewClientDescriptor invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
+    return invokeImpl(parameters);
   }
 
   // PublishedFunction
