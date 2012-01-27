@@ -74,6 +74,7 @@ $.register_module({
                         trade_obj.premium = value[0];
                         trade_obj.currency = value[1];
                     }
+                    if (attribute === 'counterParty') trade_obj.counterParty = trade_obj.counterParty.split('~')[1];
                     $(val).val(trade_obj[attribute]);
                 });
                 // user attributes
