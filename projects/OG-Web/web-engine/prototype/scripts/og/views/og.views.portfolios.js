@@ -26,6 +26,7 @@ $.register_module({
             toolbar_buttons = {
                 'new': function () {
                     ui.dialog({
+                        width: 400, height: 190,
                         type: 'input',
                         title: 'Add New Portfolio',
                         fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
@@ -51,6 +52,7 @@ $.register_module({
                     ui.dialog({
                         type: 'confirm',
                         title: 'Delete portfolio?',
+                        width: 400, height: 190,
                         message: 'Are you sure you want to permanently delete ' +
                             '<strong style="white-space: nowrap">' + portfolio_name + '</strong>?',
                         buttons: {
@@ -108,6 +110,7 @@ $.register_module({
                         ui.dialog({
                             type: 'input',
                             title: 'Add New sub Portfolio',
+                            width: 400, height: 190,
                             fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
                             buttons: {
                                 'OK': function () {
@@ -150,6 +153,7 @@ $.register_module({
                     ui.dialog({
                         type: 'confirm',
                         title: 'Delete sub-portfolio?',
+                        width: 400, height: 190,
                         message: 'Are you sure you want to permanently delete ' +
                             '<strong style="white-space: nowrap">' + node.name + '</strong>?',
                         buttons: {
@@ -205,6 +209,7 @@ $.register_module({
                         ui.dialog({
                             type: 'input',
                             title: 'Add Position',
+                            width: 400, height: 190,
                             fields: [{type: 'input', name: 'Identifier', id: 'name'}],
                             buttons: {
                                 'OK': function () {

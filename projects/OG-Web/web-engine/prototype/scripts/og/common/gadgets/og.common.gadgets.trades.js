@@ -53,7 +53,7 @@ $.register_module({
             }).unbind('click').bind('click', function (e) {
                 e.preventDefault();
                 ui.dialog({
-                    type: 'input', title: 'Add New Trade', minWidth: 400, minHeight: 400,
+                    type: 'input', title: 'Add New Trade', width: 400, height: 560,
                     form: generate_form_function(form_handler),
                     buttons: {
                         'Create': form_save.partial(null),
@@ -70,10 +70,7 @@ $.register_module({
                 $add_trades.find('[name]').each(function (i, val) {
                     // special case 'premium' as there are two fields for the one value
                     var attribute = $(val).attr('name'), value = trade_obj.premium.split(' ');
-                    if (attribute === 'premium') {
-                        trade_obj.premium = value[0];
-                        trade_obj.currency = value[1];
-                    }
+                    if (attribute === 'premium') trade_obj.premium = value[0], trade_obj.currency = value[1];
                     if (attribute === 'counterParty') trade_obj.counterParty = trade_obj.counterParty.split('~')[1];
                     $(val).val(trade_obj[attribute]);
                 });
@@ -225,6 +222,7 @@ $.register_module({
                 ui.dialog({
                     type: 'confirm',
                     title: 'Delete trade?',
+                    width: 400, height: 190,
                     message: 'Are you sure you want to permanently delete trade ' +
                         '<strong style="white-space: nowrap">' + trade_id + '</strong>?',
                     buttons: {
@@ -253,7 +251,7 @@ $.register_module({
                 deal_attributes = (trade_obj.attributes && trade_obj.attributes.dealAttributes)
                     ? trade_obj.attributes.dealAttributes : null;
                 ui.dialog({
-                    type: 'input', title: 'Edit Trade: ' + trade_id, minWidth: 400, minHeight: 400,
+                    type: 'input', title: 'Edit Trade: ' + trade_id, width: 400, height: 560,
                     form: generate_form_function(form_handler.partial(trade_obj)),
                     buttons: {
                         'Save': form_save.partial(deal_attributes, trade_id),
