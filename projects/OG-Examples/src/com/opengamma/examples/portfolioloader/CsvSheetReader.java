@@ -19,11 +19,11 @@ import au.com.bytecode.opencsv.CSVReader;
 /**
  * A class to facilitate importing portfolio data from comma-separated value files
  */
-public class CsvSheet extends SheetReader {
+public class CsvSheetReader extends SheetReader {
 
   private CSVReader _csvReader;
 
-  public CsvSheet(InputStream inputStream, String[] columns) {
+  public CsvSheetReader(InputStream inputStream, String[] columns) {
     
     // Set up CSV reader
     _csvReader = new CSVReader(new InputStreamReader(inputStream));
@@ -32,7 +32,7 @@ public class CsvSheet extends SheetReader {
     setColumns(columns);
   }
   
-  public CsvSheet(InputStream inputStream) {
+  public CsvSheetReader(InputStream inputStream) {
     
     // Set up CSV reader
     _csvReader = new CSVReader(new InputStreamReader(inputStream));

@@ -3,14 +3,17 @@
  * 
  * Please see distribution for license.
  */
+
 package com.opengamma.examples.portfolioloader;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatterBuilder;
 
+import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 
@@ -22,7 +25,7 @@ public abstract class RowParser {
   /** Standard date-time formatter for the input */
   private static final DateTimeFormatter CSV_DATE_FORMATTER;
   /** Standard date-time formatter for the output */
-  private static final DateTimeFormatter OUTPUT_DATE_FORMATTER;
+//  private static final DateTimeFormatter OUTPUT_DATE_FORMATTER;
 
   static {
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
@@ -30,12 +33,37 @@ public abstract class RowParser {
     CSV_DATE_FORMATTER = builder.toFormatter();
     builder = new DateTimeFormatterBuilder();
     builder.appendPattern("yyyy-MM-dd");
-    OUTPUT_DATE_FORMATTER = builder.toFormatter();
+//    OUTPUT_DATE_FORMATTER = builder.toFormatter();
   }
 
-  public abstract ManageableSecurity constructSecurity(Map<String, String> eqFutureDetails);
+  /**
+   * Constructs one or more securities associated with the supplied row. As a convention, the underlying security
+   * is returned at array location 0.
+   * @param row The mapping between column names and contents for the current row
+   * @return An array of securities constructed from the current row's data; underlying is at index 0
+   */
+  public abstract ManageableSecurity[] constructSecurity(Map<String, String> row);
   
-  public abstract ManageableTrade constructTrade(Map<String, String> eqFutureDetails, ManageableSecurity security);
+  /**
+   * Constructs a position associated with the supplied row. 
+   * @param row The mapping between column names and contents for the current row
+   * @param security  The associated security
+   * @return The constructed position
+   */
+  public ManageablePosition constructPosition(Map<String, String> row, ManageableSecurity security) {
+    return new ManageablePosition(BigDecimal.ONE, security.getExternalIdBundle());
+  }
+  
+  /**
+   * Constructs a trade associated with the supplied row.
+   * @param row The mapping between column names and contents for the current row
+   * @param security  The associated security
+   * @param position  The associated position
+   * @return  The constructed trade
+   */
+  public ManageableTrade constructTrade(Map<String, String> row, ManageableSecurity security, ManageablePosition position) {
+    return null;
+  }
   
   
   protected static String getWithException(Map<String, String> fieldValueMap, String fieldName) {

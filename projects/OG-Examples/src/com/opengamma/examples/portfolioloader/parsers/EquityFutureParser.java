@@ -3,9 +3,11 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.examples.portfolioloader;
+package com.opengamma.examples.portfolioloader.parsers;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -17,8 +19,10 @@ import javax.time.calendar.ZoneOffset;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.examples.portfolioloader.RowParser;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
@@ -55,7 +59,7 @@ public class EquityFutureParser extends RowParser {
    * @return the newly constructed trade
    */
   @Override
-  public ManageableTrade constructTrade(Map<String, String> eqFutureDetails, ManageableSecurity security) {
+  public ManageableTrade constructTrade(Map<String, String> eqFutureDetails, ManageableSecurity security, ManageablePosition position) {
 
     final LocalDate tradeDate = getDateWithException(eqFutureDetails, TRADE_DATE);
     ExternalId ct = ExternalId.of("ID", "COUNTERPARTY"); // TODO: Hardcoded COUNTERPARTY
@@ -77,7 +81,7 @@ public class EquityFutureParser extends RowParser {
    * @return the newly constructed security
    */
   @Override
-  public ManageableSecurity constructSecurity(Map<String, String> eqFutureDetails) {
+  public ManageableSecurity[] constructSecurity(Map<String, String> eqFutureDetails) {
 
     final Currency ccy = Currency.of(getWithException(eqFutureDetails, CURRENCY));
     final String tradingExchange = getWithException(eqFutureDetails, TRADING_EXCHANGE);
@@ -98,7 +102,9 @@ public class EquityFutureParser extends RowParser {
     final String name = getWithException(eqFutureDetails, NAME);
     security.setName(name);
     security.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    return security;
+    
+    ManageableSecurity[] result = {security};
+    return result;
   }
 
 }

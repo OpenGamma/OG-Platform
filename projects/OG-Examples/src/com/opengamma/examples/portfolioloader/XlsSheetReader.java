@@ -8,7 +8,6 @@ package com.opengamma.examples.portfolioloader;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,30 +21,32 @@ import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * A class for importing portfolio data from XLS (pre-Excel 2007) worksheets
+ * TODO XLS reader is incomplete, and does not really work yet!!!
  */
-public class XlsSheet extends SheetReader {
+public class XlsSheetReader extends SheetReader {
 
   private Sheet _sheet;
   private Workbook _workbook;
   private int _firstRow;
-  private int _firstColumn;
+//  private int _firstColumn;
   private int _currentRowNumber;
   
-  public XlsSheet(InputStream inputStream, String[] columns) {
+  public XlsSheetReader(InputStream inputStream, String[] columns) {
     _workbook = getWorkbook(inputStream);
     _sheet = _workbook.getSheetAt(0);
-    _currentRowNumber = _firstRow = _sheet.getFirstRowNum();
-    _firstColumn = 0;
+    _firstRow = _sheet.getFirstRowNum();
+    _currentRowNumber = _firstRow;
+//    _firstColumn = 0;
   }
 
-  public XlsSheet(InputStream inputStream, String sheetName, String[] columns) {
+  public XlsSheetReader(InputStream inputStream, String sheetName, String[] columns) {
     _workbook = getWorkbook(inputStream);
     _sheet = _workbook.getSheet(sheetName);
     //_currentRowNumber = _firstRow = firstRow;
     //_firstColumn = firstColumn;
   }
 
-  public XlsSheet(InputStream inputStream, int sheetIndex, String[] columns) {
+  public XlsSheetReader(InputStream inputStream, int sheetIndex, String[] columns) {
     _workbook = getWorkbook(inputStream);
     _sheet = _workbook.getSheetAt(sheetIndex);
     //_currentRowNumber = _firstRow = firstRow;
