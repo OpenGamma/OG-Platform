@@ -22,6 +22,8 @@ public class DummyPortfolioWriter implements PortfolioWriter {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CommandLineTool.class);
 
+  private ManageablePortfolioNode _node = new ManageablePortfolioNode();
+  
   @Override
   public ManageableSecurity writeSecurity(ManageableSecurity security) {
     s_logger.info("Security: " + security.toString());
@@ -41,13 +43,14 @@ public class DummyPortfolioWriter implements PortfolioWriter {
 
   @Override
   public ManageablePortfolioNode getCurrentNode() {
-    return null;
+    return _node;
   }
 
   @Override
   public ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node) {
     s_logger.info("Set node to: " + node.toString());
-    return null;
+    _node = node;
+    return _node;
   }
 
   @Override

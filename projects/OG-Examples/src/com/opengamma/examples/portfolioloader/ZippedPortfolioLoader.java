@@ -19,6 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.master.portfolio.ManageablePortfolioNode;
 
 /**
  * Portfolio loader that reads multiple CSV files within a ZIP archive, identifies the correct loader class for each,
@@ -75,6 +76,8 @@ public class ZippedPortfolioLoader implements PortfolioLoader {
   @Override
   public void writeTo(PortfolioWriter portfolioWriter) {
 
+    ManageablePortfolioNode node = portfolioWriter.getCurrentNode();
+    
     // Iterate through the CSV file entries in the ZIP archive
     Enumeration<?> e = _zipFile.entries();
     while (e.hasMoreElements()) {
@@ -96,8 +99,17 @@ public class ZippedPortfolioLoader implements PortfolioLoader {
 
           s_logger.info("Processing " + entry.getName() + " with " + className);
           
+          // Add portfolio node and change to it
+          ManageablePortfolioNode subNode = new ManageablePortfolioNode();
+          subNode.setName(entry.getName().substring(0, entry.getName().lastIndexOf('.')));
+          node.addChildNode(subNode);
+          portfolioWriter.setCurrentNode(subNode);
+          
           // Persist the current sheet's trades/positions using the specified portfolio writer
           portfolioLoader.writeTo(portfolioWriter);
+          
+          // Change back to root portfolio node
+          portfolioWriter.setCurrentNode(node);
           
           // Flush changes to portfolio master
           portfolioWriter.flush();

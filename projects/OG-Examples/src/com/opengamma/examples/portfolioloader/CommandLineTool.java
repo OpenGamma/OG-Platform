@@ -120,6 +120,8 @@ public class CommandLineTool {
     String extension = filename.substring(filename.lastIndexOf('.'));
     if (extension.equalsIgnoreCase(".csv")) {
      
+      // SINGLE CSV FILE
+      
       // Check that the asset class was specified on the command line
       String assetClass = cmdLine.getOptionValue(ASSET_CLASS_OPT);
       if (assetClass == null) {
@@ -156,6 +158,8 @@ public class CommandLineTool {
       }
 
     } else if (extension.equalsIgnoreCase(".zip")) {
+      
+      // MULTI-ASSET ZIP FILE
       
       // Create zipped multi-asset class loader
       portfolioLoader = new ZippedPortfolioLoader(filename);
