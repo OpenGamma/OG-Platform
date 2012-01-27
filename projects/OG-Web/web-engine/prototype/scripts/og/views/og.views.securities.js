@@ -33,6 +33,7 @@ $.register_module({
                 'new': function () {ui.dialog({
                     type: 'input',
                     title: 'Add Securities',
+                    width: 400, height: 270,
                     fields: [
                         {type: 'select', name: 'Scheme Type', id: 'scheme-type',
                                 options: [
@@ -72,6 +73,7 @@ $.register_module({
                 'delete': function () {ui.dialog({
                     type: 'confirm',
                     title: 'Delete Security?',
+                    width: 400, height: 190,
                     message: 'Are you sure you want to permanently delete this security?',
                     buttons: {
                         'Delete': function () {
