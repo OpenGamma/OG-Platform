@@ -36,7 +36,7 @@ $.register_module({
             delete obj.attr_val;
             $(this).find('.og-awesome-list li').each(function (i, elm) {
                 var arr = $(elm).text().split(' = ');
-                user_attributes['User~' + arr[0]] = arr[1];
+                user_attributes[arr[0]] = arr[1];
             });
             // add attributes
             has_user_attr = Object.keys(user_attributes)[0];
@@ -79,7 +79,7 @@ $.register_module({
                     for (key in trade_obj.attributes.userAttributes) {
                         if (trade_obj.attributes.userAttributes[has](key)) {
                             user_attributes_list.push(html.user_attribute
-                                .replace('{KEY}', key.split('~')[1])
+                                .replace('{KEY}', key)
                                 .replace('{VALUE}', trade_obj.attributes.userAttributes[key])
                             );
                         }
