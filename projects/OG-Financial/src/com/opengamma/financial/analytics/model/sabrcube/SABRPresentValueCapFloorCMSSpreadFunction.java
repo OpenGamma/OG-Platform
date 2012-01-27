@@ -42,36 +42,36 @@ public class SABRPresentValueCapFloorCMSSpreadFunction extends SABRPresentValueF
     return target.getSecurity() instanceof CapFloorCMSSpreadSecurity && !isUseSABRExtrapolation();
   }
 
-  @Override
-  protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs) {
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    final ValueRequirement surfacesRequirement = getCubeRequirement(target);
-    final Object surfacesObject = inputs.getValue(surfacesRequirement);
-    if (surfacesObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + surfacesRequirement);
-    }
-    final SABRFittedSurfaces surfaces = (SABRFittedSurfaces) surfacesObject;
-    if (!surfaces.getCurrency().equals(currency)) {
-      throw new OpenGammaRuntimeException("Don't know how this happened");
-    }
-    final InterpolatedDoublesSurface alphaSurface = surfaces.getAlphaSurface();
-    final InterpolatedDoublesSurface betaSurface = surfaces.getBetaSurface();
-    final InterpolatedDoublesSurface nuSurface = surfaces.getNuSurface();
-    final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
-    final DayCount dayCount = surfaces.getDayCount();
-    final DoubleFunction1D correlationFunction = getCorrelationFunction();
-    final SABRInterestRateCorrelationParameters modelParameters = new SABRInterestRateCorrelationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, correlationFunction);
-    return new SABRInterestRateDataBundle(modelParameters, getYieldCurves(target, inputs));
-  }
-
-  private DoubleFunction1D getCorrelationFunction() {
-    return new DoubleFunction1D() {
-
-      @Override
-      public Double evaluate(Double x) {
-        return 0.8;
-      }
-
-    };
-  }
+//  @Override
+//  protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs) {
+//    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
+//    final ValueRequirement surfacesRequirement = getCubeRequirement(target);
+//    final Object surfacesObject = inputs.getValue(surfacesRequirement);
+//    if (surfacesObject == null) {
+//      throw new OpenGammaRuntimeException("Could not get " + surfacesRequirement);
+//    }
+//    final SABRFittedSurfaces surfaces = (SABRFittedSurfaces) surfacesObject;
+//    if (!surfaces.getCurrency().equals(currency)) {
+//      throw new OpenGammaRuntimeException("Don't know how this happened");
+//    }
+//    final InterpolatedDoublesSurface alphaSurface = surfaces.getAlphaSurface();
+//    final InterpolatedDoublesSurface betaSurface = surfaces.getBetaSurface();
+//    final InterpolatedDoublesSurface nuSurface = surfaces.getNuSurface();
+//    final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
+//    final DayCount dayCount = surfaces.getDayCount();
+//    final DoubleFunction1D correlationFunction = getCorrelationFunction();
+//    final SABRInterestRateCorrelationParameters modelParameters = new SABRInterestRateCorrelationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, correlationFunction);
+//    return new SABRInterestRateDataBundle(modelParameters, getYieldCurves(target, inputs));
+//  }
+//
+//  private DoubleFunction1D getCorrelationFunction() {
+//    return new DoubleFunction1D() {
+//
+//      @Override
+//      public Double evaluate(Double x) {
+//        return 0.8;
+//      }
+//
+//    };
+//  }
 }

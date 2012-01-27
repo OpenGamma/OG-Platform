@@ -148,7 +148,73 @@ public final class ScheduleCalculator {
     return getAdjustedDate(startDate, index.getTenor(), index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth());
   }
 
-  // TODO: review the different methods.
+  /**
+   * Compute a schedule of unadjusted dates from a start date, an end date and the period between dates.
+   * @param startDate The start date.
+   * @param endDate The end date.
+   * @param tenorPeriod The period between each date.
+   * @param stubShort In case the the periods do not fit exactly between start and end date, is the remaining interval shorter (true) or longer (false) than the requested period.
+   * @param fromEnd The dates in the schedule can be computed from the end date (true) or from the start date (false).
+   * @return The date schedule (not including the start date).
+   */
+  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period tenorPeriod, final boolean stubShort, final boolean fromEnd) {
+    Validate.notNull(startDate, "Start date");
+    Validate.notNull(endDate, "End date");
+    Validate.notNull(tenorPeriod, "Period tenor");
+    Validate.isTrue(startDate.isBefore(endDate), "Start date should be strictly before end date");
+    final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
+    int nbPeriod = 0;
+    if (!fromEnd) { // Add the periods from the start date
+      ZonedDateTime date = startDate.plus(tenorPeriod);
+      while (date.isBefore(endDate)) { // date is strictly before endDate
+        dates.add(date);
+        nbPeriod++;
+        date = startDate.plus(tenorPeriod.multipliedBy(nbPeriod + 1));
+      }
+      if (!stubShort && !date.equals(endDate) && nbPeriod >= 1) { // For long stub the last date before end date, if any, is removed.
+        dates.remove(nbPeriod - 1);
+      }
+      dates.add(endDate);
+      return dates.toArray(EMPTY_ARRAY);
+    }
+    // From end - Subtract the periods from the end date
+    ZonedDateTime date = endDate;
+    while (date.isAfter(startDate)) { // date is strictly after startDate
+      dates.add(date);
+      nbPeriod++;
+      date = endDate.minus(tenorPeriod.multipliedBy(nbPeriod));
+    }
+    if (!stubShort && !date.equals(startDate) && nbPeriod >= 1) { // For long stub the last date before end date, if any, is removed.
+      dates.remove(nbPeriod - 1);
+    }
+    Collections.sort(dates); // To obtain the dates in chronological order.
+    return dates.toArray(EMPTY_ARRAY);
+  }
+
+  /**
+   * Adjust an array of date with a given convention and EOM flag.
+   * @param dates The array of unadjusted dates.
+   * @param convention The business day convention.
+   * @param calendar The calendar.
+   * @param eomApply The flag indicating if the EOM apply, i.e. if the flag is true, the adjusted date is the last business day of the unadjusted date.  
+   * @return The adjusted dates.
+   */
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime[] dates, final BusinessDayConvention convention, final Calendar calendar, final boolean eomApply) {
+    ZonedDateTime[] result = new ZonedDateTime[dates.length];
+    if (eomApply) {
+      BusinessDayConvention precedingDBC = new PrecedingBusinessDayConvention(); //To ensure that the date stays in the current month.
+      for (int loopdate = 0; loopdate < dates.length; loopdate++) {
+        result[loopdate] = precedingDBC.adjustDate(calendar, dates[loopdate].with(DateAdjusters.lastDayOfMonth()));
+      }
+      return result;
+    }
+    for (int loopdate = 0; loopdate < dates.length; loopdate++) {
+      result[loopdate] = convention.adjustDate(calendar, dates[loopdate]);
+    }
+    return result;
+  }
+
+  // TODO: review the methods below.
 
   // -------------------------------------------------------------------------
   /**
@@ -167,10 +233,6 @@ public final class ScheduleCalculator {
       throw new IllegalArgumentException("Effective date was after maturity");
     }
     return getUnadjustedDateSchedule(effectiveDate, effectiveDate, maturityDate, frequency);
-  }
-
-  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Period period) {
-    return getUnadjustedDateSchedule(effectiveDate, effectiveDate, maturityDate, period);
   }
 
   /**

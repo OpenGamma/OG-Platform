@@ -193,6 +193,9 @@ import com.opengamma.financial.property.TradeCalcConfigDefaultPropertyFunction;
 import com.opengamma.financial.property.TradeDefaultPropertyFunction;
 import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
+import com.opengamma.financial.value.PortfolioNodeValueFunction;
+import com.opengamma.financial.value.PositionValueFunction;
+import com.opengamma.financial.value.SecurityValueFunction;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -215,6 +218,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     } else {
       return new ParameterizedFunctionConfiguration(clazz.getName(), Arrays.asList(args));
     }
+  }
+  
+  protected static void addValueFunctions(List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(PortfolioNodeValueFunction.class));
+    functionConfigs.add(functionConfiguration(PositionValueFunction.class));
+    functionConfigs.add(functionConfiguration(SecurityValueFunction.class));
   }
 
   protected static void addScalingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
@@ -321,6 +330,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   public static RepositoryConfiguration constructRepositoryConfiguration() {
     final List<FunctionConfiguration> functionConfigs = new ArrayList<FunctionConfiguration>();
 
+    addValueFunctions(functionConfigs);
+    
     functionConfigs.add(functionConfiguration(SecurityMarketPriceFunction.class));
     addUnitScalingFunction(functionConfigs, ValueRequirementNames.SECURITY_IMPLIED_VOLATLITY);
 
@@ -698,8 +709,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction.class, "FORWARD_6M", "FUNDING", "DEFAULT"));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction.class, "USD", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class, "USD", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
+    //functionConfigs.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class, "USD", "DEFAULT"));
+    //functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
   }
 
   private static void addSABRCalculators(List<FunctionConfiguration> functionConfigs) {

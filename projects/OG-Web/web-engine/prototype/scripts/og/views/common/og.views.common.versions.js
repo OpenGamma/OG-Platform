@@ -22,7 +22,8 @@ $.register_module({
                         var cols = '<colgroup></colgroup><colgroup></colgroup><colgroup></colgroup>',
                         build_url = function (version) {
                             var args = routes.current().args, page = routes.current().page.substring(1);
-                            return routes.hash(og.views[page].rules.load_item, args, {add: {version: version}});
+                            return routes.hash(og.views[page].rules.load_item, args,
+                                {add: {version: version}, del: ['node']});
                         },
                         $list = $(r.data.data.reduce(function (acc, val, i) {
                             var arr = val.split('|'), cur, sel, ver = routes.current().args.version;

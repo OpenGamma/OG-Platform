@@ -52,7 +52,7 @@ public class LiquidityAggregationFunction implements AggregationFunction<String>
   private final Comparator<Position> _comparator = new SimplePositionComparator();
   
   public LiquidityAggregationFunction(SecuritySource secSource, HistoricalTimeSeriesSource htsSource) {
-    this(secSource, htsSource, true);
+    this(secSource, htsSource, false);
   }
   
   public LiquidityAggregationFunction(SecuritySource secSource, HistoricalTimeSeriesSource htsSource, boolean useAttributes) {
