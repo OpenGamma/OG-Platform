@@ -169,20 +169,25 @@ public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
 
     @Override
     public Double evaluate(final Double x0, final Double x1) {
-      double[] resultFixed = new double[2];
-      double[] resultIbor = new double[2];
       double[] rate = new double[2];
-      for (int loopswap = 0; loopswap < 2; loopswap++) {
-        for (int loopcf = 0; loopcf < _discountedCashFlowFixed[loopswap].length; loopcf++) {
-          resultFixed[loopswap] += _discountedCashFlowFixed[loopswap][loopcf]
-              * Math.exp(-_alphaFixed[loopswap][0][loopcf] * x0 - _alphaFixed[loopswap][1][loopcf] * x1 - _tau2Fixed[loopswap][loopcf] / 2.0);
-        }
-        for (int loopcf = 0; loopcf < _discountedCashFlowIbor[loopswap].length; loopcf++) {
-          resultIbor[loopswap] += _discountedCashFlowIbor[loopswap][loopcf]
-              * Math.exp(-_alphaIbor[loopswap][0][loopcf] * x0 - _alphaIbor[loopswap][1][loopcf] * x1 - _tau2Ibor[loopswap][loopcf] / 2.0);
-        }
-        rate[loopswap] = -resultIbor[loopswap] / resultFixed[loopswap];
-      }
+      double[] x = new double[] {x0, x1};
+      rate[0] = MODEL_G2PP.swapRate(x, _discountedCashFlowFixed[0], _alphaFixed[0], _tau2Fixed[0], _discountedCashFlowIbor[0], _alphaIbor[0], _tau2Ibor[0]);
+      rate[1] = MODEL_G2PP.swapRate(x, _discountedCashFlowFixed[1], _alphaFixed[1], _tau2Fixed[1], _discountedCashFlowIbor[1], _alphaIbor[1], _tau2Ibor[1]);
+      //      double[] rate = new double[2];
+      //      double[] resultFixed = new double[2];
+      //      double[] resultIbor = new double[2];
+      //      for (int loopswap = 0; loopswap < 2; loopswap++) {
+      //        for (int loopcf = 0; loopcf < _discountedCashFlowFixed[loopswap].length; loopcf++) {
+      //          resultFixed[loopswap] += _discountedCashFlowFixed[loopswap][loopcf]
+      //              * Math.exp(-_alphaFixed[loopswap][0][loopcf] * x0 - _alphaFixed[loopswap][1][loopcf] * x1 - _tau2Fixed[loopswap][loopcf] / 2.0);
+      //        }
+      //        for (int loopcf = 0; loopcf < _discountedCashFlowIbor[loopswap].length; loopcf++) {
+      //          resultIbor[loopswap] += _discountedCashFlowIbor[loopswap][loopcf]
+      //              * Math.exp(-_alphaIbor[loopswap][0][loopcf] * x0 - _alphaIbor[loopswap][1][loopcf] * x1 - _tau2Ibor[loopswap][loopcf] / 2.0);
+      //        }
+      //        rate[loopswap] = -resultIbor[loopswap] / resultFixed[loopswap];
+      //      }
+
       double densityPart = -(x0 * x0 + x1 * x1 - 2 * _rhobar * x0 * x1) / (2.0 * (1 - _rhobar * _rhobar));
       double discounting = Math.exp(-_alphaTp[0] * x0 - _alphaTp[1] * x1 - _tau2Tp / 2.0 + densityPart);
       return discounting * Math.max(_omega * (rate[0] - rate[1] - _strike), 0.0);
