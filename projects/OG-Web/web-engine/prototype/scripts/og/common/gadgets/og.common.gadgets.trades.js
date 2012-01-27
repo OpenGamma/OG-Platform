@@ -249,7 +249,6 @@ $.register_module({
                 result.data.trades.forEach(function (trade) {
                     if (trade_id === trade.id.split('~')[1]) {trade_obj = trade}
                 });
-                console.log('trade_obj', trade_obj);
                 deal_attributes = (trade_obj.attributes && trade_obj.attributes.dealAttributes)
                     ? trade_obj.attributes.dealAttributes : null;
                 ui.dialog({
@@ -347,7 +346,6 @@ $.register_module({
                             $(this).find('.og-del').remove();
                         }
                     ).click(function (e) {
-                                console.log('click');
                         var trade_id = $(this).find('td:first-child').text();
                         if ($(e.target).is('.og-del')) e.stopPropagation(), action.del(trade_id);
                         else action.edit(trade_id);
