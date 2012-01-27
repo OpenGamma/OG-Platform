@@ -10,7 +10,7 @@ $.register_module({
         var ui = og.common.util.ui;
         return function (config) {
             var attr = 'data-og-editable', $attr = $('[' + attr + ']'), rest_options = {},
-                handler = config.handler, pre_dispatch = config.pre_dispatch,
+                handler = (config || (config = {})).handler || $.noop, pre_dispatch = config.pre_dispatch,
                 css_edit = {'background-color': '#fffee5'}, css_not_edit = {'background-color': 'transparent'};
             if (typeof handler !== 'function') throw new TypeError(': config.handler must be a function');
             $attr.hover(function () {$(this).css(css_edit);}, function () {$(this).css(css_not_edit);});
@@ -33,7 +33,7 @@ $.register_module({
                             rest_options[type] = ui.dialog({return_field_value: type});
                             rest_options.handler = function (result) {
                                 if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                handler();
+                                handler(result);
                             };
                             if (pre_dispatch) return pre_dispatch(rest_options, function (rest_options) {
                                 og.api.rest[og.common.routes.current().page.substring(1)].put(rest_options);

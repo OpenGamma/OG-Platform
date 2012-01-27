@@ -26,7 +26,7 @@
             <#assign dealAttr = tradeAttrModel.getDealAttributes(trade.uniqueId)>
             <#assign userAttr = tradeAttrModel.getUserAttributes(trade.uniqueId)>
             <#if dealAttr?has_content || userAttr?has_content>
-            "attributes":{<#if dealAttr?has_content>"dealAttributes" : {<#list dealAttr?keys as key>"${key}":"${dealAttr[key]}"<#if key_has_next>,</#if></#list>} </#if>
+            "attributes":{<#if dealAttr?has_content>"dealAttributes" : {<#list dealAttr?keys as key>"${key}":"${dealAttr[key]}"<#if key_has_next>,</#if></#list>}<#if userAttr?has_content>,</#if> </#if>
                           <#if userAttr?has_content>"userAttributes" : {<#list userAttr?keys as key>"${key}":"${userAttr[key]}"<#if key_has_next>,</#if></#list>} </#if>},
             </#if>
             "id": "${trade.uniqueId.objectId}",
