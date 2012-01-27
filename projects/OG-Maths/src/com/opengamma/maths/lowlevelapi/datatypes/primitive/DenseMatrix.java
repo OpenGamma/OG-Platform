@@ -8,18 +8,21 @@ package com.opengamma.maths.lowlevelapi.datatypes.primitive;
 import java.util.Arrays;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.matrix.DoubleMatrix2D;
 
-
 /**
  * The DenseMatrix class provides access to the typically understood notion of a matrix, i.e. A Fully populated array.
+ * TODO: decide at what level we check for things like null pointers
  */
+
 public class DenseMatrix implements MatrixPrimitive {
   private double[] _data;
   private int _rows;
   private int _cols;
   private int[] _rowPtr;
+
   /**
    * Constructors
    */
@@ -62,9 +65,50 @@ public class DenseMatrix implements MatrixPrimitive {
     this(aMatrix.toArray());
   }
 
-/**
- * Methods
- */
+  /**
+   * A blank dense matrix; contains nothing, nothing is set.
+   */
+  public DenseMatrix() {
+  }
+
+  // copy construction for row unwound data
+  public DenseMatrix copyOnContructFromRowVector(double[] rowData, int rows, int columns) {
+    Validate.notNull(rowData, "Null pointer passed to copy on constructor");
+    Validate.isTrue(rows > 0);
+    Validate.isTrue(columns > 0);
+    final int len = rows * columns;
+    Validate.isTrue(len == rowData.length);
+    _data = new double[len];
+    _rows = rows;
+    _cols = columns;
+    _rowPtr = new int[rows];
+    for (int i = 0; i < rows; i++) {
+      _rowPtr[i] = i * columns;
+    }
+    System.arraycopy(rowData, 0, _data, 0, len);
+    return this;
+  }
+
+  // no copy construction for row unwound data
+  public DenseMatrix noCopyOnContructFromRowVector(double[] rowData, int rows, int columns) {
+    Validate.notNull(rowData, "Null pointer passed to NO copy on constructor");
+    Validate.isTrue(rows > 0);
+    Validate.isTrue(columns > 0);
+    final int len = rows * columns;
+    Validate.isTrue(len == rowData.length);
+    _data = rowData;
+    _rows = rows;
+    _cols = columns;
+    _rowPtr = new int[rows];    
+    for (int i = 0; i < rows; i++) {
+      _rowPtr[i] = i * columns;
+    }    
+    return this;
+  }
+
+  /**
+   * Methods
+   */
 
   /**
    * Gets the number of elements in the matrix (full population assumed).
@@ -141,7 +185,6 @@ public class DenseMatrix implements MatrixPrimitive {
     return _rows;
   }
 
-
   /**
    * Gets the number of columns
    * @return _cols the number of columns
@@ -149,7 +192,6 @@ public class DenseMatrix implements MatrixPrimitive {
   public int getNumberOfColumns() {
     return _cols;
   }
-
 
   /**
    * The to...'s
@@ -172,10 +214,10 @@ public class DenseMatrix implements MatrixPrimitive {
   @Override
   public String toString() {
     return "DenseMatrix:" +
-      "\ndata = " + Arrays.toString(_data) +
-      "\nrows = " + _rows +
-      "\ncols = " + _cols +
-      "\nrowPtr = " + Arrays.toString(_rowPtr);
+        "\ndata = " + Arrays.toString(_data) +
+        "\nrows = " + _rows +
+        "\ncols = " + _cols +
+        "\nrowPtr = " + Arrays.toString(_rowPtr);
   }
 
   @Override
