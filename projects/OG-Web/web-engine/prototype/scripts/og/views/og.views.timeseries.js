@@ -40,6 +40,7 @@ $.register_module({
                         fields: [
                             {type: 'select', name: 'Scheme Type', id: 'scheme',
                                 options: [
+                                    {name: 'ActivFeed Ticker', value: 'ACTIVFEED_TICKER'},
                                     {name: 'Bloomberg Ticker', value: 'BLOOMBERG_TICKER'},
                                     {name: 'Bloomberg Ticker/Coupon/Maturity', value: 'BLOOMBERG_TCM'},
                                     {name: 'Bloomberg BUID', value: 'BLOOMBERG_BUID'},

@@ -161,13 +161,14 @@ public final class DependencyGraphBuilderResource {
     // TODO: allow transformation rules
     builder.setFunctionResolver(new DefaultCompiledFunctionResolver(context, rules));
     builder.setMarketDataAvailabilityProvider(getBuilderContext().getMarketDataProviderResolver().resolve(getMarketData()).getAvailabilityProvider());
-    final FudgeSerializer serializer = new FudgeSerializer(getFudgeContext());
-    final ResolutionFailureGatherer<MutableFudgeMsg> failures = new ResolutionFailureGatherer<MutableFudgeMsg>(new ResolutionFailureFudgeBuilder.Visitor(serializer));
+    final FudgeContext fudgeContext = getFudgeContext();
+    final ResolutionFailureGatherer<MutableFudgeMsg> failures = new ResolutionFailureGatherer<MutableFudgeMsg>(new ResolutionFailureFudgeBuilder.Visitor(getFudgeContext()));
     builder.setResolutionFailureVisitor(failures);
     builder.setTargetResolver(getBuilderContext().getComputationTargetResolver());
     for (ValueRequirement requirement : getRequirements()) {
       builder.addTarget(requirement);
     }
+    final FudgeSerializer serializer = new FudgeSerializer(fudgeContext);
     final MutableFudgeMsg result = serializer.newMessage();
     final DependencyGraph graph = builder.getDependencyGraph();
     serializer.addToMessage(result, "dependencyGraph", null, graph);

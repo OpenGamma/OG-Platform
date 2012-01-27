@@ -320,3 +320,20 @@ void ServiceRun (int nReason) {
 bool ServiceRunning () {
 	return g_bServiceRunning;
 }
+
+/// Configure the service.
+void ServiceConfigure () {
+	g_poJVM = CJVM::Create ();
+	if (!g_poJVM) {
+		LOGERROR (TEXT ("Couldn't create JVM"));
+		return;
+	}
+	g_poJVM->Configure ();
+	delete g_poJVM;
+	g_poJVM = NULL;
+#ifdef _WIN32
+	// TODO: if installed as a service, restart it
+#else /* ifdef _WIN32 */
+	// TODO: kill the service runner process
+#endif /* ifdef _WIN32 */
+}

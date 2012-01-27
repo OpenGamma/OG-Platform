@@ -34,6 +34,23 @@ public class G2ppPiecewiseConstantModel {
   }
 
   /**
+   * The maturity dependent part of the volatility (function called H in the implementation note).
+   * @param g2parameters The model parameters.
+   * @param u The start time.
+   * @param v The end times.
+   * @return The volatility.
+   */
+  public double[] volatilityMaturityPart(final G2ppPiecewiseConstantParameters g2parameters, double u, double v) {
+    double[] a = g2parameters.getMeanReversion();
+    double[] result = new double[2];
+    double expa0u = Math.exp(-a[0] * u);
+    double expa1u = Math.exp(-a[1] * u);
+    result[0] = (expa0u - Math.exp(-a[0] * v)) / a[0];
+    result[1] = (expa1u - Math.exp(-a[1] * v)) / a[1];
+    return result;
+  }
+
+  /**
    * The expiry time dependent part of the volatility.
    * @param g2parameters The model parameters.
    * @param theta0 The start expiry time.
@@ -79,6 +96,124 @@ public class G2ppPiecewiseConstantModel {
     result[1][0] = gamma12 / (a[0] + a[1]);
     result[0][1] = result[1][0];
     return result;
+  }
+
+  /**
+   * Computes the swap rate for a given value of the standard normal random variables in the {@latex.inline $P(.,\\theta)$} numeraire.
+   * @param x The random variable values.
+   * @param discountedCashFlowFixed The discounted cash flows equivalent of the swap fixed leg.
+   * @param alphaFixed The zero-coupon bond volatilities for each random variable for the swap fixed leg.
+   * @param tau2Fixed The total zero-coupon bond volatilities for the swap fixed leg.
+   * @param discountedCashFlowIbor The discounted cash flows equivalent of the swap Ibor leg.
+   * @param alphaIbor The zero-coupon bond volatilities for each random variable for the swap Ibor leg.
+   * @param tau2Ibor The total zero-coupon bond volatilities for the swap Ibor leg.
+   * @return The swap rate.
+   */
+  public double swapRate(final double[] x, final double[] discountedCashFlowFixed, final double[][] alphaFixed, final double[] tau2Fixed, final double[] discountedCashFlowIbor,
+      final double[][] alphaIbor, final double[] tau2Ibor) {
+    double resultFixed = 0.0;
+    double resultIbor = 0.0;
+    for (int loopcf = 0; loopcf < discountedCashFlowFixed.length; loopcf++) {
+      resultFixed += discountedCashFlowFixed[loopcf] * Math.exp(-alphaFixed[0][loopcf] * x[0] - alphaFixed[1][loopcf] * x[1] - tau2Fixed[loopcf] / 2.0);
+    }
+    for (int loopcf = 0; loopcf < discountedCashFlowIbor.length; loopcf++) {
+      resultIbor += discountedCashFlowIbor[loopcf] * Math.exp(-alphaIbor[0][loopcf] * x[0] - alphaIbor[1][loopcf] * x[1] - tau2Ibor[loopcf] / 2.0);
+    }
+    return -resultIbor / resultFixed;
+  }
+
+  /**
+   * Computes the swap rate first order derivatives with respect to the value of the standard normal random variables in the {@latex.inline $P(.,\\theta)$} numeraire.
+   * @param x The random variable values.
+   * @param discountedCashFlowFixed The discounted cash flows equivalent of the swap fixed leg.
+   * @param alphaFixed The zero-coupon bond volatilities for each random variable for the swap fixed leg.
+   * @param tau2Fixed The total zero-coupon bond volatilities for the swap fixed leg.
+   * @param discountedCashFlowIbor The discounted cash flows equivalent of the swap Ibor leg.
+   * @param alphaIbor The zero-coupon bond volatilities for each random variable for the swap Ibor leg.
+   * @param tau2Ibor The total zero-coupon bond volatilities for the swap Ibor leg.
+   * @return The swap rate first order derivatives.
+   */
+  public double[] swapRateD1(final double[] x, final double[] discountedCashFlowFixed, final double[][] alphaFixed, final double[] tau2Fixed, final double[] discountedCashFlowIbor,
+      final double[][] alphaIbor, final double[] tau2Ibor) {
+    double f = 0.0;
+    double g = 0.0;
+    double[] df = new double[2];
+    double[] dg = new double[2];
+    double term;
+    for (int loopcf = 0; loopcf < discountedCashFlowFixed.length; loopcf++) {
+      term = discountedCashFlowFixed[loopcf] * Math.exp(-alphaFixed[0][loopcf] * x[0] - alphaFixed[1][loopcf] * x[1] - tau2Fixed[loopcf] / 2.0);
+      f += term;
+      for (int loopd = 0; loopd < 2; loopd++) {
+        df[loopd] += -alphaFixed[loopd][loopcf] * term;
+      }
+    }
+    for (int loopcf = 0; loopcf < discountedCashFlowIbor.length; loopcf++) {
+      term = discountedCashFlowIbor[loopcf] * Math.exp(-alphaIbor[0][loopcf] * x[0] - alphaIbor[1][loopcf] * x[1] - tau2Ibor[loopcf] / 2.0);
+      g += term;
+      for (int loopd = 0; loopd < 2; loopd++) {
+        dg[loopd] += -alphaIbor[loopd][loopcf] * term;
+      }
+    }
+    double[] result = new double[2];
+    for (int loopd = 0; loopd < 2; loopd++) {
+      result[loopd] = (df[loopd] * g - dg[loopd] * f) / (g * g);
+    }
+    return result;
+  }
+
+  /**
+   * Computes the swap rate second order derivatives with respect to the value of the standard normal random variables in the {@latex.inline $P(.,\\theta)$} numeraire.
+   * @param x The random variable values.
+   * @param discountedCashFlowFixed The discounted cash flows equivalent of the swap fixed leg.
+   * @param alphaFixed The zero-coupon bond volatilities for each random variable for the swap fixed leg.
+   * @param tau2Fixed The total zero-coupon bond volatilities for the swap fixed leg.
+   * @param discountedCashFlowIbor The discounted cash flows equivalent of the swap Ibor leg.
+   * @param alphaIbor The zero-coupon bond volatilities for each random variable for the swap Ibor leg.
+   * @param tau2Ibor The total zero-coupon bond volatilities for the swap Ibor leg.
+   * @return The swap rate second order derivatives.
+   */
+  public double[][] swapRateD2(final double[] x, final double[] discountedCashFlowFixed, final double[][] alphaFixed, final double[] tau2Fixed, final double[] discountedCashFlowIbor,
+      final double[][] alphaIbor, final double[] tau2Ibor) {
+    double f = 0.0;
+    double g = 0.0;
+    double[] df = new double[2];
+    double[] dg = new double[2];
+    double[][] d2f = new double[2][2];
+    double[][] d2g = new double[2][2];
+    double term;
+    for (int loopcf = 0; loopcf < discountedCashFlowFixed.length; loopcf++) {
+      term = discountedCashFlowFixed[loopcf] * Math.exp(-alphaFixed[0][loopcf] * x[0] - alphaFixed[1][loopcf] * x[1] - tau2Fixed[loopcf] / 2.0);
+      f += term;
+      for (int loopd = 0; loopd < 2; loopd++) {
+        df[loopd] += -alphaFixed[loopd][loopcf] * term;
+      }
+      for (int loopd1 = 0; loopd1 < 2; loopd1++) {
+        for (int loopd2 = 0; loopd1 < 2; loopd2++) {
+          d2f[loopd1][loopd2] += alphaFixed[loopd1][loopcf] * alphaFixed[loopd2][loopcf] * term;
+        }
+      }
+    }
+    for (int loopcf = 0; loopcf < discountedCashFlowIbor.length; loopcf++) {
+      term = discountedCashFlowIbor[loopcf] * Math.exp(-alphaIbor[0][loopcf] * x[0] - alphaIbor[1][loopcf] * x[1] - tau2Ibor[loopcf] / 2.0);
+      g += term;
+      for (int loopd = 0; loopd < 2; loopd++) {
+        dg[loopd] += -alphaIbor[loopd][loopcf] * term;
+      }
+      for (int loopd1 = 0; loopd1 < 2; loopd1++) {
+        for (int loopd2 = 0; loopd1 < 2; loopd2++) {
+          d2g[loopd1][loopd2] += alphaIbor[loopd1][loopcf] * alphaIbor[loopd2][loopcf] * term;
+        }
+      }
+    }
+    double[][] d2 = new double[2][2];
+    for (int loopd1 = 0; loopd1 < 2; loopd1++) {
+      for (int loopd2 = loopd1; loopd1 < 2; loopd2++) {
+        d2[loopd1][loopd2] = (d2f[loopd1][loopd2] * g + df[loopd2] * dg[loopd1] - df[loopd1] * dg[loopd2] - f * d2g[loopd1][loopd2]) / (g * g) - 2 * dg[loopd1] * (df[loopd2] * g - f * dg[loopd2])
+            / (g * g * g);
+      }
+    }
+    d2[1][0] = d2[0][1];
+    return d2;
   }
 
 }
