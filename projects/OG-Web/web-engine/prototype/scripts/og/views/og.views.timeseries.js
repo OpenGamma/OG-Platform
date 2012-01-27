@@ -37,6 +37,7 @@ $.register_module({
                     ui.dialog({
                         type: 'input',
                         title: 'Add New Timeseries',
+                        width: 400, height: 480,
                         fields: [
                             {type: 'select', name: 'Scheme Type', id: 'scheme',
                                 options: [
@@ -84,6 +85,7 @@ $.register_module({
                     ui.dialog({
                         type: 'confirm',
                         title: 'Delete timeseries?',
+                        width: 400, height: 190,
                         message: 'Are you sure you want to permanently delete this timeseries?',
                         buttons: {
                             'Delete': function () {
