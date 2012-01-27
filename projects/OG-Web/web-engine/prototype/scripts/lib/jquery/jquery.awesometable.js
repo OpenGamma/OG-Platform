@@ -12,6 +12,8 @@
     });
     $.fn.awesometable = function (options) {
         if (!this.is('table')) throw new TypeError('$.awesometable: needs to be called on a table element');
+        if (!options || !options.height) throw new TypeError('$.awesometable: requires an object with height property');
+        if (typeof options.height !== 'number') throw new TypeError('$.awesometable: height should be a number');
         var self = this, $dup,
             get_scrollbar_width = function () {
                 var html = '<div style="width: 100px; height: 100px; position: absolute; \
@@ -46,7 +48,7 @@
         (function () {
             if (table_resizers.length > 1) return;
             var $style = $('<style type="text/css" />').appendTo($('head')),
-                css = '.js-awesometable div thead *:before, .js-awesometable div thead *:after {display: none}';
+                css = '.js-awesometable div thead :before, .js-awesometable div thead :after {display: none}';
             if ($style[0].styleSheet) $style[0].styleSheet.cssText = css; // IE
             else $style[0].appendChild(document.createTextNode(css));
         }());
