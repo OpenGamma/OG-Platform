@@ -46,10 +46,11 @@ $.register_module({
                     ],
                     buttons: {
                         'OK': function () {
-                            var config_type = ui.dialog({return_field_value: 'config_type'}),
-                                args = $.extend({}, routes.last().args, {config_type: config_type});
+                            var config_type = ui.dialog({return_field_value: 'config_type'});
                             $(this).dialog('close');
-                            routes.go(routes.hash(view.rules.load_new, args));
+                            routes.go(routes.hash(view.rules.load_new, routes.current().args, {
+                                add: {config_type: config_type}
+                            }));
                         },
                         'Cancel': function () {$(this).dialog('close');}
                     }

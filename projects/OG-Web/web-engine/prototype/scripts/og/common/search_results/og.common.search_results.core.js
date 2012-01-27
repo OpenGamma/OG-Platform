@@ -9,7 +9,7 @@ $.register_module({
         return function () {
             var routes = og.common.routes, slick_manager, options, timer, grid,
                 process_args = function () {
-                    var args = $.extend({}, routes.current().args);
+                    var args = routes.current().args;
                     if (args.quantity) $.extend(args, og.common.search.get_quantities(args.quantity));
                     return args;
                 },
@@ -35,23 +35,22 @@ $.register_module({
                     window.onresize = function () {
                         setTimeout(function () {
                             grid.resizeCanvas();
-                            filter($.extend(true, process_args, {filter: false}));
+                            filter($.extend(process_args(), {filter: false}));
                         }, 300);
                     };
                     // Setup filter inputs
                     og.common.search.filter({location: obj.selector});
 
                     grid.onClick.subscribe(function (e, dd) {
-                        var current = routes.current().args,
-                            params = {
+                        var current = routes.current().args;
+                        routes.go(routes.hash(og.views[obj.page_type].rules.load_item, current, {
+                            del: ['node', 'version', 'sync', 'position'], add: {
                                 id: slick_manager.data[dd.row].id,
                                 name: current.name || '',
                                 quantity: current.quantity || '',
                                 type: current.type || '',
                                 filter: slick_manager.data[dd.row].filter
-                            };
-                        routes.go(routes.hash(og.views[obj.page_type].rules.load_item, routes.current().args, {
-                            del: ['node', 'version', 'sync', 'position'], add: params
+                            }
                         }));
                     });
 
