@@ -81,9 +81,7 @@ public class DupireLocalVolatilityCalculator {
         final double s = x[1];
 
         final double vol = impliedVolatilitySurface.getVolatility(t, s);
-        if (t == 0 && s == spot) {
-          return s * vol;
-        }
+
         //  double rootT = Math.sqrt(t);
         final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, s, vol);
         double var;
@@ -126,9 +124,7 @@ public class DupireLocalVolatilityCalculator {
         final double s = x[1];
 
         final double vol = impliedVolatilitySurface.getVolatility(t, s);
-        if (t == 0 && s == spot) {
-          return vol;
-        }
+
         //  double rootT = Math.sqrt(t);
         final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, s, vol);
         double var;
@@ -171,10 +167,6 @@ public class DupireLocalVolatilityCalculator {
         final double drift = forwardCurve.getDrift(t);
 
         final double vol = impliedVolatilitySurface.getVolatility(t, k);
-        if (t == 0) {
-          return vol;
-        }
-
         final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, k, vol);
         double var;
         if (k == 0) {
@@ -187,7 +179,7 @@ public class DupireLocalVolatilityCalculator {
           var = (vol * vol + 2 * vol * t * (divT + k * drift * divK)) / (1 + 2 * h1 * k * divK + k * k * (h1 * h2 * divK * divK + t * vol * divK2));
           //  System.out.println(t+"\t"+vol+"\t"+divT+"\t"+divK+"\t"+divK2+"\t"+drift);
           if (var < 0.0) {
-            //  throw new MathException("negative variance");
+            // throw new MathException("negative variance");
             var = 0.0;
             //TODO log error
           }
@@ -220,9 +212,6 @@ public class DupireLocalVolatilityCalculator {
         Validate.isTrue(m >= 0, "negative m");
 
         final double vol = impliedVolatilitySurface.getVolatilityForMoneyness(t, m);
-        if (t == 0) {
-          return vol;
-        }
 
         final double divT = getFirstTimeDev(impliedVolatilitySurface.getSurface(), t, m, vol);
         double var;
