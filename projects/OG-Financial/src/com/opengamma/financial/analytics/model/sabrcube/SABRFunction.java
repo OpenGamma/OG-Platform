@@ -41,6 +41,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.option.definition.SABRInterestRateCorrelationParameters;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateExtrapolationParameters;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
@@ -54,6 +55,7 @@ import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.math.function.DoubleFunction1D;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 
@@ -213,8 +215,21 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     final InterpolatedDoublesSurface nuSurface = surfaces.getNuSurface();
     final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
     final DayCount dayCount = surfaces.getDayCount();
-    final SABRInterestRateParameters modelParameters = _useSABRExtrapolation ? new SABRInterestRateExtrapolationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, CUT_OFF, MU)
-        : new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
+    final DoubleFunction1D correlationFunction = getCorrelationFunction();
+    final SABRInterestRateCorrelationParameters modelParameters = new SABRInterestRateCorrelationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, correlationFunction);
+//    final SABRInterestRateParameters modelParameters = _useSABRExtrapolation ? new SABRInterestRateExtrapolationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, CUT_OFF, MU)
+//        : new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
     return new SABRInterestRateDataBundle(modelParameters, getYieldCurves(target, inputs));
+  }
+  
+  private DoubleFunction1D getCorrelationFunction() {
+    return new DoubleFunction1D() {
+
+      @Override
+      public Double evaluate(Double x) {
+        return 0.8;
+      }
+
+    };
   }
 }

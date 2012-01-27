@@ -709,8 +709,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction.class, "FORWARD_6M", "FUNDING", "DEFAULT"));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction.class, "USD", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class, "USD", "DEFAULT"));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
+    //functionConfigs.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class, "USD", "DEFAULT"));
+    //functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
   }
 
   private static void addSABRCalculators(List<FunctionConfiguration> functionConfigs) {
