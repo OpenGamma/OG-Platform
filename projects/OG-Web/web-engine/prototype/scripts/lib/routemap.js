@@ -47,7 +47,7 @@
         /** @ignore */
         fingerprint = function (rule) {return [rule.method, rule.route].join('|');},
         /**
-         * merges multiple objects into one new object, useful for cloning
+         * merges one or more objects into a new object by value (nothing is a reference), useful for cloning
          * @name RouteMap#merge
          * @inner
          * @function
@@ -56,20 +56,17 @@
          * @throws {TypeError} if one of the arguments is not an object
          */
         merge = function () {
-            var self = 'merge', result = {}, key, val, lcv, len = arguments.length;
-            for (lcv = 0; lcv < len; lcv += 1) {
+            var self = 'merge', result = {}, key, val, lcv, len = arguments.length,
+                clone = function (obj) {
+                    if (typeof obj !== 'object' || obj === null) return obj; // primitives
+                    if (Object.prototype.toString.call(obj) === '[object Array]') return obj.map(clone); // arrays
+                    if (typeof obj === 'object') return merge(obj); // objects
+                };
+            for (lcv = 0; lcv < len; lcv += 1)
                 if (typeof arguments[lcv] !== 'object')
                     throw new TypeError(self + ': ' + arguments[lcv] + ' is not an object');
-                for (key in arguments[lcv]) {
-                    val = arguments[lcv][key];
-                    // catch falsey values (which include null, even though its type is object)
-                    if (!val) {result[key] = val; continue;}
-                    if (typeof val === 'object') { // catch arrays and objects
-                        result[key] = val.constructor !== Array ? merge({}, val) : val.slice(); continue;
-                    }
-                    result[key] = val; // everything else
-                }
-            }
+                else
+                    for (key in arguments[lcv]) result[key] = clone(arguments[lcv][key]);
             return result;
         },
         /**
@@ -250,7 +247,7 @@
          * @returns {Object} the current parsed URL object
          * @see RouteMap.last
          */
-        current: function () {return current ? merge({}, current) : null;},
+        current: function () {return current ? merge(current) : null;},
         /**
          * this function is fired when no rule is matched by a URL, by default it does nothing, but it could be set up
          * to handle things like <code>404</code> responses on the server-side or bad hash fragments in the browser
@@ -361,7 +358,7 @@
          * @returns {Object} the last parsed URL object, will be <code>null</code> on first load
          * @see RouteMap.current
          */
-        last: function () {return last ? merge({}, last) : null;},
+        last: function () {return last ? merge(last) : null;},
         /**
          * parses a URL fragment into a data structure only if there is a route whose pattern matches the fragment
          * @name RouteMap.parse
