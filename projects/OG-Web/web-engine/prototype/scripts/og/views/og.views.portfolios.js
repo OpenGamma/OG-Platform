@@ -177,9 +177,11 @@ $.register_module({
                    $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
                 });
             };
-            render_position = function () {
+            render_position = function (json) {
                 var position = routes.current().args.position;
-                if (!position) return;
+                // if the position in the URL is not in the JSON, it has been removed so don't display
+                // but no redirect so history will still work
+                if (!position || !~json.positions.pluck('id').indexOf(position)) return;
                 common.gadgets.positions({
                     id: position, selector: '.og-js-details-positions', editable: false, update: view.update
                 });
@@ -365,7 +367,7 @@ $.register_module({
                         }
                         render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
                         render_position_rows('.OG-js-details-panel .og-js-positions', json);
-                        render_position();
+                        render_position(json);
                         if (json.template_data.path) breadcrumb({
                             selector: '.OG-header-generic .OG-js-breadcrumb',
                             data: json.template_data
