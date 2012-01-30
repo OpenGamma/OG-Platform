@@ -180,7 +180,7 @@ $.register_module({
             render_position = function (json) {
                 var position = routes.current().args.position;
                 // if the position in the URL is not in the JSON, it has been removed so don't display
-                // but no redirect so history will still work
+                // but don't redirect so history will still work
                 if (!position || !~json.positions.pluck('id').indexOf(position)) return;
                 common.gadgets.positions({
                     id: position, selector: '.og-js-details-positions', editable: false, update: view.update
