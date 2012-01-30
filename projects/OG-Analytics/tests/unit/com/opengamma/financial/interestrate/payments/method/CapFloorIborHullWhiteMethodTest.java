@@ -22,11 +22,11 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CapFloorIborDefinition;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
-import com.opengamma.financial.model.interestrate.HullWhiteTestsDataSet;
+import com.opengamma.financial.model.interestrate.TestsDataSetsHullWhite;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
 import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantParameters;
 import com.opengamma.financial.montecarlo.HullWhiteMonteCarloMethod;
@@ -61,13 +61,13 @@ public class CapFloorIborHullWhiteMethodTest {
   private static final String FUNDING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   private static final String[] CURVES_NAME = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
-  private static final YieldCurveBundle CURVES = TestsDataSets.createCurves1();
+  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final CapFloorIbor CAP_LONG = (CapFloorIbor) CAP_LONG_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final CapFloorIbor CAP_SHORT = (CapFloorIbor) CAP_SHORT_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
 
   private static final CapFloorIborHullWhiteMethod METHOD_HW = new CapFloorIborHullWhiteMethod();
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
-  private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = HullWhiteTestsDataSet.createHullWhiteParameters();
+  private static final HullWhiteOneFactorPiecewiseConstantParameters PARAMETERS_HW = TestsDataSetsHullWhite.createHullWhiteParameters();
   private static final HullWhiteOneFactorPiecewiseConstantDataBundle BUNDLE_HW = new HullWhiteOneFactorPiecewiseConstantDataBundle(PARAMETERS_HW, CURVES);
   private static final int NB_PATH = 12500;
 
@@ -81,8 +81,8 @@ public class CapFloorIborHullWhiteMethodTest {
     double theta = CAP_LONG.getFixingTime();
     double deltaF = CAP_LONG.getFixingYearFraction();
     double deltaP = CAP_LONG.getPaymentYearFraction();
-    double alpha0 = MODEL.alpha(0.0, theta, tp, t0, PARAMETERS_HW);
-    double alpha1 = MODEL.alpha(0.0, theta, tp, t1, PARAMETERS_HW);
+    double alpha0 = MODEL.alpha(PARAMETERS_HW, 0.0, theta, tp, t0);
+    double alpha1 = MODEL.alpha(PARAMETERS_HW, 0.0, theta, tp, t1);
     double ptp = CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(tp);
     double pt0 = CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(t0);
     double pt1 = CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(t1);

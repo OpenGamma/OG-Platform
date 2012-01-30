@@ -9,27 +9,33 @@ import com.opengamma.math.surface.Surface;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- *  A surface with gives the Dupire local volatility  as a function of time to maturity and value of the underlying 
+ *  A surface with gives the Dupire local volatility  as a function of time to maturity and some abstraction of strike
+ *  @param <T> Parameter that describes the abstraction of strike - this could be the actual strike, the delta (most commonly used in FX), moneyness (defined as the strike/forward),
+ *  the logarithm of moneyness or some other parameterisation
  */
-public class LocalVolatilitySurface extends VolatilitySurface {
+public abstract class LocalVolatilitySurface<T extends StrikeType> extends VolatilitySurface {
 
   /**
-   * @param surface The time to maturity should be the first coordinate and the strike the second 
+   * @param surface The time to maturity should be the first coordinate and the abstraction of strike the second
    */
   public LocalVolatilitySurface(Surface<Double, Double, Double> surface) {
     super(surface);
   }
 
   /**
-   * 
-   * @param t time to maturity
-   * @param s value of the underlying
-   * @return The Dupire local volatility 
+   * Depending on the application the same local volatility surface can be seem either as either a function of calendar
+   * time and value of some abstraction of the  underlying, or as a function of expiry and some abstraction of strike
+   * @param t time
+   * @param s value of abstraction of strike
+   * @return The Dupire local volatility
    */
-  @Override
-  public double getVolatility(final double t, final double s) {
-    DoublesPair temp = new DoublesPair(t, s);
+  public double getVolatility(final double t, final T s) {
+    DoublesPair temp = new DoublesPair(t, s.value());
     return getVolatility(temp);
   }
+
+
+  @Override
+  public abstract double getVolatility(final double t, final double k);
 
 }

@@ -18,7 +18,7 @@ import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceStrike;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
@@ -47,13 +47,13 @@ public class TwoStateMarkovChainWithLocalVolDensity {
   PDEFullResults1D[] solve(final PDEGrid1D grid) {
 
     final BoundaryCondition lower = new NeumannBoundaryCondition(0.0, grid.getSpaceNode(0), true);
-    //BoundaryCondition lower = new DirichletBoundaryCondition(0.0, 0.0);//TODO for beta < 0.5 zero is accessible and thus there will be non-zero 
+    //BoundaryCondition lower = new DirichletBoundaryCondition(0.0, 0.0);//TODO for beta < 0.5 zero is accessible and thus there will be non-zero
     //density there
     final BoundaryCondition upper = new DirichletBoundaryCondition(0.0, grid.getSpaceNode(grid.getNumSpaceNodes() - 1));
 
     final ExtendedCoupledFiniteDifference solver = new ExtendedCoupledFiniteDifference(THETA);
     final PDEResults1D[] res = solver.solve(_data1, _data2, grid, lower, upper, lower, upper, null);
-    //handle this with generics  
+    //handle this with generics
     final PDEFullResults1D res1 = (PDEFullResults1D) res[0];
     final PDEFullResults1D res2 = (PDEFullResults1D) res[1];
     return new PDEFullResults1D[] {res1, res2};
@@ -61,7 +61,7 @@ public class TwoStateMarkovChainWithLocalVolDensity {
 
   @SuppressWarnings("unused")
   private CoupledPDEDataBundle getCoupledPDEDataBundle(final ForwardCurve forward, final double vol, final double lambda1, final double lambda2, final double initialProb, final double beta,
-      final LocalVolatilitySurface localVol) {
+      final LocalVolatilitySurfaceStrike localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -194,14 +194,14 @@ public class TwoStateMarkovChainWithLocalVolDensity {
   }
 
   //TODO handle with a central calculator
-  private double getLocalVolFirstDiv(final LocalVolatilitySurface localVol, final double t, final double s) {
+  private double getLocalVolFirstDiv(final LocalVolatilitySurfaceStrike localVol, final double t, final double s) {
     final double eps = 1e-4;
     final double up = localVol.getVolatility(t, s + eps);
     final double down = localVol.getVolatility(t, s - eps);
     return (up - down) / 2 / eps;
   }
 
-  private double getLocalVolSecondDiv(final LocalVolatilitySurface localVol, final double t, final double s) {
+  private double getLocalVolSecondDiv(final LocalVolatilitySurfaceStrike localVol, final double t, final double s) {
     final double eps = 1e-4;
     final double up = localVol.getVolatility(t, s + eps);
     final double mid = localVol.getVolatility(t, s);

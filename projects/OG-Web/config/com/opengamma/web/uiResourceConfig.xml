@@ -98,6 +98,7 @@
   <bundle id="views.css">
     <fragment>/styles/views/analytics/og.views.OG-analytics.css</fragment>
     <fragment>/styles/views/forms/configs/og.views.forms.configs.OG-form-column-sets.css</fragment>
+	<fragment>/styles/views/forms/og.views.forms.OG-add-trades.css</fragment>
   </bundle>
   <bundle id="libs.css">
     <fragment>/styles/lib/jquery/ui/jquery.ui.core.css</fragment>
@@ -106,16 +107,16 @@
     <fragment>/styles/lib/jquery/ui/jquery.ui.sliders.css</fragment>
     <fragment>/styles/lib/jquery/jquery-layout-default.css</fragment>
   </bundle>
-  <bundle id="slickgrid.css">
-    <fragment>/styles/lib/jquery/slick_grid/slick.grid.css</fragment>
-    <fragment>/styles/common/slickgrid/og.common.slickgrid.css</fragment>
-  </bundle>
   <bundle id="jquery.css">
     <fragment>/styles/common/jquery/ui/og.common.jquery.ui.core.css</fragment>
     <fragment>/styles/common/jquery/ui/og.common.jquery.ui.dialog.css</fragment>
     <fragment>/styles/common/jquery/ui/og.common.jquery.ui.autocomplete.css</fragment>
     <fragment>/styles/common/jquery/ui/og.common.jquery.datepicker.css</fragment>
     <fragment>/styles/common/jquery/ui/og.common.jquery.ui.sliders.css</fragment>
+  </bundle>
+  <bundle id="slickgrid.css">
+    <fragment>/styles/lib/jquery/slick_grid/slick.grid.css</fragment>
+    <fragment>/styles/common/slickgrid/og.common.slickgrid.css</fragment>
   </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />
@@ -126,8 +127,8 @@
     <bundle idref="common.forms.css"/>
     <bundle idref="views.css"/>
     <bundle idref="libs.css" />
-    <bundle idref="slickgrid.css" />
     <bundle idref="jquery.css" />
+    <bundle idref="slickgrid.css" />
   </bundle>
   <!--                                -->
   <!--  JavaScript                    -->
@@ -140,13 +141,14 @@
     <fragment>/scripts/lib/js.ext.array.prototype.map.js</fragment>
     <fragment>/scripts/lib/js.ext.array.prototype.reduce.js</fragment>
     <fragment>/scripts/lib/js.ext.array.prototype.some.js</fragment>
+    <fragment>/scripts/lib/js.ext.array.prototype.pluck.js</fragment>
     <fragment>/scripts/lib/js.ext.string.prototype.lang.js</fragment>
     <fragment>/scripts/lib/js.ext.object.keys.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.partial.js</fragment>
     <fragment>/scripts/lib/js.ext.function.prototype.preload.js</fragment>
     <fragment>/scripts/lib/json2.js</fragment>
     <fragment>/scripts/lib/cometd.js</fragment>
-    <fragment>/scripts/lib/jquery/jquery-1.6.4.js</fragment>
+    <fragment>/scripts/lib/jquery/jquery-1.7.1.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.cometd.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.tmpl.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.jsonp-1.1.0.min.js</fragment>
@@ -177,16 +179,17 @@
     <fragment>/scripts/lib/jquery/jquery.layout.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.awesometable.js</fragment>
   </bundle>
+  <bundle id="core.js">
+      <fragment>/scripts/og/common/og.common.core.js</fragment>
+      <fragment>/scripts/og/og.dev.js</fragment>
+      <fragment>/scripts/og/og.app.js</fragment>
+      <fragment>/scripts/og/api/og.api.common.js</fragment>
+      <fragment>/scripts/og/views/common/og.views.common.layout.js</fragment>
+      <fragment>/scripts/og/common/og.common.routes.js</fragment>
+      <fragment>/scripts/og/common/og.common.lang.js</fragment>
+  </bundle>
   <bundle id="api.js">
-    <fragment>/scripts/og/common/og.common.core.js</fragment>
-    <fragment>/scripts/og/og.dev.js</fragment>
-    <fragment>/scripts/og/og.app.js</fragment>
-    <fragment>/scripts/og/api/og.api.common.js</fragment>
-    <fragment>/scripts/og/views/common/og.views.common.layout.js</fragment>
-    <fragment>/scripts/og/common/og.common.routes.js</fragment>
-    <fragment>/scripts/og/common/og.common.lang.js</fragment>
     <fragment>/scripts/og/api/og.api.text.js</fragment>
-    <fragment>/scripts/og/api/og.api.live.js</fragment>
     <fragment>/scripts/og/api/og.api.rest.js</fragment>
   </bundle>
   <bundle id="util.js">
@@ -214,6 +217,7 @@
     <fragment>/scripts/og/common/details/og.common.details.batch_functions.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.favorites.js</fragment>
     <fragment>/scripts/og/common/details/og.common.details.calendar_ui_changes.js</fragment>
+    <fragment>/scripts/og/common/search_results/og.common.search.get_quantities.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search.filter.js</fragment>
     <fragment>/scripts/og/common/search_results/og.common.search_results.core.js</fragment>
   </bundle>
@@ -226,6 +230,7 @@
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>
     <fragment>/scripts/og/views/common/og.views.common.versions.js</fragment>
     <fragment>/scripts/og/views/common/og.views.common.default_details.js</fragment>
+    <fragment>/scripts/og/views/common/og.views.common.core.js</fragment>
   </bundle>
   <bundle id="views_default.js">
     <fragment>/scripts/og/views/forms/og.views.forms.constraints.js</fragment>
@@ -265,6 +270,7 @@
   </bundle>
   <bundle id="og_common.js">
     <bundle idref="lib.js" />
+    <bundle idref="core.js" />
     <bundle idref="api.js" />
     <bundle idref="util.js" />
     <bundle idref="util_ui.js" />
@@ -276,6 +282,13 @@
     <bundle idref="views_default.js" />
   </bundle>
   <bundle id="og_analytics.js">
+      <bundle idref="lib.js" />
+      <bundle idref="core.js" />
+      <fragment>/scripts/og/api/og.api.text.js</fragment>
+      <bundle idref="util.js" />
+      <bundle idref="util_ui.js" />
+      <bundle idref="common.js" />
+      <bundle idref="views_common.js" />
     <bundle idref="analytics.js" />
   </bundle>
 </uiResourceConfig>

@@ -8,6 +8,7 @@ package com.opengamma.financial.interestrate;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
@@ -15,6 +16,8 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BillSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -78,6 +81,10 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitBondIborSecurity(BondIborSecurity bond, S data);
 
   T visitBondIborTransaction(BondIborTransaction bond, S data);
+
+  T visitBillSecurity(BillSecurity bill, S data);
+
+  T visitBillTransaction(BillTransaction bill, S data);
 
   T visitGenericAnnuity(GenericAnnuity<? extends Payment> genericAnnuity, S data);
 
@@ -170,6 +177,10 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitBondIborSecurity(BondIborSecurity bond);
 
   T visitBondIborTransaction(BondIborTransaction bond);
+
+  T visitBillSecurity(BillSecurity bill);
+
+  T visitBillTransaction(BillTransaction bill);
 
   T visitGenericAnnuity(GenericAnnuity<? extends Payment> genericAnnuity);
 
@@ -284,5 +295,9 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitForexNonDeliverableOption(ForexNonDeliverableOption derivative, S data);
 
   T visitForexNonDeliverableOption(ForexNonDeliverableOption derivative);
+
+  T visitForexOptionDigital(ForexOptionDigital derivative, S data);
+
+  T visitForexOptionDigital(ForexOptionDigital derivative);
 
 }

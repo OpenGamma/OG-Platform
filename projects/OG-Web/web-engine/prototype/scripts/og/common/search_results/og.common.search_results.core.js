@@ -7,10 +7,16 @@ $.register_module({
     dependencies: ['og.common.routes', 'og.common.slickgrid.manager'],
     obj: function () {
         return function () {
-            var routes = og.common.routes, slick_manager, options, timer, grid, filters_obj = {},
+            var routes = og.common.routes, slick_manager, options, timer, grid,
+                process_args = function () {
+                    var args = routes.current().args;
+                    if (args.quantity) $.extend(args, og.common.search.get_quantities(args.quantity));
+                    return args;
+                },
                 load = function (obj) {
+                    var current_args = process_args();
                     slick_manager = og.common.slickgrid.manager(
-                        $.extend({}, obj.url, {page_type: obj.page_type, selector: obj.selector})
+                        $.extend({}, process_args(), {page_type: obj.page_type, selector: obj.selector})
                     );
                     options = $.extend({}, obj.options, {
                         editable: false,
@@ -25,34 +31,32 @@ $.register_module({
                         buffer: 17
                     });
                     grid = new Slick.Grid(obj.selector, slick_manager.data, obj.columns, options);
+                    grid.setSelectionModel(new Slick.RowSelectionModel());
                     window.onresize = function () {
                         setTimeout(function () {
                             grid.resizeCanvas();
-                            filter($.extend(true, filters_obj, {filter: false}));
+                            filter($.extend(process_args(), {filter: false}));
                         }, 300);
                     };
-                    filters_obj = obj.url;
                     // Setup filter inputs
                     og.common.search.filter({location: obj.selector});
-                    // Handle click
-                    $(obj.selector).undelegate().delegate('[row]', 'click', function (e) {
-                        var current = routes.current().args, args = obj.url,
-                            params = {
-                                id: slick_manager.data[$(e.currentTarget).attr('row')].id,
+
+                    grid.onClick.subscribe(function (e, dd) {
+                        var current = routes.current().args;
+                        routes.go(routes.hash(og.views[obj.page_type].rules.load_item, current, {
+                            del: ['node', 'version', 'sync', 'position'], add: {
+                                id: slick_manager.data[dd.row].id,
                                 name: current.name || '',
                                 quantity: current.quantity || '',
                                 type: current.type || '',
-                                filter: slick_manager.data[$(e.currentTarget).attr('row')].filter,
-                                version: '',
-                                sync: ''
-                            };
-                        delete args.node;
-                        routes.go(routes.hash(og.views[obj.page_type].rules.load_item, args, {add: params}));
+                                filter: slick_manager.data[dd.row].filter
+                            }
+                        }));
                     });
 
                     grid.onViewportChanged.subscribe(function () {
                         clearTimeout(timer);
-                        timer = setTimeout(function () {filter($.extend({}, filters_obj, {filter: false}))}, 150);
+                        timer = setTimeout(function () {filter($.extend(process_args(), {filter: false}));}, 150);
                     });
 
                     // Prepare grid for new data
@@ -62,16 +66,12 @@ $.register_module({
                         grid.render();
                     });
 
-                    $(grid.getHeaderRow()).delegate(':input', 'change keyup', function(e) {
-                        obj.url[$(this).data('columnId')] = e.currentTarget.value;
-                    });
-
                     // load the first page
                     grid.onViewportChanged.notify();
 
                 },
                 filter = function (filters_obj) {
-                    var vp = grid.getViewport();
+                    var vp = grid.getViewport(), filters_obj = filters_obj || process_args();
                     slick_manager.ensure_data({
                         from: vp.top, to: vp.bottom, filters: filters_obj, filter_being_applied: filters_obj.filter
                     });

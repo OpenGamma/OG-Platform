@@ -81,7 +81,7 @@ public class CouponOISDiscountingMethod implements PricingMethod {
     listForward.add(new DoublesPair(coupon.getFixingPeriodStartTime(), -coupon.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(coupon.getFixingPeriodEndTime(), -coupon.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     resultMapFwd.put(coupon.getForwardCurveName(), listForward);
-    result = result.add(new InterestRateCurveSensitivity(resultMapFwd));
+    result = result.plus(new InterestRateCurveSensitivity(resultMapFwd));
     return result;
   }
 

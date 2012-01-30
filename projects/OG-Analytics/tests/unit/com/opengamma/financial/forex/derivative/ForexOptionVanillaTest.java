@@ -45,7 +45,7 @@ public class ForexOptionVanillaTest {
   private static final ForexOptionVanilla FX_OPTION = new ForexOptionVanilla(FX, EXPIRATION_TIME, IS_CALL, IS_LONG);
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void testNullWrongExpiration() {
+  public void wrongExpiration() {
     new ForexOptionVanilla(FX, EXPIRATION_TIME + 0.5, IS_CALL, IS_LONG);
   }
 

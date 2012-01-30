@@ -5,6 +5,9 @@
 .ui-autocomplete {
   position: absolute;
   cursor: default;
+  max-height: 150px;
+  overflow-y: auto;
+  color: #555;
 }
 
 .ui-autocomplete li {
@@ -17,8 +20,8 @@
 }
 
 .ui-autocomplete #ui-active-menuitem {
-  background-color: #487287;
-  color: #fff;
+  background-color: #ecf5fa;
+  border: none;
   display: block;
 }
 

@@ -148,7 +148,7 @@ public class SubscriptionHandle {
   public synchronized void releaseTicksOnHold() {
     if (_snapshotOnHold == null) {
       // this will happen if the snapshot failed.
-      s_logger.info("No ticks to send to {}. {}", getListener(), getRequestedSpecification());
+      s_logger.debug("No ticks to send to {}. {}", getListener(), getRequestedSpecification());
       return; 
     }
     
@@ -165,7 +165,7 @@ public class SubscriptionHandle {
     }
     
     if (resetIndex == null) {
-      s_logger.info("{}: Sending snapshot and {} ticks on hold to {}", 
+      s_logger.debug("{}: Sending snapshot and {} ticks on hold to {}", 
           new Object[] {getRequestedSpecification(), _ticksOnHold.size(), getListener()});
       
       // No resets. This is the normal case. Use the snapshot
@@ -180,7 +180,7 @@ public class SubscriptionHandle {
         }
       }
     } else {
-      s_logger.info("{}: Reset detected. Sending {} ticks on hold to {}", 
+      s_logger.debug("{}: Reset detected. Sending {} ticks on hold to {}", 
           new Object[] {getRequestedSpecification(), _ticksOnHold.size() - resetIndex, getListener()});
       
       // This happens when the server is reset (rebooted/migrated) while subscribing.

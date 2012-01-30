@@ -958,53 +958,55 @@ public final class DependencyGraphBuilder {
       boolean jobsLeftToRun;
       int completed = 0;
       do {
+        s_loggerBuilder.info("Build fraction = {}", estimateBuildFraction());
+        // Create a new context for each logical block so that an exception from the build won't leave us with
+        // an inconsistent context.
+        final GraphBuildingContext context = new GraphBuildingContext(getContext());
         do {
-          s_loggerBuilder.info("Build fraction = {}", estimateBuildFraction());
-          // Create a new context for each logical block so that an exception from the build won't leave us with
-          // an inconsistent context.
-          final GraphBuildingContext context = new GraphBuildingContext(getContext());
-          do {
-            try {
-              jobsLeftToRun = buildGraph(context);
-              completed++;
-              /*if ((completed % 500) == 0) {
-                s_loggerBuilder.info("Build fraction = {}", estimateBuildFraction());
-              }*/
-            } catch (Throwable t) {
-              s_loggerBuilder.warn("Graph builder exception", t);
-              _context.exception(t);
-              jobsLeftToRun = false;
-            }
-          } while (!_poison && jobsLeftToRun);
-          s_loggerBuilder.debug("Merging thread context");
-          getContext().mergeThreadContext(context);
-          s_loggerBuilder.debug("Building job stopping");
-          int activeJobs = _activeJobCount.decrementAndGet();
-          // Watch for late arrivals in the run queue; they might have seen the old value
-          // of activeJobs and not started anything.
-          while (!_runQueue.isEmpty() && (activeJobs < getMaxAdditionalThreads()) && !_poison) {
-            if (_activeJobCount.compareAndSet(activeJobs, activeJobs + 1)) {
-              s_loggerBuilder.debug("Building job resuming");
-              // Note the log messages may go from "resuming" to stopped if the poison arrives between
-              // the check above and the check below. This might look odd, but what the hey - they're
-              // only DEBUG level messages.
-              jobsLeftToRun = true;
-              break;
-            }
-            activeJobs = _activeJobCount.get();
+          try {
+            jobsLeftToRun = buildGraph(context);
+            completed++;
+            /*if ((completed % 500) == 0) {
+              s_loggerBuilder.info("Build fraction = {}", estimateBuildFraction());
+            }*/
+          } catch (Throwable t) {
+            s_loggerBuilder.warn("Graph builder exception", t);
+            _context.exception(t);
+            jobsLeftToRun = false;
           }
         } while (!_poison && jobsLeftToRun);
-        synchronized (_activeJobs) {
-          _activeJobs.remove(this);
-          if (!_activeJobs.isEmpty() || !_runQueue.isEmpty()) {
-            // Stopping because there are active jobs; skip the "abortLoop" stage
+        s_loggerBuilder.debug("Merging thread context");
+        getContext().mergeThreadContext(context);
+        s_loggerBuilder.debug("Building job stopping");
+        int activeJobs = _activeJobCount.decrementAndGet();
+        // Watch for late arrivals in the run queue; they might have seen the old value
+        // of activeJobs and not started anything.
+        while (!_runQueue.isEmpty() && (activeJobs < getMaxAdditionalThreads()) && !_poison) {
+          if (_activeJobCount.compareAndSet(activeJobs, activeJobs + 1)) {
+            s_loggerBuilder.debug("Building job resuming");
+            // Note the log messages may go from "resuming" to stopped if the poison arrives between
+            // the check above and the check below. This might look odd, but what the hey - they're
+            // only DEBUG level messages.
+            jobsLeftToRun = true;
             break;
           }
+          activeJobs = _activeJobCount.get();
         }
+      } while (!_poison && jobsLeftToRun);
+      final boolean abortLoops;
+      synchronized (_activeJobs) {
+        _activeJobs.remove(this);
+        abortLoops = _activeJobs.isEmpty() && _runQueue.isEmpty();
+      }
+      if (abortLoops) {
         // Any tasks that are still active have created a reciprocal loop disjoint from the runnable
         // graph of tasks. Aborting them at this point is easier and possibly more efficient than
         // the overhead of trying to stop the loops forming in the first place.
-      } while (!_poison && getContext().abortLoops());
+        getContext().abortLoops();
+        // If any loops were aborted, new jobs will go onto the run queue, and possibly a new active
+        // job started (this one is officially dead but could be restarted using logic similar to
+        // above update the activeJobCount and activeJobs set.
+      }
       s_loggerBuilder.info("Building job {} stopped after {} operations", _objectId, completed);
     }
 

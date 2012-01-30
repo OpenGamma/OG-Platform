@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.value;
 
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionDefinition;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * Standard names used to refer to particular computed values.
@@ -29,6 +29,8 @@ public final class ValueRequirementNames {
   }
 
   // CSOFF: Because they're names that should be known by industry practitioners.
+  
+  public static final String VALUE = "Value";
   
   // Standard Analytic Models:
   public static final String DISCOUNT_CURVE = "DiscountCurve";

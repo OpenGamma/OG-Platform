@@ -8,6 +8,8 @@ package com.opengamma.financial.timeseries.model;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import javax.time.calendar.LocalDate;
+
 import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
@@ -18,7 +20,7 @@ import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCal
 import com.opengamma.math.statistics.descriptive.MeanCalculator;
 import com.opengamma.math.statistics.descriptive.SampleVarianceCalculator;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -29,15 +31,15 @@ public class MovingAverageTimeSeriesModelTest {
   private static final MovingAverageTimeSeriesModel MODEL = new MovingAverageTimeSeriesModel(new NormalDistribution(MEAN, STD,
       new MersenneTwister64(MersenneTwister.DEFAULT_SEED)));
   private static final int ORDER = 2;
-  private static final DoubleTimeSeries<Long> MA;
+  private static final LocalDateDoubleTimeSeries MA;
   private static final double[] THETA;
   private static double LIMIT = 3;
 
   static {
     final int n = 20000;
-    final long[] dates = new long[n];
+    final LocalDate[] dates = new LocalDate[n];
     for (int i = 0; i < n; i++) {
-      dates[i] = i;
+      dates[i] = LocalDate.ofEpochDays(i);
     }
     THETA = new double[ORDER + 1];
     THETA[0] = 0.;
@@ -55,22 +57,22 @@ public class MovingAverageTimeSeriesModelTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullThetas() {
-    MODEL.getSeries(null, 2, new long[] {1});
+    MODEL.getSeries(null, 2, new LocalDate[] {LocalDate.ofEpochDays(1)});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyThetas() {
-    MODEL.getSeries(new double[0], 2, new long[] {1});
+    MODEL.getSeries(new double[0], 2, new LocalDate[] {LocalDate.ofEpochDays(1)});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNegativeOrder() {
-    MODEL.getSeries(new double[] {0.2}, -3, new long[] {1});
+    MODEL.getSeries(new double[] {0.2}, -3, new LocalDate[] {LocalDate.ofEpochDays(1)});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientThetas() {
-    MODEL.getSeries(new double[] {0.2}, 4, new long[] {1});
+    MODEL.getSeries(new double[] {0.2}, 4, new LocalDate[] {LocalDate.ofEpochDays(1)});
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -80,7 +82,7 @@ public class MovingAverageTimeSeriesModelTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testEmptyDates() {
-    MODEL.getSeries(new double[] {0.3}, 1, new long[0]);
+    MODEL.getSeries(new double[] {0.3}, 1, new LocalDate[0]);
   }
 
   @Test

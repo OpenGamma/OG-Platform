@@ -14,7 +14,9 @@ import com.opengamma.financial.model.finitedifference.ExtendedCoupledPDEDataBund
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceConverter;
+import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
+import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceStrike;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
@@ -60,7 +62,7 @@ public class PDEDataBundleProvider {
     return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(rate), new EuropeanPayoff(strike, isCall));
   }
 
-  public ConvectionDiffusionPDEDataBundle getBackwardsBlackScholesSpecial(final double vol, final double rate, final double strike, final boolean isCall) {
+  public ConvectionDiffusionPDEDataBundle getBackwardsBlackScholesSpecial(final double vol, final double rate, final double strike) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -110,7 +112,7 @@ public class PDEDataBundleProvider {
     return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(0), constant);
   }
 
-  public ConvectionDiffusionPDEDataBundle getBackwardsBlackScholesSpecial2(final double vol, final double rate, final double strike, final boolean isCall) {
+  public ConvectionDiffusionPDEDataBundle getBackwardsBlackScholesSpecial2(final double vol, final double rate) {
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
       public Double evaluate(final Double... ts) {
@@ -265,8 +267,21 @@ public class PDEDataBundleProvider {
     return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), FunctionalDoublesSurface.from(c), payoff);
   }
 
-  public ConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final double strike, final double maturity, final boolean isCall,
-      final LocalVolatilitySurface localVol) {
+  /**
+   * Classic (i.e. formulated in terms of constant instantaneous short rates) backwards PDE setup for option price under
+   * a local volatility. The state variables are time-to-maturity and (spot) value of the underlying
+   * @param rate The risk free rate (domestic risk free rate in FX case)
+   * @param yield The dividend yield (for equity) or foreign risk free (for FX)
+   * @param strike The strike
+   * @param maturity the time-to-maturity
+   * @param isCall true for call
+   * @param localVol A local volatility surface - gives the instantaneous (log-normal) volatility as a function of time and
+   * the value of the underlying at that time
+   * @return The data to run through a PDE solver that will give the time-zero option price as a function of the time-zero
+   * value of the underlying
+   */
+  public ConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final double rate, final double yield, final double strike,
+      final double maturity, final boolean isCall, final LocalVolatilitySurfaceStrike localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -276,6 +291,106 @@ public class PDEDataBundleProvider {
         final double s = ts[1];
         final double t = maturity - tau;
         final double temp = s * localVol.getVolatility(t, s);
+        return -0.5 * temp * temp;
+      }
+    };
+
+    final Function<Double, Double> b = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... ts) {
+        Validate.isTrue(ts.length == 2);
+        final double s = ts[1];
+
+        return -s * (rate - yield);
+      }
+    };
+
+    final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double x) {
+        if (isCall) {
+          return Math.max(0, x - strike);
+        }
+        return Math.max(0, strike - x);
+      }
+    };
+
+    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b),
+        ConstantDoublesSurface.from(rate), payoff);
+  }
+
+  /**
+   * Backwards PDE setup for option price under a local volatility. The state variables are time-to-maturity and
+   * forward value of the underlying. <b>Note</b> the option price will be the forward (non-discounted) price.
+   * @param strike The strike
+   * @param maturity the time-to-maturity
+   * @param isCall true for call
+   * @param localVol A local volatility surface - gives the instantaneous (log-normal) volatility as a function of time and
+   * the value of the underlying at that time
+   * @param forwardCurve the time-zero forward curve, F(0,T), for the underlying
+   * @return The data to run through a PDE solver that will give the time-zero forward option price as a function of the time-zero
+   * value of the underlying
+   */
+  public ConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final double strike, final double maturity, final boolean isCall,
+      final LocalVolatilitySurfaceStrike localVol, final ForwardCurve forwardCurve) {
+
+    final double fT = forwardCurve.getForward(maturity);
+
+    final Function<Double, Double> a = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tf) {
+        Validate.isTrue(tf.length == 2);
+        final double tau = tf[0];
+        final double f = tf[1];
+        final double t = maturity - tau;
+        final double ft = forwardCurve.getForward(t);
+
+        final double temp = f * localVol.getVolatility(t, f * ft / fT);
+        return -0.5 * temp * temp;
+      }
+    };
+
+    final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double f) {
+        if (isCall) {
+          return Math.max(0, f - strike);
+        }
+        return Math.max(0, strike - f);
+      }
+    };
+
+    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0), ConstantDoublesSurface.from(0), payoff);
+  }
+
+  /**
+   * Backwards PDE setup for option price under a local volatility parameterised by moneyness. The state variables are time-to-maturity and
+   * forward value of the underlying. <b>Note</b> the option price will be the forward (non-discounted) price.
+   * @param strike The strike
+   * @param maturity the time-to-maturity
+   * @param isCall true for call
+   * @param localVol A local volatility surface - gives the instantaneous (log-normal) volatility as a function of time and
+   * the moneyness at that time
+   * @return The data to run through a PDE solver that will give the time-zero forward option price as a function of the time-zero
+   * value of the underlying
+   */
+  public ConvectionDiffusionPDEDataBundle getBackwardsLocalVol(final double strike, final double maturity, final boolean isCall,
+      final LocalVolatilitySurfaceMoneyness localVol) {
+
+    final ForwardCurve fc = localVol.getForwardCurve();
+    final double f0 = fc.getForward(maturity);
+    final Function<Double, Double> a = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tf) {
+        Validate.isTrue(tf.length == 2);
+        final double tau = tf[0];
+        final double f = tf[1];
+        final double t = maturity - tau;
+        final double x = f / f0;
+
+        final double temp = f * localVol.getVolatilityForMoneyness(t, x);
         return -0.5 * temp * temp;
       }
     };
@@ -343,14 +458,74 @@ public class PDEDataBundleProvider {
   }
 
   /**
-   * Set up for running forward PDE with local volatility
-   * @param spot Time zero value of underlying
-   * @param isCall True for call
+   * Set up for running forward PDE with local volatility parameterised by moneyness (i.e. m = strike/forward). The option
+   * prices will be in a normalised form, and will have to be multiplied by the discount factor AND the forward to recover
+   * the actual option price
    * @param localVol A local volatility surface
-   * @return a ConvectionDiffusionPDEDataBundle
+   * @param forwardCurve the forward curve
+   * @param isCall True for call
+   * @return The data to run through a PDE solver that will give the modified option price (the true option price is this
+   * multiplied by the discount factor AND the forward) as a function of expiry and <b>moneyness</b>
    */
-  public ConvectionDiffusionPDEDataBundle getForwardLocalVol(final double spot, final boolean isCall,
-      final LocalVolatilitySurface localVol) {
+  public ConvectionDiffusionPDEDataBundle getForwardLocalVol(final LocalVolatilitySurfaceStrike localVol, final ForwardCurve forwardCurve,
+      final boolean isCall) {
+    LocalVolatilitySurfaceMoneyness lvm = LocalVolatilitySurfaceConverter.toMoneynessSurface(localVol, forwardCurve);
+    return getForwardLocalVol(lvm, isCall);
+  }
+
+  /**
+   * Set up for running forward PDE with local volatility parameterised by moneyness (i.e. m = strike/forward). The option
+   * prices will be in a normalised form, and will have to be multiplied by the discount factor AND the forward to recover
+   * the actual option price
+   * @param localVol A local volatility surface parametrised by expiry and moneyness (=strike/forward)
+   * @param isCall True for call
+   * @return The data to run through a PDE solver that will give the modified option price (the true option price is this
+   * multiplied by the discount factor AND the forward) as a function of expiry and <b>moneyness</b>
+   */
+  public ConvectionDiffusionPDEDataBundle getForwardLocalVol(final LocalVolatilitySurfaceMoneyness localVol,
+      final boolean isCall) {
+
+    final Function<Double, Double> a = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tx) {
+        Validate.isTrue(tx.length == 2);
+        final double t = tx[0];
+        final double m = tx[1];
+
+        final double vol = localVol.getVolatilityForMoneyness(t, m);
+        final double temp = m * vol;
+        return -0.5 * temp * temp;
+      }
+    };
+
+    final Function1D<Double, Double> payoff = new Function1D<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double m) {
+        if (isCall) {
+          return Math.max(0, 1 - m);
+        }
+        return Math.max(0, m - 1);
+      }
+    };
+
+    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0), ConstantDoublesSurface.from(0), payoff);
+  }
+
+  /**
+   * *
+   * Classic (i.e. formulated in terms of constant instantaneous short rates) forward PDE setup for option price under
+   * a local volatility. The state variables are time-to-maturity and strike
+   * @param rate The risk free rate (domestic risk free rate in FX case)
+   * @param yield The dividend yield (for equity) or foreign risk free (for FX)
+   * @param spot The spot value of the underlying
+   * @param isCall true for call
+   * @param localVol A local volatility surface - gives the instantaneous (log-normal) volatility as a function of time and
+   * the value of the underlying at that time
+   * @return The data to run through a PDE solver that will give the option price as a function of strike and expiry
+   */
+  public ConvectionDiffusionPDEDataBundle getForwardLocalVol(final double rate, final double yield, final double spot,
+      final boolean isCall, final LocalVolatilitySurfaceStrike localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -358,9 +533,19 @@ public class PDEDataBundleProvider {
         Validate.isTrue(tk.length == 2);
         final double t = tk[0];
         final double k = tk[1];
-
-        final double temp = k * localVol.getVolatility(t, k);
+        final double vol = localVol.getVolatility(t, k);
+        final double temp = k * vol;
         return -0.5 * temp * temp;
+      }
+    };
+
+    final Function<Double, Double> b = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... tk) {
+        Validate.isTrue(tk.length == 2);
+        final double k = tk[1];
+
+        return k * (rate - yield);
       }
     };
 
@@ -375,11 +560,11 @@ public class PDEDataBundleProvider {
       }
     };
 
-    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), ConstantDoublesSurface.from(0), ConstantDoublesSurface.from(0), payoff);
+    return new ConvectionDiffusionPDEDataBundle(FunctionalDoublesSurface.from(a), FunctionalDoublesSurface.from(b), ConstantDoublesSurface.from(yield), payoff);
   }
 
   public ConvectionDiffusionPDEDataBundle getForwardLocalVolMoneyness(final double spot, final boolean isCall,
-      final LocalVolatilitySurface localVol) {
+      final LocalVolatilitySurfaceStrike localVol) {
     final double lambda = 100;
 
     final Function<Double, Double> a = new Function<Double, Double>() {

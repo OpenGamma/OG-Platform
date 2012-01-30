@@ -64,8 +64,8 @@ public class CapFloorIborHullWhiteMethod implements PricingMethod {
     double dfPay = hwData.getCurve(cap.getFundingCurveName()).getDiscountFactor(tp);
     double dfForwardT0 = hwData.getCurve(cap.getForwardCurveName()).getDiscountFactor(t0);
     double dfForwardT1 = hwData.getCurve(cap.getForwardCurveName()).getDiscountFactor(t1);
-    double alpha0 = _model.alpha(0.0, cap.getFixingTime(), tp, t0, hwData.getHullWhiteParameter());
-    double alpha1 = _model.alpha(0.0, cap.getFixingTime(), tp, t1, hwData.getHullWhiteParameter());
+    double alpha0 = _model.alpha(hwData.getHullWhiteParameter(), 0.0, cap.getFixingTime(), tp, t0);
+    double alpha1 = _model.alpha(hwData.getHullWhiteParameter(), 0.0, cap.getFixingTime(), tp, t1);
     double kappa = (Math.log((1 + deltaF * k) * dfForwardT1 / dfForwardT0) - (alpha1 * alpha1 - alpha0 * alpha0) / 2.0) / (alpha1 - alpha0);
     double omega = (cap.isCap() ? 1.0 : -1.0);
     double price = deltaP / deltaF * dfPay * omega * (dfForwardT0 / dfForwardT1 * NORMAL.getCDF(omega * (-kappa - alpha0)) - (1.0 + deltaF * k) * NORMAL.getCDF(omega * (-kappa - alpha1)));

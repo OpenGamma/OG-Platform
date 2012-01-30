@@ -125,7 +125,7 @@ public abstract class AbstractProcedureInvoker extends AbstractInvoker implement
 
   @Override
   protected ParameterConverter getParameterConverter(final GlobalContext globalContext) {
-    return globalContext.getParameterConverter();
+    return globalContext.getProcedureParameterConverter();
   }
 
   // FunctionInvoker

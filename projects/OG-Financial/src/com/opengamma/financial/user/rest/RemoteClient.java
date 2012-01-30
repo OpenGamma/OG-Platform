@@ -7,6 +7,8 @@ package com.opengamma.financial.user.rest;
 
 import java.net.URI;
 
+import javax.ws.rs.core.UriBuilder;
+
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
@@ -96,8 +98,7 @@ public class RemoteClient {
     private RestTarget _historicalTimeSeriesMaster;
 
     public void setPortfolioMaster(final URI portfolioMaster) {
-      // The remote portfolio master is broken and assumes a "portfolio" prefix on its URLs 
-      _portfolioMaster = (portfolioMaster != null) ? portfolioMaster.resolve(".") : null;
+      _portfolioMaster = portfolioMaster;
     }
 
     @Override
@@ -106,8 +107,7 @@ public class RemoteClient {
     }
 
     public void setPositionMaster(final URI positionMaster) {
-      // The remote position master is broken and assumes a "position" prefix on its URLs
-      _positionMaster = (positionMaster != null) ? positionMaster.resolve(".") : null;
+      _positionMaster = positionMaster;
     }
 
     @Override
@@ -185,14 +185,12 @@ public class RemoteClient {
 
     @Override
     public URI getPortfolioMaster() {
-      // The remote portfolio master is broken and assumes a "prtMaster/portfolio" prefix on its URLs 
-      return _baseTarget.getURI();
+      return UriBuilder.fromUri(_baseTarget.getURI()).path(ClientResource.PORTFOLIOS_PATH).build();
     }
 
     @Override
     public URI getPositionMaster() {
-      // The remote position master is broken and assumes a "posMaster/position" prefix on its URLs
-      return _baseTarget.getURI();
+      return UriBuilder.fromUri(_baseTarget.getURI()).path(ClientResource.POSITIONS_PATH).build();
     }
 
     @Override

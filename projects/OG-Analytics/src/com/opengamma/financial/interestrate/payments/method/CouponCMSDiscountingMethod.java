@@ -7,27 +7,39 @@ package com.opengamma.financial.interestrate.payments.method;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.payments.CouponCMS;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorPiecewiseConstantDataBundle;
+import com.opengamma.util.money.CurrencyAmount;
 
 /**
  *  Pricing and sensitivities of a CMS coupon by discounting (no convexity adjustment).
  */
-public final class CouponCMSDiscountingMethod {
+public final class CouponCMSDiscountingMethod implements PricingMethod {
+
+  /**
+   * The method unique instance.
+   */
   private static final CouponCMSDiscountingMethod INSTANCE = new CouponCMSDiscountingMethod();
 
   /**
-   * @return A static instance
+   * Return the unique instance of the class.
+   * @return The instance.
    */
   public static CouponCMSDiscountingMethod getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Private constructor.
+   */
   private CouponCMSDiscountingMethod() {
   }
 
@@ -37,7 +49,7 @@ public final class CouponCMSDiscountingMethod {
    * @param curves The yield curves. Should contain the discounting and forward curves associated. 
    * @return The coupon price.
    */
-  public double presentValue(final CouponCMS cmsCoupon, final YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final CouponCMS cmsCoupon, final YieldCurveBundle curves) {
     Validate.notNull(cmsCoupon);
     Validate.notNull(curves);
     final ParRateCalculator parRate = ParRateCalculator.getInstance();
@@ -45,7 +57,13 @@ public final class CouponCMSDiscountingMethod {
     final YieldAndDiscountCurve fundingCurve = curves.getCurve(cmsCoupon.getFundingCurveName());
     final double paymentDiscountFactor = fundingCurve.getDiscountFactor(cmsCoupon.getPaymentTime());
     final double pv = swapRate * cmsCoupon.getPaymentYearFraction() * cmsCoupon.getNotional() * paymentDiscountFactor;
-    return pv;
+    return CurrencyAmount.of(cmsCoupon.getCurrency(), pv);
+  }
+
+  @Override
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof CouponCMS, "Coupon CMS");
+    return presentValue((CouponCMS) instrument, (HullWhiteOneFactorPiecewiseConstantDataBundle) curves);
   }
 
   /**
@@ -67,9 +85,9 @@ public final class CouponCMSDiscountingMethod {
     final InterestRateCurveSensitivity swapRateSens = new InterestRateCurveSensitivity(parRateSensCal.visit(cmsCoupon.getUnderlyingSwap(), curves));
     final InterestRateCurveSensitivity payDFSens = new InterestRateCurveSensitivity(PresentValueCurveSensitivityCalculator.discountFactorSensitivity(fundingCurveName, fundingCurve, paymentTime));
     InterestRateCurveSensitivity result = swapRateSens.multiply(paymentDiscountFactor);
-    result = result.add(payDFSens.multiply(swapRate));
+    result = result.plus(payDFSens.multiply(swapRate));
     result = result.multiply(cmsCoupon.getNotional() * cmsCoupon.getPaymentYearFraction());
     return result;
-
   }
+
 }

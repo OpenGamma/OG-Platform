@@ -11,7 +11,7 @@ import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDEData
 import com.opengamma.financial.model.finitedifference.ExtendedConvectionDiffusionPDEDataBundle;
 import com.opengamma.financial.model.finitedifference.ExtendedCoupledPDEDataBundle;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceStrike;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
@@ -22,7 +22,7 @@ import com.opengamma.math.surface.FunctionalDoublesSurface;
  */
 public class LocalVolDensity {
 
-  public static ConvectionDiffusionPDEDataBundle getConvectionDiffusionPDEDataBundle(final ForwardCurve forward, final LocalVolatilitySurface localVol) {
+  public static ConvectionDiffusionPDEDataBundle getConvectionDiffusionPDEDataBundle(final ForwardCurve forward, final LocalVolatilitySurfaceStrike localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -84,7 +84,7 @@ public class LocalVolDensity {
 
   }
 
-  public static ExtendedConvectionDiffusionPDEDataBundle getExtendedConvectionDiffusionPDEDataBundle(final ForwardCurve forward, final LocalVolatilitySurface localVol) {
+  public static ExtendedConvectionDiffusionPDEDataBundle getExtendedConvectionDiffusionPDEDataBundle(final ForwardCurve forward, final LocalVolatilitySurfaceStrike localVol) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
       @Override
@@ -153,7 +153,7 @@ public class LocalVolDensity {
         FunctionalDoublesSurface.from(beta), initialCondition);
   }
 
-  public static ExtendedCoupledPDEDataBundle getExtendedCoupledPDEDataBundle(final ForwardCurve forward, final LocalVolatilitySurface localVol, final double lambda1, final double lambda2,
+  public static ExtendedCoupledPDEDataBundle getExtendedCoupledPDEDataBundle(final ForwardCurve forward, final LocalVolatilitySurfaceStrike localVol, final double lambda1, final double lambda2,
       final double initialProb) {
 
     final Function<Double, Double> a = new Function<Double, Double>() {
@@ -225,14 +225,14 @@ public class LocalVolDensity {
   }
 
   //TODO handle with a central calculator
-  private static double getLocalVolFirstDiv(final LocalVolatilitySurface localVol, final double t, final double s) {
+  private static double getLocalVolFirstDiv(final LocalVolatilitySurfaceStrike localVol, final double t, final double s) {
     final double eps = 1e-4;
     final double up = localVol.getVolatility(t, s + eps);
     final double down = localVol.getVolatility(t, s - eps);
     return (up - down) / 2 / eps;
   }
 
-  private static double getLocalVolSecondDiv(final LocalVolatilitySurface localVol, final double t, final double s) {
+  private static double getLocalVolSecondDiv(final LocalVolatilitySurfaceStrike localVol, final double t, final double s) {
     final double eps = 1e-4;
     final double up = localVol.getVolatility(t, s + eps);
     final double mid = localVol.getVolatility(t, s);

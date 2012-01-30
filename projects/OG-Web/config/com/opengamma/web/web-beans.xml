@@ -196,8 +196,7 @@
   <bean id="webSecuritiesRestBean" class="com.opengamma.web.security.WebSecuritiesResource" scope="request">
     <constructor-arg ref="dbSecurityMaster" />
     <constructor-arg ref="securityLoader"/>
-    <constructor-arg ref="dbHtsMaster"/>
-    <constructor-arg ref="sharedConfigSource"/>
+    <constructor-arg ref="htsResolver"/>
   </bean>
   
   <!-- Portfolios RESTful service -->
@@ -217,8 +216,7 @@
     <constructor-arg ref="dbPositionMaster" />
     <constructor-arg ref="securityLoader"/>
     <constructor-arg ref="sharedSecuritySource"/>
-    <constructor-arg ref="dbHtsMaster"/>
-    <constructor-arg ref="sharedConfigSource"/>
+    <constructor-arg ref="htsResolver"/>
   </bean>
   
   <!-- Exchanges RESTful service -->
@@ -329,6 +327,13 @@
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
+            <entry key="liveDataClient">
+              <map>
+                <entry key="subscriptionTopic" value="${liveDataClient.subscriptionTopic}" />
+                <entry key="entitlementTopic" value="${liveDataClient.entitlementTopic}" />
+                <entry key="heartbeatTopic" value="${liveDataClient.heartbeatTopic}" />
+              </map>
+            </entry>
             <entry key="marketDataSnapshotMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
                 <property name="local" value="/jax/marketDataSnapshotMaster/0/" />
@@ -355,13 +360,13 @@
             </entry>
             <entry key="portfolioMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/data/prtMaster/portfolios" />
+                <property name="local" value="/jax/data/prtMaster/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
             <entry key="positionMaster">
               <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
-                <property name="local" value="/jax/data/posMaster/positions" />
+                <property name="local" value="/jax/data/posMaster/" />
                 <property name="port" value="${jetty.port}" />
               </bean>
             </entry>
@@ -479,6 +484,9 @@
           <constructor-arg value="false" />
         </bean>
         <bean class="com.opengamma.financial.aggregation.CurrencyAggregationFunction" />
+        <bean class="com.opengamma.financial.aggregation.CurrenciesAggregationFunction">
+          <constructor-arg ref="combinedSecuritySource" />
+        </bean>
         <bean class="com.opengamma.financial.aggregation.DetailedAssetClassAggregationFunction" />
         <bean class="com.opengamma.financial.aggregation.RegionAggregationFunction">
           <constructor-arg ref="combinedSecuritySource" />
@@ -579,7 +587,9 @@
       <list>
         <ref bean="dbPortfolioMaster"/>
         <ref bean="dbPositionMaster"/>
-        <!--TODO what other data are we interested in?-->
+        <ref bean="dbSecurityMaster"/>
+        <ref bean="dbHtsMaster"/>
+        <ref bean="sharedConfigMaster"/>
       </list>
     </constructor-arg>
   </bean>
@@ -589,6 +599,9 @@
       <map>
         <entry key="POSITION" value-ref="dbPositionMaster"/>
         <entry key="PORTFOLIO" value-ref="dbPortfolioMaster"/>
+        <entry key="SECURITY" value-ref="dbSecurityMaster"/>
+        <entry key="TIME_SERIES" value-ref="dbHtsMaster"/>
+        <entry key="CONFIG" value-ref="sharedConfigMaster"/>
       </map>
     </constructor-arg>
   </bean>

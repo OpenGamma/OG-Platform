@@ -10,6 +10,7 @@ import javax.time.calendar.Period;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.money.Currency;
@@ -37,6 +38,8 @@ public class GeneratorSwap {
   private final IborIndex _iborIndex;
 
   // Implementation comment: business day convention, calendar and EOM from IborIndex.
+  // REVIEW: Do we need stubShort and stubFirst flags?
+  // REVIEW: Do we need business day convention and EOM in the generator (potentially different from the one of the Ibor index)?
 
   /**
    * Constructor from all the details.
@@ -55,8 +58,8 @@ public class GeneratorSwap {
   }
 
   /**
-   * Gets the _name field.
-   * @return the _name
+   * Gets the generator name.
+   * @return The name
    */
   public String getName() {
     return _name;
@@ -100,6 +103,30 @@ public class GeneratorSwap {
    */
   public Calendar getCalendar() {
     return _iborIndex.getCalendar();
+  }
+
+  /**
+   * Gets the generator business day convention.
+   * @return The convention.
+   */
+  public BusinessDayConvention getBusinessDayConvention() {
+    return _iborIndex.getBusinessDayConvention();
+  }
+
+  /**
+   * Gets the generator spot lag.
+   * @return The lag (in days).
+   */
+  public int getSpotLag() {
+    return _iborIndex.getSpotLag();
+  }
+
+  /**
+   * Gets the generator end-of-month rule.
+   * @return The EOM.
+   */
+  public Boolean isEndOfMonth() {
+    return _iborIndex.isEndOfMonth();
   }
 
   @Override

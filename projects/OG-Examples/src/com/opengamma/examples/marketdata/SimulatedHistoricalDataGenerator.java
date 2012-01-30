@@ -46,9 +46,16 @@ import com.opengamma.util.tuple.Pair;
  * <identification-scheme>, <identifier-value>, <datafield>, <value>
  */
 public class SimulatedHistoricalDataGenerator {
-  private static final String OG_DATA_PROVIDER = "OG_DATA_PROVIDER";
+  
+  /**
+   * OG Simulated data provider name
+   */
+  public static final String OG_DATA_PROVIDER = "OG_DATA_PROVIDER";
 
-  private static final String OG_DATA_SOURCE = "OG_DATA_SOURCE";
+  /**
+   * OG Simulated data source name
+   */
+  public static final String OG_DATA_SOURCE = "OG_DATA_SOURCE";
 
   private static final Logger s_logger = LoggerFactory.getLogger(SimulatedHistoricalDataGenerator.class);
   
@@ -122,8 +129,10 @@ public class SimulatedHistoricalDataGenerator {
   private LocalDateDoubleTimeSeries getHistoricalDataPoints(Random random, Double startValue, int tsLength) {
     MapLocalDateDoubleTimeSeries result = new MapLocalDateDoubleTimeSeries();
     LocalDate date = DateUtils.previousWeekDay(LocalDate.now().minusYears(tsLength));
+    double currentValue = startValue;
     do {
-      result.putDataPoint(date, wiggleValue(random, startValue));
+      currentValue = wiggleValue(random, currentValue);
+      result.putDataPoint(date, currentValue);
       date = DateUtils.nextWeekDay(date);
     } while (date.isBefore(LocalDate.now()));
     return result;

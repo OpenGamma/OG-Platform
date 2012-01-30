@@ -11,7 +11,7 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.equity.variance.pricing.ShiftedLognormalVolModel;
-import com.opengamma.financial.interestrate.TestsDataSets;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.volatility.BlackFormula;
@@ -55,7 +55,7 @@ public class ShiftedLognormalVolModelTest {
   // Market data
   double spot = 80;
   double forward = 100;
-  final YieldCurveBundle curves = TestsDataSets.createCurves1();
+  final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
   final YieldAndDiscountCurve curveDiscount = curves.getCurve("Funding");
 
   private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5,

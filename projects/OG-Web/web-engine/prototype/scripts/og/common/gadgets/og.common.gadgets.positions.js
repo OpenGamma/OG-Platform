@@ -6,25 +6,26 @@ $.register_module({
     name: 'og.common.gadgets.positions',
     dependencies: [],
     obj: function () {
-        var common = og.common, views = og.views, routes = common.routes, api = og.api;
+        var common = og.common, views = og.views, routes = common.routes, api = og.api,
+            dependencies = ['id', 'node', 'version'];
         return function (config) {
             /* timeseries */
-            var selector = config.selector,
+            var selector = config.selector, get_values, timeseries,
                 timeseries_options = {
-                colors: ['#42669a'],
-                series: {shadowSize: 0, threshold: {below: 0, color: '#960505'}},
-                legend: {backgroundColor: null},
-                lines: {lineWidth: 1, fill: 1, fillColor: '#f8fbfd'},
-                grid: {show: false},
-                yaxis: {}
-            },
+                    colors: ['#42669a'],
+                    series: {shadowSize: 0, threshold: {below: 0, color: '#960505'}},
+                    legend: {backgroundColor: null},
+                    lines: {lineWidth: 1, fill: 1, fillColor: '#f8fbfd'},
+                    grid: {show: false},
+                    yaxis: {}
+                };
             get_values = function (arr) {
                 var min, max, buffer;
-                max = (function (arr) {return Math.max.apply(null, arr.map(function (v) {return v[1];}));})(arr);
-                min = (function (arr) {return Math.min.apply(null, arr.map(function (v) {return v[1];}));})(arr);
+                max = (function (arr) {return Math.max.apply(null, arr.pluck(1));})(arr);
+                min = (function (arr) {return Math.min.apply(null, arr.pluck(1));})(arr);
                 buffer = (max - min) / 10, max += buffer, min -= buffer;
                 return {min: min, max: max}
-            },
+            };
             timeseries = function (obj, height) {
                 var $timeseries = $(selector + ' .og-timeseries'),
                     $hover_msg = $(selector + ' .og-timeseries-hover'),
@@ -34,7 +35,7 @@ $.register_module({
                 if (!id) return $timeseries_extra.html('no timeseries found');
                 $timeseries.css(height_obj), $hover_msg.css(height_obj);
                 api.rest.timeseries.get({
-                    dependencies: ['id', 'node'],
+                    dependencies: dependencies,
                     handler: function (result) {
                         var template_data = result.data.template_data, vals;
                         if (result.error) {
@@ -59,7 +60,7 @@ $.register_module({
                 });
             };
             api.rest.positions.get({
-                dependencies: ['id', 'node'],
+                dependencies: dependencies,
                 handler: function (result) {
                     if (result.error) return alert(result.message);
                     api.text({module: 'og.views.gadgets.positions', handler: function (template) {
@@ -69,12 +70,23 @@ $.register_module({
                         timeseries(result, $(selector + ' .og-js-sec-time').outerHeight() - 2);
                         if ((!args.version || args.version === '*') && config.editable) {
                             common.util.ui.content_editable({
-                                handler: function () {views.positions.search(args), views.positions.details(args);}
+                                pre_dispatch: function (rest_options, handler) {
+                                    og.api.rest.positions.get({
+                                        id: config.id,
+                                        handler: function (result) {
+                                            handler($.extend(rest_options, {
+                                                trades: og.common.gadgets.trades.format(result.data.trades)
+                                            }));
+                                        }
+                                    });
+                                },
+                                handler: function () {views.positions.search(routes.current().args);}
                             });
                         }
                     }});
                 },
                 id: config.id,
+                cache_for: 500,
                 loading: function () {}
             });
         }

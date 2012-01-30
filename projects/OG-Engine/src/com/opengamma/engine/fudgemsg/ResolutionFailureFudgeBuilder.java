@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
+import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilder;
@@ -41,11 +42,11 @@ public class ResolutionFailureFudgeBuilder implements FudgeBuilder<ResolutionFai
   /**
    * Visitor that produces Fudge messages from {@link ResolutionFailure} objects.
    */
-  public static final class Visitor extends ResolutionFailureVisitor<MutableFudgeMsg> {
+  private static final class VisitorImpl extends ResolutionFailureVisitor<MutableFudgeMsg> {
 
     private final FudgeSerializer _serializer;
 
-    public Visitor(final FudgeSerializer serializer) {
+    public VisitorImpl(final FudgeSerializer serializer) {
       _serializer = serializer;
     }
 
@@ -58,26 +59,32 @@ public class ResolutionFailureFudgeBuilder implements FudgeBuilder<ResolutionFai
       return msg;
     }
 
+    @Override
     protected MutableFudgeMsg visitCouldNotResolve(final ValueRequirement valueRequirement) {
       return message(ResolutionFailure.Status.COULD_NOT_RESOLVE, valueRequirement);
     }
 
+    @Override
     protected MutableFudgeMsg visitNoFunctions(final ValueRequirement valueRequirement) {
       return message(ResolutionFailure.Status.NO_FUNCTIONS, valueRequirement);
     }
 
+    @Override
     protected MutableFudgeMsg visitRecursiveRequirement(final ValueRequirement valueRequirement) {
       return message(ResolutionFailure.Status.RECURSIVE_REQUIREMENT, valueRequirement);
     }
 
+    @Override
     protected MutableFudgeMsg visitUnsatisfied(final ValueRequirement valueRequirement) {
       return message(ResolutionFailure.Status.UNSATISFIED, valueRequirement);
     }
 
+    @Override
     protected MutableFudgeMsg visitMarketDataMissing(final ValueRequirement valueRequirement) {
       return message(ResolutionFailure.Status.MARKET_DATA_MISSING, valueRequirement);
     }
 
+    @Override
     protected MutableFudgeMsg visitFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
         final Map<ValueSpecification, ValueRequirement> satisfied, final Set<ResolutionFailure> unsatisfied, final Set<ResolutionFailure> unsatisfiedAdditional) {
       final MutableFudgeMsg msg = message(null, valueRequirement);
@@ -103,6 +110,7 @@ public class ResolutionFailureFudgeBuilder implements FudgeBuilder<ResolutionFai
       return msg;
     }
 
+    @Override
     protected MutableFudgeMsg visitGetAdditionalRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
         final Map<ValueSpecification, ValueRequirement> requirements) {
       final MutableFudgeMsg msg = message(ResolutionFailure.Status.ADDITIONAL_REQUIREMENT, valueRequirement);
@@ -118,6 +126,7 @@ public class ResolutionFailureFudgeBuilder implements FudgeBuilder<ResolutionFai
       return msg;
     }
 
+    @Override
     protected MutableFudgeMsg visitGetResultsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
       final MutableFudgeMsg msg = message(ResolutionFailure.Status.GET_RESULTS_FAILED, valueRequirement);
       _serializer.addToMessage(msg, FUNCTION_KEY, null, function.getFunction().getFunctionDefinition().getUniqueId());
@@ -126,6 +135,7 @@ public class ResolutionFailureFudgeBuilder implements FudgeBuilder<ResolutionFai
       return msg;
     }
 
+    @Override
     protected MutableFudgeMsg visitGetRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
       final MutableFudgeMsg msg = message(ResolutionFailure.Status.GET_REQUIREMENTS_FAILED, valueRequirement);
       _serializer.addToMessage(msg, FUNCTION_KEY, null, function.getFunction().getFunctionDefinition().getUniqueId());
@@ -134,6 +144,7 @@ public class ResolutionFailureFudgeBuilder implements FudgeBuilder<ResolutionFai
       return msg;
     }
 
+    @Override
     protected MutableFudgeMsg visitLateResolutionFailure(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
         final Map<ValueSpecification, ValueRequirement> requirements) {
       final MutableFudgeMsg msg = message(ResolutionFailure.Status.LATE_RESOLUTION_FAILURE, valueRequirement);
@@ -148,11 +159,82 @@ public class ResolutionFailureFudgeBuilder implements FudgeBuilder<ResolutionFai
       }
       return msg;
     }
+
+  }
+
+  /**
+   * Visitor that produces Fudge messages from {@link ResolutionFailure} objects.
+   */
+  public static final class Visitor extends ResolutionFailureVisitor<MutableFudgeMsg> {
+
+    private final FudgeContext _context;
+
+    public Visitor(final FudgeContext context) {
+      _context = context;
+    }
+
+    private VisitorImpl getUnderlying() {
+      return new VisitorImpl(new FudgeSerializer(_context));
+    }
+
+    @Override
+    protected MutableFudgeMsg visitCouldNotResolve(final ValueRequirement valueRequirement) {
+      return getUnderlying().visitCouldNotResolve(valueRequirement);
+    }
+
+    @Override
+    protected MutableFudgeMsg visitNoFunctions(final ValueRequirement valueRequirement) {
+      return getUnderlying().visitNoFunctions(valueRequirement);
+    }
+
+    @Override
+    protected MutableFudgeMsg visitRecursiveRequirement(final ValueRequirement valueRequirement) {
+      return getUnderlying().visitRecursiveRequirement(valueRequirement);
+    }
+
+    @Override
+    protected MutableFudgeMsg visitUnsatisfied(final ValueRequirement valueRequirement) {
+      return getUnderlying().visitUnsatisfied(valueRequirement);
+    }
+
+    @Override
+    protected MutableFudgeMsg visitMarketDataMissing(final ValueRequirement valueRequirement) {
+      return getUnderlying().visitMarketDataMissing(valueRequirement);
+    }
+
+    @Override
+    protected MutableFudgeMsg visitFunction(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+        final Map<ValueSpecification, ValueRequirement> satisfied, final Set<ResolutionFailure> unsatisfied, final Set<ResolutionFailure> unsatisfiedAdditional) {
+      return getUnderlying().visitFunction(valueRequirement, function, desiredOutput, satisfied, unsatisfied, unsatisfiedAdditional);
+    }
+
+    @Override
+    protected MutableFudgeMsg visitGetAdditionalRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+        final Map<ValueSpecification, ValueRequirement> requirements) {
+      return getUnderlying().visitGetAdditionalRequirementsFailed(valueRequirement, function, desiredOutput, requirements);
+    }
+
+    @Override
+    protected MutableFudgeMsg visitGetResultsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
+      return getUnderlying().visitGetResultsFailed(valueRequirement, function, desiredOutput);
+    }
+
+    @Override
+    protected MutableFudgeMsg visitGetRequirementsFailed(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput) {
+      return getUnderlying().visitGetRequirementsFailed(valueRequirement, function, desiredOutput);
+    }
+
+    @Override
+    protected MutableFudgeMsg visitLateResolutionFailure(final ValueRequirement valueRequirement, final ParameterizedFunction function, final ValueSpecification desiredOutput,
+        final Map<ValueSpecification, ValueRequirement> requirements) {
+      return getUnderlying().visitLateResolutionFailure(valueRequirement, function, desiredOutput, requirements);
+    }
+
   }
 
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final ResolutionFailure failure) {
-    final Collection<MutableFudgeMsg> failures = failure.accept(new Visitor(serializer));
+    final Collection<MutableFudgeMsg> failures = failure.accept(new VisitorImpl(serializer));
     if (failures.size() == 1) {
       return failures.iterator().next();
     } else {

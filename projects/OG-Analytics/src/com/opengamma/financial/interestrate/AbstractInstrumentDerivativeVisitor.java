@@ -10,6 +10,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
@@ -17,6 +18,8 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BillSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -108,6 +111,16 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   @Override
   public T visitBondIborTransaction(final BondIborTransaction bond, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondIborTransaction()");
+  }
+
+  @Override
+  public T visitBillSecurity(final BillSecurity bill, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBillSecurity()");
+  }
+
+  @Override
+  public T visitBillTransaction(final BillTransaction bill, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBillTransaction()");
   }
 
   @Override
@@ -288,6 +301,16 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   @Override
   public T visitBondIborTransaction(final BondIborTransaction bond) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBondIborTransaction()");
+  }
+
+  @Override
+  public T visitBillSecurity(final BillSecurity bill) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBillSecurity()");
+  }
+
+  @Override
+  public T visitBillTransaction(final BillTransaction bill) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitBillTransaction()");
   }
 
   @Override
@@ -580,6 +603,16 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   @Override
   public T visitForexNonDeliverableOption(final ForexNonDeliverableOption derivative) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexNonDeliverableOption()");
+  }
+
+  @Override
+  public T visitForexOptionDigital(final ForexOptionDigital derivative, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionVanilla()");
+  }
+
+  @Override
+  public T visitForexOptionDigital(final ForexOptionDigital derivative) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitForexOptionVanilla()");
   }
 
   @Override

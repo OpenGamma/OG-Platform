@@ -1,56 +1,33 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
 package com.opengamma.financial.model.volatility.surface;
 
-import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
-import com.opengamma.financial.model.volatility.BlackFormula;
 import com.opengamma.math.surface.Surface;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * A surface that contains the Black (implied) volatility  as a function of time to maturity and strike.
- * Also known as Lognormal Vol.
+ *  A surface with gives Black (implied) volatility  as a function of time to maturity and value some abstraction of strike
+ *  @param <T> Parameter that describes the abstraction of strike - this could be the actual strike, the delta (most commonly used in FX), moneyness (defined as the strike/forward),
+ *  the logarithm of moneyness or some other parameterisation
  */
-public class BlackVolatilitySurface extends VolatilitySurface {
-
-  private final StrikeParameterization _strikeParameterisation;
+public abstract class BlackVolatilitySurface<T extends StrikeType> extends VolatilitySurface {
 
   /**
-   * @param surface The time to maturity should be the first coordinate and the strike the second 
+   * @param surface  The time to maturity should be the first coordinate and the abstraction of strike the second
    */
-  public BlackVolatilitySurface(final Surface<Double, Double, Double> surface) {
+  public BlackVolatilitySurface(Surface<Double, Double, Double> surface) {
     super(surface);
-    _strikeParameterisation = StrikeParameterization.STRIKE;
   }
 
-  /**
-   * @param surface The time to maturity should be the first coordinate and the strike the second 
-   * @param strikeType StrikeParameterisation defines how to interpret the strike axis
-   */
-  public BlackVolatilitySurface(final Surface<Double, Double, Double> surface, final StrikeParameterization strikeType) {
-    super(surface);
-    _strikeParameterisation = strikeType;
+  public double getVolatility(final double t, final T s) {
+    DoublesPair temp = new DoublesPair(t, s.value());
+    return getVolatility(temp);
   }
 
-  /**
-   * 
-   * @param t time to maturity
-   * @param k strike
-   * @param forward forward price
-   * @param isCall true if one desires a call price, false for a put
-   * @return Forward price implied by the volatility and forward. Forward Price is today's value divided by the terminal zero bond, i.e. V(0,T) * exp(+rT)
-   */
-  public double getForwardPrice(final double t, final double k, final double forward, final boolean isCall) {
-    return new BlackFormula(forward, k, t, getVolatility(t, k), null, isCall).computePrice();
-  }
+  @Override
+  public abstract double getVolatility(final double t, final double k);
 
-  /**
-   * Gets the strikeParameterisation.
-   * @return the strikeParameterisation
-   */
-  public final StrikeParameterization getStrikeParameterisation() {
-    return _strikeParameterisation;
-  }
 }

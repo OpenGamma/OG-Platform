@@ -30,17 +30,19 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
+import com.opengamma.web.server.push.rest.MasterType;
+import com.opengamma.web.server.push.rest.Subscribe;
+import com.opengamma.web.server.push.rest.SubscribeMaster;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityHistoryRequest;
 import com.opengamma.master.security.SecurityHistoryResult;
@@ -67,18 +69,18 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
    * Creates the resource.
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
-   * @param htsMaster       the HTS master, not null (for resolving relevant HTS Id)
-   * @param cfgSource       the config master, not null (for resolving relevant HTS Id)
+   * @param htsResolver     the HTS resolver, not null (for resolving relevant HTS Id)
    */
   public WebSecuritiesResource(
     final SecurityMaster securityMaster, final SecurityLoader securityLoader, 
-    final HistoricalTimeSeriesMaster htsMaster, final ConfigSource cfgSource) {
-    super(securityMaster, securityLoader, htsMaster, cfgSource);
+    final HistoricalTimeSeriesResolver htsResolver) {
+    super(securityMaster, securityLoader, htsResolver);
   }
 
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
+  @SubscribeMaster(MasterType.SECURITY)
   public String getHTML(
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
@@ -97,6 +99,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
 
   @GET
   @Produces(MediaType.APPLICATION_JSON)
+  @SubscribeMaster(MasterType.SECURITY)
   public String getJSON(
       @QueryParam("pgIdx") Integer pgIdx,
       @QueryParam("pgNum") Integer pgNum,
@@ -244,7 +247,7 @@ public class WebSecuritiesResource extends AbstractWebSecurityResource {
 
   //-------------------------------------------------------------------------
   @Path("{securityId}")
-  public WebSecurityResource findSecurity(@PathParam("securityId") String idStr) {
+  public WebSecurityResource findSecurity(@Subscribe @PathParam("securityId") String idStr) {
     data().setUriSecurityId(idStr);
     UniqueId oid = UniqueId.parse(idStr);
     try {

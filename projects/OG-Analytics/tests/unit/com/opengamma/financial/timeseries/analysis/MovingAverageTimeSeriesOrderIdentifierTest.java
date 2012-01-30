@@ -7,6 +7,8 @@ package com.opengamma.financial.timeseries.analysis;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import javax.time.calendar.LocalDate;
+
 import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
@@ -15,9 +17,9 @@ import cern.jet.random.engine.MersenneTwister64;
 import com.opengamma.financial.timeseries.model.MovingAverageTimeSeriesModel;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -26,16 +28,16 @@ public class MovingAverageTimeSeriesOrderIdentifierTest {
   private static final MovingAverageTimeSeriesOrderIdentifier MA_IDENTIFIER = new MovingAverageTimeSeriesOrderIdentifier(10, 0.05);
   private static final MovingAverageTimeSeriesModel MA_MODEL =
       new MovingAverageTimeSeriesModel(new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister.DEFAULT_SEED)));
-  private static final DoubleTimeSeries<Long> RANDOM;
-  private static final DoubleTimeSeries<Long> MA3;
+  private static final LocalDateDoubleTimeSeries RANDOM;
+  private static final LocalDateDoubleTimeSeries MA3;
 
   static {
     final int n = 50000;
-    final long[] dates = new long[n];
+    final LocalDate[] dates = new LocalDate[n];
     final double[] random = new double[n];
     final ProbabilityDistribution<Double> normal = new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister.DEFAULT_SEED));
     for (int i = 0; i < n; i++) {
-      dates[i] = i;
+      dates[i] = LocalDate.ofEpochDays(i);
       random[i] = normal.nextRandom();
     }
     final int order = 3;
@@ -45,7 +47,7 @@ public class MovingAverageTimeSeriesOrderIdentifierTest {
       coeffs[i] = 1. / (i + 5);
     }
     MA3 = MA_MODEL.getSeries(coeffs, order, dates);
-    RANDOM = new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, dates, random);
+    RANDOM = new ArrayLocalDateDoubleTimeSeries(dates, random);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -75,7 +77,7 @@ public class MovingAverageTimeSeriesOrderIdentifierTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testInsufficientData() {
-    MA_IDENTIFIER.getOrder(new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, new long[] {1, 2}, new double[] {0.1, 0.2}));
+    MA_IDENTIFIER.getOrder(new ArrayLocalDateDoubleTimeSeries(new LocalDate[] {LocalDate.ofEpochDays(1), LocalDate.ofEpochDays(2)}, new double[] {0.1, 0.2}));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

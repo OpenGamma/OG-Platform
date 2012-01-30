@@ -37,9 +37,11 @@ $.register_module({
                     ui.dialog({
                         type: 'input',
                         title: 'Add New Timeseries',
+                        width: 400, height: 480,
                         fields: [
                             {type: 'select', name: 'Scheme Type', id: 'scheme',
                                 options: [
+                                    {name: 'ActivFeed Ticker', value: 'ACTIVFEED_TICKER'},
                                     {name: 'Bloomberg Ticker', value: 'BLOOMBERG_TICKER'},
                                     {name: 'Bloomberg Ticker/Coupon/Maturity', value: 'BLOOMBERG_TCM'},
                                     {name: 'Bloomberg BUID', value: 'BLOOMBERG_BUID'},
@@ -74,7 +76,8 @@ $.register_module({
                                     end: ui.dialog({return_field_value: 'end'}) || '',
                                     identifier: ui.dialog({return_field_value: 'identifiers'})
                                 });
-                            }
+                            },
+                            'Cancel': function () {$(this).dialog('close');}
                         }
                     })
                 },
@@ -82,6 +85,7 @@ $.register_module({
                     ui.dialog({
                         type: 'confirm',
                         title: 'Delete timeseries?',
+                        width: 400, height: 190,
                         message: 'Are you sure you want to permanently delete this timeseries?',
                         buttons: {
                             'Delete': function () {
@@ -93,7 +97,8 @@ $.register_module({
                                         routes.go(routes.hash(rule, args));
                                     }, id: routes.current().args.id
                                 });
-                            }
+                            },
+                            'Cancel': function () {$(this).dialog('close');}
                         }
                     })
                 }

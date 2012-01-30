@@ -148,11 +148,13 @@ public class PresentValueSABRSensitivityDataBundleTest {
     assertEquals(data.hashCode(), other.hashCode());
     other.addNu(DoublesPair.of(1., 2.), 10.);
     assertFalse(data.equals(other));
-    other = new PresentValueSABRSensitivityDataBundle(NU, NU, RHO);
+    Map<DoublesPair, Double> differentMap = new HashMap<DoublesPair, Double>();
+    differentMap.put(DoublesPair.of(123.0, 456), Double.valueOf(12));
+    other = new PresentValueSABRSensitivityDataBundle(differentMap, NU, RHO);
     assertFalse(data.equals(other));
-    other = new PresentValueSABRSensitivityDataBundle(ALPHA, ALPHA, RHO);
+    other = new PresentValueSABRSensitivityDataBundle(ALPHA, differentMap, RHO);
     assertFalse(data.equals(other));
-    other = new PresentValueSABRSensitivityDataBundle(ALPHA, NU, NU);
+    other = new PresentValueSABRSensitivityDataBundle(ALPHA, NU, differentMap);
     assertFalse(data.equals(other));
   }
 }

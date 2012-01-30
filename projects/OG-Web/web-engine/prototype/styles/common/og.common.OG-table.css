@@ -25,6 +25,7 @@
 .OG-table td {
     padding: 4px;
     background-color: #ecf5fa;
+    position: relative;
 }
 
 .OG-table tr:first-child td {
@@ -62,6 +63,11 @@
 
 .OG-table thead tr th {
     background-color: #fff;
+    white-space: nowrap;
+}
+
+.OG-table tbody td {
+    vertical-align: top;
 }
 
 .OG-table th:after {
@@ -70,7 +76,7 @@
     border-bottom: 4px solid #f3f3f3;
 }
 
-    /* Sub list content */
+/* Sub list content */
 
     .OG-table .og-sub-list {
         width: 100%;
@@ -93,7 +99,7 @@
         padding-bottom: 2px;
     }
 
-    /* Extras */
+/* Extras */
 
     .OG-table .og-divider td {
         background-color: #fff;
@@ -101,8 +107,31 @@
         padding: 0;
     }
 
-    /* Delete row */
+/* Delete row */
 
-    .OG-table.og-delete {
-        color: #999;
+    .OG-table .og-del {
+        position: relative;
+        cursor: pointer;
+    }
+
+    .OG-table .og-del:after {
+        background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+        content: '';
+        background-position: -22px  -9px;
+        height: 6px;
+        margin-top: -13px;
+        width: 7px;
+        position: absolute;
+        top: 50%;
+        right: 10px;
+        z-index: 1;
+    }
+
+    .OG-table .og-del:hover:after {
+        background-position: -11px -35px;
+        width: 11px;
+        height: 10px;
+        top: 50%;
+        margin-top: -15px;
+        right: 8px;
     }

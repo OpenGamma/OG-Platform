@@ -27,6 +27,7 @@ import com.opengamma.language.invoke.ResultConverter;
 import com.opengamma.language.invoke.ValueConverter;
 import com.opengamma.language.livedata.AggregatingLiveDataProvider;
 import com.opengamma.language.livedata.LiveDataDefinitionFilter;
+import com.opengamma.language.livedata.LiveDataDispatcher;
 import com.opengamma.language.procedure.AggregatingProcedureProvider;
 import com.opengamma.language.procedure.ProcedureDefinitionFilter;
 import com.opengamma.util.ArgumentChecker;
@@ -98,6 +99,11 @@ public class MutableGlobalContext extends GlobalContext {
   public void setLiveDataDefinitionFilter(final LiveDataDefinitionFilter liveDataDefinitionFilter) {
     ArgumentChecker.notNull(liveDataDefinitionFilter, "liveDataDefinitionFilter");
     replaceValue(LIVEDATA_DEFINITION_FILTER, liveDataDefinitionFilter);
+  }
+
+  public void setLiveDataDispatcher(final LiveDataDispatcher liveDataDispatcher) {
+    ArgumentChecker.notNull(liveDataDispatcher, "liveDataDispatcher");
+    replaceValue(LIVEDATA_DISPATCHER, liveDataDispatcher);
   }
 
   public void setLiveDataParameterConverter(final ParameterConverter parameterConverter) {

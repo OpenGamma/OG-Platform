@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
@@ -23,6 +24,8 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BillSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -77,6 +80,7 @@ public class ForexDerivativeVisitorTest {
   private static final ForexOptionSingleBarrier FX_OPTION_SINGLE_BARRIER = ForexInstrumentsDescriptionDataSet.createForexOptionSingleBarrier();
   private static final ForexNonDeliverableForward NDF = ForexInstrumentsDescriptionDataSet.createForexNonDeliverableForward();
   private static final ForexNonDeliverableOption NDO = ForexInstrumentsDescriptionDataSet.createForexNonDeliverableOption();
+  private static final ForexOptionDigital FX_OPTION_DIGITAL = ForexInstrumentsDescriptionDataSet.createForexOptionDigital();
 
   @SuppressWarnings("synthetic-access")
   private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();
@@ -99,6 +103,8 @@ public class ForexDerivativeVisitorTest {
     assertEquals(NDF.accept(VISITOR, o), "ForexNonDeliverableForward2");
     assertEquals(NDO.accept(VISITOR), "ForexNonDeliverableOption1");
     assertEquals(NDO.accept(VISITOR, o), "ForexNonDeliverableOption2");
+    assertEquals(FX_OPTION_DIGITAL.accept(VISITOR), "ForexOptionDigital1");
+    assertEquals(FX_OPTION_DIGITAL.accept(VISITOR, o), "ForexOptionDigital2");
   }
 
   @Test
@@ -116,7 +122,9 @@ public class ForexDerivativeVisitorTest {
     testException(NDF, o);
     testException(NDO);
     testException(NDO, o);
-    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP};
+    testException(FX_OPTION_DIGITAL);
+    testException(FX_OPTION_DIGITAL, o);
+    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP };
     try {
       VISITOR_ABSTRACT.visit(forexArray[0]);
       assertTrue(false);
@@ -694,6 +702,36 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitDepositCounterpart(DepositCounterpart deposit) {
+      return null;
+    }
+
+    @Override
+    public String visitForexOptionDigital(final ForexOptionDigital derivative, final T data) {
+      return "ForexOptionDigital2";
+    }
+
+    @Override
+    public String visitForexOptionDigital(final ForexOptionDigital derivative) {
+      return "ForexOptionDigital1";
+    }
+
+    @Override
+    public String visitBillSecurity(BillSecurity bill, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBillSecurity(BillSecurity bill) {
+      return null;
+    }
+
+    @Override
+    public String visitBillTransaction(BillTransaction bill, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBillTransaction(BillTransaction bill) {
       return null;
     }
 

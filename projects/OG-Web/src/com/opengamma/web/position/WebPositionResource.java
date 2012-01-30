@@ -26,8 +26,10 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.base.Objects;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
+import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -84,7 +86,7 @@ public class WebPositionResource extends AbstractWebPositionResource {
       String html = getFreemarker().build("positions/position-update.ftl", out);
       return Response.ok(html).build();
     }
-    URI uri = updatePosition(doc, quantity, Collections.<ManageableTrade>emptyList());
+    URI uri = updatePosition(doc, quantity, null);
     return Response.seeOther(uri).build();
   }
 
@@ -112,9 +114,11 @@ public class WebPositionResource extends AbstractWebPositionResource {
 
   private URI updatePosition(PositionDocument doc, BigDecimal quantity, Collection<ManageableTrade> trades) {
     ManageablePosition position = doc.getPosition();
-    if (Objects.equal(position.getQuantity(), quantity) == false || !trades.isEmpty()) {
+    if (Objects.equal(position.getQuantity(), quantity) == false || trades != null) {
       position.setQuantity(quantity);
+      position.getTrades().clear();
       for (ManageableTrade trade : trades) {
+        trade.setSecurityLink(position.getSecurityLink());
         position.addTrade(trade);
       }
       doc = data().getPositionMaster().update(doc);
@@ -159,16 +163,24 @@ public class WebPositionResource extends AbstractWebPositionResource {
     FlexiBean out = super.createRootData();
     PositionDocument doc = data().getPosition();
     
-    UniqueId htsId = null;
+    // REVIEW jonathan 2012-01-12 -- we are throwing away any adjuster that may be required, e.g. to apply
+    // normalisation to the time-series. This reproduces the previous behaviour but probably indicates that the
+    // time-series information is in the wrong place.
+    
+    ObjectId tsObjectId = null;
     if (doc.getPosition().getSecurityLink().resolveQuiet(data().getSecuritySource()) != null) {
       // Get the last price HTS for the security
-      htsId = htsResolver().resolve(HistoricalTimeSeriesFields.LAST_PRICE, doc.getPosition().getSecurity().getExternalIdBundle(), null, null);
+      HistoricalTimeSeriesResolutionResult resolutionResult = htsResolver().resolve(
+          doc.getPosition().getSecurity().getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+      if (resolutionResult != null) {
+        tsObjectId = resolutionResult.getHistoricalTimeSeriesInfo().getTimeSeriesObjectId();
+      }
     }
 
     out.put("positionDoc", doc);
     out.put("position", doc.getPosition());
     out.put("security", doc.getPosition().getSecurity());
-    out.put("timeSeriesId", htsId == null ? null : htsId.getObjectId());
+    out.put("timeSeriesId", tsObjectId);
     out.put("deleted", !doc.isLatest());
     TradeAttributesModel tradeAttributesModel = getTradeAttributesModel();
     out.put("tradeAttrModel", tradeAttributesModel);

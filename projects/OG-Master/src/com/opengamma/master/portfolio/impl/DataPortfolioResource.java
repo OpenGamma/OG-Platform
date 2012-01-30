@@ -145,7 +145,12 @@ public class DataPortfolioResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/prtMaster/portfolios/{portfolioId}");
+    // TODO remove this hack
+    UriBuilder b = UriBuilder.fromUri(baseUri);
+    if (!baseUri.getPath().endsWith("prtMaster/") && !baseUri.getPath().endsWith("prtMaster")) {
+      b.path("/prtMaster");
+    }
+    b.path("/portfolios/{portfolioId}");
     if (versionCorrection != null && versionCorrection.getVersionAsOf() != null) {
       b.queryParam("versionAsOf", versionCorrection.getVersionAsOf());
     }
@@ -164,11 +169,16 @@ public class DataPortfolioResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/prtMaster/portfolios/{portfolioId}/versions");
-    if (searchMsg != null) {
-      bld.queryParam("msg", searchMsg);
+    // TODO remove this hack
+    UriBuilder b = UriBuilder.fromUri(baseUri);
+    if (!baseUri.getPath().endsWith("prtMaster/") && !baseUri.getPath().endsWith("prtMaster")) {
+      b.path("/prtMaster");
     }
-    return bld.build(objectId.getObjectId());
+    b.path("/portfolios/{portfolioId}/versions");
+    if (searchMsg != null) {
+      b.queryParam("msg", searchMsg);
+    }
+    return b.build(objectId.getObjectId());
   }
 
   /**
@@ -179,7 +189,12 @@ public class DataPortfolioResource extends AbstractDataResource {
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
-    return UriBuilder.fromUri(baseUri).path("/prtMaster/portfolios/{portfolioId}/versions/{versionId}")
+    // TODO remove this hack
+    UriBuilder b = UriBuilder.fromUri(baseUri);
+    if (!baseUri.getPath().endsWith("prtMaster/") && !baseUri.getPath().endsWith("prtMaster")) {
+      b.path("/prtMaster");
+    }
+    return b.path("/portfolios/{portfolioId}/versions/{versionId}")
       .build(uniqueId.toLatest(), uniqueId.getVersion());
   }
 

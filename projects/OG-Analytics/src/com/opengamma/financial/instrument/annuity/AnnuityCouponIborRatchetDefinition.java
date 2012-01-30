@@ -29,7 +29,7 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
 /**
  * A wrapper class for a AnnuityDefinition containing mainly CouponIborRatchetDefinition. The first coupon should be a CouponFixedDefinition or a CouponIborGearingDefinition.
  */
-public class AnnuityCouponIborRatchetDefinition extends AnnuityDefinition<CouponDefinition> {
+public class AnnuityCouponIborRatchetDefinition extends AnnuityCouponDefinition<CouponDefinition> {
 
   /**
    * Array used for the list conversion.
