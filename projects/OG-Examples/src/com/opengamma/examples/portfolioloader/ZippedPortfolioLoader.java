@@ -29,8 +29,8 @@ public class ZippedPortfolioLoader implements PortfolioLoader {
 
   private static final Logger s_logger = LoggerFactory.getLogger(CommandLineTool.class);
 
-  private static final String CLASS_PREFIX = "com.opengamma.examples.portfolioloader.loaders.";
-  private static final String CLASS_POSTFIX = "PortfolioLoader";
+  private static final String CLASS_PREFIX = "com.opengamma.examples.portfolioloader.parsers.";
+  private static final String CLASS_POSTFIX = "Parser";
   private static final String SHEET_EXTENSION = ".csv";
   private static final String CONFIG_FILE = "PORTFOLIO.INI";
   private static final String VERSION_TAG = "version";
@@ -84,22 +84,22 @@ public class ZippedPortfolioLoader implements PortfolioLoader {
       ZipEntry entry = (ZipEntry) e.nextElement();
       if (!entry.isDirectory() && entry.getName().substring(entry.getName().lastIndexOf('.')).equalsIgnoreCase(SHEET_EXTENSION)) {
         try {
-          // Identify the appropriate portfolio loader class from the ZIP entry's file name
+          // Identify the appropriate parser class from the ZIP entry's file name
           String className = CLASS_PREFIX + entry.getName().substring(0, entry.getName().lastIndexOf('.')) + CLASS_POSTFIX;
-          Class<?> loaderClass = Class.forName(className);
+          Class<?> parserClass = Class.forName(className);
 
           // Find the constructor
-          Constructor<?> constructor = loaderClass.getConstructor(SheetReader.class);
+          Constructor<?> constructor = parserClass.getConstructor();
           
           // Set up a sheet reader for the current CSV file in the ZIP archive
           SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
           
-          // Dynamically load the corresponding type of portfolio loader for the current sheet
-          SingleSheetPortfolioLoader portfolioLoader = (SingleSheetPortfolioLoader) constructor.newInstance(sheet);
+          // Create a generic simple portfolio loader for the current sheet, using a dynamically loaded row parser class
+          SingleSheetPortfolioLoader portfolioLoader = new SimplePortfolioLoader(sheet, (RowParser) constructor.newInstance(), sheet.getColumns());
 
           s_logger.info("Processing " + entry.getName() + " with " + className);
           
-          // Add portfolio node and change to it
+          // Add a portfolio node named after the current asset class and change to it
           ManageablePortfolioNode subNode = new ManageablePortfolioNode();
           subNode.setName(entry.getName().substring(0, entry.getName().lastIndexOf('.')));
           node.addChildNode(subNode);
@@ -108,7 +108,7 @@ public class ZippedPortfolioLoader implements PortfolioLoader {
           // Persist the current sheet's trades/positions using the specified portfolio writer
           portfolioLoader.writeTo(portfolioWriter);
           
-          // Change back to root portfolio node
+          // Change back to the root portfolio node
           portfolioWriter.setCurrentNode(node);
           
           // Flush changes to portfolio master

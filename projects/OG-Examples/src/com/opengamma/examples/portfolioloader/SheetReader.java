@@ -13,7 +13,7 @@ import java.util.Map;
  */
 public abstract class SheetReader {
   
-  private String[] _columns; // The column names, positions, and whether optional
+  private String[] _columns; // The column names and order
   
   public abstract Map<String, String> loadNextRow();
 

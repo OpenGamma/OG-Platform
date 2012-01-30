@@ -100,7 +100,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   public void flush() {
     _portfolioMaster.update(_portfolioDocument);
   }
-  
+    
   private PortfolioDocument createOrOpenPortfolio(String portfolioName) {
         
     // Check to see whether the portfolio already exists

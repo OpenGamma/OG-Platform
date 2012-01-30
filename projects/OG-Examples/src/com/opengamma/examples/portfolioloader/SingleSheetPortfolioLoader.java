@@ -35,9 +35,9 @@ public abstract class SingleSheetPortfolioLoader implements PortfolioLoader {
   }
   
   protected void prettyPrintRow(Map<String, String> row) {
-    String out = "Read in: ";
+    String out = "Read in: | ";
     for (String s : row.keySet()) {
-      out += (s + ": " + row.get(s) + " | ");
+      out += (s + "=" + row.get(s) + " | ");
     }
     s_logger.info(out);
   }
