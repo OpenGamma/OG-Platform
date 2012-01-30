@@ -53,21 +53,20 @@
          * @function
          * @type Object
          * @returns {Object} a merged object
-         * @throws {TypeError} if one of the arguments is not an object
+         * @throws {TypeError} if one of the arguments is not a mergeable object (i.e. a primitive, null or array)
          */
         merge = function () {
-            var self = 'merge', result = {}, key, val, lcv, len = arguments.length,
-                clone = function (obj) {
-                    if (typeof obj !== 'object' || obj === null) return obj; // primitives
-                    if (Object.prototype.toString.call(obj) === '[object Array]') return obj.map(clone); // arrays
-                    if (typeof obj === 'object') return merge(obj); // objects
-                };
-            for (lcv = 0; lcv < len; lcv += 1)
-                if (typeof arguments[lcv] !== 'object')
-                    throw new TypeError(self + ': ' + arguments[lcv] + ' is not an object');
-                else
-                    for (key in arguments[lcv]) result[key] = clone(arguments[lcv][key]);
-            return result;
+            var self = 'merge', to_string = Object.prototype.toString, clone = function (obj) {
+                return typeof obj !== 'object' || obj === null ? obj // primitives
+                    : Object.prototype.toString.call(obj) === '[object Array]' ? obj.map(clone) // arrays
+                        : merge(obj); // objects
+            };
+            return Array.prototype.reduce.call(arguments, function (acc, obj) {
+                if (!obj || typeof obj !== 'object' || to_string.call(obj) === '[object Array]')
+                    throw new TypeError(self + ': ' + to_string.call(obj) + ' is not mergeable');
+                for (var key in obj) if (obj[has](key)) acc[key] = clone(obj[key]);
+                return acc;
+            }, {});
         },
         /**
          * parses a path and returns a list of objects that contain argument dictionaries, methods, and raw hash values
