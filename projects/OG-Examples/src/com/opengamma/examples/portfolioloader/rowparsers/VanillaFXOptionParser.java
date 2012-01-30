@@ -9,12 +9,9 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.examples.portfolioloader.RowParser;
-import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
@@ -34,15 +31,15 @@ public class VanillaFXOptionParser extends RowParser {
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> fxOptionDetails) {
-    Currency putCurrency = Currency.of(PortfolioLoaderHelper.getWithException(fxOptionDetails, PUT_CURRENCY));
-    Currency callCurrency = Currency.of(PortfolioLoaderHelper.getWithException(fxOptionDetails, CALL_CURRENCY));
-    double putAmount = Double.parseDouble(PortfolioLoaderHelper.getWithException(fxOptionDetails, PUT_AMOUNT));
-    double callAmount = Double.parseDouble(PortfolioLoaderHelper.getWithException(fxOptionDetails, CALL_AMOUNT));
+    Currency putCurrency = Currency.of(getWithException(fxOptionDetails, PUT_CURRENCY));
+    Currency callCurrency = Currency.of(getWithException(fxOptionDetails, CALL_CURRENCY));
+    double putAmount = Double.parseDouble(getWithException(fxOptionDetails, PUT_AMOUNT));
+    double callAmount = Double.parseDouble(getWithException(fxOptionDetails, CALL_AMOUNT));
     Expiry expiry = new Expiry(ZonedDateTime.of(LocalDateTime.of(LocalDate.parse(
-        PortfolioLoaderHelper.getWithException(fxOptionDetails, EXPIRY), PortfolioLoaderHelper.CSV_DATE_FORMATTER),
+        getWithException(fxOptionDetails, EXPIRY), CSV_DATE_FORMATTER),
         LocalTime.of(16, 0)), TimeZone.UTC), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR); //TODO shouldn't be hard-coding time and zone
     ZonedDateTime settlementDate = expiry.getExpiry().plusDays(2);
-    boolean isLong = Boolean.parseBoolean(PortfolioLoaderHelper.getWithException(fxOptionDetails, IS_LONG));
+    boolean isLong = Boolean.parseBoolean(getWithException(fxOptionDetails, IS_LONG));
     FXOptionSecurity security = new FXOptionSecurity(putCurrency, callCurrency, putAmount, callAmount, expiry, settlementDate, isLong, new EuropeanExerciseType()); 
     String name = (isLong ? "Long " : "Short ") + "put " + putCurrency.getCode() + " " + putAmount + ", call " + callCurrency.getCode() + " " + callAmount + " on " + expiry.getExpiry().toLocalDate();
     security.setName(name);

@@ -11,7 +11,6 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.examples.portfolioloader.RowParser;
-import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.position.ManageablePosition;
@@ -34,29 +33,29 @@ public class FRAParser extends RowParser {
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> fraDetails) {
-    Currency ccy = Currency.of(PortfolioLoaderHelper.getWithException(fraDetails, CURRENCY));
+    Currency ccy = Currency.of(getWithException(fraDetails, CURRENCY));
     ExternalId region = ExternalId.of(RegionUtils.ISO_COUNTRY_ALPHA2, REGION);
     LocalDateTime startDate = LocalDateTime.of(LocalDate.parse(
-        PortfolioLoaderHelper.getWithException(fraDetails, START_DATE), PortfolioLoaderHelper.CSV_DATE_FORMATTER),
+        getWithException(fraDetails, START_DATE), CSV_DATE_FORMATTER),
         LocalTime.MIDNIGHT);
     LocalDateTime endDate = LocalDateTime.of(LocalDate.parse(
-        PortfolioLoaderHelper.getWithException(fraDetails, END_DATE), PortfolioLoaderHelper.CSV_DATE_FORMATTER),
+        getWithException(fraDetails, END_DATE), CSV_DATE_FORMATTER),
         LocalTime.MIDNIGHT);
-    double rate = Double.parseDouble(PortfolioLoaderHelper.getWithException(fraDetails, RATE));
-    double amount = Double.parseDouble(PortfolioLoaderHelper.getWithException(fraDetails, AMOUNT));
+    double rate = Double.parseDouble(getWithException(fraDetails, RATE));
+    double amount = Double.parseDouble(getWithException(fraDetails, AMOUNT));
     ZonedDateTime zonedStartDate = startDate.atZone(TimeZone.UTC);
     ZonedDateTime zonedEndDate = endDate.atZone(TimeZone.UTC);
     if (!zonedEndDate.isAfter(zonedStartDate)) {
       throw new IllegalArgumentException("Start date must be before end date");
     }
     ZonedDateTime zonedFixingDate = zonedStartDate.minusDays(2);
-    String bbgId = PortfolioLoaderHelper.getWithException(fraDetails, BBG_ID);
+    String bbgId = getWithException(fraDetails, BBG_ID);
     ExternalId underlyingID = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, bbgId);
     FRASecurity fra = new FRASecurity(ccy, region, zonedStartDate, endDate.atZone(TimeZone.UTC), rate, 1000000 * amount, underlyingID, zonedFixingDate);
-    fra.setName("FRA " + ccy.getCode() + " " + PortfolioLoaderHelper.NOTIONAL_FORMATTER.format(amount) + " @ "
-        + PortfolioLoaderHelper.RATE_FORMATTER.format(rate) + ", from "
-        + startDate.toString(PortfolioLoaderHelper.OUTPUT_DATE_FORMATTER) + " to "
-        + endDate.toString(PortfolioLoaderHelper.OUTPUT_DATE_FORMATTER));
+    fra.setName("FRA " + ccy.getCode() + " " + NOTIONAL_FORMATTER.format(amount) + " @ "
+        + RATE_FORMATTER.format(rate) + ", from "
+        + startDate.toString(OUTPUT_DATE_FORMATTER) + " to "
+        + endDate.toString(OUTPUT_DATE_FORMATTER));
     fra.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
 
     ManageableSecurity[] result = {fra};

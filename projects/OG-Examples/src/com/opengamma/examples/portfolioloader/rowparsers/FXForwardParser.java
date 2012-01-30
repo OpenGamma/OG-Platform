@@ -16,7 +16,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.examples.portfolioloader.RowParser;
-import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.id.ExternalId;
@@ -40,16 +39,16 @@ public class FXForwardParser extends RowParser {
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> fxForwardDetails) {
-    Currency payCurrency = Currency.of(PortfolioLoaderHelper.getWithException(fxForwardDetails, PAY_CURRENCY));
-    Currency receiveCurrency = Currency.of(PortfolioLoaderHelper.getWithException(fxForwardDetails, RECEIVE_CURRENCY));
-    double payAmount = Double.parseDouble(PortfolioLoaderHelper.getWithException(fxForwardDetails, PAY_AMOUNT));
-    double receiveAmount = Double.parseDouble(PortfolioLoaderHelper.getWithException(fxForwardDetails, RECEIVE_AMOUNT));
+    Currency payCurrency = Currency.of(getWithException(fxForwardDetails, PAY_CURRENCY));
+    Currency receiveCurrency = Currency.of(getWithException(fxForwardDetails, RECEIVE_CURRENCY));
+    double payAmount = Double.parseDouble(getWithException(fxForwardDetails, PAY_AMOUNT));
+    double receiveAmount = Double.parseDouble(getWithException(fxForwardDetails, RECEIVE_AMOUNT));
     ExternalId region = RegionUtils.countryRegionId(Country.of(getWithException(fxForwardDetails, COUNTRY)));
-    String date = PortfolioLoaderHelper.getWithException(fxForwardDetails, FORWARD_DATE);
+    String date = getWithException(fxForwardDetails, FORWARD_DATE);
     FXSecurity underlying = new FXSecurity(payCurrency, receiveCurrency, payAmount, receiveAmount, region);
     ExternalId underlyingId = ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString());
     underlying.addExternalId(underlyingId);
-    ZonedDateTime forwardDate = ZonedDateTime.of(LocalDateTime.of(LocalDate.parse(date, PortfolioLoaderHelper.CSV_DATE_FORMATTER), 
+    ZonedDateTime forwardDate = ZonedDateTime.of(LocalDateTime.of(LocalDate.parse(date, CSV_DATE_FORMATTER), 
         LocalTime.of(2, 0)), TimeZone.UTC);
     FXForwardSecurity fxForward = new FXForwardSecurity(underlyingId, forwardDate, region);
     fxForward.setName("Pay " + payCurrency.getCode() + " " + payAmount + ", receive " + receiveCurrency.getCode() + " " + receiveAmount + " on " + date);

@@ -9,7 +9,6 @@ import javax.time.calendar.TimeZone;
 
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.examples.portfolioloader.RowParser;
-import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.position.ManageablePosition;
@@ -29,17 +28,17 @@ public class CashParser extends RowParser {
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> cashDetails) {
-    Currency ccy = Currency.of(PortfolioLoaderHelper.getWithException(cashDetails, CURRENCY));
+    Currency ccy = Currency.of(getWithException(cashDetails, CURRENCY));
     ExternalId region = ExternalId.of(RegionUtils.ISO_COUNTRY_ALPHA2, REGION);
     LocalDateTime maturity = LocalDateTime.of(
-        LocalDate.parse(PortfolioLoaderHelper.getWithException(cashDetails, MATURITY), PortfolioLoaderHelper.CSV_DATE_FORMATTER),
+        LocalDate.parse(getWithException(cashDetails, MATURITY), CSV_DATE_FORMATTER),
         LocalTime.MIDNIGHT);
-    double rate = Double.parseDouble(PortfolioLoaderHelper.getWithException(cashDetails, RATE));
-    double amount = Double.parseDouble(PortfolioLoaderHelper.getWithException(cashDetails, AMOUNT));
+    double rate = Double.parseDouble(getWithException(cashDetails, RATE));
+    double amount = Double.parseDouble(getWithException(cashDetails, AMOUNT));
     CashSecurity cash = new CashSecurity(ccy, region, maturity.atZone(TimeZone.UTC), rate, amount);
-    cash.setName("Cash " + ccy.getCode() + " " + PortfolioLoaderHelper.NOTIONAL_FORMATTER.format(amount) + " @ "
-        + PortfolioLoaderHelper.RATE_FORMATTER.format(rate) + ", maturity "
-        + maturity.toString(PortfolioLoaderHelper.OUTPUT_DATE_FORMATTER));
+    cash.setName("Cash " + ccy.getCode() + " " + NOTIONAL_FORMATTER.format(amount) + " @ "
+        + RATE_FORMATTER.format(rate) + ", maturity "
+        + maturity.toString(OUTPUT_DATE_FORMATTER));
     
     ManageableSecurity[] result = {cash};
     return result;

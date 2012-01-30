@@ -35,7 +35,7 @@ public class PortfolioImportCmdLineTool {
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioImportCmdLineTool.class);
 
   /** Path strings for constructing a fully qualified parser class name **/
-  private static final String CLASS_PREFIX = "com.opengamma.examples.portfolioloader.parsers.";
+  private static final String CLASS_PREFIX = "com.opengamma.examples.portfolioloader.rowparsers.";
   private static final String CLASS_POSTFIX = "Parser";
 
   /** Tool name */
@@ -85,7 +85,7 @@ public class PortfolioImportCmdLineTool {
     
     // Clean up and shut down
     shutDown(portfolioWriter, applicationContext, cmdLine.hasOption(WRITE_OPT));
-    
+
     s_logger.info(TOOL_NAME + " is finished.");
   }
   
@@ -166,10 +166,11 @@ public class PortfolioImportCmdLineTool {
   }
   
   private static PortfolioReader constructPortfolioLoader(String filename, String assetClass) {
+    
     String extension = filename.substring(filename.lastIndexOf('.'));
     
-    // Single CSV file?
-    if (extension.equalsIgnoreCase(".csv")) {
+    // Single CSV or XLS file extension
+    if (extension.equalsIgnoreCase(".csv") || extension.equalsIgnoreCase(".xls")) {
            
       // Check that the asset class was specified on the command line
       if (assetClass == null) {
@@ -192,8 +193,14 @@ public class PortfolioImportCmdLineTool {
         // Find the constructor
         Constructor<?> constructor = parserClass.getConstructor();
 
-        // Set up a sheet reader for the specified CSV file
-        SheetReader sheet = new CsvSheetReader(fileInputStream);
+        
+        // Set up a sheet reader for the specified CSV/XLS file
+        SheetReader sheet;
+        if (extension.equalsIgnoreCase(".csv")) {
+          sheet = new CsvSheetReader(fileInputStream);
+        } else {
+          sheet = new SimpleXlsSheetReader(fileInputStream, 0);
+        }
         
         // Create a generic simple portfolio loader for the current sheet, using the dynamically loaded row parser class
         return new SimplePortfolioReader(sheet, (RowParser) constructor.newInstance(), sheet.getColumns());
@@ -202,7 +209,7 @@ public class PortfolioImportCmdLineTool {
         throw new OpenGammaRuntimeException("Could not identify an appropriate loader for file " + filename);
       }
 
-    // Multi-asset ZIP file?
+    // Multi-asset ZIP file extension
     } else if (extension.equalsIgnoreCase(".zip")) {
             
       // Create zipped multi-asset class loader

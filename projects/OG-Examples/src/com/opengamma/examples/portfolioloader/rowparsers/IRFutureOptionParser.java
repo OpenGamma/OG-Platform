@@ -10,14 +10,11 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.examples.portfolioloader.RowParser;
-import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
@@ -39,18 +36,18 @@ public class IRFutureOptionParser extends RowParser {
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> irFutureOptionDetails) {
-    final Currency currency = Currency.of(PortfolioLoaderHelper.getWithException(irFutureOptionDetails, CURRENCY));
+    final Currency currency = Currency.of(getWithException(irFutureOptionDetails, CURRENCY));
     final Expiry expiry = new Expiry(ZonedDateTime.of(LocalDateTime.of(LocalDate.parse(
-        PortfolioLoaderHelper.getWithException(irFutureOptionDetails, EXPIRY), PortfolioLoaderHelper.CSV_DATE_FORMATTER),
+        getWithException(irFutureOptionDetails, EXPIRY), CSV_DATE_FORMATTER),
         LocalTime.of(16, 0)), TimeZone.UTC), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR); //TODO shouldn't be hard-coding time and zone
-    final String exchange = PortfolioLoaderHelper.getWithException(irFutureOptionDetails, EXCHANGE);
+    final String exchange = getWithException(irFutureOptionDetails, EXCHANGE);
     final ExerciseType exerciseType = new AmericanExerciseType();
-    final String bbgID = PortfolioLoaderHelper.getWithException(irFutureOptionDetails, UNDERLYING_ID);
+    final String bbgID = getWithException(irFutureOptionDetails, UNDERLYING_ID);
     final ExternalId underlyingID = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, bbgID);
-    final double pointValue = Double.parseDouble(PortfolioLoaderHelper.getWithException(irFutureOptionDetails, POINT_VALUE));
+    final double pointValue = Double.parseDouble(getWithException(irFutureOptionDetails, POINT_VALUE));
     final boolean isMargined = true; //Boolean.parseBoolean(PortfolioLoaderHelper.getWithException(irFutureOptionDetails, IS_MARGINED));
-    final double strike = Double.parseDouble(PortfolioLoaderHelper.getWithException(irFutureOptionDetails, STRIKE));
-    final boolean isCall = Boolean.parseBoolean(PortfolioLoaderHelper.getWithException(irFutureOptionDetails, IS_CALL));
+    final double strike = Double.parseDouble(getWithException(irFutureOptionDetails, STRIKE));
+    final boolean isCall = Boolean.parseBoolean(getWithException(irFutureOptionDetails, IS_CALL));
     final OptionType optionType = isCall ? OptionType.CALL : OptionType.PUT;
     final IRFutureOptionSecurity security = new IRFutureOptionSecurity(exchange, expiry, exerciseType, underlyingID, pointValue, isMargined, currency, strike, optionType);
     security.setName("American " + (isMargined ? "margined " : "") + (isCall ? "call " : "put ") + "on " + bbgID + ", strike = " + strike + ", expiring " + expiry.getExpiry().toLocalDate());

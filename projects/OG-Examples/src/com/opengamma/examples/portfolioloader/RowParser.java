@@ -7,6 +7,7 @@
 package com.opengamma.examples.portfolioloader;
 
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -23,9 +24,13 @@ import com.opengamma.master.security.ManageableSecurity;
 public abstract class RowParser {
 
   /** Standard date-time formatter for the input */
-  private static final DateTimeFormatter CSV_DATE_FORMATTER;
+  protected static final DateTimeFormatter CSV_DATE_FORMATTER;
   /** Standard date-time formatter for the output */
-//  private static final DateTimeFormatter OUTPUT_DATE_FORMATTER;
+  protected static final DateTimeFormatter OUTPUT_DATE_FORMATTER;
+  /** Standard rate formatter */
+  protected static final DecimalFormat RATE_FORMATTER = new DecimalFormat("0.###%");
+  /** Standard notional formatter */
+  protected static final DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("0,000");
 
   static {
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
@@ -33,7 +38,7 @@ public abstract class RowParser {
     CSV_DATE_FORMATTER = builder.toFormatter();
     builder = new DateTimeFormatterBuilder();
     builder.appendPattern("yyyy-MM-dd");
-//    OUTPUT_DATE_FORMATTER = builder.toFormatter();
+    OUTPUT_DATE_FORMATTER = builder.toFormatter();
   }
 
   /**
@@ -64,7 +69,6 @@ public abstract class RowParser {
   public ManageableTrade constructTrade(Map<String, String> row, ManageableSecurity security, ManageablePosition position) {
     return null;
   }
-  
   
   protected static String getWithException(Map<String, String> fieldValueMap, String fieldName) {
     String result = fieldValueMap.get(fieldName);

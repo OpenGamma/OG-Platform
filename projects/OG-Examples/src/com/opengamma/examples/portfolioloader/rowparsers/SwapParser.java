@@ -1,7 +1,5 @@
 package com.opengamma.examples.portfolioloader.rowparsers;
 
-import static com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper.getWithException;
-
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -17,7 +15,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
-import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
@@ -26,8 +23,6 @@ import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.i18n.Country;
@@ -90,11 +85,11 @@ public class SwapParser extends RowParser {
     double floatingInitialRate = Double.parseDouble(getWithException(swapDetails, FLOATING_LEG_RATE));
     floatingLeg.setInitialFloatingRate(floatingInitialRate);
     
-    LocalDateTime tradeDate = LocalDateTime.of(LocalDate.parse(getWithException(swapDetails, TRADE_DATE), PortfolioLoaderHelper.CSV_DATE_FORMATTER), LocalTime.MIDNIGHT);
-    LocalDateTime effectiveDate = LocalDateTime.of(LocalDate.parse(getWithException(swapDetails, EFFECTIVE_DATE), PortfolioLoaderHelper.CSV_DATE_FORMATTER), LocalTime.MIDNIGHT);
-    LocalDateTime terminationDate = LocalDateTime.of(LocalDate.parse(getWithException(swapDetails, TERMINATION_DATE), PortfolioLoaderHelper.CSV_DATE_FORMATTER), LocalTime.MIDNIGHT);
+    LocalDateTime tradeDate = LocalDateTime.of(LocalDate.parse(getWithException(swapDetails, TRADE_DATE), CSV_DATE_FORMATTER), LocalTime.MIDNIGHT);
+    LocalDateTime effectiveDate = LocalDateTime.of(LocalDate.parse(getWithException(swapDetails, EFFECTIVE_DATE), CSV_DATE_FORMATTER), LocalTime.MIDNIGHT);
+    LocalDateTime terminationDate = LocalDateTime.of(LocalDate.parse(getWithException(swapDetails, TERMINATION_DATE), CSV_DATE_FORMATTER), LocalTime.MIDNIGHT);
     
-    String fixedLegDescription = PortfolioLoaderHelper.RATE_FORMATTER.format(fixedRate);
+    String fixedLegDescription = RATE_FORMATTER.format(fixedRate);
     String floatingLegDescription = floatingReferenceRate;
     
     boolean isPayFixed = Boolean.parseBoolean(getWithException(swapDetails, PAY_FIXED));
@@ -118,8 +113,8 @@ public class SwapParser extends RowParser {
         terminationDate.atZone(TimeZone.UTC), "Cpty Name", payLeg, receiveLeg);
     
     // Assume notional / currencies are the same for both legs - the name is really just to give us something to display anyway
-    swap.setName("IR Swap " + PortfolioLoaderHelper.NOTIONAL_FORMATTER.format(fixedNotionalAmount) + " " + fixedCurrency + " " +
-        terminationDate.toString(PortfolioLoaderHelper.OUTPUT_DATE_FORMATTER) + " - " + payLegDescription + " / " + receiveLegDescription);
+    swap.setName("IR Swap " + NOTIONAL_FORMATTER.format(fixedNotionalAmount) + " " + fixedCurrency + " " +
+        terminationDate.toString(OUTPUT_DATE_FORMATTER) + " - " + payLegDescription + " / " + receiveLegDescription);
     
     swap.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
 

@@ -10,11 +10,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.examples.portfolioloader.RowParser;
-import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
@@ -36,19 +33,19 @@ public class IRFutureParser extends RowParser {
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> irFutureDetails) {
-    Currency ccy = Currency.of(PortfolioLoaderHelper.getWithException(irFutureDetails, CURRENCY));
+    Currency ccy = Currency.of(getWithException(irFutureDetails, CURRENCY));
     Expiry expiry = new Expiry(ZonedDateTime.of(LocalDateTime.of(LocalDate.parse(
-        PortfolioLoaderHelper.getWithException(irFutureDetails, EXPIRY), PortfolioLoaderHelper.CSV_DATE_FORMATTER),
+        getWithException(irFutureDetails, EXPIRY), CSV_DATE_FORMATTER),
         LocalTime.of(16, 0)), TimeZone.UTC), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR); //TODO shouldn't be hard-coding time and zone
-    String tradingExchange = PortfolioLoaderHelper.getWithException(irFutureDetails, TRADING_EXCHANGE);
-    String settlementExchange = PortfolioLoaderHelper.getWithException(irFutureDetails, SETTLEMENT_EXCHANGE);
-    double unitAmount = Double.parseDouble(PortfolioLoaderHelper.getWithException(irFutureDetails, UNIT_AMOUNT));
-    String bbgId = PortfolioLoaderHelper.getWithException(irFutureDetails, UNDERLYING_ID);
+    String tradingExchange = getWithException(irFutureDetails, TRADING_EXCHANGE);
+    String settlementExchange = getWithException(irFutureDetails, SETTLEMENT_EXCHANGE);
+    double unitAmount = Double.parseDouble(getWithException(irFutureDetails, UNIT_AMOUNT));
+    String bbgId = getWithException(irFutureDetails, UNDERLYING_ID);
     ExternalId underlyingID = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, bbgId);
     InterestRateFutureSecurity irFuture = new InterestRateFutureSecurity(expiry, tradingExchange, settlementExchange, ccy, unitAmount, underlyingID);
-    String identifierValue = PortfolioLoaderHelper.getWithException(irFutureDetails, BBG_CODE);
+    String identifierValue = getWithException(irFutureDetails, BBG_CODE);
     irFuture.addExternalId(ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, identifierValue));
-    String name = PortfolioLoaderHelper.getWithException(irFutureDetails, NAME);
+    String name = getWithException(irFutureDetails, NAME);
     irFuture.setName(name);
     irFuture.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
 

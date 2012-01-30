@@ -1,7 +1,5 @@
 package com.opengamma.examples.portfolioloader.rowparsers;
 
-import static com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper.getWithException;
-
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -17,7 +15,6 @@ import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
@@ -25,15 +22,12 @@ import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
-import com.opengamma.util.tuple.Pair;
 
 public class SwaptionParser extends RowParser {
 
@@ -61,7 +55,7 @@ public class SwaptionParser extends RowParser {
     ConventionBundle swapConvention = CONVENTIONS.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_SWAP"));
     final ConventionBundle floatingRateConvention = CONVENTIONS.getConventionBundle(swapConvention.getSwapFloatingLegInitialRate());
     Expiry swaptionExpiry = new Expiry(
-        ZonedDateTime.of(LocalDateTime.of(LocalDate.parse(getWithException(swaptionDetails, EXPIRY), PortfolioLoaderHelper.CSV_DATE_FORMATTER), LocalTime.MIDNIGHT), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(LocalDate.parse(getWithException(swaptionDetails, EXPIRY), CSV_DATE_FORMATTER), LocalTime.MIDNIGHT), TimeZone.UTC), 
         ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
     boolean isLong = Boolean.parseBoolean(getWithException(swaptionDetails, IS_LONG));
     boolean isCashSettled = swaptionConvention.isCashSettled();    
@@ -94,15 +88,15 @@ public class SwaptionParser extends RowParser {
     SwapSecurity swap = new SwapSecurity(swapTradeDate, swapEffectiveDate, swapMaturityDate, counterparty, floatingLeg, fixedLeg);
     ExternalId swapIdentifier = ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString());
     swap.addExternalId(swapIdentifier);
-    LocalDate tradeDate = LocalDate.parse(getWithException(swaptionDetails, TRADE_DATE), PortfolioLoaderHelper.CSV_DATE_FORMATTER);
+    LocalDate tradeDate = LocalDate.parse(getWithException(swaptionDetails, TRADE_DATE), CSV_DATE_FORMATTER);
 //      OffsetTime tradeTime = OffsetTime.of(LocalTime.of(11, 0), ZoneOffset.ofHours(0));
 //      LocalDate premiumDate =  LocalDate.parse(getWithException(swaptionDetails, PREMIUM_DATE), PortfolioLoaderHelper.CSV_DATE_FORMATTER);
 //      OffsetTime premiumTime = OffsetTime.of(LocalTime.of(11, 0), ZoneOffset.ofHours(0));
 //      double premium = Double.parseDouble(getWithException(swaptionDetails, PREMIUM_AMOUNT));    
     SwaptionSecurity swaption = new SwaptionSecurity(isPayer, swapIdentifier, isLong, swaptionExpiry, isCashSettled, currency);
     swaption.setName("Vanilla swaption, " + getSwaptionString(swapLength, tradeDate, swaptionExpiry.getExpiry()) + ", " + currency.getCode()
-        + " " + PortfolioLoaderHelper.NOTIONAL_FORMATTER.format(notional) + " @ " + 
-        PortfolioLoaderHelper.RATE_FORMATTER.format(strike));
+        + " " + NOTIONAL_FORMATTER.format(notional) + " @ " + 
+        RATE_FORMATTER.format(strike));
 //      TradeImpl swaptionTrade = new TradeImpl();
 //      swaptionTrade.setPremium(premium);
 //      swaptionTrade.setPremiumDate(premiumDate);
