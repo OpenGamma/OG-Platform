@@ -92,6 +92,7 @@ public class SimulatedMarketDataGenerator implements Runnable {
       if (initialValue instanceof Double) {
         double value = wiggleValue(random, (Double) initialValue);
         _marketDataInjector.addValue(idFieldPair.getFirst(), idFieldPair.getSecond(), value);  
+        _initialValues.put(idFieldPair, value);
       } else {
         // in case we support non-scalars at some point.
         _marketDataInjector.addValue(idFieldPair.getFirst(), idFieldPair.getSecond(), initialValue);
