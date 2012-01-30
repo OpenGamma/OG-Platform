@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.examples.portfolioloader.parsers;
+package com.opengamma.examples.portfolioloader.rowparsers;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;

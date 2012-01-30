@@ -13,10 +13,10 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 
 /**
- * A simple portfolio loader assumes that the input sheet only contains one asset class, and may be used as a base
+ * A simple portfolio reader assumes that the input sheet only contains one asset class, and may also be used as a base
  * class for specific asset class loaders that follow this rule.
  */
-public class SimplePortfolioLoader extends SingleSheetPortfolioLoader {
+public class SimplePortfolioReader extends SingleSheetPortfolioReader {
 
   /*
    * Load one or more parsers for different types of securities/trades/whatever here
@@ -28,7 +28,7 @@ public class SimplePortfolioLoader extends SingleSheetPortfolioLoader {
    */
   private String[] _columns;
 
-  public SimplePortfolioLoader(SheetReader sheet, RowParser rowParser, String[] columns) {
+  public SimplePortfolioReader(SheetReader sheet, RowParser rowParser, String[] columns) {
     super(sheet);    
     _rowParser = rowParser;
     _columns = columns;

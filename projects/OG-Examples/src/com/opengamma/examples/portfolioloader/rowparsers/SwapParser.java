@@ -1,4 +1,4 @@
-package com.opengamma.examples.portfolioloader.parsers;
+package com.opengamma.examples.portfolioloader.rowparsers;
 
 import static com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper.getWithException;
 

@@ -9,7 +9,7 @@ package com.opengamma.examples.portfolioloader;
 /**
  * Abstract portfolio loader class that merely specifies the ability to write imported trades/positions to a PortfolioWriter
  */
-public abstract interface PortfolioLoader {
+public abstract interface PortfolioReader {
 
   /**
    * Write the multisheet contents to the specified portfolio

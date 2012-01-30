@@ -22,12 +22,12 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 
 /**
- * Portfolio loader that reads multiple CSV files within a ZIP archive, identifies the correct loader class for each,
+ * Portfolio reader that reads multiple CSV files within a ZIP archive, identifies the correct parser class for each,
  * using the file name, and persists all loaded trades/entries using the specified portfolio writer.
  */
-public class ZippedPortfolioLoader implements PortfolioLoader {
+public class ZippedPortfolioReader implements PortfolioReader {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(CommandLineTool.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioImportCmdLineTool.class);
 
   private static final String CLASS_PREFIX = "com.opengamma.examples.portfolioloader.parsers.";
   private static final String CLASS_POSTFIX = "Parser";
@@ -38,7 +38,7 @@ public class ZippedPortfolioLoader implements PortfolioLoader {
   
   private ZipFile _zipFile;
   
-  public ZippedPortfolioLoader(String filename) {
+  public ZippedPortfolioReader(String filename) {
    
     try {
       _zipFile = new ZipFile(filename);
@@ -95,7 +95,7 @@ public class ZippedPortfolioLoader implements PortfolioLoader {
           SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
           
           // Create a generic simple portfolio loader for the current sheet, using a dynamically loaded row parser class
-          SingleSheetPortfolioLoader portfolioLoader = new SimplePortfolioLoader(sheet, (RowParser) constructor.newInstance(), sheet.getColumns());
+          SingleSheetPortfolioReader portfolioLoader = new SimplePortfolioReader(sheet, (RowParser) constructor.newInstance(), sheet.getColumns());
 
           s_logger.info("Processing " + entry.getName() + " with " + className);
           

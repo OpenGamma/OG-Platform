@@ -14,13 +14,13 @@ import org.slf4j.LoggerFactory;
 /**
  * Abstract class for importing data from various 3rd party file formats
  */
-public abstract class SingleSheetPortfolioLoader implements PortfolioLoader {
+public abstract class SingleSheetPortfolioReader implements PortfolioReader {
  
-  private static final Logger s_logger = LoggerFactory.getLogger(CommandLineTool.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioImportCmdLineTool.class);
 
   private SheetReader _sheet;         // The spreadsheet from which to import
      
-  public SingleSheetPortfolioLoader(SheetReader sheet) {
+  public SingleSheetPortfolioReader(SheetReader sheet) {
     _sheet = sheet;
   }
     

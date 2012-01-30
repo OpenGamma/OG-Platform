@@ -30,9 +30,9 @@ import com.opengamma.util.tuple.ObjectsPair;
 /**
  * Command line harness for portfolio import functionality
  */
-public class CommandLineTool {
+public class PortfolioImportCmdLineTool {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(CommandLineTool.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioImportCmdLineTool.class);
 
   /** Path strings for constructing a fully qualified parser class name **/
   private static final String CLASS_PREFIX = "com.opengamma.examples.portfolioloader.parsers.";
@@ -73,7 +73,7 @@ public class CommandLineTool {
     AbstractApplicationContext applicationContext = result.getSecond();
     
      // Set up reading side
-    PortfolioLoader portfolioLoader = constructPortfolioLoader(
+    PortfolioReader portfolioLoader = constructPortfolioLoader(
         cmdLine.getOptionValue(FILE_NAME_OPT), 
         cmdLine.getOptionValue(ASSET_CLASS_OPT));
     
@@ -165,7 +165,7 @@ public class CommandLineTool {
 
   }
   
-  private static PortfolioLoader constructPortfolioLoader(String filename, String assetClass) {
+  private static PortfolioReader constructPortfolioLoader(String filename, String assetClass) {
     String extension = filename.substring(filename.lastIndexOf('.'));
     
     // Single CSV file?
@@ -196,7 +196,7 @@ public class CommandLineTool {
         SheetReader sheet = new CsvSheetReader(fileInputStream);
         
         // Create a generic simple portfolio loader for the current sheet, using the dynamically loaded row parser class
-        return new SimplePortfolioLoader(sheet, (RowParser) constructor.newInstance(), sheet.getColumns());
+        return new SimplePortfolioReader(sheet, (RowParser) constructor.newInstance(), sheet.getColumns());
         
       } catch (Throwable ex) {
         throw new OpenGammaRuntimeException("Could not identify an appropriate loader for file " + filename);
@@ -206,7 +206,7 @@ public class CommandLineTool {
     } else if (extension.equalsIgnoreCase(".zip")) {
             
       // Create zipped multi-asset class loader
-      return new ZippedPortfolioLoader(filename);
+      return new ZippedPortfolioReader(filename);
       
     } else {
       throw new OpenGammaRuntimeException("Input filename should end in .CSV or .ZIP");

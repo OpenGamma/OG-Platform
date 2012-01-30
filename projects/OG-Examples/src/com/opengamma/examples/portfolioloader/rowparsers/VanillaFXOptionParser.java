@@ -1,4 +1,4 @@
-package com.opengamma.examples.portfolioloader.parsers;
+package com.opengamma.examples.portfolioloader.rowparsers;
 
 import java.util.Map;
 
