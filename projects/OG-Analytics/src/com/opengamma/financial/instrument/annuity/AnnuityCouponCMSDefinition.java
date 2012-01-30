@@ -47,8 +47,8 @@ public class AnnuityCouponCMSDefinition extends AnnuityDefinition<CouponCMSDefin
     Validate.notNull(index, "index");
     Validate.isTrue(notional > 0, "notional <= 0");
     Validate.notNull(paymentPeriod, "Payment period");
-    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, paymentPeriod);
-    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, index.getIborIndex().getBusinessDayConvention(), index.getIborIndex().getCalendar());
+    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, true, false);
+    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, index.getIborIndex().getBusinessDayConvention(), index.getIborIndex().getCalendar(), false);
     final double sign = isPayer ? -1.0 : 1.0;
     final CouponCMSDefinition[] coupons = new CouponCMSDefinition[paymentDates.length];
     coupons[0] = CouponCMSDefinition.from(paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0]), sign * notional, index);

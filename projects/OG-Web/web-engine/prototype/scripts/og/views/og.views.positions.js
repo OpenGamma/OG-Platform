@@ -34,6 +34,7 @@ $.register_module({
                 'new': function () {ui.dialog({
                     type: 'input',
                     title: 'Add New Position',
+                    width: 400, height: 300,
                     fields: [
                         {type: 'input', name: 'Quantity', id: 'quantity'},
                         {type: 'select', name: 'Scheme Type', id: 'scheme-type',
@@ -69,6 +70,7 @@ $.register_module({
                 'delete': function () {ui.dialog({
                     type: 'confirm',
                     title: 'Delete Position?',
+                    width: 400, height: 190,
                     message: 'Are you sure you want to permanently delete this position?',
                     buttons: {
                         'Delete': function () {

@@ -25,7 +25,7 @@ public class NormalPriceFunction implements OptionPriceFunction<BlackFunctionDat
     return new Function1D<BlackFunctionData, Double>() {
 
       @SuppressWarnings("synthetic-access")
-      @Override
+      @Override//REVIEW R White 25/01/12 This should not be taking BlackFunctionData which confusingly implies that the volatility is log-normal when it is not
       public final Double evaluate(final BlackFunctionData data) {
         Validate.notNull(data, "data");
         final double f = data.getForward();

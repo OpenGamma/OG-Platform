@@ -5,22 +5,17 @@
 Function.prototype.preload = function () {
     var method = this,
         merge = function () {
-            var result = {}, key, val, lcv, len = arguments.length;
-            for (lcv = 0; lcv < len; lcv += 1) {
-                if (typeof arguments[lcv] !== 'object') throw new TypeError('preload only works with objects');
-                for (key in arguments[lcv]) {
-                    val = arguments[lcv][key];
-                    if (!val) { // catches falsey values (which include null, even though its typeof === 'object)
-                        result[key] = val;
-                        continue;
-                    }
-                    if (typeof val === 'object') { // catches arrays and objects
-                        result[key] = val.constructor !== Array ? merge({}, val) : val.slice();
-                        continue;
-                    }
-                    result[key] = val; // everything else
-                }
-            }
+            var self = 'merge', result = {}, key, val, lcv, len = arguments.length,
+                clone = function (obj) {
+                    if (typeof obj !== 'object' || obj === null) return obj; // primitives
+                    if (Object.prototype.toString.call(obj) === '[object Array]') return obj.map(clone); // arrays
+                    if (typeof obj === 'object') return merge(obj); // objects
+                };
+            for (lcv = 0; lcv < len; lcv += 1)
+                if (typeof arguments[lcv] !== 'object')
+                    throw new TypeError(self + ': ' + arguments[lcv] + ' is not an object');
+                else
+                    for (key in arguments[lcv]) result[key] = clone(arguments[lcv][key]);
             return result;
         },
         orig = merge.apply(null, Array.prototype.slice.call(arguments)),
