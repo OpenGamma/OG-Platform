@@ -29,6 +29,10 @@ void LoggingInitImpl (const TCHAR *pszLogConfiguration) {
 		LOGINFO (TEXT ("Logging initialised from ") << pszLogConfiguration);
 	} else {
 		::log4cxx::BasicConfigurator::configure ();
+#ifndef _DEBUG
+		::log4cxx::LoggerPtr ptrLogger (::log4cxx::Logger::getRootLogger ());
+		ptrLogger->setLevel (::log4cxx::Level::getError ());
+#endif /* ifndef _DEBUG */
 		LOGINFO (TEXT ("Logging initialised with default settings"));
 	}
 }
