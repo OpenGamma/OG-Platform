@@ -33,7 +33,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class ForexVanillaOptionPresentValueVolatilitySensitivityFunction extends ForexOptionFunction {
+public class ForexOptionPresentValueVolatilitySensitivityFunction extends ForexOptionFunction {
   private static final Double[] EMPTY_ARRAY = ArrayUtils.EMPTY_DOUBLE_OBJECT_ARRAY;
   private static final PresentValueVolatilitySensitivityBlackForexCalculator CALCULATOR = PresentValueVolatilitySensitivityBlackForexCalculator.getInstance();
   private static final DecimalFormat TIME_FORMATTER = new DecimalFormat("##.###");

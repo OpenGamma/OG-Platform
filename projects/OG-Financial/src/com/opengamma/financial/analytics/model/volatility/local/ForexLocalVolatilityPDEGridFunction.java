@@ -43,11 +43,11 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public abstract class ForexLocalVolatilityPDEFunction extends LocalVolatilityPDEFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(ForexLocalVolatilityPDEFunction.class);
+public abstract class ForexLocalVolatilityPDEGridFunction extends LocalVolatilityPDEGridFunction {
+  private static final Logger s_logger = LoggerFactory.getLogger(ForexLocalVolatilityPDEGridFunction.class);
 
-  public ForexLocalVolatilityPDEFunction(final String definitionName) {
-    super(definitionName, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE);
+  public ForexLocalVolatilityPDEGridFunction() {
+    super(ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE);
   }
 
   @Override
@@ -94,8 +94,8 @@ public abstract class ForexLocalVolatilityPDEFunction extends LocalVolatilityPDE
     final double[] expiries = new double[nExpiries];
     final double[] deltas = new double[nDeltas];
     final double[] atms = new double[nExpiries];
-    final double[][] riskReversals = new double[nExpiries][nDeltas];
-    final double[][] strangle = new double[nExpiries][nDeltas];
+    final double[][] riskReversals = new double[nDeltas][nExpiries];
+    final double[][] strangle = new double[nDeltas][nExpiries];
     for (int i = 0; i < nExpiries; i++) {
       final Tenor tenor = tenors[i];
       final double t = getTime(tenor);
@@ -103,28 +103,28 @@ public abstract class ForexLocalVolatilityPDEFunction extends LocalVolatilityPDE
       if (atm == null) {
         throw new OpenGammaRuntimeException("Could not get ATM volatility data for surface");
       }
-      final DoubleArrayList riskReversalList = new DoubleArrayList();
-      final DoubleArrayList strangleList = new DoubleArrayList();
-      for (int j = 0; j < nDeltas; j++) {
-        final Number delta = deltaValues[j + 1];
-        if (delta != null) {
-          final Double rr = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(delta, FXVolQuoteType.RISK_REVERSAL));
-          final Double s = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(delta, FXVolQuoteType.BUTTERFLY));
+      expiries[i] = t;
+      atms[i] = atm;
+    }
+    for (int i = 0; i < nDeltas; i++) {
+      final Number delta = deltaValues[i + 1];
+      if (delta != null) {
+        deltas[i] = delta.doubleValue() / 100.;
+        final DoubleArrayList riskReversalList = new DoubleArrayList();
+        final DoubleArrayList strangleList = new DoubleArrayList();
+        for (int j = 0; j < nExpiries; j++) {
+          final Double rr = fxVolatilitySurface.getVolatility(tenors[j], ObjectsPair.of(delta, FXVolQuoteType.RISK_REVERSAL));
+          final Double s = fxVolatilitySurface.getVolatility(tenors[j], ObjectsPair.of(delta, FXVolQuoteType.BUTTERFLY));
           if (rr != null && s != null) {
             riskReversalList.add(rr);
             strangleList.add(s);
-            if (j == 0) {
-              deltas[j] = delta.doubleValue() / 100.;
-            }
+          } else {
+            s_logger.info("Had a null value for tenor number " + j);
           }
-        } else {
-          s_logger.info("Had a null value for tenor number " + j);
         }
+        riskReversals[i] = riskReversalList.toDoubleArray();
+        strangle[i] = strangleList.toDoubleArray();
       }
-      expiries[i] = t;
-      atms[i] = atm;
-      riskReversals[i] = riskReversalList.toDoubleArray();
-      strangle[i] = strangleList.toDoubleArray();
     }
     final boolean isCallData = true; //TODO this shouldn't be hard-coded
     return new ForexSmileDeltaSurfaceDataBundle(forwardCurve, expiries, deltas, atms, riskReversals, strangle, isCallData);

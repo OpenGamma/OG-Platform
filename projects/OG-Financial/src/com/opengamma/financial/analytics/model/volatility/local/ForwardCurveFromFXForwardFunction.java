@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.analytics.model.volatility.local;
 
-import static com.opengamma.financial.analytics.fxforwardcurve.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
-import static com.opengamma.financial.analytics.fxforwardcurve.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
-import static com.opengamma.financial.analytics.fxforwardcurve.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.Collections;
@@ -34,6 +34,7 @@ import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
@@ -62,12 +63,14 @@ public class ForwardCurveFromFXForwardFunction extends AbstractFunction {
   private final String _specificationName;
   private FXForwardCurveDefinition _definition;
   private FXForwardCurveSpecification _specification;
+  private final String _curveName;
 
-  public ForwardCurveFromFXForwardFunction(final String definitionName, final String specificationName) {
+  public ForwardCurveFromFXForwardFunction(final String definitionName, final String specificationName, final String curveName) {
     ArgumentChecker.notNull(definitionName, "definition name");
     ArgumentChecker.notNull(specificationName, "specification name");
     _definitionName = definitionName;
     _specificationName = specificationName;
+    _curveName = curveName;
   }
 
   @Override
@@ -98,24 +101,39 @@ public class ForwardCurveFromFXForwardFunction extends AbstractFunction {
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
         final ValueProperties properties = createValueProperties()
+            .with(ValuePropertyNames.CURVE, _curveName)
             .withAny(PROPERTY_FORWARD_CURVE_INTERPOLATOR)
             .withAny(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR)
             .withAny(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR).get();
-        final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, new ComputationTargetSpecification(_definition.getTarget()), properties);
+        final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FORWARD_CURVE,
+            new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, _definition.getTarget().getUniqueId()), properties);
         return Collections.singleton(spec);
       }
 
       @Override
       public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+        final ValueProperties constraints = desiredValue.getConstraints();
+        final Set<String> forwardCurveInterpolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_INTERPOLATOR);
+        if (forwardCurveInterpolatorNames == null || forwardCurveInterpolatorNames.size() != 1) {
+          return null;
+        }
+        final Set<String> forwardCurveLeftExtrapolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
+        if (forwardCurveLeftExtrapolatorNames == null || forwardCurveLeftExtrapolatorNames.size() != 1) {
+          return null;
+        }
+        final Set<String> forwardCurveRightExtrapolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
+        if (forwardCurveRightExtrapolatorNames == null || forwardCurveRightExtrapolatorNames.size() != 1) {
+          return null;
+        }
         final ValueProperties properties = ValueProperties.builder()
-            .withOptional(PROPERTY_FORWARD_CURVE_INTERPOLATOR)
-            .withOptional(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR)
-            .withOptional(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR).get();
+            .with(PROPERTY_FORWARD_CURVE_INTERPOLATOR, forwardCurveInterpolatorNames.iterator().next())
+            .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, forwardCurveLeftExtrapolatorNames.iterator().next())
+            .with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, forwardCurveRightExtrapolatorNames.iterator().next()).get();
         final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
         final FXForwardCurveInstrumentProvider provider = _specification.getCurveInstrumentProvider();
         for (final Tenor tenor : _definition.getTenors()) {
           final ExternalId identifier = provider.getInstrument(atInstant.toLocalDate(), tenor);
-          result.add(new ValueRequirement(provider.getDataFieldName(), identifier));
+          result.add(new ValueRequirement(provider.getDataFieldName(), identifier, properties));
         }
         result.add(new ValueRequirement(provider.getDataFieldName(), provider.getSpotInstrument(), properties));
         return Collections.unmodifiableSet(result);
@@ -200,10 +218,12 @@ public class ForwardCurveFromFXForwardFunction extends AbstractFunction {
 
       private ValueSpecification getResultSpec(final String interpolatorName, final String leftExtrapolatorName, final String rightExtrapolatorName) {
         final ValueProperties properties = createValueProperties()
+            .with(ValuePropertyNames.CURVE, _curveName)
             .with(PROPERTY_FORWARD_CURVE_INTERPOLATOR, interpolatorName)
             .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, leftExtrapolatorName)
             .with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, rightExtrapolatorName).get();
-        return new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, new ComputationTargetSpecification(_definition.getTarget()), properties);
+        return new ValueSpecification(ValueRequirementNames.FORWARD_CURVE,
+            new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, _definition.getTarget().getUniqueId()), properties);
       }
     };
   }

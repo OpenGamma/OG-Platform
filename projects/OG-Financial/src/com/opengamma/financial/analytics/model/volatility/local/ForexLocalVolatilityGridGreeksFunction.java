@@ -15,11 +15,7 @@ import com.opengamma.financial.model.volatility.smile.fitting.sabr.SmileSurfaceD
 /**
  * 
  */
-public class ForexLocalVolatilityGridGreeksFunction extends ForexLocalVolatilityPDEFunction {
-
-  public ForexLocalVolatilityGridGreeksFunction(final String definitionName) {
-    super(definitionName);
-  }
+public class ForexLocalVolatilityGridGreeksFunction extends ForexLocalVolatilityPDEGridFunction {
 
   @Override
   protected Object getResult(final LocalVolatilityForwardPDEGreekCalculator<?> calculator, final LocalVolatilitySurface<?> localVolatilitySurface, final ForwardCurve forwardCurve,
@@ -29,7 +25,7 @@ public class ForexLocalVolatilityGridGreeksFunction extends ForexLocalVolatility
 
   @Override
   protected String getResultName() {
-    return ValueRequirementNames.PDE_GREEKS;
+    return ValueRequirementNames.LOCAL_VOLATILITY_PDE_GREEKS;
   }
 
 }

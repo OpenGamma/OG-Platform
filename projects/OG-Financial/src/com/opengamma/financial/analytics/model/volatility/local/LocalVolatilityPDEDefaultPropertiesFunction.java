@@ -11,9 +11,9 @@ import java.util.Set;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.fxforwardcurve.InterpolatedForwardCurveValuePropertyNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.ArgumentChecker;
 
@@ -21,9 +21,9 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultPropertyFunction {
-  private static final String[] REQUIREMENTS = new String[] {ValueRequirementNames.FORWARD_CURVE, ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE,
-    ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, ValueRequirementNames.FULL_PDE_GRID, ValueRequirementNames.PDE_GREEKS,
-    ValueRequirementNames.PDE_BUCKETED_VEGA};
+  private static final String[] REQUIREMENTS = new String[] {ValueRequirementNames.LOCAL_VOLATILITY_FULL_PDE_GRID, ValueRequirementNames.LOCAL_VOLATILITY_PDE_GREEKS,
+    ValueRequirementNames.LOCAL_VOLATILITY_PDE_BUCKETED_VEGA};
+  private final String _forwardCurveCalculationMethod;
   private final String _forwardCurveInterpolator;
   private final String _forwardCurveLeftExtrapolator;
   private final String _forwardCurveRightExtrapolator;
@@ -31,6 +31,7 @@ public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultProperty
   private final String _xAxis;
   private final String _yAxis;
   private final String _lambda;
+  private final String _surfaceName;
   private final String _h;
   private final String _pdeDirection;
   private final String _theta;
@@ -40,11 +41,12 @@ public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultProperty
   private final String _spaceGridBunching;
   private final String _maxMoneyness;
 
-  public LocalVolatilityPDEDefaultPropertiesFunction(final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
-      final String forwardCurveRightExtrapolator, final String surfaceType, final String xAxis, final String yAxis, final String lambda,
+  public LocalVolatilityPDEDefaultPropertiesFunction(final String forwardCurveCalculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
+      final String forwardCurveRightExtrapolator, final String surfaceType, final String xAxis, final String yAxis, final String lambda, final String surfaceName,
       final String h, final String pdeDirection, final String theta, final String timeSteps, final String spaceSteps,
       final String timeGridBunching, final String spaceGridBunching, final String maxMoneyness) {
     super(ComputationTargetType.SECURITY, true);
+    ArgumentChecker.notNull(forwardCurveCalculationMethod, "forward curve calculation method");
     ArgumentChecker.notNull(forwardCurveInterpolator, "forward curve interpolator");
     ArgumentChecker.notNull(forwardCurveLeftExtrapolator, "forward curve left extrapolator");
     ArgumentChecker.notNull(forwardCurveRightExtrapolator, "forward curve right extrapolator");
@@ -52,6 +54,7 @@ public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultProperty
     ArgumentChecker.notNull(xAxis, "x axis");
     ArgumentChecker.notNull(yAxis, "y axis");
     ArgumentChecker.notNull(lambda, "lambda");
+    ArgumentChecker.notNull(surfaceName, "surface name");
     ArgumentChecker.notNull(h, "h");
     ArgumentChecker.notNull(pdeDirection, "PDE direction");
     ArgumentChecker.notNull(theta, "theta");
@@ -60,6 +63,7 @@ public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultProperty
     ArgumentChecker.notNull(timeGridBunching, "time grid bunching");
     ArgumentChecker.notNull(spaceGridBunching, "space grid bunching");
     ArgumentChecker.notNull(maxMoneyness, "maximum moneyness");
+    _forwardCurveCalculationMethod = forwardCurveCalculationMethod;
     _forwardCurveInterpolator = forwardCurveInterpolator;
     _forwardCurveLeftExtrapolator = forwardCurveLeftExtrapolator;
     _forwardCurveRightExtrapolator = forwardCurveRightExtrapolator;
@@ -67,6 +71,7 @@ public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultProperty
     _xAxis = xAxis;
     _yAxis = yAxis;
     _lambda = lambda;
+    _surfaceName = surfaceName;
     _h = h;
     _pdeDirection = pdeDirection;
     _theta = theta;
@@ -80,6 +85,7 @@ public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultProperty
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String requirement : REQUIREMENTS) {
+      defaults.addValuePropertyName(requirement, ValuePropertyNames.CURVE_CALCULATION_METHOD);
       defaults.addValuePropertyName(requirement, InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR);
       defaults.addValuePropertyName(requirement, InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
       defaults.addValuePropertyName(requirement, InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
@@ -89,6 +95,7 @@ public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultProperty
       defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_PDE_DIRECTION);
       defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_SPACE_GRID_BUNCHING);
       defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_SPACE_STEPS);
+      defaults.addValuePropertyName(requirement, ValuePropertyNames.SURFACE);
       defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE);
       defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_THETA);
       defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_TIME_GRID_BUNCHING);
@@ -100,6 +107,9 @@ public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultProperty
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
+    if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
+      return Collections.singleton(_forwardCurveCalculationMethod);
+    }
     if (InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR.equals(propertyName)) {
       return Collections.singleton(_forwardCurveInterpolator);
     }
@@ -126,6 +136,9 @@ public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultProperty
     }
     if (LocalVolatilityPDEValuePropertyNames.PROPERTY_SPACE_STEPS.equals(propertyName)) {
       return Collections.singleton(_spaceSteps);
+    }
+    if (ValuePropertyNames.SURFACE.equals(propertyName)) {
+      return Collections.singleton(_surfaceName);
     }
     if (LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE.equals(propertyName)) {
       return Collections.singleton(_surfaceType);

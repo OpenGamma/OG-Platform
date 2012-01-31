@@ -40,11 +40,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
-import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
-import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.financial.model.option.definition.SmileDeltaParameter;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureParameter;
 import com.opengamma.util.time.Tenor;
@@ -59,8 +57,6 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
   public static final String INSTRUMENT_TYPE = "FX_VANILLA_OPTION";
   private static final Logger s_logger = LoggerFactory.getLogger(ForexVolatilitySurfaceFunction.class);
   private final String _definitionName;
-  private final String _specificationName;
-  private VolatilitySurfaceSpecification _specification;
   private VolatilitySurfaceDefinition<?, ?> _definition;
   private ValueRequirement _requirement;
 
@@ -68,7 +64,6 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
     Validate.notNull(definitionName, "definition name");
     Validate.notNull(specificationName, "specification name");
     _definitionName = definitionName;
-    _specificationName = specificationName;
   }
 
   @Override
@@ -78,11 +73,6 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
     _definition = volSurfaceDefinitionSource.getDefinition(_definitionName, INSTRUMENT_TYPE);
     if (_definition == null) {
       throw new OpenGammaRuntimeException("Couldn't find Volatility Surface Definition for " + INSTRUMENT_TYPE + " called " + _definitionName);
-    }
-    final ConfigDBVolatilitySurfaceSpecificationSource volatilitySurfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    _specification = volatilitySurfaceSpecificationSource.getSpecification(_specificationName, INSTRUMENT_TYPE);
-    if (_specification == null) {
-      throw new OpenGammaRuntimeException("Couldn't find Volatility Surface Specification for " + INSTRUMENT_TYPE + " called " + _specificationName);
     }
     _requirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, _definition.getTarget(),
         ValueProperties.with(ValuePropertyNames.SURFACE, _definitionName)

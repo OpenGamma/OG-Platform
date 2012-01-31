@@ -40,6 +40,7 @@ import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
+ * @param <T> The strike type parameterization to be used
  */
 public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();

@@ -9,8 +9,8 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -18,10 +18,10 @@ import com.opengamma.util.time.Tenor;
  */
 public class FXForwardCurveDefinition {
   private final String _name;
-  private final UniqueIdentifiable _target;
+  private final UnorderedCurrencyPair _target;
   private final Tenor[] _tenors;
 
-  public FXForwardCurveDefinition(final String name, final UniqueIdentifiable target, final Tenor[] tenors) {
+  public FXForwardCurveDefinition(final String name, final UnorderedCurrencyPair target, final Tenor[] tenors) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(target, "target");
     ArgumentChecker.notNull(tenors, "xs");
@@ -38,7 +38,7 @@ public class FXForwardCurveDefinition {
     return _name;
   }
 
-  public UniqueIdentifiable getTarget() {
+  public UnorderedCurrencyPair getTarget() {
     return _target;
   }
 

@@ -80,7 +80,7 @@ public class VolatilitySurfaceDataConverter implements ResultConverter<Volatilit
   
   @Override
   public String getFormatterName() {
-    return "VOLATILITY_SURFACE_DATA";
+    return "SURFACE_DATA";
   }
   
 }

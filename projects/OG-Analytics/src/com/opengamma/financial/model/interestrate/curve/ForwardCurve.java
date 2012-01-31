@@ -52,6 +52,7 @@ public class ForwardCurve {
         final double down = Math.log(_fwdCurve.getYValue(t - _eps));
         return (up - down) / 2 / _eps;
       }
+
     };
 
     _drift = FunctionalDoublesCurve.from(drift);

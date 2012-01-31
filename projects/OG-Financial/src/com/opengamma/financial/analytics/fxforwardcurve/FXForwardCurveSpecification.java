@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.analytics.fxforwardcurve;
 
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * 
@@ -14,9 +14,9 @@ import com.opengamma.util.ArgumentChecker;
 public class FXForwardCurveSpecification {
   private final FXForwardCurveInstrumentProvider _curveInstrumentProvider;
   private final String _name;
-  private final UniqueIdentifiable _target;
+  private final UnorderedCurrencyPair _target;
 
-  public FXForwardCurveSpecification(final String name, final UniqueIdentifiable target, final FXForwardCurveInstrumentProvider curveInstrumentProvider) {
+  public FXForwardCurveSpecification(final String name, final UnorderedCurrencyPair target, final FXForwardCurveInstrumentProvider curveInstrumentProvider) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(target, "target");
     ArgumentChecker.notNull(curveInstrumentProvider, "curve instrument provider");
@@ -29,7 +29,7 @@ public class FXForwardCurveSpecification {
     return _name;
   }
 
-  public UniqueIdentifiable getTarget() {
+  public UnorderedCurrencyPair getTarget() {
     return _target;
   }
 

@@ -21,6 +21,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction;
+import com.opengamma.financial.analytics.model.volatility.local.DummyFXForwardCurveFunction;
 import com.opengamma.financial.analytics.model.volatility.local.ForwardCurveFromFXForwardFunction;
 import com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunction;
@@ -112,7 +113,8 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
   }
 
   private void addFXForwardCurveFunction(List<FunctionConfiguration> configs) {
-    configs.add(new ParameterizedFunctionConfiguration(ForwardCurveFromFXForwardFunction.class.getName(), Arrays.asList("DEFAULT", "DEFAULT")));
+    configs.add(new ParameterizedFunctionConfiguration(DummyFXForwardCurveFunction.class.getName(), Arrays.asList("DEFAULT", "EUR", "USD")));
+    //configs.add(new ParameterizedFunctionConfiguration(ForwardCurveFromFXForwardFunction.class.getName(), Arrays.asList("DEFAULT", "DEFAULT", "DEFAULT")));
   }
   
   private void addVolatilityCubeFunction(List<FunctionConfiguration> configs, String... parameters) {

@@ -58,6 +58,7 @@ public class StrikePiecewiseSABRSurfaceFitter implements PiecewiseSABRSurfaceFit
     final ForwardCurve forwardCurve = data.getForwardCurve();
     final int nExpiries = expiries.length;
     //TODO move this out of here - need a way to bump a point on the surface without having to re-fit unaffected slices
+    @SuppressWarnings("unchecked")
     final Function1D<Double, Double>[] fitters = new Function1D[nExpiries];
     for (int i = 0; i < nExpiries; i++) {
       fitters[i] = FITTER.getVolatilityFunction(forwards[i], strikes[i], expiries[i], impliedVols[i]);
@@ -72,7 +73,6 @@ public class StrikePiecewiseSABRSurfaceFitter implements PiecewiseSABRSurfaceFit
         final double d = Math.log(forward / k) / Math.sqrt(1 + _lambda * t);
         if (t <= expiries[0]) {
           final double k1 = forwards[0] * Math.exp(-d * Math.sqrt(1 + _lambda * expiries[0]));
-          final Object temp = fitters[0].evaluate(k1);
           return fitters[0].evaluate(k1);
         }
         final int index = SurfaceArrayUtils.getLowerBoundIndex(expiries, t);
@@ -110,11 +110,11 @@ public class StrikePiecewiseSABRSurfaceFitter implements PiecewiseSABRSurfaceFit
           vols[i] = fitters[lower + i].evaluate(strikes[i]);
 
           intVar[i] = vols[i] * vols[i] * times[i];
-          if (i > 0) {
-            if (intVar[i] < intVar[i - 1]) {
-              //            Validate.isTrue(intVar[i] >= intVar[i - 1], "variance must increase");
-            }
-          }
+          //if (i > 0) {
+          //if (intVar[i] < intVar[i - 1]) {
+          //Validate.isTrue(intVar[i] >= intVar[i - 1], "variance must increase");
+          //}
+          //}
           if (_useIntegratedVar) {
             y = intVar;
           } else {

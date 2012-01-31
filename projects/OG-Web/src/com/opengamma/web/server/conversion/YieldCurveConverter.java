@@ -116,7 +116,7 @@ public class YieldCurveConverter implements ResultConverter<YieldCurve> {
   
   @Override
   public String getFormatterName() {
-    return "YIELD_CURVE";
+    return "CURVE";
   }
   
 }

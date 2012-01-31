@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
@@ -27,7 +28,7 @@ import com.opengamma.math.matrix.DoubleMatrix1D;
 public class YieldCurveNodeSensitivitiesHelper {
 
   public static Set<ComputedValue> getSensitivitiesForCurve(final YieldAndDiscountCurve curve,
-      final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec, 
+      final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
       final ValueSpecification resultSpec) {
     final int n = sensitivitiesForCurve.getNumberOfElements();
     final Double[] keys = curve.getCurve().getXData();
@@ -39,15 +40,18 @@ public class YieldCurveNodeSensitivitiesHelper {
     }
     return Collections.singleton(new ComputedValue(resultSpec, labelledMatrix));
   }
-  
+
   public static Set<ComputedValue> getSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle,
-      final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec, 
+      final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
       final ValueSpecification resultSpec) {
+    if (sensitivitiesForCurve == null) {
+      throw new OpenGammaRuntimeException("Null sensitivities for curve " + curveName);
+    }
     return getSensitivitiesForCurve(bundle.getCurve(curveName), sensitivitiesForCurve, curveSpec, resultSpec);
   }
 
   //TODO at some point this needs to deal with more than two curves
-  public static Set<ComputedValue> getSensitivitiesForMultipleCurves(final String forwardCurveName, final String fundingCurveName, 
+  public static Set<ComputedValue> getSensitivitiesForMultipleCurves(final String forwardCurveName, final String fundingCurveName,
       final ValueSpecification forwardResultSpecification, final ValueSpecification fundingResultSpecification, final YieldCurveBundle bundle,
       final DoubleMatrix1D sensitivitiesForCurves, final Map<String, InterpolatedYieldCurveSpecificationWithSecurities> curveSpecs) {
     final int nForward = bundle.getCurve(forwardCurveName).getCurve().size();
@@ -56,9 +60,9 @@ public class YieldCurveNodeSensitivitiesHelper {
     sensitivities.put(fundingCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), 0, nFunding)));
     sensitivities.put(forwardCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), nFunding, nForward + nFunding)));
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    results.addAll(getSensitivitiesForCurve(fundingCurveName, bundle, sensitivities.get(fundingCurveName), 
+    results.addAll(getSensitivitiesForCurve(fundingCurveName, bundle, sensitivities.get(fundingCurveName),
         curveSpecs.get(fundingCurveName), fundingResultSpecification));
-    results.addAll(getSensitivitiesForCurve(forwardCurveName, bundle, sensitivities.get(forwardCurveName), 
+    results.addAll(getSensitivitiesForCurve(forwardCurveName, bundle, sensitivities.get(forwardCurveName),
         curveSpecs.get(forwardCurveName), forwardResultSpecification));
     return results;
   }

@@ -24,7 +24,7 @@ import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDa
 /**
  * 
  */
-public class ForexVanillaOptionVegaQuoteFunction extends ForexOptionFunction {
+public class ForexOptionVegaQuoteFunction extends ForexOptionFunction {
   private static final PresentValueForexVegaQuoteSensitivityCalculator CALCULATOR = PresentValueForexVegaQuoteSensitivityCalculator.getInstance();
 
   @Override

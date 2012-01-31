@@ -163,6 +163,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getUniqueId() == null) {
+      return false;
+    }
     return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 
@@ -245,7 +248,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     String forwardCurveName = null;
     String fundingCurveName = null;
-    for (Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
+    for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
       if (ValueRequirementNames.YIELD_CURVE_SPEC.equals(input.getKey().getValueName())) {
         final String curveName = input.getKey().getProperty(ValuePropertyNames.CURVE);
         final String type = input.getValue().getConstraint(REQUIREMENT_PROPERTY_TYPE);
@@ -289,7 +292,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     boolean createFunding = false;
     boolean createJacobian = false;
     boolean createSensitivities = false;
-    for (ValueRequirement desiredValue : desiredValues) {
+    for (final ValueRequirement desiredValue : desiredValues) {
       if (forwardCurveName == null) {
         forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
         fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
@@ -320,7 +323,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     InterpolatedYieldCurveSpecificationWithSecurities forwardCurveSpecificationWithSecurities = null;
     Map<ExternalId, Double> fundingMarketDataMap = null;
     Map<ExternalId, Double> forwardMarketDataMap = null;
-    for (ComputedValue input : inputs.getAllValues()) {
+    for (final ComputedValue input : inputs.getAllValues()) {
       final String curveName = input.getSpecification().getProperty(ValuePropertyNames.CURVE);
       if (ValueRequirementNames.YIELD_CURVE_SPEC.equals(input.getSpecification().getValueName())) {
         if (curveName.equals(fundingCurveName)) {
@@ -504,7 +507,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
       try {
         final InstrumentDefinition<?> definition = getSecurityConverter().visit(financialSecurity);
         derivative = getDefinitionConverter().convert(financialSecurity, definition, now, curveNames, dataSource);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         s_logger.error("Caught exception {} for {}", e, financialSecurity);
       }
       if (derivative == null) {
@@ -569,7 +572,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);
     if (createJacobian) {
       result
-          .add(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties.get()), jacobianCalculator.evaluate(new DoubleMatrix1D(yields)).getData()));
+      .add(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties.get()), jacobianCalculator.evaluate(new DoubleMatrix1D(yields)).getData()));
     }
     if (createSensitivities) {
       final double[] couponSensitivities = new double[derivatives.size()];

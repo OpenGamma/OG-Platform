@@ -102,7 +102,7 @@
   </bean>
 
   <!-- Config loaders, should be commented out most of the time -->
-  <bean class="com.opengamma.financial.spring.ConfigMasterPopulatorsFactoryBean">
+  <!--bean class="com.opengamma.financial.spring.ConfigMasterPopulatorsFactoryBean">
     <property name="configMaster" ref="sharedConfigMaster" />
     <property name="yieldCurve" value="false" />
     <property name="currencyMatrix" value="false" />
@@ -112,7 +112,7 @@
     <property name="equityOptionSurface" value="false" />
     <property name="volatilityCube" value="false" />
     <property name="fxForwardCurve" value="false" />
-  </bean>
+  </bean-->
 
   <!-- ExchangeMaster -->
   <bean id="dbExchangeMaster" class="com.opengamma.masterdb.spring.DbExchangeMasterFactoryBean">

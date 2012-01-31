@@ -15,11 +15,7 @@ import com.opengamma.financial.model.volatility.smile.fitting.sabr.SmileSurfaceD
 /**
  * 
  */
-public class ForexLocalVolatilityBucketedVegaFunction extends ForexLocalVolatilityPDEFunction {
-
-  public ForexLocalVolatilityBucketedVegaFunction(final String definitionName) {
-    super(definitionName);
-  }
+public class ForexLocalVolatilityBucketedVegaFunction extends ForexLocalVolatilityPDEGridFunction {
 
   @Override
   protected Object getResult(final LocalVolatilityForwardPDEGreekCalculator<?> calculator, final LocalVolatilitySurface<?> localVolatilitySurface, final ForwardCurve forwardCurve,
@@ -29,7 +25,7 @@ public class ForexLocalVolatilityBucketedVegaFunction extends ForexLocalVolatili
 
   @Override
   protected String getResultName() {
-    return ValueRequirementNames.PDE_BUCKETED_VEGA;
+    return ValueRequirementNames.LOCAL_VOLATILITY_PDE_BUCKETED_VEGA;
   }
 
 }

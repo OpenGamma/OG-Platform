@@ -21,6 +21,7 @@ import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.math.surface.Surface;
+import com.opengamma.util.serialization.InvokedSerializedForm;
 
 /**
  * 
@@ -63,6 +64,10 @@ public class DupireLocalVolatilityCalculator {
           throw new MathException("Negative var in getLocalVolatility");
         }
         return Math.sqrt(var);
+      }
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getLocalVolatility", priceSurface, spot, r, q);
       }
     };
 
@@ -109,6 +114,10 @@ public class DupireLocalVolatilityCalculator {
           }
         }
         return s * Math.sqrt(var);
+      }
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getAbsoluteLocalVolatilitSurface", impliedVolatilitySurface, spot, rate);
       }
     };
 
@@ -212,6 +221,10 @@ public class DupireLocalVolatilityCalculator {
         }
         return Math.sqrt(var);
       }
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getLocalVolatility", impliedVolatilitySurface, forwardCurve);
+      }
     };
 
     return new LocalVolatilitySurfaceStrike(FunctionalDoublesSurface.from(locVol));
@@ -259,6 +272,10 @@ public class DupireLocalVolatilityCalculator {
           }
         }
         return Math.sqrt(var);
+      }
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(DupireLocalVolatilityCalculator.this, "getLocalVolatility", impliedVolatilitySurface);
       }
     };
 

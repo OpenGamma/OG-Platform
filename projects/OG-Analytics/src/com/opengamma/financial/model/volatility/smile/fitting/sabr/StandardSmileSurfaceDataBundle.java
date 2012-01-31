@@ -34,9 +34,9 @@ public class StandardSmileSurfaceDataBundle extends SmileSurfaceDataBundle {
     ArgumentChecker.notNull(impliedVols, "implied volatilities");
     ArgumentChecker.notNull(forwardCurveInterpolator, "forward curve interpolator");
     _nExpiries = expiries.length;
-    ArgumentChecker.isTrue(_nExpiries == forwards.length, "forwards wrong length; have {}, need {}", _nExpiries, forwards.length);
-    ArgumentChecker.isTrue(_nExpiries == strikes.length, "strikes wrong length; have {}, need {}", _nExpiries, strikes.length);
-    ArgumentChecker.isTrue(_nExpiries == impliedVols.length, "implied volatilities wrong length; have {}, need {}", _nExpiries, impliedVols.length);
+    ArgumentChecker.isTrue(_nExpiries == forwards.length, "forwards wrong length; have {}, need {}", forwards.length, _nExpiries);
+    ArgumentChecker.isTrue(_nExpiries == strikes.length, "strikes wrong length; have {}, need {}", strikes.length, _nExpiries);
+    ArgumentChecker.isTrue(_nExpiries == impliedVols.length, "implied volatilities wrong length; have {}, need {}", impliedVols.length, _nExpiries);
     for (int i = 0; i < strikes.length; i++) {
       ArgumentChecker.isTrue(strikes[i].length == impliedVols[i].length,
           "implied volatilities for expiry {} not the same length as strikes; have {}, need {}", strikes[i].length, impliedVols[i].length);

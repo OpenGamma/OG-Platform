@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.analytics.model.volatility.local;
 
-import static com.opengamma.financial.analytics.fxforwardcurve.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
-import static com.opengamma.financial.analytics.fxforwardcurve.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
-import static com.opengamma.financial.analytics.fxforwardcurve.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_LAMBDA;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS;
@@ -45,19 +45,20 @@ import com.opengamma.util.tuple.Pair;
 public class ForexPiecewiseSABRSurfaceFunction extends PiecewiseSABRSurfaceFunction {
   private static final Logger s_logger = LoggerFactory.getLogger(ForexPiecewiseSABRSurfaceFunction.class);
 
-  public ForexPiecewiseSABRSurfaceFunction(final String definitionName, final String specificationName) {
-    super(definitionName, specificationName, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE);
+  public ForexPiecewiseSABRSurfaceFunction() {
+    super(ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE);
   }
 
   @Override
   protected ValueProperties getResultProperties() {
     return createValueProperties()
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
+        .withAny(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(PROPERTY_SURFACE_TYPE)
         .withAny(PROPERTY_X_AXIS)
         .withAny(PROPERTY_Y_AXIS)
         .withAny(PROPERTY_LAMBDA)
+        .withAny(LocalVolatilityPDEValuePropertyNames.PROPERTY_H)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
         .withAny(PROPERTY_FORWARD_CURVE_INTERPOLATOR)
         .withAny(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR)
@@ -65,11 +66,28 @@ public class ForexPiecewiseSABRSurfaceFunction extends PiecewiseSABRSurfaceFunct
   }
 
   @Override
-  protected ValueProperties getResultProperties(final String definitionName, final String surfaceType, final String xAxis, final String yAxis, final String lambda,
-      final String forwardCurveCalculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator) {
+  protected ValueProperties getResultProperties(final String surfaceName, final String forwardCurveCalculationMethod, final String forwardCurveInterpolator,
+      final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator) {
     return createValueProperties()
         .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
-        .with(ValuePropertyNames.SURFACE, definitionName)
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .withAny(PROPERTY_SURFACE_TYPE)
+        .withAny(PROPERTY_X_AXIS)
+        .withAny(PROPERTY_Y_AXIS)
+        .withAny(PROPERTY_LAMBDA)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
+        .with(PROPERTY_FORWARD_CURVE_INTERPOLATOR, forwardCurveInterpolator)
+        .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, forwardCurveLeftExtrapolator)
+        .with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, forwardCurveRightExtrapolator).get();
+  }
+
+  @Override
+  protected ValueProperties getResultProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String lambda,
+      final String forwardCurveCalculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
+      final String forwardCurveRightExtrapolator) {
+    return createValueProperties()
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
+        .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
         .with(PROPERTY_X_AXIS, xAxis)
         .with(PROPERTY_Y_AXIS, yAxis)
@@ -102,8 +120,8 @@ public class ForexPiecewiseSABRSurfaceFunction extends PiecewiseSABRSurfaceFunct
     final double[] expiries = new double[nExpiries];
     final double[] deltas = new double[nDeltas];
     final double[] atms = new double[nExpiries];
-    final double[][] riskReversals = new double[nExpiries][nDeltas];
-    final double[][] strangle = new double[nExpiries][nDeltas];
+    final double[][] riskReversals = new double[nDeltas][nExpiries];
+    final double[][] strangle = new double[nDeltas][nExpiries];
     for (int i = 0; i < nExpiries; i++) {
       final Tenor tenor = tenors[i];
       final double t = getTime(tenor);
@@ -111,28 +129,28 @@ public class ForexPiecewiseSABRSurfaceFunction extends PiecewiseSABRSurfaceFunct
       if (atm == null) {
         throw new OpenGammaRuntimeException("Could not get ATM volatility data for surface");
       }
-      final DoubleArrayList riskReversalList = new DoubleArrayList();
-      final DoubleArrayList strangleList = new DoubleArrayList();
-      for (int j = 0; j < nDeltas; j++) {
-        final Number delta = deltaValues[j + 1];
-        if (delta != null) {
-          final Double rr = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(delta, FXVolQuoteType.RISK_REVERSAL));
-          final Double s = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(delta, FXVolQuoteType.BUTTERFLY));
+      expiries[i] = t;
+      atms[i] = atm;
+    }
+    for (int i = 0; i < nDeltas; i++) {
+      final Number delta = deltaValues[i + 1];
+      if (delta != null) {
+        deltas[i] = delta.doubleValue() / 100.;
+        final DoubleArrayList riskReversalList = new DoubleArrayList();
+        final DoubleArrayList strangleList = new DoubleArrayList();
+        for (int j = 0; j < nExpiries; j++) {
+          final Double rr = fxVolatilitySurface.getVolatility(tenors[j], ObjectsPair.of(delta, FXVolQuoteType.RISK_REVERSAL));
+          final Double s = fxVolatilitySurface.getVolatility(tenors[j], ObjectsPair.of(delta, FXVolQuoteType.BUTTERFLY));
           if (rr != null && s != null) {
             riskReversalList.add(rr);
             strangleList.add(s);
-            if (j == 0) {
-              deltas[j] = delta.doubleValue() / 100.;
-            }
+          } else {
+            s_logger.info("Had a null value for tenor number " + j);
           }
-        } else {
-          s_logger.info("Had a null value for tenor number " + j);
         }
+        riskReversals[i] = riskReversalList.toDoubleArray();
+        strangle[i] = strangleList.toDoubleArray();
       }
-      expiries[i] = t;
-      atms[i] = atm;
-      riskReversals[i] = riskReversalList.toDoubleArray();
-      strangle[i] = strangleList.toDoubleArray();
     }
     final boolean isCallData = true; //TODO this shouldn't be hard-coded
     return new ForexSmileDeltaSurfaceDataBundle(forwardCurve, expiries, deltas, atms, riskReversals, strangle, isCallData);

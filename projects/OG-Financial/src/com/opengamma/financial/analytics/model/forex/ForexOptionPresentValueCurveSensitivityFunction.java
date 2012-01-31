@@ -25,7 +25,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class ForexVanillaOptionPresentValueCurveSensitivityFunction extends ForexOptionFunction {
+public class ForexOptionPresentValueCurveSensitivityFunction extends ForexOptionFunction {
   private static final PresentValueCurveSensitivityBlackForexCalculator CALCULATOR = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
 
   @Override

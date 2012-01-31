@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.fxforwardcurve;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -29,7 +28,7 @@ public class FXForwardCurveConfigPopulator {
     return configMaster;
   }
 
-  private static void populateCurveDefinitions(final ConfigMaster configMaster, final UniqueIdentifiable target) {
+  private static void populateCurveDefinitions(final ConfigMaster configMaster, final UnorderedCurrencyPair target) {
     final Tenor[] expiryTenors = new Tenor[] {Tenor.ofDays(7), Tenor.ofDays(14), Tenor.ofDays(21), Tenor.ofMonths(1),
         Tenor.ofMonths(3), Tenor.ofMonths(6), Tenor.ofMonths(9), Tenor.ofMonths(12),
         Tenor.ofYears(5), Tenor.ofYears(10)};
@@ -37,7 +36,7 @@ public class FXForwardCurveConfigPopulator {
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(definition));
   }
 
-  private static void populateCurveSpecifications(final ConfigMaster configMaster, final UniqueIdentifiable target, final String currencyString) {
+  private static void populateCurveSpecifications(final ConfigMaster configMaster, final UnorderedCurrencyPair target, final String currencyString) {
     final FXForwardCurveInstrumentProvider curveInstrumentProvider = new BloombergFXForwardCurveInstrumentProvider(currencyString, "Curncy",
         MarketDataRequirementNames.MARKET_VALUE);
     final FXForwardCurveSpecification spec = new FXForwardCurveSpecification("DEFAULT_FX_FORWARD", target, curveInstrumentProvider);

@@ -99,7 +99,7 @@ import com.opengamma.financial.model.finitedifference.PDEGrid1D;
       }
       if (message.getByName(GRID_BLACK_DUAL_GAMMA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_BLACK_DUAL_GAMMA_FIELD));
-        result.put(PDEGreekResultCollection.GRID_BLACK_DELTA, greek);
+        result.put(PDEGreekResultCollection.GRID_BLACK_DUAL_GAMMA, greek);
       }
       if (message.getByName(GRID_BLACK_VEGA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_BLACK_VEGA_FIELD));
@@ -127,7 +127,7 @@ import com.opengamma.financial.model.finitedifference.PDEGrid1D;
       }
       if (message.getByName(GRID_DUAL_GAMMA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_DUAL_GAMMA_FIELD));
-        result.put(PDEGreekResultCollection.GRID_DELTA, greek);
+        result.put(PDEGreekResultCollection.GRID_DUAL_GAMMA, greek);
       }
       if (message.getByName(GRID_VEGA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_VEGA_FIELD));

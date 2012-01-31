@@ -32,7 +32,7 @@ public class BloombergFXForwardCurveInstrumentProvider implements FXForwardCurve
     _prefix = prefix;
     _postfix = postfix;
     _dataFieldName = dataFieldName;
-    _spotName = prefix + " " + _postfix;
+    _spotName = prefix + " BGN " + _postfix;
     _spotId = ExternalId.of(SCHEME, _spotName);
   }
 

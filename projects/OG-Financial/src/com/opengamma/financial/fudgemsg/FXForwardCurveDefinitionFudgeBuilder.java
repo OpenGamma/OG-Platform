@@ -29,7 +29,7 @@ public class FXForwardCurveDefinitionFudgeBuilder implements FudgeBuilder<FXForw
   @Override
   public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final FXForwardCurveDefinition object) {
     final MutableFudgeMsg message = serializer.newMessage();
-    message.add("target", object.getTarget());
+    message.add("target", FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
     message.add("name", object.getName());
     for (final Tenor tenor : object.getTenors()) {
       serializer.addToMessage(message, "tenor", null, tenor);

@@ -105,6 +105,20 @@ public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
     checkVolatilities(expiries, _vols);
   }
 
+  //TODO test me
+  public ForexSmileDeltaSurfaceDataBundle(final ForwardCurve forwardCurve, final double[] expiries, final double[][] strikes, final double[][] vols, final boolean isCallData) {
+    _forwardCurve = forwardCurve;
+    _expiries = expiries;
+    _strikes = strikes;
+    _vols = vols;
+    _isCallData = isCallData;
+    _nExpiries = expiries.length;
+    _forwards = new double[_nExpiries];
+    for (int i = 0; i < _nExpiries; i++) {
+      _forwards[i] = forwardCurve.getForward(expiries[i]);
+    }
+  }
+
   @Override
   public double[] getExpiries() {
     return _expiries;
@@ -147,8 +161,7 @@ public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
       System.arraycopy(_vols[i], 0, vols[i], 0, nStrikes);
     }
     vols[expiryIndex][strikeIndex] += amount;
-    //TODO eventually, we will need to be able to back out deltas, etc., and return an object of this type
-    return new StandardSmileSurfaceDataBundle(getForwardCurve(), getExpiries(), getStrikes(), vols, isCallData());
+    return new ForexSmileDeltaSurfaceDataBundle(getForwardCurve(), getExpiries(), getStrikes(), vols, isCallData());
   }
 
   @Override

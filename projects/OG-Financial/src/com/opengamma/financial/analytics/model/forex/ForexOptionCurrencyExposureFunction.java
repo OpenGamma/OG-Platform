@@ -22,7 +22,7 @@ import com.opengamma.util.money.MultipleCurrencyAmount;
 /**
  * 
  */
-public class ForexVanillaOptionCurrencyExposureFunction extends ForexOptionFunction {
+public class ForexOptionCurrencyExposureFunction extends ForexOptionFunction {
   private static final CurrencyExposureBlackForexCalculator CALCULATOR = CurrencyExposureBlackForexCalculator.getInstance();
 
   @Override

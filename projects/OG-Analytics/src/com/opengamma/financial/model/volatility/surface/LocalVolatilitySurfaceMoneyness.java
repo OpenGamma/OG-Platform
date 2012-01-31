@@ -18,6 +18,11 @@ public class LocalVolatilitySurfaceMoneyness extends LocalVolatilitySurface<Mone
 
   private final ForwardCurve _fc;
 
+  public LocalVolatilitySurfaceMoneyness(final LocalVolatilitySurfaceMoneyness other) {
+    super(other.getSurface());
+    _fc = other.getForwardCurve();
+  }
+
   /**
    * @param surface A local volatility surface parameterised by time and moneyness m = strike/forward
    * @param forwardCurve the forward curve

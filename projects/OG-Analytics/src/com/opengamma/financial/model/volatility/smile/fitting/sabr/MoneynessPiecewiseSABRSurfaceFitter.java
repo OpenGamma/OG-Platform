@@ -19,6 +19,8 @@ import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.serialization.InvokedSerializedForm;
 
 /**
  * 
@@ -53,6 +55,7 @@ public class MoneynessPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurface
    */
   @Override
   public BlackVolatilitySurfaceMoneyness getVolatilitySurface(final SmileSurfaceDataBundle data) {
+    ArgumentChecker.isTrue(data.getExpiries().length >= 4, "Need at least four expiries; have {}", data.getExpiries().length);
     final double[] expiries = data.getExpiries();
     final double[] forwards = data.getForwards();
     final double[][] strikes = data.getStrikes();
@@ -60,6 +63,7 @@ public class MoneynessPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurface
     final ForwardCurve forwardCurve = data.getForwardCurve();
     final int nExpiries = expiries.length;
     //TODO move this out of here - need a way to bump a point on the surface without having to re-fit unaffected slices
+    @SuppressWarnings("unchecked")
     final Function1D<Double, Double>[] fitters = new Function1D[nExpiries];
     for (int i = 0; i < nExpiries; i++) {
       fitters[i] = FITTER.getVolatilityFunction(forwards[i], strikes[i], expiries[i], impliedVols[i]);
@@ -79,6 +83,7 @@ public class MoneynessPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurface
 
         final int index = SurfaceArrayUtils.getLowerBoundIndex(expiries, t);
 
+        //TODO this logic doesn't always work
         int lower;
         if (index == 0) {
           lower = 0;
@@ -131,9 +136,61 @@ public class MoneynessPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurface
         }
         return sigma;
       }
+
+      public Object writeReplace() {
+        return new InvokedSerializedForm(MoneynessPiecewiseSABRSurfaceFitter.this, "getVolatilitySurface", data);
+      }
     };
 
     return new BlackVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(surFunc), forwardCurve);
+  }
+
+  public boolean useLogTime() {
+    return _useLogTime;
+  }
+
+  public boolean useIntegratedVariance() {
+    return _useIntegratedVar;
+  }
+
+  public double getLambda() {
+    return _lambda;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    long temp;
+    temp = Double.doubleToLongBits(_lambda);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (_useIntegratedVar ? 1231 : 1237);
+    result = prime * result + (_useLogTime ? 1231 : 1237);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final MoneynessPiecewiseSABRSurfaceFitter other = (MoneynessPiecewiseSABRSurfaceFitter) obj;
+    if (Double.doubleToLongBits(_lambda) != Double.doubleToLongBits(other._lambda)) {
+      return false;
+    }
+    if (_useIntegratedVar != other._useIntegratedVar) {
+      return false;
+    }
+    if (_useLogTime != other._useLogTime) {
+      return false;
+    }
+    return true;
   }
 
 }

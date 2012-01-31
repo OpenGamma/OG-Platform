@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.analytics.model.volatility.local;
 
-import static com.opengamma.financial.analytics.fxforwardcurve.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
-import static com.opengamma.financial.analytics.fxforwardcurve.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
-import static com.opengamma.financial.analytics.fxforwardcurve.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_LAMBDA;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS;
@@ -18,13 +18,9 @@ import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import org.apache.commons.lang.ObjectUtils;
-
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -36,55 +32,23 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
-import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
-import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
-import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.financial.model.volatility.smile.fitting.sabr.MoneynessPiecewiseSABRSurfaceFitter;
 import com.opengamma.financial.model.volatility.smile.fitting.sabr.PiecewiseSABRSurfaceFitter1;
 import com.opengamma.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.financial.model.volatility.smile.fitting.sabr.StrikePiecewiseSABRSurfaceFitter;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * 
  */
 public abstract class PiecewiseSABRSurfaceFunction extends AbstractFunction.NonCompiledInvoker {
-  private final String _definitionName;
-  private final String _specificationName;
   private final String _instrumentType;
-  private VolatilitySurfaceSpecification _specification;
-  private VolatilitySurfaceDefinition<?, ?> _definition;
-  private ValueRequirement _volDataRequirement;
 
-  public PiecewiseSABRSurfaceFunction(final String definitionName, final String specificationName, final String instrumentType) {
-    ArgumentChecker.notNull(definitionName, "definition name");
-    ArgumentChecker.notNull(specificationName, "specification name");
+  public PiecewiseSABRSurfaceFunction(final String instrumentType) {
     ArgumentChecker.notNull(instrumentType, "instrument type");
-    _definitionName = definitionName;
-    _specificationName = specificationName;
     _instrumentType = instrumentType;
-  }
-
-  @Override
-  public void init(final FunctionCompilationContext context) {
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBVolatilitySurfaceDefinitionSource volSurfaceDefinitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
-    _definition = volSurfaceDefinitionSource.getDefinition(_definitionName, _instrumentType);
-    if (_definition == null) {
-      throw new OpenGammaRuntimeException("Couldn't find Volatility Surface Definition for " + _instrumentType + " called " + _definitionName);
-    }
-    final ConfigDBVolatilitySurfaceSpecificationSource volatilitySurfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    _specification = volatilitySurfaceSpecificationSource.getSpecification(_specificationName, _instrumentType);
-    if (_specification == null) {
-      throw new OpenGammaRuntimeException("Couldn't find Volatility Surface Specification for " + _instrumentType + " called " + _specificationName);
-    }
-    _volDataRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, _definition.getTarget(),
-        ValueProperties
-        .with(ValuePropertyNames.SURFACE, _definitionName)
-        .with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get());
   }
 
   @Override
@@ -98,18 +62,20 @@ public abstract class PiecewiseSABRSurfaceFunction extends AbstractFunction.NonC
     final boolean useIntegratedVar = LocalVolatilityPDEUtils.useIntegratedVariance(yAxis);
     final String lambdaName = desiredValue.getConstraint(PROPERTY_LAMBDA);
     final double lambda = Double.parseDouble(lambdaName);
-    final String curveCalculationMethodName = desiredValue.getConstraint(ValuePropertyNames.CALCULATION_METHOD);
+    final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
+    final String curveCalculationMethodName = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     final String forwardCurveInterpolator = desiredValue.getConstraint(PROPERTY_FORWARD_CURVE_INTERPOLATOR);
     final String forwardCurveLeftExtrapolator = desiredValue.getConstraint(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
     final String forwardCurveRightExtrapolator = desiredValue.getConstraint(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
     final PiecewiseSABRSurfaceFitter1<?> surfaceFitter = moneynessSurface ? new MoneynessPiecewiseSABRSurfaceFitter(useLogTime, useIntegratedVar, lambda) :
       new StrikePiecewiseSABRSurfaceFitter(useLogTime, useIntegratedVar, lambda);
-    final SmileSurfaceDataBundle data = getData(inputs, _volDataRequirement, getForwardCurveRequirement(curveCalculationMethodName, forwardCurveInterpolator,
+    final ValueRequirement volDataRequirement = getVolatilityDataRequirement(target, surfaceName);
+    final SmileSurfaceDataBundle data = getData(inputs, volDataRequirement, getForwardCurveRequirement(target, curveCalculationMethodName, forwardCurveInterpolator,
         forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator));
     final BlackVolatilitySurface<?> impliedVolatilitySurface = surfaceFitter.getVolatilitySurface(data);
-    final ValueProperties properties = getResultProperties(_definitionName, surfaceType, xAxis, yAxis, lambdaName, curveCalculationMethodName,
+    final ValueProperties properties = getResultProperties(surfaceName, surfaceType, xAxis, yAxis, lambdaName, curveCalculationMethodName,
         forwardCurveInterpolator, forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator);
-    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE, new ComputationTargetSpecification(_definition.getTarget()), properties);
+    final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, impliedVolatilitySurface));
   }
 
@@ -120,18 +86,23 @@ public abstract class PiecewiseSABRSurfaceFunction extends AbstractFunction.NonC
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.PRIMITIVE && ObjectUtils.equals(target.getUniqueId(), _definitionName);
+    return target.getType() == ComputationTargetType.PRIMITIVE && UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = getResultProperties();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE, new ComputationTargetSpecification(_definition.getTarget()), properties));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE, target.toSpecification(), properties));
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
+    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
+    if (surfaceNames == null || surfaceNames.size() != 1) {
+      return null;
+    }
+    final String surfaceName = surfaceNames.iterator().next();
     final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     if (forwardCurveCalculationMethodNames == null || forwardCurveCalculationMethodNames.size() != 1) {
       return null;
@@ -151,107 +122,96 @@ public abstract class PiecewiseSABRSurfaceFunction extends AbstractFunction.NonC
     if (forwardCurveRightExtrapolatorNames == null || forwardCurveRightExtrapolatorNames.size() != 1) {
       return null;
     }
+    final ValueRequirement volDataRequirement = getVolatilityDataRequirement(target, surfaceName);
     final String forwardCurveRightExtrapolator = forwardCurveRightExtrapolatorNames.iterator().next();
-    return Sets.newHashSet(_volDataRequirement, getForwardCurveRequirement(forwardCurveCalculationMethod, forwardCurveInterpolator, forwardCurveLeftExtrapolator,
+    return Sets.newHashSet(volDataRequirement, getForwardCurveRequirement(target, forwardCurveCalculationMethod, forwardCurveInterpolator, forwardCurveLeftExtrapolator,
         forwardCurveRightExtrapolator));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    String surfaceType = null;
-    String xAxis = null;
-    String yAxis = null;
-    String lambda = null;
+    String surfaceName = null;
     String forwardCurveCalculationMethod = null;
     String forwardCurveInterpolator = null;
     String forwardCurveLeftExtrapolator = null;
     String forwardCurveRightExtrapolator = null;
     for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
       final ValueProperties constraints = input.getValue().getConstraints();
-      if (constraints.getValues(PROPERTY_SURFACE_TYPE) != null) {
-        final Set<String> surfaceTypeNames = constraints.getValues(PROPERTY_SURFACE_TYPE);
-        if (surfaceTypeNames == null || surfaceTypeNames.size() != 1) {
-          throw new OpenGammaRuntimeException("Missing or non-unique surface type name");
+      if (input.getValue().getValueName().equals(ValueRequirementNames.FORWARD_CURVE)) {
+        if (constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD) != null) {
+          final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+          if (forwardCurveCalculationMethodNames == null || forwardCurveCalculationMethodNames.size() != 1) {
+            throw new OpenGammaRuntimeException("Missing or non-unique forward curve calculation method name");
+          }
+          forwardCurveCalculationMethod = forwardCurveCalculationMethodNames.iterator().next();
         }
-        surfaceType = surfaceTypeNames.iterator().next();
-      }
-      if (constraints.getValues(PROPERTY_X_AXIS) != null) {
-        final Set<String> xAxisNames = constraints.getValues(PROPERTY_X_AXIS);
-        if (xAxisNames == null || xAxisNames.size() != 1) {
-          throw new OpenGammaRuntimeException("Missing or non-unique x-axis property name");
+        if (constraints.getValues(PROPERTY_FORWARD_CURVE_INTERPOLATOR) != null) {
+          final Set<String> forwardCurveInterpolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_INTERPOLATOR);
+          if (forwardCurveInterpolatorNames == null || forwardCurveInterpolatorNames.size() != 1) {
+            throw new OpenGammaRuntimeException("Missing or non-unique forward curve interpolator name");
+          }
+          forwardCurveInterpolator = forwardCurveInterpolatorNames.iterator().next();
         }
-        xAxis = xAxisNames.iterator().next();
-      }
-      if (constraints.getValues(PROPERTY_Y_AXIS) != null) {
-        final Set<String> yAxisNames = constraints.getValues(PROPERTY_Y_AXIS);
-        if (yAxisNames == null || yAxisNames.size() != 1) {
-          throw new OpenGammaRuntimeException("Missing or non-unique y-axis property name");
+        if (constraints.getValues(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR) != null) {
+          final Set<String> forwardCurveLeftExtrapolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
+          if (forwardCurveLeftExtrapolatorNames == null || forwardCurveLeftExtrapolatorNames.size() != 1) {
+            throw new OpenGammaRuntimeException("Missing or non-unique forward curve left extrapolator name");
+          }
+          forwardCurveLeftExtrapolator = forwardCurveLeftExtrapolatorNames.iterator().next();
         }
-        yAxis = yAxisNames.iterator().next();
-      }
-      if (constraints.getValues(PROPERTY_LAMBDA) != null) {
-        final Set<String> lambdaNames = constraints.getValues(PROPERTY_LAMBDA);
-        if (lambdaNames == null || lambdaNames.size() != 1) {
-          throw new OpenGammaRuntimeException("Missing or non-unique lambda property name");
+        if (constraints.getValues(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR) != null) {
+          final Set<String> forwardCurveRightExtrapolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
+          if (forwardCurveRightExtrapolatorNames == null || forwardCurveRightExtrapolatorNames.size() != 1) {
+            throw new OpenGammaRuntimeException("Missing or non-unique forward curve right extrapolator name");
+          }
+          forwardCurveRightExtrapolator = forwardCurveRightExtrapolatorNames.iterator().next();
         }
-        lambda = lambdaNames.iterator().next();
-      }
-      if (constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD) != null) {
-        final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
-        if (forwardCurveCalculationMethodNames == null || forwardCurveCalculationMethodNames.size() != 1) {
-          throw new OpenGammaRuntimeException("Missing or non-unique forward curve calculation method name");
+      } else if (input.getValue().getValueName().equals(ValueRequirementNames.VOLATILITY_SURFACE_DATA)) {
+        if (constraints.getValues(ValuePropertyNames.SURFACE) != null) {
+          final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
+          if (surfaceNames == null || surfaceNames.size() != 1) {
+            throw new OpenGammaRuntimeException("Missing or non-unique surface name");
+          }
+          surfaceName = surfaceNames.iterator().next();
         }
-        forwardCurveCalculationMethod = forwardCurveCalculationMethodNames.iterator().next();
-      }
-      if (constraints.getValues(PROPERTY_FORWARD_CURVE_INTERPOLATOR) != null) {
-        final Set<String> forwardCurveInterpolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_INTERPOLATOR);
-        if (forwardCurveInterpolatorNames == null || forwardCurveInterpolatorNames.size() != 1) {
-          throw new OpenGammaRuntimeException("Missing or non-unique forward curve interpolator name");
-        }
-        forwardCurveInterpolator = forwardCurveInterpolatorNames.iterator().next();
-      }
-      if (constraints.getValues(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR) != null) {
-        final Set<String> forwardCurveLeftExtrapolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
-        if (forwardCurveLeftExtrapolatorNames == null || forwardCurveLeftExtrapolatorNames.size() != 1) {
-          throw new OpenGammaRuntimeException("Missing or non-unique forward curve left extrapolator name");
-        }
-        forwardCurveLeftExtrapolator = forwardCurveLeftExtrapolatorNames.iterator().next();
-      }
-      if (constraints.getValues(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR) != null) {
-        final Set<String> forwardCurveRightExtrapolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
-        if (forwardCurveRightExtrapolatorNames == null || forwardCurveRightExtrapolatorNames.size() != 1) {
-          throw new OpenGammaRuntimeException("Missing or non-unique forward curve right extrapolator name");
-        }
-        forwardCurveRightExtrapolator = forwardCurveRightExtrapolatorNames.iterator().next();
       }
     }
-    assert surfaceType != null;
-    assert xAxis != null;
-    assert yAxis != null;
-    assert lambda != null;
+    assert surfaceName != null;
     assert forwardCurveCalculationMethod != null;
     assert forwardCurveInterpolator != null;
     assert forwardCurveLeftExtrapolator != null;
     assert forwardCurveRightExtrapolator != null;
-    final ValueProperties properties = getResultProperties(_definitionName, surfaceType, xAxis, yAxis, lambda, forwardCurveCalculationMethod, forwardCurveInterpolator,
+    final ValueProperties properties = getResultProperties(surfaceName, forwardCurveCalculationMethod, forwardCurveInterpolator,
         forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator);
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE, new ComputationTargetSpecification(_definition.getTarget()), properties));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE, target.toSpecification(), properties));
   }
 
   protected abstract SmileSurfaceDataBundle getData(FunctionInputs inputs, ValueRequirement volDataRequirement, ValueRequirement forwardCurveRequirement);
 
   protected abstract ValueProperties getResultProperties();
 
-  protected abstract ValueProperties getResultProperties(final String definitionName, final String surfaceType, final String xAxis, final String yAxis, final String lambda,
-      final String forwardCurveCalculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator);
+  protected abstract ValueProperties getResultProperties(final String definitionName, final String forwardCurveCalculationMethod, final String forwardCurveInterpolator,
+      final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator);
 
-  private ValueRequirement getForwardCurveRequirement(final String calculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
-      final String forwardCurveRightExtrapolator) {
+  protected abstract ValueProperties getResultProperties(final String definitionName, final String surfaceType, final String xAxis, final String yAxis, final String lambda,
+      final String forwardCurveCalculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
+      final String forwardCurveRightExtrapolator);
+
+  private ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final String calculationMethod, final String forwardCurveInterpolator,
+      final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod)
         .with(PROPERTY_FORWARD_CURVE_INTERPOLATOR, forwardCurveInterpolator)
         .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, forwardCurveLeftExtrapolator)
         .with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, forwardCurveRightExtrapolator).get();
-    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, _definition.getTarget(), properties);
+    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
+  }
+
+  private ValueRequirement getVolatilityDataRequirement(final ComputationTarget target, final String surfaceName) {
+    final ValueRequirement volDataRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
+        ValueProperties
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get());
+    return volDataRequirement;
   }
 }

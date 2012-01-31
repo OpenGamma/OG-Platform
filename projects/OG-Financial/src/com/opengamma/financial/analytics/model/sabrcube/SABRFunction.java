@@ -104,7 +104,7 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     final SwaptionSecurityConverter swaptionConverter = new SwaptionSecurityConverter(_securitySource, conventionSource, swapConverter);
     final CapFloorSecurityConverter capFloorVisitor = new CapFloorSecurityConverter(holidaySource, conventionSource);
     final CapFloorCMSSpreadSecurityConverter capFloorCMSSpreadSecurityVisitor = new CapFloorCMSSpreadSecurityConverter(holidaySource, conventionSource);
-    _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>> builder().swapSecurityVisitor(swapConverter).swaptionVisitor(swaptionConverter).capFloorVisitor(capFloorVisitor)
+    _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().swapSecurityVisitor(swapConverter).swaptionVisitor(swaptionConverter).capFloorVisitor(capFloorVisitor)
         .capFloorCMSSpreadVisitor(capFloorCMSSpreadSecurityVisitor).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
@@ -135,7 +135,8 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     final Security security = target.getSecurity();
     return security instanceof SwaptionSecurity
         || (security instanceof SwapSecurity && (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS
-        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
+        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS
+        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
         || security instanceof CapFloorSecurity || (security instanceof CapFloorCMSSpreadSecurity && !_useSABRExtrapolation);
   }
 
@@ -212,8 +213,8 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     final InterpolatedDoublesSurface nuSurface = surfaces.getNuSurface();
     final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
     final DayCount dayCount = surfaces.getDayCount();
-    final SABRInterestRateParameters modelParameters = _useSABRExtrapolation ? new SABRInterestRateExtrapolationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, CUT_OFF, MU)
-    : new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
+    final SABRInterestRateParameters modelParameters = _useSABRExtrapolation ? new SABRInterestRateExtrapolationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, CUT_OFF, MU) :
+      new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
     return new SABRInterestRateDataBundle(modelParameters, getYieldCurves(target, inputs));
   }
 }

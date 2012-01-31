@@ -108,13 +108,13 @@ import com.opengamma.financial.analytics.model.forex.ForexForwardPresentValueCur
 import com.opengamma.financial.analytics.model.forex.ForexForwardPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.forex.ForexOptionDefaultCurveNamesFunction;
-import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionCurrencyExposureFunction;
-import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentValueCurveSensitivityFunction;
-import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentValueFunction;
-import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionPresentValueVolatilitySensitivityFunction;
-import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionVegaFunction;
-import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionVegaQuoteFunction;
-import com.opengamma.financial.analytics.model.forex.ForexVanillaOptionYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.forex.ForexOptionCurrencyExposureFunction;
+import com.opengamma.financial.analytics.model.forex.ForexOptionPresentValueCurveSensitivityFunction;
+import com.opengamma.financial.analytics.model.forex.ForexOptionPresentValueFunction;
+import com.opengamma.financial.analytics.model.forex.ForexOptionPresentValueVolatilitySensitivityFunction;
+import com.opengamma.financial.analytics.model.forex.ForexOptionVegaFunction;
+import com.opengamma.financial.analytics.model.forex.ForexOptionVegaQuoteFunction;
+import com.opengamma.financial.analytics.model.forex.ForexOptionYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.ircurve.MarketInstrumentImpliedYieldCurveFunction;
@@ -163,6 +163,19 @@ import com.opengamma.financial.analytics.model.var.PortfolioHistoricalVaRFunctio
 import com.opengamma.financial.analytics.model.var.PositionHistoricalVaRDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.var.PositionHistoricalVaRFunction;
 import com.opengamma.financial.analytics.model.volatility.cube.SABRNonLinearLeastSquaresSwaptionCubeFittingFunction;
+import com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityBucketedVegaFunction;
+import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityFullPDEFunction;
+import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityGreekFunction;
+import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityGridGreeksFunction;
+import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityPDEGreekDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityPDEPriceDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityPDEPriceFunction;
+import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.model.volatility.local.ForexPiecewiseSABRSurfaceFunction;
+import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames;
+import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfaceDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.HestonFourierIRFutureSurfaceFittingFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction;
@@ -193,6 +206,7 @@ import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFact
 import com.opengamma.financial.value.PortfolioNodeValueFunction;
 import com.opengamma.financial.value.PositionValueFunction;
 import com.opengamma.financial.value.SecurityValueFunction;
+import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
@@ -357,7 +371,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addForexOptionCalculators(functionConfigs);
     addForexForwardCalculators(functionConfigs);
     addInterestRateFutureOptionCalculators(functionConfigs);
-    addEquityDerivativesFunctions(functionConfigs);
+    addEquityDerivativesCalculators(functionConfigs);
+    addLocalVolatilityCalculators(functionConfigs);
 
     addScalingFunction(functionConfigs, ValueRequirementNames.FAIR_VALUE);
 
@@ -543,7 +558,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
         defaultMeanCalculatorName, defaultStdDevCalculatorName, defaultConfidenceLevelName, defaultHorizonName));
   }
 
-  private static void addEquityDerivativesFunctions(List<FunctionConfiguration> functionConfigs) {
+  private static void addEquityDerivativesCalculators(List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
         Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.MARK_TO_MARKET, "FUNDING")));
     //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.COST_OF_CARRY)));
@@ -611,13 +626,13 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private static void addForexOptionCalculators(List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueFunction.class));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionCurrencyExposureFunction.class));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueCurveSensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionPresentValueVolatilitySensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionVegaFunction.class));
-    functionConfigs.add(functionConfiguration(ForexVanillaOptionVegaQuoteFunction.class));
+    functionConfigs.add(functionConfiguration(ForexOptionPresentValueFunction.class));
+    functionConfigs.add(functionConfiguration(ForexOptionCurrencyExposureFunction.class));
+    functionConfigs.add(functionConfiguration(ForexOptionPresentValueCurveSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(ForexOptionPresentValueVolatilitySensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(ForexOptionYieldCurveNodeSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(ForexOptionVegaFunction.class));
+    functionConfigs.add(functionConfiguration(ForexOptionVegaQuoteFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M", "DEFAULT", 
         ValueRequirementNames.PRESENT_VALUE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, ValueRequirementNames.FX_CURVE_SENSITIVITIES, 
         ValueRequirementNames.FX_VOLATILITY_SENSITIVITIES, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ValueRequirementNames.VEGA_MATRIX,
@@ -680,6 +695,59 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionHestonPresentValueFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT"));
   }
 
+  private static void addLocalVolatilityCalculators(List<FunctionConfiguration> functionConfigs) {
+    List<String> forwardCurveProperties = new ArrayList<String>();    
+    forwardCurveProperties.add(Interpolator1DFactory.NATURAL_CUBIC_SPLINE);
+    forwardCurveProperties.add(Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    forwardCurveProperties.add(Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    List<String> localVolSurfaceProperties = new ArrayList<String>();
+    localVolSurfaceProperties.add("Dummy");
+    localVolSurfaceProperties.add(Interpolator1DFactory.NATURAL_CUBIC_SPLINE);
+    localVolSurfaceProperties.add(Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    localVolSurfaceProperties.add(Interpolator1DFactory.FLAT_EXTRAPOLATOR);
+    localVolSurfaceProperties.add(LocalVolatilityPDEValuePropertyNames.MONEYNESS);
+    localVolSurfaceProperties.add(LocalVolatilityPDEValuePropertyNames.LOG_TIME);
+    localVolSurfaceProperties.add(LocalVolatilityPDEValuePropertyNames.VOLATILITY);
+    localVolSurfaceProperties.add(Integer.toString(100));
+    localVolSurfaceProperties.add("DEFAULT");
+    localVolSurfaceProperties.add(Double.toString(1e-3));
+    List<String> pdeProperties = new ArrayList<String>(localVolSurfaceProperties);
+    pdeProperties.add(LocalVolatilityPDEValuePropertyNames.FORWARD_PDE);
+    pdeProperties.add(Double.toString(0.5));
+    pdeProperties.add(Integer.toString(100));
+    pdeProperties.add(Integer.toString(100));
+    pdeProperties.add(Double.toString(5.));
+    pdeProperties.add(Double.toString(0.05));
+    pdeProperties.add(Double.toString(3.5));    
+    List<String> priceProperties = new ArrayList<String>(pdeProperties);
+    priceProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
+    priceProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
+    List<String> greekProperties = new ArrayList<String>(pdeProperties);
+    greekProperties.add(Interpolator1DFactory.DOUBLE_QUADRATIC);
+    functionConfigs.add(new StaticFunctionConfiguration(ForexPiecewiseSABRSurfaceFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(ForexLocalVolatilitySurfaceFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(ForexLocalVolatilityFullPDEFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(ForexLocalVolatilityGridGreeksFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(ForexLocalVolatilityBucketedVegaFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(ForexLocalVolatilityPDEPriceFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(ForexLocalVolatilityGreekFunction.class.getName()));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(FXForwardCurveDefaultPropertiesFunction.class.getName(), forwardCurveProperties));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfaceDefaultPropertiesFunction.class.getName(), localVolSurfaceProperties));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilityPDEDefaultPropertiesFunction.class.getName(), pdeProperties));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityPDEPriceDefaultPropertiesFunction.class.getName(), priceProperties));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(ForexLocalVolatilityPDEGreekDefaultPropertiesFunction.class.getName(), greekProperties));
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.LOCAL_VOLATILITY_FULL_PDE_GRID);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.LOCAL_VOLATILITY_PDE_GREEKS);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.LOCAL_VOLATILITY_PDE_BUCKETED_VEGA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.LOCAL_VOLATILITY_DELTA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.LOCAL_VOLATILITY_DUAL_DELTA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.LOCAL_VOLATILITY_GAMMA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.LOCAL_VOLATILITY_DUAL_GAMMA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.LOCAL_VOLATILITY_VEGA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.LOCAL_VOLATILITY_VANNA);
+    addUnitScalingFunction(functionConfigs, ValueRequirementNames.LOCAL_VOLATILITY_VOMMA);
+  }
+  
   private static void addSABRCalculators(List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG")));
     functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueSABRCapFloorCMSSpreadFunction.class.getName(), Arrays.asList("USD", "BLOOMBERG", "FORWARD_3M", "FUNDING")));

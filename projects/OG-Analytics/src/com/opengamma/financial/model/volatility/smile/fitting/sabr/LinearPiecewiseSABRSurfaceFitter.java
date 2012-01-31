@@ -37,6 +37,7 @@ public class LinearPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurfaceFit
     final double[][] strikes = data.getStrikes();
     final double[][] impliedVols = data.getVolatilities();
     final int nExpiries = expiries.length;
+    @SuppressWarnings("unchecked")
     final Function1D<Double, Double>[] fitters = new Function1D[nExpiries];
     for (int i = 0; i < nExpiries; i++) {
       fitters[i] = FITTER.getVolatilityFunction(forwards[i], strikes[i], expiries[i], impliedVols[i]);
