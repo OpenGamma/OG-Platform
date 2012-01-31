@@ -15,6 +15,7 @@ import javax.time.calendar.format.DateTimeFormatters;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
@@ -23,11 +24,12 @@ import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.TimeCalculator;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * Description of an Federal Funds Futures.
  */
-public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitionWithData<FederalFundsFutureSecurity, Double> {
+public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitionWithData<FederalFundsFutureSecurity, DoubleTimeSeries<ZonedDateTime>> {
 
   /**
    * The future last trading date. Usually the last business day of the month.
@@ -202,7 +204,7 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
   @Override
   public FederalFundsFutureSecurity toDerivative(ZonedDateTime date, String... yieldCurveNames) {
     Validate.notNull(date, "Date");
-    Validate.isTrue(!date.isAfter(_fixingPeriodDate[0]), "Date should not be after the fixing period start date");
+    Validate.isTrue(!date.isAfter(_fixingPeriodDate[_index.getPublicationLag()]), "Date should not be after the fixing period start date");
     double[] fixingPeriodTime = new double[_fixingPeriodDate.length];
     for (int loopfix = 0; loopfix < _fixingPeriodDate.length; loopfix++) {
       fixingPeriodTime[loopfix] = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[loopfix]);
@@ -211,8 +213,42 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
   }
 
   @Override
-  public FederalFundsFutureSecurity toDerivative(ZonedDateTime date, Double data, String... yieldCurveNames) {
-    return null;
+  public FederalFundsFutureSecurity toDerivative(ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, String... yieldCurveNames) {
+    Validate.notNull(date, "Date");
+    if (date.isBefore(_fixingPeriodDate[1])) { // Fixing period not started
+      return toDerivative(date, yieldCurveNames);
+    }
+    int fixedPeriod = 0;
+    double accruedInterest = 0.0;
+    while (date.isAfter(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]) && fixedPeriod < _fixingPeriodDate.length - 1) {
+      // Fixing should have taken place already
+      final Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
+      if (fixedRate == null) {
+        throw new OpenGammaRuntimeException("Could not get fixing value for date " + _fixingPeriodDate[fixedPeriod]);
+      }
+      accruedInterest += _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
+      fixedPeriod++;
+    }
+    if (fixedPeriod < _fixingPeriodDate.length - 1) { // Some FF period left
+      final Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
+      if (fixedRate != null) { // Fixed already
+        accruedInterest += _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
+        fixedPeriod++;
+      }
+      if (fixedPeriod < _fixingPeriodDate.length - 1) { // Some FF period left
+        double[] fixingPeriodTime = new double[_fixingPeriodDate.length - fixedPeriod];
+        double[] fixingPeriodAccrualFactor = new double[_fixingPeriodDate.length - 1 - fixedPeriod];
+        for (int loopfix = 0; loopfix < _fixingPeriodDate.length - fixedPeriod; loopfix++) {
+          fixingPeriodTime[loopfix] = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[loopfix + fixedPeriod]);
+        }
+        System.arraycopy(_fixingPeriodAccrualFactor, fixedPeriod, fixingPeriodAccrualFactor, 0, _fixingPeriodDate.length - 1 - fixedPeriod);
+        return new FederalFundsFutureSecurity(_index, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor, _notional, _paymentAccrualFactor, _name, yieldCurveNames[0]);
+      }
+      return new FederalFundsFutureSecurity(_index, accruedInterest, new double[] {TimeCalculator.getTimeBetween(date, _fixingPeriodDate[_fixingPeriodDate.length - 1])}, new double[0], _notional,
+          _paymentAccrualFactor, _name, yieldCurveNames[0]);
+    }
+    return new FederalFundsFutureSecurity(_index, accruedInterest, new double[] {TimeCalculator.getTimeBetween(date, _fixingPeriodDate[_fixingPeriodDate.length - 1])}, new double[0], _notional,
+        _paymentAccrualFactor, _name, yieldCurveNames[0]);
   }
 
   @Override

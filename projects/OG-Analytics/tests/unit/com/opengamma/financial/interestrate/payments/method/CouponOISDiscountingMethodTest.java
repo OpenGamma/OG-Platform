@@ -22,12 +22,15 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.financial.instrument.index.GeneratorOIS;
 import com.opengamma.financial.instrument.index.IndexON;
+import com.opengamma.financial.instrument.index.generator.USD1YFEDFUND;
 import com.opengamma.financial.instrument.payment.CouponOISSimplifiedDefinition;
+import com.opengamma.financial.instrument.swap.SwapFixedOISDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedOISSimplifiedDefinition;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.PresentValueCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -40,6 +43,8 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.TimeCalculator;
+import com.opengamma.util.timeseries.DoubleTimeSeries;
+import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
@@ -97,6 +102,7 @@ public class CouponOISDiscountingMethodTest {
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
+  private static final double TOLERANCE_PRICE = 1.0E-2;
 
   @Test
   /**
@@ -244,7 +250,7 @@ public class CouponOISDiscountingMethodTest {
       List<DoublesPair> firstPairs = entry.getValue();
       List<DoublesPair> secondPairs = pvcsMethod.getSensitivities().get(entry.getKey());
       AssertJUnit.assertEquals(firstPairs.size(), secondPairs.size());
-      for(int i = 0; i < firstPairs.size(); i++) {
+      for (int i = 0; i < firstPairs.size(); i++) {
         assertEquals("CouponOIS: present value sensitivity by discounting", firstPairs.get(i).first, secondPairs.get(i).first, 1e-8);
         assertEquals("CouponOIS: present value sensitivity by discounting", firstPairs.get(i).second, secondPairs.get(i).second, 1e-8);
       }
@@ -278,17 +284,17 @@ public class CouponOISDiscountingMethodTest {
 
   // OIS swap
   // Swap EONIA 3M
-  private static final double FIXED_RATE = 0.01;
+  private static final double EUR_FIXED_RATE = 0.01;
   private static final boolean IS_PAYER = true;
   private static final Period EUR_SWAP_3M_TENOR = Period.ofMonths(3);
   private static final SwapFixedOISSimplifiedDefinition EONIA_SWAP_3M_DEFINITION = SwapFixedOISSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3M_TENOR, EUR_SWAP_3M_TENOR, NOTIONAL, EUR_OIS,
-      FIXED_RATE, IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_IS_EOM);
+      EUR_FIXED_RATE, IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_IS_EOM);
   private static final Swap<? extends Payment, ? extends Payment> EONIA_SWAP_3M = EONIA_SWAP_3M_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAMES);
   //Swap EONIA 3Y
   private static final Period EUR_SWAP_3Y_TENOR = Period.ofYears(3);
   private static final Period EUR_COUPON_TENOR = Period.ofMonths(12);
-  private static final SwapFixedOISSimplifiedDefinition EONIA_SWAP_3Y_DEFINITION = SwapFixedOISSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3Y_TENOR, EUR_COUPON_TENOR, NOTIONAL, EUR_OIS, FIXED_RATE,
-      IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_IS_EOM);
+  private static final SwapFixedOISSimplifiedDefinition EONIA_SWAP_3Y_DEFINITION = SwapFixedOISSimplifiedDefinition.from(SPOT_DATE, EUR_SWAP_3Y_TENOR, EUR_COUPON_TENOR, NOTIONAL, EUR_OIS,
+      EUR_FIXED_RATE, IS_PAYER, EUR_SETTLEMENT_DAYS, EUR_BUSINESS_DAY, EUR_IS_EOM);
   private static final Swap<? extends Payment, ? extends Payment> EONIA_SWAP_3Y = EONIA_SWAP_3Y_DEFINITION.toDerivative(REFERENCE_DATE_1, CURVES_NAMES);
 
   @Test
@@ -299,7 +305,7 @@ public class CouponOISDiscountingMethodTest {
     double pv = PVC.visit(EONIA_SWAP_3M, CURVES);
     double pvExpected = PVC.visit(EONIA_SWAP_3M.getFirstLeg(), CURVES);
     pvExpected += PVC.visit(EONIA_SWAP_3M.getSecondLeg().getNthPayment(0), CURVES);
-    AssertJUnit.assertEquals("OIS swap: present value", pvExpected, pv, 1.0E-2);
+    AssertJUnit.assertEquals("OIS swap: present value", pvExpected, pv, TOLERANCE_PRICE);
   }
 
   @Test
@@ -312,7 +318,61 @@ public class CouponOISDiscountingMethodTest {
     for (int loopcpn = 0; loopcpn < EONIA_SWAP_3Y.getSecondLeg().getNumberOfPayments(); loopcpn++) {
       pvExpected += PVC.visit(EONIA_SWAP_3Y.getSecondLeg().getNthPayment(loopcpn), CURVES);
     }
-    AssertJUnit.assertEquals("OIS swap: present value", pvExpected, pv, 1.0E-2);
+    AssertJUnit.assertEquals("OIS swap: present value", pvExpected, pv, TOLERANCE_PRICE);
+  }
+
+  // Swap Fed Fund 6M (the fixing take place at the end of the period; in some cases a negative time discount factor is required).
+  private static final Calendar NYC = new MondayToFridayCalendar("NYC");
+  private static final GeneratorOIS USD_GENERATOR = new USD1YFEDFUND(NYC);
+  private static final double USD_FIXED_RATE = 0.0050;
+  private static final Period TENOR_6M = Period.ofMonths(6);
+  private static final SwapFixedOISDefinition OIS_DEFINITION = SwapFixedOISDefinition.from(START_ACCRUAL_DATE, TENOR_6M, NOTIONAL, USD_GENERATOR, USD_FIXED_RATE, IS_PAYER);
+  private static final YieldCurveBundle CURVES_2 = TestsDataSetsSABR.createCurves2();
+  private static final String[] CURVES_NAMES_2 = TestsDataSetsSABR.curves2Names();
+
+  @Test
+  /**
+   * Tests the present value for USD OIS.
+   */
+  public void presentValueOISSwapUSDBeforeStart() {
+    ZonedDateTime referenceDate = TRADE_DATE;
+    Swap<? extends Payment, ? extends Payment> ois = OIS_DEFINITION.toDerivative(referenceDate, CURVES_NAMES_2[0], CURVES_NAMES_2[0]);
+    double pv = PVC.visit(ois, CURVES_2);
+    double pvExpected = PVC.visit(ois.getFirstLeg(), CURVES_2);
+    pvExpected += PVC.visit(ois.getSecondLeg().getNthPayment(0), CURVES_2);
+    AssertJUnit.assertEquals("OIS swap: present value", pvExpected, pv, TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests the present value for USD OIS.
+   */
+  public void presentValueOISSwapUSDAfterFixing() {
+    ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(START_ACCRUAL_DATE, 1, NYC);
+    double fixingRate = 0.0010;
+    ArrayZonedDateTimeDoubleTimeSeries fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {referenceDate}, new double[] {fixingRate});
+    DoubleTimeSeries<ZonedDateTime>[] fixingTS2 = new ArrayZonedDateTimeDoubleTimeSeries[] {fixingTS};
+    Swap<? extends Payment, ? extends Payment> ois = OIS_DEFINITION.toDerivative(referenceDate, fixingTS2, CURVES_NAMES_2[0], CURVES_NAMES_2[0]);
+    double pv = PVC.visit(ois, CURVES_2);
+    double pvExpected = PVC.visit(ois.getFirstLeg(), CURVES_2);
+    pvExpected += PVC.visit(ois.getSecondLeg().getNthPayment(0), CURVES_2);
+    AssertJUnit.assertEquals("OIS swap: present value", pvExpected, pv, TOLERANCE_PRICE);
+  }
+
+  @Test
+  /**
+   * Tests the present value for USD OIS.
+   */
+  public void presentValueOISSwapUSDBeforeFixing() {
+    ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(START_ACCRUAL_DATE, 1, NYC);
+    double fixingRate = 0.0010;
+    ArrayZonedDateTimeDoubleTimeSeries fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {START_ACCRUAL_DATE}, new double[] {fixingRate});
+    DoubleTimeSeries<ZonedDateTime>[] fixingTS2 = new ArrayZonedDateTimeDoubleTimeSeries[] {fixingTS};
+    Swap<? extends Payment, ? extends Payment> ois = OIS_DEFINITION.toDerivative(referenceDate, fixingTS2, CURVES_NAMES_2[0], CURVES_NAMES_2[0]);
+    double pv = PVC.visit(ois, CURVES_2);
+    double pvExpected = PVC.visit(ois.getFirstLeg(), CURVES_2);
+    pvExpected += PVC.visit(ois.getSecondLeg().getNthPayment(0), CURVES_2);
+    AssertJUnit.assertEquals("OIS swap: present value", pvExpected, pv, TOLERANCE_PRICE);
   }
 
 }
