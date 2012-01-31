@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate.future.method;
 
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 
 import org.apache.commons.lang.Validate;
