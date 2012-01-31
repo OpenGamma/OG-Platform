@@ -165,8 +165,8 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> nominalAnnuity = new AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition>(
         new CouponInflationZeroCouponMonthlyGearingDefinition[] {nominalPayment});
     // Coupon construction
-    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(startDate, maturityDate, couponPeriod);
-    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar);
+    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(startDate, maturityDate, couponPeriod, true, false);
+    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar, false);
     final CouponInflationZeroCouponMonthlyGearingDefinition[] coupons = new CouponInflationZeroCouponMonthlyGearingDefinition[paymentDates.length];
     coupons[0] = CouponInflationZeroCouponMonthlyGearingDefinition.from(paymentDates[0], startDate, paymentDatesUnadjusted[0], notional, priceIndex, indexStartValue, monthLag, true, realRate);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {
@@ -208,8 +208,8 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition> nominalAnnuity = new AnnuityDefinition<CouponInflationZeroCouponMonthlyGearingDefinition>(
         new CouponInflationZeroCouponMonthlyGearingDefinition[] {nominalPayment});
     // Coupon construction
-    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(firstCouponDate, maturityDate, couponPeriod);
-    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar);
+    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(firstCouponDate, maturityDate, couponPeriod, true, false);
+    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar, false);
     final CouponInflationZeroCouponMonthlyGearingDefinition[] coupons = new CouponInflationZeroCouponMonthlyGearingDefinition[paymentDates.length + 1];
     coupons[0] = CouponInflationZeroCouponMonthlyGearingDefinition.from(ScheduleCalculator.getAdjustedDate(firstCouponDate, 0, calendar), startDate, firstCouponDate, notional, priceIndex,
         indexStartValue, monthLag, true, realRate);
@@ -225,6 +225,7 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
 
   /**
    * Builder of Inflation capital index bond from financial details. The notional and the coupon reference index are interpolated index.
+   * The coupon dates are computed from the maturity and have a short first coupon if required.
    * @param priceIndex
    * @param priceIndex The price index associated to the bond.
    * @param monthLag The lag in month between the index validity and the coupon dates.
@@ -252,8 +253,8 @@ public class BondCapitalIndexedSecurityDefinition<C extends CouponInflationDefin
     AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition> nominalAnnuity = new AnnuityDefinition<CouponInflationZeroCouponInterpolationGearingDefinition>(
         new CouponInflationZeroCouponInterpolationGearingDefinition[] {nominalPayment});
     // Coupon construction
-    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(startDate, maturityDate, couponPeriod);
-    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar);
+    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(startDate, maturityDate, couponPeriod, true, true);
+    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar, false);
     final CouponInflationZeroCouponInterpolationGearingDefinition[] coupons = new CouponInflationZeroCouponInterpolationGearingDefinition[paymentDates.length];
     coupons[0] = CouponInflationZeroCouponInterpolationGearingDefinition.from(paymentDates[0], startDate, paymentDatesUnadjusted[0], notional, priceIndex, indexStartValue, monthLag, true, realRate);
     for (int loopcpn = 1; loopcpn < paymentDates.length; loopcpn++) {

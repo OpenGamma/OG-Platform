@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <import resource="classpath:com/opengamma/financial/demoMasters.xml" />
+
+  <bean id="loaderContext" class="com.opengamma.financial.portfolio.loader.LoaderContext">
+    <property name="portfolioMaster" ref="dbPortfolioMaster" />
+    <property name="positionMaster" ref="dbPositionMaster" />
+    <property name="securityMaster" ref="dbSecurityMaster" />
+    <property name="configMaster" ref="sharedConfigMaster" />
+    <property name="historicalTimeSeriesSource" ref="sharedHistoricalTimeSeriesSource" />
+    <property name="conventionBundleSource" ref="conventionBundleSource" />
+    <property name="holidaySource" ref="sharedHolidaySource" />
+    <property name="securitySource" ref="sharedSecuritySource" />
+  </bean>
+
+</beans>

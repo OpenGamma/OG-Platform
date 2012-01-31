@@ -122,7 +122,7 @@ $.register_module({
          * differently, this also applies for the form object for the new trade to be added
          */
         format_trades = function (trades) {
-            return trades.map(function (trade) {
+            return (trades || []).map(function (trade) {
                 var premium, tradeDate;
                 if (trade.premium) {
                     premium = trade.premium.toString().split(' ');

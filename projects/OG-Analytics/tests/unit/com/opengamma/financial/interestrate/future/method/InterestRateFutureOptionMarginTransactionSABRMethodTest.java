@@ -32,9 +32,9 @@ import com.opengamma.financial.interestrate.PresentValueSABRSensitivityDataBundl
 import com.opengamma.financial.interestrate.PresentValueSABRSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;

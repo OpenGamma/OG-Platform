@@ -235,10 +235,6 @@ public final class ScheduleCalculator {
     return getUnadjustedDateSchedule(effectiveDate, effectiveDate, maturityDate, frequency);
   }
 
-  public static ZonedDateTime[] getUnadjustedDateSchedule(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final Period period) {
-    return getUnadjustedDateSchedule(effectiveDate, effectiveDate, maturityDate, period);
-  }
-
   /**
    * Calculates the unadjusted date schedule.
    * 

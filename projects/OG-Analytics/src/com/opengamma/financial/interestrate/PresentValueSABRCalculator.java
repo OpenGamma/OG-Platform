@@ -7,7 +7,7 @@ package com.opengamma.financial.interestrate;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionSABRMethod;
 import com.opengamma.financial.interestrate.payments.CapFloorCMS;
 import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;

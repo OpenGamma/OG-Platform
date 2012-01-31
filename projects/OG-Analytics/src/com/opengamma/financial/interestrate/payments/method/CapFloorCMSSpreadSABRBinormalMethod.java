@@ -132,7 +132,7 @@ public class CapFloorCMSSpreadSABRBinormalMethod implements PricingMethod {
   }
 
   @Override
-  public CurrencyAmount presentValue(InstrumentDerivative instrument, YieldCurveBundle curves) {
+  public CurrencyAmount presentValue(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
     Validate.isTrue(instrument instanceof CapFloorCMSSpread, "CMS spread cap/floor");
     Validate.isTrue(curves instanceof SABRInterestRateDataBundle, "Bundle should contain SABR data");
     return presentValue((CapFloorCMSSpread) instrument, (SABRInterestRateDataBundle) curves);
