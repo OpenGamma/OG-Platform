@@ -671,7 +671,11 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
   private void setMarketDataProvider(MarketDataSpecification marketDataSpec) {
     _marketDataProvider = getProcessContext().getMarketDataProviderResolver().resolve(marketDataSpec);
-    _marketDataProvider.addListener(this);
+    if (_marketDataProvider == null) {
+      s_logger.error("Couldn't resolve {}", marketDataSpec);
+    } else {
+      _marketDataProvider.addListener(this);
+    }
   }
 
   private void setMarketDataSubscriptions(final Set<ValueRequirement> requiredSubscriptions) {
