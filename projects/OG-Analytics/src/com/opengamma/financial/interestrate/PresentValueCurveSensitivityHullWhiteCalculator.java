@@ -8,7 +8,7 @@ package com.opengamma.financial.interestrate;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.financial.interestrate.future.definition.BondFuture;
+import com.opengamma.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.financial.interestrate.future.method.BondFutureHullWhiteMethod;
 import com.opengamma.util.tuple.DoublesPair;
 

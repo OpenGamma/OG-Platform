@@ -36,7 +36,7 @@ $.register_module({
             delete obj.attr_val;
             $(this).find('.og-awesome-list li').each(function (i, elm) {
                 var arr = $(elm).text().split(' = ');
-                user_attributes['User~' + arr[0]] = arr[1];
+                user_attributes[arr[0]] = arr[1];
             });
             // add attributes
             has_user_attr = Object.keys(user_attributes)[0];
@@ -53,7 +53,7 @@ $.register_module({
             }).unbind('click').bind('click', function (e) {
                 e.preventDefault();
                 ui.dialog({
-                    type: 'input', title: 'Add New Trade', minWidth: 400, minHeight: 400,
+                    type: 'input', title: 'Add New Trade', width: 400, height: 560,
                     form: generate_form_function(form_handler),
                     buttons: {
                         'Create': form_save.partial(null),
@@ -70,10 +70,8 @@ $.register_module({
                 $add_trades.find('[name]').each(function (i, val) {
                     // special case 'premium' as there are two fields for the one value
                     var attribute = $(val).attr('name'), value = trade_obj.premium.split(' ');
-                    if (attribute === 'premium') {
-                        trade_obj.premium = value[0];
-                        trade_obj.currency = value[1];
-                    }
+                    if (attribute === 'premium') trade_obj.premium = value[0], trade_obj.currency = value[1];
+                    if (attribute === 'counterParty') trade_obj.counterParty = trade_obj.counterParty.split('~')[1];
                     $(val).val(trade_obj[attribute]);
                 });
                 // user attributes
@@ -81,7 +79,7 @@ $.register_module({
                     for (key in trade_obj.attributes.userAttributes) {
                         if (trade_obj.attributes.userAttributes[has](key)) {
                             user_attributes_list.push(html.user_attribute
-                                .replace('{KEY}', key.split('~')[1])
+                                .replace('{KEY}', key)
                                 .replace('{VALUE}', trade_obj.attributes.userAttributes[key])
                             );
                         }
@@ -124,7 +122,7 @@ $.register_module({
          * differently, this also applies for the form object for the new trade to be added
          */
         format_trades = function (trades) {
-            return trades.map(function (trade) {
+            return (trades || []).map(function (trade) {
                 var premium, tradeDate;
                 if (trade.premium) {
                     premium = trade.premium.toString().split(' ');
@@ -224,6 +222,7 @@ $.register_module({
                 ui.dialog({
                     type: 'confirm',
                     title: 'Delete trade?',
+                    width: 400, height: 190,
                     message: 'Are you sure you want to permanently delete trade ' +
                         '<strong style="white-space: nowrap">' + trade_id + '</strong>?',
                     buttons: {
@@ -249,11 +248,10 @@ $.register_module({
                 result.data.trades.forEach(function (trade) {
                     if (trade_id === trade.id.split('~')[1]) {trade_obj = trade}
                 });
-                console.log('trade_obj', trade_obj);
                 deal_attributes = (trade_obj.attributes && trade_obj.attributes.dealAttributes)
                     ? trade_obj.attributes.dealAttributes : null;
                 ui.dialog({
-                    type: 'input', title: 'Edit Trade: ' + trade_id, minWidth: 400, minHeight: 400,
+                    type: 'input', title: 'Edit Trade: ' + trade_id, width: 400, height: 560,
                     form: generate_form_function(form_handler.partial(trade_obj)),
                     buttons: {
                         'Save': form_save.partial(deal_attributes, trade_id),
@@ -347,7 +345,6 @@ $.register_module({
                             $(this).find('.og-del').remove();
                         }
                     ).click(function (e) {
-                                console.log('click');
                         var trade_id = $(this).find('td:first-child').text();
                         if ($(e.target).is('.og-del')) e.stopPropagation(), action.del(trade_id);
                         else action.edit(trade_id);
