@@ -59,6 +59,11 @@ public class IndexON extends IndexDeposit {
   }
 
   @Override
+  public String toString() {
+    return super.toString() + "-" + _dayCount.getConventionName();
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = super.hashCode();
