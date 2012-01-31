@@ -64,12 +64,14 @@ public class ManageableVolatilitySurfaceSnapshot implements VolatilitySurfaceSna
     // TODO: this should not be adding it's own class header; the caller should be doing that, or this be registered as a generic builder for VolatilitySurfaceSnapshot and that class name be added
     FudgeSerializer.addClassHeader(ret, ManageableVolatilitySurfaceSnapshot.class);
     MutableFudgeMsg valuesMsg = serializer.newMessage();
-    for (Entry<Pair<Object, Object>, ValueSnapshot> entry : _values.entrySet()) {
-      serializer.addToMessage(valuesMsg, null, 1, entry.getKey());
-      if (entry.getValue() == null) {
-        valuesMsg.add(2, IndicatorType.INSTANCE);
-      } else {
-        serializer.addToMessage(valuesMsg, null, 2, entry.getValue());
+    if (_values != null) {
+      for (Entry<Pair<Object, Object>, ValueSnapshot> entry : _values.entrySet()) {
+        serializer.addToMessage(valuesMsg, null, 1, entry.getKey());
+        if (entry.getValue() == null) {
+          valuesMsg.add(2, IndicatorType.INSTANCE);
+        } else {
+          serializer.addToMessage(valuesMsg, null, 2, entry.getValue());
+        }
       }
     }
     ret.add("values", valuesMsg);

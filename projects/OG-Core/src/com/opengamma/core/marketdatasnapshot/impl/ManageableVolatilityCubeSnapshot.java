@@ -75,22 +75,24 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
     FudgeSerializer.addClassHeader(ret, ManageableVolatilityCubeSnapshot.class);
     MutableFudgeMsg valuesMsg = getValuesMessage(serializer);
     MutableFudgeMsg strikesMsg = getStrikesMessage(serializer);
-    
     ret.add("values", valuesMsg);
-    ret.add("otherValues", serializer.objectToFudgeMsg(_otherValues));
+    if (_otherValues != null) {
+      ret.add("otherValues", serializer.objectToFudgeMsg(_otherValues));
+    }
     ret.add("strikes", strikesMsg);
-    
     return ret;
   }
 
   private MutableFudgeMsg getValuesMessage(FudgeSerializer serializer) {
     MutableFudgeMsg valuesMsg = serializer.newMessage();
-    for (Entry<VolatilityPoint, ValueSnapshot> entry : _values.entrySet()) {
-      serializer.addToMessage(valuesMsg, null, 1, entry.getKey());
-      if (entry.getValue() == null) {
-        valuesMsg.add(2, IndicatorType.INSTANCE);
-      } else {
-        serializer.addToMessage(valuesMsg, null, 2, entry.getValue());
+    if (_values != null) {
+      for (Entry<VolatilityPoint, ValueSnapshot> entry : _values.entrySet()) {
+        serializer.addToMessage(valuesMsg, null, 1, entry.getKey());
+        if (entry.getValue() == null) {
+          valuesMsg.add(2, IndicatorType.INSTANCE);
+        } else {
+          serializer.addToMessage(valuesMsg, null, 2, entry.getValue());
+        }
       }
     }
     return valuesMsg;
@@ -98,13 +100,15 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
   
   private MutableFudgeMsg getStrikesMessage(FudgeSerializer serializer) {
     MutableFudgeMsg msg = serializer.newMessage();
-    // TODO: is this the best encoding for this message; would a 3-tuple be better (key-x = ordinal 1, key-y = ordinal 2, value = ordinal 3)?
-    for (Entry<Pair<Tenor, Tenor>, ValueSnapshot> entry : _strikes.entrySet()) {
-      serializer.addToMessage(msg, null, 1, ObjectsPairFudgeBuilder.buildMessage(serializer, entry.getKey(), Tenor.class, Tenor.class));
-      if (entry.getValue() == null) {
-        msg.add(2, IndicatorType.INSTANCE);
-      } else {
-        serializer.addToMessage(msg, null, 2, entry.getValue());
+    if (_strikes != null) {
+      // TODO: is this the best encoding for this message; would a 3-tuple be better (key-x = ordinal 1, key-y = ordinal 2, value = ordinal 3)?
+      for (Entry<Pair<Tenor, Tenor>, ValueSnapshot> entry : _strikes.entrySet()) {
+        serializer.addToMessage(msg, null, 1, ObjectsPairFudgeBuilder.buildMessage(serializer, entry.getKey(), Tenor.class, Tenor.class));
+        if (entry.getValue() == null) {
+          msg.add(2, IndicatorType.INSTANCE);
+        } else {
+          serializer.addToMessage(msg, null, 2, entry.getValue());
+        }
       }
     }
     return msg;
@@ -121,21 +125,18 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
    * @return a snapshot object
    */
   public static ManageableVolatilityCubeSnapshot fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg) {
-
-    HashMap<VolatilityPoint, ValueSnapshot> values = readValues(deserializer, msg);
-    UnstructuredMarketDataSnapshot otherValues = deserializer.fieldValueToObject(ManageableUnstructuredMarketDataSnapshot.class, msg.getByName("otherValues"));
-    HashMap<Pair<Tenor, Tenor>, ValueSnapshot> strikes = readStrikes(deserializer, msg);
-        
-    ManageableVolatilityCubeSnapshot ret = new ManageableVolatilityCubeSnapshot();
-    ret.setValues(values);
-    ret.setOtherValues(otherValues);
-    ret.setStrikes(strikes);
+    final ManageableVolatilityCubeSnapshot ret = new ManageableVolatilityCubeSnapshot();
+    ret.setValues(readValues(deserializer, msg));
+    FudgeField otherValues = msg.getByName("otherValues");
+    if (otherValues != null) {
+      ret.setOtherValues(deserializer.fieldValueToObject(ManageableUnstructuredMarketDataSnapshot.class, otherValues));
+    }
+    ret.setStrikes(readStrikes(deserializer, msg));
     return ret;
   }
 
   private static HashMap<Pair<Tenor, Tenor>, ValueSnapshot> readStrikes(FudgeDeserializer deserializer, FudgeMsg msg) {
     HashMap<Pair<Tenor, Tenor>, ValueSnapshot> values = new HashMap<Pair<Tenor, Tenor>, ValueSnapshot>();
-
     FudgeMsg valuesMessage = msg.getMessage("strikes");
     if (valuesMessage == null) {
       return values;
@@ -161,15 +162,16 @@ public class ManageableVolatilityCubeSnapshot implements VolatilityCubeSnapshot 
 
   private static HashMap<VolatilityPoint, ValueSnapshot> readValues(FudgeDeserializer deserializer, FudgeMsg msg) {
     HashMap<VolatilityPoint, ValueSnapshot> values = new HashMap<VolatilityPoint, ValueSnapshot>();
-
-    VolatilityPoint key = null;
     FudgeMsg valuesMessage = msg.getMessage("values");
+    if (valuesMessage == null) {
+      return values;
+    }
+    VolatilityPoint key = null;
     for (FudgeField fudgeField : valuesMessage) {
       Integer ordinal = fudgeField.getOrdinal();
       if (ordinal == null) {
         continue;
       }
-
       int intValue = ordinal.intValue();
       if (intValue == 1) {
         key = deserializer.fieldValueToObject(VolatilityPoint.class, fudgeField);
