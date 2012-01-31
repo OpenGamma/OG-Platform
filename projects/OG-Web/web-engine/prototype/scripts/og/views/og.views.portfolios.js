@@ -90,7 +90,7 @@ $.register_module({
                 var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios,
                     html = '\
                         <h3>Portfolios</h3>\
-                        <a href="#" class="OG-link-add OG-js-add-sub-portfolio">add new portfolio</a>\
+                        <a href="#" class="OG-link-add OG-js-add-sub-portfolio">add new sub portfolio</a>\
                         <div class="og-divider"></div>\
                         <div class="og-js-portfolios-grid og-grid"></div>';
                 $(selector).html(html);
