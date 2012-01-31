@@ -127,7 +127,7 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
   public static FederalFundsFutureSecurityDefinition fromFedFund(final ZonedDateTime monthDate, final IndexON index) {
     final double notionalFedFund = 5000000;
     final double accrualFedFund = 1.0 / 12.0;
-    return from(monthDate, index, notionalFedFund, accrualFedFund, "FF" + monthDate.toString(DateTimeFormatters.pattern("MMMYY")));
+    return from(monthDate, index, notionalFedFund, accrualFedFund, "FF" + monthDate.toString(DateTimeFormatters.pattern("MMMyy")));
   }
 
   /**
@@ -192,6 +192,11 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
    */
   public Currency getCurrency() {
     return _index.getCurrency();
+  }
+
+  @Override
+  public String toString() {
+    return _name + " - index: " + _index.toString() + " - start date: " + _fixingPeriodDate[0].toString(DateTimeFormatters.pattern("ddMMMyy"));
   }
 
   @Override
