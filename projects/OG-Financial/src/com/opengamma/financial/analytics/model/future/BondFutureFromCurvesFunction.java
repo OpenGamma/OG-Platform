@@ -22,6 +22,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.money.Currency;
 
@@ -31,7 +32,7 @@ import com.opengamma.util.money.Currency;
 public abstract class BondFutureFromCurvesFunction extends BondFutureFunction<YieldCurveBundle> {
   private final String _requirementName;
   private final Currency _currency;
-  private String _calculationType;
+  private final String _calculationType;
 
   public BondFutureFromCurvesFunction(final String currency, final String creditCurveName, final String riskFreeCurveName, final String requirementName, final String calculationType) {
     this(Currency.of(currency), creditCurveName, riskFreeCurveName, requirementName, calculationType);
@@ -48,9 +49,7 @@ public abstract class BondFutureFromCurvesFunction extends BondFutureFunction<Yi
   }
 
   @Override
-  protected abstract Set<ComputedValue> calculate(com.opengamma.financial.security.future.BondFutureSecurity security,
-      com.opengamma.financial.interestrate.future.definition.BondFuture bondFuture, YieldCurveBundle data,
-      ComputationTarget target);
+  protected abstract Set<ComputedValue> calculate(com.opengamma.financial.security.future.BondFutureSecurity security, BondFuture bondFuture, YieldCurveBundle data, ComputationTarget target);
 
   @Override
   protected YieldCurveBundle getData(final FunctionInputs inputs, final ComputationTarget target) {

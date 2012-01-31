@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.future.definition;
+package com.opengamma.financial.interestrate.future.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;

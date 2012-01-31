@@ -42,6 +42,7 @@ public final class YieldConventionFactory {
     store(SimpleYieldConvention.MONEY_MARKET);
     store(SimpleYieldConvention.TRUE);
     store(SimpleYieldConvention.US_BOND);
+    store(SimpleYieldConvention.GERMAN_BOND);
     store(SimpleYieldConvention.DISCOUNT);
     store(SimpleYieldConvention.INTERESTATMTY);
     store(SimpleYieldConvention.STEP_FLOATER);

@@ -9,7 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.future.definition.BondFuture;
+import com.opengamma.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.financial.interestrate.future.method.BondFutureDiscountingMethod;
 
 /**

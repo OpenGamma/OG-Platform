@@ -27,6 +27,7 @@ import com.opengamma.financial.analytics.conversion.BondFutureSecurityConverter;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
+import com.opengamma.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 
 /**
@@ -61,12 +62,11 @@ public abstract class BondFutureFunction<T> extends AbstractFunction.NonCompiled
     final BondFutureSecurity security = (BondFutureSecurity) target.getSecurity();
     final BondFutureDefinition definition = (BondFutureDefinition) security.accept(_visitor);
     final Double referencePrice = 0.0; // TODO Futures Refactor
-    final com.opengamma.financial.interestrate.future.definition.BondFuture bondFuture = definition.toDerivative(date, referencePrice, _creditCurveName, _riskFreeCurveName);
+    final BondFuture bondFuture = definition.toDerivative(date, referencePrice, _creditCurveName, _riskFreeCurveName);
     return calculate(security, bondFuture, getData(inputs, target), target);
   }
 
-  protected abstract Set<ComputedValue> calculate(com.opengamma.financial.security.future.BondFutureSecurity security,
-      com.opengamma.financial.interestrate.future.definition.BondFuture bondFuture, T data, ComputationTarget target);
+  protected abstract Set<ComputedValue> calculate(com.opengamma.financial.security.future.BondFutureSecurity security, BondFuture bondFuture, T data, ComputationTarget target);
 
   protected abstract T getData(FunctionInputs inputs, ComputationTarget target);
 
