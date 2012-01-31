@@ -18,6 +18,7 @@ import com.opengamma.financial.analytics.StringLabelledMatrix1D;
 import com.opengamma.financial.analytics.model.bond.BondFunction;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.calculator.BondFutureNetBasisFromCurvesCalculator;
+import com.opengamma.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.financial.security.future.BondFutureDeliverable;
 import com.opengamma.util.money.Currency;
 
@@ -36,8 +37,7 @@ public class BondFutureNetBasisFromCurvesFunction extends BondFutureFromCurvesFu
   }
 
   @Override
-  protected Set<ComputedValue> calculate(final com.opengamma.financial.security.future.BondFutureSecurity security,
-      final com.opengamma.financial.interestrate.future.definition.BondFuture bondFuture, final YieldCurveBundle data,
+  protected Set<ComputedValue> calculate(final com.opengamma.financial.security.future.BondFutureSecurity security, final BondFuture bondFuture, final YieldCurveBundle data,
       final ComputationTarget target) {
     final List<BondFutureDeliverable> deliverables = security.getBasket();
     final int n = deliverables.size();

@@ -13,7 +13,6 @@ $.register_module({
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
-        'og.views.common.layout',
         'og.views.common.versions',
         'og.views.common.versions',
         'og.views.extras.portfolios_sync'
@@ -23,10 +22,11 @@ $.register_module({
             details = common.details, history = common.util.history,
             routes = common.routes, ui = common.util.ui, module = this,
             page_name = module.name.split('.').pop(), json = {},
-            view, details_page,
+            view, details_page, portfolio_name,
             toolbar_buttons = {
                 'new': function () {
                     ui.dialog({
+                        width: 400, height: 190,
                         type: 'input',
                         title: 'Add New Portfolio',
                         fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
@@ -52,6 +52,7 @@ $.register_module({
                     ui.dialog({
                         type: 'confirm',
                         title: 'Delete portfolio?',
+                        width: 400, height: 190,
                         message: 'Are you sure you want to permanently delete ' +
                             '<strong style="white-space: nowrap">' + portfolio_name + '</strong>?',
                         buttons: {
@@ -61,7 +62,6 @@ $.register_module({
                                     handler: function (result) {
                                         var args = routes.current().args, rule = view.rules.load;
                                         if (result.error) return view.error(result.message);
-                                        view.search(args);
                                         routes.go(routes.hash(rule, args));
                                     }
                                 };
@@ -110,6 +110,7 @@ $.register_module({
                         ui.dialog({
                             type: 'input',
                             title: 'Add New sub Portfolio',
+                            width: 400, height: 190,
                             fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
                             buttons: {
                                 'OK': function () {
@@ -152,6 +153,7 @@ $.register_module({
                     ui.dialog({
                         type: 'confirm',
                         title: 'Delete sub-portfolio?',
+                        width: 400, height: 190,
                         message: 'Are you sure you want to permanently delete ' +
                             '<strong style="white-space: nowrap">' + node.name + '</strong>?',
                         buttons: {
@@ -175,11 +177,13 @@ $.register_module({
                    $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
                 });
             };
-            render_position = function () {
+            render_position = function (json) {
                 var position = routes.current().args.position;
-                if (!position) return;
+                // if the position in the URL is not in the JSON, it has been removed so don't display
+                // but don't redirect so history will still work
+                if (!position || !~json.positions.pluck('id').indexOf(position)) return;
                 common.gadgets.positions({
-                    id: position, selector: '.og-js-details-positions', editable: false
+                    id: position, selector: '.og-js-details-positions', editable: false, update: view.update
                 });
                 common.gadgets.trades.render({id: position, selector: '.og-js-trades-table'});
             };
@@ -207,6 +211,7 @@ $.register_module({
                         ui.dialog({
                             type: 'input',
                             title: 'Add Position',
+                            width: 400, height: 190,
                             fields: [{type: 'input', name: 'Identifier', id: 'name'}],
                             buttons: {
                                 'OK': function () {
@@ -311,6 +316,7 @@ $.register_module({
                             return name.length > 30 ? name.slice(0, 27) + '...' : name
                         }
                     }));
+                    ui.content_editable();
                 }});
             };
             if (args.version || args.sync) { // load versions
@@ -361,12 +367,12 @@ $.register_module({
                         }
                         render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
                         render_position_rows('.OG-js-details-panel .og-js-positions', json);
-                        render_position();
+                        render_position(json);
                         if (json.template_data.path) breadcrumb({
                             selector: '.OG-header-generic .OG-js-breadcrumb',
                             data: json.template_data
                         });
-                        ui.content_editable({handler: function () {view.search(args);}});
+                        ui.content_editable();
                         if (show_loading) view.notify(null);
                         setTimeout(view.layout.inner.resizeAll);
                     }});
@@ -379,7 +385,7 @@ $.register_module({
                 }
             });
         };
-        return view = $.extend(new og.views.common.Core(page_name, 'Portfolios'), {
+        return view = $.extend(new og.views.common.Core(page_name), {
             dependencies: ['id', 'node', 'version'],
             details: details_page,
             filters: ['name'],
@@ -392,7 +398,7 @@ $.register_module({
                         view[args.node ? 'load_item' : 'load'](args);
                     }}
                 ]});
-                view.filter(args);
+                view.filter();
             },
             options: {
                 slickgrid: {

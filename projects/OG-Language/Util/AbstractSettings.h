@@ -87,11 +87,14 @@ private:
 	mutable struct _setting * m_pCache;
 
 protected:
+	void CacheRemove (const TCHAR *pszKey) const;
 	const TCHAR *CacheGet (const TCHAR *pszKey) const;
 	const TCHAR *CachePut (const TCHAR *pszKey, const TCHAR *pszValue) const;
 	const TCHAR *CacheReplace (const TCHAR *pszKey, const TCHAR *pszValue) const;
 #ifdef _WIN32
 	PCTSTR RegistryGet (HKEY hKey, PCTSTR pszKey) const;
+	BOOL RegistrySet (HKEY hkey, PCTSTR pszKey, PCTSTR pszValue);
+	BOOL RegistrySet (PCTSTR pszKey, PCTSTR pszValue);
 	HKEY RegistryOpenLocal (PCTSTR pszKey) const;
 	HKEY RegistryOpenGlobal (PCTSTR pszKey) const;
 	void RegistryEnumerate (HKEY hkey) const;
@@ -100,6 +103,7 @@ protected:
 	const TCHAR *Get (const TCHAR *pszKey, const TCHAR *pszDefault) const;
 	const TCHAR *Get (const TCHAR *pszKey, const CAbstractSettingProvider *poDefault) const;
 	int Get (const TCHAR *pszKey, int nDefault) const;
+	bool Set (const TCHAR *pszKey, const TCHAR *pszValue);
 public:
 
 	/// Enumeration of setting key/value pairs.

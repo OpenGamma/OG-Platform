@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
+import static com.opengamma.math.FunctionUtils.square;
+
 import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
@@ -12,7 +14,6 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.option.definition.SmileDeltaParameter;
 import com.opengamma.financial.model.volatility.smile.fitting.PiecewiseSABRFitter;
-import com.opengamma.math.MathException;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -31,6 +32,7 @@ public class PiecewiseSABRSurfaceFitter {
   private final ForwardCurve _forwardCurve;
   private final double[] _forwards;
   private final double[] _expiries;
+  private final double[] _logExpiries;
   private final double[][] _strikes;
   private final double[][] _vols;
   private final int _nExpiries;
@@ -61,11 +63,13 @@ public class PiecewiseSABRSurfaceFitter {
     _forwardCurve = new ForwardCurve(InterpolatedDoublesCurve.from(_expiries, _forwards, EXTRAPOLATOR));
     _strikes = new double[_nExpiries][];
     _vols = new double[_nExpiries][];
+    _logExpiries = new double[_nExpiries];
     for (int i = 0; i < _nExpiries; i++) {
       final SmileDeltaParameter cal = new SmileDeltaParameter(_expiries[i], atms[i], deltas,
           new double[] {riskReversals[0][i], riskReversals[1][i] }, new double[] {strangle[0][i], strangle[1][i] });
       _strikes[i] = cal.getStrike(_forwards[i]);
       _vols[i] = cal.getVolatility();
+      _logExpiries[i] = Math.log(_expiries[i]);
     }
 
     checkVols();
@@ -95,11 +99,12 @@ public class PiecewiseSABRSurfaceFitter {
     _vols = impliedVols;
 
     checkVols();
-
+    _logExpiries = new double[_nExpiries];
     //fit each time slice with piecewise SABR
     _fitters = new PiecewiseSABRFitter[_nExpiries];
     for (int i = 0; i < _nExpiries; i++) {
       _fitters[i] = new PiecewiseSABRFitter(_forwards[i], _strikes[i], _expiries[i], _vols[i]);
+      _logExpiries[i] = Math.log(_expiries[i]);
     }
 
     checkMoneyness();
@@ -141,6 +146,7 @@ public class PiecewiseSABRSurfaceFitter {
     _nExpiries = from._nExpiries;
     _forwards = Arrays.copyOf(from._forwards, from._nExpiries);
     _expiries = Arrays.copyOf(from._expiries, from._nExpiries);
+    _logExpiries = Arrays.copyOf(from._logExpiries, from._nExpiries);
     _forwardCurve = new ForwardCurve(InterpolatedDoublesCurve.from(_expiries, _forwards, EXTRAPOLATOR));
     _strikes = new double[_nExpiries][];
     _vols = new double[_nExpiries][];
@@ -177,23 +183,26 @@ public class PiecewiseSABRSurfaceFitter {
    * @return A interpolated implied Volatility surface
    */
   @SuppressWarnings("unused")
-  private BlackVolatilitySurfaceStrike getSurfaceLinear() {
+  public BlackVolatilitySurfaceMoneyness getSurfaceLinear() {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(final Double... tk) {
-        final double t = tk[0];
-        final double k = tk[1];
+      public Double evaluate(final Double... tx) {
+        final double t = tx[0];
+        final double x = tx[1];
         if (t <= _expiries[0]) { //linear extrapolation in sigma
-          final double sigma1 = _fitters[0].getVol(k);
-          final double sigma2 = _fitters[1].getVol(k);
+          final double k1 = x * _forwards[0];
+          final double k2 = x * _forwards[1];
+          final double sigma1 = _fitters[0].getVol(k1);
+          final double sigma2 = _fitters[1].getVol(k2);
           final double dt = _expiries[1] - _expiries[0];
           return ((_expiries[1] - t) * sigma1 + (t - _expiries[0]) * sigma2) / dt;
         }
-        if (t >= _expiries[_nExpiries - 1]) { //flat extrapolation
-          return _fitters[_nExpiries - 1].getVol(k);
-        }
 
+        if (t >= _expiries[_nExpiries - 1]) { //flat extrapolation
+          return _fitters[_nExpiries - 1].getVol(x * _forwards[_nExpiries - 1]);
+        }
+        final double logT = Math.log(t);
         final int index = getLowerBoundIndex(t);
         final double[] sample = new double[2];
         double[] times = new double[2];
@@ -206,27 +215,24 @@ public class PiecewiseSABRSurfaceFitter {
           lower = index;
         }
         for (int i = 0; i < 2; i++) {
-          final double vol = _fitters[i + lower].getVol(k);
-          sample[i] = vol * vol * _expiries[i + lower]; //interpolate the variance
+          final double vol = _fitters[i + lower].getVol(x * _forwards[i + lower]);
+          sample[i] = Math.log(vol * vol * _expiries[i + lower]); //interpolate the variance
           if (i > 0) {
             Validate.isTrue(sample[i] >= sample[i - 1], "variance must increase");
           }
         }
-        times = Arrays.copyOfRange(_expiries, lower, lower + 2);
+        times = Arrays.copyOfRange(_logExpiries, lower, lower + 2);
 
         final double dt = times[1] - times[0];
-        final double var = ((times[1] - t) * sample[0] + (t - times[0]) * sample[1]) / dt;
+        final double logVar = ((times[1] - logT) * sample[0] + (logT - times[0]) * sample[1]) / dt;
+        final double var = Math.exp(logVar);
 
-        // double var = INTERPOLATOR_1D.interpolate(db, t);
-        if (var >= 0) {
-          return Math.sqrt(var / t);
-        } else {
-          throw new MathException("negative var " + var);
-        }
+        return Math.sqrt(var / t);
+
       }
     };
 
-    return new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surFunc));
+    return new BlackVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(surFunc), _forwardCurve);
   }
 
   /**
@@ -335,6 +341,7 @@ public class PiecewiseSABRSurfaceFitter {
    * @param lambda zero the strikes are (almost) the same across fitted smiles, large lambda they scale as root-time
    * @return Implied volatility surface parameterised by time and moneyness
    */
+  @Deprecated
   public BlackVolatilitySurfaceMoneyness getImpliedVolatilityMoneynessSurface(final boolean useLogTime, final boolean useIntegratedVar, final double lambda) {
 
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
@@ -413,6 +420,97 @@ public class PiecewiseSABRSurfaceFitter {
           sigma = res;
         }
         return sigma;
+      }
+    };
+
+    return new BlackVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(surFunc), _forwardCurve);
+  }
+
+  /**
+   * For a given expiry and strike, perform an interpolation between either the volatility or integrated variances
+   *  of points with the same proxy delta (d = Math.log(forward / k) / Math.sqrt(t)) on the fitted smiles.
+   *  The interpolation is a natural cubic spline using the four nearest points.
+   *  There is no guarantees a monotonically increasing integrated variance
+   * (hence no calendar arbitrage and a real positive local volatility), but using log time to better space out the x-points
+   * help.
+   * @param useLogTime The x-axis is the log of time
+   * @param useLogValue The y-axis values (whether they be variance or integrated variance) are logged
+   * @param useIntegratedVariance use integrated variance (rather than variance)
+   * @return Implied volatility surface parameterised by time and moneyness
+   */
+  public BlackVolatilitySurfaceMoneyness getImpliedVolatilityMoneynessSurface(final boolean useLogTime, final boolean useLogValue, final boolean useIntegratedVariance) {
+
+    final Function<Double, Double> surFunc = new Function<Double, Double>() {
+
+      @Override
+      public Double evaluate(final Double... tm) {
+        final double t = tm[0];
+        final double m = tm[1];
+
+        //For time less than the first expiry, linearly extrapolate the variance
+        if (t <= _expiries[0]) {
+          final double k1 = _forwards[0] * m;
+          final double k2 = _forwards[1] * m;
+          final double var1 = square(_fitters[0].getVol(k1));
+          final double var2 = square(_fitters[1].getVol(k2));
+          final double dt = _expiries[1] - _expiries[0];
+          final double var = ((_expiries[1] - t) * var1 + (t - _expiries[0]) * var2) / dt;
+          if (var >= 0.0) {
+            return Math.sqrt(var);
+          } else {
+            return Math.sqrt(var1);
+          }
+        }
+
+        final int index = getLowerBoundIndex(t);
+
+        int lower;
+        if (index == 0) {
+          lower = 0;
+        } else if (index == _nExpiries - 2) {
+          lower = index - 2;
+        } else if (index == _nExpiries - 1) {
+          lower = index - 3;
+        } else {
+          lower = index - 1;
+        }
+        double[] xData;
+        double x;
+        if (useLogTime) {
+          xData = Arrays.copyOfRange(_logExpiries, lower, lower + 4);
+          x = Math.log(t);
+        } else {
+          xData = Arrays.copyOfRange(_expiries, lower, lower + 4);
+          x = t;
+        }
+
+        final double[] yData = new double[4];
+
+        for (int i = 0; i < 4; i++) {
+          final double time = _expiries[lower + i];
+          final double k = _forwards[lower + i] * Math.pow(m, Math.sqrt(time / t));
+          double temp = square(_fitters[lower + i].getVol(k));
+
+          if (useIntegratedVariance) {
+            temp *= time;
+          }
+          if (useLogValue) {
+            temp = Math.log(temp);
+          }
+          yData[i] = temp;
+        }
+
+        final Interpolator1DDataBundle db = EXTRAPOLATOR.getDataBundle(xData, yData);
+
+        double tRes = EXTRAPOLATOR.interpolate(db, x);
+        if (useLogValue) {
+          tRes = Math.exp(tRes);
+        }
+        if (useIntegratedVariance) {
+          tRes /= t;
+        }
+
+        return Math.sqrt(tRes);
       }
     };
 

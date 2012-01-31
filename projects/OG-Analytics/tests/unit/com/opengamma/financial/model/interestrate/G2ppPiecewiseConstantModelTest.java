@@ -67,6 +67,9 @@ public class G2ppPiecewiseConstantModelTest {
     double[][] hExpected = new double[][] { {1.232938151, 3.173861567, 6.013423491}, {0.832348609, 1.657740023, 2.253532635}};
     ArrayAsserts.assertArrayEquals("G2++: maturity dependent volatility part", hExpected[0], h[0], 1.0E-7);
     ArrayAsserts.assertArrayEquals("G2++: maturity dependent volatility part", hExpected[1], h[1], 1.0E-7);
+    double[] hVector = MODEL_G2PP.volatilityMaturityPart(MODEL_PARAMETERS, u, v[0]);
+    assertEquals("G2++: maturity dependent volatility part", hExpected[0][0], hVector[0], 1.0E-7);
+    assertEquals("G2++: maturity dependent volatility part", hExpected[1][0], hVector[1], 1.0E-7);
   }
 
   @Test

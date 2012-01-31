@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.future.definition;
+package com.opengamma.financial.interestrate.future.derivative;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -15,7 +15,7 @@ import com.opengamma.util.money.Currency;
 /**
  * Description of an interest rate future option with up-front margin security.
  */
-public class InterestRateFutureOptionPremiumSecurity implements InstrumentDerivative {
+public class InterestRateFutureOptionMarginSecurity implements InstrumentDerivative {
 
   /**
    * Underlying future security.
@@ -49,7 +49,7 @@ public class InterestRateFutureOptionPremiumSecurity implements InstrumentDeriva
    * @param strike The option strike.
    * @param isCall The cap (true) / floor (false) flag.
    */
-  public InterestRateFutureOptionPremiumSecurity(final InterestRateFuture underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
+  public InterestRateFutureOptionMarginSecurity(final InterestRateFuture underlyingFuture, final double expirationTime, final double strike, final boolean isCall) {
     Validate.notNull(underlyingFuture, "underlying future");
     this._underlyingFuture = underlyingFuture;
     this._expirationTime = expirationTime;
@@ -117,12 +117,12 @@ public class InterestRateFutureOptionPremiumSecurity implements InstrumentDeriva
 
   @Override
   public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
-    return visitor.visitInterestRateFutureOptionPremiumSecurity(this, data);
+    return visitor.visitInterestRateFutureOptionMarginSecurity(this, data);
   }
 
   @Override
   public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
-    return visitor.visitInterestRateFutureOptionPremiumSecurity(this);
+    return visitor.visitInterestRateFutureOptionMarginSecurity(this);
   }
 
   @Override
@@ -152,7 +152,7 @@ public class InterestRateFutureOptionPremiumSecurity implements InstrumentDeriva
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InterestRateFutureOptionPremiumSecurity other = (InterestRateFutureOptionPremiumSecurity) obj;
+    InterestRateFutureOptionMarginSecurity other = (InterestRateFutureOptionMarginSecurity) obj;
     if (!ObjectUtils.equals(_discountingCurveName, other._discountingCurveName)) {
       return false;
     }

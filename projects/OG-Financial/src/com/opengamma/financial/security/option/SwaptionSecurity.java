@@ -5,10 +5,12 @@
  */
 package com.opengamma.financial.security.option;
 
-import java.util.Map;
-
-import javax.time.calendar.ZonedDateTime;
-
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityVisitor;
+import com.opengamma.financial.security.LongShort;
+import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
+import com.opengamma.util.time.Expiry;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -19,12 +21,8 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.FinancialSecurityVisitor;
-import com.opengamma.financial.security.LongShort;
-import com.opengamma.id.ExternalId;
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Expiry;
+import javax.time.calendar.ZonedDateTime;
+import java.util.Map;
 
 /**
  * A security for equity options.
@@ -91,7 +89,7 @@ public class SwaptionSecurity extends FinancialSecurity {
   }
 
   public SwaptionSecurity(boolean payer, ExternalId underlyingIdentifier, boolean isLong, Expiry expiry, boolean cashSettled, Currency currency) {
-    this(payer, underlyingIdentifier, isLong, expiry, cashSettled, currency, null, null, null);
+    this(payer, underlyingIdentifier, isLong, expiry, cashSettled, currency, null, new EuropeanExerciseType(), null);
   }
   
   public SwaptionSecurity(boolean payer, ExternalId underlyingIdentifier, boolean isLong, 

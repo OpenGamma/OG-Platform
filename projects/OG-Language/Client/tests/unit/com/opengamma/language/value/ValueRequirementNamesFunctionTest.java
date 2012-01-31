@@ -23,9 +23,11 @@ public class ValueRequirementNamesFunctionTest {
     final Set<String> valueNames = ValueRequirementNamesFunction.getValueRequirementNames();
     assertNotNull(valueNames);
     assertFalse(valueNames.isEmpty());
+    /*
     for (String valueName : valueNames) {
       System.out.println(valueName);
     }
+    */
   }
 
 }

@@ -120,7 +120,7 @@ public class DataPortfoliosResource extends AbstractDataResource {
   public static URI uri(URI baseUri, String searchMsg) {
     // TODO remove this hack
     UriBuilder bld = UriBuilder.fromUri(baseUri);
-    if (!baseUri.getPath().endsWith("prtMaster/")) {
+    if (!baseUri.getPath().endsWith("prtMaster/") && !baseUri.getPath().endsWith("prtMaster")) {
       bld.path("/prtMaster");
     }
     bld.path("/portfolios");
