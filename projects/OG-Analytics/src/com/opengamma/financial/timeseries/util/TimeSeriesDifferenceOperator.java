@@ -9,8 +9,8 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.function.Function1D;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.integer.FastArrayIntDoubleTimeSeries;
+import com.opengamma.util.timeseries.fast.integer.FastIntDoubleTimeSeries;
 
 /**
  * 
@@ -21,17 +21,17 @@ public class TimeSeriesDifferenceOperator extends Function1D<DoubleTimeSeries<?>
   public DoubleTimeSeries<?> evaluate(final DoubleTimeSeries<?> ts) {
     Validate.notNull(ts, "time series");
     Validate.isTrue(ts.size() > 1, "time series length must be > 1");
-    final FastLongDoubleTimeSeries fastTS = ts.toFastLongDoubleTimeSeries();
-    final long[] times = fastTS.timesArrayFast();
+    final FastIntDoubleTimeSeries fastTS = ts.toFastIntDoubleTimeSeries();
+    final int[] times = fastTS.timesArrayFast();
     final double[] values = fastTS.valuesArrayFast();
     final int n = times.length;
-    final long[] differenceTimes = new long[n - 1];
+    final int[] differenceTimes = new int[n - 1];
     final double[] differenceValues = new double[n - 1];
     for (int i = 1; i < n; i++) {
       differenceTimes[i - 1] = times[i];
       differenceValues[i - 1] = values[i] - values[i - 1];
     }
-    return new FastArrayLongDoubleTimeSeries(fastTS.getEncoding(), differenceTimes, differenceValues);
+    return new FastArrayIntDoubleTimeSeries(fastTS.getEncoding(), differenceTimes, differenceValues).toLocalDateDoubleTimeSeries();
   }
   
 }
