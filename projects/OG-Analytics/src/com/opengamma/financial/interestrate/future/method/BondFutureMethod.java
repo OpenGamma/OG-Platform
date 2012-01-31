@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
-import com.opengamma.financial.interestrate.future.definition.BondFuture;
+import com.opengamma.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 
 /**

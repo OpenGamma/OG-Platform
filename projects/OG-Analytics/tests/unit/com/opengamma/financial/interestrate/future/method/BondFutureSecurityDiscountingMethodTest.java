@@ -26,7 +26,7 @@ import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingM
 import com.opengamma.financial.interestrate.future.calculator.PresentValueFromFuturePriceCalculator;
 import com.opengamma.financial.interestrate.future.calculator.PriceCurveSensitivityDiscountingCalculator;
 import com.opengamma.financial.interestrate.future.calculator.PriceFromCurvesDiscountingCalculator;
-import com.opengamma.financial.interestrate.future.definition.BondFuture;
+import com.opengamma.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
