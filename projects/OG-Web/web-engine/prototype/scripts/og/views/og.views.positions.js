@@ -7,7 +7,6 @@ $.register_module({
     dependencies: [
         'og.api.rest',
         'og.api.text',
-        'og.common.masthead.menu',
         'og.common.routes',
         'og.common.search_results.core',
         'og.common.util.history',
@@ -22,7 +21,6 @@ $.register_module({
             common = og.common,
             details = common.details,
             history = common.util.history,
-            masthead = common.masthead,
             routes = common.routes,
             search, layout,
             ui = common.util.ui,
@@ -160,12 +158,6 @@ $.register_module({
         };
         return view = $.extend(new og.views.common.Core(page_name), {
             details: details_page,
-            load_filter: function (args) {
-                check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
-                    view[args.id ? 'load_item' : 'load'](args);
-                }}]});
-                view.filter();
-            },
             options: {
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': page_name,
@@ -210,13 +202,6 @@ $.register_module({
                 load_item: {
                     route: '/' + page_name + '/:id/:node?/version:?/quantity:?', method: module.name + '.load_item'
                 }
-            },
-            search: function (args) {
-                if (!search) {
-                    search = common.search_results.core();
-                    view.filter = search.filter;
-                }
-                search.load(view.options.slickgrid);
             }
         });
     }
