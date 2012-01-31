@@ -84,9 +84,9 @@ public class MathSurfaceTest extends AnalyticsTestBase {
 
   @Test
   public void testFunctionalSurface3() {
-    final StandardSmileSurfaceDataBundle data = new StandardSmileSurfaceDataBundle(new double[] {1, 2, 3}, new double[] {4, 5, 6},
-        new double[][] {new double[] {1, 2, 3}, new double[] {1, 2, 3}, new double[] {1, 2, 3}},
-        new double[][] {new double[] {0.1, 0.1, 0.1}, new double[] {0.1, 0.1, 0.1}, new double[] {0.1, 0.1, 0.1}}, true,
+    final StandardSmileSurfaceDataBundle data = new StandardSmileSurfaceDataBundle(new double[] {1, 2, 3, 4}, new double[] {4, 5, 6, 7},
+        new double[][] {new double[] {1, 2, 3, 4}, new double[] {1, 2, 3, 4}, new double[] {1, 2, 3, 4}, new double[] {1, 2, 3, 4}},
+        new double[][] {new double[] {0.1, 0.1, 0.1, 0.1}, new double[] {0.1, 0.1, 0.1, 0.1}, new double[] {0.1, 0.1, 0.1, 0.1}, new double[] {0.1, 0.1, 0.1, 0.1}}, true,
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR));
     final BlackVolatilitySurfaceMoneyness s1 = new MoneynessPiecewiseSABRSurfaceFitter(true, false, 100).getVolatilitySurface(data);
     @SuppressWarnings("unchecked")
@@ -96,7 +96,6 @@ public class MathSurfaceTest extends AnalyticsTestBase {
 
   private void assertSurfaceEquals(final Surface<Double, Double, Double> s1, final Surface<Double, Double, Double> s2) {
     if (s1 != s2) {
-      assertEquals(s1.getName(), s2.getName());
       for (double x = 0.1; x < 100.0; x += 5.00000001) {
         for (double y = 0.11; y < 100; y += 5.00000001) {
           assertEquals(s1.getZValue(x, y), s2.getZValue(x, y));
