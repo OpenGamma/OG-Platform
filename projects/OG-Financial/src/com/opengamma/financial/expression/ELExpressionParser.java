@@ -158,7 +158,7 @@ public class ELExpressionParser extends UserExpressionParser {
       }
     }
     sb.append('}');
-    s_logger.warn("Evaluating {}", sb);
+    s_logger.debug("Evaluating {}", sb);
     try {
       return new ELExpression(this, getFactory().createValueExpression(getContext(), sb.toString(), Object.class));
     } catch (ELException e) {

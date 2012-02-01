@@ -42,7 +42,7 @@ public class SimplePortfolioReader extends SingleSheetPortfolioReader {
     while ((row = getSheet().loadNextRow()) != null) {
     
       // Print debugging output
-      prettyPrintRow(row);
+      // prettyPrintRow(row);
       
       // Build the underlying security
       ManageableSecurity[] security = _rowParser.constructSecurity(row);
