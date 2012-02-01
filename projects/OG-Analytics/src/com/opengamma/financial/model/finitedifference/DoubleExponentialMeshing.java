@@ -31,16 +31,16 @@ public class DoubleExponentialMeshing extends MeshingFunction {
     super(nPoints);
     Validate.isTrue(centre > lowerBound, "need centre > lowerBound");
     Validate.isTrue(centre < upperBound, "need centre < upperBound");
-    double frac = (centre-lowerBound) / (upperBound - lowerBound);
-    int nPointsLower = (int) (frac * nPoints);
-    int nPointUpper = nPoints - nPointsLower + 1;
+    final double frac = (centre - lowerBound) / (upperBound - lowerBound);
+    final int nPointsLower = (int) (frac * nPoints);
+    final int nPointUpper = nPoints - nPointsLower + 1;
     _nPointsLower = nPointsLower;
     _lowerMesh = new ExponentialMeshing(lowerBound, centre, nPointsLower, lambdaLower);
     _upperMesh = new ExponentialMeshing(centre, upperBound, nPointUpper, lambdaUpper);
   }
 
   @Override
-  public Double evaluate(Integer i) {
+  public Double evaluate(final Integer i) {
     if (i < _nPointsLower) {
       return _lowerMesh.evaluate(i);
     }

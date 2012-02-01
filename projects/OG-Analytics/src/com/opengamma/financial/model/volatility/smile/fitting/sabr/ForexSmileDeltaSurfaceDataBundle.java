@@ -105,14 +105,22 @@ public class ForexSmileDeltaSurfaceDataBundle extends SmileSurfaceDataBundle {
     checkVolatilities(expiries, _vols);
   }
 
-  //TODO test me
   public ForexSmileDeltaSurfaceDataBundle(final ForwardCurve forwardCurve, final double[] expiries, final double[][] strikes, final double[][] vols, final boolean isCallData) {
+    ArgumentChecker.notNull(forwardCurve, "forward curve");
+    ArgumentChecker.notNull(expiries, "expiries");
+    ArgumentChecker.notNull(strikes, "strikes");
+    ArgumentChecker.notNull(vols, "vols");
+    _nExpiries = expiries.length;
+    ArgumentChecker.isTrue(_nExpiries == strikes.length, "strikes wrong length; have {}, need {}", strikes.length, _nExpiries);
+    ArgumentChecker.isTrue(_nExpiries == vols.length, "implied vols wrong length; have {}, need {}", vols.length, _nExpiries);
+    for (int i = 0; i < _nExpiries; i++) {
+      ArgumentChecker.isTrue(strikes[i].length == vols[i].length, "wrong number of volatilities; have {}, need {}", strikes[i].length, vols[i].length);
+    }
     _forwardCurve = forwardCurve;
     _expiries = expiries;
     _strikes = strikes;
     _vols = vols;
     _isCallData = isCallData;
-    _nExpiries = expiries.length;
     _forwards = new double[_nExpiries];
     for (int i = 0; i < _nExpiries; i++) {
       _forwards[i] = forwardCurve.getForward(expiries[i]);

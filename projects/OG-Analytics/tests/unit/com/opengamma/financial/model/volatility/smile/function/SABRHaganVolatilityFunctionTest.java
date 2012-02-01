@@ -10,6 +10,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import cern.jet.random.engine.MersenneTwister64;
+
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.math.MathException;
@@ -25,7 +27,7 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  */
 public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestCase {
 
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1, new MersenneTwister64(MersenneTwister64.DEFAULT_SEED));
 
   private static final SABRHaganVolatilityFunction FUNCTION = new SABRHaganVolatilityFunction();
 

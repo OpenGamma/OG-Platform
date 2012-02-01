@@ -182,7 +182,6 @@ public class PiecewiseSABRSurfaceFitter {
    * volatility surface
    * @return A interpolated implied Volatility surface
    */
-  @SuppressWarnings("unused")
   public BlackVolatilitySurfaceMoneyness getSurfaceLinear() {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
 

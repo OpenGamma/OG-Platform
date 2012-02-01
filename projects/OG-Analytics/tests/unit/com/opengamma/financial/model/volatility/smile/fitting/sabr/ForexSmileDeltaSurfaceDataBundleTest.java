@@ -32,10 +32,17 @@ public class ForexSmileDeltaSurfaceDataBundleTest {
   private static final double[][] STRANGLE = new double[][] { {0.00665, 0.00725, 0.00835, 0.009075, 0.013175, 0.01505, 0.01565, 0.0163, 0.009275, 0.007075, },
     {0.002725, 0.00335, 0.0038, 0.004, 0.0056, 0.0061, 0.00615, 0.00635, 0.00385, 0.002575 } };
   private static final boolean IS_CALL_DATA = true;
+  private static final double[][] STRIKES;
+  private static final double[][] VOLS;
   private static final Interpolator1D INTERPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
   private static final ForwardCurve FORWARD_CURVE = new ForwardCurve(InterpolatedDoublesCurve.from(EXPIRIES, FORWARDS, INTERPOLATOR));
   private static final ForexSmileDeltaSurfaceDataBundle DATA = new ForexSmileDeltaSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, DELTAS, ATM, RR, STRANGLE, IS_CALL_DATA);
   private static final double EPS = 1e-15;
+
+  static {
+    STRIKES = DATA.getStrikes();
+    VOLS = DATA.getVolatilities();
+  }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullForwards() {
@@ -168,6 +175,49 @@ public class ForexSmileDeltaSurfaceDataBundleTest {
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullForwardCurve3() {
+    new ForexSmileDeltaSurfaceDataBundle(null, EXPIRIES, STRIKES, VOLS, IS_CALL_DATA);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullExpiries3() {
+    new ForexSmileDeltaSurfaceDataBundle(FORWARD_CURVE, null, STRIKES, VOLS, IS_CALL_DATA);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullStrikes() {
+    new ForexSmileDeltaSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, null, VOLS, IS_CALL_DATA);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testNullVols() {
+    new ForexSmileDeltaSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, null, IS_CALL_DATA);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testWrongLengthStrikes() {
+    final double[][] strikes = new double[][] {STRIKES[0]};
+    new ForexSmileDeltaSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, strikes, VOLS, IS_CALL_DATA);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testWrongLengthVols1() {
+    final double[][] vols = new double[][] {VOLS[0]};
+    new ForexSmileDeltaSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, vols, IS_CALL_DATA);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void testWrongLengthVols2() {
+    final double[][] vols = new double[VOLS.length][VOLS[0].length - 1];
+    for (int i = 0; i < vols.length; i++) {
+      for (int j = 0; j < vols[i].length - 1; j++) {
+        vols[i][j] = VOLS[i][j];
+      }
+    }
+    new ForexSmileDeltaSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, vols, IS_CALL_DATA);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowExpiryIndexForBump() {
     DATA.withBumpedPoint(-1, 1, 0.01);
   }
@@ -206,6 +256,9 @@ public class ForexSmileDeltaSurfaceDataBundleTest {
     assertEquals(FORWARD_CURVE, DATA.getForwardCurve());
     assertEquals(IS_CALL_DATA, DATA.isCallData());
     ForexSmileDeltaSurfaceDataBundle other = new ForexSmileDeltaSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, DELTAS, ATM, RR, STRANGLE, IS_CALL_DATA);
+    assertEquals(DATA, other);
+    assertEquals(DATA.hashCode(), other.hashCode());
+    other = new ForexSmileDeltaSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, VOLS, IS_CALL_DATA);
     assertEquals(DATA, other);
     assertEquals(DATA.hashCode(), other.hashCode());
     other = new ForexSmileDeltaSurfaceDataBundle(FORWARDS, EXPIRIES, DELTAS, ATM, RR, STRANGLE, IS_CALL_DATA, INTERPOLATOR);

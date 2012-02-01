@@ -62,7 +62,7 @@ public final class ComputationTargetSpecification implements Serializable {
           final ExternalId id = ((ExternalIdentifiable) target).getExternalId();
           _uniqueId = UniqueId.of(id.getScheme().getName(), id.getValue());
         } else {
-          throw new OpenGammaRuntimeException("Unhandled unique id type: " + target.getClass());
+          _uniqueId = null;
         }
         break;
       }

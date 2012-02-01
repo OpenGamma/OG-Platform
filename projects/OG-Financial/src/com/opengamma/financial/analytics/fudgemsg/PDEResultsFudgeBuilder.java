@@ -219,6 +219,5 @@ import com.opengamma.financial.model.finitedifference.PDEGrid1D;
       }
     }
 
-
   }
 }

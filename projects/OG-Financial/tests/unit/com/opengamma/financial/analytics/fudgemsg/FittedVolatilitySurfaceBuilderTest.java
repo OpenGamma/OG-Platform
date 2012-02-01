@@ -13,10 +13,13 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.financial.model.volatility.smile.fitting.sabr.ForexSmileDeltaSurfaceDataBundle;
 import com.opengamma.financial.model.volatility.smile.fitting.sabr.MoneynessPiecewiseSABRSurfaceFitter;
 import com.opengamma.financial.model.volatility.smile.fitting.sabr.StandardSmileSurfaceDataBundle;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.math.curve.Curve;
+import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.surface.Surface;
@@ -25,11 +28,24 @@ import com.opengamma.math.surface.Surface;
  * 
  */
 public class FittedVolatilitySurfaceBuilderTest extends AnalyticsTestBase {
-  private static final StandardSmileSurfaceDataBundle STANDARD_DATA = new StandardSmileSurfaceDataBundle(new double[] {1, 2, 3, 4}, new double[] {4, 5, 6, 7},
-      new double[][] {new double[] {1, 2, 3, 4}, new double[] {1, 2, 3, 4}, new double[] {1, 2, 3, 4}, new double[] {1, 2, 3, 4}},
-      new double[][] {new double[] {0.1, 0.1, 0.1, 0.1}, new double[] {0.1, 0.1, 0.1, 0.1}, new double[] {0.1, 0.1, 0.1, 0.1}, new double[] {0.1, 0.1, 0.1, 0.1}},
-      true,
-      CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR));
+  private static final double[] EXPIRIES = new double[] {1, 2, 3, 4};
+  private static final double[] FORWARDS = new double[] {1, 1.1, 1.2, 1.3};
+  private static final double[][] STRIKES = new double[][] {
+    new double[] {1.4, 1.5, 1.6, 1.7},
+    new double[] {1.4, 1.5, 1.6, 1.7},
+    new double[] {1.4, 1.5, 1.6, 1.7},
+    new double[] {1.4, 1.5, 1.6, 1.7}
+  };
+  private static final double[][] VOLS = new double[][] {
+    new double[] {0.05, 0.05, 0.04, 0.03},
+    new double[] {0.09, 0.08, 0.07, 0.06},
+    new double[] {0.1, 0.09, 0.08, 0.085},
+    new double[] {0.2, 0.15, 0.12, 0.2}
+  };
+  private static final ForwardCurve FORWARD_CURVE = new ForwardCurve(
+      InterpolatedDoublesCurve.from(EXPIRIES, FORWARDS, CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR)));
+  private static final StandardSmileSurfaceDataBundle STANDARD_DATA = new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, VOLS, true);
+  private static final ForexSmileDeltaSurfaceDataBundle FOREX_DATA = new ForexSmileDeltaSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, VOLS, true);
   private static final MoneynessPiecewiseSABRSurfaceFitter MONEYNESS_SURFACE_FITTER = new MoneynessPiecewiseSABRSurfaceFitter(true, false, 100);
 
   @Test
@@ -42,6 +58,18 @@ public class FittedVolatilitySurfaceBuilderTest extends AnalyticsTestBase {
     assertCurveEquals(STANDARD_DATA.getForwardCurve().getForwardCurve(), data.getForwardCurve().getForwardCurve());
     assertCurveEquals(STANDARD_DATA.getForwardCurve().getDriftCurve(), data.getForwardCurve().getDriftCurve());
     assertEquals(STANDARD_DATA.getForwardCurve().getSpot(), data.getForwardCurve().getSpot(), 1e-12);
+  }
+
+  @Test
+  public void testForexData() {
+    final ForexSmileDeltaSurfaceDataBundle data = cycleObject(ForexSmileDeltaSurfaceDataBundle.class, FOREX_DATA);
+    assertArrayEquals(FOREX_DATA.getExpiries(), data.getExpiries(), 0);
+    assertTrue(Arrays.deepEquals(FOREX_DATA.getStrikes(), data.getStrikes()));
+    assertTrue(Arrays.deepEquals(FOREX_DATA.getVolatilities(), data.getVolatilities()));
+    assertEquals(FOREX_DATA.isCallData(), data.isCallData());
+    assertCurveEquals(FOREX_DATA.getForwardCurve().getForwardCurve(), data.getForwardCurve().getForwardCurve());
+    assertCurveEquals(FOREX_DATA.getForwardCurve().getDriftCurve(), data.getForwardCurve().getDriftCurve());
+    assertEquals(FOREX_DATA.getForwardCurve().getSpot(), data.getForwardCurve().getSpot(), 1e-12);
   }
 
   @Test
