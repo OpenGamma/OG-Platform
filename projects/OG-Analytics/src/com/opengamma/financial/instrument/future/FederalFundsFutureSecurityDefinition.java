@@ -27,7 +27,7 @@ import com.opengamma.util.time.TimeCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * Description of an Federal Funds Futures.
+ * Description of an Federal Funds Futures security.
  */
 public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitionWithData<FederalFundsFutureSecurity, DoubleTimeSeries<ZonedDateTime>> {
 
@@ -60,6 +60,9 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
    */
   private final String _name;
 
+  /**
+   * Business day conventions used in some builders.
+   */
   private static final BusinessDayConvention BUSINESS_DAY_PRECEDING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
   private static final BusinessDayConvention BUSINESS_DAY_FOLLOWING = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
 
@@ -213,6 +216,10 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
   }
 
   @Override
+  /**
+   * @param indexFixingTimeSeries The time series of the ON index. It is used if the date is in the future month. 
+   * The date of the time series is the publication date (for Fed Funds, it is the end date of the period).
+   */
   public FederalFundsFutureSecurity toDerivative(ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, String... yieldCurveNames) {
     Validate.notNull(date, "Date");
     if (date.isBefore(_fixingPeriodDate[1])) { // Fixing period not started

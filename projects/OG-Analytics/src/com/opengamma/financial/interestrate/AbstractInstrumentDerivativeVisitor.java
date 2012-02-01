@@ -32,6 +32,7 @@ import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
+import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
@@ -182,6 +183,11 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   @Override
   public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity future, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureSecurity()");
+  }
+
+  @Override
+  public T visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureTransaction()");
   }
 
   @Override
@@ -371,6 +377,11 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
 
   @Override
   public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity future) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureSecurity()");
+  }
+
+  @Override
+  public T visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureSecurity()");
   }
 
