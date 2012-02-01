@@ -66,6 +66,9 @@ LOGGING(com.opengamma.language.service.Settings);
 #ifndef DEFAULT_JVM_MAX_HEAP
 # define DEFAULT_JVM_MAX_HEAP		512
 #endif /* ifndef DEFAULT_JVM_MAX_HEAP */
+#ifndef DEFAULT_PID_FILE
+# define DEFAULT_PID_FILE			DEFAULT_PIPE_FOLDER TEXT ("LanguageIntegration.pid")
+#endif /* ifndef DEFAULT_PID_FILE */
 
 /// Returns the default name of the pipe for incoming client connections.
 ///
@@ -402,6 +405,15 @@ const TCHAR *CSettings::GetLogConfiguration () const {
 unsigned long CSettings::GetIdleTimeout () const {
 	return GetIdleTimeout (DEFAULT_IDLE_TIMEOUT);
 }
+
+#ifndef _WIN32
+/// Returns the path to the PID file to write when starting as a daemon process
+///
+/// @return the path to the PID file
+const TCHAR *CSettings::GetPidFile () const {
+	return GetPidFile (DEFAULT_PID_FILE);
+}
+#endif /* ifndef _WIN32 */
 
 /// Returns the service name.
 ///
