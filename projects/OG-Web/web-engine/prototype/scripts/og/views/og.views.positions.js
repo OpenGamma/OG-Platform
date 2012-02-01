@@ -121,13 +121,9 @@ $.register_module({
                                 <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
                                     This position has been deleted\
                                 </section>\
-                            ',
-                            header, content;
-                        var $html = $.tmpl(template, json.template_data);
-                        header = $.outer($html.find('> header')[0]);
-                        content = $.outer($html.find('> section')[0]);
-                        $('.ui-layout-inner-center .ui-layout-header').html(header);
-                        $('.ui-layout-inner-center .ui-layout-content').html(content);
+                            ', $html = $.tmpl(template, json.template_data);
+                        $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                        $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                         ui.toolbar(view.options.toolbar.active);
                         if (json.template_data && json.template_data.deleted) {
                             $('.ui-layout-inner-north').html(error_html);

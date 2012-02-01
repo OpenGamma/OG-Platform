@@ -42,7 +42,7 @@ $.register_module({
                             value: routes.current().hash
                         });
                         api.text({module: module.name, handler: function (template) {
-                            var header, content, $html = $.tmpl(template, json.template_data);
+                            var $html = $.tmpl(template, json.template_data);
                             $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
                             $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                             view.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
