@@ -29,7 +29,7 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
   private static final long serialVersionUID = 1L;
 
   private final Set<ComputedValue> _values = new HashSet<ComputedValue>();
-  private final Map<String, Object> _valuesByRequirementName = new HashMap<String, Object>();
+  private final Map<String, ComputedValue> _valuesByRequirementName = new HashMap<String, ComputedValue>();
   private final Map<Pair<String, ComputationTargetSpecification>, ComputedValue[]> _valuesByRequirement = new HashMap<Pair<String, ComputationTargetSpecification>, ComputedValue[]>();
   private final Collection<ValueSpecification> _missingValues;
 
@@ -54,7 +54,7 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
       throw new IllegalArgumentException("Double-nested value");
     }
     _values.add(value);
-    _valuesByRequirementName.put(value.getSpecification().getValueName(), value.getValue());
+    _valuesByRequirementName.put(value.getSpecification().getValueName(), value);
     final Pair<String, ComputationTargetSpecification> key = Pair.of(value.getSpecification().getValueName(), value.getSpecification().getTargetSpecification());
     final ComputedValue[] prev = _valuesByRequirement.get(key);
     if (prev == null) {
@@ -99,6 +99,12 @@ public class FunctionInputsImpl implements FunctionInputs, Serializable {
 
   @Override
   public Object getValue(String requirementName) {
+    ComputedValue computedValue = getComputedValue(requirementName);
+    return computedValue != null ? computedValue.getValue() : null;
+  }
+  
+  @Override
+  public ComputedValue getComputedValue(String requirementName) {
     return _valuesByRequirementName.get(requirementName);
   }
 
