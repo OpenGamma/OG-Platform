@@ -10,7 +10,7 @@ $.register_module({
             dependencies = ['id', 'node', 'version'];
         return function (config) {
             /* timeseries */
-            var selector = config.selector, get_values, timeseries,
+            var selector = config.selector, get_values, timeseries, view = config.view,
                 timeseries_options = {
                     colors: ['#42669a'],
                     series: {shadowSize: 0, threshold: {below: 0, color: '#960505'}},
@@ -80,7 +80,7 @@ $.register_module({
                                         }
                                     });
                                 },
-                                handler: function () {views.positions.search(routes.current().args);}
+                                handler: function () {view.search(routes.current().args);}
                             });
                         }
                     }});

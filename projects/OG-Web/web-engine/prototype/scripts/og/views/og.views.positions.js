@@ -139,7 +139,7 @@ $.register_module({
                             $('.ui-layout-inner-north').empty();
                         }
                         common.gadgets.positions({
-                            id: args.id, selector: '.og-js-details-positions', editable: true
+                            id: args.id, selector: '.og-js-details-positions', view: view, editable: true
                         });
                         common.gadgets.trades.render({
                             id: args.id, version: args.version, selector: '.og-js-trades-table'
