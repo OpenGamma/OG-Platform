@@ -121,7 +121,7 @@ $.register_module({
                 else
                     if (og.app.READ_ONLY) return setTimeout(config.meta.handler.partial({
                         error: true, data: null, meta: {}, message: 'This application is in read-only mode.'
-                    }), 0), id;
+                    }), INSTANT), id;
                 if (config.meta.update && !is_get) warn(module.name + ': update functions are only for GETs');
                 if (config.meta.update && is_get) config.data['clientId'] = api.id;
                 if (config.meta.cache_for && !is_get)
