@@ -107,8 +107,8 @@ import com.opengamma.financial.analytics.model.forex.ForexForwardCurrencyExposur
 import com.opengamma.financial.analytics.model.forex.ForexForwardPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardYieldCurveNodeSensitivitiesFunction;
-import com.opengamma.financial.analytics.model.forex.ForexOptionDefaultCurveNamesFunction;
 import com.opengamma.financial.analytics.model.forex.ForexOptionCurrencyExposureFunction;
+import com.opengamma.financial.analytics.model.forex.ForexOptionDefaultCurveNamesFunction;
 import com.opengamma.financial.analytics.model.forex.ForexOptionPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.ForexOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.forex.ForexOptionPresentValueVolatilitySensitivityFunction;
@@ -119,7 +119,6 @@ import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCu
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionDefaultValuesFunction;
-import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionHestonPresentValueFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionPresentValueFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionSABRSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionVegaFunction;
@@ -177,7 +176,6 @@ import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityP
 import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames;
 import com.opengamma.financial.analytics.model.volatility.local.LocalVolatilitySurfaceDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.BlackScholesMertonImpliedVolatilitySurfaceFunction;
-import com.opengamma.financial.analytics.model.volatility.surface.HestonFourierIRFutureSurfaceFittingFunction;
 import com.opengamma.financial.analytics.model.volatility.surface.SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction;
 import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
@@ -185,6 +183,7 @@ import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShi
 import com.opengamma.financial.currency.CurrencyMatrixConfigPopulator;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.DefaultCurrencyInjectionFunction;
+import com.opengamma.financial.currency.PnlSeriesCurrencyConversionFunction;
 import com.opengamma.financial.currency.PortfolioNodeCurrencyConversionFunction;
 import com.opengamma.financial.currency.PortfolioNodeDefaultCurrencyFunction;
 import com.opengamma.financial.currency.PositionCurrencyConversionFunction;
@@ -290,6 +289,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(PortfolioNodeDefaultCurrencyFunction.Permissive.class, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES));
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
     functionConfigs.add(functionConfiguration(CurrencyMatrixSourcingFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(PnlSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.BLOOMBERG_LIVE_DATA));
+    functionConfigs.add(functionConfiguration(PnlSeriesCurrencyConversionFunction.class, CurrencyMatrixConfigPopulator.SYNTHETIC_LIVE_DATA));
     functionConfigs.add(functionConfiguration(DefaultCurrencyInjectionFunction.class));
     // functionConfigs.add(functionConfiguration(CurrencyInversionFunction.class));
     // functionConfigs.add(functionConfiguration(CurrencyCrossRateFunction.class, "USD"));
@@ -515,9 +516,9 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     final String defaultSamplingPeriodName = "P2Y";
     final String defaultScheduleName = ScheduleCalculatorFactory.DAILY;
     final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
-    functionConfigs.add(functionConfiguration(TradeExchangeTradedPnLFunction.class, DEFAULT_CONFIG_NAME, MarketDataRequirementNames.MARKET_VALUE, "COST_OF_CARRY"));
-    functionConfigs.add(functionConfiguration(TradeExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, MarketDataRequirementNames.MARKET_VALUE, "COST_OF_CARRY"));
-    functionConfigs.add(functionConfiguration(PositionExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, MarketDataRequirementNames.MARKET_VALUE, "COST_OF_CARRY"));
+    functionConfigs.add(functionConfiguration(TradeExchangeTradedPnLFunction.class, DEFAULT_CONFIG_NAME, "PX_LAST", "COST_OF_CARRY"));
+    functionConfigs.add(functionConfiguration(TradeExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, "PX_LAST", "COST_OF_CARRY"));
+    functionConfigs.add(functionConfiguration(PositionExchangeTradedDailyPnLFunction.class, DEFAULT_CONFIG_NAME, "PX_LAST", "COST_OF_CARRY"));
     functionConfigs.add(functionConfiguration(SecurityPriceSeriesFunction.class, DEFAULT_CONFIG_NAME, MarketDataRequirementNames.MARKET_VALUE));
     functionConfigs.add(functionConfiguration(SecurityPriceSeriesDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
     functionConfigs.add(functionConfiguration(EquityPnLFunction.class));
