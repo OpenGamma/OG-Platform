@@ -183,7 +183,7 @@ $.register_module({
                 // but don't redirect so history will still work
                 if (!position || !~json.positions.pluck('id').indexOf(position)) return;
                 common.gadgets.positions({
-                    id: position, selector: '.og-js-details-positions', editable: false, view:view
+                    id: position, selector: '.og-js-details-positions', editable: false, view: view
                 });
                 common.gadgets.trades.render({id: position, selector: '.og-js-trades-table'});
             };
