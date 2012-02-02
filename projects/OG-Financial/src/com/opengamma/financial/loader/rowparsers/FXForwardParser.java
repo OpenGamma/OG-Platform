@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.examples.portfolioloader.rowparsers;
+package com.opengamma.financial.loader.rowparsers;
 
 import java.util.Map;
 
@@ -15,7 +15,7 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.examples.portfolioloader.RowParser;
+import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.id.ExternalId;

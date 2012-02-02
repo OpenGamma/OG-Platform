@@ -1,4 +1,4 @@
-package com.opengamma.examples.portfolioloader.rowparsers;
+package com.opengamma.financial.loader.rowparsers;
 
 import java.util.Map;
 
@@ -10,11 +10,11 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.examples.portfolioloader.RowParser;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;

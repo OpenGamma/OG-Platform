@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.examples.portfolioloader;
+package com.opengamma.financial.loader;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -35,7 +35,7 @@ public class PortfolioImportCmdLineTool {
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioImportCmdLineTool.class);
 
   /** Path strings for constructing a fully qualified parser class name **/
-  private static final String CLASS_PREFIX = "com.opengamma.examples.portfolioloader.rowparsers.";
+  private static final String CLASS_PREFIX = "com.opengamma.financial.loader.rowparsers.";
   private static final String CLASS_POSTFIX = "Parser";
 
   /** Tool name */

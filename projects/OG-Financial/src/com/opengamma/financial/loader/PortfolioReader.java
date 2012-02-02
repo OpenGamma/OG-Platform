@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.examples.portfolioloader;
+package com.opengamma.financial.loader;
 
 /**
  * Abstract portfolio loader class that merely specifies the ability to write imported trades/positions to a PortfolioWriter

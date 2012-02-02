@@ -1,4 +1,4 @@
-package com.opengamma.examples.portfolioloader.rowparsers;
+package com.opengamma.financial.loader.rowparsers;
 
 import java.util.Map;
 
@@ -8,7 +8,7 @@ import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.examples.portfolioloader.RowParser;
+import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.ExternalId;

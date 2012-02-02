@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.examples.portfolioloader.rowparsers;
+package com.opengamma.financial.loader.rowparsers;
 
 import java.math.BigDecimal;
 import java.util.Map;
@@ -16,7 +16,7 @@ import javax.time.calendar.ZoneOffset;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.examples.portfolioloader.RowParser;
+import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;

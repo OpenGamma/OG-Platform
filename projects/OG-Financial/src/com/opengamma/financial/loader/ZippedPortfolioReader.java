@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.examples.portfolioloader;
+package com.opengamma.financial.loader;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -29,7 +29,7 @@ public class ZippedPortfolioReader implements PortfolioReader {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioImportCmdLineTool.class);
 
-  private static final String CLASS_PREFIX = "com.opengamma.examples.portfolioloader.rowparsers.";
+  private static final String CLASS_PREFIX = "com.opengamma.financial.loader.rowparsers.";
   private static final String CLASS_POSTFIX = "Parser";
   private static final String SHEET_EXTENSION = ".csv";
   private static final String CONFIG_FILE = "METADATA.INI";

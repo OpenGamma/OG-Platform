@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.examples.portfolioloader;
+package com.opengamma.financial.loader;
 
 import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.master.portfolio.ManageablePortfolio;
