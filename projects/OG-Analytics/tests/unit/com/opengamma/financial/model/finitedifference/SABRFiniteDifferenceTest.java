@@ -7,8 +7,6 @@ package com.opengamma.financial.model.finitedifference;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.ZonedDateTime;
-
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.model.finitedifference.applications.PDEDataBundleProvider;
@@ -16,16 +14,14 @@ import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.financial.model.volatility.local.DupireLocalVolatilityCalculator;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
-import com.opengamma.financial.model.volatility.surface.DupireLocalVolatilityCalculator;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceConverter;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceStrike;
@@ -36,20 +32,17 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
-import com.opengamma.util.time.DateUtils;
 
 /**
  * 
  */
 @Test
-@SuppressWarnings("unused")
 public class SABRFiniteDifferenceTest {
   private static final boolean DEBUG = false; //set to false before commit
 
   private static final DoubleQuadraticInterpolator1D INTERPOLATOR_1D = new DoubleQuadraticInterpolator1D();
   private static final PDEDataBundleProvider PDE_DATA_PROVIDER = new PDEDataBundleProvider();
 
-  private static final BlackPriceFunction BLACK_PRICE_FUNCTION = new BlackPriceFunction();
   private static final BlackImpliedVolatilityFormula BLACK_IMPLIED_VOL = new BlackImpliedVolatilityFormula();
   private static final SABRHaganVolatilityFunction SABR = new SABRHaganVolatilityFunction();
   private static final double SPOT = 0.04;
@@ -64,7 +57,6 @@ public class SABRFiniteDifferenceTest {
   private static final double T = 5.0;
   private static final ForwardCurve FORWARD_CURVE;
   private static final YieldAndDiscountCurve YIELD_CURVE = new YieldCurve(ConstantDoublesCurve.from(RATE));
-  private static final ZonedDateTime DATE = DateUtils.getUTCDate(2010, 7, 1);
   private static final EuropeanVanillaOption OPTION;
   private static final ConvectionDiffusionPDEDataBundle DATA;
 
@@ -76,7 +68,6 @@ public class SABRFiniteDifferenceTest {
   private static final BlackVolatilitySurfaceMoneyness SABR_VOL_M_SURFACE;
   private static final LocalVolatilitySurfaceStrike SABR_LOCAL_VOL;
   private static final LocalVolatilitySurfaceMoneyness LV_M;
-  private static final AbsoluteLocalVolatilitySurface SABR_ABS_LOCAL_VOL;
   /**
    * 
    */
@@ -84,22 +75,22 @@ public class SABRFiniteDifferenceTest {
     ATM_VOL = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         return (0.05 + 0.1 * t) * Math.exp(-0.3 * t) + 0.2;
       }
     };
 
     NU = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         return 0.3 * Math.exp(-0.2 * t) + 0.2;
       }
     };
 
-    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> func = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         return SPOT * Math.exp(t * DRIFT); //* (1 + 0.3 * (1 - Math.exp(-0.3 * t)));
       }
     };
@@ -132,21 +123,9 @@ public class SABRFiniteDifferenceTest {
 
     final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
 
-    //    Function<Double, Double> dummySurface = new Function<Double, Double>() {
-    //
-    //      @Override
-    //      public Double evaluate(Double... tk) {
-    //        double t = tk[0];
-    //        double k = tk[1];
-    //        return 0.15 + 4.0 * FunctionUtils.square(Math.log(k / SPOT)) / Math.sqrt(1 + 10 * t);
-    //      }
-    //    };
-    //
-    //    SABR_LOCAL_VOL = new LocalVolatilitySurface(FunctionalDoublesSurface.from(dummySurface));
     SABR_LOCAL_VOL = getSABRLocalVolSurface(BETA, FORWARD_CURVE);
 
     LV_M = cal.getLocalVolatility(SABR_VOL_M_SURFACE);
-    SABR_ABS_LOCAL_VOL = cal.getAbsoluteLocalVolatilitySurface(SABR_VOL_SURFACE, SPOT, RATE);
 
     STRIKE = SPOT / YIELD_CURVE.getDiscountFactor(T);
 
@@ -163,14 +142,14 @@ public class SABRFiniteDifferenceTest {
    * implied volatility surface, and check the price agrees with SABR.
    */
   @Test
-  public void testBackwardsSingalStrike() {
+  public void testBackwardsSingleStrike() {
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, false);
     final int tNodes = 20;
     final int xNodes = 101;
     final PDEGrid1D grid = new PDEGrid1D(tNodes, xNodes, T, LOWER.getLevel(), UPPER.getLevel());
     final PDEResults1D res = solver.solve(DATA, grid, LOWER, UPPER);
 
-    double fwd0 = FORWARD_CURVE.getForward(T);
+    final double fwd0 = FORWARD_CURVE.getForward(T);
     final double df = YIELD_CURVE.getDiscountFactor(T);
     final int i = (int) (xNodes * fwd0 / UPPER.getLevel());
     final double fwd = res.getSpaceValue(i);
@@ -181,7 +160,7 @@ public class SABRFiniteDifferenceTest {
 
     final BlackFunctionData data = new BlackFunctionData(FORWARD_CURVE.getForward(T), df, 0.0);
 
-    double impVol, impVol2;
+    double impVol;
     try {
       impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, price);
     } catch (final Exception e) {
@@ -195,20 +174,20 @@ public class SABRFiniteDifferenceTest {
    * implied volatility surface, and check the price agrees with SABR.
    */
   @Test
-  public void testClassicBackwardsSingalStrike() {
+  public void testClassicBackwardsSingleStrike() {
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, false);
     final int tNodes = 20;
     final int xNodes = 101;
-    BoundaryCondition lower = new DirichletBoundaryCondition(0, 0.0);
-    BoundaryCondition upper = new NeumannBoundaryCondition(new Function1D<Double, Double>() {
+    final BoundaryCondition lower = new DirichletBoundaryCondition(0, 0.0);
+    final BoundaryCondition upper = new NeumannBoundaryCondition(new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double tau) {
+      public Double evaluate(final Double tau) {
         return Math.exp(-tau * (RATE - DRIFT));
       }
     }, 5 * SPOT, false);
 
     final PDEGrid1D grid = new PDEGrid1D(tNodes, xNodes, T, lower.getLevel(), upper.getLevel());
-    ConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getBackwardsLocalVol(RATE, RATE - DRIFT, STRIKE, T, true, SABR_LOCAL_VOL);
+    final ConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getBackwardsLocalVol(RATE, RATE - DRIFT, STRIKE, T, true, SABR_LOCAL_VOL);
     final PDEResults1D res = solver.solve(pdeData, grid, lower, upper);
 
     final double df = YIELD_CURVE.getDiscountFactor(T);
@@ -221,7 +200,7 @@ public class SABRFiniteDifferenceTest {
 
     final BlackFunctionData data = new BlackFunctionData(FORWARD_CURVE.getForward(T), df, 0.0);
 
-    double impVol, impVol2;
+    double impVol;
     try {
       impVol = BLACK_IMPLIED_VOL.getImpliedVolatility(data, OPTION, price);
     } catch (final Exception e) {
@@ -243,42 +222,42 @@ public class SABRFiniteDifferenceTest {
     final double forward = FORWARD_CURVE.getForward(T);
     final double maxForward = 5.0 * forward;
 
-    BoundaryCondition lower = new DirichletBoundaryCondition(0.0, 0.0);
+    final BoundaryCondition lower = new DirichletBoundaryCondition(0.0, 0.0);
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0.0, T, tNodes, 5.0);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxForward, forward, xNodes, 0.1);
-    PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0.0, T, tNodes, 5.0);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxForward, forward, xNodes, 0.1);
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    System.out.println("backwards PDE");
     for (int j = 0; j < 50; j++) {
-      double strike = forward * (0.5 + 1.5 * j / 49.);
-      BoundaryCondition upper = new DirichletBoundaryCondition(maxForward - strike, maxForward);
-      ConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getBackwardsLocalVol(strike, T, true, SABR_LOCAL_VOL, FORWARD_CURVE);
-      PDEResults1D res = solver.solve(pdeData, grid, lower, upper);
+      final double strike = forward * (0.5 + 1.5 * j / 49.);
+      final BoundaryCondition upper = new DirichletBoundaryCondition(maxForward - strike, maxForward);
+      final ConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getBackwardsLocalVol(strike, T, true, SABR_LOCAL_VOL, FORWARD_CURVE);
+      final PDEResults1D res = solver.solve(pdeData, grid, lower, upper);
 
       //since the grid of forwards values may not contain the desired forward, we interpolate
-      double[] tFwd = new double[xNodes];
-      double[] tVol = new double[xNodes];
+      final double[] tFwd = new double[xNodes];
+      final double[] tVol = new double[xNodes];
       int count = 0;
       for (int i = 0; i < xNodes; i++) {
-        double fwd = grid.getSpaceNode(i);
+        final double fwd = grid.getSpaceNode(i);
         if (fwd > 0.8 * forward && fwd < 1.2 * forward) {
-          double price = res.getFunctionValue(i);
-          double vol = BlackFormulaRepository.impliedVolatility(price, fwd, strike, T, true);
+          final double price = res.getFunctionValue(i);
+          final double vol = BlackFormulaRepository.impliedVolatility(price, fwd, strike, T, true);
           tFwd[count] = fwd;
 
           tVol[count] = vol;
           count++;
         }
       }
-      double[] fwds = new double[count];
-      double[] vols = new double[count];
+      final double[] fwds = new double[count];
+      final double[] vols = new double[count];
       System.arraycopy(tFwd, 0, fwds, 0, count);
       System.arraycopy(tVol, 0, vols, 0, count);
-      Interpolator1DDoubleQuadraticDataBundle db = INTERPOLATOR_1D.getDataBundle(fwds, vols);
-      double intepVol = INTERPOLATOR_1D.interpolate(db, forward);
-      double sabrVol = SABR_VOL_SURFACE.getVolatility(T, strike);
+      final Interpolator1DDoubleQuadraticDataBundle db = INTERPOLATOR_1D.getDataBundle(fwds, vols);
+      final double intepVol = INTERPOLATOR_1D.interpolate(db, forward);
+      final double sabrVol = SABR_VOL_SURFACE.getVolatility(T, strike);
       if (DEBUG) {
+        System.out.println("backwards PDE");
         System.out.println(strike + "\t" + intepVol + "\t" + sabrVol);
       } else {
         assertEquals("Backwards PDE vols", sabrVol, intepVol, 1.5e-3); //15bps error TODO why so large
@@ -298,26 +277,26 @@ public class SABRFiniteDifferenceTest {
 
     final double maxMoneyness = 6.0;
 
-    ConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getForwardLocalVol(SABR_LOCAL_VOL, FORWARD_CURVE, true);
+    final ConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getForwardLocalVol(SABR_LOCAL_VOL, FORWARD_CURVE, true);
 
-    BoundaryCondition lower = new DirichletBoundaryCondition(1.0, 0.0);
+    final BoundaryCondition lower = new DirichletBoundaryCondition(1.0, 0.0);
     // BoundaryCondition upper = new DirichletBoundaryCondition(0.0, maxMoneyness);
-    BoundaryCondition upper = new NeumannBoundaryCondition(0, maxMoneyness, false);
+    final BoundaryCondition upper = new NeumannBoundaryCondition(0, maxMoneyness, false);
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0.0, T, tNodes, 4.0);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxMoneyness, 1.0, xNodes, 0.05);
-    PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0.0, T, tNodes, 4.0);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxMoneyness, 1.0, xNodes, 0.05);
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    PDEResults1D res = solver.solve(pdeData, grid, lower, upper);
-    double fwd = FORWARD_CURVE.getForward(T);
+    final PDEResults1D res = solver.solve(pdeData, grid, lower, upper);
+    final double fwd = FORWARD_CURVE.getForward(T);
 
     for (int i = 0; i < xNodes; i++) {
-      double x = grid.getSpaceNode(i);
-      double k = fwd * x;
+      final double x = grid.getSpaceNode(i);
+      final double k = fwd * x;
       if (k > 0.5 * fwd && k < 2.0 * fwd) {
-        double modifiedPrice = res.getFunctionValue(i);
-        double vol = BlackFormulaRepository.impliedVolatility(modifiedPrice, 1.0, x, T, true);
-        double sabrVol = SABR_VOL_SURFACE.getVolatility(T, k);
+        final double modifiedPrice = res.getFunctionValue(i);
+        final double vol = BlackFormulaRepository.impliedVolatility(modifiedPrice, 1.0, x, T, true);
+        final double sabrVol = SABR_VOL_SURFACE.getVolatility(T, k);
         if (DEBUG) {
           System.out.println(k + "\t" + vol + "\t" + sabrVol);
         } else {
@@ -337,32 +316,32 @@ public class SABRFiniteDifferenceTest {
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, false);
     final int tNodes = 50;
     final int xNodes = 101;
-    double fwd = FORWARD_CURVE.getForward(T);
+    final double fwd = FORWARD_CURVE.getForward(T);
     final double maxStrike = 4.0 * fwd;
 
-    ConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getForwardLocalVol(RATE, RATE - DRIFT, SPOT, true, SABR_LOCAL_VOL);
+    final ConvectionDiffusionPDEDataBundle pdeData = PDE_DATA_PROVIDER.getForwardLocalVol(RATE, RATE - DRIFT, SPOT, true, SABR_LOCAL_VOL);
 
-    BoundaryCondition lower = new DirichletBoundaryCondition(new Function1D<Double, Double>() {
+    final BoundaryCondition lower = new DirichletBoundaryCondition(new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         return SPOT * Math.exp(-t * (RATE - DRIFT));
       }
     }, 0.0);
-    BoundaryCondition upper = new DirichletBoundaryCondition(0.0, maxStrike);
+    final BoundaryCondition upper = new DirichletBoundaryCondition(0.0, maxStrike);
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0.0, T, tNodes, 5.0);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxStrike, SPOT, xNodes, 0.1);
-    PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0.0, T, tNodes, 5.0);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(0.0, maxStrike, SPOT, xNodes, 0.1);
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
 
-    PDEResults1D res = solver.solve(pdeData, grid, lower, upper);
-    double df = Math.exp(-RATE * T);
+    final PDEResults1D res = solver.solve(pdeData, grid, lower, upper);
+    final double df = Math.exp(-RATE * T);
     //   System.out.println("Classic forward PDE");
     for (int i = 0; i < xNodes; i++) {
-      double k = grid.getSpaceNode(i);
+      final double k = grid.getSpaceNode(i);
       if (k > 0.5 * fwd && k < 2.0 * fwd) {
-        double price = res.getFunctionValue(i);
-        double vol = BlackFormulaRepository.impliedVolatility(price / df, fwd, k, T, true);
-        double sabrVol = SABR_VOL_SURFACE.getVolatility(T, k);
+        final double price = res.getFunctionValue(i);
+        final double vol = BlackFormulaRepository.impliedVolatility(price / df, fwd, k, T, true);
+        final double sabrVol = SABR_VOL_SURFACE.getVolatility(T, k);
         if (DEBUG) {
           System.out.println(k + "\t" + vol + "\t" + sabrVol);
         } else {
@@ -396,84 +375,84 @@ public class SABRFiniteDifferenceTest {
     final double maxStrike = 5.0 * forward;
     final double shift = 1e-3;
 
-    LocalVolatilitySurfaceMoneyness lvUp = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, shift);
-    LocalVolatilitySurfaceMoneyness lvDown = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, -shift);
+    final LocalVolatilitySurfaceMoneyness lvUp = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, shift);
+    final LocalVolatilitySurfaceMoneyness lvDown = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, -shift);
 
-    ConvectionDiffusionPDEDataBundle pdeDataFwd = PDE_DATA_PROVIDER.getForwardLocalVol(LV_M, true);
-    ConvectionDiffusionPDEDataBundle pdeDataCUp = PDE_DATA_PROVIDER.getForwardLocalVol(RATE, RATE - DRIFT, SPOT * (1 + shift), true, SABR_LOCAL_VOL);
-    ConvectionDiffusionPDEDataBundle pdeDataCDown = PDE_DATA_PROVIDER.getForwardLocalVol(RATE, RATE - DRIFT, SPOT * (1 - shift), true, SABR_LOCAL_VOL);
-    ConvectionDiffusionPDEDataBundle pdeDataUp = PDE_DATA_PROVIDER.getForwardLocalVol(lvUp, true);
-    ConvectionDiffusionPDEDataBundle pdeDataDown = PDE_DATA_PROVIDER.getForwardLocalVol(lvDown, true);
+    final ConvectionDiffusionPDEDataBundle pdeDataFwd = PDE_DATA_PROVIDER.getForwardLocalVol(LV_M, true);
+    final ConvectionDiffusionPDEDataBundle pdeDataCUp = PDE_DATA_PROVIDER.getForwardLocalVol(RATE, RATE - DRIFT, SPOT * (1 + shift), true, SABR_LOCAL_VOL);
+    final ConvectionDiffusionPDEDataBundle pdeDataCDown = PDE_DATA_PROVIDER.getForwardLocalVol(RATE, RATE - DRIFT, SPOT * (1 - shift), true, SABR_LOCAL_VOL);
+    final ConvectionDiffusionPDEDataBundle pdeDataUp = PDE_DATA_PROVIDER.getForwardLocalVol(lvUp, true);
+    final ConvectionDiffusionPDEDataBundle pdeDataDown = PDE_DATA_PROVIDER.getForwardLocalVol(lvDown, true);
 
-    BoundaryCondition lowerFwd = new DirichletBoundaryCondition(1.0, 0.0);
-    BoundaryCondition upperFwd = new DirichletBoundaryCondition(0.0, maxMoneyness);
-    BoundaryCondition lowerBwd = new DirichletBoundaryCondition(0.0, 0.0);
-    BoundaryCondition lowerUp = new DirichletBoundaryCondition(new Function1D<Double, Double>() {
+    final BoundaryCondition lowerFwd = new DirichletBoundaryCondition(1.0, 0.0);
+    final BoundaryCondition upperFwd = new DirichletBoundaryCondition(0.0, maxMoneyness);
+    final BoundaryCondition lowerBwd = new DirichletBoundaryCondition(0.0, 0.0);
+    final BoundaryCondition lowerUp = new DirichletBoundaryCondition(new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         return SPOT * (1 + shift) * Math.exp(-t * (RATE - DRIFT));
       }
     }, 0.0);
-    BoundaryCondition lowerDown = new DirichletBoundaryCondition(new Function1D<Double, Double>() {
+    final BoundaryCondition lowerDown = new DirichletBoundaryCondition(new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double t) {
+      public Double evaluate(final Double t) {
         return SPOT * (1 - shift) * Math.exp(-t * (RATE - DRIFT));
       }
     }, 0.0);
-    BoundaryCondition upperCFwd = new DirichletBoundaryCondition(0.0, maxStrike);
+    final BoundaryCondition upperCFwd = new DirichletBoundaryCondition(0.0, maxStrike);
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0.0, T, tNodes, 5.0);
-    MeshingFunction spaceMeshFwd = new HyperbolicMeshing(0.0, maxMoneyness, 1.0, xNodes, 0.1);
-    MeshingFunction spaceMeshBwd = new HyperbolicMeshing(0.0, maxForward, forward, xNodes, 0.1);
-    MeshingFunction spaceMeshCFwd = new HyperbolicMeshing(0.0, maxStrike, forward, xNodes, 0.1);
-    PDEGrid1D gridFwd = new PDEGrid1D(timeMesh, spaceMeshFwd);
-    PDEGrid1D gridCFwd = new PDEGrid1D(timeMesh, spaceMeshCFwd);
-    PDEGrid1D gridBwd = new PDEGrid1D(timeMesh, spaceMeshBwd);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0.0, T, tNodes, 5.0);
+    final MeshingFunction spaceMeshFwd = new HyperbolicMeshing(0.0, maxMoneyness, 1.0, xNodes, 0.1);
+    final MeshingFunction spaceMeshBwd = new HyperbolicMeshing(0.0, maxForward, forward, xNodes, 0.1);
+    final MeshingFunction spaceMeshCFwd = new HyperbolicMeshing(0.0, maxStrike, forward, xNodes, 0.1);
+    final PDEGrid1D gridFwd = new PDEGrid1D(timeMesh, spaceMeshFwd);
+    final PDEGrid1D gridCFwd = new PDEGrid1D(timeMesh, spaceMeshCFwd);
+    final PDEGrid1D gridBwd = new PDEGrid1D(timeMesh, spaceMeshBwd);
 
-    PDEResults1D res = solver.solve(pdeDataFwd, gridFwd, lowerFwd, upperFwd);
-    PDEResults1D resUp = solver.solve(pdeDataUp, gridFwd, lowerFwd, upperFwd);
-    PDEResults1D resDown = solver.solve(pdeDataDown, gridFwd, lowerFwd, upperFwd);
-    PDEResults1D resCUp = solver.solve(pdeDataCUp, gridCFwd, lowerUp, upperCFwd);
-    PDEResults1D resCDown = solver.solve(pdeDataCDown, gridCFwd, lowerDown, upperCFwd);
+    final PDEResults1D res = solver.solve(pdeDataFwd, gridFwd, lowerFwd, upperFwd);
+    final PDEResults1D resUp = solver.solve(pdeDataUp, gridFwd, lowerFwd, upperFwd);
+    final PDEResults1D resDown = solver.solve(pdeDataDown, gridFwd, lowerFwd, upperFwd);
+    final PDEResults1D resCUp = solver.solve(pdeDataCUp, gridCFwd, lowerUp, upperCFwd);
+    final PDEResults1D resCDown = solver.solve(pdeDataCDown, gridCFwd, lowerDown, upperCFwd);
 
-    double q = Math.exp(-(RATE - DRIFT) * T);
+    final double q = Math.exp(-(RATE - DRIFT) * T);
 
     for (int i = 0; i < xNodes; i++) {
-      double x = res.getSpaceValue(i);
-      double k = x * forward;
+      final double x = res.getSpaceValue(i);
+      final double k = x * forward;
       assertEquals("strikes", k, gridCFwd.getSpaceNode(i), 1e-6);
-      double modelDD = res.getFirstSpatialDerivative(i);
-      double fixedSurfaceDelta = res.getFunctionValue(i) - x * modelDD;
-      double surfaceDelta = (resUp.getFunctionValue(i) - resDown.getFunctionValue(i)) / 2 / shift;
-      double deltaFwd = fixedSurfaceDelta + surfaceDelta;
+      final double modelDD = res.getFirstSpatialDerivative(i);
+      final double fixedSurfaceDelta = res.getFunctionValue(i) - x * modelDD;
+      final double surfaceDelta = (resUp.getFunctionValue(i) - resDown.getFunctionValue(i)) / 2 / shift;
+      final double deltaFwd = fixedSurfaceDelta + surfaceDelta;
 
-      double priceUp = resCUp.getFunctionValue(i);
-      double priceDown = resCDown.getFunctionValue(i);
+      final double priceUp = resCUp.getFunctionValue(i);
+      final double priceDown = resCDown.getFunctionValue(i);
 
-      double deltaCFwd = (priceUp - priceDown) / 2 / SPOT / shift / q;
+      final double deltaCFwd = (priceUp - priceDown) / 2 / SPOT / shift / q;
 
-      BoundaryCondition upperBwd = new DirichletBoundaryCondition(maxForward - k, maxForward);
-      ConvectionDiffusionPDEDataBundle pdeDataBkd = PDE_DATA_PROVIDER.getBackwardsLocalVol(k, T, true, SABR_LOCAL_VOL, FORWARD_CURVE);
-      PDEResults1D resBkd = solver.solve(pdeDataBkd, gridBwd, lowerBwd, upperBwd);
+      final BoundaryCondition upperBwd = new DirichletBoundaryCondition(maxForward - k, maxForward);
+      final ConvectionDiffusionPDEDataBundle pdeDataBkd = PDE_DATA_PROVIDER.getBackwardsLocalVol(k, T, true, SABR_LOCAL_VOL, FORWARD_CURVE);
+      final PDEResults1D resBkd = solver.solve(pdeDataBkd, gridBwd, lowerBwd, upperBwd);
 
       //since the actual forward (i.e. F(0,T)) does not necessarily lie on the grid, we have to interpolate
-      double[] tFwd = new double[xNodes];
-      double[] tDelta = new double[xNodes];
+      final double[] tFwd = new double[xNodes];
+      final double[] tDelta = new double[xNodes];
       int count = 0;
       for (int j = 0; j < xNodes; j++) {
-        double fwd = gridBwd.getSpaceNode(j);
+        final double fwd = gridBwd.getSpaceNode(j);
         if (fwd > 0.9 * forward && fwd < 1.1 * forward) {
           tFwd[count] = fwd;
           tDelta[count] = resBkd.getFirstSpatialDerivative(j);
           count++;
         }
       }
-      double[] fwds = new double[count];
-      double[] deltas = new double[count];
+      final double[] fwds = new double[count];
+      final double[] deltas = new double[count];
       System.arraycopy(tFwd, 0, fwds, 0, count);
       System.arraycopy(tDelta, 0, deltas, 0, count);
-      Interpolator1DDoubleQuadraticDataBundle db = INTERPOLATOR_1D.getDataBundle(fwds, deltas);
-      double deltaBkd = INTERPOLATOR_1D.interpolate(db, forward);
+      final Interpolator1DDoubleQuadraticDataBundle db = INTERPOLATOR_1D.getDataBundle(fwds, deltas);
+      final double deltaBkd = INTERPOLATOR_1D.interpolate(db, forward);
 
       if (DEBUG) {
         System.out.println(k + "\t" + deltaFwd + "\t" + deltaCFwd + "\t" + deltaBkd);
@@ -495,53 +474,51 @@ public class SABRFiniteDifferenceTest {
     final double maxMoneyness = 5.0;
     final double shift = 1e-3;
 
-    LocalVolatilitySurfaceMoneyness lvUp = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, shift);
-    LocalVolatilitySurfaceMoneyness lvDown = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, -shift);
+    final LocalVolatilitySurfaceMoneyness lvUp = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, shift);
+    final LocalVolatilitySurfaceMoneyness lvDown = LocalVolatilitySurfaceConverter.shiftForwardCurve(LV_M, -shift);
 
-    ConvectionDiffusionPDEDataBundle pdeDataFwd = PDE_DATA_PROVIDER.getForwardLocalVol(LV_M, true);
-    ConvectionDiffusionPDEDataBundle pdeDataUp = PDE_DATA_PROVIDER.getForwardLocalVol(lvUp, true);
-    ConvectionDiffusionPDEDataBundle pdeDataDown = PDE_DATA_PROVIDER.getForwardLocalVol(lvDown, true);
+    final ConvectionDiffusionPDEDataBundle pdeDataFwd = PDE_DATA_PROVIDER.getForwardLocalVol(LV_M, true);
+    final ConvectionDiffusionPDEDataBundle pdeDataUp = PDE_DATA_PROVIDER.getForwardLocalVol(lvUp, true);
+    final ConvectionDiffusionPDEDataBundle pdeDataDown = PDE_DATA_PROVIDER.getForwardLocalVol(lvDown, true);
 
-    BoundaryCondition lowerFwd = new DirichletBoundaryCondition(1.0, 0.0);
-    BoundaryCondition upperFwd = new DirichletBoundaryCondition(0.0, maxMoneyness);
-    BoundaryCondition lowerBwd = new DirichletBoundaryCondition(0, 0);
+    final BoundaryCondition lowerFwd = new DirichletBoundaryCondition(1.0, 0.0);
+    final BoundaryCondition upperFwd = new DirichletBoundaryCondition(0.0, maxMoneyness);
+    final BoundaryCondition lowerBwd = new DirichletBoundaryCondition(0, 0);
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0.0, T, tNodes, 5.0);
-    MeshingFunction spaceMeshFwd = new HyperbolicMeshing(0.0, maxMoneyness, 1.0, xNodes, 0.1);
-    MeshingFunction spaceMeshBwd = new HyperbolicMeshing(0.0, maxForward, forward, xNodes, 0.1);
-    PDEGrid1D gridFwd = new PDEGrid1D(timeMesh, spaceMeshFwd);
-    PDEGrid1D gridBwd = new PDEGrid1D(timeMesh, spaceMeshBwd);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0.0, T, tNodes, 5.0);
+    final MeshingFunction spaceMeshFwd = new HyperbolicMeshing(0.0, maxMoneyness, 1.0, xNodes, 0.1);
+    final MeshingFunction spaceMeshBwd = new HyperbolicMeshing(0.0, maxForward, forward, xNodes, 0.1);
+    final PDEGrid1D gridFwd = new PDEGrid1D(timeMesh, spaceMeshFwd);
+    final PDEGrid1D gridBwd = new PDEGrid1D(timeMesh, spaceMeshBwd);
 
-    PDEResults1D res = solver.solve(pdeDataFwd, gridFwd, lowerFwd, upperFwd);
-    PDEResults1D resUp = solver.solve(pdeDataUp, gridFwd, lowerFwd, upperFwd);
-    PDEResults1D resDown = solver.solve(pdeDataDown, gridFwd, lowerFwd, upperFwd);
-
-    double q = Math.exp(-(RATE - DRIFT) * T);
+    final PDEResults1D res = solver.solve(pdeDataFwd, gridFwd, lowerFwd, upperFwd);
+    final PDEResults1D resUp = solver.solve(pdeDataUp, gridFwd, lowerFwd, upperFwd);
+    final PDEResults1D resDown = solver.solve(pdeDataDown, gridFwd, lowerFwd, upperFwd);
 
     for (int i = 0; i < xNodes; i++) {
-      double x = res.getSpaceValue(i);
-      double k = x * forward;
+      final double x = res.getSpaceValue(i);
+      final double k = x * forward;
 
-      double modelDD = res.getFirstSpatialDerivative(i);
-      double fixedSurfaceDelta = res.getFunctionValue(i) - x * modelDD;
-      double surfaceDelta = (resUp.getFunctionValue(i) - resDown.getFunctionValue(i)) / 2 / shift / forward;
-      double deltaFwd = fixedSurfaceDelta + forward * surfaceDelta;
-      double fixedSurfaceGamma = x * x / forward * res.getSecondSpatialDerivative(i);
-      double surfaceVanna = (resUp.getFirstSpatialDerivative(i) - resDown.getFirstSpatialDerivative(i)) / 2 / forward / shift;
-      double surfaceGamma = (resUp.getFunctionValue(i) + resDown.getFunctionValue(i) - 2 * res.getFunctionValue(i)) / forward / shift / shift;
-      double gammaFwd = fixedSurfaceGamma + 2 * surfaceDelta - 2 * x * surfaceVanna + surfaceGamma;
+      final double modelDD = res.getFirstSpatialDerivative(i);
+      final double fixedSurfaceDelta = res.getFunctionValue(i) - x * modelDD;
+      final double surfaceDelta = (resUp.getFunctionValue(i) - resDown.getFunctionValue(i)) / 2 / shift / forward;
+      final double deltaFwd = fixedSurfaceDelta + forward * surfaceDelta;
+      final double fixedSurfaceGamma = x * x / forward * res.getSecondSpatialDerivative(i);
+      final double surfaceVanna = (resUp.getFirstSpatialDerivative(i) - resDown.getFirstSpatialDerivative(i)) / 2 / forward / shift;
+      final double surfaceGamma = (resUp.getFunctionValue(i) + resDown.getFunctionValue(i) - 2 * res.getFunctionValue(i)) / forward / shift / shift;
+      final double gammaFwd = fixedSurfaceGamma + 2 * surfaceDelta - 2 * x * surfaceVanna + surfaceGamma;
 
-      BoundaryCondition upperBwd = new DirichletBoundaryCondition(maxForward - k, maxForward);
-      ConvectionDiffusionPDEDataBundle pdeDataBkd = PDE_DATA_PROVIDER.getBackwardsLocalVol(k, T, true, SABR_LOCAL_VOL, FORWARD_CURVE);
-      PDEResults1D resBkd = solver.solve(pdeDataBkd, gridBwd, lowerBwd, upperBwd);
+      final BoundaryCondition upperBwd = new DirichletBoundaryCondition(maxForward - k, maxForward);
+      final ConvectionDiffusionPDEDataBundle pdeDataBkd = PDE_DATA_PROVIDER.getBackwardsLocalVol(k, T, true, SABR_LOCAL_VOL, FORWARD_CURVE);
+      final PDEResults1D resBkd = solver.solve(pdeDataBkd, gridBwd, lowerBwd, upperBwd);
 
       //since the actual forward (i.e. F(0,T)) does not necessarily lie on the grid, we have to interpolate
-      double[] tFwd = new double[xNodes];
-      double[] tDelta = new double[xNodes];
-      double[] tGamma = new double[xNodes];
+      final double[] tFwd = new double[xNodes];
+      final double[] tDelta = new double[xNodes];
+      final double[] tGamma = new double[xNodes];
       int count = 0;
       for (int j = 0; j < xNodes; j++) {
-        double fwd = gridBwd.getSpaceNode(j);
+        final double fwd = gridBwd.getSpaceNode(j);
         if (fwd > 0.9 * forward && fwd < 1.1 * forward) {
           tFwd[count] = fwd;
           tDelta[count] = resBkd.getFirstSpatialDerivative(j);
@@ -549,16 +526,16 @@ public class SABRFiniteDifferenceTest {
           count++;
         }
       }
-      double[] fwds = new double[count];
-      double[] deltas = new double[count];
-      double[] gammas = new double[count];
+      final double[] fwds = new double[count];
+      final double[] deltas = new double[count];
+      final double[] gammas = new double[count];
       System.arraycopy(tFwd, 0, fwds, 0, count);
       System.arraycopy(tDelta, 0, deltas, 0, count);
       System.arraycopy(tGamma, 0, gammas, 0, count);
-      Interpolator1DDoubleQuadraticDataBundle dbDelta = INTERPOLATOR_1D.getDataBundle(fwds, deltas);
-      Interpolator1DDoubleQuadraticDataBundle dbGamma = INTERPOLATOR_1D.getDataBundle(fwds, gammas);
-      double deltaBkd = INTERPOLATOR_1D.interpolate(dbDelta, forward);
-      double gammaBkd = INTERPOLATOR_1D.interpolate(dbGamma, forward);
+      final Interpolator1DDoubleQuadraticDataBundle dbDelta = INTERPOLATOR_1D.getDataBundle(fwds, deltas);
+      final Interpolator1DDoubleQuadraticDataBundle dbGamma = INTERPOLATOR_1D.getDataBundle(fwds, gammas);
+      final double deltaBkd = INTERPOLATOR_1D.interpolate(dbDelta, forward);
+      final double gammaBkd = INTERPOLATOR_1D.interpolate(dbGamma, forward);
 
       if (DEBUG) {
         System.out.println(k + "\t" + deltaFwd + "\t" + deltaBkd + "\t" + gammaFwd + "\t" + gammaBkd + "\t" +
@@ -581,29 +558,29 @@ public class SABRFiniteDifferenceTest {
 
     final double forward = FORWARD_CURVE.getForward(T);
     final double maxMoneyness = 5.0;
-    SABRFormulaData sabrData = new SABRFormulaData(ATM_VOL.evaluate(T), 1.0, RHO, NU.evaluate(T));
-    LocalVolatilitySurfaceStrike locVol = getSABRLocalVolSurface(1.0, FORWARD_CURVE);
+    final SABRFormulaData sabrData = new SABRFormulaData(ATM_VOL.evaluate(T), 1.0, RHO, NU.evaluate(T));
+    final LocalVolatilitySurfaceStrike locVol = getSABRLocalVolSurface(1.0, FORWARD_CURVE);
 
-    ConvectionDiffusionPDEDataBundle pdeDataFwd = PDE_DATA_PROVIDER.getForwardLocalVol(locVol, FORWARD_CURVE, true);
+    final ConvectionDiffusionPDEDataBundle pdeDataFwd = PDE_DATA_PROVIDER.getForwardLocalVol(locVol, FORWARD_CURVE, true);
 
-    BoundaryCondition lowerFwd = new DirichletBoundaryCondition(1.0, 0.0);
-    BoundaryCondition upperFwd = new DirichletBoundaryCondition(0.0, maxMoneyness);
+    final BoundaryCondition lowerFwd = new DirichletBoundaryCondition(1.0, 0.0);
+    final BoundaryCondition upperFwd = new DirichletBoundaryCondition(0.0, maxMoneyness);
 
-    MeshingFunction timeMesh = new ExponentialMeshing(0.0, T, tNodes, 5.0);
-    MeshingFunction spaceMeshFwd = new HyperbolicMeshing(0.0, maxMoneyness, 1.0, xNodes, 0.1);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0.0, T, tNodes, 5.0);
+    final MeshingFunction spaceMeshFwd = new HyperbolicMeshing(0.0, maxMoneyness, 1.0, xNodes, 0.1);
 
-    PDEGrid1D gridFwd = new PDEGrid1D(timeMesh, spaceMeshFwd);
-    PDEResults1D res = solver.solve(pdeDataFwd, gridFwd, lowerFwd, upperFwd);
+    final PDEGrid1D gridFwd = new PDEGrid1D(timeMesh, spaceMeshFwd);
+    final PDEResults1D res = solver.solve(pdeDataFwd, gridFwd, lowerFwd, upperFwd);
 
     for (int i = 1; i < xNodes - 1; i++) {
-      double x = res.getSpaceValue(i);
-      double k = x * forward;
-      double modelDD = res.getFirstSpatialDerivative(i);
-      double fixedSurfaceDelta = res.getFunctionValue(i) - x * modelDD;
-      double[] volAdjoint = SABR.getVolatilityAdjoint(new EuropeanVanillaOption(k, T, true), forward, sabrData);
-      double bsDelta = BlackFormulaRepository.delta(forward, k, T, volAdjoint[0], true);
-      double bsVega = BlackFormulaRepository.vega(forward, k, T, volAdjoint[0]);
-      double sabrDelta = bsDelta + bsVega * volAdjoint[1];
+      final double x = res.getSpaceValue(i);
+      final double k = x * forward;
+      final double modelDD = res.getFirstSpatialDerivative(i);
+      final double fixedSurfaceDelta = res.getFunctionValue(i) - x * modelDD;
+      final double[] volAdjoint = SABR.getVolatilityAdjoint(new EuropeanVanillaOption(k, T, true), forward, sabrData);
+      final double bsDelta = BlackFormulaRepository.delta(forward, k, T, volAdjoint[0], true);
+      final double bsVega = BlackFormulaRepository.vega(forward, k, T, volAdjoint[0]);
+      final double sabrDelta = bsDelta + bsVega * volAdjoint[1];
 
       if (DEBUG) {
         System.out.println(k + "\t" + fixedSurfaceDelta + "\t" + sabrDelta);
@@ -649,8 +626,8 @@ public class SABRFiniteDifferenceTest {
       public Double evaluate(final Double... x) {
         final double t = x[0];
         final double k = x[1];
-        double fwd = forwardCurve.getForward(t);
-        double vol = impVol.getVolatility(t, k);
+        final double fwd = forwardCurve.getForward(t);
+        final double vol = impVol.getVolatility(t, k);
         return discountCurve.getDiscountFactor(t) * BlackFormulaRepository.price(fwd, k, t, vol, true);
       }
     };

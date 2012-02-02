@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.beans.factory.InitializingBean;
 
+import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator;
 import com.opengamma.financial.analytics.volatility.surface.EquityOptionSurfaceConfigPopulator;
@@ -76,13 +77,18 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    */
   @PropertyDefinition
   private boolean _volatilityCube;
+  /**
+   * The flag to create the FX forward curves in the config master.
+   */
+  @PropertyDefinition
+  private boolean _fxForwardCurve;
 
   //-------------------------------------------------------------------------
   @Override
   public void afterPropertiesSet() {
-    ConfigMaster cm = getConfigMaster();
+    final ConfigMaster cm = getConfigMaster();
     ArgumentChecker.notNull(cm, "ConfigMaster");
-    
+
     if (isYieldCurve()) {
       new YieldCurveConfigPopulator(cm);
     }
@@ -103,6 +109,9 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
     }
     if (isVolatilityCube()) {
       new VolatilityCubeConfigPopulator(cm);
+    }
+    if (isFxForwardCurve()) {
+      new FXForwardCurveConfigPopulator(cm);
     }
   }
 
@@ -125,7 +134,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
   }
 
   @Override
-  protected Object propertyGet(String propertyName, boolean quiet) {
+  protected Object propertyGet(final String propertyName, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case 10395716:  // configMaster
         return getConfigMaster();
@@ -143,12 +152,14 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
         return isEquityOptionSurface();
       case 69583354:  // volatilityCube
         return isVolatilityCube();
+      case -1016191204:  // fxForwardCurve
+        return isFxForwardCurve();
     }
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
-  protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+  protected void propertySet(final String propertyName, final Object newValue, final boolean quiet) {
     switch (propertyName.hashCode()) {
       case 10395716:  // configMaster
         setConfigMaster((ConfigMaster) newValue);
@@ -174,17 +185,20 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
       case 69583354:  // volatilityCube
         setVolatilityCube((Boolean) newValue);
         return;
+      case -1016191204:  // fxForwardCurve
+        setFxForwardCurve((Boolean) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      ConfigMasterPopulatorsFactoryBean other = (ConfigMasterPopulatorsFactoryBean) obj;
+      final ConfigMasterPopulatorsFactoryBean other = (ConfigMasterPopulatorsFactoryBean) obj;
       return JodaBeanUtils.equal(getConfigMaster(), other.getConfigMaster()) &&
           JodaBeanUtils.equal(isYieldCurve(), other.isYieldCurve()) &&
           JodaBeanUtils.equal(isCurrencyMatrix(), other.isCurrencyMatrix()) &&
@@ -192,7 +206,8 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
           JodaBeanUtils.equal(isIrFutureOptionSurface(), other.isIrFutureOptionSurface()) &&
           JodaBeanUtils.equal(isFxOptionVolatilitySurface(), other.isFxOptionVolatilitySurface()) &&
           JodaBeanUtils.equal(isEquityOptionSurface(), other.isEquityOptionSurface()) &&
-          JodaBeanUtils.equal(isVolatilityCube(), other.isVolatilityCube());
+          JodaBeanUtils.equal(isVolatilityCube(), other.isVolatilityCube()) &&
+          JodaBeanUtils.equal(isFxForwardCurve(), other.isFxForwardCurve());
     }
     return false;
   }
@@ -208,6 +223,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
     hash += hash * 31 + JodaBeanUtils.hashCode(isFxOptionVolatilitySurface());
     hash += hash * 31 + JodaBeanUtils.hashCode(isEquityOptionSurface());
     hash += hash * 31 + JodaBeanUtils.hashCode(isVolatilityCube());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isFxForwardCurve());
     return hash;
   }
 
@@ -224,7 +240,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the config master.
    * @param configMaster  the new value of the property
    */
-  public void setConfigMaster(ConfigMaster configMaster) {
+  public void setConfigMaster(final ConfigMaster configMaster) {
     this._configMaster = configMaster;
   }
 
@@ -249,7 +265,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the flag to create the yield curves in the config master.
    * @param yieldCurve  the new value of the property
    */
-  public void setYieldCurve(boolean yieldCurve) {
+  public void setYieldCurve(final boolean yieldCurve) {
     this._yieldCurve = yieldCurve;
   }
 
@@ -274,7 +290,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the flag to create the currency matrix in the config master.
    * @param currencyMatrix  the new value of the property
    */
-  public void setCurrencyMatrix(boolean currencyMatrix) {
+  public void setCurrencyMatrix(final boolean currencyMatrix) {
     this._currencyMatrix = currencyMatrix;
   }
 
@@ -299,7 +315,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the flag to create the surfaces in the config master.
    * @param swaptionVolatilitySurface  the new value of the property
    */
-  public void setSwaptionVolatilitySurface(boolean swaptionVolatilitySurface) {
+  public void setSwaptionVolatilitySurface(final boolean swaptionVolatilitySurface) {
     this._swaptionVolatilitySurface = swaptionVolatilitySurface;
   }
 
@@ -324,7 +340,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the flag to create the surfaces in the config master.
    * @param irFutureOptionSurface  the new value of the property
    */
-  public void setIrFutureOptionSurface(boolean irFutureOptionSurface) {
+  public void setIrFutureOptionSurface(final boolean irFutureOptionSurface) {
     this._irFutureOptionSurface = irFutureOptionSurface;
   }
 
@@ -349,7 +365,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the flag to create the surfaces in the config master.
    * @param fxOptionVolatilitySurface  the new value of the property
    */
-  public void setFxOptionVolatilitySurface(boolean fxOptionVolatilitySurface) {
+  public void setFxOptionVolatilitySurface(final boolean fxOptionVolatilitySurface) {
     this._fxOptionVolatilitySurface = fxOptionVolatilitySurface;
   }
 
@@ -374,7 +390,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the flag to create the surfaces in the config master.
    * @param equityOptionSurface  the new value of the property
    */
-  public void setEquityOptionSurface(boolean equityOptionSurface) {
+  public void setEquityOptionSurface(final boolean equityOptionSurface) {
     this._equityOptionSurface = equityOptionSurface;
   }
 
@@ -399,7 +415,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    * Sets the flag to create the volatility cubes in the config master.
    * @param volatilityCube  the new value of the property
    */
-  public void setVolatilityCube(boolean volatilityCube) {
+  public void setVolatilityCube(final boolean volatilityCube) {
     this._volatilityCube = volatilityCube;
   }
 
@@ -409,6 +425,31 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    */
   public final Property<Boolean> volatilityCube() {
     return metaBean().volatilityCube().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the flag to create the FX forward curves in the config master.
+   * @return the value of the property
+   */
+  public boolean isFxForwardCurve() {
+    return _fxForwardCurve;
+  }
+
+  /**
+   * Sets the flag to create the FX forward curves in the config master.
+   * @param fxForwardCurve  the new value of the property
+   */
+  public void setFxForwardCurve(final boolean fxForwardCurve) {
+    this._fxForwardCurve = fxForwardCurve;
+  }
+
+  /**
+   * Gets the the {@code fxForwardCurve} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> fxForwardCurve() {
+    return metaBean().fxForwardCurve().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -462,6 +503,11 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
     private final MetaProperty<Boolean> _volatilityCube = DirectMetaProperty.ofReadWrite(
         this, "volatilityCube", ConfigMasterPopulatorsFactoryBean.class, Boolean.TYPE);
     /**
+     * The meta-property for the {@code fxForwardCurve} property.
+     */
+    private final MetaProperty<Boolean> _fxForwardCurve = DirectMetaProperty.ofReadWrite(
+        this, "fxForwardCurve", ConfigMasterPopulatorsFactoryBean.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -473,7 +519,8 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
         "irFutureOptionSurface",
         "fxOptionVolatilitySurface",
         "equityOptionSurface",
-        "volatilityCube");
+        "volatilityCube",
+        "fxForwardCurve");
 
     /**
      * Restricted constructor.
@@ -482,7 +529,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
     }
 
     @Override
-    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+    protected MetaProperty<?> metaPropertyGet(final String propertyName) {
       switch (propertyName.hashCode()) {
         case 10395716:  // configMaster
           return _configMaster;
@@ -500,6 +547,8 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
           return _equityOptionSurface;
         case 69583354:  // volatilityCube
           return _volatilityCube;
+        case -1016191204:  // fxForwardCurve
+          return _fxForwardCurve;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -582,6 +631,14 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
      */
     public final MetaProperty<Boolean> volatilityCube() {
       return _volatilityCube;
+    }
+
+    /**
+     * The meta-property for the {@code fxForwardCurve} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> fxForwardCurve() {
+      return _fxForwardCurve;
     }
 
   }

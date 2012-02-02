@@ -50,20 +50,20 @@ public class PiecewiseSABRFitter {
       avVol += impliedVols[i];
     }
     avVol /= n;
-    double appoxAlpha = avVol * Math.pow(forward, 1 - DEFAULT_BETA);
+    final double appoxAlpha = avVol * Math.pow(forward, 1 - DEFAULT_BETA);
     DoubleMatrix1D start = new DoubleMatrix1D(appoxAlpha, DEFAULT_BETA, 0.0, 0.3);
     _modelParams = new SABRFormulaData[n - 2];
 
     double[] errors = new double[n];
     Arrays.fill(errors, 0.0001); //1bps
-    SmileModelFitter<SABRFormulaData> globalFitter = new SABRModelFitter(forward, strikes, timeToExpiry, impliedVols, errors, MODEL);
-    BitSet fixed = new BitSet();
+    final SmileModelFitter<SABRFormulaData> globalFitter = new SABRModelFitter(forward, strikes, timeToExpiry, impliedVols, errors, MODEL);
+    final BitSet fixed = new BitSet();
     if (n == 3) {
       fixed.set(1); //fixed beta
     }
 
     //do a global fit first
-    LeastSquareResultsWithTransform gRes = globalFitter.solve(start, fixed);
+    final LeastSquareResultsWithTransform gRes = globalFitter.solve(start, fixed);
 
     if (n == 3) {
       if (gRes.getChiSq() / n > 1.0) {
@@ -81,9 +81,9 @@ public class PiecewiseSABRFitter {
       for (int i = 0; i < n - 2; i++) {
         tStrikes = Arrays.copyOfRange(strikes, i, i + 3);
         tVols = Arrays.copyOfRange(impliedVols, i, i + 3);
-        SmileModelFitter<SABRFormulaData> fitter =
-          new SABRModelFitter(forward, tStrikes, timeToExpiry, tVols, errors, MODEL);
-        LeastSquareResultsWithTransform lRes = fitter.solve(start, fixed);
+        final SmileModelFitter<SABRFormulaData> fitter =
+            new SABRModelFitter(forward, tStrikes, timeToExpiry, tVols, errors, MODEL);
+        final LeastSquareResultsWithTransform lRes = fitter.solve(start, fixed);
         if (lRes.getChiSq() > 3.0) {
           LOGGER.warn("chi^2 on SABR fit " + i + " is " + lRes.getChiSq());
         }
@@ -91,7 +91,6 @@ public class PiecewiseSABRFitter {
       }
 
     }
-
   }
 
   private void validateStrikes(final double[] strikes) {
@@ -102,13 +101,13 @@ public class PiecewiseSABRFitter {
   }
 
   public double getVol(final double strike) {
-    int index = getLowerBoundIndex(strike);
+    final int index = getLowerBoundIndex(strike);
     if (index == 0) {
-      SABRFormulaData p = _modelParams[0];
+      final SABRFormulaData p = _modelParams[0];
       return MODEL.getVolatility(_forward, strike, _expiry, p.getAlpha(), p.getBeta(), p.getRho(), p.getNu());
     }
     if (index >= _n - 2) {
-      SABRFormulaData p = _modelParams[_n - 3];
+      final SABRFormulaData p = _modelParams[_n - 3];
       return MODEL.getVolatility(_forward, strike, _expiry, p.getAlpha(), p.getBeta(), p.getRho(), p.getNu());
     }
     final SABRFormulaData p1 = _modelParams[index - 1];
@@ -120,7 +119,7 @@ public class PiecewiseSABRFitter {
       return MODEL.getVolatility(_forward, strike, _expiry, p2.getAlpha(), p2.getBeta(), p2.getRho(), p2.getNu());
     } else {
       return w * MODEL.getVolatility(_forward, strike, _expiry, p1.getAlpha(), p1.getBeta(), p1.getRho(), p1.getNu()) +
-      (1 - w) * MODEL.getVolatility(_forward, strike, _expiry, p2.getAlpha(), p2.getBeta(), p2.getRho(), p2.getNu());
+          (1 - w) * MODEL.getVolatility(_forward, strike, _expiry, p2.getAlpha(), p2.getBeta(), p2.getRho(), p2.getNu());
     }
   }
 
@@ -128,7 +127,7 @@ public class PiecewiseSABRFitter {
     return new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double x) {
+      public Double evaluate(final Double x) {
         return getVol(x);
       }
     };

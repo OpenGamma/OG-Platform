@@ -17,7 +17,6 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -71,28 +70,21 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
   //private static final ParameterLimitsTransform[] TRANSFORMS = new ParameterLimitsTransform[] {new SingleRangeLimitTransform(0, LimitType.GREATER_THAN), new NullTransform(), new NullTransform(),
   //  new NullTransform(), new NullTransform(), new NullTransform()};
   private static final BitSet FIXED_PARAMETERS = new BitSet(6);
+  //TODO remove this hard-coding
+  private static final String ISSUER_NAME = "US TREASURY N/B";
+  private static final Currency CURRENCY = Currency.USD;
 
   static {
     FIXED_PARAMETERS.set(0);
   }
 
-  private final Currency _currency;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;
 
-  public NelsonSiegelSvenssonBondCurveFunction(final String currencyName) {
-    Validate.notNull(currencyName, "currency name");
-    _currency = Currency.of(currencyName);
-  }
-
-  public Currency getCurrency() {
-    return _currency;
-  }
-
   @Override
   public void init(final FunctionCompilationContext context) {
-    _result = new ValueSpecification(ValueRequirementNames.NSS_BOND_CURVE, new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, _currency.getUniqueId()), createValueProperties().with(
-        PROPERTY_CURVE_CALCULATION_TYPE, PROPERTY_PREFIX + "_" + _currency.getCode()).get());
+    _result = new ValueSpecification(ValueRequirementNames.NSS_BOND_CURVE, new ComputationTargetSpecification(ComputationTargetType.PRIMITIVE, CURRENCY.getUniqueId()), createValueProperties().with(
+        PROPERTY_CURVE_CALCULATION_TYPE, PROPERTY_PREFIX + "_" + CURRENCY.getCode()).get());
     _results = Sets.newHashSet(_result);
   }
 
@@ -115,7 +107,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
         final ZonedDateTime now = snapshotClock.zonedDateTime();
         final BondSecurityConverter converter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
         final FinancialSecuritySource securitySource = executionContext.getSecuritySource(FinancialSecuritySource.class);
-        final Collection<Security> allBonds = new ArrayList<Security>(securitySource.getBondsWithIssuerName("US TREASURY N/B"));
+        final Collection<Security> allBonds = new ArrayList<Security>(securitySource.getBondsWithIssuerName(ISSUER_NAME));
         final Iterator<Security> iter = allBonds.iterator();
         while (iter.hasNext()) {
           final Security sec = iter.next();
@@ -144,7 +136,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
             throw new IllegalArgumentException("YTM should be a double");
           }
           final InstrumentDefinition<?> definition = converter.visitGovernmentBondSecurity(bondSec);
-          final String bondStringName = PROPERTY_PREFIX + "_" + _currency.getCode();
+          final String bondStringName = PROPERTY_PREFIX + "_" + CURRENCY.getCode();
           final InstrumentDerivative bond = definition.toDerivative(now, bondStringName);
           t[i] = LAST_DATE.visit(bond);
           ytm[i++] = ((Double) ytmObject / 100);
@@ -169,7 +161,7 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
         if (target.getType() != ComputationTargetType.PRIMITIVE) {
           return false;
         }
-        return ObjectUtils.equals(target.getUniqueId(), _currency.getUniqueId());
+        return ObjectUtils.equals(target.getUniqueId(), CURRENCY.getUniqueId());
       }
 
       @SuppressWarnings("synthetic-access")
@@ -195,8 +187,8 @@ public class NelsonSiegelSvenssonBondCurveFunction extends AbstractFunction {
           for (final Security sec : allBonds) {
             if (sec instanceof BondSecurity) {
               final BondSecurity bond = (BondSecurity) sec;
-              if (!bond.getCurrency().equals(_currency)) {
-                throw new OpenGammaRuntimeException("Currency for bond " + bond.getUniqueId() + " (" + bond.getCurrency() + ") did not match that required (" + _currency + ")");
+              if (!bond.getCurrency().equals(CURRENCY)) {
+                throw new OpenGammaRuntimeException("Currency for bond " + bond.getUniqueId() + " (" + bond.getCurrency() + ") did not match that required (" + CURRENCY + ")");
               }
               requirements.add(new ValueRequirement(ValueRequirementNames.YTM, ComputationTargetType.SECURITY, bond.getUniqueId()));
             } else {

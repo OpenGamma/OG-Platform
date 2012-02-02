@@ -8,6 +8,7 @@ package com.opengamma.livedata.client;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.fudgemsg.FudgeContext;
@@ -304,10 +305,13 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
     }
   
     private void startReceivingTicks() {
-      for (Map.Entry<SubscriptionHandle, LiveDataSubscriptionResponse> entry : getSuccessResponses().entrySet()) {
+      Map<SubscriptionHandle, LiveDataSubscriptionResponse> resps = getSuccessResponses();
+      List<String> distributionSpecs = new ArrayList<String>(resps.size());
+      for (Map.Entry<SubscriptionHandle, LiveDataSubscriptionResponse> entry : resps.entrySet()) {
         DistributedLiveDataClient.this.subscriptionStartingToReceiveTicks(entry.getKey(), entry.getValue());
-        DistributedLiveDataClient.this.startReceivingTicks(entry.getValue().getTickDistributionSpecification());
+        distributionSpecs.add(entry.getValue().getTickDistributionSpecification());
       }
+      DistributedLiveDataClient.this.startReceivingTicks(distributionSpecs);
     }
     
     private void snapshot() {
@@ -366,7 +370,7 @@ public class DistributedLiveDataClient extends AbstractLiveDataClient implements
   /**
    * @param tickDistributionSpecification JMS topic name
    */
-  public void startReceivingTicks(String tickDistributionSpecification) {
+  public void startReceivingTicks(Collection<String> tickDistributionSpecification) {
     // Default no-op.
   }
   

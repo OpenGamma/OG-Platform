@@ -11,8 +11,13 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
+import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
+import com.opengamma.math.function.Function;
 import com.opengamma.math.interpolation.Interpolator2D;
 import com.opengamma.math.surface.ConstantDoublesSurface;
+import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 
 /**
@@ -75,4 +80,34 @@ final class MathSurface {
     }
   }
 
+  @FudgeBuilderFor(FunctionalDoublesSurface.class)
+  public static final class FunctionalDoublesSurfaceBuilder extends AbstractFudgeBuilder<FunctionalDoublesSurface> {
+    private static final String SURFACE_FUNCTION_FIELD_NAME = "function";
+    private static final String SURFACE_NAME_FIELD_NAME = "name";
+
+    @SuppressWarnings({"unchecked", "rawtypes" })
+    @Override
+    public FunctionalDoublesSurface buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final String name = deserializer.fieldValueToObject(String.class, message.getByName(SURFACE_NAME_FIELD_NAME));
+      final Object function = deserializer.fieldValueToObject(message.getByName(SURFACE_FUNCTION_FIELD_NAME));
+      if (function instanceof Function) {
+        return FunctionalDoublesSurface.from((Function) function, name);
+      } else if (function instanceof BlackVolatilitySurfaceMoneyness) { //TODO this is wrong
+        final BlackVolatilitySurfaceMoneyness moneyness = (BlackVolatilitySurfaceMoneyness) function;
+        return (FunctionalDoublesSurface) moneyness.getSurface();
+      } else if (function instanceof LocalVolatilitySurfaceMoneyness) { //TODO this is wrong
+        final LocalVolatilitySurfaceMoneyness moneyness = (LocalVolatilitySurfaceMoneyness) function;
+        return (FunctionalDoublesSurface) moneyness.getSurface();
+      }
+      throw new OpenGammaRuntimeException("Expected serialized Function, got " + function);
+    }
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final FunctionalDoublesSurface object) {
+      serializer.addToMessage(message, SURFACE_NAME_FIELD_NAME, null, object.getName());
+      serializer.addToMessage(message, SURFACE_FUNCTION_FIELD_NAME, null, substituteObject(object.getFunction()));
+      return;
+    }
+
+  }
 }
