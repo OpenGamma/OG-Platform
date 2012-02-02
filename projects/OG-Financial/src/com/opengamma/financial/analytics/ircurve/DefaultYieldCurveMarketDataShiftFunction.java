@@ -31,7 +31,7 @@ import com.opengamma.util.money.Currency;
 public class DefaultYieldCurveMarketDataShiftFunction extends StaticDefaultPropertyFunction {
 
   /**
-   * Property to shift all yield curve market data. 
+   * Property to shift all yield curve market data.
    */
   protected static final String YIELD_CURVE_MARKET_DATA_SHIFT = "YIELD_CURVE_MARKET_DATA_" + YieldCurveShiftFunction.SHIFT;
 

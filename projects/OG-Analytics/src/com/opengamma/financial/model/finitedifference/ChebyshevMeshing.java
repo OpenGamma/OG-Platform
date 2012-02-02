@@ -12,12 +12,14 @@ import org.apache.commons.lang.Validate;
  */
 public class ChebyshevMeshing extends MeshingFunction {
 
-  private double _a;
-  private double _r;
-  private int _n;
+  private final double _a;
+  private final double _r;
+  private final int _n;
 
   /**
-   * @param nPoints
+   * @param lowerBound The lower bound
+   * @param upperBound The upper bound
+   * @param nPoints The number of points
    */
   public ChebyshevMeshing(final double lowerBound, final double upperBound, final int nPoints) {
     super(nPoints);
@@ -28,7 +30,7 @@ public class ChebyshevMeshing extends MeshingFunction {
   }
 
   @Override
-  public Double evaluate(Integer i) {
+  public Double evaluate(final Integer i) {
     Validate.isTrue(i >= 0 && i < getNumberOfPoints(), "i out of range");
     return _a + _r * (1 - Math.cos(i * Math.PI / _n));
   }

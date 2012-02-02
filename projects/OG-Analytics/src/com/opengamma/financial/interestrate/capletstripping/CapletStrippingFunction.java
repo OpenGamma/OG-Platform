@@ -33,12 +33,12 @@ public class CapletStrippingFunction extends Function1D<DoubleMatrix1D, DoubleMa
   private static final String RHO = "rho";
   private static final String NU = "nu";
 
-  private List<CapFloorPricer> _capPricers;
+  private final List<CapFloorPricer> _capPricers;
 
   // private final LinkedHashMap<String, double[]> _knotPoints;
   // private final LinkedHashMap<String, Interpolator1D> _interpolators;
   // private final LinkedHashMap<String, ParameterLimitsTransform> _parameterTransforms;
-  private final LinkedHashMap<String, InterpolatedDoublesCurve> _knownParameterTermSturctures;
+  private final LinkedHashMap<String, InterpolatedDoublesCurve> _knownParameterTermStructures;
 
   private final InterpolatedCurveBuildingFunction _curveBuilder;
 
@@ -70,10 +70,10 @@ public class CapletStrippingFunction extends Function1D<DoubleMatrix1D, DoubleMa
           ^ knownParameterTermSturctures.containsKey(RHO), "rho curve not found");
     }
 
-    LinkedHashMap<String, Interpolator1D> transInterpolators = new LinkedHashMap<String, Interpolator1D>();
-    Set<String> names = interpolators.keySet();
-    for (String name : names) {
-      Interpolator1D temp = new TransformedInterpolator1D(interpolators.get(name), parameterTransforms.get(name));
+    final LinkedHashMap<String, Interpolator1D> transInterpolators = new LinkedHashMap<String, Interpolator1D>();
+    final Set<String> names = interpolators.keySet();
+    for (final String name : names) {
+      final Interpolator1D temp = new TransformedInterpolator1D(interpolators.get(name), parameterTransforms.get(name));
       transInterpolators.put(name, temp);
     }
 
@@ -82,36 +82,27 @@ public class CapletStrippingFunction extends Function1D<DoubleMatrix1D, DoubleMa
     //  _parameterTransforms = parameterTransforms; //TODO all the check for this
 
     _capPricers = new ArrayList<CapFloorPricer>(caps.size());
-    for (CapFloor cap : caps) {
+    for (final CapFloor cap : caps) {
       _capPricers.add(new CapFloorPricer(cap, yieldCurves));
     }
-
-    int sum = 0;
-    for (double[] nodes : knotPoints.values()) {
-      sum += nodes.length;
-    }
-    //    _totalNodes = sum;
-    //  _knotPoints = knotPoints;
-    //  _interpolators = interpolators;
-
-    _knownParameterTermSturctures = knownParameterTermSturctures;
+    _knownParameterTermStructures = knownParameterTermSturctures;
   }
 
   @Override
-  public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+  public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
 
-    LinkedHashMap<String, InterpolatedDoublesCurve> curves = _curveBuilder.evaluate(x);
+    final LinkedHashMap<String, InterpolatedDoublesCurve> curves = _curveBuilder.evaluate(x);
 
     // set any known (i.e. fixed) curves
-    if (_knownParameterTermSturctures != null) {
-      curves.putAll(_knownParameterTermSturctures);
+    if (_knownParameterTermStructures != null) {
+      curves.putAll(_knownParameterTermStructures);
     }
 
     //TODO for now this is tied to SABRTermStructureParameters - what to be able to drop in any volatility model that has a term structure of
     //parameters
-    VolatilityModel1D volModel = new SABRTermStructureParameters(curves.get(ALPHA), curves.get(BETA), curves.get(RHO), curves.get(NU));
+    final VolatilityModel1D volModel = new SABRTermStructureParameters(curves.get(ALPHA), curves.get(BETA), curves.get(RHO), curves.get(NU));
 
-    double[] res = new double[_capPricers.size()];
+    final double[] res = new double[_capPricers.size()];
     for (int i = 0; i < _capPricers.size(); i++) {
       res[i] = _capPricers.get(i).impliedVol(volModel);
     }

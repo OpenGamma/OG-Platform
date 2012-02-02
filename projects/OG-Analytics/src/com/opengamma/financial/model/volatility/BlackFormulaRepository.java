@@ -224,8 +224,7 @@ public abstract class BlackFormulaRepository {
   }
 
   /**
-   * The driftless vanna of an option, i.e.second order derivative of the option value, once to the underlying spot price and once to volatility.
-   * divide by the the numeraire)
+   * The driftless vanna of an option, i.e. second order derivative of the option value, once to the underlying spot price and once to volatility.
    * @param forward The forward value of the underlying
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
@@ -249,13 +248,12 @@ public abstract class BlackFormulaRepository {
   }
 
   /**
-   * The driftless vanna of an option, i.e.second order derivative of the option value, once to the underlying spot price and once to volatility.
-   * divide by the the numeraire)
+   * The driftless vomma of an option, i.e. second order derivative of the option forward price with respect to the implied volatility.
    * @param forward The forward value of the underlying
    * @param strike The Strike
    * @param timeToExpiry The time-to-expiry
    * @param lognormalVol The log-normal volatility
-   * @return The forward vanna
+   * @return The forward vomma
    */
   public static double vomma(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
     if (forward == 0.0 || strike == 0.0) {
@@ -305,7 +303,7 @@ public abstract class BlackFormulaRepository {
       final double[] temp = bracketRoot(price, forward, strike, timeToExpiry, isCall, sigma, 0.1);
       lowerSigma = temp[0];
       upperSigma = temp[1];
-    } catch (MathException e) {
+    } catch (final MathException e) {
       throw new IllegalArgumentException(e.toString() + " No implied Volatility for this price. [price: " + price + ", forward: " + forward + ", strike: " +
           strike + ", timeToExpiry: " + timeToExpiry + ", " + (isCall ? "Call" : "put"));
     }
@@ -382,7 +380,7 @@ public abstract class BlackFormulaRepository {
   public static double impliedVolatility(final SimpleOptionData[] data, final double price) {
     Validate.notEmpty(data, "no option data given");
     double intrinsicPrice = 0.0;
-    for (SimpleOptionData option : data) {
+    for (final SimpleOptionData option : data) {
       intrinsicPrice += Math.max(0, (option.isCall() ? 1 : -1) * option.getDiscountFactor() * (option.getForward() - option.getStrike()));
     }
     Validate.isTrue(price >= intrinsicPrice, "option price (" + price + ") less than intrinsic value (" + intrinsicPrice
@@ -397,7 +395,7 @@ public abstract class BlackFormulaRepository {
 
     double modelPrice = 0.0;
     double vega = 0.0;
-    for (SimpleOptionData option : data) {
+    for (final SimpleOptionData option : data) {
       modelPrice += price(option, sigma);
       vega += vega(option, sigma);
     }
@@ -419,7 +417,7 @@ public abstract class BlackFormulaRepository {
 
       modelPrice = 0.0;
       vega = 0.0;
-      for (SimpleOptionData option : data) {
+      for (final SimpleOptionData option : data) {
         modelPrice += price(option, sigma);
         vega += vega(option, sigma);
       }
@@ -451,7 +449,7 @@ public abstract class BlackFormulaRepository {
 
     final double rootT = Math.sqrt(timeToExpiry);
     final double sigmaRootT = lognormalVol * rootT;
-    double[] res = new double[2];
+    final double[] res = new double[2];
 
     if (Math.abs(forward - strike) < SMALL) {
       res[0] = forward * (2 * NORMAL.getCDF(sigmaRootT / 2) - 1);
