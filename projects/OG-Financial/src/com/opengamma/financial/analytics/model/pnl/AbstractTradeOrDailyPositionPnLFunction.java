@@ -37,6 +37,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -114,6 +115,10 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
 
       double costOfCarry = getCostOfCarry(security, tradeDate, historicalSource);
       Double markToMarket = markToMarketSeries.getTimeSeries().getValue(tradeDate);
+      if (security instanceof FutureSecurity) {
+        FutureSecurity futureSecurity = (FutureSecurity) security;
+        markToMarket = markToMarket * futureSecurity.getUnitAmount();
+      }
 
       BigDecimal dailyPnL = trade.getQuantity().multiply(new BigDecimal(String.valueOf(tradeValue - markToMarket - costOfCarry)));
       s_logger.debug("{}  security: {} quantity: {} fairValue: {} markToMarket: {} costOfCarry: {} dailyPnL: {}",

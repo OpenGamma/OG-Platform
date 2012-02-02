@@ -123,7 +123,6 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>(super.getRequirements(context, target, desiredValue));
     final Set<String> forwardCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     if (forwardCurves == null || forwardCurves.size() != 1) {
       return null;
@@ -136,10 +135,18 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
     if (surfaceNames == null || surfaceNames.size() != 1) {
       return null;
     }
-    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-    final String ccyCode = ccy.getCode();
     final String forwardCurveName = forwardCurves.iterator().next();
     final String fundingCurveName = fundingCurves.iterator().next();
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    requirements.add(getSurfaceRequirement(target, surfaceNames.iterator().next()));
+    if (forwardCurveName.equals(fundingCurveName)) {
+      requirements.add(getCurveRequirement(target, forwardCurveName, null, null));
+      return requirements;
+    }
+    requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName));
+    requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName));
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    final String ccyCode = ccy.getCode();
     final String surfaceName = surfaceNames.iterator().next();
     final ValueProperties sensitivityProperties = getModelSensitivityProperties(ccyCode, forwardCurveName, fundingCurveName, surfaceName);
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY, target.getTrade(), sensitivityProperties));
@@ -172,16 +179,16 @@ public class InterestRateFutureOptionVegaFunction extends InterestRateFutureOpti
 
   private ValueProperties getModelSensitivityProperties(final String ccyCode, final String forwardCurveName, final String fundingCurveName, final String surfaceName) {
     return ValueProperties.builder().with(ValuePropertyNames.CURRENCY, ccyCode)
-    .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
-    .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
-    .with(ValuePropertyNames.SURFACE, surfaceName).get();
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(ValuePropertyNames.SURFACE, surfaceName).get();
   }
 
   private ValueRequirement getFittedDataRequirement(final Currency ccy, final String surfaceName) {
     final ValueProperties properties = ValueProperties.builder()
-      .with(ValuePropertyNames.CURRENCY, ccy.getCode())
-      .with(ValuePropertyNames.SURFACE, surfaceName)
-      .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
+        .with(ValuePropertyNames.CURRENCY, ccy.getCode())
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
     return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_FITTED_POINTS, ccy, properties);
   }
 }

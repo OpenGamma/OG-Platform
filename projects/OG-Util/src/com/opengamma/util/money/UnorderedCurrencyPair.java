@@ -22,7 +22,7 @@ public final class UnorderedCurrencyPair implements UniqueIdentifiable, ObjectId
   /**
    * The scheme to use in object identifiers.
    */
-  private static final String OBJECT_SCHEME = "UnorderedCurrencyPair";
+  public static final String OBJECT_SCHEME = "UnorderedCurrencyPair";
 
   /**
    * One of the two currencies.
