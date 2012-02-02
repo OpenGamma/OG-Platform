@@ -7,12 +7,12 @@ package com.opengamma.math.function;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.model.volatility.smile.fitting.SVINonLinearLeastSquareFitter;
+import com.opengamma.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
 import com.opengamma.util.serialization.InvokedSerializedForm;
 
 /**
  * This class defines a 1-D function that takes both its argument and parameters inputs into the {@link #evaluate} method. The
- * function can also be converted into a 1-D function of the arguments or a 1-D function of the parameters. 
+ * function can also be converted into a 1-D function of the arguments or a 1-D function of the parameters.
  * <p>
  * For example, assume that there is a function {@latex.inline $f(x, \\underline{a})$} defined as:
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
@@ -27,7 +27,7 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
  * g(x) = a_0 + a_1 x + a_2 x^2 + a_3 x^6
  * \\end{align*}
  * }
- * with {@latex.inline $\\underline{a}$} constant. If the function is converted into a function of the parameters, the resulting function 
+ * with {@latex.inline $\\underline{a}$} constant. If the function is converted into a function of the parameters, the resulting function
  * {@latex.inline $h(\\underline{a})$} is:
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{align*}
@@ -36,10 +36,10 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
  * }
  * with {@latex.inline $x$} constant.
  * <p>
- * This class is particularly useful when trying to fit the parameters of a model (as in {@link SVINonLinearLeastSquareFitter}).
+ * This class is particularly useful when trying to fit the parameters of a model (as in {@link NelsonSiegelSvennsonBondCurveModel}).
  * 
  * @param <S> Type of arguments
- * @param <T> Type of parameters 
+ * @param <T> Type of parameters
  * @param <U> Type of result
  */
 public abstract class ParameterizedFunction<S, T, U> {

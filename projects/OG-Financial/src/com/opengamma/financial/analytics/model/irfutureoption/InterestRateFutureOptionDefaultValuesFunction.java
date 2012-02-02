@@ -15,6 +15,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 
 /**
  * Dummy function for injecting default curve names into the dependency graph.
@@ -31,6 +32,14 @@ public class InterestRateFutureOptionDefaultValuesFunction extends DefaultProper
     _fundingCurve = fundingCurve;
     _surfaceName = surfaceName;
     _valueNames = valueNames;
+  }
+
+  @Override
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+    if (target.getType() != ComputationTargetType.TRADE) {
+      return false;
+    }
+    return target.getTrade().getSecurity() instanceof IRFutureOptionSecurity;
   }
 
   @Override

@@ -17,11 +17,12 @@ import org.testng.annotations.Test;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.money.Currency;
 
 @Test
 public class FunctionInputsImplTest {
-  private static final ValueRequirement REQ1 = new ValueRequirement("foo-1", "USD");
-  private static final ValueRequirement REQ2 = new ValueRequirement("foo-2", "USD");
+  private static final ValueRequirement REQ1 = new ValueRequirement("foo-1", Currency.USD);
+  private static final ValueRequirement REQ2 = new ValueRequirement("foo-2", Currency.USD);
   private static final ValueSpecification SPEC1 = new ValueSpecification(REQ1, "mockFunctionId");
   private static final ValueSpecification SPEC2 = new ValueSpecification(REQ2, "mockFunctionId");
   private static final ComputedValue VALUE1 = new ComputedValue(SPEC1, "1");

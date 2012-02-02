@@ -19,7 +19,6 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
-import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -253,9 +252,9 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
       }
       final double sensitivity = values[i];
       final ExternalIdBundle id = ExternalIdBundle.of((ExternalId) idObject);
-      final HistoricalTimeSeries dbNodeTimeSeries = historicalSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, _resolutionKey, startDate, true, now, true);
+      final HistoricalTimeSeries dbNodeTimeSeries = historicalSource.getHistoricalTimeSeries("PX_LAST", id, _resolutionKey, startDate, true, now, true);
       if (dbNodeTimeSeries == null) {
-        throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id + " for " + _resolutionKey + "/" + MarketDataRequirementNames.MARKET_VALUE);
+        throw new OpenGammaRuntimeException("Could not identifier / price series pair for " + id + " for " + _resolutionKey + "/PX_LAST");
       }
       DoubleTimeSeries<?> nodeTimeSeries = samplingFunction.getSampledTimeSeries(dbNodeTimeSeries.getTimeSeries(), schedule);
       nodeTimeSeries = nodeTimeSeries.divide(getNormalizationFactor(stripList.get(i)));

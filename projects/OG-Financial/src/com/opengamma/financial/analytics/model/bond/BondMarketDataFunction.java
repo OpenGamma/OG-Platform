@@ -43,14 +43,14 @@ public abstract class BondMarketDataFunction extends NonCompiledInvoker {
     if (value == null) {
       throw new OpenGammaRuntimeException("Could not get " + requirement);
     }
-    return getComputedValues(executionContext, (Double) value, security);
+    return getComputedValues(executionContext, (Double) value, security, target);
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context,
       final ComputationTarget target, final ValueRequirement desiredValue) {
     return Sets.newHashSet(new ValueRequirement(_requirementName, ComputationTargetType.SECURITY, target
-          .getSecurity().getUniqueId()));
+        .getSecurity().getUniqueId()));
   }
 
   @Override
@@ -67,6 +67,6 @@ public abstract class BondMarketDataFunction extends NonCompiledInvoker {
     return ComputationTargetType.SECURITY;
   }
 
-  protected abstract Set<ComputedValue> getComputedValues(FunctionExecutionContext context, double value, BondSecurity security);
+  protected abstract Set<ComputedValue> getComputedValues(final FunctionExecutionContext context, final double value, final BondSecurity security, final ComputationTarget target);
 
 }
