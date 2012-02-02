@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.var;
 import java.util.Map;
 import java.util.Set;
 
+import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
@@ -101,8 +102,14 @@ public abstract class NormalHistoricalVaRFunction extends AbstractFunction.NonCo
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName.iterator().next())
         .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName.iterator().next())
-        .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next())
-        .withAny(ValuePropertyNames.CURRENCY);
+        .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName.iterator().next());
+    Set<String> desiredCurrencyValues = desiredValue.getConstraints().getValues(ValuePropertyNames.CURRENCY);
+    if (desiredCurrencyValues == null || desiredCurrencyValues.isEmpty()) {
+      properties.withAny(ValuePropertyNames.CURRENCY);
+    } else {
+      String desiredCurrency = Iterables.getOnlyElement(desiredCurrencyValues);
+      properties.with(ValuePropertyNames.CURRENCY, desiredCurrency);
+    }
     if (aggregationStyle != null) {
       if (aggregationStyle.isEmpty()) {
         properties.withOptional(ValuePropertyNames.AGGREGATION);

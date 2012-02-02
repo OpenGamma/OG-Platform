@@ -7,6 +7,8 @@ package com.opengamma.util;
 
 import java.util.Map;
 
+import org.slf4j.helpers.MessageFormatter;
+
 /**
  * Contains utility methods for checking inputs to methods.
  */
@@ -32,6 +34,21 @@ public final class ArgumentChecker {
       throw new IllegalArgumentException(message);
     }
   }
+  
+  /**
+   * Checks that the specified boolean is true.
+   * This will normally be the result of a caller-specific check.
+   * 
+   * @param trueIfValid  a boolean resulting from testing an argument, may be null
+   * @param message  the error message, not null
+   * @param arg  the message arguments
+   * @throws IllegalArgumentException if the test value is false
+   */
+  public static void isTrue(boolean trueIfValid, String message, Object... arg) {
+    if (trueIfValid == false) {
+      throw new IllegalArgumentException(MessageFormatter.arrayFormat(message, arg));
+    }
+  }  
 
   /**
    * Checks that the specified boolean is false.
@@ -47,6 +64,21 @@ public final class ArgumentChecker {
     }
   }
 
+  /**
+   * Checks that the specified boolean is false.
+   * This will normally be the result of a caller-specific check.
+   * 
+   * @param falseIfValid  a boolean resulting from testing an argument, may be null
+   * @param message  the error message, not null
+   * @param arg  the message arguments
+   * @throws IllegalArgumentException if the test value is false
+   */
+  public static void isFalse(boolean falseIfValid, String message, Object... arg) {
+    if (falseIfValid) {
+      throw new IllegalArgumentException(MessageFormatter.arrayFormat(message, arg));
+    }
+  }
+  
   //-------------------------------------------------------------------------
   /**
    * Checks that the specified parameter is non-null.

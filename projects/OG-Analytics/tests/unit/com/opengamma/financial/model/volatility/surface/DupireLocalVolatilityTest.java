@@ -25,6 +25,7 @@ import com.opengamma.financial.model.finitedifference.applications.PDEUtilityToo
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.financial.model.volatility.local.DupireLocalVolatilityCalculator;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.math.function.Function;
@@ -114,32 +115,32 @@ public class DupireLocalVolatilityTest {
 
   @Test
   public void testImpliedVolCal() {
-    LocalVolatilitySurfaceStrike lv = DUPIRE.getLocalVolatility(PRICE_SURFACE, SPOT, RATE, YIELD);
-    double vol1 = lv.getVolatility(EXPIRY, STRIKE);
-    double vol2 = LOCAL_VOL.getVolatility(EXPIRY, STRIKE);
+    final LocalVolatilitySurfaceStrike lv = DUPIRE.getLocalVolatility(PRICE_SURFACE, SPOT, RATE, YIELD);
+    final double vol1 = lv.getVolatility(EXPIRY, STRIKE);
+    final double vol2 = LOCAL_VOL.getVolatility(EXPIRY, STRIKE);
     assertEquals(vol1, vol2, 1e-6);
   }
 
   @Test
   public void testImpliedVolMoneynessCal() {
-    LocalVolatilitySurfaceStrike lv = DUPIRE.getLocalVolatility(PRICE_SURFACE, SPOT, RATE, YIELD);
-    double vol1 = lv.getVolatility(EXPIRY, STRIKE);
-    BlackVolatilitySurfaceMoneyness miv = BlackVolatilitySurfaceConverter.toMoneynessSurface(SABR_SURFACE, FORWARD_CURVE);
-    LocalVolatilitySurfaceMoneyness lvm = DUPIRE.getLocalVolatility(miv);
-    double vol2 = lvm.getVolatility(EXPIRY, STRIKE);
+    final LocalVolatilitySurfaceStrike lv = DUPIRE.getLocalVolatility(PRICE_SURFACE, SPOT, RATE, YIELD);
+    final double vol1 = lv.getVolatility(EXPIRY, STRIKE);
+    final BlackVolatilitySurfaceMoneyness miv = BlackVolatilitySurfaceConverter.toMoneynessSurface(SABR_SURFACE, FORWARD_CURVE);
+    final LocalVolatilitySurfaceMoneyness lvm = DUPIRE.getLocalVolatility(miv);
+    final double vol2 = lvm.getVolatility(EXPIRY, STRIKE);
     assertEquals(vol1, vol2, 1e-6);
   }
 
   @Test(enabled = false)
   public void printSurfaces() {
-    //    SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
-    //    double k = 0.01;
-    //    for (int i = 0; i < 10; i++) {
-    //      double t = 0.5 + i * 20 / 9.;
-    //      double vol1 = SABR_SURFACE.getVolatility(t, k);
-    //      double vol2 = sabr.getVolatility(SPOT, k, t, ALPHA, BETA, RHO, NU);
-    //      System.out.println(t + "\t" + vol1 + "\t" + vol2);
-    // }
+    final SABRHaganVolatilityFunction sabr = new SABRHaganVolatilityFunction();
+    final double k = 0.01;
+    for (int i = 0; i < 10; i++) {
+      final double t = 0.5 + i * 20 / 9.;
+      final double vol1 = SABR_SURFACE.getVolatility(t, k);
+      final double vol2 = sabr.getVolatility(SPOT, k, t, ALPHA, BETA, RHO, NU);
+      System.out.println(t + "\t" + vol1 + "\t" + vol2);
+    }
     PDEUtilityTools.printSurface("Imp Vol", SABR_SURFACE.getSurface(), 0., 5., 0.1 * SPOT, 3 * SPOT);
     PDEUtilityTools.printSurface("Loc Vol", LOCAL_VOL.getSurface(), 0., 5., 0.1 * SPOT, 3 * SPOT);
     PDEUtilityTools.printSurface("ABs Loc Vol", ABS_LOCAL_VOL.getSurface(), 0., 5., 0.1 * SPOT, 3 * SPOT);
@@ -148,34 +149,34 @@ public class DupireLocalVolatilityTest {
 
   @Test
   public void pdePriceTest() {
-    PDEDataBundleProvider provider = new PDEDataBundleProvider();
-    ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(STRIKE, EXPIRY, true, LOCAL_VOL,FORWARD_CURVE);
-    ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, false);
+    final PDEDataBundleProvider provider = new PDEDataBundleProvider();
+    final ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(STRIKE, EXPIRY, true, LOCAL_VOL,FORWARD_CURVE);
+    final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, false);
     final double forward = FORWARD_CURVE.getForward(EXPIRY);
 
     final int nTimeNodes = 50;
     final int nSpotNodes = 100;
     final double upperLevel = 3.5 * forward;
 
-    BoundaryCondition lower = new DirichletBoundaryCondition(0, 0);
-    BoundaryCondition upper = new NeumannBoundaryCondition(1.0, upperLevel, false);
-    MeshingFunction timeMesh = new ExponentialMeshing(0.0, EXPIRY, nTimeNodes, 6.0);
-    MeshingFunction spaceMesh = new HyperbolicMeshing(0, upperLevel, STRIKE, nSpotNodes, 0.05);
-    PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
-    PDEResults1D res = solver.solve(db, grid, lower, upper);
+    final BoundaryCondition lower = new DirichletBoundaryCondition(0, 0);
+    final BoundaryCondition upper = new NeumannBoundaryCondition(1.0, upperLevel, false);
+    final MeshingFunction timeMesh = new ExponentialMeshing(0.0, EXPIRY, nTimeNodes, 6.0);
+    final MeshingFunction spaceMesh = new HyperbolicMeshing(0, upperLevel, STRIKE, nSpotNodes, 0.05);
+    final PDEGrid1D grid = new PDEGrid1D(timeMesh, spaceMesh);
+    final PDEResults1D res = solver.solve(db, grid, lower, upper);
 
-    int fwdIndex = grid.getLowerBoundIndexForSpace(forward);
-    double[] fwd = new double[4];
-    double[] vol = new double[4];
+    final int fwdIndex = grid.getLowerBoundIndexForSpace(forward);
+    final double[] fwd = new double[4];
+    final double[] vol = new double[4];
     for (int i = 0; i < 4; i++) {
       fwd[i] = grid.getSpaceNode(i + fwdIndex - 1);
-      double price = res.getFunctionValue(i + fwdIndex - 1);
+      final double price = res.getFunctionValue(i + fwdIndex - 1);
       vol[i] = BlackFormulaRepository.impliedVolatility(price, fwd[i], STRIKE, EXPIRY, true);
     }
-    Interpolator1DDoubleQuadraticDataBundle idb = INTERPOLATOR_1D.getDataBundle(fwd, vol);
+    final Interpolator1DDoubleQuadraticDataBundle idb = INTERPOLATOR_1D.getDataBundle(fwd, vol);
 
-    double sabrVol = SABR_SURFACE.getVolatility(EXPIRY, STRIKE);
-    double modelVol = INTERPOLATOR_1D.interpolate(idb, forward);
+    final double sabrVol = SABR_SURFACE.getVolatility(EXPIRY, STRIKE);
+    final double modelVol = INTERPOLATOR_1D.interpolate(idb, forward);
     assertEquals("Volatility test", sabrVol, modelVol, 1e-4); //1bps error
   }
 

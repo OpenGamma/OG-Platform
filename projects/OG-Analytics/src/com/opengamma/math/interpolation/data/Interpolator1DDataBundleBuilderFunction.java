@@ -11,8 +11,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.math.curve.Curve;
-import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
@@ -26,13 +24,13 @@ public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleMa
   private final LinkedHashMap<String, Interpolator1D> _interpolators;
   private final int _nNodes;
 
-  public Interpolator1DDataBundleBuilderFunction(final LinkedHashMap<String, double[]> knotPoints, LinkedHashMap<String, Interpolator1D> interpolators) {
+  public Interpolator1DDataBundleBuilderFunction(final LinkedHashMap<String, double[]> knotPoints, final LinkedHashMap<String, Interpolator1D> interpolators) {
     Validate.notNull(knotPoints, "null knot points");
     Validate.notNull(interpolators, "null interpolators");
     int count = 0;
-    Set<String> names = knotPoints.keySet();
-    for (String name : names) {
-      int size = knotPoints.get(name).length;
+    final Set<String> names = knotPoints.keySet();
+    for (final String name : names) {
+      final int size = knotPoints.get(name).length;
       Validate.isTrue(size > 0, "no knot points for " + name);
       count += size;
     }
@@ -42,11 +40,11 @@ public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleMa
   }
 
   @Override
-  public LinkedHashMap<String, Interpolator1DDataBundle> evaluate(DoubleMatrix1D x) {
+  public LinkedHashMap<String, Interpolator1DDataBundle> evaluate(final DoubleMatrix1D x) {
     Validate.notNull(x, "null data x");
     Validate.isTrue(_nNodes == x.getNumberOfElements(), "x wrong length");
 
-    LinkedHashMap<String, Interpolator1DDataBundle> res = new LinkedHashMap<String, Interpolator1DDataBundle>();
+    final LinkedHashMap<String, Interpolator1DDataBundle> res = new LinkedHashMap<String, Interpolator1DDataBundle>();
     int index = 0;
 
     for (final String name : _interpolators.keySet()) {
@@ -54,7 +52,7 @@ public class Interpolator1DDataBundleBuilderFunction extends Function1D<DoubleMa
       final double[] nodes = _knotPoints.get(name);
       final double[] values = Arrays.copyOfRange(x.getData(), index, index + nodes.length);
       index += nodes.length;
-      Interpolator1DDataBundle db = interpolator.getDataBundleFromSortedArrays(nodes, values);
+      final Interpolator1DDataBundle db = interpolator.getDataBundleFromSortedArrays(nodes, values);
       res.put(name, db);
     }
 

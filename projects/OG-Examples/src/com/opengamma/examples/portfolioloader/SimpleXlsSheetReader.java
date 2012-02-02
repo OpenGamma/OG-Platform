@@ -59,7 +59,7 @@ public class SimpleXlsSheetReader extends SheetReader {
     // Normalise read-in headers (to lower case) and set as columns
     String[] columns = new String[rawRow.getPhysicalNumberOfCells()];
     for (int i = 0; i < rawRow.getPhysicalNumberOfCells(); i++) {
-      columns[i] = getCell(rawRow, i).toLowerCase();
+      columns[i] = getCell(rawRow, i).trim().toLowerCase();
     }
     setColumns(columns); 
   }

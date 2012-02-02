@@ -48,7 +48,7 @@ public class CsvSheetReader extends SheetReader {
     // Normalise read-in headers (to lower case) and set as columns
     String[] columns = new String[rawRow.length];
     for (int i = 0; i < rawRow.length; i++) {
-      columns[i] = rawRow[i].toLowerCase();
+      columns[i] = rawRow[i].trim().toLowerCase();
     }
     setColumns(columns);
   }
