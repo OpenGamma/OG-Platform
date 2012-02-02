@@ -63,16 +63,16 @@ public class CapletStrippingJacobian extends Function1D<DoubleMatrix1D, DoubleMa
 
     _knownParameterTermSturctures = knownParameterTermSturctures;
 
-    LinkedHashMap<String, Interpolator1D> transInterpolators = new LinkedHashMap<String, Interpolator1D>();
-    Set<String> names = interpolators.keySet();
+    final LinkedHashMap<String, Interpolator1D> transInterpolators = new LinkedHashMap<String, Interpolator1D>();
+    final Set<String> names = interpolators.keySet();
     _parameterNames = names;
-    for (String name : names) {
-      Interpolator1D temp = new TransformedInterpolator1D(interpolators.get(name), parameterTransforms.get(name));
+    for (final String name : names) {
+      final Interpolator1D temp = new TransformedInterpolator1D(interpolators.get(name), parameterTransforms.get(name));
       transInterpolators.put(name, temp);
     }
 
     _capPricers = new ArrayList<CapFloorPricer>(caps.size());
-    for (CapFloor cap : caps) {
+    for (final CapFloor cap : caps) {
       _capPricers.add(new CapFloorPricer(cap, yieldCurves));
     }
     _interpolators = transInterpolators;
@@ -82,10 +82,10 @@ public class CapletStrippingJacobian extends Function1D<DoubleMatrix1D, DoubleMa
   }
 
   @Override
-  public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
+  public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
 
-    LinkedHashMap<String, Interpolator1DDataBundle> db = _dataBundleBuilder.evaluate(x); //TODO merge these - they do the same work!
-    LinkedHashMap<String, InterpolatedDoublesCurve> curves = _curveBuilder.evaluate(x);
+    final LinkedHashMap<String, Interpolator1DDataBundle> db = _dataBundleBuilder.evaluate(x); //TODO merge these - they do the same work!
+    final LinkedHashMap<String, InterpolatedDoublesCurve> curves = _curveBuilder.evaluate(x);
 
     // set any known (i.e. fixed) curves
     if (_knownParameterTermSturctures != null) {
@@ -93,18 +93,18 @@ public class CapletStrippingJacobian extends Function1D<DoubleMatrix1D, DoubleMa
     }
 
     //TODO make this general - not SABR specific
-    Curve<Double, Double> cAlpha = curves.get(ALPHA);
-    Curve<Double, Double> cBeta = curves.get(BETA);
-    Curve<Double, Double> cRho = curves.get(RHO);
-    Curve<Double, Double> cNu = curves.get(NU);
-    VolatilityModel1D volModel = new SABRTermStructureParameters(cAlpha, cBeta, cRho, cNu);
+    final Curve<Double, Double> cAlpha = curves.get(ALPHA);
+    final Curve<Double, Double> cBeta = curves.get(BETA);
+    final Curve<Double, Double> cRho = curves.get(RHO);
+    final Curve<Double, Double> cNu = curves.get(NU);
+    final VolatilityModel1D volModel = new SABRTermStructureParameters(cAlpha, cBeta, cRho, cNu);
 
     final int nCaps = _capPricers.size();
     final int m = x.getNumberOfElements();
-    double[][] jac = new double[nCaps][m];
+    final double[][] jac = new double[nCaps][m];
     double f, k, t;
 
-    for (int i = 0; i < nCaps; i++) {//outer loop over caps
+    for (int i = 0; i < nCaps; i++) { //outer loop over caps
 
       final CapFloorPricer capPricer = _capPricers.get(i);
       final double vega = capPricer.vega(volModel);
@@ -121,27 +121,27 @@ public class CapletStrippingJacobian extends Function1D<DoubleMatrix1D, DoubleMa
       for (int tIndex = 0; tIndex < nCaplets; tIndex++) {
         f = capletFwds[tIndex];
         t = capletExpiries[tIndex];
-        EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(k, t, true);
         //TODO again this is SABR specific
-        SABRFormulaData data = new SABRFormulaData(cAlpha.getYValue(t), cBeta.getYValue(t), cRho.getYValue(t), cNu.getYValue(t));
+        final SABRFormulaData data = new SABRFormulaData(cAlpha.getYValue(t), cBeta.getYValue(t), cRho.getYValue(t), cNu.getYValue(t));
         greeks[tIndex] = SABR.getVolatilityAdjoint(option, f, data); //2nd and 3rd entries are forward & strike sensitivity which we don't use
         capletVega[tIndex] = capletDF[tIndex] * BlackFormulaRepository.vega(f, k, t, greeks[tIndex][0]);
 
         int parmIndex = 0;
-        for (String name : _parameterNames) {
-          Interpolator1D itrp = _interpolators.get(name);
+        for (final String name : _parameterNames) {
+          final Interpolator1D itrp = _interpolators.get(name);
           nodeSens[parmIndex++][tIndex] = itrp.getNodeSensitivitiesForValue(db.get(name), t);
         }
       }
 
-      double[] res = new double[x.getNumberOfElements()];
+      final double[] res = new double[x.getNumberOfElements()];
       for (int tIndex = 0; tIndex < nCaplets; tIndex++) {
         int index = 0;
         for (int parmIndex = 0; parmIndex < _parameterNames.size(); parmIndex++) {
-          double temp = capletVega[tIndex] * greeks[tIndex][parmIndex + 3]; //1st 3 are vol, dForward & dStrike
-          double[] ns = nodeSens[parmIndex][tIndex];
-          for (int j = 0; j < ns.length; j++) {
-            res[index] += ns[j] * temp;
+          final double temp = capletVega[tIndex] * greeks[tIndex][parmIndex + 3]; //1st 3 are vol, dForward & dStrike
+          final double[] ns = nodeSens[parmIndex][tIndex];
+          for (final double element : ns) {
+            res[index] += element * temp;
             index++;
           }
         }

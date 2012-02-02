@@ -129,8 +129,10 @@ public class SimulatedHistoricalDataGenerator {
   private LocalDateDoubleTimeSeries getHistoricalDataPoints(Random random, Double startValue, int tsLength) {
     MapLocalDateDoubleTimeSeries result = new MapLocalDateDoubleTimeSeries();
     LocalDate date = DateUtils.previousWeekDay(LocalDate.now().minusYears(tsLength));
+    double currentValue = startValue;
     do {
-      result.putDataPoint(date, wiggleValue(random, startValue));
+      currentValue = wiggleValue(random, currentValue);
+      result.putDataPoint(date, currentValue);
       date = DateUtils.nextWeekDay(date);
     } while (date.isBefore(LocalDate.now()));
     return result;

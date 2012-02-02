@@ -4,12 +4,13 @@
  */
 $.register_module({
     name: 'og.views.common.Core',
-    dependencies: [],
+    dependencies: ['og.common.util.ui', 'og.common.routes'],
     obj: function () {
         var common = og.common, ui = common.util.ui, routes = common.routes;
-        return function (page_name, name) {
+        return function (page_name) {
             var view = this, search;
             view.check_state = function (conditions) {og.views.common.state.check('/' + page_name, conditions);};
+            view.default_details = function () {og.views.common.default_details(page_name, view.name, view.options);};
             view.dependencies = ['id', 'version'];
             view.error = function (message) {ui.dialog({type: 'error', message: message});},
             view.filter = $.noop;
@@ -20,7 +21,7 @@ $.register_module({
                 view.check_state({args: args, conditions: [
                     {new_page: function (args) {view.search(args), common.masthead.menu.set_tab(page_name);}}
                 ]});
-                if (!args.id) og.views.common.default_details(page_name, name, view.options);;
+                if (!args.id) view.default_details();
             };
             view.load_item = function (args) {
                 view.check_state({args: args, conditions: [
@@ -32,13 +33,15 @@ $.register_module({
                 ]});
                 view.details(args);
             };
+            view.name = page_name[0].toUpperCase() + page_name.substring(1);
             view.notify = function (message, duration) {
                 if (!message) return ui.message({location: '.ui-layout-inner-center', destroy: true});
                 ui.message({location: '.ui-layout-inner-center', css: {left: 0}, message: message});
                 if (duration) setTimeout(view.notify.partial(null), duration);
             };
             view.update = function (delivery) {
-                view.notify('This item has been updated.', 1500);
+                view.notify(delivery.reset ? 'The connection has been reset.' : 'This item has been updated.', 1500);
+                view.search(routes.current().args);
                 view.details(routes.current().args, {hide_loading: true});
             };
             view.search = function (args) {
@@ -46,7 +49,7 @@ $.register_module({
                     search = common.search_results.core();
                     view.filter = search.filter;
                 }
-                search.load($.extend(view.options.slickgrid, {url: args}));
+                search.load(view.options.slickgrid);
             };
         };
     }

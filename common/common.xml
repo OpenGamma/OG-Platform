@@ -296,7 +296,7 @@
       <isset property="junit.logback" />
     </condition>
     <property name="junit.logback.jvmarg" value="-Dcom.opengamma.ogbuild=0" />
-    <testng suitename="Ant tests for ${ant.project.name}" outputdir="${tests.junit.dir}" workingDir="${basedir}" classpathref="testng.run.path">
+    <testng suitename="Ant tests for ${ant.project.name}" outputdir="${tests.junit.dir}" workingDir="${basedir}" classpathref="testng.run.path" parallel="${tests.testng.parallel}" threadCount="${tests.testng.threads}">
 
       <classfileset dir="${tests.classes.dir}" includes="${tests.classes.pattern}" excludes="**/Abstract*" />
       <jvmarg value="${junit.logback.jvmarg}" />

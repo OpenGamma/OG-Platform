@@ -52,6 +52,12 @@ LOGGING(com.opengamma.language.service.Settings);
 #  define DEFAULT_CONNECTION_PIPE	DEFAULT_PIPE_FOLDER DEFAULT_PIPE_NAME TEXT (".sock")
 # endif /* ifdef _WIN32 */
 #endif /* ifndef DEFAULT_CONNECTION_PIPE */
+#ifndef DEFAULT_JVM_MIN_HEAP
+# define DEFAULT_JVM_MIN_HEAP		256
+#endif /* ifndef DEFAULT_JVM_MIN_HEAP */
+#ifndef DEFAULT_JVM_MAX_HEAP
+# define DEFAULT_JVM_MAX_HEAP		512
+#endif /* ifndef DEFAULT_JVM_MAX_HEAP */
 
 /// Returns the default name of the pipe for incoming client connections.
 ///
@@ -158,14 +164,14 @@ const TCHAR *CSettings::GetJvmLibrary () const {
 ///
 /// @return the minimum heap size in Mb
 unsigned long CSettings::GetJvmMinHeap () const {
-	return GetJvmMinHeap (256);
+	return GetJvmMinHeap (DEFAULT_JVM_MIN_HEAP);
 }
 
 /// Returns the maximum heap size for the JVM
 ///
 /// @return the maximum heap size in Mb
 unsigned long CSettings::GetJvmMaxHeap () const {
-	return GetJvmMaxHeap (512);
+	return GetJvmMaxHeap (DEFAULT_JVM_MAX_HEAP);
 }
 
 /// Enumerate the system properties to be passed to the JVM.
@@ -173,6 +179,16 @@ unsigned long CSettings::GetJvmMaxHeap () const {
 /// @param[in] poEnum enumerator to receive the key/value pairs
 void CSettings::GetJvmProperties (const CEnumerator *poEnum) const {
 	Enumerate (SETTINGS_JVM_PROPERTY TEXT ("."), poEnum);
+}
+
+/// Updates a system property that would be passed to the JVM
+///
+/// @param[in] pszProperty property name, never NULL
+/// @param[in] pszValue value to set, or NULL to delete
+void CSettings::SetJvmProperty (const TCHAR *pszProperty, const TCHAR *pszValue) {
+	TCHAR szProperty[256];
+	StringCbPrintf (szProperty, sizeof (szProperty), TEXT ("%s.%s"), SETTINGS_JVM_PROPERTY, pszProperty);
+	Set (szProperty, pszValue);
 }
 
 /// Returns the name of the pipe for incoming client connections

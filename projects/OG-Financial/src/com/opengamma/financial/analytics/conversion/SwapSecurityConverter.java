@@ -68,6 +68,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefi
     throw new UnsupportedOperationException();
   }
 
+  //TODO this will allow forward swaps to be priced as swaps
   @Override
   public InstrumentDefinition<?> visitSwapSecurity(final SwapSecurity security) {
     Validate.notNull(security, "swap security");

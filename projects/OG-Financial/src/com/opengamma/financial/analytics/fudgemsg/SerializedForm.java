@@ -37,14 +37,14 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
       if (object.getOuterClass() != null) {
         message.add(null, null, object.getOuterClass().getName());
       } else {
-        serializer.addToMessage(message, null, null, substituteObject(object.getOuterInstance()));
+        serializer.addToMessageWithClassHeaders(message, null, null, substituteObject(object.getOuterInstance()));
       }
       if (object.getParameters().length == 0) {
         message.add(object.getMethod(), null, IndicatorType.INSTANCE);
       } else {
         final MutableFudgeMsg parameters = serializer.newMessage();
-        for (Object parameter : object.getParameters()) {
-          serializer.addToMessage(parameters, null, null, substituteObject(parameter));
+        for (final Object parameter : object.getParameters()) {
+          serializer.addToMessageWithClassHeaders(parameters, null, null, substituteObject(parameter));
         }
         message.add(object.getMethod(), null, parameters);
       }
@@ -55,13 +55,13 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
       Object outer = null;
       String method = null;
       Object[] parameters = null;
-      for (FudgeField field : message) {
+      for (final FudgeField field : message) {
         if (field.getName() == null) {
           if (field.getOrdinal() == null) {
             if (field.getValue() instanceof String) {
               try {
                 outer = Class.forName((String) field.getValue());
-              } catch (ClassNotFoundException e) {
+              } catch (final ClassNotFoundException e) {
                 throw new OpenGammaRuntimeException("Class not found", e);
               }
             } else {
@@ -78,7 +78,7 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
               final FudgeMsg params = (FudgeMsg) field.getValue();
               parameters = new Object[params.getNumFields()];
               int i = 0;
-              for (FudgeField param : params) {
+              for (final FudgeField param : params) {
                 parameters[i++] = deserializer.fieldValueToObject(param);
               }
               break;

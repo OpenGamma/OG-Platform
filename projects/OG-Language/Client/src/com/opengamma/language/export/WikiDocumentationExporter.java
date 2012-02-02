@@ -6,8 +6,14 @@
 
 package com.opengamma.language.export;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+
 import org.apache.commons.lang.StringUtils;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.language.definition.Definition;
 import com.opengamma.language.definition.Parameter;
 
@@ -35,6 +41,56 @@ public class WikiDocumentationExporter extends AbstractDocumentationExporter {
 
   protected String getProcedureTerminology() {
     return "procedure";
+  }
+
+  protected String[] getWikiDocFolders() {
+    return new String[] {"./wikiDoc" };
+  }
+
+  private static String[] removeFirst(final String[] ss) {
+    final String[] ssNew = new String[ss.length - 1];
+    System.arraycopy(ss, 1, ssNew, 0, ssNew.length);
+    return ssNew;
+  }
+
+  protected String getWikiDoc(final String name, final String[] folders) {
+    for (String folder : folders) {
+      // TODO: if there are a lot of files, split the file system slightly
+      final File f = new File(folder + File.separatorChar + name + ".txt");
+      if (f.exists()) {
+        final StringBuilder sb = new StringBuilder();
+        try {
+          final BufferedReader r = new BufferedReader(new FileReader(f));
+          String s = r.readLine();
+          while (s != null) {
+            final String[] tokens = s.trim().split("\\s+");
+            if (tokens.length > 0) {
+              if ("!inherit".equals(tokens[0])) {
+                sb.append(getWikiDoc(name, removeFirst(folders)));
+                s = r.readLine();
+                continue;
+              } else if ("!copy".equals(tokens[0])) {
+                for (int i = 1; i < tokens.length; i++) {
+                  if (i > 1) {
+                    sb.append('\n');
+                  }
+                  sb.append(getWikiDoc(tokens[i], folders));
+                }
+                s = r.readLine();
+                continue;
+              }
+            }
+            sb.append(s).append('\n');
+            s = r.readLine();
+          }
+          r.close();
+        } catch (IOException e) {
+          throw new OpenGammaRuntimeException("Error building man page for " + name, e);
+        }
+        return sb.toString();
+      }
+    }
+    return "";
   }
 
   /**
@@ -66,6 +122,11 @@ public class WikiDocumentationExporter extends AbstractDocumentationExporter {
     @Override
     protected String getParameterTableFooter(final D definition) {
       return "\n";
+    }
+
+    @Override
+    protected String getBlurb(final D definition) {
+      return getWikiDoc(definition.getName(), getWikiDocFolders());
     }
 
   }

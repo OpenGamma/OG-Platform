@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.irfutureoption;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
@@ -108,41 +107,41 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     return target.getTrade().getSecurity() instanceof IRFutureOptionSecurity;
   }
 
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<String> forwardCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
-    if (forwardCurves == null || forwardCurves.size() != 1) {
-      return null;
-    }
-    final Set<String> fundingCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    if (fundingCurves == null || fundingCurves.size() != 1) {
-      return null;
-    }
-    final Set<String> surfaceNames = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
-      return null;
-    }
-    final String forwardCurveName = forwardCurves.iterator().next();
-    final String fundingCurveName = fundingCurves.iterator().next();
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    requirements.add(getSurfaceRequirement(target, surfaceNames.iterator().next()));
-    if (forwardCurveName.equals(fundingCurveName)) {
-      requirements.add(getCurveRequirement(target, forwardCurveName, null, null));
-      return requirements;
-    }
-    requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName));
-    requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName));
-    return requirements;
-  }
+  //  @Override
+  //  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+  //    final Set<String> forwardCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+  //    if (forwardCurves == null || forwardCurves.size() != 1) {
+  //      return null;
+  //    }
+  //    final Set<String> fundingCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+  //    if (fundingCurves == null || fundingCurves.size() != 1) {
+  //      return null;
+  //    }
+  //    final Set<String> surfaceNames = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE);
+  //    if (surfaceNames == null || surfaceNames.size() != 1) {
+  //      return null;
+  //    }
+  //    final String forwardCurveName = forwardCurves.iterator().next();
+  //    final String fundingCurveName = fundingCurves.iterator().next();
+  //    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+  //    requirements.add(getSurfaceRequirement(target, surfaceNames.iterator().next()));
+  //    if (forwardCurveName.equals(fundingCurveName)) {
+  //      requirements.add(getCurveRequirement(target, forwardCurveName, null, null));
+  //      return requirements;
+  //    }
+  //    requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName));
+  //    requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName));
+  //    return requirements;
+  //  }
 
-  private ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForward, final String advisoryFunding) {
+  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForward, final String advisoryFunding) {
     return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), curveName, advisoryForward, advisoryFunding);
   }
 
   protected ValueRequirement getSurfaceRequirement(final ComputationTarget target, final String surfaceName) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
     final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CURRENCY, currency.getCode()).with(ValuePropertyNames.SURFACE, surfaceName)
-    .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
     return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);
   }
 

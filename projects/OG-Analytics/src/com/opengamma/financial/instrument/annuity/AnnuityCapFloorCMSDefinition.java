@@ -30,7 +30,7 @@ public class AnnuityCapFloorCMSDefinition extends AnnuityDefinition<CapFloorCMSD
 
   /**
    * CMS cap/floor (or leg of CMS caplet/floorlet) constructor from standard description. The cap/floor are fixing in advance and payment in arrears. 
-   * The CMS fixing is done at a standard lag before the coupon start.
+   * The CMS fixing is done at a standard lag before the coupon start. The date are computed from the settlement date (stub last) with a short stub is necessary.
    * @param settlementDate The settlement date.
    * @param maturityDate The annuity maturity date.
    * @param notional The notional.
@@ -49,8 +49,8 @@ public class AnnuityCapFloorCMSDefinition extends AnnuityDefinition<CapFloorCMSD
     Validate.notNull(index, "index");
     Validate.isTrue(notional > 0, "notional <= 0");
     Validate.notNull(paymentPeriod, "Payment period");
-    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, paymentPeriod);
-    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, index.getIborIndex().getBusinessDayConvention(), index.getIborIndex().getCalendar());
+    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, paymentPeriod, true, false);
+    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, index.getIborIndex().getBusinessDayConvention(), index.getIborIndex().getCalendar(), false);
     final double sign = isPayer ? -1.0 : 1.0;
     final CapFloorCMSDefinition[] coupons = new CapFloorCMSDefinition[paymentDates.length];
     coupons[0] = CapFloorCMSDefinition.from(paymentDates[0], settlementDate, paymentDates[0], dayCount.getDayCountFraction(settlementDate, paymentDates[0]), sign * notional, index, strike, isCap);

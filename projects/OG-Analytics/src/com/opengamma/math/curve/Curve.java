@@ -71,12 +71,12 @@ public abstract class Curve<T extends Comparable<T>, U> {
 
   /**
    * converts a curve to a Function1D
-   * @return
+   * @return The curve as a mapping f(x) -> y
    */
   public Function1D<T, U> toFunction1D() {
     return new Function1D<T, U>() {
       @Override
-      public U evaluate(T x) {
+      public U evaluate(final T x) {
         return Curve.this.getYValue(x);
       }
     };

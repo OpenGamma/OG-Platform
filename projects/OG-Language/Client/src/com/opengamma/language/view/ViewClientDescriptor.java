@@ -5,12 +5,13 @@
  */
 package com.opengamma.language.view;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-
 import javax.time.Instant;
 import javax.time.InstantProvider;
+
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
@@ -23,64 +24,22 @@ import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.id.UniqueId;
 
 /**
- * Converts the view name and execution options to/from a string that describes them both.
+ * Object describing all of the parameters required to construct a view client - i.e. the view
+ * and execution options.
  */
 public final class ViewClientDescriptor {
-
-  /**
-   * Type of descriptor; which of the factory methods created it. 
-   */
-  public static enum Type {
-    /**
-     * Created by {@link #tickingMarketData}.
-     */
-    TICKING_MARKET_DATA,
-    /**
-     * Created by {@link #staticMarketData}.
-     */
-    STATIC_MARKET_DATA,
-    /**
-     * Created by {@link #historicalMarketData}.
-     */
-    HISTORICAL_MARKET_DATA,
-    /**
-     * Created by {@link #tickingSnapshot}.
-     */
-    TICKING_SNAPSHOT,
-    /**
-     * Created by {@link #staticSnapshot}.
-     */
-    STATIC_SNAPSHOT;
-  }
-
-  private static final char SEPARATOR = '~';
-  private static final char ESCAPE_CHAR = '$';
-
-  private static final String MARKET_DATA_HISTORICAL = "Historical";
-  private static final String MARKET_DATA_LIVE = "Live";
-  private static final String MARKET_DATA_USER = "User";
-  private static final String STATIC = "Static";
-  private static final String TICKING = "Ticking";
 
   /**
    * Default value of samplePeriod.
    */
   public static final int DEFAULT_SAMPLE_PERIOD = 86400;
 
-  private final Type _type;
   private final UniqueId _viewId;
   private final ViewExecutionOptions _executionOptions;
-  private final String _encoded;
 
-  private ViewClientDescriptor(final Type type, final UniqueId descriptorId, final ViewExecutionOptions executionOptions, final String encoded) {
-    _type = type;
-    _viewId = descriptorId;
+  public ViewClientDescriptor(final UniqueId viewId, final ViewExecutionOptions executionOptions) {
+    _viewId = viewId;
     _executionOptions = executionOptions;
-    _encoded = encoded;
-  }
-
-  public Type getType() {
-    return _type;
   }
 
   public UniqueId getViewId() {
@@ -91,138 +50,9 @@ public final class ViewClientDescriptor {
     return _executionOptions;
   }
 
-  protected static ViewClientDescriptor decode(final String str) {
-    final List<String> values = split(str);
-    try {
-      switch (values.size()) {
-        case 1:
-          return tickingMarketData(UniqueId.parse(values.get(0)), null);
-        case 2:
-          if (MARKET_DATA_LIVE.equals(values.get(0))) {
-            return tickingMarketData(UniqueId.parse(values.get(1)), null);
-          }
-          break;
-        case 3:
-          if (MARKET_DATA_LIVE.equals(values.get(0))) {
-            if (STATIC.equals(values.get(2))) {
-              return staticMarketData(UniqueId.parse(values.get(1)), null);
-            } else {
-              return tickingMarketData(UniqueId.parse(values.get(1)), values.get(2));
-            }
-          } else if (MARKET_DATA_USER.equals(values.get(0))) {
-            return staticSnapshot(UniqueId.parse(values.get(1)), UniqueId.parse(values.get(2)));
-          }
-          break;
-        case 4:
-          if (MARKET_DATA_LIVE.equals(values.get(0)) && STATIC.equals(values.get(3))) {
-            return staticMarketData(UniqueId.parse(values.get(1)), values.get(2));
-          } else if (MARKET_DATA_USER.equals(values.get(0)) && TICKING.equals(values.get(3))) {
-            return tickingSnapshot(UniqueId.parse(values.get(1)), UniqueId.parse(values.get(2)));
-          }
-          break;
-        case 6:
-          if (MARKET_DATA_HISTORICAL.equals(values.get(0))) {
-            return historicalMarketData(UniqueId.parse(values.get(1)), Instant.ofEpochSeconds(Long.parseLong(values.get(2))), Instant.ofEpochSeconds(Long.parseLong(values.get(3))),
-                DEFAULT_SAMPLE_PERIOD, values.get(4), values.get(5));
-          }
-          break;
-        case 7:
-          if (MARKET_DATA_HISTORICAL.equals(values.get(0))) {
-            return historicalMarketData(UniqueId.parse(values.get(1)), Instant.ofEpochSeconds(Long.parseLong(values.get(2))), Instant.ofEpochSeconds(Long.parseLong(values.get(3))),
-                Integer.parseInt(values.get(4)), values.get(5), values.get(6));
-          }
-          break;
-      }
-    } catch (IllegalArgumentException e) {
-      // Ignore; drop through to try the "normal" unique identifier below
-    }
-    // Nothing recognized; assume it's a normal unique identifier and not one of our decorated ones
-    return tickingMarketData(UniqueId.parse(str), null);
-  }
-
-  public String encode() {
-    return _encoded;
-  }
-
-  /**
-   * Appends a separator character, if this is not the first entry into the buffer, followed by the escaped string.
-   * 
-   * @param sb string buffer to update
-   * @param str string to append
-   * @return the updated string buffer
-   */
-  private static StringBuilder append(final StringBuilder sb, final String str) {
-    if (sb.length() > 0) {
-      sb.append(SEPARATOR);
-    }
-    if ((str.indexOf(SEPARATOR) < 0) && (str.indexOf(ESCAPE_CHAR) < 0)) {
-      sb.append(str);
-    } else {
-      for (int i = 0; i < str.length(); i++) {
-        final char c = str.charAt(i);
-        if (c == SEPARATOR) {
-          sb.append(ESCAPE_CHAR).append(c);
-        } else if (c == ESCAPE_CHAR) {
-          sb.append(ESCAPE_CHAR).append(c);
-        } else {
-          sb.append(c);
-        }
-      }
-    }
-    return sb;
-  }
-
-  private static StringBuilder append(final StringBuilder sb, final UniqueId id) {
-    return append(sb, id.toString());
-  }
-
-  private static StringBuilder append(final StringBuilder sb, final int value) {
-    return append(sb, Integer.toString(value));
-  }
-
-  private static StringBuilder append(final StringBuilder sb, final long value) {
-    return append(sb, Long.toString(value));
-  }
-
-  private static StringBuilder append(final StringBuilder sb, final Instant instant) {
-    return append(sb, instant.getEpochSeconds());
-  }
-
-  private static String escape(final String str) {
-    return append(new StringBuilder(), str).toString();
-  }
-
-  /**
-   * Splits a string on the given separator characters and unescapes the components.
-   * 
-   * @param str input string
-   * @return the split and unescaped components
-   */
-  private static List<String> split(final String str) {
-    final List<String> result = new ArrayList<String>();
-    final StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < str.length(); i++) {
-      final char c = str.charAt(i);
-      if (c == SEPARATOR) {
-        result.add(sb.toString());
-        sb.delete(0, sb.length());
-      } else if (c == ESCAPE_CHAR) {
-        if ((++i) >= str.length()) {
-          return Collections.emptyList();
-        } else {
-          sb.append(str.charAt(i));
-        }
-      } else {
-        sb.append(c);
-      }
-    }
-    result.add(sb.toString());
-    return result;
-  }
-
   @Override
   public String toString() {
-    return "ViewClientDescriptor[" + encode() + "]";
+    return "ViewClientDescriptor[" + _viewId + "]";
   }
 
   /**
@@ -235,19 +65,12 @@ public final class ViewClientDescriptor {
    */
   public static ViewClientDescriptor tickingMarketData(final UniqueId viewId, final String dataSource) {
     final LiveMarketDataSpecification marketDataSpec;
-    String encoded;
     if (dataSource == null) {
-      // Only encode if normal representation could be confused for an encoded form
-      encoded = viewId.toString();
-      if (encoded.startsWith(MARKET_DATA_LIVE) || encoded.startsWith(MARKET_DATA_USER)) {
-        encoded = escape(encoded);
-      }
       marketDataSpec = MarketData.live();
     } else {
-      encoded = dataSource == null ? viewId.toString() : append(append(new StringBuilder(MARKET_DATA_LIVE), viewId), dataSource).toString();
       marketDataSpec = MarketData.live(dataSource);
     }
-    return new ViewClientDescriptor(Type.TICKING_MARKET_DATA, viewId, ExecutionOptions.infinite(marketDataSpec), encoded);
+    return new ViewClientDescriptor(viewId, ExecutionOptions.infinite(marketDataSpec));
   }
 
   /**
@@ -263,12 +86,7 @@ public final class ViewClientDescriptor {
     final LiveMarketDataSpecification marketDataSpec = dataSource == null ? MarketData.live() : MarketData.live(dataSource);
     final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(null, marketDataSpec);
     final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, ExecutionFlags.none().waitForInitialTrigger().awaitMarketData().get());
-    StringBuilder encodingBuilder = append(new StringBuilder(MARKET_DATA_LIVE), viewId);
-    if (dataSource != null) {
-      append(encodingBuilder, dataSource);
-    }
-    final String encoded = append(encodingBuilder, STATIC).toString();
-    return new ViewClientDescriptor(Type.STATIC_MARKET_DATA, viewId, options, encoded);
+    return new ViewClientDescriptor(viewId, options);
   }
 
   /**
@@ -291,12 +109,7 @@ public final class ViewClientDescriptor {
     ViewCycleExecutionSequence executionSequence = HistoricalExecutionSequenceFunction.generate(
         firstValuationTimeValue, lastValuationTimeValue, samplePeriod, timeSeriesResolverKey, timeSeriesFieldResolverKey);
     final ViewExecutionOptions options = ExecutionOptions.of(executionSequence, null, ExecutionFlags.none().waitForInitialTrigger().get());
-    StringBuilder encoded = append(append(append(new StringBuilder(MARKET_DATA_HISTORICAL), viewId), firstValuationTimeValue), lastValuationTimeValue);
-    if (samplePeriod != DEFAULT_SAMPLE_PERIOD) {
-      encoded = append(encoded, samplePeriod);
-    }
-    append(append(encoded, timeSeriesResolverKey != null ? timeSeriesResolverKey : ""), timeSeriesFieldResolverKey != null ? timeSeriesFieldResolverKey : "");
-    return new ViewClientDescriptor(Type.HISTORICAL_MARKET_DATA, viewId, options, encoded.toString());
+    return new ViewClientDescriptor(viewId, options);
   }
 
   /**
@@ -358,8 +171,7 @@ public final class ViewClientDescriptor {
     final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(MarketData.user(snapshotId));
     final ExecutionFlags flags = ExecutionFlags.none().triggerOnMarketData();
     final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, flags.get());
-    final String encoded = append(append(append(new StringBuilder(MARKET_DATA_USER), viewId), snapshotId), TICKING).toString();
-    return new ViewClientDescriptor(Type.TICKING_SNAPSHOT, viewId, options, encoded);
+    return new ViewClientDescriptor(viewId, options);
   }
 
   /**
@@ -377,8 +189,7 @@ public final class ViewClientDescriptor {
     final ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(MarketData.user(snapshotId));
     final ExecutionFlags flags = ExecutionFlags.none().waitForInitialTrigger();
     final ViewExecutionOptions options = ExecutionOptions.of(cycleSequence, cycleOptions, flags.get());
-    final String encoded = append(append(new StringBuilder(MARKET_DATA_USER), viewId), snapshotId).toString();
-    return new ViewClientDescriptor(Type.STATIC_SNAPSHOT, viewId, options, encoded);
+    return new ViewClientDescriptor(viewId, options);
   }
 
   @Override
@@ -390,12 +201,40 @@ public final class ViewClientDescriptor {
       return false;
     }
     final ViewClientDescriptor other = (ViewClientDescriptor) o;
-    return encode().equals(other.encode());
+    return getViewId().equals(other.getViewId()) && getExecutionOptions().equals(other.getExecutionOptions());
   }
 
   @Override
   public int hashCode() {
-    return encode().hashCode();
+    return getViewId().hashCode() * 17 + getExecutionOptions().hashCode();
+  }
+
+  private static final String VIEW_ID_FIELD = "viewId";
+  private static final String EXECUTION_OPTIONS_FIELD = "executionOptions";
+
+  /**
+   * Produces the Fudge encoding of the View Client Descriptor:
+   * <pre>
+   * message ViewClientDescriptor {
+   *   required string viewId;
+   *   required ViewExecutionOptions executionOptions;
+   * }
+   * </pre>
+   * 
+   * @param fudgeSerializer the Fudge serializer service
+   * @return the Fudge encoding
+   */
+  public FudgeMsg toFudgeMsg(final FudgeSerializer fudgeSerializer) {
+    final MutableFudgeMsg msg = fudgeSerializer.newMessage();
+    msg.add(VIEW_ID_FIELD, getViewId().toString());
+    fudgeSerializer.addToMessage(msg, EXECUTION_OPTIONS_FIELD, null, getExecutionOptions());
+    return msg;
+  }
+
+  public static ViewClientDescriptor fromFudgeMsg(final FudgeDeserializer fudgeDeserializer, final FudgeMsg msg) {
+    final UniqueId viewId = UniqueId.parse(msg.getString(VIEW_ID_FIELD));
+    final ViewExecutionOptions executionOptions = fudgeDeserializer.fieldValueToObject(ExecutionOptions.class, msg.getByName(EXECUTION_OPTIONS_FIELD));
+    return new ViewClientDescriptor(viewId, executionOptions);
   }
 
 }

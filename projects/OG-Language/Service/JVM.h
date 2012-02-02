@@ -58,6 +58,7 @@ public:
 	bool IsRunning () const;
 	bool IsStopped () const;
 	void UserConnection (const TCHAR *pszUserName, const TCHAR *pszInputPipe, const TCHAR *pszOutputPipe, const TCHAR *pszLanguageID);
+	void Configure ();
 };
 
 #endif /* ifndef __inc_og_language_service_jvm_h */

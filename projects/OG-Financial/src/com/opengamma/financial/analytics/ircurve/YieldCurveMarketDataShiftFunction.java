@@ -102,7 +102,7 @@ public class YieldCurveMarketDataShiftFunction extends AbstractFunction.NonCompi
     }
     s_logger.debug("Applying {} to {}", shift, marketData);
     final OverrideOperation operation = compiler.compile(shift);
-    for (Map.Entry<UniqueId, Double> dataPoint : marketData.getDataPoints().entrySet()) {
+    for (final Map.Entry<UniqueId, Double> dataPoint : marketData.getDataPoints().entrySet()) {
       s_logger.debug("Applying to {}", dataPoint);
       final Object result = operation.apply(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, dataPoint.getKey()), dataPoint.getValue());
       s_logger.debug("Got result {}", result);

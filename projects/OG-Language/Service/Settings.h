@@ -60,6 +60,7 @@ public:
 	unsigned long GetJvmMinHeap () const;
 	unsigned long GetJvmMaxHeap () const;
 	void GetJvmProperties (const CEnumerator *poEnum) const;
+	void SetJvmProperty (const TCHAR *pszProperty, const TCHAR *pszValue);
 	const TCHAR *GetLogConfiguration () const;
 	const TCHAR *GetServiceName () const;
 #ifdef _WIN32

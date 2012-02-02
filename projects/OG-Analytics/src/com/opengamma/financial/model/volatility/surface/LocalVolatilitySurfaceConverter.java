@@ -21,11 +21,11 @@ public abstract class LocalVolatilitySurfaceConverter {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(Double... tx) {
-        double t = tx[0];
-        double x = tx[1];
-        double f = fwdCurve.getForward(t);
-        double k = x * f;
+      public Double evaluate(final Double... tx) {
+        final double t = tx[0];
+        final double x = tx[1];
+        final double f = fwdCurve.getForward(t);
+        final double k = x * f;
         return from.getVolatility(t, k);
       }
     };
@@ -38,9 +38,9 @@ public abstract class LocalVolatilitySurfaceConverter {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(Double... tk) {
-        double t = tk[0];
-        double k = tk[1];
+      public Double evaluate(final Double... tk) {
+        final double t = tk[0];
+        final double k = tk[1];
         return from.getVolatility(t, k);
       }
     };
@@ -63,12 +63,12 @@ public abstract class LocalVolatilitySurfaceConverter {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(Double... tx) {
-        double t = tx[0];
-        double x = tx[1];
-        double f = forwardCurve.getForward(t);
-        double fPrime = newForwardCurve.getForward(t);
-        double xPrime = x * fPrime / f;
+      public Double evaluate(final Double... tx) {
+        final double t = tx[0];
+        final double x = tx[1];
+        final double f = forwardCurve.getForward(t);
+        final double fPrime = newForwardCurve.getForward(t);
+        final double xPrime = x * fPrime / f;
         return from.getVolatilityForMoneyness(t, xPrime);
       }
     };
@@ -92,10 +92,10 @@ public abstract class LocalVolatilitySurfaceConverter {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(Double... tx) {
-        double t = tx[0];
-        double x = tx[1];
-        double xPrime = x * (1 + shift);
+      public Double evaluate(final Double... tx) {
+        final double t = tx[0];
+        final double x = tx[1];
+        final double xPrime = x * (1 + shift);
         return from.getVolatilityForMoneyness(t, xPrime);
       }
     };

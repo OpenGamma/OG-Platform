@@ -50,18 +50,15 @@ CAbstractTest::~CAbstractTest () {
 ///
 /// @param[in] signal the signal to ignore
 static void _IgnoreSignal (int signal) {
-	LOGDEBUG (TEXT ("Signal ") << signal << TEXT (" ignored"));
+	// No-op
 }
 
 /// Handler for atexit to shutdown any spawned processes (e.g. the JVM service runner).
 static void exitProc () {
 	pid_t grp = getpgid (0);
 	if (grp > 1) {
-		LOGINFO (TEXT ("Killing process group ") << grp);
 		sigset (SIGHUP, _IgnoreSignal); // but not us
 		kill (-grp, SIGHUP);
-	} else {
-		LOGWARN (TEXT ("Couldn't get process group for termination"));
 	}
 }
 
@@ -117,7 +114,7 @@ void CAbstractTest::After () {
 
 #endif /* ifndef __cplusplus_cli */
 
-void LoggingInitImpl (const TCHAR *pszLogConfiguration);
+void LoggingInitImpl (const TCHAR *pszLogConfiguration, bool bApplyDefault);
 
 /// Initialises the logging subsystem with a path to the LOG4CXX configuration file taken from the
 /// LOG4CXX_CONFIGURATION environment variable. It is safe to call this multiple times - the first
@@ -135,5 +132,5 @@ void CAbstractTest::InitialiseLogs () {
 #else /* ifdef _WIN32 */
 	const char *pszConfigurationFile = getenv ("LOG4CXX_CONFIGURATION");
 #endif /* ifdef _WIN32 */
-	LoggingInitImpl (pszConfigurationFile);
+	LoggingInitImpl (pszConfigurationFile, false);
 }

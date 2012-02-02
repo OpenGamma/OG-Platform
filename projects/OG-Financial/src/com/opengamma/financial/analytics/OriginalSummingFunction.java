@@ -27,6 +27,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.bond.BondFunction;
 import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.util.ArgumentChecker;
@@ -51,7 +52,7 @@ public class OriginalSummingFunction extends PropertyPreservingFunction {
   /**
    * Value of the {@link ValuePropertyNames#AGGREGATION} property set on the output produced. This
    * allows the result to be distinguished from a related summing function that doesn't apply
-   * uniformly to all inputs (e.g. it might filter or weight them). 
+   * uniformly to all inputs (e.g. it might filter or weight them).
    */
   public static final String AGGREGATION_STYLE_FULL = "Full";
 
@@ -69,7 +70,7 @@ public class OriginalSummingFunction extends PropertyPreservingFunction {
         ValuePropertyNames.CALCULATION_METHOD,
         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
         YieldCurveFunction.PROPERTY_FUNDING_CURVE,
-        ValuePropertyNames.CURVE_CALCULATION_METHOD,        
+        ValuePropertyNames.CURVE_CALCULATION_METHOD,
         ValuePropertyNames.PAY_CURVE,
         ValuePropertyNames.RECEIVE_CURVE,
         ValuePropertyNames.SMILE_FITTING_METHOD,
@@ -87,7 +88,9 @@ public class OriginalSummingFunction extends PropertyPreservingFunction {
         ValuePropertyNames.ORDER,
         ValuePropertyNames.COVARIANCE_CALCULATOR,
         ValuePropertyNames.VARIANCE_CALCULATOR,
-        ValuePropertyNames.EXCESS_RETURN_CALCULATOR);
+        ValuePropertyNames.EXCESS_RETURN_CALCULATOR,
+        BondFunction.PROPERTY_CREDIT_CURVE,
+        BondFunction.PROPERTY_RISK_FREE_CURVE);
   }
 
   protected String getAggregationStyle() {
@@ -117,8 +120,8 @@ public class OriginalSummingFunction extends PropertyPreservingFunction {
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     Object currentSum = null;
-    for (ComputedValue input : inputs.getAllValues()) {
-      Object nextValue = input.getValue();
+    for (final ComputedValue input : inputs.getAllValues()) {
+      final Object nextValue = input.getValue();
       currentSum = addValue(currentSum, nextValue);
     }
     final ComputedValue computedValue = new ComputedValue(new ValueSpecification(_requirementName, target.toSpecification(), getResultPropertiesFromInputs(inputs.getAllValues())), currentSum);
