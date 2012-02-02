@@ -110,7 +110,7 @@ public class FederalFundsFutureSecurityDefinitionTest {
     assertEquals("Fed fund future security definition", FIXING_DATE, FUTURE_FEDFUND_DEFINITION.getFixingPeriodDate());
     assertEquals("Fed fund future security definition", FIXING_ACCURAL_FACTOR, FUTURE_FEDFUND_DEFINITION.getFixingPeriodAccrualFactor());
     assertEquals("Fed fund future security definition", NOTIONAL, FUTURE_FEDFUND_DEFINITION.getNotional());
-    assertEquals("Fed fund future security definition", PAYMENT_ACCURAL_FACTOR, FUTURE_FEDFUND_DEFINITION.getPaymentAccrualFactor());
+    assertEquals("Fed fund future security definition", PAYMENT_ACCURAL_FACTOR, FUTURE_FEDFUND_DEFINITION.getMarginAccrualFactor());
     assertEquals("Fed fund future security definition", NAME, FUTURE_FEDFUND_DEFINITION.getName());
     assertEquals("Fed fund future security definition", INDEX_FEDFUND.getCurrency(), FUTURE_FEDFUND_DEFINITION.getCurrency());
   }
@@ -167,7 +167,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
     for (int loopfix = 0; loopfix < FIXING_DATE.length; loopfix++) {
       fixingPeriodTime[loopfix] = TimeCalculator.getTimeBetween(REFERENCE_DATE, FIXING_DATE[loopfix]);
     }
-    FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, 0.0, fixingPeriodTime, FIXING_ACCURAL_FACTOR, NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
+    FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, 0.0, fixingPeriodTime, FIXING_ACCURAL_FACTOR,
+        FUTURE_FEDFUND_DEFINITION.getFixingTotalAccrualFactor(), NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
     FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAME);
     assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
   }
@@ -216,8 +217,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
     for (int loopfix = 0; loopfix < FIXING_DATE.length - 1; loopfix++) {
       fixingPeriodTime[loopfix] = TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE[loopfix + 1]);
     }
-    FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor, NOTIONAL, PAYMENT_ACCURAL_FACTOR,
-        NAME, CURVE_NAME);
+    FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor,
+        FUTURE_FEDFUND_DEFINITION.getFixingTotalAccrualFactor(), NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
     FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
     assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
   }
@@ -238,8 +239,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
     for (int loopfix = 0; loopfix < FIXING_DATE.length - 3; loopfix++) {
       fixingPeriodTime[loopfix] = TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE[loopfix + 3]);
     }
-    FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor, NOTIONAL, PAYMENT_ACCURAL_FACTOR,
-        NAME, CURVE_NAME);
+    FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor,
+        FUTURE_FEDFUND_DEFINITION.getFixingTotalAccrualFactor(), NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
     FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
     assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
   }
@@ -261,8 +262,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
     for (int loopfix = 0; loopfix < FIXING_DATE.length - 4; loopfix++) {
       fixingPeriodTime[loopfix] = TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE[loopfix + 4]);
     }
-    FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor, NOTIONAL, PAYMENT_ACCURAL_FACTOR,
-        NAME, CURVE_NAME);
+    FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor,
+        FUTURE_FEDFUND_DEFINITION.getFixingTotalAccrualFactor(), NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
     FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
     assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
   }
@@ -287,8 +288,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
     double[] fixingPeriodAccrualFactor = new double[] {FIXING_ACCURAL_FACTOR[FIXING_ACCURAL_FACTOR.length - 1]};
     double[] fixingPeriodTime = new double[] {TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE[FIXING_DATE.length - 2]),
         TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE[FIXING_DATE.length - 1])};
-    FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor, NOTIONAL, PAYMENT_ACCURAL_FACTOR,
-        NAME, CURVE_NAME);
+    FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor,
+        FUTURE_FEDFUND_DEFINITION.getFixingTotalAccrualFactor(), NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
     FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
     assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
   }
@@ -312,8 +313,8 @@ public class FederalFundsFutureSecurityDefinitionTest {
     DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(dateFixing, rateFixing);
     double[] fixingPeriodAccrualFactor = new double[0];
     double[] fixingPeriodTime = new double[] {TimeCalculator.getTimeBetween(referenceDate, FIXING_DATE[FIXING_DATE.length - 1])};
-    FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor, NOTIONAL, PAYMENT_ACCURAL_FACTOR,
-        NAME, CURVE_NAME);
+    FederalFundsFutureSecurity futureFedFundExpected = new FederalFundsFutureSecurity(INDEX_FEDFUND, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor,
+        FUTURE_FEDFUND_DEFINITION.getFixingTotalAccrualFactor(), NOTIONAL, PAYMENT_ACCURAL_FACTOR, NAME, CURVE_NAME);
     FederalFundsFutureSecurity futureFedFundConverted = FUTURE_FEDFUND_DEFINITION.toDerivative(referenceDate, fixingTS, CURVE_NAME);
     assertEquals("Fed fund future security definition: toDerivative", futureFedFundExpected, futureFedFundConverted);
   }

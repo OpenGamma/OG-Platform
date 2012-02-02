@@ -48,13 +48,17 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
    */
   private final double[] _fixingPeriodAccrualFactor;
   /**
+   * The total accrual factor for all fixing periods. Sum of the elements of _fixingPeriodAccrualFactor.
+   */
+  private double _fixingTotalAccrualFactor;
+  /**
    * The future notional.
    */
   private final double _notional;
   /**
-   * The future payment accrual factor. Usually a standardized number of 1/12 for a 30-day future.
+   * The future margining accrual factor. Usually a standardized number of 1/12 for a 30-day future.
    */
-  private final double _paymentAccrualFactor;
+  private final double _marginAccrualFactor;
   /**
    * The future name.
    */
@@ -83,13 +87,17 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
     Validate.notNull(fixingPeriodAccrualFactor, "Fixing period accrual factors");
     Validate.notNull(name, "Name");
     Validate.isTrue(fixingPeriodDate.length == fixingPeriodAccrualFactor.length + 1, "Fixing dates length should be fixing accrual factors + 1.");
-    this._lastTradingDate = lastTradingDate;
-    this._index = index;
-    this._fixingPeriodDate = fixingPeriodDate;
-    this._fixingPeriodAccrualFactor = fixingPeriodAccrualFactor;
-    this._notional = notional;
-    this._paymentAccrualFactor = paymentAccrualFactor;
-    this._name = name;
+    _lastTradingDate = lastTradingDate;
+    _index = index;
+    _fixingPeriodDate = fixingPeriodDate;
+    _fixingPeriodAccrualFactor = fixingPeriodAccrualFactor;
+    _notional = notional;
+    _marginAccrualFactor = paymentAccrualFactor;
+    _name = name;
+    _fixingTotalAccrualFactor = 0.0;
+    for (int loopfix = 0; loopfix < _fixingPeriodAccrualFactor.length; loopfix++) {
+      _fixingTotalAccrualFactor += _fixingPeriodAccrualFactor[loopfix];
+    }
   }
 
   /**
@@ -168,6 +176,14 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
   }
 
   /**
+   * Gets the total accrual factor for all fixing periods.
+   * @return The accrual factor.
+   */
+  public double getFixingTotalAccrualFactor() {
+    return _fixingTotalAccrualFactor;
+  }
+
+  /**
    * Gets the future notional.
    * @return The notional.
    */
@@ -179,8 +195,8 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
    * Gets the future payment accrual factor. Usually a standardized number of 1/12 for a 30-day future.
    * @return The payment accrual factor.
    */
-  public double getPaymentAccrualFactor() {
-    return _paymentAccrualFactor;
+  public double getMarginAccrualFactor() {
+    return _marginAccrualFactor;
   }
 
   /**
@@ -212,7 +228,7 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
     for (int loopfix = 0; loopfix < _fixingPeriodDate.length; loopfix++) {
       fixingPeriodTime[loopfix] = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[loopfix]);
     }
-    return new FederalFundsFutureSecurity(_index, 0.0, fixingPeriodTime, _fixingPeriodAccrualFactor, _notional, _paymentAccrualFactor, _name, yieldCurveNames[0]);
+    return new FederalFundsFutureSecurity(_index, 0.0, fixingPeriodTime, _fixingPeriodAccrualFactor, _fixingTotalAccrualFactor, _notional, _marginAccrualFactor, _name, yieldCurveNames[0]);
   }
 
   @Override
@@ -249,13 +265,14 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
           fixingPeriodTime[loopfix] = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[loopfix + fixedPeriod]);
         }
         System.arraycopy(_fixingPeriodAccrualFactor, fixedPeriod, fixingPeriodAccrualFactor, 0, _fixingPeriodDate.length - 1 - fixedPeriod);
-        return new FederalFundsFutureSecurity(_index, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor, _notional, _paymentAccrualFactor, _name, yieldCurveNames[0]);
+        return new FederalFundsFutureSecurity(_index, accruedInterest, fixingPeriodTime, fixingPeriodAccrualFactor, _fixingTotalAccrualFactor, _notional, _marginAccrualFactor, _name,
+            yieldCurveNames[0]);
       }
-      return new FederalFundsFutureSecurity(_index, accruedInterest, new double[] {TimeCalculator.getTimeBetween(date, _fixingPeriodDate[_fixingPeriodDate.length - 1])}, new double[0], _notional,
-          _paymentAccrualFactor, _name, yieldCurveNames[0]);
+      return new FederalFundsFutureSecurity(_index, accruedInterest, new double[] {TimeCalculator.getTimeBetween(date, _fixingPeriodDate[_fixingPeriodDate.length - 1])}, new double[0],
+          _fixingTotalAccrualFactor, _notional, _marginAccrualFactor, _name, yieldCurveNames[0]);
     }
-    return new FederalFundsFutureSecurity(_index, accruedInterest, new double[] {TimeCalculator.getTimeBetween(date, _fixingPeriodDate[_fixingPeriodDate.length - 1])}, new double[0], _notional,
-        _paymentAccrualFactor, _name, yieldCurveNames[0]);
+    return new FederalFundsFutureSecurity(_index, accruedInterest, new double[] {TimeCalculator.getTimeBetween(date, _fixingPeriodDate[_fixingPeriodDate.length - 1])}, new double[0],
+        _fixingTotalAccrualFactor, _notional, _marginAccrualFactor, _name, yieldCurveNames[0]);
   }
 
   @Override
@@ -280,7 +297,7 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
     long temp;
     temp = Double.doubleToLongBits(_notional);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    temp = Double.doubleToLongBits(_paymentAccrualFactor);
+    temp = Double.doubleToLongBits(_marginAccrualFactor);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
   }
@@ -315,7 +332,7 @@ public class FederalFundsFutureSecurityDefinition implements InstrumentDefinitio
     if (Double.doubleToLongBits(_notional) != Double.doubleToLongBits(other._notional)) {
       return false;
     }
-    if (Double.doubleToLongBits(_paymentAccrualFactor) != Double.doubleToLongBits(other._paymentAccrualFactor)) {
+    if (Double.doubleToLongBits(_marginAccrualFactor) != Double.doubleToLongBits(other._marginAccrualFactor)) {
       return false;
     }
     return true;
