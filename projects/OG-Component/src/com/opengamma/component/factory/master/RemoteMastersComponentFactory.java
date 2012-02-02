@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -114,14 +115,18 @@ public class RemoteMastersComponentFactory extends AbstractComponentFactory {
     URI componentUri = info.getUri();
     Class<?> remoteType = _remoteWrappers.get(info.getType());
     if (remoteType != null) {
+      String jmsBrokerUri = info.getAttributes().get(ComponentInfoAttributes.JMS_BROKER_URI);
       String jmsTopic = info.getAttributes().get(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC);
       Object target;
-      if (jmsTopic != null) {
+      if (_jmsConnector != null && jmsTopic != null && ObjectUtils.equals(jmsBrokerUri, _jmsConnector.getClientBrokerUri())) {
+        // only sets up JMS if supplied connector matches that needed
+        // this approach could be enhanced...
         JmsChangeManager changeManager = new JmsChangeManager(_jmsConnector, jmsTopic);
         repo.registerLifecycle(changeManager);
         Constructor<?> con = ReflectionUtils.findConstructor(remoteType, URI.class, ChangeManager.class);
         target = ReflectionUtils.newInstance(con, componentUri, changeManager);
       } else {
+        // do not use JMS
         Constructor<?> con = ReflectionUtils.findConstructor(remoteType, URI.class);
         target = ReflectionUtils.newInstance(con, componentUri);
       }

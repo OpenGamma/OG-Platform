@@ -75,6 +75,7 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <bean id="standardJmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean">
     <property name="name" value="StandardJms"/>
     <property name="connectionFactory" ref="jmsConnectionFactory"/>
+    <property name="clientBrokerUri" value="${activeMQ.brokerURL}"/>
   </bean>
   <alias name="standardJmsConnector" alias="cfgJmsConnector"/>
   <alias name="standardJmsConnector" alias="exgJmsConnector"/>

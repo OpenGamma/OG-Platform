@@ -76,6 +76,9 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
     if (getJmsChangeManagerTopic() != null) {
       cm = new JmsChangeManager(getJmsConnector(), getJmsChangeManagerTopic());
       repo.registerLifecycle((Lifecycle) cm);
+      if (getJmsConnector().getClientBrokerUri() != null) {
+        info.addAttribute(ComponentInfoAttributes.JMS_BROKER_URI, getJmsConnector().getClientBrokerUri().toString());
+      }
       info.addAttribute(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC, getJmsChangeManagerTopic());
     }
     InMemoryRegionMaster master = new InMemoryRegionMaster(new ObjectIdSupplier(scheme), cm);

@@ -88,6 +88,9 @@ public class DbExchangeMasterComponentFactory extends AbstractComponentFactory {
       JmsChangeManager cm = new JmsChangeManager(getJmsConnector(), getJmsChangeManagerTopic());
       master.setChangeManager(cm);
       repo.registerLifecycle(cm);
+      if (getJmsConnector().getClientBrokerUri() != null) {
+        info.addAttribute(ComponentInfoAttributes.JMS_BROKER_URI, getJmsConnector().getClientBrokerUri().toString());
+      }
       info.addAttribute(ComponentInfoAttributes.JMS_CHANGE_MANAGER_TOPIC, getJmsChangeManagerTopic());
     }
     
