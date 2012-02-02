@@ -135,7 +135,8 @@ $.register_module({
                             $('.ui-layout-inner-north').empty();
                         }
                         common.gadgets.positions({
-                            id: args.id, selector: '.og-js-details-positions', view: view, editable: true
+                            id: args.id, selector: '.og-js-details-positions', view: view,
+                            version: args.version, editable: args.version && args.version !== '*' ? false : true
                         });
                         common.gadgets.trades.render({
                             id: args.id, version: args.version, selector: '.og-js-trades-table'
@@ -154,6 +155,7 @@ $.register_module({
         };
         return view = $.extend(new og.views.common.Core(page_name), {
             details: details_page,
+            filters: ['quantity'],
             options: {
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': page_name,
@@ -193,10 +195,10 @@ $.register_module({
             rules: {
                 load: {route: '/' + page_name + '/quantity:?', method: module.name + '.load'},
                 load_filter: {
-                    route: '/' + page_name + '/filter:/:id?/quantity:?', method: module.name + '.load_filter'
+                    route: '/' + page_name + '/filter:/:id?/version:?/quantity:?', method: module.name + '.load_filter'
                 },
                 load_item: {
-                    route: '/' + page_name + '/:id/:node?/version:?/quantity:?', method: module.name + '.load_item'
+                    route: '/' + page_name + '/:id/version:?/quantity:?', method: module.name + '.load_item'
                 }
             }
         });
