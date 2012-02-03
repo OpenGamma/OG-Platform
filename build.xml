@@ -9,18 +9,26 @@
 	<!-- Set where the OGDEV dir is. We do this outside build.properties so that
 	     we can reference it in build.properties. -->
 	<property file="${common.dir}/ogdev.properties"/>
-	<condition property="ogdev.dir" value="${ogdev.dir.windows}" else="${ogdev.dir.posix}"><os family="windows" /></condition>
+	<condition property="ogdev.dir" value="${ogdev.dir.windows}" else="${ogdev.dir.posix}">
+		<os family="windows" />
+	</condition>
 	<property file="${common.dir}/build.properties" />
 
-	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
-	<condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}"><not><isset property="env.IVY_SHARED_DEFAULT_ROOT" /></not></condition>
+	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}">
+		<os family="windows" />
+	</condition>
+	<condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}">
+		<not>
+			<isset property="env.IVY_SHARED_DEFAULT_ROOT" />
+		</not>
+	</condition>
 
 	<property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
 	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
 	<property name="ivy.install.version" value="2.1.0" />
 	<property name="build.dir" value="build" />
 	<property name="src.dir" value="src" />
-    <property name="docs.dir" value="${build.dir}/docs" />
+	<property name="docs.dir" value="${build.dir}/docs" />
 
 	<import file="git-macros.xml" />
 
@@ -41,7 +49,7 @@
 	<!-- dump the credentials established in dependant targets to a properties file for use by ivy -->
 	<target name="init-credentials" depends="init-prompt,init-env">
 		<echo file="${common.dir}/credentials.properties">opengamma.username=${opengamma.username}${line.separator}opengamma.password=${opengamma.password}</echo>
-    </target>
+	</target>
 
 	<!-- prompts the user for username and password if environemnt variables are not set -->
 	<target name="init-prompt" depends="check-user-env-and-password-present" unless="og.user.and.password.set">
@@ -61,10 +69,10 @@
 	<!-- which overrides the manual prompt so we can do automated builds from within Bamboo -->
 	<target name="check-user-env-and-password-present">
 		<condition property="og.user.and.password.set">
-		  <and>
-		  	<isset property="env.OG_USER"/>
-		  	<isset property="env.OG_PASSWORD"/>
-		  </and>
+			<and>
+				<isset property="env.OG_USER"/>
+				<isset property="env.OG_PASSWORD"/>
+			</and>
 		</condition>
 	</target>
 
@@ -72,7 +80,7 @@
 		<echo message="Please enter the branch you with to 'git checkout' in each project"/>
 		<input message="${line.separator}Branch name" defaultvalue="master" addproperty="git.branch"/>
 	</target>
-	
+
 	<target name="buildlist" depends="load-ivy">
 		<mkdir dir="projects" />
 		<ivy:buildlist reference="build-path">
@@ -113,7 +121,7 @@
 		<og-subant target="compile" buildpathref="build-path" />
 	</target>
 
-  <!-- ================================================================== -->
+	<!-- ================================================================== -->
 	<target name="tarball" depends="buildlist">
 		<og-subant target="tarball" buildpathref="build-path" />
 	</target>
@@ -293,7 +301,7 @@
 		</copy>
 	</target>
 
-  <!-- ================================================================== -->
+	<!-- ================================================================== -->
 	<target name="tests-individual-reports" depends="buildlist"
 		description="run tests for all projects with separate reports">
 		<og-subant target="tests" buildpathref="build-path" />
@@ -310,7 +318,7 @@
 	</target>
 
 	<target name="test-batch-clean">
-       		<delete dir="${tests.junit.dir}/junitreports" includeemptydirs="true" failonerror="false" />
+		<delete dir="${tests.junit.dir}/junitreports" includeemptydirs="true" failonerror="false" />
 		<delete dir="${tests.junit.dir}/xml" includeemptydirs="true" failonerror="false" />
 		<delete dir="${tests.junit.dir}/html" includeemptydirs="true" failonerror="false" />
 	</target>
@@ -326,7 +334,7 @@
 		</junitreport>
 	</target>
 
-  <!-- ================================================================== -->
+	<!-- ================================================================== -->
 	<target name="clean-ivy-cache" depends="load-ivy"
 		description="clean the ivy cache">
 		<ivy:cleancache />
@@ -358,7 +366,7 @@
 		<delete dir="${docs.dir}" quiet="true" failonerror="false"/>
 	</target>
 
-  <!-- ================================================================== -->
+	<!-- ================================================================== -->
 	<target name="fudge-proto" depends="clean-src">
 		<og-subant target="fudge-proto" buildpathref="build-path" />
 	</target>
@@ -368,7 +376,7 @@
 		<og-subant target="joda-bean" buildpathref="build-path" />
 	</target>
 
-  <!-- ================================================================== -->
+	<!-- ================================================================== -->
 	<!-- this searches for @PublicAPI and @PublicSPI annotations and uses them -->
 	<!-- to filter the output -->
 	<target name="javadoc-public" depends="load-ivy, resolve"
@@ -411,46 +419,46 @@
 			<link href="http://joda-beans.sourceforge.net/apidocs/" />
 		</javadoc>
 		<delete dir="${docs.dir}/temp-src"/>
-    </target>
+	</target>
 
-  <target name="test-docs-dir">
-    <mkdir dir="${docs.dir}" />
-    <mkdir dir="${docs.dir}/javadoc-all" />
-</target>
+	<target name="test-docs-dir">
+		<mkdir dir="${docs.dir}" />
+		<mkdir dir="${docs.dir}/javadoc-all" />
+	</target>
 
-  <target name="javadoc-all" depends="load-ivy, resolve"
+	<target name="javadoc-all" depends="load-ivy, resolve"
   	description="javadoc whole system (requires > 2GB RAM and LaTeX)">
-    <mkdir dir="${docs.dir}" />
-    <mkdir dir="${docs.dir}/javadoc-all" />
-    <mkdir dir="${docs.dir}/temp-src" />
-    <copy toDir="${docs.dir}/temp-src">
-    	<fileset dir="${projects.dir}/OG-Analytics/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Core/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Examples/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Financial/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-LiveData/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Master/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-MasterDB/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Security/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html"/>
-      <fileset dir="${projects.dir}/OG-Web/src" includes="**/*.java **/package.html"/>
-    </copy>
-    <javadoc sourcepath="${docs.dir}/temp-src" destdir="${docs.dir}/javadoc-all"
+		<mkdir dir="${docs.dir}" />
+		<mkdir dir="${docs.dir}/javadoc-all" />
+		<mkdir dir="${docs.dir}/temp-src" />
+		<copy toDir="${docs.dir}/temp-src">
+			<fileset dir="${projects.dir}/OG-Analytics/src" includes="**/*.java **/package.html"/>
+			<fileset dir="${projects.dir}/OG-Core/src" includes="**/*.java **/package.html"/>
+			<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html"/>
+			<fileset dir="${projects.dir}/OG-Examples/src" includes="**/*.java **/package.html"/>
+			<fileset dir="${projects.dir}/OG-Financial/src" includes="**/*.java **/package.html"/>
+			<fileset dir="${projects.dir}/OG-LiveData/src" includes="**/*.java **/package.html"/>
+			<fileset dir="${projects.dir}/OG-Master/src" includes="**/*.java **/package.html"/>
+			<fileset dir="${projects.dir}/OG-MasterDB/src" includes="**/*.java **/package.html"/>
+			<fileset dir="${projects.dir}/OG-Security/src" includes="**/*.java **/package.html"/>
+			<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html"/>
+			<fileset dir="${projects.dir}/OG-Web/src" includes="**/*.java **/package.html"/>
+		</copy>
+		<javadoc sourcepath="${docs.dir}/temp-src" destdir="${docs.dir}/javadoc-all"
       classpathref="lib.path.id" author="false" windowtitle="${javadoc-all.windowtitle}"
       doctitle="${javadoc-all.doctitle}" bottom="${javadoc-all.bottom}"
       header="${javadoc-all.header}"
     	maxmemory="2G">
-      <taglet name="latexlet.InlineBlockLaTeXlet" path="${toString:lib.path.id}"/>
-      <taglet name="latexlet.BlockLaTeXlet" path="${toString:lib.path.id}"/>
-      <taglet name="latexlet.InlineLaTeXlet" path="${toString:lib.path.id}"/>
-      <link href="http://download.oracle.com/javase/6/docs/api/" />
-      <link href="http://dist.fudgemsg.org/java/javadoc/0.2/" />
-      <link href="http://threeten.sourceforge.net/apidocs/" />
-      <link href="http://joda-beans.sourceforge.net/apidocs/" />
-    </javadoc>
-    <delete dir="${docs.dir}/temp-src"/>
-  </target>
+			<taglet name="latexlet.InlineBlockLaTeXlet" path="${toString:lib.path.id}"/>
+			<taglet name="latexlet.BlockLaTeXlet" path="${toString:lib.path.id}"/>
+			<taglet name="latexlet.InlineLaTeXlet" path="${toString:lib.path.id}"/>
+			<link href="http://download.oracle.com/javase/6/docs/api/" />
+			<link href="http://dist.fudgemsg.org/java/javadoc/0.2/" />
+			<link href="http://threeten.sourceforge.net/apidocs/" />
+			<link href="http://joda-beans.sourceforge.net/apidocs/" />
+		</javadoc>
+		<delete dir="${docs.dir}/temp-src"/>
+	</target>
 
 	<!-- we might need to do something with versioning here (like depends on 'version' from common.xml) -->
 	<target name="javadoc-public-jar" depends="javadoc-public"
@@ -459,7 +467,7 @@
 			compress="${jar.compress}" />
 	</target>
 
-  <!-- ================================================================== -->
+	<!-- ================================================================== -->
 	<!-- publishes common directory for Bamboo -->
 	<target name="publish-common-dir" if="publish-common-dir" depends="init">
 		<echo message="Syncing common files to ${publish-common-dir}" />
@@ -473,9 +481,9 @@
 		</sync>
 	</target>
 
-    <target name="ivy-report" description="generate ivy dependency report" depends="load-ivy">
-	    <ivy:report organisation="com.opengamma" module="og-integration" conf="*" />
-    </target>
+	<target name="ivy-report" description="generate ivy dependency report" depends="load-ivy">
+		<ivy:report organisation="com.opengamma" module="og-integration" conf="*" />
+	</target>
 
 	<import file="${common.dir}/clover-common.xml"/>
 	<import file="${common.dir}/build-projects.xml" optional="true"/>
@@ -520,6 +528,59 @@
 	</target>
 	<target name="status" depends="status-noload,status-load"
 		description="git status check" />
+
+	<property name="credentials.file" value="${common.dir}/credentials.properties" />
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: fetch-build-projects-file-for-user                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="fetch-build-projects-file-for-user">
+		<available property="credential.file.ok" file="${credentials.file}" />
+		<antcall target="fetch-default-config"/>
+		<antcall target="fetch-user-config"/>
+	</target>
+
+	<macrodef name="get-build-projects-file">
+		<attribute name="repository" />
+		<attribute name="module" />
+		<attribute name="user" />
+		<attribute name="pass" />
+		<sequential>
+			<get src="@{repository}/users/@{user}/@{module}/ant/build-projects.xml" dest="${common.dir}/build-projects.xml" username="@{user}" password="@{pass}" />
+			<get src="@{repository}/users/@{user}/@{module}/config/tests.properties" dest="${common.dir}/tests.properties" username="@{user}" password="@{pass}" />
+			<get src="@{repository}/users/@{user}/@{module}/config/db.properties" dest="${common.dir}/db.properties" username="@{user}" password="@{pass}" />
+		</sequential>
+	</macrodef>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: fetch-default-config                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="fetch-default-config" unless="credential.file.ok">
+		<property name="username" value="opengamma-public" />
+		<property name="password" value="opengamma" />
+		<echo file="${credentials.file}">opengamma.username=${username}${line.separator}opengamma.password=${password}</echo>
+		<get-build-projects-file repository="${opengamma.config.repository}" module="${module.version.target}" user="${username}" pass="${password}"/>
+	</target>
+
+	<!-- - - - - - - - - - - - - - - - - - 
+          target: fetch-user-config                      
+         - - - - - - - - - - - - - - - - - -->
+	<target name="fetch-user-config" if="credential.file.ok">
+		<property file="${credentials.file}"/>
+		<get-build-projects-file repository="${opengamma.config.repository}" module="${module.version.target}" user="${opengamma.username}" pass="${opengamma.password}"/>
+	</target>
+
+	<!-- ================================= 
+          target: install              
+         ================================= -->
+	<target name="install" depends="clean-all, fetch-build-projects-file-for-user, clone-or-pull, publish-all-local" description="install artifacts to specified directory">
+		<mkdir dir="${install.dir}" />
+		<subant target="install" buildpath="${project.deploy}">
+			<property name="og.build.invoked" value="true" />
+			<property name="ivy.new.revision" value="${module.version.target}" />
+			<property name="install.dir" value="${install.dir}" />
+		</subant>
+	</target>
 
 </project>
 
