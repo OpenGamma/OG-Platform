@@ -24,57 +24,58 @@ import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.money.Currency;
 
 public class PropertyPreservingFunctionTest {
 
   private MockPropertyPreservingFunction getFunction() {
-    MockPropertyPreservingFunction func = new MockPropertyPreservingFunction(Lists.newArrayList("Prop", "A", "B", "C", "D", "E", "F"), new ArrayList<String>());
+    final MockPropertyPreservingFunction func = new MockPropertyPreservingFunction(Lists.newArrayList("Prop", "A", "B", "C", "D", "E", "F"), new ArrayList<String>());
     return func;
   }
 
   @Test
   public void EmptyProperties() {
-    MockPropertyPreservingFunction func = getFunction();
-    ValueProperties props = ValueProperties.none();
-    ValueProperties expected = ValueProperties.none();
+    final MockPropertyPreservingFunction func = getFunction();
+    final ValueProperties props = ValueProperties.none();
+    final ValueProperties expected = ValueProperties.none();
     assertEqual(expected, func, props);
   }
 
   @Test
   public void SingleMatchingProperty() {
-    MockPropertyPreservingFunction func = getFunction();
+    final MockPropertyPreservingFunction func = getFunction();
     assertEqual(ValueProperties.builder().with("A", "V").get(), func, ValueProperties.builder().with("A", "V").get(), ValueProperties.builder().with("A", "V").get());
   }
 
   @Test
   public void SingleNonMatchingProperty() {
-    MockPropertyPreservingFunction func = getFunction();
-    List<ValueSpecification> specses = getSpecs(ValueProperties.builder().with("A", "V").get(), ValueProperties.builder().with("A", "X").get());
+    final MockPropertyPreservingFunction func = getFunction();
+    final List<ValueSpecification> specses = getSpecs(ValueProperties.builder().with("A", "V").get(), ValueProperties.builder().with("A", "X").get());
     assertNull(func.getResultProperties(specses));
   }
 
   @Test
   public void SingleNonMatchingOtherProperty() {
-    MockPropertyPreservingFunction func = getFunction();
+    final MockPropertyPreservingFunction func = getFunction();
     assertEqual(ValueProperties.none(), func, ValueProperties.builder().with("Z", "A").get(), ValueProperties.builder().with("Z", "B").get());
   }
 
   @Test
   public void SingleMatchingOtherProperty() {
-    MockPropertyPreservingFunction func = getFunction();
+    final MockPropertyPreservingFunction func = getFunction();
     assertEqual(ValueProperties.none(), func, ValueProperties.builder().with("Z", "A").get(), ValueProperties.builder().with("Z", "A").get());
   }
 
   @Test
   public void OptionalProperty() {
-    MockPropertyPreservingFunction func = getFunction();
+    final MockPropertyPreservingFunction func = getFunction();
 
-    ValueProperties p = ValueProperties.builder().withOptional("C").withAny("C").with("D", "X").withOptional("D").get();
+    final ValueProperties p = ValueProperties.builder().withOptional("C").withAny("C").with("D", "X").withOptional("D").get();
     assertEqual(p, func, p, p);
   }
 
-  private void assertEqual(ValueProperties expected, MockPropertyPreservingFunction func, ValueProperties... inputs) {
-    List<ValueSpecification> specses = getSpecs(inputs);
+  private void assertEqual(final ValueProperties expected, final MockPropertyPreservingFunction func, final ValueProperties... inputs) {
+    final List<ValueSpecification> specses = getSpecs(inputs);
     //Check even empty sets
     assertEqualOrdered(expected, func, specses);
     //Try and check a few permutations
@@ -84,42 +85,42 @@ public class PropertyPreservingFunctionTest {
       Collections.rotate(specses, 1);
     }
     //Check repeats, since there are 2 code branches
-    List<ValueSpecification> doubled = new ArrayList<ValueSpecification>(inputs.length * 2);
+    final List<ValueSpecification> doubled = new ArrayList<ValueSpecification>(inputs.length * 2);
     doubled.addAll(specses);
     doubled.addAll(specses);
     assertEqualOrdered(expected, func, doubled);
   }
 
-  private void assertEqualOrdered(ValueProperties expected, MockPropertyPreservingFunction func, Collection<ValueSpecification> specses) {
-    ValueProperties resultProperties = func.getResultProperties(specses);
-    ValueProperties filteredResult = resultProperties.copy().withoutAny(ValuePropertyNames.FUNCTION).get();
+  private void assertEqualOrdered(final ValueProperties expected, final MockPropertyPreservingFunction func, final Collection<ValueSpecification> specses) {
+    final ValueProperties resultProperties = func.getResultProperties(specses);
+    final ValueProperties filteredResult = resultProperties.copy().withoutAny(ValuePropertyNames.FUNCTION).get();
     assertEquals(expected, filteredResult);
   }
 
-  private List<ValueSpecification> getSpecs(ValueProperties... props) {
+  private List<ValueSpecification> getSpecs(final ValueProperties... props) {
     return getSpecs(Lists.newArrayList(props));
   }
 
-  private List<ValueSpecification> getSpecs(Collection<ValueProperties> props) {
-    List<ValueSpecification> ret = new ArrayList<ValueSpecification>();
-    for (ValueProperties valueProp : props) {
+  private List<ValueSpecification> getSpecs(final Collection<ValueProperties> props) {
+    final List<ValueSpecification> ret = new ArrayList<ValueSpecification>();
+    for (final ValueProperties valueProp : props) {
       ret.add(getSpec(valueProp));
     }
     return ret;
   }
 
-  private ValueSpecification getSpec(ValueProperties props) {
-    Builder realProps = props.copy().with(ValuePropertyNames.FUNCTION, "SomeFunc");
-    ValueSpecification spec = ValueSpecification.of("X", null, realProps.get());
+  private ValueSpecification getSpec(final ValueProperties props) {
+    final Builder realProps = props.copy().with(ValuePropertyNames.FUNCTION, "SomeFunc");
+    final ValueSpecification spec = ValueSpecification.of("X", Currency.USD, realProps.get());
     return spec;
   }
 
   private class MockPropertyPreservingFunction extends PropertyPreservingFunction {
 
-    private Collection<String> _preservedProperties;
-    private Collection<String> _optionalPreservedProperties;
+    private final Collection<String> _preservedProperties;
+    private final Collection<String> _optionalPreservedProperties;
 
-    public MockPropertyPreservingFunction(Collection<String> preservedProperties, Collection<String> optionalPreservedProperties) {
+    public MockPropertyPreservingFunction(final Collection<String> preservedProperties, final Collection<String> optionalPreservedProperties) {
       super();
       _preservedProperties = preservedProperties;
       _optionalPreservedProperties = optionalPreservedProperties;
@@ -127,8 +128,8 @@ public class PropertyPreservingFunctionTest {
     }
 
     @Override
-    public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs,
-        ComputationTarget target, Set<ValueRequirement> desiredValues) {
+    public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
+        final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
       throw new OpenGammaRuntimeException("Shouldn't be called");
     }
 
@@ -138,18 +139,18 @@ public class PropertyPreservingFunctionTest {
     }
 
     @Override
-    public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+    public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
       throw new OpenGammaRuntimeException("Shouldn't be called");
     }
 
     @Override
-    public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target,
-        ValueRequirement desiredValue) {
+    public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target,
+        final ValueRequirement desiredValue) {
       throw new OpenGammaRuntimeException("Shouldn't be called");
     }
 
     @Override
-    public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+    public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
       throw new OpenGammaRuntimeException("Shouldn't be called");
     }
 

@@ -40,11 +40,9 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
-import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
-import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.financial.model.option.definition.SmileDeltaParameter;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureParameter;
 import com.opengamma.util.time.Tenor;
@@ -55,11 +53,10 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
+  /** Name of the instruments used to construct this surface */
+  public static final String INSTRUMENT_TYPE = "FX_VANILLA_OPTION";
   private static final Logger s_logger = LoggerFactory.getLogger(ForexVolatilitySurfaceFunction.class);
-  private static final String INSTRUMENT_TYPE = "FX_VANILLA_OPTION";
   private final String _definitionName;
-  private final String _specificationName;
-  private VolatilitySurfaceSpecification _specification;
   private VolatilitySurfaceDefinition<?, ?> _definition;
   private ValueRequirement _requirement;
 
@@ -67,7 +64,6 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
     Validate.notNull(definitionName, "definition name");
     Validate.notNull(specificationName, "specification name");
     _definitionName = definitionName;
-    _specificationName = specificationName;
   }
 
   @Override
@@ -78,16 +74,11 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
     if (_definition == null) {
       throw new OpenGammaRuntimeException("Couldn't find Volatility Surface Definition for " + INSTRUMENT_TYPE + " called " + _definitionName);
     }
-    final ConfigDBVolatilitySurfaceSpecificationSource volatilitySurfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    _specification = volatilitySurfaceSpecificationSource.getSpecification(_specificationName, INSTRUMENT_TYPE);
-    if (_specification == null) {
-      throw new OpenGammaRuntimeException("Couldn't find Volatility Surface Specification for " + INSTRUMENT_TYPE + " called " + _specificationName);
-    }
     _requirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, _definition.getTarget(),
         ValueProperties.with(ValuePropertyNames.SURFACE, _definitionName)
-                       .with(PROPERTY_SURFACE_INSTRUMENT_TYPE, INSTRUMENT_TYPE).get());
+        .with(PROPERTY_SURFACE_INSTRUMENT_TYPE, INSTRUMENT_TYPE).get());
   }
-  
+
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Object volatilitySurfaceObject = inputs.getValue(_requirement);
@@ -98,7 +89,7 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
     final VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>> fxVolatilitySurface = (VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>>) volatilitySurfaceObject;
     final Tenor[] tenors = fxVolatilitySurface.getXs();
     Arrays.sort(tenors);
-    final Pair<Number, FXVolQuoteType>[] quotes = fxVolatilitySurface.getYs(); 
+    final Pair<Number, FXVolQuoteType>[] quotes = fxVolatilitySurface.getYs();
     final Number[] deltaValues = getDeltaValues(quotes);
     final int nPoints = tenors.length;
     final SmileDeltaParameter[] smile = new SmileDeltaParameter[nPoints];
@@ -125,18 +116,18 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
       final DoubleArrayList deltas = new DoubleArrayList();
       final DoubleArrayList riskReversals = new DoubleArrayList();
       final DoubleArrayList butterflies = new DoubleArrayList();
-      for (int j = 0; j < nSmileValues; j++) {        
-        Number delta = deltaValues[j + 1];
+      for (int j = 0; j < nSmileValues; j++) {
+        final Number delta = deltaValues[j + 1];
         if (delta != null) {
           Double rr = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(delta, FXVolQuoteType.RISK_REVERSAL));
           Double butterfly = fxVolatilitySurface.getVolatility(tenor, ObjectsPair.of(delta, FXVolQuoteType.BUTTERFLY));
           if (rr != null && butterfly != null) {
             rr = rr * shiftMultiplier;
             butterfly = butterfly * shiftMultiplier;
-            deltas.add(delta.doubleValue() / 100.);        
+            deltas.add(delta.doubleValue() / 100.);
             riskReversals.add(rr);
-            butterflies.add(butterfly);            
-          } 
+            butterflies.add(butterfly);
+          }
         } else {
           s_logger.info("Had a null value for tenor number " + j);
         }
@@ -169,7 +160,7 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties.Builder resultProperties = createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, INSTRUMENT_TYPE);
     if (context.getViewCalculationConfiguration() != null) {
       final Set<String> shifts = context.getViewCalculationConfiguration().getDefaultProperties().getValues(DefaultVolatilitySurfaceShiftFunction.VOLATILITY_SURFACE_SHIFT);
@@ -180,7 +171,7 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
     return Collections.<ValueSpecification>singleton(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getTarget()),
         resultProperties.get()));
   }
-  
+
   private double getTime(final Tenor tenor) {
     final Period period = tenor.getPeriod();
     if (period.getYears() != 0) {
@@ -195,9 +186,9 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
     throw new OpenGammaRuntimeException("Should never happen");
   }
 
-  private Number[] getDeltaValues(Pair<Number, FXVolQuoteType>[] quotes) {
+  private Number[] getDeltaValues(final Pair<Number, FXVolQuoteType>[] quotes) {
     final TreeSet<Number> values = new TreeSet<Number>();
-    for (Pair<Number, FXVolQuoteType> pair : quotes) {
+    for (final Pair<Number, FXVolQuoteType> pair : quotes) {
       values.add(pair.getFirst());
     }
     return values.toArray((Number[]) Array.newInstance(Number.class, values.size()));

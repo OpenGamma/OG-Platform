@@ -214,6 +214,44 @@ public final class ScheduleCalculator {
     return result;
   }
 
+  /**
+  * Compute a schedule of adjusted dates from a start date, an end date and the period between dates.
+  * @param startDate The start date.
+  * @param endDate The end date.
+  * @param tenorPeriod The period between each date.
+  * @param stubShort In case the the periods do not fit exactly between start and end date, is the remaining interval shorter (true) or longer (false) than the requested period.
+  * @param fromEnd The dates in the schedule can be computed from the end date (true) or from the start date (false).
+  * @param convention The business day convention.
+  * @param calendar The calendar.
+  * @param eomRule Flag indicating if the end-of-month rule should be applied.  
+  * @return The adjusted dates schedule.
+  */
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period tenorPeriod, final boolean stubShort, final boolean fromEnd,
+      final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule) {
+    ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, endDate, tenorPeriod, stubShort, fromEnd);
+    boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonthOfYear() != startDate.getMonthOfYear()));
+    return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply);
+  }
+
+  /**
+  * Compute a schedule of adjusted dates from a start date, total tenor and the period between dates.
+  * @param startDate The start date.
+  * @param tenorTotal The total tenor.
+  * @param tenorPeriod The period between each date.
+  * @param stubShort In case the the periods do not fit exactly between start and end date, is the remaining interval shorter (true) or longer (false) than the requested period.
+  * @param fromEnd The dates in the schedule can be computed from the end date (true) or from the start date (false).
+  * @param convention The business day convention.
+  * @param calendar The calendar.
+  * @param eomRule Flag indicating if the end-of-month rule should be applied.  
+  * @return The adjusted dates schedule.
+  */
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final Period tenorTotal, final Period tenorPeriod, final boolean stubShort, final boolean fromEnd,
+      final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule) {
+    ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, startDate.plus(tenorTotal), tenorPeriod, stubShort, fromEnd);
+    boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonthOfYear() != startDate.getMonthOfYear()));
+    return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply);
+  }
+
   // TODO: review the methods below.
 
   // -------------------------------------------------------------------------

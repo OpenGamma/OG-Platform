@@ -30,6 +30,7 @@ import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
+import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
@@ -124,6 +125,8 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitInterestRateFuture(InterestRateFuture future, S data);
 
   T visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future, S data);
+
+  T visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future, S data);
 
   T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option, S data);
 
@@ -222,6 +225,8 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitInterestRateFutureSecurity(InterestRateFuture future);
 
   T visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future);
+
+  T visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future);
 
   T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option);
 

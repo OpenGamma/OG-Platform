@@ -54,6 +54,10 @@ public class ScheduleCalculatorTest {
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 3, 17);
   private static final boolean SHORT_STUB = true;
 
+  private static final BusinessDayConvention MOD_FOL = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
+  private static final BusinessDayConvention FOL = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final BusinessDayConvention PRE = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
+
   @Test
   /**
    * Tests the adjusted dates shifted by a number of days. Reviewed 13-Dec-2011.
@@ -205,7 +209,7 @@ public class ScheduleCalculatorTest {
   /**
    * Tests the unadjusted date schedule. Reviewed 19-Jan-2012.
    */
-  public void getUnadjustedDateSchedule() {
+  public void unadjustedDateSchedule() {
     Period m6 = Period.ofMonths(6);
     Period m15 = Period.ofMonths(15);
     Period m30 = Period.ofMonths(30);
@@ -275,49 +279,62 @@ public class ScheduleCalculatorTest {
   /**
    * Tests the adjusted date schedule. Reviewed 23-Jan-2012.
    */
-  public void getAdjustedDateSchedule() {
-    BusinessDayConvention modFol = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following");
-    BusinessDayConvention fol = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
-    BusinessDayConvention pre = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding");
+  public void adjustedDateSchedule1() {
     Period m6 = Period.ofMonths(6);
     Period y2 = Period.ofYears(2);
     Period y3 = Period.ofYears(3);
     ZonedDateTime midMonth = DateUtils.getUTCDate(2012, 1, 19);
     ZonedDateTime monthEndMarch = DateUtils.getUTCDate(2012, 3, 30);
     ZonedDateTime[] midMonthUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(midMonth, midMonth.plus(y2), m6, false, false);
-    ZonedDateTime[] midMonthModFol = ScheduleCalculator.getAdjustedDateSchedule(midMonthUnadjusted, modFol, CALENDAR, false);
+    ZonedDateTime[] midMonthModFol = ScheduleCalculator.getAdjustedDateSchedule(midMonthUnadjusted, MOD_FOL, CALENDAR, false);
     ZonedDateTime[] midMonthModFolExpected = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 7, 19), DateUtils.getUTCDate(2013, 1, 21), DateUtils.getUTCDate(2013, 7, 19),
         DateUtils.getUTCDate(2014, 1, 20)};
     assertArrayEquals("Adjusted schedule", midMonthModFolExpected, midMonthModFol);
-    ZonedDateTime[] midMonthFol = ScheduleCalculator.getAdjustedDateSchedule(midMonthUnadjusted, fol, CALENDAR, false);
+    ZonedDateTime[] midMonthFol = ScheduleCalculator.getAdjustedDateSchedule(midMonthUnadjusted, FOL, CALENDAR, false);
     assertArrayEquals("Adjusted schedule", midMonthModFolExpected, midMonthFol);
-    ZonedDateTime[] midMonthPre = ScheduleCalculator.getAdjustedDateSchedule(midMonthUnadjusted, pre, CALENDAR, false);
+    ZonedDateTime[] midMonthPre = ScheduleCalculator.getAdjustedDateSchedule(midMonthUnadjusted, PRE, CALENDAR, false);
     ZonedDateTime[] midMonthPreExpected = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 7, 19), DateUtils.getUTCDate(2013, 1, 18), DateUtils.getUTCDate(2013, 7, 19),
         DateUtils.getUTCDate(2014, 1, 17)};
     assertArrayEquals("Adjusted schedule", midMonthPreExpected, midMonthPre);
-    ZonedDateTime[] midMonthEOM = ScheduleCalculator.getAdjustedDateSchedule(midMonthUnadjusted, modFol, CALENDAR, true); // Not natural to apply EOM when in mid month, nut this is only a test!
+    ZonedDateTime[] midMonthEOM = ScheduleCalculator.getAdjustedDateSchedule(midMonthUnadjusted, MOD_FOL, CALENDAR, true); // Not natural to apply EOM when in mid month, nut this is only a test!
     ZonedDateTime[] midMonthEOMExpected = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 7, 31), DateUtils.getUTCDate(2013, 1, 31), DateUtils.getUTCDate(2013, 7, 31),
         DateUtils.getUTCDate(2014, 1, 31)};
     assertArrayEquals("Adjusted schedule", midMonthEOMExpected, midMonthEOM);
     ZonedDateTime[] endMarchUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(monthEndMarch, monthEndMarch.plus(y3), m6, false, false);
-    ZonedDateTime[] endMarchModFol = ScheduleCalculator.getAdjustedDateSchedule(endMarchUnadjusted, modFol, CALENDAR, false);
+    ZonedDateTime[] endMarchModFol = ScheduleCalculator.getAdjustedDateSchedule(endMarchUnadjusted, MOD_FOL, CALENDAR, false);
     ZonedDateTime[] endMarchModFolExpected = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 9, 28), DateUtils.getUTCDate(2013, 3, 29), DateUtils.getUTCDate(2013, 9, 30),
         DateUtils.getUTCDate(2014, 3, 31), DateUtils.getUTCDate(2014, 9, 30), DateUtils.getUTCDate(2015, 3, 30)};
     assertArrayEquals("Adjusted schedule", endMarchModFolExpected, endMarchModFol);
-    ZonedDateTime[] endMarchModFolEOM = ScheduleCalculator.getAdjustedDateSchedule(endMarchUnadjusted, modFol, CALENDAR, true);
+    ZonedDateTime[] endMarchModFolEOM = ScheduleCalculator.getAdjustedDateSchedule(endMarchUnadjusted, MOD_FOL, CALENDAR, true);
     ZonedDateTime[] endMarchModFolExpectedEOM = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 9, 28), DateUtils.getUTCDate(2013, 3, 29), DateUtils.getUTCDate(2013, 9, 30),
         DateUtils.getUTCDate(2014, 3, 31), DateUtils.getUTCDate(2014, 9, 30), DateUtils.getUTCDate(2015, 3, 31)};
     assertArrayEquals("Adjusted schedule", endMarchModFolExpectedEOM, endMarchModFolEOM);
-    ZonedDateTime[] endMarchPre = ScheduleCalculator.getAdjustedDateSchedule(endMarchUnadjusted, pre, CALENDAR, false);
+    ZonedDateTime[] endMarchPre = ScheduleCalculator.getAdjustedDateSchedule(endMarchUnadjusted, PRE, CALENDAR, false);
     ZonedDateTime[] endMarchPreExpected = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 9, 28), DateUtils.getUTCDate(2013, 3, 29), DateUtils.getUTCDate(2013, 9, 30),
         DateUtils.getUTCDate(2014, 3, 28), DateUtils.getUTCDate(2014, 9, 30), DateUtils.getUTCDate(2015, 3, 30)};
     assertArrayEquals("Adjusted schedule", endMarchPreExpected, endMarchPre);
-    ZonedDateTime[] endMarchFol = ScheduleCalculator.getAdjustedDateSchedule(endMarchUnadjusted, fol, CALENDAR, false);
+    ZonedDateTime[] endMarchFol = ScheduleCalculator.getAdjustedDateSchedule(endMarchUnadjusted, FOL, CALENDAR, false);
     ZonedDateTime[] endMarchFolExpected = new ZonedDateTime[] {DateUtils.getUTCDate(2012, 10, 1), DateUtils.getUTCDate(2013, 4, 1), DateUtils.getUTCDate(2013, 9, 30),
         DateUtils.getUTCDate(2014, 3, 31), DateUtils.getUTCDate(2014, 9, 30), DateUtils.getUTCDate(2015, 3, 30)};
     assertArrayEquals("Adjusted schedule", endMarchFolExpected, endMarchFol);
-    ZonedDateTime[] endMarchFolEOM = ScheduleCalculator.getAdjustedDateSchedule(endMarchUnadjusted, fol, CALENDAR, true);
+    ZonedDateTime[] endMarchFolEOM = ScheduleCalculator.getAdjustedDateSchedule(endMarchUnadjusted, FOL, CALENDAR, true);
     assertArrayEquals("Adjusted schedule", endMarchModFolExpectedEOM, endMarchFolEOM);
+  }
+
+  @Test
+  /**
+   * Tests the adjusted date schedule. Reviewed 30-Jan-2012.
+   */
+  public void adjustedDateSchedule2() {
+    Period m6 = Period.ofMonths(6);
+    Period y5 = Period.ofYears(5);
+    ZonedDateTime midMonth = DateUtils.getUTCDate(2012, 1, 19);
+    ZonedDateTime[] midMonthUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(midMonth, midMonth.plus(y5), m6, false, false);
+    ZonedDateTime[] midMonthModFolExpected = ScheduleCalculator.getAdjustedDateSchedule(midMonthUnadjusted, MOD_FOL, CALENDAR, false);
+    ZonedDateTime[] midMonthModFolDate = ScheduleCalculator.getAdjustedDateSchedule(midMonth, midMonth.plus(y5), m6, false, false, MOD_FOL, CALENDAR, false);
+    assertArrayEquals("Adjusted schedule", midMonthModFolExpected, midMonthModFolDate);
+    ZonedDateTime[] midMonthModFolTenor = ScheduleCalculator.getAdjustedDateSchedule(midMonth, y5, m6, false, false, MOD_FOL, CALENDAR, false);
+    assertArrayEquals("Adjusted schedule", midMonthModFolExpected, midMonthModFolTenor);
   }
 
   // TODO: review

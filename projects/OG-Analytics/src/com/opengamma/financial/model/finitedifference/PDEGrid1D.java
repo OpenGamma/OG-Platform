@@ -13,7 +13,6 @@ import org.apache.commons.lang.Validate;
  * 
  */
 public class PDEGrid1D {
-
   private final int _nSpaceNodes;
   private final double[] _tNodes;
   private final double[] _xNodes;
@@ -72,7 +71,7 @@ public class PDEGrid1D {
     }
   }
 
-  public PDEGrid1D(final MeshingFunction timeMesh, MeshingFunction spaceMesh) {
+  public PDEGrid1D(final MeshingFunction timeMesh, final MeshingFunction spaceMesh) {
     this(timeMesh.getPoints(), spaceMesh.getPoints());
   }
 
@@ -185,7 +184,7 @@ public class PDEGrid1D {
   }
 
   public PDEGrid1D withDoubleTimeSteps() {
-    double[] timeGrid = new double[_tNodes.length * 2 - 1];
+    final double[] timeGrid = new double[_tNodes.length * 2 - 1];
     for (int i = 0; i < _tNodes.length - 1; i++) {
       timeGrid[2 * i] = _tNodes[i];
       timeGrid[2 * i + 1] = (_tNodes[i] + _tNodes[i + 1]) / 2.0;
@@ -213,6 +212,64 @@ public class PDEGrid1D {
       index--;
     }
     return index;
+  }
+
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + Arrays.hashCode(_dt);
+    result = prime * result + Arrays.hashCode(_dx);
+    result = prime * result + _nSpaceNodes;
+    result = prime * result + Arrays.hashCode(_tNodes);
+    result = prime * result + Arrays.hashCode(_x1st);
+    result = prime * result + Arrays.hashCode(_x1stBkd);
+    result = prime * result + Arrays.hashCode(_x1stFwd);
+    result = prime * result + Arrays.hashCode(_x2nd);
+    result = prime * result + Arrays.hashCode(_xNodes);
+    return result;
+  }
+
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final PDEGrid1D other = (PDEGrid1D) obj;
+    if (!Arrays.equals(_dt, other._dt)) {
+      return false;
+    }
+    if (!Arrays.equals(_dx, other._dx)) {
+      return false;
+    }
+    if (_nSpaceNodes != other._nSpaceNodes) {
+      return false;
+    }
+    if (!Arrays.equals(_tNodes, other._tNodes)) {
+      return false;
+    }
+    if (!Arrays.equals(_x1st, other._x1st)) {
+      return false;
+    }
+    if (!Arrays.equals(_x1stBkd, other._x1stBkd)) {
+      return false;
+    }
+    if (!Arrays.equals(_x1stFwd, other._x1stFwd)) {
+      return false;
+    }
+    if (!Arrays.equals(_x2nd, other._x2nd)) {
+      return false;
+    }
+    if (!Arrays.equals(_xNodes, other._xNodes)) {
+      return false;
+    }
+    return true;
   }
 
 }

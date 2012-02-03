@@ -53,7 +53,7 @@ public class SetVolatilityCubePointFunction extends AbstractFunctionInvoker impl
   }
 
   protected SetVolatilityCubePointFunction() {
-    this(new DefinitionAnnotater(SetSnapshotGlobalValueFunction.class));
+    this(new DefinitionAnnotater(SetVolatilityCubePointFunction.class));
   }
 
   public static ManageableVolatilityCubeSnapshot invoke(final ManageableVolatilityCubeSnapshot snapshot, final Tenor swapTenor, final Tenor optionExpiry, final double relativeStrike,

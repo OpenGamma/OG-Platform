@@ -68,6 +68,7 @@ public class DataViewProcessorResource {
   /**
    * The stale view client expiry job. 
    */
+  @SuppressWarnings("unused")
   private final AbstractRestfulJmsResultPublisherExpiryJob<DataViewClientResource> _expiryJob;
   /**
    * The cycle manager.
@@ -196,7 +197,7 @@ public class DataViewProcessorResource {
 
   private DataViewClientResource createViewClientResource(ViewClient viewClient, URI viewProcessorUri) {
     DataViewCycleManagerResource cycleManagerResource = getOrCreateDataViewCycleManagerResource(viewProcessorUri);
-    return new DataViewClientResource(viewClient, cycleManagerResource, _jmsConnector);
+    return new DataViewClientResource(viewClient, cycleManagerResource, _jmsConnector, _scheduler);
   }
 
 }

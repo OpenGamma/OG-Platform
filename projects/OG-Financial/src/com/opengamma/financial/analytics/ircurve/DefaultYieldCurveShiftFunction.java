@@ -31,7 +31,7 @@ import com.opengamma.util.money.Currency;
 public class DefaultYieldCurveShiftFunction extends StaticDefaultPropertyFunction {
 
   /**
-   * Property to shift all yield curves. 
+   * Property to shift all yield curves.
    */
   protected static final String YIELD_CURVE_SHIFT = "YIELD_CURVE_" + YieldCurveShiftFunction.SHIFT;
 

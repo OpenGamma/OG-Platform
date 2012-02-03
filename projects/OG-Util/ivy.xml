@@ -5,8 +5,8 @@
 		<artifact name="og-util" type="source" ext="jar"/>
 	</publications>
 	<dependencies>
-		<dependency org="org.fudgemsg" name="fudge-java" rev="latest.integration" />
-		<dependency org="org.fudgemsg" name="fudge-proto" rev="latest.integration" />
+		<dependency org="org.fudgemsg" name="fudge-java" rev="0.3.9.1" />
+		<dependency org="org.fudgemsg" name="fudge-proto" rev="0.3.9.1" />
 		<dependency org="org.apache.commons" name="commons-lang" rev="2.4"/>
 		<dependency org="org.apache.commons" name="commons-dbcp" rev="[1.4,2.0["/>
 		<dependency org="org.apache.commons" name="commons-io" rev="2.1"/>

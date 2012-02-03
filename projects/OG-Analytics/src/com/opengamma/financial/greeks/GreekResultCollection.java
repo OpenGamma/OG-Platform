@@ -34,7 +34,7 @@ public class GreekResultCollection implements Iterable<Pair<Greek, Double>> {
   // REVIEW kirk 2010-05-20 -- Is this the best backing map?
   // We might not want to use a Map<> at all, but we can't use an EnumMap<>
   // as Greek is going to be promoted to an Object from an Enum.
-  // REVIEW elaine 2010-06-25 Greek is now an Object 
+  // REVIEW elaine 2010-06-25 Greek is now an Object
   private final Map<Greek, Double> _backingMap = new TreeMap<Greek, Double>();
 
   public Double get(final Greek greek) {
@@ -58,15 +58,6 @@ public class GreekResultCollection implements Iterable<Pair<Greek, Double>> {
 
   public boolean contains(final Greek greek) {
     return _backingMap.containsKey(greek);
-  }
-
-  /**
-   * @deprecated This will be removed shortly
-   * @return The Greeks in the collection
-   */
-  @Deprecated
-  public Set<Map.Entry<Greek, Double>> entrySet() {
-    return _backingMap.entrySet();
   }
 
   public int size() {

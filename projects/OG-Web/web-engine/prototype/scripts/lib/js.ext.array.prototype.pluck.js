@@ -4,4 +4,4 @@
  *
  * Array pluck method ... does not do any error handling right now, can be expanded if necessary
  */
-Array.prototype.pluck = function (key) {return this.map(function (val) {return val[key];});};
+Array.prototype.pluck = function (key) {return Array.prototype.map.call(this, function (val) {return val[key];});};

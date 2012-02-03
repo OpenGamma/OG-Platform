@@ -16,7 +16,6 @@ import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
 import com.opengamma.financial.model.option.pricing.OptionPricingException;
 import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
 import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
-import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.SingleRootFinder;
 import com.opengamma.math.surface.ConstantDoublesSurface;
@@ -41,14 +40,6 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
     }
     final Map.Entry<OptionDefinition, Double> entry = optionPrices.entrySet().iterator().next();
     final Double price = entry.getValue();
-    final double k = entry.getKey().getStrike();
-    final double t = entry.getKey().getTimeToExpiry(optionDataBundle.getDate());
-    final double df2 = Math.exp(-t * optionDataBundle.getCostOfCarry());
-    final double forward = optionDataBundle.getSpot() / optionDataBundle.getInterestRateCurve().getDiscountFactor(t) / df2;
-    final double intrinsicPrice = Math.max(0, (entry.getKey().isCall() ? 1 : -1) * (forward - k));
-//    if (intrinsicPrice > price) {
-//      throw new MathException("Option price (" + price + ") less than intrinsic value (" + intrinsicPrice + ")");
-//    }
     final Function1D<StandardOptionDataBundle, Double> pricingFunction = _bsm.getPricingFunction(entry.getKey());
     _rootFinder = new MyBisectionSingleRootFinder(optionDataBundle, price);
     return _rootFinder.getRoot(pricingFunction, optionDataBundle.withVolatilitySurface(new VolatilitySurface(ConstantDoublesSurface.from(0))),
@@ -69,8 +60,8 @@ public class BlackScholesMertonImpliedVolatilitySurfaceModel implements Volatili
 
     @Override
     public StandardOptionDataBundle getRoot(final Function1D<StandardOptionDataBundle, Double> function, final StandardOptionDataBundle... volData) {
-      StandardOptionDataBundle lowVolData = volData[0];
-      StandardOptionDataBundle highVolData = volData[1];
+      final StandardOptionDataBundle lowVolData = volData[0];
+      final StandardOptionDataBundle highVolData = volData[1];
       final Double lowPrice = function.evaluate(lowVolData) - _price;
       if (Math.abs(lowPrice) < ACCURACY) {
         return lowVolData;

@@ -34,7 +34,7 @@ import com.opengamma.util.jms.JmsConnector;
  */
 public abstract class AbstractJmsResultPublisher {
 
-  /** Logger. */
+  /** Logger */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractJmsResultPublisher.class);
   private static final String SEQUENCE_NUMBER_FIELD_NAME = "#";
 
@@ -98,6 +98,7 @@ public abstract class AbstractJmsResultPublisher {
     _lock.lock();
     try {
       startJmsIfRequired(destination);
+      sendStartedSignal();
       startListener();
     } finally {
       _lock.unlock();
@@ -107,18 +108,9 @@ public abstract class AbstractJmsResultPublisher {
   private void startJmsIfRequired(String destination) throws Exception {
     if (_producer == null) {
       try {
-        // Debugging for XLS-395
-        long startTime = System.currentTimeMillis();
-        
         _connection = _jmsConnector.getConnectionFactory().createConnection();
         _session = _connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
         _producer = _session.createProducer(_session.createQueue(destination));
-        
-        long jmsTime = System.currentTimeMillis() - startTime;
-        if (jmsTime > 3000) {
-          s_logger.warn("[XLS-395] -- took {} ms to interact with JMS", jmsTime);
-        }
-        
         _messageQueue.clear();
         startSenderThread();
         _connection.start();
@@ -127,6 +119,14 @@ public abstract class AbstractJmsResultPublisher {
         throw e;
       }
     }
+  }
+  
+  private void sendStartedSignal() {
+    s_logger.debug("Sending started signal");
+    
+    // REVIEW jonathan 2012-02-03 -- until we have more than one control signal, it's sufficient to push through an
+    // empty message.
+    _messageQueue.add(_fudgeContext.toByteArray(_fudgeContext.newMessage()));
   }
 
   private void closeJms() {

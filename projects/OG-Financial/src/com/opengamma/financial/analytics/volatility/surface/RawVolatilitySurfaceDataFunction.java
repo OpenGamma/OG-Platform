@@ -46,7 +46,7 @@ import com.opengamma.util.tuple.Pair;
 public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
   /**
    * Value specification property for the surface result. This allows surface to be distinguished by instrument type (e.g. an FX volatility
-   * surface, swaption ATM volatility surface). 
+   * surface, swaption ATM volatility surface).
    */
   public static final String PROPERTY_SURFACE_INSTRUMENT_TYPE = "InstrumentType";
 
@@ -55,7 +55,7 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
   private Set<ValueSpecification> _results;
   private final String _definitionName;
   private final String _specificationName;
-  private String _instrumentType;
+  private final String _instrumentType;
   private VolatilitySurfaceSpecification _specification;
 
   public RawVolatilitySurfaceDataFunction(final String definitionName, final String instrumentType, final String specificationName) {
@@ -103,8 +103,8 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
 
   @SuppressWarnings("unchecked")
   public static <X, Y> Set<ValueRequirement> buildRequirements(final VolatilitySurfaceSpecification specification,
-                                                        final VolatilitySurfaceDefinition<X, Y> definition,                                                        
-                                                        final ZonedDateTime atInstant) {
+      final VolatilitySurfaceDefinition<X, Y> definition,
+      final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
     for (final X x : definition.getXs()) {
@@ -174,8 +174,8 @@ public class RawVolatilitySurfaceDataFunction extends AbstractFunction {
           }
         }
         final VolatilitySurfaceData<?, ?> volSurfaceData = new VolatilitySurfaceData<Object, Object>(_definition.getName(), _specification.getName(),
-                                                                                                     _definition.getTarget(),
-                                                                                                     _definition.getXs(), _definition.getYs(), volatilityValues);
+            _definition.getTarget(),
+            _definition.getXs(), _definition.getYs(), volatilityValues);
         final ComputedValue resultValue = new ComputedValue(_result, volSurfaceData);
         return Collections.singleton(resultValue);
       }
