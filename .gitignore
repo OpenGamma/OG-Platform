@@ -4,6 +4,7 @@ common/build-projects.xml
 common/credentials.properties
 common/tests.properties
 common/db.properties
+common/deploy.properties
 projects/Aldwych
 projects/Fudge-Java/
 projects/Fudge-Defn/
