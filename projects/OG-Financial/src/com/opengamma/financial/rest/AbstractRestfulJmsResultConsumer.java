@@ -6,6 +6,7 @@
 package com.opengamma.financial.rest;
 
 import java.net.URI;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
@@ -20,6 +21,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Function;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.transport.ByteArrayFudgeMessageReceiver;
 import com.opengamma.transport.FudgeMessageReceiver;
@@ -35,6 +37,8 @@ import com.opengamma.util.rest.FudgeRestClient;
  */
 public abstract class AbstractRestfulJmsResultConsumer {
 
+  private static final long START_JMS_RESULT_STREAM_TIMEOUT_MILLIS = 10000;
+  
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractRestfulJmsResultConsumer.class);
   
   /**
@@ -46,11 +50,11 @@ public abstract class AbstractRestfulJmsResultConsumer {
    */
   private final FudgeRestClient _client;
   /**
-   * The heartbeat.
+   * The heartbeat
    */
   private final ScheduledFuture<?> _scheduledHeartbeat;
   /**
-   * The JMS connector.
+   * The JMS connector
    */
   private final JmsConnector _jmsConnector;
   /**
@@ -58,13 +62,17 @@ public abstract class AbstractRestfulJmsResultConsumer {
    */
   private final FudgeContext _fudgeContext;
   /**
-   * The demand of listeners.
+   * The demand of listeners
    */
   private long _listenerDemand;
   /**
-   * The temporary queue host.
+   * The temporary queue host
    */
   private JmsTemporaryQueueHost _queueHost;
+  /**
+   * The started signal latch
+   */
+  private CountDownLatch _startedSignalLatch;
   
   protected AbstractRestfulJmsResultConsumer(URI baseUri, FudgeContext fudgeContext, JmsConnector jmsConnector, ScheduledExecutorService scheduler, long heartbeatPeriodMillis) {
     _baseUri = baseUri;
@@ -115,17 +123,57 @@ public abstract class AbstractRestfulJmsResultConsumer {
   }
   
   //-------------------------------------------------------------------------
-  protected void incrementListenerDemand() throws JMSException {
+  /**
+   * Increments the listener demand, starting the underlying subscription if this is the first listener.
+   * <p>
+   * If an exception is thrown then the listener state remains unchanged.
+   * 
+   * @throws InterruptedException  if the thread is interrupted while starting the subscription
+   * @throws JMSException  if a JMS error occurs while starting the subscription
+   */
+  protected void incrementListenerDemand() throws InterruptedException, JMSException {
     _listenerDemand++;
-    configureResultListener();
+    try {
+      configureResultListener();
+    } catch (JMSException e) {
+      _listenerDemand--;
+      throw e;
+    } catch (InterruptedException e) {
+      _listenerDemand--;
+      throw e;
+    }
   }
   
-  protected void decrementListenerDemand() throws JMSException {
+  /**
+   * Decrements the listener demand, stopping the underlying subscription if the last listener is removed.
+   * <p>
+   * If an exception is thrown then the listener state remains unchanged.
+   * 
+   * @throws InterruptedException  if the thread is interrupted while stopping the subscription
+   * @throws JMSException  if a JMS error occurs while stopping the subscription
+   */
+  protected void decrementListenerDemand() throws InterruptedException, JMSException {
     _listenerDemand--;
-    configureResultListener();
+    try {
+      configureResultListener();
+    } catch (JMSException e) {
+      _listenerDemand--;
+      throw e;
+    } catch (InterruptedException e) {
+      _listenerDemand--;
+      throw e;
+    }
   }
   
-  private void configureResultListener() throws JMSException {
+  /**
+   * Configures the underlying subscription if required.
+   * <p>
+   * If an exception is thrown then the listener state remains unchanged.
+   * 
+   * @throws InterruptedException  if the thread is interrupted while configuring the subscription
+   * @throws JMSException  if a JMS error occurs while configuring the subscription
+   */
+  private void configureResultListener() throws InterruptedException, JMSException {
     if (_listenerDemand == 0) {
       URI uri = getUri(getBaseUri(), AbstractRestfulJmsResultPublisher.PATH_STOP_JMS_RESULT_STREAM);
       getClient().access(uri).post();
@@ -136,11 +184,23 @@ public abstract class AbstractRestfulJmsResultConsumer {
       msg.add(AbstractRestfulJmsResultPublisher.DESTINATION_FIELD, destination);
       URI uri = getUri(getBaseUri(), AbstractRestfulJmsResultPublisher.PATH_START_JMS_RESULT_STREAM);
       getClient().access(uri).post(msg);
+      try {
+        if (!_startedSignalLatch.await(START_JMS_RESULT_STREAM_TIMEOUT_MILLIS, TimeUnit.MILLISECONDS)) {
+          s_logger.error("Timed out after {} ms waiting for JMS result stream to be started", START_JMS_RESULT_STREAM_TIMEOUT_MILLIS);
+          closeJms();
+          throw new OpenGammaRuntimeException("Timed out after " + START_JMS_RESULT_STREAM_TIMEOUT_MILLIS + " ms waiting for JMS result stream to be started");
+        }
+      } catch (InterruptedException e) {
+        s_logger.warn("Interrupted while starting JMS result stream");
+        closeJms();
+        throw e;
+      }
     }
   }
   
   private String startJms() throws JMSException {
     try {
+      _startedSignalLatch = new CountDownLatch(1);
       ByteArrayFudgeMessageReceiver bafmr = new ByteArrayFudgeMessageReceiver(new FudgeMessageReceiver() {
         @SuppressWarnings("unchecked")
         @Override
@@ -148,6 +208,12 @@ public abstract class AbstractRestfulJmsResultConsumer {
           s_logger.debug("Result listener call received");
           Function<ViewResultListener, ?> listenerCall;
           try {
+            if (msgEnvelope.getMessage().getNumFields() == 0) {
+              // Empty message = started signal, should never occur at other times
+              s_logger.debug("Received started signal");
+              _startedSignalLatch.countDown();
+              return;
+            }
             listenerCall = fudgeContext.fromFudgeMsg(Function.class, msgEnvelope.getMessage());
           } catch (Exception e) {
             s_logger.warn("Caught exception parsing message", e);
@@ -172,6 +238,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
     if (_queueHost != null) {
       try {
         _queueHost.close();
+        _startedSignalLatch = null;
       } catch (Exception e) {
         s_logger.error("Error closing JMS queue host", e);
       }
