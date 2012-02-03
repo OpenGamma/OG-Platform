@@ -24,4 +24,9 @@ public class BlackVolatilitySurfaceStrike extends BlackVolatilitySurface<Strike>
     return getVolatility(t, new Strike(k));
   }
 
+  @Override
+  public double getAbsoluteStrike(double t, Strike s) {
+    return s.value();
+  }
+
 }
