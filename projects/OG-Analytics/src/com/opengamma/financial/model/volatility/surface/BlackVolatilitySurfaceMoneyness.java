@@ -18,6 +18,11 @@ public class BlackVolatilitySurfaceMoneyness extends BlackVolatilitySurface<Mone
 
   private final ForwardCurve _fc;
 
+  public BlackVolatilitySurfaceMoneyness(BlackVolatilitySurfaceMoneyness other) {
+    super(other.getSurface());
+    _fc = other.getForwardCurve();
+  }
+
   /**
    * @param surface A implied volatility surface parameterised by time and moneyness m = strike/forward
    * @param forwardCurve the forward curve
@@ -59,7 +64,7 @@ public class BlackVolatilitySurfaceMoneyness extends BlackVolatilitySurface<Mone
 
   @Override
   public double getAbsoluteStrike(double t, Moneyness s) {
-    return _fc.getForward(t)*s.value();
+    return _fc.getForward(t) * s.value();
   }
 
 }
