@@ -9,10 +9,16 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.equity.variance.VarianceSwapDataBundle2;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
+import com.opengamma.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.StrikeAlgebra;
 import com.opengamma.financial.model.volatility.surface.StrikeType;
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.Integrator1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
+import com.opengamma.math.minimization.BrentMinimizer1D;
+import com.opengamma.util.CompareUtils;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * We construct a model independent method to price variance as a static replication
@@ -35,15 +41,17 @@ public abstract class VarianceSwapStaticReplication2<T extends StrikeType> {
   private static final double A_FEW_WEEKS = 0.05;
 
   // Vol Extrapolation
-  protected final T _cutoffLevel; // Lowest interpolated 'strike', whether fixed value, call or put delta. ShiftedLognormal hits Put(_deltaCutoff)
-  protected final T _cutoffSpread; // Match derivative near cutoff by also fitting to Put(_deltaCutoff + _deltaSpread)
-  protected final boolean _cutoffProvided; // False if the above are null
+  private final T _cutoffLevel; // Lowest interpolated 'strike', whether fixed value, call or put delta. ShiftedLognormal hits Put(_deltaCutoff)
+  private final T _cutoffSpread; // Match derivative near cutoff by also fitting to Put(_deltaCutoff + _deltaSpread)
+  private final boolean _cutoffProvided; // False if the above are null
   protected static final double EPS = 1.0e-12;
 
+
+
   // Integration parameters
-  protected final double _lowerBound; // ~ zero
-  protected final double _upperBound; // ~infinity in strike space, ~1.0 in delta
-  protected final Integrator1D<Double, Double> _integrator;
+  private final T _lowerBound;
+  private final T _upperBound;
+  private final Integrator1D<Double, Double> _integrator;
 
   /**
    * Default constructor with sensible inputs.
@@ -51,12 +59,56 @@ public abstract class VarianceSwapStaticReplication2<T extends StrikeType> {
    * @param strikeType TODO
    */
 
+
+
+  /**
+   * Gets the cutoffProvided.
+   * @return the cutoffProvided
+   */
+  protected boolean isCutoffProvided() {
+    return _cutoffProvided;
+  }
+
+  /**
+   * Gets the cutoffSpread.
+   * @return the cutoffSpread
+   */
+  protected T getCutoffSpread() {
+    return _cutoffSpread;
+  }
+
+  /**
+   * Gets the cutoffLevel.
+   * @return the cutoffSpread
+   */
+  protected T getCutoffLevel() {
+    return _cutoffLevel;
+  }
+
+
+  /**
+   * Gets the lowerBound.
+   * @return the lowerBound
+   */
+  protected T getLowerBound() {
+    return _lowerBound;
+  }
+
+  /**
+   * Gets the upperBound.
+   * @return the upperBound
+   */
+  protected T getUpperBound() {
+    return _upperBound;
+  }
+
   /**
    * Default constructor relies on extrapolation of data bundle's BlackVolatilitySurface to handle low strikes.
    */
-  public VarianceSwapStaticReplication2(final double lowerBound, final double upperBound) {
-
-    Validate.isTrue(upperBound>lowerBound, "need upperBound > lowerBound");
+  public VarianceSwapStaticReplication2(final T lowerBound, final T upperBound) {
+    Validate.notNull(lowerBound, "null lower bound");
+    Validate.notNull(upperBound, "null upper bound");
+    Validate.isTrue(upperBound.value() > lowerBound.value(), "need upperBound > lowerBound");
     _lowerBound = lowerBound;
     _upperBound = upperBound;
     _integrator = new RungeKuttaIntegrator1D();
@@ -66,48 +118,7 @@ public abstract class VarianceSwapStaticReplication2<T extends StrikeType> {
     _cutoffProvided = false;
   }
 
-  //  public VarianceSwapStaticReplication2() {
-  //    Validate.notNull(strikeType, "Please provide a StrikeParameterization. You may find this from your BlackVolatilitySurface.getStrikeParameterisation()");
-  //    switch (strikeType) {
-  //
-  //      case STRIKE:
-  //        _lowerBound = 0.0 + EPS;
-  //        _upperBound = 10.0; // Multiple of forward. Integrand falls off quickly.
-  //        _integrator = new RungeKuttaIntegrator1D();
-  //
-  //        _cutoffType = strikeType;
-  //        _cutoffLevel = 0.25;
-  //        _cutoffSpread = 0.05;
-  //        _cutoffProvided = true;
-  //        break;
-  //
-  //      case PUTDELTA:
-  //        _lowerBound = 0.0 + EPS; // TODO Confirm this doesn't fall over
-  //        _upperBound = 1.0 - EPS;
-  //        _integrator = new RungeKuttaIntegrator1D();
-  //
-  //        _cutoffType = strikeType;
-  //        _cutoffLevel = 0.1;
-  //        _cutoffSpread = 0.001;
-  //        _cutoffProvided = true;
-  //        break;
-  //
-  //      case CALLDELTA:
-  //        //Validate.isTrue(false, "Finish CALLDELTA Constructor");
-  //        _lowerBound = 0.0 + EPS; // TODO Confirm this doesn't fall over
-  //        _upperBound = 1.0 - EPS;
-  //        _integrator = new RungeKuttaIntegrator1D();
-  //
-  //        _cutoffType = strikeType;
-  //        _cutoffLevel = 0.9;
-  //        _cutoffSpread = -0.001;
-  //        _cutoffProvided = true;
-  //        break;
-  //
-  //      default:
-  //        throw new IllegalArgumentException("Unhandled StrikeParameterisation.");
-  //    }
-  //  }
+
 
   /**
    * Construct a model independent method to price variance as infinite sum of call and put option prices on the underlying.
@@ -120,9 +131,11 @@ public abstract class VarianceSwapStaticReplication2<T extends StrikeType> {
    * @param cutoffLevel First target of shifted lognormal model. Below this, the fit model will extrapolate to produce prices
    * @param cutoffSpread Second target is cutoffLevel + cutoffSpread. Given as fraction of the forward (if STRIKE) else delta value
    */
-  public VarianceSwapStaticReplication2(final double lowerBound, final double upperBound, final Integrator1D<Double, Double> integrator,
+  public VarianceSwapStaticReplication2(final T lowerBound, final T upperBound, final Integrator1D<Double, Double> integrator,
       final T cutoffLevel, final T cutoffSpread) {
-
+    Validate.notNull(lowerBound, "null lower bound");
+    Validate.notNull(upperBound, "null upper bound");
+    Validate.isTrue(upperBound.value() > lowerBound.value(), "need upperBound > lowerBound");
     _lowerBound = lowerBound;
     _upperBound = upperBound;
     _integrator = integrator;
@@ -199,6 +212,7 @@ public abstract class VarianceSwapStaticReplication2<T extends StrikeType> {
     return (varianceSpotEnd * timeToLastObs - varianceSpotStart * timeToFirstObs) / (timeToLastObs - timeToFirstObs);
   }
 
+
   /**
    * Computes the fair value strike of a spot starting VarianceSwap parameterized in 'variance' terms,
    * It is quoted as an annual variance value, hence 1/T * integral(0,T) {sigmaSquared dt} <p>
@@ -207,152 +221,68 @@ public abstract class VarianceSwapStaticReplication2<T extends StrikeType> {
    * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
    * @return presentValue of the *remaining* variance in the swap.
    */
-  protected abstract double impliedVarianceFromSpot(final double expiry, final VarianceSwapDataBundle2<T> market);
+  protected double impliedVarianceFromSpot(final double expiry, final VarianceSwapDataBundle2<T> market) {
+    // 1. Unpack Market data
+    final double fwd = market.getForwardCurve().getForward(expiry);
+    final BlackVolatilitySurface<T> volSurf = market.getVolatilitySurface();
 
-  //
-  //    final ProbabilityDistribution<Double> ndist = new NormalDistribution(0, 1);
-  //
-  //    // 1. Unpack Market data
-  //    final double fwd = market.getForwardCurve().getForward(expiry);
-  //    final BlackVolatilitySurface<T> volSurf = market.getVolatilitySurface();
-  //
-  //    if (expiry < 1E-4) { // If expiry occurs in less than an hour or so, return 0
-  //      return 0;
-  //    }
-  //
-  //    /******* Handle strike parameterisation cases separately *******/
-  //
-  //    /******* Case 1: BlackVolatilityFixedStrikeSurface *******/
-  //
-  //    // 2. Fit the leftExtrapolator to the two target strikes, if provided
-  //    final ShiftedLognormalVolModel leftExtrapolator;
-  //    final double cutoffStrike = _cutoffProvided ? volSurf.getAbsoluteStrike(expiry, _cutoffLevel) : 0.0;
-  //    final Double lowerBoundOfExtrapolator;
-  //    final Double lowerBoundValue;
-  //
-  //    if (_cutoffProvided) {
-  //      T temp = _sa.add(_cutoffSpread, _cutoffLevel);
-  //      final double secondStrike = volSurf.getAbsoluteStrike(expiry, temp);
-  //      final double cutoffVol = volSurf.getVolatility(expiry, _cutoffLevel);
-  //      final double secondVol = volSurf.getVolatility(expiry, temp);
-  //
-  //      // Check for trivial case where cutoff is so low that there's no effective value in the option
-  //      double cutoffPrice = BlackFormulaRepository.price(fwd, cutoffStrike, expiry, cutoffVol, cutoffStrike > fwd);
-  //      if (CompareUtils.closeEquals(cutoffPrice, 0)) {
-  //        leftExtrapolator = new ShiftedLognormalVolModel(fwd, expiry, 0.0, -1.0e6); // Model will price every strike at zero
-  //        lowerBoundOfExtrapolator = 0.0;
-  //        lowerBoundValue = 0.0;
-  //      } else { // The typical case
-  //        leftExtrapolator = new ShiftedLognormalVolModel(fwd, expiry, cutoffStrike, cutoffVol, secondStrike, secondVol);
-  //
-  //        // Now, handle behaviour near zero strike. ShiftedLognormalVolModel has non-zero put price for zero strike.
-  //        // What we do is to find the strike, k_min, at which p(k)/k^2 begins to blow up, and fit a quadratic, p(k) = p(k_min) * k^2 / k_min^2
-  //        // This ensures the implied volatility and the integrand are well behaved in the limit k -> 0.
-  //        final Function1D<Double, Double> shiftedLnIntegrand = new Function1D<Double, Double>() {
-  //          @Override
-  //          public Double evaluate(Double strike) {
-  //            return 2.0 * leftExtrapolator.priceFromFixedStrike(strike) / (strike * strike);
-  //          }
-  //        };
-  //        lowerBoundOfExtrapolator = new BrentMinimizer1D().minimize(shiftedLnIntegrand, EPS, EPS, cutoffStrike);
-  //        lowerBoundValue = shiftedLnIntegrand.evaluate(lowerBoundOfExtrapolator);
-  //      }
-  //    } else {
-  //      leftExtrapolator = null;
-  //      lowerBoundOfExtrapolator = 0.0;
-  //      lowerBoundValue = 0.0;
-  //    }
-  //
-  //    // 3. Define the hedging portfolio: The position to hold in each otmOption(k) = 2 / strike^2,
-  //    //                                       where otmOption is a call if k > fwd and a put otherwise
-  //    final Function1D<Double, Double> otmOptionAndWeight = new Function1D<Double, Double>() {
-  //      @SuppressWarnings("synthetic-access")
-  //      @Override
-  //      public Double evaluate(final Double strike) {
-  //        final boolean isCall = strike > fwd;
-  //        final double weight = 2 / (strike * strike);
-  //        if (_cutoffProvided && strike < cutoffStrike) { // Extrapolate with ShiftedLognormal
-  //          if (strike >= lowerBoundOfExtrapolator) {
-  //            return leftExtrapolator.priceFromFixedStrike(strike) * weight;
-  //          }
-  //          return lowerBoundValue;
-  //        } // Interp/Extrap directly on volSurf
-  //        final double vol = volSurf.getVolatility(expiry, strike);
-  //        final double otmPrice = BlackFormulaRepository.price(fwd, strike, expiry, vol, isCall);
-  //        return otmPrice * weight;
-  //      }
-  //    };
-  //
-  //    //      // 4. Compute variance hedge by integrating positions over all strikes
-  //    double variance = _integrator.integrate(otmOptionAndWeight, _lowerBound * fwd, _upperBound * fwd);
-  //    return variance / expiry;
-  //
-  //      /******* Case 2: BlackVolatilityDeltaSurface *******/
-  //    } else if (volSurf.getStrikeParameterisation() == StrikeParameterization.CALLDELTA || volSurf.getStrikeParameterisation() == StrikeParameterization.PUTDELTA) {
-  //
-  //      final boolean axisOfCalls = ((BlackVolatilityDeltaSurface) volSurf).strikeAxisRepresentsCalls();
-  //      final ShiftedLognormalVolModel leftExtrapolator;
-  //      final double cutoffStrike;
-  //
-  //      if (_cutoffProvided) {
-  //        // 2. Fit the leftExtrapolator to the two target deltas, if provided
-  //
-  //        final double cutoffVol = volSurf.getVolatility(expiry, _cutoffLevel);
-  //        final BlackFormula black = new BlackFormula(fwd, fwd, expiry, cutoffVol, null, axisOfCalls);
-  //        cutoffStrike = black.computeStrikeImpliedByForwardDelta(_cutoffLevel, axisOfCalls);
-  //
-  //        final double secondVol = volSurf.getVolatility(expiry, _cutoffLevel + _cutoffSpread);
-  //        black.setLognormalVol(secondVol);
-  //        final double secondStrike = black.computeStrikeImpliedByForwardDelta(_cutoffLevel + _cutoffSpread, axisOfCalls);
-  //
-  //        // Check for trivial case where cutoff is so low that there's no effective value in the option
-  //        double cutoffPrice = volSurf.getForwardPrice(expiry, _cutoffLevel, fwd, cutoffStrike > fwd);
-  //        if (CompareUtils.closeEquals(cutoffPrice, 0)) {
-  //          leftExtrapolator = new ShiftedLognormalVolModel(fwd, expiry, 0.0, -1.0e6); // Model will price every strike at zero
-  //        } else {
-  //          // Typical case
-  //          leftExtrapolator = new ShiftedLognormalVolModel(fwd, expiry, cutoffStrike, cutoffVol, secondStrike, secondVol);
-  //        }
-  //      } else {
-  //        cutoffStrike = 0.0;
-  //        leftExtrapolator = null;
-  //      }
-  //      // 3. Define the hedging portfolio : The position to hold in each otmOption(k) = 2 / strike^2,
-  //      //                                    where otmOption is a call if k > fwd and a put otherwise
-  //          final Function1D<Double, Double> otmOptionAndWeight = new Function1D<Double, Double>() {
-  //            @SuppressWarnings("synthetic-access")
-  //            @Override
-  //            public Double evaluate(final Double delta) {
-  //
-  //              final double vol = volSurf.getVolatility(expiry, delta);
-  //              final BlackFormula black = new BlackFormula(fwd, fwd, expiry, vol, null, axisOfCalls);
-  //
-  //              final double strike = black.computeStrikeImpliedByForwardDelta(delta, axisOfCalls);
-  //
-  //              black.setStrike(strike);
-  //              black.setIsCall(strike > fwd);
-  //
-  //              // 2/k^2 => the following when we switch integration variable to delta
-  //              double weight = 2 * vol * Math.sqrt(expiry) / strike;
-  //              weight /= ndist.getPDF(ndist.getInverseCDF(delta));
-  //              double otmPrice;
-  //              if (_cutoffProvided && strike < cutoffStrike) { // Extrapolate with ShiftedLognormal
-  //                otmPrice = leftExtrapolator.priceFromFixedStrike(strike);
-  //              } else {
-  //                otmPrice = black.computePrice();
-  //              }
-  //              return weight * otmPrice;
-  //            }
-  //          };
-  //
-  //      // 4. Compute variance hedge by integrating positions over all strikes
-  //      double variance = _integrator.integrate(otmOptionAndWeight, _lowerBound, _upperBound);
-  //      return variance / expiry;
-  //
-  //    } else {
-  //      throw new IllegalArgumentException("Unexpected cutoffType. Allowed values of StrikeParameterisation are STRIKE and DELTA.");
-  //    }
-  //}
+    if (expiry < 1E-4) { // If expiry occurs in less than an hour or so, return 0
+      return 0;
+    }
+
+    //do the main part of the integral by pricing off the volatility surface
+    final Function1D<Double, Double> integrand = getMainIntegrand(expiry, fwd, volSurf);
+    Pair<T, T> limits = getIntegralLimits();
+    double variance = _integrator.integrate(integrand, limits.getFirst().value(), limits.getSecond().value());
+
+    //if a left tail extrapolation is provided, compute the contribution to the integral from zero to cutOffLevel.
+    //If the lowerBound is greater than
+    if (_cutoffProvided) {
+      Pair<double[], double[]> pars = getTailExtrapolationParameters(fwd, expiry, volSurf);
+      double[] ks = pars.getFirst();
+      double[] vols = pars.getSecond();
+      final double res = getResidual(fwd, expiry, ks, vols);
+      variance += res;
+    }
+
+    return 2 * variance / expiry;
+  }
+
+  protected abstract Pair<T, T> getIntegralLimits();
+
+  protected abstract Pair<double[], double[]> getTailExtrapolationParameters(final double fwd, final double expiry, final BlackVolatilitySurface<T> volSurf);
+
+  protected double getResidual(final double fwd, final double expiry, final double[] ks, final double[] vols) {
+
+    double res;
+
+    // Check for trivial case where cutoff is so low that there's no effective value in the option
+    double cutoffPrice = BlackFormulaRepository.price(fwd, ks[0], expiry, vols[0], ks[0] > fwd);
+    if (CompareUtils.closeEquals(cutoffPrice, 0)) {
+      return 0.0; //i.e. the tail function is never used
+    }
+    // The typical case - fit a  ShiftedLognormal to the two strike-vol pairs
+    final ShiftedLognormalVolModel leftExtrapolator = new ShiftedLognormalVolModel(fwd, expiry, ks[0], vols[0], ks[1], vols[1]);
+
+    // Now, handle behaviour near zero strike. ShiftedLognormalVolModel has non-zero put price for zero strike.
+    // What we do is to find the strike, k_min, at which f(k) = p(k)/k^2 begins to blow up, by finding the minimum of this function, k_min
+    // then setting f(k) = f(k_min) for k < k_min. This ensures the implied volatility and the integrand are well behaved in the limit k -> 0.
+    final Function1D<Double, Double> shiftedLnIntegrand = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double strike) {
+        return leftExtrapolator.priceFromFixedStrike(strike) / (strike * strike);
+      }
+    };
+    final double kMin = new BrentMinimizer1D().minimize(shiftedLnIntegrand, EPS, EPS, ks[0]);
+    final double fMin = shiftedLnIntegrand.evaluate(kMin);
+    res = fMin * kMin; //the (hopefully) very small rectangular bit between zero and kMin
+
+    res += _integrator.integrate(shiftedLnIntegrand, kMin, ks[0]);
+
+    return res;
+  }
+
+  protected abstract Function1D<Double, Double> getMainIntegrand(final double expiry, final double fwd, final BlackVolatilitySurface<T> volSurf);
 
   /**
    * Computes the fair value strike of a spot starting VarianceSwap parameterised in vol/vega terms.

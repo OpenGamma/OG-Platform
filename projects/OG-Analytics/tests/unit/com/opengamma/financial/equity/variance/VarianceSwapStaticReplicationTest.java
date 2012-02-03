@@ -386,7 +386,7 @@ public class VarianceSwapStaticReplicationTest {
 
     final double noMoreVariance = pricerCutoff.impliedVariance(swap0, MARKET_W_STRIKESURF);
     assertEquals(0.0, noMoreVariance, 1e-9);
-
+    //Review R White 3/2/2012 this is the same test
     final double varInExpiredSwap = pricerCutoff.impliedVariance(swap0, MARKET_W_STRIKESURF);
     assertEquals(0.0, varInExpiredSwap, 1e-9);
   }
