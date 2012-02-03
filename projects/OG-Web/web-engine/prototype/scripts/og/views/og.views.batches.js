@@ -31,10 +31,7 @@ $.register_module({
                 api.rest.batches.get({
                     dependencies: view.dependencies,
                     handler: function (result) {
-                        if (result.error) {
-                            view.notify(null);
-                            return view.error(result.message);
-                        }
+                        if (result.error) return view.notify(null), view.error(result.message);
                         var batch_functions = details.batch_functions, json = result.data;
                         history.put({
                             name: json.template_data.name,
@@ -57,7 +54,7 @@ $.register_module({
                     loading: function () {view.notify({0: 'loading...', 3000: 'still loading...'});}
                 });
             };
-        return view = $.extend(new og.views.common.Core(page_name),     {
+        return view = $.extend(new og.views.common.Core(page_name), {
                 details: details_page,
                 options: {
                     slickgrid: {
