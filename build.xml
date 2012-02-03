@@ -574,7 +574,7 @@
 	<!-- ================================= 
           target: install              
          ================================= -->
-	<target name="install" depends="fetch-build-projects-file-for-user, clean-all, clone-or-pull, publish-all-local" description="install artifacts to specified directory">
+	<target name="install" depends="fetch-build-projects-file-for-user, clean-all, clone-or-pull, publish-all-local" description="install artifacts to directory specified by property, install.dir">
 		<mkdir dir="${install.dir}" />
 		<property file="${common.dir}/deploy.properties"/>
 		<subant target="install" buildpath="${project.deploy}" antfile="build.xml">
