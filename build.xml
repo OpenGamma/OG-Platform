@@ -575,7 +575,9 @@
          ================================= -->
 	<target name="install" depends="fetch-build-projects-file-for-user, clean-all, clone-or-pull, publish-all-local" description="install artifacts to specified directory">
 		<mkdir dir="${install.dir}" />
-		<subant target="install" buildpath="${project.deploy}">
+		<!-- load project.deploy property from  build-projects.xml  -->
+		<subant target="projects.set-project-deploy" buildpath="${basedir}" antfile="build.xml" />
+		<subant target="install" buildpath="${project.deploy}" antfile="build.xml">
 			<property name="og.build.invoked" value="true" />
 			<property name="ivy.new.revision" value="${module.version.target}" />
 			<property name="install.dir" value="${install.dir}" />
