@@ -16,7 +16,7 @@ import com.opengamma.math.surface.Surface;
  */
 public class BlackVolatilitySurfaceMoneyness extends BlackVolatilitySurface<Moneyness> {
 
-  private ForwardCurve _fc;
+  private final ForwardCurve _fc;
 
   /**
    * @param surface A implied volatility surface parameterised by time and moneyness m = strike/forward
@@ -55,6 +55,11 @@ public class BlackVolatilitySurfaceMoneyness extends BlackVolatilitySurface<Mone
 
   public ForwardCurve getForwardCurve() {
     return _fc;
+  }
+
+  @Override
+  public double getAbsoluteStrike(double t, Moneyness s) {
+    return _fc.getForward(t)*s.value();
   }
 
 }

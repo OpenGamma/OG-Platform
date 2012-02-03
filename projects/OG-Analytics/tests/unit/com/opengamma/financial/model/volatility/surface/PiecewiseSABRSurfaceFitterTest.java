@@ -90,7 +90,7 @@ public class PiecewiseSABRSurfaceFitterTest {
 
   //For each expiry, print the expiry and the strikes and implied volatilities
   @Test
-  (enabled = false)
+  //(enabled = false)
   public void printMarketData() {
 
     for (int i = 0; i < N; i++) {

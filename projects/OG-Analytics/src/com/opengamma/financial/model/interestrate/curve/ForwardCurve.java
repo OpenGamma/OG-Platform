@@ -24,6 +24,26 @@ public class ForwardCurve {
   private final Curve<Double, Double> _drift;
   private final double _spot;
 
+  /**
+   * 
+   * @param spot The current value of the underlying
+   * @param riskFreeCurve The risk free interest rate curve (in FX this is the domistic risk free curve)
+   * @param costOfCarryCurve In equity this would represent the expected dividend yield, while in FX it is the foreign risk free rate
+   */
+  public ForwardCurve(final double spot, final YieldAndDiscountCurve riskFreeCurve, final YieldAndDiscountCurve costOfCarryCurve) {
+    Function<Double, Double> f = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(Double... x) {
+        final double t = x[0];
+        return spot * costOfCarryCurve.getDiscountFactor(t) / riskFreeCurve.getDiscountFactor(t);
+      }
+    };
+    _spot = spot;
+    _fwdCurve = new FunctionalDoublesCurve(f);
+    _drift = getDriftCurve(_fwdCurve); //TODO YieldAndDiscountCurve should have a getForwardRate method, which should be used here
+
+  }
+
   @SuppressWarnings("unused")
   private ForwardCurve(final Curve<Double, Double> fwdCurve, final Curve<Double, Double> driftCurve) {
     Validate.notNull(fwdCurve, "null fwdCurve");
@@ -36,26 +56,7 @@ public class ForwardCurve {
   public ForwardCurve(final Curve<Double, Double> fwdCurve) {
     Validate.notNull(fwdCurve, "curve");
     _fwdCurve = fwdCurve;
-
-    final Function1D<Double, Double> drift = new Function1D<Double, Double>() {
-      private final double _eps = 1e-3;
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Double evaluate(final Double t) {
-
-        final double up = Math.log(_fwdCurve.getYValue(t + _eps));
-
-        if (t < _eps) {
-          final double mid = Math.log(_fwdCurve.getYValue(t));
-          return (up - mid) / _eps;
-        }
-        final double down = Math.log(_fwdCurve.getYValue(t - _eps));
-        return (up - down) / 2 / _eps;
-      }
-    };
-
-    _drift = FunctionalDoublesCurve.from(drift);
+    _drift = getDriftCurve(fwdCurve);
     _spot = _fwdCurve.getYValue(0.0);
   }
 
@@ -141,6 +142,30 @@ public class ForwardCurve {
 
   public double getSpot() {
     return _spot;
+  }
+
+  private static Curve<Double, Double> getDriftCurve(final Curve<Double, Double> fwdCurve) {
+
+
+    final Function1D<Double, Double> drift = new Function1D<Double, Double>() {
+      private final double _eps = 1e-3;
+
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public Double evaluate(final Double t) {
+
+        final double up = Math.log(fwdCurve.getYValue(t + _eps));
+
+        if (t < _eps) {
+          final double mid = Math.log(fwdCurve.getYValue(t));
+          return (up - mid) / _eps;
+        }
+        final double down = Math.log(fwdCurve.getYValue(t - _eps));
+        return (up - down) / 2 / _eps;
+      }
+    };
+
+    return FunctionalDoublesCurve.from(drift);
   }
 
   /**

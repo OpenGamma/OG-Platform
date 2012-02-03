@@ -11,7 +11,7 @@ import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 
 /**
- * Class that brackets single root of a function. For a 1-D function ({@link com.opengamma.math.function.Function1D}) {@latex.inline $f(x)$}, 
+ * Class that brackets single root of a function. For a 1-D function ({@link com.opengamma.math.function.Function1D}) {@latex.inline $f(x)$},
  * initial values for the interval, {@latex.inline $x_1$} and {@latex.inline $x_2$}, are supplied.
  * <p>
  * A root is assumed to be bracketed if {@latex.inline $f(x_1)f(x_2) < 0$}. If this condition is not satisfied, then either
@@ -62,7 +62,7 @@ public class BracketRoot {
     for (int count = 0; count < MAX_STEPS; count++) {
       f1 = f.evaluate(x1);
       f2 = f.evaluate(x2);
-      if (f1 * f2 < 0) {
+      if (f1 * f2 <= 0) {
         return new double[] {x1, x2 };
       }
       if (x1 == minX && x2 == maxX) {
