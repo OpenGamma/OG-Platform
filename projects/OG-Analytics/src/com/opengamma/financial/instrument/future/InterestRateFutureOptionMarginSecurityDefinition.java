@@ -10,8 +10,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 
 import javax.time.calendar.ZonedDateTime;
 

@@ -36,12 +36,14 @@ import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.BondFuture;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.financial.interestrate.future.derivative.BondFuture;
+import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
+import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthly;
@@ -124,7 +126,7 @@ public class ForexDerivativeVisitorTest {
     testException(NDO, o);
     testException(FX_OPTION_DIGITAL);
     testException(FX_OPTION_DIGITAL, o);
-    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP };
+    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP};
     try {
       VISITOR_ABSTRACT.visit(forexArray[0]);
       assertTrue(false);
@@ -732,6 +734,26 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitBillTransaction(BillTransaction bill) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future) {
       return null;
     }
 

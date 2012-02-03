@@ -18,28 +18,25 @@ $.register_module({
                 if (!routes.current().args.id) {versions.clear()}
                 og.api.rest[cur.page.substring(1)].get({
                     id: cur.args.id, version: '*',
-                    handler: function (r) {
-                        var cols = '<colgroup></colgroup><colgroup></colgroup><colgroup></colgroup>',
-                        build_url = function (version) {
-                            var args = routes.current().args, page = routes.current().page.substring(1);
-                            return routes.hash(og.views[page].rules.load_item, args,
-                                {add: {version: version}, del: ['node']});
-                        },
-                        $list = $(r.data.data.reduce(function (acc, val, i) {
-                            var arr = val.split('|'), cur, sel, ver = routes.current().args.version;
-                            //version_id
-                            cur = !i ? '<span> Latest</span>' : '';
-                            sel = ver === arr[0] ? ' class="og-selected"' : '';
-                            return acc +
-                                '<tr' + sel + '>' +
-                                    '<td><a href="#' + build_url(arr[0]) + '">' + arr[0] + '</a>' + cur + '</td>' +
-                                    '<td>' + arr[1] + '</td>' +
-                                    '<td>' + og.common.util.date(arr[2]) + '</td>' +
-                                '</tr>';
-                        }, '<div class="og-container"><table>' + cols) + '</table></div>')
+                    handler: function (result) {
+                        var args = routes.current().args, page = routes.current().page.substring(1), $list,
+                            table_header = '<div class="og-container"><table>' +
+                                '<colgroup></colgroup><colgroup></colgroup><colgroup></colgroup>',
+                            table_footer = '</table></div>';
+                        $list = $(result.data.data.reduce(function (acc, val, idx) {
+                            var arr = val.split('|'), ver = routes.current().args.version,
+                                cur = !idx ? '<span>&nbsp;Latest</span>' : '',
+                                sel = ver === arr[0] || cur && ver === '*' ? ' class="og-selected"' : '',
+                                extras = {add: {version: cur ? '*' : arr[0]}, del: ['node']};
+                            return acc + '<tr' + sel + '><td><a class="og-js-live-anchor" href="' +
+                                routes.prefix() + routes.hash(og.views[page].rules.load_item, args, extras) + '">' +
+                                arr[0] + '</a>' + cur + '</td><td>' + arr[1] + '</td><td>' +
+                                og.common.util.date(arr[2]) + '</td></tr>';
+                        }, table_header) + table_footer)
                         .click(function (e) {
-                            var version = $(e.target).parents('tbody tr').find('td:first-child a').text();
-                            if (version) routes.go(build_url(version));
+                            if ($(e.target).is('a')) return; // just follow the link
+                            // all click handlers should fire (include og-js-live-anchor)
+                            routes.go($(e.target).parents('tr:first').find('td:first a').trigger('click').attr('href'));
                         });
                         $(CONTENT).html($list);
                         ui.message({location: '.ui-layout-inner-south', destroy: true});

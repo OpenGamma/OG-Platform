@@ -18,9 +18,9 @@ import com.opengamma.financial.model.finitedifference.MeshingFunction;
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.financial.model.volatility.local.DupireLocalVolatilityCalculator;
 import com.opengamma.financial.model.volatility.surface.AbsoluteLocalVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
-import com.opengamma.financial.model.volatility.surface.DupireLocalVolatilityCalculator;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceStrike;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.interpolation.DoubleQuadraticInterpolator1D;
@@ -69,7 +69,7 @@ public class TwoStateMarkovChainLocalVolFitter {
     // first fit calibrate the basic Markov chain model (i.e. fixed vol levels) to market data
     final LeastSquareResultsWithTransform chiSqRes = CHAIN_FITTER.fit(forward, marketVols, initialGuess);
 
-    DoubleMatrix1D modelParms = chiSqRes.getModelParameters();
+    final DoubleMatrix1D modelParms = chiSqRes.getModelParameters();
 
     final double vol1 = modelParms.getEntry(0);
     final double vol2 = modelParms.getEntry(1) + vol1;

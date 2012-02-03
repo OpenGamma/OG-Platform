@@ -23,7 +23,7 @@ $.register_module({
                 positions: true, regions: true, securities: true, timeseries: false
             },
             request_id = 0,
-            MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1,
+            MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, STALL = 500 /* 500ms */,
             INSTANT = 10 /* 10ms */, RESUBSCRIBE = 30000 /* 20s */,
             TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */,
             /** @ignore */
@@ -115,12 +115,13 @@ $.register_module({
                         });
                         return id;
                     };
-                if (is_get && !register({id: id, config: config, current: current, url: url, method: method})){
-                    return (setTimeout(request.partial(method, config), 500)), id;
-                }else
+                if (is_get && !register({id: id, config: config, current: current, url: url, method: method}))
+                    // if registration fails, it's because we don't have a client ID yet, so stall
+                    return (setTimeout(request.partial(method, config), STALL)), id;
+                else
                     if (og.app.READ_ONLY) return setTimeout(config.meta.handler.partial({
                         error: true, data: null, meta: {}, message: 'This application is in read-only mode.'
-                    }), 0), id;
+                    }), INSTANT), id;
                 if (config.meta.update && !is_get) warn(module.name + ': update functions are only for GETs');
                 if (config.meta.update && is_get) config.data['clientId'] = api.id;
                 if (config.meta.cache_for && !is_get)
@@ -128,7 +129,8 @@ $.register_module({
                 start_loading(config.meta.loading);
                 if (is_get && get_cache(url) && typeof get_cache(url) === 'object')
                     return (setTimeout(config.meta.handler.partial(get_cache(url)), INSTANT)), id;
-                if (is_get && get_cache(url)) return (setTimeout(request.partial(method, config), 500)), id;
+                if (is_get && get_cache(url)) // if get_cache returns true a request is already outstanding, so stall
+                    return (setTimeout(request.partial(method, config), STALL)), id;
                 if (is_get && config.meta.cache_for) set_cache(url, true);
                 outstanding_requests[id] = {current: current, dependencies: config.meta.dependencies};
                 return send();

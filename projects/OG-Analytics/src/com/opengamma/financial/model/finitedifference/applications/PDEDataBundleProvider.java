@@ -104,7 +104,7 @@ public class PDEDataBundleProvider {
     final Function1D<Double, Double> constant = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double x) {
+      public Double evaluate(final Double x) {
         return 1.0;
       }
     };
@@ -135,7 +135,7 @@ public class PDEDataBundleProvider {
     final Function1D<Double, Double> constant = new Function1D<Double, Double>() {
 
       @Override
-      public Double evaluate(Double x) {
+      public Double evaluate(final Double x) {
         return 0.0;
       }
     };
@@ -469,7 +469,7 @@ public class PDEDataBundleProvider {
    */
   public ConvectionDiffusionPDEDataBundle getForwardLocalVol(final LocalVolatilitySurfaceStrike localVol, final ForwardCurve forwardCurve,
       final boolean isCall) {
-    LocalVolatilitySurfaceMoneyness lvm = LocalVolatilitySurfaceConverter.toMoneynessSurface(localVol, forwardCurve);
+    final LocalVolatilitySurfaceMoneyness lvm = LocalVolatilitySurfaceConverter.toMoneynessSurface(localVol, forwardCurve);
     return getForwardLocalVol(lvm, isCall);
   }
 
@@ -574,9 +574,9 @@ public class PDEDataBundleProvider {
         final double t = tx[0];
         final double x = tx[1];
 
-        double l1 = 1 + lambda * t;
-        double l2 = Math.sqrt(l1);
-        double k = spot * Math.exp(-x / l2);
+        final double l1 = 1 + lambda * t;
+        final double l2 = Math.sqrt(l1);
+        final double k = spot * Math.exp(-x / l2);
         final double temp = localVol.getVolatility(t, k);
         return -0.5 * temp * temp / l1;
       }
@@ -589,9 +589,9 @@ public class PDEDataBundleProvider {
         final double t = tx[0];
         final double x = tx[1];
 
-        double l1 = 1 + lambda * t;
-        double l2 = Math.sqrt(l1);
-        double k = spot * Math.exp(-x / l2);
+        final double l1 = 1 + lambda * t;
+        final double l2 = Math.sqrt(l1);
+        final double k = spot * Math.exp(-x / l2);
         final double vol = localVol.getVolatility(t, k);
         return -0.5 * (lambda * x / l1 - vol * vol / l2);
       }
@@ -602,7 +602,7 @@ public class PDEDataBundleProvider {
       @Override
       public Double evaluate(final Double x) {
 
-        double k = spot * Math.exp(-x);
+        final double k = spot * Math.exp(-x);
         if (isCall) {
           return Math.max(0, spot - k);
         }

@@ -41,8 +41,7 @@ public class Interpolator1DQuadraticSplineDataBundle implements Interpolator1DDa
       double root = b * b - 4 * a * c;
       Validate.isTrue(root >= 0, "root of neg");
       root = Math.sqrt(root);
-      double temp1 = (-b + root) / 2 / a;
-      double temp2 = (-b - root) / 2 / a;
+      final double temp1 = (-b + root) / 2 / a;
       _b[i] = temp1;
       // _b[i] = 2 * (h[i] - h[i - 1] - _a[i] * dx[i]) / dx[i] / dx[i];
     }
@@ -137,7 +136,7 @@ public class Interpolator1DQuadraticSplineDataBundle implements Interpolator1DDa
   }
 
   @Override
-  public void setYValueAtIndex(int index, double y) {
+  public void setYValueAtIndex(final int index, final double y) {
   }
 
   public double getA(final int index) {

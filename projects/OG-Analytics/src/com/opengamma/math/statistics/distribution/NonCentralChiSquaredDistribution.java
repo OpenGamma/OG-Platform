@@ -10,7 +10,6 @@ import org.apache.commons.lang.Validate;
 import org.apache.commons.math.special.Gamma;
 
 import com.opengamma.math.MathException;
-import com.opengamma.math.function.special.GammaFunction;
 
 /**
  * The non-central chi-squared distribution is a continuous probability distribution with probability
@@ -18,12 +17,12 @@ import com.opengamma.math.function.special.GammaFunction;
  * {@latex.ilb %preamble{\\usepackage{amsmath}}
  * \\begin{align*}
  * f_r(x) = \\frac{e^-\\frac{x + \\lambda}{2}x^{\\frac{r}{2} - 1}}{2^{\\frac{r}{2}}}\\sum_{k=0}^\\infty \\frac{(\\lambda k)^k}{2^{2k}k!\\Gamma(k + \\frac{r}{2})}
- * \\end{align*} 
+ * \\end{align*}
  * }
  * where {@latex.inline $r$} is the number of degrees of freedom, {@latex.inline $\\lambda$} is the non-centrality parameter and {@latex.inline $\\Gamma$} is the Gamma
  * function ({@link com.opengamma.math.function.special.GammaFunction}).
  * <p>
- * For the case where {@latex.inline $r + \\lambda > 2000$}, the implementation of the cdf is taken from <i>"An Approximation for the Noncentral Chi-Squared Distribution", Fraser et al.</i> 
+ * For the case where {@latex.inline $r + \\lambda > 2000$}, the implementation of the cdf is taken from <i>"An Approximation for the Noncentral Chi-Squared Distribution", Fraser et al.</i>
  * (<a href="fisher.utstat.toronto.edu/dfraser/documents/192.pdf">link</a>). Otherwise, the algorithm is taken from <i>"Computing the Non-Central Chi-Squared Distribution Function", Ding</i>.
  */
 public class NonCentralChiSquaredDistribution implements ProbabilityDistribution<Double> {
@@ -31,7 +30,6 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
   private final int _k;
   private final double _dofOverTwo;
   private final double _pStart;
-  private final double _gammaStart;
   private final double _eps = 1e-16;
 
   /**
@@ -51,9 +49,6 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
       final double logP = -_lambdaOverTwo + _k * Math.log(_lambdaOverTwo) - Gamma.logGamma(_k + 1);
       _pStart = Math.exp(logP);
     }
-    final GammaFunction func = new GammaFunction();
-    _gammaStart = func.evaluate(_dofOverTwo + _k);
-
   }
 
   private double getFraserApproxCDF(final double x) {
@@ -94,7 +89,6 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
     double sum = _pStart * regGammaStart;
     double oldSum = Double.NEGATIVE_INFINITY;
     double p = _pStart;
-    double gamma = _gammaStart;
     double regGamma = regGammaStart;
     double temp;
     int i = _k;
@@ -107,18 +101,15 @@ public class NonCentralChiSquaredDistribution implements ProbabilityDistribution
       regGamma += Math.exp(temp);
       oldSum = sum;
       sum += p * regGamma;
-      gamma /= _dofOverTwo + i;
     }
 
     p = _pStart;
-    gamma = _gammaStart;
     regGamma = regGammaStart;
     oldSum = Double.NEGATIVE_INFINITY;
     i = _k;
     while (Math.abs(sum - oldSum) / sum > _eps) {
       i++;
       p *= _lambdaOverTwo / i;
-      gamma *= _dofOverTwo + i - 1;
       temp = (_dofOverTwo + i - 1) * logX - halfX - Gamma.logGamma(_dofOverTwo + i);
       regGamma -= Math.exp(temp);
       oldSum = sum;

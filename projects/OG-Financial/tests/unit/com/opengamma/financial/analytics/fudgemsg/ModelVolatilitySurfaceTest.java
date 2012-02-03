@@ -12,6 +12,8 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -49,4 +51,14 @@ public class ModelVolatilitySurfaceTest extends AnalyticsTestBase {
     assertEquals(vs1, vs2);
   }
 
+  @Test
+  public void testMoneynessSurface() {
+    final ConstantDoublesSurface surface = ConstantDoublesSurface.from(0.5);
+    final ForwardCurve curve = new ForwardCurve(1);
+    final BlackVolatilitySurfaceMoneyness moneyness1 = new BlackVolatilitySurfaceMoneyness(surface, curve);
+    BlackVolatilitySurfaceMoneyness moneyness2 = cycleObject(BlackVolatilitySurfaceMoneyness.class, moneyness1);
+    assertEquals(moneyness1, moneyness2);
+    moneyness2 = cycleObject(BlackVolatilitySurfaceMoneyness.class, new BlackVolatilitySurfaceMoneyness(moneyness1));
+    assertEquals(moneyness1, moneyness2);
+  }
 }

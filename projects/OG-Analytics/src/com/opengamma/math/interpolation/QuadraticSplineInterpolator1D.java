@@ -5,6 +5,7 @@
  */
 package com.opengamma.math.interpolation;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.interpolation.data.ArrayInterpolator1DDataBundle;
@@ -15,13 +16,14 @@ import com.opengamma.math.interpolation.data.Interpolator1DQuadraticSplineDataBu
  * 
  */
 public class QuadraticSplineInterpolator1D extends Interpolator1D {
+  private static final long serialVersionUID = 1L;
 
   @Override
-  public Double interpolate(Interpolator1DDataBundle data, Double value) {
+  public Double interpolate(final Interpolator1DDataBundle data, final Double value) {
     Validate.notNull(value, "value");
     Validate.notNull(data, "data bundle");
     Validate.isTrue(data instanceof Interpolator1DQuadraticSplineDataBundle);
-    Interpolator1DQuadraticSplineDataBundle quadraticData = (Interpolator1DQuadraticSplineDataBundle) data;
+    final Interpolator1DQuadraticSplineDataBundle quadraticData = (Interpolator1DQuadraticSplineDataBundle) data;
 
     final int n = data.size() - 1;
     final double[] xData = data.getKeys();
@@ -50,17 +52,17 @@ public class QuadraticSplineInterpolator1D extends Interpolator1D {
   }
 
   @Override
-  public double[] getNodeSensitivitiesForValue(Interpolator1DDataBundle data, Double value) {
-    return null;
+  public double[] getNodeSensitivitiesForValue(final Interpolator1DDataBundle data, final Double value) {
+    throw new NotImplementedException();
   }
 
   @Override
-  public Interpolator1DDataBundle getDataBundle(double[] x, double[] y) {
+  public Interpolator1DDataBundle getDataBundle(final double[] x, final double[] y) {
     return new Interpolator1DQuadraticSplineDataBundle(new ArrayInterpolator1DDataBundle(x, y));
   }
 
   @Override
-  public Interpolator1DDataBundle getDataBundleFromSortedArrays(double[] x, double[] y) {
+  public Interpolator1DDataBundle getDataBundleFromSortedArrays(final double[] x, final double[] y) {
     return new Interpolator1DQuadraticSplineDataBundle(new ArrayInterpolator1DDataBundle(x, y, true));
   }
 

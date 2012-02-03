@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.util.money.CurrencyAmount;
 

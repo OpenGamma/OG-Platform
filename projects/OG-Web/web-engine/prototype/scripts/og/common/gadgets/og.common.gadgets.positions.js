@@ -10,7 +10,7 @@ $.register_module({
             dependencies = ['id', 'node', 'version'];
         return function (config) {
             /* timeseries */
-            var selector = config.selector, get_values, timeseries,
+            var selector = config.selector, get_values, timeseries, view = config.view,
                 timeseries_options = {
                     colors: ['#42669a'],
                     series: {shadowSize: 0, threshold: {below: 0, color: '#960505'}},
@@ -68,7 +68,7 @@ $.register_module({
                         $(selector).html($.tmpl(template, $.extend(result.data, {editable: config.editable})))
                             .hide().fadeIn();
                         timeseries(result, $(selector + ' .og-js-sec-time').outerHeight() - 2);
-                        if ((!args.version || args.version === '*') && config.editable) {
+                        if ((!config.version || config.version === '*') && config.editable) {
                             common.util.ui.content_editable({
                                 pre_dispatch: function (rest_options, handler) {
                                     og.api.rest.positions.get({
@@ -80,12 +80,13 @@ $.register_module({
                                         }
                                     });
                                 },
-                                handler: function () {views.positions.search(routes.current().args);}
+                                handler: function () {view.search(routes.current().args);}
                             });
                         }
                     }});
                 },
                 id: config.id,
+                version: !config.version || config.version === '*' ? (void 0) : config.version,
                 cache_for: 500,
                 loading: function () {}
             });

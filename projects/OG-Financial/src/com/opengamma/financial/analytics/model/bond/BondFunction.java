@@ -9,8 +9,6 @@ import java.util.Set;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.engine.ComputationTarget;
@@ -24,8 +22,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.BondSecurityConverter;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
-import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.security.bond.BondSecurity;
 
 /**
@@ -41,16 +37,11 @@ public abstract class BondFunction<T> extends AbstractFunction.NonCompiledInvoke
   public static final String FROM_DIRTY_PRICE_METHOD = "FromDirtyPrice";
   /** String indicating that the calculator used the yield */
   public static final String FROM_YIELD_METHOD = "FromYield";
-  private final String _creditCurveName;
-  private final String _riskFreeCurveName;
+  /** String indicating the name for the risk-free curve */
+  public static final String PROPERTY_RISK_FREE_CURVE = "RiskFree";
+  /** String indicating the name for the credit curve */
+  public static final String PROPERTY_CREDIT_CURVE = "Credit";
   private BondSecurityConverter _visitor;
-
-  public BondFunction(final String creditCurveName, final String riskFreeCurveName) {
-    Validate.notNull(creditCurveName, "credit curve name");
-    Validate.notNull(creditCurveName, "risk-free curve name");
-    _creditCurveName = creditCurveName;
-    _riskFreeCurveName = riskFreeCurveName;
-  }
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -64,9 +55,7 @@ public abstract class BondFunction<T> extends AbstractFunction.NonCompiledInvoke
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ZonedDateTime date = executionContext.getValuationClock().zonedDateTime();
     final BondSecurity security = (BondSecurity) target.getSecurity();
-    final BondFixedSecurityDefinition definition = (BondFixedSecurityDefinition) security.accept(_visitor);
-    final BondFixedSecurity bond = definition.toDerivative(date, _creditCurveName, _riskFreeCurveName);
-    return calculate(bond, getData(inputs, target), target, inputs);
+    return calculate(date, security, getData(inputs, target, desiredValues), target, inputs, desiredValues);
   }
 
   @Override
@@ -82,15 +71,13 @@ public abstract class BondFunction<T> extends AbstractFunction.NonCompiledInvoke
     return target.getSecurity() instanceof BondSecurity;
   }
 
-  protected abstract Set<ComputedValue> calculate(BondFixedSecurity bond, T data, ComputationTarget target, FunctionInputs inputs);
-
-  protected abstract T getData(FunctionInputs inputs, ComputationTarget target);
-
-  protected String getCreditCurveName() {
-    return _creditCurveName;
+  protected BondSecurityConverter getConverter() {
+    return _visitor;
   }
 
-  protected String getRiskFreeCurveName() {
-    return _riskFreeCurveName;
-  }
+  protected abstract Set<ComputedValue> calculate(final ZonedDateTime date, final BondSecurity bondSecurity, final T data, final ComputationTarget target, final FunctionInputs inputs,
+      final Set<ValueRequirement> desiredValues);
+
+  protected abstract T getData(final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues);
+
 }

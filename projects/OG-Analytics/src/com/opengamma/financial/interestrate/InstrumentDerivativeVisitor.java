@@ -28,12 +28,14 @@ import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.BondFuture;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.financial.interestrate.future.derivative.BondFuture;
+import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
+import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthly;
@@ -121,6 +123,10 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitBondFuture(BondFuture bondFuture, S data);
 
   T visitInterestRateFuture(InterestRateFuture future, S data);
+
+  T visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future, S data);
+
+  T visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future, S data);
 
   T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option, S data);
 
@@ -217,6 +223,10 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitBondFuture(BondFuture future);
 
   T visitInterestRateFutureSecurity(InterestRateFuture future);
+
+  T visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future);
+
+  T visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future);
 
   T visitInterestRateFutureOptionPremiumSecurity(InterestRateFutureOptionPremiumSecurity option);
 

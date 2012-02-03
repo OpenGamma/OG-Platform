@@ -33,6 +33,7 @@ $.register_module({
                 'new': function () {ui.dialog({
                     type: 'input',
                     title: 'Add Securities',
+                    width: 400, height: 270,
                     fields: [
                         {type: 'select', name: 'Scheme Type', id: 'scheme-type',
                                 options: [
@@ -72,6 +73,7 @@ $.register_module({
                 'delete': function () {ui.dialog({
                     type: 'confirm',
                     title: 'Delete Security?',
+                    width: 400, height: 190,
                     message: 'Are you sure you want to permanently delete this security?',
                     buttons: {
                         'Delete': function () {
@@ -133,19 +135,14 @@ $.register_module({
                                         This security has been deleted\
                                     </section>\
                                 ',
-                                $html = $.tmpl(template, json.template_data), header, content,
-                                html = [], id, json_id = json.identifiers;
-                            header = $.outer($html.find('> header')[0]);
-                            content = $.outer($html.find('> section')[0]);
-                            $('.ui-layout-inner-center .ui-layout-header').html(header);
-                            $('.ui-layout-inner-center .ui-layout-content').html(content);
+                                $html = $.tmpl(template, json.template_data), html = [], id, json_id = json.identifiers;
+                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                             if (!Object.keys(json_id)[0]) $('.ui-layout-inner-center .og-js-identifiers')
                                 .html('<tr><td><span>' + ''.lang() + '</span></td><td></td></tr>');
                             else for (id in json_id) {
-                                if (json_id.hasOwnProperty(id)) {
-                                    html.push('<tr><td><span>', id.lang(),
-                                              '<span></td><td>', json_id[id].replace(id + '-', ''), '</td></tr>');
-                                }
+                                if (json_id.hasOwnProperty(id)) html.push('<tr><td><span>', id.lang(),
+                                    '<span></td><td>', json_id[id].replace(id + '-', ''), '</td></tr>');
                                 $('.ui-layout-inner-center .og-js-identifiers').html(html.join(''));
                             }
                             (function () {

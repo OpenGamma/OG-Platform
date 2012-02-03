@@ -41,15 +41,17 @@ $.register_module({
                 'new': function () {ui.dialog({
                     type: 'input',
                     title: 'Add configuration',
+                    width: 400, height: 190,
                     fields: [
                         {type: 'select', name: 'Configuration Type', id: 'config_type', options: config_types}
                     ],
                     buttons: {
                         'OK': function () {
-                            var config_type = ui.dialog({return_field_value: 'config_type'}),
-                                args = $.extend({}, routes.last().args, {config_type: config_type});
+                            var config_type = ui.dialog({return_field_value: 'config_type'});
                             $(this).dialog('close');
-                            routes.go(routes.hash(view.rules.load_new, args));
+                            routes.go(routes.hash(view.rules.load_new, routes.current().args, {
+                                add: {config_type: config_type}
+                            }));
                         },
                         'Cancel': function () {$(this).dialog('close');}
                     }
@@ -57,6 +59,7 @@ $.register_module({
                 'delete': function () {ui.dialog({
                     type: 'confirm',
                     title: 'Delete configuration?',
+                    width: 400, height: 190,
                     message: 'Are you sure you want to permanently delete this configuration?',
                     buttons: {
                         'Delete': function () {
@@ -280,6 +283,7 @@ $.register_module({
                 if (suppress_update) return suppress_update = false;
                 ui.dialog({
                     type: 'confirm',
+                    width: 400, height: 190,
                     title: delivery.reset ? 'The connection has been reset!' : 'This item has been updated!',
                     message: 'Would you like to refresh this page (all changes will be lost) or continue working?',
                     buttons: {

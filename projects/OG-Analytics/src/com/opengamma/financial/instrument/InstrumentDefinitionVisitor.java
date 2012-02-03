@@ -27,6 +27,8 @@ import com.opengamma.financial.instrument.cash.DepositDefinition;
 import com.opengamma.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
+import com.opengamma.financial.instrument.future.FederalFundsFutureSecurityDefinition;
+import com.opengamma.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
@@ -115,6 +117,14 @@ public interface InstrumentDefinitionVisitor<T, U> {
   U visitInterestRateFutureSecurityDefinition(InterestRateFutureDefinition future, T data);
 
   U visitInterestRateFutureSecurityDefinition(InterestRateFutureDefinition future);
+
+  U visitFederalFundsFutureSecurityDefinition(FederalFundsFutureSecurityDefinition future, T data);
+
+  U visitFederalFundsFutureSecurityDefinition(FederalFundsFutureSecurityDefinition future);
+
+  U visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future, T data);
+
+  U visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future);
 
   U visitInterestRateFutureOptionPremiumSecurityDefinition(InterestRateFutureOptionPremiumSecurityDefinition future, T data);
 

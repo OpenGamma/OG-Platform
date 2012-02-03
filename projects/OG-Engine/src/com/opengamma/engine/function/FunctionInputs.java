@@ -6,7 +6,6 @@
 package com.opengamma.engine.function;
 
 import java.util.Collection;
-import java.util.Set;
 
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
@@ -62,6 +61,19 @@ public interface FunctionInputs {
    * @return The ultimate value computed for that requirement.
    */
   Object getValue(String requirementName);
+  
+  /**
+   * Obtain the computed value for the given requirement name.
+   * This is equivalent to obtaining the embedded {@link ComputedValue}.
+   * If the {@link FunctionDefinition} requires multiple requirements with the same
+   * name but on different targets, it is undefined which one will be returned by
+   * this method, and so this method is only suitable as a convenience for simple
+   * functions with a restricted set of inputs.
+   * 
+   * @param requirementName The name of the requirement desired.
+   * @return The computed value computed for that requirement
+   */
+  ComputedValue getComputedValue(String requirementName);
 
   /**
    * Obtain any "missing" values that are not available because of missing market

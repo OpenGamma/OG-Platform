@@ -17,6 +17,7 @@ import com.opengamma.financial.analytics.model.bond.BondPresentValueCountryCurve
 import com.opengamma.financial.analytics.model.bond.BondPresentValueCurrencyCurveFunction;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
+import com.opengamma.financial.currency.PnlSeriesCurrencyConversionFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -39,7 +40,7 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
     return new DefaultFunctionResolver(functionCompilationSerice, new FunctionPriority() {
       @Override
       public int getPriority(final CompiledFunctionDefinition function) {
-        if (function instanceof CurrencyConversionFunction) {
+        if (function instanceof CurrencyConversionFunction || function instanceof PnlSeriesCurrencyConversionFunction) {
           return Integer.MIN_VALUE;
         }
         if (function instanceof DefaultPropertyFunction) {

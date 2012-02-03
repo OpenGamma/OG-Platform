@@ -30,7 +30,7 @@ public class NonLinearLeastSquare {
   private static final int MAX_ATTEMPTS = 10000;
   private static final Function1D<DoubleMatrix1D, Boolean> UNCONSTAINED = new Function1D<DoubleMatrix1D, Boolean>() {
     @Override
-    public Boolean evaluate(DoubleMatrix1D x) {
+    public Boolean evaluate(final DoubleMatrix1D x) {
       return false;
     }
   };
@@ -268,10 +268,11 @@ public class NonLinearLeastSquare {
    * @param func The model as a function of its parameters only
    * @param jac The model sensitivity to its parameters (i.e. the Jacobian matrix) as a function of its parameters only
    * @param startPos  Initial value of the parameters
+   * @param constraints The constraints for the fit
    * @return value of the fitted parameters
    */
   public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
-      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D startPos, final Function1D<DoubleMatrix1D, Boolean> constaints) {
+      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D startPos, final Function1D<DoubleMatrix1D, Boolean> constraints) {
 
     Validate.notNull(observedValues, "observedValues");
     Validate.notNull(sigma, " sigma");
@@ -311,7 +312,7 @@ public class NonLinearLeastSquare {
         throw new MathException(e);
       }
       final DoubleMatrix1D trialTheta = (DoubleMatrix1D) _algebra.add(theta, deltaTheta);
-      if (constaints.evaluate(trialTheta)) {
+      if (constraints.evaluate(trialTheta)) {
         lambda = increaseLambda(lambda);
         continue;
       }

@@ -5,12 +5,12 @@
  */
 package com.opengamma.financial.interestrate.future.method;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.financial.interestrate.method.PricingMethod;
-
-import org.apache.commons.lang.Validate;
 
 /**
  * Methods for the pricing of interest rate futures generic to all models.
@@ -37,7 +37,7 @@ public abstract class InterestRateFutureMethod implements PricingMethod {
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateFuture future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     InterestRateCurveSensitivity priceSensi = priceCurveSensitivity(future, curves);
-    InterestRateCurveSensitivity result = priceSensi.multiply(future.getPaymentAccrualFactor() *  future.getNotional());
+    InterestRateCurveSensitivity result = priceSensi.multiply(future.getPaymentAccrualFactor() * future.getNotional());
     return result;
   }
 

@@ -7,7 +7,6 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import java.text.DecimalFormat;
 
-import javax.time.calendar.Clock;
 import javax.time.calendar.DateAdjuster;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.MonthOfYear;
@@ -53,7 +52,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
   private final String _postfix;
   private final String _dataFieldName; // expecting MarketDataRequirementNames.IMPLIED_VOLATILITY or OPT_IMPLIED_VOLATILITY_MID
   private final Double _useCallAboveStrike;
-  
+
   /**
    * @param futureOptionPrefix the prefix to the resulting code
    * @param postfix the postfix to the resulting code
@@ -93,12 +92,12 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
     }
     futureOptionCode.append(s_monthCode.get(futureOptionExpiry.getMonthOfYear()));
     // TODO: TIMEZONE
-    
+
     final LocalDate today = LocalDate.now();
     if (futureOptionExpiry.isBefore(today.minus(Period.ofMonths(3)))) {
       final int yearsNum = futureOptionExpiry.getYear() % 100;
       if (yearsNum < 10) {
-        futureOptionCode.append("0"); // so we get '09' rather than '9'  
+        futureOptionCode.append("0"); // so we get '09' rather than '9'
       }
       futureOptionCode.append(Integer.toString(yearsNum));
     } else {
@@ -143,8 +142,8 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
     }
     final BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider other = (BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider) obj;
     return getFutureOptionPrefix().equals(other.getFutureOptionPrefix()) &&
-           getPostfix().equals(other.getPostfix()) &&
-           useCallAboveStrike().equals(other.useCallAboveStrike()) &&
-           getDataFieldName().equals(other.getDataFieldName());
+        getPostfix().equals(other.getPostfix()) &&
+        useCallAboveStrike().equals(other.useCallAboveStrike()) &&
+        getDataFieldName().equals(other.getDataFieldName());
   }
 }

@@ -30,12 +30,14 @@ import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.BondFuture;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.financial.interestrate.future.derivative.BondFuture;
+import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
+import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthly;
@@ -176,6 +178,16 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   @Override
   public T visitInterestRateFuture(final InterestRateFuture future, final S data) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureSecurity()");
+  }
+
+  @Override
+  public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity future, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureSecurity()");
+  }
+
+  @Override
+  public T visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureTransaction()");
   }
 
   @Override
@@ -361,6 +373,16 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
   @Override
   public T visitInterestRateFutureSecurity(final InterestRateFuture future) {
     throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitInterestRateFutureSecurity()");
+  }
+
+  @Override
+  public T visitFederalFundsFutureSecurity(final FederalFundsFutureSecurity future) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureSecurity()");
+  }
+
+  @Override
+  public T visitFederalFundsFutureTransaction(final FederalFundsFutureTransaction future) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitFederalFundsFutureSecurity()");
   }
 
   @Override

@@ -26,6 +26,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.bond.BondFunction;
 
 /**
  * 
@@ -34,19 +35,21 @@ public class UnitPositionScalingFunction extends PropertyPreservingFunction {
 
   @Override
   protected Collection<String> getPreservedProperties() {
-    return Arrays.asList(ValuePropertyNames.CURRENCY,
-                         ValuePropertyNames.CALCULATION_METHOD);
-  }
-
-  @Override
-  protected Collection<String> getOptionalPreservedProperties() {
     return Arrays.asList(
+        ValuePropertyNames.CURRENCY,
+        ValuePropertyNames.CALCULATION_METHOD,
         ValuePropertyNames.CURVE,
         YieldCurveFunction.PROPERTY_FORWARD_CURVE,
         YieldCurveFunction.PROPERTY_FUNDING_CURVE,
         ValuePropertyNames.PAY_CURVE,
         ValuePropertyNames.RECEIVE_CURVE,
-        ValuePropertyNames.CALCULATION_METHOD);
+        BondFunction.PROPERTY_CREDIT_CURVE,
+        BondFunction.PROPERTY_RISK_FREE_CURVE);
+  }
+
+  @Override
+  protected Collection<String> getOptionalPreservedProperties() {
+    return Collections.emptySet();
   }
 
   private final String _requirementName;

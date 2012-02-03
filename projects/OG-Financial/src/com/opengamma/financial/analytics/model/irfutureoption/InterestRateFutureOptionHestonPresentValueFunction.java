@@ -45,11 +45,11 @@ import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.AbstractInstrumentDerivativeVisitor;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.financial.interestrate.future.method.InterestRateFutureDiscountingMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -92,7 +92,7 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
   }
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
@@ -110,7 +110,7 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.TRADE) {
       return false;
     }
@@ -118,7 +118,7 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(getSurfaceRequirement(target));
     if (_forwardCurveName.equals(_fundingCurveName)) {
@@ -131,7 +131,7 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Sets.newHashSet(getSpecification(target));
   }
 
@@ -144,8 +144,10 @@ public class InterestRateFutureOptionHestonPresentValueFunction extends Abstract
 
   private ValueSpecification getSpecification(final ComputationTarget target) {
     return new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode()).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, _forwardCurveName)
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, _fundingCurveName).with(ValuePropertyNames.SURFACE, _surfaceName).with(ValuePropertyNames.SMILE_FITTING_METHOD, "Heston")
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, _forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, _fundingCurveName).with(ValuePropertyNames.SURFACE, _surfaceName)
+        .with(ValuePropertyNames.SMILE_FITTING_METHOD, "Heston")
         .with(ValuePropertyNames.CALCULATION_METHOD, "Fourier").get());
   }
 

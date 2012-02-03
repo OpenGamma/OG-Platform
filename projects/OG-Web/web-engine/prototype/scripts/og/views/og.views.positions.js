@@ -7,7 +7,6 @@ $.register_module({
     dependencies: [
         'og.api.rest',
         'og.api.text',
-        'og.common.masthead.menu',
         'og.common.routes',
         'og.common.search_results.core',
         'og.common.util.history',
@@ -22,7 +21,6 @@ $.register_module({
             common = og.common,
             details = common.details,
             history = common.util.history,
-            masthead = common.masthead,
             routes = common.routes,
             search, layout,
             ui = common.util.ui,
@@ -34,6 +32,7 @@ $.register_module({
                 'new': function () {ui.dialog({
                     type: 'input',
                     title: 'Add New Position',
+                    width: 400, height: 300,
                     fields: [
                         {type: 'input', name: 'Quantity', id: 'quantity'},
                         {type: 'select', name: 'Scheme Type', id: 'scheme-type',
@@ -69,6 +68,7 @@ $.register_module({
                 'delete': function () {ui.dialog({
                     type: 'confirm',
                     title: 'Delete Position?',
+                    width: 400, height: 190,
                     message: 'Are you sure you want to permanently delete this position?',
                     buttons: {
                         'Delete': function () {
@@ -121,13 +121,9 @@ $.register_module({
                                 <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
                                     This position has been deleted\
                                 </section>\
-                            ',
-                            header, content;
-                        var $html = $.tmpl(template, json.template_data);
-                        header = $.outer($html.find('> header')[0]);
-                        content = $.outer($html.find('> section')[0]);
-                        $('.ui-layout-inner-center .ui-layout-header').html(header);
-                        $('.ui-layout-inner-center .ui-layout-content').html(content);
+                            ', $html = $.tmpl(template, json.template_data);
+                        $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                        $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                         ui.toolbar(view.options.toolbar.active);
                         if (json.template_data && json.template_data.deleted) {
                             $('.ui-layout-inner-north').html(error_html);
@@ -139,7 +135,8 @@ $.register_module({
                             $('.ui-layout-inner-north').empty();
                         }
                         common.gadgets.positions({
-                            id: args.id, selector: '.og-js-details-positions', editable: true
+                            id: args.id, selector: '.og-js-details-positions', view: view,
+                            version: args.version, editable: args.version && args.version !== '*' ? false : true
                         });
                         common.gadgets.trades.render({
                             id: args.id, version: args.version, selector: '.og-js-trades-table'
@@ -158,12 +155,7 @@ $.register_module({
         };
         return view = $.extend(new og.views.common.Core(page_name), {
             details: details_page,
-            load_filter: function (args) {
-                check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
-                    view[args.id ? 'load_item' : 'load'](args);
-                }}]});
-                view.filter();
-            },
+            filters: ['quantity'],
             options: {
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': page_name,
@@ -203,18 +195,11 @@ $.register_module({
             rules: {
                 load: {route: '/' + page_name + '/quantity:?', method: module.name + '.load'},
                 load_filter: {
-                    route: '/' + page_name + '/filter:/:id?/quantity:?', method: module.name + '.load_filter'
+                    route: '/' + page_name + '/filter:/:id?/version:?/quantity:?', method: module.name + '.load_filter'
                 },
                 load_item: {
-                    route: '/' + page_name + '/:id/:node?/version:?/quantity:?', method: module.name + '.load_item'
+                    route: '/' + page_name + '/:id/version:?/quantity:?', method: module.name + '.load_item'
                 }
-            },
-            search: function (args) {
-                if (!search) {
-                    search = common.search_results.core();
-                    view.filter = search.filter;
-                }
-                search.load(view.options.slickgrid);
             }
         });
     }

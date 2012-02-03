@@ -33,6 +33,8 @@ import com.opengamma.financial.instrument.cash.DepositDefinition;
 import com.opengamma.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
+import com.opengamma.financial.instrument.future.FederalFundsFutureSecurityDefinition;
+import com.opengamma.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
@@ -573,6 +575,26 @@ public class ForexDefinitionVisitorTest {
 
     @Override
     public String visitBillTransactionDefinition(BillTransactionDefinition bill) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureSecurityDefinition(FederalFundsFutureSecurityDefinition future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureSecurityDefinition(FederalFundsFutureSecurityDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future) {
       return null;
     }
 

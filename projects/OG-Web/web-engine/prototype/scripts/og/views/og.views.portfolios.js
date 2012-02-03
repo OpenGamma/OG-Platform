@@ -26,6 +26,7 @@ $.register_module({
             toolbar_buttons = {
                 'new': function () {
                     ui.dialog({
+                        width: 400, height: 190,
                         type: 'input',
                         title: 'Add New Portfolio',
                         fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
@@ -51,6 +52,7 @@ $.register_module({
                     ui.dialog({
                         type: 'confirm',
                         title: 'Delete portfolio?',
+                        width: 400, height: 190,
                         message: 'Are you sure you want to permanently delete ' +
                             '<strong style="white-space: nowrap">' + portfolio_name + '</strong>?',
                         buttons: {
@@ -88,7 +90,7 @@ $.register_module({
                 var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios,
                     html = '\
                         <h3>Portfolios</h3>\
-                        <a href="#" class="OG-link-add OG-js-add-sub-portfolio">add new portfolio</a>\
+                        <a href="#" class="OG-link-add OG-js-add-sub-portfolio">add new sub portfolio</a>\
                         <div class="og-divider"></div>\
                         <div class="og-js-portfolios-grid og-grid"></div>';
                 $(selector).html(html);
@@ -108,6 +110,7 @@ $.register_module({
                         ui.dialog({
                             type: 'input',
                             title: 'Add New sub Portfolio',
+                            width: 400, height: 190,
                             fields: [{type: 'input', name: 'Portfolio Name', id: 'name'}],
                             buttons: {
                                 'OK': function () {
@@ -150,6 +153,7 @@ $.register_module({
                     ui.dialog({
                         type: 'confirm',
                         title: 'Delete sub-portfolio?',
+                        width: 400, height: 190,
                         message: 'Are you sure you want to permanently delete ' +
                             '<strong style="white-space: nowrap">' + node.name + '</strong>?',
                         buttons: {
@@ -173,11 +177,13 @@ $.register_module({
                    $(e.currentTarget).closest('.slick-row').find('.og-button').hide();
                 });
             };
-            render_position = function () {
+            render_position = function (json) {
                 var position = routes.current().args.position;
-                if (!position) return;
+                // if the position in the URL is not in the JSON, it has been removed so don't display
+                // but don't redirect so history will still work
+                if (!position || !~json.positions.pluck('id').indexOf(position)) return;
                 common.gadgets.positions({
-                    id: position, selector: '.og-js-details-positions', editable: false, update: view.update
+                    id: position, selector: '.og-js-details-positions', editable: false, view: view
                 });
                 common.gadgets.trades.render({id: position, selector: '.og-js-trades-table'});
             };
@@ -205,6 +211,7 @@ $.register_module({
                         ui.dialog({
                             type: 'input',
                             title: 'Add Position',
+                            width: 400, height: 190,
                             fields: [{type: 'input', name: 'Identifier', id: 'name'}],
                             buttons: {
                                 'OK': function () {
@@ -343,11 +350,9 @@ $.register_module({
                                     This portfolio has been deleted\
                                 </section>\
                             ',
-                            $html = $.tmpl(template, json.template_data), header, content;
-                        header = $.outer($html.find('> header')[0]);
-                        content = $.outer($html.find('> section')[0]);
-                        $('.ui-layout-inner-center .ui-layout-header').html(header);
-                        $('.ui-layout-inner-center .ui-layout-content').html(content);
+                            $html = $.tmpl(template, json.template_data);
+                        $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                        $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                         ui.toolbar(view.options.toolbar.active);
                         if (json.template_data && json.template_data.deleted) {
                             $('.ui-layout-inner-north').html(error_html);
@@ -360,7 +365,7 @@ $.register_module({
                         }
                         render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
                         render_position_rows('.OG-js-details-panel .og-js-positions', json);
-                        render_position();
+                        render_position(json);
                         if (json.template_data.path) breadcrumb({
                             selector: '.OG-header-generic .OG-js-breadcrumb',
                             data: json.template_data
