@@ -549,6 +549,7 @@
 			<get src="@{repository}/users/@{user}/@{module}/ant/build-projects.xml" dest="${common.dir}/build-projects.xml" username="@{user}" password="@{pass}" />
 			<get src="@{repository}/users/@{user}/@{module}/config/tests.properties" dest="${common.dir}/tests.properties" username="@{user}" password="@{pass}" />
 			<get src="@{repository}/users/@{user}/@{module}/config/db.properties" dest="${common.dir}/db.properties" username="@{user}" password="@{pass}" />
+			<get src="@{repository}/users/@{user}/@{module}/config/deploy.properties" dest="${common.dir}/deploy.properties" username="@{user}" password="@{pass}" />
 		</sequential>
 	</macrodef>
 
@@ -575,8 +576,7 @@
          ================================= -->
 	<target name="install" depends="fetch-build-projects-file-for-user, clean-all, clone-or-pull, publish-all-local" description="install artifacts to specified directory">
 		<mkdir dir="${install.dir}" />
-		<!-- load project.deploy property from  build-projects.xml  -->
-		<subant target="projects.set-project-deploy" buildpath="${basedir}" antfile="build.xml" />
+		<property location="${common.dir}/deploy.properties"/>
 		<subant target="install" buildpath="${project.deploy}" antfile="build.xml">
 			<property name="og.build.invoked" value="true" />
 			<property name="ivy.new.revision" value="${module.version.target}" />
