@@ -12,7 +12,10 @@ import java.util.TreeMap;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
+import org.fudgemsg.FudgeMsgEnvelope;
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
@@ -44,14 +47,18 @@ import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.sensitivities.FactorExposureData;
+import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.RawSecurity;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.AbstractWebResource;
 import com.opengamma.web.WebHomeUris;
 
@@ -59,6 +66,7 @@ import com.opengamma.web.WebHomeUris;
  * Abstract base class for RESTful security resources.
  */
 public abstract class AbstractWebSecurityResource extends AbstractWebResource {
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractWebSecurityResource.class);
 
   /**
    * The backing bean.
@@ -193,6 +201,30 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
     if (security.getSecurityType().equals(FRASecurity.SECURITY_TYPE)) {
       FRASecurity fraSecurity = (FRASecurity) security;
       addUnderlyingSecurity(out, fraSecurity.getUnderlyingId());
+    }
+    if (security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {
+      RawSecurity rawSecurity = (RawSecurity) security;
+      FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
+      SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class, msg.getMessage());
+      out.put("securityEntryData", securityEntryData);
+      RawSecurity underlyingRawSecurity = (RawSecurity) getSecurity(securityEntryData.getFactorSetId());
+      if (underlyingRawSecurity != null) {
+        FudgeMsgEnvelope factorIdMsg = OpenGammaFudgeContext.getInstance().deserialize(underlyingRawSecurity.getRawData());
+        @SuppressWarnings("unchecked")
+        List<FactorExposureData> factorExposureDataList = OpenGammaFudgeContext.getInstance().fromFudgeMsg(List.class, factorIdMsg.getMessage());
+        s_logger.error(factorExposureDataList.toString());
+        out.put("factorExposureDataList", factorExposureDataList);
+      } else {
+        s_logger.error("Couldn't find security");
+      }
+      
+    }
+    if (security.getSecurityType().equals(FactorExposureData.EXTERNAL_SENSITIVITIES_RISK_FACTORS_SECURITY_TYPE)) {
+      RawSecurity rawSecurity = (RawSecurity) security;
+      FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
+      @SuppressWarnings("unchecked")
+      List<FactorExposureData> factorExposureDataList = OpenGammaFudgeContext.getInstance().fromFudgeMsg(List.class, msg.getMessage());
+      out.put("factorExposureDataList", factorExposureDataList);
     }
   }
 
