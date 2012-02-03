@@ -30,4 +30,6 @@ public abstract class BlackVolatilitySurface<T extends StrikeType> extends Volat
   @Override
   public abstract double getVolatility(final double t, final double k);
 
+  public abstract double getAbsoluteStrike(final double t, final T s);
+
 }

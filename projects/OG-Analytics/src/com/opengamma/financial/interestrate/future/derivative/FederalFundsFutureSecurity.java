@@ -38,6 +38,10 @@ public class FederalFundsFutureSecurity implements InstrumentDerivative {
    */
   private final double[] _fixingPeriodAccrualFactor;
   /**
+   * The total accrual factor for all fixing periods (including the one that have fixed already).
+   */
+  private final double _fixingTotalAccrualFactor;
+  /**
    * The future notional.
    */
   private final double _notional;
@@ -57,25 +61,27 @@ public class FederalFundsFutureSecurity implements InstrumentDerivative {
    * @param accruedInterest The accrual interest of the period already fixed. Interest (fixing rate * accrual fraction) for a notional of 1.
    * @param fixingPeriodTime The times of the fixing periods not yet fixed. There is one date more than period.
    * @param fixingPeriodAccrualFactor The accrual factors (or year fractions) associated to the fixing periods not yet fixed in the Index day count convention.
+   * @param fixingTotalAccrualFactor The total accrual factor for all fixing periods (including the one that have fixed already).
    * @param notional The future notional.
    * @param paymentAccrualFactor The future payment accrual factor. Usually a standardized number of 1/12 for a 30-day future.
    * @param name The future name.
    * @param oisCurveName The OIS forward curve name.
    */
-  public FederalFundsFutureSecurity(IndexON index, double accruedInterest, double[] fixingPeriodTime, double[] fixingPeriodAccrualFactor, double notional, double paymentAccrualFactor, String name,
-      String oisCurveName) {
+  public FederalFundsFutureSecurity(IndexON index, double accruedInterest, double[] fixingPeriodTime, double[] fixingPeriodAccrualFactor, double fixingTotalAccrualFactor, double notional,
+      double paymentAccrualFactor, String name, String oisCurveName) {
     Validate.notNull(index, "Index overnight");
     Validate.notNull(fixingPeriodTime, "Fixing period time");
     Validate.notNull(fixingPeriodAccrualFactor, "Fixing period accrual factors");
     Validate.notNull(name, "Name");
     Validate.isTrue(fixingPeriodTime.length == fixingPeriodAccrualFactor.length + 1, "Fixing dates length should be fixing accrual factors + 1.");
-    this._index = index;
-    this._accruedInterest = accruedInterest;
-    this._fixingPeriodTime = fixingPeriodTime;
-    this._fixingPeriodAccrualFactor = fixingPeriodAccrualFactor;
-    this._notional = notional;
-    this._paymentAccrualFactor = paymentAccrualFactor;
-    this._name = name;
+    _index = index;
+    _accruedInterest = accruedInterest;
+    _fixingPeriodTime = fixingPeriodTime;
+    _fixingPeriodAccrualFactor = fixingPeriodAccrualFactor;
+    _fixingTotalAccrualFactor = fixingTotalAccrualFactor;
+    _notional = notional;
+    _paymentAccrualFactor = paymentAccrualFactor;
+    _name = name;
     _oisCurveName = oisCurveName;
   }
 
@@ -109,6 +115,14 @@ public class FederalFundsFutureSecurity implements InstrumentDerivative {
    */
   public double[] getFixingPeriodAccrualFactor() {
     return _fixingPeriodAccrualFactor;
+  }
+
+  /**
+   * Gets the total accrual factor for all fixing periods (including the one that have fixed already).
+   * @return The accrual factor.
+   */
+  public double getFixingTotalAccrualFactor() {
+    return _fixingTotalAccrualFactor;
   }
 
   /**

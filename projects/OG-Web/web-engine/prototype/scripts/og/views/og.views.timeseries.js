@@ -170,12 +170,12 @@ $.register_module({
                         if (result.error) return alert(result.message);
                         var json = result.data;
                         api.text({module: module.name, handler: function (template) {
-                            var $html, error_html, json_id = json.identifiers, title, header, content;
-                            error_html = '\
-                                <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
-                                    This time series has been deleted\
-                                </section>\
-                            ';
+                            var $html, json_id = json.identifiers, title,
+                                error_html = '\
+                                    <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
+                                        This time series has been deleted\
+                                    </section>\
+                                ';
                             // check if any of the following scheme types are in json.identifiers, in
                             // reverse order of preference, delimiting if multiple, then assign to title
                             ['ISIN', 'SEDOL1', 'CUSIP', 'BLOOMBERG_BUID', 'BLOOMBERG_TICKER'].forEach(function (val) {
@@ -196,11 +196,8 @@ $.register_module({
                                 item: 'history.' + page_name + '.recent',
                                 value: routes.current().hash
                             });
-                            // Initial html setup
-                            header = $.outer($html.find('> header')[0]);
-                            content = $.outer($html.find('> section')[0]);
-                            $('.ui-layout-inner-center .ui-layout-header').html(header);
-                            $('.ui-layout-inner-center .ui-layout-content').html(content);
+                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                             ui.toolbar(options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
                                 $('.ui-layout-inner-north').html(error_html);

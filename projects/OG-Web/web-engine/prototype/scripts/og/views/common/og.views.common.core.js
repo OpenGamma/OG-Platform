@@ -23,6 +23,12 @@ $.register_module({
                 ]});
                 if (!args.id) view.default_details();
             };
+            view.load_filter = function (args) {
+                view.check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
+                    view[args.id ? 'load_item' : 'load'](args);
+                }}]});
+                view.filter();
+            };
             view.load_item = function (args) {
                 view.check_state({args: args, conditions: [
                     {new_value: 'id', method: function (args) {

@@ -200,8 +200,8 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   @Override
   public void setResultListener(ViewResultListener newListener) {
     _listenerLock.lock();
+    final ViewResultListener oldListener = _resultListener;
     try {
-      ViewResultListener oldListener = _resultListener;
       _resultListener = newListener;
       if (oldListener == null && newListener != null) {
         incrementListenerDemand();
@@ -209,7 +209,11 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
         decrementListenerDemand();
       }
     } catch (JMSException e) {
+      _resultListener = oldListener;
       throw new OpenGammaRuntimeException("JMS error configuring result listener", e);
+    } catch (InterruptedException e) {
+      _resultListener = oldListener;
+      throw new OpenGammaRuntimeException("Interrupted before result listener was configured");
     } finally {
       _listenerLock.unlock();
     }
