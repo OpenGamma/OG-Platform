@@ -33,6 +33,7 @@ $.register_module({
                 'new': function () {ui.dialog({
                     type: 'input',
                     title: 'Add Securities',
+                    width: 400, height: 270,
                     fields: [
                         {type: 'select', name: 'Scheme Type', id: 'scheme-type',
                                 options: [
@@ -53,7 +54,7 @@ $.register_module({
                             api.rest.securities.put({
                                 handler: function (result) {
                                     var args = routes.current().args;
-                                    if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                    if (result.error) return view.error(result.message);
                                     view.search(args);
                                     if (result.data.data.length !== 1)
                                         return routes.go(routes.hash(view.rules.load, args));
@@ -72,16 +73,16 @@ $.register_module({
                 'delete': function () {ui.dialog({
                     type: 'confirm',
                     title: 'Delete Security?',
+                    width: 400, height: 190,
                     message: 'Are you sure you want to permanently delete this security?',
                     buttons: {
                         'Delete': function () {
                             $(this).dialog('close');
                             api.rest.securities.del({
-                                id: routes.last().args.id,
+                                id: routes.current().args.id,
                                 handler: function (result) {
                                     var args = routes.current().args;
-                                    if (result.error) return ui.dialog({type: 'error', message: result.message});
-                                    view.search(args);
+                                    if (result.error) return view.error(result.message);
                                     routes.go(routes.hash(view.rules.load, args));
                                 }
                             });
@@ -111,10 +112,7 @@ $.register_module({
                     dependencies: view.dependencies,
                     update: view.update,
                     handler: function (result) {
-                        if (result.error) {
-                            view.notify(null);
-                            return view.error(result.message);
-                        }
+                        if (result.error) return view.notify(null), view.error(result.message);
                         var json = result.data, text_handler,
                             security_type = json.template_data['securityType'].toLowerCase(),
                             template = module.name + '.' + security_type;
@@ -134,19 +132,14 @@ $.register_module({
                                         This security has been deleted\
                                     </section>\
                                 ',
-                                $html = $.tmpl(template, json.template_data), header, content,
-                                html = [], id, json_id = json.identifiers;
-                            header = $.outer($html.find('> header')[0]);
-                            content = $.outer($html.find('> section')[0]);
-                            $('.ui-layout-inner-center .ui-layout-header').html(header);
-                            $('.ui-layout-inner-center .ui-layout-content').html(content);
+                                $html = $.tmpl(template, json.template_data), html = [], id, json_id = json.identifiers;
+                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                             if (!Object.keys(json_id)[0]) $('.ui-layout-inner-center .og-js-identifiers')
                                 .html('<tr><td><span>' + ''.lang() + '</span></td><td></td></tr>');
                             else for (id in json_id) {
-                                if (json_id.hasOwnProperty(id)) {
-                                    html.push('<tr><td><span>', id.lang(),
-                                              '<span></td><td>', json_id[id].replace(id + '-', ''), '</td></tr>');
-                                }
+                                if (json_id.hasOwnProperty(id)) html.push('<tr><td><span>', id.lang(),
+                                    '<span></td><td>', json_id[id].replace(id + '-', ''), '</td></tr>');
                                 $('.ui-layout-inner-center .og-js-identifiers').html(html.join(''));
                             }
                             (function () {
@@ -190,19 +183,19 @@ $.register_module({
                 });
             },
             state = {};
-        return view = $.extend(new og.views.common.Core(page_name, 'Securities'), {
+        return view = $.extend(new og.views.common.Core(page_name), {
             filters: ['name', 'type'],
             load_filter: function (args) {
-                var search_filter = view.filter = function () {
+                view.filter = function () {
                         var filter_name = view.options.slickgrid.columns[0].name;
                         if (!filter_name || filter_name === 'loading') // wait until type filter is populated
-                            return setTimeout(search_filter, 500);
-                        search.filter(args);
+                            return setTimeout(view.filter, 500);
+                        search.filter();
                 };
                 check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
                     view[args.id ? 'load_item' : 'load'](args);
                 }}]});
-                search_filter();
+                view.filter();
             },
             details: details_page,
             options: {

@@ -31,7 +31,7 @@ public class ViewClientFunction extends AbstractFunctionInvoker implements Publi
   private final MetaFunction _meta;
 
   private static List<MetaParameter> parameters() {
-    final MetaParameter viewDescriptorParameter = new MetaParameter("viewDescriptor", JavaTypeInfo.builder(String.class).get());
+    final MetaParameter viewDescriptorParameter = new MetaParameter("viewDescriptor", JavaTypeInfo.builder(ViewClientDescriptor.class).get());
     final MetaParameter useSharedProcessParameter = new MetaParameter("useSharedProcess", JavaTypeInfo.builder(Boolean.class).defaultValue(true).get());
     final MetaParameter clientNameParameter = new MetaParameter("clientName", JavaTypeInfo.builder(String.class).allowNull().get());
     return Arrays.asList(viewDescriptorParameter, useSharedProcessParameter, clientNameParameter);
@@ -46,11 +46,11 @@ public class ViewClientFunction extends AbstractFunctionInvoker implements Publi
     this(new DefinitionAnnotater(ViewClientFunction.class));
   }
 
-  public static ViewClientKey invoke(final String viewDescriptor, final boolean useSharedProcess) {
+  public static ViewClientKey invoke(final ViewClientDescriptor viewDescriptor, final boolean useSharedProcess) {
     return new ViewClientKey(viewDescriptor, useSharedProcess);
   }
 
-  public static ViewClientKey invoke(final String viewDescriptor, final boolean useSharedProcess, final String clientName) {
+  public static ViewClientKey invoke(final ViewClientDescriptor viewDescriptor, final boolean useSharedProcess, final String clientName) {
     return new ViewClientKey(viewDescriptor, useSharedProcess, clientName);
   }
 
@@ -60,9 +60,9 @@ public class ViewClientFunction extends AbstractFunctionInvoker implements Publi
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
     final ViewClientKey key;
     if (parameters[2] == null) {
-      key = invoke((String) parameters[0], (Boolean) parameters[1]);
+      key = invoke((ViewClientDescriptor) parameters[0], (Boolean) parameters[1]);
     } else {
-      key = invoke((String) parameters[0], (Boolean) parameters[1], (String) parameters[2]);
+      key = invoke((ViewClientDescriptor) parameters[0], (Boolean) parameters[1], (String) parameters[2]);
     }
     return sessionContext.getUserContext().getViewClients().lockViewClient(key);
   }

@@ -36,11 +36,11 @@ public class ClientResource {
   /**
    * The path used to retrieve user portfolios.
    */
-  public static final String PORTFOLIOS_PATH = "prtMaster"; // Note that the RemotePositionMaster is hard coded to assume this is always "prtMaster" from the URI given to it
+  public static final String PORTFOLIOS_PATH = "prtMaster";
   /**
    * The path used to retrieve user positions
    */
-  public static final String POSITIONS_PATH = "posMaster"; // Note that the RemotePositionMaster is hard coded to assume this is always "posMaster" from the URI given to it
+  public static final String POSITIONS_PATH = "posMaster";
   /**
    * The path used to retrieve user securities
    */

@@ -6,9 +6,15 @@
 package com.opengamma.livedata.client;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import javax.jms.Connection;
@@ -73,6 +79,8 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
   
   private AtomicBoolean _running = new AtomicBoolean(false);
   
+  private ExecutorService _executor;
+  
   public JmsLiveDataClient(FudgeRequestSender subscriptionRequestSender,
       FudgeRequestSender entitlementRequestSender,
       JmsConnector jmsConnector) {
@@ -109,44 +117,84 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
   }
 
   @Override
-  public synchronized void startReceivingTicks(String tickDistributionSpecification) {
-    super.startReceivingTicks(tickDistributionSpecification);
+  public synchronized void startReceivingTicks(Collection<String> tickDistributionSpecifications) {
+    super.startReceivingTicks(tickDistributionSpecifications);
     
-    if (_messageConsumersBySpec.containsKey(tickDistributionSpecification)) {
-      // Already receiving for that tick. Ignore it.
-      return;
-    }
+    s_logger.info("Starting listening to tick distribution specifications {}", tickDistributionSpecifications);
     
-    s_logger.info("Starting listening to tick distribution specification {}", tickDistributionSpecification);
-    ByteArrayFudgeMessageReceiver fudgeReceiver = new ByteArrayFudgeMessageReceiver(this, getFudgeContext());
-    JmsByteArrayMessageDispatcher jmsDispatcher = new JmsByteArrayMessageDispatcher(fudgeReceiver);
+    List<List<String>> specsBySessionIndex = new ArrayList<List<String>>(_maxSessions);
     
-    MessageConsumer messageConsumer;
-    try {
-      Session session;
-      if (_sessions.size() <= _currentSessionIndex) {
-        session = _connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
-        _sessions.add(session);
-      } else {
-        session = _sessions.get(_currentSessionIndex);
+    for (String tickDistributionSpecification : tickDistributionSpecifications) {
+      if (_messageConsumersBySpec.containsKey(tickDistributionSpecification)) {
+        // Already receiving for that tick. Ignore it.
+        continue;
+      }
+
+      while (specsBySessionIndex.size() <= _currentSessionIndex) {
+        specsBySessionIndex.add(new ArrayList<String>());
       }
       
-      Topic topic = session.createTopic(tickDistributionSpecification);
-      
-      messageConsumer = session.createConsumer(topic);
-      messageConsumer.setMessageListener(jmsDispatcher);
+      try {
+        Session session;
+        if (_sessions.size() <= _currentSessionIndex) {
+          session = _connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+          _sessions.add(session);
+        } else {
+          session = _sessions.get(_currentSessionIndex);
+        }        
+      } catch (JMSException e) {
+        throw new OpenGammaRuntimeException("Failed to create subscription to JMS topic " + tickDistributionSpecification, e);      
+      }
 
-    } catch (JMSException e) {
-      throw new OpenGammaRuntimeException("Failed to create subscription to JMS topic " + tickDistributionSpecification, e);      
-    }
-    
-    _messageConsumersBySpec.put(tickDistributionSpecification, messageConsumer);
+      specsBySessionIndex.get(_currentSessionIndex).add(tickDistributionSpecification);
 
-    // round-robin logic here
-    _currentSessionIndex++;
-    if (_currentSessionIndex >= _maxSessions) {
-      _currentSessionIndex = 0;
+      // round-robin logic here
+      _currentSessionIndex++;
+      if (_currentSessionIndex >= _maxSessions) {
+        _currentSessionIndex = 0;
+      }
     }
+    List<Future<Map<String, MessageConsumer>>> futures = new ArrayList<Future<Map<String, MessageConsumer>>>(); 
+    for (int i = 0; i < specsBySessionIndex.size(); i++) {
+      Callable<Map<String, MessageConsumer>> c = getStartReceivingCallable(specsBySessionIndex.get(i), i);
+      futures.add(_executor.submit(c));
+    }
+    for (Future<Map<String, MessageConsumer>> future : futures) {
+      try {
+        Map<String, MessageConsumer> consumers = future.get();
+        _messageConsumersBySpec.putAll(consumers);
+      } catch (ExecutionException ex) {
+        throw new OpenGammaRuntimeException("Failed to start receiving ticks", ex);
+      } catch (InterruptedException ex) {
+        throw new OpenGammaRuntimeException("Failed to start receiving ticks", ex);
+      }
+    }
+  }
+
+  private Callable<Map<String, MessageConsumer>> getStartReceivingCallable(final List<String> specs, final int sessionIndex) {
+    return new Callable<Map<String, MessageConsumer>>() {
+      @Override
+      public Map<String, MessageConsumer> call() {
+        ByteArrayFudgeMessageReceiver fudgeReceiver = new ByteArrayFudgeMessageReceiver(JmsLiveDataClient.this, getFudgeContext());
+        final JmsByteArrayMessageDispatcher jmsDispatcher = new JmsByteArrayMessageDispatcher(fudgeReceiver);
+        Session session = _sessions.get(sessionIndex);
+        
+        Map<String, MessageConsumer> ret = new HashMap<String, MessageConsumer>();
+        for (String tickDistributionSpecification : specs) {
+          try {
+            Topic topic = session.createTopic(tickDistributionSpecification);
+
+            MessageConsumer messageConsumer = session.createConsumer(topic);
+            messageConsumer.setMessageListener(jmsDispatcher);
+            ret.put(tickDistributionSpecification, messageConsumer);
+          } catch (JMSException e) {
+            throw new OpenGammaRuntimeException("Failed to create subscription to JMS topic "
+                + tickDistributionSpecification, e);
+          }
+        }
+        return ret;
+      }
+    };
   }
   
   @Override
@@ -178,6 +226,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
     } catch (JMSException e) {
       throw new OpenGammaRuntimeException("Failed to create JMS connection", e);
     }
+    _executor = Executors.newCachedThreadPool();
     _running.set(true);
   }
 
@@ -200,6 +249,7 @@ public class JmsLiveDataClient extends DistributedLiveDataClient implements Life
     } catch (JMSException e) {
       throw new OpenGammaRuntimeException("Failed to close JMS connection", e);
     }
+    _executor.shutdown();
     super.close();
   }
 

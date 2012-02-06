@@ -8,10 +8,10 @@ $.register_module({
     name: 'og.api.rest',
     dependencies: ['og.dev', 'og.api.common', 'og.common.routes'],
     obj: function () {
-        var module = this, live_data_root = module.live_data_root, api,
+        var module = this, live_data_root = module.live_data_root, api, warn = og.dev.warn,
             common = og.api.common, routes = og.common.routes, start_loading = common.start_loading,
             end_loading = common.end_loading, encode = window['encodeURIComponent'], cache = window['sessionStorage'],
-            outstanding_requests = {}, registrations = [],
+            outstanding_requests = {}, registrations = [], subscribe,
             meta_data = {configs: null, holidays: null, securities: null, viewrequirementnames: null},
             singular = {
                 batches: 'batch', configs: 'config', exchanges: 'exchange', holidays: 'holiday',
@@ -23,13 +23,16 @@ $.register_module({
                 positions: true, regions: true, securities: true, timeseries: false
             },
             request_id = 0,
-            MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, SOON = 120000 /* 2m */, FOREVER = 7200000 /* 2h */,
+            MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, STALL = 500 /* 500ms */,
+            INSTANT = 10 /* 10ms */, RESUBSCRIBE = 30000 /* 20s */,
+            TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */,
             /** @ignore */
             register = function (req) {
                 return !req.config.meta.update ? true
                     : !api.id ? false
                         : !!registrations.push({
                             id: req.id, dependencies: req.config.meta.dependencies || [],
+                            config: req.config, method: req.method,
                             update: req.config.meta.update, url: req.url, current: req.current
                         });
             },
@@ -38,7 +41,7 @@ $.register_module({
                 try { // if cache is restricted, bail
                     return cache['getItem'](module.name + key) ? JSON.parse(cache['getItem'](module.name + key)) : null;
                 } catch (error) {
-                    og.dev.warn(module.name + ': get_cache failed\n', error);
+                    return warn(module.name + ': get_cache failed\n', error);
                     return null;
                 }
             },
@@ -47,7 +50,7 @@ $.register_module({
                 try { // if the cache is too full, fail gracefully
                     cache['setItem'](module.name + key, JSON.stringify(value));
                 } catch (error) {
-                    og.dev.warn(module.name + ': set_cache failed\n', error);
+                    warn(module.name + ': set_cache failed\n', error);
                     del_cache(key);
                 }
             },
@@ -56,7 +59,7 @@ $.register_module({
                 try { // if cache is restricted, bail
                     cache['removeItem'](module.name + key);
                 } catch (error) {
-                    og.dev.warn(module.name + ': del_cache failed\n', error);
+                    warn(module.name + ': del_cache failed\n', error);
                 }
             },
             /** @ignore */
@@ -78,7 +81,7 @@ $.register_module({
                             data: is_get ? $.extend(config.data, {method: 'GET'}) : config.data,
                             headers: {'Accept': 'application/json'},
                             dataType: 'json',
-                            timeout: is_get ? SOON : FOREVER,
+                            timeout: is_get ? TIMEOUTSOON : TIMEOUTFOREVER,
                             beforeSend: function (xhr, req) {
                                 var aborted = !(id in outstanding_requests),
                                     message = (aborted ? 'ABORTED: ' : '') + req.type + ' ' + req.url + ' HTTP/1.1' +
@@ -112,20 +115,22 @@ $.register_module({
                         });
                         return id;
                     };
-                if (is_get && !register({id: id, config: config, current: current, url: url})){
-                    return (setTimeout(request.partial(method, config), 500)), id;
-                }else
+                if (is_get && !register({id: id, config: config, current: current, url: url, method: method}))
+                    // if registration fails, it's because we don't have a client ID yet, so stall
+                    return (setTimeout(request.partial(method, config), STALL)), id;
+                else
                     if (og.app.READ_ONLY) return setTimeout(config.meta.handler.partial({
                         error: true, data: null, meta: {}, message: 'This application is in read-only mode.'
-                    }), 0), id;
-                if (config.meta.update && !is_get) og.dev.warn(module.name + ': update functions are only for GETs');
+                    }), INSTANT), id;
+                if (config.meta.update && !is_get) warn(module.name + ': update functions are only for GETs');
                 if (config.meta.update && is_get) config.data['clientId'] = api.id;
                 if (config.meta.cache_for && !is_get)
-                    og.dev.warn(module.name + ': only GETs can be cached'), delete config.meta.cache_for;
+                    warn(module.name + ': only GETs can be cached'), delete config.meta.cache_for;
                 start_loading(config.meta.loading);
                 if (is_get && get_cache(url) && typeof get_cache(url) === 'object')
-                    return (setTimeout(config.meta.handler.partial(get_cache(url)), 0)), id;
-                if (is_get && get_cache(url)) return (setTimeout(request.partial(method, config), 500)), id;
+                    return (setTimeout(config.meta.handler.partial(get_cache(url)), INSTANT)), id;
+                if (is_get && get_cache(url)) // if get_cache returns true a request is already outstanding, so stall
+                    return (setTimeout(request.partial(method, config), STALL)), id;
                 if (is_get && config.meta.cache_for) set_cache(url, true);
                 outstanding_requests[id] = {current: current, dependencies: config.meta.dependencies};
                 return send();
@@ -212,7 +217,7 @@ $.register_module({
                 for (var key, lcv = 0; lcv < cache.length; lcv += 1) // do not cache length, since we remove items
                     if (0 === (key = cache.key(lcv)).indexOf(module.name)) cache['removeItem'](key);
             } catch (error) {
-                og.dev.warn(module.name + ': cache initalize failed\n', error);
+                warn(module.name + ': cache initalize failed\n', error);
             }
         })();
         api = {
@@ -298,7 +303,7 @@ $.register_module({
             handshake: { // all requests that begin with /handshake
                 root: 'handshake',
                 get: function (config) {
-                    if (api.id) og.dev.warn(module.name + ': handshake has already been called');
+                    if (api.id) warn(module.name + ': handshake has already been called');
                     var root = this.root, data = {}, meta;
                     meta = check({bundle: {method: root + '#get', config: config}});
                     return request(null, {url: '/handshake', data: data, meta: meta});
@@ -511,27 +516,37 @@ $.register_module({
                 del: not_implemented.partial('del')
             }
         };
-        api.handshake.get({handler: function (result) {
-            var subscribe;
-            if (result.error) return og.dev.warn(module.name + ': handshake failed\n', result.message);
+        subscribe = api.handshake.get.partial({handler: function (result) {
+            var listen, fire_updates;
+            if (result.error)
+                return warn(module.name + ': handshake failed\n', result.message), setTimeout(subscribe, RESUBSCRIBE);
             api.id = result.data['clientId'];
-            subscribe = function () {
+            (fire_updates = function (reset, result) {
+                var current = routes.current(), handlers = [];
+                registrations = registrations.filter(function (reg) {
+                    return request_expired(reg, current) ? false // purge expired requests
+                        // fire all updates if connection is reset (and clear registrations)
+                        : reset ? handlers.push($.extend({reset: true}, reg)) && false
+                            // otherwise fire matching URLs (and clear them from registrations)
+                            : ~result.data.updates.indexOf(reg.url) ? handlers.push(reg) && false
+                                // keep everything else registered
+                                : true;
+                });
+                handlers.forEach(function (reg) {reg.update(reg);});
+            })(true, null); // there are no registrations when subscribe() is called unless the connection's been reset
+            (listen = function () {
                 api.updates.get({handler: function (result) {
-                    var current = routes.current(), handlers = [];
-                    if (result.error) return og.dev.warn(module.name + ': subscription failed\n', result.message);
-                    if (!result.data || !result.data.updates.length) return subscribe();
-                    registrations = registrations.filter(function (val) {
-                        return request_expired(val, current) ? false : !result.data.updates.some(function (url) {
-                            var match = url === val.url;
-                            return match && handlers.push(val), match;
-                        });
-                    });
-                    handlers.forEach(function (val) {val.update(val);});
-                    subscribe();
+                    if (result.error) {
+                        warn(module.name + ': subscription failed\n', result.message);
+                        return setTimeout(subscribe, RESUBSCRIBE);
+                    }
+                    if (!result.data || !result.data.updates.length) return setTimeout(listen, INSTANT);;
+                    fire_updates(false, result);
+                    setTimeout(listen, INSTANT);
                 }});
-            };
-            subscribe();
+            })();
         }});
+        subscribe();
         return api;
     }
 });

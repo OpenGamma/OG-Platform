@@ -39,11 +39,11 @@ import com.opengamma.util.time.Expiry;
  */
 @Test
 public class MarketDataELCompilerTest {
-  
+
   private EquitySecurity _fooEquity;
   private EquitySecurity _barEquity;
   private SwapSecurity _swap;
-  
+
   @BeforeMethod
   public void setUp() throws Exception {
     _fooEquity =  new EquitySecurity("exchange", "exchangeCode", "Foo", Currency.USD);
@@ -52,7 +52,7 @@ public class MarketDataELCompilerTest {
     _barEquity = new EquitySecurity("exchange", "exchangeCode", "Bar", Currency.USD);
     _barEquity.addExternalId(ExternalId.of("Test", "BarEquity"));
     _barEquity.setName("Bar");
-    final SwapLeg swapLeg = new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("ACT/365"), SimpleFrequency.SEMI_ANNUAL,  
+    final SwapLeg swapLeg = new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("ACT/365"), SimpleFrequency.SEMI_ANNUAL,
         ExternalId.of("Financial", "US"), BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), new InterestRateNotional(Currency.USD, 10e6), false, 0.01);
     _swap = new SwapSecurity(ZonedDateTime.now(), ZonedDateTime.now(), ZonedDateTime.now(), "counterParty", swapLeg, swapLeg);
     _swap.addExternalId(ExternalId.of("Test", "Swap"));
@@ -118,14 +118,14 @@ public class MarketDataELCompilerTest {
   public void testValueExpression() {
     final MockSecuritySource securities = new MockSecuritySource();
     final MarketDataELCompiler compiler = new MarketDataELCompiler(securities);
-    final Object result = compiler.compile("value").apply(new ValueRequirement("Foo", new ComputationTargetSpecification("X")), null);
+    final Object result = compiler.compile("value").apply(new ValueRequirement("Foo", new ComputationTargetSpecification(Currency.USD)), null);
     assertEquals(result, "Foo");
   }
 
   public void testUnderlyingExpression () {
     final MockSecuritySource securities = new MockSecuritySource ();
     securities.addSecurity(_fooEquity);
-    final EquityOptionSecurity fooOption = new EquityOptionSecurity (OptionType.PUT, 10d, Currency.USD, ExternalId.of("Test", "FooEquity"), new AmericanExerciseType(), new Expiry(ZonedDateTime.of(2020, 11, 25, 12, 0, 0, 0, TimeZone.UTC)), 42d, "EXCH"); 
+    final EquityOptionSecurity fooOption = new EquityOptionSecurity (OptionType.PUT, 10d, Currency.USD, ExternalId.of("Test", "FooEquity"), new AmericanExerciseType(), new Expiry(ZonedDateTime.of(2020, 11, 25, 12, 0, 0, 0, TimeZone.UTC)), 42d, "EXCH");
     fooOption.addExternalId(ExternalId.of("Test", "FooOption"));
     securities.addSecurity(fooOption);
     final MarketDataELCompiler compiler = new MarketDataELCompiler(securities);

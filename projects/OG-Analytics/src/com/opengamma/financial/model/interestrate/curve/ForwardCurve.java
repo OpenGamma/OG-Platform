@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.model.interestrate.curve;
 
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.curve.ConstantDoublesCurve;
@@ -19,10 +20,30 @@ import com.opengamma.math.integration.RungeKuttaIntegrator1D;
  */
 public class ForwardCurve {
   private static final RungeKuttaIntegrator1D INTEGRATOR = new RungeKuttaIntegrator1D();
-
   private final Curve<Double, Double> _fwdCurve;
   private final Curve<Double, Double> _drift;
   private final double _spot;
+
+
+  /**
+   * 
+   * @param spot The current value of the underlying
+   * @param riskFreeCurve The risk free interest rate curve (in FX this is the domistic risk free curve)
+   * @param costOfCarryCurve In equity this would represent the expected dividend yield, while in FX it is the foreign risk free rate
+   */
+  public ForwardCurve(final double spot, final YieldAndDiscountCurve riskFreeCurve, final YieldAndDiscountCurve costOfCarryCurve) {
+    Function<Double, Double> f = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(Double... x) {
+        final double t = x[0];
+        return spot * costOfCarryCurve.getDiscountFactor(t) / riskFreeCurve.getDiscountFactor(t);
+      }
+    };
+    _spot = spot;
+    _fwdCurve = new FunctionalDoublesCurve(f);
+    _drift = getDriftCurve(_fwdCurve); //TODO YieldAndDiscountCurve should have a getForwardRate method, which should be used here
+
+  }
 
   @SuppressWarnings("unused")
   private ForwardCurve(final Curve<Double, Double> fwdCurve, final Curve<Double, Double> driftCurve) {
@@ -36,26 +57,7 @@ public class ForwardCurve {
   public ForwardCurve(final Curve<Double, Double> fwdCurve) {
     Validate.notNull(fwdCurve, "curve");
     _fwdCurve = fwdCurve;
-
-    final Function1D<Double, Double> drift = new Function1D<Double, Double>() {
-      private final double _eps = 1e-3;
-
-      @SuppressWarnings("synthetic-access")
-      @Override
-      public Double evaluate(final Double t) {
-
-        final double up = Math.log(_fwdCurve.getYValue(t + _eps));
-
-        if (t < _eps) {
-          final double mid = Math.log(_fwdCurve.getYValue(t));
-          return (up - mid) / _eps;
-        }
-        final double down = Math.log(_fwdCurve.getYValue(t - _eps));
-        return (up - down) / 2 / _eps;
-      }
-    };
-
-    _drift = FunctionalDoublesCurve.from(drift);
+    _drift = getDriftCurve(fwdCurve);
     _spot = _fwdCurve.getYValue(0.0);
   }
 
@@ -143,43 +145,82 @@ public class ForwardCurve {
     return _spot;
   }
 
-  /**
-   * shifts the spot (and the rest of the forward curve proportionally) but the given amount, i.e. the drift curve
-   * remains unchanged
-   * @param shift the shift amount
-   * @return shifted curve
-   * @deprecated use withFractionalShift instead
-   */
-  @Deprecated
-  public ForwardCurve withShiftedSpot(final double shift) {
-    Validate.isTrue(_spot > shift, "The shift is bigger than the spot");
-    final double percentage = (_spot + shift) / _spot;
+  private static Curve<Double, Double> getDriftCurve(final Curve<Double, Double> fwdCurve) {
 
-    Function<Double, Double> func = new Function<Double, Double>() {
+
+    final Function1D<Double, Double> drift = new Function1D<Double, Double>() {
+      private final double _eps = 1e-3;
+
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Double evaluate(Double... t) {
-        return percentage * _fwdCurve.getYValue(t[0]);
+      public Double evaluate(final Double t) {
+
+        final double up = Math.log(fwdCurve.getYValue(t + _eps));
+
+        if (t < _eps) {
+          final double mid = Math.log(fwdCurve.getYValue(t));
+          return (up - mid) / _eps;
+        }
+        final double down = Math.log(fwdCurve.getYValue(t - _eps));
+        return (up - down) / 2 / _eps;
+      }
+    };
+
+    return FunctionalDoublesCurve.from(drift);
+  }
+
+  /**
+   * Shift the forward curve by a fractional amount, shift, such that the new curve F'(T) = (1 + shift) * F(T), has
+   * an unchanged drift.
+   * @param shift The fractional shift amount, i.e. 0.1 will produce a curve 10% larger than the original
+   * @return The shifted curve
+   */
+  public ForwardCurve withFractionalShift(final double shift) {
+    Validate.isTrue(shift > -1, "shift must be > -1");
+
+    final Function<Double, Double> func = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... t) {
+        return (1 + shift) * _fwdCurve.getYValue(t[0]);
       }
     };
     return new ForwardCurve(FunctionalDoublesCurve.from(func), _drift);
   }
 
-  /**
-   * Shift the forward curve by a fractional amount, shift, such that the new curve FPrime(T) = (1+shift)*F(T), has
-   * an unchanged drift
-   * @param shift fraction shift amount, i.e. 0.1 with produce a curve 10% larger than the original
-   * @return The shifted curve
-   */
-  public ForwardCurve withFractionalShift(final double shift) {
-    Validate.isTrue(shift > -1, "shift must be > -1");
+  @Override
+  public int hashCode() {
+    final int prime = 31;
+    int result = 1;
+    result = prime * result + _drift.hashCode();
+    result = prime * result + _fwdCurve.hashCode();
+    long temp;
+    temp = Double.doubleToLongBits(_spot);
+    result = prime * result + (int) (temp ^ (temp >>> 32));
+    return result;
+  }
 
-    Function<Double, Double> func = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(Double... t) {
-        return (1 + shift) * _fwdCurve.getYValue(t[0]);
-      }
-    };
-    return new ForwardCurve(FunctionalDoublesCurve.from(func), _drift);
+  @Override
+  public boolean equals(final Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null) {
+      return false;
+    }
+    if (getClass() != obj.getClass()) {
+      return false;
+    }
+    final ForwardCurve other = (ForwardCurve) obj;
+    if (!ObjectUtils.equals(_drift, other._drift)) {
+      return false;
+    }
+    if (!ObjectUtils.equals(_fwdCurve, other._fwdCurve)) {
+      return false;
+    }
+    if (Double.doubleToLongBits(_spot) != Double.doubleToLongBits(other._spot)) {
+      return false;
+    }
+    return true;
   }
 
 }

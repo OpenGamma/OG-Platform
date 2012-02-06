@@ -105,8 +105,10 @@ public class Loader extends ContextInitializationBean {
     s_logger.info("Configuring view processor support");
     globalContext.setViewProcessor(new RemoteViewProcessor(uri, getJmsConnector(), getHousekeepingScheduler()));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
+        GetViewPortfolioFunction.INSTANCE, 
         GetViewResultFunction.INSTANCE,
         HistoricalExecutionSequenceFunction.INSTANCE,
+        SetViewClientExecutionFlagFunction.INSTANCE,
         ViewClientDescriptorFunction.HISTORICAL_MARKET_DATA,
         ViewClientDescriptorFunction.STATIC_MARKET_DATA,
         ViewClientDescriptorFunction.STATIC_SNAPSHOT,
@@ -122,7 +124,8 @@ public class Loader extends ContextInitializationBean {
         StoreViewDefinitionProcedure.INSTANCE,
         TriggerViewCycleProcedure.INSTANCE));
     globalContext.getTypeConverterProvider().addTypeConverterProvider(new TypeConverterProviderBean(
-        UserViewClientConverter.INSTANCE));
+        UserViewClientConverter.INSTANCE,
+        ViewClientDescriptorConverter.INSTANCE));
   }
 
   @Override

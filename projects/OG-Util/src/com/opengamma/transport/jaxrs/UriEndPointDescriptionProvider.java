@@ -86,7 +86,7 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
 
     private Validater(final ExecutorService executorService) {
       _executor = executorService;
-      _client.setReadTimeout(5000);
+      _client.setReadTimeout(10000);
     }
 
     public URI getAccessibleURI(final FudgeMsg endPoint) {
@@ -118,7 +118,7 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
       }
       final URI uri;
       try {
-        uri = result.poll(5000, TimeUnit.MILLISECONDS);
+        uri = result.poll(10000, TimeUnit.MILLISECONDS);
       } catch (InterruptedException ex) {
         throw new OpenGammaRuntimeException("Interrupted", ex);
       }

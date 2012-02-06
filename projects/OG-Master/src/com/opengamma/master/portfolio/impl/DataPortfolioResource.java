@@ -147,7 +147,7 @@ public class DataPortfolioResource extends AbstractDataResource {
   public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
     // TODO remove this hack
     UriBuilder b = UriBuilder.fromUri(baseUri);
-    if (!baseUri.getPath().endsWith("prtMaster/")) {
+    if (!baseUri.getPath().endsWith("prtMaster/") && !baseUri.getPath().endsWith("prtMaster")) {
       b.path("/prtMaster");
     }
     b.path("/portfolios/{portfolioId}");
@@ -171,7 +171,7 @@ public class DataPortfolioResource extends AbstractDataResource {
   public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, String searchMsg) {
     // TODO remove this hack
     UriBuilder b = UriBuilder.fromUri(baseUri);
-    if (!baseUri.getPath().endsWith("prtMaster/")) {
+    if (!baseUri.getPath().endsWith("prtMaster/") && !baseUri.getPath().endsWith("prtMaster")) {
       b.path("/prtMaster");
     }
     b.path("/portfolios/{portfolioId}/versions");
@@ -191,7 +191,7 @@ public class DataPortfolioResource extends AbstractDataResource {
   public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
     // TODO remove this hack
     UriBuilder b = UriBuilder.fromUri(baseUri);
-    if (!baseUri.getPath().endsWith("prtMaster/")) {
+    if (!baseUri.getPath().endsWith("prtMaster/") && !baseUri.getPath().endsWith("prtMaster")) {
       b.path("/prtMaster");
     }
     return b.path("/portfolios/{portfolioId}/versions/{versionId}")

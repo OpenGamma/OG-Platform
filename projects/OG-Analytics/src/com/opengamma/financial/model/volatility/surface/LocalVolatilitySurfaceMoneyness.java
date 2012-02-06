@@ -8,6 +8,7 @@ package com.opengamma.financial.model.volatility.surface;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.financial.model.volatility.local.LocalVolatilitySurface;
 import com.opengamma.math.surface.Surface;
 
 /**
@@ -17,22 +18,25 @@ public class LocalVolatilitySurfaceMoneyness extends LocalVolatilitySurface<Mone
 
   private final ForwardCurve _fc;
 
+  public LocalVolatilitySurfaceMoneyness(final LocalVolatilitySurfaceMoneyness other) {
+    super(other.getSurface());
+    _fc = other.getForwardCurve();
+  }
+
   /**
    * @param surface A local volatility surface parameterised by time and moneyness m = strike/forward
    * @param forwardCurve the forward curve
    */
-  public LocalVolatilitySurfaceMoneyness(Surface<Double, Double, Double> surface, final ForwardCurve forwardCurve) {
+  public LocalVolatilitySurfaceMoneyness(final Surface<Double, Double, Double> surface, final ForwardCurve forwardCurve) {
     super(surface);
     Validate.notNull(forwardCurve, "null forward curve");
     _fc = forwardCurve;
   }
 
-
-
   @Override
   public double getVolatility(final double t, final double k) {
-    double f = _fc.getForward(t);
-    Moneyness x = new Moneyness(k, f);
+    final double f = _fc.getForward(t);
+    final Moneyness x = new Moneyness(k, f);
     return getVolatility(t, x);
   }
 
@@ -49,7 +53,7 @@ public class LocalVolatilitySurfaceMoneyness extends LocalVolatilitySurface<Mone
    * @return The local volatility
    */
   public double getVolatilityForMoneyness(final double t, final double m) {
-    Moneyness s = new Moneyness(m);
+    final Moneyness s = new Moneyness(m);
     return getVolatility(t, s);
   }
 

@@ -1,0 +1,6 @@
+Expiry,long,payer,Currency,"Trade date","Premium date","Premium amount",Strike,Notional,Counterparty,"Swap length"
+01/06/2012,true,false,USD,01/06/2011,01/06/2011,0,0.04,10,Cpty,10
+01/09/2011,true,true,USD,01/06/2011,01/06/2011,0,0.02,1,Cpty,5
+01/06/2013,false,false,USD,01/06/2011,01/06/2011,0,0.01,3,Cpty,2
+01/09/2011,true,true,USD,01/06/2011,01/06/2011,0,0.04,20,Cpty,20
+01/06/2016,false,true,USD,01/06/2011,01/06/2011,0,0.035,6,Cpty,15

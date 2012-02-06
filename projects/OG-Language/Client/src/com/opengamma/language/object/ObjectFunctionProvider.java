@@ -121,6 +121,7 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
     private final Map<String, AttributeInfo> _attributeInfo = new HashMap<String, AttributeInfo>();
     private boolean _abstract;
     private String _name;
+    private String _category;
     private String _label;
     private String _constructorDescription;
     private String[] _constructorParameters = EMPTY;
@@ -153,6 +154,14 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
       } else {
         return getObjectClass().getSimpleName();
       }
+    }
+
+    private void setCategory(final String category) {
+      _category = category;
+    }
+
+    public String getCategory() {
+      return _category;
     }
 
     private void setAttributeLabel(final String attribute, final String label) {
@@ -311,7 +320,11 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
         readers.put(info.getLabel(), read);
       }
     }
-    return new ObjectValuesFunction(category, name, description, readers, target).getMetaFunction();
+    if (readers.isEmpty()) {
+      return null;
+    } else {
+      return new ObjectValuesFunction(category, name, description, readers, target).getMetaFunction();
+    }
   }
 
   protected void loadManageableSecurityDefinitions(final ObjectInfo object, final Collection<MetaFunction> definitions) {
@@ -319,7 +332,10 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
       definitions.add(getCreateSecurityInstance(object));
     }
     if (object.getLabel() != null) {
-      definitions.add(getObjectValuesInstance(object, Categories.SECURITY));
+      final MetaFunction func = getObjectValuesInstance(object, Categories.SECURITY);
+      if (func != null) {
+        definitions.add(func);
+      }
     }
     loadGetAndSet(object, definitions, Categories.SECURITY);
   }
@@ -339,7 +355,10 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
       definitions.add(getCreateObjectInstance(object, category));
     }
     if (object.getLabel() != null) {
-      definitions.add(getObjectValuesInstance(object, category));
+      final MetaFunction func = getObjectValuesInstance(object, category);
+      if (func != null) {
+        definitions.add(func);
+      }
     }
     loadGetAndSet(object, definitions, category);
   }
@@ -405,8 +424,18 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
   }
 
   protected String categoriseObject(final Class<?> clazz) {
-    if (clazz.getName().startsWith("com.opengamma.financial.security.")) {
+    final String n = clazz.getName();
+    if (n.startsWith("com.opengamma.financial.security.")) {
       return Categories.SECURITY;
+    }
+    if (n.startsWith("com.opengamma.math.curve.")) {
+      return Categories.CURVE;
+    }
+    if (n.startsWith("com.opengamma.core.marketdatasnapshot.")) {
+      return Categories.MARKET_DATA;
+    }
+    if (n.startsWith("com.opengamma.core.position.")) {
+      return Categories.POSITION;
     }
     return null;
   }
@@ -416,7 +445,11 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
     if (ManageableSecurity.class.isAssignableFrom(object.getObjectClass())) {
       loadManageableSecurityDefinitions(object, definitions);
     } else {
-      loadObjectDefinitions(object, definitions, categoriseObject(object.getObjectClass()));
+      if (object.getCategory() != null) {
+        loadObjectDefinitions(object, definitions, object.getCategory());
+      } else {
+        loadObjectDefinitions(object, definitions, categoriseObject(object.getObjectClass()));
+      }
     }
   }
 
@@ -455,6 +488,8 @@ public class ObjectFunctionProvider extends AbstractFunctionProvider {
         func.setLabel(value);
       } else if ("_name".equals(attribute)) {
         func.setName(value);
+      } else if ("_category".equals(attribute)) {
+        func.setCategory(value);
       } else if ("_parameters".equals(attribute)) {
         func.setConstructorParameters(value.split(",\\s*"));
       } else {

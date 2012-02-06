@@ -7,7 +7,6 @@ $.register_module({
     dependencies: [
         'og.api.rest',
         'og.api.text',
-        'og.common.masthead.menu',
         'og.common.routes',
         'og.common.search_results.core',
         'og.common.util.history',
@@ -22,18 +21,18 @@ $.register_module({
             common = og.common,
             details = common.details,
             history = common.util.history,
-            masthead = common.masthead,
             routes = common.routes,
             search, layout,
             ui = common.util.ui,
             module = this, view, details_page,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            get_quantities,
+            get_quantities = og.common.search.get_quantities,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
                     type: 'input',
                     title: 'Add New Position',
+                    width: 400, height: 300,
                     fields: [
                         {type: 'input', name: 'Quantity', id: 'quantity'},
                         {type: 'select', name: 'Scheme Type', id: 'scheme-type',
@@ -69,6 +68,7 @@ $.register_module({
                 'delete': function () {ui.dialog({
                     type: 'confirm',
                     title: 'Delete Position?',
+                    width: 400, height: 190,
                     message: 'Are you sure you want to permanently delete this position?',
                     buttons: {
                         'Delete': function () {
@@ -77,9 +77,8 @@ $.register_module({
                                     var args = routes.current().args;
                                     ui.dialog({type: 'confirm', action: 'close'});
                                     if (result.error) return view.error(result.message);
-                                    view.search(args);
                                     routes.go(routes.hash(view.rules.load, args));
-                                }, id: routes.last().args.id
+                                }, id: routes.current().args.id
                             });
                         },
                         'Cancel': function () {$(this).dialog('close');}
@@ -96,29 +95,6 @@ $.register_module({
                     };
                 }
             };
-        /**
-         * @param {String} input text input from the quantity filter
-         * @returns {Object} obj object with the required properties for the rest api (min_quantity, max_quantity)
-         */
-        get_quantities = function (input) {
-            var obj = {}, str = input ? input.replace(/,/g, '') : '',
-                range         = /^\s*(-{0,1}[0-9]+)\s*-\s*(-{0,1}[0-9]+)\s*$/,  // (-)x-(-)x
-                less          = /^\s*<\s*(-{0,1}[0-9]+)\s*$/,                   // <(0)x
-                more          = /^\s*>\s*(-{0,1}[0-9]+)\s*$/,                   // >(0)x
-                less_or_equal = /^\s*<\s*=\s*(-{0,1}[0-9]+)\s*$/,               // <=(0)x
-                more_or_equal = /^\s*>\s*=\s*(-{0,1}[0-9]+)\s*$/,               // >=(0)x
-                exact         = /^\s*(-{0,1}[0-9]+)\s*$/;                       // (-)x
-            switch (true) {
-                case less.test(str): obj.max_quantity = +str.replace(less, '$1') - 1; break;
-                case less_or_equal.test(str): obj.max_quantity = str.replace(less_or_equal, '$1'); break;
-                case more.test(str): obj.min_quantity = +str.replace(more, '$1') + 1; break;
-                case more_or_equal.test(str): obj.min_quantity = str.replace(more_or_equal, '$1'); break;
-                case exact.test(str): obj.min_quantity = obj.max_quantity = str.replace(exact, '$1'); break;
-                case range.test(str):
-                    obj.min_quantity = str.replace(range, '$1'), obj.max_quantity = str.replace(range, '$2'); break;
-            }
-            return obj;
-        };
         details_page = function (args, config) {
             var show_loading = !(config || {}).hide_loading;
             // load versions
@@ -130,10 +106,7 @@ $.register_module({
                 dependencies: view.dependencies,
                 update: view.update,
                 handler: function (result) {
-                    if (result.error) {
-                        view.notify(null);
-                        return view.error(result.message);
-                    }
+                    if (result.error) return view.notify(null), view.error(result.message);
                     var json = result.data;
                     history.put({
                         name: json.template_data.name,
@@ -145,13 +118,9 @@ $.register_module({
                                 <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
                                     This position has been deleted\
                                 </section>\
-                            ',
-                            header, content;
-                        var $html = $.tmpl(template, json.template_data);
-                        header = $.outer($html.find('> header')[0]);
-                        content = $.outer($html.find('> section')[0]);
-                        $('.ui-layout-inner-center .ui-layout-header').html(header);
-                        $('.ui-layout-inner-center .ui-layout-content').html(content);
+                            ', $html = $.tmpl(template, json.template_data);
+                        $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                        $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                         ui.toolbar(view.options.toolbar.active);
                         if (json.template_data && json.template_data.deleted) {
                             $('.ui-layout-inner-north').html(error_html);
@@ -163,7 +132,8 @@ $.register_module({
                             $('.ui-layout-inner-north').empty();
                         }
                         common.gadgets.positions({
-                            id: args.id, selector: '.og-js-details-positions', editable: true
+                            id: args.id, selector: '.og-js-details-positions', view: view,
+                            version: args.version, editable: args.version && args.version !== '*' ? false : true
                         });
                         common.gadgets.trades.render({
                             id: args.id, version: args.version, selector: '.og-js-trades-table'
@@ -180,14 +150,9 @@ $.register_module({
                 }
             });
         };
-        return view = $.extend(new og.views.common.Core(page_name, 'Positions'), {
+        return view = $.extend(new og.views.common.Core(page_name), {
             details: details_page,
-            load_filter: function (args) {
-                check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
-                    view[args.id ? 'load_item' : 'load'](args);
-                }}]});
-                view.filter($.extend(true, args, get_quantities(args.quantity)));
-            },
+            filters: ['quantity'],
             options: {
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': page_name,
@@ -227,20 +192,11 @@ $.register_module({
             rules: {
                 load: {route: '/' + page_name + '/quantity:?', method: module.name + '.load'},
                 load_filter: {
-                    route: '/' + page_name + '/filter:/:id?/quantity:?', method: module.name + '.load_filter'
+                    route: '/' + page_name + '/filter:/:id?/version:?/quantity:?', method: module.name + '.load_filter'
                 },
                 load_item: {
-                    route: '/' + page_name + '/:id/:node?/version:?/quantity:?', method: module.name + '.load_item'
+                    route: '/' + page_name + '/:id/version:?/quantity:?', method: module.name + '.load_item'
                 }
-            },
-            search: function (args) {
-                if (!search) {
-                    search = common.search_results.core();
-                    view.filter = search.filter;
-                }
-                search.load($.extend(true, view.options.slickgrid, {url: args}, {
-                    url: args.quantity ? get_quantities(args.quantity) : {}
-                }));
             }
         });
     }
