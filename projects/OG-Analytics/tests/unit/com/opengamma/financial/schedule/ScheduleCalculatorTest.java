@@ -93,7 +93,7 @@ public class ScheduleCalculatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void adjustedDatesDaysNullDate() {
-    ScheduleCalculator.getAdjustedDate(null, 2, CALENDAR);
+    ScheduleCalculator.getAdjustedDate((ZonedDateTime) null, 2, CALENDAR);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
