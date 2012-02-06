@@ -12,4 +12,6 @@ public interface StrikeType {
 
   double value();
 
+  StrikeType with(final double value);
+
 }

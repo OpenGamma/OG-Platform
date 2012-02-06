@@ -38,6 +38,7 @@ import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
+import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
@@ -743,6 +744,16 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future) {
       return null;
     }
 

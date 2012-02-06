@@ -27,6 +27,7 @@ import com.opengamma.financial.analytics.FilteringSummingFunction;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.forex.ForexOptionFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -260,8 +261,16 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   @Override
   public Set<Pair<String, ValueProperties>> visitFXOptionSecurity(FXOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-      .add(getFXPresentValue())
-      .add(getFXCurrencyExposure())
+      .add(getFXPresentValue(ValueProperties
+          .with(ForexOptionFunction.PROPERTY_PUT_FUNDING_CURVE_NAME, getFundingCurve())
+          .with(ForexOptionFunction.PROPERTY_PUT_FORWARD_CURVE_NAME, getForwardCurve(security.getPutCurrency()))
+          .with(ForexOptionFunction.PROPERTY_CALL_FUNDING_CURVE_NAME, getFundingCurve())
+          .with(ForexOptionFunction.PROPERTY_CALL_FORWARD_CURVE_NAME, getForwardCurve(security.getCallCurrency()))))
+      .add(getFXCurrencyExposure(ValueProperties
+          .with(ForexOptionFunction.PROPERTY_PUT_FUNDING_CURVE_NAME, getFundingCurve())
+          .with(ForexOptionFunction.PROPERTY_PUT_FORWARD_CURVE_NAME, getForwardCurve(security.getPutCurrency()))
+          .with(ForexOptionFunction.PROPERTY_CALL_FUNDING_CURVE_NAME, getFundingCurve())
+          .with(ForexOptionFunction.PROPERTY_CALL_FORWARD_CURVE_NAME, getForwardCurve(security.getCallCurrency()))))
       .add(getVegaMatrix(ValueProperties
           .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
           .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
@@ -312,8 +321,16 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   @Override
   public Set<Pair<String, ValueProperties>> visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
-        .add(getFXPresentValue())
-        .add(getFXCurrencyExposure())
+        .add(getFXPresentValue(ValueProperties
+            .with(ForexOptionFunction.PROPERTY_PUT_FUNDING_CURVE_NAME, getFundingCurve())
+            .with(ForexOptionFunction.PROPERTY_PUT_FORWARD_CURVE_NAME, getForwardCurve(security.getPutCurrency()))
+            .with(ForexOptionFunction.PROPERTY_CALL_FUNDING_CURVE_NAME, getFundingCurve())
+            .with(ForexOptionFunction.PROPERTY_CALL_FORWARD_CURVE_NAME, getForwardCurve(security.getCallCurrency()))))
+        .add(getFXCurrencyExposure(ValueProperties
+            .with(ForexOptionFunction.PROPERTY_PUT_FUNDING_CURVE_NAME, getFundingCurve())
+            .with(ForexOptionFunction.PROPERTY_PUT_FORWARD_CURVE_NAME, getForwardCurve(security.getPutCurrency()))
+            .with(ForexOptionFunction.PROPERTY_CALL_FUNDING_CURVE_NAME, getFundingCurve())
+            .with(ForexOptionFunction.PROPERTY_CALL_FORWARD_CURVE_NAME, getForwardCurve(security.getCallCurrency()))))
         .add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
         .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
         .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
@@ -456,11 +473,19 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   }
   
   private Pair<String, ValueProperties> getFXPresentValue() {
-    return getRiskFactor(ValueRequirementNames.FX_PRESENT_VALUE);
+    return getFXPresentValue(ValueProperties.builder());
+  }
+  
+  private Pair<String, ValueProperties> getFXPresentValue(ValueProperties.Builder constraints) {
+    return getRiskFactor(ValueRequirementNames.FX_PRESENT_VALUE, constraints);
   }
   
   private Pair<String, ValueProperties> getFXCurrencyExposure() {
-    return getRiskFactor(ValueRequirementNames.FX_CURRENCY_EXPOSURE, false);
+    return getFXCurrencyExposure(ValueProperties.builder());
+  }
+  
+  private Pair<String, ValueProperties> getFXCurrencyExposure(ValueProperties.Builder constraints) {
+    return getRiskFactor(ValueRequirementNames.FX_CURRENCY_EXPOSURE, constraints, false);
   }
   
   private Pair<String, ValueProperties> getVegaMatrix(ValueProperties.Builder constraints) {
@@ -499,10 +524,6 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   //-------------------------------------------------------------------------
   private Pair<String, ValueProperties> getRiskFactor(String valueName) {
     return getRiskFactor(valueName, ValueProperties.builder(), true);
-  }
-  
-  private Pair<String, ValueProperties> getRiskFactor(String valueName, boolean allowCurrencyOverride) {
-    return getRiskFactor(valueName, ValueProperties.builder(), allowCurrencyOverride);
   }
   
   private Pair<String, ValueProperties> getRiskFactor(String valueName, ValueProperties.Builder constraints) {

@@ -54,7 +54,7 @@ $.register_module({
                             api.rest.securities.put({
                                 handler: function (result) {
                                     var args = routes.current().args;
-                                    if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                    if (result.error) return view.error(result.message);
                                     view.search(args);
                                     if (result.data.data.length !== 1)
                                         return routes.go(routes.hash(view.rules.load, args));
@@ -79,7 +79,7 @@ $.register_module({
                         'Delete': function () {
                             $(this).dialog('close');
                             api.rest.securities.del({
-                                id: routes.last().args.id,
+                                id: routes.current().args.id,
                                 handler: function (result) {
                                     var args = routes.current().args;
                                     if (result.error) return view.error(result.message);
@@ -112,10 +112,7 @@ $.register_module({
                     dependencies: view.dependencies,
                     update: view.update,
                     handler: function (result) {
-                        if (result.error) {
-                            view.notify(null);
-                            return view.error(result.message);
-                        }
+                        if (result.error) return view.notify(null), view.error(result.message);
                         var json = result.data, text_handler,
                             security_type = json.template_data['securityType'].toLowerCase(),
                             template = module.name + '.' + security_type;
@@ -135,19 +132,14 @@ $.register_module({
                                         This security has been deleted\
                                     </section>\
                                 ',
-                                $html = $.tmpl(template, json.template_data), header, content,
-                                html = [], id, json_id = json.identifiers;
-                            header = $.outer($html.find('> header')[0]);
-                            content = $.outer($html.find('> section')[0]);
-                            $('.ui-layout-inner-center .ui-layout-header').html(header);
-                            $('.ui-layout-inner-center .ui-layout-content').html(content);
+                                $html = $.tmpl(template, json.template_data), html = [], id, json_id = json.identifiers;
+                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                             if (!Object.keys(json_id)[0]) $('.ui-layout-inner-center .og-js-identifiers')
                                 .html('<tr><td><span>' + ''.lang() + '</span></td><td></td></tr>');
                             else for (id in json_id) {
-                                if (json_id.hasOwnProperty(id)) {
-                                    html.push('<tr><td><span>', id.lang(),
-                                              '<span></td><td>', json_id[id].replace(id + '-', ''), '</td></tr>');
-                                }
+                                if (json_id.hasOwnProperty(id)) html.push('<tr><td><span>', id.lang(),
+                                    '<span></td><td>', json_id[id].replace(id + '-', ''), '</td></tr>');
                                 $('.ui-layout-inner-center .og-js-identifiers').html(html.join(''));
                             }
                             (function () {
