@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.id.ObjectId;
@@ -120,6 +121,11 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
   public void tearDown() throws Exception {
     _prtMaster = null;
     super.tearDown();
+  }
+
+  @AfterSuite
+  public static void closeAfterSuite() {
+    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------
