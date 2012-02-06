@@ -388,6 +388,38 @@
         "regionId":"${security.regionId.scheme} - ${security.regionId.value}",
         "observationFrequency":"${security.observationFrequency.conventionName}",
       <#break>  
+      <#case "EXTERNAL_SENSITIVITIES_SECURITY">
+        "id":"${securityEntryData.id}",
+        "currency":"${securityEntryData.currency}",
+        "maturityDate":"${securityEntryData.maturityDate}",
+        "factorSetId":"${securityEntryData.factorSetId}",
+        <#if factorExposureDataList??>
+          "underlyingFactors":[
+            <#list factorExposureDataList as factorExposureData>
+              {
+                "factorSetExternalId":"${factorExposureData.factorSetExternalId}",
+                "factorType":"${factorExposureData.factorType.factorType}",
+                "factorName":"${factorExposureData.factorName}",
+                "node":"${factorExposureData.node}"
+              }
+              <#if factorExposureData_has_next>,</#if>
+            </#list>
+          ],
+        </#if>
+      <#break>
+      <#case "EXTERNAL_SENSITIVITY_RISK_FACTORS">
+        "factors":[
+          <#list factorExposureDataList as factorExposureData>
+            {
+              "factorSetExternalId":"${factorExposureData.factorSetExternalId}",
+              "factorType":"${factorExposureData.factorType.factorType}",
+              "factorName":"${factorExposureData.factorName}",
+              "node":"${factorExposureData.node}"
+            }
+            <#if factorExposureData_has_next>,</#if>
+          </#list>
+        ],
+      <#break>
     </#switch>
     "name": "${security.name}",
     "object_id": "${security.uniqueId.objectId}",

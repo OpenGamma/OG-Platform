@@ -52,7 +52,7 @@ $.register_module({
                 });
 
             },
-            clear: function () {$(CONTENT).empty()},
+            clear: function () {$(CONTENT).empty();},
             setup: function () {
                 var layout = og.views.common.layout, routes = og.common.routes,
                     header_html = '\
@@ -65,7 +65,7 @@ $.register_module({
                         </div>\
                         <div class="og-divider"></div>'
                     ;
-                if (!$(HEADER).length || (routes.last() && !routes.last().args.version)) $(PANEL).html( '\
+                if (!$(HEADER).length || (routes.current() && !routes.current().args.version)) $(PANEL).html( '\
                     <div class="ui-layout-header">' + header_html + '</div>\
                     <div class="ui-layout-content"></div>'
                 ).removeClass(function (i , classes) {

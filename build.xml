@@ -529,11 +529,18 @@
 	<target name="status" depends="status-noload,status-load"
 		description="git status check" />
 
+	<!--
+	       ===================================================================
+	         Set the properties related to credential.properties
+	       ===================================================================
+	-->
 	<property name="credentials.file" value="${common.dir}/credentials.properties" />
 
-	<!-- - - - - - - - - - - - - - - - - - 
+	<!-- 
+	     - - - - - - - - - - - - - - - - - 
           target: fetch-build-projects-file-for-user                      
-         - - - - - - - - - - - - - - - - - -->
+       - - - - - - - - - - - - - - - - - 
+  -->
 	<target name="fetch-build-projects-file-for-user">
 		<available property="credential.file.ok" file="${credentials.file}" />
 		<antcall target="fetch-default-config"/>
@@ -549,12 +556,15 @@
 			<get src="@{repository}/users/@{user}/@{module}/ant/build-projects.xml" dest="${common.dir}/build-projects.xml" username="@{user}" password="@{pass}" />
 			<get src="@{repository}/users/@{user}/@{module}/config/tests.properties" dest="${common.dir}/tests.properties" username="@{user}" password="@{pass}" />
 			<get src="@{repository}/users/@{user}/@{module}/config/db.properties" dest="${common.dir}/db.properties" username="@{user}" password="@{pass}" />
+			<get src="@{repository}/users/@{user}/@{module}/config/deploy.properties" dest="${common.dir}/deploy.properties" username="@{user}" password="@{pass}" />
 		</sequential>
 	</macrodef>
 
-	<!-- - - - - - - - - - - - - - - - - - 
+	<!-- 
+	     - - - - - - - - - - - - - - - - - 
           target: fetch-default-config                      
-         - - - - - - - - - - - - - - - - - -->
+       - - - - - - - - - - - - - - - - - 
+  -->
 	<target name="fetch-default-config" unless="credential.file.ok">
 		<property name="username" value="opengamma-public" />
 		<property name="password" value="opengamma" />
@@ -562,20 +572,32 @@
 		<get-build-projects-file repository="${opengamma.config.repository}" module="${module.version.target}" user="${username}" pass="${password}"/>
 	</target>
 
-	<!-- - - - - - - - - - - - - - - - - - 
+	<!-- 
+	     - - - - - - - - - - - - - - - - - 
           target: fetch-user-config                      
-         - - - - - - - - - - - - - - - - - -->
+       - - - - - - - - - - - - - - - - - 
+  -->
 	<target name="fetch-user-config" if="credential.file.ok">
 		<property file="${credentials.file}"/>
 		<get-build-projects-file repository="${opengamma.config.repository}" module="${module.version.target}" user="${opengamma.username}" pass="${opengamma.password}"/>
 	</target>
 
-	<!-- ================================= 
-          target: install              
-         ================================= -->
-	<target name="install" depends="fetch-build-projects-file-for-user, clean-all, clone-or-pull, publish-all-local" description="install artifacts to specified directory">
+	<!-- 
+	     =================================================================== 
+          Installs Opengamma Engine              
+       =================================================================== 
+  -->
+	<target name="install" description="install artifacts to directory specified by property, install.dir">
+		<fail message="You must set the property install.dir=/where/to/install" unless="install.dir"/>
+		<antcall inheritAll="false" target="install-impl">
+			<param name="install.dir" value="${install.dir}" />
+		</antcall>
+	</target>
+
+	<target name="install-impl" depends="fetch-build-projects-file-for-user, clean-all, clone-or-pull, publish-all-local">
 		<mkdir dir="${install.dir}" />
-		<subant target="install" buildpath="${project.deploy}">
+		<property file="${common.dir}/deploy.properties"/>
+		<subant target="install" buildpath="${project.deploy}" antfile="build.xml">
 			<property name="og.build.invoked" value="true" />
 			<property name="ivy.new.revision" value="${module.version.target}" />
 			<property name="install.dir" value="${install.dir}" />
