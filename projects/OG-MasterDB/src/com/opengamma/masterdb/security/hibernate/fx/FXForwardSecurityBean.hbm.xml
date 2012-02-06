@@ -4,9 +4,9 @@
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate.fx">
   <union-subclass name="FXForwardSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_fxforward">
-    <property name="payCurrency" column="pay_currency_id" type="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
+    <many-to-one name="payCurrency" column="pay_currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
     <property name="payAmount" column="pay_amount" type="double" not-null="true"/>
-    <property name="receiveCurrency" column="receive_currency_id" type="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
+    <many-to-one name="receiveCurrency" column="receive_currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
     <property name="receiveAmount" column="receive_amount" type="double" not-null="true"/>
     <component name="forwardDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
       <property name="date" column="forward_date" type="timestamp" not-null="true" />

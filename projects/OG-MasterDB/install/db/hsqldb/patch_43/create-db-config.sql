@@ -9,7 +9,7 @@ CREATE TABLE cfg_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT cfg_schema_version (version_key, version_value) VALUES ("schema_patch", "43");
+INSERT INTO cfg_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
 
 CREATE SEQUENCE cfg_config_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;

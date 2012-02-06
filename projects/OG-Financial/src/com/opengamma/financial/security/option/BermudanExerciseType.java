@@ -28,6 +28,10 @@ public class BermudanExerciseType extends ExerciseType {
    */
   public BermudanExerciseType() {
   }
+  
+  public String getName() {
+    return "Bermudan";
+  }
 
   //-------------------------------------------------------------------------
   @Override

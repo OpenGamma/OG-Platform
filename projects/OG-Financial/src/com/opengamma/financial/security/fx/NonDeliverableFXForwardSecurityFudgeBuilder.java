@@ -22,8 +22,8 @@ import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 /**
  * A Fudge builder for {@code FXForwardSecurity}.
  */
-@FudgeBuilderFor(FXForwardSecurity.class)
-public class NonDeliverableFXForwardSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<FXForwardSecurity> {
+@FudgeBuilderFor(NonDeliverableFXForwardSecurity.class)
+public class NonDeliverableFXForwardSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<NonDeliverableFXForwardSecurity> {
 
   private static final int VERSION = 2;
   /** Field name. */
@@ -42,15 +42,17 @@ public class NonDeliverableFXForwardSecurityFudgeBuilder extends AbstractFudgeBu
   public static final String FORWARD_DATE_FIELD_NAME = "forwardDate";
   /** Field name. */
   public static final String REGION_FIELD_NAME = "region";
+  /** Field name. */
+  public static final String DELIVER_IN_RECEIVE_CURRENCY_FIELD_NAME = "deliverInRecieveCurrency";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, FXForwardSecurity object) {
+  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, NonDeliverableFXForwardSecurity object) {
     final MutableFudgeMsg msg = serializer.newMessage();
     NonDeliverableFXForwardSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
     return msg;
   }
 
-  public static void toFudgeMsg(FudgeSerializer serializer, FXForwardSecurity object, final MutableFudgeMsg msg) {
+  public static void toFudgeMsg(FudgeSerializer serializer, NonDeliverableFXForwardSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
     addToMessage(msg, VERSION_FIELD_NAME, VERSION);
     addToMessage(msg, PAY_CURRENCY_FIELD_NAME, object.getPayCurrency());
@@ -59,16 +61,17 @@ public class NonDeliverableFXForwardSecurityFudgeBuilder extends AbstractFudgeBu
     addToMessage(msg, RECEIVE_AMOUNT_FIELD_NAME, object.getReceiveAmount());
     addToMessage(msg, FORWARD_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getForwardDate()));
     addToMessage(msg, REGION_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getRegionId()));
+    addToMessage(msg, DELIVER_IN_RECEIVE_CURRENCY_FIELD_NAME, object.isDeliverInReceiveCurrency());
   }
 
   @Override
-  public FXForwardSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    FXForwardSecurity object = new FXForwardSecurity();
+  public NonDeliverableFXForwardSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
+    NonDeliverableFXForwardSecurity object = new NonDeliverableFXForwardSecurity();
     NonDeliverableFXForwardSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }
 
-  public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, FXForwardSecurity object) {
+  public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, NonDeliverableFXForwardSecurity object) {
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
     if (msg.getInt(VERSION_FIELD_NAME) != VERSION) {
       throw new OpenGammaRuntimeException("Incorrect version of FXForwardSecurity persisted.  Object model has changed to not include underlying");
@@ -79,6 +82,7 @@ public class NonDeliverableFXForwardSecurityFudgeBuilder extends AbstractFudgeBu
     object.setReceiveAmount(msg.getDouble(RECEIVE_AMOUNT_FIELD_NAME));
     object.setForwardDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(FORWARD_DATE_FIELD_NAME)));
     object.setRegionId(ExternalIdFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(REGION_FIELD_NAME)));
+    object.setDeliverInReceiveCurrency(msg.getBoolean(DELIVER_IN_RECEIVE_CURRENCY_FIELD_NAME));
   }
 
 }

@@ -6,9 +6,7 @@
 --
 -- Please do not modify it - modify the originals and recreate this using 'ant create-db-sql'.
 
-
 CREATE SEQUENCE hibernate_sequence START WITH 1 INCREMENT BY 1;
-
 -- create-db-config.sql: Config Master
 
 -- design has one document
@@ -16,6 +14,11 @@ CREATE SEQUENCE hibernate_sequence START WITH 1 INCREMENT BY 1;
 -- unitemporal versioning exists at the document level
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
+CREATE TABLE cfg_schema_version (
+    version_key VARCHAR(32) NOT NULL,
+    version_value VARCHAR(255) NOT NULL
+);
+INSERT INTO cfg_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
 
 CREATE SEQUENCE cfg_config_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -45,7 +48,6 @@ CREATE INDEX ix_cfg_config_name ON cfg_config(name);
 -- CREATE INDEX ix_cfg_config_nameu ON cfg_config(UPPER(name));
 CREATE INDEX ix_cfg_config_config_type ON cfg_config(config_type);
 
-
 -- create-db-refdata.sql
 
 -- Holiday Master design has one document
@@ -54,6 +56,12 @@ CREATE INDEX ix_cfg_config_config_type ON cfg_config(config_type);
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
+CREATE TABLE hol_schema_version (
+    version_key VARCHAR(32) NOT NULL,
+    version_value VARCHAR(255) NOT NULL
+);
+INSERT INTO hol_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+  
 CREATE SEQUENCE hol_holiday_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
 -- "as bigint" required by Derby/HSQL, not accepted by Postgresql
@@ -108,6 +116,12 @@ CREATE INDEX ix_hol_date_holiday_id ON hol_date(holiday_id);
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
+CREATE TABLE exg_schema_version (
+    version_key VARCHAR(32) NOT NULL,
+    version_value VARCHAR(255) NOT NULL
+);
+INSERT INTO exg_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+
 CREATE SEQUENCE exg_exchange_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
 CREATE SEQUENCE exg_idkey_seq as bigint
@@ -154,8 +168,12 @@ CREATE TABLE exg_exchange2idkey (
 CREATE INDEX ix_exg_exg2idkey_idkey ON exg_exchange2idkey(idkey_id);
 -- exg_exchange2idkey is fully dependent of exg_exchange
 
-
 -- create-db-engine.sql: Config Master
+CREATE TABLE eng_schema_version (
+    version_key VARCHAR(32) NOT NULL,
+    version_value VARCHAR(255) NOT NULL
+);
+INSERT INTO eng_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
 
 create table eng_functioncosts (
     configuration varchar(255) NOT NULL,
@@ -167,7 +185,6 @@ create table eng_functioncosts (
     PRIMARY KEY (configuration, function, version_instant)
 );
 
-
 -- create-db-security.sql: Security Master
 
 -- design has one document
@@ -175,6 +192,12 @@ create table eng_functioncosts (
 -- bitemporal versioning exists at the document level
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
+
+CREATE TABLE sec_schema_version (
+    version_key VARCHAR(32) NOT NULL,
+    version_value VARCHAR(255) NOT NULL
+);
+INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
 
 CREATE SEQUENCE sec_security_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -340,7 +363,7 @@ CREATE TABLE sec_equitybarrieroption (
     currency_id bigint NOT NULL,
     exchange_id bigint,
     pointValue double precision,
-	barrier_type varchar(32) NOT NULL,
+	  barrier_type varchar(32) NOT NULL,
     barrier_direction varchar(32) NOT NULL,
     barrier_level double precision NOT NULL,
     monitoring_type varchar(32) NOT NULL,
@@ -372,6 +395,7 @@ CREATE TABLE sec_fxoption (
     CONSTRAINT sec_fk_fxoption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
     CONSTRAINT sec_fk_fxoption2callcurrency FOREIGN KEY (call_currency_id) REFERENCES sec_currency (id)
 );
+CREATE INDEX ix_sec_fxoption_security_id ON sec_fxoption(security_id);
 
 CREATE TABLE sec_nondeliverablefxoption (
     id bigint NOT NULL,
@@ -387,13 +411,56 @@ CREATE TABLE sec_nondeliverablefxoption (
     settlement_date timestamp without time zone NOT NULL,
     settlement_zone varchar(50) NOT NULL,
     is_long boolean NOT NULL,
-	is_delivery_in_call_currency boolean NOT NULL,
+	  is_delivery_in_call_currency boolean NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_nondeliverablefxoption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
     CONSTRAINT sec_fk_nondeliverablefxoption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
     CONSTRAINT sec_fk_nondeliverablefxoption2callcurrency FOREIGN KEY (call_currency_id) REFERENCES sec_currency (id)
 );
 CREATE INDEX ix_sec_nondeliverablefxoption_security_id ON sec_nondeliverablefxoption(security_id);
+
+CREATE TABLE sec_fxdigitaloption (
+    id bigint NOT NULL,
+    security_id bigint NOT NULL,
+    put_amount double precision NOT NULL,
+    call_amount double precision NOT NULL,
+    expiry_date timestamp without time zone NOT NULL,
+    expiry_zone varchar(50) NOT NULL,
+    expiry_accuracy smallint NOT NULL,
+    put_currency_id bigint NOT NULL,
+    call_currency_id bigint NOT NULL,
+    settlement_date timestamp without time zone NOT NULL,
+    settlement_zone varchar(50) NOT NULL,
+    is_long boolean NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_fxdigitaloption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_fxdigitaloption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_fxdigitaloption2callcurrency FOREIGN KEY (call_currency_id) REFERENCES sec_currency (id)
+);
+
+CREATE INDEX ix_sec_fxdigitaloption_security_id ON sec_fxdigitaloption(security_id);
+
+CREATE TABLE sec_ndffxdigitaloption (
+    id bigint NOT NULL,
+    security_id bigint NOT NULL,
+    put_amount double precision NOT NULL,
+    call_amount double precision NOT NULL,
+    expiry_date timestamp without time zone NOT NULL,
+    expiry_zone varchar(50) NOT NULL,
+    expiry_accuracy smallint NOT NULL,
+    put_currency_id bigint NOT NULL,
+    call_currency_id bigint NOT NULL,
+    settlement_date timestamp without time zone NOT NULL,
+    settlement_zone varchar(50) NOT NULL,
+    is_long boolean NOT NULL,
+    is_delivery_in_call_currency boolean NOT NULL,
+    PRIMARY KEY (id),
+    CONSTRAINT sec_fk_fxndfdigitaloption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_fxndfdigitaloption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_fxndfdigitaloption2callcurrency FOREIGN KEY (call_currency_id) REFERENCES sec_currency (id)
+);
+
+CREATE INDEX ix_sec_ndffxdigitaloption_security_id ON sec_ndffxdigitaloption(security_id);
 
 CREATE TABLE sec_swaption (
     id bigint NOT NULL,
@@ -638,8 +705,11 @@ CREATE TABLE sec_cash (
     currency_id bigint NOT NULL,
     region_scheme varchar(255) NOT NULL,
     region_identifier varchar(255) NOT NULL,
+    start_date timestamp without time zone NOT NULL,
+    start_zone varchar(50) NOT NULL,
     maturity_date timestamp without time zone NOT NULL,
     maturity_zone varchar(50) NOT NULL,
+    daycount_id bigint NOT NULL,
     rate double precision NOT NULL,
     amount double precision NOT NULL,
     PRIMARY KEY (id),
@@ -736,32 +806,22 @@ CREATE TABLE sec_raw (
     CONSTRAINT sec_fk_raw2sec FOREIGN KEY (security_id) REFERENCES sec_security (id)
 );
 
-CREATE TABLE sec_fx (
-    id bigint NOT NULL,
-    security_id bigint NOT NULL,
-    pay_currency_id bigint NOT NULL,
-    receive_currency_id bigint NOT NULL,
-    region_scheme varchar(255) NOT NULL,
-    region_identifier varchar(255) NOT NULL,
-    pay_amount double precision NOT NULL,
-    receive_amount double precision NOT NULL,
-    PRIMARY KEY (id),
-    CONSTRAINT sec_fk_fx2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
-    CONSTRAINT sec_fk_fxpay2currency FOREIGN KEY (pay_currency_id) REFERENCES sec_currency (id),
-    CONSTRAINT sec_fk_fxreceive2currency FOREIGN KEY (receive_currency_id) REFERENCES sec_currency (id)
-);
-
 CREATE TABLE sec_fxforward (
   id bigint NOT NULL,
   security_id bigint NOT NULL,
   region_scheme varchar(255) NOT NULL,
   region_identifier varchar(255) NOT NULL,
-  underlying_scheme varchar(255) NOT NULL,
-  underlying_identifier varchar(255) NOT NULL,
+  pay_currency_id bigint NOT NULL,
+  receive_currency_id bigint NOT NULL,
+  pay_amount DOUBLE PRECISION,
+  receive_amount DOUBLE PRECISION,
   forward_date timestamp without time zone NOT NULL,
   forward_zone varchar(50) NOT NULL,
   PRIMARY KEY (id),
-  CONSTRAINT sec_fk_fxforward2sec FOREIGN KEY (security_id) REFERENCES sec_security (id)
+  CONSTRAINT sec_fk_fxforward2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+  CONSTRAINT sec_fk_fxforward_pay2currency FOREIGN KEY (pay_currency_id) REFERENCES sec_currency (id),
+  CONSTRAINT sec_fk_fxforward_rcv2currency FOREIGN KEY (receive_currency_id) REFERENCES sec_currency (id)
+  
 );
 CREATE INDEX ix_sec_fxforward_security_id ON sec_fxforward(security_id);
 
@@ -770,13 +830,17 @@ CREATE TABLE sec_nondeliverablefxforward (
   security_id bigint NOT NULL,
   region_scheme varchar(255) NOT NULL,
   region_identifier varchar(255) NOT NULL,
-  underlying_scheme varchar(255) NOT NULL,
-  underlying_identifier varchar(255) NOT NULL,
+  pay_currency_id bigint NOT NULL,
+  receive_currency_id bigint NOT NULL,
+  pay_amount DOUBLE PRECISION,
+  receive_amount DOUBLE PRECISION,
   forward_date timestamp without time zone NOT NULL,
   forward_zone varchar(50) NOT NULL,
   is_delivery_in_receive_currency boolean NOT NULL,
   PRIMARY KEY (id),
-  CONSTRAINT sec_fk_nondeliverablefxforward2sec FOREIGN KEY (security_id) REFERENCES sec_security (id)
+  CONSTRAINT sec_fk_nondeliverablefxforward2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+  CONSTRAINT sec_fk_nondeliverablefxforward_pay2currency FOREIGN KEY (pay_currency_id) REFERENCES sec_currency (id),
+  CONSTRAINT sec_fk_nondeliverablefxforward_rcv2currency FOREIGN KEY (receive_currency_id) REFERENCES sec_currency (id)
 );
 CREATE INDEX ix_sec_nondeliverablefxforward_security_id ON sec_nondeliverablefxforward(security_id);
 
@@ -879,6 +943,12 @@ CREATE INDEX ix_sec_security_attr_key ON sec_security_attribute(key);
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
 
+CREATE TABLE prt_schema_version (
+    version_key VARCHAR(32) NOT NULL,
+    version_value VARCHAR(255) NOT NULL
+);
+INSERT INTO prt_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+
 CREATE SEQUENCE prt_master_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
 -- "as bigint" required by Derby, not accepted by Postgresql
@@ -959,7 +1029,6 @@ CREATE TABLE prt_portfolio_attribute (
 -- prt_portfolio_attribute is fully dependent of prt_portfolio
 CREATE INDEX ix_prt_attr_portfolio_oid ON prt_portfolio_attribute(portfolio_oid);
 CREATE INDEX ix_prt_attr_key ON prt_portfolio_attribute(key);
-
 -- create-db-position.sql: Position Master
 
 -- design has one document
@@ -967,6 +1036,12 @@ CREATE INDEX ix_prt_attr_key ON prt_portfolio_attribute(key);
 -- bitemporal versioning exists at the document level
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
+
+CREATE TABLE pos_schema_version (
+    version_key VARCHAR(32) NOT NULL,
+    version_value VARCHAR(255) NOT NULL
+);
+INSERT INTO pos_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
 
 CREATE SEQUENCE pos_master_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -1082,11 +1157,20 @@ CREATE TABLE pos_trade2idkey (
     CONSTRAINT pos_fk_tradeidkey2idkey FOREIGN KEY (idkey_id) REFERENCES pos_idkey (id)
 );
 CREATE INDEX ix_pos_trd2idkey_idkey ON pos_trade2idkey(idkey_id);
+-------------------------------------
+-- Versions
+-------------------------------------
+
+CREATE TABLE rsk_schema_version (
+    version_key VARCHAR(32) NOT NULL,
+    version_value VARCHAR(255) NOT NULL
+);
+INSERT INTO rsk_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
 
 -------------------------------------
 -- Static data
 -------------------------------------
-
+ 
 create table rsk_observation_time (
     id int not null,
     label varchar(255) not null,                -- LDN_CLOSE
@@ -1572,6 +1656,12 @@ rsk_failure_reason.compute_failure_id = rsk_compute_failure.id;
 --  hts_point.ver_instant <= search_version_instant &&
 --  hts_point.corr_instant <= search_correction_instant
 
+CREATE TABLE hts_schema_version (
+    version_key VARCHAR(32) NOT NULL,
+    version_value VARCHAR(255) NOT NULL
+);
+INSERT INTO hts_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+
 CREATE SEQUENCE hts_master_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
 CREATE SEQUENCE hts_idkey_seq AS bigint
@@ -1684,7 +1774,6 @@ CREATE TABLE hts_point (
 );
 -- null value used to indicate point was deleted
 
-
 -- create-db-marketdatasnapshot.sql
 
 -- MarketDataSnapshotMaster design has one document
@@ -1692,6 +1781,12 @@ CREATE TABLE hts_point (
 -- bitemporal versioning exists at the document level
 -- each time a document is changed, a new row is written
 -- with only the end instant being changed on the old row
+
+CREATE TABLE snp_schema_version (
+    version_key VARCHAR(32) NOT NULL,
+    version_value VARCHAR(255) NOT NULL
+);
+INSERT INTO snp_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
 
 CREATE SEQUENCE snp_snapshot_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -1717,5 +1812,3 @@ CREATE INDEX ix_snp_snapshot_ver_to_instant ON snp_snapshot(ver_to_instant);
 CREATE INDEX ix_snp_snapshot_corr_from_instant ON snp_snapshot(corr_from_instant);
 CREATE INDEX ix_snp_snapshot_corr_to_instant ON snp_snapshot(corr_to_instant);
 CREATE INDEX ix_snp_snapshot_name ON snp_snapshot(name);
-
-

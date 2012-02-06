@@ -12,7 +12,6 @@ import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpir
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
-import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.Converters;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
@@ -31,7 +30,7 @@ public final class FxDigitalOptionSecurityBeanOperation extends AbstractSecurity
   public static final FxDigitalOptionSecurityBeanOperation INSTANCE = new FxDigitalOptionSecurityBeanOperation();
 
   private FxDigitalOptionSecurityBeanOperation() {
-    super(FXOptionSecurity.SECURITY_TYPE, FXDigitalOptionSecurity.class, FXDigitalOptionSecurityBean.class);
+    super(FXDigitalOptionSecurity.SECURITY_TYPE, FXDigitalOptionSecurity.class, FXDigitalOptionSecurityBean.class);
   }
 
   @Override

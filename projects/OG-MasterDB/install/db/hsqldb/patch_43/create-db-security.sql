@@ -11,7 +11,7 @@ CREATE TABLE sec_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT sec_schema_version (version_key, version_value) VALUES ("schema_patch", "43");
+INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
 
 CREATE SEQUENCE sec_security_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -177,7 +177,7 @@ CREATE TABLE sec_equitybarrieroption (
     currency_id bigint NOT NULL,
     exchange_id bigint,
     pointValue double precision,
-	barrier_type varchar(32) NOT NULL,
+	  barrier_type varchar(32) NOT NULL,
     barrier_direction varchar(32) NOT NULL,
     barrier_level double precision NOT NULL,
     monitoring_type varchar(32) NOT NULL,
@@ -225,7 +225,7 @@ CREATE TABLE sec_nondeliverablefxoption (
     settlement_date timestamp without time zone NOT NULL,
     settlement_zone varchar(50) NOT NULL,
     is_long boolean NOT NULL,
-	is_delivery_in_call_currency boolean NOT NULL,
+	  is_delivery_in_call_currency boolean NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_nondeliverablefxoption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
     CONSTRAINT sec_fk_nondeliverablefxoption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
@@ -267,6 +267,7 @@ CREATE TABLE sec_ndffxdigitaloption (
     settlement_date timestamp without time zone NOT NULL,
     settlement_zone varchar(50) NOT NULL,
     is_long boolean NOT NULL,
+    is_delivery_in_call_currency boolean NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_fxndfdigitaloption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
     CONSTRAINT sec_fk_fxndfdigitaloption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
@@ -632,8 +633,8 @@ CREATE TABLE sec_fxforward (
   forward_zone varchar(50) NOT NULL,
   PRIMARY KEY (id),
   CONSTRAINT sec_fk_fxforward2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
-  CONSTRAINT sec_fk_fxforward_pay2currency FOREIGN KEY (pay_currency) REFERENCES sec_currency (id),
-  CONSTRAINT sec_fk_fxforward_rcv2currency FOREIGN KEY (receive_currency) REFERENCES sec_currency (id)
+  CONSTRAINT sec_fk_fxforward_pay2currency FOREIGN KEY (pay_currency_id) REFERENCES sec_currency (id),
+  CONSTRAINT sec_fk_fxforward_rcv2currency FOREIGN KEY (receive_currency_id) REFERENCES sec_currency (id)
   
 );
 CREATE INDEX ix_sec_fxforward_security_id ON sec_fxforward(security_id);
@@ -649,10 +650,11 @@ CREATE TABLE sec_nondeliverablefxforward (
   receive_amount DOUBLE PRECISION,
   forward_date timestamp without time zone NOT NULL,
   forward_zone varchar(50) NOT NULL,
+  is_delivery_in_receive_currency boolean NOT NULL,
   PRIMARY KEY (id),
   CONSTRAINT sec_fk_nondeliverablefxforward2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
-  CONSTRAINT sec_fk_nondeliverablefxforward_pay2currency FOREIGN KEY (pay_currency) REFERENCES sec_currency (id),
-  CONSTRAINT sec_fk_nondeliverablefxforward_rcv2currency FOREIGN KEY (receive_currency) REFERENCES sec_currency (id)
+  CONSTRAINT sec_fk_nondeliverablefxforward_pay2currency FOREIGN KEY (pay_currency_id) REFERENCES sec_currency (id),
+  CONSTRAINT sec_fk_nondeliverablefxforward_rcv2currency FOREIGN KEY (receive_currency_id) REFERENCES sec_currency (id)
 );
 CREATE INDEX ix_sec_nondeliverablefxforward_security_id ON sec_nondeliverablefxforward(security_id);
 

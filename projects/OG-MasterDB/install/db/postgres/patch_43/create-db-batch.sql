@@ -6,7 +6,7 @@ CREATE TABLE rsk_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT rsk_schema_version (version_key, version_value) VALUES ("schema_patch", "43");
+INSERT INTO rsk_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
 
 -------------------------------------
 -- Static data

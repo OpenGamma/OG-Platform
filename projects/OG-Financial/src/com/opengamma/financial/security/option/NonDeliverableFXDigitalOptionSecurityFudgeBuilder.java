@@ -39,7 +39,9 @@ public class NonDeliverableFXDigitalOptionSecurityFudgeBuilder extends AbstractF
   public static final String SETTLEMENT_DATE_FIELD_NAME = "settlementDate";
   /** Field name. */
   public static final String IS_LONG_FIELD_NAME = "isLong";
-
+  /** Field name. */
+  public static final String DELIVER_IN_CALL_CURRENCY_FIELD_NAME = "deliverInCallCurrency";
+  
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, NonDeliverableFXDigitalOptionSecurity object) {
     final MutableFudgeMsg msg = serializer.newMessage();
@@ -56,6 +58,7 @@ public class NonDeliverableFXDigitalOptionSecurityFudgeBuilder extends AbstractF
     addToMessage(msg, EXPIRY_FIELD_NAME, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getExpiry()));
     addToMessage(msg, SETTLEMENT_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getSettlementDate()));
     addToMessage(msg, IS_LONG_FIELD_NAME, object.isLong());
+    addToMessage(msg, DELIVER_IN_CALL_CURRENCY_FIELD_NAME, object.isDeliverInCallCurrency());
   }
 
   @Override
@@ -74,6 +77,7 @@ public class NonDeliverableFXDigitalOptionSecurityFudgeBuilder extends AbstractF
     object.setExpiry(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_FIELD_NAME)));
     object.setSettlementDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(SETTLEMENT_DATE_FIELD_NAME)));
     object.setLongShort(LongShort.ofLong(msg.getBoolean(IS_LONG_FIELD_NAME)));
+    object.setDeliverInCallCurrency(msg.getBoolean(DELIVER_IN_CALL_CURRENCY_FIELD_NAME));
   }
 
 }

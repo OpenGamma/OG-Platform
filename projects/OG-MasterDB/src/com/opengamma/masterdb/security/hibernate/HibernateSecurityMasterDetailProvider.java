@@ -75,9 +75,21 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
 
   //-------------------------------------------------------------------------
   private static void loadBeanOperation(final SecurityBeanOperation<?, ?> beanOperation) {
+    if (BEAN_OPERATIONS_BY_SECURITY.containsKey(beanOperation.getSecurityClass())) {
+      s_logger.error(beanOperation.getSecurityClass() + " is already registered in BEAN_OPERATIONS_BY_SECURITY");
+      throw new OpenGammaRuntimeException(beanOperation.getSecurityClass() + " is already registered in BEAN_OPERATIONS_BY_SECURITY");
+    }
     BEAN_OPERATIONS_BY_SECURITY.put(beanOperation.getSecurityClass(), beanOperation);
+    if (BEAN_OPERATIONS_BY_BEAN.containsKey(beanOperation.getBeanClass())) {
+      s_logger.error(beanOperation.getBeanClass() + " is already registered in BEAN_OPERATIONS_BY_SECURITY");
+      throw new OpenGammaRuntimeException(beanOperation.getBeanClass() + " is already registered in BEAN_OPERATIONS_BY_SECURITY");
+    }
     BEAN_OPERATIONS_BY_BEAN.put(beanOperation.getBeanClass(), beanOperation);
-    BEAN_OPERATIONS_BY_TYPE.put(beanOperation.getSecurityType(), beanOperation);
+    if (BEAN_OPERATIONS_BY_TYPE.containsKey(beanOperation.getSecurityType())) {
+      s_logger.error(beanOperation.getBeanClass() + " is already registered in BEAN_OPERATIONS_BY_SECURITY");
+      throw new OpenGammaRuntimeException(beanOperation.getBeanClass() + " is already registered in BEAN_OPERATIONS_BY_SECURITY");
+    }
+    BEAN_OPERATIONS_BY_TYPE.put(beanOperation.getSecurityType(), beanOperation);  
   }
 
   private static SecurityBeanOperation<?, ?> getBeanOperation(final ConcurrentMap<Class<?>, SecurityBeanOperation<?, ?>> map, final Class<?> clazz) {

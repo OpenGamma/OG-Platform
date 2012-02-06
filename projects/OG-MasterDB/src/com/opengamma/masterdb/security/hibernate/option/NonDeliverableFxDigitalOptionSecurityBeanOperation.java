@@ -31,7 +31,7 @@ public final class NonDeliverableFxDigitalOptionSecurityBeanOperation extends Ab
   public static final NonDeliverableFxDigitalOptionSecurityBeanOperation INSTANCE = new NonDeliverableFxDigitalOptionSecurityBeanOperation();
 
   private NonDeliverableFxDigitalOptionSecurityBeanOperation() {
-    super(FXOptionSecurity.SECURITY_TYPE, NonDeliverableFXDigitalOptionSecurity.class, NonDeliverableFXDigitalOptionSecurityBean.class);
+    super(NonDeliverableFXDigitalOptionSecurity.SECURITY_TYPE, NonDeliverableFXDigitalOptionSecurity.class, NonDeliverableFXDigitalOptionSecurityBean.class);
   }
 
   @Override
@@ -44,6 +44,7 @@ public final class NonDeliverableFxDigitalOptionSecurityBeanOperation extends Ab
     bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
     bean.setSettlementDate(Converters.dateTimeWithZoneToZonedDateTimeBean(security.getSettlementDate()));
     bean.setIsLong(security.isLong());
+    bean.setDeliverInCallCurrency(security.isDeliverInCallCurrency());
     return bean;
   }
 
@@ -53,9 +54,11 @@ public final class NonDeliverableFxDigitalOptionSecurityBeanOperation extends Ab
     Currency callCurrency = currencyBeanToCurrency(bean.getCallCurrency());
     Expiry expiry = expiryBeanToExpiry(bean.getExpiry());
     ZonedDateTime settlementDate = Converters.zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate());
+    boolean deliverInCallCurrency = bean.isDeliverInCallCurrency();
     NonDeliverableFXDigitalOptionSecurity sec = new NonDeliverableFXDigitalOptionSecurity(putCurrency, callCurrency, 
                                                                                           bean.getPutAmount(), bean.getCallAmount(), 
-                                                                                          expiry, settlementDate, bean.getIsLong());
+                                                                                          expiry, settlementDate, bean.getIsLong(),
+                                                                                          deliverInCallCurrency);
     return sec;
   }
 

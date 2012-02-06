@@ -20,71 +20,73 @@ START TRANSACTION;
       version_key VARCHAR(32) NOT NULL,
       version_value VARCHAR(255) NOT NULL
   );
-  INSERT rsk_schema_version (version_key, version_value) VALUES ("schema_patch", "43");
+  INSERT INTO rsk_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
   
   CREATE TABLE cfg_schema_version (
       version_key VARCHAR(32) NOT NULL,
       version_value VARCHAR(255) NOT NULL
   );
-  INSERT cfg_schema_version (version_key, version_value) VALUES ("schema_patch", "43");
+  INSERT INTO cfg_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
   
   CREATE TABLE eng_schema_version (
       version_key VARCHAR(32) NOT NULL,
       version_value VARCHAR(255) NOT NULL
   );
-  INSERT eng_schema_version (version_key, version_value) VALUES ("schema_patch", "43");
+  INSERT INTO eng_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
   
   CREATE TABLE hts_schema_version (
       version_key VARCHAR(32) NOT NULL,
       version_value VARCHAR(255) NOT NULL
   );
-  INSERT hts_schema_version (version_key, version_value) VALUES ("schema_patch", "43");
+  INSERT INTO hts_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
   
   CREATE TABLE snp_schema_version (
       version_key VARCHAR(32) NOT NULL,
       version_value VARCHAR(255) NOT NULL
   );
-  INSERT snp_schema_version (version_key, version_value) VALUES ("schema_patch", "43");
+  INSERT INTO snp_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
   
   CREATE TABLE prt_schema_version (
       version_key VARCHAR(32) NOT NULL,
       version_value VARCHAR(255) NOT NULL
   );
-  INSERT prt_schema_version (version_key, version_value) VALUES ("schema_patch", "43");
+  INSERT INTO prt_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
   
   CREATE TABLE pos_schema_version (
       version_key VARCHAR(32) NOT NULL,
       version_value VARCHAR(255) NOT NULL
   );
-  INSERT pos_schema_version (version_key, version_value) VALUES ("schema_patch", "43");
+  INSERT INTO pos_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
   
   CREATE TABLE hol_schema_version (
       version_key VARCHAR(32) NOT NULL,
       version_value VARCHAR(255) NOT NULL
   );
-  INSERT hol_schema_version (version_key, version_value) VALUES ("schema_patch", "43");
+  INSERT INTO hol_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
   
   CREATE TABLE exg_schema_version (
       version_key VARCHAR(32) NOT NULL,
       version_value VARCHAR(255) NOT NULL
   );
-  INSERT exg_schema_version (version_key, version_value) VALUES ("schema_patch", "43");
+  INSERT INTO exg_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
   
   CREATE TABLE sec_schema_version (
       version_key VARCHAR(32) NOT NULL,
       version_value VARCHAR(255) NOT NULL
   );
-  INSERT sec_schema_version (version_key, version_value) VALUES ("schema_patch", "43");
+  INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
   
 COMMIT;
 --------------------------------------------------------------------------------------
 -- CASH
 -- Changes to cash securities to add start date/time and daycount fields.
-BEGIN TRANSACTION;
-  ALTER TABLE sec_cash ADD COLUMN start_date TIMESTAMP WITHOUT TIMEZONE DEFAULT NOW() NOT NULL;
-  ALTER TABLE sec_cash ADD COLUMN start_zone VARCHAR(50) DEFAULT "UTC" NOT NULL;
-  ALTER TABLE sec_cash ADD COLUMN daycount_id BIGINT NOT NULL DEFAULT 1;
+START TRANSACTION;
+  ALTER TABLE sec_cash ADD COLUMN start_date TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW() NOT NULL;
+  ALTER TABLE sec_cash ADD COLUMN start_zone VARCHAR(50) DEFAULT 'UTC' NOT NULL;
+  ALTER TABLE sec_cash ADD COLUMN daycount_id BIGINT DEFAULT 1 NOT NULL;
   ALTER TABLE sec_cash ADD CONSTRAINT sec_fk_cash2daycount FOREIGN KEY (daycount_id) REFERENCES sec_daycount (id);
+  ALTER TABLE sec_cash ALTER COLUMN start_date DROP DEFAULT;
+  ALTER TABLE sec_cash ALTER COLUMN start_zone DROP DEFAULT;
 COMMIT;
 --------------------------------------------------------------------------------------
 -- FX DIGITALS
@@ -122,6 +124,7 @@ CREATE TABLE sec_ndffxdigitaloption (
     settlement_date timestamp without time zone NOT NULL,
     settlement_zone varchar(50) NOT NULL,
     is_long boolean NOT NULL,
+    is_delivery_in_call_currency boolean NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_fxndfdigitaloption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
     CONSTRAINT sec_fk_fxndfdigitaloption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
@@ -181,8 +184,8 @@ START TRANSACTION;
   
   ALTER TABLE sec_fxforward ALTER COLUMN receive_amount SET NOT NULL;
   
-  ALTER TABLE sec_fxforward ADD CONSTRAINT sec_fk_fxforward_pay2currency FOREIGN KEY (pay_currency) REFERENCES sec_currency (id);
-  ALTER TABLE sec_fxforward ADD CONSTRAINT sec_fk_fxforward_rcv2currency FOREIGN KEY (receive_currency) REFERENCES sec_currency (id);
+  ALTER TABLE sec_fxforward ADD CONSTRAINT sec_fk_fxforward_pay2currency FOREIGN KEY (pay_currency_id) REFERENCES sec_currency (id);
+  ALTER TABLE sec_fxforward ADD CONSTRAINT sec_fk_fxforward_rcv2currency FOREIGN KEY (receive_currency_id) REFERENCES sec_currency (id);
   
   -- remove existing reference to underlying columns
   ALTER TABLE sec_fxforward DROP COLUMN underlying_scheme;
@@ -232,8 +235,10 @@ START TRANSACTION;
   
   ALTER TABLE sec_nondeliverablefxforward ALTER COLUMN receive_amount SET NOT NULL;
   
-  ALTER TABLE sec_nondeliverablefxforward ADD CONSTRAINT sec_fk_nondeliverablefxforward_pay2currency FOREIGN KEY (pay_currency) REFERENCES sec_currency (id);
-  ALTER TABLE sec_nondeliverablefxforward ADD CONSTRAINT sec_fk_nondeliverablefxforward_rcv2currency FOREIGN KEY (receive_currency) REFERENCES sec_currency (id);
+  --ALTER TABLE sec_nondeliverablefxforward ADD COLUMN is_delivery_in_receive_currency BOOLEAN DEFAULT TRUE NOT NULL;
+  
+  ALTER TABLE sec_nondeliverablefxforward ADD CONSTRAINT sec_fk_nondeliverablefxforward_pay2currency FOREIGN KEY (pay_currency_id) REFERENCES sec_currency (id);
+  ALTER TABLE sec_nondeliverablefxforward ADD CONSTRAINT sec_fk_nondeliverablefxforward_rcv2currency FOREIGN KEY (receive_currency_id) REFERENCES sec_currency (id);
   
   -- remove existing reference to underlying columns
   ALTER TABLE sec_nondeliverablefxforward DROP COLUMN underlying_scheme;

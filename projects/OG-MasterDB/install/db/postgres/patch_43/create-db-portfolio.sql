@@ -10,7 +10,7 @@ CREATE TABLE prt_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT prt_schema_version (version_key, version_value) VALUES ("schema_patch", "43");
+INSERT INTO prt_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
 
 CREATE SEQUENCE prt_master_seq
     START WITH 1000 INCREMENT BY 1 NO CYCLE;

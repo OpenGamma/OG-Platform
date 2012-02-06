@@ -51,7 +51,7 @@ public class CashSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fu
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
     addToMessage(msg, CURRENCY_FIELD_NAME, object.getCurrency());
     addToMessage(msg, REGION_FIELD_NAME, ExternalIdFudgeBuilder.toFudgeMsg(serializer, object.getRegionId()));
-    addToMessage(msg, START_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getMaturity()));
+    addToMessage(msg, START_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getStart()));
     addToMessage(msg, MATURITY_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getMaturity()));
     addToMessage(msg, DAYCOUNT_FIELD_NAME, object.getDayCount());
     addToMessage(msg, RATE_FIELD_NAME, object.getRate());

@@ -44,6 +44,7 @@ public final class NonDeliverableFXForwardSecurityBeanOperation extends Abstract
     bean.setReceiveAmount(security.getReceiveAmount());
     bean.setForwardDate(dateTimeWithZoneToZonedDateTimeBean(security.getForwardDate()));
     bean.setRegion(externalIdToExternalIdBean(security.getRegionId()));
+    bean.setDeliverInReceiveCurrency(security.isDeliverInReceiveCurrency());
     return bean;
   }
 
@@ -55,7 +56,8 @@ public final class NonDeliverableFXForwardSecurityBeanOperation extends Abstract
     double payAmount = bean.getPayAmount();
     Currency receiveCurrency = currencyBeanToCurrency(bean.getReceiveCurrency());
     double receiveAmount = bean.getReceiveAmount();
-    return new NonDeliverableFXForwardSecurity(payCurrency, payAmount, receiveCurrency, receiveAmount, forwardDate, region);
+    boolean deliverInReceiveCurrency = bean.isDeliverInReceiveCurrency();
+    return new NonDeliverableFXForwardSecurity(payCurrency, payAmount, receiveCurrency, receiveAmount, forwardDate, region, deliverInReceiveCurrency);
   }
 
 }

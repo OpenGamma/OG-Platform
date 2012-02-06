@@ -4,7 +4,7 @@ CREATE TABLE eng_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT eng_schema_version (version_key, version_value) VALUES ("schema_patch", "43");
+INSERT INTO eng_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
 
 create table eng_functioncosts (
     configuration varchar(255) NOT NULL,
