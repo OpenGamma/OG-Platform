@@ -24,8 +24,6 @@ public abstract class SingleSheetPortfolioReader implements PortfolioReader {
     _sheet = sheet;
   }
     
-  public abstract String[] getColumns();
-   
   public SheetReader getSheet() {
     return _sheet;
   }
