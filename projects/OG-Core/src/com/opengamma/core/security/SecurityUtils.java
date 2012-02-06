@@ -75,6 +75,10 @@ public class SecurityUtils {
    * Identification scheme for OpenGamma synthetic instruments.
    */
   public static final ExternalScheme OG_SYNTHETIC_TICKER = ExternalScheme.of("OG_SYNTHETIC_TICKER");
+  /**
+   * Identification scheme for Tullet-Prebon SURF tickers.
+   */
+  public static final ExternalScheme SURF = ExternalScheme.of("SURF");
 
   /**
    * Restricted constructor.
