@@ -689,4 +689,10 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
     return new SimpleHistoricalTimeSeries(hts.getUniqueId(), timeSeries);
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + "[" + getUnderlying() + "]";
+  }
+
 }

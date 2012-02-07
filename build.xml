@@ -587,7 +587,7 @@
           Installs Opengamma Engine              
        =================================================================== 
   -->
-	<target name="install" description="install artifacts to directory specified by property, install.dir">
+	<target name="install" description="install artifacts to directory specified by property (install.dir)">
 		<fail message="You must set the property install.dir=/where/to/install" unless="install.dir"/>
 		<antcall inheritAll="false" target="install-impl">
 			<param name="install.dir" value="${install.dir}" />

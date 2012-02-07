@@ -37,7 +37,7 @@ public class JmsChangeManagerTest {
     long currentTimeMillis = System.currentTimeMillis();
     String user = System.getProperty("user.name");
     String topic = "JmsSourceChange-" + user + "-" + currentTimeMillis;
-    JmsConnector connector = ActiveMQTestUtils.createJmsConnector().withTopicName(topic);
+    JmsConnector connector = ActiveMQTestUtils.createTestJmsConnector().withTopicName(topic);
     
     _testListener = new TestChangeClient();
     _changeManager = new JmsChangeManager(connector);

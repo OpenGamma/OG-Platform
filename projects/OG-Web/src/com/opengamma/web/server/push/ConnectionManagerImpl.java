@@ -22,7 +22,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * client.  It creates {@link Timer} tasks for each connection that closes them and cleans up if they are idle
  * for too long.  This class is thread safe.
  */
-/* package */ class ConnectionManagerImpl implements ConnectionManager {
+public class ConnectionManagerImpl implements ConnectionManager {
 
   /** Period for the periodic tasks that check whether the client connections have been idle for too long */
   private static final long DEFAULT_TIMEOUT_CHECK_PERIOD = 60000;

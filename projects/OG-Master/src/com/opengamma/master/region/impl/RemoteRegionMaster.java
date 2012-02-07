@@ -49,9 +49,8 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
   public RegionSearchResult search(final RegionSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataRegionsResource.uri(getBaseUri(), msgBase64);
-    return accessRemote(uri).get(RegionSearchResult.class);
+    URI uri = DataRegionMasterResource.uriSearch(getBaseUri());
+    return accessRemote(uri).post(RegionSearchResult.class, request);
   }
 
   //-------------------------------------------------------------------------
@@ -82,7 +81,7 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getRegion(), "document.region");
     
-    URI uri = DataRegionsResource.uri(getBaseUri(), null);
+    URI uri = DataRegionMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(RegionDocument.class, document);
   }
 
@@ -93,8 +92,8 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
     ArgumentChecker.notNull(document.getRegion(), "document.region");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataRegionResource.uri(getBaseUri(), document.getUniqueId(), VersionCorrection.LATEST);
-    return accessRemote(uri).put(RegionDocument.class, document);
+    URI uri = DataRegionResource.uri(getBaseUri(), document.getUniqueId(), null);
+    return accessRemote(uri).post(RegionDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -102,7 +101,7 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
   public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataRegionResource.uri(getBaseUri(), uniqueId, VersionCorrection.LATEST);
+    URI uri = DataRegionResource.uri(getBaseUri(), uniqueId, null);
     accessRemote(uri).delete();
   }
 
@@ -112,8 +111,7 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
-    String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataRegionResource.uriVersions(getBaseUri(), request.getObjectId(), msgBase64);
+    URI uri = DataRegionResource.uriVersions(getBaseUri(), request.getObjectId(), request);
     return accessRemote(uri).get(RegionHistoryResult.class);
   }
 
@@ -125,7 +123,7 @@ public class RemoteRegionMaster extends AbstractRemoteMaster implements RegionMa
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataRegionResource.uriVersion(getBaseUri(), document.getUniqueId());
-    return accessRemote(uri).get(RegionDocument.class);
+    return accessRemote(uri).post(RegionDocument.class, document);
   }
 
 }

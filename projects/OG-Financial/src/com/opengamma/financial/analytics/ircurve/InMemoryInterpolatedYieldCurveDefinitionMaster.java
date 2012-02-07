@@ -30,39 +30,63 @@ import com.opengamma.util.tuple.Pair;
  * An in-memory master for yield curve definitions, backed by a hash-map.
  */
 public class InMemoryInterpolatedYieldCurveDefinitionMaster implements InterpolatedYieldCurveDefinitionMaster, InterpolatedYieldCurveDefinitionSource, VersionedSource, ChangeProvider {
-  
+
   /**
    * Default scheme used for identifiers created.
    */
   public static final String DEFAULT_SCHEME = "InMemoryInterpolatedYieldCurveDefinition";
 
+  /**
+   * The in-memory definitions.
+   */
   private final Map<Pair<Currency, String>, TreeMap<Instant, YieldCurveDefinition>> _definitions = new HashMap<Pair<Currency, String>, TreeMap<Instant, YieldCurveDefinition>>();
+  /**
+   * The change manager.
+   */
   private final ChangeManager _changeManager = new BasicChangeManager();  // TODO
-
+  /**
+   * The unique id scheme
+   */
   private String _uniqueIdScheme;
+  /**
+   * The active version-correction.
+   */
   private VersionCorrection _sourceVersionCorrection = VersionCorrection.LATEST;
 
+  /**
+   * Creates an instance.
+   */
   public InMemoryInterpolatedYieldCurveDefinitionMaster() {
     setUniqueIdScheme(DEFAULT_SCHEME);
   }
 
-  public void setUniqueIdScheme(final String identifierScheme) {
-    ArgumentChecker.notNull(identifierScheme, "identifierScheme");
-    _uniqueIdScheme = identifierScheme;
-  }
-
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the scheme in use for unique identifier.
+   * 
+   * @return the scheme, not null
+   */
   public String getUniqueIdScheme() {
     return _uniqueIdScheme;
   }
 
-  // InterpolatedYieldCurveDefinitionSource
-
   /**
-   * Gets a yield curve definition for a currency and name.
-   * @param currency  the currency, not null
-   * @param name  the name, not null
-   * @return the definition, null if not found
+   * Sets the scheme in use for unique identifier.
+   * 
+   * @param scheme  the scheme for unique identifier, not null
    */
+  public void setUniqueIdScheme(final String scheme) {
+    ArgumentChecker.notNull(scheme, "scheme");
+    _uniqueIdScheme = scheme;
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public synchronized void setVersionCorrection(final VersionCorrection versionCorrection) {
+    _sourceVersionCorrection = VersionCorrection.of(versionCorrection);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public synchronized YieldCurveDefinition getDefinition(Currency currency, String name) {
     ArgumentChecker.notNull(currency, "currency");
@@ -83,13 +107,6 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     return entry.getValue();
   }
 
-  /**
-   * Gets a yield curve definition for a currency, name and version.
-   * @param currency  the currency, not null
-   * @param name  the name, not null
-   * @param version  the version instant, not null
-   * @return the definition, null if not found
-   */
   @Override
   public YieldCurveDefinition getDefinition(final Currency currency, final String name, final InstantProvider version) {
     ArgumentChecker.notNull(currency, "currency");
@@ -105,15 +122,7 @@ public class InMemoryInterpolatedYieldCurveDefinitionMaster implements Interpola
     return entry.getValue();
   }
 
-  // VersionedSource
-
-  @Override
-  public synchronized void setVersionCorrection(final VersionCorrection versionCorrection) {
-    _sourceVersionCorrection = VersionCorrection.of(versionCorrection);
-  }
-
-  // InterpolatedYieldCurveDefinitionMaster
-
+  //-------------------------------------------------------------------------
   @Override
   public synchronized YieldCurveDefinitionDocument add(YieldCurveDefinitionDocument document) {
     ArgumentChecker.notNull(document, "document");

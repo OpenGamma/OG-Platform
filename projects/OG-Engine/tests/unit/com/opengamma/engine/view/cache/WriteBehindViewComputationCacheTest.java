@@ -27,8 +27,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
@@ -120,9 +120,9 @@ public class WriteBehindViewComputationCacheTest {
   }
 
   //-------------------------------------------------------------------------
-  private static final ValueSpecification s_valueSpec1 = new ValueSpecification(new ValueRequirement("Value 1", new ComputationTargetSpecification(new MockSecurity("TEST"))), "Function UID");
-  private static final ValueSpecification s_valueSpec2 = new ValueSpecification(new ValueRequirement("Value 2", new ComputationTargetSpecification(new MockSecurity("TEST"))), "Function UID");
-  private static final ValueSpecification s_valueSpec3 = new ValueSpecification(new ValueRequirement("Value 3", new ComputationTargetSpecification(new MockSecurity("TEST"))), "Function UID");
+  private static final ValueSpecification s_valueSpec1 = new ValueSpecification(new ValueRequirement("Value 1", new ComputationTargetSpecification(new SimpleSecurity("TEST"))), "Function UID");
+  private static final ValueSpecification s_valueSpec2 = new ValueSpecification(new ValueRequirement("Value 2", new ComputationTargetSpecification(new SimpleSecurity("TEST"))), "Function UID");
+  private static final ValueSpecification s_valueSpec3 = new ValueSpecification(new ValueRequirement("Value 3", new ComputationTargetSpecification(new SimpleSecurity("TEST"))), "Function UID");
 
   private final CacheSelectHint _filter;
   private ExecutorService _executorService;

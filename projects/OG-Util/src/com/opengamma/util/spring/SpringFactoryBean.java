@@ -52,8 +52,21 @@ public abstract class SpringFactoryBean<T> extends DirectBean implements Factory
   }
 
   @Override
-  public final T getObject() throws Exception {
+  public final T getObject() {
     return _object;
+  }
+
+  /**
+   * Gets the object, creating if necessary.
+   * 
+   * @return the object
+   */
+  public final T getObjectCreating() {
+    T object = getObject();
+    if (object == null) {
+      object = createObject();
+    }
+    return object;
   }
 
   @Override

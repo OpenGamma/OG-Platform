@@ -8,7 +8,6 @@ package com.opengamma.livedata.server.distribution;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
-import org.apache.activemq.ActiveMQConnectionFactory;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.MutableFudgeMsg;
@@ -25,7 +24,6 @@ import com.opengamma.transport.CollectingByteArrayMessageReceiver;
 import com.opengamma.transport.jms.JmsByteArrayMessageDispatcher;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
-import com.opengamma.util.jms.JmsConnectorFactoryBean;
 import com.opengamma.util.test.ActiveMQTestUtils;
 
 /**
@@ -41,11 +39,7 @@ public class JmsSenderTest {
 
   @BeforeClass
   public void setUpClass() {
-    ActiveMQConnectionFactory cf = ActiveMQTestUtils.createTestConnectionFactory();
-    JmsConnectorFactoryBean jmsFactory= new JmsConnectorFactoryBean();
-    jmsFactory.setName(getClass().getSimpleName());
-    jmsFactory.setConnectionFactory(cf);
-    JmsConnector jmsConnector = jmsFactory.createObject();
+    JmsConnector jmsConnector = ActiveMQTestUtils.createTestJmsConnector();
     
     _factory = new JmsSenderFactory(jmsConnector);
     _mdd = MarketDataDistributorTest.getTestDistributor(_factory);
@@ -54,7 +48,7 @@ public class JmsSenderTest {
     JmsByteArrayMessageDispatcher messageDispatcher = new JmsByteArrayMessageDispatcher(_collectingReceiver);
     
     _container = new DefaultMessageListenerContainer();
-    _container.setConnectionFactory(cf);
+    _container.setConnectionFactory(jmsConnector.getConnectionFactory());
     _container.setMessageListener(messageDispatcher);
     _container.setDestinationName(_mdd.getDistributionSpec().getJmsTopic());
     _container.setPubSubDomain(true);

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
-      
+
   <!-- Property file configuration -->
   <bean id="demoCalcNodeProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
     <property name="ignoreUnresolvablePlaceholders" value="true" />
@@ -14,7 +14,7 @@
 
   <!-- A global Fudge context configured with all of the relevant builders --> 
   <bean id="fudgeContext" class="com.opengamma.util.fudgemsg.OpenGammaFudgeContext" factory-method="getInstance" />
-  
+
   <!-- Global EH Cache Manager -->
   <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     <property name="shared" value="true"/>
@@ -24,63 +24,42 @@
   <bean id="slaveThreads" class="com.opengamma.util.ExecutorServiceFactoryBean">
     <property name="styleName" value="CACHED" />
   </bean>
-  
+
   <!-- Historical data source -->
   <bean id="historicalTimeSeriesSource" class="com.opengamma.core.historicaltimeseries.impl.EHCachingHistoricalTimeSeriesSource">
     <constructor-arg>
-      <bean class="com.opengamma.financial.historicaltimeseries.rest.RemoteHistoricalTimeSeriesSource">
-        <constructor-arg ref="fudgeContext" />
+      <bean class="com.opengamma.core.historicaltimeseries.impl.RemoteHistoricalTimeSeriesSource">
         <constructor-arg>
-          <bean class="com.opengamma.transport.jaxrs.RestTarget">
-            <constructor-arg ref="slaveThreads" />
-            <constructor-arg ref="fudgeContext" />
-            <constructor-arg>
-              <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
-                <property name="uri" value="${opengamma.engine.configuration.url}/historicalTimeSeriesSource" />
-              </bean>
-            </constructor-arg>
+          <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+            <property name="uri" value="${opengamma.engine.configuration.url}/historicalTimeSeriesSource" />
           </bean>
         </constructor-arg>
       </bean>
     </constructor-arg>
     <constructor-arg ref="cacheManager" />
   </bean>
-  
+
   <!-- Security Source -->
   <bean id="securitySource" class="com.opengamma.financial.security.EHCachingFinancialSecuritySource">
     <constructor-arg>
-      <bean class="com.opengamma.financial.security.rest.RemoteFinancialSecuritySource">
-        <constructor-arg ref="fudgeContext" />
+      <bean class="com.opengamma.financial.security.RemoteFinancialSecuritySource">
         <constructor-arg>
-          <bean class="com.opengamma.transport.jaxrs.RestTarget">
-            <constructor-arg ref="slaveThreads" />
-            <constructor-arg ref="fudgeContext" />
-            <constructor-arg>
-              <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
-                <property name="uri" value="${opengamma.engine.configuration.url}/securitySource" />
-              </bean>
-            </constructor-arg>
+          <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+            <property name="uri" value="${opengamma.engine.configuration.url}/securitySource" />
           </bean>
         </constructor-arg>
       </bean>
     </constructor-arg>
     <constructor-arg ref="cacheManager" />
   </bean>
-  
+
   <!-- Position Source -->
   <bean id="positionSource" class="com.opengamma.core.position.impl.EHCachingPositionSource">
     <constructor-arg>
-      <bean class="com.opengamma.engine.position.rest.RemotePositionSource">
-        <constructor-arg ref="fudgeContext" />
+      <bean class="com.opengamma.core.position.impl.RemotePositionSource">
         <constructor-arg>
-          <bean class="com.opengamma.transport.jaxrs.RestTarget">
-            <constructor-arg ref="slaveThreads" />
-            <constructor-arg ref="fudgeContext" />
-            <constructor-arg>
-              <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
-                <property name="uri" value="${opengamma.engine.configuration.url}/positionSource" />
-              </bean>
-            </constructor-arg>
+          <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+            <property name="uri" value="${opengamma.engine.configuration.url}/positionSource" />
           </bean>
         </constructor-arg>
       </bean>
@@ -91,17 +70,10 @@
   <!-- Region source -->
   <bean id="regionSource" class="com.opengamma.master.region.impl.EHCachingRegionSource">
     <constructor-arg>
-      <bean class="com.opengamma.financial.region.rest.RemoteRegionSource">
-        <constructor-arg ref="fudgeContext" />
+      <bean class="com.opengamma.core.region.impl.RemoteRegionSource">
         <constructor-arg>
-          <bean class="com.opengamma.transport.jaxrs.RestTarget">
-            <constructor-arg ref="slaveThreads" />
-            <constructor-arg ref="fudgeContext" />
-            <constructor-arg>
-              <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
-                <property name="uri" value="${opengamma.engine.configuration.url}/regionSource" />
-              </bean>
-            </constructor-arg>
+          <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+            <property name="uri" value="${opengamma.engine.configuration.url}/regionSource" />
           </bean>
         </constructor-arg>
       </bean>
@@ -118,55 +90,10 @@
   </bean>
   
   <!-- Config Source -->
-  <!-- TODO [PLAT-432] -->
-  <bean id="configSource" class="com.opengamma.master.config.impl.MasterConfigSource">
+  <bean id="configSource" class="com.opengamma.core.config.impl.RemoteConfigSource">
     <constructor-arg>
-      <bean class="com.opengamma.masterdb.config.DbConfigMaster">
-        <constructor-arg>
-          <bean class="com.opengamma.util.db.DbConnectorFactoryBean">
-            <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />
-            <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
-            <property name="name" value="Config"/>
-            <property name="dataSource">
-              <bean id="cfgDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
-                <property name="driverClassName">
-                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.jdbc.driver" />
-                  </bean>
-                </property>
-                <property name="url">
-                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.jdbc.url" />
-                  </bean>
-                </property>
-                <property name="username">
-                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.jdbc.username" />
-                  </bean>
-                </property>
-                <property name="password">
-                  <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-                    <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.jdbc.password" />
-                  </bean>
-                </property>
-                <property name="poolName" value="cfgFromRemoteConfiguration"/>
-                <property name="partitionCount" value="2"/>
-                <property name="acquireIncrement" value="2"/>
-                <property name="maxConnectionsPerPartition" value="20"/>
-              </bean>
-            </property>
-            <property name="dialectName">
-              <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-                <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.db.dbdialect"/>
-              </bean>
-            </property>
-          </bean>
-        </constructor-arg>  
-        <property name="uniqueIdScheme">
-          <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
-            <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.db.configmaster.scheme" />
-          </bean>
-        </property>
+      <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+        <property name="uri" value="${opengamma.engine.configuration.url}/configSource" />
       </bean>
     </constructor-arg>
   </bean>
@@ -174,17 +101,10 @@
   <!-- Exchange Source -->
   <bean id="exchangeSource" class="com.opengamma.master.exchange.impl.EHCachingExchangeSource">
     <constructor-arg>
-      <bean class="com.opengamma.financial.exchange.rest.RemoteExchangeSource">
-        <constructor-arg ref="fudgeContext" />
+      <bean class="com.opengamma.core.exchange.impl.RemoteExchangeSource">
         <constructor-arg>
-          <bean class="com.opengamma.transport.jaxrs.RestTarget">
-            <constructor-arg ref="slaveThreads" />
-            <constructor-arg ref="fudgeContext" />
-            <constructor-arg>
-              <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
-                <property name="uri" value="${opengamma.engine.configuration.url}/exchangeSource" />
-              </bean>
-            </constructor-arg>
+          <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+            <property name="uri" value="${opengamma.engine.configuration.url}/exchangeSource" />
           </bean>
         </constructor-arg>
       </bean>
@@ -193,63 +113,35 @@
   </bean>
   
   <!-- Holiday Source -->
-  <bean id="holidaySource" class="com.opengamma.financial.holiday.rest.RemoteHolidaySource">
-    <constructor-arg ref="fudgeContext" />
+  <bean id="holidaySource" class="com.opengamma.core.holiday.impl.RemoteHolidaySource">
     <constructor-arg>
-      <bean class="com.opengamma.transport.jaxrs.RestTarget">
-        <constructor-arg ref="slaveThreads" />
-        <constructor-arg ref="fudgeContext" />
-        <constructor-arg>
-          <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
-            <property name="uri" value="${opengamma.engine.configuration.url}/holidaySource" />
-          </bean>
-        </constructor-arg>
+      <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+        <property name="uri" value="${opengamma.engine.configuration.url}/holidaySource" />
       </bean>
     </constructor-arg>
   </bean>
   
   <!-- Currency conversions -->
   <bean id="currencyMatrixSource" class="com.opengamma.financial.currency.rest.RemoteCurrencyMatrixSource">
-    <constructor-arg ref="fudgeContext" />
     <constructor-arg>
-      <bean class="com.opengamma.transport.jaxrs.RestTarget">
-        <constructor-arg ref="slaveThreads" />
-        <constructor-arg ref="fudgeContext" />
-        <constructor-arg>
-          <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
-            <property name="uri" value="${opengamma.engine.configuration.url}/currencyMatrixSource" />
-          </bean>
-        </constructor-arg>
+      <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+        <property name="uri" value="${opengamma.engine.configuration.url}/currencyMatrixSource" />
       </bean>
     </constructor-arg>
   </bean>
 
   <!-- Curves -->
   <bean id="interpolatedYieldCurveDefinitionSource" class="com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveDefinitionSource">
-    <constructor-arg ref="fudgeContext" />
     <constructor-arg>
-      <bean class="com.opengamma.transport.jaxrs.RestTarget">
-        <constructor-arg ref="slaveThreads" />
-        <constructor-arg ref="fudgeContext" />
-        <constructor-arg>
-          <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
-            <property name="uri" value="${opengamma.engine.configuration.url}/interpolatedYieldCurveDefinitionSource" />
-          </bean>
-        </constructor-arg>
+      <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+        <property name="uri" value="${opengamma.engine.configuration.url}/interpolatedYieldCurveDefinitionSource" />
       </bean>
     </constructor-arg>
   </bean>
   <bean id="interpolatedYieldCurveSpecificationBuilder" class="com.opengamma.financial.analytics.ircurve.rest.RemoteInterpolatedYieldCurveSpecificationBuilder">
-    <constructor-arg ref="fudgeContext" />
     <constructor-arg>
-      <bean class="com.opengamma.transport.jaxrs.RestTarget">
-        <constructor-arg ref="slaveThreads" />
-        <constructor-arg ref="fudgeContext" />
-        <constructor-arg>
-          <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
-            <property name="uri" value="${opengamma.engine.configuration.url}/interpolatedYieldCurveSpecificationBuilder" />
-          </bean>
-        </constructor-arg>
+      <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+        <property name="uri" value="${opengamma.engine.configuration.url}/interpolatedYieldCurveSpecificationBuilder" />
       </bean>
     </constructor-arg>
   </bean>
@@ -257,16 +149,9 @@
   <!-- Volatility cubes -->
   
   <bean id="combinedVolatilityCubeDefinitionSource" class="com.opengamma.financial.analytics.volatility.cube.rest.RemoteVolatilityCubeDefinitionSource">
-    <constructor-arg ref="fudgeContext" />
     <constructor-arg>
-      <bean class="com.opengamma.transport.jaxrs.RestTarget">
-        <constructor-arg ref="slaveThreads" />
-        <constructor-arg ref="fudgeContext" />
-        <constructor-arg>
-          <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
-            <property name="uri" value="${opengamma.engine.configuration.url}/volatilityCubeDefinitionSource" />
-          </bean>
-        </constructor-arg>
+      <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+        <property name="uri" value="${opengamma.engine.configuration.url}/volatilityCubeDefinitionSource" />
       </bean>
     </constructor-arg>
   </bean>
@@ -361,16 +246,9 @@
       <bean class="com.opengamma.engine.function.config.RepositoryFactoryBean">
         <property name="repositoryConfigurationSource">
           <bean class="com.opengamma.financial.function.rest.RemoteRepositoryConfigurationSource">
-            <constructor-arg ref="fudgeContext" />
             <constructor-arg>
-              <bean class="com.opengamma.transport.jaxrs.RestTarget">
-                <constructor-arg ref="slaveThreads" />
-                <constructor-arg ref="fudgeContext" />
-                <constructor-arg>
-                  <bean class="com.opengamma.transport.jaxrs.RemoteEndPointDescriptionProvider">
-                    <property name="uri" value="${opengamma.engine.configuration.url}/functionRepositoryConfiguration" />
-                  </bean>
-                </constructor-arg>
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+                <property name="uri" value="${opengamma.engine.configuration.url}/functionRepositoryConfiguration" />
               </bean>
             </constructor-arg>
           </bean>

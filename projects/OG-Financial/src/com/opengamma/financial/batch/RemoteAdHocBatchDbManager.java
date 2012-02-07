@@ -5,49 +5,32 @@
  */
 package com.opengamma.financial.batch;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeSerializer;
+import java.net.URI;
 
-import com.opengamma.transport.jaxrs.RestClient;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**
- * Client-side access to a remote batch master.
+ * Provides remote access to an {@link AdHocBatchDbManager}.
  */
-public class RemoteAdHocBatchDbManager implements AdHocBatchDbManager {
+public class RemoteAdHocBatchDbManager extends AbstractRemoteClient implements AdHocBatchDbManager {
 
-  private final RestClient _restClient;
-  private final RestTarget _targetBase;
-
-  public RemoteAdHocBatchDbManager(final FudgeContext fudgeContext, final RestTarget baseTarget) {
-    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
-    ArgumentChecker.notNull(baseTarget, "baseTarget");
-    _restClient = RestClient.getInstance(fudgeContext, null);
-    _targetBase = baseTarget;
-  }
-
-  protected FudgeContext getFudgeContext() {
-    return getRestClient().getFudgeContext();
-  }
-
-  protected RestClient getRestClient() {
-    return _restClient;
-  }
-
-  protected RestTarget getTargetBase() {
-    return _targetBase;
+  /**
+   * Creates an instance.
+   * 
+   * @param baseUri  the base target URI for all RESTful web services, not null
+   */
+  public RemoteAdHocBatchDbManager(final URI baseUri) {
+    super(baseUri);
   }
 
   //-------------------------------------------------------------------------
   @Override
   public void write(AdHocBatchResult batch) {
-    final FudgeSerializer sctx = new FudgeSerializer(getFudgeContext());
-    final MutableFudgeMsg defnMsg = sctx.newMessage();
-    sctx.addToMessage(defnMsg, "batch", null, batch);
-    final RestTarget target = getTargetBase();
-    getRestClient().post(target, defnMsg);
+    ArgumentChecker.notNull(batch, "batch");
+    
+    URI uri = DataAdHocBatchDbManagerResource.uriWrite(getBaseUri());
+    accessRemote(uri).post(batch);
   }
 
 }

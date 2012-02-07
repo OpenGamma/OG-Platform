@@ -5,6 +5,13 @@
  */
 package com.opengamma.web.server.push.grid;
 
+import java.util.HashMap;
+import java.util.Map;
+
+import org.fudgemsg.FudgeContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.PositionSource;
@@ -12,7 +19,7 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.financial.aggregation.AggregationFunction;
+import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
@@ -26,19 +33,12 @@ import com.opengamma.web.server.push.NoOpAnalyticsListener;
 import com.opengamma.web.server.push.Viewport;
 import com.opengamma.web.server.push.ViewportDefinition;
 import com.opengamma.web.server.push.ViewportManager;
-import org.fudgemsg.FudgeContext;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Connects the REST interface to the engine.
  * TODO temporary name just to distinguish it from the similarly named class in the parent package
  */
-/* package */ class PushLiveResultsService implements ViewportManager {
+public class PushLiveResultsService implements ViewportManager {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PushLiveResultsService.class);
 
@@ -58,7 +58,7 @@ import java.util.Map;
                                 ManageableViewDefinitionRepository userViewDefinitionRepository,
                                 UserPrincipal user,
                                 FudgeContext fudgeContext,
-                                List<AggregationFunction<?>> portfolioAggregators) {
+                                PortfolioAggregationFunctions portfolioAggregators) {
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
     ArgumentChecker.notNull(user, "user");
 
@@ -71,7 +71,7 @@ import java.util.Map;
                                                                            userViewDefinitionRepository,
                                                                            userPortfolioMaster,
                                                                            userPositionMaster,
-                                                                           mapPortfolioAggregators(portfolioAggregators));
+                                                                           portfolioAggregators.getMappedFunctions());
   }
 
   public void closeViewport(String viewportId) {
@@ -85,15 +85,6 @@ import java.util.Map;
     if (view != null) {
       shutDownWebView(view);
     }
-  }
-
-  // TODO why is this here and not in the constructor of AggregatedViewDefinitionManager?
-  private static Map<String, AggregationFunction<?>> mapPortfolioAggregators(List<AggregationFunction<?>> portfolioAggregators) {
-    Map<String, AggregationFunction<?>> result = new HashMap<String, AggregationFunction<?>>();
-    for (AggregationFunction<?> portfolioAggregator : portfolioAggregators) {
-      result.put(portfolioAggregator.getName(), portfolioAggregator);
-    }
-    return result;
   }
 
   // TODO this leaks views at the moment - a timeout mechanism is needed for views with no client

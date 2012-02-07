@@ -33,14 +33,14 @@ public class VanillaFXOptionParser extends RowParser {
 
   private static final String ID_SCHEME = "VANILLA_FX_OPTION_LOADER";
 
-  private LoaderContext _loaderContext;
+  private LoaderContext _loaderContext; // used for calendars/holidays to calculate settlement date
   
-  public String PUT_CURRENCY = "put currency";
-  public String CALL_CURRENCY = "call currency";
-  public String PUT_AMOUNT = "put amount";
-  public String CALL_AMOUNT = "call amount";
-  public String EXPIRY = "expiry";
-  public String IS_LONG = "is long";
+  protected String PUT_CURRENCY = "put currency";
+  protected String CALL_CURRENCY = "call currency";
+  protected String PUT_AMOUNT = "put amount";
+  protected String CALL_AMOUNT = "call amount";
+  protected String EXPIRY = "expiry";
+  protected String IS_LONG = "is long";
 
   VanillaFXOptionParser(LoaderContext loaderContext) {
     _loaderContext = loaderContext;
