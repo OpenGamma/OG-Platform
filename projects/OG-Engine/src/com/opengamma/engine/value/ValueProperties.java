@@ -183,7 +183,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       if (propertyValues.contains(null)) {
         throw new IllegalArgumentException("propertyValues cannot contain null");
       }
-      propertyName = propertyName.intern();
+      propertyName = ValueRequirement.getInterned(propertyName);
       final Set<String> previous = _properties.put(propertyName, getUnmodifiableSet(propertyValues));
       if (previous != null) {
         if (previous.isEmpty()) {
@@ -200,7 +200,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     @Override
     public Builder withAny(final String propertyName) {
       ArgumentChecker.notNull(propertyName, "propertyName");
-      _properties.put(propertyName.intern(), Collections.<String>emptySet());
+      _properties.put(ValueRequirement.getInterned(propertyName), Collections.<String>emptySet());
       return this;
     }
 
