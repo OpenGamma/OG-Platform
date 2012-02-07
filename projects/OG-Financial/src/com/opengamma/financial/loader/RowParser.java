@@ -24,15 +24,15 @@ import com.opengamma.master.security.ManageableSecurity;
 public abstract class RowParser {
 
   /** Standard date-time formatter for the input */
-  protected static final DateTimeFormatter CSV_DATE_FORMATTER;
+  protected DateTimeFormatter CSV_DATE_FORMATTER;
   /** Standard date-time formatter for the output */
-  protected static final DateTimeFormatter OUTPUT_DATE_FORMATTER;
+  protected DateTimeFormatter OUTPUT_DATE_FORMATTER;
   /** Standard rate formatter */
-  protected static final DecimalFormat RATE_FORMATTER = new DecimalFormat("0.###%");
+  protected DecimalFormat RATE_FORMATTER = new DecimalFormat("0.###%");
   /** Standard notional formatter */
-  protected static final DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("0,000");
+  protected DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("0,000");
 
-  static {
+  {
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
     builder.appendPattern("dd/MM/yyyy");
     CSV_DATE_FORMATTER = builder.toFormatter();
@@ -70,7 +70,7 @@ public abstract class RowParser {
     return null;
   }
   
-  protected static String getWithException(Map<String, String> fieldValueMap, String fieldName) {
+  protected String getWithException(Map<String, String> fieldValueMap, String fieldName) {
     String result = fieldValueMap.get(fieldName);
     if (result == null) {
       System.err.println(fieldValueMap);
@@ -79,7 +79,7 @@ public abstract class RowParser {
     return result;
   }
 
-  protected static LocalDate getDateWithException(Map<String, String> fieldValueMap, String fieldName) {
+  protected LocalDate getDateWithException(Map<String, String> fieldValueMap, String fieldName) {
     return LocalDate.parse(getWithException(fieldValueMap, fieldName), CSV_DATE_FORMATTER);
   }
 
