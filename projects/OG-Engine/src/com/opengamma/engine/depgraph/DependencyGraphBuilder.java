@@ -251,7 +251,7 @@ public final class DependencyGraphBuilder {
     private FunctionCompilationContext _compilationContext;
 
     // The resolve task is ref-counted once for the map (it is being used as a set)
-    private final Map<ValueRequirement, Map<ResolveTask, ResolveTask>> _requirements;
+    private final ConcurrentMap<ValueRequirement, Map<ResolveTask, ResolveTask>> _requirements;
 
     // The resolve task is NOT ref-counted (it is only used for parent comparisons), but the value producer is
     private final ConcurrentMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>> _specifications;
@@ -263,7 +263,7 @@ public final class DependencyGraphBuilder {
 
     private GraphBuildingContext() {
       s_loggerContext.info("Created new context");
-      _requirements = new HashMap<ValueRequirement, Map<ResolveTask, ResolveTask>>();
+      _requirements = new ConcurrentHashMap<ValueRequirement, Map<ResolveTask, ResolveTask>>();
       _specifications = new ConcurrentHashMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>>();
     }
 
@@ -468,12 +468,15 @@ public final class DependencyGraphBuilder {
     private ResolveTask getOrCreateTaskResolving(final ValueRequirement valueRequirement, final ResolveTask parentTask) {
       ResolveTask newTask = new ResolveTask(valueRequirement, parentTask);
       ResolveTask task;
-      synchronized (_requirements) {
-        Map<ResolveTask, ResolveTask> tasks = _requirements.get(valueRequirement);
-        if (tasks == null) {
-          tasks = new HashMap<ResolveTask, ResolveTask>();
-          _requirements.put(valueRequirement, tasks);
+      Map<ResolveTask, ResolveTask> tasks = _requirements.get(valueRequirement);
+      if (tasks == null) {
+        tasks = new HashMap<ResolveTask, ResolveTask>();
+        final Map<ResolveTask, ResolveTask> existing = _requirements.putIfAbsent(valueRequirement, tasks);
+        if (existing != null) {
+          tasks = existing;
         }
+      }
+      synchronized (tasks) {
         task = tasks.get(newTask);
         if (task == null) {
           newTask.addRef();
@@ -494,11 +497,11 @@ public final class DependencyGraphBuilder {
 
     private ResolveTask[] getTasksResolving(final ValueRequirement valueRequirement) {
       final ResolveTask[] result;
-      synchronized (_requirements) {
-        final Map<ResolveTask, ResolveTask> tasks = _requirements.get(valueRequirement);
-        if (tasks == null) {
-          return null;
-        }
+      final Map<ResolveTask, ResolveTask> tasks = _requirements.get(valueRequirement);
+      if (tasks == null) {
+        return null;
+      }
+      synchronized (tasks) {
         result = new ResolveTask[tasks.size()];
         int i = 0;
         for (ResolveTask task : tasks.keySet()) {
@@ -532,8 +535,8 @@ public final class DependencyGraphBuilder {
     }
 
     public void discardTask(final ResolveTask task) {
-      synchronized (_requirements) {
-        final Map<ResolveTask, ResolveTask> tasks = _requirements.get(task.getValueRequirement());
+      final Map<ResolveTask, ResolveTask> tasks = _requirements.get(task.getValueRequirement());
+      synchronized (tasks) {
         if (tasks.remove(task) == null) {
           // Wasn't in the set
           return;
@@ -666,33 +669,29 @@ public final class DependencyGraphBuilder {
       if (!s_loggerContext.isInfoEnabled()) {
         return;
       }
-      synchronized (_requirements) {
-        int count = 0;
-        for (Map.Entry<ValueRequirement, Map<ResolveTask, ResolveTask>> requirements : _requirements.entrySet()) {
-          final Map<ResolveTask, ResolveTask> entries = requirements.getValue();
+      int count = 0;
+      for (Map.Entry<ValueRequirement, Map<ResolveTask, ResolveTask>> requirements : _requirements.entrySet()) {
+        final Map<ResolveTask, ResolveTask> entries = requirements.getValue();
+        synchronized (entries) {
           count += entries.size();
         }
-        s_loggerContext.info("Requirements cache = {} tasks for {} requirements", count, _requirements.size());
       }
-      if (s_loggerContext.isInfoEnabled()) {
-        int count = 0;
-        for (MapEx<ResolveTask, ResolvedValueProducer> entries : _specifications.values()) {
-          synchronized (entries) {
-            count += entries.size();
-          }
+      s_loggerContext.info("Requirements cache = {} tasks for {} requirements", count, _requirements.size());
+      count = 0;
+      for (MapEx<ResolveTask, ResolvedValueProducer> entries : _specifications.values()) {
+        synchronized (entries) {
+          count += entries.size();
         }
-        s_loggerContext.info("Specifications cache = {} tasks for {} specifications", count, _specifications.size());
       }
+      s_loggerContext.info("Specifications cache = {} tasks for {} specifications", count, _specifications.size());
       //final Runtime rt = Runtime.getRuntime();
       //rt.gc();
       //s_loggerContext.info("Used memory = {}M", (double) (rt.totalMemory() - rt.freeMemory()) / 1e6);
     }
 
     private void discardIntermediateState() {
-      synchronized (_requirements) {
-        s_loggerContext.debug("Discarding intermediate state {} requirements", _requirements.size());
-        _requirements.clear();
-      }
+      s_loggerContext.debug("Discarding intermediate state {} requirements", _requirements.size());
+      _requirements.clear();
       s_loggerContext.debug("Discarding intermediate state {} specifications", _specifications.size());
       _specifications.clear();
     }
