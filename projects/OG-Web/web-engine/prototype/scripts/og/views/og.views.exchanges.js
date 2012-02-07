@@ -44,9 +44,8 @@ $.register_module({
                     loading: function () {view.notify({0: 'loading...', 3000: 'still loading...'});}
                 });
             };
-        return view = $.extend(new og.views.common.Core(page_name), {
+        return view = $.extend(view = new og.views.common.Core(page_name), {
             details: details_page,
-            filters: ['name'],
             options: {
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': page_name,
@@ -79,11 +78,7 @@ $.register_module({
                     }
                 }
             },
-            rules: rules = {
-                load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
-                load_filter: {route: '/' + page_name + '/filter:/:id?/name:?', method: module.name + '.load_filter'},
-                load_item: {route: '/' + page_name + '/:id/name:?', method: module.name + '.load_item'}
-            }
+            rules: view.rules(['name'])
         });
     }
 });

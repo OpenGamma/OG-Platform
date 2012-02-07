@@ -11,9 +11,7 @@ $.register_module({
         'og.common.util.history',
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
-        'og.common.util.ui.toolbar',
-        'og.views.common.state',
-        'og.views.common.default_details'
+        'og.common.util.ui.toolbar'
     ],
     obj: function () {
         var api = og.api,
@@ -54,7 +52,7 @@ $.register_module({
                     loading: function () {view.notify({0: 'loading...', 3000: 'still loading...'});}
                 });
             };
-        return view = $.extend(new og.views.common.Core(page_name), {
+        return view = $.extend(view = new og.views.common.Core(page_name), {
                 details: details_page,
                 options: {
                     slickgrid: {
@@ -99,14 +97,7 @@ $.register_module({
                         }
                     }
                 },
-                rules: rules = {
-                    load: {route: '/' + page_name + '/ob_date:?/ob_time:?', method: module.name + '.load'},
-                    load_filter: {
-                        route: '/' + page_name + '/filter:/:id?/ob_date:?/ob_time:?',
-                        method: module.name + '.load_filter'
-                    },
-                    load_item: {route: '/' + page_name + '/:id/ob_date:?/ob_time:?', method: module.name + '.load_item'}
-                }
+                rules: view.rules(['ob_date', 'ob_time'])
             });
     }
 });

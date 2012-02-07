@@ -383,10 +383,9 @@ $.register_module({
                 }
             });
         };
-        return view = $.extend(new og.views.common.Core(page_name), {
+        return view = $.extend(view = new og.views.common.Core(page_name), {
             dependencies: ['id', 'node', 'version'],
             details: details_page,
-            filters: ['name'],
             load_filter: function (args) {
                 view.check_state({args: args, conditions: [
                     {new_value: 'id', stop: true, method: function (args) {
@@ -431,17 +430,7 @@ $.register_module({
                     }
                 }
             },
-            rules: {
-                load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
-                load_filter: {
-                    route: '/' + page_name + '/filter:/:id?/node:?/version:?/name:?/sync:?/position:?',
-                    method: module.name + '.load_filter'
-                },
-                load_item: {
-                    route: '/' + page_name + '/:id/node:?/version:?/name:?/sync:?/position:?',
-                    method: module.name + '.load_item'
-                }
-            }
+            rules: view.rules(['name'], ['node', 'position', 'sync', 'version'])
         });
     }
 });
