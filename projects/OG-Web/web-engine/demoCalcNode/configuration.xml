@@ -128,7 +128,7 @@
             <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
             <property name="name" value="Config"/>
             <property name="dataSource">
-              <bean id="cfgDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+              <bean id="cfgDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
                 <property name="driverClassName">
                   <bean class="com.opengamma.transport.jaxrs.RemoteStringFactoryBean">
                     <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.jdbc.driver" />
@@ -149,6 +149,10 @@
                     <property name="uri" value="${opengamma.engine.configuration.dvi135}/opengamma.config.jdbc.password" />
                   </bean>
                 </property>
+                <property name="poolName" value="cfgFromRemoteConfiguration"/>
+                <property name="partitionCount" value="2"/>
+                <property name="acquireIncrement" value="2"/>
+                <property name="maxConnectionsPerPartition" value="20"/>
               </bean>
             </property>
             <property name="dialectName">

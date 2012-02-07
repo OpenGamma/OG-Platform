@@ -30,11 +30,16 @@
     <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
   </bean>
 
-  <bean id="cfgDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${opengamma.config.jdbc.driver}" />
-    <property name="url" value="${opengamma.config.jdbc.url}" />
+  <bean id="cfgDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+    <property name="driverClass" value="${opengamma.config.jdbc.driver}" />
+    <property name="jdbcUrl" value="${opengamma.config.jdbc.url}" />
     <property name="username" value="${opengamma.config.jdbc.username}" />
     <property name="password" value="${opengamma.config.jdbc.password}" />
+    <property name="poolName" value="Config"/>
+    <property name="partitionCount" value="1"/>
+    <property name="acquireIncrement" value="1"/>
+    <property name="minConnectionsPerPartition" value="1"/>
+    <property name="maxConnectionsPerPartition" value="10"/>
   </bean>
 
   <bean id="cfgDbConnector" parent="abstractDbConnector">
@@ -43,24 +48,34 @@
     <property name="dialectName" value="${opengamma.config.db.dbdialect}"/>
   </bean>
   
-  <bean id="finDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${opengamma.financial.jdbc.driver}" />
-    <property name="url" value="${opengamma.financial.jdbc.url}" />
+  <bean id="finDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+    <property name="driverClass" value="${opengamma.financial.jdbc.driver}" />
+    <property name="jdbcUrl" value="${opengamma.financial.jdbc.url}" />
     <property name="username" value="${opengamma.financial.jdbc.username}" />
     <property name="password" value="${opengamma.financial.jdbc.password}" />
+    <property name="poolName" value="Financial"/>
+    <property name="partitionCount" value="1"/>
+    <property name="acquireIncrement" value="1"/>
+    <property name="minConnectionsPerPartition" value="1"/>
+    <property name="maxConnectionsPerPartition" value="10"/>
   </bean>
 
   <bean id="finDbConnector" parent="abstractDbConnector">
-    <property name="name" value="Integration"/>
+    <property name="name" value="Financial"/>
     <property name="dataSource" ref="finDataSource"/>
     <property name="dialectName" value="${opengamma.financial.db.dbdialect}"/>
   </bean>
   
-  <bean id="secDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${opengamma.financial.jdbc.driver}" />
-    <property name="url" value="${opengamma.financial.jdbc.url}" />
+  <bean id="secDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+    <property name="driverClass" value="${opengamma.financial.jdbc.driver}" />
+    <property name="jdbcUrl" value="${opengamma.financial.jdbc.url}" />
     <property name="username" value="${opengamma.financial.jdbc.username}" />
     <property name="password" value="${opengamma.financial.jdbc.password}" />
+    <property name="poolName" value="Security"/>
+    <property name="partitionCount" value="1"/>
+    <property name="acquireIncrement" value="1"/>
+    <property name="minConnectionsPerPartition" value="1"/>
+    <property name="maxConnectionsPerPartition" value="10"/>
   </bean>
 
   <bean id="secDbConnector" parent="abstractDbConnector">
@@ -74,11 +89,16 @@
     </property>
   </bean>
   
-  <bean id="htsDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${opengamma.hts.jdbc.driver}" />
-    <property name="url" value="${opengamma.hts.jdbc.url}" />
+  <bean id="htsDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+    <property name="driverClass" value="${opengamma.hts.jdbc.driver}" />
+    <property name="jdbcUrl" value="${opengamma.hts.jdbc.url}" />
     <property name="username" value="${opengamma.hts.jdbc.username}" />
     <property name="password" value="${opengamma.hts.jdbc.password}" />
+    <property name="poolName" value="TimeSeries"/>
+    <property name="partitionCount" value="1"/>
+    <property name="acquireIncrement" value="1"/>
+    <property name="minConnectionsPerPartition" value="1"/>
+    <property name="maxConnectionsPerPartition" value="10"/>
   </bean>
   
   <bean id="htsDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
@@ -222,11 +242,16 @@
 
   <!-- ================================================================== -->
   <!-- Batch -->
-  <bean id="batchDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${opengamma.overnight-batch.jdbc.driver}" />
-    <property name="url" value="${opengamma.overnight-batch.jdbc.url}" />
+  <bean id="batchDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+    <property name="driverClass" value="${opengamma.overnight-batch.jdbc.driver}" />
+    <property name="jdbcUrl" value="${opengamma.overnight-batch.jdbc.url}" />
     <property name="username" value="${opengamma.overnight-batch.jdbc.username}" />
     <property name="password" value="${opengamma.overnight-batch.jdbc.password}" />
+    <property name="poolName" value="Batch"/>
+    <property name="partitionCount" value="1"/>
+    <property name="acquireIncrement" value="1"/>
+    <property name="minConnectionsPerPartition" value="1"/>
+    <property name="maxConnectionsPerPartition" value="10"/>
   </bean>
   <bean id="batchDbConnector" parent="abstractDbConnector">
     <property name="name" value="Batch"/>

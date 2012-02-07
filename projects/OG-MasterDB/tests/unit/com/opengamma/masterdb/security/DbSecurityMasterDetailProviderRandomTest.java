@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
@@ -55,6 +56,11 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
   @AfterMethod
   public void tearDown() throws Exception {
     super.tearDown();
+  }
+
+  @AfterSuite
+  public static void closeAfterSuite() {
+    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

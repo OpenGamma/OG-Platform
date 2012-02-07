@@ -21,11 +21,17 @@
   <bean id="securityMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
 
   <!-- ============================================================================== -->
-  <bean id="hsqldbDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${hsqldb.jdbc.driver}"/>
-    <property name="url" value="${hsqldb.jdbc.url}/test_${user.name}"/>
+  <bean id="hsqldbDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+    <property name="driverClass" value="${hsqldb.jdbc.driver}"/>
+    <property name="jdbcUrl" value="${hsqldb.jdbc.url}/test_${user.name}"/>
     <property name="username" value="${hsqldb.jdbc.username}"/>
     <property name="password" value="${hsqldb.jdbc.password}"/>
+    <property name="poolName" value="FinancialTestsHSQL"/>
+    <property name="partitionCount" value="1"/>
+    <property name="acquireIncrement" value="1"/>
+    <property name="maxConnectionsPerPartition" value="1"/>
+    <property name="acquireRetryAttempts" value="2"/>
+    <property name="acquireRetryDelayInMs" value="2000"/>
   </bean>
 
   <bean id="hsqldbDbConnector" parent="abstractDbConnector">
@@ -81,11 +87,17 @@
   </bean>
 
   <!-- ============================================================================== -->
-  <bean id="postgresDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${postgres.jdbc.driver}"/>
-    <property name="url" value="${postgres.jdbc.url}/test_${user.name}"/>
+  <bean id="postgresDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+    <property name="driverClass" value="${postgres.jdbc.driver}"/>
+    <property name="jdbcUrl" value="${postgres.jdbc.url}/test_${user.name}"/>
     <property name="username" value="${postgres.jdbc.username}"/>
     <property name="password" value="${postgres.jdbc.password}"/>
+    <property name="poolName" value="FinancialTestsPostgres"/>
+    <property name="partitionCount" value="1"/>
+    <property name="acquireIncrement" value="1"/>
+    <property name="maxConnectionsPerPartition" value="1"/>
+    <property name="acquireRetryAttempts" value="2"/>
+    <property name="acquireRetryDelayInMs" value="2000"/>
   </bean>
 
   <bean id="postgresDbConnector" parent="abstractDbConnector">

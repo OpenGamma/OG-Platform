@@ -51,11 +51,14 @@ public class LiveDataServerMBean {
     _server = server;
   }
 
-  //-------------------------------------------------------------------------
+  protected AbstractLiveDataServer getServer() {
+    return _server;
+  }
+
   @ManagedAttribute(description = "The unique id domain of the underlying server.")
   public String getUniqueIdDomain() {
     try {
-      ExternalScheme uniqueIdDomain = _server.getUniqueIdDomain();
+      ExternalScheme uniqueIdDomain = getServer().getUniqueIdDomain();
       return uniqueIdDomain == null ? "<null>" : uniqueIdDomain.toString();
     } catch (RuntimeException e) {
       s_logger.error("getUniqueIdDomain() failed", e);
@@ -66,7 +69,7 @@ public class LiveDataServerMBean {
   @ManagedAttribute(description = "The connection status of the underlying server.")
   public String getConnectionStatus() {
     try {
-      return _server.getConnectionStatus().toString();
+      return getServer().getConnectionStatus().toString();
     } catch (RuntimeException e) {
       s_logger.error("getConnectionStatus() failed", e);
       throw new RuntimeException(e.getMessage());
@@ -76,7 +79,7 @@ public class LiveDataServerMBean {
   @ManagedAttribute(description = "The type of the underlying server.")
   public String getServerType() {
     try {
-      return _server.getClass().getName();
+      return getServer().getClass().getName();
     } catch (RuntimeException e) {
       s_logger.error("getServerType() failed", e);
       throw new RuntimeException(e.getMessage());
@@ -86,7 +89,7 @@ public class LiveDataServerMBean {
   @ManagedAttribute(description = "How many different tickers the server subscribes to.")
   public int getNumActiveSubscriptions() {
     try {
-      return _server.getNumActiveSubscriptions();
+      return getServer().getNumActiveSubscriptions();
     } catch (RuntimeException e) {
       s_logger.error("getNumActiveSubscriptions() failed", e);
       throw new RuntimeException(e.getMessage());
@@ -98,7 +101,7 @@ public class LiveDataServerMBean {
       + " - Reuters RICs, Bloomberg unique IDs, etc.")
   public Set<String> getActiveSubscriptionIds() {
     try {
-      return _server.getActiveSubscriptionIds();
+      return getServer().getActiveSubscriptionIds();
     } catch (RuntimeException e) {
       s_logger.error("getActiveSubscriptionIds() failed", e);
       throw new RuntimeException(e.getMessage());
@@ -108,7 +111,7 @@ public class LiveDataServerMBean {
   @ManagedAttribute(description = "JMS topics the server publishes to.")
   public Set<String> getActiveDistributionSpecs() {
     try {
-      return _server.getActiveDistributionSpecs();
+      return getServer().getActiveDistributionSpecs();
     } catch (RuntimeException e) {
       s_logger.error("getActiveDistributionSpecs() failed", e);
       throw new RuntimeException(e.getMessage());
@@ -118,7 +121,7 @@ public class LiveDataServerMBean {
   @ManagedAttribute(description = "The number of market data updates the server has processed in its lifetime.")
   public long getNumMarketDataUpdatesReceived() {
     try {
-      return _server.getNumMarketDataUpdatesReceived();
+      return getServer().getNumMarketDataUpdatesReceived();
     } catch (RuntimeException e) {
       s_logger.error("getNumLiveDataUpdatesSent() failed", e);
       throw new RuntimeException(e.getMessage());
@@ -128,7 +131,7 @@ public class LiveDataServerMBean {
   @ManagedAttribute(description = "# of market data updates/sec, calculated over the last 60 seconds")
   public double getNumLiveDataUpdatesSentPerSecondOverLastMinute() {
     try {
-      return _server.getNumLiveDataUpdatesSentPerSecondOverLastMinute();            
+      return getServer().getNumLiveDataUpdatesSentPerSecondOverLastMinute();
     } catch (RuntimeException e) {
       s_logger.error("getNumLiveDataUpdatesSentPerSecondOverLastMinute() failed", e);
       throw new RuntimeException(e.getMessage());
@@ -142,7 +145,7 @@ public class LiveDataServerMBean {
       @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
   public String subscribe(String securityUniqueId) {
     try {
-      LiveDataSubscriptionResponse response = _server.subscribe(securityUniqueId);
+      LiveDataSubscriptionResponse response = getServer().subscribe(securityUniqueId);
       if (response.getSubscriptionResult() != LiveDataSubscriptionResult.SUCCESS) {
         throw new RuntimeException("Unsuccessful subscription: " + response.getUserMessage());
       }
@@ -159,8 +162,8 @@ public class LiveDataServerMBean {
   @ManagedOperationParameters({ @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
   public String subscribePersistently(String securityUniqueId) {
     try {
-      LiveDataSpecification spec = _server.getLiveDataSpecification(securityUniqueId);
-      LiveDataSubscriptionResponse response = _server.subscribe(spec, true);
+      LiveDataSpecification spec = getServer().getLiveDataSpecification(securityUniqueId);
+      LiveDataSubscriptionResponse response = getServer().subscribe(spec, true);
       if (response.getSubscriptionResult() != LiveDataSubscriptionResult.SUCCESS) {
         throw new RuntimeException("Unsuccessful subscription: " + response.getUserMessage());
       }
@@ -183,9 +186,9 @@ public class LiveDataServerMBean {
 
   private void setPersistenceForAll(boolean persistent) {
     try {
-      Set<String> activeSubscriptionIds = _server.getActiveSubscriptionIds();
+      Set<String> activeSubscriptionIds = getServer().getActiveSubscriptionIds();
       for (String string : activeSubscriptionIds) {
-        MarketDataDistributor marketDataDistributor = _server.getMarketDataDistributor(string);
+        MarketDataDistributor marketDataDistributor = getServer().getMarketDataDistributor(string);
         marketDataDistributor.setPersistent(persistent);
       }
     } catch (RuntimeException e) {
@@ -202,7 +205,7 @@ public class LiveDataServerMBean {
        @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
   public boolean unsubscribe(String securityUniqueId) {
     try {
-      return _server.unsubscribe(securityUniqueId); 
+      return getServer().unsubscribe(securityUniqueId);
     } catch (RuntimeException e) {
       s_logger.error("unsubscribe(" + securityUniqueId + ") failed", e);
       throw new RuntimeException(e.getMessage());
@@ -214,7 +217,7 @@ public class LiveDataServerMBean {
        @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
   public String getSnapshot(String securityUniqueId) {
     try {
-      MarketDataDistributor marketDataDistributor = _server.getMarketDataDistributor(securityUniqueId);
+      MarketDataDistributor marketDataDistributor = getServer().getMarketDataDistributor(securityUniqueId);
       return marketDataDistributor.getSnapshot().toString();
     } catch (RuntimeException e) {
       s_logger.error("getSnapshot() failed", e);
@@ -225,7 +228,7 @@ public class LiveDataServerMBean {
   @ManagedOperation(description = "Gets the current snapshot of all active securities. Will not cause any underlying snapshots.")
   public String[] getAllSnapshots() {
     try {
-      Set<String> activeSubscriptionIds = _server.getActiveSubscriptionIds();
+      Set<String> activeSubscriptionIds = getServer().getActiveSubscriptionIds();
       Iterable<String> results = Iterables.transform(activeSubscriptionIds, new Function<String, String>() {
         @Override
         public String apply(String from) {
@@ -247,7 +250,7 @@ public class LiveDataServerMBean {
   @ManagedOperationParameters({ @ManagedOperationParameter(name = "securityUniqueId", description = "Security unique ID. Server type dependent.)") })
   public String getFieldHistory(String securityUniqueId) {
     try {
-      Subscription subscription = _server.getSubscription(securityUniqueId);
+      Subscription subscription = getServer().getSubscription(securityUniqueId);
       if (subscription == null) {
         return null;
       }
@@ -261,7 +264,7 @@ public class LiveDataServerMBean {
   @ManagedOperation(description = "Gets the current field history of all active securities. Will not cause any underlying snapshots.")
   public String[] getAllFieldHistories() {
     try {
-      Set<String> activeSubscriptionIds = _server.getActiveSubscriptionIds();
+      Set<String> activeSubscriptionIds = getServer().getActiveSubscriptionIds();
       Iterable<String> results = Iterables.transform(activeSubscriptionIds, new Function<String, String>() {
 
         @Override
