@@ -151,6 +151,7 @@ public abstract class VarianceSwapStaticReplication2<T extends StrikeType> {
     }
   }
 
+
   public double presentValue(final VarianceSwap deriv, final VarianceSwapDataBundle2<T> market) {
     Validate.notNull(deriv, "VarianceSwap deriv");
     Validate.notNull(market, "VarianceSwapDataBundle market");
@@ -232,7 +233,7 @@ public abstract class VarianceSwapStaticReplication2<T extends StrikeType> {
 
     //do the main part of the integral by pricing off the volatility surface
     final Function1D<Double, Double> integrand = getMainIntegrand(expiry, fwd, volSurf);
-    Pair<T, T> limits = getIntegralLimits();
+    Pair<T, T> limits = getIntegralLimits(expiry,  market);
     double variance = _integrator.integrate(integrand, limits.getFirst().value(), limits.getSecond().value());
 
     //if a left tail extrapolation is provided, compute the contribution to the integral from zero to cutOffLevel.
@@ -248,7 +249,7 @@ public abstract class VarianceSwapStaticReplication2<T extends StrikeType> {
     return 2 * variance / expiry;
   }
 
-  protected abstract Pair<T, T> getIntegralLimits();
+  protected abstract Pair<T, T> getIntegralLimits(final double expiry, final VarianceSwapDataBundle2<T> market);
 
   protected abstract Pair<double[], double[]> getTailExtrapolationParameters(final double fwd, final double expiry, final BlackVolatilitySurface<T> volSurf);
 

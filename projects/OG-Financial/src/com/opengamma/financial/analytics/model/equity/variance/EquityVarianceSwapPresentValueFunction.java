@@ -15,25 +15,30 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
+import com.opengamma.financial.equity.variance.VarianceSwapDataBundle2;
+import com.opengamma.financial.equity.variance.VarianceSwapStaticReplicationFactory;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
-import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
+import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication2;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 
 /**
  * 
  */
 public class EquityVarianceSwapPresentValueFunction extends EquityVarianceSwapFunction {
-  private static final VarianceSwapStaticReplication CALCULATOR = new VarianceSwapStaticReplication();
+  private static final VarianceSwapStaticReplicationFactory FACTORY = new VarianceSwapStaticReplicationFactory();
 
-  public EquityVarianceSwapPresentValueFunction(final String curveDefinitionName, final String surfaceDefinitionName, final String forwardCalculationMethod, 
+  //  private static final VarianceSwapStaticReplication2 CALCULATOR = new VarianceSwapStaticReplication2();
+
+  public EquityVarianceSwapPresentValueFunction(final String curveDefinitionName, final String surfaceDefinitionName, final String forwardCalculationMethod,
       final String strikeParameterizationMethodName) {
     super(curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod, strikeParameterizationMethodName);
   }
 
+  @SuppressWarnings({"unchecked", "rawtypes" })
   @Override
-  protected Set<ComputedValue> getResults(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle market) {
-    return Collections.singleton(new ComputedValue(getValueSpecification(target), CALCULATOR.presentValue(derivative, market)));
+  protected Set<ComputedValue> getResults(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle2<?> market) {
+    VarianceSwapStaticReplication2 cal = FACTORY.make(market);
+    return Collections.singleton(new ComputedValue(getValueSpecification(target), cal.presentValue(derivative, market)));
   }
 
   @Override
@@ -42,4 +47,5 @@ public class EquityVarianceSwapPresentValueFunction extends EquityVarianceSwapFu
     ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode()).get();
     return new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties);
   }
+
 }

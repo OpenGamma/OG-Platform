@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.equity.variance.pricing;
 
+import com.opengamma.financial.equity.variance.VarianceSwapDataBundle2;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.Strike;
@@ -27,7 +28,6 @@ public class VarianceSwapStaticReplicationStrike extends VarianceSwapStaticRepli
     super(lowerBound, upperBound, integrator, cutoffLevel, cutoffSpread);
   }
 
-
   @Override
   protected Function1D<Double, Double> getMainIntegrand(final double expiry, final double fwd, final BlackVolatilitySurface<Strike> volSurf) {
     // 3. Define the hedging portfolio: The position to hold in each otmOption(k) = 2 / strike^2,
@@ -48,15 +48,6 @@ public class VarianceSwapStaticReplicationStrike extends VarianceSwapStaticRepli
   }
 
   @Override
-  protected Pair<Strike, Strike> getIntegralLimits() {
-    if (!isCutoffProvided()) {
-      return new ObjectsPair<Strike, Strike>(getLowerBound(), getUpperBound());
-    }
-    double lower = Math.max(getLowerBound().value(), getCutoffLevel().value());
-    return new ObjectsPair<Strike, Strike>(new Strike(lower), getUpperBound());
-  }
-
-  @Override
   protected Pair<double[], double[]> getTailExtrapolationParameters(double fwd, double expiry, BlackVolatilitySurface<Strike> volSurf) {
     double[] ks = new double[2];
     double[] vols = new double[2];
@@ -67,4 +58,14 @@ public class VarianceSwapStaticReplicationStrike extends VarianceSwapStaticRepli
     return new ObjectsPair<double[], double[]>(ks, vols);
   }
 
+  //TODO this is v ugly
+  @Override
+  protected Pair<Strike, Strike> getIntegralLimits(double expiry, VarianceSwapDataBundle2<Strike> market) {
+    final double fwd = market.getForwardCurve().getForward(expiry);
+    if (!isCutoffProvided()) {
+      return new ObjectsPair<Strike, Strike>(new Strike(getLowerBound().value() * fwd), new Strike(getUpperBound().value() * fwd));
+    }
+    double lower = Math.max(getLowerBound().value(), getCutoffLevel().value());
+    return new ObjectsPair<Strike, Strike>(new Strike(lower * fwd), new Strike(getUpperBound().value() * fwd));
+  }
 }

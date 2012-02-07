@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.equity.variance.pricing;
 
+import com.opengamma.financial.equity.variance.VarianceSwapDataBundle2;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackImpliedStrikeFromDeltaFunction;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
@@ -74,15 +75,6 @@ public class VarianceSwapStaticReplicationDelta extends VarianceSwapStaticReplic
   }
 
   @Override
-  protected Pair<Delta, Delta> getIntegralLimits() {
-    if (!isCutoffProvided()) {
-      return new ObjectsPair<Delta, Delta>(getLowerBound(), getUpperBound());
-    }
-    double upper = Math.min(getUpperBound().value(), getCutoffLevel().value());
-    return new ObjectsPair<Delta, Delta>(getLowerBound(), new Delta(upper));
-  }
-
-  @Override
   protected Pair<double[], double[]> getTailExtrapolationParameters(double fwd, double expiry, BlackVolatilitySurface<Delta> volSurf) {
     BlackVolatilitySurfaceDelta volsurfDelta = (BlackVolatilitySurfaceDelta) volSurf;
     double[] deltas = new double[2];
@@ -98,4 +90,14 @@ public class VarianceSwapStaticReplicationDelta extends VarianceSwapStaticReplic
 
   }
 
+  @Override
+  protected Pair<Delta, Delta> getIntegralLimits(double expiry, VarianceSwapDataBundle2<Delta> market) {
+    if (!isCutoffProvided()) {
+      return new ObjectsPair<Delta, Delta>(getLowerBound(), getUpperBound());
+    }
+    double upper = Math.min(getUpperBound().value(), getCutoffLevel().value());
+    return new ObjectsPair<Delta, Delta>(getLowerBound(), new Delta(upper));
+  }
 }
+
+

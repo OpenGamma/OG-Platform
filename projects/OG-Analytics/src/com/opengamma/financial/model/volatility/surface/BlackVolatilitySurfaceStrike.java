@@ -6,6 +6,7 @@
 package com.opengamma.financial.model.volatility.surface;
 
 import com.opengamma.math.surface.Surface;
+import com.opengamma.math.surface.SurfaceShiftFunctionFactory;
 
 /**
  * 
@@ -27,6 +28,16 @@ public class BlackVolatilitySurfaceStrike extends BlackVolatilitySurface<Strike>
   @Override
   public double getAbsoluteStrike(double t, Strike s) {
     return s.value();
+  }
+
+  @Override
+  public BlackVolatilitySurface<Strike> withShift(double shift, boolean UseAddative) {
+    return new BlackVolatilitySurfaceStrike(SurfaceShiftFunctionFactory.getShiftedSurface(getSurface(), shift, UseAddative));
+  }
+
+  @Override
+  public BlackVolatilitySurface<Strike> withSurface(Surface<Double, Double, Double> surface) {
+    return new BlackVolatilitySurfaceStrike(surface);
   }
 
 }

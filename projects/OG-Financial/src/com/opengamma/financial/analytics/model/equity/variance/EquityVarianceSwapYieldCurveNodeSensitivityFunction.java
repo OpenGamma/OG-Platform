@@ -20,8 +20,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
-import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
-import com.opengamma.financial.equity.variance.VarianceSwapRatesSensitivityCalculator;
+import com.opengamma.financial.equity.variance.VarianceSwapDataBundle2;
+import com.opengamma.financial.equity.variance.VarianceSwapRatesSensitivityCalculator2;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
@@ -32,14 +32,14 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityVarianceSwapFunction {
-  private static final VarianceSwapRatesSensitivityCalculator CALCULATOR = VarianceSwapRatesSensitivityCalculator.getInstance();
-  
+  private static final VarianceSwapRatesSensitivityCalculator2 CALCULATOR = VarianceSwapRatesSensitivityCalculator2.getInstance();
+
   public EquityVarianceSwapYieldCurveNodeSensitivityFunction(String curveDefinitionName, String surfaceDefinitionName, String forwardCalculationMethod, String strikeParameterizationMethodName) {
     super(curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod, strikeParameterizationMethodName);
   }
 
   @Override
-  protected Set<ComputedValue> getResults(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle market) {
+  protected Set<ComputedValue> getResults(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle2<?> market) {
     final DoubleMatrix1D sensitivities = CALCULATOR.calcDeltaBucketed(derivative, market);
     final Object curveSpecObject = inputs.getValue(getCurveSpecRequirement(derivative.getCurrency()));
     if (curveSpecObject == null) {
@@ -49,14 +49,14 @@ public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityV
     final ValueSpecification resultSpec = getValueSpecification(target);
     return YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(market.getDiscountCurve(), sensitivities, curveSpec, resultSpec);
   }
-  
+
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> result = super.getRequirements(context, target, desiredValue);
     result.add(getCurveSpecRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity())));
     return result;
   }
-  
+
   @Override
   protected ValueSpecification getValueSpecification(final ComputationTarget target) {
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();

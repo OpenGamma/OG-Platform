@@ -9,6 +9,7 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.math.surface.Surface;
+import com.opengamma.math.surface.SurfaceShiftFunctionFactory;
 
 /**
  *  * A surface that contains the Black (implied) volatility  as a function of time to maturity and moneyness, m, defined
@@ -65,6 +66,16 @@ public class BlackVolatilitySurfaceMoneyness extends BlackVolatilitySurface<Mone
   @Override
   public double getAbsoluteStrike(double t, Moneyness s) {
     return _fc.getForward(t) * s.value();
+  }
+
+  @Override
+  public BlackVolatilitySurface<Moneyness> withShift(double shift, boolean UseAddative) {
+    return new BlackVolatilitySurfaceMoneyness(SurfaceShiftFunctionFactory.getShiftedSurface(getSurface(), shift, UseAddative), _fc);
+  }
+
+  @Override
+  public BlackVolatilitySurface<Moneyness> withSurface(Surface<Double, Double, Double> surface) {
+    return new BlackVolatilitySurfaceMoneyness(surface,_fc);
   }
 
 }

@@ -19,8 +19,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
-import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
-import com.opengamma.financial.equity.variance.VarianceSwapRatesSensitivityCalculator;
+import com.opengamma.financial.equity.variance.VarianceSwapDataBundle2;
+import com.opengamma.financial.equity.variance.VarianceSwapRatesSensitivityCalculator2;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.math.surface.NodalDoublesSurface;
@@ -29,14 +29,14 @@ import com.opengamma.math.surface.NodalDoublesSurface;
  * 
  */
 public class EquityVarianceSwapVegaFunction extends EquityVarianceSwapFunction {
-  private static final VarianceSwapRatesSensitivityCalculator CALCULATOR = VarianceSwapRatesSensitivityCalculator.getInstance();
-  
+  private static final VarianceSwapRatesSensitivityCalculator2 CALCULATOR = VarianceSwapRatesSensitivityCalculator2.getInstance();
+
   public EquityVarianceSwapVegaFunction(String curveDefinitionName, String surfaceDefinitionName, String forwardCalculationMethod, String strikeParameterizationMethodName) {
     super(curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod, strikeParameterizationMethodName);
   }
 
   @Override
-  protected Set<ComputedValue> getResults(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle market) {
+  protected Set<ComputedValue> getResults(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle2<?> market) {
     final NodalDoublesSurface vegaSurface = CALCULATOR.calcBlackVegaForEntireSurface(derivative, market);
     final Double[] xValues = vegaSurface.getXData();
     final Double[] yValues = vegaSurface.getYData();
@@ -62,7 +62,7 @@ public class EquityVarianceSwapVegaFunction extends EquityVarianceSwapFunction {
     final DoubleLabelledMatrix2D matrix = new DoubleLabelledMatrix2D(uniqueX, uniqueY, values);
     return Collections.singleton(new ComputedValue(getValueSpecification(target), matrix));
   }
-  
+
   @Override
   protected ValueSpecification getValueSpecification(final ComputationTarget target) {
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
