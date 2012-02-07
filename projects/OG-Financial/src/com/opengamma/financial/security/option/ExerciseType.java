@@ -31,6 +31,7 @@ public abstract class ExerciseType extends DirectBean implements Serializable {
   protected ExerciseType() {
   }
 
+  public abstract String getName();
   //-------------------------------------------------------------------------
   /**
    * Accepts a visitor to manage traversal of the hierarchy.

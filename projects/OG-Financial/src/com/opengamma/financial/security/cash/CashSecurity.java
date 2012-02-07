@@ -19,6 +19,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
@@ -49,10 +50,20 @@ public class CashSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private ExternalId _regionId;
   /**
+   * The start date.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ZonedDateTime _start;
+  /**
    * The maturity.
    */
   @PropertyDefinition(validate = "notNull")
   private ZonedDateTime _maturity;
+  /**
+   * The day count convention
+   */
+  @PropertyDefinition(validate = "notNull")
+  private DayCount _dayCount;
   /**
    * The rate.
    */
@@ -68,11 +79,13 @@ public class CashSecurity extends FinancialSecurity {
     super();
   }
 
-  public CashSecurity(Currency currency, ExternalId region, ZonedDateTime maturity, double rate, double amount) {
+  public CashSecurity(Currency currency, ExternalId region, ZonedDateTime start, ZonedDateTime maturity, DayCount dayCount, double rate, double amount) {
     super(SECURITY_TYPE);
     setCurrency(currency);
     setRegionId(region);
+    setStart(start);
     setMaturity(maturity);
+    setDayCount(dayCount);
     setRate(rate);
     setAmount(amount);
   }
@@ -119,8 +132,12 @@ public class CashSecurity extends FinancialSecurity {
         return getCurrency();
       case -690339025:  // regionId
         return getRegionId();
+      case 109757538:  // start
+        return getStart();
       case 313843601:  // maturity
         return getMaturity();
+      case 1905311443:  // dayCount
+        return getDayCount();
       case 3493088:  // rate
         return getRate();
       case -1413853096:  // amount
@@ -138,8 +155,14 @@ public class CashSecurity extends FinancialSecurity {
       case -690339025:  // regionId
         setRegionId((ExternalId) newValue);
         return;
+      case 109757538:  // start
+        setStart((ZonedDateTime) newValue);
+        return;
       case 313843601:  // maturity
         setMaturity((ZonedDateTime) newValue);
+        return;
+      case 1905311443:  // dayCount
+        setDayCount((DayCount) newValue);
         return;
       case 3493088:  // rate
         setRate((Double) newValue);
@@ -155,7 +178,9 @@ public class CashSecurity extends FinancialSecurity {
   protected void validate() {
     JodaBeanUtils.notNull(_currency, "currency");
     JodaBeanUtils.notNull(_regionId, "regionId");
+    JodaBeanUtils.notNull(_start, "start");
     JodaBeanUtils.notNull(_maturity, "maturity");
+    JodaBeanUtils.notNull(_dayCount, "dayCount");
     super.validate();
   }
 
@@ -168,7 +193,9 @@ public class CashSecurity extends FinancialSecurity {
       CashSecurity other = (CashSecurity) obj;
       return JodaBeanUtils.equal(getCurrency(), other.getCurrency()) &&
           JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
+          JodaBeanUtils.equal(getStart(), other.getStart()) &&
           JodaBeanUtils.equal(getMaturity(), other.getMaturity()) &&
+          JodaBeanUtils.equal(getDayCount(), other.getDayCount()) &&
           JodaBeanUtils.equal(getRate(), other.getRate()) &&
           JodaBeanUtils.equal(getAmount(), other.getAmount()) &&
           super.equals(obj);
@@ -181,7 +208,9 @@ public class CashSecurity extends FinancialSecurity {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getStart());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaturity());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getDayCount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getAmount());
     return hash ^ super.hashCode();
@@ -241,6 +270,32 @@ public class CashSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the start date.
+   * @return the value of the property, not null
+   */
+  public ZonedDateTime getStart() {
+    return _start;
+  }
+
+  /**
+   * Sets the start date.
+   * @param start  the new value of the property, not null
+   */
+  public void setStart(ZonedDateTime start) {
+    JodaBeanUtils.notNull(start, "start");
+    this._start = start;
+  }
+
+  /**
+   * Gets the the {@code start} property.
+   * @return the property, not null
+   */
+  public final Property<ZonedDateTime> start() {
+    return metaBean().start().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the maturity.
    * @return the value of the property, not null
    */
@@ -263,6 +318,32 @@ public class CashSecurity extends FinancialSecurity {
    */
   public final Property<ZonedDateTime> maturity() {
     return metaBean().maturity().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the day count convention
+   * @return the value of the property, not null
+   */
+  public DayCount getDayCount() {
+    return _dayCount;
+  }
+
+  /**
+   * Sets the day count convention
+   * @param dayCount  the new value of the property, not null
+   */
+  public void setDayCount(DayCount dayCount) {
+    JodaBeanUtils.notNull(dayCount, "dayCount");
+    this._dayCount = dayCount;
+  }
+
+  /**
+   * Gets the the {@code dayCount} property.
+   * @return the property, not null
+   */
+  public final Property<DayCount> dayCount() {
+    return metaBean().dayCount().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -336,10 +417,20 @@ public class CashSecurity extends FinancialSecurity {
     private final MetaProperty<ExternalId> _regionId = DirectMetaProperty.ofReadWrite(
         this, "regionId", CashSecurity.class, ExternalId.class);
     /**
+     * The meta-property for the {@code start} property.
+     */
+    private final MetaProperty<ZonedDateTime> _start = DirectMetaProperty.ofReadWrite(
+        this, "start", CashSecurity.class, ZonedDateTime.class);
+    /**
      * The meta-property for the {@code maturity} property.
      */
     private final MetaProperty<ZonedDateTime> _maturity = DirectMetaProperty.ofReadWrite(
         this, "maturity", CashSecurity.class, ZonedDateTime.class);
+    /**
+     * The meta-property for the {@code dayCount} property.
+     */
+    private final MetaProperty<DayCount> _dayCount = DirectMetaProperty.ofReadWrite(
+        this, "dayCount", CashSecurity.class, DayCount.class);
     /**
      * The meta-property for the {@code rate} property.
      */
@@ -357,7 +448,9 @@ public class CashSecurity extends FinancialSecurity {
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "currency",
         "regionId",
+        "start",
         "maturity",
+        "dayCount",
         "rate",
         "amount");
 
@@ -374,8 +467,12 @@ public class CashSecurity extends FinancialSecurity {
           return _currency;
         case -690339025:  // regionId
           return _regionId;
+        case 109757538:  // start
+          return _start;
         case 313843601:  // maturity
           return _maturity;
+        case 1905311443:  // dayCount
+          return _dayCount;
         case 3493088:  // rate
           return _rate;
         case -1413853096:  // amount
@@ -417,11 +514,27 @@ public class CashSecurity extends FinancialSecurity {
     }
 
     /**
+     * The meta-property for the {@code start} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ZonedDateTime> start() {
+      return _start;
+    }
+
+    /**
      * The meta-property for the {@code maturity} property.
      * @return the meta-property, not null
      */
     public final MetaProperty<ZonedDateTime> maturity() {
       return _maturity;
+    }
+
+    /**
+     * The meta-property for the {@code dayCount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<DayCount> dayCount() {
+      return _dayCount;
     }
 
     /**

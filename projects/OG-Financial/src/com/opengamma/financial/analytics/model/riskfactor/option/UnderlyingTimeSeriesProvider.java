@@ -25,15 +25,16 @@ import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -146,6 +147,11 @@ public class UnderlyingTimeSeriesProvider {
     public ExternalIdBundle visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
       throw new UnsupportedOperationException("This visitor does not support NonDeliverableFXOptionSecurity");
     }
+    
+    @Override
+    public ExternalIdBundle visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
+      throw new UnsupportedOperationException("This visitor does not support FXDigitalOptionSecurity");
+    }
 
     @Override
     public ExternalIdBundle visitSwaptionSecurity(final SwaptionSecurity security) {
@@ -165,11 +171,6 @@ public class UnderlyingTimeSeriesProvider {
     @Override
     public ExternalIdBundle visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
       throw new UnsupportedOperationException("This visitor does not support FXBarrierOptionSecurity");
-    }
-
-    @Override
-    public ExternalIdBundle visitFXSecurity(final FXSecurity security) {
-      throw new UnsupportedOperationException("This visitor does not support FXSecurity");
     }
 
     @Override
@@ -195,6 +196,11 @@ public class UnderlyingTimeSeriesProvider {
     @Override
     public ExternalIdBundle visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
       throw new UnsupportedOperationException("This visitor does not support EquityVarianceSwapSecurity");
+    }
+
+    @Override
+    public ExternalIdBundle visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
+      throw new UnsupportedOperationException("This visitor does not support NonDeliverableFXDigitalOptionSecurity");
     }
     
   }

@@ -51,21 +51,21 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
@@ -282,9 +282,38 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
       .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
   }
   
+  // REVIEW: jim 23-Jan-2012 -- bit of a leap to assume it's the same as FX Options...
+  @Override
+  public Set<Pair<String, ValueProperties>> visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
+    return ImmutableSet.<Pair<String, ValueProperties>>builder()
+        .add(getFXPresentValue())
+        .add(getFXCurrencyExposure())
+        .add(getVegaMatrix(ValueProperties
+            .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
+            .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
+            .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
+            .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION")))
+        .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
+        .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
+        .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
+        .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
+  }
+
+  // REVIEW: jim 23-Jan-2012 -- bit of a leap to assume it's the same as FX Options...
   @Override
   public Set<Pair<String, ValueProperties>> visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
-    throw new NotImplementedException();
+    return ImmutableSet.<Pair<String, ValueProperties>>builder()
+        .add(getFXPresentValue())
+        .add(getFXCurrencyExposure())
+        .add(getVegaMatrix(ValueProperties
+            .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
+            .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
+            .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
+            .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION")))
+        .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
+        .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
+        .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
+        .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
   }
 
   @Override
@@ -339,30 +368,45 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   }
   
   @Override
-  public Set<Pair<String, ValueProperties>> visitFXSecurity(FXSecurity security) {
+  public Set<Pair<String, ValueProperties>> visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security) {
+    return ImmutableSet.<Pair<String, ValueProperties>>builder()
+        .add(getFXPresentValue())
+        .add(getFXCurrencyExposure())
+        .add(getVegaMatrix(ValueProperties
+            .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
+            .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
+            .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
+            .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION")))
+        .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
+        .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
+        .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
+        .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getPutCurrency()), security.getPutCurrency())).build();
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Set<Pair<String, ValueProperties>> visitFXForwardSecurity(FXForwardSecurity security) {
     return ImmutableSet.of(
         getFXPresentValue(),
         getFXCurrencyExposure(),
         getYieldCurveNodeSensitivities(getFundingCurve(), security.getPayCurrency()),
-        getYieldCurveNodeSensitivities(getFundingCurve(), security.getReceiveCurrency()));
-  }
-
-  @Override
-  public Set<Pair<String, ValueProperties>> visitFXForwardSecurity(FXForwardSecurity security) {
-    FXSecurity underlying = (FXSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
-    return ImmutableSet.of(
-        getFXPresentValue(),
-        getFXCurrencyExposure(),
-        getYieldCurveNodeSensitivities(getFundingCurve(), underlying.getPayCurrency()),
-        getYieldCurveNodeSensitivities(getFundingCurve(), underlying.getReceiveCurrency()),
-        getYieldCurveNodeSensitivities(getForwardCurve(underlying.getPayCurrency()), underlying.getPayCurrency()),
-        getYieldCurveNodeSensitivities(getForwardCurve(underlying.getReceiveCurrency()), underlying.getReceiveCurrency()));
+        getYieldCurveNodeSensitivities(getFundingCurve(), security.getReceiveCurrency()),
+        getYieldCurveNodeSensitivities(getForwardCurve(security.getPayCurrency()), security.getPayCurrency()),
+        getYieldCurveNodeSensitivities(getForwardCurve(security.getReceiveCurrency()), security.getReceiveCurrency()));
   }
   
+  // REVIEW jim 23-Jan-2012 -- bit of a leap to copy fx forwards, but there you go.
+  @SuppressWarnings("unchecked")
   @Override
   public Set<Pair<String, ValueProperties>> visitNonDeliverableFXForwardSecurity(
       NonDeliverableFXForwardSecurity security) {
-    throw new NotImplementedException();
+    return ImmutableSet.of(
+        getFXPresentValue(),
+        getFXCurrencyExposure(),
+        getYieldCurveNodeSensitivities(getFundingCurve(), security.getPayCurrency()),
+        getYieldCurveNodeSensitivities(getFundingCurve(), security.getReceiveCurrency()),
+        getYieldCurveNodeSensitivities(getForwardCurve(security.getPayCurrency()), security.getPayCurrency()),
+        getYieldCurveNodeSensitivities(getForwardCurve(security.getReceiveCurrency()), security.getReceiveCurrency()));
   }
 
   @Override

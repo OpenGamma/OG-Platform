@@ -35,7 +35,6 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
-import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -189,10 +188,6 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
       if (longUnderlying != null) {
         out.put("longSecurity", longUnderlying);
       }
-    }
-    if (security.getSecurityType().equals(FXForwardSecurity.SECURITY_TYPE)) {
-      FXForwardSecurity fxforwardSecurity = (FXForwardSecurity) security;
-      addUnderlyingSecurity(out, fxforwardSecurity.getUnderlyingId());
     }
     if (security.getSecurityType().equals(EquityIndexOptionSecurity.SECURITY_TYPE)) {
       EquityIndexOptionSecurity equityIndxOption = (EquityIndexOptionSecurity) security;

@@ -20,15 +20,16 @@ import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -167,11 +168,6 @@ public enum InterestRateInstrumentType {
     }
 
     @Override
-    public InterestRateInstrumentType visitFXSecurity(final FXSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle FXSecurity");
-    }
-
-    @Override
     public InterestRateInstrumentType visitFXForwardSecurity(final FXForwardSecurity security) {
       throw new OpenGammaRuntimeException("Cannot handle FXForwardSecurity");
     }
@@ -189,6 +185,16 @@ public enum InterestRateInstrumentType {
     @Override
     public InterestRateInstrumentType visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
       throw new OpenGammaRuntimeException("Cannot handle CapFloorCMSSpreadSecurity");
+    }
+
+    @Override
+    public InterestRateInstrumentType visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security) {
+      throw new OpenGammaRuntimeException("Cannot handle FXDigitalOptionSecurity");
+    }
+
+    @Override
+    public InterestRateInstrumentType visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
+      throw new OpenGammaRuntimeException("Cannot handle NonDeliverableFXDigitalOptionSecurity");
     }
   }
 }

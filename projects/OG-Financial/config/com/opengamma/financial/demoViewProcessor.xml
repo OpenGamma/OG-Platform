@@ -16,11 +16,16 @@
   <import resource="classpath:com/opengamma/financial/demoMasters.xml" />
   
   <!-- User supplied data storage -->
-  <bean id="userFinancialDataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${opengamma.financial-user.jdbc.driver}" />
-    <property name="url" value="${opengamma.financial-user.jdbc.url}" />
+  <bean id="userFinancialDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+    <property name="driverClass" value="${opengamma.financial-user.jdbc.driver}" />
+    <property name="jdbcUrl" value="${opengamma.financial-user.jdbc.url}" />
     <property name="username" value="${opengamma.financial-user.jdbc.username}" />
     <property name="password" value="${opengamma.financial-user.jdbc.password}" />
+    <property name="poolName" value="UserFinancial"/>
+    <property name="partitionCount" value="1"/>
+    <property name="acquireIncrement" value="1"/>
+    <property name="minConnectionsPerPartition" value="1"/>
+    <property name="maxConnectionsPerPartition" value="10"/>
   </bean>
   <bean id="userFinancialDbConnector" parent="abstractDbConnector">
     <property name="name" value="UserFinancial"/>
@@ -365,11 +370,8 @@
     <property name="minimumJobCostUpperLimit" value="100000000" />
   </bean>
   -->
-  
+
   <!-- JMX instrumentation -->
-  <bean class="org.springframework.jmx.export.MBeanExporter" lazy-init="false">
-    <property name="autodetect" value="true"/>
-  </bean>
   <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
     <property name="locateExistingServerIfPossible" value="true" />
   </bean>
