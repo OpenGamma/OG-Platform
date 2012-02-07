@@ -67,7 +67,7 @@ public class OpenGammaComponentServer {
    * 
    * @param args  the arguments, not null
    */
-  protected void run(String[] args) {
+  public void run(String[] args) {
     CommandLine cmdLine;
     try {
       cmdLine = (new PosixParser()).parse(OPTIONS, args);
