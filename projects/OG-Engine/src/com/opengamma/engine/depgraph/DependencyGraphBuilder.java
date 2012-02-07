@@ -20,7 +20,9 @@ import java.util.Map;
 import java.util.Queue;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
@@ -252,7 +254,7 @@ public final class DependencyGraphBuilder {
     private final Map<ValueRequirement, Map<ResolveTask, ResolveTask>> _requirements;
 
     // The resolve task is NOT ref-counted (it is only used for parent comparisons), but the value producer is
-    private final Map<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>> _specifications;
+    private final ConcurrentMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>> _specifications;
 
     // This data is per-thread
 
@@ -262,7 +264,7 @@ public final class DependencyGraphBuilder {
     private GraphBuildingContext() {
       s_loggerContext.info("Created new context");
       _requirements = new HashMap<ValueRequirement, Map<ResolveTask, ResolveTask>>();
-      _specifications = new HashMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>>();
+      _specifications = new ConcurrentHashMap<ValueSpecification, MapEx<ResolveTask, ResolvedValueProducer>>();
     }
 
     private GraphBuildingContext(final GraphBuildingContext copyFrom) {
@@ -511,11 +513,11 @@ public final class DependencyGraphBuilder {
     public Pair<ResolveTask[], ResolvedValueProducer[]> getTasksProducing(final ValueSpecification valueSpecification) {
       final ResolveTask[] resultTasks;
       final ResolvedValueProducer[] resultProducers;
-      synchronized (_specifications) {
-        final MapEx<ResolveTask, ResolvedValueProducer> tasks = _specifications.get(valueSpecification);
-        if (tasks == null) {
-          return null;
-        }
+      final MapEx<ResolveTask, ResolvedValueProducer> tasks = _specifications.get(valueSpecification);
+      if (tasks == null) {
+        return null;
+      }
+      synchronized (tasks) {
         resultTasks = new ResolveTask[tasks.size()];
         resultProducers = new ResolvedValueProducer[tasks.size()];
         int i = 0;
@@ -543,12 +545,15 @@ public final class DependencyGraphBuilder {
     public ResolvedValueProducer declareTaskProducing(final ValueSpecification valueSpecification, final ResolveTask task, final ResolvedValueProducer producer) {
       ResolvedValueProducer discard = null;
       ResolvedValueProducer result = null;
-      synchronized (_specifications) {
-        MapEx<ResolveTask, ResolvedValueProducer> tasks = _specifications.get(valueSpecification);
-        if (tasks == null) {
-          tasks = new MapEx<ResolveTask, ResolvedValueProducer>();
-          _specifications.put(valueSpecification, tasks);
+      MapEx<ResolveTask, ResolvedValueProducer> tasks = _specifications.get(valueSpecification);
+      if (tasks == null) {
+        tasks = new MapEx<ResolveTask, ResolvedValueProducer>();
+        final MapEx<ResolveTask, ResolvedValueProducer> existing = _specifications.putIfAbsent(valueSpecification, tasks);
+        if (existing != null) {
+          tasks = existing;
         }
+      }
+      synchronized (tasks) {
         if (!tasks.isEmpty()) {
           final Map.Entry<ResolveTask, ResolvedValueProducer> resolveTask = tasks.getHashEntry(task);
           if (resolveTask != null) {
@@ -581,8 +586,8 @@ public final class DependencyGraphBuilder {
 
     public void discardTaskProducing(final ValueSpecification valueSpecification, final ResolveTask task) {
       final ResolvedValueProducer producer;
-      synchronized (_specifications) {
-        final MapEx<ResolveTask, ResolvedValueProducer> tasks = _specifications.get(valueSpecification);
+      final MapEx<ResolveTask, ResolvedValueProducer> tasks = _specifications.get(valueSpecification);
+      synchronized (tasks) {
         producer = (ResolvedValueProducer) tasks.remove(task);
         if (producer == null) {
           // Wasn't in the set
@@ -596,8 +601,8 @@ public final class DependencyGraphBuilder {
     private boolean abortLoops() {
       s_loggerBuilder.debug("Checking for active tasks to abort");
       List<ResolveTask> activeTasks = null;
-      synchronized (_specifications) {
-        for (MapEx<ResolveTask, ResolvedValueProducer> tasks : _specifications.values()) {
+      for (MapEx<ResolveTask, ResolvedValueProducer> tasks : _specifications.values()) {
+        synchronized (tasks) {
           for (ResolveTask task : (Set<ResolveTask>) tasks.keySet()) {
             if (task.isActive()) {
               if (activeTasks == null) {
@@ -670,13 +675,13 @@ public final class DependencyGraphBuilder {
         s_loggerContext.info("Requirements cache = {} tasks for {} requirements", count, _requirements.size());
       }
       if (s_loggerContext.isInfoEnabled()) {
-        synchronized (_specifications) {
-          int count = 0;
-          for (MapEx<ResolveTask, ResolvedValueProducer> entries : _specifications.values()) {
+        int count = 0;
+        for (MapEx<ResolveTask, ResolvedValueProducer> entries : _specifications.values()) {
+          synchronized (entries) {
             count += entries.size();
           }
-          s_loggerContext.info("Specifications cache = {} tasks for {} specifications", count, _specifications.size());
         }
+        s_loggerContext.info("Specifications cache = {} tasks for {} specifications", count, _specifications.size());
       }
       //final Runtime rt = Runtime.getRuntime();
       //rt.gc();
@@ -688,10 +693,8 @@ public final class DependencyGraphBuilder {
         s_loggerContext.debug("Discarding intermediate state {} requirements", _requirements.size());
         _requirements.clear();
       }
-      synchronized (_specifications) {
-        s_loggerContext.debug("Discarding intermediate state {} specifications", _specifications.size());
-        _specifications.clear();
-      }
+      s_loggerContext.debug("Discarding intermediate state {} specifications", _specifications.size());
+      _specifications.clear();
     }
 
   };
