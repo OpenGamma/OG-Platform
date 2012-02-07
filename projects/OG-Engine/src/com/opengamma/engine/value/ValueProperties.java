@@ -286,6 +286,14 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
      * The optional properties.
      */
     private final Set<String> _optional;
+    /**
+     * Hashcode of the property set.
+     */
+    private volatile int _hashCode;
+    /**
+     * Indicates whether the hash-code is valid.
+     */
+    private volatile boolean _hashCodeValid;
 
     /**
      * Creates an instance.
@@ -544,7 +552,14 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
 
     @Override
     public int hashCode() {
-      return _properties.hashCode();
+      if (_hashCodeValid) {
+        return _hashCode;
+      } else {
+        final int hashCode = _properties.hashCode() ^ _optional.hashCode();
+        _hashCode = hashCode;
+        _hashCodeValid = true;
+        return hashCode;
+      }
     }
 
     @Override
