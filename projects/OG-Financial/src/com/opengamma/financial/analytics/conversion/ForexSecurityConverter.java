@@ -13,6 +13,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.analytics.model.forex.ForexUtils;
 import com.opengamma.financial.forex.definition.ForexDefinition;
+import com.opengamma.financial.forex.definition.ForexOptionDigitalDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.instrument.InstrumentDefinition;
@@ -37,27 +38,72 @@ import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSe
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.MonitoringType;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
 public class ForexSecurityConverter implements FinancialSecurityVisitor<InstrumentDefinition<?>> {
+  @SuppressWarnings("unused")
   private final SecuritySource _securitySource;
 
   public ForexSecurityConverter(final SecuritySource securitySource) {
     Validate.notNull(securitySource, "security source");
     _securitySource = securitySource;
+  }
+  
+  @Override
+  public InstrumentDefinition<?> visitFXDigitalOptionSecurity(FXDigitalOptionSecurity fxDigitalOptionSecurity) {
+    Validate.notNull(fxDigitalOptionSecurity, "fx digital option (ndf) security");
+    final Currency putCurrency = fxDigitalOptionSecurity.getPutCurrency();
+    final Currency callCurrency = fxDigitalOptionSecurity.getCallCurrency();
+    final double putAmount = fxDigitalOptionSecurity.getPutAmount();
+    final double callAmount = fxDigitalOptionSecurity.getCallAmount();
+    final ZonedDateTime expiry = fxDigitalOptionSecurity.getExpiry().getExpiry();
+    final ZonedDateTime settlementDate = fxDigitalOptionSecurity.getSettlementDate();
+    final boolean isLong = fxDigitalOptionSecurity.isLong();
+    final ForexDefinition underlying;
+    if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
+      final double fxRate = callAmount / putAmount;
+      underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate);
+      // REVIEW: jim 6-Feb-2012 -- take account of NDF!
+      return new ForexOptionDigitalDefinition(underlying, expiry, false, isLong);
+    }
+    final double fxRate = putAmount / callAmount;
+    underlying = new ForexDefinition(callCurrency, putCurrency, settlementDate, callAmount, fxRate);
+    // REVIEW: jim 6-Feb-2012 -- take account of NDF!
+    return new ForexOptionDigitalDefinition(underlying, expiry, true, isLong);
+  }
+
+  @Override
+  public InstrumentDefinition<?> visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity fxNDFDigitalOptionSecurity) {
+    Validate.notNull(fxNDFDigitalOptionSecurity, "fx digital option (ndf) security");
+    final Currency putCurrency = fxNDFDigitalOptionSecurity.getPutCurrency();
+    final Currency callCurrency = fxNDFDigitalOptionSecurity.getCallCurrency();
+    final double putAmount = fxNDFDigitalOptionSecurity.getPutAmount();
+    final double callAmount = fxNDFDigitalOptionSecurity.getCallAmount();
+    final ZonedDateTime expiry = fxNDFDigitalOptionSecurity.getExpiry().getExpiry();
+    final ZonedDateTime settlementDate = fxNDFDigitalOptionSecurity.getSettlementDate();
+    final boolean isLong = fxNDFDigitalOptionSecurity.isLong();
+    final ForexDefinition underlying;
+    if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
+      final double fxRate = callAmount / putAmount;
+      underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate);
+      // REVIEW: jim 6-Feb-2012 -- take account of NDF!
+      return new ForexOptionDigitalDefinition(underlying, expiry, false, isLong);
+    }
+    final double fxRate = putAmount / callAmount;
+    underlying = new ForexDefinition(callCurrency, putCurrency, settlementDate, callAmount, fxRate);
+    // REVIEW: jim 6-Feb-2012 -- take account of NDF!
+    return new ForexOptionDigitalDefinition(underlying, expiry, true, isLong);
   }
 
   @Override
@@ -206,11 +252,6 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
 
   @Override
   public InstrumentDefinition<?> visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
-    return null;
-  }
-
-  @Override
-  public InstrumentDefinition<?> visitFXSecurity(final FXSecurity security) {
     return null;
   }
 

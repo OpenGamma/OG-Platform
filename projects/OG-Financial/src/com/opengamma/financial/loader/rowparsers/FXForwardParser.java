@@ -17,10 +17,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.i18n.Country;
@@ -45,16 +42,13 @@ public class FXForwardParser extends RowParser {
     double receiveAmount = Double.parseDouble(getWithException(fxForwardDetails, RECEIVE_AMOUNT));
     ExternalId region = RegionUtils.countryRegionId(Country.of(getWithException(fxForwardDetails, COUNTRY)));
     String date = getWithException(fxForwardDetails, FORWARD_DATE);
-    FXSecurity underlying = new FXSecurity(payCurrency, receiveCurrency, payAmount, receiveAmount, region);
-    ExternalId underlyingId = ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString());
-    underlying.addExternalId(underlyingId);
     ZonedDateTime forwardDate = ZonedDateTime.of(LocalDateTime.of(LocalDate.parse(date, CSV_DATE_FORMATTER), 
         LocalTime.of(2, 0)), TimeZone.UTC);
-    FXForwardSecurity fxForward = new FXForwardSecurity(underlyingId, forwardDate, region);
+    FXForwardSecurity fxForward = new FXForwardSecurity(payCurrency, payAmount, receiveCurrency, receiveAmount, forwardDate, region);
     fxForward.setName("Pay " + payCurrency.getCode() + " " + payAmount + ", receive " + receiveCurrency.getCode() + " " + receiveAmount + " on " + date);
     fxForward.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     
-    ManageableSecurity[] result = {fxForward, underlying};
+    ManageableSecurity[] result = {fxForward};
     return result;
   }
 
