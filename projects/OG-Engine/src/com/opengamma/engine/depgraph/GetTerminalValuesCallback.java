@@ -23,6 +23,7 @@ import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext
 import com.opengamma.engine.function.ParameterizedFunction;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Handles callback notifications of terminal values to populate a graph set.
@@ -305,8 +306,8 @@ import com.opengamma.engine.value.ValueSpecification;
         node.addInputNode(inputNode);
       } else {
         s_logger.debug("Finding node productions for {}", input);
-        final Map<ResolveTask, ResolvedValueProducer> resolver = context.getTasksProducing(input);
-        if (!resolver.isEmpty()) {
+        final Pair<ResolveTask[], ResolvedValueProducer[]> resolver = context.getTasksProducing(input);
+        if (resolver != null) {
           final Set<ValueSpecification> downstreamFinal;
           if (downstreamCopy != null) {
             downstreamFinal = downstreamCopy;
@@ -358,20 +359,20 @@ import com.opengamma.engine.value.ValueSpecification;
             }
 
           };
-          if (resolver.size() > 1) {
+          // Only the producers are ref-counted
+          final ResolvedValueProducer[] resolverProducers = resolver.getSecond();
+          if (resolverProducers.length > 1) {
             final AggregateResolvedValueProducer aggregate = new AggregateResolvedValueProducer(input.toRequirementSpecification());
-            for (Map.Entry<ResolveTask, ResolvedValueProducer> resolvedEntry : resolver.entrySet()) {
-              aggregate.addProducer(context, resolvedEntry.getValue());
-              // Only the values are ref-counted
-              resolvedEntry.getValue().release(context);
+            for (int i = 0; i < resolverProducers.length; i++) {
+              aggregate.addProducer(context, resolverProducers[i]);
+              resolverProducers[i].release(context);
             }
             aggregate.addCallback(context, callback);
             aggregate.start(context);
             aggregate.release(context);
           } else {
-            final ResolvedValueProducer valueProducer = resolver.values().iterator().next();
-            valueProducer.addCallback(context, callback);
-            valueProducer.release(context);
+            resolverProducers[0].addCallback(context, callback);
+            resolverProducers[0].release(context);
           }
         } else {
           s_logger.warn("No registered node production for {} at {}", input, debugId);

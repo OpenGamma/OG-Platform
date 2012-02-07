@@ -120,6 +120,11 @@ import com.opengamma.engine.value.ValueSpecification;
       return "Callback" + _objectId + "[" + _callback + ", " + AbstractResolvedValueProducer.this.toString() + "]";
     }
 
+    @Override
+    public int hashCode() {
+      return _objectId;
+    }
+
   }
 
   private final ValueRequirement _valueRequirement;

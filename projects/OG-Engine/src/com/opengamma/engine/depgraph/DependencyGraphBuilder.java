@@ -41,6 +41,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.Cancelable;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Builds a dependency graph that describes how to calculate values that will satisfy a given
@@ -425,14 +426,17 @@ public final class DependencyGraphBuilder {
         };
       }
       RequirementResolver resolver = null;
-      for (ResolveTask task : getTasksResolving(requirement)) {
-        if ((dependent == null) || !dependent.hasParent(task)) {
-          if (resolver == null) {
-            resolver = new RequirementResolver(requirement, dependent);
+      final ResolveTask[] tasks = getTasksResolving(requirement);
+      if (tasks != null) {
+        for (ResolveTask task : tasks) {
+          if ((dependent == null) || !dependent.hasParent(task)) {
+            if (resolver == null) {
+              resolver = new RequirementResolver(requirement, dependent);
+            }
+            resolver.addTask(this, task);
           }
-          resolver.addTask(this, task);
+          task.release(this);
         }
-        task.release(this);
       }
       if (resolver != null) {
         resolver.start(this);
@@ -470,35 +474,42 @@ public final class DependencyGraphBuilder {
       }
     }
 
-    private Set<ResolveTask> getTasksResolving(final ValueRequirement valueRequirement) {
-      final Set<ResolveTask> result;
+    private ResolveTask[] getTasksResolving(final ValueRequirement valueRequirement) {
+      final ResolveTask[] result;
       synchronized (_requirements) {
         final Map<ResolveTask, ResolveTask> tasks = _requirements.get(valueRequirement);
         if (tasks == null) {
-          return Collections.emptySet();
+          return null;
         }
-        result = new HashSet<ResolveTask>(tasks.keySet());
-        for (ResolveTask task : result) {
+        result = new ResolveTask[tasks.size()];
+        int i = 0;
+        for (ResolveTask task : tasks.keySet()) {
+          result[i++] = task;
           task.addRef();
         }
       }
       return result;
     }
 
-    public Map<ResolveTask, ResolvedValueProducer> getTasksProducing(final ValueSpecification valueSpecification) {
-      final Map<ResolveTask, ResolvedValueProducer> result;
+    public Pair<ResolveTask[], ResolvedValueProducer[]> getTasksProducing(final ValueSpecification valueSpecification) {
+      final ResolveTask[] resultTasks;
+      final ResolvedValueProducer[] resultProducers;
       synchronized (_specifications) {
         final Map<ResolveTask, ResolvedValueProducer> tasks = _specifications.get(valueSpecification);
         if (tasks == null) {
-          return Collections.emptyMap();
+          return null;
         }
-        result = new HashMap<ResolveTask, ResolvedValueProducer>(tasks);
-        for (Map.Entry<ResolveTask, ResolvedValueProducer> task : result.entrySet()) {
+        resultTasks = new ResolveTask[tasks.size()];
+        resultProducers = new ResolvedValueProducer[tasks.size()];
+        int i = 0;
+        for (Map.Entry<ResolveTask, ResolvedValueProducer> task : tasks.entrySet()) {
           // Don't ref-count the tasks; they're just used for parent comparisons
+          resultTasks[i] = task.getKey();
+          resultProducers[i++] = task.getValue();
           task.getValue().addRef();
         }
       }
-      return result;
+      return Pair.of(resultTasks, resultProducers);
     }
 
     public void discardTask(final ResolveTask task) {
