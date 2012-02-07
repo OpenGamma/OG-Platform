@@ -32,7 +32,7 @@ public class MockHistoricalTimeSeriesFieldAdjustmentMapFactoryBean extends Sprin
   protected HistoricalTimeSeriesFieldAdjustmentMap createObject() {
     HistoricalTimeSeriesFieldAdjustmentMap fieldAdjustmentMap = new HistoricalTimeSeriesFieldAdjustmentMap(SimulatedHistoricalDataGenerator.OG_DATA_SOURCE);
     HistoricalTimeSeriesAdjuster mockNormalizer = new MockHistoricalTimeSeriesNormalizer();
-    fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.MARKET_VALUE, null, LAST_PRICE, mockNormalizer);
+    fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.MARKET_VALUE, null, LAST_PRICE, new SyntheticMarketDataNormalizer());
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.VOLUME, null, VOLUME, mockNormalizer);
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID, null, YLD_TO_MATURITY_MID, mockNormalizer);
     return fieldAdjustmentMap;

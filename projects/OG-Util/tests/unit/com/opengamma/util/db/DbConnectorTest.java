@@ -8,12 +8,13 @@ package com.opengamma.util.db;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
-import org.apache.commons.dbcp.BasicDataSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.testng.annotations.Test;
+
+import com.jolbox.bonecp.BoneCPDataSource;
 
 /**
  * Test.
@@ -29,7 +30,7 @@ public class DbConnectorTest {
 
   //-------------------------------------------------------------------------
   public void test_basics() {
-    BasicDataSource ds = new BasicDataSource();
+    BoneCPDataSource ds = new BoneCPDataSource();
     HSQLDbDialect dialect = HSQLDbDialect.INSTANCE;
     SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(ds);
     DefaultTransactionDefinition transDefn = new DefaultTransactionDefinition();
@@ -48,7 +49,7 @@ public class DbConnectorTest {
 
   //-------------------------------------------------------------------------
   public void test_toString() {
-    BasicDataSource ds = new BasicDataSource();
+    BoneCPDataSource ds = new BoneCPDataSource();
     HSQLDbDialect dialect = HSQLDbDialect.INSTANCE;
     SimpleJdbcTemplate jdbcTemplate = new SimpleJdbcTemplate(ds);
     DefaultTransactionDefinition transDefn = new DefaultTransactionDefinition();

@@ -32,27 +32,27 @@ public class SwapParser extends RowParser {
 
   private static final String ID_SCHEME = "SWAP_LOADER";
 
-  public static final String TRADE_DATE = "trade date";
-  public static final String EFFECTIVE_DATE = "effective date";
-  public static final String TERMINATION_DATE = "termination date";
-  public static final String PAY_FIXED = "pay fixed";
+  public String TRADE_DATE = "trade date";
+  public String EFFECTIVE_DATE = "effective date";
+  public String TERMINATION_DATE = "termination date";
+  public String PAY_FIXED = "pay fixed";
 
-  public static final String FIXED_LEG_CURRENCY = "fixed currency";
-  public static final String FIXED_LEG_NOTIONAL = "fixed notional (mm)";
-  public static final String FIXED_LEG_DAYCOUNT = "fixed daycount";
-  public static final String FIXED_LEG_BUS_DAY_CONVENTION = "fixed business day convention";
-  public static final String FIXED_LEG_FREQUENCY = "fixed frequency";
-  public static final String FIXED_LEG_REGION = "fixed region";
-  public static final String FIXED_LEG_RATE = "fixed rate";
+  public String FIXED_LEG_CURRENCY = "fixed currency";
+  public String FIXED_LEG_NOTIONAL = "fixed notional (mm)";
+  public String FIXED_LEG_DAYCOUNT = "fixed daycount";
+  public String FIXED_LEG_BUS_DAY_CONVENTION = "fixed business day convention";
+  public String FIXED_LEG_FREQUENCY = "fixed frequency";
+  public String FIXED_LEG_REGION = "fixed region";
+  public String FIXED_LEG_RATE = "fixed rate";
 
-  public static final String FLOATING_LEG_CURRENCY = "floating currency";
-  public static final String FLOATING_LEG_NOTIONAL = "floating notional (mm)";
-  public static final String FLOATING_LEG_DAYCOUNT = "floating daycount";
-  public static final String FLOATING_LEG_BUS_DAY_CONVENTION = "floating business day convention";
-  public static final String FLOATING_LEG_FREQUENCY = "floating frequency";
-  public static final String FLOATING_LEG_REGION = "floating region";
-  public static final String FLOATING_LEG_RATE = "initial floating rate";
-  public static final String FLOATING_LEG_REFERENCE = "floating reference";
+  public String FLOATING_LEG_CURRENCY = "floating currency";
+  public String FLOATING_LEG_NOTIONAL = "floating notional (mm)";
+  public String FLOATING_LEG_DAYCOUNT = "floating daycount";
+  public String FLOATING_LEG_BUS_DAY_CONVENTION = "floating business day convention";
+  public String FLOATING_LEG_FREQUENCY = "floating frequency";
+  public String FLOATING_LEG_REGION = "floating region";
+  public String FLOATING_LEG_RATE = "initial floating rate";
+  public String FLOATING_LEG_REFERENCE = "floating reference";
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> swapDetails) {

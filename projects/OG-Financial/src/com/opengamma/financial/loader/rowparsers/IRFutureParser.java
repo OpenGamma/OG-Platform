@@ -22,14 +22,14 @@ public class IRFutureParser extends RowParser {
 
   private static final String ID_SCHEME = "IR_FUTURE_LOADER";
 
-  public static final String EXPIRY = "expiry";
-  public static final String TRADING_EXCHANGE = "trading exchange";
-  public static final String SETTLEMENT_EXCHANGE = "settlement exchange";
-  public static final String CURRENCY = "currency";
-  public static final String UNIT_AMOUNT = "unit amount";
-  public static final String UNDERLYING_ID = "underlying id";
-  public static final String NAME = "name";
-  public static final String BBG_CODE = "bbg code";
+  public String EXPIRY = "expiry";
+  public String TRADING_EXCHANGE = "trading exchange";
+  public String SETTLEMENT_EXCHANGE = "settlement exchange";
+  public String CURRENCY = "currency";
+  public String UNIT_AMOUNT = "unit amount";
+  public String UNDERLYING_ID = "underlying id";
+  public String NAME = "name";
+  public String BBG_CODE = "bbg code";
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> irFutureDetails) {

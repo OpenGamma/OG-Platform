@@ -37,8 +37,7 @@ public class BlackVolatilityDeltaSurface extends BlackVolatilitySurfaceOld {
 
   public BlackVolatilityDeltaSurface(Surface<Double, Double, Double> surface, final StrikeParameterization strikeType) {
     super(surface, strikeType);
-    _strikeAxisRepresentsCalls = strikeType == StrikeParameterization.CALLDELTA;
-
+    _strikeAxisRepresentsCalls = strikeType == StrikeParameterization.CALLDELTA; //Review R White 31/01/12 Are what if strikeType is STRIKE???
   }
 
   //  public BlackVolatilityDeltaSurface(final BlackVolatilitySurface surface) {

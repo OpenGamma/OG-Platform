@@ -5,9 +5,27 @@
  */
 package com.opengamma.util.test;
 
-import com.opengamma.OpenGammaRuntimeException;
-import org.apache.commons.cli.*;
-import org.apache.commons.dbcp.BasicDataSource;
+import java.io.File;
+import java.io.FileFilter;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.sql.DataSource;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -16,13 +34,9 @@ import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
-import java.io.File;
-import java.io.FileFilter;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import com.jolbox.bonecp.BoneCPDataSource;
+import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Command-line interface to create or clear databases.
@@ -75,6 +89,7 @@ public class DbTool extends Task {
   private String _dbServerHost;
   private String _user;
   private String _password;
+  private BoneCPDataSource _dataSource;
 
   /** 
    * Static as the parameterized JUnit test runner seems to create a new DbTool instance
@@ -133,6 +148,39 @@ public class DbTool extends Task {
     _dialect.initialise(_dbServerHost, _user, _password);
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * The data-source is created once per instance of the tool.
+   * 
+   * @return the data source, not null
+   */
+  public synchronized DataSource getDataSource() {
+    BoneCPDataSource dataSource = _dataSource;
+    if (dataSource == null) {
+      dataSource = new BoneCPDataSource();
+      dataSource.setPoolName("DbTool");
+      dataSource.setJdbcUrl(getJdbcUrl());
+      dataSource.setUsername(getUser());
+      dataSource.setPassword(getPassword());
+      dataSource.setAcquireIncrement(1);
+      dataSource.setPartitionCount(1);
+      dataSource.setMaxConnectionsPerPartition(1);
+      _dataSource = dataSource;
+    }
+    return dataSource;
+  }
+
+  /**
+   * Close the data-source if it was created.
+   */
+  public synchronized void close() {
+    if (_dataSource != null) {
+      _dataSource.close();
+      _dataSource = null;
+    }
+  }
+
+  //-------------------------------------------------------------------------
   public void resetTestCatalog() {
     _dialect.reset(getTestCatalog());
   }
@@ -366,17 +414,6 @@ public class DbTool extends Task {
       configuration.setProperty(Environment.DEFAULT_SCHEMA, getTestSchema());
     }
     return configuration;
-  }
-
-  public DataSourceTransactionManager getTransactionManager() {
-    BasicDataSource dataSource = new BasicDataSource();
-
-    dataSource.setDriverClassName(getJDBCDriverClass().getName());
-    dataSource.setUrl(getJdbcUrl());
-    dataSource.setUsername(getUser());
-    dataSource.setPassword(getPassword());
-    
-    return new DataSourceTransactionManager(dataSource);
   }
 
   public void createTestTables(final TableCreationCallback callback) {

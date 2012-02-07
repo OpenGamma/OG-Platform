@@ -11,10 +11,12 @@ import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZ
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
+import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanToDayCount;
 
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.CurrencyBean;
+import com.opengamma.masterdb.security.hibernate.DayCountBean;
 import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
@@ -38,11 +40,15 @@ public final class CashSecurityBeanOperation extends AbstractSecurityBeanOperati
   public CashSecurityBean createBean(final OperationContext context, HibernateSecurityMasterDao secMasterSession, CashSecurity security) {
     CurrencyBean currencyBean = secMasterSession.getOrCreateCurrencyBean(security.getCurrency().getCode());
     ExternalIdBean regionIdentifier = externalIdToExternalIdBean(security.getRegionId());
+    ZonedDateTimeBean startBean = dateTimeWithZoneToZonedDateTimeBean(security.getStart());
     ZonedDateTimeBean maturityBean = dateTimeWithZoneToZonedDateTimeBean(security.getMaturity());
+    DayCountBean dayCountBean = secMasterSession.getOrCreateDayCountBean(security.getDayCount().getConventionName());
     final CashSecurityBean bean = new CashSecurityBean();
     bean.setCurrency(currencyBean);
     bean.setRegion(regionIdentifier);
+    bean.setStart(startBean);
     bean.setMaturity(maturityBean);
+    bean.setDayCount(dayCountBean);
     bean.setRate(security.getRate());
     bean.setAmount(security.getAmount());
     return bean;
@@ -51,7 +57,8 @@ public final class CashSecurityBeanOperation extends AbstractSecurityBeanOperati
   @Override
   public CashSecurity createSecurity(final OperationContext context, CashSecurityBean bean) {
     final CashSecurity security = new CashSecurity(currencyBeanToCurrency(bean.getCurrency()), externalIdBeanToExternalId(bean.getRegion()), 
-                                                   zonedDateTimeBeanToDateTimeWithZone(bean.getMaturity()), bean.getRate(), bean.getAmount());
+                                                   zonedDateTimeBeanToDateTimeWithZone(bean.getStart()), zonedDateTimeBeanToDateTimeWithZone(bean.getMaturity()),
+                                                   dayCountBeanToDayCount(bean.getDayCount()), bean.getRate(), bean.getAmount());
     return security;
   }
 

@@ -213,7 +213,7 @@ public class DataViewProcessorResource {
 
   private DataViewClientResource createViewClientResource(ViewClient viewClient, URI viewProcessorUri) {
     DataViewCycleManagerResource cycleManagerResource = getOrCreateDataViewCycleManagerResource(viewProcessorUri);
-    return new DataViewClientResource(viewClient, cycleManagerResource, _jmsConnector);
+    return new DataViewClientResource(viewClient, cycleManagerResource, _jmsConnector, _scheduler);
   }
 
 }

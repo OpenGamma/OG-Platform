@@ -14,12 +14,12 @@ import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-import org.apache.commons.dbcp.BasicDataSource;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
 
+import com.jolbox.bonecp.BoneCPDataSource;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
@@ -80,11 +80,14 @@ public class BatchJobRunner {
     String dbhelper = getProperty(configDbProperties, "opengamma.config.db.dbhelper", configPropertyFile);
     String scheme = getProperty(configDbProperties, "opengamma.config.db.configmaster.scheme", configPropertyFile);
     
-    BasicDataSource cfgDataSource = new BasicDataSource();
-    cfgDataSource.setDriverClassName(driver);
-    cfgDataSource.setUrl(url);
+    BoneCPDataSource cfgDataSource = new BoneCPDataSource();
+    cfgDataSource.setDriverClass(driver);
+    cfgDataSource.setJdbcUrl(url);
     cfgDataSource.setUsername(username);
     cfgDataSource.setPassword(password);
+    cfgDataSource.setPartitionCount(2);
+    cfgDataSource.setMaxConnectionsPerPartition(5);
+    cfgDataSource.setAcquireIncrement(1);
     
     DbConnectorFactoryBean connectorFactory = new DbConnectorFactoryBean();
     connectorFactory.setTransactionIsolationLevelName("ISOLATION_SERIALIZABLE");

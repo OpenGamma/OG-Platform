@@ -8,6 +8,8 @@ import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
 
 import com.opengamma.core.region.RegionUtils;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.id.ExternalId;
@@ -22,7 +24,9 @@ public class CashParser extends RowParser {
 
   public static final String CURRENCY = "currency";
   public static final String REGION = "region";
+  public static final String START = "start";
   public static final String MATURITY = "maturity";
+  public static final String DAY_COUNT = "dayCount";
   public static final String RATE = "rate";
   public static final String AMOUNT = "amount";
 
@@ -33,9 +37,13 @@ public class CashParser extends RowParser {
     LocalDateTime maturity = LocalDateTime.of(
         LocalDate.parse(getWithException(cashDetails, MATURITY), CSV_DATE_FORMATTER),
         LocalTime.MIDNIGHT);
+    LocalDateTime start = LocalDateTime.of(
+        LocalDate.parse(getWithException(cashDetails, START), CSV_DATE_FORMATTER),
+        LocalTime.MIDNIGHT);
+    DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(getWithException(cashDetails, DAY_COUNT));
     double rate = Double.parseDouble(getWithException(cashDetails, RATE));
     double amount = Double.parseDouble(getWithException(cashDetails, AMOUNT));
-    CashSecurity cash = new CashSecurity(ccy, region, maturity.atZone(TimeZone.UTC), rate, amount);
+    CashSecurity cash = new CashSecurity(ccy, region, start.atZone(TimeZone.UTC), maturity.atZone(TimeZone.UTC), dayCount, rate, amount);
     cash.setName("Cash " + ccy.getCode() + " " + NOTIONAL_FORMATTER.format(amount) + " @ "
         + RATE_FORMATTER.format(rate) + ", maturity "
         + maturity.toString(OUTPUT_DATE_FORMATTER));

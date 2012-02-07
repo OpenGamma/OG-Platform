@@ -17,10 +17,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.i18n.Country;
@@ -30,12 +27,12 @@ public class FXForwardParser extends RowParser {
 
   private static final String ID_SCHEME = "FX_FORWARD_LOADER";
 
-  public static final String PAY_CURRENCY = "pay currency";
-  public static final String RECEIVE_CURRENCY = "receive currency";
-  public static final String PAY_AMOUNT = "pay amount";
-  public static final String RECEIVE_AMOUNT = "receive amount";
-  public static final String COUNTRY = "country";
-  public static final String FORWARD_DATE = "forward date";
+  public String PAY_CURRENCY = "pay currency";
+  public String RECEIVE_CURRENCY = "receive currency";
+  public String PAY_AMOUNT = "pay amount";
+  public String RECEIVE_AMOUNT = "receive amount";
+  public String COUNTRY = "country";
+  public String FORWARD_DATE = "forward date";
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> fxForwardDetails) {
@@ -45,16 +42,13 @@ public class FXForwardParser extends RowParser {
     double receiveAmount = Double.parseDouble(getWithException(fxForwardDetails, RECEIVE_AMOUNT));
     ExternalId region = RegionUtils.countryRegionId(Country.of(getWithException(fxForwardDetails, COUNTRY)));
     String date = getWithException(fxForwardDetails, FORWARD_DATE);
-    FXSecurity underlying = new FXSecurity(payCurrency, receiveCurrency, payAmount, receiveAmount, region);
-    ExternalId underlyingId = ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString());
-    underlying.addExternalId(underlyingId);
     ZonedDateTime forwardDate = ZonedDateTime.of(LocalDateTime.of(LocalDate.parse(date, CSV_DATE_FORMATTER), 
         LocalTime.of(2, 0)), TimeZone.UTC);
-    FXForwardSecurity fxForward = new FXForwardSecurity(underlyingId, forwardDate, region);
+    FXForwardSecurity fxForward = new FXForwardSecurity(payCurrency, payAmount, receiveCurrency, receiveAmount, forwardDate, region);
     fxForward.setName("Pay " + payCurrency.getCode() + " " + payAmount + ", receive " + receiveCurrency.getCode() + " " + receiveAmount + " on " + date);
     fxForward.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     
-    ManageableSecurity[] result = {fxForward, underlying};
+    ManageableSecurity[] result = {fxForward};
     return result;
   }
 

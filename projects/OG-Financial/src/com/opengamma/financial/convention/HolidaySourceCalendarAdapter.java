@@ -6,6 +6,7 @@
 package com.opengamma.financial.convention;
 
 import java.io.Serializable;
+import java.util.Iterator;
 import java.util.Set;
 
 import javax.time.calendar.LocalDate;
@@ -32,20 +33,20 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
   private final HolidaySource _holidaySource;
   private Set<Region> _regions;
   private Exchange _exchange;
-  private Currency _currency;
+  private Set<Currency> _currencies;
   private final HolidayType _type;
 
-  public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final Set<Region> region) {
-    Validate.notNull(region, "Region set is null");
+  public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final Region[] regions) {
+    Validate.notNull(regions, "Region set is null");
     Validate.notNull(holidaySource, "holiday source is null");
-    Validate.noNullElements(region, "Region set has null elements");
+    Validate.noNullElements(regions, "Region set has null elements");
     _holidaySource = holidaySource;
-    _regions = region;
+    _regions = Sets.newHashSet(regions);
     _type = HolidayType.BANK;
   }
 
   public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final Region region) {
-    this(holidaySource, Sets.newHashSet(region));
+    this(holidaySource, new Region[] {region });
   }
 
   public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final Exchange exchange, final HolidayType type) {
@@ -56,26 +57,46 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
     _exchange = exchange;
     _type = type;
   }
+  
+  public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final Currency[] currencies) {
+    Validate.notNull(holidaySource);
+    Validate.notNull(currencies);
+    _holidaySource = holidaySource;
+    _currencies = Sets.newHashSet(currencies);
+    _type = HolidayType.CURRENCY;
+  }
 
   public HolidaySourceCalendarAdapter(final HolidaySource holidaySource, final Currency currency) {
-    Validate.notNull(holidaySource);
-    Validate.notNull(currency);
-    _holidaySource = holidaySource;
-    _currency = currency;
-    _type = HolidayType.CURRENCY;
+    this(holidaySource, new Currency[] {currency });
   }
 
   @Override
   public String getConventionName() {
     switch (_type) {
-      case BANK:
-        String name = "";
-        for (final Region region : _regions) {
-          name += region.getName() + ", ";
+      case BANK: {
+        StringBuilder regionName = new StringBuilder();
+        Iterator<Region> regionIter = _regions.iterator();
+        while (regionIter.hasNext()) {
+          regionName.append(regionIter.next().getName());
+          if (regionIter.hasNext()) {
+            regionName.append(", ");
+          }  
         }
-        return name + "Bank";
-      case CURRENCY:
-        return _currency.getCode() + " Currency";
+        regionName.append(" Bank");
+        return regionName.toString();
+      }
+      case CURRENCY: {
+        StringBuilder ccyName = new StringBuilder();
+        Iterator<Currency> ccyIter = _currencies.iterator();
+        while (ccyIter.hasNext()) {
+          ccyName.append(ccyIter.next().getCode());
+          if (ccyIter.hasNext()) {
+            ccyName.append(", ");
+          }
+        }        
+        ccyName.append(" Currency");
+        return ccyName.toString();
+      }
       case SETTLEMENT:
         return _exchange.getName() + " Settlement";
       case TRADING:
@@ -94,7 +115,11 @@ public class HolidaySourceCalendarAdapter implements Calendar, Serializable {
         }
         return !isHoliday;
       case CURRENCY:
-        return !_holidaySource.isHoliday(date, _currency);
+        boolean isCurrencyHoliday = false;
+        for (final Currency currency : _currencies) {
+          isCurrencyHoliday |= _holidaySource.isHoliday(date, currency);
+        }
+        return !isCurrencyHoliday;
       case SETTLEMENT:
         return !_holidaySource.isHoliday(date, _type, _exchange.getExternalIdBundle());
       case TRADING:
