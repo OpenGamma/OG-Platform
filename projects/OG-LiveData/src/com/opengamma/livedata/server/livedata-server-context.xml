@@ -22,11 +22,15 @@
     </property>
   </bean>
 
-  <bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
-    <property name="driverClassName" value="${jdbc.driverClassName}"/>
-    <property name="url" value="${jdbc.url}"/>
+  <bean id="dataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+    <property name="driverClass" value="${jdbc.driverClassName}"/>
+    <property name="jdbcUrl" value="${jdbc.url}"/>
     <property name="username" value="${jdbc.username}"/>
     <property name="password" value="${jdbc.password}"/>
+    <property name="poolName" value="LiveData-${dbsource.name}"/>
+    <property name="partitionCount" value="2"/>
+    <property name="acquireIncrement" value="2"/>
+    <property name="maxConnectionsPerPartition" value="20"/>
   </bean>
 
   <bean id="dbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
