@@ -33,15 +33,17 @@ public class IRFutureOptionParser extends RowParser {
 
   private static final String ID_SCHEME = "IR_FUTURE_OPTION_LOADER";
 
-  public String EXCHANGE = "exchange";
-  public String EXPIRY = "expiry";
-  public String UNDERLYING_ID = "underlying identifier";
-  public String POINT_VALUE = "point value";
+  //CSOFF
+  protected String EXCHANGE = "exchange";
+  protected String EXPIRY = "expiry";
+  protected String UNDERLYING_ID = "underlying identifier";
+  protected String POINT_VALUE = "point value";
   // private static final String IS_MARGINED = "margined";
-  public String CURRENCY = "currency";
-  public String STRIKE = "strike";
-  public String IS_CALL = "call";
-
+  protected String CURRENCY = "currency";
+  protected String STRIKE = "strike";
+  protected String IS_CALL = "call";
+  //CSON
+  
   private LoaderContext _loaderContext;
   
   public IRFutureOptionParser(LoaderContext loaderContext) {

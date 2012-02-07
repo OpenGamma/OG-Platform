@@ -20,11 +20,11 @@ public class CashParser extends RowParser {
 
   private static final String ID_SCHEME = "CASH_LOADER";
 
-  public String CURRENCY = "currency";
-  public String REGION = "region";
-  public String MATURITY = "maturity";
-  public String RATE = "rate";
-  public String AMOUNT = "amount";
+  protected String CURRENCY = "currency";
+  protected String REGION = "region";
+  protected String MATURITY = "maturity";
+  protected String RATE = "rate";
+  protected String AMOUNT = "amount";
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> cashDetails) {

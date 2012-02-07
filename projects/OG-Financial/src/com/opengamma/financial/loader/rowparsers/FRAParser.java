@@ -23,13 +23,13 @@ public class FRAParser extends RowParser {
 
   private static final String ID_SCHEME = "FRA_LOADER";
 
-  public static final String CURRENCY = "currency";
-  public static final String REGION = "region";
-  public static final String START_DATE = "start date";
-  public static final String END_DATE = "end date";
-  public static final String RATE = "rate";
-  public static final String AMOUNT = "amount";
-  public static final String BBG_ID = "bloomberg identifier";
+  protected static final String CURRENCY = "currency";
+  protected static final String REGION = "region";
+  protected static final String START_DATE = "start date";
+  protected static final String END_DATE = "end date";
+  protected static final String RATE = "rate";
+  protected static final String AMOUNT = "amount";
+  protected static final String BBG_ID = "bloomberg identifier";
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> fraDetails) {

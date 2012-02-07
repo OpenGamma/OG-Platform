@@ -31,11 +31,11 @@ public class FXParser extends RowParser {
 
   private static final String ID_SCHEME = "FX_LOADER";
 
-  public static final String PAY_CURRENCY = "pay currency";
-  public static final String RECEIVE_CURRENCY = "receive currency";
-  public static final String PAY_AMOUNT = "pay amount";
-  public static final String RECEIVE_AMOUNT = "receive amount";
-  public static final String COUNTRY = "country";
+  protected static final String PAY_CURRENCY = "pay currency";
+  protected static final String RECEIVE_CURRENCY = "receive currency";
+  protected static final String PAY_AMOUNT = "pay amount";
+  protected static final String RECEIVE_AMOUNT = "receive amount";
+  protected static final String COUNTRY = "country";
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> fxDetails) {
