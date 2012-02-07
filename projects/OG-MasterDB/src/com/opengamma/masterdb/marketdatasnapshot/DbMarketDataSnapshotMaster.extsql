@@ -1,4 +1,4 @@
--- SQL for snapshot master
+-- SQL for values master
 
 -- ==========================================================================
 @NAME(GetById)

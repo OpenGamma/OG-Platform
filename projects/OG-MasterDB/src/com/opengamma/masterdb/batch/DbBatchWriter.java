@@ -10,12 +10,15 @@ import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
+import com.opengamma.batch.RunCreationMode;
+import com.opengamma.batch.SnapshotMode;
+import com.opengamma.batch.domain.*;
 import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewCalculationResultModel;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultEntry;
@@ -24,8 +27,9 @@ import com.opengamma.engine.view.calcnode.MissingInput;
 import com.opengamma.extsql.ExtSqlBundle;
 import com.opengamma.financial.conversion.ResultConverter;
 import com.opengamma.financial.conversion.ResultConverterCache;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.batch.*;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.masterdb.AbstractDbMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
@@ -33,10 +37,12 @@ import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.functional.Function1;
 import com.opengamma.util.tuple.Pair;
 import org.apache.commons.io.output.StringBuilderWriter;
+import org.apache.commons.lang.StringUtils;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
 import org.hibernate.criterion.Restrictions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -60,9 +66,7 @@ import static com.google.common.collect.Maps.newConcurrentMap;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
 import static com.opengamma.util.db.DbUtil.eqOrIsNull;
-import static com.opengamma.util.functional.Functional.any;
-import static com.opengamma.util.functional.Functional.map;
-import static com.opengamma.util.functional.Functional.newArray;
+import static com.opengamma.util.functional.Functional.*;
 
 /**
  * A batch master implementation using a database for persistence.
@@ -82,15 +86,17 @@ public class DbBatchWriter extends AbstractDbMaster {
    */
   public static final String IDENTIFIER_SCHEME_DEFAULT = "DbBat";
 
+  public static final String RSK_SEQUENCE_NAME = "rsk_batch_seq";
+
   final public Map<String, Long> _calculationConfigurations = newConcurrentMap();
-  final public Map<String, Long> _riskValueNames = newConcurrentMap();
   final public Map<ValueRequirement, Long> _riskValueRequirements = newConcurrentMap();
   final public Map<ValueSpecification, Long> _riskValueSpecifications = newConcurrentMap();
   final public Map<ComputationTargetSpecification, Long> _computationTargets = newConcurrentMap();
 
-  final public Map<Long, Batch> _batchByRunId = newConcurrentMap();
+  final public Map<Long, RiskRun> _riskRunsByIds = newConcurrentMap();
   final public Map<Long, Map<Pair<Long, Long>, StatusEntry>> _statusCacheByRunId = newConcurrentMap();
   final public Map<Long, Map<ComputeFailureKey, ComputeFailure>> _computeFailureCacheByRunId = newConcurrentMap();
+
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbBatchWriter.class);
@@ -167,21 +173,20 @@ public class DbBatchWriter extends AbstractDbMaster {
     return node;
   }
 
-  protected LiveDataSnapshot getLiveDataSnapshotInTransaction(final UniqueId marketDataSnapshotUniqueId) {
+  protected MarketData getMarketDataInTransaction(final ObjectId snapshotId) {
 
-    LiveDataSnapshot liveDataSnapshot = getHibernateTemplate().execute(new HibernateCallback<LiveDataSnapshot>() {
+    MarketData liveDataValues = getHibernateTemplate().execute(new HibernateCallback<MarketData>() {
       @Override
-      public LiveDataSnapshot doInHibernate(Session session) throws HibernateException, SQLException {
-        Query query = session.getNamedQuery("LiveDataSnapshot.one.byMarketDataSnapshotUid");
-        query.setString("marketDataSnapshotUid", marketDataSnapshotUniqueId.toString());
-        return (LiveDataSnapshot) query.uniqueResult();
+      public MarketData doInHibernate(Session session) throws HibernateException, SQLException {
+        Long id = extractOid(snapshotId);
+        return (MarketData) session.get(MarketData.class, id);
       }
     });
 
-    if (liveDataSnapshot == null) {
-      throw new IllegalArgumentException("Snapshot for " + marketDataSnapshotUniqueId + " cannot be found");
+    if (liveDataValues == null) {
+      throw new IllegalArgumentException("Snapshot for " + snapshotId + " cannot be found");
     }
-    return liveDataSnapshot;
+    return liveDataValues;
   }
 
 
@@ -203,93 +208,42 @@ public class DbBatchWriter extends AbstractDbMaster {
     return field;
   }
 
-  public ComputationTarget getComputationTarget(final ComputationTargetSpecification spec) {
-    return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<ComputationTarget>() {
+  public HbComputationTargetSpecification getComputationTarget(final ComputationTargetSpecification spec) {
+    return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<HbComputationTargetSpecification>() {
       @Override
-      public ComputationTarget doInTransaction(final TransactionStatus status) {
+      public HbComputationTargetSpecification doInTransaction(final TransactionStatus status) {
         return getComputationTargetIntransaction(spec);
       }
     });
   }
 
-  protected ComputationTarget getComputationTargetIntransaction(final ComputationTargetSpecification spec) {
-    return getHibernateTemplate().execute(new HibernateCallback<ComputationTarget>() {
+  protected HbComputationTargetSpecification getComputationTargetIntransaction(final ComputationTargetSpecification spec) {
+    return getHibernateTemplate().execute(new HibernateCallback<HbComputationTargetSpecification>() {
       @Override
-      public ComputationTarget doInHibernate(Session session) throws HibernateException, SQLException {
-        Query query;
-        if (spec.getUniqueId().getVersion() == null) {
-          query = session.getNamedQuery("ComputationTarget.one.byUniqueIdNullVersion");
-        } else {
-          query = session.getNamedQuery("ComputationTarget.one.byUniqueIdNonNullVersion");
-          query.setString("idVersion", spec.getUniqueId().getVersion());
-        }
-        query.setInteger("computationTargetType", ComputationTarget.getType(spec.getType()));
-        query.setString("idScheme", spec.getUniqueId().getScheme());
-        query.setString("idValue", spec.getUniqueId().getValue());
-        return (ComputationTarget) query.uniqueResult();
+      public HbComputationTargetSpecification doInHibernate(Session session) throws HibernateException, SQLException {
+        Query query = session.getNamedQuery("ComputationTargetSpecification.one.byTypeAndUid");
+
+        query.setString("uidScheme", spec.getUniqueId().getScheme());
+        query.setString("uidValue", spec.getUniqueId().getValue());
+        query.setString("uidVersion", spec.getUniqueId().getVersion());
+
+        query.setParameter("type", spec.getType());
+
+        return (HbComputationTargetSpecification) query.uniqueResult();
       }
     });
   }
 
-  protected ComputationTarget getOrCreateComputationTargetInTransaction(final ComputationTargetSpecification spec, final String name) {
-    ComputationTarget computationTarget = getComputationTarget(spec);
-    if (computationTarget == null) {
-      computationTarget = new ComputationTarget();
-      computationTarget.setComputationTargetType(spec.getType());
-      computationTarget.setIdScheme(spec.getUniqueId().getScheme());
-      computationTarget.setIdValue(spec.getUniqueId().getValue());
-      computationTarget.setIdVersion(spec.getUniqueId().getVersion());
-      computationTarget.setName(name);
-      getHibernateTemplate().save(computationTarget);
+  protected HbComputationTargetSpecification getOrCreateComputationTargetInTransaction(final ComputationTargetSpecification spec) {
+    HbComputationTargetSpecification hbComputationTargetSpecification = getComputationTarget(spec);
+    if (hbComputationTargetSpecification == null) {
+      hbComputationTargetSpecification = new HbComputationTargetSpecification();
+      hbComputationTargetSpecification.setType(spec.getType());
+      hbComputationTargetSpecification.setUniqueId(spec.getUniqueId());
+      getHibernateTemplate().save(hbComputationTargetSpecification);
       getHibernateTemplate().flush();
     }
-    return computationTarget;
-  }
-
-  protected ViewDefinition createViewDefinitionInTransaction(UniqueId viewDefinitionUid) {
-    ViewDefinition vd = getViewDefinitionInTransaction(viewDefinitionUid);
-    if (vd == null) {
-      vd = new ViewDefinition();
-      vd.setViewDefinitionUid(viewDefinitionUid.toString());
-      getHibernateTemplate().save(vd);
-      getHibernateTemplate().flush();
-    }
-    return vd;
-  }
-
-  protected ViewDefinition getViewDefinitionInTransaction(final UniqueId viewDefinitionUid) {
-    return getHibernateTemplate().execute(new HibernateCallback<ViewDefinition>() {
-      @Override
-      public ViewDefinition doInHibernate(Session session) throws HibernateException, SQLException {
-        Query query = session.getNamedQuery("ViewDefinition.one.byUID");
-        query.setString("uid", viewDefinitionUid.toString());
-        return (ViewDefinition) query.uniqueResult();
-      }
-    });
-  }
-
-  protected VersionCorrection getVersionCorrection(final com.opengamma.id.VersionCorrection versionCorrection) {
-    VersionCorrection vc = getVersionCorrectionInTransaction(versionCorrection);
-    if (vc == null) {
-      vc = new VersionCorrection();
-      vc.setAsOf(versionCorrection.getVersionAsOf());
-      vc.setCorrectedTo(versionCorrection.getCorrectedTo());
-      getHibernateTemplate().save(vc);
-      getHibernateTemplate().flush();
-    }
-    return vc;
-  }
-
-  protected VersionCorrection getVersionCorrectionInTransaction(final com.opengamma.id.VersionCorrection versionCorrection) {
-    return getHibernateTemplate().execute(new HibernateCallback<VersionCorrection>() {
-      @Override
-      public VersionCorrection doInHibernate(Session session) throws HibernateException, SQLException {
-        Query query = session.getNamedQuery("VersionCorrection.one.byTimestamps");
-        query.setParameter("asOf", versionCorrection.getVersionAsOf());
-        query.setParameter("correctedTo", versionCorrection.getCorrectedTo());
-        return (VersionCorrection) query.uniqueResult();
-      }
-    });
+    return hbComputationTargetSpecification;
   }
 
   protected CalculationConfiguration getCalculationConfiguration(final String name) {
@@ -308,24 +262,6 @@ public class DbBatchWriter extends AbstractDbMaster {
       getHibernateTemplate().flush();
     }
     return calcConfig;
-  }
-
-  protected RiskValueName getRiskValueName(final String name) {
-    RiskValueName riskValueName = getHibernateTemplate().execute(new HibernateCallback<RiskValueName>() {
-      @Override
-      public RiskValueName doInHibernate(Session session) throws HibernateException, SQLException {
-        Query query = session.getNamedQuery("RiskValueName.one.byName");
-        query.setString("name", name);
-        return (RiskValueName) query.uniqueResult();
-      }
-    });
-    if (riskValueName == null) {
-      riskValueName = new RiskValueName();
-      riskValueName.setName(name);
-      getHibernateTemplate().save(riskValueName);
-      getHibernateTemplate().flush();
-    }
-    return riskValueName;
   }
 
   protected RiskValueRequirement getRiskValueRequirement(final ValueProperties requirement) {
@@ -385,7 +321,7 @@ public class DbBatchWriter extends AbstractDbMaster {
   //-------------------------------------------------------------------------
 
 
-  protected Instant restartRunInTransaction(Batch batch, RiskRun riskRun) {
+  protected Instant restartRunInTransaction(RiskRun riskRun) {
     Instant now = now();
     riskRun.setStartInstant(now);
     riskRun.setNumRestarts(riskRun.getNumRestarts() + 1);
@@ -396,19 +332,6 @@ public class DbBatchWriter extends AbstractDbMaster {
     deleteRiskFailuresInTransaction(riskRun);
 
     return riskRun.getCreateInstant();
-  }
-
-  protected void populateRiskValueNames(Batch batch) {
-    Map<Map<String, Object>, Collection<String>> data = newHashMapWithDefaultCollection();
-    for (final String configName : batch.getCycleInfo().getAllCalculationConfigurationNames()) {
-      Map<ValueSpecification, Set<ValueRequirement>> outputs = batch.getCycleInfo().getTerminalOutputsByConfigName(configName);
-      for (ValueSpecification specification : outputs.keySet()) {
-        Map<String, Object> attribs = newHashMap();
-        attribs.put("name", specification.getValueName());
-        data.get(attribs).add(specification.getValueName());
-      }
-    }
-    _riskValueNames.putAll(populate(data, getExtSqlBundle().getSql("SelectRiskValueName"), getExtSqlBundle().getSql("InsertRiskValueName"), "rsk_batch_seq"));
   }
 
   /**
@@ -426,12 +349,12 @@ public class DbBatchWriter extends AbstractDbMaster {
   }
 
 
-  protected void populateRiskValueRequirements(Batch batch) {
-    populateRiskValueSpecifications(batch);
+  protected void populateRiskValueRequirements(CycleInfo cycleInfo) {
+    populateRiskValueSpecifications(cycleInfo);
     
     Map<Map<String, Object>, Collection<ValueRequirement>> data = newHashMapWithDefaultCollection();
-    for (final String configName : batch.getCycleInfo().getAllCalculationConfigurationNames()) {
-      Map<ValueSpecification, Set<ValueRequirement>> outputs = batch.getCycleInfo().getTerminalOutputsByConfigName(configName);
+    for (final String configName : cycleInfo.getAllCalculationConfigurationNames()) {
+      Map<ValueSpecification, Set<ValueRequirement>> outputs = cycleInfo.getTerminalOutputsByConfigName(configName);
       for (ValueSpecification specification : outputs.keySet()) {
         Long specificationId = _riskValueSpecifications.get(specification);
         for (ValueRequirement requirement : outputs.get(specification)) {
@@ -442,61 +365,94 @@ public class DbBatchWriter extends AbstractDbMaster {
         }
       }
     }
-    _riskValueRequirements.putAll(populate(data, getExtSqlBundle().getSql("SelectRiskValueRequirement"), getExtSqlBundle().getSql("InsertRiskValueRequirement"), "rsk_batch_seq"));
+    _riskValueRequirements.putAll(populate(data, getExtSqlBundle().getSql("SelectRiskValueRequirement"), getExtSqlBundle().getSql("InsertRiskValueRequirement"), RSK_SEQUENCE_NAME));
   }
 
-  protected void populateRiskValueSpecifications(Batch batch) {
+  protected void populateRiskValueSpecifications(CycleInfo cycleInfo) {
     Map<Map<String, Object>, Collection<ValueSpecification>> data = newHashMapWithDefaultCollection();
-    for (final String configName : batch.getCycleInfo().getAllCalculationConfigurationNames()) {
-      for (ValueSpecification specification : batch.getCycleInfo().getTerminalOutputsByConfigName(configName).keySet()) {
+    for (final String configName : cycleInfo.getAllCalculationConfigurationNames()) {
+      for (ValueSpecification specification : cycleInfo.getTerminalOutputsByConfigName(configName).keySet()) {
         Map<String, Object> attribs = newHashMap();
         attribs.put("synthetic_form", RiskValueSpecification.synthesize(specification.getProperties()));
         data.get(attribs).add(specification);
       }
     }
-    _riskValueSpecifications.putAll(populate(data, getExtSqlBundle().getSql("SelectRiskValueSpecification"), getExtSqlBundle().getSql("InsertRiskValueSpecification"), "rsk_batch_seq"));
+    _riskValueSpecifications.putAll(populate(data, getExtSqlBundle().getSql("SelectRiskValueSpecification"), getExtSqlBundle().getSql("InsertRiskValueSpecification"), RSK_SEQUENCE_NAME));
   }
 
-
-  protected void populateComputationTargets(Batch batch) {
-    Map<ComputationTargetType, Long> targetsTypes = populateComputationTargetsTypes(batch);
+  protected void populateComputationTargets(Collection<ComputationTargetSpecification> computationTargetSpecifications) {
 
     Map<Map<String, Object>, Collection<ComputationTargetSpecification>> computationTargetsData = newHashMapWithDefaultCollection();
-    for (final String configName : batch.getCycleInfo().getAllCalculationConfigurationNames()) {
-      for (com.opengamma.engine.ComputationTarget computationTarget : batch.getCycleInfo().getComputationTargetsByConfigName(configName)) {
+    for (ComputationTargetSpecification targetSpecification : computationTargetSpecifications) {
         Map<String, Object> attribs = newHashMap();
-        attribs.put("name", computationTarget.getName());
-        attribs.put("id_scheme", computationTarget.getUniqueId().getScheme());
-        attribs.put("id_value", computationTarget.getUniqueId().getValue());
-        attribs.put("id_version", computationTarget.getUniqueId().getVersion());
-        attribs.put("type_id", targetsTypes.get(computationTarget.getType()));
-        computationTargetsData.get(attribs).add(computationTarget.toSpecification());
+      attribs.put("id_scheme", targetSpecification.getUniqueId().getScheme());
+      attribs.put("id_value", targetSpecification.getUniqueId().getValue());
+      attribs.put("id_version", targetSpecification.getUniqueId().getVersion());
+      attribs.put("type", targetSpecification.getType().name());
+      computationTargetsData.get(attribs).add(targetSpecification);
       }
-    }
-    _computationTargets.putAll(populate(computationTargetsData, getExtSqlBundle().getSql("SelectComputationTarget"), getExtSqlBundle().getSql("InsertComputationTarget"), "rsk_batch_seq"));
+
+    //------------------------------
+
+    String selectComputationTargetSpecificationSql = getExtSqlBundle().getSql("SelectComputationTargetSpecification");
+    String selectComputationTargetSpecificationWithNullVersionSql = getExtSqlBundle().getSql("SelectComputationTargetSpecificationWithNullVersion");
+    String insertComputationTargetSpecificationSql = getExtSqlBundle().getSql("InsertComputationTargetSpecification");
+
+
+    final List<DbMapSqlParameterSource> insertArgsList = new ArrayList<DbMapSqlParameterSource>();
+
+    Map<ComputationTargetSpecification, Long> cache = newHashMap();
+
+    for (Map.Entry<Map<String, Object>, Collection<ComputationTargetSpecification>> attribsToObjects : computationTargetsData.entrySet()) {
+      Map<String, Object> attribs = attribsToObjects.getKey();
+
+      String selectSql;
+      if (attribs.get("id_version") == null) {
+        selectSql = selectComputationTargetSpecificationWithNullVersionSql;
+      } else {
+        selectSql = selectComputationTargetSpecificationSql;
   }
 
-  protected Map<ComputationTargetType, Long> populateComputationTargetsTypes(Batch batch) {
-    Map<Map<String, Object>, Collection<ComputationTargetType>> data = newHashMapWithDefaultCollection();
-    for (final String configName : batch.getCycleInfo().getAllCalculationConfigurationNames()) {
-      for (com.opengamma.engine.ComputationTarget computationTarget : batch.getCycleInfo().getComputationTargetsByConfigName(configName)) {
-        Map<String, Object> attribs = newHashMap();
-        attribs.put("name", computationTarget.getType().name());
-        data.get(attribs).add(computationTarget.getType());
+      final DbMapSqlParameterSource selectArgs = new DbMapSqlParameterSource();
+      for (String attribName : attribs.keySet()) {
+        selectArgs.addValue(attribName, attribs.get(attribName));
+      }
+      List<Map<String, Object>> results = getJdbcTemplate().queryForList(selectSql, selectArgs);
+      if (results.isEmpty()) {
+        // select avoids creating unecessary id, but id may still not be used
+        final long id = nextId(RSK_SEQUENCE_NAME);
+        final DbMapSqlParameterSource insertArgs = new DbMapSqlParameterSource().addValue("id", id);
+        for (String attribName : attribs.keySet()) {
+          insertArgs.addValue(attribName, attribs.get(attribName));
+      }
+        insertArgsList.add(insertArgs);
+        //
+        for (ComputationTargetSpecification obj : attribsToObjects.getValue()) {
+          cache.put(obj, id);
+    }
+      } else {
+        Map<String, Object> result = results.get(0);
+        for (ComputationTargetSpecification obj : attribsToObjects.getValue()) {
+          cache.put(obj, (Long) result.get("ID"));
+        }
       }
     }
-    return populate(data, getExtSqlBundle().getSql("SelectComputationTargetType"), getExtSqlBundle().getSql("InsertComputationTargetType"), "rsk_batch_seq");
+    getJdbcTemplate().batchUpdate(insertComputationTargetSpecificationSql, insertArgsList.toArray(new DbMapSqlParameterSource[insertArgsList.size()]));
+
+    //------------------------------
+
+    _computationTargets.putAll(cache);
   }
 
-  protected void populateCalculationConfigurations(Batch batch) {
+  protected void populateCalculationConfigurations(Long riskRunId, CycleInfo cycleInfo) {
     Map<Map<String, Object>, Collection<String>> data = newHashMapWithDefaultCollection();
-    for (final String configName : batch.getCycleInfo().getAllCalculationConfigurationNames()) {
+    for (final String configName : cycleInfo.getAllCalculationConfigurationNames()) {
       Map<String, Object> map = newHashMap();
       map.put("name", configName);
-      map.put("run_id", extractOid(batch.getUniqueId()));
+      map.put("run_id", riskRunId);
       data.get(map).add(configName);
     }
-    _calculationConfigurations.putAll(populate(data, getExtSqlBundle().getSql("SelectConfigName"), getExtSqlBundle().getSql("InsertConfigName"), "rsk_batch_seq"));
+    _calculationConfigurations.putAll(populate(data, getExtSqlBundle().getSql("SelectConfigName"), getExtSqlBundle().getSql("InsertConfigName"), RSK_SEQUENCE_NAME));
   }
 
   protected <T> Map<T, Long> populate(Map<Map<String, Object>, Collection<T>> data, String selectSql, String insertSql, String pkSequenceName) {
@@ -562,30 +518,22 @@ public class DbBatchWriter extends AbstractDbMaster {
     return new HibernateBatchDbFiles().getHibernateMappingFiles();
   }
 
-  public VersionCorrection createVersionCorrectionInTransaction(com.opengamma.id.VersionCorrection versionCorrection) {
-    s_logger.info("Creating VersionCorrection {} ", versionCorrection);
-    VersionCorrection vc;
-    vc = getVersionCorrection(versionCorrection);
-    if (vc != null) {
-      s_logger.info("VersionCorrection " + versionCorrection + " already exists. No need to create.");
-    } else {
-      vc = new VersionCorrection();
-      vc.setAsOf(versionCorrection.getVersionAsOf());
-      vc.setCorrectedTo(versionCorrection.getCorrectedTo());
-      getHibernateTemplate().save(vc);
-      getHibernateTemplate().flush();
-    }
-    return vc;
+  public void deleteSnapshotInTransaction(ObjectId batchSnapshotId) {
+    final Long id = extractOid(batchSnapshotId);
+    MapSqlParameterSource parameters = new MapSqlParameterSource()
+      .addValue("snapshot_id", id);
+    getJdbcTemplate().update(getExtSqlBundle().getSql("DeleteDataSnapshotEntries"), parameters);
+    getJdbcTemplate().update(getExtSqlBundle().getSql("DeleteDataSnapshot"), parameters);
   }
 
-  public void endBatchInTransaction(UniqueId batchUniqueId) {
+  public void endBatchInTransaction(ObjectId batchUniqueId) {
     ArgumentChecker.notNull(batchUniqueId, "uniqueId");
     s_logger.info("Ending batch {}", batchUniqueId);
     RiskRun run = getRiskRun(batchUniqueId);
     //
     _statusCacheByRunId.remove(run.getId());
     _computeFailureCacheByRunId.remove(run.getId());
-    _batchByRunId.remove(run.getId());
+    _riskRunsByIds.remove(run.getId());
     //
     Instant now = now();
     run.setEndInstant(now);
@@ -616,93 +564,89 @@ public class DbBatchWriter extends AbstractDbMaster {
     getHibernateTemplate().flush();
   }
 
-  public void deleteBatchInTransaction(UniqueId batchUniqueId) {
+  public void deleteBatchInTransaction(ObjectId batchUniqueId) {
     s_logger.info("Deleting batch {}", batchUniqueId);
     RiskRun run = getRiskRun(batchUniqueId);
     deleteRunInTransaction(run);
   }
 
-  public Set<LiveDataValue> getSnapshotValuesInTransaction(UniqueId snapshotUniqueId) {
-    s_logger.info("Getting LiveData snapshot {}", snapshotUniqueId);
-    LiveDataSnapshot liveDataSnapshot = getLiveDataSnapshotInTransaction(snapshotUniqueId);
-
-    if (liveDataSnapshot == null) {
-      throw new IllegalArgumentException("Snapshot " + snapshotUniqueId + " cannot be found");
-    }
-    Set<LiveDataValue> returnValues = new HashSet<LiveDataValue>();
-    for (LiveDataSnapshotEntry entry : liveDataSnapshot.getSnapshotEntries()) {
-      returnValues.add(entry.toLiveDataValue());
-    }
-    return returnValues;
-  }
-
-  protected RiskRun findRiskRunInDbInTransaction(final BatchId batchId) {
+  protected RiskRun findRiskRunInDbInTransaction(
+    final Instant valuationTime,
+    final VersionCorrection versionCorrection,
+    final UniqueId viewDefinitionUid,
+    final UniqueId marketDataBaseUid) {
     return getHibernateTemplate().execute(new HibernateCallback<RiskRun>() {
       @Override
       public RiskRun doInHibernate(Session session) throws HibernateException, SQLException {
         Criteria criteria = session.createCriteria(RiskRun.class);
-        criteria.add(Restrictions.eq("valuationTime", batchId.getValuationTime()));
+        criteria.add(Restrictions.eq("valuationTime", valuationTime));
+        criteria.add(Restrictions.eq("versionCorrection", versionCorrection));
+        criteria.add(Restrictions.eq("viewDefinitionUidScheme", viewDefinitionUid.getScheme()));
+        criteria.add(Restrictions.eq("viewDefinitionUidValue", viewDefinitionUid.getValue()));
+        criteria.add(eqOrIsNull("viewDefinitionUidVersion", viewDefinitionUid.getVersion()));
 
-        Criteria versionCorrectionCriteria = criteria.createCriteria("versionCorrection");
-        versionCorrectionCriteria.add(eqOrIsNull("asOf", batchId.getVersionCorrection().getVersionAsOf()));
-        versionCorrectionCriteria.add(eqOrIsNull("correctedTo", batchId.getVersionCorrection().getCorrectedTo()));
-
-        criteria.createCriteria("viewDefinition").add(Restrictions.eq("viewDefinitionUid", batchId.getViewDefinitionUid().toString()));
-        criteria.createCriteria("liveDataSnapshot").add(Restrictions.eq("marketDataSnapshotUid", batchId.getMarketDataSnapshotUid().toString()));
+        criteria.createCriteria("marketData")
+          .add(Restrictions.eq("baseUidScheme", marketDataBaseUid.getScheme()))
+          .add(Restrictions.eq("baseUidValue", marketDataBaseUid.getValue()))
+          .add(eqOrIsNull("baseUidVersion", marketDataBaseUid.getVersion()));
 
         return (RiskRun) criteria.uniqueResult();
       }
     });
   }
 
-  protected RiskRun findRiskRunInDb(final BatchId batchId) {
+  protected RiskRun findRiskRunInDb(
+    final Instant valuationTime,
+    final VersionCorrection versionCorrection,
+    final UniqueId viewDefinitionUid,
+    final UniqueId marketDataBaseUid) {
     return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<RiskRun>() {
       @Override
       public RiskRun doInTransaction(final TransactionStatus status) {
-        return findRiskRunInDbInTransaction(batchId);
+        return findRiskRunInDbInTransaction(valuationTime, versionCorrection, viewDefinitionUid, marketDataBaseUid);
       }
     });
   }
 
-  protected RiskRun findRiskRunInDb(final Batch batch) {
-    return findRiskRunInDb(batch.getBatchId());
-  }
-
-  private RiskRun findRiskRunInDb(UniqueId uniqueId) {
+  private RiskRun findRiskRunInDb(ObjectId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     final Long id = extractOid(uniqueId);
     return getRiskRunById(id);
   }
 
-  protected RiskRun getRiskRun(UniqueId batchUniqueId) {
-    RiskRun run = findRiskRunInDb(batchUniqueId);
+  protected RiskRun getRiskRun(ObjectId batchId) {
+    RiskRun run = findRiskRunInDb(batchId);
     if (run == null) {
-      throw new DataNotFoundException("Cannot find run in database for " + batchUniqueId);
+      throw new DataNotFoundException("Cannot find run in database for " + batchId);
     } else {
       return run;
     }
   }
 
-  protected RiskRun createRiskRunInTransaction(final Batch batch, final SnapshotMode snapshotMode) {
+  protected RiskRun createRiskRunInTransaction(
+    final UniqueId viewDefinitionUid,
+    final UniqueId baseMarketDataSnapshotUid,
+    final VersionCorrection versionCorrection,
+    final Instant valuationTime,
+    final Map<String, String> batchParameters,
+    final SnapshotMode snapshotMode) {
+
     Instant now = Instant.now();
 
-    VersionCorrection versionCorrection = createVersionCorrectionInTransaction(batch.getBatchId().getVersionCorrection());
-
-    ViewDefinition viewDefinition = createViewDefinitionInTransaction(batch.getBatchId().getViewDefinitionUid());
-
-    LiveDataSnapshot snapshot = createOrGetLiveDataSnapshotInTransaction(batch.getBatchId().getMarketDataSnapshotUid());
+    MarketData values = createOrGetMarketDataInTransaction(baseMarketDataSnapshotUid);
 
     RiskRun riskRun = new RiskRun();
-    riskRun.setLiveDataSnapshot(snapshot);
+    riskRun.setMarketData(values);
     riskRun.setVersionCorrection(versionCorrection);
-    riskRun.setViewDefinition(viewDefinition);
-    riskRun.setValuationTime(batch.getBatchId().getValuationTime());
+    riskRun.setViewDefinitionUid(viewDefinitionUid);
+    riskRun.setValuationTime(valuationTime);
     riskRun.setCreateInstant(now);
     riskRun.setStartInstant(now);
     riskRun.setNumRestarts(0);
     riskRun.setComplete(false);
+    riskRun.setSnapshotMode(snapshotMode);
 
-    for (Map.Entry<String, String> parameter : batch.getParametersMap().entrySet()) {
+    for (Map.Entry<String, String> parameter : batchParameters.entrySet()) {
       riskRun.addProperty(parameter.getKey(), parameter.getValue());
     }
 
@@ -710,150 +654,171 @@ public class DbBatchWriter extends AbstractDbMaster {
     getHibernateTemplate().saveOrUpdateAll(riskRun.getProperties());
     getHibernateTemplate().flush();
 
-    batch.setUniqueId(UniqueId.of(IDENTIFIER_SCHEME_DEFAULT, Long.toString(riskRun.getId())));
-
     return riskRun;
   }
 
-  public void startBatchInTransaction(Batch batch, RunCreationMode runCreationMode, SnapshotMode snapshotMode) {
-    s_logger.info("Starting batch {}", batch);
+  public RiskRun startBatchInTransaction(CycleInfo cycleInfo, Map<String, String> batchParameters, RunCreationMode runCreationMode, SnapshotMode snapshotMode) {
+    s_logger.info("Starting batch ... {}", cycleInfo);
 
     RiskRun run;
     switch (runCreationMode) {
       case AUTO:
-        run = findRiskRunInDb(batch);
+        run = findRiskRunInDb(cycleInfo.getValuationTime(), cycleInfo.getVersionCorrection(), cycleInfo.getViewDefinitionUid(), cycleInfo.getMarketDataSnapshotUniqueId());
 
         if (run != null) {
           // also check parameter equality
           Map<String, String> existingProperties = run.getPropertiesMap();
-          Map<String, String> newProperties = batch.getParametersMap();
 
-          if (!existingProperties.equals(newProperties)) {
-            Set<Map.Entry<String, String>> symmetricDiff =
-              Sets.symmetricDifference(existingProperties.entrySet(), newProperties.entrySet());
+          if (!existingProperties.equals(batchParameters)) {
+            Set<Map.Entry<String, String>> symmetricDiff = Sets.symmetricDifference(existingProperties.entrySet(), batchParameters.entrySet());
             throw new IllegalStateException("Run parameters stored in DB differ from new parameters with respect to: " + symmetricDiff);
           }
         }
 
         if (run == null) {
-          run = createRiskRunInTransaction(batch, snapshotMode);
+          run = createRiskRunInTransaction(cycleInfo.getViewDefinitionUid(), cycleInfo.getMarketDataSnapshotUniqueId(), cycleInfo.getVersionCorrection(), cycleInfo.getValuationTime(), batchParameters, snapshotMode);
         } else {
-          restartRunInTransaction(batch, run);
+          restartRunInTransaction(run);
         }
         break;
 
       case CREATE_NEW_OVERWRITE:
-        run = findRiskRunInDb(batch);
+        run = findRiskRunInDb(cycleInfo.getValuationTime(), cycleInfo.getVersionCorrection(), cycleInfo.getViewDefinitionUid(), cycleInfo.getMarketDataSnapshotUniqueId());
         if (run != null) {
           deleteRunInTransaction(run);
         }
 
-        run = createRiskRunInTransaction(batch, snapshotMode);
+        run = createRiskRunInTransaction(cycleInfo.getViewDefinitionUid(), cycleInfo.getMarketDataSnapshotUniqueId(), cycleInfo.getVersionCorrection(), cycleInfo.getValuationTime(), batchParameters, snapshotMode);
         break;
 
       case CREATE_NEW:
-        run = createRiskRunInTransaction(batch, snapshotMode);
+        run = createRiskRunInTransaction(cycleInfo.getViewDefinitionUid(), cycleInfo.getMarketDataSnapshotUniqueId(), cycleInfo.getVersionCorrection(), cycleInfo.getValuationTime(), batchParameters, snapshotMode);
         break;
 
       case REUSE_EXISTING:
-        run = findRiskRunInDb(batch);
+        run = findRiskRunInDb(cycleInfo.getValuationTime(), cycleInfo.getVersionCorrection(), cycleInfo.getViewDefinitionUid(), cycleInfo.getMarketDataSnapshotUniqueId());
         if (run == null) {
-          throw new IllegalStateException("Cannot find run in database for " + batch);
+          throw new IllegalStateException("Cannot find run in database for " + cycleInfo);
         }
-        restartRunInTransaction(batch, run);
+        restartRunInTransaction(run);
         break;
 
       default:
         throw new RuntimeException("Unexpected run creation mode " + runCreationMode);
     }
 
-    populateCalculationConfigurations(batch);
-    populateRiskValueNames(batch);
-    populateRiskValueRequirements(batch);
-    populateComputationTargets(batch);
+    populateCalculationConfigurations(run.getId(), cycleInfo);
+    populateRiskValueRequirements(cycleInfo);
+
+    Collection<ComputationTargetSpecification> computationTargets = newArrayList();
+    for (final String configName : cycleInfo.getAllCalculationConfigurationNames()) {
+      for (com.opengamma.engine.ComputationTarget computationTarget : cycleInfo.getComputationTargetsByConfigName(configName)) {
+        computationTargets.add(computationTarget.toSpecification());
+      }
+    }
+    populateComputationTargets(computationTargets);
 
     _statusCacheByRunId.put(run.getId(), new ConcurrentHashMap<Pair<Long, Long>, StatusEntry>());
     _computeFailureCacheByRunId.put(run.getId(), new ConcurrentHashMap<ComputeFailureKey, ComputeFailure>());
 
-    batch.setUniqueId(UniqueId.of(IDENTIFIER_SCHEME_DEFAULT, Long.toString(run.getId())));
-    batch.setSnapshotMode(snapshotMode);
-    _batchByRunId.put(run.getId(), batch);
+    _riskRunsByIds.put(run.getId(), run);
+
+    return run;
   }
 
-  public LiveDataSnapshot createOrGetLiveDataSnapshotInTransaction(final UniqueId marketDataSnapshotUniqueId) {
-    s_logger.info("Creating LiveData snapshot {} ", marketDataSnapshotUniqueId);
-    LiveDataSnapshot liveDataSnapshot = getHibernateTemplate().execute(new HibernateCallback<LiveDataSnapshot>() {
+  public MarketData createOrGetMarketDataInTransaction(final UniqueId baseUid) {
+    s_logger.info("Creating Market Data {} ", baseUid);
+    MarketData marketData = getHibernateTemplate().execute(new HibernateCallback<MarketData>() {
       @Override
-      public LiveDataSnapshot doInHibernate(Session session) throws HibernateException, SQLException {
-        Query query = session.getNamedQuery("LiveDataSnapshot.one.byMarketDataSnapshotUid");
-        query.setString("marketDataSnapshotUid", marketDataSnapshotUniqueId.toString());
-        return (LiveDataSnapshot) query.uniqueResult();
+      public MarketData doInHibernate(Session session) throws HibernateException, SQLException {
+
+        final DetachedCriteria criteria = DetachedCriteria.forClass(MarketData.class);
+        criteria.add(Restrictions.eq("baseUidScheme", baseUid.getScheme()))
+          .add(Restrictions.eq("baseUidValue", baseUid.getValue()))
+          .add(eqOrIsNull("baseUidVersion", baseUid.getVersion()));
+
+        List<MarketData> datas = getHibernateTemplate().findByCriteria(criteria, 0, 1);
+        if (datas.size() > 0) {
+          return datas.get(0);
+        } else {
+          return null;
+        }
       }
     });
-    if (liveDataSnapshot != null) {
-      s_logger.info("Snapshot " + marketDataSnapshotUniqueId + " already exists. No need to create.");
+    if (marketData != null) {
+      s_logger.info("Snapshot " + baseUid + " already exists. No need to create.");
     } else {
-      liveDataSnapshot = new LiveDataSnapshot();
-      liveDataSnapshot.setMarketDataSnapshotUid(marketDataSnapshotUniqueId.toString());
-      getHibernateTemplate().save(liveDataSnapshot);
+      marketData = new MarketData();
+      marketData.setBaseUid(baseUid);
+      getHibernateTemplate().save(marketData);
       getHibernateTemplate().flush();
     }
-    return liveDataSnapshot;
+    return marketData;
   }
 
-  public void addValuesToSnapshotInTransaction(UniqueId marketDataSnapshotUniqueId, Set<LiveDataValue> values) {
-    s_logger.info("Adding {} values to LiveData snapshot {}", values.size(), marketDataSnapshotUniqueId);
+  public void addValuesToMarketDataInTransaction(ObjectId marketDataId, Set<MarketDataValue> values) {
+    s_logger.info("Adding {} values to market data {}", values.size(), marketDataId);
 
-    LiveDataSnapshot snapshot = getLiveDataSnapshotInTransaction(marketDataSnapshotUniqueId);
-    if (snapshot == null) {
-      throw new IllegalArgumentException("Snapshot " + marketDataSnapshotUniqueId + " cannot be found");
-    }
+    MarketData marketData = getMarketDataInTransaction(marketDataId);
 
-    Collection<LiveDataSnapshotEntry> changedEntries = new ArrayList<LiveDataSnapshotEntry>();
-    for (LiveDataValue value : values) {
-      LiveDataSnapshotEntry entry = snapshot.getEntry(value.getComputationTargetSpecification(), value.getFieldName());
-      if (entry != null) {
-        if (entry.getValue() != value.getValue()) {
-          entry.setValue(value.getValue());
-          changedEntries.add(entry);
+    if (marketData == null) {
+      throw new IllegalArgumentException("Market data " + marketDataId + " cannot be found");
         }
-      } else {
-        entry = new LiveDataSnapshotEntry();
-        entry.setSnapshot(snapshot);
-        entry.setComputationTarget(getOrCreateComputationTargetInTransaction(value.getComputationTargetSpecification(), value.getValueName()));
-        entry.setField(getLiveDataField(value.getFieldName()));
-        entry.setValue(value.getValue());
-        snapshot.addEntry(entry);
-        changedEntries.add(entry);
+    
+    if (values.size() > 0) {
+
+      List<DbMapSqlParameterSource> marketDataValuesInserts = newArrayList();
+
+
+      Collection<ComputationTargetSpecification> computationTargetSpecifications = newArrayList();
+
+      for (MarketDataValue value : values) {
+        ComputationTargetSpecification targetSpecification = value.getComputationTargetSpecification();
+        computationTargetSpecifications.add(targetSpecification);
       }
+      populateComputationTargets(computationTargetSpecifications);
+
+      Collection<Long> IDs = newArrayList();
+
+      for (MarketDataValue value : values) {
+        ComputationTargetSpecification targetSpecification = value.getComputationTargetSpecification();
+
+        final long id = nextId(RSK_SEQUENCE_NAME);
+        IDs.add(id);
+        final DbMapSqlParameterSource insertArgs = new DbMapSqlParameterSource()
+          .addValue("id", id)
+          .addValue("snapshot_id", marketData.getId())
+          .addValue("computation_target_id", _computationTargets.get(targetSpecification))
+          .addValue("name", value.getName())
+          .addValue("value", value.getValue());
+
+        marketDataValuesInserts.add(insertArgs);
     }
 
-    getHibernateTemplate().saveOrUpdateAll(changedEntries);
-    getHibernateTemplate().flush();
+
+      getJdbcTemplate().batchUpdate(
+        getExtSqlBundle().getSql("InsertMarketDataValue"),
+        marketDataValuesInserts.toArray(new DbMapSqlParameterSource[marketDataValuesInserts.size()])
+      );
+
+      //List<Map<String, Object>> marketDataValuesToBeCopied = getJdbcTemplate().queryForList(getExtSqlBundle().getSql("SelectMarketDataValuesToBeCopied"));
+
+      getJdbcTemplate().update(getExtSqlBundle().getSql("CopyMarketDataValue").replace("INSERTION_IDS", StringUtils.join(IDs, ", ")));
+
+      getJdbcTemplate().update("DELETE FROM rsk_live_data_snapshot_entry_insertion WHERE id in (INSERTION_IDS)".replace("INSERTION_IDS", StringUtils.join(IDs, ", ")));
+    }
   }
 
   // -------------------------------------------------------------------------------------------------------------------
 
 
-  public void addJobResultsInTransaction(UniqueId runUniqueId, ViewComputationResultModel resultModel) {          
-    
+  public void addJobResultsInTransaction(ObjectId runId, ViewComputationResultModel resultModel) {
 
-    ArgumentChecker.notNull(runUniqueId, "runUniqueId");
+    ArgumentChecker.notNull(runId, "runId");
     ArgumentChecker.notNull(resultModel, "resultModel");
-    final Long riskRunId = extractOid(runUniqueId);
+    final Long riskRunId = extractOid(runId);
 
-    Batch batch = _batchByRunId.get(riskRunId);
-    if (batch.getSnapshotMode().equals(SnapshotMode.WRITE_THROUGH)) {
-      Set<ComputedValue> marketData = resultModel.getAllMarketData();
-      addValuesToSnapshotInTransaction(batch.getCycleInfo().getMarketDataSnapshotUniqueId(),
-        map(new HashSet<LiveDataValue>(), marketData, new Function1<ComputedValue, LiveDataValue>() {
-          @Override
-          public LiveDataValue execute(ComputedValue computedValue) {
-            return new LiveDataValue(computedValue, computedValue.getSpecification().getValueName());
-          }
-        })
-      );
-    }
+    RiskRun run = _riskRunsByIds.get(riskRunId);
 
     Map<ComputeFailureKey, ComputeFailure> computeFailureCache = _computeFailureCacheByRunId.get(riskRunId);
     Map<Pair<Long, Long>, StatusEntry> statusCache = _statusCacheByRunId.get(riskRunId);
@@ -925,7 +890,7 @@ public class DbBatchWriter extends AbstractDbMaster {
 
       Long calcConfId = _calculationConfigurations.get(calcConfigName);
 
-      for (ComputationTargetSpecification compTargetSpec : viewCalculationResultModel.getAllTargets()) {
+      for (final ComputationTargetSpecification compTargetSpec : viewCalculationResultModel.getAllTargets()) {
 
         if (successfulTargets.contains(compTargetSpec)) {
 
@@ -935,24 +900,26 @@ public class DbBatchWriter extends AbstractDbMaster {
             continue;
           }
 
-          for (ComputedValue computedValue : viewCalculationResultModel.getAllValues(compTargetSpec)) {
+          for (final ComputedValue computedValue : viewCalculationResultModel.getAllValues(compTargetSpec)) {
 
             @SuppressWarnings("unchecked")
             ResultConverter<Object> resultConverter = (ResultConverter<Object>) _resultConverterCache.getConverter(computedValue.getValue());
             Map<String, Double> valuesAsDoubles = resultConverter.convert(computedValue.getSpecification().getValueName(), computedValue.getValue());
 
-            Long computationTargetId = _computationTargets.get(compTargetSpec);
+            final Long computationTargetId = _computationTargets.get(compTargetSpec);
 
             for (Map.Entry<String, Double> riskValueEntry : valuesAsDoubles.entrySet()) {
+
+              String riskValueName = riskValueEntry.getKey();
+              Double riskValue = riskValueEntry.getValue();
+
               ValueSpecification specification = computedValue.getSpecification();
 
               Long valueSpecificationId = _riskValueSpecifications.get(specification);
-              Long valueNameId = _riskValueNames.get(specification.getValueName());
               Long functionUniqueId = getFunctionUniqueIdInTransaction(specification.getFunctionUniqueId()).getId();
               Long computeNodeId = getOrCreateComputeNode(computedValue.getComputeNodeId()).getId();
 
               ArgumentChecker.notNull(calcConfId, "calcConfId");
-              ArgumentChecker.notNull(valueNameId, "valueNameId");
               ArgumentChecker.notNull(valueSpecificationId, "valueSpecificationId");
               ArgumentChecker.notNull(functionUniqueId, "functionUniqueId");
               ArgumentChecker.notNull(computationTargetId, "computationTargetId");
@@ -960,19 +927,31 @@ public class DbBatchWriter extends AbstractDbMaster {
               ArgumentChecker.notNull(computeNodeId, "computeNodeId");
 
               final DbMapSqlParameterSource insertArgs = new DbMapSqlParameterSource();
-              final long successId = nextId("rsk_batch_seq");
+              final long successId = nextId(RSK_SEQUENCE_NAME);
               insertArgs.addValue("id", successId);
               insertArgs.addValue("calculation_configuration_id", calcConfId);
-              insertArgs.addValue("value_label", riskValueEntry.getKey());
-              insertArgs.addValue("value_name_id", valueNameId);
+              insertArgs.addValue("name", riskValueName);
               insertArgs.addValue("value_specification_id", valueSpecificationId);
               insertArgs.addValue("function_unique_id", functionUniqueId);
               insertArgs.addValue("computation_target_id", computationTargetId);
               insertArgs.addValue("run_id", riskRunId);
-              insertArgs.addValue("value", riskValueEntry.getValue());
+              insertArgs.addValue("value", riskValue);
               insertArgs.addTimestamp("eval_instant", evalInstant);
               insertArgs.addValue("compute_node_id", computeNodeId);
               successes.add(insertArgs);
+
+
+              // writhe through market data
+              if (run.getSnapshotMode().equals(SnapshotMode.WRITE_THROUGH)) {
+                addValuesToMarketDataInTransaction(run.getMarketData().getObjectId(),
+                  map(new HashSet<MarketDataValue>(), valuesAsDoubles.entrySet(), new Function1<Map.Entry<String, Double>, MarketDataValue>() {
+                    @Override
+                    public MarketDataValue execute(Map.Entry<String, Double> valueEntry) {
+                      return new MarketDataValue(compTargetSpec, valueEntry.getValue(), valueEntry.getKey());
+                    }
+                  })
+                );
+              }
             }
           }
 
@@ -987,12 +966,10 @@ public class DbBatchWriter extends AbstractDbMaster {
             ValueSpecification specification = computedValue.getSpecification();
 
             Long valueSpecificationId = _riskValueSpecifications.get(specification);
-            Long valueNameId = _riskValueNames.get(specification.getValueName());
             Long functionUniqueId = getFunctionUniqueIdInTransaction(specification.getFunctionUniqueId()).getId();
             Long computeNodeId = getOrCreateComputeNode(computedValue.getComputeNodeId()).getId();
 
             ArgumentChecker.notNull(calcConfId, "calcConfId");
-            ArgumentChecker.notNull(valueNameId, "valueNameId");
             ArgumentChecker.notNull(valueSpecificationId, "valueSpecificationId");
             ArgumentChecker.notNull(functionUniqueId, "functionUniqueId");
             ArgumentChecker.notNull(computationTargetId, "computationTargetId");
@@ -1000,10 +977,10 @@ public class DbBatchWriter extends AbstractDbMaster {
             ArgumentChecker.notNull(computeNodeId, "computeNodeId");
 
             final DbMapSqlParameterSource insertArgs = new DbMapSqlParameterSource();
-            final long failureId = nextId("rsk_batch_seq");
+            final long failureId = nextId(RSK_SEQUENCE_NAME);
             insertArgs.addValue("id", failureId);
             insertArgs.addValue("calculation_configuration_id", calcConfId);
-            insertArgs.addValue("value_name_id", valueNameId);
+            insertArgs.addValue("name", specification.getValueName());
             insertArgs.addValue("value_specification_id", valueSpecificationId);
             insertArgs.addValue("function_unique_id", functionUniqueId);
             insertArgs.addValue("computation_target_id", computationTargetId);
@@ -1022,7 +999,7 @@ public class DbBatchWriter extends AbstractDbMaster {
                   for (Number computeFailureId : cachedFailure.getComputeFailureIds()) {
                     ArgumentChecker.notNull(computeFailureId, "computeFailureId");
                     final DbMapSqlParameterSource failureReasonsInsertArgs = new DbMapSqlParameterSource();
-                    final long failureReasonId = nextId("rsk_batch_seq");        
+                    final long failureReasonId = nextId(RSK_SEQUENCE_NAME);
                     failureReasonsInsertArgs.addValue("id", failureReasonId);
                     failureReasonsInsertArgs.addValue("rsk_failure_id", failureId);
                     failureReasonsInsertArgs.addValue("compute_failure_id", computeFailureId);
@@ -1110,7 +1087,7 @@ public class DbBatchWriter extends AbstractDbMaster {
         params.addValue("status", statusEntry.getStatus().ordinal());
         updates.add(params);
       } else {
-        final long statusId = nextId("rsk_batch_seq");
+        final long statusId = nextId(RSK_SEQUENCE_NAME);
 
         final DbMapSqlParameterSource insertArgs = new DbMapSqlParameterSource();
         insertArgs.addValue("ID", statusId);
@@ -1298,7 +1275,7 @@ public class DbBatchWriter extends AbstractDbMaster {
   public ComputeFailure saveComputeFailure(Map<ComputeFailureKey, ComputeFailure> computeFailureCache, ComputeFailureKey computeFailureKey) {
     ComputeFailure computeFailure;
     computeFailure = new ComputeFailure();
-    final long computeFailureId = nextId("rsk_batch_seq");
+    final long computeFailureId = nextId(RSK_SEQUENCE_NAME);
     computeFailure.setId(computeFailureId);
     computeFailure.setFunctionId(computeFailureKey.getFunctionId());
     computeFailure.setExceptionClass(computeFailureKey.getExceptionClass());

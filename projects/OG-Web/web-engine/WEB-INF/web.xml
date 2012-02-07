@@ -33,11 +33,11 @@
   </servlet>
 
   <filter>
-    <filter-name>spring-request</filter-name>
+    <filter-name>spring-requestRun</filter-name>
     <filter-class>org.springframework.web.filter.RequestContextFilter</filter-class>
   </filter>
   <filter-mapping>
-    <filter-name>spring-request</filter-name>
+    <filter-name>spring-requestRun</filter-name>
     <url-pattern>/jax/*</url-pattern>
   </filter-mapping>
 

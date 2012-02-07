@@ -5,6 +5,7 @@
  */
 package com.opengamma.masterdb.batch;
 
+import com.opengamma.batch.domain.*;
 import com.opengamma.util.db.HibernateMappingFiles;
 
 /**
@@ -19,16 +20,13 @@ public class HibernateBatchDbFiles implements HibernateMappingFiles {
       ComputeHost.class,
       ComputeNode.class,
       LiveDataField.class,
-      LiveDataSnapshot.class,
-      LiveDataSnapshotEntry.class,
-      VersionCorrection.class,
-      ViewDefinition.class,
+      MarketData.class,
+      MarketDataValue.class,
       RiskRun.class,
-      RiskValueName.class,
       RiskValueRequirement.class,
       RiskValueSpecification.class,
       FunctionUniqueId.class,
-      ComputationTarget.class,
+      HbComputationTargetSpecification.class,
       RiskRunProperty.class
     };
   }

@@ -22,9 +22,8 @@ import javax.time.Instant;
 
 
 /**
- * Persist {@link org.joda.time.Instant} via hibernate as a TIMESTAMP.
+ * Persist {@link javax.time.Instant} via hibernate as a TIMESTAMP.
  *
- * @author Olav Reinert (oreinert@sourceforge.net)
  */
 public class PersistentInstant implements EnhancedUserType {
   

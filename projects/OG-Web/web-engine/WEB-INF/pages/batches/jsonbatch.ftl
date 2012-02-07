@@ -22,7 +22,7 @@
 </#list>
         ],
         "batch_errors": [<#list batch.errors as item>
-            "${item.calculationConfiguration}|${item.computationTarget}|${item.valueName}|${item.functionUniqueId}|${item.exceptionClass}|${item.exceptionMsg}|${item.stackTrace}"
+            "${item.calculationConfiguration}|${item.hbComputationTargetSpecification}|${item.valueName}|${item.functionUniqueId}|${item.exceptionClass}|${item.exceptionMsg}|${item.stackTrace}"
         <#if item_has_next>,</#if>
 </#list>
         ]

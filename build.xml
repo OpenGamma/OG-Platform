@@ -220,7 +220,7 @@
 		<subant genericantfile="${wkspace.dir}/build.xml" target="source-dist-dep" inheritall="true">
 			<dirset dir="projects" includes="*" />
 		</subant>
-		<!-- Some packages request older versions while others use later ones which are downloaded.
+		<!-- Some packages requestRun older versions while others use later ones which are downloaded.
 		     Need to manually fetch the older version into the cache so the resolve works correctly. -->
 		<!-- TODO: probably don't need the jar, just the ivy.xml file for these ! -->
 		<fetchJAR org="org.springframework" module="spring" revision="[2.5.3,3.0[" conf="core" />

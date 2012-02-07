@@ -5,6 +5,8 @@
  */
 package com.opengamma.masterdb.batch;
 
+import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.test.DbTest;
 import org.slf4j.Logger;
@@ -13,6 +15,7 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertNull;
+import static org.testng.Assert.fail;
 import static org.testng.AssertJUnit.assertNotNull;
 
 /**
@@ -32,18 +35,20 @@ public class DbBatchGetTest extends AbstractDbBatchMasterTest {
   //-------------------------------------------------------------------------
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testGetBatchByNullUID() {
-    _batchMaster.get(null);
+    _batchMaster.getRiskRun(null);
   }
 
   @Test
   public void testGetBatchByUID() {    
-    assertNotNull(_batchMaster.get(UniqueId.of(DbBatchMaster.IDENTIFIER_SCHEME_DEFAULT, "1")));
+    assertNotNull(_batchMaster.getRiskRun(ObjectId.of(DbBatchMaster.BATCH_IDENTIFIER_SCHEME, "1")));
   }
   
-  @Test
+  @Test(expectedExceptions = DataNotFoundException.class)
   public void testDeleteBatchByUID() {
-    UniqueId uid = UniqueId.of(DbBatchMaster.IDENTIFIER_SCHEME_DEFAULT, "1");
-    _batchMaster.delete(uid);
-    assertNull(_batchMaster.get(uid));
+    ObjectId id = ObjectId.of(DbBatchMaster.BATCH_IDENTIFIER_SCHEME, "1");
+    assertNotNull(_batchMaster.getRiskRun(id));
+    _batchMaster.deleteRiskRun(id);
+    _batchMaster.getRiskRun(id);
+    fail("we should not reach this point due to exception");
   }  
 }

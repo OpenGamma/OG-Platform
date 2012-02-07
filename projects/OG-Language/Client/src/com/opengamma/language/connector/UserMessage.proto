@@ -13,7 +13,7 @@ namespace com.opengamma.language.connector {
   
     /**
      * A handle is required for messages where a synchronous response is expected, or for the response itself. The
-     * handle links the request and the response.
+     * handle links the requestRun and the response.
      */
     optional int handle = 1;
     

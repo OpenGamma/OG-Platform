@@ -7,13 +7,13 @@ namespace com.opengamma.livedata.msg {
 
   /**
    * A code containing the ultimate result of a live data
-   * subscription request.
+   * subscription requestRun.
    *
    * @author kirk
    */
   enum LiveDataSubscriptionResult {
     /**
-     * The subscription request was successful and data will begin
+     * The subscription requestRun was successful and data will begin
      * flowing.
      */
     SUCCESS;

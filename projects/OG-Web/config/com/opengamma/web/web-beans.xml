@@ -36,7 +36,7 @@
     <property name="underlying" ref="dbHtsMaster" />
   </bean>
   
-  <bean id="batchMasterRestBean" class="com.opengamma.financial.batch.rest.BatchMasterService">
+  <bean id="batchMasterRestBean" class="com.opengamma.batch.rest.BatchMasterService">
     <constructor-arg ref="fudgeContext" />
     <property name="underlying" ref="dbBatchMaster" />
   </bean>

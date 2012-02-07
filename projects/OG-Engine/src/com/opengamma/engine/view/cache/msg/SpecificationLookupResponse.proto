@@ -10,7 +10,7 @@ namespace com.opengamma.engine.view.cache.msg {
   
     /**
      * The specifications for each identifier in the order that they were
-     * present in the request message.
+     * present in the requestRun message.
      */
     repeated required value.ValueSpecification specification;
   

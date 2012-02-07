@@ -68,7 +68,7 @@
   <!--                    resources can be found.                           -->
   <!--                                                                      -->
   <!--   redirectWelcome  If true, redirect welcome file requests           -->
-  <!--                    else use request dispatcher forwards              -->
+  <!--                    else use requestRun dispatcher forwards              -->
   <!--                                                                      -->
   <!--   gzip             If set to true, then static content will be served--> 
   <!--                    as gzip content encoded if a matching resource is -->
@@ -284,7 +284,7 @@
   <!-- Dynamic Servlet Invoker.                                             -->
   <!-- This servlet invokes anonymous servlets that have not been defined   -->
   <!-- in the web.xml or by other means. The first element of the pathInfo  -->
-  <!-- of a request passed to the envoker is treated as a servlet name for  -->
+  <!-- of a requestRun passed to the envoker is treated as a servlet name for  -->
   <!-- an existing servlet, or as a class name of a new servlet.            -->
   <!-- This servlet is normally mapped to /servlet/*                        -->
   <!-- This servlet support the following initParams:                       -->

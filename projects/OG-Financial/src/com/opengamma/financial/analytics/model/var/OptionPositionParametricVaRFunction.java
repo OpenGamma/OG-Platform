@@ -106,7 +106,7 @@ public class OptionPositionParametricVaRFunction {/*extends AbstractFunction.Non
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final HbComputationTargetSpecification target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
@@ -149,12 +149,12 @@ public class OptionPositionParametricVaRFunction {/*extends AbstractFunction.Non
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final HbComputationTargetSpecification target) {
     return target.getType() == ComputationTargetType.POSITION && target.getPosition().getSecurity() instanceof EquityOptionSecurity;
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final HbComputationTargetSpecification target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
@@ -166,7 +166,7 @@ public class OptionPositionParametricVaRFunction {/*extends AbstractFunction.Non
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final HbComputationTargetSpecification target) {
     if (canApplyTo(context, target)) {
       return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, target.getPosition()), getUniqueId()));
     }

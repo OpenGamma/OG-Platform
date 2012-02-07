@@ -5,6 +5,7 @@
  */
 package com.opengamma.masterdb.batch;
 
+import com.google.common.collect.Maps;
 import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -12,13 +13,17 @@ import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.CycleInfo;
+import com.opengamma.batch.*;
+import com.opengamma.batch.domain.RiskRun;
+import com.opengamma.batch.rest.BatchRunSearchRequest;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.batch.*;
 import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.util.paging.Paging;
 import com.opengamma.util.test.DbTest;
+import com.opengamma.util.tuple.Pair;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
@@ -121,50 +126,49 @@ public class DbBatchMasterTest extends DbTest {
 
   @Test
   public void searchAllBatches() {
-    Batch batch = new Batch(_cycleInfoStub);
+    final UniqueId marketDataUid = _cycleInfoStub.getMarketDataSnapshotUniqueId();                
+    _batchMaster.createMarketData(marketDataUid);            
+    RiskRun run = _batchMaster.startRiskRun(_cycleInfoStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
 
-    _batchMaster.createLiveDataSnapshot(batch.getBatchId().getMarketDataSnapshotUid());
-    _batchMaster.startBatch(batch, RunCreationMode.AUTO, SnapshotMode.PREPARED);
+    BatchRunSearchRequest requestRun = new BatchRunSearchRequest();
 
-    BatchSearchRequest request = new BatchSearchRequest();
-
-    BatchSearchResult result = _batchMaster.search(request);
+    Pair<List<RiskRun>, Paging> result = _batchMaster.searchRiskRun(requestRun);
     assertNotNull(result);
 
-    assertEquals(1, result.getDocuments().size());
-    BatchDocument item = result.getDocuments().get(0);
-    assertNotNull(item.getUniqueId());
-    assertEquals(item.getValuationTime(), batch.getBatchId().getValuationTime());
-    assertEquals(BatchStatus.RUNNING, item.getStatus());
+    assertEquals(1, result.getFirst().size());
+    RiskRun item = result.getFirst().get(0);
+    assertNotNull(item.getObjectId());
+    assertEquals(item.getValuationTime(), run.getValuationTime());
+    assertEquals(false, item.isComplete());
 
-    _batchMaster.endBatch(batch.getUniqueId());
-    result = _batchMaster.search(request);
-    assertEquals(1, result.getDocuments().size());
-    item = result.getDocuments().get(0);
-    assertNotNull(item.getUniqueId());
-    assertEquals(item.getValuationTime(), batch.getBatchId().getValuationTime());
-    assertEquals(BatchStatus.COMPLETE, item.getStatus());
+    _batchMaster.endRiskRun(item.getObjectId());
+    
+    result = _batchMaster.searchRiskRun(requestRun);
+    assertEquals(1, result.getFirst().size());
+    item = result.getFirst().get(0);
+    assertNotNull(item.getObjectId());
+    assertEquals(item.getValuationTime(), run.getValuationTime());
+    assertEquals(true, item.isComplete());
   }
 
 
   @Test
   public void searchOneBatch() {
-    Batch batch = new Batch(_cycleInfoStub);
+    final UniqueId marketDataUid = _cycleInfoStub.getMarketDataSnapshotUniqueId();                
+    _batchMaster.createMarketData(marketDataUid);            
+    RiskRun run = _batchMaster.startRiskRun(_cycleInfoStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
 
-    _batchMaster.createLiveDataSnapshot(batch.getBatchId().getMarketDataSnapshotUid());
-    _batchMaster.startBatch(batch, RunCreationMode.AUTO, SnapshotMode.PREPARED);
+    BatchRunSearchRequest requestRun = new BatchRunSearchRequest();
+    requestRun.setValuationTime(run.getValuationTime());
 
-    BatchSearchRequest request = new BatchSearchRequest();
-    request.setValuationTime(batch.getBatchId().getValuationTime());
-
-    BatchSearchResult result = _batchMaster.search(request);
+    Pair<List<RiskRun>, Paging> result = _batchMaster.searchRiskRun(requestRun);
     assertNotNull(result);
 
-    assertEquals(1, result.getDocuments().size());
-    BatchDocument item = result.getDocuments().get(0);
-    assertNotNull(item.getUniqueId());
-    assertEquals(item.getValuationTime(), batch.getBatchId().getValuationTime());
-    assertEquals(BatchStatus.RUNNING, item.getStatus());
+    assertEquals(1, result.getFirst().size());
+    RiskRun item = result.getFirst().get(0);
+    assertNotNull(item.getObjectId());
+    assertEquals(item.getValuationTime(), run.getValuationTime());
+    assertEquals(false, item.isComplete());
   }
 
 }

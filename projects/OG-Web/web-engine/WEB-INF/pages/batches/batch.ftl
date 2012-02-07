@@ -41,7 +41,7 @@
 	"Stack trace"
 	]; item>
       <td>${item.calculationConfiguration}</td>
-      <td>${item.computationTarget}</td>
+      <td>${item.hbComputationTargetSpecification}</td>
       <td>${item.valueName}</td>
       <td>${item.functionUniqueId}</td>
       <td>${item.exceptionClass}</td>
