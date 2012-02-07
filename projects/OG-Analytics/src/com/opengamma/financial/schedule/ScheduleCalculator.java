@@ -83,6 +83,42 @@ public final class ScheduleCalculator {
   }
 
   /**
+   * Return a good business date computed from a given date and shifted by a certain number of business days.
+   * This version uses LocalDate.
+   * If the number of shift days is 0, the return date is the next business day.
+   * If the number of shift days is non-zero (positive or negative), a 0 shift is first applied and then a one business day shift is applied as many time as the absolute value of the shift.
+   * If the shift is positive, the one business day is to the future., if the shift is negative, the one business day is to the past.
+   * @param date The initial date.
+   * @param shiftDays The number of days of the adjustment. Can be negative or positive.
+   * @param calendar The calendar representing the god business days.
+   * @return The adjusted dates.
+   */
+  public static LocalDate getAdjustedDate(final LocalDate date, final int shiftDays, final Calendar calendar) {
+    Validate.notNull(date);
+    Validate.notNull(calendar);
+    LocalDate result = date;
+    while (!calendar.isWorkingDay(result)) {
+      result = result.plusDays(1);
+    }
+    if (shiftDays > 0) {
+      for (int loopday = 0; loopday < shiftDays; loopday++) {
+        result = result.plusDays(1);
+        while (!calendar.isWorkingDay(result)) {
+          result = result.plusDays(1);
+        }
+      }
+    } else {
+      for (int loopday = 0; loopday < -shiftDays; loopday++) {
+        result = result.minusDays(1);
+        while (!calendar.isWorkingDay(result)) {
+          result = result.minusDays(1);
+        }
+      }
+    }
+    return result;
+  }
+
+  /**
    * Compute the end date of a period from the start date, the tenor and the conventions without end-of-month convention.
    * @param startDate The period start date.
    * @param tenor The period tenor.

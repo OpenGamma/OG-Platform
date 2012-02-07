@@ -66,7 +66,6 @@ public class SimplePortfolioReader extends SingleSheetPortfolioReader {
     }
   }
 
-  @Override
   public String[] getColumns() {
     return _columns;
   }
