@@ -33,17 +33,17 @@ public class SwaptionParser extends RowParser {
 
   private static final String ID_SCHEME = "SWAPTION_LOADER";
   
-  public String EXPIRY = "expiry";
-  public String IS_LONG = "long";
-  public String IS_PAYER = "payer";
-  public String CURRENCY = "currency";
-  public String TRADE_DATE = "trade date";
+  protected String EXPIRY = "expiry";
+  protected String IS_LONG = "long";
+  protected String IS_PAYER = "payer";
+  protected String CURRENCY = "currency";
+  protected String TRADE_DATE = "trade date";
   //public String PREMIUM_DATE = "premium date";
   //public String PREMIUM_AMOUNT = "premium amount";
-  public String STRIKE = "strike";
-  public String NOTIONAL = "notional";
-  public String COUNTERPARTY = "counterparty";
-  public String SWAP_LENGTH = "swap length"; 
+  protected String STRIKE = "strike";
+  protected String NOTIONAL = "notional";
+  protected String COUNTERPARTY = "counterparty";
+  protected String SWAP_LENGTH = "swap length"; 
   
   private static final ConventionBundleSource CONVENTIONS = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
 

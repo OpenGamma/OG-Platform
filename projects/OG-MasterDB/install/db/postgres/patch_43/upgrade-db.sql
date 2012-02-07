@@ -81,8 +81,11 @@ COMMIT;
 -- CASH
 -- Changes to cash securities to add start date/time and daycount fields.
 BEGIN;
+  --DELETE FROM sec_cash;
   ALTER TABLE sec_cash ADD COLUMN start_date TIMESTAMP WITHOUT TIME ZONE DEFAULT NOW() NOT NULL;
   ALTER TABLE sec_cash ADD COLUMN start_zone VARCHAR(50) DEFAULT 'UTC' NOT NULL;
+  -- if the following line fails, either change the number to the result of 'SELECT id FROM sec_daycount LIMIT 1' or 
+  -- uncomment the DELETE above and remove the DEFAULT 1 clause all together (which will delete existing cash securities).  
   ALTER TABLE sec_cash ADD COLUMN daycount_id BIGINT DEFAULT 1 NOT NULL;
   ALTER TABLE sec_cash ADD CONSTRAINT sec_fk_cash2daycount FOREIGN KEY (daycount_id) REFERENCES sec_daycount (id);
   ALTER TABLE sec_cash ALTER COLUMN start_date DROP DEFAULT;
@@ -248,4 +251,5 @@ BEGIN;
   DELETE FROM sec_security2idkey WHERE security_id IN (SELECT security_id FROM sec_fx);
   -- get rid of the fx table completely
   DROP TABLE sec_fx;
+  DELETE FROM sec_security WHERE sec_type='FX';
 COMMIT;

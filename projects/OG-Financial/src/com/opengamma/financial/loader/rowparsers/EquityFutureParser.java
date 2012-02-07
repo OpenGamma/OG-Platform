@@ -39,18 +39,18 @@ public class EquityFutureParser extends RowParser {
 
   private static final String ID_SCHEME = "MANUAL_LOAD";
 
-  public String EXPIRY = "expiry";
-  public String SETTLEMENT_DATE = "settlement date";
-  public String TRADING_EXCHANGE = "trading exchange";
-  public String SETTLEMENT_EXCHANGE = "settlement exchange";
-  public String CURRENCY = "currency";
-  public String UNIT_AMOUNT = "unit amount";
-  public String UNDERLYING_ID = "underlying id";
-  public String NAME = "name";
-  public String BBG_CODE = "bbg code";
-  public String NUMBER_OF_CONTRACTS = "number of contracts";
-  public String TRADE_DATE = "trade date";
-  public String REFERENCE_PRICE = "reference price";
+  protected String EXPIRY = "expiry";
+  protected String SETTLEMENT_DATE = "settlement date";
+  protected String TRADING_EXCHANGE = "trading exchange";
+  protected String SETTLEMENT_EXCHANGE = "settlement exchange";
+  protected String CURRENCY = "currency";
+  protected String UNIT_AMOUNT = "unit amount";
+  protected String UNDERLYING_ID = "underlying id";
+  protected String NAME = "name";
+  protected String BBG_CODE = "bbg code";
+  protected String NUMBER_OF_CONTRACTS = "number of contracts";
+  protected String TRADE_DATE = "trade date";
+  protected String REFERENCE_PRICE = "reference price";
 
  /**
    * Creates a Trade from a Security and details provided from file
