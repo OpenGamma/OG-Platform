@@ -601,7 +601,7 @@ public final class DependencyGraphBuilder {
     }
 
     @SuppressWarnings("unchecked")
-    private boolean abortLoops() {
+    private void abortLoops() {
       s_loggerBuilder.debug("Checking for active tasks to abort");
       List<ResolveTask> activeTasks = null;
       for (MapEx<ResolveTask, ResolvedValueProducer> tasks : _specifications.values()) {
@@ -623,11 +623,9 @@ public final class DependencyGraphBuilder {
           cancelled += task.cancelLoopMembers(this, visited);
         }
         s_loggerContext.info("Cancelled {} looped tasks", cancelled);
-        return cancelled > 0;
       } else {
         s_loggerContext.debug("No looped tasks");
       }
-      return false;
     }
 
     // Collation
@@ -702,6 +700,7 @@ public final class DependencyGraphBuilder {
   private final AtomicInteger _activeJobCount = new AtomicInteger();
   private final Set<Job> _activeJobs = new HashSet<Job>();
   private final Queue<ContextRunnable> _runQueue = new ConcurrentLinkedQueue<ContextRunnable>();
+  private final Object _buildCompleteLock = new Object();
   private final GraphBuildingContext _context = new GraphBuildingContext();
   private final AtomicLong _completedSteps = new AtomicLong();
   private final AtomicLong _scheduledSteps = new AtomicLong();
@@ -1023,19 +1022,21 @@ public final class DependencyGraphBuilder {
           activeJobs = _activeJobCount.get();
         }
       } while (!_poison && jobsLeftToRun);
-      final boolean abortLoops;
-      synchronized (_activeJobs) {
-        _activeJobs.remove(this);
-        abortLoops = _activeJobs.isEmpty() && _runQueue.isEmpty();
-      }
-      if (abortLoops) {
-        // Any tasks that are still active have created a reciprocal loop disjoint from the runnable
-        // graph of tasks. Aborting them at this point is easier and possibly more efficient than
-        // the overhead of trying to stop the loops forming in the first place.
-        getContext().abortLoops();
-        // If any loops were aborted, new jobs will go onto the run queue, and possibly a new active
-        // job started (this one is officially dead but could be restarted using logic similar to
-        // above update the activeJobCount and activeJobs set.
+      synchronized (_buildCompleteLock) {
+        final boolean abortLoops;
+        synchronized (_activeJobs) {
+          _activeJobs.remove(this);
+          abortLoops = _activeJobs.isEmpty() && _runQueue.isEmpty();
+        }
+        if (abortLoops) {
+          // Any tasks that are still active have created a reciprocal loop disjoint from the runnable
+          // graph of tasks. Aborting them at this point is easier and possibly more efficient than
+          // the overhead of trying to stop the loops forming in the first place.
+          getContext().abortLoops();
+          // If any loops were aborted, new jobs will go onto the run queue, and possibly a new active
+          // job started (this one is officially dead but could be restarted using logic similar to
+          // above to update the activeJobCount and activeJobs set).
+        }
       }
       s_loggerBuilder.info("Building job {} stopped after {} operations", _objectId, completed);
     }
@@ -1077,23 +1078,11 @@ public final class DependencyGraphBuilder {
    * @return true if the graph has been built, false if it is outstanding
    */
   public boolean isGraphBuilt() {
-    do {
+    synchronized (_buildCompleteLock) {
       synchronized (_activeJobs) {
-        if (!_activeJobs.isEmpty()) {
-          // One or more active jobs, so can't be built yet
-          return false;
-        }
-        if (!_runQueue.isEmpty()) {
-          // No active jobs, but there are jobs on the run queue
-          return false;
-        }
+        return _activeJobs.isEmpty() && _runQueue.isEmpty();
       }
-      // Any tasks that are still active have created a reciprocal loop disjoint from the runnable
-      // graph of tasks. Aborting them at this point is easier and possibly more efficient than
-      // the overhead of trying to stop the loops forming in the first place.
-    } while (getContext().abortLoops());
-    // No active tasks to restart so must have finished
-    return true;
+    }
   }
 
   /**
@@ -1200,15 +1189,9 @@ public final class DependencyGraphBuilder {
         }
         job.run();
         synchronized (_activeJobs) {
-          if (_activeJobs.isEmpty()) {
-            // We're done and there are no other jobs
-            break;
-          } else {
-            // There are other jobs still running ...
-            if (!_runQueue.isEmpty()) {
-              // ... and stuff in the queue
-              continue;
-            }
+          if (!_runQueue.isEmpty()) {
+            // more jobs in the queue so keep going
+            continue;
           }
         }
         if (allowBackgroundContinuation) {
