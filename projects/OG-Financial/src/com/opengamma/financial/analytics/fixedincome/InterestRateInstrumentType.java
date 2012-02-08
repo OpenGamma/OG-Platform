@@ -26,8 +26,10 @@ import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSe
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -193,7 +195,7 @@ public enum InterestRateInstrumentType {
       return null;
     }
 
-    /*@Override
+    @Override
     public InterestRateInstrumentType visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
       return null;
     }
@@ -201,6 +203,6 @@ public enum InterestRateInstrumentType {
     @Override
     public InterestRateInstrumentType visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
       return null;
-    }*/
+    }
   }
 }
