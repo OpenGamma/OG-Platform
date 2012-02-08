@@ -27,10 +27,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.web.AbstractWebResource;
 
 /**
- * RESTful resource for all configuration documents.
- * <p>
- * The configuration documents resource represents all the data for one element type in the config master.
- * 
+ * RESTful resource that returns the value requirement names for the Web GUI.
  */
 @Path("/valuerequirementnames/metaData")
 public class WebValueRequirementNamesResource extends AbstractWebResource {

@@ -5,8 +5,6 @@
  */
 package com.opengamma.examples.historical.normalization;
 
-import org.joda.beans.BeanDefinition;
-
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.examples.marketdata.SimulatedHistoricalDataGenerator;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
@@ -16,7 +14,6 @@ import com.opengamma.util.spring.SpringFactoryBean;
 /**
  * Spring factory bean for {@link HistoricalTimeSeriesFieldAdjustmentMap}.
  */
-@BeanDefinition
 public class MockHistoricalTimeSeriesFieldAdjustmentMapFactoryBean extends SpringFactoryBean<HistoricalTimeSeriesFieldAdjustmentMap> {
 
   private static final String YLD_TO_MATURITY_MID = "YTM_MID";

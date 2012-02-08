@@ -148,20 +148,5 @@
 	<target name="ivy-report" description="generate ivy dependency report" depends="publish-local">
 		<ivy:report organisation="com.opengamma" module="og-examples" dot="true" />
 	</target>
-
-	<!-- ================================= 
-          target: install              
-         ================================= -->
-	<target name="install" depends="dist" description="install artifacts to specified directory">
-		<copy todir="${install.dir}">
-			<fileset dir="${dist.dir}/${dist.name}" includes="**" />
-		</copy>
-		<chmod perm="+x">
-			<fileset dir="${install.dir}">
-				<include name="**/*.sh" />
-			</fileset>
-		</chmod>
-		<antcall target="clean-dist"/>
-	</target>
 	
 </project>

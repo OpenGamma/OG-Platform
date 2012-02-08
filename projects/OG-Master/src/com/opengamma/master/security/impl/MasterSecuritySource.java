@@ -61,7 +61,7 @@ public class MasterSecuritySource extends AbstractMasterSource<SecurityDocument,
   }
   
   @Override
-  public Map<UniqueId, Security> getSecurity(Collection<UniqueId> uniqueIds) {
+  public Map<UniqueId, Security> getSecurities(Collection<UniqueId> uniqueIds) {
     Map<UniqueId, Security> result = Maps.newHashMap();
     for (UniqueId uniqueId : uniqueIds) {
       try {

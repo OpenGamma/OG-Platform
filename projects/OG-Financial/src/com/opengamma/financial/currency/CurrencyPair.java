@@ -10,14 +10,54 @@ import com.opengamma.util.money.Currency;
 
 /**
  * An ordered pair of currencies for quoting rates in FX deals.
+ * <p>
+ * This class is immutable and thread-safe.
  */
 public final class CurrencyPair {
 
-  /** The first currency in the pair */
+  /**
+   * The first currency in the pair.
+   */
   private final Currency _base;
-  /** The second currency in the pair */
+  /**
+   * The second currency in the pair.
+   */
   private final Currency _counter;
 
+  //-------------------------------------------------------------------------
+  /**
+   * Obtains a currency pair from a string with format AAA/BBB.
+   * 
+   * @param base  the base currency, not null
+   * @param counter  the counter currency, not null
+   * @return the currency pair, not null
+   */
+  public static CurrencyPair of(Currency base, Currency counter) {
+    return new CurrencyPair(base, counter);
+  }
+
+  /**
+   * Parses a currency pair from a string with format AAA/BBB.
+   * 
+   * @param pair  the currency pair as a string AAA/BBB, not null
+   * @return the currency pair, not null
+   */
+  public static CurrencyPair parse(String pair) {
+    if (pair.length() != 7) {
+      throw new IllegalArgumentException("Currency pair format must be AAA/BBB");
+    }
+    String base = pair.substring(0, 3);
+    String counter = pair.substring(4);
+    return new CurrencyPair(Currency.of(base), Currency.of(counter));
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Creates an instance.
+   * 
+   * @param base  the base currency, not null
+   * @param counter  the counter currency, not null
+   */
   private CurrencyPair(Currency base, Currency counter) {
     ArgumentChecker.notNull(base, "base");
     ArgumentChecker.notNull(counter, "counter");
@@ -28,74 +68,57 @@ public final class CurrencyPair {
     _counter = counter;
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * @param base The base currency
-   * @param counter The counter currency
-   * @return A new currency pair with a base currency of {@code base} and counter currency of {@code counter}
-   */
-  public static CurrencyPair of(Currency base, Currency counter) {
-    return new CurrencyPair(base, counter);
-  }
-
-  /**
-   * Creates a currency pair from a string with format AAA/BBB.
-   * @param pair A currency pair as a string AAA/BBB
-   * @return The currency pair
-   */
-  public static CurrencyPair of(String pair) {
-    if (pair.length() != 7) {
-      throw new IllegalArgumentException("Currency pair format must be AAA/BBB");
-    }
-    String base = pair.substring(0, 3);
-    String counter = pair.substring(4);
-    return new CurrencyPair(Currency.of(base), Currency.of(counter));
-  }
-
-  /**
-   * @return Base currency code / Counter currency code
-   */
-  public String getName() {
-    return _base.getCode() + "/" + _counter.getCode();
-  }
-
-  // getName(String separator) ?
-
-  @Override
-  public String toString() {
-    return "CurrencyPair{" + getName() + "}";
-  }
-
-  /**
-   * @return A new currency pair with the same currencies as this pair but in the reverse order
-   */
-  public CurrencyPair inverse() {
-    return new CurrencyPair(_counter, _base);
-  }
-
-  /**
-   * @return This pair's base currency
+   * Gets the base currency.
+   * 
+   * @return the base currency of this pair, not null
    */
   public Currency getBase() {
     return _base;
   }
 
   /**
-   * @return This pair's counter currency
+   * Gets the counter currency.
+   * 
+   * @return the counter currency of this pair, not null
    */
   public Currency getCounter() {
     return _counter;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the name of the pair, formed from the two currencies.
+   * 
+   * @return Base currency code / Counter currency code, not null
+   */
+  public String getName() {
+    return _base.getCode() + "/" + _counter.getCode();
+  }
+
+  /**
+   * Gets the inverse currency pair.
+   * <p>
+   * The inverse pair has the same currencies but in reverse order.
+   * 
+   * @return the inverse pair, not null
+   */
+  public CurrencyPair inverse() {
+    return new CurrencyPair(_counter, _base);
+  }
+
+  //-------------------------------------------------------------------------
   @Override
-  public boolean equals(Object o) {
-    if (this == o) {
+  public boolean equals(Object obj) {
+    if (this == obj) {
       return true;
     }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
+    if (obj instanceof CurrencyPair) {
+      CurrencyPair other = (CurrencyPair) obj;
+      return _base.equals(other._base) && _counter.equals(other._counter);
     }
-    CurrencyPair other = (CurrencyPair) o;
-    return _base.equals(other._base) && _counter.equals(other._counter);
+    return false;
   }
 
   @Override
@@ -104,4 +127,11 @@ public final class CurrencyPair {
     result = 31 * result + _counter.hashCode();
     return result;
   }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return "CurrencyPair[" + getName() + "]";
+  }
+
 }

@@ -41,7 +41,7 @@ import com.opengamma.engine.view.execution.ExecutionFlags;
 import com.opengamma.engine.view.execution.ExecutionOptions;
 import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
-import com.opengamma.financial.aggregation.AggregationFunction;
+import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
@@ -84,7 +84,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       final ManageableViewDefinitionRepository userViewDefinitionRepository,
       final MarketDataSnapshotMaster snapshotMaster, final UserPrincipal user, final ExecutorService executorService,
       final FudgeContext fudgeContext, final LiveMarketDataSourceRegistry liveMarketDataSourceRegistry,
-      final List<AggregationFunction<?>> portfolioAggregators) {
+      final PortfolioAggregationFunctions portfolioAggregators) {
     super(bayeux, "processPortfolioRequest");
     ArgumentChecker.notNull(bayeux, "bayeux");
     ArgumentChecker.notNull(viewProcessor, "viewProcessor");
@@ -107,7 +107,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     _liveMarketDataSourceRegistry = liveMarketDataSourceRegistry;
     _aggregatedViewDefinitionManager = new AggregatedViewDefinitionManager(positionSource, securitySource,
         viewProcessor.getViewDefinitionRepository(), userViewDefinitionRepository, userPortfolioMaster, userPositionMaster,
-        mapPortfolioAggregators(portfolioAggregators));
+        portfolioAggregators.getMappedFunctions());
     
     viewProcessor.getViewDefinitionRepository().changeManager().addChangeListener(new ChangeListener() {
 
@@ -129,20 +129,12 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
     getBayeux().addListener(this);
     s_logger.info("Finished subscribing to services");
   }
-  
-  private Map<String, AggregationFunction<?>> mapPortfolioAggregators(List<AggregationFunction<?>> portfolioAggregators) {
-    Map<String, AggregationFunction<?>> result = new HashMap<String, AggregationFunction<?>>();
-    for (AggregationFunction<?> portfolioAggregator : portfolioAggregators) {
-      result.put(portfolioAggregator.getName(), portfolioAggregator);
-    }
-    return result;
-  }
-  
+
   @Override
   public void clientAdded(Client client) {
     s_logger.debug("Client " + client.getId() + " connected");
   }
-  
+
   @Override
   public void clientRemoved(Client client) {
     // Tidy up

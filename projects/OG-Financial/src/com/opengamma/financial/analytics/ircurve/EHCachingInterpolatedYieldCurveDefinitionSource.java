@@ -21,7 +21,7 @@ import com.opengamma.util.tuple.Pair;
  * A cache to optimize the results of {@code InterpolatedYieldCurveDefinitionSource}.
  */
 public class EHCachingInterpolatedYieldCurveDefinitionSource implements InterpolatedYieldCurveDefinitionSource {
-  
+
   /**
    * Cache key for latest definitions.
    */
@@ -35,7 +35,9 @@ public class EHCachingInterpolatedYieldCurveDefinitionSource implements Interpol
    * The result cache.
    */
   private final Cache _latestDefinitionCache;
-
+  /**
+   * The underlying source.
+   */
   private final InterpolatedYieldCurveDefinitionSource _underlying;
 
   /**
@@ -53,11 +55,16 @@ public class EHCachingInterpolatedYieldCurveDefinitionSource implements Interpol
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Gets the cache manager.
+   * 
+   * @return the cache manager, not null
+   */
   public CacheManager getCacheManager() {
     return _cacheManager;
   }
 
-  
+  //-------------------------------------------------------------------------
   @Override
   public YieldCurveDefinition getDefinition(Currency currency, String name) {
     ObjectsPair<Currency, String> cacheKey = Pair.of(currency, name);

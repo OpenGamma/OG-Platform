@@ -41,6 +41,6 @@ public class CurrencyPairFudgeSecondaryType extends SecondaryFieldType<CurrencyP
    */
   @Override
   public CurrencyPair primaryToSecondary(String currencyPairString) {
-    return CurrencyPair.of(currencyPairString);
+    return CurrencyPair.parse(currencyPairString);
   }
 }

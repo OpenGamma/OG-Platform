@@ -49,9 +49,8 @@ public class RemoteExchangeMaster extends AbstractRemoteMaster implements Exchan
   public ExchangeSearchResult search(final ExchangeSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataExchangesResource.uri(getBaseUri(), msgBase64);
-    return accessRemote(uri).get(ExchangeSearchResult.class);
+    URI uri = DataExchangeMasterResource.uriSearch(getBaseUri());
+    return accessRemote(uri).post(ExchangeSearchResult.class, request);
   }
 
   //-------------------------------------------------------------------------
@@ -82,7 +81,7 @@ public class RemoteExchangeMaster extends AbstractRemoteMaster implements Exchan
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getExchange(), "document.exchange");
     
-    URI uri = DataExchangesResource.uri(getBaseUri(), null);
+    URI uri = DataExchangeMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(ExchangeDocument.class, document);
   }
 
@@ -93,8 +92,8 @@ public class RemoteExchangeMaster extends AbstractRemoteMaster implements Exchan
     ArgumentChecker.notNull(document.getExchange(), "document.exchange");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataExchangeResource.uri(getBaseUri(), document.getUniqueId(), VersionCorrection.LATEST);
-    return accessRemote(uri).put(ExchangeDocument.class, document);
+    URI uri = DataExchangeResource.uri(getBaseUri(), document.getUniqueId(), null);
+    return accessRemote(uri).post(ExchangeDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -102,7 +101,7 @@ public class RemoteExchangeMaster extends AbstractRemoteMaster implements Exchan
   public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataExchangeResource.uri(getBaseUri(), uniqueId, VersionCorrection.LATEST);
+    URI uri = DataExchangeResource.uri(getBaseUri(), uniqueId, null);
     accessRemote(uri).delete();
   }
 
@@ -112,8 +111,7 @@ public class RemoteExchangeMaster extends AbstractRemoteMaster implements Exchan
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
-    String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataExchangeResource.uriVersions(getBaseUri(), request.getObjectId(), msgBase64);
+    URI uri = DataExchangeResource.uriVersions(getBaseUri(), request.getObjectId(), request);
     return accessRemote(uri).get(ExchangeHistoryResult.class);
   }
 
@@ -125,7 +123,7 @@ public class RemoteExchangeMaster extends AbstractRemoteMaster implements Exchan
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataExchangeResource.uriVersion(getBaseUri(), document.getUniqueId());
-    return accessRemote(uri).get(ExchangeDocument.class);
+    return accessRemote(uri).post(ExchangeDocument.class, document);
   }
 
 }

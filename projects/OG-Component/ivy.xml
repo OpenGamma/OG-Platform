@@ -1,0 +1,16 @@
+<ivy-module version="2.0">
+	<info organisation="com.opengamma" module="og-component" status="integration"/>
+	<publications>
+		<artifact name="og-component" type="jar"/>
+		<artifact name="og-component" type="source" ext="jar" />
+		<artifact name="og-component" type="resource" ext="zip" />
+	</publications>
+	<dependencies>
+		<dependency name="og-web" rev="latest.integration" />
+		<dependency name="og-master" rev="latest.integration" />
+		<dependency name="og-masterdb" rev="latest.integration" />
+		<dependency name="og-financial" rev="latest.integration" />
+		<exclude org="org.apache.log4j" module="log4j" />
+		<exclude org="org.junit" />
+	</dependencies>
+</ivy-module>

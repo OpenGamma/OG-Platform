@@ -53,7 +53,7 @@ public class BundleManager {
   public void setBaseDir(File baseDir) {
     _baseDir = baseDir;
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Looks up a bundle by ID.

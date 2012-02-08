@@ -131,7 +131,7 @@ public class WebSecurityResourceTest extends AbstractWebSecurityResourceTestCase
   }
 
   @Override
-  public void testFXSecurity() {
+  public void testFXDigitalOptionSecurity() {
   }
 
   @Override

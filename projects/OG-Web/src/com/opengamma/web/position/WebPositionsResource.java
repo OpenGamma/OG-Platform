@@ -29,13 +29,13 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -66,11 +66,11 @@ public class WebPositionsResource extends AbstractWebPositionResource {
    * @param positionMaster  the position master, not null
    * @param securityLoader  the security loader, not null
    * @param securitySource  the security source, not null
-   * @param htsResolver     the HTS resolver, not null (for resolving relevant HTS Id)
+   * @param htsSource  the historical time series source, not null
    */
   public WebPositionsResource(final PositionMaster positionMaster, final SecurityLoader securityLoader, final SecuritySource securitySource,
-      final HistoricalTimeSeriesResolver htsResolver) {
-    super(positionMaster, securityLoader, securitySource, htsResolver);
+      final HistoricalTimeSeriesSource htsSource) {
+    super(positionMaster, securityLoader, securitySource, htsSource);
   }
 
   //-------------------------------------------------------------------------

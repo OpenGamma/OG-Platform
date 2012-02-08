@@ -6,6 +6,7 @@
 
 package com.opengamma.masterdb.security.hibernate.fx;
 
+import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
 import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
@@ -18,6 +19,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
+import com.opengamma.util.money.Currency;
 
 /**
  * Bean/security conversion operations.
@@ -36,10 +38,13 @@ public final class NonDeliverableFXForwardSecurityBeanOperation extends Abstract
   @Override
   public NonDeliverableFXForwardSecurityBean createBean(final OperationContext context, HibernateSecurityMasterDao secMasterSession, NonDeliverableFXForwardSecurity security) {
     final NonDeliverableFXForwardSecurityBean bean = new NonDeliverableFXForwardSecurityBean();
-    bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingId()));
+    bean.setPayCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPayCurrency().getCode()));
+    bean.setPayAmount(security.getPayAmount());
+    bean.setReceiveCurrency(secMasterSession.getOrCreateCurrencyBean(security.getReceiveCurrency().getCode()));
+    bean.setReceiveAmount(security.getReceiveAmount());
     bean.setForwardDate(dateTimeWithZoneToZonedDateTimeBean(security.getForwardDate()));
     bean.setRegion(externalIdToExternalIdBean(security.getRegionId()));
-    bean.setIsDeliveryInReceiveCurrency(security.isDeliveryInReceiveCurrency());
+    bean.setDeliverInReceiveCurrency(security.isDeliverInReceiveCurrency());
     return bean;
   }
 
@@ -47,9 +52,12 @@ public final class NonDeliverableFXForwardSecurityBeanOperation extends Abstract
   public NonDeliverableFXForwardSecurity createSecurity(final OperationContext context, NonDeliverableFXForwardSecurityBean bean) {
     ZonedDateTime forwardDate = zonedDateTimeBeanToDateTimeWithZone(bean.getForwardDate());
     ExternalId region = externalIdBeanToExternalId(bean.getRegion());
-    ExternalId underlyingIdentifier = externalIdBeanToExternalId(bean.getUnderlying());
-    Boolean isDeliveryInReceiveCurrency = bean.getIsDeliveryInReceiveCurrency();
-    return new NonDeliverableFXForwardSecurity(underlyingIdentifier, forwardDate, region, isDeliveryInReceiveCurrency);
+    Currency payCurrency = currencyBeanToCurrency(bean.getPayCurrency());
+    double payAmount = bean.getPayAmount();
+    Currency receiveCurrency = currencyBeanToCurrency(bean.getReceiveCurrency());
+    double receiveAmount = bean.getReceiveAmount();
+    boolean deliverInReceiveCurrency = bean.isDeliverInReceiveCurrency();
+    return new NonDeliverableFXForwardSecurity(payCurrency, payAmount, receiveCurrency, receiveAmount, forwardDate, region, deliverInReceiveCurrency);
   }
 
 }

@@ -12,7 +12,10 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
+import java.net.URI;
+
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -32,11 +35,14 @@ public class DataHistoricalTimeSeriesResourceTest {
   private static final ObjectId OID = ObjectId.of("Test", "PosA");
   private HistoricalTimeSeriesMaster _underlying;
   private DataHistoricalTimeSeriesResource _resource;
+  private UriInfo _uriInfo;
 
   @BeforeMethod
   public void setUp() {
     _underlying = mock(HistoricalTimeSeriesMaster.class);
     _resource = new DataHistoricalTimeSeriesResource(new DataHistoricalTimeSeriesMasterResource(_underlying), OID.getObjectId());
+    _uriInfo = mock(UriInfo.class);
+    when(_uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/"));
   }
 
   //-------------------------------------------------------------------------
@@ -64,17 +70,17 @@ public class DataHistoricalTimeSeriesResourceTest {
     request.setUniqueId(OID.atLatestVersion());
     
     final HistoricalTimeSeriesInfoDocument result = new HistoricalTimeSeriesInfoDocument(target);
-    result.setUniqueId(OID.atLatestVersion());
+    result.setUniqueId(OID.atVersion("1"));
     when(_underlying.update(same(request))).thenReturn(result);
     
-    Response test = _resource.put(request);
-    assertEquals(Status.OK.getStatusCode(), test.getStatus());
+    Response test = _resource.update(_uriInfo, request);
+    assertEquals(Status.CREATED.getStatusCode(), test.getStatus());
     assertSame(result, test.getEntity());
   }
 
   @Test
   public void testDeleteHistoricalTimeSeries() {
-    Response test = _resource.delete();
+    Response test = _resource.remove();
     verify(_underlying).remove(OID.atLatestVersion());
     assertEquals(Status.NO_CONTENT.getStatusCode(), test.getStatus());
   }

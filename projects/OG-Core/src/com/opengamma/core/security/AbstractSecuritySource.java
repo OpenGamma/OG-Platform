@@ -19,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 public abstract class AbstractSecuritySource implements SecuritySource {
 
   @Override
-  public Map<UniqueId, Security> getSecurity(Collection<UniqueId> uniqueIds) {
+  public Map<UniqueId, Security> getSecurities(Collection<UniqueId> uniqueIds) {
     ArgumentChecker.notNull(uniqueIds, "uniqueIds");
     Map<UniqueId, Security> result = new HashMap<UniqueId, Security>(uniqueIds.size());
     for (UniqueId uniqueId : uniqueIds) {

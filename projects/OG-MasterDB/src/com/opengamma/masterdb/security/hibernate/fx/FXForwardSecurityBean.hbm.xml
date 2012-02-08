@@ -4,6 +4,10 @@
   "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="com.opengamma.masterdb.security.hibernate.fx">
   <union-subclass name="FXForwardSecurityBean" extends="com.opengamma.masterdb.security.hibernate.SecurityBean" table="sec_fxforward">
+    <many-to-one name="payCurrency" column="pay_currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
+    <property name="payAmount" column="pay_amount" type="double" not-null="true"/>
+    <many-to-one name="receiveCurrency" column="receive_currency_id" class="com.opengamma.masterdb.security.hibernate.CurrencyBean" not-null="true" />
+    <property name="receiveAmount" column="receive_amount" type="double" not-null="true"/>
     <component name="forwardDate" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
       <property name="date" column="forward_date" type="timestamp" not-null="true" />
       <property name="zone" column="forward_zone" type="string" not-null="true" />
@@ -12,10 +16,6 @@
   	  <property name="scheme" column="region_scheme" type="string" not-null="true" />
   	  <property name="identifier" column="region_identifier" type="string" not-null="true" />
   	</component>
-  	<component name="underlying" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
-      <property name="scheme" column="underlying_scheme" type="string" not-null="true" />
-      <property name="identifier" column="underlying_identifier" type="string" not-null="true" />
-    </component>
   </union-subclass>
 
   <query name="FXForwardSecurityBean.one.bySecurityId"><![CDATA[

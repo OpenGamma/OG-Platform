@@ -12,7 +12,10 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
+import java.net.URI;
+
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -32,11 +35,14 @@ public class DataRegionResourceTest {
   private static final ObjectId OID = ObjectId.of("Test", "PosA");
   private RegionMaster _underlying;
   private DataRegionResource _resource;
+  private UriInfo _uriInfo;
 
   @BeforeMethod
   public void setUp() {
     _underlying = mock(RegionMaster.class);
-    _resource = new DataRegionResource(new DataRegionsResource(_underlying), OID.getObjectId());
+    _resource = new DataRegionResource(new DataRegionMasterResource(_underlying), OID.getObjectId());
+    _uriInfo = mock(UriInfo.class);
+    when(_uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/"));
   }
 
   //-------------------------------------------------------------------------
@@ -60,17 +66,17 @@ public class DataRegionResourceTest {
     request.setUniqueId(OID.atLatestVersion());
     
     final RegionDocument result = new RegionDocument(target);
-    result.setUniqueId(OID.atLatestVersion());
+    result.setUniqueId(OID.atVersion("1"));
     when(_underlying.update(same(request))).thenReturn(result);
     
-    Response test = _resource.put(request);
-    assertEquals(Status.OK.getStatusCode(), test.getStatus());
+    Response test = _resource.update(_uriInfo, request);
+    assertEquals(Status.CREATED.getStatusCode(), test.getStatus());
     assertSame(result, test.getEntity());
   }
 
   @Test
   public void testDeleteRegion() {
-    Response test = _resource.delete();
+    Response test = _resource.remove();
     verify(_underlying).remove(OID.atLatestVersion());
     assertEquals(Status.NO_CONTENT.getStatusCode(), test.getStatus());
   }

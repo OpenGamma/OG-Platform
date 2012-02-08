@@ -5,168 +5,112 @@
  */
 package com.opengamma.financial.analytics.ircurve.rest;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
-import org.fudgemsg.mapping.FudgeSerializer;
+import java.net.URI;
 
-import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.ChangeManager;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
-import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinitionDocument;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdFudgeBuilder;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.transport.jaxrs.RestClient;
-import com.opengamma.transport.jaxrs.RestRuntimeException;
-import com.opengamma.transport.jaxrs.RestTarget;
+import com.opengamma.master.impl.AbstractRemoteMaster;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * Provides access to a remote {@link InterpolatedYieldCurveDefinitionMaster}.
  */
-public class RemoteInterpolatedYieldCurveDefinitionMaster implements InterpolatedYieldCurveDefinitionMaster {
+public class RemoteInterpolatedYieldCurveDefinitionMaster extends AbstractRemoteMaster implements InterpolatedYieldCurveDefinitionMaster {
 
-  private final RestClient _restClient;
-  private final RestTarget _targetBase;
-
-  public RemoteInterpolatedYieldCurveDefinitionMaster(final FudgeContext fudgeContext, final RestTarget baseTarget) {
-    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
-    ArgumentChecker.notNull(baseTarget, "baseTarget");
-    _restClient = RestClient.getInstance(fudgeContext, null);
-    _targetBase = baseTarget;
+  /**
+   * Creates an instance.
+   * 
+   * @param baseUri  the base target URI for all RESTful web services, not null
+   */
+  public RemoteInterpolatedYieldCurveDefinitionMaster(final URI baseUri) {
+    super(baseUri);
   }
 
-  protected FudgeContext getFudgeContext() {
-    return getRestClient().getFudgeContext();
+  /**
+   * Creates an instance.
+   * 
+   * @param baseUri  the base target URI for all RESTful web services, not null
+   * @param changeManager  the change manager, not null
+   */
+  public RemoteInterpolatedYieldCurveDefinitionMaster(final URI baseUri, ChangeManager changeManager) {
+    super(baseUri, changeManager);
   }
 
-  protected FudgeSerializer getFudgeSerializer() {
-    return new FudgeSerializer(getFudgeContext());
-  }
-
-  protected FudgeDeserializer getFudgeDeserializer() {
-    return new FudgeDeserializer(getFudgeContext());
-  }
-
-  protected RestClient getRestClient() {
-    return _restClient;
-  }
-
-  protected RestTarget getTargetBase() {
-    return _targetBase;
-  }
-
-  private UniqueId getIdentifier(FudgeMsg msg) {
-    return UniqueIdFudgeBuilder.fromFudgeMsg(getFudgeDeserializer(), msg.getMessage("uniqueId"));
-  }
-
-  public YieldCurveDefinitionDocument postDefinition(final YieldCurveDefinitionDocument document, final String path) {
-    final FudgeSerializer sctx = getFudgeSerializer();
-    final MutableFudgeMsg req = sctx.newMessage();
-    sctx.addToMessageWithClassHeaders(req, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
-    try {
-      final FudgeMsgEnvelope respEnv = getRestClient().post(getTargetBase().resolve(path), req);
-      if (respEnv == null) {
-        throw new IllegalArgumentException("Returned envelope was null");
-      }
-      UniqueId uid = getIdentifier(respEnv.getMessage());
-      if (uid == null) {
-        throw new IllegalArgumentException("No unique identifier returned");
-      }
-      document.setUniqueId(uid);
-      return document;
-    } catch (RestRuntimeException ex) {
-      throw new IllegalArgumentException("Error adding document", ex);
+  //-------------------------------------------------------------------------
+  @Override
+  public YieldCurveDefinitionDocument get(final UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    
+    if (uniqueId.isVersioned()) {
+      URI uri = DataInterpolatedYieldCurveDefinitionResource.uriVersion(getBaseUri(), uniqueId);
+      return accessRemote(uri).get(YieldCurveDefinitionDocument.class);
+    } else {
+      return get(uniqueId, VersionCorrection.LATEST);
     }
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public YieldCurveDefinitionDocument add(YieldCurveDefinitionDocument document) {
-    return postDefinition(document, "add");
+  public YieldCurveDefinitionDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
+    ArgumentChecker.notNull(objectId, "objectId");
+    
+    URI uri = DataInterpolatedYieldCurveDefinitionResource.uri(getBaseUri(), objectId, versionCorrection);
+    return accessRemote(uri).get(YieldCurveDefinitionDocument.class);
   }
 
+  //-------------------------------------------------------------------------
   @Override
-  public YieldCurveDefinitionDocument addOrUpdate(YieldCurveDefinitionDocument document) {
-    return postDefinition(document, "addOrUpdate");
+  public YieldCurveDefinitionDocument add(final YieldCurveDefinitionDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getYieldCurveDefinition(), "document.definition");
+    
+    URI uri = DataInterpolatedYieldCurveDefinitionMasterResource.uri(getBaseUri());
+    return accessRemote(uri).post(YieldCurveDefinitionDocument.class, document);
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public YieldCurveDefinitionDocument addOrUpdate(final YieldCurveDefinitionDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getYieldCurveDefinition(), "document.definition");
+    
+    URI uri = DataInterpolatedYieldCurveDefinitionMasterResource.uri(getBaseUri());
+    return accessRemote(uri).post(YieldCurveDefinitionDocument.class, document);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public YieldCurveDefinitionDocument update(final YieldCurveDefinitionDocument document) {
+    ArgumentChecker.notNull(document, "document");
+    ArgumentChecker.notNull(document.getYieldCurveDefinition(), "document.definition");
+    ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
+    
+    URI uri = DataInterpolatedYieldCurveDefinitionResource.uri(getBaseUri(), document.getUniqueId(), null);
+    return accessRemote(uri).post(YieldCurveDefinitionDocument.class, document);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public void remove(final UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "uniqueId");
+    
+    URI uri = DataInterpolatedYieldCurveDefinitionResource.uri(getBaseUri(), uniqueId, null);
+    accessRemote(uri).delete();
+  }
+
+  //-------------------------------------------------------------------------
   @Override
   public YieldCurveDefinitionDocument correct(final YieldCurveDefinitionDocument document) {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public YieldCurveDefinitionDocument get(UniqueId uid) {
-    final FudgeMsg msg = getRestClient().getMsg(getTargetBase().resolveBase("curves").resolve(uid.toString()));
-    if (msg == null) {
-      throw new DataNotFoundException("uid=" + uid);
-    }
-    uid = getIdentifier(msg);
-    if (uid == null) {
-      throw new DataNotFoundException("uid=" + uid);
-    }
-    final FudgeField definitionField = msg.getByName("definition");
-    if (definitionField == null) {
-      throw new DataNotFoundException("uid=" + uid);
-    }
-    return new YieldCurveDefinitionDocument(uid, getFudgeDeserializer().fieldValueToObject(YieldCurveDefinition.class, definitionField));
-  }
-
-  @Override
-  public YieldCurveDefinitionDocument get(ObjectIdentifiable objectIdable, VersionCorrection versionCorrection) {
-    ObjectId objectId = objectIdable.getObjectId();
-    final FudgeMsg msg = getRestClient().getMsg(getTargetBase().resolveBase("curves").resolve(objectId.toString()));
-    if (msg == null) {
-      throw new DataNotFoundException("uid=" + objectId);
-    }
-    UniqueId uniqueId = getIdentifier(msg);
-    if (uniqueId == null) {
-      throw new DataNotFoundException("uid=" + uniqueId);
-    }
-    final FudgeField definitionField = msg.getByName("definition");
-    if (definitionField == null) {
-      throw new DataNotFoundException("uid=" + uniqueId);
-    }
-    return new YieldCurveDefinitionDocument(uniqueId, getFudgeDeserializer().fieldValueToObject(YieldCurveDefinition.class, definitionField));
-  }
-
-  @Override
-  public void remove(UniqueId uid) {
-    try {
-      getRestClient().delete(getTargetBase().resolveBase("curves").resolve(uid.toString()));
-    } catch (RestRuntimeException ex) {
-      if (ex.getStatusCode() == 404) {
-        throw new DataNotFoundException("uid=" + uid, ex);
-      } else {
-        throw new IllegalArgumentException("uid=" + uid, ex);
-      }
-    }
-  }
-
-  @Override
-  public YieldCurveDefinitionDocument update(YieldCurveDefinitionDocument document) {
     ArgumentChecker.notNull(document, "document");
-    ArgumentChecker.notNull(document.getYieldCurveDefinition(), "document.yieldCurveDefinition");
+    ArgumentChecker.notNull(document.getYieldCurveDefinition(), "document.definition");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
-    try {
-      final FudgeSerializer sctx = getFudgeSerializer();
-      final MutableFudgeMsg req = sctx.newMessage();
-      sctx.addToMessageWithClassHeaders(req, "definition", null, document.getYieldCurveDefinition(), YieldCurveDefinition.class);
-      getRestClient().put(getTargetBase().resolveBase("curves").resolve(document.getUniqueId().toString()), req);
-      return document;
-    } catch (RestRuntimeException ex) {
-      if (ex.getStatusCode() == 404) {
-        throw new DataNotFoundException("uid=" + document.getUniqueId(), ex);
-      } else {
-        throw new IllegalArgumentException("uid=" + document.getUniqueId(), ex);
-      }
-    }
+    
+    URI uri = DataInterpolatedYieldCurveDefinitionResource.uriVersion(getBaseUri(), document.getUniqueId());
+    return accessRemote(uri).post(YieldCurveDefinitionDocument.class, document);
   }
 
 }

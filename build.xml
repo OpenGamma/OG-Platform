@@ -101,14 +101,21 @@
 		</sequential>
 	</macrodef>
 
-	<target name="publish-all" depends="buildlist"
-		description="compile &amp; publish all projects to the shared repo">
+	<target name="publish-all" depends="buildlist">
 		<og-subant target="publish" buildpathref="build-path" />
 	</target>
 
-	<target name="publish-all-local" depends="buildlist"
-		description="compile &amp; publish all projects to the local repo">
+	<target name="publish-all-local" depends="buildlist">
 		<og-subant target="publish-local" buildpathref="build-path" />
+	</target>
+	
+	<!-- 
+	       =================================================================== 
+	          Builds and publish all projects to local repo              
+	       =================================================================== 
+  -->
+	<target name="build" depends="publish-all-local" description="compile &amp; publish all projects to the local repo">
+		<antcall target="publish-all-local"></antcall>
 	</target>
 
 	<target name="resolve-all" depends="buildlist"
@@ -265,7 +272,7 @@
 			</zipfileset>
 		</zip>
 	</target>
-	<target name="dist-binary" depends="clean-all,publish-all-local,binary-dist-impl"
+	<target name="dist-binary" depends="clean-projects,publish-all-local,binary-dist-impl"
 		description="builds a single binary distribution zipfile" />
 	<target name="binary-dist-impl" depends="buildlist,dist-name">
 		<og-subant target="dist-nodep" buildpathref="build-path" />
@@ -281,7 +288,7 @@
 		</antcall>
 	</target>
 	<!-- og-examples-dist is probably more useful than binary-dist -->
-	<target name="dist-og-examples" depends="clean-all,publish-all-local,og-examples-dist-impl"
+	<target name="dist-og-examples" depends="clean-projects,publish-all-local,og-examples-dist-impl"
 		description="builds a distribution zipfile for OG-Examples" />
 	<target name="og-examples-dist-impl" depends="buildlist,dist-name">
 		<subant target="zipfile" buildpath="${projects.dir}/OG-Examples">
@@ -335,13 +342,11 @@
 	</target>
 
 	<!-- ================================================================== -->
-	<target name="clean-ivy-cache" depends="load-ivy"
-		description="clean the ivy cache">
+	<target name="clean-ivy-cache" depends="load-ivy">
 		<ivy:cleancache />
 	</target>
 
-	<target name="clean-all" depends="buildlist"
-		description="clean all projects">
+	<target name="clean-projects" depends="buildlist">
 		<og-subant target="clean" buildpathref="build-path" />
 	</target>
 
@@ -350,17 +355,18 @@
 		<og-subant target="clean-src" buildpathref="build-path" />
 	</target>
 
-	<target name="clean-lib"
-		description="clean the project libraries directory (dependencies)">
+	<target name="clean-lib">
 		<delete includeemptydirs="true" dir="${lib.dir}" />
 	</target>
 
-	<target name="clean-lib-all" depends="buildlist"
-		description="clean all project lib directories (dependencies)">
+	<target name="clean-lib-all" depends="buildlist">
 		<og-subant target="clean-lib" buildpathref="build-path" />
 	</target>
+	
+	<target name="clean-all" depends="clean, clean-ivy-cache" description="clean all projects, delete repository, reload ivy &amp; clean the ivy cache">
+	</target>
 
-	<target name="clean" depends="clean-all, load-ivy"
+	<target name="clean" depends="clean-projects, clean-lib, load-ivy"
 		description="clean all projects, delete repository &amp; reload ivy">
 		<delete dir="${repository.dir}" />
 		<delete dir="${docs.dir}" quiet="true" failonerror="false"/>
@@ -379,8 +385,7 @@
 	<!-- ================================================================== -->
 	<!-- this searches for @PublicAPI and @PublicSPI annotations and uses them -->
 	<!-- to filter the output -->
-	<target name="javadoc-public" depends="load-ivy, resolve"
-		description="javadoc for public APIs and SPIs of the project">
+	<target name="javadoc-public" depends="load-ivy, resolve">
 		<mkdir dir="${docs.dir}" />
 		<mkdir dir="${docs.dir}/javadoc-public" />
 		<mkdir dir="${docs.dir}/temp-src" />
@@ -426,8 +431,15 @@
 		<mkdir dir="${docs.dir}/javadoc-all" />
 	</target>
 
-	<target name="javadoc-all" depends="load-ivy, resolve"
-  	description="javadoc whole system (requires > 2GB RAM and LaTeX)">
+	<!-- 
+	       =================================================================== 
+	          Creates javadocs documentation for whole system              
+	       =================================================================== 
+	-->
+	<target name="docs" depends="javadoc-all, javadoc-public-jar" description="javadoc &amp; archive for the whole system (requires > 2GB RAM and LaTeX)">
+	</target>
+	
+	<target name="javadoc-all" depends="load-ivy, resolve">
 		<mkdir dir="${docs.dir}" />
 		<mkdir dir="${docs.dir}/javadoc-all" />
 		<mkdir dir="${docs.dir}/temp-src" />
@@ -461,8 +473,8 @@
 	</target>
 
 	<!-- we might need to do something with versioning here (like depends on 'version' from common.xml) -->
-	<target name="javadoc-public-jar" depends="javadoc-public"
-		description="javadoc (public) built into a jar file">
+	<!-- javadoc (public) built into a jar file -->
+	<target name="javadoc-public-jar" depends="javadoc-public">
 		<jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc-public"
 			compress="${jar.compress}" />
 	</target>
@@ -587,14 +599,14 @@
           Installs Opengamma Engine              
        =================================================================== 
   -->
-	<target name="install" description="install artifacts to directory specified by property, install.dir">
+	<target name="install" description="install artifacts to directory specified by property (install.dir)">
 		<fail message="You must set the property install.dir=/where/to/install" unless="install.dir"/>
 		<antcall inheritAll="false" target="install-impl">
 			<param name="install.dir" value="${install.dir}" />
 		</antcall>
 	</target>
 
-	<target name="install-impl" depends="fetch-build-projects-file-for-user, clean-all, clone-or-pull, publish-all-local">
+	<target name="install-impl" depends="fetch-build-projects-file-for-user, clean-projects, clone-or-pull, publish-all-local">
 		<mkdir dir="${install.dir}" />
 		<property file="${common.dir}/deploy.properties"/>
 		<subant target="install" buildpath="${project.deploy}" antfile="build.xml">
