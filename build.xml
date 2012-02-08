@@ -101,14 +101,16 @@
 		</sequential>
 	</macrodef>
 
-	<target name="publish-all" depends="buildlist"
-		description="compile &amp; publish all projects to the shared repo">
+	<target name="publish-all" depends="buildlist">
 		<og-subant target="publish" buildpathref="build-path" />
 	</target>
 
-	<target name="publish-all-local" depends="buildlist"
-		description="compile &amp; publish all projects to the local repo">
+	<target name="publish-all-local" depends="buildlist">
 		<og-subant target="publish-local" buildpathref="build-path" />
+	</target>
+	
+	<target name="build" description="compile &amp; publish all projects to the local repo">
+		<antcall target="publish-all-local"></antcall>
 	</target>
 
 	<target name="resolve-all" depends="buildlist"
