@@ -24,6 +24,7 @@ import com.opengamma.core.position.impl.MockPositionSource;
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultCachingComputationTargetResolver;
@@ -36,7 +37,6 @@ import com.opengamma.engine.function.InMemoryFunctionRepository;
 import com.opengamma.engine.function.resolver.DefaultFunctionResolver;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.test.MockFunction;
-import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.engine.test.MockSecuritySource;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -65,8 +65,8 @@ public class ViewDefinitionCompilerTest {
     MockPositionSource positionSource = new MockPositionSource();
     positionSource.addPortfolio(p);
 
-    MockSecurity defSec = new MockSecurity("");
-    defSec.addIdentifier(secIdentifier);
+    SimpleSecurity defSec = new SimpleSecurity("");
+    defSec.addExternalId(secIdentifier);
 
     MockSecuritySource securitySource = new MockSecuritySource();
     securitySource.addSecurity(defSec);
@@ -107,8 +107,8 @@ public class ViewDefinitionCompilerTest {
     MockPositionSource positionSource = new MockPositionSource();
     positionSource.addPortfolio(p);
 
-    MockSecurity defSec = new MockSecurity("My Sec");
-    defSec.addIdentifier(secIdentifier);
+    SimpleSecurity defSec = new SimpleSecurity("My Sec");
+    defSec.addExternalId(secIdentifier);
 
     MockSecuritySource securitySource = new MockSecuritySource();
     securitySource.addSecurity(defSec);
@@ -165,11 +165,11 @@ public class ViewDefinitionCompilerTest {
     MockPositionSource positionSource = new MockPositionSource();
     positionSource.addPortfolio(p);
 
-    MockSecurity sec1 = new MockSecurity("My Sec");
-    sec1.addIdentifier(secIdentifier1);
+    SimpleSecurity sec1 = new SimpleSecurity("My Sec");
+    sec1.addExternalId(secIdentifier1);
 
-    MockSecurity sec2 = new MockSecurity("Your Sec");
-    sec2.addIdentifier(secIdentifier2);
+    SimpleSecurity sec2 = new SimpleSecurity("Your Sec");
+    sec2.addExternalId(secIdentifier2);
 
     MockSecuritySource securitySource = new MockSecuritySource();
     securitySource.addSecurity(sec1);
@@ -255,8 +255,8 @@ public class ViewDefinitionCompilerTest {
     viewDefinition.addViewCalculationConfiguration(calcConfig);
 
     ExternalId secIdentifier1 = ExternalId.of("SEC", "1");
-    MockSecurity sec1 = new MockSecurity("My Sec");
-    sec1.addIdentifier(secIdentifier1);
+    SimpleSecurity sec1 = new SimpleSecurity("My Sec");
+    sec1.addExternalId(secIdentifier1);
     MockSecuritySource securitySource = new MockSecuritySource();
     securitySource.addSecurity(sec1);
 

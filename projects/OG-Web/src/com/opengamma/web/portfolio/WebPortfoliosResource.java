@@ -55,7 +55,7 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
    * @param portfolioMaster  the portfolio master, not null
    * @param positionMaster  the position master, not null
    */
-  protected WebPortfoliosResource(final PortfolioMaster portfolioMaster, final PositionMaster positionMaster) {
+  public WebPortfoliosResource(final PortfolioMaster portfolioMaster, final PositionMaster positionMaster) {
     super(portfolioMaster, positionMaster);
   }
 

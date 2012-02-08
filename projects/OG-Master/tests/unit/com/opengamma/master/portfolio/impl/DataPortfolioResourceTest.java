@@ -12,7 +12,10 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
+import java.net.URI;
+
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -32,11 +35,14 @@ public class DataPortfolioResourceTest {
   private static final ObjectId OID = ObjectId.of("Test", "PortA");
   private PortfolioMaster _underlying;
   private DataPortfolioResource _resource;
+  private UriInfo _uriInfo;
 
   @BeforeMethod
   public void setUp() {
     _underlying = mock(PortfolioMaster.class);
-    _resource = new DataPortfolioResource(new DataPortfoliosResource(_underlying), OID);
+    _resource = new DataPortfolioResource(new DataPortfolioMasterResource(_underlying), OID);
+    _uriInfo = mock(UriInfo.class);
+    when(_uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/"));
   }
 
   //-------------------------------------------------------------------------
@@ -58,17 +64,17 @@ public class DataPortfolioResourceTest {
     request.setUniqueId(OID.atVersion("1"));
     
     final PortfolioDocument result = new PortfolioDocument(target);
-    request.setUniqueId(OID.atVersion("1"));
+    result.setUniqueId(OID.atVersion("1"));
     when(_underlying.update(same(request))).thenReturn(result);
     
-    Response test = _resource.put(request);
-    assertEquals(Status.OK.getStatusCode(), test.getStatus());
+    Response test = _resource.update(_uriInfo, request);
+    assertEquals(Status.CREATED.getStatusCode(), test.getStatus());
     assertSame(result, test.getEntity());
   }
 
   @Test
   public void testDeletePortfolio() {
-    Response test = _resource.delete();
+    Response test = _resource.remove();
     verify(_underlying).remove(OID.atLatestVersion());
     assertEquals(Status.NO_CONTENT.getStatusCode(), test.getStatus());
   }

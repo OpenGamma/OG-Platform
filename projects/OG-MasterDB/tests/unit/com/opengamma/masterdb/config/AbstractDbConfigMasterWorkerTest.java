@@ -26,6 +26,7 @@ import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.id.ExternalId;
@@ -122,6 +123,11 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
   public void tearDown() throws Exception {
     _cfgMaster = null;
     super.tearDown();
+  }
+
+  @AfterSuite
+  public static void closeAfterSuite() {
+    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

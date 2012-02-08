@@ -13,7 +13,6 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -125,25 +124,47 @@ public class ExternalIdBundleTest {
   }
 
   //-------------------------------------------------------------------------
-  public void factory_of_Collection_empty() {
+  public void factory_of_Iterable_empty() {
     ExternalIdBundle test = ExternalIdBundle.of(new ArrayList<ExternalId>());
     assertEquals(0, test.size());
   }
 
-  public void factory_of_Collection_two() {
+  public void factory_of_Iterable_two() {
     ExternalIdBundle test = ExternalIdBundle.of(Arrays.asList(_id11, _id12));
     assertEquals(2, test.size());
     assertEquals(Sets.newHashSet(_id11, _id12), test.getExternalIds());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void factory_of_Collection_null() {
-    ExternalIdBundle.of((Collection<ExternalId>) null);
+  public void factory_of_Iterable_null() {
+    ExternalIdBundle.of((Iterable<ExternalId>) null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
-  public void factory_of_Collection_noNulls() {
+  public void factory_of_Iterable_noNulls() {
     ExternalIdBundle.of(Arrays.asList(_id11, null, _id12));
+  }
+
+  //-------------------------------------------------------------------------
+  public void factory_parse_Iterable_empty() {
+    ExternalIdBundle test = ExternalIdBundle.parse(new ArrayList<String>());
+    assertEquals(0, test.size());
+  }
+
+  public void factory_parse_Iterable_two() {
+    ExternalIdBundle test = ExternalIdBundle.parse(Arrays.asList(_id11.toString(), _id12.toString()));
+    assertEquals(2, test.size());
+    assertEquals(Sets.newHashSet(_id11, _id12), test.getExternalIds());
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void factory_parse_Iterable_null() {
+    ExternalIdBundle.parse((Iterable<String>) null);
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void factory_parse_Iterable_noNulls() {
+    ExternalIdBundle.parse(Arrays.asList(_id11.toString(), null, _id12.toString()));
   }
 
   //-------------------------------------------------------------------------

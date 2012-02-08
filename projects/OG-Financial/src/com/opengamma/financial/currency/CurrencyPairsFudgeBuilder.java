@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.currency;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.fudgemsg.FudgeField;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -13,18 +16,15 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import java.util.HashSet;
-import java.util.Set;
-
 /**
  * Fudge builder for {@link CurrencyPairs}.
  */
 @FudgeBuilderFor(CurrencyPairs.class)
 public class CurrencyPairsFudgeBuilder implements FudgeBuilder<CurrencyPairs> {
-  
+
   /** Field name for the set of currency pairs */
   public static final String CURRENCY_PAIRS_FIELD_NAME = "currencyPairs";
-  
+
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, CurrencyPairs object) {
     MutableFudgeMsg msg = serializer.newMessage();
@@ -44,8 +44,9 @@ public class CurrencyPairsFudgeBuilder implements FudgeBuilder<CurrencyPairs> {
     Set<String> pairNames = deserializer.fieldValueToObject(Set.class, pairsField);
     Set<CurrencyPair> pairs = new HashSet<CurrencyPair>(pairNames.size());
     for (String pairName : pairNames) {
-      pairs.add(CurrencyPair.of(pairName));
+      pairs.add(CurrencyPair.parse(pairName));
     }
-    return new CurrencyPairs(pairs);
+    return CurrencyPairs.of(pairs);
   }
+
 }

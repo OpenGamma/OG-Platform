@@ -14,11 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.AfterSuite;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsDocument;
+import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.test.DbTest;
 
 /**
@@ -47,6 +49,11 @@ public class DbFunctionCostsMasterTest extends DbTest {
   public void tearDown() throws Exception {
     _costsMaster = null;
     super.tearDown();
+  }
+
+  @AfterSuite
+  public static void closeAfterSuite() {
+    DbMasterTestUtils.closeAfterSuite();
   }
 
   //-------------------------------------------------------------------------

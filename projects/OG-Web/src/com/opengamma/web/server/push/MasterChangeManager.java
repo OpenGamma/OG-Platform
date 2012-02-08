@@ -18,7 +18,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 /**
  * Dispatches notifications to listeners when data changes in a master.
  */
-/* package */ class MasterChangeManager {
+public class MasterChangeManager {
 
   /** Listeners for changes in data in a master */
   private final Set<MasterChangeListener> _listeners = new CopyOnWriteArraySet<MasterChangeListener>();

@@ -5,40 +5,31 @@
  */
 package com.opengamma.financial.function.rest;
 
-import org.fudgemsg.FudgeContext;
+import java.net.URI;
 
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
-import com.opengamma.transport.jaxrs.RestClient;
-import com.opengamma.transport.jaxrs.RestTarget;
-import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**
- * Provides remote access to a repository configuration source.
+ * Provides remote access to a {@link RepositoryConfigurationSource}.
  */
-public class RemoteRepositoryConfigurationSource implements RepositoryConfigurationSource {
+public class RemoteRepositoryConfigurationSource extends AbstractRemoteClient implements RepositoryConfigurationSource {
 
-  private final RestClient _restClient;
-  private final RestTarget _targetBase;
-
-  public RemoteRepositoryConfigurationSource(final FudgeContext fudgeContext, final RestTarget baseTarget) {
-    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
-    ArgumentChecker.notNull(baseTarget, "baseTarget");
-    _restClient = RestClient.getInstance(fudgeContext, null);
-    _targetBase = baseTarget;
+  /**
+   * Creates an instance.
+   * 
+   * @param baseUri  the base target URI for all RESTful web services, not null
+   */
+  public RemoteRepositoryConfigurationSource(final URI baseUri) {
+    super(baseUri);
   }
 
-  protected RestClient getRestClient() {
-    return _restClient;
-  }
-
-  protected RestTarget getTargetBase() {
-    return _targetBase;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public RepositoryConfiguration getRepositoryConfiguration() {
-    return getRestClient().getSingleValue(RepositoryConfiguration.class, getTargetBase().resolve("repositoryConfiguration"), "repositoryConfiguration");
+    URI uri = DataRepositoryConfigurationSourceResource.uriGetAll(getBaseUri());
+    return accessRemote(uri).get(RepositoryConfiguration.class);
   }
 
 }

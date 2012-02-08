@@ -49,6 +49,8 @@ $.register_module({
                                 name: current.name || '',
                                 quantity: current.quantity || '',
                                 type: current.type || '',
+                                ob_date: current.ob_date || '',
+                                ob_time: current.ob_time || '',
                                 filter: slick_manager.data[dd.row].filter
                             }
                         }));

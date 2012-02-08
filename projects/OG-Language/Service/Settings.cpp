@@ -21,11 +21,19 @@ LOGGING(com.opengamma.language.service.Settings);
 #ifndef DEFAULT_IDLE_TIMEOUT
 # define DEFAULT_IDLE_TIMEOUT		300000	/* 5m default */
 #endif /* ifndef DEFAULT_IDLE_TIMEOUT */
+#ifndef _WIN32
+# ifndef JVM_LIBRARY_SEARCH_PATH
+#  define JVM_LIBRARY_SEARCH_PATH	TEXT ("/usr/lib/jvm")
+# endif /* ifndef JVM_LIBRARY_SEARCH_PATH */
+# ifndef JVM_LIBRARY_FILE_NAME
+#  define JVM_LIBRARY_FILE_NAME		TEXT ("libjvm.so")
+# endif /* ifndef JVM_LIBRARY_FILE_NAME */
+#endif /* ifndef _WIN32 */
 #ifndef DEFAULT_JVM_LIBRARY
 # ifdef _WIN32
-#  define DEFAULT_JVM_LIBRARY		TEXT ("jvm.dll")
+#  define DEFAULT_JVM_LIBRARY       TEXT ("jvm.dll")
 # else /* ifdef _WIN32 */
-#  define DEFAULT_JVM_LIBRARY		TEXT ("jvm.so")
+#  define DEFAULT_JVM_LIBRARY       JVM_LIBRARY_FILE_NAME
 # endif /* ifdef _WIN32 */
 #endif /* ifndef DEFAULT_JVM_LIBRARY */
 #ifndef DEFAULT_LOG_CONFIGURATION
@@ -58,6 +66,9 @@ LOGGING(com.opengamma.language.service.Settings);
 #ifndef DEFAULT_JVM_MAX_HEAP
 # define DEFAULT_JVM_MAX_HEAP		512
 #endif /* ifndef DEFAULT_JVM_MAX_HEAP */
+#ifndef DEFAULT_PID_FILE
+# define DEFAULT_PID_FILE			DEFAULT_PIPE_FOLDER TEXT ("LanguageIntegration.pid")
+#endif /* ifndef DEFAULT_PID_FILE */
 
 /// Returns the default name of the pipe for incoming client connections.
 ///
@@ -78,6 +89,7 @@ class CJvmLibraryDefault : public CAbstractSettingProvider {
 private:
 
 #ifdef _WIN32
+
 	/// Checks for a JVM library defined in the registry at HKLM\\SOFTWARE\\JavaSoft\\Java Runtime Environment.
 	/// Registry mapping under WOW64 will make sure that a 32-bit process sees a 32-bit JVM and a 64-bit process
 	/// sees a 64-bit JVM.
@@ -128,9 +140,64 @@ private:
 		LOGINFO (TEXT ("Runtime library ") << szPath << TEXT (" found from registry"));
 		return _tcsdup (szPath);
 	}
+
+#else /* ifndef _WIN32 */
+
+	/// Checks for a JVM library under part of the filesystem.
+	///
+	/// @param[in] pszPath the folder to start searching from, never NULL
+	/// @param[in] nDepth folder depth count - the scan won't go deeper than 16 (in case symlinks create an infinite loop)
+	/// @return the path to the JVM library, or NULL if none is found
+	static TCHAR *SearchFileSystem (const TCHAR *pszPath, int nDepth = 0) {
+		if (nDepth > 16) {
+			LOGWARN (TEXT ("Recursion depth limit hit at ") << pszPath);
+			return NULL;
+		}
+		LOGDEBUG (TEXT ("Scanning folder ") << pszPath);
+		DIR *dir = opendir (pszPath);
+		if (!dir) {
+			LOGWARN (TEXT ("Can't read folder ") << pszPath << TEXT (", error ") << GetLastError ());
+			return NULL;
+		}
+		TCHAR *pszLibrary = NULL;
+		struct dirent *dp;
+		while ((dp = readdir (dir)) != NULL) {
+			if (dp->d_name[0] == '.') {
+				continue;
+			}
+			if (dp->d_type & DT_DIR) {
+				LOGDEBUG (TEXT ("Recursing into folder ") << dp->d_name);
+				size_t cchNewPath = _tcslen (pszPath) + _tcslen (dp->d_name) + 2;
+				TCHAR *pszNewPath = new TCHAR[cchNewPath];
+				if (!pszNewPath) {
+					LOGFATAL (TEXT ("Out of memory"));
+					break;
+				}
+				StringCbPrintf (pszNewPath, cchNewPath * sizeof (TCHAR), TEXT ("%s/%s"), pszPath, dp->d_name);
+				pszLibrary = SearchFileSystem (pszNewPath, nDepth + 1);
+				delete pszNewPath;
+				if (pszLibrary) {
+					break;
+				}
+			} else if (!_tcscmp (dp->d_name, JVM_LIBRARY_FILE_NAME)) {
+				LOGINFO (TEXT ("Found ") << JVM_LIBRARY_FILE_NAME << TEXT (" in ") << pszPath);
+				size_t cchLibrary = _tcslen (pszPath) + _tcslen (dp->d_name) + 2;
+				pszLibrary = new TCHAR[cchLibrary];
+				if (!pszLibrary) {
+					LOGFATAL (TEXT ("Out of memory"));
+					break;
+				}
+				StringCbPrintf (pszLibrary, cchLibrary * sizeof (TCHAR), TEXT ("%s/%s"), pszPath, dp->d_name);
+				break;
+			}
+		}
+		closedir (dir);
+		return pszLibrary;
+	}
+
 #endif /* ifndef _WIN32 */
 
-	/// Checks for a JVM library from the registry (Windows)
+	/// Checks for a JVM library from the registry (Windows), or by scanning the file system (Posix)
 	///
 	/// @return the path to the JVM DLL, a default best guess, or NULL if there is a problem
 	TCHAR *CalculateString () const {
@@ -139,7 +206,7 @@ private:
 #ifdef _WIN32
 			if ((pszLibrary = SearchRegistry ()) != NULL) break;
 #else /* ifdef _WIN32 */
-			// TODO: Is there anything reasonably generic? The path on my Linux box included a processor (e.g. amd64) reference
+			if ((pszLibrary = SearchFileSystem (JVM_LIBRARY_SEARCH_PATH)) != NULL) break;
 #endif /* ifdef _WIN32 */
 		} while (false);
 		if (pszLibrary == NULL) {
@@ -338,6 +405,15 @@ const TCHAR *CSettings::GetLogConfiguration () const {
 unsigned long CSettings::GetIdleTimeout () const {
 	return GetIdleTimeout (DEFAULT_IDLE_TIMEOUT);
 }
+
+#ifndef _WIN32
+/// Returns the path to the PID file to write when starting as a daemon process
+///
+/// @return the path to the PID file
+const TCHAR *CSettings::GetPidFile () const {
+	return GetPidFile (DEFAULT_PID_FILE);
+}
+#endif /* ifndef _WIN32 */
 
 /// Returns the service name.
 ///

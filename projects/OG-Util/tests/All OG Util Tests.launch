@@ -18,6 +18,7 @@
 <listEntry value="com.opengamma.transport.jms"/>
 <listEntry value="com.opengamma.transport.socket"/>
 <listEntry value="com.opengamma.util"/>
+<listEntry value="com.opengamma.util.component"/>
 <listEntry value="com.opengamma.util.db"/>
 <listEntry value="com.opengamma.util.fudgemsg"/>
 <listEntry value="com.opengamma.util.id"/>

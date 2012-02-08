@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+
 package com.opengamma.financial.loader.rowparsers;
 
 import java.util.Map;
@@ -28,32 +34,37 @@ import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
+/**
+ * This class parses vanilla swaps from the standard OG import fields
+ */
 public class SwapParser extends RowParser {
 
   private static final String ID_SCHEME = "SWAP_LOADER";
 
-  public static final String TRADE_DATE = "trade date";
-  public static final String EFFECTIVE_DATE = "effective date";
-  public static final String TERMINATION_DATE = "termination date";
-  public static final String PAY_FIXED = "pay fixed";
+  //CSOFF
+  protected String TRADE_DATE = "trade date";
+  protected String EFFECTIVE_DATE = "effective date";
+  protected String TERMINATION_DATE = "termination date";
+  protected String PAY_FIXED = "pay fixed";
 
-  public static final String FIXED_LEG_CURRENCY = "fixed currency";
-  public static final String FIXED_LEG_NOTIONAL = "fixed notional (mm)";
-  public static final String FIXED_LEG_DAYCOUNT = "fixed daycount";
-  public static final String FIXED_LEG_BUS_DAY_CONVENTION = "fixed business day convention";
-  public static final String FIXED_LEG_FREQUENCY = "fixed frequency";
-  public static final String FIXED_LEG_REGION = "fixed region";
-  public static final String FIXED_LEG_RATE = "fixed rate";
+  protected String FIXED_LEG_CURRENCY = "fixed currency";
+  protected String FIXED_LEG_NOTIONAL = "fixed notional (mm)";
+  protected String FIXED_LEG_DAYCOUNT = "fixed daycount";
+  protected String FIXED_LEG_BUS_DAY_CONVENTION = "fixed business day convention";
+  protected String FIXED_LEG_FREQUENCY = "fixed frequency";
+  protected String FIXED_LEG_REGION = "fixed region";
+  protected String FIXED_LEG_RATE = "fixed rate";
 
-  public static final String FLOATING_LEG_CURRENCY = "floating currency";
-  public static final String FLOATING_LEG_NOTIONAL = "floating notional (mm)";
-  public static final String FLOATING_LEG_DAYCOUNT = "floating daycount";
-  public static final String FLOATING_LEG_BUS_DAY_CONVENTION = "floating business day convention";
-  public static final String FLOATING_LEG_FREQUENCY = "floating frequency";
-  public static final String FLOATING_LEG_REGION = "floating region";
-  public static final String FLOATING_LEG_RATE = "initial floating rate";
-  public static final String FLOATING_LEG_REFERENCE = "floating reference";
-
+  protected String FLOATING_LEG_CURRENCY = "floating currency";
+  protected String FLOATING_LEG_NOTIONAL = "floating notional (mm)";
+  protected String FLOATING_LEG_DAYCOUNT = "floating daycount";
+  protected String FLOATING_LEG_BUS_DAY_CONVENTION = "floating business day convention";
+  protected String FLOATING_LEG_FREQUENCY = "floating frequency";
+  protected String FLOATING_LEG_REGION = "floating region";
+  protected String FLOATING_LEG_RATE = "initial floating rate";
+  protected String FLOATING_LEG_REFERENCE = "floating reference";
+  //CSON
+  
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> swapDetails) {
     // REVIEW jonathan 2010-08-03 --

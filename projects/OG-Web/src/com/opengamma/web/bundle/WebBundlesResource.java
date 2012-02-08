@@ -18,12 +18,12 @@ public class WebBundlesResource extends AbstractWebBundleResource {
   /**
    * Creates a WebBundlesResource
    * 
-   * @param bundleManager  the development bundle manager, not null
+   * @param bundleManagerFactory  the bundle manager factory, not null
    * @param compressedBundleSource  the compressed bundle source, not null
    * @param mode  the deployment mode, DEV or PROD
    */
-  public WebBundlesResource(BundleManager bundleManager, BundleCompressor compressedBundleSource, DeployMode mode) {
-    super(bundleManager, compressedBundleSource, mode);
+  public WebBundlesResource(BundleManagerFactory bundleManagerFactory, BundleCompressor compressedBundleSource, DeployMode mode) {
+    super(bundleManagerFactory, compressedBundleSource, mode);
   }
 
   //-------------------------------------------------------------------------

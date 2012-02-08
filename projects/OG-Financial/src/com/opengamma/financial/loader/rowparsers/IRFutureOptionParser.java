@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+
 package com.opengamma.financial.loader.rowparsers;
 
 import java.util.Map;
@@ -10,6 +16,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.loader.RowParser;
+import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
@@ -21,19 +28,30 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
+/**
+ * This class parses standard OG import fields to generate an IR Future Option security
+ */
 public class IRFutureOptionParser extends RowParser {
 
   private static final String ID_SCHEME = "IR_FUTURE_OPTION_LOADER";
 
-  public static final String EXCHANGE = "exchange";
-  public static final String EXPIRY = "expiry";
-  public static final String UNDERLYING_ID = "underlying identifier";
-  public static final String POINT_VALUE = "point value";
+  //CSOFF
+  protected String EXCHANGE = "exchange";
+  protected String EXPIRY = "expiry";
+  protected String UNDERLYING_ID = "underlying identifier";
+  protected String POINT_VALUE = "point value";
   // private static final String IS_MARGINED = "margined";
-  public static final String CURRENCY = "currency";
-  public static final String STRIKE = "strike";
-  public static final String IS_CALL = "call";
-
+  protected String CURRENCY = "currency";
+  protected String STRIKE = "strike";
+  protected String IS_CALL = "call";
+  //CSON
+  
+  private LoaderContext _loaderContext;
+  
+  public IRFutureOptionParser(LoaderContext loaderContext) {
+    setLoaderContext(loaderContext);
+  }
+  
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> irFutureOptionDetails) {
     final Currency currency = Currency.of(getWithException(irFutureOptionDetails, CURRENCY));
@@ -55,6 +73,14 @@ public class IRFutureOptionParser extends RowParser {
 
     ManageableSecurity[] result = {security};
     return result;
+  }
+
+  protected LoaderContext getLoaderContext() {
+    return _loaderContext;
+  }
+
+  protected void setLoaderContext(LoaderContext loaderContext) {
+    _loaderContext = loaderContext;
   }
 
 }

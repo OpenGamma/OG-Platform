@@ -56,8 +56,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
   public HistoricalTimeSeriesInfoMetaDataResult metaData(HistoricalTimeSeriesInfoMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataHistoricalTimeSeriesMasterResource.uriMetaData(getBaseUri(), msgBase64);
+    URI uri = DataHistoricalTimeSeriesMasterResource.uriMetaData(getBaseUri(), request);
     return accessRemote(uri).get(HistoricalTimeSeriesInfoMetaDataResult.class);
   }
 
@@ -66,9 +65,8 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
   public HistoricalTimeSeriesInfoSearchResult search(final HistoricalTimeSeriesInfoSearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataHistoricalTimeSeriesMasterResource.uri(getBaseUri(), msgBase64);
-    return accessRemote(uri).get(HistoricalTimeSeriesInfoSearchResult.class);
+    URI uri = DataHistoricalTimeSeriesMasterResource.uriSearch(getBaseUri());
+    return accessRemote(uri).post(HistoricalTimeSeriesInfoSearchResult.class, request);
   }
 
   //-------------------------------------------------------------------------
@@ -99,7 +97,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getInfo(), "document.info");
     
-    URI uri = DataHistoricalTimeSeriesMasterResource.uri(getBaseUri(), null);
+    URI uri = DataHistoricalTimeSeriesMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(HistoricalTimeSeriesInfoDocument.class, document);
   }
 
@@ -110,8 +108,8 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
     ArgumentChecker.notNull(document.getInfo(), "document.info");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataHistoricalTimeSeriesResource.uri(getBaseUri(), document.getUniqueId(), VersionCorrection.LATEST);
-    return accessRemote(uri).put(HistoricalTimeSeriesInfoDocument.class, document);
+    URI uri = DataHistoricalTimeSeriesResource.uri(getBaseUri(), document.getUniqueId(), null);
+    return accessRemote(uri).post(HistoricalTimeSeriesInfoDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -119,7 +117,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
   public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataHistoricalTimeSeriesResource.uri(getBaseUri(), uniqueId, VersionCorrection.LATEST);
+    URI uri = DataHistoricalTimeSeriesResource.uri(getBaseUri(), uniqueId, null);
     accessRemote(uri).delete();
   }
 
@@ -129,8 +127,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
-    String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataHistoricalTimeSeriesResource.uriVersions(getBaseUri(), request.getObjectId(), msgBase64);
+    URI uri = DataHistoricalTimeSeriesResource.uriVersions(getBaseUri(), request.getObjectId(), request);
     return accessRemote(uri).get(HistoricalTimeSeriesInfoHistoryResult.class);
   }
 
@@ -142,7 +139,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataHistoricalTimeSeriesResource.uriVersion(getBaseUri(), document.getUniqueId());
-    return accessRemote(uri).get(HistoricalTimeSeriesInfoDocument.class);
+    return accessRemote(uri).post(HistoricalTimeSeriesInfoDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -163,8 +160,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
     if (uniqueId.isVersioned()) {
-      String msgBase64 = getRestClient().encodeBean(filter);
-      URI uri = DataHistoricalDataPointsResource.uriVersion(getBaseUri(), uniqueId, msgBase64);
+      URI uri = DataHistoricalDataPointsResource.uriVersion(getBaseUri(), uniqueId, filter);
       return accessRemote(uri).get(ManageableHistoricalTimeSeries.class);
     } else {
       return getTimeSeries(uniqueId, VersionCorrection.LATEST);
@@ -183,8 +179,7 @@ public class RemoteHistoricalTimeSeriesMaster extends AbstractRemoteMaster imple
   public ManageableHistoricalTimeSeries getTimeSeries(ObjectIdentifiable objectId, VersionCorrection versionCorrection, HistoricalTimeSeriesGetFilter filter) {
     ArgumentChecker.notNull(objectId, "objectId");
     
-    String msgBase64 = getRestClient().encodeBean(filter);
-    URI uri = DataHistoricalDataPointsResource.uri(getBaseUri(), objectId, versionCorrection, msgBase64);
+    URI uri = DataHistoricalDataPointsResource.uri(getBaseUri(), objectId, versionCorrection, filter);
     return accessRemote(uri).get(ManageableHistoricalTimeSeries.class);
   }
 

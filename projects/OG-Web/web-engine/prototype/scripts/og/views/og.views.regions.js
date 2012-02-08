@@ -78,11 +78,9 @@ $.register_module({
                             value: routes.current().hash
                         });
                         og.api.text({module: module.name, handler: function (template) {
-                            var header, content, $html = $.tmpl(template, json);
-                            header = $.outer($html.find('> header')[0]);
-                            content = $.outer($html.find('> section')[0]);
-                            $('.ui-layout-inner-center .ui-layout-header').html(header);
-                            $('.ui-layout-inner-center .ui-layout-content').html(content);
+                            var $html = $.tmpl(template, json);
+                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                             layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             f.render_regions('.OG-details-content .og-js-parent_regions', json.parent);
                             f.render_regions('.OG-details-content .og-js-child_regions', json.child);

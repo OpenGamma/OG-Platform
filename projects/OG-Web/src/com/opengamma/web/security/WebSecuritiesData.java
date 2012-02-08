@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
@@ -42,6 +43,11 @@ public class WebSecuritiesData extends DirectBean {
    */
   @PropertyDefinition
   private SecurityLoader _securityLoader;
+  /**
+   * The time-series source.
+   */
+  @PropertyDefinition
+  private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
   /**
    * The JSR-311 URI information.
    */
@@ -120,6 +126,8 @@ public class WebSecuritiesData extends DirectBean {
         return getSecurityMaster();
       case -903470221:  // securityLoader
         return getSecurityLoader();
+      case 358729161:  // historicalTimeSeriesSource
+        return getHistoricalTimeSeriesSource();
       case -173275078:  // uriInfo
         return getUriInfo();
       case 1433303815:  // uriSecurityId
@@ -142,6 +150,9 @@ public class WebSecuritiesData extends DirectBean {
         return;
       case -903470221:  // securityLoader
         setSecurityLoader((SecurityLoader) newValue);
+        return;
+      case 358729161:  // historicalTimeSeriesSource
+        setHistoricalTimeSeriesSource((HistoricalTimeSeriesSource) newValue);
         return;
       case -173275078:  // uriInfo
         setUriInfo((UriInfo) newValue);
@@ -171,6 +182,7 @@ public class WebSecuritiesData extends DirectBean {
       WebSecuritiesData other = (WebSecuritiesData) obj;
       return JodaBeanUtils.equal(getSecurityMaster(), other.getSecurityMaster()) &&
           JodaBeanUtils.equal(getSecurityLoader(), other.getSecurityLoader()) &&
+          JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
           JodaBeanUtils.equal(getUriInfo(), other.getUriInfo()) &&
           JodaBeanUtils.equal(getUriSecurityId(), other.getUriSecurityId()) &&
           JodaBeanUtils.equal(getUriVersionId(), other.getUriVersionId()) &&
@@ -185,6 +197,7 @@ public class WebSecuritiesData extends DirectBean {
     int hash = getClass().hashCode();
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriSecurityId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriVersionId());
@@ -241,6 +254,31 @@ public class WebSecuritiesData extends DirectBean {
    */
   public final Property<SecurityLoader> securityLoader() {
     return metaBean().securityLoader().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the time-series source.
+   * @return the value of the property
+   */
+  public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
+    return _historicalTimeSeriesSource;
+  }
+
+  /**
+   * Sets the time-series source.
+   * @param historicalTimeSeriesSource  the new value of the property
+   */
+  public void setHistoricalTimeSeriesSource(HistoricalTimeSeriesSource historicalTimeSeriesSource) {
+    this._historicalTimeSeriesSource = historicalTimeSeriesSource;
+  }
+
+  /**
+   * Gets the the {@code historicalTimeSeriesSource} property.
+   * @return the property, not null
+   */
+  public final Property<HistoricalTimeSeriesSource> historicalTimeSeriesSource() {
+    return metaBean().historicalTimeSeriesSource().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -389,6 +427,11 @@ public class WebSecuritiesData extends DirectBean {
     private final MetaProperty<SecurityLoader> _securityLoader = DirectMetaProperty.ofReadWrite(
         this, "securityLoader", WebSecuritiesData.class, SecurityLoader.class);
     /**
+     * The meta-property for the {@code historicalTimeSeriesSource} property.
+     */
+    private final MetaProperty<HistoricalTimeSeriesSource> _historicalTimeSeriesSource = DirectMetaProperty.ofReadWrite(
+        this, "historicalTimeSeriesSource", WebSecuritiesData.class, HistoricalTimeSeriesSource.class);
+    /**
      * The meta-property for the {@code uriInfo} property.
      */
     private final MetaProperty<UriInfo> _uriInfo = DirectMetaProperty.ofReadWrite(
@@ -420,6 +463,7 @@ public class WebSecuritiesData extends DirectBean {
         this, null,
         "securityMaster",
         "securityLoader",
+        "historicalTimeSeriesSource",
         "uriInfo",
         "uriSecurityId",
         "uriVersionId",
@@ -439,6 +483,8 @@ public class WebSecuritiesData extends DirectBean {
           return _securityMaster;
         case -903470221:  // securityLoader
           return _securityLoader;
+        case 358729161:  // historicalTimeSeriesSource
+          return _historicalTimeSeriesSource;
         case -173275078:  // uriInfo
           return _uriInfo;
         case 1433303815:  // uriSecurityId
@@ -483,6 +529,14 @@ public class WebSecuritiesData extends DirectBean {
      */
     public final MetaProperty<SecurityLoader> securityLoader() {
       return _securityLoader;
+    }
+
+    /**
+     * The meta-property for the {@code historicalTimeSeriesSource} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<HistoricalTimeSeriesSource> historicalTimeSeriesSource() {
+      return _historicalTimeSeriesSource;
     }
 
     /**

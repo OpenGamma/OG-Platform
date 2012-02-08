@@ -29,20 +29,20 @@ import com.opengamma.util.CompareUtils;
  * so we allow the caller to override the Volatilities below a cutoff point (defined as a fraction of the forward rate).
  * We then fit a ShiftedLognormal model to the price of the linear (call) and digital (call spread) at the cutoff.
  * <p>
- * Note: This is not intended to handle large payment delays between last observation date and payment. No convexity adjustment has been applied.<p> 
+ * Note: This is not intended to handle large payment delays between last observation date and payment. No convexity adjustment has been applied.<p>
  * Note: Forward variance (forward starting observations) is intended to consider periods beginning more than A_FEW_WEEKS from trade inception
  */
 public class VarianceSwapStaticReplication {
 
   // TODO CASE Review: Current treatment of forward vol attempts to disallow 'short' periods that may confuse intention of traders.
   // If the entire observation period is less than A_FEW_WEEKS, an error will be thrown.
-  // If timeToFirstObs < A_FEW_WEEKS, the pricer will consider the volatility to be from now until timeToLastObs 
+  // If timeToFirstObs < A_FEW_WEEKS, the pricer will consider the volatility to be from now until timeToLastObs
   private static final double A_FEW_WEEKS = 0.05;
 
-  // Vol Extrapolation 
+  // Vol Extrapolation
   private final StrikeParameterization _cutoffType; // Whether strike targets are specified as Absolute Strike or Spot Delta levels
   private final Double _cutoffLevel; // Lowest interpolated 'strike', whether fixed value, call or put delta. ShiftedLognormal hits Put(_deltaCutoff)
-  private final Double _cutoffSpread; // Match derivative near cutoff by also fitting to Put(_deltaCutoff + _deltaSpread) 
+  private final Double _cutoffSpread; // Match derivative near cutoff by also fitting to Put(_deltaCutoff + _deltaSpread)
   private final boolean _cutoffProvided; // False if the above are null
   private static final double EPS = 1.0e-12;
 
@@ -66,7 +66,7 @@ public class VarianceSwapStaticReplication {
 
   /**
    * Default constructor with sensible inputs.
-   * A shiftedLognormal distribution is fit to extrapolate below 0.25*forward. It matches the 0.25*F and 0.3*F prices, representing a measure of level and slope 
+   * A shiftedLognormal distribution is fit to extrapolate below 0.25*forward. It matches the 0.25*F and 0.3*F prices, representing a measure of level and slope
    * @param strikeType TODO
    */
 
@@ -133,14 +133,14 @@ public class VarianceSwapStaticReplication {
    * When the cutoff parameters are provided, a shifted lognormal is fit to the two target vols, and used to extrapolate to low strikes.
    * 
    * @param lowerBound Lowest strike / delta in integral. Near zero.
-   * @param upperBound Highest strike / delta in integral. Big => just shy of 1.0 in  delta space, multiples of the forward in fixed strike space. 
+   * @param upperBound Highest strike / delta in integral. Big => just shy of 1.0 in  delta space, multiples of the forward in fixed strike space.
    * @param integrator Integration method
    * @param cutoffType Whether the cutoff is parameterized as STRIKE, CALLDELTA or PUTDELTA
-   * @param cutoffLevel First target of shifted lognormal model. Below this, the fit model will extrapolate to produce prices 
-   * @param cutoffSpread Second target is cutoffLevel + cutoffSpread. Given as fraction of the forward (if STRIKE) else delta value 
+   * @param cutoffLevel First target of shifted lognormal model. Below this, the fit model will extrapolate to produce prices
+   * @param cutoffSpread Second target is cutoffLevel + cutoffSpread. Given as fraction of the forward (if STRIKE) else delta value
    */
   public VarianceSwapStaticReplication(final double lowerBound, final double upperBound, final Integrator1D<Double, Double> integrator,
-        final StrikeParameterization cutoffType, final Double cutoffLevel, final Double cutoffSpread) {
+      final StrikeParameterization cutoffType, final Double cutoffLevel, final Double cutoffSpread) {
 
     _lowerBound = lowerBound;
     _upperBound = upperBound;
@@ -151,7 +151,7 @@ public class VarianceSwapStaticReplication {
     _cutoffSpread = cutoffSpread;
     if (_cutoffType == null || _cutoffLevel == null || _cutoffSpread == null) {
       Validate.isTrue(_cutoffType == null && _cutoffLevel == null && _cutoffSpread == null,
-          "To specify a ShiftedLognormal for left tail extrapolation, all three of a cutoff type, a cutoff level and a spread must be provided.");
+      "To specify a ShiftedLognormal for left tail extrapolation, all three of a cutoff type, a cutoff level and a spread must be provided.");
       _cutoffProvided = false;
     } else {
       _cutoffProvided = true;
@@ -195,7 +195,7 @@ public class VarianceSwapStaticReplication {
    * 
    * @param deriv VarianceSwap derivative to be priced
    * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
-   * @return presentValue of the *remaining* variance in the swap. 
+   * @return presentValue of the *remaining* variance in the swap.
    */
   public double impliedVariance(final VarianceSwap deriv, final VarianceSwapDataBundle market) {
     Validate.notNull(deriv, "VarianceSwap deriv");
@@ -225,20 +225,20 @@ public class VarianceSwapStaticReplication {
    * 
    * @param expiry Time from spot until last observation
    * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
-   * @return presentValue of the *remaining* variance in the swap. 
+   * @return presentValue of the *remaining* variance in the swap.
    */
   private double impliedVarianceFromSpot(final double expiry, final VarianceSwapDataBundle market) {
 
     final ProbabilityDistribution<Double> ndist = new NormalDistribution(0, 1);
 
-    // 1. Unpack Market data 
+    // 1. Unpack Market data
     final double fwd = market.getForwardUnderlying();
     final BlackVolatilitySurfaceOld volSurf = market.getVolatilitySurface();
 
     if (_cutoffType != null) {
       if (volSurf.getStrikeParameterisation() == StrikeParameterization.PUTDELTA || volSurf.getStrikeParameterisation() == StrikeParameterization.CALLDELTA) {
         Validate.isTrue(_cutoffType == StrikeParameterization.PUTDELTA || _cutoffType == StrikeParameterization.CALLDELTA,
-            "Left Tail extrapolation type is not consistent with Vol Surface, BlackVolatilityDeltaSurface. The cutoff must be of type PUTDELTA or CALLDELTA.");
+        "Left Tail extrapolation type is not consistent with Vol Surface, BlackVolatilityDeltaSurface. The cutoff must be of type PUTDELTA or CALLDELTA.");
 
         if (!(volSurf.getSurface() instanceof ConstantDoublesSurface)) {
 
@@ -258,7 +258,7 @@ public class VarianceSwapStaticReplication {
 
       } else if (volSurf.getStrikeParameterisation() == StrikeParameterization.STRIKE) {
         Validate.isTrue(_cutoffType == StrikeParameterization.STRIKE,
-            "Left Tail extrapolation type is not consistent with Vol Surface, BlackVolatilityFixedStrikeSurface. The cutoff must be of type STRIKE.");
+        "Left Tail extrapolation type is not consistent with Vol Surface, BlackVolatilityFixedStrikeSurface. The cutoff must be of type STRIKE.");
       } else {
         throw new IllegalArgumentException("The BlackVolatilitySurface in the VarianceSwapDataBundle must be of type BlackVolatilityFixedStrikeSurface or BlackVolatilityDeltaSurface.");
       }
@@ -284,7 +284,7 @@ public class VarianceSwapStaticReplication {
         final double cutoffVol = volSurf.getVolatility(expiry, cutoffStrike);
         final double secondVol = volSurf.getVolatility(expiry, secondStrike);
 
-        // Check for trivial case where cutoff is so low that there's no effective value in the option 
+        // Check for trivial case where cutoff is so low that there's no effective value in the option
         double cutoffPrice = volSurf.getForwardPrice(expiry, cutoffStrike, fwd, cutoffStrike > fwd);
         if (CompareUtils.closeEquals(cutoffPrice, 0)) {
           leftExtrapolator = new ShiftedLognormalVolModel(fwd, expiry, 0.0, -1.0e6); // Model will price every strike at zero
@@ -293,7 +293,7 @@ public class VarianceSwapStaticReplication {
         } else { // The typical case
           leftExtrapolator = new ShiftedLognormalVolModel(fwd, expiry, cutoffStrike, cutoffVol, secondStrike, secondVol);
 
-          // Now, handle behaviour near zero strike. ShiftedLognormalVolModel has non-zero put price for zero strike. 
+          // Now, handle behaviour near zero strike. ShiftedLognormalVolModel has non-zero put price for zero strike.
           // What we do is to find the strike, k_min, at which p(k)/k^2 begins to blow up, and fit a quadratic, p(k) = p(k_min) * k^2 / k_min^2
           // This ensures the implied volatility and the integrand are well behaved in the limit k -> 0.
           final Function1D<Double, Double> shiftedLnIntegrand = new Function1D<Double, Double>() {
@@ -357,7 +357,7 @@ public class VarianceSwapStaticReplication {
         black.setLognormalVol(secondVol);
         final double secondStrike = black.computeStrikeImpliedByForwardDelta(_cutoffLevel + _cutoffSpread, axisOfCalls);
 
-        // Check for trivial case where cutoff is so low that there's no effective value in the option 
+        // Check for trivial case where cutoff is so low that there's no effective value in the option
         double cutoffPrice = volSurf.getForwardPrice(expiry, _cutoffLevel, fwd, cutoffStrike > fwd);
         if (CompareUtils.closeEquals(cutoffPrice, 0)) {
           leftExtrapolator = new ShiftedLognormalVolModel(fwd, expiry, 0.0, -1.0e6); // Model will price every strike at zero
@@ -369,7 +369,7 @@ public class VarianceSwapStaticReplication {
         cutoffStrike = 0.0;
         leftExtrapolator = null;
       }
-      // 3. Define the hedging portfolio : The position to hold in each otmOption(k) = 2 / strike^2, 
+      // 3. Define the hedging portfolio : The position to hold in each otmOption(k) = 2 / strike^2,
       //                                    where otmOption is a call if k > fwd and a put otherwise
       final Function1D<Double, Double> otmOptionAndWeight = new Function1D<Double, Double>() {
         @SuppressWarnings("synthetic-access")
@@ -384,9 +384,30 @@ public class VarianceSwapStaticReplication {
           black.setStrike(strike);
           black.setIsCall(strike > fwd);
 
-          // 2/k^2 => the following when we switch integration variable to delta 
+          //Review R White 2/2/2012 I think this is only true when there is no smile, otherwise you have dSigma/dDelta terms
+          // 2/k^2 => the following when we switch integration variable to delta
           double weight = 2 * vol * Math.sqrt(expiry) / strike;
-          weight /= ndist.getPDF(ndist.getInverseCDF(delta));
+          double d1 = ndist.getInverseCDF(delta);
+          weight /= ndist.getPDF(d1);
+          //****************************
+          //
+          //          final double eps = 1e-5;
+          //          double dSigmaDDelta;
+          //          if (delta < eps) {
+          //            final double volUp = volSurf.getVolatility(expiry, delta + eps);
+          //            dSigmaDDelta = (volUp - vol) / eps;
+          //          } else if (delta > 1 - eps) {
+          //            final double volDown = volSurf.getVolatility(expiry, delta - eps);
+          //            dSigmaDDelta = (vol - volDown) / eps;
+          //          } else {
+          //            final double volUp = volSurf.getVolatility(expiry, delta + eps);
+          //            final double volDown = volSurf.getVolatility(expiry, delta - eps);
+          //            dSigmaDDelta = (volUp - volDown) / 2 / eps;
+          //          }
+          //          double d1 = ndist.getInverseCDF(delta);
+          //          double rootT = Math.sqrt(expiry);
+          //          double weight = 2 * (vol * rootT / ndist.getPDF(d1) + dSigmaDDelta * (d1 * rootT - vol * expiry)) / strike;
+          //****************************
           double otmPrice;
           if (_cutoffProvided && strike < cutoffStrike) { // Extrapolate with ShiftedLognormal
             otmPrice = leftExtrapolator.priceFromFixedStrike(strike);
@@ -408,11 +429,11 @@ public class VarianceSwapStaticReplication {
 
   /**
    * Computes the fair value strike of a spot starting VarianceSwap parameterised in vol/vega terms.
-   * This is an estimate of annual Lognormal (Black) volatility 
+   * This is an estimate of annual Lognormal (Black) volatility
    * 
    * @param deriv VarianceSwap derivative to be priced
    * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
-   * @return presentValue of the *remaining* variance in the swap. 
+   * @return presentValue of the *remaining* variance in the swap.
    */
   public double impliedVolatility(final VarianceSwap deriv, final VarianceSwapDataBundle market) {
     final double sigmaSquared = impliedVariance(deriv, market);

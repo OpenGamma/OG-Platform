@@ -79,16 +79,20 @@ public class MarketValueCalculator implements NormalizationRule {
       msg.add(MarketDataRequirementNames.MARKET_VALUE, marketValue);
       return msg;
     }
-    
-    // Since we've not seen a bid & ask for this market data in the past,
-    // try using LAST.
-    Double last = msg.getDouble(MarketDataRequirementNames.LAST);
-    if (last == null) {
-      return lastKnownMarketValue(msg, fieldHistory);
+    // Use a "MID" if we've been given one (should this take priority before the BID/ASK sum?)
+    Double mid = msg.getDouble(MarketDataRequirementNames.MID);
+    if (mid != null) {
+      msg.add(MarketDataRequirementNames.MARKET_VALUE, mid);
+      return msg;
     }
-    
-    msg.add(MarketDataRequirementNames.MARKET_VALUE, last);
-    return msg;
+    // Use "LAST" if we've been given one
+    Double last = msg.getDouble(MarketDataRequirementNames.LAST);
+    if (last != null) {
+      msg.add(MarketDataRequirementNames.MARKET_VALUE, last);
+      return msg;
+    }
+    // Fall back to last known market value
+    return lastKnownMarketValue(msg, fieldHistory);
   }
   
   /**

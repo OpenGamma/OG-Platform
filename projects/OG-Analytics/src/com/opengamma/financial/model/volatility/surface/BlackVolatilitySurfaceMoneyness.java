@@ -18,7 +18,7 @@ public class BlackVolatilitySurfaceMoneyness extends BlackVolatilitySurface<Mone
 
   private final ForwardCurve _fc;
 
-  public BlackVolatilitySurfaceMoneyness(final BlackVolatilitySurfaceMoneyness other) {
+  public BlackVolatilitySurfaceMoneyness(BlackVolatilitySurfaceMoneyness other) {
     super(other.getSurface());
     _fc = other.getForwardCurve();
   }
@@ -60,6 +60,11 @@ public class BlackVolatilitySurfaceMoneyness extends BlackVolatilitySurface<Mone
 
   public ForwardCurve getForwardCurve() {
     return _fc;
+  }
+
+  @Override
+  public double getAbsoluteStrike(double t, Moneyness s) {
+    return _fc.getForward(t) * s.value();
   }
 
 }

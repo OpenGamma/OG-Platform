@@ -6,27 +6,27 @@
 
 package com.opengamma.masterdb.security.hibernate.fx;
 
-import java.util.Map;
-
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
-import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
+import org.joda.beans.PropertyDefinition;
+
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.masterdb.security.hibernate.CurrencyBean;
+import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
+import com.opengamma.masterdb.security.hibernate.SecurityBean;
+import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
+import java.util.Map;
+import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
 import org.joda.beans.Property;
-import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
-import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
-import com.opengamma.masterdb.security.hibernate.SecurityBean;
-import com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean;
-
 /**
- * A bean representation of {@link NonDeliverableFXForwardSecurity}.
+ * A bean representation of {@link FXForwardSecurity}.
  */
 @BeanDefinition
 public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
@@ -35,9 +35,15 @@ public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
   @PropertyDefinition
   private ExternalIdBean _region;
   @PropertyDefinition
-  private ExternalIdBean _underlying;
+  private CurrencyBean _payCurrency;
   @PropertyDefinition
-  private Boolean _isDeliveryInReceiveCurrency;
+  private double _payAmount;
+  @PropertyDefinition
+  private CurrencyBean _receiveCurrency;
+  @PropertyDefinition
+  private double _receiveAmount;
+  @PropertyDefinition
+  private boolean _deliverInReceiveCurrency;
   
   @Override
   public boolean equals(final Object other) {
@@ -48,9 +54,11 @@ public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
     return new EqualsBuilder()
       .append(getId(), fxForward.getId())
       .append(getForwardDate(), fxForward.getForwardDate())
-      .append(getUnderlying(), fxForward.getUnderlying())
+      .append(getPayCurrency(), fxForward.getPayCurrency())
+      .append(getPayAmount(), fxForward.getPayAmount())
+      .append(getReceiveCurrency(), fxForward.getReceiveCurrency())
+      .append(getReceiveAmount(), fxForward.getReceiveAmount())
       .append(getRegion(), fxForward.getRegion())
-      .append(getIsDeliveryInReceiveCurrency(), fxForward.getIsDeliveryInReceiveCurrency())
       .isEquals();
   }
   
@@ -58,9 +66,10 @@ public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
   public int hashCode() {
     return new HashCodeBuilder()
       .append(getForwardDate())
-      .append(getUnderlying())
-      .append(getRegion())
-      .append(getIsDeliveryInReceiveCurrency())
+      .append(getPayCurrency())
+      .append(getPayAmount())
+      .append(getReceiveCurrency())
+      .append(getReceiveAmount())
       .toHashCode();
   }
 
@@ -89,10 +98,16 @@ public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
         return getForwardDate();
       case -934795532:  // region
         return getRegion();
-      case -1770633379:  // underlying
-        return getUnderlying();
-      case 1924919441:  // isDeliveryInReceiveCurrency
-        return getIsDeliveryInReceiveCurrency();
+      case -295641895:  // payCurrency
+        return getPayCurrency();
+      case -1338781920:  // payAmount
+        return getPayAmount();
+      case -1228590060:  // receiveCurrency
+        return getReceiveCurrency();
+      case 984267035:  // receiveAmount
+        return getReceiveAmount();
+      case 2073187722:  // deliverInReceiveCurrency
+        return isDeliverInReceiveCurrency();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -106,11 +121,20 @@ public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
       case -934795532:  // region
         setRegion((ExternalIdBean) newValue);
         return;
-      case -1770633379:  // underlying
-        setUnderlying((ExternalIdBean) newValue);
+      case -295641895:  // payCurrency
+        setPayCurrency((CurrencyBean) newValue);
         return;
-      case 1924919441:  // isDeliveryInReceiveCurrency
-        setIsDeliveryInReceiveCurrency((Boolean) newValue);
+      case -1338781920:  // payAmount
+        setPayAmount((Double) newValue);
+        return;
+      case -1228590060:  // receiveCurrency
+        setReceiveCurrency((CurrencyBean) newValue);
+        return;
+      case 984267035:  // receiveAmount
+        setReceiveAmount((Double) newValue);
+        return;
+      case 2073187722:  // deliverInReceiveCurrency
+        setDeliverInReceiveCurrency((Boolean) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -168,52 +192,127 @@ public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying.
+   * Gets the payCurrency.
    * @return the value of the property
    */
-  public ExternalIdBean getUnderlying() {
-    return _underlying;
+  public CurrencyBean getPayCurrency() {
+    return _payCurrency;
   }
 
   /**
-   * Sets the underlying.
-   * @param underlying  the new value of the property
+   * Sets the payCurrency.
+   * @param payCurrency  the new value of the property
    */
-  public void setUnderlying(ExternalIdBean underlying) {
-    this._underlying = underlying;
+  public void setPayCurrency(CurrencyBean payCurrency) {
+    this._payCurrency = payCurrency;
   }
 
   /**
-   * Gets the the {@code underlying} property.
+   * Gets the the {@code payCurrency} property.
    * @return the property, not null
    */
-  public final Property<ExternalIdBean> underlying() {
-    return metaBean().underlying().createProperty(this);
+  public final Property<CurrencyBean> payCurrency() {
+    return metaBean().payCurrency().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the isDeliveryInReceiveCurrency.
+   * Gets the payAmount.
    * @return the value of the property
    */
-  public Boolean getIsDeliveryInReceiveCurrency() {
-    return _isDeliveryInReceiveCurrency;
+  public double getPayAmount() {
+    return _payAmount;
   }
 
   /**
-   * Sets the isDeliveryInReceiveCurrency.
-   * @param isDeliveryInReceiveCurrency  the new value of the property
+   * Sets the payAmount.
+   * @param payAmount  the new value of the property
    */
-  public void setIsDeliveryInReceiveCurrency(Boolean isDeliveryInReceiveCurrency) {
-    this._isDeliveryInReceiveCurrency = isDeliveryInReceiveCurrency;
+  public void setPayAmount(double payAmount) {
+    this._payAmount = payAmount;
   }
 
   /**
-   * Gets the the {@code isDeliveryInReceiveCurrency} property.
+   * Gets the the {@code payAmount} property.
    * @return the property, not null
    */
-  public final Property<Boolean> isDeliveryInReceiveCurrency() {
-    return metaBean().isDeliveryInReceiveCurrency().createProperty(this);
+  public final Property<Double> payAmount() {
+    return metaBean().payAmount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the receiveCurrency.
+   * @return the value of the property
+   */
+  public CurrencyBean getReceiveCurrency() {
+    return _receiveCurrency;
+  }
+
+  /**
+   * Sets the receiveCurrency.
+   * @param receiveCurrency  the new value of the property
+   */
+  public void setReceiveCurrency(CurrencyBean receiveCurrency) {
+    this._receiveCurrency = receiveCurrency;
+  }
+
+  /**
+   * Gets the the {@code receiveCurrency} property.
+   * @return the property, not null
+   */
+  public final Property<CurrencyBean> receiveCurrency() {
+    return metaBean().receiveCurrency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the receiveAmount.
+   * @return the value of the property
+   */
+  public double getReceiveAmount() {
+    return _receiveAmount;
+  }
+
+  /**
+   * Sets the receiveAmount.
+   * @param receiveAmount  the new value of the property
+   */
+  public void setReceiveAmount(double receiveAmount) {
+    this._receiveAmount = receiveAmount;
+  }
+
+  /**
+   * Gets the the {@code receiveAmount} property.
+   * @return the property, not null
+   */
+  public final Property<Double> receiveAmount() {
+    return metaBean().receiveAmount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the deliverInReceiveCurrency.
+   * @return the value of the property
+   */
+  public boolean isDeliverInReceiveCurrency() {
+    return _deliverInReceiveCurrency;
+  }
+
+  /**
+   * Sets the deliverInReceiveCurrency.
+   * @param deliverInReceiveCurrency  the new value of the property
+   */
+  public void setDeliverInReceiveCurrency(boolean deliverInReceiveCurrency) {
+    this._deliverInReceiveCurrency = deliverInReceiveCurrency;
+  }
+
+  /**
+   * Gets the the {@code deliverInReceiveCurrency} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> deliverInReceiveCurrency() {
+    return metaBean().deliverInReceiveCurrency().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -237,15 +336,30 @@ public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
     private final MetaProperty<ExternalIdBean> _region = DirectMetaProperty.ofReadWrite(
         this, "region", NonDeliverableFXForwardSecurityBean.class, ExternalIdBean.class);
     /**
-     * The meta-property for the {@code underlying} property.
+     * The meta-property for the {@code payCurrency} property.
      */
-    private final MetaProperty<ExternalIdBean> _underlying = DirectMetaProperty.ofReadWrite(
-        this, "underlying", NonDeliverableFXForwardSecurityBean.class, ExternalIdBean.class);
+    private final MetaProperty<CurrencyBean> _payCurrency = DirectMetaProperty.ofReadWrite(
+        this, "payCurrency", NonDeliverableFXForwardSecurityBean.class, CurrencyBean.class);
     /**
-     * The meta-property for the {@code isDeliveryInReceiveCurrency} property.
+     * The meta-property for the {@code payAmount} property.
      */
-    private final MetaProperty<Boolean> _isDeliveryInReceiveCurrency = DirectMetaProperty.ofReadWrite(
-        this, "isDeliveryInReceiveCurrency", NonDeliverableFXForwardSecurityBean.class, Boolean.class);
+    private final MetaProperty<Double> _payAmount = DirectMetaProperty.ofReadWrite(
+        this, "payAmount", NonDeliverableFXForwardSecurityBean.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code receiveCurrency} property.
+     */
+    private final MetaProperty<CurrencyBean> _receiveCurrency = DirectMetaProperty.ofReadWrite(
+        this, "receiveCurrency", NonDeliverableFXForwardSecurityBean.class, CurrencyBean.class);
+    /**
+     * The meta-property for the {@code receiveAmount} property.
+     */
+    private final MetaProperty<Double> _receiveAmount = DirectMetaProperty.ofReadWrite(
+        this, "receiveAmount", NonDeliverableFXForwardSecurityBean.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code deliverInReceiveCurrency} property.
+     */
+    private final MetaProperty<Boolean> _deliverInReceiveCurrency = DirectMetaProperty.ofReadWrite(
+        this, "deliverInReceiveCurrency", NonDeliverableFXForwardSecurityBean.class, Boolean.TYPE);
     /**
      * The meta-properties.
      */
@@ -253,8 +367,11 @@ public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "forwardDate",
         "region",
-        "underlying",
-        "isDeliveryInReceiveCurrency");
+        "payCurrency",
+        "payAmount",
+        "receiveCurrency",
+        "receiveAmount",
+        "deliverInReceiveCurrency");
 
     /**
      * Restricted constructor.
@@ -269,10 +386,16 @@ public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
           return _forwardDate;
         case -934795532:  // region
           return _region;
-        case -1770633379:  // underlying
-          return _underlying;
-        case 1924919441:  // isDeliveryInReceiveCurrency
-          return _isDeliveryInReceiveCurrency;
+        case -295641895:  // payCurrency
+          return _payCurrency;
+        case -1338781920:  // payAmount
+          return _payAmount;
+        case -1228590060:  // receiveCurrency
+          return _receiveCurrency;
+        case 984267035:  // receiveAmount
+          return _receiveAmount;
+        case 2073187722:  // deliverInReceiveCurrency
+          return _deliverInReceiveCurrency;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -310,19 +433,43 @@ public class NonDeliverableFXForwardSecurityBean extends SecurityBean {
     }
 
     /**
-     * The meta-property for the {@code underlying} property.
+     * The meta-property for the {@code payCurrency} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalIdBean> underlying() {
-      return _underlying;
+    public final MetaProperty<CurrencyBean> payCurrency() {
+      return _payCurrency;
     }
 
     /**
-     * The meta-property for the {@code isDeliveryInReceiveCurrency} property.
+     * The meta-property for the {@code payAmount} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Boolean> isDeliveryInReceiveCurrency() {
-      return _isDeliveryInReceiveCurrency;
+    public final MetaProperty<Double> payAmount() {
+      return _payAmount;
+    }
+
+    /**
+     * The meta-property for the {@code receiveCurrency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CurrencyBean> receiveCurrency() {
+      return _receiveCurrency;
+    }
+
+    /**
+     * The meta-property for the {@code receiveAmount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> receiveAmount() {
+      return _receiveAmount;
+    }
+
+    /**
+     * The meta-property for the {@code deliverInReceiveCurrency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> deliverInReceiveCurrency() {
+      return _deliverInReceiveCurrency;
     }
 
   }

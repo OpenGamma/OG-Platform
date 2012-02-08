@@ -22,10 +22,14 @@
     <property name="snapshotSource" ref="combinedSnapshotSource" />
   </bean>
 
+  <!-- Historical market data -->
+  <bean id="historicalMarketDataProviderFactory" class="com.opengamma.engine.marketdata.historical.HistoricalMarketDataProviderFactoryFactoryBean">
+    <property name="timeSeriesSource" ref="sharedHistoricalTimeSeriesSource" />
+  </bean>
+
   <!-- Combined market data -->
   <bean id="combinedMarketDataProviderFactory" class="com.opengamma.engine.marketdata.CombinedMarketDataProviderFactoryFactoryBean">
   </bean>
-  
   
   <bean id="marketDataProviderFactory" class="com.opengamma.engine.marketdata.SingletonMarketDataProviderFactory">
     <constructor-arg ref="marketDataProvider"/>
@@ -36,6 +40,7 @@
     <property name="typesAndProviders">
       <map>
         <entry key="com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification" value-ref="marketDataProviderFactory" />
+        <entry key="com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification" value-ref="historicalMarketDataProviderFactory" />
         <entry key="com.opengamma.engine.marketdata.spec.UserMarketDataSpecification" value-ref="userMarketDataProviderFactory" />
         <entry key="com.opengamma.engine.marketdata.spec.CombinedMarketDataSpecification" value-ref="combinedMarketDataProviderFactory" />
       </map>
