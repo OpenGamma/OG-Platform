@@ -1,5 +1,5 @@
 <project name="common" xmlns:ivy="antlib:org.apache.ivy.ant">
-
+	
 	<!-- Load the environment variables first -->
 	<property environment="env" />
 	<!-- also, try a property file because some JVMs don't support env properly -->
@@ -122,7 +122,8 @@
 		</copy>
 	</target>
 
-	<target name="javadoc" depends="load-ivy" description="build Javadocs for the project">
+	<!-- build Javadocs for the project -->
+	<target name="javadoc" depends="load-ivy">
 		<mkdir dir="${docs.dir}" />
 		<mkdir dir="${docs.dir}/javadoc" />
 		<javadoc sourcepath="${src.dir}" destdir="${docs.dir}/javadoc"
@@ -135,10 +136,11 @@
 		</javadoc>
 	</target>
 
-	<target name="javadoc-copyup" depends="load-ivy" description="copies appropriate files up to top level"/>
+	<!-- copies appropriate files up to top level -->
+	<target name="javadoc-copyup" depends="load-ivy" />
 
-
-	<target name="javadoc-public" depends="load-ivy" description="build Javadocs for public APIs and SPIs of the project">
+  <!-- build Javadocs for public APIs and SPIs of the project -->
+	<target name="javadoc-public" depends="load-ivy">
 		<mkdir dir="${docs.dir}" />
 		<mkdir dir="${docs.dir}/javadoc-public" />
 		<mkdir dir="${docs.dir}/temp-src" />
@@ -380,14 +382,24 @@
 		</jar>
 	</target>
 
-	<target name="javadoc-jar" depends="version, javadoc"
-    description="make a javadoc jar file for this project">
+	<!-- 
+	         =================================================================== 
+	            Creates javadocs documentation for this project              
+	         =================================================================== 
+	 -->
+	<target name="docs" description="builds all docs &amp; archive for this project">
+		<antcall target="javadoc-public-jar"></antcall>
+		<antcall target="javadoc-jar"></antcall>
+	</target>
+	
+	<!-- make a javadoc jar file for this project -->
+	<target name="javadoc-jar" depends="version, javadoc">
 		<jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc"
       compress="${jar.compress}" />
 	</target>
 
-	<target name="javadoc-public-jar" depends="version, javadoc-public"
-    description="make a javadoc jar file for this project">
+	<!-- make a javadoc-public jar file for this project -->
+	<target name="javadoc-public-jar" depends="version, javadoc-public">
 		<jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc-public"
       compress="${jar.compress}" />
 	</target>
