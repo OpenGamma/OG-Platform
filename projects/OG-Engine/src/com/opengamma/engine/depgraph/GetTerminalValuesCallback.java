@@ -294,7 +294,9 @@ import com.opengamma.util.tuple.Pair;
     final int debugId = s_nextDebugId.incrementAndGet();
     Set<ValueSpecification> downstreamCopy = null;
     NodeInputProduction producers = null;
-    s_logger.debug("Searching for node for {} inputs at {}", resolvedValue.getFunctionInputs().size(), debugId);
+    if (s_logger.isDebugEnabled()) {
+      s_logger.debug("Searching for node for {} inputs at {}", resolvedValue.getFunctionInputs().size(), debugId);
+    }
     for (final ValueSpecification input : resolvedValue.getFunctionInputs()) {
       node.addInputValue(input);
       final DependencyNode inputNode;
@@ -334,7 +336,9 @@ import com.opengamma.util.tuple.Pair;
 
             @Override
             public void resolved(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final ResolutionPump pump) {
-              s_logger.debug("Resolved {} at {}", input, debugId);
+              if (s_logger.isDebugEnabled()) {
+                s_logger.debug("Resolved {} at {}", input, debugId);
+              }
               getOrCreateNode(context, valueRequirement, resolvedValue, downstreamFinal, new DependencyNodeCallback() {
 
                 @Override
@@ -384,7 +388,9 @@ import com.opengamma.util.tuple.Pair;
     if (producers == null) {
       nodeProduced(resolvedValue, node, result, nodeIsNew);
     } else {
-      s_logger.debug("Production of {} deferred at {}", node, debugId);
+      if (s_logger.isDebugEnabled()) {
+        s_logger.debug("Production of {} deferred at {}", node, debugId);
+      }
       // Release the first call
       producers.completed();
     }
