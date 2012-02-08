@@ -71,4 +71,15 @@
     <constructor-arg value="${opengamma.example.marketdata.historical}" />
   </bean>
   
+  <!-- HTS Resolver -->
+  <bean id="htsResolver" class="com.opengamma.financial.spring.FieldMappingHistoricalTimeSeriesResolverFactoryBean">
+    <property name="configSource" ref="sharedConfigSource" />
+    <property name="historicalTimeSeriesMaster" ref="dbHtsMaster" />
+    <property name="fieldAdjustmentMaps">
+      <list>
+        <bean class="com.opengamma.examples.historical.normalization.MockHistoricalTimeSeriesFieldAdjustmentMapFactoryBean" />
+      </list>
+    </property>
+  </bean>
+  
 </beans>

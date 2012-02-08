@@ -48,8 +48,11 @@ $.register_module({
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': page_name,
                     'columns': [
-                        {id: 'name', field: 'name',width: 300, cssClass: 'og-link', toolTip: 'name',
-                            name: '<input type="text" placeholder="Name" class="og-js-name-filter" style="width: 280px;">'}
+                        {
+                            id: 'name', field: 'name',width: 300, cssClass: 'og-link', toolTip: 'name',
+                            name: '<input type="text" placeholder="Name" class="og-js-name-filter" ' +
+                                'style="width: 280px;">'
+                        }
                     ]
                 }
             },
@@ -75,15 +78,12 @@ $.register_module({
                             value: routes.current().hash
                         });
                         og.api.text({module: module.name, handler: function (template) {
-                            var header, content, $html = $.tmpl(template, json.template_data);
-                            header = $.outer($html.find('> header')[0]);
-                            content = $.outer($html.find('> section')[0]);
-                            $('.ui-layout-inner-center .ui-layout-header').html(header);
-                            $('.ui-layout-inner-center .ui-layout-content').html(content);
+                            var $html = $.tmpl(template, json);
+                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                             layout.inner.close('north'), $('.ui-layout-inner-north').empty();
-                            f.render_keys('.OG-region .og-js-keys', json.keys);
-                            f.render_regions('.OG-region .og-js-parent_regions', json.parent);
-                            f.render_regions('.OG-region .og-js-child_regions', json.child);
+                            f.render_regions('.OG-details-content .og-js-parent_regions', json.parent);
+                            f.render_regions('.OG-details-content .og-js-child_regions', json.child);
                             ui.message({location: '.ui-layout-inner-center', destroy: true});
                             ui.toolbar(options.toolbar.active);
                             setTimeout(layout.inner.resizeAll);
@@ -108,7 +108,7 @@ $.register_module({
                 if (!args.id) default_details();
             },
             load_filter: function (args) {
-                check_state({args: args, conditions: [{new_value: 'id', stop: true, method: function (args) {
+                check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
                     view[args.id ? 'load_item' : 'load'](args);
                 }}]});
                 search.filter(args);

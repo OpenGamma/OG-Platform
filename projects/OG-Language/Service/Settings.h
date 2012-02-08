@@ -25,6 +25,9 @@
 #define SETTINGS_JVM_MAX_HEAP				TEXT ("jvmMaxHeap")
 #define SETTINGS_JVM_PROPERTY				TEXT ("jvmProperty")
 #define SETTINGS_LOG_CONFIGURATION			TEXT ("serviceLogConfiguration")
+#ifndef _WIN32
+#define SETTINGS_PID_FILE					TEXT ("pidFile")
+#endif /* ifndef _WIN32 */
 #define SETTINGS_SERVICE_NAME				SERVICE_SETTINGS_SERVICE_NAME
 #ifdef _WIN32
 #define SETTINGS_SERVICE_SDDL				TEXT ("serviceSDDL")
@@ -44,6 +47,9 @@ private:
 	unsigned long GetJvmMinHeap (unsigned long dwDefault) const { return Get (SETTINGS_JVM_MIN_HEAP, dwDefault); }
 	unsigned long GetJvmMaxHeap (unsigned long dwDefault) const { return Get (SETTINGS_JVM_MAX_HEAP, dwDefault); }
 	const TCHAR *GetLogConfiguration (const TCHAR *pszDefault) const { return Get (SETTINGS_LOG_CONFIGURATION, pszDefault); }
+#ifndef _WIN32
+	const TCHAR *GetPidFile (const TCHAR *pszDefault) const { return Get (SETTINGS_PID_FILE, pszDefault); }
+#endif /* ifndef _WIN32 */
 	const TCHAR *GetServiceName (const TCHAR *pszDefault) const { return Get (SETTINGS_SERVICE_NAME, pszDefault); }
 #ifdef _WIN32
 	const TCHAR *GetServiceSDDL (const TCHAR *pszDefault) const { return Get (SETTINGS_SERVICE_SDDL, pszDefault); }
@@ -60,7 +66,11 @@ public:
 	unsigned long GetJvmMinHeap () const;
 	unsigned long GetJvmMaxHeap () const;
 	void GetJvmProperties (const CEnumerator *poEnum) const;
+	void SetJvmProperty (const TCHAR *pszProperty, const TCHAR *pszValue);
 	const TCHAR *GetLogConfiguration () const;
+#ifndef _WIN32
+	const TCHAR *GetPidFile () const;
+#endif /* ifndef _WIN32 */
 	const TCHAR *GetServiceName () const;
 #ifdef _WIN32
 	const TCHAR *GetServiceSDDL () const;

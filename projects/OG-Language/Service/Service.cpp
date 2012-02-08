@@ -236,9 +236,42 @@ static void _ServiceStartup (int nReason) {
 	} else {
 		LOGDEBUG (TEXT ("No security descriptor specified"));
 	}
+#else /* ifdef _WIN32 */
+	if (nReason == SERVICE_RUN_DAEMON) {
+		const TCHAR *pszPID = oSettings.GetPidFile ();
+		if (pszPID) {
+			LOGINFO (TEXT ("Creating PID file ") << pszPID);
+			FILE *f = fopen (pszPID, "wt");
+			if (f) {
+				fprintf (f, "%d", getpid ());
+				fclose (f);
+			} else {
+				LOGWARN (TEXT ("Couldn't write to PID file ") << pszPID << TEXT (", error ") << GetLastError ());
+			}
+		} else {
+			LOGWARN (TEXT ("No PID file"));
+		}
+	}
 #endif /* ifdef _WIN32 */
 	g_lBusyTimeout = oSettings.GetBusyTimeout ();
 	_ReportStateStarting ();
+}
+
+/// Exitlude actions to stop the service, e.g. to remove any state that was created as part of _ServiceStartup.
+///
+/// @param[in] nReason how the service was run (e.g. SERVICE_RUN_INLINE) - different actions may be required
+/// depending on whether the code is running direct from main() or through another mechanism.
+static void _ServiceStop (int nReason) {
+	CSettings oSettings;
+#ifndef _WIN32
+	if (nReason == SERVICE_RUN_DAEMON) {
+		const TCHAR *pszPID = oSettings.GetPidFile ();
+		if (pszPID) {
+			LOGINFO (TEXT ("Removing PID file ") << pszPID);
+			unlink (pszPID);
+		}
+	}
+#endif /* ifndef _WIN32 */
 }
 
 /// Run the service, returning when it has stopped.
@@ -251,6 +284,7 @@ void ServiceRun (int nReason) {
 	if (!g_poJVM) {
 		LOGERROR (TEXT ("Couldn't create JVM"));
 		_ReportStateErrored ();
+		_ServiceStop (nReason);
 		return;
 	}
 	g_poJVM->Start ();
@@ -312,6 +346,7 @@ void ServiceRun (int nReason) {
 	}
 	delete g_poJVM;
 	g_poJVM = NULL;
+	_ServiceStop (nReason);
 }
 
 /// Tests if the service is running or not.
@@ -319,4 +354,21 @@ void ServiceRun (int nReason) {
 /// @return TRUE if the service is running, FALSE otherwise
 bool ServiceRunning () {
 	return g_bServiceRunning;
+}
+
+/// Configure the service.
+void ServiceConfigure () {
+	g_poJVM = CJVM::Create ();
+	if (!g_poJVM) {
+		LOGERROR (TEXT ("Couldn't create JVM"));
+		return;
+	}
+	g_poJVM->Configure ();
+	delete g_poJVM;
+	g_poJVM = NULL;
+#ifdef _WIN32
+	// TODO: if installed as a service, restart it
+#else /* ifdef _WIN32 */
+	// TODO: kill the service runner process
+#endif /* ifdef _WIN32 */
 }

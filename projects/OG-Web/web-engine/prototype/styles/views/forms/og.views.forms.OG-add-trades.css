@@ -1,0 +1,52 @@
+/*
+ * @copyright 2012 - present by OpenGamma Inc
+ * @license See distribution for license
+ */
+
+.OG-add-trades div {
+  margin-bottom: 10px;
+}
+
+.OG-add-trades label {
+    display: inline!important;
+}
+
+.OG-add-trades label span {
+    display: block;
+}
+
+.OG-add-trades .og-premium + select {
+    width: 56%;
+}
+
+.OG-add-trades .og-premium input {
+    width: 40%;
+}
+
+.OG-add-trades .og-datetimepicker {
+    width: 80%;
+}
+
+.OG-add-trades .og-inline-form {
+    width: 16%;
+}
+
+/* User attributes */
+    .OG-add-trades .og-attributes input {
+        width: 40%;
+    }
+
+    .OG-add-trades .OG-link-add {
+       position: relative; left: 2px; top: 1px;
+    }
+
+    .OG-add-trades .og-awesome-list {
+        border: 1px solid;
+        border-left-color: #e3e9ef;
+        border-bottom-color: #e3e9ef;
+        border-right-color: #abadb3;
+        border-top-color: #abadb3;
+        overflow: auto;
+        height: 100px;
+        margin-top: 4px;
+    }

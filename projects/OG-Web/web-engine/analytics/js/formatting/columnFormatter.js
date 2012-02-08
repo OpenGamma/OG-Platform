@@ -89,9 +89,9 @@
         return PrimitiveFormatter;
       case 'DOUBLE':
         return DoubleFormatter;
-      case 'YIELD_CURVE':
+      case 'CURVE':
         return InterpolatedYieldCurveFormatter;
-      case 'VOLATILITY_SURFACE_DATA':
+      case 'SURFACE_DATA':
         return VolatilitySurfaceDataFormatter;
       case 'LABELLED_MATRIX_1D':
         return LabelledMatrix1DFormatter;

@@ -56,7 +56,7 @@ public class InterestRateCurveSensitivity {
    * @param other The sensitivity to add.
    * @return The total sensitivity.
    */
-  public InterestRateCurveSensitivity add(InterestRateCurveSensitivity other) {
+  public InterestRateCurveSensitivity plus(InterestRateCurveSensitivity other) {
     return new InterestRateCurveSensitivity(addSensitivity(_sensitivity, other._sensitivity));
   }
 

@@ -18,8 +18,9 @@ import com.opengamma.util.tuple.DoublesPair;
  *  
  */
 public final class PV01Calculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, Double>> {
+
   /**
-  * The unique instance of the SABR sensitivity calculator.
+  * The unique instance of the sensitivity calculator.
   */
   private static final PV01Calculator INSTANCE = new PV01Calculator();
 
@@ -32,19 +33,28 @@ public final class PV01Calculator extends AbstractInstrumentDerivativeVisitor<Yi
   }
 
   /**
-   * Private constructor.
+   * Private standard constructor. Using the standard curve sensitivity calculator: PresentValueCurveSensitivityCalculator.
    */
   private PV01Calculator() {
+    _presentValueCurveSensitivityCalculator = PresentValueCurveSensitivityCalculator.getInstance();
   }
 
   /**
-   * The size of the scaling. 
+   * Constructor with a specific present value curve sensitivity calculator.
+   * @param presentValueCurveSensitivityCalculator The calculator.
+   */
+  public PV01Calculator(InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> presentValueCurveSensitivityCalculator) {
+    _presentValueCurveSensitivityCalculator = presentValueCurveSensitivityCalculator;
+  }
+
+  /**
+   * The size of the scaling: 1 basis point. 
    */
   private static final double BP1 = 1.0E-4;
   /**
    * The present value curve sensitivity calculator.
    */
-  private static final PresentValueCurveSensitivityCalculator PVCSC = PresentValueCurveSensitivityCalculator.getInstance();
+  private final InstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> _presentValueCurveSensitivityCalculator;
 
   /**
    * Calculates the change in present value of an instrument due to a parallel move of each yield curve the instrument is sensitive to, scaled so that the move is 1bp.
@@ -54,7 +64,7 @@ public final class PV01Calculator extends AbstractInstrumentDerivativeVisitor<Yi
    */
   @Override
   public Map<String, Double> visit(final InstrumentDerivative ird, final YieldCurveBundle curves) {
-    final Map<String, List<DoublesPair>> sense = PVCSC.visit(ird, curves);
+    final Map<String, List<DoublesPair>> sense = _presentValueCurveSensitivityCalculator.visit(ird, curves);
     final Map<String, Double> res = new HashMap<String, Double>();
     final Iterator<Entry<String, List<DoublesPair>>> iterator = sense.entrySet().iterator();
     while (iterator.hasNext()) {

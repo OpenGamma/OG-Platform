@@ -11,7 +11,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -82,11 +81,12 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
    */
   public static final class Validater {
 
-    private final ExecutorService _executor = Executors.newCachedThreadPool();
     private final Client _client = Client.create();
+    private final ExecutorService _executor;
 
-    private Validater() {
-      _client.setReadTimeout(5000);
+    private Validater(final ExecutorService executorService) {
+      _executor = executorService;
+      _client.setReadTimeout(10000);
     }
 
     public URI getAccessibleURI(final FudgeMsg endPoint) {
@@ -118,7 +118,7 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
       }
       final URI uri;
       try {
-        uri = result.poll(5000, TimeUnit.MILLISECONDS);
+        uri = result.poll(10000, TimeUnit.MILLISECONDS);
       } catch (InterruptedException ex) {
         throw new OpenGammaRuntimeException("Interrupted", ex);
       }
@@ -136,17 +136,17 @@ public class UriEndPointDescriptionProvider implements EndPointDescriptionProvid
 
   }
 
-  public static Validater validater() {
-    return new Validater();
+  public static Validater validater(final ExecutorService executorService) {
+    return new Validater(executorService);
   }
 
-  public static URI getAccessibleURI(final FudgeMsg endPoint) {
-    return validater().getAccessibleURI(endPoint);
+  public static URI getAccessibleURI(final ExecutorService executorService, final FudgeMsg endPoint) {
+    return validater(executorService).getAccessibleURI(endPoint);
   }
 
-  public static URI getAccessibleURI(final FudgeContext fudgeContext, final EndPointDescriptionProvider endPointProvider) {
+  public static URI getAccessibleURI(final ExecutorService executorService, final FudgeContext fudgeContext, final EndPointDescriptionProvider endPointProvider) {
     ArgumentChecker.notNull(endPointProvider, "endPointProvider");
-    return getAccessibleURI(endPointProvider.getEndPointDescription(fudgeContext));
+    return getAccessibleURI(executorService, endPointProvider.getEndPointDescription(fudgeContext));
   }
 
 }

@@ -17,10 +17,13 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction;
+import com.opengamma.financial.analytics.model.volatility.local.DummyFXForwardCurveFunction;
+import com.opengamma.financial.analytics.model.volatility.local.ForwardCurveFromFXForwardFunction;
 import com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunction;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeInstrumentProvider;
@@ -85,7 +88,16 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
       addYieldCurveFunction(configs, "USD", "SECONDARY");
       addYieldCurveFunction(configs, "GBP", "SECONDARY");
     }
+    s_logger.info("Created repository configuration with {} curve provider functions", configs.size());
 
+    addSwaptionVolCubeFunction(configs);
+    s_logger.info("Added swaption vol cube to repository configuration");
+    addFXForwardCurveFunction(configs);
+    s_logger.info("Added FX forward curve to repository configuration");
+    return new RepositoryConfiguration(configs);
+  }
+
+  private void addSwaptionVolCubeFunction(final List<FunctionConfiguration> configs) {
     //These need to be replaced with meaningful cube defns
     addVolatilityCubeFunction(configs, "USD", "BLOOMBERG");
 
@@ -93,9 +105,6 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     for (Currency currency : volCubeCurrencies) {
       addVolatilityCubeFunction(configs, currency.getCode(), BloombergVolatilityCubeDefinitionSource.DEFINITION_NAME);
     }
-
-    s_logger.info("Created repository configuration with {} curve provider functions", configs.size());
-    return new RepositoryConfiguration(configs);
   }
 
   private void addYieldCurveFunction(final List<FunctionConfiguration> configs, final String currency, final String curveName) {
@@ -104,6 +113,11 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     configs.add(new ParameterizedFunctionConfiguration(YieldCurveSpecificationFunction.class.getName(), Arrays.asList(currency, curveName)));
   }
 
+  private void addFXForwardCurveFunction(List<FunctionConfiguration> configs) {
+    configs.add(new ParameterizedFunctionConfiguration(DummyFXForwardCurveFunction.class.getName(), Arrays.asList("DEFAULT", "EUR", "USD")));
+    //configs.add(new ParameterizedFunctionConfiguration(ForwardCurveFromFXForwardFunction.class.getName(), Arrays.asList("DEFAULT", "DEFAULT", "DEFAULT")));
+  }
+  
   private void addVolatilityCubeFunction(List<FunctionConfiguration> configs, String... parameters) {
     addVolatilityCubeFunction(configs, Arrays.asList(parameters));
   }
@@ -117,15 +131,9 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     configs.add(new ParameterizedFunctionConfiguration(VolatilityCubeMarketDataFunction.class.getName(), parameters));
   }
 
+  //-------------------------------------------------------------------------
   public RepositoryConfigurationSource constructRepositoryConfigurationSource() {
-    return new RepositoryConfigurationSource() {
-      private final RepositoryConfiguration _config = constructRepositoryConfiguration();
-
-      @Override
-      public RepositoryConfiguration getRepositoryConfiguration() {
-        return _config;
-      }
-    };
+    return new SimpleRepositoryConfigurationSource(constructRepositoryConfiguration());
   }
 
   @Override

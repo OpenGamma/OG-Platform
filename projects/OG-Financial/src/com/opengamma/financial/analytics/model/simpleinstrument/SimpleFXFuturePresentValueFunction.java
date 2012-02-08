@@ -16,6 +16,7 @@ import org.apache.commons.lang.Validate;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -38,7 +39,6 @@ import com.opengamma.financial.simpleinstruments.derivative.SimpleInstrument;
 import com.opengamma.financial.simpleinstruments.pricing.SimpleFXFutureDataBundle;
 import com.opengamma.financial.simpleinstruments.pricing.SimpleFXFuturePresentValueCalculator;
 import com.opengamma.id.ExternalId;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 
@@ -114,7 +114,7 @@ public class SimpleFXFuturePresentValueFunction extends AbstractFunction.NonComp
     final ValueProperties properties = createValueProperties()
       .with(ValuePropertyNames.PAY_CURVE, _payCurveName)
       .with(ValuePropertyNames.RECEIVE_CURVE, _receiveCurveName)
-      .withAny(ValuePropertyNames.CURRENCY).get();
+      .with(ValuePropertyNames.CURRENCY, ((FXFutureSecurity) target.getSecurity()).getDenominator().getCode()).get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties));
   }
 

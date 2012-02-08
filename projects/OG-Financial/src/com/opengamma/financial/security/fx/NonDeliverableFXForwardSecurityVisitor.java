@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.fx;
 
 /**
- * Visitor for the {@code NonDeliverableFXForwardSecurity} type
+ * Visitor for the {@code FXForwardSecurity} type
  * 
  * @param <T> visitor method return type
  */

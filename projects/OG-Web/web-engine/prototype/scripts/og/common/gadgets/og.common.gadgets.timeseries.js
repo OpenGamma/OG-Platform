@@ -282,12 +282,12 @@ $.register_module({
                     // This only needs to be done for one series
                     if (!idx_from) data_arr[0].data.map(function (v, i) {
                         if (!idx_from && v[0] >= state.from) i < 2 ? idx_from = 0 : idx_from = i - 1;
-                        if (!idx_to && v[0] >= state.to) i > cur.length -3 ? idx_to = cur.length - 1 : idx_to = i;
+                        if (!idx_to && v[0] >= state.to) i > cur.length - 3 ? idx_to = cur.length - 1 : idx_to = i;
                     });
                     // if the number of data points between the indices is less than 10, add more
                     // this doesn't change the viewable data, just the yaxis range
-                    while (idx_to - idx_from < 10) {
-                        if (idx_to !== cur.length -1) ++idx_to;
+                    while (idx_to - idx_from < Math.min(10, cur.length - 1)) {
+                        if (idx_to !== cur.length - 1) ++idx_to;
                         if (idx_from !== 0) --idx_from;
                     }
                     sliced = data_arr[i].data.slice(idx_from, idx_to);
@@ -295,8 +295,8 @@ $.register_module({
                 }
                 get_values = function (arr) {
                     var min, max, buffer;
-                    max = (function (arr) {return Math.max.apply(null, arr.map(function (v) {return v[1];}));})(arr);
-                    min = (function (arr) {return Math.min.apply(null, arr.map(function (v) {return v[1];}));})(arr);
+                    max = (function (arr) {return Math.max.apply(null, arr.pluck(1));})(arr);
+                    min = (function (arr) {return Math.min.apply(null, arr.pluck(1));})(arr);
                     buffer = (max - min) / 10, max += buffer, min -= buffer;
                     return {min: min, max: max}
                 };

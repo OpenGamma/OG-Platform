@@ -1,0 +1,74 @@
+#!/bin/sh
+#
+# LanguageIntegration Shell script to start and stop the OpenGamma Language Integration stack
+#
+# chkconfig: - 80 20
+# description: OpenGamma Language Integration service
+# processname: ServiceRunner
+# pidfile: /var/run/OG-Language/ServiceRunner.pid
+# config:  /etc/OpenGammaLtd/LanguageIntegration
+
+. /etc/init.d/functions
+
+if [ -z "$LANGUAGEINTEGRATION_SCRIPT" ] ; then
+	LANGUAGEINTEGRATION_SCRIPT=/usr/local/libexec/OpenGamma/LanguageIntegration/bin/ServiceRunner
+fi
+
+if [ -z "$LANGUAGEINTEGRATION_USER" ] ; then
+	LANGUAGEINTEGRATION_USER=opengamma
+fi
+
+if [ -z "$LANGUAGEINTEGRATION_PID" ] ; then
+	LANGUAGEINTEGRATION_PID=/var/run/OG-Language/LanguageIntegration.pid
+fi
+
+RETVAL=0
+
+start() {
+	echo -n $"Starting OpenGamma Language Integration service: "
+	daemon --user $LANGUAGEINTEGRATION_USER --pidfile=$LANGUAGEINTEGRATION_PID $LANGUAGEINTEGRATION_SCRIPT
+        RETVAL=$?
+	echo
+        return $RETVAL
+}
+
+stop() {
+	echo -n $"Stopping OpenGamma Language Integration service: "
+	killproc -p $LANGUAGEINTEGRATION_PID $LANGUAGEINTEGRATION_SCRIPT
+	RETVAL=$?
+	echo
+	return $RETVAL
+}
+
+case "$1" in
+	config)
+		sudo $LANGUAGEINTEGRATION_SCRIPT configure
+		RETVAL=1
+		;;
+	start)
+		start
+		;;
+	stop)
+		stop
+		;;
+	status)
+		status -p $LANGUAGEINTEGRATION_PID $LANGUAGEINTEGRATION_SCRIPT
+		RETVAL=$?
+		;;
+	restart|reload)
+		stop
+		start
+		;;
+	condrestart)
+		if status -p $LANGUAGEINTEGRATION_PID $LANGUAGEINTEGRATION_SCRIPT >&/dev/null ; then
+			stop
+			start
+		fi
+		;;
+	*)
+		echo "Usage: $0 {config|start|stop|status|restart|reload|condrestart}"
+		RETVAL=1
+		;;
+esac
+																	     
+exit $RETVAL

@@ -20,6 +20,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.beans.factory.InitializingBean;
 
+import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator;
 import com.opengamma.financial.analytics.volatility.surface.EquityOptionSurfaceConfigPopulator;
@@ -76,13 +77,18 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
    */
   @PropertyDefinition
   private boolean _volatilityCube;
+  /**
+   * The flag to create the FX forward curves in the config master.
+   */
+  @PropertyDefinition
+  private boolean _fxForwardCurve;
 
   //-------------------------------------------------------------------------
   @Override
   public void afterPropertiesSet() {
-    ConfigMaster cm = getConfigMaster();
+    final ConfigMaster cm = getConfigMaster();
     ArgumentChecker.notNull(cm, "ConfigMaster");
-    
+
     if (isYieldCurve()) {
       new YieldCurveConfigPopulator(cm);
     }
@@ -103,6 +109,9 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
     }
     if (isVolatilityCube()) {
       new VolatilityCubeConfigPopulator(cm);
+    }
+    if (isFxForwardCurve()) {
+      new FXForwardCurveConfigPopulator(cm);
     }
   }
 
@@ -143,6 +152,8 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
         return isEquityOptionSurface();
       case 69583354:  // volatilityCube
         return isVolatilityCube();
+      case -1016191204:  // fxForwardCurve
+        return isFxForwardCurve();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -174,6 +185,9 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
       case 69583354:  // volatilityCube
         setVolatilityCube((Boolean) newValue);
         return;
+      case -1016191204:  // fxForwardCurve
+        setFxForwardCurve((Boolean) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -192,7 +206,8 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
           JodaBeanUtils.equal(isIrFutureOptionSurface(), other.isIrFutureOptionSurface()) &&
           JodaBeanUtils.equal(isFxOptionVolatilitySurface(), other.isFxOptionVolatilitySurface()) &&
           JodaBeanUtils.equal(isEquityOptionSurface(), other.isEquityOptionSurface()) &&
-          JodaBeanUtils.equal(isVolatilityCube(), other.isVolatilityCube());
+          JodaBeanUtils.equal(isVolatilityCube(), other.isVolatilityCube()) &&
+          JodaBeanUtils.equal(isFxForwardCurve(), other.isFxForwardCurve());
     }
     return false;
   }
@@ -208,6 +223,7 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
     hash += hash * 31 + JodaBeanUtils.hashCode(isFxOptionVolatilitySurface());
     hash += hash * 31 + JodaBeanUtils.hashCode(isEquityOptionSurface());
     hash += hash * 31 + JodaBeanUtils.hashCode(isVolatilityCube());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isFxForwardCurve());
     return hash;
   }
 
@@ -413,6 +429,31 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the flag to create the FX forward curves in the config master.
+   * @return the value of the property
+   */
+  public boolean isFxForwardCurve() {
+    return _fxForwardCurve;
+  }
+
+  /**
+   * Sets the flag to create the FX forward curves in the config master.
+   * @param fxForwardCurve  the new value of the property
+   */
+  public void setFxForwardCurve(boolean fxForwardCurve) {
+    this._fxForwardCurve = fxForwardCurve;
+  }
+
+  /**
+   * Gets the the {@code fxForwardCurve} property.
+   * @return the property, not null
+   */
+  public final Property<Boolean> fxForwardCurve() {
+    return metaBean().fxForwardCurve().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code ConfigMasterPopulatorsFactoryBean}.
    */
   public static class Meta extends DirectMetaBean {
@@ -462,6 +503,11 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
     private final MetaProperty<Boolean> _volatilityCube = DirectMetaProperty.ofReadWrite(
         this, "volatilityCube", ConfigMasterPopulatorsFactoryBean.class, Boolean.TYPE);
     /**
+     * The meta-property for the {@code fxForwardCurve} property.
+     */
+    private final MetaProperty<Boolean> _fxForwardCurve = DirectMetaProperty.ofReadWrite(
+        this, "fxForwardCurve", ConfigMasterPopulatorsFactoryBean.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -473,7 +519,8 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
         "irFutureOptionSurface",
         "fxOptionVolatilitySurface",
         "equityOptionSurface",
-        "volatilityCube");
+        "volatilityCube",
+        "fxForwardCurve");
 
     /**
      * Restricted constructor.
@@ -500,6 +547,8 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
           return _equityOptionSurface;
         case 69583354:  // volatilityCube
           return _volatilityCube;
+        case -1016191204:  // fxForwardCurve
+          return _fxForwardCurve;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -582,6 +631,14 @@ public class ConfigMasterPopulatorsFactoryBean extends DirectBean implements Ini
      */
     public final MetaProperty<Boolean> volatilityCube() {
       return _volatilityCube;
+    }
+
+    /**
+     * The meta-property for the {@code fxForwardCurve} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> fxForwardCurve() {
+      return _fxForwardCurve;
     }
 
   }

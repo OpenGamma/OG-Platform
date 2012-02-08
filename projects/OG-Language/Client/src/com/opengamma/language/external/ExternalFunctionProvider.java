@@ -49,16 +49,27 @@ public class ExternalFunctionProvider extends AbstractFunctionProvider {
     return Collections.emptyList();
   }
 
+  @SuppressWarnings("unused")
+  private static boolean isTestClass(final Class<?> clazz) {
+    String[] cs = clazz.getName().split("[\\.\\$]");
+    for (String c : cs) {
+      if (c.endsWith("Test")) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   private static List<MetaFunction> createFunctions(final ExternalFunctionCache cache) {
     final List<MetaFunction> functions = new ArrayList<MetaFunction>();
-    try {
-      for (Class<?> clazz : cache.getClasses()) {
-        final ExternalFunctionHandler handler = new ExternalFunctionHandler(clazz);
-        functions.addAll(handler.getFunctions());
-      }
-    } catch (ClassNotFoundException ex) {
-      s_logger.info("Class not found", ex);
-      return null;
+    for (Class<?> clazz : cache.getClasses()) {
+      // Use the following test when running with the Test classes in the classpath to
+      // avoid generating documentation for them.
+      /*if (isTestClass(clazz)) {
+        continue;
+      }*/
+      final ExternalFunctionHandler handler = new ExternalFunctionHandler(clazz);
+      functions.addAll(handler.getFunctions());
     }
     return functions;
   }

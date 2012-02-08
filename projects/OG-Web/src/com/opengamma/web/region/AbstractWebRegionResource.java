@@ -12,13 +12,13 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.AbstractWebResource;
+import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
 
 /**
  * Abstract base class for RESTful region resources.
  */
-public abstract class AbstractWebRegionResource extends AbstractWebResource {
+public abstract class AbstractWebRegionResource extends AbstractPerRequestWebResource {
 
   /**
    * The backing bean.

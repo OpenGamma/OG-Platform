@@ -5,12 +5,13 @@
  */
 package com.opengamma.financial.timeseries.model;
 
+import javax.time.calendar.LocalDate;
+
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
-import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
-import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
+import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * 
@@ -23,7 +24,7 @@ public class AutoregressiveTimeSeriesModel {
     _random = random;
   }
 
-  public DoubleTimeSeries<Long> getSeries(final double[] phi, final int p, final long[] dates) {
+  public LocalDateDoubleTimeSeries getSeries(final double[] phi, final int p, final LocalDate[] dates) {
     Validate.notNull(phi, "phi");
     if (p < 1) {
       throw new IllegalArgumentException("Order must be greater than zero");
@@ -46,6 +47,6 @@ public class AutoregressiveTimeSeriesModel {
       }
       data[i] = sum;
     }
-    return new FastArrayLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS, dates, data);
+    return new ArrayLocalDateDoubleTimeSeries(dates, data);
   }
 }

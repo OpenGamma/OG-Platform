@@ -75,4 +75,10 @@ public final class ForexSwapDiscountingMethod implements ForexPricingMethod {
     return result;
   }
 
+  @Override
+  public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
+    Validate.isTrue(instrument instanceof ForexSwap, "Forex swap");
+    return presentValueCurveSensitivity((ForexSwap) instrument, curves);
+  }
+
 }

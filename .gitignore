@@ -4,6 +4,8 @@ common/build-projects.xml
 common/credentials.properties
 common/tests.properties
 common/db.properties
+common/deploy.properties
+projects/Aldwych
 projects/Fudge-Java/
 projects/Fudge-Defn/
 projects/Fudge-Proto/
@@ -13,10 +15,11 @@ projects/OG-Integration/
 projects/OG-Production/
 projects/CharterhouseStreet/
 projects/GreshamStreet/
+projects/LambethRoad/
 projects/OG-RStats/
 projects/OG-Reuters/
 projects/OG-Activ/
-projects/OG-Language/config/OpenGamma.properties
+projects/OG-TullettPrebon/
 repository/
 ivy/
 bootstrap/

@@ -5,6 +5,9 @@
  */
 package com.opengamma.web.server.push;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -27,6 +30,8 @@ of knowing the client is still there.
  * Task that tells a {@link ConnectionManager} when a client connection has been idle for a certain time.
  */
 /* package */ class ConnectionTimeoutTask extends TimerTask {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(ConnectionTimeoutTask.class);
 
   private final AtomicLong _lastAccessTime = new AtomicLong();
   private final String _userId;
@@ -62,7 +67,18 @@ of knowing the client is still there.
   public void run() {
     if (System.currentTimeMillis() - _lastAccessTime.get() > _timeout) {
       cancel();
+      s_logger.debug("Client timeout, userId: {}, clientId: {}", _userId, _clientId);
       _connectionManager.clientDisconnected(_userId, _clientId);
     }
+  }
+
+  @Override
+  public String toString() {
+    return "ConnectionTimeoutTask [" +
+        "_userId='" + _userId + '\'' +
+        ", _clientId='" + _clientId + '\'' +
+        ", _lastAccessTime=" + _lastAccessTime +
+        ", _timeout=" + _timeout +
+        "]";
   }
 }

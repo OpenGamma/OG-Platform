@@ -10,7 +10,7 @@ namespace com.opengamma.engine.view.cache.msg {
   
     /**
      * The identifiers allocated for each value specification in the order that they were
-     * present in the requestRun message.
+     * present in the request message.
      */
     repeated required long identifier;
   

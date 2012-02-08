@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
@@ -23,7 +24,7 @@ import com.opengamma.livedata.UserPrincipal;
 
 /**
  * Implementation of {@link MarketDataProvider} which sources its data from on of two {@link MarketDataProvider}s, 
- *  choosing based on the availability of data
+ *  choosing based on the availability of data.
  */
 public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
 
@@ -34,7 +35,7 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
   private final CombinedMarketDataListener _fallBackListener;
   private final MarketDataAvailabilityProvider _availabilityProvider;
   
-  private final Map<ValueRequirement, MarketDataProvider> _providerByRequirement = new HashMap<ValueRequirement, MarketDataProvider>();
+  private final Map<ValueRequirement, MarketDataProvider> _providerByRequirement = new ConcurrentHashMap<ValueRequirement, MarketDataProvider>();
 
   private final Object _listenerLock = new Object();
   private boolean _listenerAttached;
@@ -143,14 +144,17 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
         final MarketDataAvailability preferred = _preferredProvider.getAvailability(requirement);
         if (preferred == MarketDataAvailability.AVAILABLE) {
           // preferred is available
+          _providerByRequirement.put(requirement, _preferred);
           return preferred;
         }
         final MarketDataAvailability fallback = _fallbackProvider.getAvailability(requirement);
         if (fallback != MarketDataAvailability.NOT_AVAILABLE) {
           // fallback is either available or missing
+          _providerByRequirement.put(requirement, _fallBack);
           return fallback;
         }
         // preferred is either not available or missing
+        _providerByRequirement.put(requirement, _preferred);
         return preferred;
       }
 
@@ -241,8 +245,7 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
   public MarketDataProvider getProvider(ValueRequirement valueRequirement) {
     MarketDataProvider provider = _providerByRequirement.get(valueRequirement);
     if (provider == null) {
-      // REVIEW 2011-11-02 andrew -- Is this call to getAvailability a poke to get some subscriptions to succeed? Or is it unnecessary?
-      getAvailabilityProvider().getAvailability(valueRequirement);
+      getAvailabilityProvider().getAvailability(valueRequirement); //This populates the map
       provider = _providerByRequirement.get(valueRequirement);
     }
     return provider;

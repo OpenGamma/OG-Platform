@@ -17,6 +17,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
@@ -27,6 +28,8 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BillSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -37,12 +40,14 @@ import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.BondFuture;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.financial.interestrate.future.derivative.BondFuture;
+import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
+import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthly;
@@ -634,6 +639,56 @@ public class InstrumentDerivativeVisitorTest {
 
     @Override
     public Class<?> visitDepositCounterpart(DepositCounterpart deposit) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForexOptionDigital(ForexOptionDigital derivative, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitForexOptionDigital(ForexOptionDigital derivative) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitBillSecurity(BillSecurity bill, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitBillSecurity(BillSecurity bill) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitBillTransaction(BillTransaction bill, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitBillTransaction(BillTransaction bill) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future, Object data) {
+      return null;
+    }
+
+    @Override
+    public Class<?> visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future) {
       return null;
     }
   };

@@ -15,13 +15,14 @@ import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundl
  *  Class used to compute the price of a CMS coupon by swaption replication with SABR Hagan formula.
  */
 public class CouponCMSSABRReplicationMethod {
+
   private static final CouponCMSSABRReplicationMethod INSTANCE = new CouponCMSSABRReplicationMethod();
 
   /** 
    * Method returning a default instance. The default integration interval is 1.00 (100%).
    * @return A default instance
    */
-  public static CouponCMSSABRReplicationMethod getDefaultInstance() {
+  public static CouponCMSSABRReplicationMethod getInstance() {
     return INSTANCE;
   }
 

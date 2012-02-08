@@ -63,7 +63,7 @@ public class CMSIndexTest {
     assertEquals(CMS_INDEX.getFixedLegPeriod(), FIXED_LEG_PERIOD);
     assertEquals(CMS_INDEX.getIborIndex(), IBOR_INDEX);
     assertEquals(CMS_INDEX.getTenor(), CMS_TENOR);
-    SwapGenerator generator = new SwapGenerator(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX);
+    GeneratorSwap generator = new GeneratorSwap(FIXED_LEG_PERIOD, DAY_COUNT_FIXED, IBOR_INDEX);
     String name = CMS_TENOR.toString() + generator.getName();
     assertEquals(name, CMS_INDEX.getName());
     assertEquals(CMS_INDEX.toString(), CMS_INDEX.getName());

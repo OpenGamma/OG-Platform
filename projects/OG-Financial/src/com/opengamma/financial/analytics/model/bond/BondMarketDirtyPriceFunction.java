@@ -8,6 +8,7 @@ package com.opengamma.financial.analytics.model.bond;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
@@ -16,7 +17,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.bond.BondSecurity;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * 
@@ -28,7 +28,7 @@ public class BondMarketDirtyPriceFunction extends BondMarketDataFunction {
   }
 
   @Override
-  protected Set<ComputedValue> getComputedValues(final FunctionExecutionContext context, final double value, final BondSecurity security) {
+  protected Set<ComputedValue> getComputedValues(final FunctionExecutionContext context, final double value, final BondSecurity security, final ComputationTarget target) {
     final ValueSpecification specification = new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARKET_DIRTY_PRICE, security), getUniqueId());
     return Sets.newHashSet(new ComputedValue(specification, value));
   }

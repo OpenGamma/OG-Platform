@@ -13,6 +13,7 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableForward;
 import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.financial.forex.derivative.ForexOptionSingleBarrier;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.forex.derivative.ForexSwap;
@@ -23,6 +24,8 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixe
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIborRatchet;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.bond.definition.BillSecurity;
+import com.opengamma.financial.interestrate.bond.definition.BillTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedSecurity;
 import com.opengamma.financial.interestrate.bond.definition.BondCapitalIndexedTransaction;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
@@ -33,12 +36,14 @@ import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.definition.BondFuture;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFuture;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionMarginTransaction;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumSecurity;
-import com.opengamma.financial.interestrate.future.definition.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.financial.interestrate.future.derivative.BondFuture;
+import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
+import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolation;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponInterpolationGearing;
 import com.opengamma.financial.interestrate.inflation.derivatives.CouponInflationZeroCouponMonthly;
@@ -77,6 +82,7 @@ public class ForexDerivativeVisitorTest {
   private static final ForexOptionSingleBarrier FX_OPTION_SINGLE_BARRIER = ForexInstrumentsDescriptionDataSet.createForexOptionSingleBarrier();
   private static final ForexNonDeliverableForward NDF = ForexInstrumentsDescriptionDataSet.createForexNonDeliverableForward();
   private static final ForexNonDeliverableOption NDO = ForexInstrumentsDescriptionDataSet.createForexNonDeliverableOption();
+  private static final ForexOptionDigital FX_OPTION_DIGITAL = ForexInstrumentsDescriptionDataSet.createForexOptionDigital();
 
   @SuppressWarnings("synthetic-access")
   private static final MyVisitor<Object, String> VISITOR = new MyVisitor<Object, String>();
@@ -99,6 +105,8 @@ public class ForexDerivativeVisitorTest {
     assertEquals(NDF.accept(VISITOR, o), "ForexNonDeliverableForward2");
     assertEquals(NDO.accept(VISITOR), "ForexNonDeliverableOption1");
     assertEquals(NDO.accept(VISITOR, o), "ForexNonDeliverableOption2");
+    assertEquals(FX_OPTION_DIGITAL.accept(VISITOR), "ForexOptionDigital1");
+    assertEquals(FX_OPTION_DIGITAL.accept(VISITOR, o), "ForexOptionDigital2");
   }
 
   @Test
@@ -116,6 +124,8 @@ public class ForexDerivativeVisitorTest {
     testException(NDF, o);
     testException(NDO);
     testException(NDO, o);
+    testException(FX_OPTION_DIGITAL);
+    testException(FX_OPTION_DIGITAL, o);
     final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP};
     try {
       VISITOR_ABSTRACT.visit(forexArray[0]);
@@ -694,6 +704,56 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitDepositCounterpart(DepositCounterpart deposit) {
+      return null;
+    }
+
+    @Override
+    public String visitForexOptionDigital(final ForexOptionDigital derivative, final T data) {
+      return "ForexOptionDigital2";
+    }
+
+    @Override
+    public String visitForexOptionDigital(final ForexOptionDigital derivative) {
+      return "ForexOptionDigital1";
+    }
+
+    @Override
+    public String visitBillSecurity(BillSecurity bill, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBillSecurity(BillSecurity bill) {
+      return null;
+    }
+
+    @Override
+    public String visitBillTransaction(BillTransaction bill, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBillTransaction(BillTransaction bill) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureSecurity(FederalFundsFutureSecurity future) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future) {
       return null;
     }
 

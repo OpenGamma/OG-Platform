@@ -139,7 +139,7 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
   @Override
   public <T> ConfigDocument<T> get(UniqueId uniqueId, Class<T> clazz) {
     ConfigDocument<?> document = _worker.get(uniqueId);
-    if (!clazz.isInstance(document.getValue())) {
+    if (clazz != null && clazz.isInstance(document.getValue()) == false) {
       throw new DataNotFoundException("Config not found: " + uniqueId.getObjectId());
     }
     return (ConfigDocument<T>) document;
@@ -149,7 +149,7 @@ public class DbConfigMaster extends AbstractDbMaster implements ConfigMaster {
   @Override
   public <T> ConfigDocument<T> get(ObjectIdentifiable objectId, VersionCorrection versionCorrection, Class<T> clazz) {
     ConfigDocument<?> document = _worker.get(objectId, versionCorrection);
-    if (!clazz.isInstance(document.getValue())) {
+    if (clazz != null && clazz.isInstance(document.getValue()) == false) {
       throw new DataNotFoundException("Config not found: " + objectId);
     }
     return (ConfigDocument<T>) document;

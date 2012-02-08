@@ -5,10 +5,10 @@
  */
 package com.opengamma.engine.test;
 
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * Market data availability provider that assumes market values will be available.

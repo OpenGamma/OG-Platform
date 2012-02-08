@@ -12,6 +12,8 @@ import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.impl.AbstractRemoteMaster;
+import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.master.security.impl.DataSecurityMasterResource;
 import com.opengamma.util.ArgumentChecker;
 
 import java.net.URI;
@@ -31,11 +33,10 @@ public class RemoteBatchMaster extends AbstractRemoteMaster {
     super(baseUri);
   }
 
-  public BatchRunSearchResult searchBatchRun(BatchRunSearchRequest requestRun) {
-    ArgumentChecker.notNull(requestRun, "requestRun");        
-    String msgBase64 = getRestClient().encodeBean(requestRun);
-    URI uri = BatchRunResource.uri(getBaseUri(), msgBase64);
-    return accessRemote(uri).get(BatchRunSearchResult.class);
+  public BatchRunSearchResult searchBatchRun(BatchRunSearchRequest request) {    
+    ArgumentChecker.notNull(request, "request");        
+    URI uri = BatchRunResource.uriSearch(getBaseUri());
+    return accessRemote(uri).post(BatchRunSearchResult.class, request);
   }
 
   public RiskRun getBatchRun(ObjectId batchUniqueId) {

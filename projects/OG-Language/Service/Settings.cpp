@@ -21,11 +21,19 @@ LOGGING(com.opengamma.language.service.Settings);
 #ifndef DEFAULT_IDLE_TIMEOUT
 # define DEFAULT_IDLE_TIMEOUT		300000	/* 5m default */
 #endif /* ifndef DEFAULT_IDLE_TIMEOUT */
+#ifndef _WIN32
+# ifndef JVM_LIBRARY_SEARCH_PATH
+#  define JVM_LIBRARY_SEARCH_PATH	TEXT ("/usr/lib/jvm")
+# endif /* ifndef JVM_LIBRARY_SEARCH_PATH */
+# ifndef JVM_LIBRARY_FILE_NAME
+#  define JVM_LIBRARY_FILE_NAME		TEXT ("libjvm.so")
+# endif /* ifndef JVM_LIBRARY_FILE_NAME */
+#endif /* ifndef _WIN32 */
 #ifndef DEFAULT_JVM_LIBRARY
 # ifdef _WIN32
-#  define DEFAULT_JVM_LIBRARY		TEXT ("jvm.dll")
+#  define DEFAULT_JVM_LIBRARY       TEXT ("jvm.dll")
 # else /* ifdef _WIN32 */
-#  define DEFAULT_JVM_LIBRARY		TEXT ("jvm.so")
+#  define DEFAULT_JVM_LIBRARY       JVM_LIBRARY_FILE_NAME
 # endif /* ifdef _WIN32 */
 #endif /* ifndef DEFAULT_JVM_LIBRARY */
 #ifndef DEFAULT_LOG_CONFIGURATION
@@ -52,6 +60,15 @@ LOGGING(com.opengamma.language.service.Settings);
 #  define DEFAULT_CONNECTION_PIPE	DEFAULT_PIPE_FOLDER DEFAULT_PIPE_NAME TEXT (".sock")
 # endif /* ifdef _WIN32 */
 #endif /* ifndef DEFAULT_CONNECTION_PIPE */
+#ifndef DEFAULT_JVM_MIN_HEAP
+# define DEFAULT_JVM_MIN_HEAP		256
+#endif /* ifndef DEFAULT_JVM_MIN_HEAP */
+#ifndef DEFAULT_JVM_MAX_HEAP
+# define DEFAULT_JVM_MAX_HEAP		512
+#endif /* ifndef DEFAULT_JVM_MAX_HEAP */
+#ifndef DEFAULT_PID_FILE
+# define DEFAULT_PID_FILE			DEFAULT_PIPE_FOLDER TEXT ("LanguageIntegration.pid")
+#endif /* ifndef DEFAULT_PID_FILE */
 
 /// Returns the default name of the pipe for incoming client connections.
 ///
@@ -72,6 +89,7 @@ class CJvmLibraryDefault : public CAbstractSettingProvider {
 private:
 
 #ifdef _WIN32
+
 	/// Checks for a JVM library defined in the registry at HKLM\\SOFTWARE\\JavaSoft\\Java Runtime Environment.
 	/// Registry mapping under WOW64 will make sure that a 32-bit process sees a 32-bit JVM and a 64-bit process
 	/// sees a 64-bit JVM.
@@ -99,13 +117,87 @@ private:
 			LOGWARN (TEXT ("No RuntimeLib found for JRE v") << szVersion);
 			return NULL;
 		}
-		LOGINFO (TEXT ("Runtime library ") << szPath << TEXT (" found from registry"));
 		RegCloseKey (hkeyJRE);
+		HANDLE hFile = CreateFile (szPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		if (hFile == INVALID_HANDLE_VALUE) {
+			// JDK1.6 puts the wrong path into the registry. It ends \client\jvm.dll but should be \server\jvm.dll
+			int cchPath = _tcslen (szPath);
+			if ((cchPath > 15) && !_tcscmp (szPath + cchPath - 15, TEXT ("\\client\\jvm.dll"))) {
+				LOGDEBUG (TEXT ("Applying hack for broken JDK installer"));
+				memcpy (szPath + cchPath - 14, TEXT ("server"), sizeof (TCHAR) * 6);
+				hFile = CreateFile (szPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+				if (hFile == INVALID_HANDLE_VALUE) {
+					LOGWARN (TEXT ("JVM runtime ") << szPath << TEXT (" can't be opened (modified value used), error ") << GetLastError ());
+				} else {
+					CloseHandle (hFile);
+				}
+			} else {
+				LOGWARN (TEXT ("JVM runtime ") << szPath << TEXT (" can't be opened, error ") << GetLastError ());
+			}
+		} else {
+			CloseHandle (hFile);
+		}
+		LOGINFO (TEXT ("Runtime library ") << szPath << TEXT (" found from registry"));
 		return _tcsdup (szPath);
 	}
+
+#else /* ifndef _WIN32 */
+
+	/// Checks for a JVM library under part of the filesystem.
+	///
+	/// @param[in] pszPath the folder to start searching from, never NULL
+	/// @param[in] nDepth folder depth count - the scan won't go deeper than 16 (in case symlinks create an infinite loop)
+	/// @return the path to the JVM library, or NULL if none is found
+	static TCHAR *SearchFileSystem (const TCHAR *pszPath, int nDepth = 0) {
+		if (nDepth > 16) {
+			LOGWARN (TEXT ("Recursion depth limit hit at ") << pszPath);
+			return NULL;
+		}
+		LOGDEBUG (TEXT ("Scanning folder ") << pszPath);
+		DIR *dir = opendir (pszPath);
+		if (!dir) {
+			LOGWARN (TEXT ("Can't read folder ") << pszPath << TEXT (", error ") << GetLastError ());
+			return NULL;
+		}
+		TCHAR *pszLibrary = NULL;
+		struct dirent *dp;
+		while ((dp = readdir (dir)) != NULL) {
+			if (dp->d_name[0] == '.') {
+				continue;
+			}
+			if (dp->d_type & DT_DIR) {
+				LOGDEBUG (TEXT ("Recursing into folder ") << dp->d_name);
+				size_t cchNewPath = _tcslen (pszPath) + _tcslen (dp->d_name) + 2;
+				TCHAR *pszNewPath = new TCHAR[cchNewPath];
+				if (!pszNewPath) {
+					LOGFATAL (TEXT ("Out of memory"));
+					break;
+				}
+				StringCbPrintf (pszNewPath, cchNewPath * sizeof (TCHAR), TEXT ("%s/%s"), pszPath, dp->d_name);
+				pszLibrary = SearchFileSystem (pszNewPath, nDepth + 1);
+				delete pszNewPath;
+				if (pszLibrary) {
+					break;
+				}
+			} else if (!_tcscmp (dp->d_name, JVM_LIBRARY_FILE_NAME)) {
+				LOGINFO (TEXT ("Found ") << JVM_LIBRARY_FILE_NAME << TEXT (" in ") << pszPath);
+				size_t cchLibrary = _tcslen (pszPath) + _tcslen (dp->d_name) + 2;
+				pszLibrary = new TCHAR[cchLibrary];
+				if (!pszLibrary) {
+					LOGFATAL (TEXT ("Out of memory"));
+					break;
+				}
+				StringCbPrintf (pszLibrary, cchLibrary * sizeof (TCHAR), TEXT ("%s/%s"), pszPath, dp->d_name);
+				break;
+			}
+		}
+		closedir (dir);
+		return pszLibrary;
+	}
+
 #endif /* ifndef _WIN32 */
 
-	/// Checks for a JVM library from the registry (Windows)
+	/// Checks for a JVM library from the registry (Windows), or by scanning the file system (Posix)
 	///
 	/// @return the path to the JVM DLL, a default best guess, or NULL if there is a problem
 	TCHAR *CalculateString () const {
@@ -114,7 +206,7 @@ private:
 #ifdef _WIN32
 			if ((pszLibrary = SearchRegistry ()) != NULL) break;
 #else /* ifdef _WIN32 */
-			// TODO: Is there anything reasonably generic? The path on my Linux box included a processor (e.g. amd64) reference
+			if ((pszLibrary = SearchFileSystem (JVM_LIBRARY_SEARCH_PATH)) != NULL) break;
 #endif /* ifdef _WIN32 */
 		} while (false);
 		if (pszLibrary == NULL) {
@@ -139,14 +231,14 @@ const TCHAR *CSettings::GetJvmLibrary () const {
 ///
 /// @return the minimum heap size in Mb
 unsigned long CSettings::GetJvmMinHeap () const {
-	return GetJvmMinHeap (256);
+	return GetJvmMinHeap (DEFAULT_JVM_MIN_HEAP);
 }
 
 /// Returns the maximum heap size for the JVM
 ///
 /// @return the maximum heap size in Mb
 unsigned long CSettings::GetJvmMaxHeap () const {
-	return GetJvmMaxHeap (512);
+	return GetJvmMaxHeap (DEFAULT_JVM_MAX_HEAP);
 }
 
 /// Enumerate the system properties to be passed to the JVM.
@@ -154,6 +246,16 @@ unsigned long CSettings::GetJvmMaxHeap () const {
 /// @param[in] poEnum enumerator to receive the key/value pairs
 void CSettings::GetJvmProperties (const CEnumerator *poEnum) const {
 	Enumerate (SETTINGS_JVM_PROPERTY TEXT ("."), poEnum);
+}
+
+/// Updates a system property that would be passed to the JVM
+///
+/// @param[in] pszProperty property name, never NULL
+/// @param[in] pszValue value to set, or NULL to delete
+void CSettings::SetJvmProperty (const TCHAR *pszProperty, const TCHAR *pszValue) {
+	TCHAR szProperty[256];
+	StringCbPrintf (szProperty, sizeof (szProperty), TEXT ("%s.%s"), SETTINGS_JVM_PROPERTY, pszProperty);
+	Set (szProperty, pszValue);
 }
 
 /// Returns the name of the pipe for incoming client connections
@@ -303,6 +405,15 @@ const TCHAR *CSettings::GetLogConfiguration () const {
 unsigned long CSettings::GetIdleTimeout () const {
 	return GetIdleTimeout (DEFAULT_IDLE_TIMEOUT);
 }
+
+#ifndef _WIN32
+/// Returns the path to the PID file to write when starting as a daemon process
+///
+/// @return the path to the PID file
+const TCHAR *CSettings::GetPidFile () const {
+	return GetPidFile (DEFAULT_PID_FILE);
+}
+#endif /* ifndef _WIN32 */
 
 /// Returns the service name.
 ///

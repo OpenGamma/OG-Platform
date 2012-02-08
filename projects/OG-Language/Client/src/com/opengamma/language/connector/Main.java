@@ -15,6 +15,7 @@ import org.springframework.scheduling.concurrent.CustomizableThreadFactory;
 
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.context.SessionContextFactory;
+import com.opengamma.language.install.ConfigureMain;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -46,6 +47,15 @@ public class Main {
       return false;
     }
   }
+
+  /**
+   * Updates the store that the service wrapper retrieves properties from that are passed to
+   * {@link #setProperty}.
+   * 
+   * @param property key of the property to set, never null
+   * @param value value to set, or null to delete the property
+   */
+  private static native void writeProperty(final String property, final String value);
 
   /**
    * Debug entry point from the service wrapper tests.
@@ -163,6 +173,28 @@ public class Main {
       s_logger.error("Exception thrown", t);
       return false;
     }
+  }
+
+  /**
+   * Entry point from the service wrapper to configure the application.
+   * 
+   * @return true if the configuration callback ran, false if there was a problem
+   */
+  public static boolean svcConfigure() {
+    new ConfigureMain(new ConfigureMain.Callback() {
+
+      @Override
+      public void setProperty(final String property, final String value) {
+        Main.writeProperty(property, value);
+      }
+
+      @Override
+      public String getProperty(final String property) {
+        return System.getProperty(property);
+      }
+
+    }).run();
+    return true;
   }
 
 }

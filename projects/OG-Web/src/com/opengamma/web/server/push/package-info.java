@@ -7,7 +7,7 @@
  * client ID.  A connection corresponds to a single view, e.g. a single browser tab.  A user can have multiple
  * connections active at the same time.  A connection is set up with a request to the handshake URL:</p>
  * <pre>
- *   /jax/handshake</pre>
+ *   /handshake</pre>
  * <p>The response contains JSON with the client ID, e.g.</p>
  * <pre>
  *   {"clientId": "1234"}</pre>

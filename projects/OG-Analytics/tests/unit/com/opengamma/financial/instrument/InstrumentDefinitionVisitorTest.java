@@ -26,6 +26,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexNonDeliverableForwardDefinition;
 import com.opengamma.financial.forex.definition.ForexNonDeliverableOptionDefinition;
+import com.opengamma.financial.forex.definition.ForexOptionDigitalDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.definition.ForexSwapDefinition;
@@ -34,6 +35,8 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
+import com.opengamma.financial.instrument.bond.BillSecurityDefinition;
+import com.opengamma.financial.instrument.bond.BillTransactionDefinition;
 import com.opengamma.financial.instrument.bond.BondCapitalIndexedSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondCapitalIndexedTransactionDefinition;
 import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
@@ -46,6 +49,8 @@ import com.opengamma.financial.instrument.cash.DepositDefinition;
 import com.opengamma.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
+import com.opengamma.financial.instrument.future.FederalFundsFutureSecurityDefinition;
+import com.opengamma.financial.instrument.future.FederalFundsFutureTransactionDefinition;
 import com.opengamma.financial.instrument.future.FutureInstrumentsDescriptionDataSet;
 import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
@@ -624,6 +629,56 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit) {
+      return null;
+    }
+
+    @Override
+    public String visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitForexOptionDigitalDefinition(ForexOptionDigitalDefinition fx) {
+      return null;
+    }
+
+    @Override
+    public String visitBillSecurityDefinition(BillSecurityDefinition bill, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBillSecurityDefinition(BillSecurityDefinition bill) {
+      return null;
+    }
+
+    @Override
+    public String visitBillTransactionDefinition(BillTransactionDefinition bill, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitBillTransactionDefinition(BillTransactionDefinition bill) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureSecurityDefinition(FederalFundsFutureSecurityDefinition future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureSecurityDefinition(FederalFundsFutureSecurityDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future, T data) {
+      return null;
+    }
+
+    @Override
+    public String visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future) {
       return null;
     }
   }

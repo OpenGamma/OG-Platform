@@ -25,15 +25,16 @@ import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.financial.security.option.SwaptionSecurity;
@@ -57,7 +58,7 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
   private SecuritySource _secSource;
   
   public StocksPutsCallsAggregationFunction(SecuritySource secSource) {
-    this(secSource, true);
+    this(secSource, false);
   }
   
   public StocksPutsCallsAggregationFunction(SecuritySource secSource, boolean useAttributes) {
@@ -155,11 +156,6 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
         }
   
         @Override
-        public String visitFXSecurity(FXSecurity security) {
-          return NA;
-        }
-  
-        @Override
         public String visitFXForwardSecurity(FXForwardSecurity security) {
           return NA;
         }
@@ -182,6 +178,16 @@ public class StocksPutsCallsAggregationFunction implements AggregationFunction<S
         @Override
         public String visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security) {
           return NA;
+        }
+
+        @Override
+        public String visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security) {
+          return security.getCallAmount() > 0 ? CALLS : PUTS; // check this!
+        }
+
+        @Override
+        public String visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
+          return security.getCallAmount() > 0 ? CALLS : PUTS; // check this!
         }
         
       };

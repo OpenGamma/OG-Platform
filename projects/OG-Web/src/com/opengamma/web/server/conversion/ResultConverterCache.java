@@ -17,7 +17,11 @@ import com.opengamma.engine.view.cache.MissingMarketDataSentinel;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix2D;
 import com.opengamma.financial.analytics.LabelledMatrix3D;
+import com.opengamma.financial.greeks.BucketedGreekResultCollection;
+import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
+import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.Tenor;
@@ -55,6 +59,10 @@ public class ResultConverterCache {
     registerConverter(Tenor.class, new TenorConverter());
     registerConverter(MultipleCurrencyAmount.class, new MultipleCurrencyAmountConverter(_doubleConverter));
     registerConverter(MissingMarketDataSentinel.class, new StaticStringConverter("Missing market data"));
+    registerConverter(ForwardCurve.class, new ForwardCurveConverter());
+    registerConverter(BlackVolatilitySurfaceMoneyness.class, new BlackVolatilitySurfaceMoneynessConverter());
+    registerConverter(LocalVolatilitySurfaceMoneyness.class, new LocalVolatilitySurfaceMoneynessConverter());
+    registerConverter(BucketedGreekResultCollection.class, new BucketedVegaConverter());
   }
 
   private <T> void registerConverter(Class<T> clazz, ResultConverter<? super T> converter) {

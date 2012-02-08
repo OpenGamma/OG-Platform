@@ -96,7 +96,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
     double[] gamma = new double[nbJump];
     double[][] cov = new double[nbJump][nbJump];
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
-      gamma[loopjump] = MODEL.beta(0.0, decisionTime[loopjump], hwData.getHullWhiteParameter());
+      gamma[loopjump] = MODEL.beta(hwData.getHullWhiteParameter(), 0.0, decisionTime[loopjump]);
       gamma[loopjump] = gamma[loopjump] * gamma[loopjump];
       cov[loopjump][loopjump] = gamma[loopjump];
       for (int j = loopjump + 1; j < nbJump; j++) {
@@ -188,7 +188,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
     double[] gamma = new double[nbJump];
     double[][] cov = new double[nbJump][nbJump];
     for (int loopjump = 0; loopjump < nbJump; loopjump++) {
-      gamma[loopjump] = MODEL.beta(0.0, decisionTime[loopjump], hwData.getHullWhiteParameter());
+      gamma[loopjump] = MODEL.beta(hwData.getHullWhiteParameter(), 0.0, decisionTime[loopjump]);
       gamma[loopjump] = gamma[loopjump] * gamma[loopjump];
       cov[loopjump][loopjump] = gamma[loopjump];
       for (int j = loopjump + 1; j < nbJump; j++) {
@@ -308,7 +308,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
       for (int loopimp = 0; loopimp < impactTime[loopjump].length; loopimp++) {
         InterestRateCurveSensitivity sensiCfe = impactAmountDerivative.get(impactTime[loopjump][loopimp]);
         if (!(sensiCfe == null)) { // There is some sensitivity to that cfe.
-          result = result.add(sensiCfe.multiply(impactAmountBar[loopjump][loopimp]));
+          result = result.plus(sensiCfe.multiply(impactAmountBar[loopjump][loopimp]));
         }
       }
     }

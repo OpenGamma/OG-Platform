@@ -5,7 +5,6 @@
  */
 package com.opengamma.master.historicaltimeseries.impl;
 
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,8 +12,6 @@ import javax.time.calendar.Clock;
 import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
@@ -28,9 +25,8 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.AbstractMasterSource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;
@@ -49,9 +45,6 @@ public class MasterHistoricalTimeSeriesSource
     extends AbstractMasterSource<HistoricalTimeSeriesInfoDocument, HistoricalTimeSeriesMaster>
     implements HistoricalTimeSeriesSource {
 
-  /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(MasterHistoricalTimeSeriesSource.class);
-
   /**
    * The resolver.
    */
@@ -67,7 +60,7 @@ public class MasterHistoricalTimeSeriesSource
    * @param master  the master, not null
    * @param resolver  the resolver, not null
    */
-  public MasterHistoricalTimeSeriesSource(final HistoricalTimeSeriesMaster master, HistoricalTimeSeriesResolver resolver) {
+  public MasterHistoricalTimeSeriesSource(final HistoricalTimeSeriesMaster master, final HistoricalTimeSeriesResolver resolver) {
     super(master);
     ArgumentChecker.notNull(resolver, "resolver");
     _resolver = resolver;
@@ -299,23 +292,15 @@ public class MasterHistoricalTimeSeriesSource
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataField, "field");
     
-    HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest(identifiers);
-    request.setValidityDate(identifierValidityDate);
-    request.setDataSource(dataSource);
-    request.setDataProvider(dataProvider);
-    request.setDataField(dataField);
-    
-    HistoricalTimeSeriesInfoSearchResult searchResult = getMaster().search(request);
-    List<HistoricalTimeSeriesInfoDocument> documents = searchResult.getDocuments();
-    if (documents.isEmpty()) {
+    HistoricalTimeSeriesResolutionResult resolutionResult = getResolver().resolve(identifiers, identifierValidityDate, dataSource, dataProvider, dataField, null);
+    if (resolutionResult == null) {
       return null;
     }
-    if (documents.size() > 1) {
-      Object[] param = new Object[]{identifiers, dataSource, dataProvider, dataField, start, end};
-      s_logger.warn("Multiple time-series returned for identifiers={}, dataSource={}, dataProvider={}, dataField={}, start={} end={}", param);
+    HistoricalTimeSeries hts = doGetHistoricalTimeSeries(resolutionResult.getHistoricalTimeSeriesInfo().getTimeSeriesObjectId(), start, end, maxPoints);
+    if (resolutionResult.getAdjuster() != null) {
+      hts = resolutionResult.getAdjuster().adjust(resolutionResult.getHistoricalTimeSeriesInfo().getExternalIdBundle().toBundle(), hts);
     }
-    HistoricalTimeSeriesInfoDocument doc = documents.get(0);
-    return doGetHistoricalTimeSeries(doc.getInfo().getTimeSeriesObjectId(), start, end, maxPoints);
+    return hts;
   }
 
   private HistoricalTimeSeries doGetHistoricalTimeSeries(ObjectId objectId, LocalDate start, LocalDate end, Integer maxPoints) {
@@ -450,11 +435,15 @@ public class MasterHistoricalTimeSeriesSource
     if (StringUtils.isBlank(resolutionKey)) {
       resolutionKey = HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
     }
-    UniqueId uniqueId = getResolver().resolve(dataField, identifierBundle, identifierValidityDate, resolutionKey);
-    if (uniqueId == null) {
+    HistoricalTimeSeriesResolutionResult resolutionResult = getResolver().resolve(identifierBundle, identifierValidityDate, null, null, dataField, resolutionKey);
+    if (resolutionResult == null) {
       return null;
     }
-    return doGetHistoricalTimeSeries(uniqueId, start, end, maxPoints);
+    HistoricalTimeSeries hts = doGetHistoricalTimeSeries(resolutionResult.getHistoricalTimeSeriesInfo().getUniqueId(), start, end, maxPoints);
+    if (resolutionResult.getAdjuster() != null) {
+      hts = resolutionResult.getAdjuster().adjust(resolutionResult.getHistoricalTimeSeriesInfo().getExternalIdBundle().toBundle(), hts);
+    }
+    return hts;
   }
 
   //-------------------------------------------------------------------------

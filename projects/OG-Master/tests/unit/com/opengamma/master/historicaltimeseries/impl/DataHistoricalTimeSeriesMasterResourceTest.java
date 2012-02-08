@@ -27,7 +27,7 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesI
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
- * Tests DataHistoricalTimeSeriessResource.
+ * Test.
  */
 public class DataHistoricalTimeSeriesMasterResourceTest {
 

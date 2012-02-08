@@ -93,7 +93,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext
-    .getConventionBundleSource(context);
+        .getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, conventionSource);
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
@@ -103,13 +103,12 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
-    _visitor =
-      FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-      .cashSecurityVisitor(cashConverter)
-      .fraSecurityVisitor(fraConverter)
-      .swapSecurityVisitor(swapConverter)
-      .futureSecurityVisitor(futureConverter)
-      .bondSecurityVisitor(bondConverter).create();
+    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
+        .cashSecurityVisitor(cashConverter)
+        .fraSecurityVisitor(fraConverter)
+        .swapSecurityVisitor(swapConverter)
+        .futureSecurityVisitor(futureConverter)
+        .bondSecurityVisitor(bondConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
 

@@ -24,7 +24,8 @@ public class ExtendedCoupledFiniteDifference extends CoupledFiniteDifference {
   }
 
   public PDEFullResults1D[] solve(final ExtendedCoupledPDEDataBundle pdeData1, final ExtendedCoupledPDEDataBundle pdeData2, final PDEGrid1D grid, final BoundaryCondition lowerBoundary1,
-      final BoundaryCondition upperBoundary1, final BoundaryCondition lowerBoundary2, final BoundaryCondition upperBoundary2, final Surface<Double, Double, Double> freeBoundary) {
+      final BoundaryCondition upperBoundary1, final BoundaryCondition lowerBoundary2, final BoundaryCondition upperBoundary2,
+      final Surface<Double, Double, Double> freeBoundary) {
 
     Validate.notNull(pdeData1, "pde1 data");
     Validate.notNull(pdeData2, "pde2 data");

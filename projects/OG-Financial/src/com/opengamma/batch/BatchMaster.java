@@ -28,11 +28,11 @@ public interface BatchMaster extends BatchRunWriter {
   /**
    * Searches for batches matching the specified search criteria.
    *
-   * @param requestRun  the search requestRun, not null
+   * @param request  the search request, not null
    * @return the search result, not null
-   * @throws IllegalArgumentException if the requestRun is invalid
+   * @throws IllegalArgumentException if the request is invalid
    */
-  Pair<List<RiskRun>, Paging> searchRiskRun(BatchRunSearchRequest requestRun);
+  Pair<List<RiskRun>, Paging> searchRiskRun(BatchRunSearchRequest request);
 
   /**
    * Gets a batch document by unique identifier.

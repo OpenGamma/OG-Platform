@@ -7,9 +7,9 @@ package com.opengamma.masterdb.batch;
 
 import com.google.common.collect.Maps;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.CycleInfo;
@@ -60,7 +60,7 @@ public class DbBatchMasterTest extends DbTest {
     final String calculationConfigName = "config_1";
 
     _compTargetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Sec", "APPL"));
-    final Security security = new MockSecurity(_compTargetSpec.getUniqueId(), "APPL", "equity", ExternalIdBundle.of("Sec", "APPL"));
+    final Security security = new SimpleSecurity(_compTargetSpec.getUniqueId(), ExternalIdBundle.of("Sec", "APPL"), "equity", "APPL");                            
 
     _requirement = new ValueRequirement("FAIR_VALUE", security);
     _specification = new ValueSpecification(_requirement, "IDENTITY_FUNCTION");
@@ -130,9 +130,9 @@ public class DbBatchMasterTest extends DbTest {
     _batchMaster.createMarketData(marketDataUid);            
     RiskRun run = _batchMaster.startRiskRun(_cycleInfoStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
 
-    BatchRunSearchRequest requestRun = new BatchRunSearchRequest();
+    BatchRunSearchRequest request = new BatchRunSearchRequest();
 
-    Pair<List<RiskRun>, Paging> result = _batchMaster.searchRiskRun(requestRun);
+    Pair<List<RiskRun>, Paging> result = _batchMaster.searchRiskRun(request);
     assertNotNull(result);
 
     assertEquals(1, result.getFirst().size());
@@ -143,7 +143,7 @@ public class DbBatchMasterTest extends DbTest {
 
     _batchMaster.endRiskRun(item.getObjectId());
     
-    result = _batchMaster.searchRiskRun(requestRun);
+    result = _batchMaster.searchRiskRun(request);
     assertEquals(1, result.getFirst().size());
     item = result.getFirst().get(0);
     assertNotNull(item.getObjectId());
@@ -158,10 +158,10 @@ public class DbBatchMasterTest extends DbTest {
     _batchMaster.createMarketData(marketDataUid);            
     RiskRun run = _batchMaster.startRiskRun(_cycleInfoStub, Maps.<String, String>newHashMap(), RunCreationMode.AUTO, SnapshotMode.PREPARED);
 
-    BatchRunSearchRequest requestRun = new BatchRunSearchRequest();
-    requestRun.setValuationTime(run.getValuationTime());
+    BatchRunSearchRequest request = new BatchRunSearchRequest();
+    request.setValuationTime(run.getValuationTime());
 
-    Pair<List<RiskRun>, Paging> result = _batchMaster.searchRiskRun(requestRun);
+    Pair<List<RiskRun>, Paging> result = _batchMaster.searchRiskRun(request);
     assertNotNull(result);
 
     assertEquals(1, result.getFirst().size());

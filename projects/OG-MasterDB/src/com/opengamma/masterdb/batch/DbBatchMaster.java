@@ -182,35 +182,35 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster {
 
   @Override
   @SuppressWarnings("unchecked")
-  public Pair<List<RiskRun>, Paging> searchRiskRun(final BatchRunSearchRequest requestRun) {
-    s_logger.info("Searching BatchDocuments: ", requestRun);
+  public Pair<List<RiskRun>, Paging> searchRiskRun(final BatchRunSearchRequest request) {
+    s_logger.info("Searching BatchDocuments: ", request);
 
     final DetachedCriteria criteria = DetachedCriteria.forClass(RiskRun.class);
 
 
-    if (requestRun.getValuationTime() != null) {
+    if (request.getValuationTime() != null) {
       criteria.add(
-        Restrictions.eq("valuationTime", requestRun.getValuationTime()));
+        Restrictions.eq("valuationTime", request.getValuationTime()));
     }
 
-    if (requestRun.getVersionCorrection() != null) {
+    if (request.getVersionCorrection() != null) {
       criteria.add(
-        Restrictions.eq("versionCorrection", requestRun.getVersionCorrection()));
+        Restrictions.eq("versionCorrection", request.getVersionCorrection()));
     }
 
 
-    if (requestRun.getMarketDataUid() != null) {
+    if (request.getMarketDataUid() != null) {
       criteria.createCriteria("marketData")
-        .add(Restrictions.eq("baseUidScheme", requestRun.getMarketDataUid().getScheme()))
-        .add(Restrictions.eq("baseUidValue", requestRun.getMarketDataUid().getValue()))
-        .add(eqOrIsNull("baseUidVersion", requestRun.getMarketDataUid().getVersion()));
+        .add(Restrictions.eq("baseUidScheme", request.getMarketDataUid().getScheme()))
+        .add(Restrictions.eq("baseUidValue", request.getMarketDataUid().getValue()))
+        .add(eqOrIsNull("baseUidVersion", request.getMarketDataUid().getVersion()));
       //.addOrder(Order.asc("baseUid"));
     }
 
-    if (requestRun.getViewDefinitionUid() != null) {
-      criteria.add(Restrictions.eq("viewDefinitionUidScheme", requestRun.getViewDefinitionUid().getScheme()))
-        .add(Restrictions.eq("viewDefinitionUidValue", requestRun.getViewDefinitionUid().getValue()))
-        .add(eqOrIsNull("viewDefinitionUidVersion", requestRun.getViewDefinitionUid().getVersion()));
+    if (request.getViewDefinitionUid() != null) {
+      criteria.add(Restrictions.eq("viewDefinitionUidScheme", request.getViewDefinitionUid().getScheme()))
+        .add(Restrictions.eq("viewDefinitionUidValue", request.getViewDefinitionUid().getValue()))
+        .add(eqOrIsNull("viewDefinitionUidVersion", request.getViewDefinitionUid().getVersion()));
       //.addOrder(Order.asc("viewDefinitionUid"));
     }
 
@@ -218,7 +218,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMaster {
       @Override
       public Pair<List<RiskRun>, Paging> doInTransaction(final TransactionStatus status) {
         //
-        final PagingRequest pagingRequest = requestRun.getPagingRequest();
+        final PagingRequest pagingRequest = request.getPagingRequest();
         List<RiskRun> results = Collections.emptyList();
         Paging paging;
         if (!pagingRequest.equals(PagingRequest.NONE)) {

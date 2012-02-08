@@ -65,11 +65,11 @@ public class EquityBetaAggregationFunction implements AggregationFunction<String
   }
 
   public EquityBetaAggregationFunction(SecuritySource secSource, HistoricalTimeSeriesSource htsSource, boolean useAttributes) {
-    this(secSource, htsSource, useAttributes, true);
+    this(secSource, htsSource, useAttributes, false);
   }
   
   public EquityBetaAggregationFunction(SecuritySource secSource, HistoricalTimeSeriesSource htsSource) {
-    this(secSource, htsSource, true);
+    this(secSource, htsSource, false);
   }
   
   @Override

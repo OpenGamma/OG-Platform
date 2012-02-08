@@ -21,12 +21,12 @@ public interface FunctionCostsMaster {
    * This will load the last stored version of the function costs before the specified
    * instant, where null means the current latest version.
    * 
-   * @param configuration  the configuration key, not null
+   * @param configurationName  the configuration key, not null
    * @param functionId  the function id, not null
    * @param versionAsOf  the optional instant to retrieve data as of, null means latest
    * @return the function costs, not null
    */
-  FunctionCostsDocument load(String configuration, String functionId, Instant versionAsOf);
+  FunctionCostsDocument load(String configurationName, String functionId, Instant versionAsOf);
 
   /**
    * Stores a snapshot of function costs.

@@ -40,14 +40,14 @@ public class CalendarUtils {
       for (final String region : regions) {
         resultRegions.add(regionSource.getHighestLevelRegion(RegionUtils.financialRegionId(region)));
       }
-      return new HolidaySourceCalendarAdapter(holidaySource, resultRegions);
+      return new HolidaySourceCalendarAdapter(holidaySource, resultRegions.toArray(new Region[] {}));
     } 
     final Region region = regionSource.getHighestLevelRegion(regionId); // we've checked that they are the same.
     return new HolidaySourceCalendarAdapter(holidaySource, region);
   }
 
-  public static Calendar getCalendar(final HolidaySource holidaySource, final Currency currency) {
-    return new HolidaySourceCalendarAdapter(holidaySource, currency);
+  public static Calendar getCalendar(final HolidaySource holidaySource, final Currency... currencies) {
+    return new HolidaySourceCalendarAdapter(holidaySource, currencies);
   }
 
 }

@@ -11,6 +11,7 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import javax.ws.rs.core.UriBuilder;
 
@@ -58,12 +59,12 @@ public class RestTarget {
     _taxonomyId = taxonomyId;
   }
 
-  public RestTarget(final FudgeContext fudgeContext, final EndPointDescriptionProvider endPointProvider) {
-    this(UriEndPointDescriptionProvider.getAccessibleURI(fudgeContext, endPointProvider));
+  public RestTarget(final ExecutorService executorService, final FudgeContext fudgeContext, final EndPointDescriptionProvider endPointProvider) {
+    this(UriEndPointDescriptionProvider.getAccessibleURI(executorService, fudgeContext, endPointProvider));
   }
 
-  public RestTarget(final FudgeContext fudgeContext, final EndPointDescriptionProvider endPointProvider, final int taxonomyId) {
-    this(UriEndPointDescriptionProvider.getAccessibleURI(fudgeContext, endPointProvider), taxonomyId);
+  public RestTarget(final ExecutorService executorService, final FudgeContext fudgeContext, final EndPointDescriptionProvider endPointProvider, final int taxonomyId) {
+    this(UriEndPointDescriptionProvider.getAccessibleURI(executorService, fudgeContext, endPointProvider), taxonomyId);
   }
 
   //-------------------------------------------------------------------------

@@ -130,7 +130,6 @@ public class MarkovChain {
 
     double vol, lambda, tau;
     final double[] vols = new double[n];
-    double sum = 0;
     for (int i = 0; i < n; i++) {
       boolean state1 = _probState1 > _rand.nextDouble();
       double t = 0;
@@ -153,13 +152,7 @@ public class MarkovChain {
         t += tau;
       }
       vols[i] = Math.sqrt(var / timeToExpiry);
-      sum += var;
     }
-    sum /= n;
-    // debug
-    // double ave = _pi1 * timeToExpiry + (probState1 - _pi1) / (_lambda12 + _lambda21) * (1 - Math.exp(-(_lambda12 + _lambda21) * timeToExpiry));
-    // double exvar = _vol2 * _vol2 * timeToExpiry + (_vol1 * _vol1 - _vol2 * _vol2) * ave;
-    // System.out.println("debug " + "\t" + sum + "\t" + exvar);
     return vols;
   }
 
@@ -180,7 +173,6 @@ public class MarkovChain {
 
     double vol, lambda, tau;
     final double[][] vols = new double[m][n];
-    // double[] sum = new double[m];
 
     for (int i = 0; i < n; i++) {
       int j = 0;
@@ -195,10 +187,6 @@ public class MarkovChain {
           vol = _vol2;
           lambda = _lambda21;
         }
-        //        if (t == 0) {
-        //          double x = (0.5 + i) / n;
-        //          tau = -Math.log(x) / lambda;
-        //        } else {
         if (t == 0) {
           tau = -Math.log(a + (b - a) * _rand.nextDouble()) / lambda;
         } else {
@@ -211,13 +199,11 @@ public class MarkovChain {
           var += tau * vol * vol;
         } else {
           var += (expiries[j] - t + tau) * vol * vol;
-          //  sum[j] += var;
           vols[j][i] = Math.sqrt(var / expiries[j]);
           j++;
 
           while (j < m && t > expiries[j]) {
             var += (expiries[j] - expiries[j - 1]) * vol * vol;
-            // sum[j] += var;
             vols[j][i] = Math.sqrt(var / expiries[j]);
             j++;
           }

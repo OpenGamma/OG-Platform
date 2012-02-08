@@ -20,8 +20,9 @@ import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.financial.instrument.index.IndexON;
+import com.opengamma.financial.interestrate.payments.Coupon;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
@@ -96,6 +97,20 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
   public static CouponOISDefinition from(final IndexON index, final ZonedDateTime settlementDate, final Period tenor, final double notional, final int settlementDays,
       final BusinessDayConvention businessDayConvention, final boolean isEOM) {
     final ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, index.getCalendar(), isEOM);
+    return from(index, settlementDate, endFixingPeriodDate, notional, settlementDays);
+  }
+
+  /**
+   * Builder from financial details. The accrual and fixing start and end dates are the same. The day count for the payment is the same as the one for the index. 
+   * The payment date is adjusted by the publication lag and the settlement days.
+   * @param index The OIS index.
+   * @param settlementDate The coupon settlement date.
+   * @param endFixingPeriodDate The last date of the fixing period.
+   * @param notional The notional.
+   * @param settlementDays The number of days between last fixing and the payment (also called spot lag). 
+   * @return The OIS coupon.
+   */
+  public static CouponOISDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final int settlementDays) {
     final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(endFixingPeriodDate, -1 + index.getPublicationLag() + settlementDays, index.getCalendar());
     final double paymentYearFraction = index.getDayCount().getDayCountFraction(settlementDate, endFixingPeriodDate);
     return new CouponOISDefinition(index.getCurrency(), paymentDate, settlementDate, endFixingPeriodDate, paymentYearFraction, notional, index, settlementDate, endFixingPeriodDate);
@@ -143,26 +158,26 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
   }
 
   @Override
-  public Payment toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
+  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    if (date.isBefore(_fixingPeriodDate[0])) {
+    if (date.isBefore(_fixingPeriodDate[_index.getPublicationLag()])) {
       return toDerivative(date, yieldCurveNames);
     }
     final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
     int fixedPeriod = 0;
     double accruedNotional = getNotional();
-    while (date.isAfter(_fixingPeriodDate[fixedPeriod]) && fixedPeriod < _fixingPeriodDate.length - 1) {
-      final Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDate[fixedPeriod]);
+    while (date.isAfter(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]) && fixedPeriod < _fixingPeriodDate.length - 1) {
+      final Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
       if (fixedRate == null) {
-        throw new OpenGammaRuntimeException("Could not get fixing value for date " + _fixingPeriodDate[fixedPeriod]);
+        throw new OpenGammaRuntimeException("Could not get fixing value for date " + _fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
       }
       accruedNotional *= 1 + _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
       fixedPeriod++;
     }
     if (fixedPeriod < _fixingPeriodDate.length - 1) { // Some OIS period left
-      final Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDate[fixedPeriod]);
+      final Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
       if (fixedRate != null) { // Fixed already
         accruedNotional *= 1 + _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
         fixedPeriod++;
@@ -178,10 +193,10 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
             fixingAccrualFactorLeft, accruedNotional, yieldCurveNames[1]);
         return cpn;
       }
-      return new PaymentFixed(getCurrency(), paymentTime, accruedNotional, yieldCurveNames[0]);
+      return new CouponFixed(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), (accruedNotional / getNotional() - 1.0) / getPaymentYearFraction());
     }
     // All fixed already
-    return new PaymentFixed(getCurrency(), paymentTime, accruedNotional, yieldCurveNames[0]);
+    return new CouponFixed(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), (accruedNotional / getNotional() - 1.0) / getPaymentYearFraction());
   }
 
   @Override

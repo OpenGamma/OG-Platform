@@ -55,9 +55,17 @@ public class SimpleYieldConvention implements YieldConvention, Serializable {
    */
   public static final YieldConvention US_BOND = new SimpleYieldConvention("US Treasury"); //TODO better name
   /**
+   * Bund (German government-issued bond) yield convention
+   */
+  public static final YieldConvention GERMAN_BOND = new SimpleYieldConvention("GERMAN BONDS");
+  /**
    * US short duration T-bill.
    */
   public static final YieldConvention DISCOUNT = new SimpleYieldConvention("DISCOUNT");
+  /**
+   * Bill convention (in particular for Germany, United Kingdom, Belgium)
+   */
+  public static final YieldConvention INTERESTATMTY = new SimpleYieldConvention("INTEREST@MTY");
   /**
    * Some bonds have this code.
    */

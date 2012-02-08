@@ -5,6 +5,9 @@
  */
 package com.opengamma.id;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Utility class for working with identifiers.
  * <p>
@@ -34,6 +37,59 @@ public final class IdUtils {
     if (object instanceof MutableUniqueIdentifiable) {
       ((MutableUniqueIdentifiable) object).setUniqueId(uniqueId);
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Converts a list of {@code UniqueId} or {@code ObjectId} to a list of strings.
+   * 
+   * @param ids  the ids to convert, null returns empty list
+   * @return the string list, not null
+   */
+  public static List<String> toStringList(Iterable<? extends ObjectIdentifiable> ids) {
+    List<String> strs = new ArrayList<String>();
+    if (ids != null) {
+      for (ObjectIdentifiable obj : ids) {
+        if (obj instanceof UniqueId) {
+          strs.add(obj.toString());
+        } else {
+          strs.add(obj.getObjectId().toString());
+        }
+      }
+    }
+    return strs;
+  }
+
+  /**
+   * Converts a list of strings to a list of {@code UniqueId}.
+   * 
+   * @param uniqueIdStrs  the identifiers to convert, null returns empty list
+   * @return the list of unique identifiers, not null
+   */
+  public static List<UniqueId> parseUniqueIds(Iterable<String> uniqueIdStrs) {
+    List<UniqueId> uniqueIds = new ArrayList<UniqueId>();
+    if (uniqueIdStrs != null) {
+      for (String uniqueIdStr : uniqueIdStrs) {
+        uniqueIds.add(UniqueId.parse(uniqueIdStr));
+      }
+    }
+    return uniqueIds;
+  }
+
+  /**
+   * Converts a list of strings to a list of {@code ObjectId}.
+   * 
+   * @param objectIdStrs  the identifiers to convert, null returns empty list
+   * @return the list of unique identifiers, not null
+   */
+  public static List<ObjectId> parseObjectIds(Iterable<String> objectIdStrs) {
+    List<ObjectId> objectIds = new ArrayList<ObjectId>();
+    if (objectIdStrs != null) {
+      for (String objectIdStr : objectIdStrs) {
+        objectIds.add(ObjectId.parse(objectIdStr));
+      }
+    }
+    return objectIds;
   }
 
 }

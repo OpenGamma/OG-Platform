@@ -13,16 +13,14 @@ $.register_module({
     obj: function () {
         return function (page_name, title, options, handler) {
             og.api.text({module: 'og.views.default', handler: function (template) {
-                var content, header, layout = og.views.common.layout,
+                var layout = og.views.common.layout,
                     $html = $.tmpl(template, {
-                    name: title,
-                    recent_list: og.common.util.history.get_html('history.' + page_name + '.recent') ||
-                        'no recently viewed ' + page_name
-                });
-                header = $.outer($html.find('> header')[0]);
-                content = $.outer($html.find('> section')[0]);
-                $('.ui-layout-inner-center .ui-layout-header').html(header);
-                $('.ui-layout-inner-center .ui-layout-content').html(content);
+                        name: title,
+                        recent_list: og.common.util.history.get_html('history.' + page_name + '.recent') ||
+                            'no recently viewed ' + page_name
+                    });
+                $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
+                $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                 layout.inner.options.south.onclose = null;
                 layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                 layout.inner.close('south'), $('.ui-layout-inner-south').empty();

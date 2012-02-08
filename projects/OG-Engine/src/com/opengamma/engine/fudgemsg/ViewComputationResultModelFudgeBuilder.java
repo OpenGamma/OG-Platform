@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.fudgemsg;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -29,6 +30,9 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 public class ViewComputationResultModelFudgeBuilder extends ViewResultModelFudgeBuilder implements FudgeBuilder<ViewComputationResultModel> {
   
   private static final String FIELD_LIVEDATA = "liveData";
+  private static final String FIELD_SPECIFICATION_MAPPING = "specMapping";
+  private static final String FIELD_SPECIFICATION = "specification";
+  private static final String FIELD_REQUIREMENT = "requirement";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ViewComputationResultModel resultModel) {
@@ -42,12 +46,20 @@ public class ViewComputationResultModelFudgeBuilder extends ViewResultModelFudge
       serializer.addToMessage(liveDataMsg, null, 1, value);
     }
     message.add(FIELD_LIVEDATA, liveDataMsg);
+
+    for (Map.Entry<ValueSpecification, Set<ValueRequirement>> specMappingEntry : resultModel.getRequirementToSpecificationMapping().entrySet()) {
+      final MutableFudgeMsg mappingMsg = serializer.newMessage();
+      serializer.addToMessage(mappingMsg, FIELD_SPECIFICATION, null, specMappingEntry.getKey());
+      for (ValueRequirement requirement : specMappingEntry.getValue()) {
+        serializer.addToMessage(mappingMsg, FIELD_REQUIREMENT, null, requirement);
+      }
+      serializer.addToMessage(message, FIELD_SPECIFICATION_MAPPING, null, mappingMsg);
+    }
     
     return message;
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public ViewComputationResultModel buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
     InMemoryViewComputationResultModel resultModel = (InMemoryViewComputationResultModel) bootstrapCommonDataFromMessage(deserializer, message);
     
@@ -55,7 +67,15 @@ public class ViewComputationResultModelFudgeBuilder extends ViewResultModelFudge
       ComputedValue liveData = deserializer.fieldValueToObject(ComputedValue.class, field);
       resultModel.addMarketData(liveData);      
     }
-    
+    for (FudgeField specMappingField : message.getAllByName(FIELD_SPECIFICATION_MAPPING)) {
+      FudgeMsg mappingMsg = (FudgeMsg) specMappingField.getValue();
+      ValueSpecification specification = deserializer.fieldValueToObject(ValueSpecification.class, mappingMsg.getByName(FIELD_SPECIFICATION));
+      Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+      for (FudgeField requirementField : mappingMsg.getAllByName(FIELD_REQUIREMENT)) {
+        requirements.add(deserializer.fieldValueToObject(ValueRequirement.class, requirementField));
+      }
+      resultModel.addRequirements(requirements, specification);
+    }
     return resultModel;
   }
 

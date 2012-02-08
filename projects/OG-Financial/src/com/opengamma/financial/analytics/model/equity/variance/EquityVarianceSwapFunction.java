@@ -16,10 +16,10 @@ import org.apache.commons.lang.Validate;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -41,22 +41,22 @@ import com.opengamma.financial.equity.variance.definition.VarianceSwapDefinition
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceOld;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.time.TimeCalculator;
 
 /**
  * 
  */
 public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCompiledInvoker {
-  /** */
+
+  /**
+   */
   public static final String STRIKE_PARAMETERIZATION_METHOD = "StrikeParameterizationMethod";
-  private static final String FIELD_NAME = HistoricalTimeSeriesFields.LAST_PRICE;
 
   private EquityVarianceSwapConverter _converter; // set in init()
 
@@ -91,7 +91,7 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
     HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
 
     VarianceSwapDefinition defn = _converter.visitEquityVarianceSwapTrade(security);
-    final HistoricalTimeSeries timeSeries = dataSource.getHistoricalTimeSeries(FIELD_NAME, ExternalIdBundle.of(id), null);
+    final HistoricalTimeSeries timeSeries = dataSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, ExternalIdBundle.of(id), null);
     VarianceSwap deriv = defn.toDerivative(now, timeSeries.getTimeSeries());
 
     // 2. Build up the market data bundle
@@ -100,7 +100,7 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
       throw new OpenGammaRuntimeException("Could not get Volatility Surface");
     }
     VolatilitySurface volSurface = (VolatilitySurface) volSurfaceObject;
-    BlackVolatilitySurface blackVolSurf = new BlackVolatilitySurface(volSurface.getSurface(), _strikeParameterizationMethod);
+    BlackVolatilitySurfaceOld blackVolSurf = new BlackVolatilitySurfaceOld(volSurface.getSurface(), _strikeParameterizationMethod);
 
     Object discountObject = inputs.getValue(getDiscountCurveRequirement(security));
     if (discountObject == null) {

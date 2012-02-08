@@ -12,7 +12,6 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.engine.value.*;
 import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.InMemoryViewComputationResultModel;
@@ -71,7 +70,7 @@ public class DbBatchWriterTest extends DbTest {
     final String calculationConfigName = "config_1";
 
     _compTargetSpec = new ComputationTargetSpecification(ComputationTargetType.SECURITY, UniqueId.of("Sec", "APPL"));
-    final Security security = new MockSecurity(_compTargetSpec.getUniqueId(), "APPL", "equity", ExternalIdBundle.of("Sec", "APPL"));
+    final Security security = new SimpleSecurity(_compTargetSpec.getUniqueId(), ExternalIdBundle.of("Sec", "APPL"), "equity", "APPL");
 
     _requirement = new ValueRequirement("FAIR_VALUE", security);
     _specification = new ValueSpecification(_requirement, "IDENTITY_FUNCTION");

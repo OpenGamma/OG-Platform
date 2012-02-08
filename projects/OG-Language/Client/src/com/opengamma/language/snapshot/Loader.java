@@ -6,12 +6,14 @@
 
 package com.opengamma.language.snapshot;
 
+import java.net.URI;
+
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
-import com.opengamma.financial.marketdatasnapshot.rest.RemoteMarketDataSnapshotSource;
+import com.opengamma.core.marketdatasnapshot.impl.RemoteMarketDataSnapshotSource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
@@ -22,7 +24,6 @@ import com.opengamma.language.function.FunctionProviderBean;
 import com.opengamma.language.object.GetAttributeFunction;
 import com.opengamma.language.object.SetAttributeFunction;
 import com.opengamma.language.procedure.ProcedureProviderBean;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -73,25 +74,32 @@ public class Loader extends ContextInitializationBean {
 
   @Override
   protected void initContext(final MutableGlobalContext globalContext) {
-    final RestTarget restTarget = getConfiguration().getRestTargetConfiguration(getConfigurationEntry());
-    if (restTarget == null) {
+    final URI uri = getConfiguration().getURIConfiguration(getConfigurationEntry());
+    if (uri == null) {
       s_logger.warn("Snapshot support not available");
       return;
     }
     s_logger.info("Configuring snapshot support");
-    globalContext.setMarketDataSnapshotSource(new RemoteMarketDataSnapshotSource(getConfiguration().getFudgeContext(), restTarget));
+    globalContext.setMarketDataSnapshotSource(new RemoteMarketDataSnapshotSource(uri));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
         FetchSnapshotFunction.INSTANCE,
         GetSnapshotGlobalValueFunction.INSTANCE,
         GetSnapshotVolatilityCubeFunction.INSTANCE,
         GetSnapshotVolatilitySurfaceFunction.INSTANCE,
         GetSnapshotYieldCurveFunction.INSTANCE,
+        GetVolatilityCubeTensorFunction.INSTANCE,
+        GetVolatilitySurfaceTensorFunction.INSTANCE,
+        GetYieldCurveTensorFunction.INSTANCE,
         SetSnapshotGlobalValueFunction.INSTANCE,
         SetSnapshotVolatilityCubeFunction.INSTANCE,
         SetSnapshotVolatilitySurfaceFunction.INSTANCE,
         SetSnapshotYieldCurveFunction.INSTANCE,
+        SetVolatilityCubePointFunction.INSTANCE,
+        SetVolatilityCubeTensorFunction.INSTANCE,
         SetVolatilitySurfacePointFunction.INSTANCE,
+        SetVolatilitySurfaceTensorFunction.INSTANCE,
         SetYieldCurvePointFunction.INSTANCE,
+        SetYieldCurveTensorFunction.INSTANCE,
         SnapshotsFunction.INSTANCE,
         SnapshotVersionsFunction.INSTANCE,
         TakeSnapshotNowFunction.INSTANCE,

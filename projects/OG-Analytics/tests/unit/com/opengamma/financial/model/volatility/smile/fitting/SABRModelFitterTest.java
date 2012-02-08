@@ -105,7 +105,7 @@ public class SABRModelFitterTest {
   @Test
   public void testExactFitWithFixedBeta() {
     final double[] start = new double[] {0.1, 0.5, 0.0, 0.3 };
-    BitSet fixed = new BitSet();
+    final BitSet fixed = new BitSet();
     fixed.set(1);
     final LeastSquareResultsWithTransform results = FITTER.solve(new DoubleMatrix1D(start), fixed);
     final double[] res = results.getModelParameters().getData();
@@ -121,7 +121,7 @@ public class SABRModelFitterTest {
   public void testFitWithFixedWrongBeta() {
 
     final double[] start = new double[] {0.1, 0.8, 0.0, 0.3 };
-    BitSet fixed = new BitSet();
+    final BitSet fixed = new BitSet();
     fixed.set(1);
     final LeastSquareResultsWithTransform results = FITTER.solve(new DoubleMatrix1D(start), fixed);
     final double[] res = results.getModelParameters().getData();
@@ -129,8 +129,8 @@ public class SABRModelFitterTest {
     assertEquals(0.8, res[1], eps);
 
     final double bpError = 35.0; //35 bps error
-    int n = MARKETDATA.length;
-    double exChi2 = bpError * bpError * n;
+    final int n = MARKETDATA.length;
+    final double exChi2 = bpError * bpError * n;
     assertTrue("chi^2 " + results.getChiSq(), results.getChiSq() < exChi2);
   }
 
@@ -151,7 +151,7 @@ public class SABRModelFitterTest {
   //SABRModelFitterTest - 813ms-processing 1000 cycles fitting SABR smile
   //Disable test before commit
   @Test
-  //(enabled = false)
+  (enabled = false)
   public void fitTimeTest() {
     final int hotspotWarmupCycles = 200;
     final int benchmarkCycles = 1000;
@@ -171,14 +171,14 @@ public class SABRModelFitterTest {
   @Test
   public void testOldMethod() {
     //set to 1 and 0 before commit
-    int hotspotWarmupCycles = 1;
-    int benchmarkCycles = 0;
+    final int hotspotWarmupCycles = 1;
+    final int benchmarkCycles = 0;
     final double[] start = new double[] {0.1, 0.7, 0.0, 0.3 };
     final BitSet fixed = new BitSet();
-    SABRNonLinearLeastSquareFitter fitter = new SABRNonLinearLeastSquareFitter(SABR);
+    final SABRNonLinearLeastSquareFitter fitter = new SABRNonLinearLeastSquareFitter(SABR);
     final int n = NOISY_MARKETDATA.length;
-    EuropeanVanillaOption[] options = new EuropeanVanillaOption[n];
-    BlackFunctionData[] data = new BlackFunctionData[n];
+    final EuropeanVanillaOption[] options = new EuropeanVanillaOption[n];
+    final BlackFunctionData[] data = new BlackFunctionData[n];
     for (int i = 0; i < n; i++) {
       options[i] = new EuropeanVanillaOption(STRIKES[i], T, true);
       data[i] = new BlackFunctionData(F, 1.0, CLEAN_VOLS[i]);
@@ -197,8 +197,8 @@ public class SABRModelFitterTest {
   }
 
   private void doOldTest(final EuropeanVanillaOption[] options, final BlackFunctionData[] data, final double[] start, final BitSet fixed,
-      SABRNonLinearLeastSquareFitter fitter) {
-    LeastSquareResultsWithTransform lsRes = fitter.getFitResult(options, data, ERRORS, start, fixed);
+      final SABRNonLinearLeastSquareFitter fitter) {
+    final LeastSquareResultsWithTransform lsRes = fitter.getFitResult(options, data, ERRORS, start, fixed);
     final double[] res = lsRes.getModelParameters().getData();
     final double eps = 1e-2;
     assertEquals(ALPHA, res[0], eps);

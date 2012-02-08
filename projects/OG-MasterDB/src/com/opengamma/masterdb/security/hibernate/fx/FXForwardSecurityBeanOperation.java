@@ -10,7 +10,7 @@ import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZ
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
-
+import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.security.fx.FXForwardSecurity;
@@ -18,6 +18,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 import com.opengamma.masterdb.security.hibernate.OperationContext;
+import com.opengamma.util.money.Currency;
 
 /**
  * Bean/security conversion operations.
@@ -36,7 +37,10 @@ public final class FXForwardSecurityBeanOperation extends AbstractSecurityBeanOp
   @Override
   public FXForwardSecurityBean createBean(final OperationContext context, HibernateSecurityMasterDao secMasterSession, FXForwardSecurity security) {
     final FXForwardSecurityBean bean = new FXForwardSecurityBean();
-    bean.setUnderlying(externalIdToExternalIdBean(security.getUnderlyingId()));
+    bean.setPayCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPayCurrency().getCode()));
+    bean.setPayAmount(security.getPayAmount());
+    bean.setReceiveCurrency(secMasterSession.getOrCreateCurrencyBean(security.getReceiveCurrency().getCode()));
+    bean.setReceiveAmount(security.getReceiveAmount());
     bean.setForwardDate(dateTimeWithZoneToZonedDateTimeBean(security.getForwardDate()));
     bean.setRegion(externalIdToExternalIdBean(security.getRegionId()));
     return bean;
@@ -46,8 +50,11 @@ public final class FXForwardSecurityBeanOperation extends AbstractSecurityBeanOp
   public FXForwardSecurity createSecurity(final OperationContext context, FXForwardSecurityBean bean) {
     ZonedDateTime forwardDate = zonedDateTimeBeanToDateTimeWithZone(bean.getForwardDate());
     ExternalId region = externalIdBeanToExternalId(bean.getRegion());
-    ExternalId underlyingIdentifier = externalIdBeanToExternalId(bean.getUnderlying());
-    return new FXForwardSecurity(underlyingIdentifier, forwardDate, region);
+    Currency payCurrency = currencyBeanToCurrency(bean.getPayCurrency());
+    double payAmount = bean.getPayAmount();
+    Currency receiveCurrency = currencyBeanToCurrency(bean.getReceiveCurrency());
+    double receiveAmount = bean.getReceiveAmount();
+    return new FXForwardSecurity(payCurrency, payAmount, receiveCurrency, receiveAmount, forwardDate, region);
   }
 
 }

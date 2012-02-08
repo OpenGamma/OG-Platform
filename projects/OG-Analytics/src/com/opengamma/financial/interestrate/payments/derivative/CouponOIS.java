@@ -137,7 +137,7 @@ public class CouponOIS extends Coupon {
 
   @Override
   public String toString() {
-    return super.toString() + ", period = [" + _fixingPeriodStartTime + ", " + _fixingPeriodEndTime + "-" + _fixingPeriodAccrualFactor + "]";
+    return super.toString() + ", period = [" + _fixingPeriodStartTime + ", " + _fixingPeriodEndTime + "/" + _fixingPeriodAccrualFactor + "]";
   }
 
   @Override

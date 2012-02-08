@@ -5,29 +5,60 @@
  */
 package com.opengamma.web.server.push;
 
+import java.io.IOException;
+
+import javax.servlet.ServletConfig;
+import javax.servlet.ServletException;
+import javax.servlet.http.HttpServlet;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.eclipse.jetty.continuation.Continuation;
 import org.eclipse.jetty.continuation.ContinuationSupport;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 
 /**
  * Manages long-polling http requests using Jetty continuations.  Requests to this servlet block until there
  * is new data available for the client or until the connection times out.  The URL is assumed to be
  * {@code <servlet path>/{clientId}}.
  */
-public class LongPollingServlet extends SpringConfiguredServlet {
+public class LongPollingServlet extends HttpServlet {
 
   /** Key for storing the results as an attribute of the continuation. */
   /* package */ static final String RESULTS = "RESULTS";
   /** Name of the HTTP query parameter for the client ID */
   public static final String CLIENT_ID = "clientId";
 
-  /** Manages connections for each client */
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+  /** Request parameter name. */
+  private static final String METHOD = "method";
+  /** Request parameter value. */
+  private static final String GET = "GET";
+
+  /**
+   * Manages connections for each client.
+   */
   @Autowired
   private LongPollingConnectionManager _connectionManager;
+
+  @Override
+  public void init(ServletConfig config) throws ServletException {
+    super.init(config);
+    _connectionManager = WebPushServletContextUtils.getLongPollingConnectionManager(config.getServletContext());
+  }
+
+  //-------------------------------------------------------------------------
+  // this is a hack to get round a problem with browsers caching GET requests even when they're told not to
+  @Override
+  protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    String method = req.getParameter(METHOD);
+    if (GET.equals(method)) {
+      doGet(req, resp);
+    } else {
+      resp.setStatus(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
+    }
+  }
 
   @Override
   protected void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
@@ -61,7 +92,8 @@ public class LongPollingServlet extends SpringConfiguredServlet {
     boolean connected = (clientId != null) && _connectionManager.longPollHttpConnect(userId, clientId, continuation);
     if (!connected) {
       // couldn't get the client ID from the URL or the client ID didn't correspond to a known client
-      response.sendError(404);
+      // TODO how do I send something other than jetty's standard HTML error page?
+      response.sendError(404, "Problem accessing " + request.getRequestURI() + ".  Reason: Unknown client ID " + clientId);
       continuation.complete();
     }
     continuation.setAttribute(CLIENT_ID, clientId);
@@ -70,7 +102,7 @@ public class LongPollingServlet extends SpringConfiguredServlet {
   /**
    * Extracts the client ID from the URL.  If the URL is {@code http://<host>/<servlet path>/12345} the client ID is 12345.
    * @param request The request
-   * @return The client ID from {@code request}'s URL or {@code null} if it's missing
+   * @return The client ID from {@code request}'s URL or null if it's missing
    */
   /* package */ static String getClientId(HttpServletRequest request) {
     // this is the portion of the URL after the part used to direct it to this servlet

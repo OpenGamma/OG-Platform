@@ -129,15 +129,11 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       initialise();
 
       for (int n = 1; n < getGrid().getNumTimeNodes(); n++) {
-        //debug
-        if (_t1 == 4.4) {
-          System.out.print("arrggg " + _t1 + " " + _t2);
-        }
 
         setT2(getGrid().getTimeNode(n));
         updateRHSVector();
         updateRHSBoundary();
-        updateCoefficents(n);
+        updateCoefficents();
         updateLHSMatrix();
         updateLHSBoundary();
         solveMatrixSystem();
@@ -242,7 +238,7 @@ public class ThetaMethodFiniteDifference implements ConvectionDiffusionPDESolver
       }
     }
 
-    void updateCoefficents(final int n) {
+    void updateCoefficents() {
       double x;
       for (int i = 1; i < getGrid().getNumSpaceNodes() - 1; i++) {
         x = getGrid().getSpaceNode(i);

@@ -45,7 +45,7 @@ import com.opengamma.master.config.ConfigMetaDataRequest;
 import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.web.AbstractWebResource;
+import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.json.CurveSpecificationBuilderConfigurationJSONBuilder;
 import com.opengamma.web.json.FudgeMsgJSONReader;
@@ -59,7 +59,7 @@ import com.opengamma.web.json.YieldCurveDefinitionJSONBuilder;
  * Abstract base class for RESTful config resources.
  * 
  */
-public abstract class AbstractWebConfigResource extends AbstractWebResource {
+public abstract class AbstractWebConfigResource extends AbstractPerRequestWebResource {
   
   /**
    * Logger.

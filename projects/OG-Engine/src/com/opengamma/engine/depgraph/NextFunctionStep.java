@@ -68,7 +68,6 @@ import com.opengamma.util.tuple.Pair;
               aggregate = new AggregateResolvedValueProducer(getValueRequirement());
               aggregate.addProducer(context, singleTask);
               singleTask.release(context);
-              singleTask = null;
             }
             aggregate.addProducer(context, existingTask.getValue());
           }

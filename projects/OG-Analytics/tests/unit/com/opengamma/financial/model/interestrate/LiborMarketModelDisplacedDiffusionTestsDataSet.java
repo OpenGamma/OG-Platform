@@ -9,7 +9,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
+import com.opengamma.financial.instrument.annuity.AnnuityCouponDefinition;
+import com.opengamma.financial.instrument.payment.CouponDefinition;
 import com.opengamma.financial.model.interestrate.definition.LiborMarketModelDisplacedDiffusionParameters;
 import com.opengamma.math.function.Function1D;
 
@@ -28,8 +29,8 @@ public class LiborMarketModelDisplacedDiffusionTestsDataSet {
    * @param swap The swap.
    * @return The LMM parameters.
    */
-  public static LiborMarketModelDisplacedDiffusionParameters createLMMParameters(final ZonedDateTime modelDate, final SwapFixedIborDefinition swap) {
-    return LiborMarketModelDisplacedDiffusionParameters.from(modelDate, swap, IBOR_DAY_COUNT, DISPLACEMENT, MEAN_REVERSION, new VolatilityLMM());
+  public static LiborMarketModelDisplacedDiffusionParameters createLMMParameters(final ZonedDateTime modelDate, final AnnuityCouponDefinition<? extends CouponDefinition> annuity) {
+    return LiborMarketModelDisplacedDiffusionParameters.from(modelDate, annuity, IBOR_DAY_COUNT, DISPLACEMENT, MEAN_REVERSION, new VolatilityLMM());
   }
 
   /**
@@ -38,8 +39,8 @@ public class LiborMarketModelDisplacedDiffusionTestsDataSet {
    * @param swap The swap.
    * @return The LMM parameters.
    */
-  public static LiborMarketModelDisplacedDiffusionParameters createLMMParameters(final ZonedDateTime modelDate, final SwapFixedIborDefinition swap, final double shift) {
-    return LiborMarketModelDisplacedDiffusionParameters.from(modelDate, swap, IBOR_DAY_COUNT, DISPLACEMENT, MEAN_REVERSION, new VolatilityLMM(shift));
+  public static LiborMarketModelDisplacedDiffusionParameters createLMMParameters(final ZonedDateTime modelDate, final AnnuityCouponDefinition<? extends CouponDefinition> annuity, final double shift) {
+    return LiborMarketModelDisplacedDiffusionParameters.from(modelDate, annuity, IBOR_DAY_COUNT, DISPLACEMENT, MEAN_REVERSION, new VolatilityLMM(shift));
   }
 
   /**
@@ -49,8 +50,9 @@ public class LiborMarketModelDisplacedDiffusionTestsDataSet {
    * @param angle The "angle" defining the weights. The two factors weights are cos(angle*t/20) and sin(angle*t/20).
    * @return The LMM parameters.
    */
-  public static LiborMarketModelDisplacedDiffusionParameters createLMMParametersAngle(final ZonedDateTime modelDate, final SwapFixedIborDefinition swap, final double angle) {
-    return LiborMarketModelDisplacedDiffusionParameters.from(modelDate, swap, IBOR_DAY_COUNT, DISPLACEMENT, MEAN_REVERSION, new VolatilityLMMAngle(angle));
+  public static LiborMarketModelDisplacedDiffusionParameters createLMMParametersAngle(final ZonedDateTime modelDate, final AnnuityCouponDefinition<? extends CouponDefinition> annuity,
+      final double angle) {
+    return LiborMarketModelDisplacedDiffusionParameters.from(modelDate, annuity, IBOR_DAY_COUNT, DISPLACEMENT, MEAN_REVERSION, new VolatilityLMMAngle(angle));
   }
 
   /**
@@ -61,9 +63,9 @@ public class LiborMarketModelDisplacedDiffusionTestsDataSet {
    * @param angle The "angle" defining the weights. The two factors weights are cos(angle*t/20) and sin(angle*t/20).
    * @return The LMM parameters.
    */
-  public static LiborMarketModelDisplacedDiffusionParameters createLMMParametersDisplacementAngle(final ZonedDateTime modelDate, final SwapFixedIborDefinition swap, final double displacement,
-      final double angle) {
-    return LiborMarketModelDisplacedDiffusionParameters.from(modelDate, swap, IBOR_DAY_COUNT, displacement, MEAN_REVERSION, new VolatilityLMMAngle(angle));
+  public static LiborMarketModelDisplacedDiffusionParameters createLMMParametersDisplacementAngle(final ZonedDateTime modelDate, final AnnuityCouponDefinition<? extends CouponDefinition> annuity,
+      final double displacement, final double angle) {
+    return LiborMarketModelDisplacedDiffusionParameters.from(modelDate, annuity, IBOR_DAY_COUNT, displacement, MEAN_REVERSION, new VolatilityLMMAngle(angle));
   }
 
 }

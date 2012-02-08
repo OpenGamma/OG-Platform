@@ -5,8 +5,8 @@
  */
 package com.opengamma.engine.value;
 
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.function.FunctionDefinition;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 
 /**
  * Standard names used to refer to particular computed values.
@@ -29,6 +29,8 @@ public final class ValueRequirementNames {
   }
 
   // CSOFF: Because they're names that should be known by industry practitioners.
+  
+  public static final String VALUE = "Value";
   
   // Standard Analytic Models:
   public static final String DISCOUNT_CURVE = "DiscountCurve";
@@ -317,5 +319,21 @@ public final class ValueRequirementNames {
   
   public static final String VOLATILITY_CUBE_FITTED_POINTS = "Volatility Cube Fitted Points";
   public static final String VOLATILITY_SURFACE_FITTED_POINTS = "Volatility Surface Fitted Points";
+  
+  //Local vol
+  public static final String PIECEWISE_SABR_VOL_SURFACE = "Piecewise SABR fitted surface";
+  public static final String FORWARD_CURVE = "ForwardCurve";
+  public static final String LOCAL_VOLATILITY_SURFACE = "Local Volatility Surface";
+  //TODO this next set of names might be too specific
+  public static final String LOCAL_VOLATILITY_FULL_PDE_GRID = "Full PDE Grid (LV)";
+  public static final String LOCAL_VOLATILITY_PDE_GREEKS = "PDE Greeks (LV)";
+  public static final String LOCAL_VOLATILITY_PDE_BUCKETED_VEGA = "PDE Bucketed Vega (LV)";
+  public static final String LOCAL_VOLATILITY_DELTA = "Forward Delta (LV)";
+  public static final String LOCAL_VOLATILITY_DUAL_DELTA = "Dual Delta (LV)";
+  public static final String LOCAL_VOLATILITY_GAMMA = "Forward Gamma (LV)";
+  public static final String LOCAL_VOLATILITY_DUAL_GAMMA = "Dual Gamma (LV)";
+  public static final String LOCAL_VOLATILITY_VEGA = "Forward Vega (LV)";
+  public static final String LOCAL_VOLATILITY_VANNA = "Forward Vanna (LV)";
+  public static final String LOCAL_VOLATILITY_VOMMA = "Forward Vomma (LV)";
   //CSON
 }

@@ -24,22 +24,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 
-import com.opengamma.web.server.push.rest.MasterType;
-import com.opengamma.web.server.push.rest.Subscribe;
-import com.opengamma.web.server.push.rest.SubscribeMaster;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.core.config.ConfigSource;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -53,6 +49,9 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
+import com.opengamma.web.server.push.rest.MasterType;
+import com.opengamma.web.server.push.rest.Subscribe;
+import com.opengamma.web.server.push.rest.SubscribeMaster;
 
 /**
  * RESTful resource for all positions.
@@ -67,12 +66,11 @@ public class WebPositionsResource extends AbstractWebPositionResource {
    * @param positionMaster  the position master, not null
    * @param securityLoader  the security loader, not null
    * @param securitySource  the security source, not null
-   * @param htsMaster       the HTS master, not null (for resolving relevant HTS Id)
-   * @param cfgSource       the config master, not null (for resolving relevant HTS Id)
+   * @param htsSource  the historical time series source, not null
    */
   public WebPositionsResource(final PositionMaster positionMaster, final SecurityLoader securityLoader, final SecuritySource securitySource,
-      final HistoricalTimeSeriesMaster htsMaster, final ConfigSource cfgSource) {
-    super(positionMaster, securityLoader, securitySource, htsMaster, cfgSource);
+      final HistoricalTimeSeriesSource htsSource) {
+    super(positionMaster, securityLoader, securitySource, htsSource);
   }
 
   //-------------------------------------------------------------------------

@@ -23,7 +23,6 @@ import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.CachingComputationTargetResolver;
-import com.opengamma.engine.depgraph.DependencyGraphBuilder;
 import com.opengamma.engine.view.ResultModelDefinition;
 import com.opengamma.engine.view.ResultOutputMode;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
@@ -76,16 +75,15 @@ public final class PortfolioCompiler {
         portfolio = getPortfolio(compilationContext, versionCorrection);
       }
       
-      DependencyGraphBuilder builder = compilationContext.getBuilders().get(calcConfig.getName());
-
       // Cache PortfolioNode, Trade and Position entities
       CachingComputationTargetResolver resolver = compilationContext.getServices().getComputationTargetResolver();
       resolver.cachePortfolioNodeHierarchy(portfolio.getRootNode());
       cacheTradesPositionsAndSecurities(resolver, portfolio.getRootNode());
 
       // Add portfolio requirements to the dependency graph
-      PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(builder, calcConfig);
+      PortfolioCompilerTraversalCallback traversalCallback = new PortfolioCompilerTraversalCallback(calcConfig);
       PortfolioNodeTraverser.depthFirst(traversalCallback).traverse(portfolio.getRootNode());
+      compilationContext.getValueRequirements(calcConfig.getName()).addAll(traversalCallback.getAllValueRequirements());
     }
     
     return portfolio;
@@ -95,9 +93,13 @@ public final class PortfolioCompiler {
     final Collection<Position> positions = node.getPositions();
     resolver.cachePositions(positions);
     for (Position position : positions) {
-      resolver.cacheSecurities(Collections.singleton(position.getSecurity()));
+      if (position.getSecurity() != null) {
+        resolver.cacheSecurities(Collections.singleton(position.getSecurity()));
+      }
       for (Trade trade : position.getTrades()) {
-        resolver.cacheSecurities(Collections.singleton(trade.getSecurity()));
+        if (trade.getSecurity() != null) {
+          resolver.cacheSecurities(Collections.singleton(trade.getSecurity()));
+        }
       }
       resolver.cacheTrades(position.getTrades());
     }

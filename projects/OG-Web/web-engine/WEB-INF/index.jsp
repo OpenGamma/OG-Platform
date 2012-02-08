@@ -6,7 +6,7 @@
     
     <script language="JavaScript" src="${pageContext.request.contextPath}/lib/firebugx.js"></script>
     
-    <%-- script type="text/javascript" src="${pageContext.requestRun.contextPath}/jquery/jquery-1.3.2.js"></script--%>
+    <%-- script type="text/javascript" src="${pageContext.request.contextPath}/jquery/jquery-1.3.2.js"></script--%>
 	<script language="JavaScript" src="${pageContext.request.contextPath}/lib/jquery-1.4.2.min.js"></script>
 	<script language="JavaScript" src="${pageContext.request.contextPath}/lib/jquery-ui-1.7.2.custom.min.js"></script>
 	<script language="JavaScript" src="${pageContext.request.contextPath}/lib/jquery.rule-1.0.1.1-min.js"></script>

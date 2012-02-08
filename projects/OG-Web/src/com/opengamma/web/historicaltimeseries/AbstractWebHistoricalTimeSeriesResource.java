@@ -13,13 +13,13 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.AbstractWebResource;
+import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
 
 /**
  * Abstract base class for RESTful historical time-series resources.
  */
-public abstract class AbstractWebHistoricalTimeSeriesResource extends AbstractWebResource {
+public abstract class AbstractWebHistoricalTimeSeriesResource extends AbstractPerRequestWebResource {
 
   /**
    * The backing bean.

@@ -16,10 +16,10 @@ import org.apache.commons.lang.Validate;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesFields;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -45,7 +45,6 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -107,7 +106,7 @@ public class EquityFuturesFunction extends AbstractFunction.NonCompiledInvoker {
 
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
 
-    final Double lastMarginPrice = getLatestValueFromTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, executionContext, security.getExternalIdBundle(), now);
+    final Double lastMarginPrice = getLatestValueFromTimeSeries(MarketDataRequirementNames.MARKET_VALUE, executionContext, security.getExternalIdBundle(), now);
     trade.setPremium(lastMarginPrice); // TODO !!! Issue of futures and margining
 
     // Build the analytic's version of the security - the derivative    

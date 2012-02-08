@@ -59,7 +59,7 @@ public class RemoteBatchRunLauncher {
     jmsConnectorFactoryBean.setConnectionFactory(activeMQConnectionFactory);
     jmsConnectorFactoryBean.setName("Masters");
 
-    JmsConnector jmsConnector = jmsConnectorFactoryBean.createObject();
+    JmsConnector jmsConnector = jmsConnectorFactoryBean.getObjectCreating();
     ScheduledExecutorService heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
     try {
       ViewProcessor vp = new RemoteViewProcessor(

@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.marketdatasnapshot.SnapshotDataBundle;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -29,7 +30,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.id.UniqueId;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -102,7 +102,7 @@ public class YieldCurveMarketDataShiftFunction extends AbstractFunction.NonCompi
     }
     s_logger.debug("Applying {} to {}", shift, marketData);
     final OverrideOperation operation = compiler.compile(shift);
-    for (Map.Entry<UniqueId, Double> dataPoint : marketData.getDataPoints().entrySet()) {
+    for (final Map.Entry<UniqueId, Double> dataPoint : marketData.getDataPoints().entrySet()) {
       s_logger.debug("Applying to {}", dataPoint);
       final Object result = operation.apply(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, dataPoint.getKey()), dataPoint.getValue());
       s_logger.debug("Got result {}", result);

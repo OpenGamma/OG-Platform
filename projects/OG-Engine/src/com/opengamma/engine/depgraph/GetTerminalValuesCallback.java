@@ -158,10 +158,20 @@ import com.opengamma.engine.value.ValueSpecification;
   }
 
   private void nodeProduced(final ResolvedValue resolvedValue, final DependencyNode node, final DependencyNodeCallback result, final boolean isNew) {
-    synchronized (this) {
-      s_logger.debug("Adding {} to graph set", node);
-      _spec2Node.put(resolvedValue.getValueSpecification(), node);
-      if (isNew) {
+    if (isNew) {
+      synchronized (this) {
+        s_logger.debug("Adding {} to graph set", node);
+        // [PLAT-346] Here is a good spot to tackle PLAT-346; which node's outputs to we discard if there are multiple
+        // productions for a given value specification?
+        for (ValueSpecification valueSpecification : resolvedValue.getFunctionOutputs()) {
+          DependencyNode existing = _spec2Node.get(valueSpecification);
+          if (existing == null) {
+            _spec2Node.put(valueSpecification, node);
+          } else {
+            // Simplest to keep the existing one (otherwise have to reconnect dependent nodes in the graph)
+            node.removeOutputValue(valueSpecification);
+          }
+        }
         _graphNodes.add(node);
       }
     }
@@ -281,9 +291,6 @@ import com.opengamma.engine.value.ValueSpecification;
   private void getOrCreateNode(final GraphBuildingContext context, final ValueRequirement valueRequirement, final ResolvedValue resolvedValue, final Set<ValueSpecification> downstream,
       final DependencyNodeCallback result, final DependencyNode node, final boolean nodeIsNew) {
     final int debugId = s_nextDebugId.incrementAndGet();
-    for (ValueSpecification output : resolvedValue.getFunctionOutputs()) {
-      node.addOutputValue(output);
-    }
     Set<ValueSpecification> downstreamCopy = null;
     NodeInputProduction producers = null;
     s_logger.debug("Searching for node for {} inputs at {}", resolvedValue.getFunctionInputs().size(), debugId);
@@ -389,6 +396,7 @@ import com.opengamma.engine.value.ValueSpecification;
     } else {
       final DependencyNode newNode = new DependencyNode(resolvedValue.getComputationTarget());
       newNode.setFunction(resolvedValue.getFunction());
+      newNode.addOutputValues(resolvedValue.getFunctionOutputs());
       final PublishNode publisher = new PublishNode(result);
       synchronized (nodes) {
         nodes.add(publisher);
@@ -426,8 +434,6 @@ import com.opengamma.engine.value.ValueSpecification;
       result.node(existingNode);
       return;
     }
-    // [PLAT-346] Here is a good spot to tackle PLAT-346; what do we merge into a single node, and which outputs
-    // do we discard if there are multiple functions that can produce them.
     final Set<DependencyNodeProducer> nodes = getOrCreateNodes(resolvedValue.getFunction(), resolvedValue.getComputationTarget());
     final FindExistingNodes findExisting = new FindExistingNodes(resolvedValue, nodes);
     if (findExisting.isDeferred()) {
@@ -456,7 +462,9 @@ import com.opengamma.engine.value.ValueSpecification;
         if (node == null) {
           s_logger.error("Resolved {} to {} but couldn't create one or more dependency nodes", valueRequirement, resolvedValue.getValueSpecification());
         } else {
+          assert node.getOutputValues().contains(resolvedValue.getValueSpecification());
           synchronized (GetTerminalValuesCallback.this) {
+            assert _graphNodes.contains(node);
             _resolvedValues.put(valueRequirement, resolvedValue.getValueSpecification());
           }
         }

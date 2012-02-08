@@ -18,7 +18,7 @@ import com.opengamma.math.surface.Surface;
  * Note: Though based on call deltas, in practice, the volatilities for strikes below 0.5 will often be based on put prices.
  * This is because out-of-the-money options are more liquid than in-the-money
  */
-public class BlackVolatilityDeltaSurface extends BlackVolatilitySurface {
+public class BlackVolatilityDeltaSurface extends BlackVolatilitySurfaceOld {
 
   private final boolean _strikeAxisRepresentsCalls;
 
@@ -37,8 +37,7 @@ public class BlackVolatilityDeltaSurface extends BlackVolatilitySurface {
 
   public BlackVolatilityDeltaSurface(Surface<Double, Double, Double> surface, final StrikeParameterization strikeType) {
     super(surface, strikeType);
-    _strikeAxisRepresentsCalls = strikeType == StrikeParameterization.CALLDELTA;
-
+    _strikeAxisRepresentsCalls = strikeType == StrikeParameterization.CALLDELTA; //Review R White 31/01/12 Are what if strikeType is STRIKE???
   }
 
   //  public BlackVolatilityDeltaSurface(final BlackVolatilitySurface surface) {

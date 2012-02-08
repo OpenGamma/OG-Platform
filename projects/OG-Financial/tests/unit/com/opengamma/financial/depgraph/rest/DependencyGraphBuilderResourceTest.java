@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.DefaultComputationTargetResolver;
@@ -51,7 +52,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.id.ExternalScheme;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.livedata.normalization.MarketDataRequirementNames;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**

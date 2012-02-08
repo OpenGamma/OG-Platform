@@ -10,22 +10,22 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.cube.Cube;
 
 /**
- * <b>Note</b> this is for testing purposes and is not recommended for actual use 
+ * <b>Note</b> this is for testing purposes and is not recommended for actual use
  */
 public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESolver2D {
 
   private final double _theta;
 
   /**
-   * Sets up a standard Crank-Nicolson scheme for 2-D (two spatial dimensions) PDEs 
+   * Sets up a standard Crank-Nicolson scheme for 2-D (two spatial dimensions) PDEs
    */
   public CrankNicolsonFiniteDifference2D() {
     _theta = 0.5;
   }
 
   /**
-   * Sets up a scheme that is the weighted average of an explicit and an implicit scheme 
-   * @param theta The weight. theta = 0 - fully explicit, theta = 0.5 - Crank-Nicolson, theta = 1.0 - fully implicit 
+   * Sets up a scheme that is the weighted average of an explicit and an implicit scheme
+   * @param theta The weight. theta = 0 - fully explicit, theta = 0.5 - Crank-Nicolson, theta = 1.0 - fully implicit
    */
   public CrankNicolsonFiniteDifference2D(final double theta) {
     Validate.isTrue(theta >= 0 && theta <= 1.0, "theta must be in the range 0 to 1");
@@ -289,13 +289,14 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
 
   }
 
-  public double[][] solve(ConvectionDiffusion2DPDEDataBundle pdeData, final double[] timeGrid, final double[] xGrid, final double[] yGrid, BoundaryCondition2D xLowerBoundary,
-      BoundaryCondition2D xUpperBoundary, BoundaryCondition2D yLowerBoundary, BoundaryCondition2D yUpperBoundary, final Cube<Double, Double, Double, Double> freeBoundary) {
+  public double[][] solve(final ConvectionDiffusion2DPDEDataBundle pdeData, final double[] timeGrid, final double[] xGrid, final double[] yGrid, final BoundaryCondition2D xLowerBoundary,
+      final BoundaryCondition2D xUpperBoundary, final BoundaryCondition2D yLowerBoundary, final BoundaryCondition2D yUpperBoundary,
+      final Cube<Double, Double, Double, Double> freeBoundary) {
 
     Validate.notNull(pdeData, "pde data");
-    int tNodes = timeGrid.length;
-    int xNodes = xGrid.length;
-    int yNodes = yGrid.length;
+    final int tNodes = timeGrid.length;
+    final int xNodes = xGrid.length;
+    final int yNodes = yGrid.length;
     Validate.isTrue(tNodes > 1, "need at least 2 time nodes");
     Validate.isTrue(xNodes > 2, "need at least 3 x nodes");
     Validate.isTrue(yNodes > 2, "need at least 3 y nodes");
@@ -306,28 +307,28 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
     Validate.isTrue(Math.abs(yGrid[0] - yLowerBoundary.getLevel()) < 1e-7, "y grid not consistent with boundary level");
     Validate.isTrue(Math.abs(yGrid[yNodes - 1] - yUpperBoundary.getLevel()) < 1e-7, "y grid not consistent with boundary level");
 
-    double[] dt = new double[tNodes - 1];
+    final double[] dt = new double[tNodes - 1];
     for (int n = 0; n < tNodes - 1; n++) {
       dt[n] = timeGrid[n + 1] - timeGrid[n];
       Validate.isTrue(dt[n] > 0, "time steps must be increasing");
     }
 
-    double[] dx = new double[xNodes - 1];
+    final double[] dx = new double[xNodes - 1];
 
     for (int i = 0; i < xNodes - 1; i++) {
       dx[i] = xGrid[i + 1] - xGrid[i];
       Validate.isTrue(dx[i] > 0, "x steps must be increasing");
     }
 
-    double[] dy = new double[yNodes - 1];
+    final double[] dy = new double[yNodes - 1];
     for (int i = 0; i < yNodes - 1; i++) {
       dy[i] = yGrid[i + 1] - yGrid[i];
       Validate.isTrue(dy[i] > 0, "y steps must be increasing");
     }
 
     // since the space grid is time independent, we can calculate the coefficients for derivatives once
-    double[][] x1st = new double[xNodes - 2][3];
-    double[][] x2nd = new double[xNodes - 2][3];
+    final double[][] x1st = new double[xNodes - 2][3];
+    final double[][] x2nd = new double[xNodes - 2][3];
     for (int i = 0; i < xNodes - 2; i++) {
       x1st[i][0] = -dx[i + 1] / dx[i] / (dx[i] + dx[i + 1]);
       x1st[i][1] = (dx[i + 1] - dx[i]) / dx[i] / dx[i + 1];
@@ -337,8 +338,8 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
       x2nd[i][2] = 2 / dx[i + 1] / (dx[i] + dx[i + 1]);
     }
 
-    double[][] y1st = new double[yNodes - 2][3];
-    double[][] y2nd = new double[yNodes - 2][3];
+    final double[][] y1st = new double[yNodes - 2][3];
+    final double[][] y2nd = new double[yNodes - 2][3];
     for (int i = 0; i < yNodes - 2; i++) {
       y1st[i][0] = -dy[i + 1] / dy[i] / (dy[i] + dy[i + 1]);
       y1st[i][1] = (dy[i + 1] - dy[i]) / dy[i] / dy[i + 1];
@@ -348,10 +349,10 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
       y2nd[i][2] = 2 / dy[i + 1] / (dy[i] + dy[i + 1]);
     }
 
-    int size = xNodes * yNodes;
+    final int size = xNodes * yNodes;
 
-    double[][] v = new double[xNodes][yNodes];
-    double[] u = new double[size];
+    final double[][] v = new double[xNodes][yNodes];
+    final double[] u = new double[size];
     final double[] q = new double[size];
 
     int index = 0;
@@ -362,7 +363,7 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
     }
 
     double a, b, c, d, e, f;
-    double[][] w = new double[size][9];
+    final double[][] w = new double[size][9];
 
     for (int n = 1; n < tNodes; n++) {
 
@@ -383,12 +384,10 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
             sum -= b * (x1st[i - 1][0] * u[index - 1] + x1st[i - 1][1] * u[index] + x1st[i - 1][2] * u[index + 1]);
             sum -= c * u[index];
             sum -= d * (y2nd[j - 1][0] * u[index - xNodes] + y2nd[j - 1][1] * u[index] + y2nd[j - 1][2] * u[index + xNodes]);
-            sum -= e
-                * (x1st[i - 1][0] * (y1st[j - 1][0] * u[index - xNodes - 1] + y1st[j - 1][1] * u[index - 1] + y1st[j - 1][2] * u[index + xNodes - 1]) + x1st[i - 1][1]
-                    * (y1st[j - 1][0] * u[index - xNodes] + y1st[j - 1][1] * u[index] + y1st[j - 1][2] * u[index + xNodes]) + x1st[i - 1][2]
-                    * (y1st[j - 1][0] * u[index - xNodes + 1] + y1st[j - 1][1] * u[index + 1] + y1st[j - 1][2] * u[index + xNodes + 1]));
+            sum -= e * (x1st[i - 1][0] * (y1st[j - 1][0] * u[index - xNodes - 1] + y1st[j - 1][1] * u[index - 1] + y1st[j - 1][2] * u[index + xNodes - 1]) + x1st[i - 1][1] *
+                (y1st[j - 1][0] * u[index - xNodes] + y1st[j - 1][1] * u[index] + y1st[j - 1][2] * u[index + xNodes]) + x1st[i - 1][2] *
+                (y1st[j - 1][0] * u[index - xNodes + 1] + y1st[j - 1][1] * u[index + 1] + y1st[j - 1][2] * u[index + xNodes + 1]));
             sum -= f * (y1st[j - 1][0] * u[index - xNodes] + y1st[j - 1][1] * u[index] + y1st[j - 1][2] * u[index + xNodes]);
-
             sum *= (1 - _theta) * dt[n - 1];
           }
           sum += u[index];
@@ -410,7 +409,7 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
       }
 
       // The y boundary conditions
-      double[][][] yBoundary = new double[2][xNodes][];
+      final double[][][] yBoundary = new double[2][xNodes][];
 
       for (int i = 0; i < xNodes; i++) {
         yBoundary[0][i] = yLowerBoundary.getLeftMatrixCondition(pdeData, timeGrid[n], xGrid[i]);
@@ -419,7 +418,7 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
         double[] temp = yLowerBoundary.getRightMatrixCondition(pdeData, timeGrid[n], xGrid[i]);
         double sum = 0;
         for (int k = 0; k < temp.length; k++) {
-          int offset = k * xNodes;
+          final int offset = k * xNodes;
           sum += temp[k] * u[offset + i];
         }
         q[i] = sum + yLowerBoundary.getConstant(pdeData, timeGrid[n], xGrid[i], dy[0]); // TODO need to change how boundary are calculated
@@ -427,14 +426,14 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
         temp = yUpperBoundary.getRightMatrixCondition(pdeData, timeGrid[n], xGrid[i]);
         sum = 0;
         for (int k = 0; k < temp.length; k++) {
-          int offset = (yNodes - 1 - k) * xNodes;
+          final int offset = (yNodes - 1 - k) * xNodes;
           sum += temp[k] * u[offset + i];
         }
         q[i + (yNodes - 1) * xNodes] = sum + yUpperBoundary.getConstant(pdeData, timeGrid[n], xGrid[i], dy[yNodes - 2]);
       }
 
       // The x boundary conditions
-      double[][][] xBoundary = new double[2][yNodes - 2][];
+      final double[][][] xBoundary = new double[2][yNodes - 2][];
 
       for (int j = 1; j < yNodes - 1; j++) {
         xBoundary[0][j - 1] = xLowerBoundary.getLeftMatrixCondition(pdeData, timeGrid[n], yGrid[j]);
@@ -481,7 +480,7 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
             sum += w[l][7] * u[l + xNodes];
             sum += w[l][8] * u[l + xNodes + 1];
 
-            double correction = omega / w[l][4] * (q[l] - sum);
+            final double correction = omega / w[l][4] * (q[l] - sum);
             // if (freeBoundary != null) {
             // correction = Math.max(correction, freeBoundary.getZValue(t, x[j]) - f[j]);
             // }
@@ -495,12 +494,12 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
         for (int i = 0; i < xNodes; i++) {
           sum = 0;
           l = i;
-          double[] temp = yBoundary[0][i];
+          final double[] temp = yBoundary[0][i];
           for (int k = 0; k < temp.length; k++) {
-            int offset = k * xNodes;
+            final int offset = k * xNodes;
             sum += temp[k] * u[offset + i];
           }
-          double correction = omega / temp[0] * (q[l] - sum);
+          final double correction = omega / temp[0] * (q[l] - sum);
           errorSqr += correction * correction;
           u[l] += correction;
           scale += u[l] * u[l];
@@ -510,12 +509,12 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
         for (int i = 0; i < xNodes; i++) {
           sum = 0;
           l = xNodes * (yNodes - 1) + i;
-          double[] temp = yBoundary[1][i];
+          final double[] temp = yBoundary[1][i];
           for (int k = 0; k < temp.length; k++) {
-            int offset = (yNodes - 1 - k) * xNodes;
+            final int offset = (yNodes - 1 - k) * xNodes;
             sum += temp[k] * u[offset + i];
           }
-          double correction = omega / temp[0] * (q[l] - sum);
+          final double correction = omega / temp[0] * (q[l] - sum);
           errorSqr += correction * correction;
           u[l] += correction;
           scale += u[l] * u[l];
@@ -525,11 +524,11 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
         for (int j = 1; j < yNodes - 1; j++) {
           sum = 0;
           l = j * xNodes;
-          double[] temp = xBoundary[0][j - 1];
+          final double[] temp = xBoundary[0][j - 1];
           for (int k = 0; k < temp.length; k++) {
             sum += temp[k] * u[l + k];
           }
-          double correction = omega / temp[0] * (q[l] - sum);
+          final double correction = omega / temp[0] * (q[l] - sum);
           errorSqr += correction * correction;
           u[l] += correction;
           scale += u[l] * u[l];
@@ -539,11 +538,11 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
         for (int j = 1; j < yNodes - 1; j++) {
           sum = 0;
           l = (j + 1) * xNodes - 1;
-          double[] temp = xBoundary[1][j - 1];
+          final double[] temp = xBoundary[1][j - 1];
           for (int k = 0; k < temp.length; k++) {
             sum += temp[k] * u[l - k];
           }
-          double correction = omega / temp[0] * (q[l] - sum);
+          final double correction = omega / temp[0] * (q[l] - sum);
           errorSqr += correction * correction;
           u[l] += correction;
           scale += u[l] * u[l];
@@ -555,7 +554,7 @@ public class CrankNicolsonFiniteDifference2D implements ConvectionDiffusionPDESo
 
     // unpack vector to matrix
     for (int j = 0; j < yNodes; j++) {
-      int offset = j * xNodes;
+      final int offset = j * xNodes;
       for (int i = 0; i < xNodes; i++) {
         v[i][j] = u[offset + i];
       }

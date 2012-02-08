@@ -60,22 +60,18 @@
 
 .ui-datepicker-week-end,
 .ui-datepicker-week-end.ui-state-disabled {
-  background-color: #eee;
   opacity: 1;
 }
 
 .ui-state-specialDate {
-  background-color: #d8efe1;
-  border: 1px solid #64be89;
-  color: #000;
+  background-color: #a3ceec;
+  border: 1px solid #ecf5fa;
+  color: #fff;
 }
 
 .ui-datepicker td span,
 .ui-datepicker td a {
-  padding: 2px;
 }
 
 .ui-state-displayonly {
-  width: 19px;
-  height: 15px
 }

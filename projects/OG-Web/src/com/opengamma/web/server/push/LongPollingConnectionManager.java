@@ -14,29 +14,32 @@ import java.util.concurrent.ConcurrentHashMap;
 /**
  * Maps client IDs to Jetty continuations associated with a client connection.
  */
-/* package */ class LongPollingConnectionManager {
+public class LongPollingConnectionManager {
 
   /** Listener for dispatching notifications to the clients, keyed by client ID. */
   private final Map<String, LongPollingUpdateListener> _updateListeners = new ConcurrentHashMap<String, LongPollingUpdateListener>();
 
   /**
    * Creates a new connection.
+   *
    * @param userId The ID of the user who owns the connection
    * @param clientId The connection ID
+   * @param timeoutTask Connection timeout task that the listener must reset every time the connection is set up
    * @return A listener that publishes to the client when it receives a notification
    */
-  /* package */ LongPollingUpdateListener handshake(String userId, String clientId) {
-    LongPollingUpdateListener listener = new LongPollingUpdateListener(userId);
+  /* package */ LongPollingUpdateListener handshake(String userId, String clientId, ConnectionTimeoutTask timeoutTask) {
+    LongPollingUpdateListener listener = new LongPollingUpdateListener(userId, timeoutTask);
     _updateListeners.put(clientId, listener);
     return listener;
   }
 
   /**
    * Associates a continuation with a client connection so asynchronous updates can be pushed to the client.
+   * 
    * @param userId The ID of the user
    * @param clientId The client ID of the connection
    * @param continuation For sending an async response to the client
-   * @return {@code true} if the connection was successful, {@code false} if the client ID doesn't correspond to
+   * @return true if the connection was successful, false if the client ID doesn't correspond to
    * an existing connection
    */
   /* package */ boolean longPollHttpConnect(String userId, String clientId, Continuation continuation) {
@@ -63,6 +66,7 @@ import java.util.concurrent.ConcurrentHashMap;
    * Called by the HTTP container when a long polling connection times out before any updates are sent.
    * This doesn't end the client's connection or remove the associated client ID.  Normally the client will immediately
    * establish a new long-polling HTTP connection.
+   * 
    * @param clientId The client ID associated with the timed out connection
    * @param continuation The continuation associated with the timed out HTTP connection
    */
@@ -75,6 +79,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
   /**
    * Invoked when the client disconnects.
+   * 
    * @param clientId ID of the client connection that disconnected
    */
   /* package */ void disconnect(String clientId) {
@@ -83,5 +88,6 @@ import java.util.concurrent.ConcurrentHashMap;
       listener.disconnect();
     }
   }
+
 }
 
