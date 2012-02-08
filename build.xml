@@ -1,5 +1,5 @@
 <project name="all" xmlns:ivy="antlib:org.apache.ivy.ant">
-
+	
 	<!-- Load the environment variables first -->
 	<property environment="env" />
 	<!-- also, try a property file because some JVMs don't support env properly -->
@@ -265,7 +265,7 @@
 			</zipfileset>
 		</zip>
 	</target>
-	<target name="dist-binary" depends="clean-all,publish-all-local,binary-dist-impl"
+	<target name="dist-binary" depends="clean-projects,publish-all-local,binary-dist-impl"
 		description="builds a single binary distribution zipfile" />
 	<target name="binary-dist-impl" depends="buildlist,dist-name">
 		<og-subant target="dist-nodep" buildpathref="build-path" />
@@ -281,7 +281,7 @@
 		</antcall>
 	</target>
 	<!-- og-examples-dist is probably more useful than binary-dist -->
-	<target name="dist-og-examples" depends="clean-all,publish-all-local,og-examples-dist-impl"
+	<target name="dist-og-examples" depends="clean-projects,publish-all-local,og-examples-dist-impl"
 		description="builds a distribution zipfile for OG-Examples" />
 	<target name="og-examples-dist-impl" depends="buildlist,dist-name">
 		<subant target="zipfile" buildpath="${projects.dir}/OG-Examples">
@@ -335,13 +335,11 @@
 	</target>
 
 	<!-- ================================================================== -->
-	<target name="clean-ivy-cache" depends="load-ivy"
-		description="clean the ivy cache">
+	<target name="clean-ivy-cache" depends="load-ivy">
 		<ivy:cleancache />
 	</target>
 
-	<target name="clean-all" depends="buildlist"
-		description="clean all projects">
+	<target name="clean-projects" depends="buildlist">
 		<og-subant target="clean" buildpathref="build-path" />
 	</target>
 
@@ -350,17 +348,18 @@
 		<og-subant target="clean-src" buildpathref="build-path" />
 	</target>
 
-	<target name="clean-lib"
-		description="clean the project libraries directory (dependencies)">
+	<target name="clean-lib">
 		<delete includeemptydirs="true" dir="${lib.dir}" />
 	</target>
 
-	<target name="clean-lib-all" depends="buildlist"
-		description="clean all project lib directories (dependencies)">
+	<target name="clean-lib-all" depends="buildlist">
 		<og-subant target="clean-lib" buildpathref="build-path" />
 	</target>
+	
+	<target name="clean-all" depends="clean, clean-ivy-cache" description="clean all projects, delete repository, reload ivy &amp; clean the ivy cache">
+	</target>
 
-	<target name="clean" depends="clean-all, load-ivy"
+	<target name="clean" depends="clean-projects, clean-lib, load-ivy"
 		description="clean all projects, delete repository &amp; reload ivy">
 		<delete dir="${repository.dir}" />
 		<delete dir="${docs.dir}" quiet="true" failonerror="false"/>
@@ -594,7 +593,7 @@
 		</antcall>
 	</target>
 
-	<target name="install-impl" depends="fetch-build-projects-file-for-user, clean-all, clone-or-pull, publish-all-local">
+	<target name="install-impl" depends="fetch-build-projects-file-for-user, clean-projects, clone-or-pull, publish-all-local">
 		<mkdir dir="${install.dir}" />
 		<property file="${common.dir}/deploy.properties"/>
 		<subant target="install" buildpath="${project.deploy}" antfile="build.xml">
