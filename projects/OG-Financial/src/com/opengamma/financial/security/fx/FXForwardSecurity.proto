@@ -11,8 +11,10 @@
    */
   message FXForwardSecurity extends FinancialSecurity {
   	required string securityType [default = "FX_FORWARD"];
-  	
-  	required id.ExternalId underlyingIdentifier;
+    required com.opengamma.util.money.Currency payCurrency;
+    required com.opengamma.util.money.Currency receiveCurrency;
+    required double payAmount;
+    required double receiveAmount;
   	required javax.time.calendar.ZonedDateTime forwardDate;
     required id.ExternalId region;
   }

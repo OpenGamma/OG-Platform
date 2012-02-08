@@ -13,8 +13,8 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.testng.annotations.Test;
 
+import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.test.MockSecurity;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
@@ -27,7 +27,7 @@ public class ComputedValueTest {
   private static final FudgeContext s_fudgeContext = OpenGammaFudgeContext.getInstance();
 
   public void test_constructor_Object_Portfolio() {
-    ValueRequirement vreq = new ValueRequirement("DATA", new MockSecurity(""));
+    ValueRequirement vreq = new ValueRequirement("DATA", new SimpleSecurity(""));
     ValueSpecification vspec = new ValueSpecification(vreq, "mockFunctionid");
     ComputedValue test = new ComputedValue(vspec, "HELLO");
     assertEquals("HELLO", test.getValue());

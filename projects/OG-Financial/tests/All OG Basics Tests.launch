@@ -18,6 +18,7 @@
 <listEntry value="com.opengamma.transport.jms"/>
 <listEntry value="com.opengamma.transport.socket"/>
 <listEntry value="com.opengamma.util"/>
+<listEntry value="com.opengamma.util.component"/>
 <listEntry value="com.opengamma.util.db"/>
 <listEntry value="com.opengamma.util.fudgemsg"/>
 <listEntry value="com.opengamma.util.id"/>
@@ -32,11 +33,21 @@
 <listEntry value="com.opengamma.util.timeseries.object"/>
 <listEntry value="com.opengamma.util.tuple"/>
 <listEntry value="com.opengamma.core.change"/>
+<listEntry value="com.opengamma.core.config"/>
+<listEntry value="com.opengamma.core.config.impl"/>
+<listEntry value="com.opengamma.core.exchange"/>
+<listEntry value="com.opengamma.core.exchange.impl"/>
 <listEntry value="com.opengamma.core.fudgemsg"/>
+<listEntry value="com.opengamma.core.historicaltimeseries"/>
 <listEntry value="com.opengamma.core.historicaltimeseries.impl"/>
+<listEntry value="com.opengamma.core.holiday"/>
+<listEntry value="com.opengamma.core.holiday.impl"/>
 <listEntry value="com.opengamma.core.marketdatasnapshot"/>
+<listEntry value="com.opengamma.core.marketdatasnapshot.impl"/>
 <listEntry value="com.opengamma.core.position"/>
 <listEntry value="com.opengamma.core.position.impl"/>
+<listEntry value="com.opengamma.core.region"/>
+<listEntry value="com.opengamma.core.region.impl"/>
 <listEntry value="com.opengamma.core.security"/>
 <listEntry value="com.opengamma.core.security.impl"/>
 <listEntry value="com.opengamma.master"/>
@@ -73,6 +84,7 @@
 <listEntry value="com.opengamma.financial.convention"/>
 <listEntry value="com.opengamma.financial.conversion"/>
 <listEntry value="com.opengamma.financial.currency"/>
+<listEntry value="com.opengamma.financial.exchange.rest"/>
 <listEntry value="com.opengamma.financial.filtering"/>
 <listEntry value="com.opengamma.financial.fudgemsg"/>
 <listEntry value="com.opengamma.financial.portfolio.rest"/>

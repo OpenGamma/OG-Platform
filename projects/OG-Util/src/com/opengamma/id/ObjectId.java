@@ -89,7 +89,9 @@ public final class ObjectId
    */
   public static ObjectId parse(String str) {
     ArgumentChecker.notEmpty(str, "str");
-    str = StringUtils.replace(str, "::", "~");  // leniently parse old data
+    if (str.contains("~") == false) {
+      str = StringUtils.replace(str, "::", "~");  // leniently parse old data
+    }
     String[] split = StringUtils.splitByWholeSeparatorPreserveAllTokens(str, "~");
     switch (split.length) {
       case 2:

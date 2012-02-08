@@ -54,7 +54,7 @@ $.register_module({
                             api.rest.securities.put({
                                 handler: function (result) {
                                     var args = routes.current().args;
-                                    if (result.error) return ui.dialog({type: 'error', message: result.message});
+                                    if (result.error) return view.error(result.message);
                                     view.search(args);
                                     if (result.data.data.length !== 1)
                                         return routes.go(routes.hash(view.rules.load, args));
@@ -79,7 +79,7 @@ $.register_module({
                         'Delete': function () {
                             $(this).dialog('close');
                             api.rest.securities.del({
-                                id: routes.last().args.id,
+                                id: routes.current().args.id,
                                 handler: function (result) {
                                     var args = routes.current().args;
                                     if (result.error) return view.error(result.message);
@@ -112,10 +112,7 @@ $.register_module({
                     dependencies: view.dependencies,
                     update: view.update,
                     handler: function (result) {
-                        if (result.error) {
-                            view.notify(null);
-                            return view.error(result.message);
-                        }
+                        if (result.error) return view.notify(null), view.error(result.message);
                         var json = result.data, text_handler,
                             security_type = json.template_data['securityType'].toLowerCase(),
                             template = module.name + '.' + security_type;

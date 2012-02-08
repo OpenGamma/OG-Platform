@@ -5,6 +5,7 @@
  */
 package com.opengamma.util.db;
 
+import java.io.Closeable;
 import java.sql.Timestamp;
 
 import javax.sql.DataSource;
@@ -18,6 +19,7 @@ import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -29,7 +31,7 @@ import com.opengamma.util.time.DateUtils;
  * <p>
  * This class is usually configured using the associated factory bean.
  */
-public class DbConnector {
+public class DbConnector implements Closeable {
 
   static {
     DateUtils.initTimeZone();
@@ -197,6 +199,14 @@ public class DbConnector {
         return now();
       }
     };
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public void close() {
+    ReflectionUtils.close(getDataSource());
+    ReflectionUtils.close(getTransactionManager());
+    ReflectionUtils.close(getHibernateSessionFactory());
   }
 
   //-------------------------------------------------------------------------

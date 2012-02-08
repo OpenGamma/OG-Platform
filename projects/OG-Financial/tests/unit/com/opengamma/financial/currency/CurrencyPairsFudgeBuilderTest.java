@@ -5,13 +5,14 @@
  */
 package com.opengamma.financial.currency;
 
-import com.google.common.collect.ImmutableSet;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
+
+import com.google.common.collect.ImmutableSet;
 
 public class CurrencyPairsFudgeBuilderTest {
 
@@ -20,14 +21,15 @@ public class CurrencyPairsFudgeBuilderTest {
    */
   @Test
   public void roundTrip() {
-    CurrencyPairs pairs1 = new CurrencyPairs(ImmutableSet.of(
-        CurrencyPair.of("EUR/USD"),
-        CurrencyPair.of("GBP/USD"),
-        CurrencyPair.of("USD/CAD")));
+    CurrencyPairs pairs1 = CurrencyPairs.of(ImmutableSet.of(
+        CurrencyPair.parse("EUR/USD"),
+        CurrencyPair.parse("GBP/USD"),
+        CurrencyPair.parse("USD/CAD")));
     CurrencyPairsFudgeBuilder builder = new CurrencyPairsFudgeBuilder();
     MutableFudgeMsg msg = builder.buildMessage(new FudgeSerializer(FudgeContext.GLOBAL_DEFAULT), pairs1);
     AssertJUnit.assertNotNull(msg);
     CurrencyPairs pairs2 = builder.buildObject(new FudgeDeserializer(FudgeContext.GLOBAL_DEFAULT), msg);
     AssertJUnit.assertEquals(pairs1, pairs2);
   }
+
 }

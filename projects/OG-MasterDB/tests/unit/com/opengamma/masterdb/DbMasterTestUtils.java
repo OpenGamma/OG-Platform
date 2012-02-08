@@ -5,30 +5,38 @@
  */
 package com.opengamma.masterdb;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.support.FileSystemXmlApplicationContext;
+import org.testng.annotations.AfterSuite;
 
 /**
  * Utility class to load the Spring testing config once, speeding up the tests.
  */
 public final class DbMasterTestUtils {
 
-  private static Map<String, ConfigurableApplicationContext> s_context = new ConcurrentHashMap<String, ConfigurableApplicationContext>();
+  private static ConfigurableApplicationContext s_context = null;
 
   /**
    * Gets the Spring context, sharing where possible.
+   * 
+   * @param databaseType  ignored
    * @return the context, not null
    */
-  public static ConfigurableApplicationContext getContext(String databaseType) {
-    ConfigurableApplicationContext context = s_context.get(databaseType);
-    if (context == null) {
-      context = new FileSystemXmlApplicationContext("config/test-master-context.xml");
-      s_context.put(databaseType, context);
+  public static synchronized ConfigurableApplicationContext getContext(String databaseType) {
+    if (s_context == null) {
+      s_context = new FileSystemXmlApplicationContext("config/test-master-context.xml");
     }
-    return context;
+    return s_context;
+  }
+
+  /**
+   * Closes the Spring contexts.
+   */
+  @AfterSuite
+  public static synchronized void closeAfterSuite() {
+    if (s_context != null) {
+      s_context.close();
+    }
   }
 
 }

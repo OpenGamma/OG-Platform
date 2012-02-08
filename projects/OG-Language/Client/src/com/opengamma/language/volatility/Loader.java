@@ -5,6 +5,8 @@
  */
 package com.opengamma.language.volatility;
 
+import java.net.URI;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,7 +14,6 @@ import com.opengamma.financial.analytics.volatility.cube.rest.RemoteVolatilityCu
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -41,13 +42,13 @@ public class Loader extends ContextInitializationBean {
 
   @Override
   protected void initContext(MutableGlobalContext globalContext) {
-    final RestTarget restTarget = getConfiguration().getRestTargetConfiguration(CONFIGURATION_ENTRY);
-    if (restTarget == null) {
+    final URI uri = getConfiguration().getURIConfiguration(CONFIGURATION_ENTRY);
+    if (uri == null) {
       s_logger.warn("Volatility cube definition support not available");
       return;
     }
     s_logger.info("Configuring security support");
-    globalContext.setVolatilityCubeDefinitionSource(new RemoteVolatilityCubeDefinitionSource(getConfiguration().getFudgeContext(), restTarget));
+    globalContext.setVolatilityCubeDefinitionSource(new RemoteVolatilityCubeDefinitionSource(uri));
   }
-  
+
 }

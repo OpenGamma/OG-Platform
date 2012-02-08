@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+
 package com.opengamma.financial.loader.rowparsers;
 
 import java.util.Map;
@@ -18,19 +24,24 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
+/**
+ * This class uses the standard OG import fields to generate an IR Future security
+ */
 public class IRFutureParser extends RowParser {
 
   private static final String ID_SCHEME = "IR_FUTURE_LOADER";
 
-  public static final String EXPIRY = "expiry";
-  public static final String TRADING_EXCHANGE = "trading exchange";
-  public static final String SETTLEMENT_EXCHANGE = "settlement exchange";
-  public static final String CURRENCY = "currency";
-  public static final String UNIT_AMOUNT = "unit amount";
-  public static final String UNDERLYING_ID = "underlying id";
-  public static final String NAME = "name";
-  public static final String BBG_CODE = "bbg code";
-
+  //CSOFF
+  protected String EXPIRY = "expiry";
+  protected String TRADING_EXCHANGE = "trading exchange";
+  protected String SETTLEMENT_EXCHANGE = "settlement exchange";
+  protected String CURRENCY = "currency";
+  protected String UNIT_AMOUNT = "unit amount";
+  protected String UNDERLYING_ID = "underlying id";
+  protected String NAME = "name";
+  protected String BBG_CODE = "bbg code";
+  //CSON
+  
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> irFutureDetails) {
     Currency ccy = Currency.of(getWithException(irFutureDetails, CURRENCY));

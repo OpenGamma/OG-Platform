@@ -6,7 +6,7 @@
 	<target name="publish" depends="zip-webapp,zip-resources,common.publish" />
 
 	<target name="publish-local" depends="zip-webapp,zip-resources,common.publish-local" />
-
+		
 	<target name="zip-webapp" description="--> tar up the webapp directories for publishing">
 		<mkdir dir="${dist.dir}" />
 		<zip destfile="${dist.dir}/web-engine-webapp.zip" basedir="${basedir}">

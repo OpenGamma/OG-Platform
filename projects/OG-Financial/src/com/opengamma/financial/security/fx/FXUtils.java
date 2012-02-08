@@ -18,22 +18,26 @@ import com.opengamma.util.money.Currency;
  */
 public class FXUtils {
 
-  /**
-   * Returns a bundle containing all known identifiers for the spot rate of this FXSecurity
-   * @param fxSecurity the fx security
-   * @param convertToPayCurrency whether to get the code that will convert a value to the pay currency
-   * @return a bundle containing identifiers for the spot rate, not null
-   */
-  public static final ExternalIdBundle getSpotIdentifiers(final FXSecurity fxSecurity, final boolean convertToPayCurrency) {
-    final Currency payCurrency = fxSecurity.getPayCurrency();
-    final Currency receiveCurrency = fxSecurity.getReceiveCurrency();
+  private static ExternalId getSpotIdentifier(final FXForwardSecurity fxForwardSecurity, final boolean convertToPayCurrency) {
+    final Currency payCurrency = fxForwardSecurity.getPayCurrency();
+    final Currency receiveCurrency = fxForwardSecurity.getReceiveCurrency();
     ExternalId bloomberg;
     if (convertToPayCurrency) {
       bloomberg = SecurityUtils.bloombergTickerSecurityId(payCurrency.getCode() + receiveCurrency.getCode() + " Curncy");
     } else {
       bloomberg = SecurityUtils.bloombergTickerSecurityId(receiveCurrency.getCode() + payCurrency.getCode() + " Curncy");
     }
-    return ExternalIdBundle.of(bloomberg);
+    return bloomberg;
+  }
+  
+  /**
+   * Returns a bundle containing all known identifiers for the spot rate of this FXForwardSecurity
+   * @param fxForwardSecurity the fx forward security
+   * @param convertToPayCurrency whether to get the code that will convert a value to the pay currency
+   * @return a bundle containing identifiers for the spot rate, not null
+   */
+  public static final ExternalIdBundle getSpotIdentifiers(final FXForwardSecurity fxForwardSecurity, final boolean convertToPayCurrency) {
+    return ExternalIdBundle.of(getSpotIdentifier(fxForwardSecurity, convertToPayCurrency));
   }
 
   /**
@@ -163,22 +167,5 @@ public class FXUtils {
     return bloomberg;
   }
 
-  //TODO remove this
-  /**
-   * Returns a bundle containing all known identifiers for the spot rate of this FXSecurity
-   * @param fxSecurity the fx security
-   * @param convertToPayCurrency whether to get the code that will convert a value to the put currency
-   * @return an Identifier containing identifier for the spot rate, not null
-   */
-  public static final ExternalId getSpotIdentifier(final FXSecurity fxSecurity, final boolean convertToPayCurrency) {
-    final Currency payCurrency = fxSecurity.getPayCurrency();
-    final Currency receiveCurrency = fxSecurity.getReceiveCurrency();
-    ExternalId bloomberg;
-    if (convertToPayCurrency) {
-      bloomberg = SecurityUtils.bloombergTickerSecurityId(payCurrency.getCode() + receiveCurrency.getCode() + " Curncy");
-    } else {
-      bloomberg = SecurityUtils.bloombergTickerSecurityId(receiveCurrency.getCode() + payCurrency.getCode() + " Curncy");
-    }
-    return bloomberg;
-  }
+
 }

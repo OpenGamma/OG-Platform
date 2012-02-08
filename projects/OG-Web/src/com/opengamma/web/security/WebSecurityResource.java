@@ -21,10 +21,12 @@ import javax.ws.rs.core.Response.Status;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.web.FreemarkerCustomRenderer;
 
@@ -128,11 +130,17 @@ public class WebSecurityResource extends AbstractWebSecurityResource {
     // time-series information is in the wrong place.
     
     // Get the last price HTS for the security
-    HistoricalTimeSeriesResolutionResult htsResolutionResult = htsResolver().resolve(doc.getSecurity().getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
+    ObjectId tsObjectId = null;
+    HistoricalTimeSeriesSource htsSource = data().getHistoricalTimeSeriesSource();
+    HistoricalTimeSeries series = htsSource.getHistoricalTimeSeries(
+        MarketDataRequirementNames.MARKET_VALUE, doc.getSecurity().getExternalIdBundle(), null, null, false, null, false, 0);
+    if (series != null) {
+      tsObjectId = series.getUniqueId().getObjectId();
+    }
     
     out.put("securityDoc", doc); 
     out.put("security", doc.getSecurity());
-    out.put("timeSeriesId", htsResolutionResult == null ? null : htsResolutionResult.getHistoricalTimeSeriesInfo().getTimeSeriesObjectId());
+    out.put("timeSeriesId", tsObjectId);
     out.put("deleted", !doc.isLatest());
     addSecuritySpecificMetaData(doc.getSecurity(), out);
     out.put("customRenderer", FreemarkerCustomRenderer.INSTANCE);

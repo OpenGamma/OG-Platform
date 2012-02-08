@@ -6,8 +6,6 @@
 package com.opengamma.financial.loader.rowparsers;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -39,23 +37,26 @@ public class EquityFutureParser extends RowParser {
 
   private static final String ID_SCHEME = "MANUAL_LOAD";
 
-  public static final String EXPIRY = "expiry";
-  public static final String SETTLEMENT_DATE = "settlement date";
-  public static final String TRADING_EXCHANGE = "trading exchange";
-  public static final String SETTLEMENT_EXCHANGE = "settlement exchange";
-  public static final String CURRENCY = "currency";
-  public static final String UNIT_AMOUNT = "unit amount";
-  public static final String UNDERLYING_ID = "underlying id";
-  public static final String NAME = "name";
-  public static final String BBG_CODE = "bbg code";
-  public static final String NUMBER_OF_CONTRACTS = "number of contracts";
-  public static final String TRADE_DATE = "trade date";
-  public static final String REFERENCE_PRICE = "reference price";
-
+  //CSOFF
+  protected String EXPIRY = "expiry";
+  protected String SETTLEMENT_DATE = "settlement date";
+  protected String TRADING_EXCHANGE = "trading exchange";
+  protected String SETTLEMENT_EXCHANGE = "settlement exchange";
+  protected String CURRENCY = "currency";
+  protected String UNIT_AMOUNT = "unit amount";
+  protected String UNDERLYING_ID = "underlying id";
+  protected String NAME = "name";
+  protected String BBG_CODE = "bbg code";
+  protected String NUMBER_OF_CONTRACTS = "number of contracts";
+  protected String TRADE_DATE = "trade date";
+  protected String REFERENCE_PRICE = "reference price";
+  //CSON
+  
  /**
-   * Creates a Trade from a Security and details provided from file
+   * Creates a Trade from a security, a position and details provided from file
    * @param eqFutureDetails The parsed values of the input file
    * @param security The security
+   * @param position The position
    * @return the newly constructed trade
    */
   @Override

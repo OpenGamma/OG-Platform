@@ -5,43 +5,37 @@
  */
 package com.opengamma.financial.view.rest;
 
-import javax.time.Instant;
+import java.net.URI;
+
 import javax.time.InstantProvider;
 
 import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
-import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.engine.view.helper.AvailableOutputs;
 import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.id.UniqueId;
-import com.opengamma.transport.jaxrs.RestClient;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**
- * Provides access to a remote representation of {@link AvailableOutputs} data.
+ * Provides remote access to an {@link AvailableOutputsProvider}.
  */
-public class RemoteAvailableOutputsProvider implements AvailableOutputsProvider {
+public class RemoteAvailableOutputsProvider extends AbstractRemoteClient implements AvailableOutputsProvider {
 
-  private final FudgeContext _fudgeContext;
-  private final RestTarget _serviceTarget;
-
-  public RemoteAvailableOutputsProvider(final FudgeContext fudgeContext, final RestTarget serviceTarget) {
-    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
-    ArgumentChecker.notNull(serviceTarget, "serviceTarget");
-    _fudgeContext = fudgeContext;
-    _serviceTarget = serviceTarget;
+  /**
+   * Creates an instance.
+   * 
+   * @param baseUri  the base target URI for all RESTful web services, not null
+   */
+  public RemoteAvailableOutputsProvider(final URI baseUri) {
+    super(baseUri);
   }
 
+  //-------------------------------------------------------------------------
   public FudgeContext getFudgeContext() {
-    return _fudgeContext;
-  }
-
-  protected RestTarget getServiceTarget() {
-    return _serviceTarget;
+    return OpenGammaFudgeContext.getInstance();
   }
 
   //-------------------------------------------------------------------------
@@ -49,19 +43,13 @@ public class RemoteAvailableOutputsProvider implements AvailableOutputsProvider 
   public AvailableOutputs getPortfolioOutputs(Portfolio portfolio, InstantProvider instantProvider) {
     return getPortfolioOutputs(portfolio, instantProvider, null, null);
   }
-  
+
   @Override
   public AvailableOutputs getPortfolioOutputs(Portfolio portfolio, InstantProvider instantProvider, Integer maxNodes, Integer maxPositions) {
-    final RestClient client = RestClient.getInstance(getFudgeContext(), null);
-    FudgeSerializer serializer = new FudgeSerializer(_fudgeContext);
-    FudgeMsg portfolioMsg = serializer.objectToFudgeMsg(portfolio);
-    RestTarget target = getServiceTarget(instantProvider, maxNodes, maxPositions);
-    final FudgeMsg msg = client.post(target, portfolioMsg).getMessage();
-    if (msg == null) {
-      return null;
-    }
-    final FudgeDeserializer fd = new FudgeDeserializer(getFudgeContext());
-    return fd.fudgeMsgToObject(AvailableOutputs.class, msg);
+    ArgumentChecker.notNull(portfolio, "portfolio");
+    
+    URI uri = DataAvailablePortfolioOutputsResource.uri(getBaseUri(), instantProvider, maxNodes, maxPositions, null);
+    return accessRemote(uri).post(AvailableOutputs.class, portfolio);
   }
 
   @Override
@@ -71,28 +59,10 @@ public class RemoteAvailableOutputsProvider implements AvailableOutputsProvider 
 
   @Override
   public AvailableOutputs getPortfolioOutputs(UniqueId portfolioId, InstantProvider instantProvider, Integer maxNodes, Integer maxPositions) {
-    final RestClient client = RestClient.getInstance(getFudgeContext(), null);
-    RestTarget target = getServiceTarget(instantProvider, maxNodes, maxPositions);
-    final FudgeMsg msg = client.getMsg(target.resolve(portfolioId.toString()));
-    if (msg == null) {
-      return null;
-    }
-    final FudgeDeserializer fd = new FudgeDeserializer(getFudgeContext());
-    return fd.fudgeMsgToObject(AvailableOutputs.class, msg);
-  }
-
-  //-------------------------------------------------------------------------
-  private RestTarget getServiceTarget(InstantProvider instantProvider, Integer maxNodes, Integer maxPositions) {
-    Instant instant = instantProvider != null ? instantProvider.toInstant() : null;
-    String instantString = instant != null ? Long.toString(instant.toInstant().toEpochMillisLong()) : "now";
-    RestTarget target = getServiceTarget().resolveBase("portfolio").resolveBase(instantString);
-    if (maxNodes != null && maxNodes > 0) {
-      target = target.resolveBase("nodes").resolveBase(Integer.toString(maxNodes));
-    }
-    if (maxPositions != null && maxPositions > 0) {
-      target = target.resolveBase("positions").resolveBase(Integer.toString(maxPositions));
-    }
-    return target;
+    ArgumentChecker.notNull(portfolioId, "portfolioId");
+    
+    URI uri = DataAvailablePortfolioOutputsResource.uri(getBaseUri(), instantProvider, maxNodes, maxPositions, portfolioId);
+    return accessRemote(uri).get(AvailableOutputs.class);
   }
 
 }

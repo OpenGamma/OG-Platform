@@ -106,10 +106,7 @@ $.register_module({
                 dependencies: view.dependencies,
                 update: view.update,
                 handler: function (result) {
-                    if (result.error) {
-                        view.notify(null);
-                        return view.error(result.message);
-                    }
+                    if (result.error) return view.notify(null), view.error(result.message);
                     var json = result.data;
                     history.put({
                         name: json.template_data.name,

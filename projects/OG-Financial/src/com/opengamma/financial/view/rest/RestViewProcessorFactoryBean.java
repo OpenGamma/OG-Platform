@@ -11,6 +11,7 @@ import org.fudgemsg.FudgeContext;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.jms.JmsConnector;
 
@@ -20,6 +21,7 @@ import com.opengamma.util.jms.JmsConnector;
 public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewProcessorsResource> {
 
   private ViewProcessor _viewProcessor;
+  private VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
   private JmsConnector _jmsConnector;
   private FudgeContext _fudgeContext;
   private ScheduledExecutorService _scheduler;
@@ -30,6 +32,14 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
 
   public void setViewProcessor(ViewProcessor viewProcessor) {
     _viewProcessor = viewProcessor;
+  }
+
+  public VolatilityCubeDefinitionSource getVolatilityCubeDefinitionSource() {
+    return _volatilityCubeDefinitionSource;
+  }
+
+  public void setVolatilityCubeDefinitionSource(VolatilityCubeDefinitionSource volatilityCubeDefinitionSource) {
+    _volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
   }
 
   public JmsConnector getJmsConnector() {
@@ -62,14 +72,16 @@ public class RestViewProcessorFactoryBean extends SingletonFactoryBean<DataViewP
     if (_viewProcessor == null) {
       throw new OpenGammaRuntimeException("The viewProcessor property must be set");
     }
+    if (_volatilityCubeDefinitionSource == null) {
+      throw new OpenGammaRuntimeException("The volatilityCubeDefinitionSource property must be set");
+    }
     if (_jmsConnector == null) {
       throw new OpenGammaRuntimeException("The connectionFactory property must be set");
     }
     if (_scheduler == null) {
       throw new OpenGammaRuntimeException("The scheduler property must be set");
     }
-    
-    return new DataViewProcessorsResource(getViewProcessor(), getJmsConnector(), getFudgeContext(), getScheduler());
+    return new DataViewProcessorsResource(_viewProcessor, _volatilityCubeDefinitionSource, _jmsConnector, getFudgeContext(), _scheduler);
   }
 
 }

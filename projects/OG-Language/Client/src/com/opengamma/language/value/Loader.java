@@ -6,6 +6,8 @@
 
 package com.opengamma.language.value;
 
+import java.net.URI;
+
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,7 +18,6 @@ import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
 import com.opengamma.language.function.FunctionProviderBean;
 import com.opengamma.language.invoke.TypeConverterProviderBean;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -73,10 +74,10 @@ public class Loader extends ContextInitializationBean {
     functions.addFunction(ExpandComputedValuesFunction.INSTANCE);
     functions.addFunction(MarketDataRequirementNamesFunction.INSTANCE);
     functions.addFunction(ValueRequirementNamesFunction.INSTANCE);
-    final RestTarget target = getConfiguration().getRestTargetConfiguration(getConfigurationEntry());
-    if (target != null) {
+    final URI uri = getConfiguration().getURIConfiguration(getConfigurationEntry());
+    if (uri != null) {
       functions.addFunction(GetAvailableOutputsFunction.INSTANCE);
-      globalContext.setAvailableOutputsProvider(new RemoteAvailableOutputsProvider(getFudgeContext(), target));
+      globalContext.setAvailableOutputsProvider(new RemoteAvailableOutputsProvider(uri));
     } else {
       s_logger.warn("Available output support not available");
     }

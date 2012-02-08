@@ -43,22 +43,26 @@ import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurityVisitor;
-import com.opengamma.financial.security.fx.FXSecurity;
-import com.opengamma.financial.security.fx.FXSecurityVisitor;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurityVisitor;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurityVisitor;
+import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
+import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurityVisitor;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurityVisitor;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurityVisitor;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurityVisitor;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurityVisitor;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurityVisitor;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurityVisitor;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurityVisitor;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurityVisitor;
 import com.opengamma.financial.security.option.SwaptionSecurity;
@@ -103,11 +107,14 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   private static final String SWAPS = "Swaps";
   private static final String FORWARD_SWAPS = "Forward Swaps";
   private static final String EQUITY_INDEX_OPTIONS = "Equity Index Options";
-  private static final String FX = "FX";
+  private static final String FX_DIGITAL_OPTIONS = "FX Digital Options";
+  private static final String NONDELIVERABLE_FX_DIGITAL_OPTIONS = "Non-deliverable FX Digital Options";
   private static final String FX_FORWARDS = "FX forwards";
   private static final String NONDELIVERABLE_FX_FORWARDS = "Non-deliverable FX forwards";
   private static final String CAP_FLOOR = "Cap/Floor";
   private static final String CAP_FLOOR_CMS_SPREAD = "Cap/Floor CMS Spread";
+  private static final String EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS = "Equity Index Dividend Future Options";
+
 
   @Override
   public String classifyPosition(final Position position) {
@@ -216,91 +223,82 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         public String visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
           return EQUITY_INDEX_OPTIONS;
         }
+      }, new EquityIndexDividendFutureOptionSecurityVisitor<String>() {
+        @Override
+        public String visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
+          return EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS;
+        }
       }, new EquityOptionSecurityVisitor<String>() {
-
         @Override
         public String visitEquityOptionSecurity(final EquityOptionSecurity equityOptionSecurity) {
           return EQUITY_OPTIONS;
         }
       }, new EquityBarrierOptionSecurityVisitor<String>() {
-
         @Override
         public String visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity equityOptionSecurity) {
           return EQUITY_BARRIER_OPTIONS;
         }
       }, new FXOptionSecurityVisitor<String>() {
-
         @Override
         public String visitFXOptionSecurity(final FXOptionSecurity fxOptionSecurity) {
           return FX_OPTIONS;
         }
       }, new NonDeliverableFXOptionSecurityVisitor<String>() {
-
         @Override
         public String visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity fxOptionSecurity) {
           return NONDELIVERABLE_FX_OPTIONS;
         }
       }, new SwaptionSecurityVisitor<String>() {
-
         @Override
         public String visitSwaptionSecurity(final SwaptionSecurity swaptionSecurity) {
           return SWAPTIONS;
         }
       }, new IRFutureOptionSecurityVisitor<String>() {
-
         @Override
         public String visitIRFutureOptionSecurity(final IRFutureOptionSecurity irFutureOptionSecurity) {
           return IRFUTURE_OPTIONS;
         }
       }, new FXBarrierOptionSecurityVisitor<String>() {
-
         @Override
         public String visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
           return FX_BARRIER_OPTIONS;
         }
-      }, new FXSecurityVisitor<String>() {
-
+      }, new FXDigitalOptionSecurityVisitor<String>() {
         @Override
-        public String visitFXSecurity(final FXSecurity security) {
-          return FX;
+        public String visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity fxDigitalOptionSecurity) {
+          return FX_DIGITAL_OPTIONS;
         }
-
+      }, new NonDeliverableFXDigitalOptionSecurityVisitor<String>() {
+        @Override
+        public String visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity nonDeliverableFxDigitalOptionSecurity) {
+          return NONDELIVERABLE_FX_DIGITAL_OPTIONS;
+        }
       }, new FXForwardSecurityVisitor<String>() {
-
         @Override
         public String visitFXForwardSecurity(final FXForwardSecurity security) {
           return FX_FORWARDS;
         }
-
       }, new NonDeliverableFXForwardSecurityVisitor<String>() {
-
         @Override
         public String visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
           return NONDELIVERABLE_FX_FORWARDS;
         }
-
       }, new CapFloorSecurityVisitor<String>() {
-
         @Override
         public String visitCapFloorSecurity(final CapFloorSecurity security) {
           return CAP_FLOOR;
         }
       }, new CapFloorCMSSpreadSecurityVisitor<String>() {
-
         @Override
         public String visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
           return CAP_FLOOR_CMS_SPREAD;
         }
-
       }, new EquityVarianceSwapSecurityVisitor<String>() {
-
         @Override
         public String visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
           return EQUITY_VARIANCE_SWAPS;
         }
-
       }
-
       ));
     } else {
       return UNKNOWN;

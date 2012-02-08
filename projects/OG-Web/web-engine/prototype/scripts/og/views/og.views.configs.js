@@ -96,7 +96,7 @@ $.register_module({
                     var details_json = result.data, too_large = result.meta.content_length > 0.75 * 1024 * 1024,
                         config_type = details_json.template_data.type.toLowerCase().split('.').reverse()[0],
                         render_type, render_options;
-                    if (result.error) return view.error(result.message);
+                    if (result.error) return view.notify(null), view.error(result.message);
                     if (is_new) {
                         if (!result.data) return view.error('No template for: ' + new_config_type);
                         if (!result.data.template_data.configJSON) result.data.template_data.configJSON = {};

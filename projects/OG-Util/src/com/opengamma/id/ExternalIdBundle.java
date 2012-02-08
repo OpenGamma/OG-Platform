@@ -120,6 +120,24 @@ public final class ExternalIdBundle
   }
 
   /**
+   * Parses a list of strings to an {@code ExternalIdBundle}.
+   * <p>
+   * This uses {@link ExternalId#parse(String)} to parse each string in the input collection.
+   * 
+   * @param strs  the external identifiers to parse, not null
+   * @return the bundle, not null
+   * @throws IllegalArgumentException if any identifier cannot be parsed
+   */
+  public static ExternalIdBundle parse(Iterable<String> strs) {
+    ArgumentChecker.noNulls(strs, "strs");
+    List<ExternalId> externalIds = new ArrayList<ExternalId>();
+    for (String str : strs) {
+      externalIds.add(ExternalId.parse(str));
+    }
+    return create(externalIds);
+  }
+
+  /**
    * Obtains an {@code ExternalIdBundle} from a collection of identifiers.
    * 
    * @param externalIds  the collection of external identifiers, validated

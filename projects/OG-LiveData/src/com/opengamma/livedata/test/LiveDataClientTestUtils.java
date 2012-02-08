@@ -5,10 +5,6 @@
  */
 package com.opengamma.livedata.test;
 
-import javax.jms.ConnectionFactory;
-
-import org.apache.activemq.pool.PooledConnectionFactory;
-
 import com.opengamma.livedata.client.DistributedLiveDataClient;
 import com.opengamma.livedata.client.JmsLiveDataClient;
 import com.opengamma.livedata.entitlement.EntitlementServer;
@@ -23,7 +19,6 @@ import com.opengamma.transport.DirectInvocationByteArrayMessageSender;
 import com.opengamma.transport.FudgeRequestDispatcher;
 import com.opengamma.transport.InMemoryByteArrayRequestConduit;
 import com.opengamma.util.jms.JmsConnector;
-import com.opengamma.util.jms.JmsConnectorFactoryBean;
 import com.opengamma.util.test.ActiveMQTestUtils;
 
 /**
@@ -51,12 +46,7 @@ public class LiveDataClientTestUtils {
     ByteArrayFudgeRequestSender subscriptionRequestSender = getSubscriptionRequestSender(server);
     ByteArrayFudgeRequestSender entitlementRequestSender = getEntitlementRequestSender(server);
     
-    ConnectionFactory cf = new PooledConnectionFactory(ActiveMQTestUtils.createTestConnectionFactory());
-    JmsConnectorFactoryBean jmsFactory = new JmsConnectorFactoryBean();
-    jmsFactory.setName("LiveDataClientTestUtils");
-    jmsFactory.setConnectionFactory(cf);
-    JmsConnector jmsConnector = jmsFactory.createObject();
-    
+    JmsConnector jmsConnector = ActiveMQTestUtils.createTestJmsConnector();
     JmsLiveDataClient liveDataClient = new JmsLiveDataClient(
         subscriptionRequestSender, 
         entitlementRequestSender,

@@ -12,7 +12,10 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
+import java.net.URI;
+
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -33,11 +36,14 @@ public class DataSecurityResourceTest {
   private static final ObjectId OID = ObjectId.of("Test", "PosA");
   private SecurityMaster _underlying;
   private DataSecurityResource _resource;
+  private UriInfo _uriInfo;
 
   @BeforeMethod
   public void setUp() {
     _underlying = mock(SecurityMaster.class);
-    _resource = new DataSecurityResource(new DataSecuritiesResource(_underlying), OID.getObjectId());
+    _resource = new DataSecurityResource(new DataSecurityMasterResource(_underlying), OID.getObjectId());
+    _uriInfo = mock(UriInfo.class);
+    when(_uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/"));
   }
 
   //-------------------------------------------------------------------------
@@ -59,17 +65,17 @@ public class DataSecurityResourceTest {
     request.setUniqueId(OID.atLatestVersion());
     
     final SecurityDocument result = new SecurityDocument(security);
-    result.setUniqueId(OID.atLatestVersion());
+    result.setUniqueId(OID.atVersion("1"));
     when(_underlying.update(same(request))).thenReturn(result);
     
-    Response test = _resource.put(request);
-    assertEquals(Status.OK.getStatusCode(), test.getStatus());
+    Response test = _resource.update(_uriInfo, request);
+    assertEquals(Status.CREATED.getStatusCode(), test.getStatus());
     assertSame(result, test.getEntity());
   }
 
   @Test
   public void testDeleteSecurity() {
-    Response test = _resource.delete();
+    Response test = _resource.remove();
     verify(_underlying).remove(OID.atLatestVersion());
     assertEquals(Status.NO_CONTENT.getStatusCode(), test.getStatus());
   }

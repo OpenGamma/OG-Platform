@@ -252,4 +252,10 @@ public class EHCachingRegionSource implements RegionSource {
     _cacheManager.removeCache(CACHE_NAME);
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + "[" + getUnderlying() + "]";
+  }
+
 }

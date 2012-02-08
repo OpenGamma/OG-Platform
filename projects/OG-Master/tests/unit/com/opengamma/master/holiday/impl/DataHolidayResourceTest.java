@@ -12,10 +12,12 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
+import java.net.URI;
 import java.util.ArrayList;
 
 import javax.time.calendar.LocalDate;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -36,11 +38,14 @@ public class DataHolidayResourceTest {
   private static final ObjectId OID = ObjectId.of("Test", "PosA");
   private HolidayMaster _underlying;
   private DataHolidayResource _resource;
+  private UriInfo _uriInfo;
 
   @BeforeMethod
   public void setUp() {
     _underlying = mock(HolidayMaster.class);
-    _resource = new DataHolidayResource(new DataHolidaysResource(_underlying), OID.getObjectId());
+    _resource = new DataHolidayResource(new DataHolidayMasterResource(_underlying), OID.getObjectId());
+    _uriInfo = mock(UriInfo.class);
+    when(_uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/"));
   }
 
   //-------------------------------------------------------------------------
@@ -62,17 +67,17 @@ public class DataHolidayResourceTest {
     request.setUniqueId(OID.atLatestVersion());
     
     final HolidayDocument result = new HolidayDocument(holiday);
-    result.setUniqueId(OID.atLatestVersion());
+    result.setUniqueId(OID.atVersion("1"));
     when(_underlying.update(same(request))).thenReturn(result);
     
-    Response test = _resource.put(request);
-    assertEquals(Status.OK.getStatusCode(), test.getStatus());
+    Response test = _resource.update(_uriInfo, request);
+    assertEquals(Status.CREATED.getStatusCode(), test.getStatus());
     assertSame(result, test.getEntity());
   }
 
   @Test
   public void testDeleteHoliday() {
-    Response test = _resource.delete();
+    Response test = _resource.remove();
     verify(_underlying).remove(OID.atLatestVersion());
     assertEquals(Status.NO_CONTENT.getStatusCode(), test.getStatus());
   }
