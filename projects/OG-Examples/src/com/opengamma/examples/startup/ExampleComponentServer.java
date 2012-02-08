@@ -3,17 +3,19 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.examples.component;
+package com.opengamma.examples.startup;
 
 import com.opengamma.component.ComponentManager;
 import com.opengamma.component.OpenGammaComponentServer;
 
 /**
- * Main entry point for OpenGamma component-based servers in OG-Examples.
+ * Entry point for OpenGamma component-based servers in OG-Examples that must
+ * be passed a configuration file on the command line.
  * <p>
- * This class exists to easily capture the classpath.
+ * This class exists to easily capture the classpath for IDEs.
+ * Command lines should just start {@link OpenGammaComponentServer}.
  */
-public class ExampleComponentServer extends OpenGammaComponentServer {
+public class ExampleComponentServer {
 
   /**
    * Main method to start an OpenGamma JVM process.
@@ -24,7 +26,7 @@ public class ExampleComponentServer extends OpenGammaComponentServer {
    * @param args  the arguments
    */
   public static void main(String[] args) { // CSIGNORE
-    new ExampleComponentServer().run(args);
+    new OpenGammaComponentServer().run(args);
   }
 
 }
