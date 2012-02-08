@@ -1,5 +1,5 @@
 <project name="common" xmlns:ivy="antlib:org.apache.ivy.ant">
-
+	
 	<!-- Load the environment variables first -->
 	<property environment="env" />
 	<!-- also, try a property file because some JVMs don't support env properly -->
@@ -122,7 +122,8 @@
 		</copy>
 	</target>
 
-	<target name="javadoc" depends="load-ivy" description="build Javadocs for the project">
+	<!-- build Javadocs for the project -->
+	<target name="javadoc" depends="load-ivy">
 		<mkdir dir="${docs.dir}" />
 		<mkdir dir="${docs.dir}/javadoc" />
 		<javadoc sourcepath="${src.dir}" destdir="${docs.dir}/javadoc"
@@ -135,10 +136,11 @@
 		</javadoc>
 	</target>
 
-	<target name="javadoc-copyup" depends="load-ivy" description="copies appropriate files up to top level"/>
+	<!-- copies appropriate files up to top level -->
+	<target name="javadoc-copyup" depends="load-ivy" />
 
-
-	<target name="javadoc-public" depends="load-ivy" description="build Javadocs for public APIs and SPIs of the project">
+  <!-- build Javadocs for public APIs and SPIs of the project -->
+	<target name="javadoc-public" depends="load-ivy">
 		<mkdir dir="${docs.dir}" />
 		<mkdir dir="${docs.dir}/javadoc-public" />
 		<mkdir dir="${docs.dir}/temp-src" />
@@ -380,14 +382,24 @@
 		</jar>
 	</target>
 
-	<target name="javadoc-jar" depends="version, javadoc"
-    description="make a javadoc jar file for this project">
+	<!-- 
+	         =================================================================== 
+	            Creates javadocs documentation for this project              
+	         =================================================================== 
+	 -->
+	<target name="docs" description="builds all docs &amp; archive for this project">
+		<antcall target="javadoc-public-jar"></antcall>
+		<antcall target="javadoc-jar"></antcall>
+	</target>
+	
+	<!-- make a javadoc jar file for this project -->
+	<target name="javadoc-jar" depends="version, javadoc">
 		<jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc"
       compress="${jar.compress}" />
 	</target>
 
-	<target name="javadoc-public-jar" depends="version, javadoc-public"
-    description="make a javadoc jar file for this project">
+	<!-- make a javadoc-public jar file for this project -->
+	<target name="javadoc-public-jar" depends="version, javadoc-public">
 		<jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc-public"
       compress="${jar.compress}" />
 	</target>
@@ -405,13 +417,16 @@
 		<echo message="project ${ant.project.name} released with version ${version}" />
 	</target>
 
-	<target name="publish-local" depends="local-version, dist-publish"
-    description="publish this project in the local ivy repository">
+	<target name="publish-local" depends="local-version, dist-publish">
 		<ivy:publish artifactspattern="${dist.dir}/[artifact]-[type].[ext]"
       resolver="local" pubrevision="${version}" pubdate="${now}" status="integration"
       forcedeliver="true" />
 		<echo
       message="project ${ant.project.name} published locally with version ${version}" />
+	</target>
+
+	<target name="build" description="compile &amp; publish this project in the local ivy repository">
+		<antcall target="publish-local"></antcall>
 	</target>
 
 	<target name="dist-common">
@@ -530,19 +545,20 @@
 		</zip>
 	</target>
 
-	<target name="clean-local" depends="load-ivy"
-    description="cleans the local repository for the current module">
+	<!-- cleans the local repository for the current module -->
+	<target name="clean-local" depends="load-ivy">
 		<ivy:info file="${ivy.file}" />
 		<delete dir="${ivy.local.default.root}/${ivy.organisation}/${ivy.module}" />
 		<delete includeemptydirs="true" failonerror="false" dir="${bootstrap.dir}"/>
 	</target>
 
-	<target name="clean-lib"
-    description="clean the project libraries directory (dependencies)">
+	<!-- clean the project libraries directory (dependencies) -->
+	<target name="clean-lib">
 		<delete includeemptydirs="true" dir="${lib.dir}" />
 	</target>
 
-	<target name="clean-build" description="clean the project build files">
+	<!-- clean the project build files -->
+	<target name="clean-build">
 		<mkdir dir="${build.dir}" />
 		<delete includeemptydirs="true">
 			<fileset dir="${build.dir}" includes="**/*" excludes="bootstrap/*" />
@@ -551,7 +567,8 @@
 		<delete includeemptydirs="true" dir="${temp.dir}" />
 	</target>
 
-	<target name="clean-dist" description="clean the project distribution files">
+	<!-- clean the project distribution files -->
+	<target name="clean-dist">
 		<delete includeemptydirs="true" dir="${dist.dir}" />
 	</target>
 
@@ -563,7 +580,8 @@
 		<delete file="${fudge.proto.gitIgnoreFlag}" />
 	</target>
 
-	<target name="clean-tests" description="clean all test generated files">
+	<!-- clean all test generated files -->
+	<target name="clean-tests">
 		<delete includeemptydirs="true" failonerror="false" dir="${tests.junit.dir}"/>
 	</target>
 
@@ -766,7 +784,7 @@
 	            target: install              
 	         ================================= 
 	-->
-	<target name="install" depends="dist" description="install artifacts to specified directory">
+	<target name="install" depends="dist" description="install artifacts to directory specified by property (install.dir)">
 		<copy todir="${install.dir}">
 			<fileset dir="${dist.dir}/${dist.name}" includes="**" />
 		</copy>
