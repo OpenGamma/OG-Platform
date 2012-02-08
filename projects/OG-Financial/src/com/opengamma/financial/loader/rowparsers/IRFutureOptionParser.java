@@ -23,12 +23,14 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
+/**
+ * This class parses standard OG import fields to generate an IR Future Option security
+ */
 public class IRFutureOptionParser extends RowParser {
 
   private static final String ID_SCHEME = "IR_FUTURE_OPTION_LOADER";
