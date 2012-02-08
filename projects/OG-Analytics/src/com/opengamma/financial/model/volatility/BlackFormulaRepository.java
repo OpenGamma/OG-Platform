@@ -95,7 +95,7 @@ public abstract class BlackFormulaRepository {
 
     final int sign = isCall ? 1 : -1;
     final double d1 = sign * NORMAL.getInverseCDF(sign * forwardDelta);
-    return forward * Math.exp(-d1 * lognormalVol * Math.sqrt(timeToExpiry) + lognormalVol * lognormalVol * timeToExpiry);
+    return forward * Math.exp(-d1 * lognormalVol * Math.sqrt(timeToExpiry) + 0.5 * lognormalVol * lognormalVol * timeToExpiry);
   }
 
   /**

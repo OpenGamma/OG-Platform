@@ -31,13 +31,24 @@ public class BlackVolatilitySurfaceStrike extends BlackVolatilitySurface<Strike>
   }
 
   @Override
-  public BlackVolatilitySurface<Strike> withShift(double shift, boolean UseAddative) {
-    return new BlackVolatilitySurfaceStrike(SurfaceShiftFunctionFactory.getShiftedSurface(getSurface(), shift, UseAddative));
+  public BlackVolatilitySurface<Strike> withShift(double shift, boolean useAdditive) {
+    return new BlackVolatilitySurfaceStrike(SurfaceShiftFunctionFactory.getShiftedSurface(getSurface(), shift, useAdditive));
   }
 
   @Override
   public BlackVolatilitySurface<Strike> withSurface(Surface<Double, Double, Double> surface) {
     return new BlackVolatilitySurfaceStrike(surface);
+  }
+
+  @Override
+  public <S, U> U accept(BlackVolatilitySurfaceVistor<S, U> vistor, S data) {
+    return vistor.visitStrike(this, data);
+  }
+
+  @Override
+  public <U> U accept(BlackVolatilitySurfaceVistor<?, U> vistor) {
+    return vistor.visitStrike(this);
+
   }
 
 }

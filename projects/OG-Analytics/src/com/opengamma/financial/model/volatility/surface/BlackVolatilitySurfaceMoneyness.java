@@ -69,13 +69,25 @@ public class BlackVolatilitySurfaceMoneyness extends BlackVolatilitySurface<Mone
   }
 
   @Override
-  public BlackVolatilitySurface<Moneyness> withShift(double shift, boolean UseAddative) {
-    return new BlackVolatilitySurfaceMoneyness(SurfaceShiftFunctionFactory.getShiftedSurface(getSurface(), shift, UseAddative), _fc);
+  public BlackVolatilitySurface<Moneyness> withShift(double shift, boolean useAdditive) {
+    return new BlackVolatilitySurfaceMoneyness(SurfaceShiftFunctionFactory.getShiftedSurface(getSurface(), shift, useAdditive), _fc);
   }
 
   @Override
   public BlackVolatilitySurface<Moneyness> withSurface(Surface<Double, Double, Double> surface) {
-    return new BlackVolatilitySurfaceMoneyness(surface,_fc);
+    return new BlackVolatilitySurfaceMoneyness(surface, _fc);
   }
+
+  @Override
+  public <S, U> U accept(BlackVolatilitySurfaceVistor<S, U> vistor, S data) {
+    return vistor.visitMoneyness(this, data);
+  }
+
+  @Override
+  public <U> U accept(BlackVolatilitySurfaceVistor<?, U> vistor) {
+    return vistor.visitMoneyness(this);
+  }
+
+
 
 }

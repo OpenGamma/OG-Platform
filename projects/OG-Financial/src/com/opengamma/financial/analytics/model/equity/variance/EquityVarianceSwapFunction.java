@@ -36,7 +36,7 @@ import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.equity.EquityVarianceSwapConverter;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
-import com.opengamma.financial.equity.variance.VarianceSwapDataBundle2;
+import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
 import com.opengamma.financial.equity.variance.definition.VarianceSwapDefinition;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
@@ -131,12 +131,12 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
     // final double forward = spot / discountFactor;
     final ForwardCurve forwardCurve = new ForwardCurve(spot, discountCurve.getCurve()); //TODO change this 
     //
-    VarianceSwapDataBundle2<?> market = new VarianceSwapDataBundle2(blackVolSurf, discountCurve, forwardCurve);
+    VarianceSwapDataBundle market = new VarianceSwapDataBundle(blackVolSurf, discountCurve, forwardCurve);
     //    // 3. Compute and return the value (ComputedValue)
     return getResults(target, inputs, deriv, market);
   }
 
-  protected abstract Set<ComputedValue> getResults(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle2<?> market);
+  protected abstract Set<ComputedValue> getResults(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle market);
 
   protected abstract ValueSpecification getValueSpecification(final ComputationTarget target);
 

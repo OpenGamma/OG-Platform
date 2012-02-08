@@ -95,13 +95,23 @@ public class BlackVolatilitySurfaceDelta extends BlackVolatilitySurface<Delta> {
   }
 
   @Override
-  public BlackVolatilitySurface<Delta> withShift(double shift, boolean UseAddative) {
-    return new BlackVolatilitySurfaceDelta(SurfaceShiftFunctionFactory.getShiftedSurface(getSurface(), shift, UseAddative), _fc);
+  public BlackVolatilitySurface<Delta> withShift(double shift, boolean useAdditive) {
+    return new BlackVolatilitySurfaceDelta(SurfaceShiftFunctionFactory.getShiftedSurface(getSurface(), shift, useAdditive), _fc);
   }
 
   @Override
   public BlackVolatilitySurface<Delta> withSurface(Surface<Double, Double, Double> surface) {
     return new BlackVolatilitySurfaceDelta(surface, _fc);
+  }
+
+  @Override
+  public <S, U> U accept(BlackVolatilitySurfaceVistor<S, U> vistor, S data) {
+    return vistor.visitDelta(this, data);
+  }
+
+  @Override
+  public <U> U accept(BlackVolatilitySurfaceVistor<?, U> vistor) {
+    return vistor.visitDelta(this);
   }
 
 }
