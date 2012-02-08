@@ -28,6 +28,10 @@ public class AmericanExerciseType extends ExerciseType {
    */
   public AmericanExerciseType() {
   }
+  
+  public String getName() {
+    return "American";
+  }
 
   //-------------------------------------------------------------------------
   @Override

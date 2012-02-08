@@ -9,10 +9,15 @@
   	  <property name="scheme" column="region_scheme" type="string" />
   	  <property name="identifier" column="region_identifier" type="string" />
   	</component>
+  	<component name="start" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
+  	  <property name="date" column="start_date" type="timestamp" not-null="true" />
+      <property name="zone" column="start_zone" type="string" not-null="true" />
+    </component>
   	<component name="maturity" class="com.opengamma.masterdb.security.hibernate.ZonedDateTimeBean">
-	  <property name="date" column="maturity_date" type="timestamp" not-null="true" />
+	    <property name="date" column="maturity_date" type="timestamp" not-null="true" />
       <property name="zone" column="maturity_zone" type="string" not-null="true" />
   	</component>
+  	<many-to-one name="dayCount" class="com.opengamma.masterdb.security.hibernate.DayCountBean" column="daycount_id" not-null="true" />
   	<property name="rate" type="double" not-null="true"/>
   	<property name="amount" type="double" not-null="true"/>
   </union-subclass>

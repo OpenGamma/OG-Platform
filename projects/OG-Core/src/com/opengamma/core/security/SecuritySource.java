@@ -40,15 +40,18 @@ public interface SecuritySource extends ChangeProvider {
    * @throws RuntimeException if an error occurs
    */
   Security getSecurity(UniqueId uniqueId);
-  
+
   /**
-   * Potentially more efficient form of {@link #getSecurity} for multiple lookups.
+   * Gets securities by unique identifier.
+   * <p>
+   * A unique identifier exactly specifies a single security at a single version-correction.
+   * This bulk method is potentially a more efficient form of {@link #getSecurity} for multiple lookups.
    * 
-   * @param uniqueIds the unique identifiers to query, not null
-   * @return map of results. If there is no data for an identifier it will be missing from the map. 
+   * @param uniqueIds  the unique identifiers to query, not null
+   * @return the map of results, if there is no data for an identifier it will be missing from the map, not null
    */
-  Map<UniqueId, Security> getSecurity(Collection<UniqueId> uniqueIds);
-  
+  Map<UniqueId, Security> getSecurities(Collection<UniqueId> uniqueIds);
+
   /**
    * Gets a security by object identifier and version-correction.
    * <p>

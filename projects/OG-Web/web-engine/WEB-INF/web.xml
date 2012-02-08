@@ -32,27 +32,19 @@
       <load-on-startup>2</load-on-startup>
   </servlet>
 
-  <filter>
+  <!--filter>
     <filter-name>spring-request</filter-name>
     <filter-class>org.springframework.web.filter.RequestContextFilter</filter-class>
   </filter>
   <filter-mapping>
     <filter-name>spring-request</filter-name>
     <url-pattern>/jax/*</url-pattern>
-  </filter-mapping>
+  </filter-mapping-->
 
   <!-- Jersey - JAXRS support -->
   <servlet>
     <servlet-name>jersey-spring</servlet-name>
-    <servlet-class>com.sun.jersey.spi.spring.container.servlet.SpringServlet</servlet-class>
-    <init-param>
-      <param-name>com.sun.jersey.spi.container.ContainerRequestFilters</param-name>
-      <param-value>com.opengamma.util.rest.HttpMethodFilter,com.opengamma.util.rest.UrlSuffixFilter</param-value>
-    </init-param>
-    <init-param>
-      <param-name>com.sun.jersey.spi.container.ContainerResponseFilters</param-name>
-      <param-value>com.opengamma.util.rest.NoCachingFilter</param-value>
-    </init-param>
+    <servlet-class>com.opengamma.component.OpenGammaServlet</servlet-class>
     <!--for creating subscriptions to entity updates-->
     <init-param>
       <param-name>com.sun.jersey.spi.container.ResourceFilters</param-name>
@@ -70,7 +62,6 @@
     <servlet-name>handshake</servlet-name>
     <servlet-class>com.opengamma.web.server.push.HandshakeServlet</servlet-class>
   </servlet>
-
   <servlet-mapping>
     <servlet-name>handshake</servlet-name>
     <url-pattern>/handshake</url-pattern>
@@ -80,7 +71,6 @@
     <servlet-name>updates</servlet-name>
     <servlet-class>com.opengamma.web.server.push.LongPollingServlet</servlet-class>
   </servlet>
-
   <servlet-mapping>
     <servlet-name>updates</servlet-name>
     <url-pattern>/updates/*</url-pattern>

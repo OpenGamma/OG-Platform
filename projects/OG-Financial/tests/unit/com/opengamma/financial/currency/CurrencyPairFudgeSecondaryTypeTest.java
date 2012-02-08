@@ -28,7 +28,7 @@ public class CurrencyPairFudgeSecondaryTypeTest {
   @Test
   public void roundTrip() {
     FudgeContext context = OpenGammaFudgeContext.getInstance();
-    CurrencyPair eurUsd = CurrencyPair.of("EUR/USD");
+    CurrencyPair eurUsd = CurrencyPair.parse("EUR/USD");
     MutableFudgeMsg msg = context.newMessage();
     msg.add(CURRENCY_PAIR, eurUsd);
     ByteArrayOutputStream baos = new ByteArrayOutputStream();

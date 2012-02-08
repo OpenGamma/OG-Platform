@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 public class AbstractExceptionMapper {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractExceptionMapper.class);
+  protected static final Logger s_logger = LoggerFactory.getLogger(AbstractExceptionMapper.class);
 
   /**
    * The status to use.
@@ -48,7 +48,7 @@ public class AbstractExceptionMapper {
       // TODO: error page
       return Response.status(_status).build();
     } else {
-      s_logger.error("RESTful web-service exception caught and tunnelled to client", exception);
+      logRestfulError(exception);
       // perform transparent exception tunneling for Fudge messages
       return Response.status(_status)
         .header(ExceptionThrowingClientFilter.EXCEPTION_TYPE, exception.getClass().getName())
@@ -68,10 +68,20 @@ public class AbstractExceptionMapper {
       case 1:
         return stackTrace[0].toString();
       case 2:
-        return stackTrace[0].toString() + '\n' + stackTrace[1].toString();
+        return stackTrace[0].toString() + " \n" + stackTrace[1].toString();
       default:
-        return stackTrace[0].toString() + '\n' + stackTrace[1].toString() + '\n' + stackTrace[2].toString();
+        return stackTrace[0].toString() + " \n" + stackTrace[1].toString() + " \n" + stackTrace[2].toString();
     }
+  }
+
+  /**
+   * Logs the error in the RESTful scenario.
+   * Override to block or lower the logging level from warn.
+   * 
+   * @param exception  the exception, not null
+   */
+  protected void logRestfulError(final Throwable exception) {
+    s_logger.warn("RESTful web-service exception caught and tunnelled to client", exception);
   }
 
 }

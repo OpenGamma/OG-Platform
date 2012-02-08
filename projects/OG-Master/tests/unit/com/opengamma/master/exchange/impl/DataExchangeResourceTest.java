@@ -12,8 +12,11 @@ import static org.mockito.Mockito.when;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertSame;
 
+import java.net.URI;
+
 import javax.time.calendar.TimeZone;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriInfo;
 
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -34,11 +37,14 @@ public class DataExchangeResourceTest {
   private static final ObjectId OID = ObjectId.of("Test", "PosA");
   private ExchangeMaster _underlying;
   private DataExchangeResource _resource;
+  private UriInfo _uriInfo;
 
   @BeforeMethod
   public void setUp() {
     _underlying = mock(ExchangeMaster.class);
-    _resource = new DataExchangeResource(new DataExchangesResource(_underlying), OID.getObjectId());
+    _resource = new DataExchangeResource(new DataExchangeMasterResource(_underlying), OID.getObjectId());
+    _uriInfo = mock(UriInfo.class);
+    when(_uriInfo.getBaseUri()).thenReturn(URI.create("http://localhost/"));
   }
 
   //-------------------------------------------------------------------------
@@ -60,17 +66,17 @@ public class DataExchangeResourceTest {
     request.setUniqueId(OID.atLatestVersion());
     
     final ExchangeDocument result = new ExchangeDocument(target);
-    result.setUniqueId(OID.atLatestVersion());
+    result.setUniqueId(OID.atVersion("1"));
     when(_underlying.update(same(request))).thenReturn(result);
     
-    Response test = _resource.put(request);
-    assertEquals(Status.OK.getStatusCode(), test.getStatus());
+    Response test = _resource.update(_uriInfo, request);
+    assertEquals(Status.CREATED.getStatusCode(), test.getStatus());
     assertSame(result, test.getEntity());
   }
 
   @Test
   public void testDeleteExchange() {
-    Response test = _resource.delete();
+    Response test = _resource.remove();
     verify(_underlying).remove(OID.atLatestVersion());
     assertEquals(Status.NO_CONTENT.getStatusCode(), test.getStatus());
   }

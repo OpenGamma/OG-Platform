@@ -14,6 +14,7 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.fudgemsg.mapping.GenericFudgeBuilderFor;
+import org.fudgemsg.wire.types.FudgeWireType;
 
 import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
@@ -47,6 +48,7 @@ public class PortfolioFudgeBuilder implements FudgeBuilder<Portfolio> {
       }
       serializer.addToMessage(message, ATTRIBUTES_FIELD_NAME, null, attributesMsg);
     }
+    message.add(null, FudgeSerializer.TYPES_HEADER_ORDINAL, FudgeWireType.STRING, Portfolio.class.getName());
     return message;
   }
 

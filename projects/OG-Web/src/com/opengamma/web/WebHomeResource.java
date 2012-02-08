@@ -7,6 +7,7 @@ package com.opengamma.web;
 
 import java.net.URI;
 
+import javax.servlet.ServletContext;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
@@ -50,19 +51,22 @@ public class WebHomeResource extends AbstractWebResource {
   //-------------------------------------------------------------------------
   @GET
   @Produces(MediaType.TEXT_HTML)
-  public String get(@Context UriInfo uriInfo) {
-    FlexiBean out = createRootData(uriInfo);
-    return getFreemarker().build("home.ftl", out);
+  public String get(@Context ServletContext servletContext, @Context UriInfo uriInfo) {
+    FreemarkerOutputter freemarker = new FreemarkerOutputter(servletContext);
+    FlexiBean out = freemarker.createRootData();
+    out = createRootData(out, uriInfo);
+    return freemarker.build("home.ftl", out);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Creates the output root data.
+   * 
+   * @param out  the root data to populate, not null
    * @param uriInfo  the URI information, not null
    * @return the output root data, not null
    */
-  protected FlexiBean createRootData(UriInfo uriInfo) {
-    FlexiBean out = getFreemarker().createRootData();
+  protected FlexiBean createRootData(FlexiBean out, UriInfo uriInfo) {
     out.put("uris", new WebHomeUris(uriInfo));
     
     WebPortfoliosData portfolioData = new WebPortfoliosData();

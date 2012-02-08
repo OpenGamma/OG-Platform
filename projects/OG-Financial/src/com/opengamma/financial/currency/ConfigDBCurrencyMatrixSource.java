@@ -20,6 +20,7 @@ public class ConfigDBCurrencyMatrixSource implements CurrencyMatrixSource {
 
   /**
    * Creates an instance backed by a config source.
+   * 
    * @param configSource  the source, not null
    */
   public ConfigDBCurrencyMatrixSource(final ConfigSource configSource) {
@@ -27,20 +28,17 @@ public class ConfigDBCurrencyMatrixSource implements CurrencyMatrixSource {
     _configSource = configSource;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the config source.
+   * 
    * @return the config source, not null
    */
   protected ConfigSource getConfigSource() {
     return _configSource;
   }
 
-  /**
-   * Returns the currency conversion matrix.
-   *
-   * @param name name of the matrix to retrieve
-   * @return the matrix
-   */
+  //-------------------------------------------------------------------------
   @Override
   public CurrencyMatrix getCurrencyMatrix(final String name) {
     return getConfigSource().getLatestByName(CurrencyMatrix.class, name);

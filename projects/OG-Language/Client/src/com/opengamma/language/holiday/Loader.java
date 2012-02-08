@@ -6,14 +6,15 @@
 
 package com.opengamma.language.holiday;
 
+import java.net.URI;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.financial.holiday.rest.RemoteHolidaySource;
+import com.opengamma.core.holiday.impl.RemoteHolidaySource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -53,13 +54,13 @@ public class Loader extends ContextInitializationBean {
 
   @Override
   protected void initContext(final MutableGlobalContext globalContext) {
-    final RestTarget restTarget = getConfiguration().getRestTargetConfiguration(getConfigurationEntry());
-    if (restTarget == null) {
+    final URI uri = getConfiguration().getURIConfiguration(getConfigurationEntry());
+    if (uri == null) {
       s_logger.warn("Holiday support not available");
       return;
     }
     s_logger.info("Configuring holiday support");
-    globalContext.setHolidaySource(new RemoteHolidaySource(getConfiguration().getFudgeContext(), restTarget));
+    globalContext.setHolidaySource(new RemoteHolidaySource(uri));
     // TODO:
   }
 

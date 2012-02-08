@@ -17,6 +17,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
@@ -35,7 +36,6 @@ import com.opengamma.financial.security.future.IndexFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.future.MetalFutureSecurity;
 import com.opengamma.financial.security.future.StockFutureSecurity;
-import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -50,7 +50,6 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.master.security.SecurityLoader;
@@ -59,38 +58,36 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.web.AbstractWebResource;
+import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
 
 /**
  * Abstract base class for RESTful security resources.
  */
-public abstract class AbstractWebSecurityResource extends AbstractWebResource {
+public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebResource {
+
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractWebSecurityResource.class);
 
   /**
    * The backing bean.
    */
   private final WebSecuritiesData _data;
-  
-  /**
-   * The HTS resolver (for getting an HTS Id)
-   */
-  private final HistoricalTimeSeriesResolver _htsResolver;
-  
+
   /**
    * Creates the resource.
    * @param securityMaster  the security master, not null
    * @param securityLoader  the security loader, not null
-   * @param htsResolver     the HTS resolver, not null (for resolving relevant HTS Id) 
+   * @param htsSource  the historical time series source, not null
    */
-  protected AbstractWebSecurityResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesResolver htsResolver) {
+  protected AbstractWebSecurityResource(final SecurityMaster securityMaster, final SecurityLoader securityLoader, final HistoricalTimeSeriesSource htsSource) {
     ArgumentChecker.notNull(securityMaster, "securityMaster");
     ArgumentChecker.notNull(securityLoader, "securityLoader");
+    ArgumentChecker.notNull(htsSource, "htsSource");
     _data = new WebSecuritiesData();
-    _htsResolver = htsResolver;
     data().setSecurityMaster(securityMaster);
     data().setSecurityLoader(securityLoader);    
+    data().setHistoricalTimeSeriesSource(htsSource);
   }
 
   /**
@@ -100,7 +97,6 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
   protected AbstractWebSecurityResource(final AbstractWebSecurityResource parent) {
     super(parent);
     _data = parent._data;
-    _htsResolver = parent._htsResolver;
   }
 
   /**
@@ -134,17 +130,8 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
   protected WebSecuritiesData data() {
     return _data;
   }
-  
-  /**
-   * Gets the HTS resolver
-   * @return the HTS resolver, not null
-   */
-  protected HistoricalTimeSeriesResolver htsResolver() {
-    return _htsResolver;
-  }
-  
+
   protected void addSecuritySpecificMetaData(ManageableSecurity security, FlexiBean out) {
-    
     if (security.getSecurityType().equals(SwapSecurity.SECURITY_TYPE)) {
       SwapSecurity swapSecurity = (SwapSecurity) security;
       out.put("payLegType", swapSecurity.getPayLeg().accept(new SwapLegClassifierVisitor()));
@@ -189,10 +176,6 @@ public abstract class AbstractWebSecurityResource extends AbstractWebResource {
       if (longUnderlying != null) {
         out.put("longSecurity", longUnderlying);
       }
-    }
-    if (security.getSecurityType().equals(FXForwardSecurity.SECURITY_TYPE)) {
-      FXForwardSecurity fxforwardSecurity = (FXForwardSecurity) security;
-      addUnderlyingSecurity(out, fxforwardSecurity.getUnderlyingId());
     }
     if (security.getSecurityType().equals(EquityIndexOptionSecurity.SECURITY_TYPE)) {
       EquityIndexOptionSecurity equityIndxOption = (EquityIndexOptionSecurity) security;

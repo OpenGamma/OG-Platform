@@ -101,4 +101,11 @@ public class EHCachingExchangeSource implements ExchangeSource {
   public Exchange getSingleExchange(ExternalIdBundle identifierBundle) {
     return _underlying.getSingleExchange(identifierBundle);
   }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + "[" + _underlying + "]";
+  }
+
 }

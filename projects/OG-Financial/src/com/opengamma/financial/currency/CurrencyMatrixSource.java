@@ -13,8 +13,8 @@ public interface CurrencyMatrixSource {
   /**
    * Returns a currency conversion matrix.
    * 
-   * @param name of the matrix
-   * @return the matrix
+   * @param name  the name of the matrix, not null
+   * @return the matrix, null if not found
    */
   CurrencyMatrix getCurrencyMatrix(String name);
 

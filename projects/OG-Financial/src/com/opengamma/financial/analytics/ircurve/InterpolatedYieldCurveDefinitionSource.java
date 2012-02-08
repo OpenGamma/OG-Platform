@@ -19,6 +19,7 @@ public interface InterpolatedYieldCurveDefinitionSource {
 
   /**
    * Gets a yield curve definition for a currency and name.
+   * 
    * @param currency  the currency, not null
    * @param name  the name, not null
    * @return the definition, null if not found
@@ -27,11 +28,12 @@ public interface InterpolatedYieldCurveDefinitionSource {
 
   /**
    * Gets a yield curve definition for a currency, name and version.
+   * 
    * @param currency  the currency, not null
    * @param name  the name, not null
-   * @param version  the version instant, not null
+   * @param versionAsOf  the version instant, null for latest
    * @return the definition, null if not found
    */
-  YieldCurveDefinition getDefinition(Currency currency, String name, InstantProvider version);
+  YieldCurveDefinition getDefinition(Currency currency, String name, InstantProvider versionAsOf);
 
 }

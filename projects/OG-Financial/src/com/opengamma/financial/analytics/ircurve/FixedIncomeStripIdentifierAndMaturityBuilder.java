@@ -236,7 +236,15 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     if (rate == null) {
       throw new OpenGammaRuntimeException("No market data for " + strip.getSecurity());
     }
-    final CashSecurity sec = new CashSecurity(spec.getCurrency(), spec.getRegion(), spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC), rate, 1.0d);
+    final ConventionBundleSource source = s_conventionBundleSource;
+    ConventionBundle conventionBundle = source.getConventionBundle(strip.getSecurity());
+    if (conventionBundle == null) {
+      throw new OpenGammaRuntimeException("No convention for cash " + strip.getSecurity() + " so can't establish business day convention");
+    }
+    final CashSecurity sec = new CashSecurity(spec.getCurrency(), spec.getRegion(), 
+                                              spec.getCurveDate().atTime(CASH_EXPIRY_TIME).atZone(TimeZone.UTC), 
+                                              spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(CASH_EXPIRY_TIME).atZone(TimeZone.UTC), 
+                                              conventionBundle.getDayCount(), rate, 1.0d);
     sec.setExternalIdBundle(ExternalIdBundle.of(strip.getSecurity()));
     return sec;
   }
@@ -337,10 +345,16 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   private CashSecurity getOISCash(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues) {
     final ExternalId identifier = strip.getSecurity();
     final double rate = marketValues.get(identifier);
+    final ZonedDateTime start = spec.getCurveDate().atTime(CASH_EXPIRY_TIME).atZone(TimeZone.UTC);
     final ZonedDateTime maturity = spec.getCurveDate().plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
     final Currency currency = spec.getCurrency();
     final ExternalId region = spec.getRegion();
-    final CashSecurity cash = new CashSecurity(currency, region, maturity, rate, 1);
+    final ConventionBundleSource source = s_conventionBundleSource;
+    ConventionBundle conventionBundle = source.getConventionBundle(strip.getSecurity());
+    if (conventionBundle == null) {
+      throw new OpenGammaRuntimeException("Could not load convention for " + strip.getSecurity() + " so could not determine day count convention");
+    }
+    final CashSecurity cash = new CashSecurity(currency, region, start, maturity, conventionBundle.getDayCount(), rate, 1);
     cash.setExternalIdBundle(ExternalIdBundle.of(identifier));
     return cash;
   }

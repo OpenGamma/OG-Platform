@@ -13,11 +13,21 @@
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma.core.change"/>
+<listEntry value="com.opengamma.core.config"/>
+<listEntry value="com.opengamma.core.config.impl"/>
+<listEntry value="com.opengamma.core.exchange"/>
+<listEntry value="com.opengamma.core.exchange.impl"/>
 <listEntry value="com.opengamma.core.fudgemsg"/>
+<listEntry value="com.opengamma.core.historicaltimeseries"/>
 <listEntry value="com.opengamma.core.historicaltimeseries.impl"/>
+<listEntry value="com.opengamma.core.holiday"/>
+<listEntry value="com.opengamma.core.holiday.impl"/>
 <listEntry value="com.opengamma.core.marketdatasnapshot"/>
+<listEntry value="com.opengamma.core.marketdatasnapshot.impl"/>
 <listEntry value="com.opengamma.core.position"/>
 <listEntry value="com.opengamma.core.position.impl"/>
+<listEntry value="com.opengamma.core.region"/>
+<listEntry value="com.opengamma.core.region.impl"/>
 <listEntry value="com.opengamma.core.security"/>
 <listEntry value="com.opengamma.core.security.impl"/>
 </listAttribute>

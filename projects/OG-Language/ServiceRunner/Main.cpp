@@ -125,7 +125,26 @@ int main (int argc, char **argv) {
 			LOGERROR (TEXT ("Unrecognised parameter - ") << argv[1]);
 		}
 	} else {
-		ServiceRun (SERVICE_RUN_INLINE);
+		LOGDEBUG (TEXT ("Running as a daemon"));
+		pid_t pid = fork ();
+		if (pid < 0) {
+			LOGERROR (TEXT ("Couldn't fork daemon process"));
+			return 1;
+		}
+		if (pid > 0) {
+			LOGDEBUG (TEXT ("Exiting parent process"));
+			return 0;
+		}
+		pid_t sid = setsid ();
+		if (sid < 0) {
+			LOGERROR (TEXT ("Couldn't create SID for daemon process"));
+			return 1;
+		}
+		chdir ("/");
+		close (STDIN_FILENO);
+		close (STDOUT_FILENO);
+		close (STDERR_FILENO);
+		ServiceRun (SERVICE_RUN_DAEMON);
 	}
 	_mainEnd ();
 	return 0;

@@ -24,9 +24,12 @@ import javax.ws.rs.core.UriInfo;
 
 import org.fudgemsg.FudgeContext;
 
+import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinitionSource;
+import com.opengamma.financial.marketdatasnapshot.MarketDataSnapshotterImpl;
 import com.opengamma.financial.rest.AbstractRestfulJmsResultPublisherExpiryJob;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
@@ -36,7 +39,6 @@ import com.opengamma.util.jms.JmsConnector;
 /**
  * RESTful resource for a {@link ViewProcessor}.
  */
-@Path("/data/viewProcessors/{viewProcessorId}")
 public class DataViewProcessorResource {
 
   /**
@@ -51,12 +53,17 @@ public class DataViewProcessorResource {
   public static final String PATH_CLIENTS = "clients";
   public static final String PATH_PROCESSES = "processes";
   public static final String PATH_CYCLES = "cycles";
+  public static final String PATH_SNAPSHOTTER = "marketDataSnapshotter";
   //CSON: just constants
 
   /**
    * The view processor.
    */
   private final ViewProcessor _viewProcessor;
+  /**
+   * The volatility cube definition.
+   */
+  private final VolatilityCubeDefinitionSource _volatilityCubeDefinitionSource;
   /**
    * The connection factory.
    */
@@ -82,13 +89,16 @@ public class DataViewProcessorResource {
   /**
    * Creates an instance.
    * 
-   * @param viewProcessor  the view processor
-   * @param jmsConnector  the JMS connector
-   * @param fudgeContext  the Fudge context
+   * @param viewProcessor  the view processor, not null
+   * @param volatilityCubeDefinitionSource  the volatility cube, not null
+   * @param jmsConnector  the JMS connector, not null
+   * @param fudgeContext  the Fudge context, not null
    * @param scheduler  the scheduler, not null
    */
-  public DataViewProcessorResource(ViewProcessor viewProcessor, JmsConnector jmsConnector, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
+  public DataViewProcessorResource(ViewProcessor viewProcessor, VolatilityCubeDefinitionSource volatilityCubeDefinitionSource,
+      JmsConnector jmsConnector, FudgeContext fudgeContext, ScheduledExecutorService scheduler) {
     _viewProcessor = viewProcessor;
+    _volatilityCubeDefinitionSource = volatilityCubeDefinitionSource;
     _jmsConnector = jmsConnector;
     _scheduler = scheduler;
     _expiryJob = new AbstractRestfulJmsResultPublisherExpiryJob<DataViewClientResource>(VIEW_CLIENT_TIMEOUT_MILLIS, scheduler) {
@@ -124,6 +134,12 @@ public class DataViewProcessorResource {
     return new LiveMarketDataSourceRegistryResource(_viewProcessor.getLiveMarketDataSourceRegistry());
   }
 
+  @Path(PATH_SNAPSHOTTER)
+  public MarketDataSnapshotterResource getMarketDataSnapshotterImpl() {
+    MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_volatilityCubeDefinitionSource);
+    return new MarketDataSnapshotterResource(_viewProcessor, snp);
+  }
+  
   //-------------------------------------------------------------------------
   @Path(PATH_PROCESSES + "/{viewProcessId}")
   public DataViewProcessResource getViewProcess(@PathParam("viewProcessId") String viewProcessId) {
