@@ -116,7 +116,7 @@ public class OpenGammaComponentServer {
   protected void run(int verbosity, String configFile) {
     long start = System.nanoTime();
     if (verbosity > 0) {
-      System.out.println("======== STARTING OPEN GAMMA ========");
+      System.out.println("======== STARTING OPENGAMMA ========");
       if (verbosity > 1) {
         System.out.println(" Config file: " + configFile);
       }
@@ -133,13 +133,13 @@ public class OpenGammaComponentServer {
       manager.start(configFile);
     } catch (Exception ex) {
       ex.printStackTrace(System.err);
-      System.out.println("======== OPEN GAMMA FAILED ========");
+      System.out.println("======== OPENGAMMA FAILED ========");
       System.exit(1);
     }
     
     if (verbosity > 0) {
       long end = System.nanoTime();
-      System.out.println("======== OPEN GAMMA STARTED in " + ((end - start) / 1000000) + "ms ========");
+      System.out.println("======== OPENGAMMA STARTED in " + ((end - start) / 1000000) + "ms ========");
     }
   }
 
