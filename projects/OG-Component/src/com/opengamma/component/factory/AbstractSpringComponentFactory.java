@@ -60,7 +60,6 @@ public abstract class AbstractSpringComponentFactory extends DirectBean implemen
     GenericApplicationContext appContext = new GenericApplicationContext(beanFactory);
     
     PropertyPlaceholderConfigurer properties = new PropertyPlaceholderConfigurer();
-    properties.setIgnoreUnresolvablePlaceholders(true);
     properties.setLocation(getPropertiesFile());
     
     XmlBeanDefinitionReader beanDefinitionReader = new XmlBeanDefinitionReader(beanFactory);

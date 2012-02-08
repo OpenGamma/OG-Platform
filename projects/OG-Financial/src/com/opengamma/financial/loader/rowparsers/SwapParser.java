@@ -34,6 +34,9 @@ import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
+/**
+ * This class parses vanilla swaps from the standard OG import fields
+ */
 public class SwapParser extends RowParser {
 
   private static final String ID_SCHEME = "SWAP_LOADER";

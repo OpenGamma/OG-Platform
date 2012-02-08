@@ -8,9 +8,9 @@
     <property name="portfolioMaster" ref="dbPortfolioMaster" />
     <property name="positionMaster" ref="dbPositionMaster" />
     <property name="securityMaster" ref="dbSecurityMaster" />
-    <property name="configMaster" ref="sharedConfigMaster" />
+    <property name="configMaster" ref="dbConfigMaster" />
     <property name="historicalTimeSeriesSource" ref="sharedHistoricalTimeSeriesSource" />
-    <property name="conventionBundleSource" ref="conventionBundleSource" />
+    <property name="conventionBundleSource" ref="sharedConventionBundleSource" />
     <property name="holidaySource" ref="sharedHolidaySource" />
     <property name="securitySource" ref="sharedSecuritySource" />
   </bean>

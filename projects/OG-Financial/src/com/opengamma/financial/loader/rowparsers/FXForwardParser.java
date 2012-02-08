@@ -23,6 +23,9 @@ import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
+/**
+ * This class parses standard OG import fields to generate an FX Forward security
+ */
 public class FXForwardParser extends RowParser {
 
   private static final String ID_SCHEME = "FX_FORWARD_LOADER";
