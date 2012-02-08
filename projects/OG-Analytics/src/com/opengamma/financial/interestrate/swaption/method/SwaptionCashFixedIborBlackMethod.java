@@ -20,7 +20,7 @@ import com.opengamma.financial.interestrate.PresentValueBlackSwaptionSensitivity
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.method.PricingMethod;
-import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
+import com.opengamma.financial.interestrate.swap.method.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
@@ -61,6 +61,10 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
    * The par rate calculator.
    */
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
+  /**
+   * The swap method.
+   */
+  private static final SwapFixedDiscountingMethod METHOD_SWAP = SwapFixedDiscountingMethod.getInstance();
 
   /**
    * Computes the present value of a cash-settled European swaption in the Black model.
@@ -75,7 +79,7 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double tenor = swaption.getMaturityTime();
     final double forward = PRC.visit(swaption.getUnderlyingSwap(), curveBlack);
-    final double pvbp = SwapFixedDiscountingMethod.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
+    final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     // Implementation comment: cash-settled swaptions make sense only for constant strike, the computation of coupon equivalent is not required.
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final double volatility = curveBlack.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), tenor);
@@ -108,9 +112,9 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     final double forward = PRC.visit(swaption.getUnderlyingSwap(), curveBlack);
     // Derivative of the forward with respect to the rates.
     final InterestRateCurveSensitivity forwardDr = new InterestRateCurveSensitivity(PRSC.visit(swaption.getUnderlyingSwap(), curveBlack));
-    final double pvbp = SwapFixedDiscountingMethod.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
+    final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     // Derivative of the cash annuity with respect to the forward.
-    final double pvbpDf = SwapFixedDiscountingMethod.getAnnuityCashDerivative(swaption.getUnderlyingSwap(), forward);
+    final double pvbpDf = METHOD_SWAP.getAnnuityCashDerivative(swaption.getUnderlyingSwap(), forward);
     // Implementation note: strictly speaking, the strike equivalent is curve dependent; that dependency is ignored.
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
     final double volatility = curveBlack.getBlackParameters().getVolatility(swaption.getTimeToExpiry(), tenor);
@@ -142,7 +146,7 @@ public final class SwaptionCashFixedIborBlackMethod implements PricingMethod {
     Validate.isTrue(curveBlack.getBlackParameters().getGeneratorSwap().getCurrency() == swaption.getCurrency(), "Black data currency should be equal to swaption currency");
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     final double forward = PRC.visit(swaption.getUnderlyingSwap(), curveBlack);
-    final double pvbp = SwapFixedDiscountingMethod.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
+    final double pvbp = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), forward);
     final double discountFactorSettle = curveBlack.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()).getDiscountFactor(swaption.getSettlementTime());
     DoublesPair point = new DoublesPair(swaption.getTimeToExpiry(), swaption.getMaturityTime());
     final BlackPriceFunction blackFunction = new BlackPriceFunction();

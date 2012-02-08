@@ -34,7 +34,7 @@ import com.opengamma.financial.interestrate.PresentValueCurveSensitivityBlackSwa
 import com.opengamma.financial.interestrate.TestsDataSetsBlack;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
-import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
+import com.opengamma.financial.interestrate.swap.method.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.model.option.definition.BlackSwaptionParameters;
 import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
@@ -77,12 +77,13 @@ public class SwaptionCashFixedIborBlackMethodTest {
   private static final PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator PVBSC_BLACK = PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator.getInstance();
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
   private static final BlackSwaptionSensitivityNodeCalculator BSSNC = new BlackSwaptionSensitivityNodeCalculator();
+  private static final SwapFixedDiscountingMethod METHOD_SWAP = SwapFixedDiscountingMethod.getInstance();
 
   @Test
   public void presentValue() {
     CurrencyAmount pvMethod = METHOD_BLACK.presentValue(SWAPTION_LONG_REC, CURVES_BLACK);
     double forward = PRC.visit(SWAPTION_LONG_REC.getUnderlyingSwap(), CURVES);
-    double pvbp = SwapFixedDiscountingMethod.getAnnuityCash(SWAPTION_LONG_REC.getUnderlyingSwap(), forward);
+    double pvbp = METHOD_SWAP.getAnnuityCash(SWAPTION_LONG_REC.getUnderlyingSwap(), forward);
     double discountFactorSettle = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(SWAPTION_LONG_REC.getSettlementTime());
     double volatility = BLACK.getVolatility(SWAPTION_LONG_REC.getTimeToExpiry(), SWAPTION_LONG_REC.getMaturityTime());
     final BlackPriceFunction blackFunction = new BlackPriceFunction();
