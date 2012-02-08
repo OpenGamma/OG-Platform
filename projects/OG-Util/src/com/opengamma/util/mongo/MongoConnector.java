@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.mongo;
 
+import java.io.Closeable;
+
 import com.mongodb.DB;
 import com.mongodb.DBCollection;
 import com.mongodb.Mongo;
@@ -15,7 +17,7 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * This class is usually configured using the associated factory bean.
  */
-public class MongoConnector {
+public class MongoConnector implements Closeable {
 
   /**
    * The configuration name.
@@ -107,6 +109,13 @@ public class MongoConnector {
    */
   public DBCollection getDBCollection(String collectionName) {
     return _database.getCollection(collectionName + getCollectionSuffix());
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public void close() {
+    // object can still be used after close
+    getMongo().close();
   }
 
   //-------------------------------------------------------------------------
