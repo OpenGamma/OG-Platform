@@ -34,12 +34,15 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
 import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTimeSeriesProvider;
-import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunction;
-import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.pnl.UnderlyingType;
+import com.opengamma.financial.schedule.HolidayDateRemovalFunction;
 import com.opengamma.financial.schedule.Schedule;
 import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
+import com.opengamma.financial.schedule.TimeSeriesSamplingFunction;
+import com.opengamma.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
@@ -48,6 +51,8 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
+  private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final String VALUE_REQUIREMENT_NAME = ValueRequirementNames.VALUE_DELTA; //TODO this should not be hard-coded
   private final String _resolutionKey;
   //private final String _fieldName; //TODO start using this
@@ -58,7 +63,7 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
 
   public OptionGreekUnderlyingPriceSeriesFunction(final String resolutionKey) {
     Validate.notNull(resolutionKey, "resolution key");
-    _resolutionKey = resolutionKey;    
+    _resolutionKey = resolutionKey;
     final Greek greek = AvailableGreeks.getGreekForValueRequirementName(VALUE_REQUIREMENT_NAME);
     _underlyings = new ArrayList<Pair<UnderlyingType, String>>();
     final List<UnderlyingType> types = greek.getUnderlying().getUnderlyings();
@@ -83,23 +88,23 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
     final Set<String> returnCalculatorName = desiredValue.getConstraints().getValues(ValuePropertyNames.RETURN_CALCULATOR);
     final Period samplingPeriod = getSamplingPeriod(samplingPeriodName);
     final LocalDate startDate = now.minus(samplingPeriod);
-    final Schedule scheduleCalculator = getScheduleCalculator(scheduleCalculatorName);     
+    final Schedule scheduleCalculator = getScheduleCalculator(scheduleCalculatorName);
     final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(samplingFunctionName);
-    final LocalDate[] schedule = scheduleCalculator.getSchedule(startDate, now, true, false); //REVIEW emcleod should "fromEnd" be hard-coded? 
+    final LocalDate[] schedule = scheduleCalculator.getSchedule(startDate, now, true, false); //REVIEW emcleod should "fromEnd" be hard-coded?
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
-//    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(greek.getUnderlying().getUnderlyings(), security), getUniqueId());      
+    //    final ValueSpecification valueSpecification = new ValueSpecification(new ValueRequirement(greek.getUnderlying().getUnderlyings(), security), getUniqueId());
     final DoubleTimeSeries<?> ts = underlyingTimeSeriesProvider.getSeries(greek, security);
     if (ts == null) {
       throw new OpenGammaRuntimeException("Could not get price series for security " + security);
     }
-//    final DoubleTimeSeries<?> resultTS;
-//    if (_scheduleCalculator != null && _samplingFunction != null) {
-//      final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false); //REVIEW emcleod should "fromEnd" be hard-coded?
-//      resultTS = _samplingFunction.getSampledTimeSeries(ts, schedule);
-//    } else {
-//      resultTS = ts;
-//    }
-//    result.add(new ComputedValue(valueSpecification, resultTS));
+    //    final DoubleTimeSeries<?> resultTS;
+    //    if (_scheduleCalculator != null && _samplingFunction != null) {
+    //      final LocalDate[] schedule = _scheduleCalculator.getSchedule(_startDate, now, true, false); //REVIEW emcleod should "fromEnd" be hard-coded?
+    //      resultTS = _samplingFunction.getSampledTimeSeries(ts, schedule);
+    //    } else {
+    //      resultTS = ts;
+    //    }
+    //    result.add(new ComputedValue(valueSpecification, resultTS));
     return result;
   }
 
@@ -133,10 +138,10 @@ public class OptionGreekUnderlyingPriceSeriesFunction extends AbstractFunction.N
   private Period getSamplingPeriod(final Set<String> samplingPeriodNames) {
     if (samplingPeriodNames == null || samplingPeriodNames.isEmpty() || samplingPeriodNames.size() != 1) {
       throw new OpenGammaRuntimeException("Missing or non-unique sampling period name: " + samplingPeriodNames);
-    }  
+    }
     return Period.parse(samplingPeriodNames.iterator().next());
   }
-  
+
   private Schedule getScheduleCalculator(final Set<String> scheduleCalculatorNames) {
     if (scheduleCalculatorNames == null || scheduleCalculatorNames.isEmpty() || scheduleCalculatorNames.size() != 1) {
       throw new OpenGammaRuntimeException("Missing or non-unique schedule calculator name: " + scheduleCalculatorNames);

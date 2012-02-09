@@ -6,6 +6,7 @@
 package com.opengamma.financial.schedule;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
@@ -23,6 +24,7 @@ public class SemiAnnualScheduleCalculator extends Schedule {
   public LocalDate[] getSchedule(final LocalDate startDate, final LocalDate endDate, final boolean fromEnd, final boolean generateRecursive) {
     Validate.notNull(startDate, "start date");
     Validate.notNull(endDate, "end date");
+    Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
     if (startDate.equals(endDate)) {
       return new LocalDate[] {startDate};
     }
@@ -35,7 +37,8 @@ public class SemiAnnualScheduleCalculator extends Schedule {
         date = generateRecursive ? date.minus(Period.ofMonths(6)) : endDate.minus(Period.ofMonths(i));
         i += 6;
       }
-      return getReversedDates(dates);
+      Collections.reverse(dates);
+      return dates.toArray(EMPTY_LOCAL_DATE_ARRAY);
     }
     LocalDate date = startDate;
     int i = 6;
@@ -51,6 +54,7 @@ public class SemiAnnualScheduleCalculator extends Schedule {
   public ZonedDateTime[] getSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final boolean fromEnd, final boolean generateRecursive) {
     Validate.notNull(startDate, "start date");
     Validate.notNull(endDate, "end date");
+    Validate.isTrue(startDate.isBefore(endDate) || startDate.equals(endDate));
     if (startDate.equals(endDate)) {
       return new ZonedDateTime[] {startDate};
     }
@@ -63,7 +67,8 @@ public class SemiAnnualScheduleCalculator extends Schedule {
         date = generateRecursive ? date.minus(Period.ofMonths(6)) : endDate.minus(Period.ofMonths(i));
         i += 6;
       }
-      return getReversedDates(dates);
+      Collections.reverse(dates);
+      return dates.toArray(EMPTY_ZONED_DATE_TIME_ARRAY);
     }
     ZonedDateTime date = startDate;
     int i = 6;

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.timeseries.sampling;
+package com.opengamma.financial.schedule;
 
 import java.util.HashMap;
 import java.util.Map;
