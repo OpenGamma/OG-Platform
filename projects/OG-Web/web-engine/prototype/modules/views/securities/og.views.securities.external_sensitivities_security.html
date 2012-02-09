@@ -44,25 +44,25 @@
         </table>
 
         <table class="OG-table">
-          <col style="width: 20%" />
-          <col style="width: 20%" />
-          <col style="width: 30%" />
-          <col style="width: 30%" />
           <thead>
             <tr>
-              <th>Factor Set Id</th>
               <th>Factor Type</th>
               <th>Factor Name</th>
               <th>Node</th>
+              <th>Price History</th>
+              <th>Exposure History</th>
+              <th>Convexity History</th>
             </tr>
           </thead>
           <tbody>
             {{each(factor_index, factor) underlyingFactors}}
             <tr>
-              <td><span>${factor.factorSetExternalId}</span></td>
               <td><span>${factor.factorType}</span></td>
               <td><span>${factor.factorName}</span></td>
               <td><span>${factor.node}</span></td>
+              <td><span><a href="${factor.priceTsId}">Price</a></span></td>
+              <td><span><a href="${factor.exposureTsId}">Exposure</a></span></td>
+              <td><span><a href="${factor.convexityTsId}">Convexity</a></span></td>
             </tr>
             {{/each}}
           </tbody>
