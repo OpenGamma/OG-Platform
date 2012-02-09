@@ -171,15 +171,19 @@ $.register_module({
                                 selector: '.OG-js-details-panel .og-js-timeseries',
                                 id: json.template_data.hts_id
                             });
+                            $('.og-js-temp-link').unbind().bind('click', function () {
+                                common.gadgets.timeseries({
+                                    selector: '.OG-js-details-panel .og-js-temp-timeseries',
+                                    id: json.template_data.hts_id
+                                })
+                            });
                             if (show_loading) view.notify(null);
                             setTimeout(view.layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
                     version: args.version && args.version !== '*' ? args.version : void 0,
-                    loading: function () {
-                        if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});
-                    }
+                    loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
                 });
             },
             state = {};

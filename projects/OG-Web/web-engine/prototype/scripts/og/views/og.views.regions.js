@@ -15,11 +15,13 @@ $.register_module({
         var api = og.api.rest, routes = og.common.routes, module = this, view, details = og.common.details,
             ui = og.common.util.ui, history = og.common.util.history,
             page_name = module.name.split('.').pop(),
-            details_page = function (args) {
+            details_page = function (args, config) {
+                var show_loading = !(config || {}).hide_loading;
                 view.layout.inner.options.south.onclose = null;
                 view.layout.inner.close('south');
                 api.regions.get({
                     dependencies: view.dependencies,
+                    update: view.update,
                     handler: function (result) {
                         if (result.error) return view.notify(null), view.error(result.message);
                         var region_functions = details.region_functions, json = result.data;
@@ -35,14 +37,13 @@ $.register_module({
                             view.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             region_functions.render_regions('.OG-details-content .og-js-parent_regions', json.parent);
                             region_functions.render_regions('.OG-details-content .og-js-child_regions', json.child);
-                            view.notify(null);
+                            if (show_loading) view.notify(null);
                             ui.toolbar(view.options.toolbar.active);
                             setTimeout(view.layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
-                    loading: function () {view.notify({0: 'loading...', 3000: 'still loading...'});},
-                    update: view.details.partial(args)
+                    loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
                 });
             };
         return view = $.extend(view = new og.views.common.Core(page_name), {

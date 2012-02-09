@@ -17,11 +17,13 @@ $.register_module({
         var api = og.api, common = og.common, details = common.details,
             history = common.util.history, routes = common.routes, search,
             ui = common.util.ui, module = this, page_name = module.name.split('.').pop(), view,
-            details_page = function(args) {
+            details_page = function (args, config) {
+                var show_loading = !(config || {}).hide_loading;
                 view.layout.inner.options.south.onclose = null;
                 view.layout.inner.close('south');
                 api.rest.exchanges.get({
                     dependencies: view.dependencies,
+                    update: view.update,
                     handler: function (result) {
                         if (result.error) return view.notify(null), view.error(result.message);
                         var json = result.data;
@@ -36,12 +38,12 @@ $.register_module({
                             $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
                             view.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             ui.toolbar(view.options.toolbar.active);
-                            view.notify(null);
+                            if (show_loading) view.notify(null);
                             setTimeout(view.layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
-                    loading: function () {view.notify({0: 'loading...', 3000: 'still loading...'});}
+                    loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
                 });
             };
         return view = $.extend(view = new og.views.common.Core(page_name), {

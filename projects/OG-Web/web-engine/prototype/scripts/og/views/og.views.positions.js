@@ -145,9 +145,7 @@ $.register_module({
                 id: args.id,
                 cache_for: 500,
                 version: args.version && args.version !== '*' ? args.version : void 0,
-                loading: function () {
-                    if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});
-                }
+                loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
             });
         };
         return view = $.extend(view = new og.views.common.Core(page_name), {

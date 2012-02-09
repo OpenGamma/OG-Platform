@@ -86,11 +86,13 @@ $.register_module({
                     })
                 }
             },
-            details_page = function (args) {
+            details_page = function (args, config) {
+                var show_loading = !(config || {}).hide_loading;
                 view.layout.inner.options.south.onclose = null;
                 view.layout.inner.close('south');
                 api.rest.timeseries.get({
                     dependencies: view.dependencies,
+                    update: view.update,
                     handler: function (result) {
                         if (result.error) return view.notify(null), view.error(result.message);
                         var json = result.data;
@@ -144,13 +146,13 @@ $.register_module({
                                 selector: '.OG-timeseries .og-plots',
                                 id: result.data.template_data.object_id
                             });
-                            view.notify(null);
+                            if (show_loading) view.notify(null);
                             setTimeout(view.layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
                     cache_for: 10000,
-                    loading: function () {view.notify({0: 'loading...', 3000: 'still loading...'});}
+                    loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
                 });
             };
         return view = $.extend(view = new og.views.common.Core(page_name), {
@@ -212,7 +214,7 @@ $.register_module({
                     }
                 }
             },
-            rules: view.rules(['data_field', 'data_provider', 'data_source', 'identifier', 'observation_time']),
+            rules: view.rules(['data_field', 'data_provider', 'data_source', 'identifier', 'observation_time'])
         });
     }
 });

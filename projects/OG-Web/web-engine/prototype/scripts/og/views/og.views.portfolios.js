@@ -83,7 +83,7 @@ $.register_module({
                     };
                 }
             };
-        details_page =     function (args, config) {
+        details_page = function (args, config) {
             var show_loading = !(config || {}).hide_loading,
                 render_portfolio_rows, render_position, render_position_rows, breadcrumb;
             render_portfolio_rows = function (selector, json) {
@@ -378,9 +378,7 @@ $.register_module({
                 id: args.id,
                 node: args.node,
                 version: args.version && args.version !== '*' ? args.version : void 0,
-                loading: function () {
-                    if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});
-                }
+                loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
             });
         };
         return view = $.extend(view = new og.views.common.Core(page_name), {
