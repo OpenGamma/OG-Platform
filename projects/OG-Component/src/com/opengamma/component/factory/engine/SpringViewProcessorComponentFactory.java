@@ -42,7 +42,7 @@ import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResource;
 import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResourceContextBean;
 import com.opengamma.financial.function.rest.DataFunctionRepositoryResource;
 import com.opengamma.financial.view.rest.DataAvailableOutputsProviderResource;
-import com.opengamma.financial.view.rest.DataViewProcessorsResource;
+import com.opengamma.financial.view.rest.DataViewProcessorResource;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
@@ -131,8 +131,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     repo.registerComponent(info, viewProcessor);
     
     if (isPublishRest()) {
-      DataViewProcessorsResource vpResource = new DataViewProcessorsResource(
-          viewProcessor, getVolatilityCubeDefinitionSource(), getJmsConnector(), getFudgeContext(), getScheduler());
+      final DataViewProcessorResource vpResource = new DataViewProcessorResource(viewProcessor, getVolatilityCubeDefinitionSource(), getJmsConnector(), getFudgeContext(), getScheduler());
       repo.getRestComponents().publish(info, vpResource);
     }
   }
