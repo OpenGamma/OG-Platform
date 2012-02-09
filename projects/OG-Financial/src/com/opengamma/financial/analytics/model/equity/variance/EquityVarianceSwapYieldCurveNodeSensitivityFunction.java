@@ -34,8 +34,8 @@ import com.opengamma.util.money.Currency;
 public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityVarianceSwapFunction {
   private static final VarianceSwapRatesSensitivityCalculator CALCULATOR = VarianceSwapRatesSensitivityCalculator.getInstance();
 
-  public EquityVarianceSwapYieldCurveNodeSensitivityFunction(String curveDefinitionName, String surfaceDefinitionName, String forwardCalculationMethod, String strikeParameterizationMethodName) {
-    super(curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod, strikeParameterizationMethodName);
+  public EquityVarianceSwapYieldCurveNodeSensitivityFunction(String curveDefinitionName, String surfaceDefinitionName, String forwardCalculationMethod) {
+    super(curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod);
   }
 
   @Override
