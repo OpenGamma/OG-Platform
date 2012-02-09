@@ -133,9 +133,6 @@
 		<delete dir="${dist.dir}/${dist.name}/lib/webapp" failonerror="false" />
 		<delete dir="${dist.dir}/${dist.name}/lib/sql" failonerror="false" />
 
-		<replace file="${dist.dir}/${dist.name}/config/${overridefile.name}" token="webAppContext.resourceBase=../OG-Web/web-engine" value="webAppContext.resourceBase=web-engine" />
-		<replace file="${dist.dir}/${dist.name}/config/${overridefile.name}" token="webAppContext.descriptor=../OG-Web/web-engine/WEB-INF/web.xml" value="webAppContext.descriptor=web-engine/WEB-INF/web.xml" />
-
 		<!--
 		<copy todir="${dist.dir}/${dist.name}/install/db/hsqldb" failonerror="true">
 			<fileset dir="${basedir}/install/db/hsqldb">
