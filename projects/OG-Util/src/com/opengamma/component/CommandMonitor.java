@@ -9,6 +9,7 @@ import java.net.InetAddress;
 import java.net.DatagramSocket;
 import java.net.DatagramPacket;
 import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.io.IOException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,8 +35,8 @@ public class CommandMonitor extends Thread {
     setDaemon(true);
     setName("CommandMonitor");
     try {
-      _socket = new DatagramSocket(port, InetAddress.getLoopbackAddress());
-    } catch (SocketException e) {
+      _socket = new DatagramSocket(port, InetAddress.getByName("127.0.0.1"));
+    } catch (Exception e) {
       s_logger.warn("Failed to create listening socket, CommandMonitor will not be available");
       return;
     }
@@ -90,9 +91,9 @@ public class CommandMonitor extends Thread {
     new CommandMonitor(repo, secret, port);
   }
 
-  public static void main(String[] args) throws IOException {
+  public static void main(String[] args) throws IOException,UnknownHostException {
     byte[] buffer = new byte[COMMAND_LENGTH];
-    InetAddress address = InetAddress.getLoopbackAddress();
+    InetAddress address = InetAddress.getByName("127.0.0.1");
 
     String secret = System.getProperty(SECRET_PROPERTY, DEFAULT_SECRET);
     String port = System.getProperty(PORT_PROPERTY, Integer.toString(DEFAULT_PORT));
