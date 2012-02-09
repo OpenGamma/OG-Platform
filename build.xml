@@ -114,7 +114,7 @@
 	          Builds and publish all projects to local repo              
 	       =================================================================== 
   -->
-	<target name="build" depends="publish-all-local" description="compile &amp; publish all projects to the local repo">
+	<target name="build" depends="fetch-build-projects-file-for-user, publish-all-local" description="compile &amp; publish all projects to the local repo">
 		<antcall target="publish-all-local"></antcall>
 	</target>
 
