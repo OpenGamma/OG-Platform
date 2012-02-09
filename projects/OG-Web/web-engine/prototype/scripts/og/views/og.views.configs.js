@@ -243,6 +243,7 @@ $.register_module({
                     return setTimeout(view.search.partial(args), 500);
                 if (view.options.slickgrid.columns[0].name === null) return api.rest.configs.get({
                     meta: true,
+                    dependencies: [], // if the page changes, cancel this request
                     handler: function (result) {
                         if (result.error) return view.error(result.message);
                         view.options.slickgrid.columns[0].name = [
