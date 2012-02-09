@@ -120,6 +120,11 @@ import com.opengamma.engine.value.ValueSpecification;
       return "Callback" + _objectId + "[" + _callback + ", " + AbstractResolvedValueProducer.this.toString() + "]";
     }
 
+    @Override
+    public int hashCode() {
+      return _objectId;
+    }
+
   }
 
   private final ValueRequirement _valueRequirement;
@@ -288,7 +293,9 @@ import com.opengamma.engine.value.ValueSpecification;
   @Override
   public synchronized int release(final GraphBuildingContext context) {
     assert _refCount > 0;
-    s_logger.debug("Release called on {}, refCount={}", this, _refCount);
+    if (s_logger.isDebugEnabled()) {
+      s_logger.debug("Release called on {}, refCount={}", this, _refCount);
+    }
     return --_refCount;
   }
 

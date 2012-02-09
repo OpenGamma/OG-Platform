@@ -27,6 +27,7 @@ public class VolatilitySurfaceTest {
       4, 5, 6, 4, 5, 6}, INTERPOLATOR, "S");
   private static final VolatilitySurface VOL = new VolatilitySurface(SURFACE);
 
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     new VolatilitySurface(null);
@@ -80,7 +81,7 @@ public class VolatilitySurfaceTest {
     assertArrayEquals(other.getSurface().getXData(), underlying.getXData());
     assertArrayEquals(other.getSurface().getYData(), underlying.getYData());
     assertArrayEquals(other.getSurface().getZData(), underlying.getZData());
-    
+
     other = VOL.withConstantMultiplicativeShift(0);
     assertFalse(other.equals(VOL));
     other = VOL.withConstantMultiplicativeShift(2);

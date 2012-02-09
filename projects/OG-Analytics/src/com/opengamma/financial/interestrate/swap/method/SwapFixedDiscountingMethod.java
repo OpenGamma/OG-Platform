@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.interestrate.swap;
+package com.opengamma.financial.interestrate.swap.method;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,8 +25,26 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Class to compute the quantities related to swaps (annuity, PVBP, coupon equivalent).
  */
-//TODO: REVIEW 12-6-2011 too many static methods
-public class SwapFixedDiscountingMethod {
+public final class SwapFixedDiscountingMethod {
+
+  /**
+   * The method unique instance.
+   */
+  private static final SwapFixedDiscountingMethod INSTANCE = new SwapFixedDiscountingMethod();
+
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
+   */
+  public static SwapFixedDiscountingMethod getInstance() {
+    return INSTANCE;
+  }
+
+  /**
+   * Private constructor.
+   */
+  private SwapFixedDiscountingMethod() {
+  }
 
   /**
    * The methods.
@@ -39,7 +57,7 @@ public class SwapFixedDiscountingMethod {
    * @param forward The swap forward rate.
    * @return The cash annuity.
    */
-  public static double getAnnuityCash(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final double forward) {
+  public double getAnnuityCash(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final double forward) {
     final int nbFixedPeriod = fixedCouponSwap.getFixedLeg().getPayments().length;
     final int nbFixedPaymentYear = (int) Math.round(1.0 / fixedCouponSwap.getFixedLeg().getNthPayment(0).getPaymentYearFraction());
     final double notional = Math.abs(fixedCouponSwap.getFixedLeg().getNthPayment(0).getNotional());
@@ -53,7 +71,7 @@ public class SwapFixedDiscountingMethod {
    * @param forward The swap forward.
    * @return The cash annuity derivative.
    */
-  public static double getAnnuityCashDerivative(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final double forward) {
+  public double getAnnuityCashDerivative(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final double forward) {
     final int nbFixedPeriod = fixedCouponSwap.getFixedLeg().getPayments().length;
     final int nbFixedPaymentYear = (int) Math.round(1.0 / fixedCouponSwap.getFixedLeg().getNthPayment(0).getPaymentYearFraction());
     final double notional = Math.abs(fixedCouponSwap.getFixedLeg().getNthPayment(0).getNotional());
@@ -69,7 +87,7 @@ public class SwapFixedDiscountingMethod {
    * @param discountingCurve The discount curve.
    * @return The physical annuity.
    */
-  public static double presentValueBasisPoint(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldAndDiscountCurve discountingCurve) {
+  public double presentValueBasisPoint(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldAndDiscountCurve discountingCurve) {
     final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
     double pvbp = 0;
     for (int loopcpn = 0; loopcpn < annuityFixed.getPayments().length; loopcpn++) {
@@ -85,7 +103,7 @@ public class SwapFixedDiscountingMethod {
    * @param curves The yield curve bundle (containing the appropriate discounting curve).
    * @return The physical annuity.
    */
-  public static double presentValueBasisPoint(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldCurveBundle curves) {
+  public double presentValueBasisPoint(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldCurveBundle curves) {
     final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName());
     return presentValueBasisPoint(fixedCouponSwap, discountingCurve);
@@ -98,7 +116,7 @@ public class SwapFixedDiscountingMethod {
    * @param discountingCurve The discount curve.
    * @return The physical annuity.
    */
-  public static double presentValueBasisPoint(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final DayCount dayCount, final YieldAndDiscountCurve discountingCurve) {
+  public double presentValueBasisPoint(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final DayCount dayCount, final YieldAndDiscountCurve discountingCurve) {
     Validate.notNull(fixedCouponSwap, "swap");
     Validate.notNull(dayCount, "day count");
     Validate.notNull(discountingCurve, "discounting curve");
@@ -118,7 +136,7 @@ public class SwapFixedDiscountingMethod {
    * @param curves The yield curve bundle (containing the appropriate discounting curve).
    * @return The physical annuity.
    */
-  public static double presentValueBasisPoint(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final DayCount dayCount, final YieldCurveBundle curves) {
+  public double presentValueBasisPoint(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final DayCount dayCount, final YieldCurveBundle curves) {
     final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName());
     return presentValueBasisPoint(fixedCouponSwap, dayCount, discountingCurve);
@@ -130,7 +148,7 @@ public class SwapFixedDiscountingMethod {
    * @param discountingCurve The discounting curve.
    * @return The sensitivity.
    */
-  public static List<DoublesPair> presentValueBasisPointCurveSensitivity(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldAndDiscountCurve discountingCurve) {
+  public List<DoublesPair> presentValueBasisPointCurveSensitivity(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldAndDiscountCurve discountingCurve) {
     final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
     double time;
     final List<DoublesPair> list = new ArrayList<DoublesPair>();
@@ -149,7 +167,7 @@ public class SwapFixedDiscountingMethod {
    * @param curves The yield curve bundle (containing the appropriate discounting curve).
    * @return The sensitivity.
    */
-  public static InterestRateCurveSensitivity presentValueBasisPointCurveSensitivity(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldCurveBundle curves) {
+  public InterestRateCurveSensitivity presentValueBasisPointCurveSensitivity(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldCurveBundle curves) {
     final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     final AnnuityCouponFixed annuityFixed = fixedCouponSwap.getFixedLeg();
     final YieldAndDiscountCurve discountingCurve = curves.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName());
@@ -174,7 +192,7 @@ public class SwapFixedDiscountingMethod {
    * @param curves The curves.
    * @return The coupon equivalent.
    */
-  public static double couponEquivalent(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldCurveBundle curves) {
+  public double couponEquivalent(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final YieldCurveBundle curves) {
     final double pvbp = presentValueBasisPoint(fixedCouponSwap, curves);
     return couponEquivalent(fixedCouponSwap, pvbp, curves);
   }
@@ -186,7 +204,7 @@ public class SwapFixedDiscountingMethod {
    * @param curves The curves.
    * @return The coupon equivalent.
    */
-  public static double couponEquivalent(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final DayCount dayCount, final YieldCurveBundle curves) {
+  public double couponEquivalent(final FixedCouponSwap<? extends Payment> fixedCouponSwap, final DayCount dayCount, final YieldCurveBundle curves) {
     final double pvbp = presentValueBasisPoint(fixedCouponSwap, dayCount, curves);
     return couponEquivalent(fixedCouponSwap, pvbp, curves);
   }

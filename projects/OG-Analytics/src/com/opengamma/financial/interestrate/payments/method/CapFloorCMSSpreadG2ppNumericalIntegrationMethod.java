@@ -97,21 +97,21 @@ public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
     double[][] tau2Ibor = new double[2][];
     for (int loopswap = 0; loopswap < 2; loopswap++) {
       double[][] hthetaFixed = MODEL_G2PP.volatilityMaturityPart(g2Data.getG2ppParameter(), theta, tFixed[loopswap]);
-      alphaFixed[loopswap] = new double[2][nbCfFixed[loopswap]];
+      alphaFixed[loopswap] = new double[nbCfFixed[loopswap]][2];
       tau2Fixed[loopswap] = new double[nbCfFixed[loopswap]];
       for (int loopcf = 0; loopcf < nbCfFixed[loopswap]; loopcf++) {
-        alphaFixed[loopswap][0][loopcf] = Math.sqrt(gamma[0][0]) * hthetaFixed[0][loopcf];
-        alphaFixed[loopswap][1][loopcf] = Math.sqrt(gamma[1][1]) * hthetaFixed[1][loopcf];
-        tau2Fixed[loopswap][loopcf] = alphaFixed[loopswap][0][loopcf] * alphaFixed[loopswap][0][loopcf] + alphaFixed[loopswap][1][loopcf] * alphaFixed[loopswap][1][loopcf] + 2 * rhog2pp * gamma[0][1]
+        alphaFixed[loopswap][loopcf][0] = Math.sqrt(gamma[0][0]) * hthetaFixed[0][loopcf];
+        alphaFixed[loopswap][loopcf][1] = Math.sqrt(gamma[1][1]) * hthetaFixed[1][loopcf];
+        tau2Fixed[loopswap][loopcf] = alphaFixed[loopswap][loopcf][0] * alphaFixed[loopswap][loopcf][0] + alphaFixed[loopswap][loopcf][1] * alphaFixed[loopswap][loopcf][1] + 2 * rhog2pp * gamma[0][1]
             * hthetaFixed[0][loopcf] * hthetaFixed[1][loopcf];
       }
       double[][] hthetaIbor = MODEL_G2PP.volatilityMaturityPart(g2Data.getG2ppParameter(), theta, tIbor[loopswap]);
-      alphaIbor[loopswap] = new double[2][nbCfIbor[loopswap]];
+      alphaIbor[loopswap] = new double[nbCfIbor[loopswap]][2];
       tau2Ibor[loopswap] = new double[nbCfIbor[loopswap]];
       for (int loopcf = 0; loopcf < nbCfIbor[loopswap]; loopcf++) {
-        alphaIbor[loopswap][0][loopcf] = Math.sqrt(gamma[0][0]) * hthetaIbor[0][loopcf];
-        alphaIbor[loopswap][1][loopcf] = Math.sqrt(gamma[1][1]) * hthetaIbor[1][loopcf];
-        tau2Ibor[loopswap][loopcf] = alphaIbor[loopswap][0][loopcf] * alphaIbor[loopswap][0][loopcf] + alphaIbor[loopswap][1][loopcf] * alphaIbor[loopswap][1][loopcf] + 2 * rhog2pp * gamma[0][1]
+        alphaIbor[loopswap][loopcf][0] = Math.sqrt(gamma[0][0]) * hthetaIbor[0][loopcf];
+        alphaIbor[loopswap][loopcf][1] = Math.sqrt(gamma[1][1]) * hthetaIbor[1][loopcf];
+        tau2Ibor[loopswap][loopcf] = alphaIbor[loopswap][loopcf][0] * alphaIbor[loopswap][loopcf][0] + alphaIbor[loopswap][loopcf][1] * alphaIbor[loopswap][loopcf][1] + 2 * rhog2pp * gamma[0][1]
             * hthetaIbor[0][loopcf] * hthetaIbor[1][loopcf];
       }
     }
@@ -173,21 +173,6 @@ public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
       double[] x = new double[] {x0, x1};
       rate[0] = MODEL_G2PP.swapRate(x, _discountedCashFlowFixed[0], _alphaFixed[0], _tau2Fixed[0], _discountedCashFlowIbor[0], _alphaIbor[0], _tau2Ibor[0]);
       rate[1] = MODEL_G2PP.swapRate(x, _discountedCashFlowFixed[1], _alphaFixed[1], _tau2Fixed[1], _discountedCashFlowIbor[1], _alphaIbor[1], _tau2Ibor[1]);
-      //      double[] rate = new double[2];
-      //      double[] resultFixed = new double[2];
-      //      double[] resultIbor = new double[2];
-      //      for (int loopswap = 0; loopswap < 2; loopswap++) {
-      //        for (int loopcf = 0; loopcf < _discountedCashFlowFixed[loopswap].length; loopcf++) {
-      //          resultFixed[loopswap] += _discountedCashFlowFixed[loopswap][loopcf]
-      //              * Math.exp(-_alphaFixed[loopswap][0][loopcf] * x0 - _alphaFixed[loopswap][1][loopcf] * x1 - _tau2Fixed[loopswap][loopcf] / 2.0);
-      //        }
-      //        for (int loopcf = 0; loopcf < _discountedCashFlowIbor[loopswap].length; loopcf++) {
-      //          resultIbor[loopswap] += _discountedCashFlowIbor[loopswap][loopcf]
-      //              * Math.exp(-_alphaIbor[loopswap][0][loopcf] * x0 - _alphaIbor[loopswap][1][loopcf] * x1 - _tau2Ibor[loopswap][loopcf] / 2.0);
-      //        }
-      //        rate[loopswap] = -resultIbor[loopswap] / resultFixed[loopswap];
-      //      }
-
       double densityPart = -(x0 * x0 + x1 * x1 - 2 * _rhobar * x0 * x1) / (2.0 * (1 - _rhobar * _rhobar));
       double discounting = Math.exp(-_alphaTp[0] * x0 - _alphaTp[1] * x1 - _tau2Tp / 2.0 + densityPart);
       return discounting * Math.max(_omega * (rate[0] - rate[1] - _strike), 0.0);
