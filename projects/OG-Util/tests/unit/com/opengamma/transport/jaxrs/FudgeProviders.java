@@ -31,7 +31,8 @@ import com.opengamma.OpenGammaRuntimeException;
 @Test
 public class FudgeProviders {
 
-  private void testBeans(final MessageBodyWriter<FudgeMsgEnvelope> producer, final MessageBodyReader<FudgeMsgEnvelope> consumer) {
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  private void testBeans(final MessageBodyWriter producer, final MessageBodyReader consumer) {
     final MutableFudgeMsg msgIn = FudgeContext.GLOBAL_DEFAULT.newMessage();
     msgIn.add("foo", "bar");
     msgIn.add("number", 42);
@@ -52,7 +53,7 @@ public class FudgeProviders {
     final ByteArrayInputStream bis = new ByteArrayInputStream(data);
     final FudgeMsg msgOut;
     try {
-      final FudgeMsgEnvelope env = consumer.readFrom(FudgeMsgEnvelope.class, null, null, null, null, bis);
+      final FudgeMsgEnvelope env = (FudgeMsgEnvelope) consumer.readFrom(FudgeMsgEnvelope.class, null, null, null, null, bis);
       assertNotNull(env);
       msgOut = env.getMessage();
     } catch (IOException e) {
@@ -64,16 +65,15 @@ public class FudgeProviders {
   }
 
   public void testBinary() {
-    testBeans(new FudgeBinaryProducer(), new FudgeBinaryConsumer());
+    testBeans(new FudgeObjectBinaryProducer(), new FudgeObjectBinaryConsumer());
   }
 
   public void testJSON() {
-    testBeans(new FudgeJSONProducer(), new FudgeJSONConsumer());
+    testBeans(new FudgeObjectJSONProducer(), new FudgeObjectJSONConsumer());
   }
 
-  @Test(enabled = false)
   public void testXML() {
-    testBeans(new FudgeXMLProducer(), new FudgeXMLConsumer());
+    testBeans(new FudgeObjectXMLProducer(), new FudgeObjectXMLConsumer());
   }
 
 }

@@ -7,7 +7,6 @@ package com.opengamma.master.region.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -27,7 +26,6 @@ import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionHistoryRequest;
 import com.opengamma.master.region.RegionHistoryResult;
 import com.opengamma.master.region.RegionMaster;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.rest.RestUtils;
@@ -97,7 +95,6 @@ public class DataRegionResource extends AbstractDataResource {
   }
 
   @POST
-  @Consumes(FudgeRest.MEDIA)
   public Response update(@Context UriInfo uriInfo, RegionDocument request) {
     if (getUrlRegionId().equals(request.getUniqueId().getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
@@ -108,7 +105,6 @@ public class DataRegionResource extends AbstractDataResource {
   }
 
   @DELETE
-  @Consumes(FudgeRest.MEDIA)
   public Response remove() {
     getRegionMaster().remove(getUrlRegionId().atLatestVersion());
     return Response.noContent().build();
@@ -136,7 +132,6 @@ public class DataRegionResource extends AbstractDataResource {
 
   @POST
   @Path("versions/{versionId}")
-  @Consumes(FudgeRest.MEDIA)
   public Response correct(@Context UriInfo uriInfo, @PathParam("versionId") String versionId, RegionDocument request) {
     UniqueId uniqueId = getUrlRegionId().atVersion(versionId);
     if (uniqueId.equals(request.getUniqueId()) == false) {
