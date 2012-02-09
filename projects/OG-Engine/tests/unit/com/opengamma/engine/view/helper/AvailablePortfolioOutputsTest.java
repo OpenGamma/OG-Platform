@@ -18,7 +18,7 @@ import java.util.Set;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import com.opengamma.core.position.Portfolio;
@@ -368,7 +368,7 @@ public class AvailablePortfolioOutputsTest {
     return repository;
   }
 
-  @BeforeTest
+  @BeforeClass
   public void init() {
     _testPortfolio = createPortfolio();
     _functionRepository = createFunctionRepository();

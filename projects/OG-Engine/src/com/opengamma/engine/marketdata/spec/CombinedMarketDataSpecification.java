@@ -3,15 +3,15 @@
 // CSOFF: Generated File
 package com.opengamma.engine.marketdata.spec;
 public class CombinedMarketDataSpecification extends com.opengamma.engine.marketdata.spec.MarketDataSpecification implements java.io.Serializable {
-  private static final long serialVersionUID = -56192686619500l;
-  private com.opengamma.engine.marketdata.spec.MarketDataSpecification _prefferedSpecification;
-  public static final String PREFFERED_SPECIFICATION_KEY = "prefferedSpecification";
+  private static final long serialVersionUID = -14180547628570l;
+  private com.opengamma.engine.marketdata.spec.MarketDataSpecification _preferredSpecification;
+  public static final String PREFERRED_SPECIFICATION_KEY = "preferredSpecification";
   private com.opengamma.engine.marketdata.spec.MarketDataSpecification _fallbackSpecification;
   public static final String FALLBACK_SPECIFICATION_KEY = "fallbackSpecification";
-  public CombinedMarketDataSpecification (com.opengamma.engine.marketdata.spec.MarketDataSpecification prefferedSpecification, com.opengamma.engine.marketdata.spec.MarketDataSpecification fallbackSpecification) {
-    if (prefferedSpecification == null) throw new NullPointerException ("'prefferedSpecification' cannot be null");
+  public CombinedMarketDataSpecification (com.opengamma.engine.marketdata.spec.MarketDataSpecification preferredSpecification, com.opengamma.engine.marketdata.spec.MarketDataSpecification fallbackSpecification) {
+    if (preferredSpecification == null) throw new NullPointerException ("'preferredSpecification' cannot be null");
     else {
-      _prefferedSpecification = prefferedSpecification;
+      _preferredSpecification = preferredSpecification;
     }
     if (fallbackSpecification == null) throw new NullPointerException ("'fallbackSpecification' cannot be null");
     else {
@@ -21,13 +21,13 @@ public class CombinedMarketDataSpecification extends com.opengamma.engine.market
   protected CombinedMarketDataSpecification (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (deserializer, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (PREFFERED_SPECIFICATION_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CombinedMarketDataSpecification - field 'prefferedSpecification' is not present");
+    fudgeField = fudgeMsg.getByName (PREFERRED_SPECIFICATION_KEY);
+    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CombinedMarketDataSpecification - field 'preferredSpecification' is not present");
     try {
-      _prefferedSpecification = com.opengamma.engine.marketdata.spec.MarketDataSpecification.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
+      _preferredSpecification = com.opengamma.engine.marketdata.spec.MarketDataSpecification.fromFudgeMsg (deserializer, fudgeMsg.getFieldValue (org.fudgemsg.FudgeMsg.class, fudgeField));
     }
     catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a CombinedMarketDataSpecification - field 'prefferedSpecification' is not MarketDataSpecification message", e);
+      throw new IllegalArgumentException ("Fudge message is not a CombinedMarketDataSpecification - field 'preferredSpecification' is not MarketDataSpecification message", e);
     }
     fudgeField = fudgeMsg.getByName (FALLBACK_SPECIFICATION_KEY);
     if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a CombinedMarketDataSpecification - field 'fallbackSpecification' is not present");
@@ -41,9 +41,9 @@ public class CombinedMarketDataSpecification extends com.opengamma.engine.market
   protected CombinedMarketDataSpecification (final CombinedMarketDataSpecification source) {
     super (source);
     if (source == null) throw new NullPointerException ("'source' must not be null");
-    if (source._prefferedSpecification == null) _prefferedSpecification = null;
+    if (source._preferredSpecification == null) _preferredSpecification = null;
     else {
-      _prefferedSpecification = source._prefferedSpecification;
+      _preferredSpecification = source._preferredSpecification;
     }
     if (source._fallbackSpecification == null) _fallbackSpecification = null;
     else {
@@ -61,10 +61,10 @@ public class CombinedMarketDataSpecification extends com.opengamma.engine.market
   }
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (serializer, msg);
-    if (_prefferedSpecification != null)  {
-      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _prefferedSpecification.getClass (), com.opengamma.engine.marketdata.spec.MarketDataSpecification.class);
-      _prefferedSpecification.toFudgeMsg (serializer, fudge1);
-      msg.add (PREFFERED_SPECIFICATION_KEY, null, fudge1);
+    if (_preferredSpecification != null)  {
+      final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _preferredSpecification.getClass (), com.opengamma.engine.marketdata.spec.MarketDataSpecification.class);
+      _preferredSpecification.toFudgeMsg (serializer, fudge1);
+      msg.add (PREFERRED_SPECIFICATION_KEY, null, fudge1);
     }
     if (_fallbackSpecification != null)  {
       final org.fudgemsg.MutableFudgeMsg fudge1 = org.fudgemsg.mapping.FudgeSerializer.addClassHeader (serializer.newMessage (), _fallbackSpecification.getClass (), com.opengamma.engine.marketdata.spec.MarketDataSpecification.class);
@@ -86,13 +86,13 @@ public class CombinedMarketDataSpecification extends com.opengamma.engine.market
     }
     return new CombinedMarketDataSpecification (deserializer, fudgeMsg);
   }
-  public com.opengamma.engine.marketdata.spec.MarketDataSpecification getPrefferedSpecification () {
-    return _prefferedSpecification;
+  public com.opengamma.engine.marketdata.spec.MarketDataSpecification getPreferredSpecification () {
+    return _preferredSpecification;
   }
-  public void setPrefferedSpecification (com.opengamma.engine.marketdata.spec.MarketDataSpecification prefferedSpecification) {
-    if (prefferedSpecification == null) throw new NullPointerException ("'prefferedSpecification' cannot be null");
+  public void setPreferredSpecification (com.opengamma.engine.marketdata.spec.MarketDataSpecification preferredSpecification) {
+    if (preferredSpecification == null) throw new NullPointerException ("'preferredSpecification' cannot be null");
     else {
-      _prefferedSpecification = prefferedSpecification;
+      _preferredSpecification = preferredSpecification;
     }
   }
   public com.opengamma.engine.marketdata.spec.MarketDataSpecification getFallbackSpecification () {
@@ -108,13 +108,13 @@ public class CombinedMarketDataSpecification extends com.opengamma.engine.market
     if (o == this) return true;
     if (!(o instanceof CombinedMarketDataSpecification)) return false;
     CombinedMarketDataSpecification msg = (CombinedMarketDataSpecification)o;
-    if (_prefferedSpecification != null) {
-      if (msg._prefferedSpecification != null) {
-        if (!_prefferedSpecification.equals (msg._prefferedSpecification)) return false;
+    if (_preferredSpecification != null) {
+      if (msg._preferredSpecification != null) {
+        if (!_preferredSpecification.equals (msg._preferredSpecification)) return false;
       }
       else return false;
     }
-    else if (msg._prefferedSpecification != null) return false;
+    else if (msg._preferredSpecification != null) return false;
     if (_fallbackSpecification != null) {
       if (msg._fallbackSpecification != null) {
         if (!_fallbackSpecification.equals (msg._fallbackSpecification)) return false;
@@ -127,7 +127,7 @@ public class CombinedMarketDataSpecification extends com.opengamma.engine.market
   public int hashCode () {
     int hc = super.hashCode ();
     hc *= 31;
-    if (_prefferedSpecification != null) hc += _prefferedSpecification.hashCode ();
+    if (_preferredSpecification != null) hc += _preferredSpecification.hashCode ();
     hc *= 31;
     if (_fallbackSpecification != null) hc += _fallbackSpecification.hashCode ();
     return hc;

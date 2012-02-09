@@ -7,7 +7,6 @@ package com.opengamma.master.marketdatasnapshot.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -23,7 +22,6 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -70,7 +68,6 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
 
   @POST
   @Path("snapshotSearches")
-  @Consumes(FudgeRest.MEDIA)
   public Response search(MarketDataSnapshotSearchRequest request) {
     MarketDataSnapshotSearchResult result = getMarketDataSnapshotMaster().search(request);
     return Response.ok(result).build();
@@ -78,7 +75,6 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
 
   @POST
   @Path("snapshots")
-  @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, MarketDataSnapshotDocument request) {
     MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().add(request);
     URI createdUri = DataMarketDataSnapshotResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());

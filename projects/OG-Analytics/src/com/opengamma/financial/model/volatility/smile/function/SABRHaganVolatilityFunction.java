@@ -114,8 +114,7 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
     final double cutoff = forward * CUTOFF_MONEYNESS;
     final double k;
     if (strike < cutoff) {
-      s_logger.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}",
-          new Object[] {strike, cutoff, cutoff});
+      s_logger.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}", new Object[] {strike, cutoff, cutoff});
       k = cutoff;
     } else {
       k = strike;
@@ -177,8 +176,7 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
     double strike = option.getStrike();
     final double cutoff = forward * CUTOFF_MONEYNESS;
     if (strike < cutoff) {
-      s_logger.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}",
-          new Object[] {strike, cutoff, cutoff});
+      s_logger.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}", new Object[] {strike, cutoff, cutoff});
       strike = cutoff;
     }
 
@@ -242,24 +240,6 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
    * @param forward The forward value of the underlying
    * @param data The SABR data.
    * @return An array with [0] the volatility, [1] Derivative w.r.t the forward, [2] the derivative w.r.t the strike, [3] the derivative w.r.t. to alpha,
-   *  [4] the derivative w.r.t. to rho, [5] the derivative w.r.t. to nu
-   *  @deprecated This does not return the beta sensitivity
-   */
-  @Deprecated
-  public double[] getVolatilityAdjointOld(final EuropeanVanillaOption option, final double forward, final SABRFormulaData data) {
-    final double[] temp = getVolatilityAdjoint(option, forward, data);
-    final double[] res = Arrays.copyOfRange(temp, 0, 6);
-    res[4] = temp[5];
-    res[5] = temp[6];
-    return res;
-  }
-
-  /**
-   * Return the Black implied volatility in the SABR model and its derivatives.
-   * @param option The option.
-   * @param forward The forward value of the underlying
-   * @param data The SABR data.
-   * @return An array with [0] the volatility, [1] Derivative w.r.t the forward, [2] the derivative w.r.t the strike, [3] the derivative w.r.t. to alpha,
    *  [4] the derivative w.r.t. to beta, [5] the derivative w.r.t. to rho, [6] the derivative w.r.t. to nu
    */
   public double[] getVolatilityAdjoint(final EuropeanVanillaOption option, final double forward, final SABRFormulaData data) {
@@ -272,8 +252,7 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
     double strike = option.getStrike();
     final double cutoff = forward * CUTOFF_MONEYNESS;
     if (strike < cutoff) {
-      s_logger.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}",
-          new Object[] {strike, cutoff, cutoff});
+      s_logger.info("Given strike of {} is less than cutoff at {}, therefore the strike is taken as {}", new Object[] {strike, cutoff, cutoff});
       strike = cutoff;
     }
 
@@ -421,7 +400,8 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
    * @param option The option.
    * @param forward the forward value of the underlying
    * @param data The SABR data.
-   * @param volatilityD The array used to return the first order derivatives. [0] Derivative w.r.t the forward, [1] the derivative w.r.t the strike
+   * @param volatilityD The array used to return the first order derivatives. [0] Derivative w.r.t the forward, [1] the derivative w.r.t the strike, [2] the derivative w.r.t. to alpha,
+   * [3] the derivative w.r.t. to rho, [4] the derivative w.r.t. to nu
    * @param volatilityD2 The array of array used to return the second order derivative. Only the second order derivative with respect to the forward and strike are implemented.
    * [0][0] forward-forward; [0][1] forward-strike; [1][1] strike-strike.
    * Implemented by finite difference on the first order derivative.
@@ -434,7 +414,6 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
     final double beta = data.getBeta();
     final double rho = data.getRho();
     final double nu = data.getNu();
-
     // Forward
     final double betaO2 = (1 - beta) / 2;
     final double h1 = Math.pow(forward * k, betaO2);
@@ -514,7 +493,7 @@ public class SABRHaganVolatilityFunction extends VolatilityFunctionProvider<SABR
       for (int loopy = loopx; loopy < 2; loopy++) {
         sigmaD2hh[loopx][loopy] = (sigmaD2ff[0][0] * f1Dh[loopy] + sigmaD2ff[0][1] * f2Dh[loopy] + sigmaD2ff[0][2] * f3Dh[loopy]) * f1Dh[loopx] + sigmaDf1 * f1D2hh[loopx][loopy]
             + (sigmaD2ff[0][1] * f1Dh[loopy] + sigmaD2ff[1][1] * f2Dh[loopy] + sigmaD2ff[1][2] * f3Dh[loopy]) * f2Dh[loopx] + sigmaDf2 * f2D2hh[loopx][loopy]
-                + (sigmaD2ff[0][2] * f1Dh[loopy] + sigmaD2ff[1][2] * f2Dh[loopy] + sigmaD2ff[2][2] * f3Dh[loopy]) * f3Dh[loopx] + sigmaDf3 * f3D2hh[loopx][loopy];
+            + (sigmaD2ff[0][2] * f1Dh[loopy] + sigmaD2ff[1][2] * f2Dh[loopy] + sigmaD2ff[2][2] * f3Dh[loopy]) * f3Dh[loopx] + sigmaDf3 * f3D2hh[loopx][loopy];
       }
     }
     // Third level
