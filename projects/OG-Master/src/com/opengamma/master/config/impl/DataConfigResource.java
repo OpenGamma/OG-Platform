@@ -7,7 +7,6 @@ package com.opengamma.master.config.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -27,7 +26,6 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigHistoryRequest;
 import com.opengamma.master.config.ConfigHistoryResult;
 import com.opengamma.master.config.ConfigMaster;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.rest.AbstractDataResource;
@@ -105,7 +103,6 @@ public class DataConfigResource extends AbstractDataResource {
 
   @SuppressWarnings({"rawtypes", "unchecked" })  // necessary to stop Jersey issuing warnings due to <?>
   @POST
-  @Consumes(FudgeRest.MEDIA)
   public Response update(@Context UriInfo uriInfo, ConfigDocument request) {
     if (getUrlConfigId().equals(request.getUniqueId().getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
@@ -116,7 +113,6 @@ public class DataConfigResource extends AbstractDataResource {
   }
 
   @DELETE
-  @Consumes(FudgeRest.MEDIA)
   public Response remove() {
     getConfigMaster().remove(getUrlConfigId().atLatestVersion());
     return Response.noContent().build();
@@ -151,7 +147,6 @@ public class DataConfigResource extends AbstractDataResource {
   @SuppressWarnings({"rawtypes", "unchecked" })  // necessary to stop Jersey issuing warnings due to <?>
   @POST
   @Path("versions/{versionId}")
-  @Consumes(FudgeRest.MEDIA)
   public Response correct(@Context UriInfo uriInfo, @PathParam("versionId") String versionId, ConfigDocument request) {
     UniqueId uniqueId = getUrlConfigId().atVersion(versionId);
     if (uniqueId.equals(request.getUniqueId()) == false) {

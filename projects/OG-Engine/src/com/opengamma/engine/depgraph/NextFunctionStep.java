@@ -6,7 +6,6 @@
 package com.opengamma.engine.depgraph;
 
 import java.util.Iterator;
-import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,8 +42,8 @@ import com.opengamma.util.tuple.Pair;
     s_logger.debug("Considering {} for {}", resolvedFunction, getValueRequirement());
     final ValueSpecification originalOutput = resolvedFunction.getSecond();
     final ValueSpecification resolvedOutput = originalOutput.compose(getValueRequirement());
-    final Map<ResolveTask, ResolvedValueProducer> existingTasks = context.getTasksProducing(resolvedOutput);
-    if (existingTasks.isEmpty()) {
+    final Pair<ResolveTask[], ResolvedValueProducer[]> existing = context.getTasksProducing(resolvedOutput);
+    if (existing == null) {
       // We're going to work on producing
       s_logger.debug("Creating producer for {} (original={})", resolvedOutput, originalOutput);
       final FunctionApplicationStep state = new FunctionApplicationStep(getTask(), getFunctions(), resolvedFunction.getFirst(), originalOutput, resolvedOutput);
@@ -57,11 +56,13 @@ import com.opengamma.util.tuple.Pair;
       ResolvedValueProducer singleTask = null;
       AggregateResolvedValueProducer aggregate = null;
       // Must not to introduce a loop (checking parent resolve tasks isn't sufficient) so only use "finished" tasks.
-      for (Map.Entry<ResolveTask, ResolvedValueProducer> existingTask : existingTasks.entrySet()) {
-        if (existingTask.getKey().isFinished()) {
+      final ResolveTask[] existingTasks = existing.getFirst();
+      final ResolvedValueProducer[] existingProducers = existing.getSecond();
+      for (int i = 0; i < existingTasks.length; i++) {
+        if (existingTasks[i].isFinished()) {
           // Can use this task without creating a loop
           if (singleTask == null) {
-            singleTask = existingTask.getValue();
+            singleTask = existingProducers[i];
             singleTask.addRef();
           } else {
             if (aggregate == null) {
@@ -69,11 +70,11 @@ import com.opengamma.util.tuple.Pair;
               aggregate.addProducer(context, singleTask);
               singleTask.release(context);
             }
-            aggregate.addProducer(context, existingTask.getValue());
+            aggregate.addProducer(context, existingProducers[i]);
           }
         }
-        // Only the values are ref-counted
-        existingTask.getValue().release(context);
+        // Only the producers are ref-counted
+        existingProducers[i].release(context);
       }
       if (aggregate != null) {
         aggregate.addCallback(context, state);

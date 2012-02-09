@@ -11,8 +11,8 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFixed;
 import com.opengamma.financial.interestrate.method.PricingMethod;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.financial.interestrate.swap.method.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.model.interestrate.G2ppPiecewiseConstantModel;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -28,6 +28,11 @@ import com.opengamma.util.money.CurrencyAmount;
 public class SwaptionCashFixedIborG2ppNumericalIntegrationMethod implements PricingMethod {
 
   /**
+   * Minimal number of integration steps in the integration.
+   */
+  private static final int NB_INTEGRATION = 5;
+
+  /**
    * The model used in computations.
    */
   private static final G2ppPiecewiseConstantModel MODEL_G2PP = new G2ppPiecewiseConstantModel();
@@ -36,9 +41,9 @@ public class SwaptionCashFixedIborG2ppNumericalIntegrationMethod implements Pric
    */
   private static final CashFlowEquivalentCalculator CFEC = CashFlowEquivalentCalculator.getInstance();
   /**
-   * Minimal number of integration steps in the integration.
+   * The swap method.
    */
-  private static final int NB_INTEGRATION = 5;
+  private static final SwapFixedDiscountingMethod METHOD_SWAP = SwapFixedDiscountingMethod.getInstance();
 
   public CurrencyAmount presentValue(final SwaptionCashFixedIbor swaption, final G2ppPiecewiseConstantDataBundle g2Data) {
     YieldAndDiscountCurve dsc = g2Data.getCurve(swaption.getUnderlyingSwap().getFixedLeg().getDiscountCurve());
@@ -88,8 +93,8 @@ public class SwaptionCashFixedIborG2ppNumericalIntegrationMethod implements Pric
       tau2Ibor[loopcf] = alphaIbor[0][loopcf] * alphaIbor[0][loopcf] + alphaIbor[1][loopcf] * alphaIbor[1][loopcf] + 2 * rhog2pp * gamma[0][1] * hthetaIbor[0][loopcf] * hthetaIbor[1][loopcf];
     }
 
-    final SwaptionIntegrant integrant = new SwaptionIntegrant(discountedCashFlowFixed, alphaFixed, tau2Fixed, discountedCashFlowIbor, alphaIbor, tau2Ibor, rhobar, 
-        swaption.getUnderlyingSwap(), strike);
+    final SwaptionIntegrant integrant = new SwaptionIntegrant(discountedCashFlowFixed, alphaFixed, tau2Fixed, discountedCashFlowIbor, alphaIbor, tau2Ibor, rhobar, swaption.getUnderlyingSwap(), 
+        strike);
     final double limit = 10.0;
     final double absoluteTolerance = 1.0E-0;
     final double relativeTolerance = 1.0E-5;
@@ -153,7 +158,7 @@ public class SwaptionCashFixedIborG2ppNumericalIntegrationMethod implements Pric
         resultIbor += _discountedCashFlowIbor[loopcf] * Math.exp(-_alphaIbor[0][loopcf] * x0 - _alphaIbor[1][loopcf] * x1 - _tau2Ibor[loopcf] / 2.0);
       }
       double rate = -resultIbor / resultFixed;
-      double annuity = SwapFixedDiscountingMethod.getAnnuityCash(_swap, rate);
+      double annuity = METHOD_SWAP.getAnnuityCash(_swap, rate);
       double densityPart = -(x0 * x0 + x1 * x1 - 2 * _rhobar * x0 * x1) / (2.0 * (1 - _rhobar * _rhobar));
       double discounting = Math.exp(-_alphaIbor[0][0] * x0 - _alphaIbor[1][0] * x1 - _tau2Ibor[0] / 2.0 + densityPart);
       return discounting * annuity * Math.max(_omega * (rate - _strike), 0.0);

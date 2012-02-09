@@ -12,6 +12,7 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.surface.Surface;
+import com.opengamma.math.surface.SurfaceShiftFunctionFactory;
 
 /**
  *  A surface that contains the Black (implied) volatility as a function of time to maturity and (call) delta. Delta is in the range [0,1], where 0.5 is
@@ -56,19 +57,19 @@ public class BlackVolatilitySurfaceDelta extends BlackVolatilitySurface<Delta> {
     };
 
     final double deltaApprox = BlackFormulaRepository.delta(fwd, k, t, getVolatilityForDelta(t, 0.5), isCall);
-    double l,h;
+    double l, h;
     double minDelta;
     double maxDelta;
     if (isCall) {
       l = Math.max(0.0, deltaApprox - 0.2);
       h = Math.min(1.0, deltaApprox + 0.2);
       minDelta = 0.0;
-      maxDelta=1.0;
+      maxDelta = 1.0;
     } else {
       l = Math.max(-1.0, deltaApprox - 0.2);
       h = Math.min(0.0, deltaApprox + 0.2);
       minDelta = -1.0;
-      maxDelta=0.0;
+      maxDelta = 0.0;
     }
     final double[] range = BRACKETER.getBracketedPoints(func, l, h, minDelta, maxDelta);
     double delta = omega + ROOT_FINDER.getRoot(func, range[0], range[1]);
@@ -91,6 +92,26 @@ public class BlackVolatilitySurfaceDelta extends BlackVolatilitySurface<Delta> {
     final double vol = getVolatility(t, s);
     final double fwd = _fc.getForward(t);
     return BlackImpliedStrikeFromDeltaFunction.impliedStrike(s.value(), true, fwd, t, vol);
+  }
+
+  @Override
+  public BlackVolatilitySurface<Delta> withShift(double shift, boolean useAdditive) {
+    return new BlackVolatilitySurfaceDelta(SurfaceShiftFunctionFactory.getShiftedSurface(getSurface(), shift, useAdditive), _fc);
+  }
+
+  @Override
+  public BlackVolatilitySurface<Delta> withSurface(Surface<Double, Double, Double> surface) {
+    return new BlackVolatilitySurfaceDelta(surface, _fc);
+  }
+
+  @Override
+  public <S, U> U accept(BlackVolatilitySurfaceVistor<S, U> vistor, S data) {
+    return vistor.visitDelta(this, data);
+  }
+
+  @Override
+  public <U> U accept(BlackVolatilitySurfaceVistor<?, U> vistor) {
+    return vistor.visitDelta(this);
   }
 
 }

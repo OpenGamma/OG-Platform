@@ -14,7 +14,7 @@ import com.opengamma.financial.interestrate.payments.CapFloorIbor;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIborGearing;
 import com.opengamma.financial.interestrate.payments.derivative.CouponIborRatchet;
-import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
+import com.opengamma.financial.interestrate.swap.method.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 
@@ -42,6 +42,11 @@ public class MonteCarloIborRateCalculator extends AbstractInstrumentDerivativeVi
    */
   MonteCarloIborRateCalculator() {
   }
+
+  /**
+   * The swap method.
+   */
+  private static final SwapFixedDiscountingMethod METHOD_SWAP = SwapFixedDiscountingMethod.getInstance();
 
   @Override
   public Double visit(final InstrumentDerivative derivative, final MonteCarloIborRateDataBundle mcResults) {
@@ -132,7 +137,7 @@ public class MonteCarloIborRateCalculator extends AbstractInstrumentDerivativeVi
         floatPath += impactAmount[loopfloat] * discounting[looppath][impactIndex[loopfloat]];
       }
       swapRatePath = -floatPath / fixedPath;
-      double annuityCashPath = SwapFixedDiscountingMethod.getAnnuityCash(swaption.getUnderlyingSwap(), swapRatePath);
+      double annuityCashPath = METHOD_SWAP.getAnnuityCash(swaption.getUnderlyingSwap(), swapRatePath);
       price += annuityCashPath * Math.max(omega * (swapRatePath - strike), 0.0) * discounting[looppath][impactIndex[nbFixed]];
     }
     return price * (swaption.isLong() ? 1.0 : -1.0);

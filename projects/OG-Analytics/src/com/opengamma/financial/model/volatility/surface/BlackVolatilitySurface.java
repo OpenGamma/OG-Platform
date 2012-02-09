@@ -32,4 +32,12 @@ public abstract class BlackVolatilitySurface<T extends StrikeType> extends Volat
 
   public abstract double getAbsoluteStrike(final double t, final T s);
 
+  public abstract BlackVolatilitySurface<T> withShift(final double shift, final boolean useAdditive);
+
+  public abstract BlackVolatilitySurface<T> withSurface(Surface<Double, Double, Double> surface);
+
+  public abstract <S, U> U accept(final BlackVolatilitySurfaceVistor<S, U> vistor, final S data);
+
+  public abstract <U> U accept(final BlackVolatilitySurfaceVistor<?, U> vistor);
+
 }

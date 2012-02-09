@@ -7,7 +7,6 @@ package com.opengamma.master.config.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
@@ -25,7 +24,6 @@ import com.opengamma.master.config.ConfigMetaDataRequest;
 import com.opengamma.master.config.ConfigMetaDataResult;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.rest.RestUtils;
@@ -82,7 +80,6 @@ public class DataConfigMasterResource extends AbstractDataResource {
   @SuppressWarnings({"rawtypes", "unchecked" })  // necessary to stop Jersey issuing warnings due to <?>
   @POST
   @Path("configSearches")
-  @Consumes(FudgeRest.MEDIA)
   public Response search(ConfigSearchRequest request) {
     ConfigSearchResult<?> result = getConfigMaster().search(request);
     return Response.ok(result).build();
@@ -91,7 +88,6 @@ public class DataConfigMasterResource extends AbstractDataResource {
   @SuppressWarnings({"rawtypes", "unchecked" })  // necessary to stop Jersey issuing warnings due to <?>
   @POST
   @Path("configs")
-  @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, ConfigDocument request) {
     ConfigDocument<?> result = getConfigMaster().add(request);
     URI createdUri = DataConfigResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId(), result.getType());
