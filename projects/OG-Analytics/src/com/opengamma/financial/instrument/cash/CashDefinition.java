@@ -20,7 +20,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.TimeCalculator;
 
 /**
- * 
+ * Class describing a cash deposit. 
  */
 public class CashDefinition implements InstrumentDefinition<Cash> {
 
@@ -267,35 +267,6 @@ public class CashDefinition implements InstrumentDefinition<Cash> {
     }
     return true;
   }
-
-  //  @Override
-  //  public Cash toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-  //    Validate.notNull(date, "date");
-  //    Validate.notNull(yieldCurveNames, "yield curve names");
-  //    Validate.isTrue(yieldCurveNames.length > 0);
-  //    Validate.isTrue(!date.isAfter(_maturityDate), "Date is after maturity");
-  //    if (yieldCurveNames.length > 1) {
-  //      s_logger.info("Have more than one yield curve name: cash is only sensitive to one curve so using the first");
-  //    }
-  //    final LocalDate settlementDate = getSettlementDate(date.toLocalDate(), _convention.getWorkingDayCalendar(), _convention.getBusinessDayConvention(), _convention.getSettlementDays());
-  //    final ZonedDateTime zonedStartDate = ZonedDateTime.of(LocalDateTime.ofMidnight(settlementDate), TimeZone.UTC);
-  //    final DayCount dayCount = _convention.getDayCount();
-  //    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  //    final double tradeTime = actAct.getDayCountFraction(date, zonedStartDate);
-  //    final double paymentTime = actAct.getDayCountFraction(date, _maturityDate);
-  //    final double yearFraction = dayCount.getDayCountFraction(zonedStartDate, _maturityDate);
-  //    return new Cash(_currency, tradeTime, paymentTime, _notional, _rate, yearFraction, yieldCurveNames[0]);
-  //  }
-  //
-  //  // TODO this only works for following
-  //  // TODO this code needs to be extracted out - it will be used in many FI definitions
-  //  private LocalDate getSettlementDate(final LocalDate today, final Calendar calendar, final BusinessDayConvention businessDayConvention, final int settlementDays) {
-  //    LocalDate date = businessDayConvention.adjustDate(calendar, today.plusDays(0)); //TODO is this right? was causing problems for O/N
-  //    for (int i = 0; i < settlementDays; i++) {
-  //      date = businessDayConvention.adjustDate(calendar, date.plusDays(1));
-  //    }
-  //    return date;
-  //  }
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
