@@ -31,8 +31,8 @@ import com.opengamma.math.surface.NodalDoublesSurface;
 public class EquityVarianceSwapVegaFunction extends EquityVarianceSwapFunction {
   private static final VarianceSwapRatesSensitivityCalculator CALCULATOR = VarianceSwapRatesSensitivityCalculator.getInstance();
 
-  public EquityVarianceSwapVegaFunction(String curveDefinitionName, String surfaceDefinitionName, String forwardCalculationMethod, String strikeParameterizationMethodName) {
-    super(curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod, strikeParameterizationMethodName);
+  public EquityVarianceSwapVegaFunction(String curveDefinitionName, String surfaceDefinitionName, String forwardCalculationMethod) {
+    super(curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod);
   }
 
   @Override

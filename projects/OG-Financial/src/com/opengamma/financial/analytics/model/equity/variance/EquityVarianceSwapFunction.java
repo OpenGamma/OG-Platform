@@ -65,23 +65,19 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
   private final String _surfaceDefinitionName;
   @SuppressWarnings("unused")
   private final String _forwardCalculationMethod;
-  private final String _strikeParameterizationMethodName;
 
   // private final StrikeParameterization _strikeParameterizationMethod;
 
-  public EquityVarianceSwapFunction(String curveDefinitionName, String surfaceDefinitionName, String forwardCalculationMethod, String strikeParameterizationMethodName) {
+  public EquityVarianceSwapFunction(String curveDefinitionName, String surfaceDefinitionName, String forwardCalculationMethod) {
     Validate.notNull(curveDefinitionName, "curve definition name");
     Validate.notNull(surfaceDefinitionName, "surface definition name");
     Validate.notNull(forwardCalculationMethod, "forward calculation method");
-    Validate.notNull(strikeParameterizationMethodName, "strike parameterization method");
+
     _curveDefinitionName = curveDefinitionName;
     _surfaceDefinitionName = surfaceDefinitionName;
     _forwardCalculationMethod = forwardCalculationMethod;
-    _strikeParameterizationMethodName = strikeParameterizationMethodName;
-    //_strikeParameterizationMethod = StrikeParameterization.valueOf(strikeParameterizationMethodName);
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
 

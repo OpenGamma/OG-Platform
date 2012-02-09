@@ -28,9 +28,8 @@ public class EquityVarianceSwapPresentValueFunction extends EquityVarianceSwapFu
 
   //  private static final VarianceSwapStaticReplication2 CALCULATOR = new VarianceSwapStaticReplication2();
 
-  public EquityVarianceSwapPresentValueFunction(final String curveDefinitionName, final String surfaceDefinitionName, final String forwardCalculationMethod,
-      final String strikeParameterizationMethodName) {
-    super(curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod, strikeParameterizationMethodName);
+  public EquityVarianceSwapPresentValueFunction(final String curveDefinitionName, final String surfaceDefinitionName, final String forwardCalculationMethod) {
+    super(curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod);
   }
 
   @Override
