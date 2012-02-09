@@ -33,7 +33,7 @@ import com.opengamma.util.money.Currency;
  */
 public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityVarianceSwapFunction {
   private static final VarianceSwapRatesSensitivityCalculator CALCULATOR = VarianceSwapRatesSensitivityCalculator.getInstance();
-  
+
   public EquityVarianceSwapYieldCurveNodeSensitivityFunction(String curveDefinitionName, String surfaceDefinitionName, String forwardCalculationMethod, String strikeParameterizationMethodName) {
     super(curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod, strikeParameterizationMethodName);
   }
@@ -49,14 +49,14 @@ public class EquityVarianceSwapYieldCurveNodeSensitivityFunction extends EquityV
     final ValueSpecification resultSpec = getValueSpecification(target);
     return YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(market.getDiscountCurve(), sensitivities, curveSpec, resultSpec);
   }
-  
+
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> result = super.getRequirements(context, target, desiredValue);
     result.add(getCurveSpecRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity())));
     return result;
   }
-  
+
   @Override
   protected ValueSpecification getValueSpecification(final ComputationTarget target) {
     final EquityVarianceSwapSecurity security = (EquityVarianceSwapSecurity) target.getSecurity();
