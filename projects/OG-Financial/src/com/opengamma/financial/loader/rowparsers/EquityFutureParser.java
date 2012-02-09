@@ -18,6 +18,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.loader.RowParser;
+import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.position.ManageablePosition;
@@ -51,7 +52,11 @@ public class EquityFutureParser extends RowParser {
   protected String TRADE_DATE = "trade date";
   protected String REFERENCE_PRICE = "reference price";
   //CSON
-  
+
+  public EquityFutureParser(LoaderContext loaderContext) {
+    super(loaderContext);
+  }
+
  /**
    * Creates a Trade from a security, a position and details provided from file
    * @param eqFutureDetails The parsed values of the input file

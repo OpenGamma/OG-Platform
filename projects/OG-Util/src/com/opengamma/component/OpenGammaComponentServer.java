@@ -26,6 +26,7 @@ import org.springframework.core.io.Resource;
  * Main entry point for OpenGamma component-based servers.
  * <p>
  * This class starts an OpenGamma JVM process using the specified config file.
+ * A {@link OpenGammaComponentServerMonitor monitor} thread will also be started.
  * <p>
  * Two types of config file format are recognized - properties and props (INI).
  * A properties file must be in the standard Java format and contain a key "component.ini"
@@ -131,6 +132,7 @@ public class OpenGammaComponentServer {
       manager = new ComponentManager();
     }
     try {
+      OpenGammaComponentServerMonitor.create(manager.getRepository());
       manager.start(configFile);
     } catch (Exception ex) {
       ex.printStackTrace(System.err);

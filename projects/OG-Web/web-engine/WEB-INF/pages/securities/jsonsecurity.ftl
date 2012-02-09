@@ -421,7 +421,9 @@
                 "factorSetExternalId":"${factorExposureData.factorSetExternalId}",
                 "factorType":"${factorExposureData.factorType.factorType}",
                 "factorName":"${factorExposureData.factorName}",
-                "node":"${factorExposureData.node}"
+                "node":"${factorExposureData.node}",
+                "priceTsId":"${factorExposureData.factorExternalId}",
+                "sensitivityTsId":"${factorExposureData.exposureExternalId}"  
               }
               <#if factorExposureData_has_next>,</#if>
             </#list>
@@ -435,7 +437,9 @@
               "factorSetExternalId":"${factorExposureData.factorSetExternalId}",
               "factorType":"${factorExposureData.factorType.factorType}",
               "factorName":"${factorExposureData.factorName}",
-              "node":"${factorExposureData.node}"
+              "node":"${factorExposureData.node}",
+              "priceTsId":"${factorExposureData.factorExternalId}",
+              "sensitivityTsId":"${factorExposureData.exposureExternalId}"         
             }
             <#if factorExposureData_has_next>,</#if>
           </#list>

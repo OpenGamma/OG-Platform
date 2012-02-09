@@ -83,7 +83,7 @@ $.register_module({
                     };
                 }
             };
-        details_page =     function (args, config) {
+        details_page = function (args, config) {
             var show_loading = !(config || {}).hide_loading,
                 render_portfolio_rows, render_position, render_position_rows, breadcrumb;
             render_portfolio_rows = function (selector, json) {
@@ -378,15 +378,12 @@ $.register_module({
                 id: args.id,
                 node: args.node,
                 version: args.version && args.version !== '*' ? args.version : void 0,
-                loading: function () {
-                    if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});
-                }
+                loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
             });
         };
-        return view = $.extend(new og.views.common.Core(page_name), {
+        return view = $.extend(view = new og.views.common.Core(page_name), {
             dependencies: ['id', 'node', 'version'],
             details: details_page,
-            filters: ['name'],
             load_filter: function (args) {
                 view.check_state({args: args, conditions: [
                     {new_value: 'id', stop: true, method: function (args) {
@@ -431,17 +428,7 @@ $.register_module({
                     }
                 }
             },
-            rules: {
-                load: {route: '/' + page_name + '/name:?', method: module.name + '.load'},
-                load_filter: {
-                    route: '/' + page_name + '/filter:/:id?/node:?/version:?/name:?/sync:?/position:?',
-                    method: module.name + '.load_filter'
-                },
-                load_item: {
-                    route: '/' + page_name + '/:id/node:?/version:?/name:?/sync:?/position:?',
-                    method: module.name + '.load_item'
-                }
-            }
+            rules: view.rules(['name'], ['node', 'position', 'sync', 'version'])
         });
     }
 });

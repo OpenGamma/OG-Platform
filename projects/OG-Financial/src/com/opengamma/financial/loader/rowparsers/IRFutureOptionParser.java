@@ -46,12 +46,10 @@ public class IRFutureOptionParser extends RowParser {
   protected String IS_CALL = "call";
   //CSON
   
-  private LoaderContext _loaderContext;
-  
   public IRFutureOptionParser(LoaderContext loaderContext) {
-    setLoaderContext(loaderContext);
+    super(loaderContext);
   }
-  
+ 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> irFutureOptionDetails) {
     final Currency currency = Currency.of(getWithException(irFutureOptionDetails, CURRENCY));
@@ -73,14 +71,6 @@ public class IRFutureOptionParser extends RowParser {
 
     ManageableSecurity[] result = {security};
     return result;
-  }
-
-  protected LoaderContext getLoaderContext() {
-    return _loaderContext;
-  }
-
-  protected void setLoaderContext(LoaderContext loaderContext) {
-    _loaderContext = loaderContext;
   }
 
 }

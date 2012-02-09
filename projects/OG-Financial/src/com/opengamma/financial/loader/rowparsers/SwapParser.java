@@ -21,6 +21,7 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.loader.RowParser;
+import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
@@ -65,6 +66,10 @@ public class SwapParser extends RowParser {
   protected String FLOATING_LEG_REFERENCE = "floating reference";
   //CSON
   
+  public SwapParser(LoaderContext loaderContext) {
+    super(loaderContext);
+  }
+
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> swapDetails) {
     // REVIEW jonathan 2010-08-03 --

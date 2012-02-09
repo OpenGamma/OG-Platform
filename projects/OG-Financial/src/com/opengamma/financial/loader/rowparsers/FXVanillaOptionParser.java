@@ -34,8 +34,8 @@ import com.opengamma.util.time.ExpiryAccuracy;
 public class FXVanillaOptionParser extends RowParser {
 
   private static final String ID_SCHEME = "VANILLA_FX_OPTION_LOADER";
-
-  private LoaderContext _loaderContext; // used for calendars/holidays to calculate settlement date
+  
+  private static final int SETTLEMENT_DAYS = 2;
   
   //CSOFF
   protected String PUT_CURRENCY = "put currency";
@@ -46,10 +46,10 @@ public class FXVanillaOptionParser extends RowParser {
   protected String IS_LONG = "is long";
   //CSON
   
-  FXVanillaOptionParser(LoaderContext loaderContext) {
-    _loaderContext = loaderContext;
+  public FXVanillaOptionParser(LoaderContext loaderContext) {
+    super(loaderContext);
   }
-  
+
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> fxOptionDetails) {
     
@@ -64,11 +64,11 @@ public class FXVanillaOptionParser extends RowParser {
         getWithException(fxOptionDetails, EXPIRY), CSV_DATE_FORMATTER),
         LocalTime.of(16, 0)), TimeZone.UTC), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR); //TODO shouldn't be hard-coding time and zone
     ZonedDateTime settlementDate;
-    if (_loaderContext != null) {
-      Calendar calendar = CalendarUtils.getCalendar(_loaderContext.getHolidaySource(), putCurrency, callCurrency);
-      settlementDate = ScheduleCalculator.getAdjustedDate(expiry.getExpiry().toLocalDate(), 2, calendar).atStartOfDayInZone(TimeZone.UTC); //expiry.getExpiry().plusDays(2);
+    if (getLoaderContext() != null) {
+      Calendar calendar = CalendarUtils.getCalendar(getLoaderContext().getHolidaySource(), putCurrency, callCurrency);
+      settlementDate = ScheduleCalculator.getAdjustedDate(expiry.getExpiry().toLocalDate(), SETTLEMENT_DAYS, calendar).atStartOfDayInZone(TimeZone.UTC); //expiry.getExpiry().plusDays(2);
     } else {
-      settlementDate = expiry.getExpiry().plusDays(2);
+      settlementDate = expiry.getExpiry().plusDays(SETTLEMENT_DAYS);
     }
     boolean isLong = Boolean.parseBoolean(getWithException(fxOptionDetails, IS_LONG));
     FXOptionSecurity security = new FXOptionSecurity(putCurrency, callCurrency, putAmount, callAmount, expiry, settlementDate, isLong, new EuropeanExerciseType()); 
