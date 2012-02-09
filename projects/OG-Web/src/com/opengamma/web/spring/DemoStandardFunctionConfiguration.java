@@ -155,6 +155,7 @@ import com.opengamma.financial.analytics.model.sabrcube.SABRVegaCapFloorCMSSprea
 import com.opengamma.financial.analytics.model.sabrcube.SABRVegaFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFXFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.var.PortfolioHistoricalVaRDefaultPropertiesFunction;
@@ -374,6 +375,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addInterestRateFutureOptionCalculators(functionConfigs);
     addEquityDerivativesCalculators(functionConfigs);
     addLocalVolatilityCalculators(functionConfigs);
+    addExternallyProvidedSensitivitiesFunctions(functionConfigs);
 
     addScalingFunction(functionConfigs, ValueRequirementNames.FAIR_VALUE);
 
@@ -837,6 +839,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(TotalRiskAlphaPositionFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(TotalRiskAlphaPortfolioNodeFunction.class, DEFAULT_CONFIG_NAME));
 //    functionConfigs.add(functionConfiguration(PositionWeightFromNAVFunction.class, "56000000"));
+  }
+  
+  private static void addExternallyProvidedSensitivitiesFunctions(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction.class));
   }
 
   public static RepositoryConfigurationSource constructRepositoryConfigurationSource() {
