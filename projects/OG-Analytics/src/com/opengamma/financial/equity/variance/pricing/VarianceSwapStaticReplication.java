@@ -9,17 +9,25 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
-import com.opengamma.financial.model.volatility.BlackFormula;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilityDeltaSurface;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceOld;
+import com.opengamma.financial.model.option.pricing.analytic.formula.BlackImpliedStrikeFromDeltaFunction;
+import com.opengamma.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceDelta;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceVistor;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.Integrator1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.math.minimization.BrentMinimizer1D;
+import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
+import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.util.CompareUtils;
+import com.opengamma.util.tuple.DoublesPair;
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * We construct a model independent method to price variance as a static replication
@@ -34,131 +42,47 @@ import com.opengamma.util.CompareUtils;
  */
 public class VarianceSwapStaticReplication {
 
-  // TODO CASE Review: Current treatment of forward vol attempts to disallow 'short' periods that may confuse intention of traders.
+  //TODO CASE Review: Current treatment of forward vol attempts to disallow 'short' periods that may confuse intention of traders.
   // If the entire observation period is less than A_FEW_WEEKS, an error will be thrown.
   // If timeToFirstObs < A_FEW_WEEKS, the pricer will consider the volatility to be from now until timeToLastObs
   private static final double A_FEW_WEEKS = 0.05;
+  protected static final double EPS = 1.0e-12;
+  private static final double DEFULT_TOLERANCE = 1e-7;
+  private static final Integrator1D<Double, Double> DEFAULT_INTEGRAL = new RungeKuttaIntegrator1D();
+  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
-  // Vol Extrapolation
-  private final StrikeParameterization _cutoffType; // Whether strike targets are specified as Absolute Strike or Spot Delta levels
-  private final Double _cutoffLevel; // Lowest interpolated 'strike', whether fixed value, call or put delta. ShiftedLognormal hits Put(_deltaCutoff)
-  private final Double _cutoffSpread; // Match derivative near cutoff by also fitting to Put(_deltaCutoff + _deltaSpread)
-  private final boolean _cutoffProvided; // False if the above are null
-  private static final double EPS = 1.0e-12;
-
-  /**
-   * Strike prices in Volatility surfaces may be parameterized in a number of ways. To clarify, we introduce this enum.
-   * Types available: STRIKE, DELTA
-   */
-  public enum StrikeParameterization {
-    /** Strike prices, absolute levels */
-    STRIKE,
-    /** Implied spot Call delta  */
-    CALLDELTA,
-    /** Implied spot Put delta  */
-    PUTDELTA
-  }
-
-  // Integration parameters
-  private final double _lowerBound; // ~ zero
-  private final double _upperBound; // ~infinity in strike space, ~1.0 in delta
   private final Integrator1D<Double, Double> _integrator;
+  private double _tol;
 
-  /**
-   * Default constructor with sensible inputs.
-   * A shiftedLognormal distribution is fit to extrapolate below 0.25*forward. It matches the 0.25*F and 0.3*F prices, representing a measure of level and slope
-   * @param strikeType TODO
-   */
-
-  /**
-   * Default constructor relies on extrapolation of data bundle's BlackVolatilitySurface to handle low strikes.
-   */
   public VarianceSwapStaticReplication() {
-
-    _lowerBound = EPS;
-    _upperBound = 20.0;
-    _integrator = new RungeKuttaIntegrator1D();
-
-    _cutoffType = null;
-    _cutoffLevel = null;
-    _cutoffSpread = null;
-    _cutoffProvided = false;
+    _tol = DEFULT_TOLERANCE;
+    _integrator = DEFAULT_INTEGRAL;
   }
 
-  public VarianceSwapStaticReplication(StrikeParameterization strikeType) {
-    Validate.notNull(strikeType, "Please provide a StrikeParameterization. You may find this from your BlackVolatilitySurface.getStrikeParameterisation()");
-    switch (strikeType) {
-
-      case STRIKE:
-        _lowerBound = 0.0 + EPS;
-        _upperBound = 10.0; // Multiple of forward. Integrand falls off quickly.
-        _integrator = new RungeKuttaIntegrator1D();
-
-        _cutoffType = strikeType;
-        _cutoffLevel = 0.25;
-        _cutoffSpread = 0.05;
-        _cutoffProvided = true;
-        break;
-
-      case PUTDELTA:
-        _lowerBound = 0.0 + EPS; // TODO Confirm this doesn't fall over
-        _upperBound = 1.0 - EPS;
-        _integrator = new RungeKuttaIntegrator1D();
-
-        _cutoffType = strikeType;
-        _cutoffLevel = 0.1;
-        _cutoffSpread = 0.001;
-        _cutoffProvided = true;
-        break;
-
-      case CALLDELTA:
-        //Validate.isTrue(false, "Finish CALLDELTA Constructor");
-        _lowerBound = 0.0 + EPS; // TODO Confirm this doesn't fall over
-        _upperBound = 1.0 - EPS;
-        _integrator = new RungeKuttaIntegrator1D();
-
-        _cutoffType = strikeType;
-        _cutoffLevel = 0.9;
-        _cutoffSpread = -0.001;
-        _cutoffProvided = true;
-        break;
-
-      default:
-        throw new IllegalArgumentException("Unhandled StrikeParameterisation.");
-    }
+  public VarianceSwapStaticReplication(final double tolerance) {
+    Validate.isTrue(tolerance > EPS && tolerance < 0.1, "Please specifiy tolerance in the range 1e-12 to 1e-1 or use other constructor");
+    _tol = tolerance;
+    _integrator = DEFAULT_INTEGRAL;
   }
 
-  /**
-   * Construct a model independent method to price variance as infinite sum of call and put option prices on the underlying.
-   * When the cutoff parameters are provided, a shifted lognormal is fit to the two target vols, and used to extrapolate to low strikes.
-   * 
-   * @param lowerBound Lowest strike / delta in integral. Near zero.
-   * @param upperBound Highest strike / delta in integral. Big => just shy of 1.0 in  delta space, multiples of the forward in fixed strike space.
-   * @param integrator Integration method
-   * @param cutoffType Whether the cutoff is parameterized as STRIKE, CALLDELTA or PUTDELTA
-   * @param cutoffLevel First target of shifted lognormal model. Below this, the fit model will extrapolate to produce prices
-   * @param cutoffSpread Second target is cutoffLevel + cutoffSpread. Given as fraction of the forward (if STRIKE) else delta value
-   */
-  public VarianceSwapStaticReplication(final double lowerBound, final double upperBound, final Integrator1D<Double, Double> integrator,
-      final StrikeParameterization cutoffType, final Double cutoffLevel, final Double cutoffSpread) {
-
-    _lowerBound = lowerBound;
-    _upperBound = upperBound;
+  public VarianceSwapStaticReplication(final Integrator1D<Double, Double> integrator) {
+    Validate.notNull(integrator, "null integrator");
+    _tol = DEFULT_TOLERANCE;
     _integrator = integrator;
+  }
 
-    _cutoffType = cutoffType;
-    _cutoffLevel = cutoffLevel;
-    _cutoffSpread = cutoffSpread;
-    if (_cutoffType == null || _cutoffLevel == null || _cutoffSpread == null) {
-      Validate.isTrue(_cutoffType == null && _cutoffLevel == null && _cutoffSpread == null,
-      "To specify a ShiftedLognormal for left tail extrapolation, all three of a cutoff type, a cutoff level and a spread must be provided.");
-      _cutoffProvided = false;
-    } else {
-      _cutoffProvided = true;
-    }
+  public VarianceSwapStaticReplication(final double tolerance, final Integrator1D<Double, Double> integrator) {
+    Validate.isTrue(tolerance > EPS && tolerance < 0.1, "Please specifiy tolerance in the range 1e-12 to 1e-1 or use other constructor");
+    Validate.notNull(integrator, "null integrator");
+    _tol = tolerance;
+    _integrator = integrator;
   }
 
   public double presentValue(final VarianceSwap deriv, final VarianceSwapDataBundle market) {
+    return presentValue(deriv, market, null);
+  }
+
+  public double presentValue(final VarianceSwap deriv, final VarianceSwapDataBundle market, DoublesPair cutoff) {
     Validate.notNull(deriv, "VarianceSwap deriv");
     Validate.notNull(market, "VarianceSwapDataBundle market");
 
@@ -169,7 +93,7 @@ public class VarianceSwapStaticReplication {
     // Compute contribution from past realizations
     double realizedVar = new RealizedVariance().evaluate(deriv); // Realized variance of log returns already observed
     // Compute contribution from future realizations
-    double remainingVar = impliedVariance(deriv, market); // Remaining variance implied by option prices
+    double remainingVar = impliedVariance(deriv, market, cutoff); // Remaining variance implied by option prices
 
     // Compute weighting
     double nObsExpected = deriv.getObsExpected(); // Expected number as of trade inception
@@ -198,6 +122,41 @@ public class VarianceSwapStaticReplication {
    * @return presentValue of the *remaining* variance in the swap.
    */
   public double impliedVariance(final VarianceSwap deriv, final VarianceSwapDataBundle market) {
+    return impliedVariance(deriv, market, null);
+  }
+
+  /**
+   * Computes the fair value strike of a spot starting VarianceSwap parameterized in 'variance' terms,
+   * It is quoted as an annual variance value, hence 1/T * integral(0,T) {sigmaSquared dt} <p>
+   * 
+   * @param deriv VarianceSwap derivative to be priced
+   * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
+   * @return presentValue of the *remaining* variance in the swap.
+   */
+  public double impliedVariance(final VarianceSwap deriv, final VarianceSwapDataBundle market, DoublesPair cutoff) {
+
+    validateData(deriv, market);
+
+    final double timeToLastObs = deriv.getTimeToObsEnd();
+    if (timeToLastObs <= 0) {//expired swap returns 0 variance
+      return 0.0;
+    }
+
+    final double timeToFirstObs = deriv.getTimeToObsStart();
+
+    // Compute Variance from spot until last observation
+    final double varianceSpotEnd = impliedVarianceFromSpot(timeToLastObs, market, cutoff);
+
+    // If timeToFirstObs < A_FEW_WEEKS, the pricer will consider the volatility to be from now until timeToLastObs
+    final boolean forwardStarting = timeToFirstObs > A_FEW_WEEKS;
+    if (!forwardStarting) {
+      return varianceSpotEnd;
+    }
+    final double varianceSpotStart = impliedVarianceFromSpot(timeToFirstObs, market, cutoff);
+    return (varianceSpotEnd * timeToLastObs - varianceSpotStart * timeToFirstObs) / (timeToLastObs - timeToFirstObs);
+  }
+
+  private void validateData(final VarianceSwap deriv, final VarianceSwapDataBundle market) {
     Validate.notNull(deriv, "VarianceSwap deriv");
     Validate.notNull(market, "VarianceSwapDataBundle market");
 
@@ -206,17 +165,6 @@ public class VarianceSwapStaticReplication {
 
     Validate.isTrue(timeToFirstObs + A_FEW_WEEKS < timeToLastObs, "timeToLastObs is not sufficiently longer than timeToFirstObs. "
         + "This method is not intended to handle very short periods of volatility." + (timeToLastObs - timeToFirstObs));
-
-    // Compute Variance from spot until last observation
-    final double varianceSpotEnd = impliedVarianceFromSpot(timeToLastObs, market);
-
-    // If timeToFirstObs < A_FEW_WEEKS, the pricer will consider the volatility to be from now until timeToLastObs
-    final boolean forwardStarting = timeToFirstObs > A_FEW_WEEKS;
-    if (!forwardStarting) {
-      return varianceSpotEnd;
-    }
-    final double varianceSpotStart = impliedVarianceFromSpot(timeToFirstObs, market);
-    return (varianceSpotEnd * timeToLastObs - varianceSpotStart * timeToFirstObs) / (timeToLastObs - timeToFirstObs);
   }
 
   /**
@@ -227,204 +175,335 @@ public class VarianceSwapStaticReplication {
    * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
    * @return presentValue of the *remaining* variance in the swap.
    */
-  private double impliedVarianceFromSpot(final double expiry, final VarianceSwapDataBundle market) {
+  protected double impliedVarianceFromSpot(final double expiry, final VarianceSwapDataBundle market) {
+    return impliedVarianceFromSpot(expiry, market, null);
+  }
 
-    final ProbabilityDistribution<Double> ndist = new NormalDistribution(0, 1);
-
+  /**
+   * Computes the fair value strike of a spot starting VarianceSwap parameterized in 'variance' terms,
+   * It is quoted as an annual variance value, hence 1/T * integral(0,T) {sigmaSquared dt} <p>
+   * 
+   * @param expiry Time from spot until last observation
+   * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
+   * @return presentValue of the *remaining* variance in the swap.
+   */
+  protected double impliedVarianceFromSpot(final double expiry, final VarianceSwapDataBundle market, DoublesPair cutoff) {
     // 1. Unpack Market data
-    final double fwd = market.getForwardUnderlying();
-    final BlackVolatilitySurfaceOld volSurf = market.getVolatilitySurface();
+    final double fwd = market.getForwardCurve().getForward(expiry);
+    final BlackVolatilitySurface<?> volSurf = market.getVolatilitySurface();
 
-    if (_cutoffType != null) {
-      if (volSurf.getStrikeParameterisation() == StrikeParameterization.PUTDELTA || volSurf.getStrikeParameterisation() == StrikeParameterization.CALLDELTA) {
-        Validate.isTrue(_cutoffType == StrikeParameterization.PUTDELTA || _cutoffType == StrikeParameterization.CALLDELTA,
-        "Left Tail extrapolation type is not consistent with Vol Surface, BlackVolatilityDeltaSurface. The cutoff must be of type PUTDELTA or CALLDELTA.");
+    varianceCalculator varCal;
+    if (cutoff == null) {
+      varCal = new varianceCalculator(fwd, expiry);
+    } else {
+      ExtrapolationParameters exParCal = new ExtrapolationParameters(fwd, expiry);
+      Pair<double[], double[]> pars = exParCal.getparameters(volSurf, cutoff);
+      double[] ks = pars.getFirst();
+      double[] vols = pars.getSecond();
+      final double res = getResidual(fwd, expiry, ks, vols);
 
-        if (!(volSurf.getSurface() instanceof ConstantDoublesSurface)) {
-
-          final Double[] deltas = volSurf.getSurface().getYData();
-          final int nDeltas = deltas.length;
-          if (nDeltas > 0) {
-            if (_cutoffType == StrikeParameterization.PUTDELTA) {
-              Validate.isTrue(deltas[0] <= deltas[nDeltas - 1], "Deltas are not increasing. Constructor has told pricer to expect a VolatilitySurface with StrikeParameterisation.PUTDELTA. "
-                  + "Check that deltas are not CALLDELTA. Make change in either constructor or in surface.");
-            }
-            if (_cutoffType == StrikeParameterization.CALLDELTA) {
-              Validate.isTrue(deltas[0] >= deltas[nDeltas - 1], "Deltas are not decreasing. Constructor has told pricer to expect a VolatilitySurface with StrikeParameterisation.CALLDELTA. "
-                  + "Check that deltas are not PUTDELTA. Make change in either constructor or in surface.");
-            }
-          }
-        }
-
-      } else if (volSurf.getStrikeParameterisation() == StrikeParameterization.STRIKE) {
-        Validate.isTrue(_cutoffType == StrikeParameterization.STRIKE,
-        "Left Tail extrapolation type is not consistent with Vol Surface, BlackVolatilityFixedStrikeSurface. The cutoff must be of type STRIKE.");
-      } else {
-        throw new IllegalArgumentException("The BlackVolatilitySurface in the VarianceSwapDataBundle must be of type BlackVolatilityFixedStrikeSurface or BlackVolatilityDeltaSurface.");
-      }
-
-    }
-    if (expiry < 1E-4) { // If expiry occurs in less than an hour or so, return 0
-      return 0;
+      varCal = new varianceCalculator(fwd, expiry, res, cutoff.first);
     }
 
-    /******* Handle strike parameterisation cases separately *******/
+    return varCal.getVariance(volSurf);
+  }
 
-    /******* Case 1: BlackVolatilityFixedStrikeSurface *******/
-    if (volSurf.getStrikeParameterisation() == StrikeParameterization.STRIKE) {
+  class ExtrapolationParameters implements BlackVolatilitySurfaceVistor<DoublesPair, Pair<double[], double[]>> {
 
-      // 2. Fit the leftExtrapolator to the two target strikes, if provided
-      final ShiftedLognormalVolModel leftExtrapolator;
-      final double cutoffStrike = _cutoffProvided ? _cutoffLevel * fwd : 0.0;
-      final Double lowerBoundOfExtrapolator;
-      final Double lowerBoundValue;
+    private final double _t;
+    private final double _f;
 
-      if (_cutoffProvided) {
-        final double secondStrike = (_cutoffLevel + _cutoffSpread) * fwd;
-        final double cutoffVol = volSurf.getVolatility(expiry, cutoffStrike);
-        final double secondVol = volSurf.getVolatility(expiry, secondStrike);
+    public ExtrapolationParameters(final double forward, final double expiry) {
+      _t = expiry;
+      _f = forward;
+    }
 
-        // Check for trivial case where cutoff is so low that there's no effective value in the option
-        double cutoffPrice = volSurf.getForwardPrice(expiry, cutoffStrike, fwd, cutoffStrike > fwd);
-        if (CompareUtils.closeEquals(cutoffPrice, 0)) {
-          leftExtrapolator = new ShiftedLognormalVolModel(fwd, expiry, 0.0, -1.0e6); // Model will price every strike at zero
-          lowerBoundOfExtrapolator = 0.0;
-          lowerBoundValue = 0.0;
-        } else { // The typical case
-          leftExtrapolator = new ShiftedLognormalVolModel(fwd, expiry, cutoffStrike, cutoffVol, secondStrike, secondVol);
+    public Pair<double[], double[]> getparameters(BlackVolatilitySurface<?> surf, DoublesPair cutoff) {
+      return surf.accept(this, cutoff);
+    }
 
-          // Now, handle behaviour near zero strike. ShiftedLognormalVolModel has non-zero put price for zero strike.
-          // What we do is to find the strike, k_min, at which p(k)/k^2 begins to blow up, and fit a quadratic, p(k) = p(k_min) * k^2 / k_min^2
-          // This ensures the implied volatility and the integrand are well behaved in the limit k -> 0.
-          final Function1D<Double, Double> shiftedLnIntegrand = new Function1D<Double, Double>() {
-            @Override
-            public Double evaluate(Double strike) {
-              return 2.0 * leftExtrapolator.priceFromFixedStrike(strike) / (strike * strike);
-            }
-          };
-          lowerBoundOfExtrapolator = new BrentMinimizer1D().minimize(shiftedLnIntegrand, EPS, EPS, cutoffStrike);
-          lowerBoundValue = shiftedLnIntegrand.evaluate(lowerBoundOfExtrapolator);
+    @Override
+    public Pair<double[], double[]> visitDelta(BlackVolatilitySurfaceDelta surface, DoublesPair data) {
+      final double[] deltas = new double[2];
+      final double[] k = new double[2];
+      final double[] vols = new double[2];
+      deltas[0] = data.first;
+      deltas[1] = data.second;
+      vols[0] = surface.getVolatilityForDelta(_t, deltas[0]);
+      vols[1] = surface.getVolatilityForDelta(_t, deltas[1]);
+      k[0] = BlackFormulaRepository.strikeForDelta(_f, deltas[0], _t, vols[0], true);
+      k[1] = BlackFormulaRepository.strikeForDelta(_f, deltas[1], _t, vols[1], true);
+      Validate.isTrue(k[0] < k[1], "need first (cutoff) strike less than second");
+      return new ObjectsPair<double[], double[]>(k, vols);
+    }
 
-        }
+    @Override
+    public Pair<double[], double[]> visitStrike(BlackVolatilitySurfaceStrike surface, DoublesPair data) {
+      final double[] k = new double[2];
+      final double[] vols = new double[2];
+      k[0] = data.first;
+      k[1] = data.second;
+      Validate.isTrue(k[0] < k[1], "need first (cutoff) strike less than second");
+      vols[0] = surface.getVolatility(_t, k[0]);
+      vols[1] = surface.getVolatility(_t, k[1]);
+      return new ObjectsPair<double[], double[]>(k, vols);
+    }
 
-      } else {
-        leftExtrapolator = null;
-        lowerBoundOfExtrapolator = 0.0;
-        lowerBoundValue = 0.0;
+    @Override
+    public Pair<double[], double[]> visitMoneyness(BlackVolatilitySurfaceMoneyness surface, DoublesPair data) {
+      return null;
+    }
+
+    @Override
+    public Pair<double[], double[]> visitDelta(BlackVolatilitySurfaceDelta surface) {
+      return null;
+    }
+
+    @Override
+    public Pair<double[], double[]> visitStrike(BlackVolatilitySurfaceStrike surface) {
+      return null;
+    }
+
+    @Override
+    public Pair<double[], double[]> visitMoneyness(BlackVolatilitySurfaceMoneyness surface) {
+      return null;
+    }
+
+  }
+
+  class varianceCalculator implements BlackVolatilitySurfaceVistor<DoublesPair, Double> {
+
+    private final BracketRoot BRACKETER = new BracketRoot();
+    private final BisectionSingleRootFinder ROOT_FINDER = new BisectionSingleRootFinder(1e-3);
+
+    private final double _t;
+    private final double _f;
+    private final double _residual;
+    private final double _lowStrikeCutoff;
+    private final boolean _addResidual;
+
+    public varianceCalculator(final double forward, final double expiry) {
+      _f = forward;
+      _t = expiry;
+      _addResidual = false;
+      _lowStrikeCutoff = 0.0;
+      _residual = 0.0;
+    }
+
+    public varianceCalculator(final double forward, final double expiry, final double residual, final double lowStrikeCutoff) {
+      _f = forward;
+      _t = expiry;
+      _addResidual = true;
+      _lowStrikeCutoff = lowStrikeCutoff;
+      _residual = residual;
+    }
+
+    public double getVariance(BlackVolatilitySurface<?> surf) {
+      return surf.accept(this);
+    }
+
+    @Override
+    public Double visitDelta(final BlackVolatilitySurfaceDelta surface, final DoublesPair data) {
+
+      if (_t < 1e-4) {
+        final double dnsVol = surface.getVolatilityForDelta(_t, 0.5);
+        return dnsVol * dnsVol;
       }
 
-      // 3. Define the hedging portfolio: The position to hold in each otmOption(k) = 2 / strike^2,
-      //                                       where otmOption is a call if k > fwd and a put otherwise
-      final Function1D<Double, Double> otmOptionAndWeight = new Function1D<Double, Double>() {
-        @SuppressWarnings("synthetic-access")
-        @Override
-        public Double evaluate(final Double strike) {
+      final double eps = 1e-5;
 
-          final boolean isCall = strike > fwd;
-          final double weight = 2 / (strike * strike);
-          if (_cutoffProvided && strike < cutoffStrike) { // Extrapolate with ShiftedLognormal
-            if (strike >= lowerBoundOfExtrapolator) {
-              return leftExtrapolator.priceFromFixedStrike(strike) * weight;
-            }
-            return lowerBoundValue;
-          } // Interp/Extrap directly on volSurf
-          final double vol = volSurf.getVolatility(expiry, strike);
-          BlackFormula formula = new BlackFormula(fwd, strike, expiry, vol, null, isCall);
-          final double otmPrice = formula.computePrice();
-          return otmPrice * weight;
-        }
-      };
-
-      // 4. Compute variance hedge by integrating positions over all strikes
-      double variance = _integrator.integrate(otmOptionAndWeight, _lowerBound * fwd, _upperBound * fwd);
-      return variance / expiry;
-
-      /******* Case 2: BlackVolatilityDeltaSurface *******/
-    } else if (volSurf.getStrikeParameterisation() == StrikeParameterization.CALLDELTA || volSurf.getStrikeParameterisation() == StrikeParameterization.PUTDELTA) {
-
-      final boolean axisOfCalls = ((BlackVolatilityDeltaSurface) volSurf).strikeAxisRepresentsCalls();
-      final ShiftedLognormalVolModel leftExtrapolator;
-      final double cutoffStrike;
-
-      if (_cutoffProvided) {
-        // 2. Fit the leftExtrapolator to the two target deltas, if provided
-
-        final double cutoffVol = volSurf.getVolatility(expiry, _cutoffLevel);
-        final BlackFormula black = new BlackFormula(fwd, fwd, expiry, cutoffVol, null, axisOfCalls);
-        cutoffStrike = black.computeStrikeImpliedByForwardDelta(_cutoffLevel, axisOfCalls);
-
-        final double secondVol = volSurf.getVolatility(expiry, _cutoffLevel + _cutoffSpread);
-        black.setLognormalVol(secondVol);
-        final double secondStrike = black.computeStrikeImpliedByForwardDelta(_cutoffLevel + _cutoffSpread, axisOfCalls);
-
-        // Check for trivial case where cutoff is so low that there's no effective value in the option
-        double cutoffPrice = volSurf.getForwardPrice(expiry, _cutoffLevel, fwd, cutoffStrike > fwd);
-        if (CompareUtils.closeEquals(cutoffPrice, 0)) {
-          leftExtrapolator = new ShiftedLognormalVolModel(fwd, expiry, 0.0, -1.0e6); // Model will price every strike at zero
-        } else {
-          // Typical case
-          leftExtrapolator = new ShiftedLognormalVolModel(fwd, expiry, cutoffStrike, cutoffVol, secondStrike, secondVol);
-        }
-      } else {
-        cutoffStrike = 0.0;
-        leftExtrapolator = null;
-      }
-      // 3. Define the hedging portfolio : The position to hold in each otmOption(k) = 2 / strike^2,
-      //                                    where otmOption is a call if k > fwd and a put otherwise
-      final Function1D<Double, Double> otmOptionAndWeight = new Function1D<Double, Double>() {
+      Function1D<Double, Double> integrand = new Function1D<Double, Double>() {
         @SuppressWarnings("synthetic-access")
         @Override
         public Double evaluate(final Double delta) {
 
-          final double vol = volSurf.getVolatility(expiry, delta);
-          final BlackFormula black = new BlackFormula(fwd, fwd, expiry, vol, null, axisOfCalls);
+          final double vol = surface.getVolatilityForDelta(_t, delta);
+          final double strike = BlackImpliedStrikeFromDeltaFunction.impliedStrike(delta, true, _f, _t, vol);
+          boolean isCall = strike >= _f;
 
-          final double strike = black.computeStrikeImpliedByForwardDelta(delta, axisOfCalls);
-
-          black.setStrike(strike);
-          black.setIsCall(strike > fwd);
-
-          //Review R White 2/2/2012 I think this is only true when there is no smile, otherwise you have dSigma/dDelta terms
-          // 2/k^2 => the following when we switch integration variable to delta
-          double weight = 2 * vol * Math.sqrt(expiry) / strike;
-          double d1 = ndist.getInverseCDF(delta);
-          weight /= ndist.getPDF(d1);
-          //****************************
-          //
-          //          final double eps = 1e-5;
-          //          double dSigmaDDelta;
-          //          if (delta < eps) {
-          //            final double volUp = volSurf.getVolatility(expiry, delta + eps);
-          //            dSigmaDDelta = (volUp - vol) / eps;
-          //          } else if (delta > 1 - eps) {
-          //            final double volDown = volSurf.getVolatility(expiry, delta - eps);
-          //            dSigmaDDelta = (vol - volDown) / eps;
-          //          } else {
-          //            final double volUp = volSurf.getVolatility(expiry, delta + eps);
-          //            final double volDown = volSurf.getVolatility(expiry, delta - eps);
-          //            dSigmaDDelta = (volUp - volDown) / 2 / eps;
-          //          }
-          //          double d1 = ndist.getInverseCDF(delta);
-          //          double rootT = Math.sqrt(expiry);
-          //          double weight = 2 * (vol * rootT / ndist.getPDF(d1) + dSigmaDDelta * (d1 * rootT - vol * expiry)) / strike;
-          //****************************
-          double otmPrice;
-          if (_cutoffProvided && strike < cutoffStrike) { // Extrapolate with ShiftedLognormal
-            otmPrice = leftExtrapolator.priceFromFixedStrike(strike);
+          //TODO if should be the job of the vol surface to provide derivatives
+          double dSigmaDDelta;
+          if (delta < eps) {
+            final double volUp = surface.getVolatilityForDelta(_t, delta + eps);
+            dSigmaDDelta = (volUp - vol) / eps;
+          } else if (delta > 1 - eps) {
+            final double volDown = surface.getVolatilityForDelta(_t, delta - eps);
+            dSigmaDDelta = (vol - volDown) / eps;
           } else {
-            otmPrice = black.computePrice();
+            final double volUp = surface.getVolatilityForDelta(_t, delta + eps);
+            final double volDown = surface.getVolatilityForDelta(_t, delta - eps);
+            dSigmaDDelta = (volUp - volDown) / 2 / eps;
           }
+
+          final double d1 = NORMAL.getInverseCDF(delta);
+          final double rootT = Math.sqrt(_t);
+          final double weight = (vol * rootT / NORMAL.getPDF(d1) + dSigmaDDelta * (d1 * rootT - vol * _t)) / strike;
+          final double otmPrice = BlackFormulaRepository.price(_f, strike, _t, vol, isCall);
           return weight * otmPrice;
         }
       };
 
-      // 4. Compute variance hedge by integrating positions over all strikes
-      double variance = _integrator.integrate(otmOptionAndWeight, _lowerBound, _upperBound);
-      return variance / expiry;
+      //find the delta corresponding to the at-the-money-forward (NOTE this is not the DNS of delta = 0.5)
+      final double atmfVol = surface.getVolatility(_t, _f);
+      final double atmfDelta = BlackFormulaRepository.delta(_f, _f, _t, atmfVol, true);
 
-    } else {
-      throw new IllegalArgumentException("Unexpected cutoffType. Allowed values of StrikeParameterisation are STRIKE and DELTA.");
+      final double lowerLimit = data.first;
+      final double upperLimit = data.second;
+
+      //Do the call/k^2 integral - split up into the the put integral and the call integral because the function is not smooth at strike = forward
+      double res = _integrator.integrate(integrand, atmfDelta, upperLimit);
+      res += _integrator.integrate(integrand, lowerLimit, atmfDelta);
+
+      if (_addResidual) {
+        res += _residual;
+      }
+      return 2 * res / _t;
     }
+
+    @Override
+    public Double visitStrike(final BlackVolatilitySurfaceStrike surface, DoublesPair data) {
+
+      if (_t < 1e-4) {
+        final double atmVol = surface.getVolatility(_t, _f);
+        return atmVol * atmVol;
+      }
+
+      final Function1D<Double, Double> integrand = new Function1D<Double, Double>() {
+        @SuppressWarnings("synthetic-access")
+        @Override
+        public Double evaluate(final Double strike) {
+          if (strike == 0) {
+            return 0.0;
+          }
+          final boolean isCall = strike >= _f;
+          final double vol = surface.getVolatility(_t, strike);
+          final double otmPrice = BlackFormulaRepository.price(_f, strike, _t, vol, isCall);
+          final double weight = 1.0 / (strike * strike);
+          return otmPrice * weight;
+        }
+      };
+
+      final double lowerLimit = data.first;
+      final double upperLimit = data.second;
+
+      //Do the call/k^2 integral - split up into the the put integral and the call integral because the function is not smooth at strike = forward
+      double res = _integrator.integrate(integrand, _f, upperLimit);
+      res += _integrator.integrate(integrand, lowerLimit, _f);
+
+      if (_addResidual) {
+        res += _residual;
+      }
+      return 2 * res / _t;
+    }
+
+    @Override
+    public Double visitMoneyness(BlackVolatilitySurfaceMoneyness surface, DoublesPair data) {
+      return null;
+    }
+
+    @Override
+    public Double visitDelta(BlackVolatilitySurfaceDelta surface) {
+
+      if (_t < 1e-4) {
+        final double atmVol = surface.getVolatility(_t, _f);
+        return atmVol * atmVol;
+      }
+
+      double lowerLimit, upperLimit;
+      if (_addResidual) {
+        upperLimit = _lowStrikeCutoff;
+      } else {
+        upperLimit = 1 - _tol;
+      }
+      lowerLimit = _tol;
+
+      DoublesPair limits = new DoublesPair(lowerLimit, upperLimit);
+      return visitDelta(surface, limits);
+    }
+
+    @Override
+    public Double visitStrike(final BlackVolatilitySurfaceStrike surface) {
+
+      final double atmVol = surface.getVolatility(_t, _f);
+      if (_t < 1e-4) {
+        return atmVol * atmVol;
+      }
+
+      final double a = _tol * atmVol * atmVol * _t / 2;
+      //  final double logA = Math.log(a);
+
+      double lowerLimit;
+      if (_addResidual) {
+        lowerLimit = _lowStrikeCutoff;
+      } else {
+
+        Function1D<Double, Double> putLimitFunc = new Function1D<Double, Double>() {
+          @Override
+          public Double evaluate(Double x) {
+            if (x == 0) {
+              return -a;
+            }
+            final double vol = surface.getVolatility(_t, x);
+            final double price = BlackFormulaRepository.price(_f, x, _t, vol, true);
+
+            return price / x - a;
+          }
+        };
+        double[] brackets = BRACKETER.getBracketedPoints(putLimitFunc, 0, 0.5 * _f, 0.0, _f);
+        lowerLimit = ROOT_FINDER.getRoot(putLimitFunc, brackets[0], brackets[1]);
+      }
+
+      Function1D<Double, Double> callLimitFunc = new Function1D<Double, Double>() {
+        @Override
+        public Double evaluate(Double x) {
+
+          final double vol = surface.getVolatility(_t, x);
+          final double price = BlackFormulaRepository.price(_f, x, _t, vol, true);
+
+          return price / x - a;
+        }
+      };
+
+      double[] brackets = BRACKETER.getBracketedPoints(callLimitFunc, 1.0 * _f, 10 * _f, _f, Double.POSITIVE_INFINITY);
+      final double upperLimit = ROOT_FINDER.getRoot(callLimitFunc, brackets[0], brackets[1]);
+
+      DoublesPair limits = new DoublesPair(lowerLimit, upperLimit);
+      return visitStrike(surface, limits);
+    }
+
+    @Override
+    public Double visitMoneyness(BlackVolatilitySurfaceMoneyness surface) {
+      return null;
+    }
+
+  }
+
+  protected double getResidual(final double fwd, final double expiry, final double[] ks, final double[] vols) {
+
+    // Check for trivial case where cutoff is so low that there's no effective value in the option
+    double cutoffPrice = BlackFormulaRepository.price(fwd, ks[0], expiry, vols[0], ks[0] > fwd);
+    if (CompareUtils.closeEquals(cutoffPrice, 0)) {
+      return 0.0; //i.e. the tail function is never used
+    }
+    // The typical case - fit a  ShiftedLognormal to the two strike-vol pairs
+    final ShiftedLognormalVolModel leftExtrapolator = new ShiftedLognormalVolModel(fwd, expiry, ks[0], vols[0], ks[1], vols[1]);
+
+    // Now, handle behaviour near zero strike. ShiftedLognormalVolModel has non-zero put price for zero strike.
+    // What we do is to find the strike, k_min, at which f(k) = p(k)/k^2 begins to blow up, by finding the minimum of this function, k_min
+    // then setting f(k) = f(k_min) for k < k_min. This ensures the implied volatility and the integrand are well behaved in the limit k -> 0.
+    final Function1D<Double, Double> shiftedLnIntegrand = new Function1D<Double, Double>() {
+      @Override
+      public Double evaluate(Double strike) {
+        return leftExtrapolator.priceFromFixedStrike(strike) / (strike * strike);
+      }
+    };
+    final double kMin = new BrentMinimizer1D().minimize(shiftedLnIntegrand, EPS, EPS, ks[0]);
+    final double fMin = shiftedLnIntegrand.evaluate(kMin);
+    double res = fMin * kMin; //the (hopefully) very small rectangular bit between zero and kMin
+
+    res += _integrator.integrate(shiftedLnIntegrand, kMin, ks[0]);
+
+    return res;
   }
 
   /**
@@ -439,4 +518,5 @@ public class VarianceSwapStaticReplication {
     final double sigmaSquared = impliedVariance(deriv, market);
     return Math.sqrt(sigmaSquared);
   }
+
 }

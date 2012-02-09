@@ -5,19 +5,23 @@
  */
 package com.opengamma.util.jms;
 
+import java.io.Closeable;
+import java.net.URI;
+
 import javax.jms.ConnectionFactory;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ReflectionUtils;
 
 /**
  * Connector used to access JMS.
  * <p>
  * This class is usually configured using the associated factory bean.
  */
-public class JmsConnector {
+public class JmsConnector implements Closeable {
 
   /**
    * The configuration name.
@@ -32,6 +36,10 @@ public class JmsConnector {
    */
   private final JmsTemplate _jmsTemplateQueue;
   /**
+   * The configuration needed by the client to connect to the broker.
+   */
+  private final URI _clientBrokerUri;
+  /**
    * The topic name.
    */
   private final String _topicName;
@@ -42,15 +50,17 @@ public class JmsConnector {
    * @param name  the configuration name, not null
    * @param jmsTemplateTopic  the JMS Spring template for topic-based messaging, not null
    * @param jmsTemplateQueue  the JMS Spring template for queue-based messaging, not null
+   * @param clientBrokerUri  the client configuration to connect to the broker, such as a URI, null if no config provided for clients
    * @param topicName  the topic name, null if left up to the application
    */
-  public JmsConnector(String name, JmsTemplate jmsTemplateTopic, JmsTemplate jmsTemplateQueue, String topicName) {
+  public JmsConnector(String name, JmsTemplate jmsTemplateTopic, JmsTemplate jmsTemplateQueue, URI clientBrokerUri, String topicName) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(jmsTemplateTopic, "jmsTemplateTopic");
     ArgumentChecker.notNull(jmsTemplateQueue, "jmsTemplateQueue");
     _name = name;
     _jmsTemplateTopic = jmsTemplateTopic;
     _jmsTemplateQueue = jmsTemplateQueue;
+    _clientBrokerUri = clientBrokerUri;
     _topicName = topicName;
   }
 
@@ -101,6 +111,19 @@ public class JmsConnector {
 
   //-------------------------------------------------------------------------
   /**
+   * Gets the broker configuration needed by the client to connect to the server.
+   * <p>
+   * The client needs some form of configuration, frequently a URI, to connect to the JMS broker.
+   * This field provides that configuration.
+   * 
+   * @return the client broker configuration, null if no config provided for clients
+   */
+  public URI getClientBrokerUri() {
+    return _clientBrokerUri;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Gets the topic name.
    * 
    * @return the topic name, null if topic left up to the application
@@ -117,7 +140,7 @@ public class JmsConnector {
    */
   public JmsConnector withTopicName(String topicName) {
     ArgumentChecker.notEmpty(topicName, "topicName");
-    return new JmsConnector(_name, _jmsTemplateTopic, _jmsTemplateQueue, topicName);
+    return new JmsConnector(_name, _jmsTemplateTopic, _jmsTemplateQueue, _clientBrokerUri, topicName);
   }
 
   //-------------------------------------------------------------------------
@@ -144,6 +167,12 @@ public class JmsConnector {
       return this;
     }
     return withTopicName(defaultTopicName);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public void close() {
+    ReflectionUtils.close(getConnectionFactory());
   }
 
   //-------------------------------------------------------------------------

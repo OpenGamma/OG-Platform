@@ -23,23 +23,28 @@ import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
+/**
+ * This class parses standard OG import fields to generate an FX Forward security
+ */
 public class FXForwardParser extends RowParser {
 
   private static final String ID_SCHEME = "FX_FORWARD_LOADER";
 
-  public String PAY_CURRENCY = "pay currency";
-  public String RECEIVE_CURRENCY = "receive currency";
-  public String PAY_AMOUNT = "pay amount";
-  public String RECEIVE_AMOUNT = "receive amount";
-  public String COUNTRY = "country";
-  public String FORWARD_DATE = "forward date";
-
+  //CSOFF
+  protected String PAY_CURRENCY = "pay currency";
+  protected String RECEIVE_CURRENCY = "receive currency";
+  protected String PAY_AMOUNT = "pay amount";
+  protected String RECEIVE_AMOUNT = "receive amount";
+  protected String COUNTRY = "country";
+  protected String FORWARD_DATE = "forward date";
+  //CSON
+  
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> fxForwardDetails) {
     Currency payCurrency = Currency.of(getWithException(fxForwardDetails, PAY_CURRENCY));
     Currency receiveCurrency = Currency.of(getWithException(fxForwardDetails, RECEIVE_CURRENCY));
-    double payAmount = Double.parseDouble(getWithException(fxForwardDetails, PAY_AMOUNT));
-    double receiveAmount = Double.parseDouble(getWithException(fxForwardDetails, RECEIVE_AMOUNT));
+    double payAmount = Math.abs(Double.parseDouble(getWithException(fxForwardDetails, PAY_AMOUNT)));
+    double receiveAmount = Math.abs(Double.parseDouble(getWithException(fxForwardDetails, RECEIVE_AMOUNT)));
     ExternalId region = RegionUtils.countryRegionId(Country.of(getWithException(fxForwardDetails, COUNTRY)));
     String date = getWithException(fxForwardDetails, FORWARD_DATE);
     ZonedDateTime forwardDate = ZonedDateTime.of(LocalDateTime.of(LocalDate.parse(date, CSV_DATE_FORMATTER), 

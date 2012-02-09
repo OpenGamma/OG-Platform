@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.base.Objects;
 import com.google.common.collect.Maps;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
@@ -210,7 +211,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     String[] schemes = StringUtils.split(uniqueId.getScheme(), '-');
     String[] values = StringUtils.split(uniqueId.getValue(), '-');
-    String[] versions = StringUtils.split(uniqueId.getVersion(), '-');
+    String[] versions = Objects.firstNonNull(StringUtils.split(uniqueId.getVersion(), '-'), new String[] {null, null});
     if (schemes.length != 2 || values.length != 2 || versions.length != 2) {
       throw new IllegalArgumentException("Invalid position identifier for MasterPositionSource: " + uniqueId);
     }
@@ -237,7 +238,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     String[] schemes = StringUtils.split(uniqueId.getScheme(), '-');
     String[] values = StringUtils.split(uniqueId.getValue(), '-');
-    String[] versions = StringUtils.split(uniqueId.getVersion(), '-');
+    String[] versions = Objects.firstNonNull(StringUtils.split(uniqueId.getVersion(), '-'), new String[] {null, null});
     if (schemes.length != 2 || values.length != 2 || versions.length != 2) {
       throw new IllegalArgumentException("Invalid trade identifier for MasterPositionSource: " + uniqueId);
     }
@@ -391,7 +392,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    String str = getClass().getSimpleName() + "[" + getPositionMaster() + "," + getPositionMaster();
+    String str = getClass().getSimpleName() + "[" + getPortfolioMaster() + "," + getPositionMaster();
     if (getVersionCorrection() != null) {
       str += ",versionCorrection=" + getVersionCorrection();
     }

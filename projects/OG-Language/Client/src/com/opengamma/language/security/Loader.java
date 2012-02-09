@@ -6,19 +6,20 @@
 
 package com.opengamma.language.security;
 
+import java.net.URI;
+
 import net.sf.ehcache.CacheManager;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.security.EHCachingFinancialSecuritySource;
-import com.opengamma.financial.security.rest.RemoteFinancialSecuritySource;
+import com.opengamma.financial.security.RemoteFinancialSecuritySource;
 import com.opengamma.language.config.Configuration;
 import com.opengamma.language.context.ContextInitializationBean;
 import com.opengamma.language.context.MutableGlobalContext;
 import com.opengamma.language.function.FunctionProviderBean;
 import com.opengamma.language.procedure.ProcedureProviderBean;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -68,13 +69,13 @@ public class Loader extends ContextInitializationBean {
 
   @Override
   protected void initContext(final MutableGlobalContext globalContext) {
-    final RestTarget restTarget = getConfiguration().getRestTargetConfiguration(getConfigurationEntry());
-    if (restTarget == null) {
+    final URI uri = getConfiguration().getURIConfiguration(getConfigurationEntry());
+    if (uri == null) {
       s_logger.warn("Security support not available");
       return;
     }
     s_logger.info("Configuring security support");
-    globalContext.setSecuritySource(new EHCachingFinancialSecuritySource(new RemoteFinancialSecuritySource(getConfiguration().getFudgeContext(), restTarget), getCacheManager()));
+    globalContext.setSecuritySource(new EHCachingFinancialSecuritySource(new RemoteFinancialSecuritySource(uri), getCacheManager()));
     globalContext.getFunctionProvider().addProvider(
         new FunctionProviderBean(FetchSecurityFunction.INSTANCE));
     globalContext.getProcedureProvider().addProvider(

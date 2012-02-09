@@ -5,62 +5,38 @@
  */
 package com.opengamma.financial.analytics.ircurve.rest;
 
-import javax.time.calendar.LocalDate;
+import java.net.URI;
 
-import org.fudgemsg.FudgeContext;
-import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeDeserializer;
-import org.fudgemsg.mapping.FudgeSerializer;
+import javax.time.calendar.LocalDate;
 
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationBuilder;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
-import com.opengamma.transport.jaxrs.RestClient;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**
- * 
+ * Provides access to a remote {@link InterpolatedYieldCurveSpecificationBuilder}.
  */
-public class RemoteInterpolatedYieldCurveSpecificationBuilder implements InterpolatedYieldCurveSpecificationBuilder {
+public class RemoteInterpolatedYieldCurveSpecificationBuilder extends AbstractRemoteClient implements InterpolatedYieldCurveSpecificationBuilder {
 
-  private final RestClient _restClient;
-  private final RestTarget _targetBase;
-
-  public RemoteInterpolatedYieldCurveSpecificationBuilder(final FudgeContext fudgeContext, final RestTarget baseTarget) {
-    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
-    ArgumentChecker.notNull(baseTarget, "baseTarget");
-    _restClient = RestClient.getInstance(fudgeContext, null);
-    _targetBase = baseTarget;
+  /**
+   * Creates an instance.
+   * 
+   * @param baseUri  the base target URI for all RESTful web services, not null
+   */
+  public RemoteInterpolatedYieldCurveSpecificationBuilder(final URI baseUri) {
+    super(baseUri);
   }
 
-  protected FudgeContext getFudgeContext() {
-    return getRestClient().getFudgeContext();
-  }
-
-  protected RestClient getRestClient() {
-    return _restClient;
-  }
-
-  protected RestTarget getTargetBase() {
-    return _targetBase;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public InterpolatedYieldCurveSpecification buildCurve(LocalDate curveDate, YieldCurveDefinition curveDefinition) {
     ArgumentChecker.notNull(curveDate, "curveDate");
     ArgumentChecker.notNull(curveDefinition, "curveDefinition");
-    final RestTarget target = getTargetBase().resolve(curveDate.toString());
-    final FudgeSerializer sctx = new FudgeSerializer(getFudgeContext());
-    final MutableFudgeMsg defnMsg = sctx.newMessage();
-    sctx.addToMessageWithClassHeaders(defnMsg, "definition", null, curveDefinition, YieldCurveDefinition.class);
-    final FudgeMsgEnvelope specMsg = getRestClient().post(target, defnMsg);
-    if (specMsg == null) {
-      return null;
-    }
-    final FudgeDeserializer deserializer = new FudgeDeserializer(getFudgeContext());
-    return deserializer.fieldValueToObject(InterpolatedYieldCurveSpecification.class, specMsg.getMessage().getByName("specification"));
+    
+    URI uri = DataInterpolatedYieldCurveSpecificationBuilderResource.uriBuildCurve(getBaseUri(), curveDate);
+    return accessRemote(uri).post(InterpolatedYieldCurveSpecification.class, curveDefinition);
   }
 
 }

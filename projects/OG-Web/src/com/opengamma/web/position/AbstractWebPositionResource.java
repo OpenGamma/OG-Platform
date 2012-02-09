@@ -12,13 +12,13 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.AbstractWebResource;
+import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.security.WebSecuritiesData;
 import com.opengamma.web.security.WebSecuritiesUris;
@@ -26,36 +26,33 @@ import com.opengamma.web.security.WebSecuritiesUris;
 /**
  * Abstract base class for RESTful position resources.
  */
-public abstract class AbstractWebPositionResource extends AbstractWebResource {
-  
+public abstract class AbstractWebPositionResource extends AbstractPerRequestWebResource {
+
   /**
    * The backing bean.
    */
   private final WebPositionsData _data;
 
   /**
-   * The HTS resolver (for getting an HTS Id)
-   */
-  private final HistoricalTimeSeriesResolver _htsResolver;
-
-  /**
    * Creates the resource.
+   * 
    * @param positionMaster  the position master, not null
    * @param securityLoader  the security loader, not null
    * @param securitySource  the security source, not null
-   * @param htsResolver     the historical time series resolver, not null
+   * @param htsSource  the historical time series source, not null
    */
   protected AbstractWebPositionResource(
       final PositionMaster positionMaster, final SecurityLoader securityLoader, final SecuritySource securitySource,
-      final HistoricalTimeSeriesResolver htsResolver) {
+      final HistoricalTimeSeriesSource htsSource) {
     ArgumentChecker.notNull(positionMaster, "positionMaster");
     ArgumentChecker.notNull(securityLoader, "securityLoader");
     ArgumentChecker.notNull(securitySource, "securitySource");
+    ArgumentChecker.notNull(htsSource, "htsSource");
     _data = new WebPositionsData();
-    _htsResolver = htsResolver;
     data().setPositionMaster(positionMaster);
     data().setSecurityLoader(securityLoader);
-    data().setSecuritySource(securitySource);    
+    data().setSecuritySource(securitySource);
+    data().setHistoricalTimeSeriesSource(htsSource);
   }
 
   /**
@@ -65,7 +62,6 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
   protected AbstractWebPositionResource(final AbstractWebPositionResource parent) {
     super(parent);
     _data = parent._data;
-    _htsResolver = parent._htsResolver;
   }
 
   /**
@@ -90,10 +86,9 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
     out.put("uris", new WebPositionsUris(data()));
     WebSecuritiesData secData = new WebSecuritiesData(data().getUriInfo());
     out.put("securityUris", new WebSecuritiesUris(secData));
-    
     return out;
   }
-  
+
   //-------------------------------------------------------------------------
   /**
    * Gets the backing bean.
@@ -102,17 +97,9 @@ public abstract class AbstractWebPositionResource extends AbstractWebResource {
   protected WebPositionsData data() {
     return _data;
   }
-  
-  /**
-   * Gets the HTS resolver
-   * @return the HTS resolver, not null
-   */
-  protected HistoricalTimeSeriesResolver htsResolver() {
-    return _htsResolver;
-  }
 
   protected Set<ManageableTrade> parseTrades(String tradesJson) {
     return TradeJsonConverter.fromJson(tradesJson);
   }
-  
+
 }

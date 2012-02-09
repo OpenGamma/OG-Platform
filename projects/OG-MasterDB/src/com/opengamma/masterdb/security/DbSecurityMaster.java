@@ -45,7 +45,6 @@ import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.master.security.SecuritySearchSortOrder;
 import com.opengamma.masterdb.AbstractDocumentDbMaster;
-import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDetailProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
@@ -102,7 +101,6 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   public DbSecurityMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
     setExtSqlBundle(ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbSecurityMaster.class));
-    setDetailProvider(new HibernateSecurityMasterDetailProvider());
   }
 
   //-------------------------------------------------------------------------

@@ -36,3 +36,5 @@ output-long/
 /dist/
 /Setting-up-an-Eclipse-workspace.html
 test-output/
+/install/
+/build/

@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+
 package com.opengamma.financial.loader.rowparsers;
 
 import java.util.Map;
@@ -13,23 +19,24 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 
+/**
+ * This class parses standard OG import fields to generate a Cash security
+ */
 public class CashParser extends RowParser {
 
-  private static final String ID_SCHEME = "CASH_LOADER";
-
-  public static final String CURRENCY = "currency";
-  public static final String REGION = "region";
-  public static final String START = "start";
-  public static final String MATURITY = "maturity";
-  public static final String DAY_COUNT = "dayCount";
-  public static final String RATE = "rate";
-  public static final String AMOUNT = "amount";
-
+  //CSOFF
+  protected String CURRENCY = "currency";
+  protected String REGION = "region";
+  protected String START = "start";
+  protected String MATURITY = "maturity";
+  protected String DAY_COUNT = "dayCount";
+  protected String RATE = "rate";
+  protected String AMOUNT = "amount";
+  //CSON
+  
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> cashDetails) {
     Currency ccy = Currency.of(getWithException(cashDetails, CURRENCY));

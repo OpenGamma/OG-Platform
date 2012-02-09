@@ -81,7 +81,7 @@ public class MarketValueCalculator implements NormalizationRule {
     }
     // Use a "MID" if we've been given one (should this take priority before the BID/ASK sum?)
     Double mid = msg.getDouble(MarketDataRequirementNames.MID);
-    if (mid == null) {
+    if (mid != null) {
       msg.add(MarketDataRequirementNames.MARKET_VALUE, mid);
       return msg;
     }

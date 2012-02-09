@@ -61,18 +61,20 @@ public class BundleParser {
    */
   public BundleParser() {
   }
-    
+
   /**
-   * Gets the baseDir.
-   * @return the baseDir
+   * Gets the base directory.
+   * 
+   * @return the base directory, not null
    */
   public File getBaseDir() {
     return _baseDir;
   }
 
   /**
-   * Sets the baseDir.
-   * @param baseDir  the baseDir
+   * Sets the base directory.
+   * 
+   * @param baseDir  the base directory, not null
    */
   public void setBaseDir(File baseDir) {
     validateFile(baseDir);

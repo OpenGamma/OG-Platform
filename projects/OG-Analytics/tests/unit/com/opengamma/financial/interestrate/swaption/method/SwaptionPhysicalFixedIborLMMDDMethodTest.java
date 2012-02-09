@@ -43,9 +43,9 @@ import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
 import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.financial.interestrate.swap.method.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor.SwaptionPhysicalFixedIborCalibrationType;
 import com.opengamma.financial.model.interestrate.LiborMarketModelDisplacedDiffusionTestsDataSet;
@@ -118,6 +118,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
 
   private static final int NB_PATH = 12500;
   private static final LiborMarketModelMonteCarloMethod METHOD_LMM_MC = new LiborMarketModelMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0), NB_PATH);
+  private static final SwapFixedDiscountingMethod METHOD_SWAP = SwapFixedDiscountingMethod.getInstance();
 
   @Test
   /**
@@ -138,10 +139,10 @@ public class SwaptionPhysicalFixedIborLMMDDMethodTest {
     LiborMarketModelMonteCarloMethod methodLmmMc;
     methodLmmMc = new LiborMarketModelMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), NB_PATH);
     CurrencyAmount pvMC = methodLmmMc.presentValue(SWAPTION_PAYER_LONG, CUR, dsc, BUNDLE_LMM);
-    double pvMCPreviousRun = 4371960.422; // One jump: xxx // Jump 2Y: xxx // Jump 1Y: 4371960.422 - 4385240.574
+    double pvMCPreviousRun = 4371960.422;
     assertEquals("Swaption physical - LMM - present value Monte Carlo", pvMCPreviousRun, pvMC.getAmount(), 1.0E-2);
     CurrencyAmount pvApprox = METHOD_LMM.presentValue(SWAPTION_PAYER_LONG, BUNDLE_LMM);
-    double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(SWAP_RECEIVER, CURVES);
+    double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAP_RECEIVER, CURVES);
     double forward = PRC.visit(SWAP_RECEIVER, CURVES);
     BlackFunctionData data = new BlackFunctionData(forward, pvbp, 0.20);
     EuropeanVanillaOption option = new EuropeanVanillaOption(RATE, SWAPTION_PAYER_LONG.getTimeToExpiry(), FIXED_IS_PAYER);

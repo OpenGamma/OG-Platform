@@ -5,9 +5,10 @@
  */
 package com.opengamma.util.test;
 
-import javax.jms.ConnectionFactory;
+import java.net.URI;
 
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.apache.activemq.pool.PooledConnectionFactory;
 
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
@@ -16,6 +17,11 @@ import com.opengamma.util.jms.JmsConnectorFactoryBean;
  * Ensures that the Ivy configuration is sufficient to launch an in-memory ActiveMQ connection.
  */
 public class ActiveMQTestUtils {
+
+  /**
+   * The broker URI.
+   */
+  private static final URI BROKER_URI = URI.create("vm://localhost?broker.persistent=false");
 
   /**
    * Restricted constructor.
@@ -31,8 +37,7 @@ public class ActiveMQTestUtils {
    * @return the connection factory, not null
    */
   public static ActiveMQConnectionFactory createTestConnectionFactory() {
-    ActiveMQConnectionFactory cf = new ActiveMQConnectionFactory("vm://localhost?broker.persistent=false");
-    return cf;
+    return new ActiveMQConnectionFactory(BROKER_URI);
   }
 
   /**
@@ -40,8 +45,8 @@ public class ActiveMQTestUtils {
    * 
    * @return the JMS connector, not null
    */
-  public static JmsConnector createJmsConnector() {
-    return createJmsConnector(null);
+  public static JmsConnector createTestJmsConnector() {
+    return createTestJmsConnector(null);
   }
 
   /**
@@ -50,13 +55,14 @@ public class ActiveMQTestUtils {
    * @param topicName  the topic name, null if no topic name required
    * @return the JMS connector, not null
    */
-  public static JmsConnector createJmsConnector(String topicName) {
-    ConnectionFactory cf = createTestConnectionFactory();
+  public static JmsConnector createTestJmsConnector(String topicName) {
+    ActiveMQConnectionFactory cf = createTestConnectionFactory();
     JmsConnectorFactoryBean factory = new JmsConnectorFactoryBean();
     factory.setName("ActiveMQTestUtils");
-    factory.setConnectionFactory(cf);
+    factory.setConnectionFactory(new PooledConnectionFactory(cf));
+    factory.setClientBrokerUri(BROKER_URI);
     factory.setTopicName(topicName);
-    return factory.createObject();
+    return factory.getObjectCreating();
   }
 
 }

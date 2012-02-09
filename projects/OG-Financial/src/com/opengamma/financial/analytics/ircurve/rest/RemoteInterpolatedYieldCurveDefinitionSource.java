@@ -5,55 +5,47 @@
  */
 package com.opengamma.financial.analytics.ircurve.rest;
 
-import javax.time.InstantProvider;
+import java.net.URI;
 
-import org.fudgemsg.FudgeContext;
+import javax.time.InstantProvider;
 
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
-import com.opengamma.transport.jaxrs.RestClient;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**
- * 
+ * Provides access to a remote {@link InterpolatedYieldCurveDefinitionSource}.
  */
-public class RemoteInterpolatedYieldCurveDefinitionSource implements InterpolatedYieldCurveDefinitionSource {
+public class RemoteInterpolatedYieldCurveDefinitionSource extends AbstractRemoteClient implements InterpolatedYieldCurveDefinitionSource {
 
-  private final RestClient _restClient;
-  private final RestTarget _targetBase;
-
-  public RemoteInterpolatedYieldCurveDefinitionSource(final FudgeContext fudgeContext, final RestTarget baseTarget) {
-    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
-    ArgumentChecker.notNull(baseTarget, "baseTarget");
-    _restClient = RestClient.getInstance(fudgeContext, null);
-    _targetBase = baseTarget;
+  /**
+   * Creates an instance.
+   * 
+   * @param baseUri  the base target URI for all RESTful web services, not null
+   */
+  public RemoteInterpolatedYieldCurveDefinitionSource(final URI baseUri) {
+    super(baseUri);
   }
 
-  protected RestClient getRestClient() {
-    return _restClient;
-  }
-
-  protected RestTarget getTargetBase() {
-    return _targetBase;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public YieldCurveDefinition getDefinition(Currency currency, String name) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(name, "name");
-    final RestTarget target = getTargetBase().resolveBase(currency.getCode()).resolve(name);
-    return getRestClient().getSingleValue(YieldCurveDefinition.class, target, "definition");
+    
+    URI uri = DataInterpolatedYieldCurveDefinitionSourceResource.uriSearchSingle(getBaseUri(), currency, name, null);
+    return accessRemote(uri).get(YieldCurveDefinition.class);
   }
 
   @Override
-  public YieldCurveDefinition getDefinition(Currency currency, String name, InstantProvider version) {
+  public YieldCurveDefinition getDefinition(Currency currency, String name, InstantProvider versionAsOf) {
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(name, "name");
-    ArgumentChecker.notNull(version, "version");
-    final RestTarget target = getTargetBase().resolveBase(currency.getCode()).resolveBase(name).resolve(Long.toString(version.toInstant().toEpochMillisLong()));
-    return getRestClient().getSingleValue(YieldCurveDefinition.class, target, "definition");
+    
+    URI uri = DataInterpolatedYieldCurveDefinitionSourceResource.uriSearchSingle(getBaseUri(), currency, name, versionAsOf);
+    return accessRemote(uri).get(YieldCurveDefinition.class);
   }
 
 }

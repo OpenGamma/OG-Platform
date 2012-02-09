@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
+  <!-- Spring config file to setup masters and sources -->
+  <!-- Not used by the main OG-Component servers -->
 
   <!-- Property file configuration -->
   <bean id="demoMastersProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
@@ -18,13 +20,31 @@
   <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop"> 
     <constructor-arg ref="activeMQConnectionFactory"/>
   </bean>
-  <bean id="jmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean">
+  <bean id="standardJmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean">
     <property name="name" value="Masters"/>
     <property name="connectionFactory" ref="jmsConnectionFactory"/>
   </bean>
+  <alias name="standardJmsConnector" alias="jmsConnector"/>
 
-  <import resource="classpath:com/opengamma/financial/common.xml" />
-
+  <!-- ============================================================================== -->
+  <bean id="regionFileReader" class="com.opengamma.master.region.impl.RegionFileReader" factory-method="createPopulated" />
+  <bean id="regionMaster" factory-bean="regionFileReader" factory-method="getRegionMaster" />
+  <bean id="regionSourceUnderlying" factory-bean="regionFileReader" factory-method="getRegionSource" />
+  <bean id="sharedRegionSource" class="com.opengamma.master.region.impl.EHCachingRegionSource">
+    <constructor-arg ref="regionSourceUnderlying" />
+    <constructor-arg ref="standardCacheManager" />
+  </bean>
+  
+  <bean id="sharedConventionBundleSource" class="com.opengamma.financial.convention.DefaultConventionBundleSource">
+    <constructor-arg>
+      <bean class="com.opengamma.financial.convention.InMemoryConventionBundleMaster"/>
+    </constructor-arg>
+  </bean>
+  
+  <!-- A global Fudge context configured with all of the relevant builders --> 
+  <bean id="standardFudgeContext" class="com.opengamma.util.fudgemsg.OpenGammaFudgeContext" factory-method="getInstance" />
+  
+  <!-- ============================================================================== -->
   <bean id="abstractDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean" abstract="true">
     <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />
     <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
@@ -107,18 +127,18 @@
     <property name="dialectName" value="${opengamma.hts.db.dbdialect}"/>
   </bean>
   
-  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+  <bean id="standardCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
     <property name="shared" value="true"/>
   </bean>
 
   <!-- ================================================================== -->
   <!-- ConfigMaster -->
-  <bean id="sharedConfigMaster" class="com.opengamma.masterdb.spring.DbConfigMasterFactoryBean">
+  <bean id="dbConfigMaster" class="com.opengamma.masterdb.spring.DbConfigMasterFactoryBean">
     <property name="dbConnector" ref="cfgDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.config.db.configmaster.scheme}" />
   </bean>
   <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource">
-    <constructor-arg ref="sharedConfigMaster" />
+    <constructor-arg ref="dbConfigMaster" />
   </bean>
 
   <!-- Config loaders, should be commented out most of the time -->
@@ -156,11 +176,11 @@
   <bean id="dbSecurityMaster" class="com.opengamma.masterdb.spring.DbSecurityMasterFactoryBean">
     <property name="dbConnector" ref="secDbConnector" />
     <property name="uniqueIdScheme" value="${opengamma.financial.db.securitymaster.scheme}" />
-    <property name="cacheManager" ref="cacheManager" />
+    <property name="cacheManager" ref="standardCacheManager" />
   </bean>
   <bean id="sharedSecuritySource" class="com.opengamma.financial.spring.FinancialSecuritySourceFactoryBean">
     <property name="securityMaster" ref="dbSecurityMaster" />
-    <property name="cacheManager" ref="cacheManager" />
+    <property name="cacheManager" ref="standardCacheManager" />
   </bean>
 
   <!-- PortfolioMaster/PositionMaster -->
@@ -177,7 +197,7 @@
   <bean id="sharedPositionSource" class="com.opengamma.financial.spring.PositionSourceFactoryBean">
     <property name="portfolioMaster" ref="dbPortfolioMaster" />
     <property name="positionMaster" ref="dbPositionMaster" />
-    <property name="cacheManager" ref="cacheManager" />
+    <property name="cacheManager" ref="standardCacheManager" />
   </bean>
 
   <!-- FunctionCostsMaster --> 
@@ -190,13 +210,9 @@
     <property name="dbConnector" ref="htsDbConnector"/>
     <property name="uniqueIdScheme" value="${opengamma.financial.db.htsmaster.scheme}" />
   </bean>
-  <bean id="htsResolver" class="com.opengamma.financial.spring.DefaultHistoricalTimeSeriesResolverFactoryBean">
-    <property name="configSource" ref="sharedConfigSource" />
-    <property name="historicalTimeSeriesMaster" ref="dbHtsMaster" />
-  </bean>
   <bean id="sharedHistoricalTimeSeriesSource" class="com.opengamma.financial.spring.HistoricalTimeSeriesSourceFactoryBean">
     <property name="historicalTimeSeriesMaster" ref="dbHtsMaster"/>
-    <property name="cacheManager" ref="cacheManager" />
+    <property name="cacheManager" ref="standardCacheManager" />
     <property name="historicalTimeSeriesResolver" ref="htsResolver" />
   </bean>
 
@@ -209,14 +225,14 @@
   </bean>
   <bean id="sharedSnapshotSource" class="com.opengamma.financial.spring.MarketDataSnapshotSourceFactoryBean">
     <property name="snapshotMaster" ref="dbSnapshotMaster"/>
-    <property name="cacheManager" ref="cacheManager" />
+    <property name="cacheManager" ref="standardCacheManager" />
   </bean>
 
   <!-- ================================================================== -->
   <!-- Curves -->
   <bean id="sharedInterpolatedYieldCurveDefinitionSource" class="com.opengamma.financial.analytics.ircurve.EHCachingInterpolatedYieldCurveDefinitionSource">
         <constructor-arg ref="configDBInterpolatedYieldCurveDefinitionSource" />
-        <constructor-arg ref="cacheManager" />
+        <constructor-arg ref="standardCacheManager" />
   </bean>
   <bean id="configDBInterpolatedYieldCurveDefinitionSource" class="com.opengamma.financial.analytics.ircurve.ConfigDBInterpolatedYieldCurveDefinitionSource">
     <constructor-arg ref="sharedConfigSource" />
@@ -270,16 +286,16 @@
 
   <!-- ================================================================== -->
   <!-- Function configuration -->
-  <bean id="demoFunctionRepositoryConfiguration" class="com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource">
+  <bean id="sharedRepositoryConfigurationSource" class="com.opengamma.engine.function.config.CombiningRepositoryConfigurationSource">
     <constructor-arg>
       <list>
         <bean class="com.opengamma.web.spring.DemoStandardFunctionConfiguration" />
         <bean class="com.opengamma.web.spring.DemoCurveFunctionConfiguration">
-          <property name="configMaster" ref="sharedConfigMaster" />
-          <property name="conventionBundleSource" ref="conventionBundleSource" />
+          <property name="configMaster" ref="dbConfigMaster" />
+          <property name="conventionBundleSource" ref="sharedConventionBundleSource" />
         </bean>
         <bean class="com.opengamma.web.spring.DemoSurfaceFunctionConfiguration">
-          <property name="configMaster" ref="sharedConfigMaster" />
+          <property name="configMaster" ref="dbConfigMaster" />
         </bean>
        </list>
     </constructor-arg>

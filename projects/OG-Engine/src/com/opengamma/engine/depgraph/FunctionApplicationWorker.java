@@ -64,7 +64,9 @@ import com.opengamma.engine.value.ValueSpecification;
           _pendingInputs = pumps.size();
         }
       } else {
-        s_logger.debug("Ignoring pump while {} input(s) pending", _pendingInputs);
+        if (s_logger.isDebugEnabled()) {
+          s_logger.debug("Ignoring pump while {} input(s) pending", _pendingInputs);
+        }
       }
     }
     if (pumps != null) {
@@ -132,7 +134,9 @@ import com.opengamma.engine.value.ValueSpecification;
                 s_logger.debug("Partial input set available");
               } else {
                 resolvedValues = null;
-                s_logger.debug("Waiting for {} other inputs in {}", _pendingInputs, _inputs);
+                if (s_logger.isDebugEnabled()) {
+                  s_logger.debug("Waiting for {} other inputs in {}", _pendingInputs, _inputs);
+                }
                 // Fall through so that the failure is still logged
               }
               break;
@@ -143,7 +147,9 @@ import com.opengamma.engine.value.ValueSpecification;
             // Might be okay - we've already had at least one value for this requirement
             if (_pendingInputs > 0) {
               // Ok; still waiting on other inputs
-              s_logger.debug("{} other inputs still pending", _pendingInputs);
+              if (s_logger.isDebugEnabled()) {
+                s_logger.debug("{} other inputs still pending", _pendingInputs);
+              }
               return;
             }
             if (_validInputs > 0) {
@@ -151,7 +157,9 @@ import com.opengamma.engine.value.ValueSpecification;
               state = _taskState;
               resolvedValues = createResolvedValuesMap();
               _invokingFunction = true;
-              s_logger.debug("Partial input set available on {} new inputs", _validInputs);
+              if (s_logger.isDebugEnabled()) {
+                s_logger.debug("Partial input set available on {} new inputs", _validInputs);
+              }
               break;
             }
           }
@@ -172,7 +180,9 @@ import com.opengamma.engine.value.ValueSpecification;
       storeFailure(requirementFailure);
       // Unsubscribe from any inputs that are still valid
       if (unsubscribes != null) {
-        s_logger.debug("Unsubscribing from {} handles", unsubscribes.size());
+        if (s_logger.isDebugEnabled()) {
+          s_logger.debug("Unsubscribing from {} handles", unsubscribes.size());
+        }
         for (Cancelable handle : unsubscribes) {
           if (handle != null) {
             handle.cancel(context);
@@ -225,7 +235,9 @@ import com.opengamma.engine.value.ValueSpecification;
           _invokingFunction = true;
           s_logger.debug("Full input set available");
         } else {
-          s_logger.debug("Waiting for {} other inputs in {}", _pendingInputs, _inputs);
+          if (s_logger.isDebugEnabled()) {
+            s_logger.debug("Waiting for {} other inputs in {}", _pendingInputs, _inputs);
+          }
         }
         _pumps.add(pump);
       } else {

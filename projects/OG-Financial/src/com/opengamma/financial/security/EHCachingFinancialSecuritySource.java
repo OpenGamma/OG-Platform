@@ -375,4 +375,10 @@ public class EHCachingFinancialSecuritySource extends AbstractSecuritySource imp
     }
   }
 
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + "[" + getUnderlying() + "]";
+  }
+
 }

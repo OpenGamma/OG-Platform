@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:jaxrs="http://cxf.apache.org/jaxrs"
   xsi:schemaLocation="
 http://www.springframework.org/schema/beans
-http://www.springframework.org/schema/beans/spring-beans.xsd
-http://cxf.apache.org/jaxrs
-http://cxf.apache.org/schemas/jaxrs.xsd">
+http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+  <!-- If using OG-Component then SpringJettyComponentFactory does this -->
 
   <bean id="jsonToFudge" class="com.opengamma.transport.jaxrs.FudgeJSONConsumer" scope="singleton">
   </bean>
@@ -37,6 +36,5 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
   </bean>
   <bean id="throwableExceptionMapper" class="com.opengamma.util.rest.ThrowableExceptionMapper" scope="singleton">
   </bean>
-
 
 </beans>

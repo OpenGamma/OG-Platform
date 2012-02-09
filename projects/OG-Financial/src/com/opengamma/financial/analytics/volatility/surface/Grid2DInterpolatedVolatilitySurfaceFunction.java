@@ -35,7 +35,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
-import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.GridInterpolator2D;
@@ -56,7 +55,7 @@ public class Grid2DInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
   private Set<ValueSpecification> _results;
   private ValueRequirement _requirement;
 
-  public Grid2DInterpolatedVolatilitySurfaceFunction(final String definitionName, final String instrumentType, final String tInterpolatorName, final String tLeftExtrapolatorName, 
+  public Grid2DInterpolatedVolatilitySurfaceFunction(final String definitionName, final String instrumentType, final String tInterpolatorName, final String tLeftExtrapolatorName,
       final String tRightExtrapolatorName, final String kInterpolatorName, final String kLeftExtrapolatorName, final String kRightExtrapolatorName) {
     Validate.notNull(definitionName, "definition name");
     Validate.notNull(instrumentType, "instrument type");
@@ -84,13 +83,13 @@ public class Grid2DInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
     ValueProperties surfaceProperties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, _definitionName)
         .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
-        .with(EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()).get();
+        .withAny(EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD/*, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()*/).get();
     _requirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, _definition.getTarget(), surfaceProperties);
     _result = new ValueSpecification(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, new ComputationTargetSpecification(_definition.getTarget()),
         createValueProperties()
-          .with(ValuePropertyNames.SURFACE, _definitionName)
-          .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
-          .with(EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()).get());
+            .with(ValuePropertyNames.SURFACE, _definitionName)
+            .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
+            .withAny(EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD/*, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()*/).get());
     _results = Collections.singleton(_result);
   }
 
@@ -118,7 +117,7 @@ public class Grid2DInterpolatedVolatilitySurfaceFunction extends AbstractFunctio
         Double vol = volatilitySurfaceData.getVolatility(xDates[i], y[j]);
         if (time != null && strike != null && vol != null) {
           t.add(time);
-          k.add(strike);      
+          k.add(strike);
           sigma.add(vol);
         }
       }
