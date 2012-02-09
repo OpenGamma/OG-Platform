@@ -5,12 +5,15 @@
  */
 package com.opengamma.util;
 
+import java.io.Closeable;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Modifier;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.util.ClassUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -123,7 +126,7 @@ public final class ReflectionUtils {
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an instance of a class from a constructor..
+   * Creates an instance of a class from a constructor.
    * 
    * @param <T> the type
    * @param constructor  the constructor to call, not null
@@ -143,6 +146,64 @@ public final class ReflectionUtils {
         throw (RuntimeException) ex.getCause();
       }
       throw new OpenGammaRuntimeException(ex.getMessage(), ex);
+    }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Checks if the class is closeable.
+   * <p>
+   * This invokes the close method if it is present.
+   * 
+   * @param type  the type, not null
+   * @return true if closeable
+   */
+  public static boolean isCloseable(final Class<?> type) {
+    if (Closeable.class.isAssignableFrom(type)) {
+      return true;
+    } else if (DisposableBean.class.isAssignableFrom(type)) {
+      return true;
+    }
+    try {
+      if (Modifier.isPublic(type.getMethod("close").getModifiers())) {
+        return true;
+      }
+    } catch (Exception ex) {
+      try {
+        if (Modifier.isPublic(type.getMethod("shutdown").getModifiers())) {
+          return true;
+        }
+      } catch (Exception ex2) {
+        // ignored
+      }
+    }
+    return false;
+  }
+
+  /**
+   * Tries to "close" an object.
+   * <p>
+   * This invokes the close method if it is present.
+   * 
+   * @param obj  the object, null ignored
+   */
+  public static void close(final Object obj) {
+    if (obj != null) {
+      try {
+        if (obj instanceof Closeable) {
+          ((Closeable) obj).close();
+        } else if (obj instanceof DisposableBean) {
+          ((DisposableBean) obj).destroy();
+        } else {
+          obj.getClass().getMethod("close").invoke(obj);
+        }
+      } catch (Exception ex) {
+        try {
+          obj.getClass().getMethod("shutdown").invoke(obj);
+        } catch (Exception ex2) {
+          // ignored
+        }
+      }
     }
   }
 

@@ -13,7 +13,6 @@ import com.opengamma.financial.equity.future.derivative.EquityFuture;
 import com.opengamma.financial.equity.future.derivative.EquityIndexDividendFuture;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
-import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication.StrikeParameterization;
 
 /**
  * 
@@ -21,6 +20,7 @@ import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplica
 public class VarianceSwapPresentValueCalculator extends AbstractEquityDerivativeVisitor<VarianceSwapDataBundle, Double> {
 
   private static final VarianceSwapPresentValueCalculator s_instance = new VarianceSwapPresentValueCalculator();
+  private static final VarianceSwapStaticReplication PRICER = new VarianceSwapStaticReplication();
 
   public static VarianceSwapPresentValueCalculator getInstance() {
     return s_instance;
@@ -33,9 +33,7 @@ public class VarianceSwapPresentValueCalculator extends AbstractEquityDerivative
   public Double visitVarianceSwap(final VarianceSwap derivative, final VarianceSwapDataBundle market) {
     Validate.notNull(market);
     Validate.notNull(derivative);
-    final StrikeParameterization strikeType = market.getVolatilitySurface().getStrikeParameterisation();
-    VarianceSwapStaticReplication pricer = new VarianceSwapStaticReplication(strikeType);
-    return pricer.presentValue(derivative, market);
+    return PRICER.presentValue(derivative, market);
   }
 
   @Override

@@ -5,18 +5,9 @@
  */
 package com.opengamma.web.server.push;
 
-import com.opengamma.util.tuple.ObjectsPair;
-import com.opengamma.util.tuple.Pair;
-import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.server.nio.SelectChannelConnector;
-import org.eclipse.jetty.webapp.WebAppContext;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.web.context.ContextLoaderListener;
-import org.springframework.web.context.WebApplicationContext;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
-import javax.ws.rs.core.MediaType;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.IOException;
@@ -30,8 +21,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import javax.ws.rs.core.MediaType;
+
+import org.eclipse.jetty.server.Server;
+import org.eclipse.jetty.server.handler.ContextHandler.Context;
+import org.eclipse.jetty.server.nio.SelectChannelConnector;
+import org.eclipse.jetty.webapp.WebAppContext;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.web.context.ContextLoaderListener;
+import org.springframework.web.context.WebApplicationContext;
+import org.springframework.web.context.support.WebApplicationContextUtils;
+
+import com.opengamma.util.tuple.ObjectsPair;
+import com.opengamma.util.tuple.Pair;
 
 public class WebPushTestUtils {
 
@@ -143,8 +147,17 @@ public class WebPushTestUtils {
     server.addConnector(connector);
     server.setHandler(context);
     server.start();
-    WebApplicationContext springContext = (WebApplicationContext) context.getServletContext().getAttribute(
-            WebApplicationContext.ROOT_WEB_APPLICATION_CONTEXT_ATTRIBUTE);
+    
+    Context servletContext = context.getServletContext();
+    WebApplicationContext springContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
+    Map<String, ConnectionManager> cmMap = springContext.getBeansOfType(ConnectionManager.class);
+    if (cmMap.size() == 1) {
+      WebPushServletContextUtils.setConnectionManager(servletContext, cmMap.values().iterator().next());
+    }
+    Map<String, LongPollingConnectionManager> lpcmMap = springContext.getBeansOfType(LongPollingConnectionManager.class);
+    if (lpcmMap.size() == 1) {
+      WebPushServletContextUtils.setLongPollingConnectionManager(servletContext, lpcmMap.values().iterator().next());
+    }
     return new ObjectsPair<Server, WebApplicationContext>(server, springContext);
   }
 

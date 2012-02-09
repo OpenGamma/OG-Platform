@@ -22,6 +22,7 @@ import org.springframework.context.Lifecycle;
 import org.springframework.web.context.ServletContextAware;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ReflectionUtils;
 
 /**
  * A repository for OpenGamma components.
@@ -305,9 +306,33 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     }
     if (instance instanceof Lifecycle) {
       registerLifecycle0((Lifecycle) instance);
+    } else {
+      findAndRegisterLifeCycle(instance);
     }
     if (instance instanceof ServletContextAware) {
       registerServletContextAware0((ServletContextAware) instance);
+    }
+  }
+
+  private void findAndRegisterLifeCycle(final Object obj) {
+    if (ReflectionUtils.isCloseable(obj.getClass())) {
+      registerLifecycle0(new Lifecycle() {
+        @Override
+        public void stop() {
+          ReflectionUtils.close(obj);
+        }
+        @Override
+        public void start() {
+        }
+        @Override
+        public boolean isRunning() {
+          return false;
+        }
+        @Override
+        public String toString() {
+          return obj.getClass().getSimpleName() + ":" + obj.toString();
+        }
+      });
     }
   }
 
@@ -418,7 +443,11 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     checkStatus(Status.RUNNING);
     _status = Status.STOPPING;
     for (Lifecycle obj : _lifecycles) {
-      obj.stop();
+      try {
+        obj.stop();
+      } catch (Exception ex) {
+        // ignore
+      }
     }
     _status = Status.STOPPED;
   }

@@ -22,11 +22,11 @@ import com.opengamma.id.UniqueId;
 public class CombinedMarketDataSnapshot extends AbstractMarketDataSnapshot {
   
   private final Map<MarketDataProvider, MarketDataSnapshot> _snapshotByProvider;
-  private final MarketDataSnapshot _prefferedSnapshot;
+  private final MarketDataSnapshot _preferredSnapshot;
   private final CombinedMarketDataProvider _combinedMarketDataProvider;
 
-  public CombinedMarketDataSnapshot(MarketDataSnapshot prefferedSnapshot, Map<MarketDataProvider, MarketDataSnapshot> snapshotByProvider, CombinedMarketDataProvider combinedMarketDataProvider) {
-    _prefferedSnapshot = prefferedSnapshot;
+  public CombinedMarketDataSnapshot(MarketDataSnapshot preferredSnapshot, Map<MarketDataProvider, MarketDataSnapshot> snapshotByProvider, CombinedMarketDataProvider combinedMarketDataProvider) {
+    _preferredSnapshot = preferredSnapshot;
     _snapshotByProvider = snapshotByProvider;
     _combinedMarketDataProvider = combinedMarketDataProvider;
   }
@@ -38,7 +38,7 @@ public class CombinedMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   @Override
   public Instant getSnapshotTimeIndication() {
-    return _prefferedSnapshot.getSnapshotTimeIndication();
+    return _preferredSnapshot.getSnapshotTimeIndication();
   }
 
   @Override
@@ -60,7 +60,7 @@ public class CombinedMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   @Override
   public Instant getSnapshotTime() {
-    return _prefferedSnapshot.getSnapshotTime();
+    return _preferredSnapshot.getSnapshotTime();
   }
 
   @Override

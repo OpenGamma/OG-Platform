@@ -95,7 +95,7 @@ public abstract class BlackFormulaRepository {
 
     final int sign = isCall ? 1 : -1;
     final double d1 = sign * NORMAL.getInverseCDF(sign * forwardDelta);
-    return forward * Math.exp(-d1 * lognormalVol * Math.sqrt(timeToExpiry) + lognormalVol * lognormalVol * timeToExpiry);
+    return forward * Math.exp(-d1 * lognormalVol * Math.sqrt(timeToExpiry) + 0.5 * lognormalVol * lognormalVol * timeToExpiry);
   }
 
   /**
@@ -443,6 +443,24 @@ public abstract class BlackFormulaRepository {
       }
     }
     return sigma;
+  }
+
+  /**
+   * Computes the implied strike from delta and volatility in the Black formula.
+   * @param delta The option delta
+   * @param isCall The call (true) / put (false) flag.
+   * @param forward The forward.
+   * @param time The time to expiration.
+   * @param volatility The volatility.
+   * @return The strike.
+   */
+  public static double impliedStrike(final double delta, final boolean isCall, final double forward, final double time, final double volatility) {
+    Validate.isTrue(delta > -1 && delta < 1, "Delta out of range");
+    Validate.isTrue(isCall ^ (delta < 0), "Delta incompatible with call/put: " + isCall + ", " + delta);
+    Validate.isTrue(forward > 0, "Forward negative");
+    final double omega = (isCall ? 1.0 : -1.0);
+    final double strike = forward * Math.exp(-volatility * Math.sqrt(time) * omega * NORMAL.getInverseCDF(omega * delta) + volatility * volatility * time / 2);
+    return strike;
   }
 
   private static double[] priceAndVega(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall) {

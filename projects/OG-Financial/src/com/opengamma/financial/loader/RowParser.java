@@ -23,6 +23,7 @@ import com.opengamma.master.security.ManageableSecurity;
  */
 public abstract class RowParser {
 
+  // CSOFF
   /** Standard date-time formatter for the input */
   protected DateTimeFormatter CSV_DATE_FORMATTER;
   /** Standard date-time formatter for the output */
@@ -31,7 +32,8 @@ public abstract class RowParser {
   protected DecimalFormat RATE_FORMATTER = new DecimalFormat("0.###%");
   /** Standard notional formatter */
   protected DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("0,000");
-
+  // CSON
+  
   {
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
     builder.appendPattern("dd/MM/yyyy");

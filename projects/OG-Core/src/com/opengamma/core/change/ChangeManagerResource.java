@@ -39,5 +39,11 @@ public class ChangeManagerResource {
   public Response getTopicName() {
     return Response.ok(_changeManager.getJmsConnector().getTopicName()).build();
   }
+  
+  @GET
+  @Path("brokerUri")
+  public Response getBrokerUri() {
+    return Response.ok(_changeManager.getJmsConnector().getClientBrokerUri().toString()).build();
+  }
 
 }
