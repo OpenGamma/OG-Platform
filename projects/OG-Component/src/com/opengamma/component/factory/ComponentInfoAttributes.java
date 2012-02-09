@@ -28,10 +28,6 @@ public final class ComponentInfoAttributes {
    * The attribute name for the JMS change manager topic.
    */
   public static final String JMS_CHANGE_MANAGER_TOPIC = "jmsChangeManagerTopic";
-  /**
-   * The attribute name for the view processor id.
-   */
-  public static final String VIEW_PROCESSOR_ID = "viewProcessorId";
 
   /**
    * Restricted constructor.

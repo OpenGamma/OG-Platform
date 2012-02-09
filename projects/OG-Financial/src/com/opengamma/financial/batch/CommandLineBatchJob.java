@@ -42,6 +42,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.VersionUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
@@ -171,8 +172,7 @@ public class CommandLineBatchJob {
 
   public CommandLineBatchJob() {
     _user = UserPrincipal.getLocalUser();
-    // TODO: TIMEZONE
-    _creationTime = ZonedDateTime.now();  // used later to obtain local date/time and zone
+    _creationTime = ZonedDateTime.now(OpenGammaClock.getInstance());  // used later to obtain local date/time and zone
   }
 
   // --------------------------------------------------------------------------
