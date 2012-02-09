@@ -5,6 +5,7 @@
  */
 package com.opengamma.component;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -169,6 +170,19 @@ public class OpenGammaComponentServer {
     }
     public VerboseManager(ComponentRepository repo) {
       super(repo);
+    }
+    @Override
+    public ComponentRepository start(Resource resource) {
+      try {
+        System.out.println("  Using file: " + resource.getURI());
+      } catch (IOException ex) {
+        try {
+          System.out.println("  Using file: " + resource.getFile());
+        } catch (IOException ex2) {
+          System.out.println("  Using file: " + resource);
+        }
+      }
+      return super.start(resource);
     }
     @Override
     protected void loadIni(Resource resource) {

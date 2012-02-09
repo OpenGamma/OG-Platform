@@ -84,22 +84,6 @@ public abstract class BlackVolatilitySurfaceConverter {
         final double[] range = BRACKETER.getBracketedPoints(func, l, u, minStrike, maxStrike);
         double strike = ROOT_FINDER.getRoot(func, range[0], range[1]);
         return from.getVolatility(t, strike);
-
-        //        double sigmaOld = from.getVolatility(t, fwd);
-        //        double k = BlackImpliedStrikeFromDeltaFunction.impliedStrike(delta, true, fwd, t, sigmaOld);
-        //        double sigmaNew = from.getVolatility(t, k);
-        //        int iterations = 0;
-        //        while (Math.abs(sigmaNew - sigmaOld) > EPS) {
-        //          sigmaOld = sigmaNew;
-        //          k = BlackImpliedStrikeFromDeltaFunction.impliedStrike(delta, true, fwd, t, sigmaOld);
-        //          sigmaNew = from.getVolatility(t, k);
-        //          iterations++;
-        //          if (iterations > ITERATIONS_MAX) {
-        //            throw new MathException("Failed to find volatility for delta of " + delta);
-        //          }
-        //        }
-        //        return sigmaNew;
-
       }
     };
     return new BlackVolatilitySurfaceDelta(FunctionalDoublesSurface.from(surFunc), forwardCurve);

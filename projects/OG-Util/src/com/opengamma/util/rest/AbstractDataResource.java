@@ -5,14 +5,9 @@
  */
 package com.opengamma.util.rest;
 
-import javax.ws.rs.Produces;
-
-import com.opengamma.transport.jaxrs.FudgeRest;
-
 /**
  * Abstract base class for RESTful resources.
  */
-@Produces(FudgeRest.MEDIA)
 public abstract class AbstractDataResource {
 
 }

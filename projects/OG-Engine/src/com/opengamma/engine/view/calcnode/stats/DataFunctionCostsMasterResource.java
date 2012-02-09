@@ -75,7 +75,6 @@ public class DataFunctionCostsMasterResource extends AbstractDataResource {
 
   @POST
   @Path("functioncosts")
-  @Consumes(FudgeRest.MEDIA)
   public Response store(@Context UriInfo uriInfo, FunctionCostsDocument request) {
     FunctionCostsDocument result = getFunctionCostsMaster().store(request);
     return Response.ok().entity(result).build();

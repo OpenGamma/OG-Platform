@@ -18,7 +18,7 @@ public class BlackFormulaTest {
   private static final double T = 4.5;
   private static final double SIGMA = 0.2;
   private static final boolean ISCALL = false;
-  // Construct an at-the-money BlackFormula with null price. Set params as required thereafter 
+  // Construct an at-the-money BlackFormula with null price. Set params as required thereafter
   private static final BlackFormula FORMULA = new BlackFormula(FORWARD, FORWARD, T, SIGMA, null, ISCALL);
   private static final double EPS = 1.0E-9;
   private static final int N = 10;
@@ -74,7 +74,7 @@ public class BlackFormulaTest {
     System.err.println("delta of atmput = " + atmput.computeForwardDelta());
     System.err.println("atmcall - 0.5 = " + (atmcall.computeForwardDelta()-0.5));
     System.err.println("atmput - 0.5 = " + (0.5 + atmput.computeForwardDelta()));
-    */
+     */
   }
 
   @Test
@@ -83,7 +83,7 @@ public class BlackFormulaTest {
     double strike50Call = FORMULA.computeStrikeImpliedByForwardDelta(0.5, true);
     assertEquals(FORWARD * Math.exp(0.5 * SIGMA * SIGMA * T), strike50Call);
 
-    double strike50Put = FORMULA.computeStrikeImpliedByForwardDelta(0.5, false);
+    double strike50Put = FORMULA.computeStrikeImpliedByForwardDelta(-0.5, false);
     assertEquals(strike50Call, strike50Put, EPS);
 
     double strike10Call = FORMULA.computeStrikeImpliedByForwardDelta(0.10, true);
@@ -92,10 +92,10 @@ public class BlackFormulaTest {
     double strike90Call = FORMULA.computeStrikeImpliedByForwardDelta(0.90, true);
     // System.err.println("strike90Call = " + strike90Call);
 
-    double strike90Put = FORMULA.computeStrikeImpliedByForwardDelta(0.90, false);
-    double strike75Put = FORMULA.computeStrikeImpliedByForwardDelta(0.75, false);
-    double strike25Put = FORMULA.computeStrikeImpliedByForwardDelta(0.25, false);
-    double strike10Put = FORMULA.computeStrikeImpliedByForwardDelta(0.10, false);
+    double strike90Put = FORMULA.computeStrikeImpliedByForwardDelta(-0.90, false);
+    double strike75Put = FORMULA.computeStrikeImpliedByForwardDelta(-0.75, false);
+    double strike25Put = FORMULA.computeStrikeImpliedByForwardDelta(-0.25, false);
+    double strike10Put = FORMULA.computeStrikeImpliedByForwardDelta(-0.10, false);
 
     assertEquals(strike10Call, strike90Put, EPS);
     assertEquals(strike25Call, strike75Put, EPS);
@@ -108,11 +108,11 @@ public class BlackFormulaTest {
 
   @Test
   public void testStrikeImpliedFromFwdDeltaEasy() {
-    double strike25PutEasy = FORMULA.computeStrikeImpliedByForwardDelta(0.25, false);
+    double strike25PutEasy = FORMULA.computeStrikeImpliedByForwardDelta(-0.25, false);
     double strike25PutHard = FORMULA.computeStrikeImpliedByDeltaViaRootFinding(0.25, false);
     assertEquals(strike25PutEasy, strike25PutHard, EPS);
 
-    double strike75PutEasy = FORMULA.computeStrikeImpliedByForwardDelta(0.75, false);
+    double strike75PutEasy = FORMULA.computeStrikeImpliedByForwardDelta(-0.75, false);
     double strike75PutHard = FORMULA.computeStrikeImpliedByDeltaViaRootFinding(0.75, false);
     assertEquals(strike75PutEasy, strike75PutHard, EPS);
   }

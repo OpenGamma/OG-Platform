@@ -7,7 +7,6 @@ package com.opengamma.master.historicaltimeseries.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
@@ -25,7 +24,6 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoMetaDat
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.rest.RestUtils;
@@ -81,7 +79,6 @@ public class DataHistoricalTimeSeriesMasterResource extends AbstractDataResource
 
   @POST
   @Path("infoSearches")
-  @Consumes(FudgeRest.MEDIA)
   public Response search(HistoricalTimeSeriesInfoSearchRequest request) {
     HistoricalTimeSeriesInfoSearchResult result = getHistoricalTimeSeriesMaster().search(request);
     return Response.ok(result).build();
@@ -89,7 +86,6 @@ public class DataHistoricalTimeSeriesMasterResource extends AbstractDataResource
 
   @POST
   @Path("infos")
-  @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, HistoricalTimeSeriesInfoDocument request) {
     HistoricalTimeSeriesInfoDocument result = getHistoricalTimeSeriesMaster().add(request);
     URI createdUri = DataHistoricalTimeSeriesResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());

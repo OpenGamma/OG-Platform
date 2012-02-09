@@ -195,20 +195,22 @@ import com.opengamma.util.tuple.Pair;
         return getAdditionalRequirementsAndPushResults(context, null, inputs, resolvedOutput, resolvedOutputValues);
       }
       // Has the resolved output now reduced this to something already produced elsewhere
-      final Map<ResolveTask, ResolvedValueProducer> reducingTasks = context.getTasksProducing(resolvedOutput);
-      if (reducingTasks.isEmpty()) {
+      final Pair<ResolveTask[], ResolvedValueProducer[]> reducing = context.getTasksProducing(resolvedOutput);
+      if (reducing == null) {
         s_logger.debug("Resolved output not produced elsewhere");
         return produceSubstitute(context, inputs, resolvedOutput, resolvedOutputValues);
       }
       // TODO: only use an aggregate object if there is more than one producer; otherwise use the producer directly
       final AggregateResolvedValueProducer aggregate = new AggregateResolvedValueProducer(getValueRequirement());
-      for (Map.Entry<ResolveTask, ResolvedValueProducer> reducingTask : reducingTasks.entrySet()) {
-        if (!getTask().hasParent(reducingTask.getKey())) {
+      final ResolveTask[] reducingTasks = reducing.getFirst();
+      final ResolvedValueProducer[] reducingProducers = reducing.getSecond();
+      for (int i = 0; i < reducingTasks.length; i++) {
+        if (!getTask().hasParent(reducingTasks[i])) {
           // Task that's not our parent may produce the value for us
-          aggregate.addProducer(context, reducingTask.getValue());
+          aggregate.addProducer(context, reducingProducers[i]);
         }
-        // Only the values are ref-counted
-        reducingTask.getValue().release(context);
+        // Only the producers are ref-counted
+        reducingProducers[i].release(context);
       }
       final ValueSpecification resolvedOutputCopy = resolvedOutput;
       final ResolutionSubstituteDelegate delegate = new ResolutionSubstituteDelegate(getTask()) {

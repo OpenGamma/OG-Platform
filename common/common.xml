@@ -97,8 +97,8 @@
 		<available classname="org.joda.beans.gen.BeanCodeGen" classpathref="lib.path.id" property="joda.bean.present" />
 	</target>
 
-	<target name="joda-bean" depends="joda-bean-present" if="joda.bean.present"
-    description="builds the Joda-Bean files">
+	<!-- builds the Joda-Bean files -->
+	<target name="joda-bean" depends="joda-bean-present" if="joda.bean.present">
 		<java classname="org.joda.beans.gen.BeanCodeGen" classpathref="lib.path.id" fork="true" failonerror="true">
 			<arg value="-R" />
 			<arg value="-indent=2" />

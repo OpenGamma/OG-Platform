@@ -1,0 +1,44 @@
+<project name="projects" xmlns:ivy="antlib:org.apache.ivy.ant">
+<target name="clover" depends="buildlist, taskdef-clover, guard-noclover"
+	description="run all unit tests with Clover enabled and produce one merged report">
+	<og-subant target="tests-with-clover" buildpathref="build-path"/>
+	<clover-merge initstring="${clover.db.dir}">
+		<cloverDb span="30 mins"  initstring="projects/Fudge-Java/tests/output/clover.db/clover-db-" />
+		<cloverDb span="30 mins"  initstring="projects/Fudge-Proto/tests/output/clover.db/clover-db-" />
+		<cloverDb span="30 mins"  initstring="projects/OG-Analytics/tests/output/clover.db/clover-db-" />
+		<cloverDb span="30 mins"  initstring="projects/OG-Core/tests/output/clover.db/clover-db-" />
+		<cloverDb span="30 mins"  initstring="projects/OG-Engine/tests/output/clover.db/clover-db-" />
+		<cloverDb span="30 mins"  initstring="projects/OG-Master/tests/output/clover.db/clover-db-" />
+		<cloverDb span="30 mins"  initstring="projects/OG-Maths/tests/output/clover.db/clover-db-" />
+		<cloverDb span="30 mins"  initstring="projects/OG-MasterDB/tests/output/clover.db/clover-db-" />
+		<cloverDb span="30 mins"  initstring="projects/OG-Financial/tests/output/clover.db/clover-db-" />
+		<cloverDb span="30 mins"  initstring="projects/OG-LiveData/tests/output/clover.db/clover-db-" />
+		<cloverDb span="30 mins"  initstring="projects/OG-Util/tests/output/clover.db/clover-db-" />
+		<cloverDb span="30 mins"  initstring="projects/OG-Security/tests/output/clover.db/clover-db-" />
+		<cloverDb span="30 mins"  initstring="projects/OG-Web/tests/output/clover.db/clover-db-" />
+	</clover-merge>
+	<clover-html-report
+		initstring="${clover.db.dir}"
+		outdir="${clover.html.report.dir}"
+		numThreads="1"
+	>
+	</clover-html-report>
+</target>
+
+<target name="clone-or-pull" depends="clean-src" description="clone or pull all projects from git">
+	<git-pull dest="." />
+</target>
+
+<target name="pull" depends="clean-src" description="pull origin master all projects from git">
+	<git-pull dest="." />
+</target>
+
+<target name="status" description="display the status of all projects from git">
+	<git-status dest="." displayName="OG-Platform" />
+</target>
+
+<target name="checkout" depends="checkout-prompt" description="checkout branch in each project (prompts for branch name if no -Dgit.branch)">
+	<git-checkout dest="." branch="${git.branch}" displayName="OG-Platform"/>
+</target>
+
+</project>
