@@ -97,7 +97,6 @@ public class DataSecurityResource extends AbstractDataResource {
   }
 
   @POST
-  @Consumes(FudgeRest.MEDIA)
   public Response update(@Context UriInfo uriInfo, SecurityDocument request) {
     if (getUrlSecurityId().equals(request.getUniqueId().getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
@@ -108,7 +107,6 @@ public class DataSecurityResource extends AbstractDataResource {
   }
 
   @DELETE
-  @Consumes(FudgeRest.MEDIA)
   public Response remove() {
     getSecurityMaster().remove(getUrlSecurityId().atLatestVersion());
     return Response.noContent().build();
@@ -136,7 +134,6 @@ public class DataSecurityResource extends AbstractDataResource {
 
   @POST
   @Path("versions/{versionId}")
-  @Consumes(FudgeRest.MEDIA)
   public Response correct(@Context UriInfo uriInfo, @PathParam("versionId") String versionId, SecurityDocument request) {
     UniqueId uniqueId = getUrlSecurityId().atVersion(versionId);
     if (uniqueId.equals(request.getUniqueId()) == false) {
