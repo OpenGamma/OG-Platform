@@ -29,7 +29,6 @@ import com.opengamma.financial.instrument.bond.BondIborSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.cash.DepositCounterpartDefinition;
-import com.opengamma.financial.instrument.cash.DepositDefinition;
 import com.opengamma.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
@@ -515,16 +514,6 @@ public class ForexDefinitionVisitorTest {
 
     @Override
     public String visitBondCapitalIndexedTransaction(BondCapitalIndexedTransactionDefinition<?> bond) {
-      return null;
-    }
-
-    @Override
-    public String visitDepositDefinition(DepositDefinition deposit, T data) {
-      return null;
-    }
-
-    @Override
-    public String visitDepositDefinition(DepositDefinition deposit) {
       return null;
     }
 

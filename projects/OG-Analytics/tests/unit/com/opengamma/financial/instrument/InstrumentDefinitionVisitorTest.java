@@ -45,7 +45,6 @@ import com.opengamma.financial.instrument.bond.BondIborSecurityDefinition;
 import com.opengamma.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.cash.DepositCounterpartDefinition;
-import com.opengamma.financial.instrument.cash.DepositDefinition;
 import com.opengamma.financial.instrument.cash.DepositIborDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
@@ -90,11 +89,9 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  */
 public class InstrumentDefinitionVisitorTest {
   private static final Currency CUR = Currency.USD;
-  private static final DayCount DC = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA");
   private static final BusinessDayConvention BD = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final Calendar C = new MondayToFridayCalendar("F");
-  private static final Convention CONVENTION = new Convention(2, DC, BD, C, "A");
-  private static final CashDefinition CASH = new CashDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1, 0.04, CONVENTION);
+  private static final CashDefinition CASH = new CashDefinition(CUR, DateUtils.getUTCDate(2011, 1, 2), DateUtils.getUTCDate(2012, 1, 2), 1.0, 0.04, 1.0);
   private static final ZonedDateTime SETTLE_DATE = DateUtils.getUTCDate(2011, 1, 1);
   private static final Period TENOR = Period.ofYears(2);
   private static final Period FIXED_PERIOD = Period.ofMonths(6);
@@ -602,15 +599,15 @@ public class InstrumentDefinitionVisitorTest {
       return null;
     }
 
-    @Override
-    public String visitDepositDefinition(DepositDefinition deposit, T data) {
-      return null;
-    }
-
-    @Override
-    public String visitDepositDefinition(DepositDefinition deposit) {
-      return null;
-    }
+    //    @Override
+    //    public String visitDepositDefinition(DepositDefinition deposit, T data) {
+    //      return null;
+    //    }
+    //
+    //    @Override
+    //    public String visitDepositDefinition(DepositDefinition deposit) {
+    //      return null;
+    //    }
 
     @Override
     public String visitDepositIborDefinition(DepositIborDefinition deposit, T data) {
