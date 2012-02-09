@@ -68,11 +68,13 @@ import com.opengamma.util.tuple.Pair;
 
     @Override
     public synchronized void addRef() {
+      assert _refCount > 0;
       _refCount++;
     }
 
     @Override
     public synchronized int release(final GraphBuildingContext context) {
+      assert _refCount > 0;
       return --_refCount;
     }
 

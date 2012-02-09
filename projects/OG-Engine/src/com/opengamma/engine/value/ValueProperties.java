@@ -177,23 +177,21 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     public Builder with(String propertyName, final Collection<String> propertyValues) {
       ArgumentChecker.notNull(propertyName, "propertyName");
       ArgumentChecker.notNull(propertyValues, "propertyValues");
-      final Set<String> values = new HashSet<String>(propertyValues);
-      if (values.isEmpty()) {
+      if (propertyValues.isEmpty()) {
         throw new IllegalArgumentException("propertyValues must contain at least one element");
       }
-      if (values.contains(null)) {
+      if (propertyValues.contains(null)) {
         throw new IllegalArgumentException("propertyValues cannot contain null");
       }
-      propertyName = propertyName.intern();
-      Set<String> valuesSet = getUnmodifiableSet(values);
-      final Set<String> previous = _properties.put(propertyName, valuesSet);
+      propertyName = ValueRequirement.getInterned(propertyName);
+      final Set<String> previous = _properties.put(propertyName, getUnmodifiableSet(propertyValues));
       if (previous != null) {
         if (previous.isEmpty()) {
           _properties.put(propertyName, previous);
         } else {
           final Set<String> replacement = new HashSet<String>(previous);
           replacement.addAll(propertyValues);
-          _properties.put(propertyName, getUnmodifiableSet(replacement));
+          _properties.put(propertyName, Collections.unmodifiableSet(replacement));
         }
       }
       return this;
@@ -202,7 +200,7 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
     @Override
     public Builder withAny(final String propertyName) {
       ArgumentChecker.notNull(propertyName, "propertyName");
-      _properties.put(propertyName.intern(), Collections.<String>emptySet());
+      _properties.put(ValueRequirement.getInterned(propertyName), Collections.<String>emptySet());
       return this;
     }
 
@@ -246,14 +244,14 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
       }
     }
     
-    private Set<String> getUnmodifiableSet(Set<String> values) {
+    private Set<String> getUnmodifiableSet(final Collection<String> values) {
       switch (values.size()) {
         case 0:
           return Collections.emptySet();
         case 1:
           return Collections.singleton(values.iterator().next());
         default:
-          return Collections.unmodifiableSet(values);
+          return Collections.unmodifiableSet((values instanceof Set) ? (Set<String>) values : new HashSet<String>(values));
       }
     }
     
@@ -288,6 +286,14 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
      * The optional properties.
      */
     private final Set<String> _optional;
+    /**
+     * Hashcode of the property set.
+     */
+    private volatile int _hashCode;
+    /**
+     * Indicates whether the hash-code is valid.
+     */
+    private volatile boolean _hashCodeValid;
 
     /**
      * Creates an instance.
@@ -546,7 +552,14 @@ public abstract class ValueProperties implements Serializable, Comparable<ValueP
 
     @Override
     public int hashCode() {
-      return _properties.hashCode();
+      if (_hashCodeValid) {
+        return _hashCode;
+      } else {
+        final int hashCode = _properties.hashCode() ^ _optional.hashCode();
+        _hashCode = hashCode;
+        _hashCodeValid = true;
+        return hashCode;
+      }
     }
 
     @Override

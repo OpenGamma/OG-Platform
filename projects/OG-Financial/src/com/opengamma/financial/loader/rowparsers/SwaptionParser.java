@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+
 package com.opengamma.financial.loader.rowparsers;
 
 import java.util.Map;
@@ -29,10 +35,14 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
+/**
+ * This class uses standard OG import fields to generate a Swaption security
+ */
 public class SwaptionParser extends RowParser {
 
   private static final String ID_SCHEME = "SWAPTION_LOADER";
   
+  //CSOFF
   protected String EXPIRY = "expiry";
   protected String IS_LONG = "long";
   protected String IS_PAYER = "payer";
@@ -44,6 +54,7 @@ public class SwaptionParser extends RowParser {
   protected String NOTIONAL = "notional";
   protected String COUNTERPARTY = "counterparty";
   protected String SWAP_LENGTH = "swap length"; 
+  //CSON
   
   private static final ConventionBundleSource CONVENTIONS = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
 
