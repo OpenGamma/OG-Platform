@@ -19,6 +19,8 @@ import javax.ws.rs.ext.Provider;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.wire.FudgeDataInputStreamReader;
+import org.fudgemsg.wire.FudgeMsgReader;
 
 /**
  * A JAX-RS provider to convert RESTful responses to Fudge binary encoded messages.
@@ -51,7 +53,9 @@ public class FudgeObjectBinaryConsumer extends FudgeBase implements MessageBodyR
       MediaType mediaType,
       MultivaluedMap<String, String> httpHeaders,
       InputStream entityStream) throws IOException, WebApplicationException {
-    FudgeMsg message = getFudgeContext().createMessageReader(entityStream).nextMessage();
+    
+    FudgeMsgReader reader = new FudgeMsgReader(new FudgeDataInputStreamReader(getFudgeContext(), entityStream));
+    FudgeMsg message = reader.nextMessage();
     if (message == null) {
       return null;
     }

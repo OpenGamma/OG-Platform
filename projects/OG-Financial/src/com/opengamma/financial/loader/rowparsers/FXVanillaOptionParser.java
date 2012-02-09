@@ -14,7 +14,6 @@ import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.loader.RowParser;
@@ -29,20 +28,25 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
-public class VanillaFXOptionParser extends RowParser {
+/**
+ * This class reads standard OG import fields to generate an FX Option security
+ */
+public class FXVanillaOptionParser extends RowParser {
 
   private static final String ID_SCHEME = "VANILLA_FX_OPTION_LOADER";
 
   private LoaderContext _loaderContext; // used for calendars/holidays to calculate settlement date
   
+  //CSOFF
   protected String PUT_CURRENCY = "put currency";
   protected String CALL_CURRENCY = "call currency";
   protected String PUT_AMOUNT = "put amount";
   protected String CALL_AMOUNT = "call amount";
   protected String EXPIRY = "expiry";
   protected String IS_LONG = "is long";
-
-  VanillaFXOptionParser(LoaderContext loaderContext) {
+  //CSON
+  
+  FXVanillaOptionParser(LoaderContext loaderContext) {
     _loaderContext = loaderContext;
   }
   

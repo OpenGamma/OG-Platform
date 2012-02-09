@@ -7,7 +7,6 @@ package com.opengamma.master.marketdatasnapshot.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -27,7 +26,6 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryRequest;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotHistoryResult;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.rest.RestUtils;
@@ -97,7 +95,6 @@ public class DataMarketDataSnapshotResource extends AbstractDataResource {
   }
 
   @POST
-  @Consumes(FudgeRest.MEDIA)
   public Response update(@Context UriInfo uriInfo, MarketDataSnapshotDocument request) {
     if (getUrlMarketDataSnapshotId().equals(request.getUniqueId().getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
@@ -108,7 +105,6 @@ public class DataMarketDataSnapshotResource extends AbstractDataResource {
   }
 
   @DELETE
-  @Consumes(FudgeRest.MEDIA)
   public Response remove() {
     getMarketDataSnapshotMaster().remove(getUrlMarketDataSnapshotId().atLatestVersion());
     return Response.noContent().build();
@@ -136,7 +132,6 @@ public class DataMarketDataSnapshotResource extends AbstractDataResource {
 
   @POST
   @Path("versions/{versionId}")
-  @Consumes(FudgeRest.MEDIA)
   public Response correct(@Context UriInfo uriInfo, @PathParam("versionId") String versionId, MarketDataSnapshotDocument request) {
     UniqueId uniqueId = getUrlMarketDataSnapshotId().atVersion(versionId);
     if (uniqueId.equals(request.getUniqueId()) == false) {

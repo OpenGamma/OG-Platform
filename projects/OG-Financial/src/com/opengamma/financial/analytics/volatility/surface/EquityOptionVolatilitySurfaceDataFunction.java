@@ -42,7 +42,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
-import com.opengamma.financial.equity.variance.pricing.VarianceSwapStaticReplication;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.tuple.Pair;
 
@@ -101,7 +100,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
     _result = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getTarget().getUniqueId()),
         createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName)
                                .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
-                               .with(EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()).get());
+                               .withAny(EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD/*, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()*/).get());
     _results = Collections.singleton(_result);
   }
 
@@ -111,10 +110,10 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
   }
 
   public static <X, Y> Set<ValueRequirement> buildRequirements(final VolatilitySurfaceSpecification specification,
-                                                        final VolatilitySurfaceDefinition<X, Y> definition,                                                        
+                                                        final VolatilitySurfaceDefinition<X, Y> definition,
                                                         final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-    
+
     final BloombergEquityOptionVolatilitySurfaceInstrumentProvider provider = (BloombergEquityOptionVolatilitySurfaceInstrumentProvider) specification.getSurfaceInstrumentProvider();
     for (final X x : definition.getXs()) {
       // don't care what these are
@@ -177,7 +176,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
           final Set<ValueRequirement> desiredValues) {
         final Clock snapshotClock = executionContext.getValuationClock();
         ExternalId temp = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, _definition.getTarget().getUniqueId().getValue());
-        final ValueRequirement underlyingSpotValueRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, temp);        
+        final ValueRequirement underlyingSpotValueRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, temp);
         final Double underlyingSpot = (Double) inputs.getValue(underlyingSpotValueRequirement);
         if (underlyingSpot == null) {
           s_logger.error("Could not get underlying spot value for " + _definition.getTarget().getUniqueId());
@@ -191,7 +190,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
             double strike = (Double) y;
             LocalDate expiry = (LocalDate) x;
             final BloombergEquityOptionVolatilitySurfaceInstrumentProvider provider = (BloombergEquityOptionVolatilitySurfaceInstrumentProvider) _specification.getSurfaceInstrumentProvider();
-            if (strike < underlyingSpot) { 
+            if (strike < underlyingSpot) {
               provider.init(false); // generate identifiers for call options
             } else {
               provider.init(true); // generate identifiers for put options
@@ -210,7 +209,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
         final ComputedValue resultValue = new ComputedValue(_result, volSurfaceData);
         return Collections.singleton(resultValue);
       }
-      
+
       @Override
       public boolean canHandleMissingInputs() {
         return true;

@@ -5,6 +5,7 @@
  */
 package com.opengamma.component;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -116,7 +117,7 @@ public class OpenGammaComponentServer {
   protected void run(int verbosity, String configFile) {
     long start = System.nanoTime();
     if (verbosity > 0) {
-      System.out.println("======== STARTING OPEN GAMMA ========");
+      System.out.println("======== STARTING OPENGAMMA ========");
       if (verbosity > 1) {
         System.out.println(" Config file: " + configFile);
       }
@@ -133,13 +134,13 @@ public class OpenGammaComponentServer {
       manager.start(configFile);
     } catch (Exception ex) {
       ex.printStackTrace(System.err);
-      System.out.println("======== OPEN GAMMA FAILED ========");
+      System.out.println("======== OPENGAMMA FAILED ========");
       System.exit(1);
     }
     
     if (verbosity > 0) {
       long end = System.nanoTime();
-      System.out.println("======== OPEN GAMMA STARTED in " + ((end - start) / 1000000) + "ms ========");
+      System.out.println("======== OPENGAMMA STARTED in " + ((end - start) / 1000000) + "ms ========");
     }
   }
 
@@ -169,6 +170,19 @@ public class OpenGammaComponentServer {
     }
     public VerboseManager(ComponentRepository repo) {
       super(repo);
+    }
+    @Override
+    public ComponentRepository start(Resource resource) {
+      try {
+        System.out.println("  Using file: " + resource.getURI());
+      } catch (IOException ex) {
+        try {
+          System.out.println("  Using file: " + resource.getFile());
+        } catch (IOException ex2) {
+          System.out.println("  Using file: " + resource);
+        }
+      }
+      return super.start(resource);
     }
     @Override
     protected void loadIni(Resource resource) {

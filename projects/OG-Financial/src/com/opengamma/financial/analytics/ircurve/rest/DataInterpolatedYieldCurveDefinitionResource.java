@@ -7,7 +7,6 @@ package com.opengamma.financial.analytics.ircurve.rest;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -25,7 +24,6 @@ import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -94,7 +92,6 @@ public class DataInterpolatedYieldCurveDefinitionResource extends AbstractDataRe
   }
 
   @POST
-  @Consumes(FudgeRest.MEDIA)
   public Response update(@Context UriInfo uriInfo, YieldCurveDefinitionDocument request) {
     if (getUrlDefinitionId().equals(request.getUniqueId().getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
@@ -105,7 +102,6 @@ public class DataInterpolatedYieldCurveDefinitionResource extends AbstractDataRe
   }
 
   @DELETE
-  @Consumes(FudgeRest.MEDIA)
   public Response remove() {
     getInterpolatedYieldCurveDefinitionMaster().remove(getUrlDefinitionId().atLatestVersion());
     return Response.noContent().build();
@@ -122,7 +118,6 @@ public class DataInterpolatedYieldCurveDefinitionResource extends AbstractDataRe
 
   @POST
   @Path("versions/{versionId}")
-  @Consumes(FudgeRest.MEDIA)
   public Response correct(@Context UriInfo uriInfo, @PathParam("versionId") String versionId, YieldCurveDefinitionDocument request) {
     UniqueId uniqueId = getUrlDefinitionId().atVersion(versionId);
     if (uniqueId.equals(request.getUniqueId()) == false) {

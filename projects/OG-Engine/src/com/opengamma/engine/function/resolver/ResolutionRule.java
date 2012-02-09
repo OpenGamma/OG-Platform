@@ -145,6 +145,7 @@ public class ResolutionRule {
       //s_logger.debug("Considering {} for {}", resultSpec, output);
       if (output.isSatisfiedBy(resultSpec)) {
         validSpec = resultSpec;
+        break;
       }
     }
     if (validSpec == null) {

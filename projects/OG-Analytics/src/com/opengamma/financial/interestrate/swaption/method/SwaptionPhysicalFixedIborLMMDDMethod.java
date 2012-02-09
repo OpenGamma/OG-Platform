@@ -138,7 +138,7 @@ public class SwaptionPhysicalFixedIborLMMDDMethod implements PricingMethod {
     }
     double bK = -cfaMod0;
     double bM = (b0 + bK) / 2.0d;
-    double meanReversionImpact = (Math.exp(2.0d * amr * timeToExpiry) - 1.0d) / (2.0d * amr);
+    double meanReversionImpact = Math.abs(amr) < 1.0E-6 ? timeToExpiry : (Math.exp(2.0d * amr * timeToExpiry) - 1.0d) / (2.0d * amr); // To handle 0 mean reversion.
     double[] rate0Ratio = new double[nbCF - 1];
     double[][] mu0 = new double[nbCF - 1][nbFactor];
     for (int loopcf = 0; loopcf < nbCF - 1; loopcf++) {

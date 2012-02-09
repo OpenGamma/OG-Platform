@@ -7,7 +7,6 @@ package com.opengamma.master.exchange.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -27,7 +26,6 @@ import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeHistoryRequest;
 import com.opengamma.master.exchange.ExchangeHistoryResult;
 import com.opengamma.master.exchange.ExchangeMaster;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.rest.RestUtils;
@@ -97,7 +95,6 @@ public class DataExchangeResource extends AbstractDataResource {
   }
 
   @POST
-  @Consumes(FudgeRest.MEDIA)
   public Response update(@Context UriInfo uriInfo, ExchangeDocument request) {
     if (getUrlExchangeId().equals(request.getUniqueId().getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
@@ -108,7 +105,6 @@ public class DataExchangeResource extends AbstractDataResource {
   }
 
   @DELETE
-  @Consumes(FudgeRest.MEDIA)
   public Response remove() {
     getExchangeMaster().remove(getUrlExchangeId().atLatestVersion());
     return Response.noContent().build();
@@ -136,7 +132,6 @@ public class DataExchangeResource extends AbstractDataResource {
 
   @POST
   @Path("versions/{versionId}")
-  @Consumes(FudgeRest.MEDIA)
   public Response correct(@Context UriInfo uriInfo, @PathParam("versionId") String versionId, ExchangeDocument request) {
     UniqueId uniqueId = getUrlExchangeId().atVersion(versionId);
     if (uniqueId.equals(request.getUniqueId()) == false) {
