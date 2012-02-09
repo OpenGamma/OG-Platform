@@ -1,0 +1,17 @@
+<project name="og-component" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
+	<property file="build.properties" />
+
+	<import file="${common.dir}/common.xml" />
+
+	<target name="publish" depends="zip-resources,common.publish" />
+
+	<target name="publish-local" depends="zip-resources,common.publish-local" />
+	
+	<target name="zip-resources" description="--> create resources file for publishing">
+	    <mkdir dir="${dist.dir}" />
+	    <zip destfile="${dist.dir}/og-component-resource.zip">
+	        <zipfileset dir="${basedir}/config" />
+	    </zip>
+	</target>
+
+</project>

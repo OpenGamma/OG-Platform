@@ -26,10 +26,11 @@ import org.apache.commons.lang.math.NumberUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.google.common.base.Objects;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -170,13 +171,14 @@ public class WebPositionResource extends AbstractWebPositionResource {
     ObjectId tsObjectId = null;
     if (doc.getPosition().getSecurityLink().resolveQuiet(data().getSecuritySource()) != null) {
       // Get the last price HTS for the security
-      HistoricalTimeSeriesResolutionResult resolutionResult = htsResolver().resolve(
-          doc.getPosition().getSecurity().getExternalIdBundle(), null, null, null, MarketDataRequirementNames.MARKET_VALUE, null);
-      if (resolutionResult != null) {
-        tsObjectId = resolutionResult.getHistoricalTimeSeriesInfo().getTimeSeriesObjectId();
+      HistoricalTimeSeriesSource htsSource = data().getHistoricalTimeSeriesSource();
+      HistoricalTimeSeries series = htsSource.getHistoricalTimeSeries(
+          MarketDataRequirementNames.MARKET_VALUE, doc.getPosition().getSecurity().getExternalIdBundle(), null, null, false, null, false, 0);
+      if (series != null) {
+        tsObjectId = series.getUniqueId().getObjectId();
       }
     }
-
+    
     out.put("positionDoc", doc);
     out.put("position", doc.getPosition());
     out.put("security", doc.getPosition().getSecurity());
@@ -184,7 +186,6 @@ public class WebPositionResource extends AbstractWebPositionResource {
     out.put("deleted", !doc.isLatest());
     TradeAttributesModel tradeAttributesModel = getTradeAttributesModel();
     out.put("tradeAttrModel", tradeAttributesModel);
-
     return out;
   }
 

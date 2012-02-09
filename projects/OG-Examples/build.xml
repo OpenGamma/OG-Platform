@@ -42,6 +42,9 @@
 	<path id="jetty.run.path">
 		<pathelement path="${basedir}/config" />
 		<path refid="run.path.id" />
+		<fileset dir="${lib.dir}/resource/com.opengamma/og-component">
+			<include name="*.zip" />
+		</fileset>
 		<fileset dir="${lib.dir}/resource/com.opengamma/og-financial">
 			<include name="*.zip" />
 		</fileset>
@@ -50,50 +53,31 @@
 		</fileset>
 	</path>
 
-	<target name="jetty-debug" depends="compile-src,jetty-stop" description="--> start the project's web-engine/ folder with Jetty and block waiting for output">
-		<java jar="${jetty.start}" fork="true" spawn="false">
+	<target name="jetty-debug" depends="compile-src,jetty-stop" description="same as 'jetty' but block waiting for output">
+		<java classpath="${toString:jetty.run.path}" classname="com.opengamma.component.OpenGammaComponentServer" fork="true" spawn="false">
 			<jvmarg value="-Dlogback.configurationFile=${junit.logback}" />
 			<jvmarg value="-DSTOP.PORT=${jetty.stopport}" />
 			<jvmarg value="-DSTOP.KEY=${jetty.stopkey}" />
-			<jvmarg value="-Dopengamma.platform.runmode=example" />
-			<jvmarg value="-Dopengamma.platform.marketdatasource=direct" />
-			<jvmarg value="-Dopengamma.platform.os=posix" />
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
-			<arg value="start.class=com.opengamma.examples.startup.ExampleServer" />
-			<arg value="${basedir}${file.separator}config${file.separator}engine-spring.xml" />
-			<arg value="path=${toString:jetty.run.path}" />
+			<arg value="-v" />
+			<arg value="classpath:fullstack${file.separator}fullstack-example.properties" />
 		</java>
 	</target>
 
-	<target name="demo-database" depends="compile-src,jetty-stop" description="--> initialize demo portfolio and view in database">
-		<java classname="com.opengamma.examples.loader.DemoDatabasePopulater" classpathref="jetty.run.path" failonerror="true" fork="true">
-			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
-			<jvmarg value="-Dopengamma.platform.runmode=example" />
-			<jvmarg value="-Dopengamma.platform.marketdatasource=direct" />
-			<jvmarg value="-Dopengamma.platform.os=posix" />
-			<jvmarg value="-Xms${jvm.xms}" />
-			<jvmarg value="-Xmx${jvm.xmx}" />
-		</java>
-	</target>
-
-	<target name="jetty" depends="compile-src,jetty-stop" description="--> start the project's web-engine/ folder with Jetty">
-		<java jar="${jetty.start}" fork="true" spawn="${jetty.spawn}">
-			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
+	<target name="jetty" depends="compile-src,jetty-stop" description="start the server using the project web-engine folder">
+		<java classpath="${toString:jetty.run.path}" classname="com.opengamma.component.OpenGammaComponentServer" fork="true" spawn="${jetty.spawn}">
+			<jvmarg value="-Dlogback.configurationFile=${junit.logback}" />
 			<jvmarg value="-DSTOP.PORT=${jetty.stopport}" />
 			<jvmarg value="-DSTOP.KEY=${jetty.stopkey}" />
-			<jvmarg value="-Dopengamma.platform.runmode=example" />
-			<jvmarg value="-Dopengamma.platform.marketdatasource=direct" />
-			<jvmarg value="-Dopengamma.platform.os=posix" />
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
-			<arg value="start.class=com.opengamma.examples.startup.ExampleServer" />
-			<arg value="${basedir}${file.separator}config${file.separator}engine-spring.xml" />
-			<arg value="path=${toString:jetty.run.path}" />
+			<arg value="-v" />
+			<arg value="classpath:fullstack${file.separator}fullstack-example.properties" />
 		</java>
 	</target>
 
-	<target name="jetty-stop" depends="jetty-properties" description="--> stop the current Jetty runner">
+	<target name="jetty-stop" depends="jetty-properties" description="stop the current Jetty server">
 		<java jar="${jetty.start}" fork="true" outputproperty="jetty.stop.output">
 			<jvmarg value="-DSTOP.KEY=${jetty.stopkey}" />
 			<jvmarg value="-DSTOP.PORT=${jetty.stopport}" />
@@ -107,6 +91,17 @@
 			</not>
 		</condition>
 		<echo>${jetty.stop.status}</echo>
+	</target>
+
+	<target name="demo-database" depends="compile-src,jetty-stop" description="--> initialize demo portfolio and view in database">
+		<java classname="com.opengamma.examples.loader.DemoDatabasePopulater" classpathref="jetty.run.path" failonerror="true" fork="true">
+			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
+			<jvmarg value="-Dopengamma.platform.runmode=example" />
+			<jvmarg value="-Dopengamma.platform.marketdatasource=direct" />
+			<jvmarg value="-Dopengamma.platform.os=posix" />
+			<jvmarg value="-Xms${jvm.xms}" />
+			<jvmarg value="-Xmx${jvm.xmx}" />
+		</java>
 	</target>
 
 	<target name="dist-common" depends="common.dist-common">
@@ -133,9 +128,6 @@
 		<delete dir="${dist.dir}/${dist.name}/lib/webapp" failonerror="false" />
 		<delete dir="${dist.dir}/${dist.name}/lib/sql" failonerror="false" />
 
-		<replace file="${dist.dir}/${dist.name}/config/${overridefile.name}" token="webAppContext.resourceBase=../OG-Web/web-engine" value="webAppContext.resourceBase=web-engine" />
-		<replace file="${dist.dir}/${dist.name}/config/${overridefile.name}" token="webAppContext.descriptor=../OG-Web/web-engine/WEB-INF/web.xml" value="webAppContext.descriptor=web-engine/WEB-INF/web.xml" />
-
 		<!--
 		<copy todir="${dist.dir}/${dist.name}/install/db/hsqldb" failonerror="true">
 			<fileset dir="${basedir}/install/db/hsqldb">
@@ -147,21 +139,6 @@
 
 	<target name="ivy-report" description="generate ivy dependency report" depends="publish-local">
 		<ivy:report organisation="com.opengamma" module="og-examples" dot="true" />
-	</target>
-
-	<!-- ================================= 
-          target: install              
-         ================================= -->
-	<target name="install" depends="dist" description="install artifacts to specified directory">
-		<copy todir="${install.dir}">
-			<fileset dir="${dist.dir}/${dist.name}" includes="**" />
-		</copy>
-		<chmod perm="+x">
-			<fileset dir="${install.dir}">
-				<include name="**/*.sh" />
-			</fileset>
-		</chmod>
-		<antcall target="clean-dist"/>
 	</target>
 	
 </project>

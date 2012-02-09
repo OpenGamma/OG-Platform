@@ -33,4 +33,8 @@ public class DataNotFoundExceptionMapper
     return createResponse(exception);
   }
 
+  protected void logRestfulError(final Throwable exception) {
+    s_logger.debug("RESTful web-service exception caught and tunnelled to client", exception);
+  }
+
 }

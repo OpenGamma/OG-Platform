@@ -35,15 +35,16 @@ import com.opengamma.masterdb.security.hibernate.equity.EquityVarianceSwapSecuri
 import com.opengamma.masterdb.security.hibernate.fra.FRASecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.future.FutureSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.fx.FXForwardSecurityBeanOperation;
-import com.opengamma.masterdb.security.hibernate.fx.FXSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.fx.NonDeliverableFXForwardSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.EquityBarrierOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.EquityIndexDividendFutureOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.EquityIndexOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.EquityOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.FxBarrierOptionSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.option.FxDigitalOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.FxOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.IRFutureOptionSecurityBeanOperation;
+import com.opengamma.masterdb.security.hibernate.option.NonDeliverableFxDigitalOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.NonDeliverableFxOptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.option.SwaptionSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.swap.SwapSecurityBeanOperation;
@@ -74,9 +75,21 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
 
   //-------------------------------------------------------------------------
   private static void loadBeanOperation(final SecurityBeanOperation<?, ?> beanOperation) {
+    if (BEAN_OPERATIONS_BY_SECURITY.containsKey(beanOperation.getSecurityClass())) {
+      s_logger.error(beanOperation.getSecurityClass() + " is already registered in BEAN_OPERATIONS_BY_SECURITY");
+      throw new OpenGammaRuntimeException(beanOperation.getSecurityClass() + " is already registered in BEAN_OPERATIONS_BY_SECURITY");
+    }
     BEAN_OPERATIONS_BY_SECURITY.put(beanOperation.getSecurityClass(), beanOperation);
+    if (BEAN_OPERATIONS_BY_BEAN.containsKey(beanOperation.getBeanClass())) {
+      s_logger.error(beanOperation.getBeanClass() + " is already registered in BEAN_OPERATIONS_BY_SECURITY");
+      throw new OpenGammaRuntimeException(beanOperation.getBeanClass() + " is already registered in BEAN_OPERATIONS_BY_SECURITY");
+    }
     BEAN_OPERATIONS_BY_BEAN.put(beanOperation.getBeanClass(), beanOperation);
-    BEAN_OPERATIONS_BY_TYPE.put(beanOperation.getSecurityType(), beanOperation);
+    if (BEAN_OPERATIONS_BY_TYPE.containsKey(beanOperation.getSecurityType())) {
+      s_logger.error(beanOperation.getBeanClass() + " is already registered in BEAN_OPERATIONS_BY_SECURITY");
+      throw new OpenGammaRuntimeException(beanOperation.getBeanClass() + " is already registered in BEAN_OPERATIONS_BY_SECURITY");
+    }
+    BEAN_OPERATIONS_BY_TYPE.put(beanOperation.getSecurityType(), beanOperation);  
   }
 
   private static SecurityBeanOperation<?, ?> getBeanOperation(final ConcurrentMap<Class<?>, SecurityBeanOperation<?, ?>> map, final Class<?> clazz) {
@@ -146,7 +159,8 @@ public class HibernateSecurityMasterDetailProvider implements SecurityMasterDeta
     loadBeanOperation(IRFutureOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(EquityIndexDividendFutureOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(FxBarrierOptionSecurityBeanOperation.INSTANCE);
-    loadBeanOperation(FXSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(FxDigitalOptionSecurityBeanOperation.INSTANCE);
+    loadBeanOperation(NonDeliverableFxDigitalOptionSecurityBeanOperation.INSTANCE);
     loadBeanOperation(FXForwardSecurityBeanOperation.INSTANCE);
     loadBeanOperation(NonDeliverableFXForwardSecurityBeanOperation.INSTANCE);
     loadBeanOperation(CapFloorSecurityBeanOperation.INSTANCE);

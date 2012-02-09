@@ -31,6 +31,19 @@ public abstract class SingletonFactoryBean<T> implements FactoryBean<T>, Initial
     return _instance;
   }
 
+  /**
+   * Gets the object, creating if necessary.
+   * 
+   * @return the object
+   */
+  public final T getObjectCreating() {
+    T object = getObject();
+    if (object == null) {
+      object = createObject();
+    }
+    return object;
+  }
+
   @Override
   public final Class<?> getObjectType() {
     T obj = getObject();

@@ -28,8 +28,8 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
-import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.financial.interestrate.swap.method.SwapFixedDiscountingMethod;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
@@ -109,6 +109,7 @@ public class SwaptionPhysicalFixedIborTest {
   private static final DayCount DAY_COUNT_STANDARD = DayCountFactory.INSTANCE.getDayCount("30/360");
   //Interpolation method
   private static final LinearInterpolator1D LINEAR = new LinearInterpolator1D();
+  private static final SwapFixedDiscountingMethod METHOD_SWAP = SwapFixedDiscountingMethod.getInstance();
 
   @Test
   /**
@@ -146,7 +147,7 @@ public class SwaptionPhysicalFixedIborTest {
     CURVES.setCurve(FORWARD_CURVE_NAME, CURVE_4);
     final double sigmaBlack = 0.20;
     final double forward = PRC.visit(SWAP_PAYER, CURVES);
-    final double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(SWAP_PAYER, CURVE_5);
+    final double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, CURVE_5);
     final BlackFunctionData data = new BlackFunctionData(forward, pvbp, sigmaBlack);
 
     final Function1D<BlackFunctionData, Double> funcLongPayer = BLACK_FUNCTION.getPriceFunction(SWAPTION_LONG_PAYER);
@@ -178,7 +179,7 @@ public class SwaptionPhysicalFixedIborTest {
     final double rho = -0.25;
 
     final double forward = PRC.visit(SWAP_PAYER, CURVES);
-    final double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(SWAP_PAYER, CURVE_5);
+    final double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAP_PAYER, CURVE_5);
 
     final SABRFormulaData data = new SABRFormulaData(alpha, beta, rho, nu);
 

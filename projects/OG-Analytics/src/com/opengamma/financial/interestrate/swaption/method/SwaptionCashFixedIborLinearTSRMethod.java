@@ -10,7 +10,7 @@ import com.opengamma.financial.interestrate.ParRateCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.method.PricingMethod;
-import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
+import com.opengamma.financial.interestrate.swap.method.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
@@ -45,6 +45,11 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
   private final double _integrationInterval = 1.0;
 
   /**
+   * The swap method.
+   */
+  private static final SwapFixedDiscountingMethod METHOD_SWAP = SwapFixedDiscountingMethod.getInstance();
+
+  /**
    * Computes the present value of a cash-settled European swaption in the linear TSR method.
    * @param swaption The swaption.
    * @param sabrData The SABR data (used for physical swaptions).
@@ -54,7 +59,7 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
     final AnnuityCouponFixed annuityFixed = swaption.getUnderlyingSwap().getFixedLeg();
     double nominal = Math.abs(annuityFixed.getNthPayment(0).getNotional());
     double discountFactorSettle = sabrData.getCurve(annuityFixed.getNthPayment(0).getFundingCurveName()).getDiscountFactor(swaption.getSettlementTime());
-    double annuityPhysical = SwapFixedDiscountingMethod.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData) / nominal;
+    double annuityPhysical = METHOD_SWAP.presentValueBasisPoint(swaption.getUnderlyingSwap(), sabrData) / nominal;
     double strike = swaption.getStrike();
     final double forward = PRC.visit(swaption.getUnderlyingSwap(), sabrData);
     // Linear approximation
@@ -186,7 +191,7 @@ public class SwaptionCashFixedIborLinearTSRMethod implements PricingMethod {
       }
       final double kp = _linear[0] * g + (_linear[0] * x + _linear[1]) * gp;
       final double kpp = 2 * _linear[0] * gp + (_linear[0] * x + _linear[1]) * gpp;
-      return new double[] {kp, kpp };
+      return new double[] {kp, kpp};
     }
 
     /**

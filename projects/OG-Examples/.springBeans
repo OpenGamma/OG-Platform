@@ -7,8 +7,6 @@
 	</configSuffixes>
 	<enableImports><![CDATA[true]]></enableImports>
 	<configs>
-		<config>config/example-beans.xml</config>
-		<config>config/engine-spring.xml</config>
 		<config>config/dataLoader.xml</config>
 	</configs>
 	<configSets>

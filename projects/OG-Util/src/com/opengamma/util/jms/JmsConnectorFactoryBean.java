@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.jms;
 
+import java.net.URI;
+
 import javax.jms.ConnectionFactory;
 
 import org.springframework.jms.core.JmsTemplate;
@@ -39,6 +41,10 @@ public class JmsConnectorFactoryBean extends SingletonFactoryBean<JmsConnector> 
    */
   private JmsTemplate _jmsTemplateQueue;
   /**
+   * The configuration needed by the client to connect to the broker.
+   */
+  private URI _clientBrokerUri;
+  /**
    * The topic name.
    */
   private String _topicName;
@@ -61,6 +67,7 @@ public class JmsConnectorFactoryBean extends SingletonFactoryBean<JmsConnector> 
     setConnectionFactory(base.getConnectionFactory());
     setJmsTemplateTopic(base.getJmsTemplateTopic());
     setJmsTemplateQueue(base.getJmsTemplateQueue());
+    setClientBrokerUri(base.getClientBrokerUri());
     setTopicName(base.getTopicName());
   }
 
@@ -142,6 +149,30 @@ public class JmsConnectorFactoryBean extends SingletonFactoryBean<JmsConnector> 
   }
 
   /**
+   * Gets the broker configuration needed by the client to connect to the server.
+   * <p>
+   * The client needs some form of configuration, frequently a URI, to connect to the JMS broker.
+   * This field provides that configuration.
+   * 
+   * @return the client broker configuration, null if no config provided for clients
+   */
+  public URI getClientBrokerUri() {
+    return _clientBrokerUri;
+  }
+
+  /**
+   * Sets the broker configuration needed by the client to connect to the server.
+   * <p>
+   * The client needs some form of configuration, frequently a URI, to connect to the JMS broker.
+   * This field provides that configuration.
+   * 
+   * @param clientBrokerConfig  the client broker configuration, null if no config provided for clients
+   */
+  public void setClientBrokerUri(URI clientBrokerConfig) {
+    _clientBrokerUri = clientBrokerConfig;
+  }
+
+  /**
    * Gets the topic name.
    * 
    * @return the topic name
@@ -162,7 +193,7 @@ public class JmsConnectorFactoryBean extends SingletonFactoryBean<JmsConnector> 
 
   //-------------------------------------------------------------------------
   @Override
-  public JmsConnector createObject() {
+  protected JmsConnector createObject() {
     ArgumentChecker.notNull(getName(), "name");
     final ConnectionFactory providedFactory = getConnectionFactory();  // store in variable to protect against change by subclass
     final JmsTemplate providedTemplateTopic = getJmsTemplateTopic();  // store in variable to protect against change by subclass
@@ -170,8 +201,9 @@ public class JmsConnectorFactoryBean extends SingletonFactoryBean<JmsConnector> 
     
     final JmsTemplate jmsTemplateTopic = createTemplateTopic(providedFactory, providedTemplateTopic, providedTemplateQueue);
     final JmsTemplate jmsTemplateQueue = createTemplateQueue(providedFactory, providedTemplateQueue, providedTemplateTopic);
+    final URI clientBrokerUri = getClientBrokerUri();  // store in variable to protect against change by subclass
     final String topicName = getTopicName();  // store in variable to protect against change by subclass
-    return new JmsConnector(getName(), jmsTemplateTopic, jmsTemplateQueue, topicName);
+    return new JmsConnector(getName(), jmsTemplateTopic, jmsTemplateQueue, clientBrokerUri, topicName);
   }
 
   /**

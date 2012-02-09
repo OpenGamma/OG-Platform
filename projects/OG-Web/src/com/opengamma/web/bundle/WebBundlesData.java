@@ -28,6 +28,11 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 public class WebBundlesData extends DirectBean {
 
   /**
+   * The bundle manager factory.
+   */
+  @PropertyDefinition
+  private BundleManagerFactory _bundleManagerFactory;
+  /**
    * The bundle manager.
    */
   @PropertyDefinition
@@ -91,6 +96,8 @@ public class WebBundlesData extends DirectBean {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case 1984241087:  // bundleManagerFactory
+        return getBundleManagerFactory();
       case 1459962059:  // bundleManager
         return getBundleManager();
       case 862647990:  // devBundleManager
@@ -112,6 +119,9 @@ public class WebBundlesData extends DirectBean {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
+      case 1984241087:  // bundleManagerFactory
+        setBundleManagerFactory((BundleManagerFactory) newValue);
+        return;
       case 1459962059:  // bundleManager
         setBundleManager((BundleManager) newValue);
         return;
@@ -144,7 +154,8 @@ public class WebBundlesData extends DirectBean {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       WebBundlesData other = (WebBundlesData) obj;
-      return JodaBeanUtils.equal(getBundleManager(), other.getBundleManager()) &&
+      return JodaBeanUtils.equal(getBundleManagerFactory(), other.getBundleManagerFactory()) &&
+          JodaBeanUtils.equal(getBundleManager(), other.getBundleManager()) &&
           JodaBeanUtils.equal(getDevBundleManager(), other.getDevBundleManager()) &&
           JodaBeanUtils.equal(getCompressor(), other.getCompressor()) &&
           JodaBeanUtils.equal(getMode(), other.getMode()) &&
@@ -158,6 +169,7 @@ public class WebBundlesData extends DirectBean {
   @Override
   public int hashCode() {
     int hash = getClass().hashCode();
+    hash += hash * 31 + JodaBeanUtils.hashCode(getBundleManagerFactory());
     hash += hash * 31 + JodaBeanUtils.hashCode(getBundleManager());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDevBundleManager());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCompressor());
@@ -166,6 +178,31 @@ public class WebBundlesData extends DirectBean {
     hash += hash * 31 + JodaBeanUtils.hashCode(getScriptTag());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUriInfo());
     return hash;
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the bundle manager factory.
+   * @return the value of the property
+   */
+  public BundleManagerFactory getBundleManagerFactory() {
+    return _bundleManagerFactory;
+  }
+
+  /**
+   * Sets the bundle manager factory.
+   * @param bundleManagerFactory  the new value of the property
+   */
+  public void setBundleManagerFactory(BundleManagerFactory bundleManagerFactory) {
+    this._bundleManagerFactory = bundleManagerFactory;
+  }
+
+  /**
+   * Gets the the {@code bundleManagerFactory} property.
+   * @return the property, not null
+   */
+  public final Property<BundleManagerFactory> bundleManagerFactory() {
+    return metaBean().bundleManagerFactory().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -357,6 +394,11 @@ public class WebBundlesData extends DirectBean {
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code bundleManagerFactory} property.
+     */
+    private final MetaProperty<BundleManagerFactory> _bundleManagerFactory = DirectMetaProperty.ofReadWrite(
+        this, "bundleManagerFactory", WebBundlesData.class, BundleManagerFactory.class);
+    /**
      * The meta-property for the {@code bundleManager} property.
      */
     private final MetaProperty<BundleManager> _bundleManager = DirectMetaProperty.ofReadWrite(
@@ -396,6 +438,7 @@ public class WebBundlesData extends DirectBean {
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
         this, null,
+        "bundleManagerFactory",
         "bundleManager",
         "devBundleManager",
         "compressor",
@@ -413,6 +456,8 @@ public class WebBundlesData extends DirectBean {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
+        case 1984241087:  // bundleManagerFactory
+          return _bundleManagerFactory;
         case 1459962059:  // bundleManager
           return _bundleManager;
         case 862647990:  // devBundleManager
@@ -447,6 +492,14 @@ public class WebBundlesData extends DirectBean {
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code bundleManagerFactory} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<BundleManagerFactory> bundleManagerFactory() {
+      return _bundleManagerFactory;
+    }
+
     /**
      * The meta-property for the {@code bundleManager} property.
      * @return the meta-property, not null

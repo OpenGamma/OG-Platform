@@ -36,7 +36,6 @@ import com.opengamma.util.jms.JmsConnector;
 /**
  * RESTful resource for a view client.
  */
-@Path("/data/viewProcessors/{viewProcessId}/clients/{viewClientId}")
 @Consumes(FudgeRest.MEDIA)
 @Produces(FudgeRest.MEDIA)
 public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {

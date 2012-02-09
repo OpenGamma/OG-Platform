@@ -209,7 +209,7 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
   public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
     CombinedMarketDataSpecification combinedSpec = (CombinedMarketDataSpecification) marketDataSpec;
     Map<MarketDataProvider, MarketDataSnapshot> snapByProvider = new HashMap<MarketDataProvider, MarketDataSnapshot>();
-    snapByProvider.put(_preferred, _preferred.snapshot(combinedSpec.getPrefferedSpecification()));
+    snapByProvider.put(_preferred, _preferred.snapshot(combinedSpec.getPreferredSpecification()));
     snapByProvider.put(_fallBack, _fallBack.snapshot(combinedSpec.getFallbackSpecification()));
     MarketDataSnapshot preferredSnap = snapByProvider.get(_preferred);
     return new CombinedMarketDataSnapshot(preferredSnap, snapByProvider, this);
@@ -221,7 +221,7 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
       return false;
     }
     CombinedMarketDataSpecification combinedMarketDataSpec = (CombinedMarketDataSpecification) marketDataSpec;
-    return _preferred.isCompatible(combinedMarketDataSpec.getPrefferedSpecification())
+    return _preferred.isCompatible(combinedMarketDataSpec.getPreferredSpecification())
         && _fallBack.isCompatible(combinedMarketDataSpec.getFallbackSpecification());
   }
 

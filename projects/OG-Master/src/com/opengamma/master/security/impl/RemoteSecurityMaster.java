@@ -51,8 +51,7 @@ public class RemoteSecurityMaster extends AbstractRemoteMaster implements Securi
   public SecurityMetaDataResult metaData(SecurityMetaDataRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataSecuritiesResource.uriMetaData(getBaseUri(), msgBase64);
+    URI uri = DataSecurityMasterResource.uriMetaData(getBaseUri(), request);
     return accessRemote(uri).get(SecurityMetaDataResult.class);
   }
 
@@ -61,9 +60,8 @@ public class RemoteSecurityMaster extends AbstractRemoteMaster implements Securi
   public SecuritySearchResult search(final SecuritySearchRequest request) {
     ArgumentChecker.notNull(request, "request");
     
-    String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataSecuritiesResource.uri(getBaseUri(), msgBase64);
-    return accessRemote(uri).get(SecuritySearchResult.class);
+    URI uri = DataSecurityMasterResource.uriSearch(getBaseUri());
+    return accessRemote(uri).post(SecuritySearchResult.class, request);
   }
 
   //-------------------------------------------------------------------------
@@ -94,7 +92,7 @@ public class RemoteSecurityMaster extends AbstractRemoteMaster implements Securi
     ArgumentChecker.notNull(document, "document");
     ArgumentChecker.notNull(document.getSecurity(), "document.security");
     
-    URI uri = DataSecuritiesResource.uri(getBaseUri(), null);
+    URI uri = DataSecurityMasterResource.uriAdd(getBaseUri());
     return accessRemote(uri).post(SecurityDocument.class, document);
   }
 
@@ -105,8 +103,8 @@ public class RemoteSecurityMaster extends AbstractRemoteMaster implements Securi
     ArgumentChecker.notNull(document.getSecurity(), "document.security");
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
-    URI uri = DataSecurityResource.uri(getBaseUri(), document.getUniqueId(), VersionCorrection.LATEST);
-    return accessRemote(uri).put(SecurityDocument.class, document);
+    URI uri = DataSecurityResource.uri(getBaseUri(), document.getUniqueId(), null);
+    return accessRemote(uri).post(SecurityDocument.class, document);
   }
 
   //-------------------------------------------------------------------------
@@ -114,7 +112,7 @@ public class RemoteSecurityMaster extends AbstractRemoteMaster implements Securi
   public void remove(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     
-    URI uri = DataSecurityResource.uri(getBaseUri(), uniqueId, VersionCorrection.LATEST);
+    URI uri = DataSecurityResource.uri(getBaseUri(), uniqueId, null);
     accessRemote(uri).delete();
   }
 
@@ -124,8 +122,7 @@ public class RemoteSecurityMaster extends AbstractRemoteMaster implements Securi
     ArgumentChecker.notNull(request, "request");
     ArgumentChecker.notNull(request.getObjectId(), "request.objectId");
     
-    String msgBase64 = getRestClient().encodeBean(request);
-    URI uri = DataSecurityResource.uriVersions(getBaseUri(), request.getObjectId(), msgBase64);
+    URI uri = DataSecurityResource.uriVersions(getBaseUri(), request.getObjectId(), request);
     return accessRemote(uri).get(SecurityHistoryResult.class);
   }
 
@@ -137,7 +134,7 @@ public class RemoteSecurityMaster extends AbstractRemoteMaster implements Securi
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     
     URI uri = DataSecurityResource.uriVersion(getBaseUri(), document.getUniqueId());
-    return accessRemote(uri).get(SecurityDocument.class);
+    return accessRemote(uri).post(SecurityDocument.class, document);
   }
 
 }

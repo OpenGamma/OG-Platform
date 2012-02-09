@@ -7,18 +7,16 @@ package com.opengamma.master.historicaltimeseries.impl;
 
 import java.net.URI;
 
-import javax.time.Instant;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.ext.Providers;
+import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
@@ -28,15 +26,13 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocumen
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoHistoryResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
-import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for accessing time-series info.
  */
-@Path("/htsMaster/infos/{infoId}")
 public class DataHistoricalTimeSeriesResource extends AbstractDataResource {
 
   /**
@@ -93,25 +89,23 @@ public class DataHistoricalTimeSeriesResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
-    Instant v = (versionAsOf != null ? DateUtils.parseInstant(versionAsOf) : null);
-    Instant c = (correctedTo != null ? DateUtils.parseInstant(correctedTo) : null);
-    HistoricalTimeSeriesInfoDocument result = getHistoricalTimeSeriesMaster().get(getUrlInfoId(), VersionCorrection.of(v, c));
+    VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
+    HistoricalTimeSeriesInfoDocument result = getHistoricalTimeSeriesMaster().get(getUrlInfoId(), vc);
     return Response.ok(result).build();
   }
 
-  @PUT
-  @Consumes(FudgeRest.MEDIA)
-  public Response put(HistoricalTimeSeriesInfoDocument request) {
+  @POST
+  public Response update(@Context UriInfo uriInfo, HistoricalTimeSeriesInfoDocument request) {
     if (getUrlInfoId().equals(request.getUniqueId().getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     HistoricalTimeSeriesInfoDocument result = getHistoricalTimeSeriesMaster().update(request);
-    return Response.ok(result).build();
+    URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    return Response.created(uri).entity(result).build();
   }
 
   @DELETE
-  @Consumes(FudgeRest.MEDIA)
-  public Response delete() {
+  public Response remove() {
     getHistoricalTimeSeriesMaster().remove(getUrlInfoId().atLatestVersion());
     return Response.noContent().build();
   }
@@ -119,8 +113,8 @@ public class DataHistoricalTimeSeriesResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   @Path("versions")
-  public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    HistoricalTimeSeriesInfoHistoryRequest request = decodeBean(HistoricalTimeSeriesInfoHistoryRequest.class, providers, msgBase64);
+  public Response history(@Context UriInfo uriInfo) {
+    HistoricalTimeSeriesInfoHistoryRequest request = RestUtils.decodeQueryParams(uriInfo, HistoricalTimeSeriesInfoHistoryRequest.class);
     if (getUrlInfoId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
@@ -131,8 +125,21 @@ public class DataHistoricalTimeSeriesResource extends AbstractDataResource {
   @GET
   @Path("versions/{versionId}")
   public Response getVersioned(@PathParam("versionId") String versionId) {
-    HistoricalTimeSeriesInfoDocument result = getHistoricalTimeSeriesMaster().get(getUrlInfoId().atVersion(versionId));
+    UniqueId uniqueId = getUrlInfoId().atVersion(versionId);
+    HistoricalTimeSeriesInfoDocument result = getHistoricalTimeSeriesMaster().get(uniqueId);
     return Response.ok(result).build();
+  }
+
+  @POST
+  @Path("versions/{versionId}")
+  public Response correct(@Context UriInfo uriInfo, @PathParam("versionId") String versionId, HistoricalTimeSeriesInfoDocument request) {
+    UniqueId uniqueId = getUrlInfoId().atVersion(versionId);
+    if (uniqueId.equals(request.getUniqueId()) == false) {
+      throw new IllegalArgumentException("Document uniqueId does not match URI");
+    }
+    HistoricalTimeSeriesInfoDocument result = getHistoricalTimeSeriesMaster().correct(request);
+    URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    return Response.created(uri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
@@ -140,33 +147,31 @@ public class DataHistoricalTimeSeriesResource extends AbstractDataResource {
    * Builds a URI for the resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param objectId  the resource identifier, not null
-   * @param versionCorrection  the version-correction locator, null for latest
+   * @param objectId  the object identifier, not null
+   * @param vc  the version-correction locator, null for latest
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/infos/{infoId}");
-    if (versionCorrection != null && versionCorrection.getVersionAsOf() != null) {
-      b.queryParam("versionAsOf", versionCorrection.getVersionAsOf());
+  public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection vc) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/infos/{infoId}");
+    if (vc != null) {
+      bld.queryParam("versionAsOf", vc.getVersionAsOfString());
+      bld.queryParam("correctedTo", vc.getCorrectedToString());
     }
-    if (versionCorrection != null && versionCorrection.getCorrectedTo() != null) {
-      b.queryParam("correctedTo", versionCorrection.getCorrectedTo());
-    }
-    return b.build(objectId.getObjectId());
+    return bld.build(objectId.getObjectId());
   }
 
   /**
    * Builds a URI for the versions of the resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param objectId  the resource identifier, not null
-   * @param searchMsg  the search message, may be null
+   * @param objectId  the object identifier, not null
+   * @param request  the request, may be null
    * @return the URI, not null
    */
-  public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, String searchMsg) {
+  public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, HistoricalTimeSeriesInfoHistoryRequest request) {
     UriBuilder bld = UriBuilder.fromUri(baseUri).path("/infos/{infoId}/versions");
-    if (searchMsg != null) {
-      bld.queryParam("msg", searchMsg);
+    if (request != null) {
+      RestUtils.encodeQueryParams(bld, request);
     }
     return bld.build(objectId.getObjectId());
   }
@@ -175,12 +180,15 @@ public class DataHistoricalTimeSeriesResource extends AbstractDataResource {
    * Builds a URI for a specific version of the resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param uniqueId  the resource unique identifier, not null
+   * @param uniqueId  the unique identifier, not null
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
-    return UriBuilder.fromUri(baseUri).path("/infos/{infoId}/versions/{versionId}")
-      .build(uniqueId.toLatest(), uniqueId.getVersion());
+    if (uniqueId.isLatest()) {
+      return uri(baseUri, uniqueId, null);
+    }
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/infos/{infoId}/versions/{versionId}");
+    return bld.build(uniqueId.toLatest(), uniqueId.getVersion());
   }
 
 }

@@ -9,6 +9,7 @@
 		<dependency name="og-master" rev="latest.integration" />
 		<dependency name="og-masterdb" rev="latest.integration" />
 		<dependency name="og-financial" rev="latest.integration" />
+		<dependency name="og-component" rev="latest.integration" />
 		<exclude org="org.apache.log4j" module="log4j" />
 		<exclude org="org.junit" />
 	</dependencies>

@@ -1,0 +1,24 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.financial.security.option {
+ 
+  /**
+   * An FX option security.
+   */
+  message FXDigitalOptionSecurity extends FinancialSecurity {
+    required string securityType [default = "FX_DIGITAL_OPTION"];
+    
+    required com.opengamma.util.money.Currency putCurrency;
+    required com.opengamma.util.money.Currency callCurrency; 
+    required double putAmount;
+    required double callAmount;
+    required util.time.Expiry expiry;
+    required javax.time.calendar.ZonedDateTime settlementDate;
+    required boolean isLong;
+  }
+
+}

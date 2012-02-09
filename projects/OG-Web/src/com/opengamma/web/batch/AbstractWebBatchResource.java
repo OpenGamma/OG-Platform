@@ -12,13 +12,13 @@ import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.financial.batch.BatchMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.AbstractWebResource;
+import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
 
 /**
  * Abstract base class for RESTful batch resources.
  */
-public abstract class AbstractWebBatchResource extends AbstractWebResource {
+public abstract class AbstractWebBatchResource extends AbstractPerRequestWebResource {
 
   /**
    * The backing bean.

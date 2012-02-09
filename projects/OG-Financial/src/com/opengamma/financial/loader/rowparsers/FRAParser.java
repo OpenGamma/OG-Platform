@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+
 package com.opengamma.financial.loader.rowparsers;
 
 import java.util.Map;
@@ -11,25 +17,33 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.loader.RowParser;
+import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
 
+/**
+ * This class parses standard OG import fields to generate a FRA security
+ */
 public class FRAParser extends RowParser {
 
   private static final String ID_SCHEME = "FRA_LOADER";
 
-  public static final String CURRENCY = "currency";
-  public static final String REGION = "region";
-  public static final String START_DATE = "start date";
-  public static final String END_DATE = "end date";
-  public static final String RATE = "rate";
-  public static final String AMOUNT = "amount";
-  public static final String BBG_ID = "bloomberg identifier";
+  //CSOFF
+  protected static final String CURRENCY = "currency";
+  protected static final String REGION = "region";
+  protected static final String START_DATE = "start date";
+  protected static final String END_DATE = "end date";
+  protected static final String RATE = "rate";
+  protected static final String AMOUNT = "amount";
+  protected static final String BBG_ID = "bloomberg identifier";
+  //CSON
+  
+  public FRAParser(LoaderContext loaderContext) {
+    super(loaderContext);
+  }
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> fraDetails) {

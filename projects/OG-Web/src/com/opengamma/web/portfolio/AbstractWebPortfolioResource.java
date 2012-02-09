@@ -13,7 +13,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.AbstractWebResource;
+import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
 import com.opengamma.web.position.WebPositionsData;
 import com.opengamma.web.position.WebPositionsUris;
@@ -23,7 +23,7 @@ import com.opengamma.web.security.WebSecuritiesUris;
 /**
  * Abstract base class for RESTful portfolio resources.
  */
-public abstract class AbstractWebPortfolioResource extends AbstractWebResource {
+public abstract class AbstractWebPortfolioResource extends AbstractPerRequestWebResource {
 
   /**
    * The backing bean.

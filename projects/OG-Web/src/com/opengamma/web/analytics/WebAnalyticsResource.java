@@ -5,6 +5,7 @@
  */
 package com.opengamma.web.analytics;
 
+import javax.servlet.ServletContext;
 import javax.time.Instant;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -24,14 +25,21 @@ import com.opengamma.web.server.WebView;
 @Path("/analytics")
 public class WebAnalyticsResource {
 
+  /**
+   * The underlying bean.
+   */
   private final LiveResultsServiceBean _liveResultsServiceBean;
-  
+
   // TODO this shouldn't be necessary once Cometd has gone
   public WebAnalyticsResource(LiveResultsServiceBean liveResultsServiceBean) {
     // Have to inject the wrapper here as the actual service is not initialised until after the Bayeux service is available 
     _liveResultsServiceBean = liveResultsServiceBean;
   }
-  
+
+  public void init(ServletContext servletContext) {
+    _liveResultsServiceBean.init(servletContext);
+  }
+
   private LiveResultsService getLiveResultsService() {
     return _liveResultsServiceBean.getLiveResultsService();
   }
@@ -50,5 +58,5 @@ public class WebAnalyticsResource {
     String filename = clientView.getViewDefinitionId() + " - " + gridName + " - " + valuationTime + ".csv";
     return Response.ok(csv).header("content-disposition", "attachment; filename=\"" + filename + "\"").build();
   }
-  
+
 }

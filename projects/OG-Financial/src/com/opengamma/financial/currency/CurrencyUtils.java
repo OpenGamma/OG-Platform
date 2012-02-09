@@ -41,7 +41,7 @@ public final class CurrencyUtils {
     if (CompareUtils.closeEquals(amount1, 0) || CompareUtils.closeEquals(amount2, 0)) {
       throw new IllegalArgumentException("Neither amounts can be zero. amount1: " + amount1 + ", amount2: " + amount2);
     }
-    CurrencyPair pair = currencyPairsSource.getCurrencyPair(currency1, currency2, currencyPairsName);
+    CurrencyPair pair = currencyPairsSource.getCurrencyPair(currencyPairsName, currency1, currency2);
     if (pair == null) {
       return null;
     }

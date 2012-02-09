@@ -15,11 +15,16 @@ import javax.time.calendar.format.DateTimeFormatters;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.util.OpenGammaClock;
+
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 
 /**
  * Main class that groups functionality for outputting to Freemarker.
+ * <p>
+ * An instance of this class is intended to be used from multiple threads,
+ * however thread-safety is not enforced.
  */
 public class FreemarkerOutputter {
 
@@ -38,6 +43,7 @@ public class FreemarkerOutputter {
   //-------------------------------------------------------------------------
   /**
    * Gets the Freemarker configuration, which must not be altered.
+   * 
    * @return the configuration, not null
    */
   public Configuration getConfiguration() {
@@ -46,12 +52,12 @@ public class FreemarkerOutputter {
 
   /**
    * Creates a new Freemarker root data map.
+   * 
    * @return the root data map, not null
    */
   public FlexiBean createRootData() {
     FlexiBean data = new FlexiBean();
-    // TODO: TIMEZONE
-    data.put("now", ZonedDateTime.now());
+    data.put("now", ZonedDateTime.now(OpenGammaClock.getInstance()));
     data.put("timeFormatter", DateTimeFormatters.pattern("HH:mm:ss"));
     data.put("offsetFormatter", DateTimeFormatters.pattern("Z"));
     return data;
@@ -59,6 +65,7 @@ public class FreemarkerOutputter {
 
   /**
    * Creates a Freemarker template.
+   * 
    * @param templateName  the template name, not null
    * @return the template, not null
    */
@@ -72,6 +79,7 @@ public class FreemarkerOutputter {
 
   /**
    * Builds the Freemarker template creating the output string.
+   * 
    * @param templateName  the template name, not null
    * @param data  the root data to merge, not null
    * @return the template, not null
@@ -82,6 +90,7 @@ public class FreemarkerOutputter {
 
   /**
    * Builds the Freemarker template creating the output string.
+   * 
    * @param template  the template, not null
    * @param data  the root data to merge, not null
    * @return the template, not null
@@ -109,9 +118,10 @@ public class FreemarkerOutputter {
   }
 
   /**
-   * Handles any exception in template output
+   * Handles any exception in template output.
+   * 
    * @param ex  the exception from Freemarker, not null
-   * @return
+   * @return a dummy return type for Java compiler reasons
    */
   private String handleException(final Exception ex) {
     throw new RuntimeException(ex);

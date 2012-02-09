@@ -56,7 +56,7 @@ public class CurrencyPairFunction implements PublishedFunction {
     ArgumentChecker.notNull(currency1, "currency1");
     ArgumentChecker.notNull(currency2, "currency2");
     CurrencyPairsSource currencyPairsSource = context.getGlobalContext().getCurrencyPairsSource();
-    return currencyPairsSource.getCurrencyPair(currency1, currency2, currencyPairsName);
+    return currencyPairsSource.getCurrencyPair(currencyPairsName, currency1, currency2);
   }
 
   @Override

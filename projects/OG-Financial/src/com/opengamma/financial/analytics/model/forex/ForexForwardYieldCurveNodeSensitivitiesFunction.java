@@ -32,8 +32,6 @@ import com.opengamma.financial.forex.method.MultipleCurrencyInterestRateCurveSen
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.FXSecurity;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.money.Currency;
@@ -141,13 +139,12 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends ForexForwar
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     final FXForwardSecurity fxForward = (FXForwardSecurity) target.getSecurity();
-    final FXSecurity fx = (FXSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(fxForward.getUnderlyingId()));
     final String payFundingCurveName = getPayFundingCurveName();
     final String payForwardCurveName = getPayForwardCurveName();
     final String receiveFundingCurveName = getReceiveFundingCurveName();
     final String receiveForwardCurveName = getReceiveForwardCurveName();
-    final Currency payCurrency = fx.getPayCurrency();
-    final Currency receiveCurrency = fx.getReceiveCurrency();
+    final Currency payCurrency = fxForward.getPayCurrency();
+    final Currency receiveCurrency = fxForward.getReceiveCurrency();
     result.add(YieldCurveFunction.getCurveRequirement(payCurrency, payFundingCurveName, payForwardCurveName, payFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     result.add(YieldCurveFunction.getCurveRequirement(payCurrency, payForwardCurveName, payForwardCurveName, payFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     result.add(YieldCurveFunction.getCurveRequirement(receiveCurrency, receiveFundingCurveName, receiveForwardCurveName, receiveFundingCurveName,
@@ -169,9 +166,8 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends ForexForwar
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final FXForwardSecurity fxForward = (FXForwardSecurity) target.getSecurity();
-    final FXSecurity fx = (FXSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(fxForward.getUnderlyingId()));
-    final Currency payCurrency = fx.getPayCurrency();
-    final Currency receiveCurrency = fx.getReceiveCurrency();
+    final Currency payCurrency = fxForward.getPayCurrency();
+    final Currency receiveCurrency = fxForward.getReceiveCurrency();
     return Sets.newHashSet(getResultSpecForCurve(target, payCurrency.getCode(), getPayFundingCurveName()),
                            getResultSpecForCurve(target, payCurrency.getCode(), getPayForwardCurveName()),
                            getResultSpecForCurve(target, receiveCurrency.getCode(), getReceiveFundingCurveName()),

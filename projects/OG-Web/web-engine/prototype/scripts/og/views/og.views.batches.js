@@ -11,9 +11,7 @@ $.register_module({
         'og.common.util.history',
         'og.common.util.ui.dialog',
         'og.common.util.ui.message',
-        'og.common.util.ui.toolbar',
-        'og.views.common.state',
-        'og.views.common.default_details'
+        'og.common.util.ui.toolbar'
     ],
     obj: function () {
         var api = og.api,
@@ -25,11 +23,13 @@ $.register_module({
             module = this,
             page_name = module.name.split('.').pop(),
             view,
-            details_page = function (args){
+            details_page = function (args, config) {
+                var show_loading = !(config || {}).hide_loading;
                 view.layout.inner.options.south.onclose = null;
                 view.layout.inner.close('south');
                 api.rest.batches.get({
                     dependencies: view.dependencies,
+                    update: view.update,
                     handler: function (result) {
                         if (result.error) return view.notify(null), view.error(result.message);
                         var batch_functions = details.batch_functions, json = result.data;
@@ -45,16 +45,16 @@ $.register_module({
                             view.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
                             batch_functions.results('.OG-js-details-panel .og-js-results', json.data.batch_results);
                             batch_functions.errors('.OG-js-details-panel .og-js-errors', json.data.batch_errors);
-                            view.notify(null);
+                            if (show_loading) view.notify(null);
                             ui.toolbar(view.options.toolbar.active);
                             setTimeout(view.layout.inner.resizeAll);
                         }});
                     },
                     id: args.id,
-                    loading: function () {view.notify({0: 'loading...', 3000: 'still loading...'});}
+                    loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
                 });
             };
-        return view = $.extend(new og.views.common.Core(page_name), {
+        return view = $.extend(view = new og.views.common.Core(page_name), {
                 details: details_page,
                 options: {
                     slickgrid: {
@@ -99,14 +99,7 @@ $.register_module({
                         }
                     }
                 },
-                rules: rules = {
-                    load: {route: '/' + page_name + '/ob_date:?/ob_time:?', method: module.name + '.load'},
-                    load_filter: {
-                        route: '/' + page_name + '/filter:/:id?/ob_date:?/ob_time:?',
-                        method: module.name + '.load_filter'
-                    },
-                    load_item: {route: '/' + page_name + '/:id/ob_date:?/ob_time:?', method: module.name + '.load_item'}
-                }
+                rules: view.rules(['ob_date', 'ob_time'])
             });
     }
 });

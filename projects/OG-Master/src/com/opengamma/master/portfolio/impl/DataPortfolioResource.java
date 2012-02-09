@@ -7,18 +7,16 @@ package com.opengamma.master.portfolio.impl;
 
 import java.net.URI;
 
-import javax.time.Instant;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
-import javax.ws.rs.PUT;
+import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.ext.Providers;
+import javax.ws.rs.core.UriInfo;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
@@ -28,21 +26,19 @@ import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioHistoryRequest;
 import com.opengamma.master.portfolio.PortfolioHistoryResult;
 import com.opengamma.master.portfolio.PortfolioMaster;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
-import com.opengamma.util.time.DateUtils;
+import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for a portfolio.
  */
-@Path("/prtMaster/portfolios/{portfolioId}")
 public class DataPortfolioResource extends AbstractDataResource {
 
   /**
    * The portfolios resource.
    */
-  private final DataPortfoliosResource _portfoliosResource;
+  private final DataPortfolioMasterResource _portfoliosResource;
   /**
    * The identifier specified in the URI.
    */
@@ -54,7 +50,7 @@ public class DataPortfolioResource extends AbstractDataResource {
    * @param portfoliosResource  the parent resource, not null
    * @param portfolioId  the portfolio unique identifier, not null
    */
-  public DataPortfolioResource(final DataPortfoliosResource portfoliosResource, final ObjectId portfolioId) {
+  public DataPortfolioResource(final DataPortfolioMasterResource portfoliosResource, final ObjectId portfolioId) {
     ArgumentChecker.notNull(portfoliosResource, "portfoliosResource");
     ArgumentChecker.notNull(portfolioId, "portfolio");
     _portfoliosResource = portfoliosResource;
@@ -67,7 +63,7 @@ public class DataPortfolioResource extends AbstractDataResource {
    * 
    * @return the portfolios resource, not null
    */
-  public DataPortfoliosResource getPortfoliosResource() {
+  public DataPortfolioMasterResource getPortfoliosResource() {
     return _portfoliosResource;
   }
 
@@ -93,25 +89,23 @@ public class DataPortfolioResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
-    Instant v = (versionAsOf != null ? DateUtils.parseInstant(versionAsOf) : null);
-    Instant c = (correctedTo != null ? DateUtils.parseInstant(correctedTo) : null);
-    PortfolioDocument result = getPortfolioMaster().get(getUrlPortfolioId(), VersionCorrection.of(v, c));
+    VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
+    PortfolioDocument result = getPortfolioMaster().get(getUrlPortfolioId(), vc);
     return Response.ok(result).build();
   }
 
-  @PUT
-  @Consumes(FudgeRest.MEDIA)
-  public Response put(PortfolioDocument request) {
+  @POST
+  public Response update(@Context UriInfo uriInfo, PortfolioDocument request) {
     if (getUrlPortfolioId().equals(request.getUniqueId().getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     PortfolioDocument result = getPortfolioMaster().update(request);
-    return Response.ok(result).build();
+    URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    return Response.created(uri).entity(result).build();
   }
 
   @DELETE
-  @Consumes(FudgeRest.MEDIA)
-  public Response delete() {
+  public Response remove() {
     getPortfolioMaster().remove(getUrlPortfolioId().atLatestVersion());
     return Response.noContent().build();
   }
@@ -119,8 +113,8 @@ public class DataPortfolioResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   @GET
   @Path("versions")
-  public Response history(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    PortfolioHistoryRequest request = decodeBean(PortfolioHistoryRequest.class, providers, msgBase64);
+  public Response history(@Context UriInfo uriInfo) {
+    PortfolioHistoryRequest request = RestUtils.decodeQueryParams(uriInfo, PortfolioHistoryRequest.class);
     if (getUrlPortfolioId().equals(request.getObjectId()) == false) {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
@@ -131,8 +125,21 @@ public class DataPortfolioResource extends AbstractDataResource {
   @GET
   @Path("versions/{versionId}")
   public Response getVersioned(@PathParam("versionId") String versionId) {
-    PortfolioDocument result = getPortfolioMaster().get(getUrlPortfolioId().atVersion(versionId));
+    UniqueId uniqueId = getUrlPortfolioId().atVersion(versionId);
+    PortfolioDocument result = getPortfolioMaster().get(uniqueId);
     return Response.ok(result).build();
+  }
+
+  @POST
+  @Path("versions/{versionId}")
+  public Response correct(@Context UriInfo uriInfo, @PathParam("versionId") String versionId, PortfolioDocument request) {
+    UniqueId uniqueId = getUrlPortfolioId().atVersion(versionId);
+    if (uniqueId.equals(request.getUniqueId()) == false) {
+      throw new IllegalArgumentException("Document uniqueId does not match URI");
+    }
+    PortfolioDocument result = getPortfolioMaster().correct(request);
+    URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    return Response.created(uri).entity(result).build();
   }
 
   //-------------------------------------------------------------------------
@@ -140,62 +147,48 @@ public class DataPortfolioResource extends AbstractDataResource {
    * Builds a URI for the resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param objectId  the resource identifier, not null
-   * @param versionCorrection  the version-correction locator, null for latest
+   * @param objectId  the object identifier, not null
+   * @param vc  the version-correction locator, null for latest
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection versionCorrection) {
-    // TODO remove this hack
-    UriBuilder b = UriBuilder.fromUri(baseUri);
-    if (!baseUri.getPath().endsWith("prtMaster/") && !baseUri.getPath().endsWith("prtMaster")) {
-      b.path("/prtMaster");
+  public static URI uri(URI baseUri, ObjectIdentifiable objectId, VersionCorrection vc) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}");
+    if (vc != null) {
+      bld.queryParam("versionAsOf", vc.getVersionAsOfString());
+      bld.queryParam("correctedTo", vc.getCorrectedToString());
     }
-    b.path("/portfolios/{portfolioId}");
-    if (versionCorrection != null && versionCorrection.getVersionAsOf() != null) {
-      b.queryParam("versionAsOf", versionCorrection.getVersionAsOf());
-    }
-    if (versionCorrection != null && versionCorrection.getCorrectedTo() != null) {
-      b.queryParam("correctedTo", versionCorrection.getCorrectedTo());
-    }
-    return b.build(objectId.getObjectId());
+    return bld.build(objectId.getObjectId());
   }
 
   /**
    * Builds a URI for the versions of the resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param objectId  the resource identifier, not null
-   * @param searchMsg  the search message, may be null
+   * @param objectId  the object identifier, not null
+   * @param request  the request, may be null
    * @return the URI, not null
    */
-  public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, String searchMsg) {
-    // TODO remove this hack
-    UriBuilder b = UriBuilder.fromUri(baseUri);
-    if (!baseUri.getPath().endsWith("prtMaster/") && !baseUri.getPath().endsWith("prtMaster")) {
-      b.path("/prtMaster");
+  public static URI uriVersions(URI baseUri, ObjectIdentifiable objectId, PortfolioHistoryRequest request) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}/versions");
+    if (request != null) {
+      RestUtils.encodeQueryParams(bld, request);
     }
-    b.path("/portfolios/{portfolioId}/versions");
-    if (searchMsg != null) {
-      b.queryParam("msg", searchMsg);
-    }
-    return b.build(objectId.getObjectId());
+    return bld.build(objectId.getObjectId());
   }
 
   /**
    * Builds a URI for a specific version of the resource.
    * 
    * @param baseUri  the base URI, not null
-   * @param uniqueId  the resource unique identifier, not null
+   * @param uniqueId  the unique identifier, not null
    * @return the URI, not null
    */
   public static URI uriVersion(URI baseUri, UniqueId uniqueId) {
-    // TODO remove this hack
-    UriBuilder b = UriBuilder.fromUri(baseUri);
-    if (!baseUri.getPath().endsWith("prtMaster/") && !baseUri.getPath().endsWith("prtMaster")) {
-      b.path("/prtMaster");
+    if (uniqueId.isLatest()) {
+      return uri(baseUri, uniqueId, null);
     }
-    return b.path("/portfolios/{portfolioId}/versions/{versionId}")
-      .build(uniqueId.toLatest(), uniqueId.getVersion());
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/portfolios/{portfolioId}/versions/{versionId}");
+    return bld.build(uniqueId.toLatest(), uniqueId.getVersion());
   }
 
 }

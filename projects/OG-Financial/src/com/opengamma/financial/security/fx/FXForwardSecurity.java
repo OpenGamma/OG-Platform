@@ -22,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
 
 /**
  * A security for FX forwards.
@@ -38,10 +39,29 @@ public class FXForwardSecurity extends FinancialSecurity {
   public static final String SECURITY_TYPE = "FX_FORWARD";
 
   /**
-   * The underlying identifier.
+   * The payer currency
    */
   @PropertyDefinition(validate = "notNull")
-  private ExternalId _underlyingId;
+  private Currency _payCurrency;
+  
+  /**
+   * The pay amount
+   */
+  @PropertyDefinition
+  private double _payAmount;
+  
+  /**
+   * The receiver currency
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _receiveCurrency;
+  
+  /**
+   * The receive amount
+   */
+  @PropertyDefinition
+  private double _receiveAmount;
+  
   /**
    * The forward date.
    */
@@ -57,9 +77,12 @@ public class FXForwardSecurity extends FinancialSecurity {
     super();
   }
 
-  public FXForwardSecurity(ExternalId underlyingIdentifier, ZonedDateTime forwardDate, ExternalId region) {
+  public FXForwardSecurity(Currency payCurrency, double payAmount, Currency receiveCurrency, double receiveAmount, ZonedDateTime forwardDate, ExternalId region) {
     super(SECURITY_TYPE);
-    setUnderlyingId(underlyingIdentifier);
+    setPayCurrency(payCurrency);
+    setPayAmount(payAmount);
+    setReceiveCurrency(receiveCurrency);
+    setReceiveAmount(receiveAmount);
     setForwardDate(forwardDate);
     setRegionId(region);
   }
@@ -102,8 +125,14 @@ public class FXForwardSecurity extends FinancialSecurity {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -771625640:  // underlyingId
-        return getUnderlyingId();
+      case -295641895:  // payCurrency
+        return getPayCurrency();
+      case -1338781920:  // payAmount
+        return getPayAmount();
+      case -1228590060:  // receiveCurrency
+        return getReceiveCurrency();
+      case 984267035:  // receiveAmount
+        return getReceiveAmount();
       case 1652755475:  // forwardDate
         return getForwardDate();
       case -690339025:  // regionId
@@ -115,8 +144,17 @@ public class FXForwardSecurity extends FinancialSecurity {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -771625640:  // underlyingId
-        setUnderlyingId((ExternalId) newValue);
+      case -295641895:  // payCurrency
+        setPayCurrency((Currency) newValue);
+        return;
+      case -1338781920:  // payAmount
+        setPayAmount((Double) newValue);
+        return;
+      case -1228590060:  // receiveCurrency
+        setReceiveCurrency((Currency) newValue);
+        return;
+      case 984267035:  // receiveAmount
+        setReceiveAmount((Double) newValue);
         return;
       case 1652755475:  // forwardDate
         setForwardDate((ZonedDateTime) newValue);
@@ -130,7 +168,8 @@ public class FXForwardSecurity extends FinancialSecurity {
 
   @Override
   protected void validate() {
-    JodaBeanUtils.notNull(_underlyingId, "underlyingId");
+    JodaBeanUtils.notNull(_payCurrency, "payCurrency");
+    JodaBeanUtils.notNull(_receiveCurrency, "receiveCurrency");
     JodaBeanUtils.notNull(_forwardDate, "forwardDate");
     JodaBeanUtils.notNull(_regionId, "regionId");
     super.validate();
@@ -143,7 +182,10 @@ public class FXForwardSecurity extends FinancialSecurity {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       FXForwardSecurity other = (FXForwardSecurity) obj;
-      return JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
+      return JodaBeanUtils.equal(getPayCurrency(), other.getPayCurrency()) &&
+          JodaBeanUtils.equal(getPayAmount(), other.getPayAmount()) &&
+          JodaBeanUtils.equal(getReceiveCurrency(), other.getReceiveCurrency()) &&
+          JodaBeanUtils.equal(getReceiveAmount(), other.getReceiveAmount()) &&
           JodaBeanUtils.equal(getForwardDate(), other.getForwardDate()) &&
           JodaBeanUtils.equal(getRegionId(), other.getRegionId()) &&
           super.equals(obj);
@@ -154,7 +196,10 @@ public class FXForwardSecurity extends FinancialSecurity {
   @Override
   public int hashCode() {
     int hash = 7;
-    hash += hash * 31 + JodaBeanUtils.hashCode(getUnderlyingId());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPayCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPayAmount());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getReceiveAmount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getForwardDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getRegionId());
     return hash ^ super.hashCode();
@@ -162,28 +207,104 @@ public class FXForwardSecurity extends FinancialSecurity {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlying identifier.
+   * Gets the payer currency
    * @return the value of the property, not null
    */
-  public ExternalId getUnderlyingId() {
-    return _underlyingId;
+  public Currency getPayCurrency() {
+    return _payCurrency;
   }
 
   /**
-   * Sets the underlying identifier.
-   * @param underlyingId  the new value of the property, not null
+   * Sets the payer currency
+   * @param payCurrency  the new value of the property, not null
    */
-  public void setUnderlyingId(ExternalId underlyingId) {
-    JodaBeanUtils.notNull(underlyingId, "underlyingId");
-    this._underlyingId = underlyingId;
+  public void setPayCurrency(Currency payCurrency) {
+    JodaBeanUtils.notNull(payCurrency, "payCurrency");
+    this._payCurrency = payCurrency;
   }
 
   /**
-   * Gets the the {@code underlyingId} property.
+   * Gets the the {@code payCurrency} property.
    * @return the property, not null
    */
-  public final Property<ExternalId> underlyingId() {
-    return metaBean().underlyingId().createProperty(this);
+  public final Property<Currency> payCurrency() {
+    return metaBean().payCurrency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the pay amount
+   * @return the value of the property
+   */
+  public double getPayAmount() {
+    return _payAmount;
+  }
+
+  /**
+   * Sets the pay amount
+   * @param payAmount  the new value of the property
+   */
+  public void setPayAmount(double payAmount) {
+    this._payAmount = payAmount;
+  }
+
+  /**
+   * Gets the the {@code payAmount} property.
+   * @return the property, not null
+   */
+  public final Property<Double> payAmount() {
+    return metaBean().payAmount().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the receiver currency
+   * @return the value of the property, not null
+   */
+  public Currency getReceiveCurrency() {
+    return _receiveCurrency;
+  }
+
+  /**
+   * Sets the receiver currency
+   * @param receiveCurrency  the new value of the property, not null
+   */
+  public void setReceiveCurrency(Currency receiveCurrency) {
+    JodaBeanUtils.notNull(receiveCurrency, "receiveCurrency");
+    this._receiveCurrency = receiveCurrency;
+  }
+
+  /**
+   * Gets the the {@code receiveCurrency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> receiveCurrency() {
+    return metaBean().receiveCurrency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the receive amount
+   * @return the value of the property
+   */
+  public double getReceiveAmount() {
+    return _receiveAmount;
+  }
+
+  /**
+   * Sets the receive amount
+   * @param receiveAmount  the new value of the property
+   */
+  public void setReceiveAmount(double receiveAmount) {
+    this._receiveAmount = receiveAmount;
+  }
+
+  /**
+   * Gets the the {@code receiveAmount} property.
+   * @return the property, not null
+   */
+  public final Property<Double> receiveAmount() {
+    return metaBean().receiveAmount().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -249,10 +370,25 @@ public class FXForwardSecurity extends FinancialSecurity {
     static final Meta INSTANCE = new Meta();
 
     /**
-     * The meta-property for the {@code underlyingId} property.
+     * The meta-property for the {@code payCurrency} property.
      */
-    private final MetaProperty<ExternalId> _underlyingId = DirectMetaProperty.ofReadWrite(
-        this, "underlyingId", FXForwardSecurity.class, ExternalId.class);
+    private final MetaProperty<Currency> _payCurrency = DirectMetaProperty.ofReadWrite(
+        this, "payCurrency", FXForwardSecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code payAmount} property.
+     */
+    private final MetaProperty<Double> _payAmount = DirectMetaProperty.ofReadWrite(
+        this, "payAmount", FXForwardSecurity.class, Double.TYPE);
+    /**
+     * The meta-property for the {@code receiveCurrency} property.
+     */
+    private final MetaProperty<Currency> _receiveCurrency = DirectMetaProperty.ofReadWrite(
+        this, "receiveCurrency", FXForwardSecurity.class, Currency.class);
+    /**
+     * The meta-property for the {@code receiveAmount} property.
+     */
+    private final MetaProperty<Double> _receiveAmount = DirectMetaProperty.ofReadWrite(
+        this, "receiveAmount", FXForwardSecurity.class, Double.TYPE);
     /**
      * The meta-property for the {@code forwardDate} property.
      */
@@ -268,7 +404,10 @@ public class FXForwardSecurity extends FinancialSecurity {
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "underlyingId",
+        "payCurrency",
+        "payAmount",
+        "receiveCurrency",
+        "receiveAmount",
         "forwardDate",
         "regionId");
 
@@ -281,8 +420,14 @@ public class FXForwardSecurity extends FinancialSecurity {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -771625640:  // underlyingId
-          return _underlyingId;
+        case -295641895:  // payCurrency
+          return _payCurrency;
+        case -1338781920:  // payAmount
+          return _payAmount;
+        case -1228590060:  // receiveCurrency
+          return _receiveCurrency;
+        case 984267035:  // receiveAmount
+          return _receiveAmount;
         case 1652755475:  // forwardDate
           return _forwardDate;
         case -690339025:  // regionId
@@ -308,11 +453,35 @@ public class FXForwardSecurity extends FinancialSecurity {
 
     //-----------------------------------------------------------------------
     /**
-     * The meta-property for the {@code underlyingId} property.
+     * The meta-property for the {@code payCurrency} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ExternalId> underlyingId() {
-      return _underlyingId;
+    public final MetaProperty<Currency> payCurrency() {
+      return _payCurrency;
+    }
+
+    /**
+     * The meta-property for the {@code payAmount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> payAmount() {
+      return _payAmount;
+    }
+
+    /**
+     * The meta-property for the {@code receiveCurrency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> receiveCurrency() {
+      return _receiveCurrency;
+    }
+
+    /**
+     * The meta-property for the {@code receiveAmount} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Double> receiveAmount() {
+      return _receiveAmount;
     }
 
     /**

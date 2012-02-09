@@ -20,15 +20,16 @@ import com.opengamma.financial.security.future.BondFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexOptionSecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
@@ -64,15 +65,18 @@ public enum InterestRateInstrumentType {
   private static final FinancialSecurityVisitor<InterestRateInstrumentType> TYPE_IDENTIFIER = new TypeIdentifier();
 
   public static InterestRateInstrumentType getInstrumentTypeFromSecurity(final FinancialSecurity security) {
-    return security.accept(TYPE_IDENTIFIER);
+    final InterestRateInstrumentType type = security.accept(TYPE_IDENTIFIER);
+    if (type == null) {
+      throw new OpenGammaRuntimeException("Can't handle " + security.getClass().getName());
+    } else {
+      return type;
+    }
   }
 
   public static boolean isFixedIncomeInstrumentType(final FinancialSecurity security) {
     try {
-      security.accept(TYPE_IDENTIFIER);
-      return true;
-    } catch (final OpenGammaRuntimeException e) {
-      // a bit nasty but ensures consistency with the other method
+      return security.accept(TYPE_IDENTIFIER) != null;
+    } catch (OpenGammaRuntimeException e) {
       return false;
     }
   }
@@ -91,7 +95,7 @@ public enum InterestRateInstrumentType {
 
     @Override
     public InterestRateInstrumentType visitEquitySecurity(final EquitySecurity security) {
-      throw new OpenGammaRuntimeException("EquitySecurity is not an interest rate instrument");
+      return null;
     }
 
     @Override
@@ -107,7 +111,7 @@ public enum InterestRateInstrumentType {
       if (security instanceof BondFutureSecurity) {
         return BOND_FUTURE;
       }
-      throw new OpenGammaRuntimeException("Cannot handle this FutureSecurity");
+      return null;
     }
 
     @Override
@@ -117,78 +121,88 @@ public enum InterestRateInstrumentType {
 
     @Override
     public InterestRateInstrumentType visitSwaptionSecurity(final SwaptionSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle SwaptionSecurity");
+      return null;
     }
 
     @Override
     public InterestRateInstrumentType visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle EquityIndexOptionSecurity");
+      return null;
     }
 
     @Override
     public InterestRateInstrumentType visitEquityOptionSecurity(final EquityOptionSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle EquityOptionSecurity");
+      return null;
     }
     
     @Override
     public InterestRateInstrumentType visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle EquityBarrierOptionSecurity");
+      return null;
     }
 
     @Override
     public InterestRateInstrumentType visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle EquityVarianceSwapSecurity");
+      return null;
     }
 
     @Override
     public InterestRateInstrumentType visitFXOptionSecurity(final FXOptionSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle FXOptionSecurity");
+      return null;
     }
 
     @Override
     public InterestRateInstrumentType visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle NonDeliverableFXOptionSecurity");
+      return null;
     }
 
     @Override
     public InterestRateInstrumentType visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle IRFutureOptionSecurity");
+      return null;
     }
     
     @Override
     public InterestRateInstrumentType visitEquityIndexDividendFutureOptionSecurity(
         EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
-      throw new OpenGammaRuntimeException("Cannot handle EquityIndexDividendFutureOptionSecurity");
+      return null;
     }
 
     @Override
     public InterestRateInstrumentType visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle FXBarrierOptionSecurity");
+      return null;
     }
 
-    @Override
+    /*@Override
     public InterestRateInstrumentType visitFXSecurity(final FXSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle FXSecurity");
-    }
+      return null;
+    }*/
 
     @Override
     public InterestRateInstrumentType visitFXForwardSecurity(final FXForwardSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle FXForwardSecurity");
+      return null;
     }
     
     @Override
     public InterestRateInstrumentType visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle NonDeliverableFXForwardSecurity");
+      return null;
     }
 
     @Override
     public InterestRateInstrumentType visitCapFloorSecurity(final CapFloorSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle CapFloorSecurity");
+      return null;
     }
 
     @Override
     public InterestRateInstrumentType visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
-      throw new OpenGammaRuntimeException("Cannot handle CapFloorCMSSpreadSecurity");
+      return null;
+    }
+
+    @Override
+    public InterestRateInstrumentType visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
+      return null;
+    }
+
+    @Override
+    public InterestRateInstrumentType visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
+      return null;
     }
   }
 }

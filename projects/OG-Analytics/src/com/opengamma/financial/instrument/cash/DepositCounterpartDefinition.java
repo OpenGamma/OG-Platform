@@ -21,7 +21,7 @@ import com.opengamma.util.time.TimeCalculator;
 /**
  * Class describing a deposit to a specific counterpart. Used in particular for counterpart dependent valuation.
  */
-public class DepositCounterpartDefinition extends DepositDefinition {
+public class DepositCounterpartDefinition extends CashDefinition {
 
   /**
    * The counterpart name.

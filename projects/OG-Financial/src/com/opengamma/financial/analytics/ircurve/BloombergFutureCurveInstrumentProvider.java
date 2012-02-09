@@ -16,6 +16,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.time.Tenor;
 
 /**
@@ -72,8 +73,7 @@ public class BloombergFutureCurveInstrumentProvider implements CurveInstrumentPr
     StringBuilder futureCode = new StringBuilder();
     futureCode.append(prefix);
     futureCode.append(s_monthCode.get(futureExpiryDate.getMonthOfYear()));
-    // TODO: TIMEZONE
-    LocalDate today = LocalDate.now();
+    LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
     if (futureExpiryDate.isBefore(today.minus(Period.ofMonths(3)))) {
       int yearsNum = futureExpiryDate.getYear() % 100;
       if (yearsNum < 10) {

@@ -1,28 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xmlns:jaxrs="http://cxf.apache.org/jaxrs"
   xsi:schemaLocation="
 http://www.springframework.org/schema/beans
-http://www.springframework.org/schema/beans/spring-beans.xsd
-http://cxf.apache.org/jaxrs
-http://cxf.apache.org/schemas/jaxrs.xsd">
+http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-  <bean id="jsonToFudge" class="com.opengamma.transport.jaxrs.FudgeJSONConsumer" scope="singleton">
+  <!-- If using OG-Component then SpringJettyComponentFactory does this -->
+
+  <bean id="jsonToFudge" class="com.opengamma.transport.jaxrs.FudgeObjectJSONConsumer" scope="singleton">
   </bean>
-  <bean id="fudgeToJson" class="com.opengamma.transport.jaxrs.FudgeJSONProducer" scope="singleton">
+  <bean id="fudgeToJson" class="com.opengamma.transport.jaxrs.FudgeObjectJSONProducer" scope="singleton">
   </bean>
-  <bean id="xmlToFudge" class="com.opengamma.transport.jaxrs.FudgeXMLConsumer" scope="singleton">
+  <bean id="xmlToFudge" class="com.opengamma.transport.jaxrs.FudgeObjectXMLConsumer" scope="singleton">
   </bean>
-  <bean id="fudgeToXml" class="com.opengamma.transport.jaxrs.FudgeXMLProducer" scope="singleton">
+  <bean id="fudgeToXml" class="com.opengamma.transport.jaxrs.FudgeObjectXMLProducer" scope="singleton">
   </bean>
-  <bean id="fudgeInput" class="com.opengamma.transport.jaxrs.FudgeBinaryConsumer" scope="singleton">
+  <bean id="binaryToFudge" class="com.opengamma.transport.jaxrs.FudgeObjectBinaryConsumer" scope="singleton">
   </bean>
-  <bean id="fudgeOutput" class="com.opengamma.transport.jaxrs.FudgeBinaryProducer" scope="singleton">
-  </bean>
-  <bean id="fudgeObjectInput" class="com.opengamma.transport.jaxrs.FudgeObjectBinaryConsumer" scope="singleton">
-  </bean>
-  <bean id="fudgeObjectOutput" class="com.opengamma.transport.jaxrs.FudgeObjectBinaryProducer" scope="singleton">
+  <bean id="fudgeToBinary" class="com.opengamma.transport.jaxrs.FudgeObjectBinaryProducer" scope="singleton">
   </bean>
 
   <bean id="dataNotFoundExceptionMapper" class="com.opengamma.util.rest.DataNotFoundExceptionMapper" scope="singleton">
@@ -37,6 +32,5 @@ http://cxf.apache.org/schemas/jaxrs.xsd">
   </bean>
   <bean id="throwableExceptionMapper" class="com.opengamma.util.rest.ThrowableExceptionMapper" scope="singleton">
   </bean>
-
 
 </beans>

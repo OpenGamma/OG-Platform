@@ -24,16 +24,17 @@ import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
  * 
  */
 public class EquityVarianceSwapPresentValueFunction extends EquityVarianceSwapFunction {
-  private static final VarianceSwapStaticReplication CALCULATOR = new VarianceSwapStaticReplication();
+  private static final VarianceSwapStaticReplication PRICER = new VarianceSwapStaticReplication();
 
-  public EquityVarianceSwapPresentValueFunction(final String curveDefinitionName, final String surfaceDefinitionName, final String forwardCalculationMethod, 
-      final String strikeParameterizationMethodName) {
-    super(curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod, strikeParameterizationMethodName);
+  //  private static final VarianceSwapStaticReplication2 CALCULATOR = new VarianceSwapStaticReplication2();
+
+  public EquityVarianceSwapPresentValueFunction(final String curveDefinitionName, final String surfaceDefinitionName, final String forwardCalculationMethod) {
+    super(curveDefinitionName, surfaceDefinitionName, forwardCalculationMethod);
   }
 
   @Override
   protected Set<ComputedValue> getResults(final ComputationTarget target, final FunctionInputs inputs, final VarianceSwap derivative, final VarianceSwapDataBundle market) {
-    return Collections.singleton(new ComputedValue(getValueSpecification(target), CALCULATOR.presentValue(derivative, market)));
+    return Collections.singleton(new ComputedValue(getValueSpecification(target), PRICER.presentValue(derivative, market)));
   }
 
   @Override
@@ -42,4 +43,5 @@ public class EquityVarianceSwapPresentValueFunction extends EquityVarianceSwapFu
     ValueProperties properties = createValueProperties().with(ValuePropertyNames.CURRENCY, security.getCurrency().getCode()).get();
     return new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties);
   }
+
 }

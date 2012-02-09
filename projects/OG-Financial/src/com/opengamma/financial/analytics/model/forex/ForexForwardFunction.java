@@ -15,6 +15,7 @@ import org.apache.commons.lang.Validate;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -32,10 +33,8 @@ import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.FXSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -72,9 +71,8 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final FXForwardSecurity security = (FXForwardSecurity) target.getSecurity();
     final InstrumentDefinition<?> definition = _visitor.visitFXForwardSecurity(security);
-    final FXSecurity fx = (FXSecurity) _securitySource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
-    final Currency payCurrency = fx.getPayCurrency();
-    final Currency receiveCurrency = fx.getReceiveCurrency();
+    final Currency payCurrency = security.getPayCurrency();
+    final Currency receiveCurrency = security.getReceiveCurrency();
     final String payFundingCurveName = _payFundingCurveName + "_" + payCurrency.getCode();
     final String payForwardCurveName = _payForwardCurveName + "_" + payCurrency.getCode();
     final String receiveFundingCurveName = _receiveFundingCurveName + "_" + receiveCurrency.getCode();
@@ -124,12 +122,12 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FXForwardSecurity fxForward = (FXForwardSecurity) target.getSecurity();
-    final FXSecurity fx = (FXSecurity) _securitySource.getSecurity(ExternalIdBundle.of(fxForward.getUnderlyingId()));
-    final ValueRequirement payFundingCurve = YieldCurveFunction.getCurveRequirement(fx.getPayCurrency(), _payFundingCurveName, _payForwardCurveName, _payFundingCurveName);
-    final ValueRequirement payForwardCurve = YieldCurveFunction.getCurveRequirement(fx.getPayCurrency(), _payForwardCurveName, _payForwardCurveName, _payFundingCurveName);
-    final ValueRequirement receiveFundingCurve = YieldCurveFunction.getCurveRequirement(fx.getReceiveCurrency(), _receiveFundingCurveName, _receiveForwardCurveName, _receiveFundingCurveName);
-    final ValueRequirement receiveForwardCurve = YieldCurveFunction.getCurveRequirement(fx.getReceiveCurrency(), _receiveForwardCurveName, _receiveForwardCurveName, _receiveFundingCurveName);
-    final ExternalId spotIdentifier = FXUtils.getSpotIdentifier(fx, true);
+    final ValueRequirement payFundingCurve = YieldCurveFunction.getCurveRequirement(fxForward.getPayCurrency(), _payFundingCurveName, _payForwardCurveName, _payFundingCurveName);
+    final ValueRequirement payForwardCurve = YieldCurveFunction.getCurveRequirement(fxForward.getPayCurrency(), _payForwardCurveName, _payForwardCurveName, _payFundingCurveName);
+    final ValueRequirement receiveFundingCurve = YieldCurveFunction.getCurveRequirement(fxForward.getReceiveCurrency(), _receiveFundingCurveName, _receiveForwardCurveName, _receiveFundingCurveName);
+    final ValueRequirement receiveForwardCurve = YieldCurveFunction.getCurveRequirement(fxForward.getReceiveCurrency(), _receiveForwardCurveName, _receiveForwardCurveName, _receiveFundingCurveName);
+    // This really needs fixing so it doesn't depend on the bloomberg ticker.
+    final ExternalId spotIdentifier = FXUtils.getSpotIdentifiers(fxForward, true).getExternalId(SecurityUtils.BLOOMBERG_TICKER);
     final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
     return Sets.newHashSet(payFundingCurve, payForwardCurve, receiveFundingCurve, receiveForwardCurve, spotRequirement);
   }

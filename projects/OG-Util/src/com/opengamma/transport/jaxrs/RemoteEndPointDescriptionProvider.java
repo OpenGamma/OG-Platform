@@ -5,46 +5,65 @@
  */
 package com.opengamma.transport.jaxrs;
 
+import java.net.URI;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 
 import com.opengamma.transport.EndPointDescriptionProvider;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.FudgeRestClient;
 
 /**
  * An implementation of {@code EndPointDescriptionProvider} that operates over a REST call.
  */
 public class RemoteEndPointDescriptionProvider implements EndPointDescriptionProvider {
 
-  private RestClient _client;
-  private RestTarget _target;
+  /**
+   * The URI to access.
+   */
+  private URI _uri;
 
-  public void setRestClient(final RestClient client) {
-    _client = client;
+  /**
+   * Creates an instance.
+   */
+  public RemoteEndPointDescriptionProvider() {
   }
 
-  public RestClient getRestClient() {
-    return _client;
+  /**
+   * Creates an instance.
+   * 
+   * @param uri  the URI
+   */
+  public RemoteEndPointDescriptionProvider(final URI uri) {
+    setUri(uri);
   }
 
-  public void setRestTarget(final RestTarget target) {
-    _target = target;
+  //-------------------------------------------------------------------------
+  /**
+   * Sets the URI to access.
+   * 
+   * @return the URI
+   */
+  public URI getUri() {
+    return _uri;
   }
 
-  public RestTarget getRestTarget() {
-    return _target;
+  /**
+   * Sets the URI to access.
+   * 
+   * @param uri  the URI
+   */
+  public void setUri(final URI uri) {
+    _uri = uri;
   }
 
-  public void setUri(final String uri) {
-    setRestTarget(new RestTarget(uri));
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public FudgeMsg getEndPointDescription(final FudgeContext fudgeContext) {
-    RestClient client = getRestClient();
-    if (client == null) {
-      client = RestClient.getInstance(fudgeContext, null);
-    }
-    return client.getMsg(getRestTarget());
+    ArgumentChecker.notNull(getUri(), "URI");
+    FudgeRestClient restClient = FudgeRestClient.create();
+    return restClient.accessFudge(getUri()).get(FudgeMsg.class);
   }
 
 }
