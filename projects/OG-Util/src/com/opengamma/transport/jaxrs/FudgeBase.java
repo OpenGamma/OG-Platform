@@ -19,6 +19,10 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
    * The Fudge context.
    */
   private FudgeContext _fudgeContext;
+  /**
+   * The Fudge taxonomy.
+   */
+  private int _fudgeTaxonomyId;
 
   /**
    * Creates an instance.
@@ -30,6 +34,7 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
   //-------------------------------------------------------------------------
   /**
    * Gets the Fudge context.
+   * 
    * @return the context, not null
    */
   public FudgeContext getFudgeContext() {
@@ -38,11 +43,34 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
   /**
    * Sets the Fudge context.
+   * 
    * @param fudgeContext  the context to use, not null
    */
   public void setFudgeContext(final FudgeContext fudgeContext) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _fudgeContext = fudgeContext;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the taxonomy id.
+   * 
+   * @return the taxonomy id
+   */
+  public int getFudgeTaxonomyId() {
+    return _fudgeTaxonomyId;
+  }
+
+  /**
+   * Sets the taxonomy id.
+   * 
+   * @param fudgeTaxonomyId  the taxonomy id, which must be a 16-bit signed integer
+   */
+  public void setFudgeTaxonomyId(final int fudgeTaxonomyId) {
+    if (fudgeTaxonomyId < Short.MIN_VALUE || fudgeTaxonomyId > Short.MAX_VALUE) {
+      throw new IllegalArgumentException("fudgeTaxonomyId must be 16-bit signed integer");
+    }
+    _fudgeTaxonomyId = fudgeTaxonomyId;
   }
 
 }

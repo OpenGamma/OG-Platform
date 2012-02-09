@@ -8,7 +8,6 @@ package com.opengamma.master.historicaltimeseries.impl;
 import java.net.URI;
 
 import javax.time.calendar.LocalDate;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -29,7 +28,6 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesGetFilter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.rest.RestUtils;
@@ -107,7 +105,6 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
 
   @POST
   @Path("updates")
-  @Consumes(FudgeRest.MEDIA)
   public Response postUpdates(LocalDateDoubleTimeSeries newPoints) {
     UniqueId result = getHistoricalTimeSeriesMaster().updateTimeSeriesDataPoints(getUrlDataPointsId(), newPoints);
     return Response.ok(result).build();
@@ -115,7 +112,6 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
 
   @POST
   @Path("corrections")
-  @Consumes(FudgeRest.MEDIA)
   public Response postCorrections(LocalDateDoubleTimeSeries newPoints) {
     UniqueId result = getHistoricalTimeSeriesMaster().correctTimeSeriesDataPoints(getUrlDataPointsId(), newPoints);
     return Response.ok(result).build();
@@ -123,7 +119,6 @@ public class DataHistoricalDataPointsResource extends AbstractDataResource {
 
   @DELETE
   @Path("removals/{startDate}/{endDate}")
-  @Consumes(FudgeRest.MEDIA)
   public Response remove(@PathParam("startDate") String startDateStr, @PathParam("endDate") String endDateStr) {
     LocalDate fromDateInclusive = (startDateStr != null ? LocalDate.parse(startDateStr) : null);
     LocalDate toDateInclusive = (endDateStr != null ? LocalDate.parse(endDateStr) : null);

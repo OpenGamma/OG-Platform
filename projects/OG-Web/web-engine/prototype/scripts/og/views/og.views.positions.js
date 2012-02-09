@@ -145,14 +145,11 @@ $.register_module({
                 id: args.id,
                 cache_for: 500,
                 version: args.version && args.version !== '*' ? args.version : void 0,
-                loading: function () {
-                    if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});
-                }
+                loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
             });
         };
-        return view = $.extend(new og.views.common.Core(page_name), {
+        return view = $.extend(view = new og.views.common.Core(page_name), {
             details: details_page,
-            filters: ['quantity'],
             options: {
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': page_name,
@@ -189,15 +186,7 @@ $.register_module({
                     }
                 }
             },
-            rules: {
-                load: {route: '/' + page_name + '/quantity:?', method: module.name + '.load'},
-                load_filter: {
-                    route: '/' + page_name + '/filter:/:id?/version:?/quantity:?', method: module.name + '.load_filter'
-                },
-                load_item: {
-                    route: '/' + page_name + '/:id/version:?/quantity:?', method: module.name + '.load_item'
-                }
-            }
+            rules: view.rules(['quantity'], ['version'])
         });
     }
 });

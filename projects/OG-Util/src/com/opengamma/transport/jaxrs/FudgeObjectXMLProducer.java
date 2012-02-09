@@ -7,6 +7,7 @@ package com.opengamma.transport.jaxrs;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Type;
 
@@ -19,30 +20,33 @@ import javax.ws.rs.ext.Provider;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
-import org.fudgemsg.wire.FudgeDataOutputStreamWriter;
 import org.fudgemsg.wire.FudgeMsgWriter;
+import org.fudgemsg.wire.xml.FudgeXMLStreamWriter;
+
+import com.google.common.base.Charsets;
 
 /**
- * A JAX-RS provider to convert RESTful responses to Fudge binary encoded messages.
+ * A JAX-RS provider to convert RESTful responses to Fudge XML encoded messages.
  * <p>
  * This converts directly to Fudge from the RESTful resource without the need to manually
  * create the message in application code.
  */
 @Provider
-@Produces(FudgeRest.MEDIA)
-public class FudgeObjectBinaryProducer extends FudgeBase implements MessageBodyWriter<Object> {
+@Produces(MediaType.APPLICATION_XML)
+public class FudgeObjectXMLProducer extends FudgeBase implements MessageBodyWriter<Object> {
 
   /**
    * Creates the producer.
    */
-  public FudgeObjectBinaryProducer() {
+  public FudgeObjectXMLProducer() {
     super();
   }
 
   //-------------------------------------------------------------------------
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return getFudgeContext().getObjectDictionary().getMessageBuilder(type) != null;
+    return type != String.class &&  // allow manually created JSON string to work
+        getFudgeContext().getObjectDictionary().getMessageBuilder(type) != null;
   }
 
   @Override
@@ -69,7 +73,8 @@ public class FudgeObjectBinaryProducer extends FudgeBase implements MessageBodyW
       msg = getFudgeContext().toFudgeMsg(obj);
     }
     
-    final FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeDataOutputStreamWriter(getFudgeContext(), entityStream));
+    OutputStreamWriter entityWriter = new OutputStreamWriter(entityStream, Charsets.UTF_8);
+    final FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeXMLStreamWriter(getFudgeContext(), entityWriter));
     writer.writeMessageEnvelope(msg, getFudgeTaxonomyId());
     writer.flush();
   }

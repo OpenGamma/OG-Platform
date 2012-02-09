@@ -8,6 +8,8 @@ package com.opengamma.financial.model.volatility.smile.function;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Arrays;
+
 import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister64;
@@ -393,7 +395,6 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     assertEquals(msg, exp, act, delta);
   }
 
-  @SuppressWarnings("deprecation")
   @Test
   /**
    * Tests the second order adjoint derivatives for the SABR Hagan volatility function. Only the derivatives with respect to the forward and the strike are provided.
@@ -401,7 +402,10 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   public void testVolatilityAdjoint2() {
     // Price
     final double volatility = FUNCTION.getVolatilityFunction(CALL_ITM, FORWARD).evaluate(DATA);
-    final double[] volatilityAdjoint = FUNCTION.getVolatilityAdjointOld(CALL_ITM, FORWARD, DATA);
+    final double[] temp = FUNCTION.getVolatilityAdjoint(CALL_ITM, FORWARD, DATA);
+    final double[] volatilityAdjoint = Arrays.copyOfRange(temp, 0, 6); // The beta sensitivity is in [4]
+    volatilityAdjoint[4] = temp[5];
+    volatilityAdjoint[5] = temp[6];
     final double[] volD = new double[5];
     final double[][] volD2 = new double[2][2];
     final double vol = FUNCTION.getVolatilityAdjoint2(CALL_ITM, FORWARD, DATA, volD, volD2);
@@ -452,13 +456,11 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   @Test(enabled = false)
   public void testExtremeParameters2() {
     @SuppressWarnings("unused")
-    final
-    double alpha = 0.2 * ALPHA;
+    final double alpha = 0.2 * ALPHA;
     //    double beta = 0.5;
     //    double nu = 0.2;
     @SuppressWarnings("unused")
-    final
-    double rho = 1 - 1e-9;
+    final double rho = 1 - 1e-9;
 
     //    double strike = 1e-8;
     //    EuropeanVanillaOption option = CALL_ITM.withStrike(strike);
@@ -532,16 +534,10 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
   }
 
   private enum SABRParameter {
-    Forward,
-    Strike,
-    Alpha,
-    Beta,
-    Nu,
-    Rho
+    Forward, Strike, Alpha, Beta, Nu, Rho
   }
 
-  private double fdSensitivity(final EuropeanVanillaOption optionData, final double forward, final SABRFormulaData sabrData,
-      final SABRParameter param, final double delta) {
+  private double fdSensitivity(final EuropeanVanillaOption optionData, final double forward, final SABRFormulaData sabrData, final SABRParameter param, final double delta) {
 
     Function1D<SABRFormulaData, Double> funcC = null;
     Function1D<SABRFormulaData, Double> funcB = null;

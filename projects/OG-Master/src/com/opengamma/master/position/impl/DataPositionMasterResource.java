@@ -7,7 +7,6 @@ package com.opengamma.master.position.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -22,7 +21,6 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
 import com.opengamma.master.position.PositionSearchResult;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -69,7 +67,6 @@ public class DataPositionMasterResource extends AbstractDataResource {
 
   @POST
   @Path("positionSearches")
-  @Consumes(FudgeRest.MEDIA)
   public Response search(PositionSearchRequest request) {
     PositionSearchResult result = getPositionMaster().search(request);
     return Response.ok(result).build();
@@ -77,7 +74,6 @@ public class DataPositionMasterResource extends AbstractDataResource {
 
   @POST
   @Path("positions")
-  @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, PositionDocument request) {
     PositionDocument result = getPositionMaster().add(request);
     URI createdUri = DataPositionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());

@@ -100,6 +100,7 @@ public class ComponentManager {
    */
   public ComponentManager() {
     _repo = new ComponentRepository();
+    CommandMonitor.create(_repo);
   }
 
   /**
@@ -110,6 +111,7 @@ public class ComponentManager {
   protected ComponentManager(ComponentRepository repo) {
     ArgumentChecker.notNull(repo, "repo");
     _repo = repo;
+    CommandMonitor.create(_repo);
   }
 
   //-------------------------------------------------------------------------
