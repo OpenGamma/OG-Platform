@@ -54,7 +54,6 @@ public class BatchJobParameters {
       return null;
     }
     // TODO: JSR-310, parse a or b
-    // TODO: TIMEZONE
     try {
       // try first to parse as if offset explicitly provided, e.g., 20100621162200+0000
       return OffsetDateTime.parse(dateTimeStr,  DATE_TIME_FORMATTER);
