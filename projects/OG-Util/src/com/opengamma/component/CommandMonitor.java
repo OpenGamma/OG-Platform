@@ -5,6 +5,11 @@
  */
 package com.opengamma.component;
 
+import java.net.InetAddress;
+import java.net.DatagramSocket;
+import java.net.DatagramPacket;
+import java.net.SocketException;
+import java.net.UnknownHostException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
@@ -37,8 +42,8 @@ public final class CommandMonitor extends Thread {
     setDaemon(true);
     setName("CommandMonitor");
     try {
-      _socket = new DatagramSocket(port, InetAddress.getLocalHost());
-    } catch (IOException e) {
+      _socket = new DatagramSocket(port, InetAddress.getByName("127.0.0.1"));
+    } catch (Exception e) {
       s_logger.warn("Failed to create listening socket, CommandMonitor will not be available");
       return;
     }
@@ -95,7 +100,7 @@ public final class CommandMonitor extends Thread {
 
   public static void main(String[] args) throws IOException { //CSIGNORE
     byte[] buffer = new byte[COMMAND_LENGTH];
-    InetAddress address = InetAddress.getLocalHost();
+    InetAddress address = InetAddress.getByName("127.0.0.1");
 
     String secret = System.getProperty(SECRET_PROPERTY, DEFAULT_SECRET);
     String port = System.getProperty(PORT_PROPERTY, Integer.toString(DEFAULT_PORT));
