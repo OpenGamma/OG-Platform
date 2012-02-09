@@ -44,6 +44,7 @@
 		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/ant/build-projects.xml" dest="${common.dir}/build-projects.xml" username="${opengamma.username}" password="${opengamma.password}"/>
 		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/tests.properties" dest="${common.dir}/tests.properties" username="${opengamma.username}" password="${opengamma.password}"/>
 		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/db.properties" dest="${common.dir}/db.properties" username="${opengamma.username}" password="${opengamma.password}"/>
+		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/deploy.properties" dest="${common.dir}/deploy.properties" username="${opengamma.username}" password="${opengamma.password}"/>
 	</target>
 
 	<!-- dump the credentials established in dependant targets to a properties file for use by ivy -->
@@ -108,14 +109,15 @@
 	<target name="publish-all-local" depends="buildlist">
 		<og-subant target="publish-local" buildpathref="build-path" />
 	</target>
-	
+
 	<!-- 
 	    =================================================================== 
 	      Builds and publish all projects to local repo              
 	    =================================================================== 
   -->
-	<target name="build" description="compile &amp; publish all projects to the local repo">
-		<antcall target="publish-all-local"></antcall>
+	<target name="build" depends="check-build-projects-file-for-user" description="compile &amp; publish all projects to the local repo">
+		<antcall target="publish-all-local">
+		</antcall>
 	</target>
 
 	<target name="resolve-all" depends="buildlist"
@@ -287,10 +289,10 @@
 			<param name="dist.src.exclude" value="*/.project */.classpath" />
 		</antcall>
 	</target>
-	
+
 	<!-- og-examples-dist is probably more useful than binary-dist -->
 	<target name="dist-og-examples" depends="clean-projects,publish-all-local,og-examples-dist-impl"/>
-	
+
 	<target name="og-examples-dist-impl" depends="buildlist,dist-name">
 		<subant target="zipfile" buildpath="${projects.dir}/OG-Examples">
 			<property name="og.build.invoked" value="true" />
@@ -442,7 +444,7 @@
 	    =================================================================== 
 	-->
 	<target name="docs" depends="javadoc-all, javadoc-public-jar" description="javadoc &amp; archive for the whole system (requires > 2GB RAM and LaTeX)" />
-	
+
 	<target name="javadoc-all" depends="load-ivy, resolve">
 		<mkdir dir="${docs.dir}" />
 		<mkdir dir="${docs.dir}/javadoc-all" />
@@ -514,7 +516,7 @@
 	<target name="clover-noload" if="build.projects.ok">
 		<antcall target="projects.clover" />
 	</target>
-	
+
 	<target name="clover-load" unless="build.projects.ok">
 		<echo>Reloading build system ...</echo>
 		<subant target="projects.clover" buildpath="${basedir}" antfile="build.xml" />
@@ -524,28 +526,28 @@
 	<target name="clone-or-pull-noload" if="build.projects.ok">
 		<antcall target="projects.clone-or-pull" />
 	</target>
-	
+
 	<target name="clone-or-pull-load" unless="build.projects.ok">
 		<echo>Reloading build system ...</echo>
 		<subant target="projects.clone-or-pull" buildpath="${basedir}" antfile="build.xml" />
 	</target>
-	
+
 	<!-- 
 	    =================================================================== 
 	      Git sync all projects using clone/pull                  
 	    =================================================================== 
 	-->
-	<target name="clone-or-pull" depends="clone-or-pull-noload,clone-or-pull-load" description="git sync all projects using clone/pull" />
+	<target name="clone-or-pull" depends="check-build-projects-file-for-user,clone-or-pull-noload,clone-or-pull-load" description="git sync all projects using clone/pull" />
 
 	<target name="pull-noload" if="build.projects.ok">
 		<antcall target="projects.pull" />
 	</target>
-	
+
 	<target name="pull-load" unless="build.projects.ok">
 		<echo>Reloading build system ...</echo>
 		<subant target="projects.pull" buildpath="${basedir}" antfile="build.xml" />
 	</target>
-	
+
 	<!-- 
 	    =================================================================== 
 	      Git sync all projects using pull                
@@ -556,20 +558,62 @@
 	<target name="status-noload" if="build.projects.ok">
 		<antcall target="projects.status" />
 	</target>
-	
+
 	<target name="status-load" unless="build.projects.ok">
 		<echo>Reloading build system ...</echo>
 		<subant target="projects.status" buildpath="${basedir}" antfile="build.xml" />
 	</target>
-	
+
 	<target name="status" depends="status-noload,status-load" description="git status check" />
+
+	<!--
+	    ===================================================================
+	      Set the properties related to credential.properties
+	    ===================================================================
+	  -->
+	<property name="credentials.file" value="${common.dir}/credentials.properties" />
+
+	<!-- 
+	       - - - - - - - - - - - - - - - - - 
+	          target: check-build-projects-file-for-user                      
+	       - - - - - - - - - - - - - - - - - 
+	-->
+	<target name="check-build-projects-file-for-user">
+		<available property="credential.file.ok" file="${credentials.file}" />
+		<antcall target="fetch-default-config" />
+	</target>
+
+	<macrodef name="get-build-projects-file">
+		<attribute name="repository" />
+		<attribute name="module" />
+		<attribute name="user" />
+		<attribute name="pass" />
+		<sequential>
+			<get src="@{repository}/users/@{user}/@{module}/ant/build-projects.xml" dest="${common.dir}/build-projects.xml" username="@{user}" password="@{pass}" />
+			<get src="@{repository}/users/@{user}/@{module}/config/tests.properties" dest="${common.dir}/tests.properties" username="@{user}" password="@{pass}" />
+			<get src="@{repository}/users/@{user}/@{module}/config/db.properties" dest="${common.dir}/db.properties" username="@{user}" password="@{pass}" />
+			<get src="@{repository}/users/@{user}/@{module}/config/deploy.properties" dest="${common.dir}/deploy.properties" username="@{user}" password="@{pass}" />
+		</sequential>
+	</macrodef>
+
+	<!-- 
+	       - - - - - - - - - - - - - - - - - 
+	          target: fetch-default-config                      
+	       - - - - - - - - - - - - - - - - - 
+	  -->
+	<target name="fetch-default-config" unless="credential.file.ok">
+		<property name="username" value="opengamma-public" />
+		<property name="password" value="opengamma" />
+		<echo file="${credentials.file}">opengamma.username=${username}${line.separator}opengamma.password=${password}</echo>
+		<get-build-projects-file repository="${opengamma.config.repository}" module="${module.version.target}" user="${username}" pass="${password}" />
+	</target>
 
 	<!-- 
 	    =================================================================== 
         Installs Opengamma Engine              
       =================================================================== 
   -->
-	<target name="install" description="install artifacts to directory specified by property (install.dir)">
+	<target name="install" depends="check-build-projects-file-for-user" description="install artifacts to directory specified by property (install.dir)">
 		<fail message="You must set the property install.dir=/where/to/install" unless="install.dir"/>
 		<antcall inheritAll="false" target="install-impl">
 			<param name="install.dir" value="${install.dir}" />
