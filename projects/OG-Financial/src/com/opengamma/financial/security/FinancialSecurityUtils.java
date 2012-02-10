@@ -10,6 +10,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.fudgemsg.FudgeMsgEnvelope;
 
 import com.opengamma.core.exchange.ExchangeUtils;
 import com.opengamma.core.region.RegionUtils;
@@ -41,8 +42,11 @@ import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
+import com.opengamma.master.security.RawSecurity;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.money.Currency;
 
 
@@ -472,7 +476,15 @@ public class FinancialSecurityUtils {
         }
       });
       return ccy;
+    } else if (security instanceof RawSecurity) {
+      RawSecurity rawSecurity = (RawSecurity) security;
+      if (security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {
+        FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
+        SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class, msg.getMessage());
+        return securityEntryData.getCurrency();
+      }
     }
+    
     return null;
   }
   /**
@@ -633,6 +645,13 @@ public class FinancialSecurityUtils {
 
       });
       return ccy;
+    } else if (security instanceof RawSecurity) {
+      RawSecurity rawSecurity = (RawSecurity) security;
+      if (security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {
+        FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
+        SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class, msg.getMessage());
+        return Collections.singleton(securityEntryData.getCurrency());
+      }
     }
     return null;
   }
