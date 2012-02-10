@@ -353,11 +353,6 @@
 		<og-subant target="clean" buildpathref="build-path" />
 	</target>
 
-	<!-- this may be redundent -->
-	<target name="clean-src" depends="buildlist">
-		<og-subant target="clean-src" buildpathref="build-path" />
-	</target>
-
 	<target name="clean-lib">
 		<delete includeemptydirs="true" dir="${lib.dir}" />
 	</target>
@@ -380,7 +375,7 @@
 	</target>
 
 	<!-- ================================================================== -->
-	<target name="fudge-proto" depends="clean-src">
+	<target name="fudge-proto">
 		<og-subant target="fudge-proto" buildpathref="build-path" />
 	</target>
 
@@ -629,6 +624,8 @@
 			<property name="install.dir" value="${install.dir}" />
 		</subant>
 	</target>
+	
+	<target name="clean-src"/>
 
 </project>
 

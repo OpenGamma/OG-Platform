@@ -15,6 +15,7 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
@@ -105,7 +106,7 @@ public class SimpleFXFuturePresentValueFunction extends AbstractFunction.NonComp
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Security security = (Security) target.getSecurity();
     return security instanceof FXFutureSecurity;
   }
 

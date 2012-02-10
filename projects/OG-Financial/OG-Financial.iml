@@ -72,6 +72,9 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.mail/javamail/jars/smtp-1.4.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.mail/javamail/jars/mailapi-1.4.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.activation/jaf/jars/activation-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/jars/commons-logging-api-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/jars/commons-logging-adapters-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.poi/poi/jars/poi-3.7.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/javadocs/commons-logging-javadoc-1.1.1.jar!/" />
@@ -104,6 +107,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-codec/sources/commons-codec-sources-1.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/sources/commons-lang-src-2.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.el/juel/sources/source-2.1.3.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.poi/poi/sources/poi-sources-3.7.zip!/" />
         </SOURCES>
       </library>
     </orderEntry>

@@ -145,7 +145,7 @@ public final class OpenGammaComponentServerMonitor extends Thread {
     String toSend = "secret:" + secret + " command:" + command + "\n";
     byte[] sBuffer = toSend.getBytes();
     
-    System.out.println("Sending " + toSend);
+    System.out.println("Sending \"" + command + "\" to server.");
     DatagramSocket socket = null;
     try {
       socket = new DatagramSocket();

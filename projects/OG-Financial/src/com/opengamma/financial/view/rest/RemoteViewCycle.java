@@ -36,25 +36,25 @@ public class RemoteViewCycle implements ViewCycle {
   @Override
   public UniqueId getUniqueId() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_UNIQUE_ID).build();
-    return _client.access(uri).get(UniqueId.class);
+    return _client.accessFudge(uri).get(UniqueId.class);
   }
 
   @Override
   public UniqueId getViewProcessId() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_VIEW_PROCESS_ID).build();
-    return _client.access(uri).get(UniqueId.class);
+    return _client.accessFudge(uri).get(UniqueId.class);
   }
 
   @Override
   public ViewCycleState getState() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_STATE).build();
-    return _client.access(uri).get(ViewCycleState.class);
+    return _client.accessFudge(uri).get(ViewCycleState.class);
   }
 
   @Override
   public Duration getDuration() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_DURATION).build();
-    return _client.access(uri).get(Duration.class);
+    return _client.accessFudge(uri).get(Duration.class);
   }
 
   @Override
@@ -66,14 +66,14 @@ public class RemoteViewCycle implements ViewCycle {
   @Override
   public ViewComputationResultModel getResultModel() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_RESULT).build();
-    return _client.access(uri).get(ViewComputationResultModel.class);
+    return _client.accessFudge(uri).get(ViewComputationResultModel.class);
   }
 
   @Override
   public ComputationCacheResponse queryComputationCaches(ComputationCacheQuery computationCacheQuery) {
     ArgumentChecker.notNull(computationCacheQuery, "computationCacheQuery");
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewCycleResource.PATH_QUERY_CACHES).build();
-    return _client.access(uri).post(ComputationCacheResponse.class, computationCacheQuery);
+    return _client.accessFudge(uri).post(ComputationCacheResponse.class, computationCacheQuery);
   }
 
 }

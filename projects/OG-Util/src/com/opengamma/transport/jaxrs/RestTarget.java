@@ -11,15 +11,12 @@ import java.net.URISyntaxException;
 import java.net.URL;
 import java.net.URLEncoder;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
 
 import javax.ws.rs.core.UriBuilder;
 
 import org.apache.http.client.utils.URIUtils;
-import org.fudgemsg.FudgeContext;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.transport.EndPointDescriptionProvider;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -57,14 +54,6 @@ public class RestTarget {
     }
     _uri = uri;
     _taxonomyId = taxonomyId;
-  }
-
-  public RestTarget(final ExecutorService executorService, final FudgeContext fudgeContext, final EndPointDescriptionProvider endPointProvider) {
-    this(UriEndPointDescriptionProvider.getAccessibleURI(executorService, fudgeContext, endPointProvider));
-  }
-
-  public RestTarget(final ExecutorService executorService, final FudgeContext fudgeContext, final EndPointDescriptionProvider endPointProvider, final int taxonomyId) {
-    this(UriEndPointDescriptionProvider.getAccessibleURI(executorService, fudgeContext, endPointProvider), taxonomyId);
   }
 
   //-------------------------------------------------------------------------
