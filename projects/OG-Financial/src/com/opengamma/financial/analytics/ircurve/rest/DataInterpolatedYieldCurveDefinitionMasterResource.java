@@ -7,7 +7,6 @@ package com.opengamma.financial.analytics.ircurve.rest;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -20,7 +19,6 @@ import javax.ws.rs.core.UriInfo;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinitionDocument;
 import com.opengamma.id.ObjectId;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -67,7 +65,6 @@ public class DataInterpolatedYieldCurveDefinitionMasterResource extends Abstract
 
   @POST
   @Path("definitions")
-  @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, YieldCurveDefinitionDocument document) {
     YieldCurveDefinitionDocument result = getInterpolatedYieldCurveDefinitionMaster().add(document);
     URI createdUri = DataInterpolatedYieldCurveDefinitionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
@@ -76,7 +73,6 @@ public class DataInterpolatedYieldCurveDefinitionMasterResource extends Abstract
 
   @POST
   @Path("definitions/save")  // not the best URI
-  @Consumes(FudgeRest.MEDIA)
   public Response addOrUpdate(@Context UriInfo uriInfo, YieldCurveDefinitionDocument document) {
     YieldCurveDefinitionDocument result = getInterpolatedYieldCurveDefinitionMaster().addOrUpdate(document);
     URI createdUri = DataInterpolatedYieldCurveDefinitionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());

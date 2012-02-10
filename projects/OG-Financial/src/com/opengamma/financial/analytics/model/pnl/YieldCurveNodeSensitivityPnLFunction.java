@@ -19,6 +19,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -126,12 +127,15 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
   
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    final FinancialSecurity security = (FinancialSecurity) target.getPosition().getSecurity();
+    final Security security = (Security) target.getPosition().getSecurity();
+    if (!(security instanceof FinancialSecurity)) {
+      return false;
+    }
     if (security instanceof SwapSecurity) {
-      final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
+      final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity((SwapSecurity) security);
       return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD || type == InterestRateInstrumentType.SWAP_IBOR_IBOR;
     }
-    return InterestRateInstrumentType.isFixedIncomeInstrumentType(security);
+    return InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) security);
   }
   
   @Override 

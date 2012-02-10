@@ -15,6 +15,8 @@ import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.time.calendar.TimeZone;
+
 import org.joda.beans.Bean;
 import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
@@ -28,6 +30,7 @@ import org.springframework.util.ResourceUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.PlatformConfigUtils;
 
 /**
@@ -225,6 +228,10 @@ public class ComponentManager {
         PlatformConfigUtils.configureSystemProperties(runMode, mds);
       } else if (runMode != null && mds == null) {
         PlatformConfigUtils.configureSystemProperties(runMode);
+      }
+      String zoneId = global.get("time.zone");
+      if (zoneId != null) {
+        OpenGammaClock.setZone(TimeZone.of(zoneId));
       }
     }
   }

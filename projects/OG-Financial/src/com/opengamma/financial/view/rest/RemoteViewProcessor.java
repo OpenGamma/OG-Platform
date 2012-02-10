@@ -53,7 +53,7 @@ public class RemoteViewProcessor implements ViewProcessor {
   @Override
   public UniqueId getUniqueId() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_UNIQUE_ID).build();
-    return _client.access(uri).get(UniqueId.class);
+    return _client.accessFudge(uri).get(UniqueId.class);
   }
 
   @Override
@@ -79,7 +79,7 @@ public class RemoteViewProcessor implements ViewProcessor {
   @Override
   public RemoteViewClient createViewClient(UserPrincipal clientUser) {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_CLIENTS).build();
-    ClientResponse response = _client.access(uri).post(ClientResponse.class, clientUser);
+    ClientResponse response = _client.accessFudge(uri).post(ClientResponse.class, clientUser);
     if (response.getStatus() != Status.CREATED.getStatusCode()) {
       throw new OpenGammaRuntimeException("Could not create view client: " + response);
     }

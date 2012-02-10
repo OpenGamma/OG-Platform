@@ -15,6 +15,8 @@ import javax.time.calendar.format.DateTimeFormatters;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.util.OpenGammaClock;
+
 import freemarker.template.Configuration;
 import freemarker.template.Template;
 
@@ -55,8 +57,7 @@ public class FreemarkerOutputter {
    */
   public FlexiBean createRootData() {
     FlexiBean data = new FlexiBean();
-    // TODO: TIMEZONE
-    data.put("now", ZonedDateTime.now());
+    data.put("now", ZonedDateTime.now(OpenGammaClock.getInstance()));
     data.put("timeFormatter", DateTimeFormatters.pattern("HH:mm:ss"));
     data.put("offsetFormatter", DateTimeFormatters.pattern("Z"));
     return data;

@@ -29,15 +29,17 @@ public final class Configuration {
 
   private final FudgeContext _fudgeContext;
   private final FudgeMsg _configuration;
+  private final UriEndPointDescriptionProvider.Validater _uriValidater;
   private boolean _failOnInvalidURI;
   private boolean _failOnMissingConfiguration;
-  private UriEndPointDescriptionProvider.Validater _uriValidater;
 
-  protected Configuration(final FudgeContext fudgeContext, final FudgeMsg configuration) {
+  protected Configuration(final FudgeContext fudgeContext, final FudgeMsg configuration, final UriEndPointDescriptionProvider.Validater uriValidater) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     ArgumentChecker.notNull(configuration, "configuration");
+    ArgumentChecker.notNull(uriValidater, "uriValidater");
     _fudgeContext = fudgeContext;
     _configuration = configuration;
+    _uriValidater = uriValidater;
   }
 
   public FudgeContext getFudgeContext() {
@@ -65,9 +67,6 @@ public final class Configuration {
   }
 
   protected UriEndPointDescriptionProvider.Validater getURIValidater() {
-    if (_uriValidater == null) {
-      _uriValidater = UriEndPointDescriptionProvider.validater(Executors.newCachedThreadPool());
-    }
     return _uriValidater;
   }
 
@@ -101,7 +100,7 @@ public final class Configuration {
       s_logger.warn("No sub-configuration {}", entry);
       return missingConfiguration(entry);
     }
-    return new Configuration(getFudgeContext(), submsg);
+    return new Configuration(getFudgeContext(), submsg, getURIValidater());
   }
 
   /**
@@ -136,6 +135,7 @@ public final class Configuration {
     if (uri == null) {
       return null;
     }
+    // TODO: fetch the recommended taxonomy id to use if one is published
     return new RestTarget(uri);
   }
 

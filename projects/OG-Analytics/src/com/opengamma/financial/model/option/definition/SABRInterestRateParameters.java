@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.model.option.definition;
 
+import java.util.Arrays;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
@@ -215,7 +217,11 @@ public class SABRInterestRateParameters implements VolatilityModel<double[]> {
     final DoublesPair expiryMaturity = new DoublesPair(expiryTime, maturity);
     final SABRFormulaData data = new SABRFormulaData(getAlpha(expiryMaturity), getBeta(expiryMaturity), getRho(expiryMaturity), getNu(expiryMaturity));
     final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiryTime, true);
-    return sabrHaganFunction.getVolatilityAdjointOld(option, forward, data);
+    final double[] temp = sabrHaganFunction.getVolatilityAdjoint(option, forward, data); // The beta sensitivity is in [4].
+    final double[] result = Arrays.copyOfRange(temp, 0, 6);
+    result[4] = temp[5];
+    result[5] = temp[6];
+    return result;
   }
 
   @Override

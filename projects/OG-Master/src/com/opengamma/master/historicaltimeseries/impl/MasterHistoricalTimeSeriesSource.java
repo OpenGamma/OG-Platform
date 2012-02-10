@@ -29,6 +29,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolutionResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.PublicSPI;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -52,7 +53,7 @@ public class MasterHistoricalTimeSeriesSource
   /**
    * The clock.
    */
-  private final Clock _clock = Clock.systemDefaultZone();  // TODO: TIMEZONE
+  private final Clock _clock = OpenGammaClock.getInstance();
 
   /**
    * Creates an instance with an underlying master which does not override versions.
@@ -174,7 +175,6 @@ public class MasterHistoricalTimeSeriesSource
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       ExternalIdBundle securityBundle, String dataSource, String dataProvider, String dataField) {
-    // TODO: TIMEZONE
     return doGetHistoricalTimeSeries(securityBundle, LocalDate.now(getClock()), dataSource, dataProvider, dataField, (LocalDate) null, (LocalDate) null, null);
   }
 
@@ -194,7 +194,6 @@ public class MasterHistoricalTimeSeriesSource
     if (end != null && !includeEnd) {
       end = end.minusDays(1);
     }
-    // TODO: TIMEZONE
     return doGetHistoricalTimeSeries(securityBundle, LocalDate.now(getClock()), dataSource, dataProvider, dataField, start, end, null);
   }
 
@@ -220,7 +219,6 @@ public class MasterHistoricalTimeSeriesSource
     if (end != null && !includeEnd) {
       end = end.minusDays(1);
     }
-    // TODO: TIMEZONE
     return doGetHistoricalTimeSeries(securityBundle, LocalDate.now(getClock()), dataSource, dataProvider, dataField, start, end, maxPoints);
   }
 
@@ -235,7 +233,6 @@ public class MasterHistoricalTimeSeriesSource
     if (end != null && !includeEnd) {
       end = end.minusDays(1);
     }
-    // TODO: TIMEZONE
     return doGetHistoricalTimeSeries(securityBundle, identifierValidityDate, dataSource, dataProvider, dataField, start, end, maxPoints);
   }
 
@@ -318,7 +315,6 @@ public class MasterHistoricalTimeSeriesSource
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(
       String dataField, ExternalIdBundle identifierBundle, String resolutionKey) {
-    // TODO: TIMEZONE
     return doGetHistoricalTimeSeries(
         dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey, (LocalDate) null, (LocalDate) null, (Integer) null);
   }
@@ -340,7 +336,6 @@ public class MasterHistoricalTimeSeriesSource
     if (end != null && !includeEnd) {
       end = end.minusDays(1);
     }
-    // TODO: TIMEZONE
     return doGetHistoricalTimeSeries(
         dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey, start, end, (Integer) null);
   }
@@ -369,7 +364,6 @@ public class MasterHistoricalTimeSeriesSource
     if (end != null && !includeEnd) {
       end = end.minusDays(1);
     }
-    // TODO: TIMEZONE
     return doGetHistoricalTimeSeries(
         dataField, identifierBundle, LocalDate.now(getClock()), resolutionKey, start, end, maxPoints);
   }
