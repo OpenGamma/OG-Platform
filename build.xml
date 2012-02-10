@@ -624,6 +624,8 @@
 			<property name="install.dir" value="${install.dir}" />
 		</subant>
 	</target>
+	
+	<target name="clean-src"/>
 
 </project>
 
