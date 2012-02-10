@@ -120,13 +120,11 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.derby/derby/jars/derbyLocale_pt_BR-10.6.1.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.postgresql/postgresql-jdbc/jars/postgresql-jdbc4-9.1-901.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.postgresql/postgresql-jdbc/jars/postgresql-jdbc3-9.1-901.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hsqldb/hsqldb/jars/hsqldb-2.2.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hamcrest/hamcrest/jars/hamcrest-core-1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hamcrest/hamcrest/jars/hamcrest-generator-1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hamcrest/hamcrest/jars/hamcrest-library-1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hamcrest/hamcrest/jars/hamcrest-integration-1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.objenesis/objenesis/jars/objenesis-1.0.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.unimi.dsi/fastutil/jars/fastutil-6.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mongodb/java-driver/jars/mongo-2.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.scannotation/scannotation/jars/scannotation-1.0.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sf.opencsv/opencsv/jars/opencsv-2.1.jar!/" />
@@ -139,6 +137,8 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.jolbox/bonecp/jars/bonecp-0.7.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mockito/mockito/jars/mockito-core-1.9.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mockito/mockito/jars/mockito-all-1.9.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hsqldb/hsqldb/jars/hsqldb-2.2.8.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.unimi.dsi/fastutil/jars/fastutil-6.4.2.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/javadocs/commons-lang-docs-2.4.jar!/" />
@@ -159,13 +159,13 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.dom4j/dom4j/javadocs/dom4j-javadoc-1.6.1.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-collections/javadocs/commons-collections-javadoc-3.2.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sourceforge.ehcache/ehcache/javadocs/ehcache-core-1.7.2.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.unimi.dsi/fastutil/javadocs/fastutil-javadoc-6.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.google.common/guava/javadocs/guava-javadoc-10.0.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.scannotation/scannotation/javadocs/scannotation-javadoc-1.0.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-beanutils/javadocs/commons-beanutils-javadoc-1.8.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-codec/javadocs/commons-codec-javadoc-1.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.testng/testng/javadocs/testng-javadoc-6.3.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mockito/mockito/javadocs/mockito-javadoc-1.9.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.unimi.dsi/fastutil/javadocs/fastutil-javadoc-6.4.2.jar!/" />
         </JAVADOC>
         <SOURCES>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/sources/commons-lang-src-2.4.jar!/" />
@@ -224,9 +224,7 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.jboss/javassist/sources/javassist-src-3.9.0.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sourceforge.ehcache/ehcache/sources/ehcache-core-1.7.2.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.postgresql/postgresql-jdbc/sources/postgresql-9.1-901.zip!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hsqldb/hsqldb/sources/hsqldb-src-2.2.5.zip!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.objenesis/objenesis/sources/source-1.0.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.unimi.dsi/fastutil/sources/fastutil-src-6.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mongodb/java-driver/sources/mongo-src-2.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sf.opencsv/opencsv/sources/opencsv-src-2.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.google.common/guava/sources/guava-sources-10.0.1.jar!/" />
@@ -235,6 +233,8 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.antlr/antlr/sources/antlr-src-3.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.testng/testng/sources/testng-sources-6.3.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.jolbox/bonecp/sources/bonecp-sources-0.7.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.hsqldb/hsqldb/sources/hsqldb-src-2.2.8.zip!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/it.unimi.dsi/fastutil/sources/fastutil-sources-6.4.2.jar!/" />
         </SOURCES>
       </library>
     </orderEntry>
