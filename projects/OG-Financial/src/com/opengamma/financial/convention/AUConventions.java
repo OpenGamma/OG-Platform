@@ -179,6 +179,6 @@ public class AUConventions {
         act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBA OVERNIGHT CASH RATE"), au, true);
     conventionMaster
         .addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_OIS_CASH")), "AUD_OIS_CASH", act365, following, null, 1, false, null);
-
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_SWAPTION")), "AUD_SWAPTION", false);
   }
 }
