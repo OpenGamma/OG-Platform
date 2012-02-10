@@ -7,12 +7,11 @@
 namespace com.opengamma.engine.marketdata.spec {
  
   /**
-   * Describes historical market data.
+   * Describes historical market data fixed to a particular date.
    */
-  message HistoricalMarketDataSpecification extends MarketDataSpecification {
+  message FixedHistoricalMarketDataSpecification extends HistoricalMarketDataSpecification {
   
-    optional string timeSeriesResolverKey;
-    optional string timeSeriesFieldResolverKey;
+    required date snapshotDate;
     
     binding Java {
       methods "equals, hashCode, toString";

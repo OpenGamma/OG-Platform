@@ -16,15 +16,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.spec.CombinedMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
- * Implementation of {@link MarketDataProvider} which sources its data from on of two {@link MarketDataProvider}s, 
- *  choosing based on the availability of data.
+ * Implementation of {@link MarketDataProvider} which sources its data from one of two {@link MarketDataProvider}s, 
+ * choosing based on the availability of data.
  */
 public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
 

@@ -39,7 +39,12 @@ import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
 
 /**
- * 
+ * Expose a simple dependency graph building service over the network for debugging/diagnostic purposes.
+ * This is intended to be simple to access using hand written URLs - there is not currently a corresponding
+ * programatic interface to the service this provides.
+ * <p>
+ * For example to find out why a graph building configuration can't satisfy a requirement, a URL such
+ * as "/value/Present Value/SECURITY/SecDb~1234" will return the failure trace (or the graph if successful).
  */
 public final class DependencyGraphBuilderResource {
 
@@ -185,6 +190,7 @@ public final class DependencyGraphBuilderResource {
     for (MutableFudgeMsg failure : failures.getResults()) {
       result.add("failure", failure);
     }
+    serializer.addToMessage(result, "mapping", null, builder.getValueRequirementMapping());
     return new FudgeMsgEnvelope(result);
   }
 
