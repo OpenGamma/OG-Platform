@@ -17,6 +17,7 @@ import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A {@link MarketDataSnapshot} backed by historical data.
@@ -30,7 +31,17 @@ public class HistoricalMarketDataSnapshot extends AbstractMarketDataSnapshot {
   private final LocalDate _snapshotDate;
   private final String _timeSeriesFieldResolverKey;
   
+  /**
+   * Creates a market data snapshot based on historical time-series data.
+   * 
+   * @param timeSeriesSource  the time-series source, not null
+   * @param snapshotInstant  the snapshot instant to report to the engine, not null
+   * @param snapshotDate  the date of the required value, null for the latest
+   * @param timeSeriesFieldResolverKey  the time series field resolver key, null for default
+   */
   public HistoricalMarketDataSnapshot(HistoricalTimeSeriesSource timeSeriesSource, Instant snapshotInstant, LocalDate snapshotDate, String timeSeriesFieldResolverKey) {
+    ArgumentChecker.notNull(timeSeriesSource, "timeSeriesSource");
+    ArgumentChecker.notNull(snapshotInstant, "snapshotInstant");
     _timeSeriesSource = timeSeriesSource;
     _snapshotInstant = snapshotInstant;
     _snapshotDate = snapshotDate;
@@ -63,7 +74,7 @@ public class HistoricalMarketDataSnapshot extends AbstractMarketDataSnapshot {
       s_logger.info("No time-series for {}, {}", identifiers, valueName);
       return null;
     }
-    return hts.getTimeSeries().getValue(_snapshotDate);
+    return _snapshotDate != null ? hts.getTimeSeries().getValue(_snapshotDate) : hts.getTimeSeries().getLatestValue();
   }
 
   //-------------------------------------------------------------------------  

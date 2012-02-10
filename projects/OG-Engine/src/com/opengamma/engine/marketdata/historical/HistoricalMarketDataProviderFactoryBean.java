@@ -12,7 +12,7 @@ import com.opengamma.util.SingletonFactoryBean;
 /**
  * Spring factory bean for {@link HistoricalMarketDataProvider}.
  */
-public class HistoricalMarketDataProviderFactoryBean extends SingletonFactoryBean<HistoricalMarketDataProvider> {
+public class HistoricalMarketDataProviderFactoryBean extends SingletonFactoryBean<AbstractHistoricalMarketDataProvider> {
 
   private HistoricalTimeSeriesSource _historicalTimeSeriesSource;
   
@@ -25,7 +25,7 @@ public class HistoricalMarketDataProviderFactoryBean extends SingletonFactoryBea
   }
 
   @Override
-  protected HistoricalMarketDataProvider createObject() {
+  protected AbstractHistoricalMarketDataProvider createObject() {
     ArgumentChecker.notNullInjected(getHistoricalTimeSeriesSource(), "historicalTimeSeriesSource");
     return new HistoricalMarketDataProvider(getHistoricalTimeSeriesSource());
   }

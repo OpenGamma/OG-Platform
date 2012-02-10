@@ -19,7 +19,7 @@ import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.historical.HistoricalMarketDataProvider;
+import com.opengamma.engine.marketdata.historical.AbstractHistoricalMarketDataProvider;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
@@ -58,7 +58,7 @@ public class BatchMarketDataProvider implements MarketDataProvider, MarketDataAv
   /**
    * The provider of historical market data.
    */
-  private final HistoricalMarketDataProvider _historicalMarketDataProvider;
+  private final AbstractHistoricalMarketDataProvider _historicalMarketDataProvider;
 
   /**
    * Creates an instance.
@@ -72,7 +72,7 @@ public class BatchMarketDataProvider implements MarketDataProvider, MarketDataAv
       BatchJobRun run,
       BatchRunMaster batchRunMaster,
       InMemoryLKVMarketDataProvider batchDbProvider,
-      HistoricalMarketDataProvider historicalMarketDataProvider) {
+      AbstractHistoricalMarketDataProvider historicalMarketDataProvider) {
     ArgumentChecker.notNull(run, "run");
     ArgumentChecker.notNull(batchRunMaster, "batchMaster");
     ArgumentChecker.notNull(batchDbProvider, "batchDbMarketDataProvider");

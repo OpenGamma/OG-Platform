@@ -3,30 +3,16 @@
 // CSOFF: Generated File
 package com.opengamma.engine.marketdata.spec;
 public class HistoricalMarketDataSpecification extends com.opengamma.engine.marketdata.spec.MarketDataSpecification implements java.io.Serializable {
-  private static final long serialVersionUID = -27042536230597185l;
-  private javax.time.calendar.LocalDate _snapshotDate;
-  public static final String SNAPSHOT_DATE_KEY = "snapshotDate";
+  private static final long serialVersionUID = 2930353116875l;
   private String _timeSeriesResolverKey;
   public static final String TIME_SERIES_RESOLVER_KEY_KEY = "timeSeriesResolverKey";
   private String _timeSeriesFieldResolverKey;
   public static final String TIME_SERIES_FIELD_RESOLVER_KEY_KEY = "timeSeriesFieldResolverKey";
-  public HistoricalMarketDataSpecification (javax.time.calendar.DateProvider snapshotDate) {
-    if (snapshotDate == null) throw new NullPointerException ("'snapshotDate' cannot be null");
-    else {
-      _snapshotDate = snapshotDate.toLocalDate ();
-    }
+  public HistoricalMarketDataSpecification () {
   }
   protected HistoricalMarketDataSpecification (final org.fudgemsg.mapping.FudgeDeserializer deserializer, final org.fudgemsg.FudgeMsg fudgeMsg) {
     super (deserializer, fudgeMsg);
     org.fudgemsg.FudgeField fudgeField;
-    fudgeField = fudgeMsg.getByName (SNAPSHOT_DATE_KEY);
-    if (fudgeField == null) throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSpecification - field 'snapshotDate' is not present");
-    try {
-      _snapshotDate = fudgeMsg.getFieldValue (javax.time.calendar.DateProvider.class, fudgeField).toLocalDate ();
-    }
-    catch (IllegalArgumentException e) {
-      throw new IllegalArgumentException ("Fudge message is not a HistoricalMarketDataSpecification - field 'snapshotDate' is not date", e);
-    }
     fudgeField = fudgeMsg.getByName (TIME_SERIES_RESOLVER_KEY_KEY);
     if (fudgeField != null)  {
       try {
@@ -46,21 +32,13 @@ public class HistoricalMarketDataSpecification extends com.opengamma.engine.mark
       }
     }
   }
-  public HistoricalMarketDataSpecification (javax.time.calendar.DateProvider snapshotDate, String timeSeriesResolverKey, String timeSeriesFieldResolverKey) {
-    if (snapshotDate == null) throw new NullPointerException ("'snapshotDate' cannot be null");
-    else {
-      _snapshotDate = snapshotDate.toLocalDate ();
-    }
+  public HistoricalMarketDataSpecification (String timeSeriesResolverKey, String timeSeriesFieldResolverKey) {
     _timeSeriesResolverKey = timeSeriesResolverKey;
     _timeSeriesFieldResolverKey = timeSeriesFieldResolverKey;
   }
   protected HistoricalMarketDataSpecification (final HistoricalMarketDataSpecification source) {
     super (source);
     if (source == null) throw new NullPointerException ("'source' must not be null");
-    if (source._snapshotDate == null) _snapshotDate = null;
-    else {
-      _snapshotDate = source._snapshotDate.toLocalDate ();
-    }
     _timeSeriesResolverKey = source._timeSeriesResolverKey;
     _timeSeriesFieldResolverKey = source._timeSeriesFieldResolverKey;
   }
@@ -75,9 +53,6 @@ public class HistoricalMarketDataSpecification extends com.opengamma.engine.mark
   }
   public void toFudgeMsg (final org.fudgemsg.mapping.FudgeSerializer serializer, final org.fudgemsg.MutableFudgeMsg msg) {
     super.toFudgeMsg (serializer, msg);
-    if (_snapshotDate != null)  {
-      msg.add (SNAPSHOT_DATE_KEY, null, _snapshotDate);
-    }
     if (_timeSeriesResolverKey != null)  {
       msg.add (TIME_SERIES_RESOLVER_KEY_KEY, null, _timeSeriesResolverKey);
     }
@@ -99,15 +74,6 @@ public class HistoricalMarketDataSpecification extends com.opengamma.engine.mark
     }
     return new HistoricalMarketDataSpecification (deserializer, fudgeMsg);
   }
-  public javax.time.calendar.LocalDate getSnapshotDate () {
-    return _snapshotDate;
-  }
-  public void setSnapshotDate (javax.time.calendar.DateProvider snapshotDate) {
-    if (snapshotDate == null) throw new NullPointerException ("'snapshotDate' cannot be null");
-    else {
-      _snapshotDate = snapshotDate.toLocalDate ();
-    }
-  }
   public String getTimeSeriesResolverKey () {
     return _timeSeriesResolverKey;
   }
@@ -124,13 +90,6 @@ public class HistoricalMarketDataSpecification extends com.opengamma.engine.mark
     if (o == this) return true;
     if (!(o instanceof HistoricalMarketDataSpecification)) return false;
     HistoricalMarketDataSpecification msg = (HistoricalMarketDataSpecification)o;
-    if (_snapshotDate != null) {
-      if (msg._snapshotDate != null) {
-        if (!_snapshotDate.equals (msg._snapshotDate)) return false;
-      }
-      else return false;
-    }
-    else if (msg._snapshotDate != null) return false;
     if (_timeSeriesResolverKey != null) {
       if (msg._timeSeriesResolverKey != null) {
         if (!_timeSeriesResolverKey.equals (msg._timeSeriesResolverKey)) return false;
@@ -149,8 +108,6 @@ public class HistoricalMarketDataSpecification extends com.opengamma.engine.mark
   }
   public int hashCode () {
     int hc = super.hashCode ();
-    hc *= 31;
-    if (_snapshotDate != null) hc += _snapshotDate.hashCode ();
     hc *= 31;
     if (_timeSeriesResolverKey != null) hc += _timeSeriesResolverKey.hashCode ();
     hc *= 31;

@@ -33,6 +33,10 @@ import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.marketdata.live.LiveMarketDataSourceRegistry;
+import com.opengamma.engine.marketdata.spec.CombinedMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.LatestHistoricalMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewProcessor;
@@ -378,6 +382,10 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
         String liveMarketDataProvider = (String) data.get("provider");
         if (StringUtils.isBlank(liveMarketDataProvider) || DEFAULT_LIVE_MARKET_DATA_NAME.equals(liveMarketDataProvider)) {
           marketDataSpec = MarketData.live();
+        } else if ("bbgwithexternal".equals(liveMarketDataProvider))  {
+          // Hack until the analytics UI supports proper building of combined market data providers
+          marketDataSpec = new CombinedMarketDataSpecification(new LiveMarketDataSpecification(), new LatestHistoricalMarketDataSpecification());
+          flags = ExecutionFlags.triggersEnabled().get();
         } else {
           marketDataSpec = MarketData.live(liveMarketDataProvider);
         }
