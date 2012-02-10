@@ -414,30 +414,34 @@
         "currency":"${securityEntryData.currency}",
         "maturityDate":"${securityEntryData.maturityDate}",
         "factorSetId":"${securityEntryData.factorSetId}",
-        <#if factorExposureDataList??>
+        <#if factorExposuresList??>
           "underlyingFactors":[
-            <#list factorExposureDataList as factorExposureData>
+            <#list factorExposuresList as factorExposure>
               {
-                "factorSetExternalId":"${factorExposureData.factorSetExternalId}",
-                "factorType":"${factorExposureData.factorType.factorType}",
-                "factorName":"${factorExposureData.factorName}",
-                "node":"${factorExposureData.node}"
+                "factorType":"${factorExposure.factorType}",
+                "factorName":"${factorExposure.factorName}",
+                "node":"${factorExposure.node}",
+                "priceTsId":"${factorExposure.priceTsId}",
+                "exposureTsId":"${factorExposure.exposureTsId}",
+                "convexityTsId":"${factorExposure.convexityTsId}"   
               }
-              <#if factorExposureData_has_next>,</#if>
+              <#if factorExposure_has_next>,</#if>
             </#list>
           ],
         </#if>
       <#break>
       <#case "EXTERNAL_SENSITIVITY_RISK_FACTORS">
         "factors":[
-          <#list factorExposureDataList as factorExposureData>
+          <#list factorExposuresList as factorExposure>
             {
-              "factorSetExternalId":"${factorExposureData.factorSetExternalId}",
-              "factorType":"${factorExposureData.factorType.factorType}",
-              "factorName":"${factorExposureData.factorName}",
-              "node":"${factorExposureData.node}"
+              "factorType":"${factorExposure.factorType}",
+              "factorName":"${factorExposure.factorName}",
+              "node":"${factorExposure.node}",
+              "priceTsId":"${factorExposure.priceTsId}",
+              "exposureTsId":"${factorExposure.exposureTsId}",
+              "convexityTsId":"${factorExposure.convexityTsId}"   
             }
-            <#if factorExposureData_has_next>,</#if>
+            <#if factorExposure_has_next>,</#if>
           </#list>
         ],
       <#break>

@@ -7,7 +7,6 @@ package com.opengamma.master.portfolio.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -24,7 +23,6 @@ import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -71,7 +69,6 @@ public class DataPortfolioMasterResource extends AbstractDataResource {
 
   @POST
   @Path("portfolioSearches")
-  @Consumes(FudgeRest.MEDIA)
   public Response search(PortfolioSearchRequest request) {
     PortfolioSearchResult result = getPortfolioMaster().search(request);
     return Response.ok(result).build();
@@ -79,7 +76,6 @@ public class DataPortfolioMasterResource extends AbstractDataResource {
 
   @POST
   @Path("portfolios")
-  @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, PortfolioDocument request) {
     PortfolioDocument result = getPortfolioMaster().add(request);
     URI createdUri = DataPortfolioResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());

@@ -7,7 +7,6 @@ package com.opengamma.master.region.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -22,7 +21,6 @@ import com.opengamma.master.region.RegionDocument;
 import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.RegionSearchRequest;
 import com.opengamma.master.region.RegionSearchResult;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -69,7 +67,6 @@ public class DataRegionMasterResource extends AbstractDataResource {
 
   @POST
   @Path("regionSearches")
-  @Consumes(FudgeRest.MEDIA)
   public Response search(RegionSearchRequest request) {
     RegionSearchResult result = getRegionMaster().search(request);
     return Response.ok(result).build();
@@ -77,7 +74,6 @@ public class DataRegionMasterResource extends AbstractDataResource {
 
   @POST
   @Path("regions")
-  @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, RegionDocument request) {
     RegionDocument result = getRegionMaster().add(request);
     URI createdUri = DataRegionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());

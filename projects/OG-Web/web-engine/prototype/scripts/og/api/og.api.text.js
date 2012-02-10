@@ -9,7 +9,7 @@ $.register_module({
     dependencies: ['og.api.common'],
     obj: function () {
         var html_cache = {}, module = this, api,
-            start_loading = og.api.common.start_loading, end_loading = og.api.common.end_loading;
+            start_loading = og.api.common.start_loading, end_loading = og.api.common.end_loading,
             path = function (root, extension, page) {
                 return !page ? null : root + [page.split('.').slice(1, -1).join('/'), page.toLowerCase() + extension]
                     .join('/').replace(/\s/g, '_');

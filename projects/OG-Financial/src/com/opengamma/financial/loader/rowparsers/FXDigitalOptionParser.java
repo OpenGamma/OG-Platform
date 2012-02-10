@@ -32,9 +32,8 @@ import com.opengamma.util.time.ExpiryAccuracy;
  */
 public class FXDigitalOptionParser extends RowParser {
 
-  private static final String ID_SCHEME = "FX_DIGITAL_OPTION_LOADER";
 
-  private LoaderContext _loaderContext; // used for calendars/holidays to calculate settlement date
+  private static final String ID_SCHEME = "FX_DIGITAL_OPTION_LOADER";
   
   //CSOFF
   protected String PUT_CURRENCY = "put currency";
@@ -45,8 +44,8 @@ public class FXDigitalOptionParser extends RowParser {
   protected String IS_LONG = "is long";
   //CSON
   
-  FXDigitalOptionParser(LoaderContext loaderContext) {
-    _loaderContext = loaderContext;
+  public FXDigitalOptionParser(LoaderContext loaderContext) {
+    super(loaderContext);
   }
   
   @Override
@@ -63,8 +62,8 @@ public class FXDigitalOptionParser extends RowParser {
         getWithException(fxOptionDetails, EXPIRY), CSV_DATE_FORMATTER),
         LocalTime.of(16, 0)), TimeZone.UTC), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR); //TODO shouldn't be hard-coding time and zone
     ZonedDateTime settlementDate;
-    if (_loaderContext != null) {
-      Calendar calendar = CalendarUtils.getCalendar(_loaderContext.getHolidaySource(), putCurrency, callCurrency);
+    if (getLoaderContext() != null) {
+      Calendar calendar = CalendarUtils.getCalendar(getLoaderContext().getHolidaySource(), putCurrency, callCurrency);
       settlementDate = ScheduleCalculator.getAdjustedDate(expiry.getExpiry().toLocalDate(), 2, calendar).atStartOfDayInZone(TimeZone.UTC); //expiry.getExpiry().plusDays(2);
     } else {
       settlementDate = expiry.getExpiry().plusDays(2);

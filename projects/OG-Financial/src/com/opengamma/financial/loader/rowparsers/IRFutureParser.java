@@ -16,6 +16,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.loader.RowParser;
+import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
@@ -42,6 +43,10 @@ public class IRFutureParser extends RowParser {
   protected String BBG_CODE = "bbg code";
   //CSON
   
+  public IRFutureParser(LoaderContext loaderContext) {
+    super(loaderContext);
+  }
+
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> irFutureDetails) {
     Currency ccy = Currency.of(getWithException(irFutureDetails, CURRENCY));
