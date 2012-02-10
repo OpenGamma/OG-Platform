@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.core.value.ExternalDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
@@ -43,7 +44,6 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
@@ -88,7 +88,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
   }
 
   private ValueProperties.Builder createValueProperties(final ComputationTarget target) {
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Security security = (Security) target.getSecurity();
     final ValueProperties.Builder properties = createValueProperties();
     FixedIncomeInstrumentCurveExposureHelper.valuePropertiesForSecurity(security, properties);
     properties.with(ValuePropertyNames.CURVE_CALCULATION_METHOD, InterpolatedYieldAndDiscountCurveFunction.INTERPOLATED_CALCULATION_METHOD);

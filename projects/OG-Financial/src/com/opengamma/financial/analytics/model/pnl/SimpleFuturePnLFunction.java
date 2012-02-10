@@ -20,6 +20,7 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Position;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -115,7 +116,7 @@ public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker
       return false;
     }
     final Position position = target.getPosition();
-    final FinancialSecurity security = (FinancialSecurity) position.getSecurity();
+    final Security security = (Security) position.getSecurity();
     return security instanceof EnergyFutureSecurity || security instanceof MetalFutureSecurity || security instanceof IndexFutureSecurity;
   }
 
