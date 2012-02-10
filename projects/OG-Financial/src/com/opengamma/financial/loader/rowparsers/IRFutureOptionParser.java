@@ -23,31 +23,33 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
-import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
+/**
+ * This class parses standard OG import fields to generate an IR Future Option security
+ */
 public class IRFutureOptionParser extends RowParser {
 
   private static final String ID_SCHEME = "IR_FUTURE_OPTION_LOADER";
 
-  public String EXCHANGE = "exchange";
-  public String EXPIRY = "expiry";
-  public String UNDERLYING_ID = "underlying identifier";
-  public String POINT_VALUE = "point value";
+  //CSOFF
+  protected String EXCHANGE = "exchange";
+  protected String EXPIRY = "expiry";
+  protected String UNDERLYING_ID = "underlying identifier";
+  protected String POINT_VALUE = "point value";
   // private static final String IS_MARGINED = "margined";
-  public String CURRENCY = "currency";
-  public String STRIKE = "strike";
-  public String IS_CALL = "call";
-
-  private LoaderContext _loaderContext;
+  protected String CURRENCY = "currency";
+  protected String STRIKE = "strike";
+  protected String IS_CALL = "call";
+  //CSON
   
   public IRFutureOptionParser(LoaderContext loaderContext) {
-    setLoaderContext(loaderContext);
+    super(loaderContext);
   }
-  
+ 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> irFutureOptionDetails) {
     final Currency currency = Currency.of(getWithException(irFutureOptionDetails, CURRENCY));
@@ -69,14 +71,6 @@ public class IRFutureOptionParser extends RowParser {
 
     ManageableSecurity[] result = {security};
     return result;
-  }
-
-  protected LoaderContext getLoaderContext() {
-    return _loaderContext;
-  }
-
-  protected void setLoaderContext(LoaderContext loaderContext) {
-    _loaderContext = loaderContext;
   }
 
 }

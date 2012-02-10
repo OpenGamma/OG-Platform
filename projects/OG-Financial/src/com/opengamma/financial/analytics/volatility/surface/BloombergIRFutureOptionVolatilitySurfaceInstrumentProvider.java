@@ -21,6 +21,7 @@ import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.util.OpenGammaClock;
 
 /**
  * 
@@ -91,9 +92,8 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
       futureOptionExpiry = (futureOptionExpiry.plusDays(7)).with(NEXT_EXPIRY_ADJUSTER);
     }
     futureOptionCode.append(s_monthCode.get(futureOptionExpiry.getMonthOfYear()));
-    // TODO: TIMEZONE
-
-    final LocalDate today = LocalDate.now();
+    
+    final LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
     if (futureOptionExpiry.isBefore(today.minus(Period.ofMonths(3)))) {
       final int yearsNum = futureOptionExpiry.getYear() % 100;
       if (yearsNum < 10) {

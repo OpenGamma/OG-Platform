@@ -37,7 +37,7 @@ public class ShiftedLognormalVolModel {
   private static final ParameterLimitsTransform TRANSFORM = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // This is used to remove sigma > 0 constraint in search
 
   /**
-   * Build a Shifted Lognormal Volatility model directly from model inputs 
+   * Build a Shifted Lognormal Volatility model directly from model inputs
    * @param forward absolute level of the forward
    * @param expiry expiry in years
    * @param lognormalVol annual lognormal (black) vol
@@ -53,16 +53,16 @@ public class ShiftedLognormalVolModel {
   }
 
   /**
-   * Fit a Shifted Lognormal Volatility to two target points at one expiry 
+   * Fit a Shifted Lognormal Volatility to two target points at one expiry
    * @param forward absolute level of the forward
    * @param expiry expiry in years
-   * @param targetStrike1 absolute level of the first target strike 
+   * @param targetStrike1 absolute level of the first target strike
    * @param targetVol1 lognormal vol at the first target strike
    * @param targetStrike2 absolute level of the second target strike
    * @param targetVol2 lognormal vol at the second target strike
    * @param volGuess initial guess for the model's annual lognormal vol
    * @param shiftGuess initial guess for the model's shift, as absolute level
-   * @param solver VectorRootFinder 
+   * @param solver VectorRootFinder
    */
   public ShiftedLognormalVolModel(final double forward, final double expiry, final double targetStrike1, final double targetVol1, final double targetStrike2, final double targetVol2,
       final double volGuess, final double shiftGuess, final VectorRootFinder solver) {
@@ -72,7 +72,7 @@ public class ShiftedLognormalVolModel {
 
     // Find target volatilities
     final DoubleMatrix1D volShift = fitShiftedLnParams(targetStrike1, targetVol1, targetStrike2, targetVol2,
-                                                          volGuess, shiftGuess * _forward, solver);
+        volGuess, shiftGuess * _forward, solver);
     _vol = volShift.getEntry(0);
     _shift = volShift.getEntry(1);
 
@@ -142,7 +142,7 @@ public class ShiftedLognormalVolModel {
   }
 
   /**
-   * @param absoluteStrike 
+   * @param absoluteStrike
    * @return Price of the calibrated model given a fixed (absolute) strike. So if the forward, was 80, and OTM Put might have a strike of 65.
    */
   public double priceFromFixedStrike(final double absoluteStrike) {

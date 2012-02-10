@@ -14,6 +14,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatterBuilder;
 
+import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
@@ -23,6 +24,7 @@ import com.opengamma.master.security.ManageableSecurity;
  */
 public abstract class RowParser {
 
+  // CSOFF
   /** Standard date-time formatter for the input */
   protected DateTimeFormatter CSV_DATE_FORMATTER;
   /** Standard date-time formatter for the output */
@@ -31,7 +33,10 @@ public abstract class RowParser {
   protected DecimalFormat RATE_FORMATTER = new DecimalFormat("0.###%");
   /** Standard notional formatter */
   protected DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("0,000");
-
+  // CSON
+  
+  private LoaderContext _loaderContext;
+  
   {
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
     builder.appendPattern("dd/MM/yyyy");
@@ -41,6 +46,10 @@ public abstract class RowParser {
     OUTPUT_DATE_FORMATTER = builder.toFormatter();
   }
 
+  public RowParser(LoaderContext loaderContext) {
+    setLoaderContext(loaderContext);
+  }
+  
   /**
    * Constructs one or more securities associated with the supplied row. As a convention, the underlying security
    * is returned at array location 0.
@@ -81,6 +90,14 @@ public abstract class RowParser {
 
   protected LocalDate getDateWithException(Map<String, String> fieldValueMap, String fieldName) {
     return LocalDate.parse(getWithException(fieldValueMap, fieldName), CSV_DATE_FORMATTER);
+  }
+
+  public LoaderContext getLoaderContext() {
+    return _loaderContext;
+  }
+
+  public void setLoaderContext(LoaderContext loaderContext) {
+    _loaderContext = loaderContext;
   }
 
 }

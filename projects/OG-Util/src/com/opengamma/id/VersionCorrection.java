@@ -10,7 +10,6 @@ import java.io.Serializable;
 import javax.time.CalendricalException;
 import javax.time.Instant;
 import javax.time.InstantProvider;
-import javax.time.calendar.OffsetDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 
@@ -18,6 +17,7 @@ import com.google.common.base.Objects;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.PublicAPI;
+import com.opengamma.util.time.DateUtils;
 
 /**
  * An immutable version-correction combination.
@@ -140,14 +140,12 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * This parses the version-correction from the forms produced by
    * {@link #getVersionAsOfString()} and {@link #getCorrectedToString()}.
    * 
-   * @param versionAsOfString  the version as of string, not null
-   * @param correctedToString  the corrected to string, not null
+   * @param versionAsOfString  the version as of string, null treated as latest
+   * @param correctedToString  the corrected to string, null treated as latest
    * @return the version-correction combination, not null
    * @throws IllegalArgumentException if the version-correction cannot be parsed
    */
   public static VersionCorrection parse(String versionAsOfString, String correctedToString) {
-    ArgumentChecker.notEmpty(versionAsOfString, "versionAsOfString");
-    ArgumentChecker.notEmpty(correctedToString, "correctedToString");
     Instant versionAsOf = parseInstantString(versionAsOfString);
     Instant correctedTo = parseInstantString(correctedToString);
     return of(versionAsOf, correctedTo);
@@ -159,15 +157,15 @@ public final class VersionCorrection implements Comparable<VersionCorrection>, S
    * The string representation must be either {@code LATEST} for null, or the ISO-8601
    * representation of the desired {@code Instant}.
    * 
-   * @param instantStr  the instant string, not null
+   * @param instantStr  the instant string, null treated as latest
    * @return the instant, not null
    */
   private static Instant parseInstantString(String instantStr) {
-    if (instantStr.equals("LATEST")) {
+    if (instantStr == null || instantStr.equals("LATEST")) {
       return null;
     } else {
       try {
-        return OffsetDateTime.parse(instantStr).toInstant();  // TODO: JSR-310 should be Instant.parse()
+        return DateUtils.parseInstant(instantStr);
       } catch (CalendricalException ex) {
         throw new IllegalArgumentException(ex);
       }

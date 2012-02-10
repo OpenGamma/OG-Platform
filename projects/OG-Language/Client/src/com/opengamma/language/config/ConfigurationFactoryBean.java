@@ -6,6 +6,8 @@
 
 package com.opengamma.language.config;
 
+import java.util.concurrent.Executors;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.slf4j.Logger;
@@ -13,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.transport.jaxrs.RestTarget;
+import com.opengamma.transport.jaxrs.UriEndPointDescriptionProvider;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
 
@@ -35,6 +38,14 @@ public final class ConfigurationFactoryBean extends SingletonFactoryBean<Configu
 
   public String getConfigurationURI() {
     return getConfigurationTarget().getURI().toString();
+  }
+
+  public void setConfigurationTaxonomy(final int taxonomyId) {
+    setConfigurationTarget(getConfigurationTarget().withTaxonomyId(taxonomyId));
+  }
+
+  public int getConfigurationTaxonomy() {
+    return getConfigurationTarget().getTaxonomyId();
   }
 
   public void setConfigurationTarget(final RestTarget configurationTarget) {
@@ -82,10 +93,10 @@ public final class ConfigurationFactoryBean extends SingletonFactoryBean<Configu
     final Configuration configuration;
     if (msg == null) {
       s_logger.error("No configuration document found at {}", getConfigurationURI());
-      configuration = new Configuration(getFudgeContext(), FudgeContext.EMPTY_MESSAGE);
+      configuration = new Configuration(getFudgeContext(), FudgeContext.EMPTY_MESSAGE, null);
     } else {
       s_logger.debug("Configuration document {}", msg);
-      configuration = new Configuration(getFudgeContext(), msg);
+      configuration = new Configuration(getFudgeContext(), msg, UriEndPointDescriptionProvider.validater(Executors.newCachedThreadPool(), getConfigurationTarget().getURI()));
     }
     configuration.setFailOnInvalidURI(isFailOnInvalidURI());
     configuration.setFailOnMissingConfiguration(isFailOnMissingConfiguration());

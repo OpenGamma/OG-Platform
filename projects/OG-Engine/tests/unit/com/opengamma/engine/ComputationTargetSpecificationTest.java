@@ -17,7 +17,7 @@ import com.opengamma.core.position.impl.SimplePortfolio;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.test.MockSecurity;
+import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdentifiable;
@@ -48,7 +48,7 @@ public class ComputationTargetSpecificationTest {
   private static final Portfolio PORTFOLIO = new SimplePortfolio(UID, "Name");
   private static final SimplePortfolioNode NODE = new SimplePortfolioNode(UID, "Name");
   private static final Position POSITION = new SimplePosition(UID, new BigDecimal(1), ExternalIdBundle.EMPTY);
-  private static final Security SECURITY = new MockSecurity(UID, "", "", ExternalIdBundle.EMPTY);
+  private static final Security SECURITY = new SimpleSecurity(UID, ExternalIdBundle.EMPTY, "", "");
 
   public void test_constructor_Object_Portfolio() {
     ComputationTargetSpecification test = new ComputationTargetSpecification(PORTFOLIO);

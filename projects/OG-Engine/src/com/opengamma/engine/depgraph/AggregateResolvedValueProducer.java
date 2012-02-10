@@ -48,7 +48,9 @@ import com.opengamma.engine.value.ValueRequirement;
           s_logger.debug("No pending tasks after last input failed for {} but no results requested", this);
         }
       } else {
-        s_logger.debug("{} pending tasks for {}", _pendingTasks, this);
+        if (s_logger.isDebugEnabled()) {
+          s_logger.debug("{} pending tasks for {}", _pendingTasks, this);
+        }
       }
     }
     pumpImpl(context, pumps);
@@ -102,7 +104,9 @@ import com.opengamma.engine.value.ValueRequirement;
         s_logger.debug("Pumping underlying since no pending tasks for {}", this);
         pumps = pumpImpl();
       } else {
-        s_logger.debug("Deferring pump while {} task(s) pending for {}", _pendingTasks, this);
+        if (s_logger.isDebugEnabled()) {
+          s_logger.debug("Deferring pump while {} task(s) pending for {}", _pendingTasks, this);
+        }
         _wantResult = true;
       }
     }
@@ -129,7 +133,9 @@ import com.opengamma.engine.value.ValueRequirement;
         s_logger.debug("Finished {}", this);
         finished(context);
       } else {
-        s_logger.debug("Pumping {} origin tasks from {}", pumps.size(), this);
+        if (s_logger.isDebugEnabled()) {
+          s_logger.debug("Pumping {} origin tasks from {}", pumps.size(), this);
+        }
         for (ResolutionPump pump : pumps) {
           context.pump(pump);
         }
@@ -144,7 +150,9 @@ import com.opengamma.engine.value.ValueRequirement;
         _wantResult = true;
       }
       _pendingTasks++;
-      s_logger.debug("{} pending tasks for {}", _pendingTasks, this);
+      if (s_logger.isDebugEnabled()) {
+        s_logger.debug("{} pending tasks for {}", _pendingTasks, this);
+      }
     }
     producer.addCallback(context, this);
   }
@@ -177,7 +185,9 @@ import com.opengamma.engine.value.ValueRequirement;
     if (count == 0) {
       List<ResolutionPump> pumps;
       synchronized (this) {
-        s_logger.debug("Releasing {} - with {} pumped inputs", this, _pumps.size());
+        if (s_logger.isDebugEnabled()) {
+          s_logger.debug("Releasing {} - with {} pumped inputs", this, _pumps.size());
+        }
         if (_pumps.isEmpty()) {
           return count;
         }

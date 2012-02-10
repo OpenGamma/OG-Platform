@@ -7,18 +7,15 @@ package com.opengamma.master.historicaltimeseries.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
-import javax.ws.rs.ext.Providers;
 
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
@@ -27,16 +24,16 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoMetaDat
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
+import com.opengamma.util.rest.RestUtils;
 
 /**
  * RESTful resource for time-series.
  * <p>
  * The time-series resource receives and processes RESTful calls to the time-series master.
  */
-@Path("/htsMaster")
+@Path("htsMaster")
 public class DataHistoricalTimeSeriesMasterResource extends AbstractDataResource {
 
   /**
@@ -67,11 +64,8 @@ public class DataHistoricalTimeSeriesMasterResource extends AbstractDataResource
   //-------------------------------------------------------------------------
   @GET
   @Path("metaData")
-  public Response metaData(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    HistoricalTimeSeriesInfoMetaDataRequest request = new HistoricalTimeSeriesInfoMetaDataRequest();
-    if (msgBase64 != null) {
-      request = decodeBean(HistoricalTimeSeriesInfoMetaDataRequest.class, providers, msgBase64);
-    }
+  public Response metaData(@Context UriInfo uriInfo) {
+    HistoricalTimeSeriesInfoMetaDataRequest request = RestUtils.decodeQueryParams(uriInfo, HistoricalTimeSeriesInfoMetaDataRequest.class);
     HistoricalTimeSeriesInfoMetaDataResult result = getHistoricalTimeSeriesMaster().metaData(request);
     return Response.ok(result).build();
   }
@@ -83,17 +77,15 @@ public class DataHistoricalTimeSeriesMasterResource extends AbstractDataResource
     return Response.ok().build();
   }
 
-  @GET
-  @Path("infos")
-  public Response search(@Context Providers providers, @QueryParam("msg") String msgBase64) {
-    HistoricalTimeSeriesInfoSearchRequest request = decodeBean(HistoricalTimeSeriesInfoSearchRequest.class, providers, msgBase64);
+  @POST
+  @Path("infoSearches")
+  public Response search(HistoricalTimeSeriesInfoSearchRequest request) {
     HistoricalTimeSeriesInfoSearchResult result = getHistoricalTimeSeriesMaster().search(request);
     return Response.ok(result).build();
   }
 
   @POST
   @Path("infos")
-  @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, HistoricalTimeSeriesInfoDocument request) {
     HistoricalTimeSeriesInfoDocument result = getHistoricalTimeSeriesMaster().add(request);
     URI createdUri = DataHistoricalTimeSeriesResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
@@ -118,29 +110,36 @@ public class DataHistoricalTimeSeriesMasterResource extends AbstractDataResource
    * Builds a URI for info meta-data.
    * 
    * @param baseUri  the base URI, not null
-   * @param searchMsg  the search message, may be null
+   * @param request  the request, may be null
    * @return the URI, not null
    */
-  public static URI uriMetaData(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/metaData");
-    if (searchMsg != null) {
-      bld.queryParam("msg", searchMsg);
+  public static URI uriMetaData(URI baseUri, HistoricalTimeSeriesInfoMetaDataRequest request) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("metaData");
+    if (request != null) {
+      RestUtils.encodeQueryParams(bld, request);
     }
     return bld.build();
   }
 
   /**
-   * Builds a URI for infos.
+   * Builds a URI.
    * 
    * @param baseUri  the base URI, not null
-   * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/infos");
-    if (searchMsg != null) {
-      bld.queryParam("msg", searchMsg);
-    }
+  public static URI uriSearch(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("infoSearches");
+    return bld.build();
+  }
+
+  /**
+   * Builds a URI.
+   * 
+   * @param baseUri  the base URI, not null
+   * @return the URI, not null
+   */
+  public static URI uriAdd(URI baseUri) {
+    UriBuilder bld = UriBuilder.fromUri(baseUri).path("infos");
     return bld.build();
   }
 

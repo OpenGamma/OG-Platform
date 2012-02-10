@@ -41,20 +41,20 @@ public class RemoteViewDefinitionRepository implements ViewDefinitionRepository 
   @Override
   public Set<ObjectId> getDefinitionIds() {
     final URI uri = UriBuilder.fromUri(_baseUri).segment(DataViewDefinitionRepositoryResource.PATH_VIEWDEFINITION_GETIDS).build();
-    return _client.access(uri).get((Set.class));
+    return _client.accessFudge(uri).get(Set.class);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public Map<UniqueId, String> getDefinitionEntries() {
-    return _client.access(_baseUri).get((Map.class));
+    return _client.accessFudge(_baseUri).get(Map.class);
   }
   
   @Override
   public ViewDefinition getDefinition(UniqueId definitionId) {
     final URI uri = DataViewDefinitionRepositoryResource.uriDefinitionId(_baseUri, definitionId);
     try {
-      return _client.access(uri).get(ViewDefinition.class);
+      return _client.accessFudge(uri).get(ViewDefinition.class);
     } catch (UniformInterfaceException e) {
       // Translate 404s to a null return. Otherwise rethrow the underlying exception.
       if (e.getResponse().getClientResponseStatus() == ClientResponse.Status.NOT_FOUND) {
@@ -68,9 +68,8 @@ public class RemoteViewDefinitionRepository implements ViewDefinitionRepository 
   @Override
   public ViewDefinition getDefinition(String definitionName) {
     URI uri = DataViewDefinitionRepositoryResource.uriDefinitionName(_baseUri, definitionName);
-    
     try {      
-      return _client.access(uri).get(ViewDefinition.class);
+      return _client.accessFudge(uri).get(ViewDefinition.class);
     } catch (UniformInterfaceException e) {
       // Translate 404s to a null return. Otherwise rethrow the underlying exception.
       if (e.getResponse().getClientResponseStatus() == ClientResponse.Status.NOT_FOUND) {

@@ -24,7 +24,7 @@ import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.Security;
-import com.opengamma.engine.test.MockSecurity;
+import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -38,7 +38,7 @@ public class ComputationTargetTypeTest {
   private static final Portfolio PORTFOLIO = new SimplePortfolio(UniqueId.of("Test", "1"), "Name");
   private static final SimplePortfolioNode NODE = new SimplePortfolioNode();
   private static final Position POSITION = new SimplePosition(UniqueId.of("Test", "1"), new BigDecimal(1), ExternalIdBundle.EMPTY);
-  private static final Security SECURITY = new MockSecurity("");
+  private static final Security SECURITY = new SimpleSecurity("");
   private static final OffsetDateTime TRADE_OFFSET_DATETIME = OffsetDateTime.now();
   private static final Trade TRADE = new SimpleTrade(POSITION.getUniqueId(), SECURITY, new BigDecimal(1), 
       new SimpleCounterparty(ExternalId.of("CPARTY", "C100")), TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());

@@ -5,41 +5,34 @@
  */
 package com.opengamma.financial.currency.rest;
 
-import org.fudgemsg.FudgeContext;
+import java.net.URI;
 
 import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
-import com.opengamma.transport.jaxrs.RestClient;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**
- * 
+ * Provides remote access to a {@link CurrencyMatrixSource}.
  */
-public class RemoteCurrencyMatrixSource implements CurrencyMatrixSource {
+public class RemoteCurrencyMatrixSource extends AbstractRemoteClient implements CurrencyMatrixSource {
 
-  private final RestClient _restClient;
-  private final RestTarget _targetBase;
-
-  public RemoteCurrencyMatrixSource(final FudgeContext fudgeContext, final RestTarget baseTarget) {
-    ArgumentChecker.notNull(fudgeContext, "fudgeContext");
-    ArgumentChecker.notNull(baseTarget, "baseTarget");
-    _restClient = RestClient.getInstance(fudgeContext, null);
-    _targetBase = baseTarget;
+  /**
+   * Creates an instance.
+   * 
+   * @param baseUri  the base target URI for all RESTful web services, not null
+   */
+  public RemoteCurrencyMatrixSource(final URI baseUri) {
+    super(baseUri);
   }
 
-  protected RestClient getRestClient() {
-    return _restClient;
-  }
-
-  protected RestTarget getTargetBase() {
-    return _targetBase;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public CurrencyMatrix getCurrencyMatrix(String name) {
     ArgumentChecker.notNull(name, "name");
-    return getRestClient().getSingleValue(CurrencyMatrix.class, getTargetBase().resolve(name), "matrix");
+    
+    URI uri = DataCurrencyMatrixSourceResource.uriGetMatrix(getBaseUri(), name);
+    return accessRemote(uri).get(CurrencyMatrix.class);
   }
 
 }

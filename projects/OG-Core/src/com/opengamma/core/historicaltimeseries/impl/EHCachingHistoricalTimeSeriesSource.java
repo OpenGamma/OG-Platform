@@ -29,6 +29,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.ehcache.EHCacheUtils;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
@@ -80,7 +81,7 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
   /**
    * The clock.
    */
-  private final Clock _clock = Clock.systemDefaultZone();  // TODO: TIMEZONE
+  private final Clock _clock = OpenGammaClock.getInstance();
 
   /**
    * Creates an instance.
@@ -687,6 +688,12 @@ public class EHCachingHistoricalTimeSeriesSource implements HistoricalTimeSeries
       timeSeries = maxPoints >= 0 ? timeSeries.head(maxPoints) : timeSeries.tail(-maxPoints);
     }
     return new SimpleHistoricalTimeSeries(hts.getUniqueId(), timeSeries);
+  }
+
+  //-------------------------------------------------------------------------
+  @Override
+  public String toString() {
+    return getClass().getSimpleName() + "[" + getUnderlying() + "]";
   }
 
 }

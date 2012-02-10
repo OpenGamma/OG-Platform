@@ -7,9 +7,13 @@ package com.opengamma.util.rest;
 
 import javax.ws.rs.core.MultivaluedMap;
 
+import org.apache.commons.lang.StringUtils;
+
+import com.opengamma.OpenGammaRuntimeException;
 import com.sun.jersey.api.client.ClientHandlerException;
 import com.sun.jersey.api.client.ClientRequest;
 import com.sun.jersey.api.client.ClientResponse;
+import com.sun.jersey.api.client.UniformInterfaceException;
 import com.sun.jersey.api.client.filter.ClientFilter;
 
 /**
@@ -48,20 +52,22 @@ public class ExceptionThrowingClientFilter extends ClientFilter {
     MultivaluedMap<String, String> headers = response.getHeaders();
     String exType = headers.getFirst(EXCEPTION_TYPE);
     String exMsg = headers.getFirst(EXCEPTION_MESSAGE);
+    if (exMsg == null) {
+      exMsg = headers.getFirst(EXCEPTION_POINT);
+    }
+    UniformInterfaceException uiex = new UniformInterfaceException(response, true);
     if (exType == null) {
-      return response;  // fall through to UniformInterfaceException
+      throw uiex;  // standard UniformInterfaceException as we have nothing to add
     }
     RuntimeException exception;
     try {
       Class<? extends RuntimeException> cls = Thread.currentThread().getContextClassLoader().loadClass(exType).asSubclass(RuntimeException.class);
-      if (exMsg == null) {
-        exception = cls.newInstance();
-      } else {
-        exception = cls.getConstructor(String.class).newInstance(exMsg);
-      }
+      exception = cls.getConstructor(String.class).newInstance("Server threw exception: " + StringUtils.defaultString(exMsg));
     } catch (Exception ex) {
-      return response;  // fall through to UniformInterfaceException
+      // unable to create transparently, so use standard exception
+      exception = new OpenGammaRuntimeException("Server threw exception: " + exType + ": " + StringUtils.defaultString(exMsg));
     }
+    exception.initCause(uiex);
     throw exception;  // transparently throw exception as seen on the server
   }
 

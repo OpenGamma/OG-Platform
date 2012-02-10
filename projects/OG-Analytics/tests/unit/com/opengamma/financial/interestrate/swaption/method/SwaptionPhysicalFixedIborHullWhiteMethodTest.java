@@ -24,8 +24,8 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.instrument.swaption.SwaptionPhysicalFixedIborDefinition;
 import com.opengamma.financial.interestrate.CashFlowEquivalentCalculator;
@@ -39,8 +39,8 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityPaymentFix
 import com.opengamma.financial.interestrate.method.SensitivityFiniteDifference;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
-import com.opengamma.financial.interestrate.swap.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.financial.interestrate.swap.method.SwapFixedDiscountingMethod;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.model.interestrate.HullWhiteOneFactorPiecewiseConstantInterestRateModel;
 import com.opengamma.financial.model.interestrate.TestsDataSetsHullWhite;
@@ -111,6 +111,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   private static final HullWhiteOneFactorPiecewiseConstantDataBundle BUNDLE_HW = new HullWhiteOneFactorPiecewiseConstantDataBundle(PARAMETERS_HW, CURVES);
   private static final HullWhiteOneFactorPiecewiseConstantInterestRateModel MODEL = new HullWhiteOneFactorPiecewiseConstantInterestRateModel();
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
+  private static final SwapFixedDiscountingMethod METHOD_SWAP = SwapFixedDiscountingMethod.getInstance();
 
   @Test
   /**
@@ -184,7 +185,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
   public void presentValueApproximation() {
     BlackImpliedVolatilityFormula implied = new BlackImpliedVolatilityFormula();
     double forward = ParRateCalculator.getInstance().visit(SWAPTION_PAYER_LONG.getUnderlyingSwap(), CURVES);
-    double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(SWAPTION_PAYER_LONG.getUnderlyingSwap(), CURVES);
+    double pvbp = METHOD_SWAP.presentValueBasisPoint(SWAPTION_PAYER_LONG.getUnderlyingSwap(), CURVES);
     CurrencyAmount pvPayerLongExplicit = METHOD_HW.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
     CurrencyAmount pvPayerLongApproximation = METHOD_HW_APPROXIMATION.presentValue(SWAPTION_PAYER_LONG, BUNDLE_HW);
     BlackFunctionData data = new BlackFunctionData(forward, pvbp, 0.20);
@@ -212,7 +213,7 @@ public class SwaptionPhysicalFixedIborHullWhiteMethodTest {
     double strikeRange = 0.035;
     FixedCouponSwap<Coupon> swap = SWAP_PAYER_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
     double forward = ParRateCalculator.getInstance().visit(swap, CURVES);
-    double pvbp = SwapFixedDiscountingMethod.presentValueBasisPoint(swap, CURVES);
+    double pvbp = METHOD_SWAP.presentValueBasisPoint(swap, CURVES);
     for (int loopstrike = 0; loopstrike <= nbStrike; loopstrike++) {
       strike[loopstrike] = forward - strikeRange + 3 * strikeRange * loopstrike / nbStrike; // From forward-strikeRange to forward+2*strikeRange
       SwapFixedIborDefinition swapDefinition = SwapFixedIborDefinition.from(SETTLEMENT_DATE, CMS_INDEX, NOTIONAL, strike[loopstrike], FIXED_IS_PAYER);

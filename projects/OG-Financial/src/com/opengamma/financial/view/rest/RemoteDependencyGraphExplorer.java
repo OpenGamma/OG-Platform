@@ -19,12 +19,11 @@ public class RemoteDependencyGraphExplorer implements DependencyGraphExplorer {
 
   private final URI _baseUri;
   private final FudgeRestClient _client;
-  
+
   public RemoteDependencyGraphExplorer(URI baseUri) {
     _baseUri = baseUri;
     _client = FudgeRestClient.create();
   }
-  
 
   @Override
   public DependencyGraph getWholeGraph() {
@@ -32,11 +31,9 @@ public class RemoteDependencyGraphExplorer implements DependencyGraphExplorer {
     return _client.access(uriWholeGraph).get(DependencyGraph.class);
   }
 
-  
   @Override
   public DependencyGraph getSubgraphProducing(ValueSpecification output) {
-    String encodedValueSpec = _client.encode(output);
-    URI uri = DataDependencyGraphExplorerResource.uriSubgraph(_baseUri, encodedValueSpec);
+    URI uri = DataDependencyGraphExplorerResource.uriSubgraph(_baseUri, output);
     return _client.access(uri).get(DependencyGraph.class);
   }
 

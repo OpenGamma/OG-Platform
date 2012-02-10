@@ -26,7 +26,6 @@
     <servlet-name>handshake</servlet-name>
     <servlet-class>com.opengamma.web.server.push.HandshakeServlet</servlet-class>
   </servlet>
-
   <servlet-mapping>
     <servlet-name>handshake</servlet-name>
     <url-pattern>/handshake</url-pattern>
@@ -36,7 +35,6 @@
     <servlet-name>updates</servlet-name>
     <servlet-class>com.opengamma.web.server.push.LongPollingServlet</servlet-class>
   </servlet>
-
   <servlet-mapping>
     <servlet-name>updates</servlet-name>
     <url-pattern>/updates/*</url-pattern>

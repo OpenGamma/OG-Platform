@@ -40,6 +40,7 @@ import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -415,7 +416,9 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
   }
 
   private static Cash makeCashDefinition(ZonedDateTime maturity, double rate, double notional, String curveName) {
-    return new CashDefinition(CCY, maturity, notional, rate, CONVENTION).toDerivative(NOW, curveName);
+    ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(NOW, CONVENTION.getSettlementDays(), CONVENTION.getWorkingDayCalendar());
+    double accrualFactor = CONVENTION.getDayCount().getDayCountFraction(startDate, maturity);
+    return new CashDefinition(CCY, startDate, maturity, notional, rate, accrualFactor).toDerivative(NOW, curveName);
   }
 
   private static Payment makeFRADefinition(ZonedDateTime accrualStart, ZonedDateTime accrualEnd, double rate, double notional, String fundingCurveName, String forwardCurveName) {

@@ -26,6 +26,7 @@ import org.springframework.mock.web.MockServletContext;
 import org.testng.annotations.BeforeMethod;
 
 import com.google.common.collect.Lists;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.engine.test.MockSecuritySource;
@@ -40,6 +41,7 @@ import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesSelector;
 import com.opengamma.master.historicaltimeseries.impl.InMemoryHistoricalTimeSeriesMaster;
+import com.opengamma.master.historicaltimeseries.impl.MasterHistoricalTimeSeriesSource;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
@@ -71,7 +73,7 @@ public abstract class AbstractWebPositionResourceTestCase {
   
   protected SecurityMaster _secMaster;
   protected SecurityLoader _secLoader;
-  protected HistoricalTimeSeriesResolver _htsResolver;
+  protected HistoricalTimeSeriesSource _htsSource;
   protected WebPositionsResource _webPositionsResource;
   protected MockSecuritySource _securitySource;
   protected PositionMaster _positionMaster;
@@ -86,7 +88,8 @@ public abstract class AbstractWebPositionResourceTestCase {
     _positionMaster = new InMemoryPositionMaster();
     MasterConfigSource configSource = new MasterConfigSource(new InMemoryConfigMaster());
     InMemoryHistoricalTimeSeriesMaster htsMaster = new InMemoryHistoricalTimeSeriesMaster();
-    _htsResolver = new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(configSource), htsMaster);
+    HistoricalTimeSeriesResolver htsResolver = new DefaultHistoricalTimeSeriesResolver(new DefaultHistoricalTimeSeriesSelector(configSource), htsMaster);
+    _htsSource = new MasterHistoricalTimeSeriesSource(htsMaster, htsResolver);
     _securitySource = new MockSecuritySource();
     _secLoader = new SecurityLoader() {
       
@@ -101,7 +104,7 @@ public abstract class AbstractWebPositionResourceTestCase {
       }
     };
     populateSecMaster();
-    _webPositionsResource = new WebPositionsResource(_positionMaster, _secLoader,  _securitySource, _htsResolver);
+    _webPositionsResource = new WebPositionsResource(_positionMaster, _secLoader,  _securitySource, _htsSource);
     _webPositionsResource.setServletContext(new MockServletContext("/web-engine", new FileSystemResourceLoader()));
     _webPositionsResource.setUriInfo(_uriInfo);
   }

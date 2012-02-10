@@ -1,3 +1,9 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
+
 package com.opengamma.financial.loader.rowparsers;
 
 import java.util.Map;
@@ -15,6 +21,7 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.loader.RowParser;
+import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
@@ -29,23 +36,32 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
+/**
+ * This class uses standard OG import fields to generate a Swaption security
+ */
 public class SwaptionParser extends RowParser {
 
   private static final String ID_SCHEME = "SWAPTION_LOADER";
   
-  public String EXPIRY = "expiry";
-  public String IS_LONG = "long";
-  public String IS_PAYER = "payer";
-  public String CURRENCY = "currency";
-  public String TRADE_DATE = "trade date";
+  //CSOFF
+  protected String EXPIRY = "expiry";
+  protected String IS_LONG = "long";
+  protected String IS_PAYER = "payer";
+  protected String CURRENCY = "currency";
+  protected String TRADE_DATE = "trade date";
   //public String PREMIUM_DATE = "premium date";
   //public String PREMIUM_AMOUNT = "premium amount";
-  public String STRIKE = "strike";
-  public String NOTIONAL = "notional";
-  public String COUNTERPARTY = "counterparty";
-  public String SWAP_LENGTH = "swap length"; 
+  protected String STRIKE = "strike";
+  protected String NOTIONAL = "notional";
+  protected String COUNTERPARTY = "counterparty";
+  protected String SWAP_LENGTH = "swap length"; 
+  //CSON
   
   private static final ConventionBundleSource CONVENTIONS = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
+
+  public SwaptionParser(LoaderContext loaderContext) {
+    super(loaderContext);
+  }
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> swaptionDetails) {

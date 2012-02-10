@@ -26,13 +26,14 @@ import com.opengamma.master.config.ConfigMasterUtils;
  */
 public class CurrencyPairsConfigPopulator {
 
+  /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyPairsConfigPopulator.class);
-  
+
   public static ConfigMaster populateCurrencyPairsConfigMaster(ConfigMaster cfgMaster) {
     storeCurrencyMatrix(cfgMaster, CurrencyPairs.DEFAULT_CURRENCY_PAIRS, createCurrencyPairs());
     return cfgMaster;
   }
-  
+
   private static CurrencyPairs createCurrencyPairs() {
     InputStream inputStream = CurrencyPairsConfigPopulator.class.getResourceAsStream("market-convention-currency-pairs.csv");
     BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream));
@@ -41,7 +42,7 @@ public class CurrencyPairsConfigPopulator {
     try {
       while ((pairStr = reader.readLine()) != null) {
         try {
-          CurrencyPair pair = CurrencyPair.of(pairStr.trim());
+          CurrencyPair pair = CurrencyPair.parse(pairStr.trim());
           pairs.add(pair);
         } catch (IllegalArgumentException e) {
           s_logger.debug/*warn*/("Unable to create currency pair from " + pairStr, e);
@@ -52,7 +53,7 @@ public class CurrencyPairsConfigPopulator {
     } finally {
       IOUtils.closeQuietly(inputStream);
     }
-    return new CurrencyPairs(pairs);
+    return CurrencyPairs.of(pairs);
   }
 
   private static void storeCurrencyMatrix(final ConfigMaster cfgMaster, final String name, final CurrencyPairs currencyPairs) {

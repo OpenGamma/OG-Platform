@@ -88,7 +88,7 @@ public class CapFloorCMSSpreadDefinition extends CouponFloatingDefinition implem
   }
 
   /**
-   * Builder of a CMS spread cap/floor. The fixing date is computed from the start accrual date with the Ibor index spot lag. 
+   * Builder of a CMS spread cap/floor. The fixing date is computed from the start accrual date with the Ibor index spot lag (fixing in advance). 
    * The underlying swaps are computed from that date and the CMS indexes.
    * @param paymentDate Coupon payment date.
    * @param accrualStartDate Start date of the accrual period.

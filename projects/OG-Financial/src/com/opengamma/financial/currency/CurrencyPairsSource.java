@@ -8,22 +8,26 @@ package com.opengamma.financial.currency;
 import com.opengamma.util.money.Currency;
 
 /**
- * A source of market convention currency pairs ({@link CurrencyPairs} instances).
+ * A source of market convention currency pairs.
  */
 public interface CurrencyPairsSource {
 
   /**
-   * @param name The name of the set of currency pairs
-   * @return The currency pairs or null if there are none in the system with a matching name
+   * Gets the currency pairs by name.
+   * 
+   * @param name  the name of the set of currency pairs, not null
+   * @return the currency pairs, null if not found
    */
   CurrencyPairs getCurrencyPairs(String name);
 
   /**
-   * @param currency1 A currency
-   * @param currency2 Another currency
-   * @param name Name of the set of market convention currency pairs
-   * @return Market convention {@code CurrencyPair} for the currencies or null if there is no pair or not
-   * set of pairs matching {@code name}.
+   * Gets a single currency pair
+   * 
+   * @param name  the name of the set of market convention currency pairs, not null
+   * @param currency1  the first currency, not null
+   * @param currency2  the second currency, not null
+   * @return the market convention pair for the currencies, null if not found
    */
-  CurrencyPair getCurrencyPair(Currency currency1, Currency currency2, String name);
+  CurrencyPair getCurrencyPair(String name, Currency currency1, Currency currency2);
+
 }

@@ -15,7 +15,11 @@
 <listEntry value="com.opengamma.web"/>
 <listEntry value="com.opengamma.web.bundle"/>
 <listEntry value="com.opengamma.web.json"/>
+<listEntry value="com.opengamma.web.position"/>
+<listEntry value="com.opengamma.web.security"/>
 <listEntry value="com.opengamma.web.server.conversion"/>
+<listEntry value="com.opengamma.web.server.push"/>
+<listEntry value="com.opengamma.web.server.push.rest"/>
 </listAttribute>
 <mapAttribute key="org.testng.eclipse.PARAMETERS"/>
 <intAttribute key="org.testng.eclipse.TYPE" value="5"/>

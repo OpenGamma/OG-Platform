@@ -17,6 +17,7 @@ import com.opengamma.engine.function.config.FunctionConfiguration;
 import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
+import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
@@ -130,15 +131,9 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     configs.add(new ParameterizedFunctionConfiguration(VolatilityCubeMarketDataFunction.class.getName(), parameters));
   }
 
+  //-------------------------------------------------------------------------
   public RepositoryConfigurationSource constructRepositoryConfigurationSource() {
-    return new RepositoryConfigurationSource() {
-      private final RepositoryConfiguration _config = constructRepositoryConfiguration();
-
-      @Override
-      public RepositoryConfiguration getRepositoryConfiguration() {
-        return _config;
-      }
-    };
+    return new SimpleRepositoryConfigurationSource(constructRepositoryConfiguration());
   }
 
   @Override
