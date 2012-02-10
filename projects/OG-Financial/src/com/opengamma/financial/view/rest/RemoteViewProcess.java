@@ -34,25 +34,25 @@ public class RemoteViewProcess implements ViewProcess {
   @Override
   public UniqueId getUniqueId() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessResource.PATH_UNIQUE_ID).build();
-    return _client.access(uri).get(UniqueId.class);
+    return _client.accessFudge(uri).get(UniqueId.class);
   }
   
   @Override
   public UniqueId getDefinitionId() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessResource.PATH_DEFINITION_ID).build();
-    return _client.access(uri).get(UniqueId.class);
+    return _client.accessFudge(uri).get(UniqueId.class);
   }
   
   @Override
   public ViewDefinition getLatestViewDefinition() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessResource.PATH_DEFINITION).build();
-    return _client.access(uri).get(ViewDefinition.class);
+    return _client.accessFudge(uri).get(ViewDefinition.class);
   }
   
   @Override
   public ViewProcessState getState() {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessResource.PATH_STATE).build();
-    return _client.access(uri).get(ViewProcessState.class);
+    return _client.accessFudge(uri).get(ViewProcessState.class);
   }
   
   @Override

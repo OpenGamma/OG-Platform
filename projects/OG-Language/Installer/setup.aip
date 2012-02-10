@@ -242,11 +242,12 @@
     <ROW File="org.apache.derby_derby_derbytools.jar" Component_="jar" FileName="orgap~24.jar|org.apache.derby-derby-derbytools.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbytools.jar" SelfReg="false" NextFile="javax.mail_javamail_mail.jar"/>
     <ROW File="org.apache.httpcomponents_httpclient_httpclient.jar" Component_="jar" FileName="orgapa~3.jar|org.apache.httpcomponents-httpclient-httpclient.jar" Attributes="0" SourcePath="..\build\jar\org.apache.httpcomponents-httpclient-httpclient.jar" SelfReg="false" NextFile="org.dom4j_dom4j_dom4j.jar"/>
     <ROW File="org.apache.httpcomponents_httpcore_httpcore.jar" Component_="jar" FileName="orgap~10.jar|org.apache.httpcomponents-httpcore-httpcore.jar" Attributes="0" SourcePath="..\build\jar\org.apache.httpcomponents-httpcore-httpcore.jar" SelfReg="false" NextFile="javax.time_jsr_310_ri_jsr_310_TZDB_all.jar"/>
-    <ROW File="org.apache.poi_poi_poi.jar" Component_="jar" FileName="orgapa~4.jar|org.apache.poi-poi-poi.jar" Attributes="0" SourcePath="..\build\jar\org.apache.poi-poi-poi.jar" SelfReg="false"/>
+    <ROW File="org.apache.poi_poi_poi.jar" Component_="jar" FileName="orgapa~4.jar|org.apache.poi-poi-poi.jar" Attributes="0" SourcePath="..\build\jar\org.apache.poi-poi-poi.jar" SelfReg="false" NextFile="org.ehcache_ehcache_ehcache.jar"/>
     <ROW File="org.apache.xbean_xbean_spring_xbean_spring.jar" Component_="jar" FileName="orgap~12.jar|org.apache.xbean-xbean-spring-xbean-spring.jar" Attributes="0" SourcePath="..\build\jar\org.apache.xbean-xbean-spring-xbean-spring.jar" SelfReg="false" NextFile="com.yahoo.platform.yui_yuicompressor_yuicompressor.jar"/>
     <ROW File="org.aspectj_aspectj_aspectj_rt.jar" Component_="jar" FileName="orgasp~1.jar|org.aspectj-aspectj-aspectj-rt.jar" Attributes="0" SourcePath="..\build\jar\org.aspectj-aspectj-aspectj-rt.jar" SelfReg="false" NextFile="com.opengamma_region_og_regions.jar"/>
     <ROW File="org.beanshell_bsh_bsh.jar" Component_="jar" FileName="orgbea~1.jar|org.beanshell-bsh-bsh.jar" Attributes="0" SourcePath="..\build\jar\org.beanshell-bsh-bsh.jar" SelfReg="false" NextFile="javax.activation_jaf_activation.jar"/>
     <ROW File="org.dom4j_dom4j_dom4j.jar" Component_="jar" FileName="orgdom~1.jar|org.dom4j-dom4j-dom4j.jar" Attributes="0" SourcePath="..\build\jar\org.dom4j-dom4j-dom4j.jar" SelfReg="false" NextFile="javax.time_jsr_310_ri_jsr_310_ri.jar"/>
+    <ROW File="org.ehcache_ehcache_ehcache.jar" Component_="jar" FileName="orgehc~1.jar|org.ehcache-ehcache-ehcache.jar" Attributes="0" SourcePath="..\build\jar\org.ehcache-ehcache-ehcache.jar" SelfReg="false"/>
     <ROW File="org.freemarker_freemarker_freemarker.jar" Component_="jar" FileName="orgfre~1.jar|org.freemarker-freemarker-freemarker.jar" Attributes="0" SourcePath="..\build\jar\org.freemarker-freemarker-freemarker.jar" SelfReg="false" NextFile="org.fudgemsg_fudge_java_fudge_java.jar"/>
     <ROW File="org.fudgemsg_fudge_java_fudge_java.jar" Component_="jar" FileName="orgfud~1.jar|org.fudgemsg-fudge-java-fudge-java.jar" Attributes="0" SourcePath="..\build\jar\org.fudgemsg-fudge-java-fudge-java.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_pl.jar"/>
     <ROW File="org.hibernate_hibernate_hibernate.jar" Component_="jar" FileName="orghib~1.jar|org.hibernate-hibernate-hibernate.jar" Attributes="0" SourcePath="..\build\jar\org.hibernate-hibernate-hibernate.jar" SelfReg="false" NextFile="org.testng_testng_testng.jar"/>
@@ -512,13 +513,17 @@
     <ROW Registry="serviceSDDL64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="serviceSDDL" Value="D:(A;;GA;;;WD)" Component_="Settings64"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiRemoveFileComponent">
+    <ROW FileKey="ExternalFunctionCache" Component_="client.jar" FileName=".ExternalFunctionCache" DirProperty="APPDIR" InstallMode="3"/>
+    <ROW FileKey="FudgeBuilderFor" Component_="client.jar" FileName=".FudgeBuilderFor" DirProperty="APPDIR" InstallMode="3"/>
+    <ROW FileKey="FudgeSecondaryType" Component_="client.jar" FileName=".FudgeSecondaryType" DirProperty="APPDIR" InstallMode="3"/>
+    <ROW FileKey="GenericFudgeBuilderFor" Component_="client.jar" FileName=".GenericFudgeBuilderFor" DirProperty="APPDIR" InstallMode="3"/>
     <ROW FileKey="OpenGamma.properties" Component_="Settings" FileName="OpenGamma.properties" DirProperty="APPDIR" InstallMode="2"/>
     <ROW FileKey="log4cxx.connector.properties" Component_="Settings" FileName="log4cxx.connector.properties" DirProperty="APPDIR" InstallMode="2"/>
     <ROW FileKey="log4cxx.service.properties" Component_="Settings" FileName="log4cxx.service.properties" DirProperty="APPDIR" InstallMode="2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiServCtrlComponent">
-    <ROW ServiceControl="ServiceRunner32.exe" Name="OpenGammaLanguageAPI" Event="161" Wait="1" Component_="ServiceRunner.exe_32"/>
-    <ROW ServiceControl="ServiceRunner64.exe" Name="OpenGammaLanguageAPI" Event="161" Wait="1" Component_="ServiceRunner.exe_64"/>
+    <ROW ServiceControl="ServiceRunner32.exe" Name="OpenGammaLanguageAPI" Event="161" Wait="0" Component_="ServiceRunner.exe_32"/>
+    <ROW ServiceControl="ServiceRunner64.exe" Name="OpenGammaLanguageAPI" Event="161" Wait="0" Component_="ServiceRunner.exe_64"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiServInstComponent">
     <ROW ServiceInstall="ServiceRunner32.exe" Name="OpenGammaLanguageAPI" DisplayName="OpenGamma Language Integration" ServiceType="16" StartType="3" ErrorControl="1" Component_="ServiceRunner.exe_32" Description="Integration API for using OpenGamma Tools from other environments"/>
