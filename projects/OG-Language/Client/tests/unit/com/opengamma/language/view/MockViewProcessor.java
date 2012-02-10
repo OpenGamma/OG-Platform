@@ -32,7 +32,7 @@ import com.opengamma.livedata.UserPrincipal;
   }
 
   @Override
-  public UniqueId getUniqueId() {
+  public String getName() {
     throw new UnsupportedOperationException();
   }
 
