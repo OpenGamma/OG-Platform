@@ -38,13 +38,13 @@ public class RemoteManageableViewDefinitionRepository extends RemoteViewDefiniti
       throw new OpenGammaRuntimeException("Could not add view definition: " + response);
     }
     URI addedUri = response.getLocation();
-    return getClient().access(addedUri).get(ViewDefinition.class).getUniqueId();
+    return getClient().accessFudge(addedUri).get(ViewDefinition.class).getUniqueId();
   }
 
   @Override
   public void updateViewDefinition(UpdateViewDefinitionRequest request) {
     URI uri = DataViewDefinitionRepositoryResource.uriDefinitionId(getBaseUri(), request.getId());
-    getClient().access(uri).put(request.getViewDefinition());
+    getClient().accessFudge(uri).put(request.getViewDefinition());
   }
 
   @Override
