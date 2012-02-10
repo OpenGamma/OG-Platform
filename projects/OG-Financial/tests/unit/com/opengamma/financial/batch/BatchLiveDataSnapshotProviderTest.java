@@ -18,7 +18,9 @@ import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.InMemoryLKVMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.historical.HistoricalMarketDataProvider;
+import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.batch.marketdata.BatchMarketDataProvider;
 import com.opengamma.id.ExternalId;
@@ -58,7 +60,7 @@ public class BatchLiveDataSnapshotProviderTest {
     
     BatchMarketDataProvider provider = new BatchMarketDataProvider(run, new DummyBatchMaster(), batchDbProvider, snapshotProvider);
     
-    HistoricalMarketDataSpecification marketDataSpec = new HistoricalMarketDataSpecification(LocalDate.of(2005, 11, 12).atStartOfDayInZone(TimeZone.UTC), null, null);
+    MarketDataSpecification marketDataSpec = new FixedHistoricalMarketDataSpecification(null, null, LocalDate.of(2005, 11, 12).atStartOfDayInZone(TimeZone.UTC));
     MarketDataSnapshot snapshot = provider.snapshot(marketDataSpec);
     snapshot.init();
     Object ts = snapshot.query(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, identifier));
