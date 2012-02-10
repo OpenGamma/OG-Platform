@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.marketdata.permission;
+package com.opengamma.engine.marketdata;
 
 import java.util.Set;
 

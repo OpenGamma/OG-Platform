@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.engine.marketdata.permission;
+package com.opengamma.engine.marketdata.live;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.livedata.LiveDataSpecification;
 import com.opengamma.livedata.UserPrincipal;

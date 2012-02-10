@@ -8,6 +8,10 @@ package com.opengamma.engine.marketdata.historical;
 import java.util.Collections;
 import java.util.Set;
 
+import javax.time.Instant;
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.TimeZone;
+
 import org.apache.commons.lang.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,12 +19,13 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
+import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalId;
@@ -98,6 +103,10 @@ public class HistoricalMarketDataProvider extends AbstractMarketDataProvider imp
   //-------------------------------------------------------------------------
   @Override
   public boolean isCompatible(MarketDataSpecification marketDataSpec) {
+    if (marketDataSpec instanceof LiveMarketDataSpecification) {
+      // Live interpreted as latest from history
+      return true;
+    }
     if (!(marketDataSpec instanceof HistoricalMarketDataSpecification)) {
       return false;
     }
@@ -108,8 +117,14 @@ public class HistoricalMarketDataProvider extends AbstractMarketDataProvider imp
   
   @Override
   public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
+    if (marketDataSpec instanceof LiveMarketDataSpecification) {
+      return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), Instant.now(), LocalDate.now(), null);
+    }
     HistoricalMarketDataSpecification historicalSpec = (HistoricalMarketDataSpecification) marketDataSpec;
-    return new HistoricalMarketDataSnapshot(historicalSpec, getTimeSeriesSource());
+    // TODO something better thought-out here
+    Instant snapshotInstant = historicalSpec.getSnapshotDate().atMidnight().atZone(TimeZone.UTC).toInstant();
+    LocalDate snapshotDate = historicalSpec.getSnapshotDate();
+    return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), snapshotInstant, snapshotDate, historicalSpec.getTimeSeriesFieldResolverKey());
   }
 
   //-------------------------------------------------------------------------
