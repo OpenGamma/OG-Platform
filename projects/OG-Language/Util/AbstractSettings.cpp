@@ -275,6 +275,35 @@ BOOL CAbstractSettings::RegistrySet (HKEY hkey, PCTSTR pszKey, PCTSTR pszValue) 
 
 /// Writes a value to the registry.
 ///
+/// @param[in] pszBase base address under HKLM or HKCU, never NULL
+/// @param[in] pszKey the key value to update, never NULL
+/// @param[in] pszValue the value to write, or NULL to remove the value
+/// @return TRUE if successful, FALSE if there was a problem
+BOOL CAbstractSettings::RegistrySet (PCTSTR pszBase, PCTSTR pszKey, PCTSTR pszValue) {
+	HKEY hkeyGlobal = NULL, hkeyLocal = NULL;
+	HRESULT hr;
+	if ((hr = RegOpenKeyEx (HKEY_LOCAL_MACHINE, pszBase, 0, KEY_WRITE, &hkeyGlobal)) != ERROR_SUCCESS) {
+		LOGWARN (TEXT ("Couldn't find machine global configuration settings, error ") << hr);
+	}
+	if ((hr = RegOpenKeyEx (HKEY_CURRENT_USER, pszBase, 0, KEY_WRITE, &hkeyLocal)) != ERROR_SUCCESS) {
+		LOGWARN (TEXT ("Couldn't find user local configuration settings, error ") << hr);
+	}
+	BOOL bResult;
+	if (hkeyGlobal) {
+		bResult = RegistrySet (hkeyGlobal, pszKey, pszValue);
+	} else if (hkeyLocal) {
+		bResult = RegistrySet (hkeyLocal, pszKey, pszValue);
+	} else {
+		LOGERROR (TEXT ("Couldn't open global or local registry keys"));
+		bResult = FALSE;
+	}
+	if (hkeyGlobal) RegCloseKey (hkeyGlobal);
+	if (hkeyLocal) RegCloseKey (hkeyLocal);
+	return bResult;
+}
+
+/// Writes a value to the registry.
+///
 /// @param[in] pszKey the key value to update, never NULL
 /// @param[in] pszValue the value to write, or NULL to remove the value
 /// @return TRUE if successful, FALSE if there was a problem
@@ -284,36 +313,13 @@ BOOL CAbstractSettings::RegistrySet (PCTSTR pszKey, PCTSTR pszValue) {
 		LOGWARN (TEXT ("Couldn't get settings location, error ") << GetLastError ());
 		return FALSE;
 	}
-	HKEY hkeyRoot;
-	HKEY hkeyGlobal = NULL, hkeyLocal = NULL;
-	HRESULT hr;
-	if ((hr = RegOpenKeyEx (HKEY_LOCAL_MACHINE, TEXT ("SOFTWARE"), 0, KEY_READ, &hkeyRoot)) == ERROR_SUCCESS) {
-		if ((hr = RegOpenKeyEx (hkeyRoot, szSettingsLocation, 0, KEY_WRITE, &hkeyGlobal)) != ERROR_SUCCESS) {
-			LOGDEBUG ("Couldn't find machine global configuration settings, error " << hr);
-		}
-		RegCloseKey (hkeyRoot);
-	} else {
-		LOGWARN ("Couldn't open HKEY_LOCAL_MACHINE\\SOFTWARE registry key, error " << hr);
-	}
-	if ((hr = RegOpenKeyEx (HKEY_CURRENT_USER, TEXT ("SOFTWARE"), 0, KEY_READ, &hkeyRoot)) == ERROR_SUCCESS) {
-		if ((hr = RegOpenKeyEx (hkeyRoot, szSettingsLocation, 0, KEY_WRITE, &hkeyLocal)) != ERROR_SUCCESS) {
-			LOGDEBUG ("Couldn't find user local configuration settings, error " << hr);
-		}
-		RegCloseKey (hkeyRoot);
-	} else {
-		LOGWARN ("Couldn't open HKEY_CURRENT_USER\\Software registry key, error " << hr);
-	}
-	BOOL bResult;
-	if (hkeyGlobal) {
-		bResult = RegistrySet (hkeyGlobal, pszKey, pszValue);
-	} else if (hkeyLocal) {
-		bResult = RegistrySet (hkeyLocal, pszKey, pszValue);
-	} else {
-		LOGWARN (TEXT ("Couldn't open global or local registry keys"));
-		bResult = FALSE;
-	}
-	if (hkeyGlobal) RegCloseKey (hkeyGlobal);
-	if (hkeyLocal) RegCloseKey (hkeyLocal);
+	TCHAR szBase[312];
+	StringCbPrintf (szBase, sizeof (szBase), TEXT ("SOFTWARE\\%s"), szSettingsLocation);
+	BOOL bResult = RegistrySet (szBase, pszKey, pszValue);
+#ifdef _WIN64
+	StringCbPrintf (szBase, sizeof (szBase), TEXT ("SOFTWARE\\Wow6432Node\\%s"), szSettingsLocation);
+	bResult &= RegistrySet (szBase, pszKey, pszValue);
+#endif /* ifdef _WIN64 */
 	return bResult;
 }
 

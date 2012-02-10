@@ -7,12 +7,9 @@
 namespace com.opengamma.engine.marketdata.spec {
  
   /**
-   * Describes historical market data.
+   * Describes market data sourced from the latest historical value.
    */
-  message HistoricalMarketDataSpecification extends MarketDataSpecification {
-  
-    optional string timeSeriesResolverKey;
-    optional string timeSeriesFieldResolverKey;
+  message LatestHistoricalMarketDataSpecification extends HistoricalMarketDataSpecification {
     
     binding Java {
       methods "equals, hashCode, toString";

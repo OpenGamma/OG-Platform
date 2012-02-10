@@ -3,26 +3,33 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.timeseries.sampling;
+package com.opengamma.financial.schedule;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
  */
-public class HolidayDateRemovalFunction {
+public final class HolidayDateRemovalFunction {
   private static final LocalDate[] EMPTY_ARRAY = new LocalDate[0];
+  private static final HolidayDateRemovalFunction s_instance = new HolidayDateRemovalFunction();
+
+  public static HolidayDateRemovalFunction getInstance() {
+    return s_instance;
+  }
+
+  private HolidayDateRemovalFunction() {
+  }
 
   public LocalDate[] getStrippedSchedule(final LocalDate[] dates, final Calendar holidays) {
-    Validate.notNull(dates, "date");
-    Validate.notNull(holidays, "holidays");
+    ArgumentChecker.notNull(dates, "date");
+    ArgumentChecker.notNull(holidays, "holidays");
     final List<LocalDate> stripped = new ArrayList<LocalDate>();
     for (final LocalDate date : dates) {
       if (holidays.isWorkingDay(date)) {

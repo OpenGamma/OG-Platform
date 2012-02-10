@@ -37,7 +37,7 @@ import com.opengamma.util.time.Expiry;
 import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
- * This class uses standard OG import fields to generate a Swaption security
+ * This class uses standard OG import fields and convention bundles to generate a Swaption security
  */
 public class SwaptionParser extends RowParser {
 
@@ -65,6 +65,7 @@ public class SwaptionParser extends RowParser {
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> swaptionDetails) {
+    
     String counterparty = getWithException(swaptionDetails, COUNTERPARTY);
     Currency currency = Currency.of(getWithException(swaptionDetails, CURRENCY));
     ConventionBundle swaptionConvention = CONVENTIONS.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_SWAPTION")); 
@@ -73,14 +74,16 @@ public class SwaptionParser extends RowParser {
     Expiry swaptionExpiry = new Expiry(
         ZonedDateTime.of(LocalDateTime.of(LocalDate.parse(getWithException(swaptionDetails, EXPIRY), CSV_DATE_FORMATTER), LocalTime.MIDNIGHT), TimeZone.UTC), 
         ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
+    
     boolean isLong = Boolean.parseBoolean(getWithException(swaptionDetails, IS_LONG));
     boolean isCashSettled = swaptionConvention.isCashSettled();    
     boolean isPayer = Boolean.parseBoolean(getWithException(swaptionDetails, IS_PAYER));
     double strike = Double.parseDouble(getWithException(swaptionDetails, STRIKE));
-    double notional = 1000000 * Double.parseDouble(getWithException(swaptionDetails, NOTIONAL));
+    double notional = 1000000 * Math.abs(Double.parseDouble(getWithException(swaptionDetails, NOTIONAL)));
     InterestRateNotional fixedNotional = new InterestRateNotional(currency, notional);
     InterestRateNotional floatingNotional = new InterestRateNotional(currency, notional);
     final ExternalId floatingRateBloombergTicker = floatingRateConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
+
     FixedInterestRateLeg fixedLeg = new FixedInterestRateLeg(swapConvention.getSwapFixedLegDayCount(), 
         swapConvention.getSwapFixedLegFrequency(), 
         swapConvention.getSwapFixedLegRegion(), 
@@ -101,31 +104,21 @@ public class SwaptionParser extends RowParser {
     String swapLength = getWithException(swaptionDetails, SWAP_LENGTH);
     Period swapMaturity = Period.ofYears(Integer.parseInt(swapLength));
     ZonedDateTime swapMaturityDate = swaptionExpiry.getExpiry().plus(swapMaturity);
+    
     SwapSecurity swap = new SwapSecurity(swapTradeDate, swapEffectiveDate, swapMaturityDate, counterparty, floatingLeg, fixedLeg);
     ExternalId swapIdentifier = ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString());
     swap.addExternalId(swapIdentifier);
+    
     LocalDate tradeDate = LocalDate.parse(getWithException(swaptionDetails, TRADE_DATE), CSV_DATE_FORMATTER);
-//      OffsetTime tradeTime = OffsetTime.of(LocalTime.of(11, 0), ZoneOffset.ofHours(0));
-//      LocalDate premiumDate =  LocalDate.parse(getWithException(swaptionDetails, PREMIUM_DATE), PortfolioLoaderHelper.CSV_DATE_FORMATTER);
-//      OffsetTime premiumTime = OffsetTime.of(LocalTime.of(11, 0), ZoneOffset.ofHours(0));
-//      double premium = Double.parseDouble(getWithException(swaptionDetails, PREMIUM_AMOUNT));    
+
     SwaptionSecurity swaption = new SwaptionSecurity(isPayer, swapIdentifier, isLong, swaptionExpiry, isCashSettled, currency);
     swaption.setName("Vanilla swaption, " + getSwaptionString(swapLength, tradeDate, swaptionExpiry.getExpiry()) + ", " + currency.getCode()
         + " " + NOTIONAL_FORMATTER.format(notional) + " @ " + 
         RATE_FORMATTER.format(strike));
-//      TradeImpl swaptionTrade = new TradeImpl();
-//      swaptionTrade.setPremium(premium);
-//      swaptionTrade.setPremiumDate(premiumDate);
-//      swaptionTrade.setPremiumTime(premiumTime);
-//      swaptionTrade.setQuantity(new BigDecimal(1));
-//      swaptionTrade.setSecurity(swaption);
-//      swaptionTrade.setTradeDate(tradeDate);
-//      swaptionTrade.setTradeTime(tradeTime);
-//      swaptionTrade.setCounterparty(new CounterpartyImpl(Identifier.of(ID_SCHEME, counterparty)));
-//      swaptionTrade.setSecurityKey(securityKey)
+
     swaption.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     
-    ManageableSecurity[] result = {swap, swaption};
+    ManageableSecurity[] result = {swaption, swap};
     return result;
   }
 

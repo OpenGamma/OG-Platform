@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.timeseries.sampling;
+package com.opengamma.financial.schedule;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -13,27 +13,14 @@ import javax.time.calendar.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.schedule.DailyScheduleCalculator;
-import com.opengamma.financial.schedule.Schedule;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 
 /**
  * 
  */
 public class HolidayDateRemovalFunctionTest {
-  private static final HolidayDateRemovalFunction F = new HolidayDateRemovalFunction();
-  private static final Calendar WEEKEND_CALENDAR = new Calendar() {
-
-    @Override
-    public boolean isWorkingDay(final LocalDate date) {
-      return !(date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY);
-    }
-
-    @Override
-    public String getConventionName() {
-      return null;
-    }
-
-  };
+  private static final HolidayDateRemovalFunction F = HolidayDateRemovalFunction.getInstance();
+  private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final Schedule DAILY = new DailyScheduleCalculator();
   private static final LocalDate START = LocalDate.of(2009, 1, 1);
   private static final LocalDate END = LocalDate.of(2010, 1, 1);

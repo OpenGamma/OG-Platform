@@ -6,6 +6,7 @@
 package com.opengamma.financial.schedule;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
@@ -36,7 +37,8 @@ public class QuarterlyScheduleCalculator extends Schedule {
         date = generateRecursive ? date.minus(Period.ofMonths(3)) : endDate.minus(Period.ofMonths(i));
         i += 3;
       }
-      return getReversedDates(dates);
+      Collections.reverse(dates);
+      return dates.toArray(EMPTY_LOCAL_DATE_ARRAY);
     }
     LocalDate date = startDate;
     int i = 3;
@@ -65,7 +67,8 @@ public class QuarterlyScheduleCalculator extends Schedule {
         date = generateRecursive ? date.minus(Period.ofMonths(3)) : endDate.minus(Period.ofMonths(i));
         i += 3;
       }
-      return getReversedDates(dates);
+      Collections.reverse(dates);
+      return dates.toArray(EMPTY_ZONED_DATE_TIME_ARRAY);
     }
     ZonedDateTime date = startDate;
     int i = 3;

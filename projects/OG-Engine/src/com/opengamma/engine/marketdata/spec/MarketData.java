@@ -53,7 +53,7 @@ public class MarketData {
    * @return the historical market data specification, not null
    */
   public static HistoricalMarketDataSpecification historical(LocalDate date, String timeSeriesResolverKey, String timeSeriesFieldResolverKey) {
-    return new HistoricalMarketDataSpecification(date, timeSeriesResolverKey, timeSeriesFieldResolverKey);
+    return new FixedHistoricalMarketDataSpecification(timeSeriesResolverKey, timeSeriesFieldResolverKey, date);
   }
   
   //-------------------------------------------------------------------------

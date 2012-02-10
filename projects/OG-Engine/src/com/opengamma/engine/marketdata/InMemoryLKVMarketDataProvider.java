@@ -19,8 +19,6 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.id.ExternalId;
