@@ -281,7 +281,7 @@ BOOL CAbstractSettings::RegistrySet (HKEY hkey, PCTSTR pszKey, PCTSTR pszValue) 
 /// @return TRUE if successful, FALSE if there was a problem
 BOOL CAbstractSettings::RegistrySet (PCTSTR pszBase, PCTSTR pszKey, PCTSTR pszValue) {
 	HKEY hkeyGlobal = NULL, hkeyLocal = NULL;
-	HRESULT = hr;
+	HRESULT hr;
 	if ((hr = RegOpenKeyEx (HKEY_LOCAL_MACHINE, pszBase, 0, KEY_WRITE, &hkeyGlobal)) != ERROR_SUCCESS) {
 		LOGWARN (TEXT ("Couldn't find machine global configuration settings, error ") << hr);
 	}
