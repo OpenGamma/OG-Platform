@@ -69,7 +69,7 @@ public class DataConfigSourceResource extends AbstractDataResource {
     final Class<?> type = ReflectionUtils.loadClass(typeStr);
     final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     Collection<?> result = getConfigSource().getConfigs(type, name, vc);
-    return Response.ok(FudgeListWrapper.of(result)).build();
+    return response(FudgeListWrapper.of(result));
   }
 
   @GET
@@ -84,11 +84,11 @@ public class DataConfigSourceResource extends AbstractDataResource {
     final ObjectId objectId = ObjectId.parse(idStr);
     if (version != null) {
       Object result = getConfigSource().getConfig(type, objectId.atVersion(version));
-      return Response.ok(result).build();
+      return response(result);
     } else {
       VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
       Object result = getConfigSource().getConfig(type, objectId, vc);
-      return Response.ok(result).build();
+      return response(result);
     }
   }
 
@@ -167,10 +167,10 @@ public class DataConfigSourceResource extends AbstractDataResource {
     if (versionAsOfStr != null) {
       final Instant versionAsOf = VersionCorrection.parse(versionAsOfStr, null).getVersionAsOf();
       Object result = getConfigSource().getByName(type, name, versionAsOf);
-      return Response.ok(result).build();
+      return response(result);
     } else {
       Object result = getConfigSource().getLatestByName(type, name);
-      return Response.ok(result).build();
+      return response(result);
     }
   }
 

@@ -8,6 +8,7 @@ package com.opengamma.core.region.impl;
 import java.net.URI;
 import java.util.Collection;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.id.ExternalId;
@@ -18,6 +19,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.FudgeListWrapper;
 import com.opengamma.util.rest.AbstractRemoteClient;
+import com.sun.jersey.api.client.UniformInterfaceException;
 
 /**
  * Provides remote access to an {@link RegionSource}.
@@ -64,15 +66,33 @@ public class RemoteRegionSource extends AbstractRemoteClient implements RegionSo
   //-------------------------------------------------------------------------
   @Override
   public Region getHighestLevelRegion(ExternalId externalId) {
-    return getHighestLevelRegion(ExternalIdBundle.of(externalId));
+    try {
+      return getHighestLevelRegion(ExternalIdBundle.of(externalId));
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException ex) {
+      if (ex.getResponse().getStatus() == 404) {
+        return null;
+      }
+      throw ex;
+    }
   }
 
   @Override
   public Region getHighestLevelRegion(ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     
-    URI uri = DataRegionSourceResource.uriSearchHighest(getBaseUri(), bundle);
-    return accessRemote(uri).get(Region.class);
+    try {
+      URI uri = DataRegionSourceResource.uriSearchHighest(getBaseUri(), bundle);
+      return accessRemote(uri).get(Region.class);
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException ex) {
+      if (ex.getResponse().getStatus() == 404) {
+        return null;
+      }
+      throw ex;
+    }
   }
 
 }

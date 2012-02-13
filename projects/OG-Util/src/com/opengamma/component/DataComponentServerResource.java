@@ -73,7 +73,7 @@ public class DataComponentServerResource extends AbstractDataResource {
       server.getComponentInfos().add(component.getInfo());
     }
     server.setUri(URI.create("components"));
-    return Response.ok(server).build();
+    return response(server);
   }
 
   @Path("{type}/{classifier}")
