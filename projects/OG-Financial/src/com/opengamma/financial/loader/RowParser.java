@@ -14,7 +14,6 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatterBuilder;
 
-import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;

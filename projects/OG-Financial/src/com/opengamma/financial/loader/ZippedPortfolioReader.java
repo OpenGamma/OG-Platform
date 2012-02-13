@@ -19,7 +19,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 
 /**
