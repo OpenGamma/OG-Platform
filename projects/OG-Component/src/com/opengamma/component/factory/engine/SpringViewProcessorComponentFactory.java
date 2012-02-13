@@ -106,6 +106,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     initUserPrincipal(repo, appContext);
     initFunctions(repo, appContext);
     initForDebugging(repo, appContext);
+    registerSpringLifecycleStop(repo, appContext);
   }
 
   /**

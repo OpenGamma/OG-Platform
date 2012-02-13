@@ -118,7 +118,7 @@ public class ViewProcessorManagerTest {
     }
 
     @Override
-    public UniqueId getUniqueId() {
+    public String getName() {
       return null;
     }
 
