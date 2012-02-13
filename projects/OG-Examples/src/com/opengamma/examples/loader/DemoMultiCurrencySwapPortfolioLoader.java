@@ -31,6 +31,7 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
+import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -138,14 +139,14 @@ public class DemoMultiCurrencySwapPortfolioLoader {
    * @return
    */
   public void createPortfolio() {
-    DemoDatabasePopulater.populateYieldCurveConfig(_loaderContext.getConfigMaster());
+    YieldCurveConfigPopulator.populateCurveConfigMaster(_loaderContext.getConfigMaster());
     Collection<SwapSecurity> swaps = createRandomSwaps();
     if (swaps.size() == 0) {
       throw new OpenGammaRuntimeException("No (valid) swaps were generated.");
     }
     persistToPortfolio(swaps, PORTFOLIO_NAME);
   }
-
+  
   private Collection<SwapSecurity> createRandomSwaps() {
     Collection<SwapSecurity> swaps = new ArrayList<SwapSecurity>();
     

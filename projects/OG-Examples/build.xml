@@ -1,4 +1,5 @@
 <project name="og-examples" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
+	
 	<property file="build.properties" />
 
 	<import file="${common.dir}/common.xml" />
@@ -54,8 +55,8 @@
 	</path>
 
 	<target name="jetty-debug" depends="compile-src,jetty-stop" description="same as 'jetty' but block waiting for output">
-		<java classpath="${toString:jetty.run.path}" classname="com.opengamma.component.OpenGammaComponentServer" fork="true" spawn="false">
-			<jvmarg value="-Dlogback.configurationFile=${junit.logback}" />
+		<java classpathref="jetty.run.path" classname="com.opengamma.component.OpenGammaComponentServer" fork="true" spawn="false">
+			<jvmarg value="-Dlogback.configurationFile=com/opengamma/util/test/warn-logback.xml" />
 			<jvmarg value="-Dcommandmonitor.port=${jetty.stopport}" />
 			<jvmarg value="-Dcommandmonitor.secret=${jetty.stopkey}" />
 			<jvmarg value="-Xms${jvm.xms}" />
@@ -94,9 +95,6 @@
 	<target name="demo-database" depends="compile-src,jetty-stop" description="--> initialize demo portfolio and view in database">
 		<java classname="com.opengamma.examples.loader.DemoDatabasePopulater" classpathref="jetty.run.path" failonerror="true" fork="true">
 			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
-			<jvmarg value="-Dopengamma.platform.runmode=example" />
-			<jvmarg value="-Dopengamma.platform.marketdatasource=direct" />
-			<jvmarg value="-Dopengamma.platform.os=posix" />
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
 		</java>

@@ -4,12 +4,6 @@ if [ "`basename $0`" == "start-jetty.sh" ] ; then
   cd `dirname $0`/..
 fi
 
-if [ ! -z "$1" ]; then
-  RUN_MODE="$1"
-else
-  RUN_MODE=example
-fi
-
 CLASSPATH=config:og-examples.jar
 for FILE in `ls -1 lib/*` ; do
   CLASSPATH=$CLASSPATH:$FILE
@@ -34,10 +28,8 @@ JMX_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenti
 MEM_OPTS="-Xms512m -Xmx2048m -XX:MaxPermSize=256M -XX:+UseConcMarkSweepGC \
   -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing"
 
-$JAVA $JMX_OPTS $MEM_OPTS -jar lib/org.eclipse-jetty-jetty-start-7.0.1.v20091125.jar \
-  -DSTOP.PORT=8079 -DSTOP.KEY=OpenGamma \
-  -Dopengamma.platform.os=posix -Dopengamma.platform.runmode=$RUN_MODE \
-  -Dopengamma.platform.marketdatasource=direct \
+$JAVA $JMX_OPTS $MEM_OPTS -cp $CLASSPATH \
   -Dlogback.configurationFile=jetty-logback.xml \
-  start.class=com.opengamma.examples.startup.ExampleServer \
-  config/engine-spring.xml "path=$CLASSPATH"
+  -Dcommandmonitor.secret=OpenGamma -Dcommandmonitor.port=8079 \
+  com.opengamma.component.OpenGammaComponentServer \
+  -q classpath:fullstack/fullstack-example.properties
