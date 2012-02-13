@@ -17,7 +17,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.loader.RowParser;
-import com.opengamma.financial.portfolio.loader.LoaderContext;
+import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.position.ManageablePosition;

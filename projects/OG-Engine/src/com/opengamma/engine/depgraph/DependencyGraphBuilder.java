@@ -36,7 +36,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetResolver;
-import com.opengamma.engine.fudgemsg.DependencyGraphFudgeBuilder;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
@@ -52,9 +51,6 @@ import com.opengamma.util.tuple.Pair;
  * complete the graph it is only safe for a single calling thread to call any of the public
  * methods at any one time. If multiple threads are to attempt to add targets to the graph
  * concurrently, it is possible to synchronize on the builder instance.
- * <p>
- * This is an alternative algorithm to that used in {@link DependencyGraphFudgeBuilder}. It is a
- * work in progress and cannot be relied on to build accurate graphs at the moment.
  */
 public final class DependencyGraphBuilder {
 

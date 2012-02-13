@@ -25,6 +25,7 @@ import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
@@ -41,7 +42,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Converts specifications into fully resolved security definitions 
+ * Converts specifications into fully resolved security definitions
  */
 public class FixedIncomeStripIdentifierAndMaturityBuilder {
   private static final LocalTime CASH_EXPIRY_TIME = LocalTime.of(11, 00);
@@ -237,7 +238,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
       throw new OpenGammaRuntimeException("No market data for " + strip.getSecurity());
     }
     final ConventionBundleSource source = s_conventionBundleSource;
-    ConventionBundle conventionBundle = source.getConventionBundle(strip.getSecurity());
+    final ConventionBundle conventionBundle = source.getConventionBundle(strip.getSecurity());
     if (conventionBundle == null) {
       throw new OpenGammaRuntimeException("No convention for cash " + strip.getSecurity() + " so can't establish business day convention");
     }
@@ -305,7 +306,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty, new FloatingInterestRateLeg(convention.getSwapFloatingLegDayCount(),
         convention.getSwapFloatingLegFrequency(), convention.getSwapFloatingLegRegion(), convention.getSwapFloatingLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false,
         floatRateBloombergTicker, FloatingRateType.IBOR), new FixedInterestRateLeg(convention.getSwapFixedLegDayCount(), convention.getSwapFixedLegFrequency(), convention.getSwapFixedLegRegion(),
-        convention.getSwapFixedLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, fixedRate));
+            convention.getSwapFixedLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, fixedRate));
     swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
@@ -333,8 +334,8 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty, new FloatingInterestRateLeg(convention.getBasisSwapPayFloatingLegDayCount(),
         convention.getBasisSwapPayFloatingLegFrequency(), convention.getBasisSwapPayFloatingLegRegion(), convention.getBasisSwapPayFloatingLegBusinessDayConvention(), new InterestRateNotional(
             spec.getCurrency(), 1), false, payLegFloatRateBloombergTicker, FloatingRateType.IBOR), new FloatingSpreadIRLeg(convention.getBasisSwapReceiveFloatingLegDayCount(),
-        convention.getBasisSwapReceiveFloatingLegFrequency(), convention.getBasisSwapReceiveFloatingLegRegion(), convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
-        new InterestRateNotional(spec.getCurrency(), 1), false, receiveLegFloatRateBloombergTicker, FloatingRateType.IBOR, spread));
+                convention.getBasisSwapReceiveFloatingLegFrequency(), convention.getBasisSwapReceiveFloatingLegRegion(), convention.getBasisSwapReceiveFloatingLegBusinessDayConvention(),
+                new InterestRateNotional(spec.getCurrency(), 1), false, receiveLegFloatRateBloombergTicker, FloatingRateType.IBOR, spread));
     swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }
@@ -348,9 +349,16 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final ExternalId region = spec.getRegion();
     final ConventionBundleSource source = s_conventionBundleSource;
     final ExternalId conventionId = ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_OIS_CASH");
-    ConventionBundle conventionBundle = source.getConventionBundle(conventionId);
+    final ConventionBundle conventionBundle = source.getConventionBundle(conventionId);
     if (conventionBundle == null) {
       throw new OpenGammaRuntimeException("Could not load convention for " + strip.getSecurity() + " so could not determine day count convention");
+    }
+    DayCount dayCount = conventionBundle.getSwapFixedLegDayCount();
+    if (dayCount == null) {
+      dayCount = s_conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_CASH")).getDayCount();
+    }
+    if (dayCount == null) {
+      throw new OpenGammaRuntimeException("Could not get day count for OIS cash strip " + strip);
     }
     final CashSecurity cash = new CashSecurity(currency, region, start, maturity, conventionBundle.getSwapFixedLegDayCount(), rate, 1);
     cash.setExternalIdBundle(ExternalIdBundle.of(identifier));
@@ -385,7 +393,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty, new FloatingInterestRateLeg(convention.getSwapFloatingLegDayCount(),
         convention.getSwapFloatingLegFrequency(), convention.getSwapFloatingLegRegion(), convention.getSwapFloatingLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false,
         floatRateBloombergTicker, FloatingRateType.IBOR), new FixedInterestRateLeg(convention.getSwapFixedLegDayCount(), convention.getSwapFixedLegFrequency(), convention.getSwapFixedLegRegion(),
-        convention.getSwapFixedLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, fixedRate));
+            convention.getSwapFixedLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, fixedRate));
     swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
 
     return swap;

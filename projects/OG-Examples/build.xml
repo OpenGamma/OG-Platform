@@ -56,34 +56,32 @@
 	<target name="jetty-debug" depends="compile-src,jetty-stop" description="same as 'jetty' but block waiting for output">
 		<java classpath="${toString:jetty.run.path}" classname="com.opengamma.component.OpenGammaComponentServer" fork="true" spawn="false">
 			<jvmarg value="-Dlogback.configurationFile=${junit.logback}" />
-			<jvmarg value="-DSTOP.PORT=${jetty.stopport}" />
-			<jvmarg value="-DSTOP.KEY=${jetty.stopkey}" />
+			<jvmarg value="-Dcommandmonitor.port=${jetty.stopport}" />
+			<jvmarg value="-Dcommandmonitor.secret=${jetty.stopkey}" />
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
 			<arg value="-v" />
-			<arg value="classpath:fullstack${file.separator}fullstack-example.properties" />
+			<arg value="classpath:fullstack${file.separator}fullstack-example-dev.properties" />
 		</java>
 	</target>
 
 	<target name="jetty" depends="compile-src,jetty-stop" description="start the server using the project web-engine folder">
 		<java classpath="${toString:jetty.run.path}" classname="com.opengamma.component.OpenGammaComponentServer" fork="true" spawn="${jetty.spawn}">
 			<jvmarg value="-Dlogback.configurationFile=${junit.logback}" />
-			<jvmarg value="-DSTOP.PORT=${jetty.stopport}" />
-			<jvmarg value="-DSTOP.KEY=${jetty.stopkey}" />
+			<jvmarg value="-Dcommandmonitor.port=${jetty.stopport}" />
+			<jvmarg value="-Dcommandmonitor.secret=${jetty.stopkey}" />
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
 			<arg value="-v" />
-			<arg value="classpath:fullstack${file.separator}fullstack-example.properties" />
+			<arg value="classpath:fullstack${file.separator}fullstack-example-dev.properties" />
 		</java>
 	</target>
 
-	<target name="jetty-stop" depends="jetty-properties" description="stop the current Jetty server">
-		<java jar="${jetty.start}" fork="true" outputproperty="jetty.stop.output">
-			<jvmarg value="-DSTOP.KEY=${jetty.stopkey}" />
-			<jvmarg value="-DSTOP.PORT=${jetty.stopport}" />
-			<arg value="--stop" />
-			<arg value="${basedir}${file.separator}config${file.separator}jetty-${jetty.config}.xml" />
-			<arg value="path=${toString:run.path.id}" />
+	<target name="jetty-stop" depends="jetty-properties" description="stop the current Jetty runner">
+		<java classpath="${toString:jetty.run.path}" classname="com.opengamma.component.OpenGammaComponentServerMonitor" fork="true" outputproperty="jetty.stop.output">
+			<jvmarg value="-Dcommandmonitor.secret=${jetty.stopkey}" />
+			<jvmarg value="-Dcommandmonitor.port=${jetty.stopport}" />
+			<arg value="exit" />
 		</java>
 		<condition property="jetty.stop.status" value="Stopping Jetty server (stop port ${jetty.stopport})" else="">
 			<not>

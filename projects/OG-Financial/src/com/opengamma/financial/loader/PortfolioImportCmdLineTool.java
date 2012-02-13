@@ -23,7 +23,6 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.util.PlatformConfigUtils;
 
 /**

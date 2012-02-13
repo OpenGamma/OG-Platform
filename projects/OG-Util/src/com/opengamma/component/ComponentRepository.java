@@ -345,7 +345,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param obj  the object to close/shutdown, not null
    * @param methodName  the method name to call, not null
    */
-  public void registerLifeCycleStop(final Object obj, final String methodName) {
+  public void registerLifecycleStop(final Object obj, final String methodName) {
     registerLifecycle0(new Lifecycle() {
       @Override
       public void stop() {

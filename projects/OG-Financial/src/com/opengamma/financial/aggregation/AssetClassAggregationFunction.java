@@ -58,7 +58,7 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
   /* package */static final String EQUITY_BARRIER_OPTIONS = "Equity Barrier Options";
   /* package */static final String EQUITY_VARIANCE_SWAPS = "Equity Variance Swaps";
   /* package */static final String SWAPTIONS = "Swaptions";
-  /* package */static final String IRFUTURE_OPTIONS = "IRFuture Options";
+  /* package */static final String IRFUTURE_OPTIONS = "IR Future Options";
   /* package */static final String EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS = "Equity Index Dividend Future Options";
   /* package */static final String SWAPS = "Swaps";
   /* package */static final String FX_FORWARDS = "FX Forwards";

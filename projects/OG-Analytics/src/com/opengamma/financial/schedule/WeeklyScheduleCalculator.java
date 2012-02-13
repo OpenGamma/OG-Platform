@@ -6,6 +6,7 @@
 package com.opengamma.financial.schedule;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
@@ -34,7 +35,8 @@ public class WeeklyScheduleCalculator extends Schedule {
         dates.add(date);
         date = date.minusDays(7);
       }
-      return getReversedDates(dates);
+      Collections.reverse(dates);
+      return dates.toArray(EMPTY_LOCAL_DATE_ARRAY);
     }
     LocalDate date = startDate;
     while (!date.isAfter(endDate)) {
@@ -60,7 +62,8 @@ public class WeeklyScheduleCalculator extends Schedule {
         dates.add(date);
         date = date.minusDays(7);
       }
-      return getReversedDates(dates);
+      Collections.reverse(dates);
+      return dates.toArray(EMPTY_ZONED_DATE_TIME_ARRAY);
     }
     ZonedDateTime date = startDate;
     while (!date.isAfter(endDate)) {

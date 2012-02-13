@@ -46,7 +46,7 @@ public final class ViewProcessor implements ViewProcessorMBean {
   static ObjectName createObjectName(com.opengamma.engine.view.ViewProcessor viewProcessor) {
     ObjectName objectName;
     try {
-      objectName = new ObjectName("com.opengamma:type=ViewProcessor,name=ViewProcessor " + viewProcessor.getUniqueId().getValue());
+      objectName = new ObjectName("com.opengamma:type=ViewProcessor,name=ViewProcessor " + viewProcessor.getName());
     } catch (MalformedObjectNameException e) {
       throw new OpenGammaRuntimeException("", e);
     }

@@ -17,6 +17,7 @@
       <sourceFolder url="file://$MODULE_DIR$/common" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/projects/OG-RStats/build" />
       <excludeFolder url="file://$MODULE_DIR$/projects/OG-RStats/dist" />
+      <excludeFolder url="file://$MODULE_DIR$/tests/output" />
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />

@@ -6,6 +6,7 @@
 package com.opengamma.financial.schedule;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import javax.time.calendar.LocalDate;
@@ -33,7 +34,8 @@ public class EndOfMonthAnnualScheduleCalculator extends Schedule {
       for (int i = monthly.length - 1; i >= 0; i -= 12) {
         result.add(monthly[i]);
       }
-      return getReversedDates(result);
+      Collections.reverse(result);
+      return result.toArray(EMPTY_LOCAL_DATE_ARRAY);
     }
     for (int i = 0; i < monthly.length; i += 12) {
       result.add(monthly[i]);
@@ -55,7 +57,8 @@ public class EndOfMonthAnnualScheduleCalculator extends Schedule {
       for (int i = monthly.length - 1; i >= 0; i -= 12) {
         result.add(monthly[i]);
       }
-      return getReversedDates(result);
+      Collections.reverse(result);
+      return result.toArray(EMPTY_ZONED_DATE_TIME_ARRAY);
     }
     for (int i = 0; i < monthly.length; i += 12) {
       result.add(monthly[i]);

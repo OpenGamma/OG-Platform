@@ -6,7 +6,6 @@
 
 package com.opengamma.financial.loader;
 
-import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;

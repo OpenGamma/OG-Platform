@@ -147,13 +147,11 @@ public class ManageableSecurityLink extends AbstractLink<Security> implements Se
     ObjectId objectId = getObjectId();
     ExternalIdBundle bundle = getExternalId();
     if (security != null) {
-      
       // Try to retrieve the security's assigned name
-//      String name = security.getName();
-//      if (name != null && !(name.trim().equals(""))) {
-//        return name;
-//      }
-      
+      String name = security.getName();
+      if (name != null && !(name.trim().equals(""))) {
+        return name;
+      }      
       bundle = security.getExternalIdBundle();
     }
     if (bundle != null && bundle.size() > 0) {

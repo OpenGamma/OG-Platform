@@ -179,11 +179,11 @@ public class CHConventions {
         act360, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF LIBOR 6m"), ch, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF_OIS_SWAP")), "CHF_OIS_SWAP", act360, modified, annual, 2, ch,
         act360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF TOISTOIS"), ch);
-    conventionMaster
-        .addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF_OIS_CASH")), "CHF_OIS_CASH", act360, following, null, 2, false, null);
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF_OIS_CASH")), "CHF_OIS_CASH", act360, modified, annual, 2, ch,
+        act360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF TOISTOIS"), ch);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF_IBOR_INDEX")), "CHF_IBOR_INDEX", act360, following, 2, false);
 
-    //Identifiers for external data 
+    //Identifiers for external data
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHFCASHP1D"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "CHFCASHP1D")),
         "CHFCASHP1D", act360, following, Period.ofDays(1), 0, false, null);

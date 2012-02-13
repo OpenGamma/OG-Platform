@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.timeseries.sampling;
+package com.opengamma.financial.schedule;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -17,8 +17,7 @@ import javax.time.calendar.LocalDate;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.schedule.DailyScheduleCalculator;
-import com.opengamma.financial.schedule.WeeklyScheduleOnDayCalculator;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
@@ -29,25 +28,13 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunctionTest {
   //TODO test start date = holiday
   private static final LocalDate START = LocalDate.of(2009, 1, 1);
   private static final LocalDate END = LocalDate.of(2010, 10, 1);
-  private static final HolidayDateRemovalFunction WEEKEND_REMOVER = new HolidayDateRemovalFunction();
   private static final DailyScheduleCalculator DAILY = new DailyScheduleCalculator();
   private static final WeeklyScheduleOnDayCalculator WEEKLY_MONDAY = new WeeklyScheduleOnDayCalculator(DayOfWeek.MONDAY);
   private static final PreviousAndFirstValuePaddingTimeSeriesSamplingFunction F = new PreviousAndFirstValuePaddingTimeSeriesSamplingFunction();
-  private static final Calendar WEEKEND_CALENDAR = new Calendar() {
-
-    @Override
-    public boolean isWorkingDay(final LocalDate date) {
-      return !(date.getDayOfWeek() == DayOfWeek.SATURDAY || date.getDayOfWeek() == DayOfWeek.SUNDAY);
-    }
-
-    @Override
-    public String getConventionName() {
-      return null;
-    }
-
-  };
-  private static final LocalDate[] DAILY_SCHEDULE = WEEKEND_REMOVER.getStrippedSchedule(DAILY.getSchedule(START, END, true, true), WEEKEND_CALENDAR);
-  private static final LocalDate[] MONDAY_SCHEDULE = WEEKEND_REMOVER.getStrippedSchedule(WEEKLY_MONDAY.getSchedule(START, END, true, true), WEEKEND_CALENDAR);
+  private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
+  private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
+  private static final LocalDate[] DAILY_SCHEDULE = HOLIDAY_REMOVER.getStrippedSchedule(DAILY.getSchedule(START, END, true, true), WEEKEND_CALENDAR);
+  private static final LocalDate[] MONDAY_SCHEDULE = HOLIDAY_REMOVER.getStrippedSchedule(WEEKLY_MONDAY.getSchedule(START, END, true, true), WEEKEND_CALENDAR);
   private static final LocalDate MISSING_DAY_MONDAY_1 = LocalDate.of(2009, 2, 9);
   private static final LocalDate MISSING_DAY_MONDAY_2 = LocalDate.of(2009, 2, 16);
   private static final LocalDateDoubleTimeSeries TS_NO_MISSING_DATA;
@@ -83,12 +70,12 @@ public class PreviousAndFirstValuePaddingTimeSeriesSamplingFunctionTest {
   @Test
   public void testMissingFirstData() {
     final LocalDate start = START.minusDays(21);
-    final LocalDate[] daily = WEEKEND_REMOVER.getStrippedSchedule(DAILY.getSchedule(start, END, true, true), WEEKEND_CALENDAR);
+    final LocalDate[] daily = HOLIDAY_REMOVER.getStrippedSchedule(DAILY.getSchedule(start, END, true, true), WEEKEND_CALENDAR);
     final List<LocalDate> t = new ArrayList<LocalDate>();
     final List<Double> d = new ArrayList<Double>();
     for (int i = 0; i < daily.length; i++) {
       if (daily[i].isAfter(START)) {
-        t.add(daily[i].toLocalDate());
+        t.add(daily[i]);
         d.add(Double.valueOf(i));
       }
     }

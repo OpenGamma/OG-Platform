@@ -35,10 +35,13 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunction;
-import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.schedule.HolidayDateRemovalFunction;
 import com.opengamma.financial.schedule.Schedule;
 import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
+import com.opengamma.financial.schedule.TimeSeriesSamplingFunction;
+import com.opengamma.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.EnergyFutureSecurity;
@@ -55,6 +58,8 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
+  private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   private static final TimeSeriesDifferenceOperator DIFFERENCE = new TimeSeriesDifferenceOperator();
   private final String _resolutionKey;
 
@@ -93,10 +98,10 @@ public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker
     if (pvObject == null) {
       throw new OpenGammaRuntimeException("Present value was null");
     }
-    double pv = (Double) pvObject;
+    final double pv = (Double) pvObject;
     final Schedule scheduleCalculator = getScheduleCalculator(scheduleCalculatorName);
     final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(samplingFunctionName);
-    final LocalDate[] schedule = scheduleCalculator.getSchedule(startDate, now, true, false); //REVIEW emcleod should "fromEnd" be hard-coded?
+    final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR); //REVIEW emcleod should "fromEnd" be hard-coded?
     DoubleTimeSeries<?> pnlSeries = samplingFunction.getSampledTimeSeries(dbTimeSeries.getTimeSeries(), schedule);
     pnlSeries = DIFFERENCE.evaluate(pnlSeries);
     pnlSeries = pnlSeries.multiply(pv);
@@ -111,7 +116,7 @@ public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.POSITION) {
       return false;
     }
@@ -121,20 +126,20 @@ public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final Position position = target.getPosition();
     final ValueProperties properties = createValueProperties()
-      .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode())
-      .withAny(ValuePropertyNames.SAMPLING_PERIOD)
-      .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
-      .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-      .withAny(ValuePropertyNames.CURVE)
-      .get();
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(position.getSecurity()).getCode())
+        .withAny(ValuePropertyNames.SAMPLING_PERIOD)
+        .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
+        .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
+        .withAny(ValuePropertyNames.CURVE)
+        .get();
     return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL_SERIES, position, properties), getUniqueId()));
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> samplingPeriodName = constraints.getValues(ValuePropertyNames.SAMPLING_PERIOD);
     if (samplingPeriodName == null || samplingPeriodName.isEmpty() || samplingPeriodName.size() != 1) {
@@ -156,12 +161,12 @@ public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker
     final FutureSecurity future = (FutureSecurity) position.getSecurity();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     final ValueProperties pvProperties = ValueProperties.builder()
-      .with(ValuePropertyNames.CURRENCY, future.getCurrency().getCode())
-      .with(ValuePropertyNames.CURVE, curveName).get();
+        .with(ValuePropertyNames.CURRENCY, future.getCurrency().getCode())
+        .with(ValuePropertyNames.CURVE, curveName).get();
     requirements.add(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, ComputationTargetType.SECURITY, future.getUniqueId(), pvProperties));
     return requirements;
   }
-  
+
   private ExternalIdBundle getUnderlyingIdentifier(final FutureSecurity future) {
     final ExternalId underlyingIdentifier;
     if (future instanceof EnergyFutureSecurity) {
@@ -178,35 +183,35 @@ public class SimpleFuturePnLFunction extends AbstractFunction.NonCompiledInvoker
     }
     return ExternalIdBundle.of(underlyingIdentifier);
   }
-  
+
   private Period getSamplingPeriod(final Set<String> samplingPeriodNames) {
     if (samplingPeriodNames == null || samplingPeriodNames.isEmpty() || samplingPeriodNames.size() != 1) {
       throw new OpenGammaRuntimeException("Missing or non-unique sampling period name: " + samplingPeriodNames);
-    }  
+    }
     return Period.parse(samplingPeriodNames.iterator().next());
   }
-  
+
   private Schedule getScheduleCalculator(final Set<String> scheduleCalculatorNames) {
     if (scheduleCalculatorNames == null || scheduleCalculatorNames.isEmpty() || scheduleCalculatorNames.size() != 1) {
       throw new OpenGammaRuntimeException("Missing or non-unique schedule calculator name: " + scheduleCalculatorNames);
     }
     return ScheduleCalculatorFactory.getScheduleCalculator(scheduleCalculatorNames.iterator().next());
   }
-  
+
   private TimeSeriesSamplingFunction getSamplingFunction(final Set<String> samplingFunctionNames) {
     if (samplingFunctionNames == null || samplingFunctionNames.isEmpty() || samplingFunctionNames.size() != 1) {
       throw new OpenGammaRuntimeException("Missing or non-unique sampling function name: " + samplingFunctionNames);
     }
     return TimeSeriesSamplingFunctionFactory.getFunction(samplingFunctionNames.iterator().next());
   }
-  
+
   private ValueProperties getResultProperties(final ValueRequirement desiredValue, final String currency) {
     return createValueProperties()
-      .with(ValuePropertyNames.CURRENCY, currency)
-      .with(ValuePropertyNames.SAMPLING_PERIOD, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD))
-      .with(ValuePropertyNames.SCHEDULE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR))
-      .with(ValuePropertyNames.SAMPLING_FUNCTION, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION))
-      .with(ValuePropertyNames.CURVE, desiredValue.getConstraint(ValuePropertyNames.CURVE))
-      .get();
+        .with(ValuePropertyNames.CURRENCY, currency)
+        .with(ValuePropertyNames.SAMPLING_PERIOD, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_PERIOD))
+        .with(ValuePropertyNames.SCHEDULE_CALCULATOR, desiredValue.getConstraint(ValuePropertyNames.SCHEDULE_CALCULATOR))
+        .with(ValuePropertyNames.SAMPLING_FUNCTION, desiredValue.getConstraint(ValuePropertyNames.SAMPLING_FUNCTION))
+        .with(ValuePropertyNames.CURVE, desiredValue.getConstraint(ValuePropertyNames.CURVE))
+        .get();
   }
 }
