@@ -11,25 +11,27 @@ import com.opengamma.component.OpenGammaComponentServer;
  * Entry point for the OpenGamma component-based server in OG-Examples automatically
  * starting the "development" configuration file.
  * <p>
- * This class exists to easily capture the classpath for IDEs.
+ * This file is intended for use with an IDE and a checked out source code tree.
+ * It relies on the OG-Web directory being alongside OG-Examples in the file system.
+ * <p>
  * Command lines should just start {@link OpenGammaComponentServer}.
  */
-public class ExampleComponentServerDev {
+public class ExampleComponentServerDev extends OpenGammaComponentServer {
 
   /**
-   * Main method to start an OpenGamma JVM process.
+   * Main method to start an OpenGamma JVM process for development.
    * <p>
    * If the command line is empty, the "development" configuration file is started.
-   * This file is intended for use with a checked out source code tree, as it relies
-   * on the OG-Web directory being alongside OG-Examples.
+   * This file is intended for use with an IDE and a checked out source code tree.
+   * It relies on the OG-Web directory being alongside OG-Examples in the file system.
    * 
    * @param args  the arguments
    */
-  public static void main(String[] args) throws Exception { // CSIGNORE
+  public static void main(String[] args) { // CSIGNORE
     if (args.length == 0) {
       args = new String[] {"-v", "classpath:fullstack/fullstack-example-dev.properties"};
     }
-    new OpenGammaComponentServer().run(args);
+    new ExampleComponentServerDev().run(args);
   }
 
 }

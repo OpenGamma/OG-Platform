@@ -34,9 +34,9 @@
               <th>Factor Type</th>
               <th>Factor Name</th>
               <th>Node</th>
-              <th>Price History</th>
-              <th>Exposure History</th>
-              <th>Convexity History</th>
+              <th>Price</th>
+              <th>Exposure</th>
+              <th>Convexity</th>
             </tr>
           </thead>
           <tbody>
@@ -45,9 +45,9 @@
               <td><span>${factor.factorType}</span></td>
               <td><span>${factor.factorName}</span></td>
               <td><span>${factor.node}</span></td>
-              <td><span><a href="${factor.priceTsId}">Price</a></span></td>
-              <td><span><a href="${factor.exposureTsId}">Exposure</a></span></td>
-              <td><span><a href="${factor.convexityTsId}">Convexity</a></span></td>
+              <td align="right"><span>${factor.lastPrice} <a href="index.ftl#0/timeseries/${factor.priceTsId}">History</a></span></td>
+              <td align="right"><span>${factor.lastExposure} <a href="index.ftl#0/timeseries/${factor.exposureTsId}">History</a></span></td>
+              <td align="right"><span>${factor.lastConvexity} <a href="index.ftl#0/timeseries/${factor.convexityTsId}">History</a></span></td>
             </tr>
             {{/each}}
           </tbody>

@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.equity.variance.pricing;
 
+import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
@@ -12,7 +13,9 @@ import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackImpliedStrikeFromDeltaFunction;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceConverter;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceDelta;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceLogMoneyness;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceVistor;
@@ -20,8 +23,6 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.Integrator1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
 import com.opengamma.math.minimization.BrentMinimizer1D;
-import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
-import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.util.CompareUtils;
@@ -46,7 +47,7 @@ public class VarianceSwapStaticReplication {
   // If the entire observation period is less than A_FEW_WEEKS, an error will be thrown.
   // If timeToFirstObs < A_FEW_WEEKS, the pricer will consider the volatility to be from now until timeToLastObs
   private static final double A_FEW_WEEKS = 0.05;
-  protected static final double EPS = 1.0e-12;
+  private static final double EPS = 1.0e-12;
   private static final double DEFULT_TOLERANCE = 1e-7;
   private static final Integrator1D<Double, Double> DEFAULT_INTEGRAL = new RungeKuttaIntegrator1D();
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
@@ -60,7 +61,7 @@ public class VarianceSwapStaticReplication {
   }
 
   public VarianceSwapStaticReplication(final double tolerance) {
-    Validate.isTrue(tolerance > EPS && tolerance < 0.1, "Please specifiy tolerance in the range 1e-12 to 1e-1 or use other constructor");
+    Validate.isTrue(tolerance >= EPS && tolerance < 0.1, "Please specifiy tolerance in the range 1e-12 to 1e-1 or use other constructor");
     _tol = tolerance;
     _integrator = DEFAULT_INTEGRAL;
   }
@@ -202,280 +203,10 @@ public class VarianceSwapStaticReplication {
       double[] vols = pars.getSecond();
       final double res = getResidual(fwd, expiry, ks, vols);
 
-      varCal = new varianceCalculator(fwd, expiry, res, cutoff.first);
+      varCal = new varianceCalculator(fwd, expiry, res, ks[0]);
     }
 
     return varCal.getVariance(volSurf);
-  }
-
-  class ExtrapolationParameters implements BlackVolatilitySurfaceVistor<DoublesPair, Pair<double[], double[]>> {
-
-    private final double _t;
-    private final double _f;
-
-    public ExtrapolationParameters(final double forward, final double expiry) {
-      _t = expiry;
-      _f = forward;
-    }
-
-    public Pair<double[], double[]> getparameters(BlackVolatilitySurface<?> surf, DoublesPair cutoff) {
-      return surf.accept(this, cutoff);
-    }
-
-    @Override
-    public Pair<double[], double[]> visitDelta(BlackVolatilitySurfaceDelta surface, DoublesPair data) {
-      final double[] deltas = new double[2];
-      final double[] k = new double[2];
-      final double[] vols = new double[2];
-      deltas[0] = data.first;
-      deltas[1] = data.second;
-      vols[0] = surface.getVolatilityForDelta(_t, deltas[0]);
-      vols[1] = surface.getVolatilityForDelta(_t, deltas[1]);
-      k[0] = BlackFormulaRepository.strikeForDelta(_f, deltas[0], _t, vols[0], true);
-      k[1] = BlackFormulaRepository.strikeForDelta(_f, deltas[1], _t, vols[1], true);
-      Validate.isTrue(k[0] < k[1], "need first (cutoff) strike less than second");
-      return new ObjectsPair<double[], double[]>(k, vols);
-    }
-
-    @Override
-    public Pair<double[], double[]> visitStrike(BlackVolatilitySurfaceStrike surface, DoublesPair data) {
-      final double[] k = new double[2];
-      final double[] vols = new double[2];
-      k[0] = data.first;
-      k[1] = data.second;
-      Validate.isTrue(k[0] < k[1], "need first (cutoff) strike less than second");
-      vols[0] = surface.getVolatility(_t, k[0]);
-      vols[1] = surface.getVolatility(_t, k[1]);
-      return new ObjectsPair<double[], double[]>(k, vols);
-    }
-
-    @Override
-    public Pair<double[], double[]> visitMoneyness(BlackVolatilitySurfaceMoneyness surface, DoublesPair data) {
-      return null;
-    }
-
-    @Override
-    public Pair<double[], double[]> visitDelta(BlackVolatilitySurfaceDelta surface) {
-      return null;
-    }
-
-    @Override
-    public Pair<double[], double[]> visitStrike(BlackVolatilitySurfaceStrike surface) {
-      return null;
-    }
-
-    @Override
-    public Pair<double[], double[]> visitMoneyness(BlackVolatilitySurfaceMoneyness surface) {
-      return null;
-    }
-
-  }
-
-  class varianceCalculator implements BlackVolatilitySurfaceVistor<DoublesPair, Double> {
-
-    private final BracketRoot BRACKETER = new BracketRoot();
-    private final BisectionSingleRootFinder ROOT_FINDER = new BisectionSingleRootFinder(1e-3);
-
-    private final double _t;
-    private final double _f;
-    private final double _residual;
-    private final double _lowStrikeCutoff;
-    private final boolean _addResidual;
-
-    public varianceCalculator(final double forward, final double expiry) {
-      _f = forward;
-      _t = expiry;
-      _addResidual = false;
-      _lowStrikeCutoff = 0.0;
-      _residual = 0.0;
-    }
-
-    public varianceCalculator(final double forward, final double expiry, final double residual, final double lowStrikeCutoff) {
-      _f = forward;
-      _t = expiry;
-      _addResidual = true;
-      _lowStrikeCutoff = lowStrikeCutoff;
-      _residual = residual;
-    }
-
-    public double getVariance(BlackVolatilitySurface<?> surf) {
-      return surf.accept(this);
-    }
-
-    @Override
-    public Double visitDelta(final BlackVolatilitySurfaceDelta surface, final DoublesPair data) {
-
-      if (_t < 1e-4) {
-        final double dnsVol = surface.getVolatilityForDelta(_t, 0.5);
-        return dnsVol * dnsVol;
-      }
-
-      final double eps = 1e-5;
-
-      Function1D<Double, Double> integrand = new Function1D<Double, Double>() {
-        @SuppressWarnings("synthetic-access")
-        @Override
-        public Double evaluate(final Double delta) {
-
-          final double vol = surface.getVolatilityForDelta(_t, delta);
-          final double strike = BlackImpliedStrikeFromDeltaFunction.impliedStrike(delta, true, _f, _t, vol);
-          boolean isCall = strike >= _f;
-
-          //TODO if should be the job of the vol surface to provide derivatives
-          double dSigmaDDelta;
-          if (delta < eps) {
-            final double volUp = surface.getVolatilityForDelta(_t, delta + eps);
-            dSigmaDDelta = (volUp - vol) / eps;
-          } else if (delta > 1 - eps) {
-            final double volDown = surface.getVolatilityForDelta(_t, delta - eps);
-            dSigmaDDelta = (vol - volDown) / eps;
-          } else {
-            final double volUp = surface.getVolatilityForDelta(_t, delta + eps);
-            final double volDown = surface.getVolatilityForDelta(_t, delta - eps);
-            dSigmaDDelta = (volUp - volDown) / 2 / eps;
-          }
-
-          final double d1 = NORMAL.getInverseCDF(delta);
-          final double rootT = Math.sqrt(_t);
-          final double weight = (vol * rootT / NORMAL.getPDF(d1) + dSigmaDDelta * (d1 * rootT - vol * _t)) / strike;
-          final double otmPrice = BlackFormulaRepository.price(_f, strike, _t, vol, isCall);
-          return weight * otmPrice;
-        }
-      };
-
-      //find the delta corresponding to the at-the-money-forward (NOTE this is not the DNS of delta = 0.5)
-      final double atmfVol = surface.getVolatility(_t, _f);
-      final double atmfDelta = BlackFormulaRepository.delta(_f, _f, _t, atmfVol, true);
-
-      final double lowerLimit = data.first;
-      final double upperLimit = data.second;
-
-      //Do the call/k^2 integral - split up into the the put integral and the call integral because the function is not smooth at strike = forward
-      double res = _integrator.integrate(integrand, atmfDelta, upperLimit);
-      res += _integrator.integrate(integrand, lowerLimit, atmfDelta);
-
-      if (_addResidual) {
-        res += _residual;
-      }
-      return 2 * res / _t;
-    }
-
-    @Override
-    public Double visitStrike(final BlackVolatilitySurfaceStrike surface, DoublesPair data) {
-
-      if (_t < 1e-4) {
-        final double atmVol = surface.getVolatility(_t, _f);
-        return atmVol * atmVol;
-      }
-
-      final Function1D<Double, Double> integrand = new Function1D<Double, Double>() {
-        @SuppressWarnings("synthetic-access")
-        @Override
-        public Double evaluate(final Double strike) {
-          if (strike == 0) {
-            return 0.0;
-          }
-          final boolean isCall = strike >= _f;
-          final double vol = surface.getVolatility(_t, strike);
-          final double otmPrice = BlackFormulaRepository.price(_f, strike, _t, vol, isCall);
-          final double weight = 1.0 / (strike * strike);
-          return otmPrice * weight;
-        }
-      };
-
-      final double lowerLimit = data.first;
-      final double upperLimit = data.second;
-
-      //Do the call/k^2 integral - split up into the the put integral and the call integral because the function is not smooth at strike = forward
-      double res = _integrator.integrate(integrand, _f, upperLimit);
-      res += _integrator.integrate(integrand, lowerLimit, _f);
-
-      if (_addResidual) {
-        res += _residual;
-      }
-      return 2 * res / _t;
-    }
-
-    @Override
-    public Double visitMoneyness(BlackVolatilitySurfaceMoneyness surface, DoublesPair data) {
-      return null;
-    }
-
-    @Override
-    public Double visitDelta(BlackVolatilitySurfaceDelta surface) {
-
-      if (_t < 1e-4) {
-        final double atmVol = surface.getVolatility(_t, _f);
-        return atmVol * atmVol;
-      }
-
-      double lowerLimit, upperLimit;
-      if (_addResidual) {
-        upperLimit = _lowStrikeCutoff;
-      } else {
-        upperLimit = 1 - _tol;
-      }
-      lowerLimit = _tol;
-
-      DoublesPair limits = new DoublesPair(lowerLimit, upperLimit);
-      return visitDelta(surface, limits);
-    }
-
-    @Override
-    public Double visitStrike(final BlackVolatilitySurfaceStrike surface) {
-
-      final double atmVol = surface.getVolatility(_t, _f);
-      if (_t < 1e-4) {
-        return atmVol * atmVol;
-      }
-
-      final double a = _tol * atmVol * atmVol * _t / 2;
-      //  final double logA = Math.log(a);
-
-      double lowerLimit;
-      if (_addResidual) {
-        lowerLimit = _lowStrikeCutoff;
-      } else {
-
-        Function1D<Double, Double> putLimitFunc = new Function1D<Double, Double>() {
-          @Override
-          public Double evaluate(Double x) {
-            if (x == 0) {
-              return -a;
-            }
-            final double vol = surface.getVolatility(_t, x);
-            final double price = BlackFormulaRepository.price(_f, x, _t, vol, true);
-
-            return price / x - a;
-          }
-        };
-        double[] brackets = BRACKETER.getBracketedPoints(putLimitFunc, 0, 0.5 * _f, 0.0, _f);
-        lowerLimit = ROOT_FINDER.getRoot(putLimitFunc, brackets[0], brackets[1]);
-      }
-
-      Function1D<Double, Double> callLimitFunc = new Function1D<Double, Double>() {
-        @Override
-        public Double evaluate(Double x) {
-
-          final double vol = surface.getVolatility(_t, x);
-          final double price = BlackFormulaRepository.price(_f, x, _t, vol, true);
-
-          return price / x - a;
-        }
-      };
-
-      double[] brackets = BRACKETER.getBracketedPoints(callLimitFunc, 1.0 * _f, 10 * _f, _f, Double.POSITIVE_INFINITY);
-      final double upperLimit = ROOT_FINDER.getRoot(callLimitFunc, brackets[0], brackets[1]);
-
-      DoublesPair limits = new DoublesPair(lowerLimit, upperLimit);
-      return visitStrike(surface, limits);
-    }
-
-    @Override
-    public Double visitMoneyness(BlackVolatilitySurfaceMoneyness surface) {
-      return null;
-    }
-
   }
 
   protected double getResidual(final double fwd, final double expiry, final double[] ks, final double[] vols) {
@@ -517,6 +248,481 @@ public class VarianceSwapStaticReplication {
   public double impliedVolatility(final VarianceSwap deriv, final VarianceSwapDataBundle market) {
     final double sigmaSquared = impliedVariance(deriv, market);
     return Math.sqrt(sigmaSquared);
+  }
+
+  /**
+   * Converts from cutoff limit and spread expressed in the same units as the volatility surface (e.g. moneyness, delta etc) and returns (absolute strike points and volatilities)
+   */
+  private class ExtrapolationParameters implements BlackVolatilitySurfaceVistor<DoublesPair, Pair<double[], double[]>> {
+
+    private final double _t;
+    private final double _f;
+
+    public ExtrapolationParameters(final double forward, final double expiry) {
+      _t = expiry;
+      _f = forward;
+    }
+
+    public Pair<double[], double[]> getparameters(BlackVolatilitySurface<?> surf, DoublesPair cutoff) {
+      return surf.accept(this, cutoff);
+    }
+
+    @Override
+    public Pair<double[], double[]> visitDelta(BlackVolatilitySurfaceDelta surface, DoublesPair data) {
+      Validate.isTrue(data.first > 0.0 && data.first < 1.0, "cut off must be a valide delta (0,1)");
+      Validate.isTrue(data.second > 0.0 && data.second < data.first, "spread must be positive and numerically less than cutoff");
+      final double[] deltas = new double[2];
+      final double[] k = new double[2];
+      final double[] vols = new double[2];
+      deltas[0] = data.first;
+      deltas[1] = data.first - data.second;
+      vols[0] = surface.getVolatilityForDelta(_t, deltas[0]);
+      vols[1] = surface.getVolatilityForDelta(_t, deltas[1]);
+      k[0] = BlackFormulaRepository.strikeForDelta(_f, deltas[0], _t, vols[0], true);
+      k[1] = BlackFormulaRepository.strikeForDelta(_f, deltas[1], _t, vols[1], true);
+      Validate.isTrue(k[0] < k[1], "need first (cutoff) strike less than second");
+      return new ObjectsPair<double[], double[]>(k, vols);
+    }
+
+    @Override
+    public Pair<double[], double[]> visitStrike(BlackVolatilitySurfaceStrike surface, DoublesPair data) {
+      Validate.isTrue(data.first > 0.0, "cut off must be greater than zero");
+      Validate.isTrue(data.second > 0.0, "spread must be positive");
+      final double[] k = new double[2];
+      final double[] vols = new double[2];
+      k[0] = data.first;
+      k[1] = data.first + data.second;
+      vols[0] = surface.getVolatility(_t, k[0]);
+      vols[1] = surface.getVolatility(_t, k[1]);
+      return new ObjectsPair<double[], double[]>(k, vols);
+    }
+
+    @Override
+    public Pair<double[], double[]> visitMoneyness(BlackVolatilitySurfaceMoneyness surface, DoublesPair data) {
+      Validate.isTrue(data.first > 0.0, "cut off must be greater than zero");
+      Validate.isTrue(data.second > 0.0, "spread must be positive");
+      final double[] k = new double[2];
+      final double[] vols = new double[2];
+      k[0] = _f * data.first;
+      k[1] = _f * (data.first + data.second);
+      vols[0] = surface.getVolatilityForMoneyness(_t, data.first);
+      vols[1] = surface.getVolatilityForMoneyness(_t, data.first + data.second);
+      return new ObjectsPair<double[], double[]>(k, vols);
+    }
+
+    @Override
+    public Pair<double[], double[]> visitLogMoneyness(BlackVolatilitySurfaceLogMoneyness surface, DoublesPair data) {
+      Validate.isTrue(data.second > 0.0, "spread must be positive");
+      final double[] k = new double[2];
+      final double[] vols = new double[2];
+      k[0] = _f * Math.exp(data.first);
+      k[1] = _f * Math.exp(data.first + data.second);
+      vols[0] = surface.getVolatilityForLogMoneyness(_t, data.first);
+      vols[1] = surface.getVolatilityForLogMoneyness(_t, data.first + data.second);
+      return new ObjectsPair<double[], double[]>(k, vols);
+    }
+
+    @Override
+    public Pair<double[], double[]> visitDelta(BlackVolatilitySurfaceDelta surface) {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public Pair<double[], double[]> visitStrike(BlackVolatilitySurfaceStrike surface) {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public Pair<double[], double[]> visitMoneyness(BlackVolatilitySurfaceMoneyness surface) {
+      throw new NotImplementedException();
+    }
+
+    @Override
+    public Pair<double[], double[]> visitLogMoneyness(BlackVolatilitySurfaceLogMoneyness surface) {
+      throw new NotImplementedException();
+    }
+
+  }
+
+  private class varianceCalculator implements BlackVolatilitySurfaceVistor<DoublesPair, Double> {
+
+    private final double _t;
+    private final double _f;
+    private final double _residual;
+    private final double _lowStrikeCutoff;
+    private final boolean _addResidual;
+
+    public varianceCalculator(final double forward, final double expiry) {
+      _f = forward;
+      _t = expiry;
+      _addResidual = false;
+      _lowStrikeCutoff = 0.0;
+      _residual = 0.0;
+    }
+
+    public varianceCalculator(final double forward, final double expiry, final double residual, final double lowStrikeCutoff) {
+      _f = forward;
+      _t = expiry;
+      _addResidual = true;
+      _lowStrikeCutoff = lowStrikeCutoff;
+      _residual = residual;
+    }
+
+    public double getVariance(final BlackVolatilitySurface<?> surf) {
+      return surf.accept(this);
+    }
+
+    public double getVariance(final BlackVolatilitySurface<?> surf, final DoublesPair limits) {
+      return surf.accept(this, limits);
+    }
+
+    //********************************************
+    // strike surfaces
+    //********************************************
+
+    @Override
+    public Double visitStrike(final BlackVolatilitySurfaceStrike surface, final DoublesPair data) {
+
+      Validate.isTrue(data.first >= 0, "Negative lower limit");
+      Validate.isTrue(data.second > data.first, "upper limit not greater than lower");
+
+      if (_t < 1e-4) {
+        if (data.first < _f && data.second > _f) {
+          final double atmVol = surface.getVolatility(_t, _f);
+          return atmVol * atmVol;
+        } else {
+          return 0.0;
+        }
+      }
+
+      final Function1D<Double, Double> integrand = getStrikeIntegrand(surface);
+      //if external left tail residual is provided, only integrate from cut-off, otherwise we will double count
+      final double lowerLimit = Math.max(_lowStrikeCutoff, data.first);
+      final double upperLimit = data.second;
+
+      //Do the call/k^2 integral - split up into the the put integral and the call integral because the function is not smooth at strike = forward
+      double res = _integrator.integrate(integrand, _f, upperLimit);
+      res += _integrator.integrate(integrand, lowerLimit, _f);
+
+      if (_addResidual) {
+        res += _residual;
+      }
+      return 2 * res / _t;
+    }
+
+    @Override
+    public Double visitStrike(final BlackVolatilitySurfaceStrike surface) {
+
+      final double atmVol = surface.getVolatility(_t, _f);
+      if (_t < 1e-4) {
+        return atmVol * atmVol;
+      }
+      final double rootT = Math.sqrt(_t);
+      final double invNorTol = NORMAL.getInverseCDF(_tol);
+
+      final Function1D<Double, Double> integrand = getStrikeIntegrand(surface);
+      final Function1D<Double, Double> remainder = new Function1D<Double, Double>() {
+        @SuppressWarnings("synthetic-access")
+        @Override
+        public Double evaluate(final Double strike) {
+          if (strike == 0) {
+            return 0.0;
+          }
+          final boolean isCall = strike >= _f;
+          final double vol = surface.getVolatility(_t, strike);
+          final double otmPrice = BlackFormulaRepository.price(_f, strike, _t, vol, isCall);
+          double res = (isCall ? otmPrice / strike : otmPrice / 2 / strike);
+          return res;
+        }
+      };
+
+      double putPart;
+      if (_addResidual) {
+        putPart = _integrator.integrate(integrand, _lowStrikeCutoff, _f);
+        putPart += _residual;
+      } else {
+        double l = _f * Math.exp(invNorTol * atmVol * rootT); //initial estimate of lower limit
+        putPart = _integrator.integrate(integrand, l, _f);
+        double rem = remainder.evaluate(l);
+        double error = rem / putPart;
+        while (error > _tol) {
+          l /= 2.0;
+          putPart += _integrator.integrate(integrand, l, 2 * l);
+          rem = remainder.evaluate(l);
+          error = rem / putPart;
+        }
+        putPart += rem; //add on the (very small) remainder estimate otherwise we'll always underestimate variance
+      }
+
+      double u = _f * Math.exp(-invNorTol * atmVol * rootT); //initial estimate of upper limit
+      double callPart = _integrator.integrate(integrand, _f, u);
+      double rem = remainder.evaluate(u);
+      double error = rem / callPart;
+      while (error > _tol) {
+        callPart += _integrator.integrate(integrand, u, 2 * u);
+        u *= 2.0;
+        rem = remainder.evaluate(u);
+        error = rem / putPart;
+      }
+      // callPart += rem/2.0;
+      //don't add on the remainder estimate as it is very conservative, and likely too large
+
+      return 2 * (putPart + callPart) / _t;
+    }
+
+    private Function1D<Double, Double> getStrikeIntegrand(final BlackVolatilitySurfaceStrike surface) {
+      final Function1D<Double, Double> integrand = new Function1D<Double, Double>() {
+        @SuppressWarnings("synthetic-access")
+        @Override
+        public Double evaluate(final Double strike) {
+          if (strike == 0) {
+            return 0.0;
+          }
+          final boolean isCall = strike >= _f;
+          final double vol = surface.getVolatility(_t, strike);
+          final double otmPrice = BlackFormulaRepository.price(_f, strike, _t, vol, isCall);
+          final double weight = 1.0 / (strike * strike);
+          return otmPrice * weight;
+        }
+      };
+      return integrand;
+    }
+
+    //********************************************
+    // delta surfaces
+    //********************************************
+
+    @Override
+    public Double visitDelta(final BlackVolatilitySurfaceDelta surface, final DoublesPair data) {
+
+      Validate.isTrue(data.first < data.second, "lower limit not less that upper");
+      Validate.isTrue(data.first >= 0.0, "lower limit < 0.0");
+      Validate.isTrue(data.second <= 1.0, "upper limit > 1.0");
+
+      if (_t < 1e-4) {
+        final double dnsVol = surface.getVolatilityForDelta(_t, 0.5);
+        return dnsVol * dnsVol; //this will be identical to atm-vol for t-> 0
+      }
+
+      Function1D<Double, Double> integrand = getDeltaIntegrand(surface);
+      //find the delta corresponding to the at-the-money-forward (NOTE this is not the DNS of delta = 0.5)
+      final double atmfVol = surface.getVolatility(_t, _f);
+      final double atmfDelta = BlackFormulaRepository.delta(_f, _f, _t, atmfVol, true);
+
+      final double lowerLimit = data.first;
+      final double upperLimit = data.second;
+
+      //Do the call/k^2 integral - split up into the the put integral and the call integral because the function is not smooth at strike = forward
+      double res = _integrator.integrate(integrand, lowerLimit, atmfDelta); //Call part
+
+      if (_addResidual) {
+        //The lower strike cutoff is expressed as a absolute strike (i.e. k << f), while the upperLimit is a call delta (values close to one = small absolute strikes),
+        //so we must covert the lower strike cutoff to a upper delta cutoff
+        final double limitVol = surface.getVolatility(_t, _lowStrikeCutoff);
+        final double limitDelta = BlackFormulaRepository.delta(_f, _lowStrikeCutoff, _t, limitVol, true);
+        final double u = Math.min(upperLimit, limitDelta);
+        res += _integrator.integrate(integrand, atmfDelta, u); //put part
+        res += _residual;
+      } else {
+        res += _integrator.integrate(integrand, atmfDelta, upperLimit); //put part
+      }
+      return 2 * res / _t;
+    }
+
+    @Override
+    public Double visitDelta(BlackVolatilitySurfaceDelta surface) {
+
+      if (_t < 1e-4) {
+        final double atmVol = surface.getVolatility(_t, _f);
+        return atmVol * atmVol;
+      }
+
+      final double lowerLimit = _tol;
+      double upperLimit;
+      if (_addResidual) {
+        final double limitVol = surface.getVolatility(_t, _lowStrikeCutoff);
+        upperLimit = BlackFormulaRepository.delta(_f, _lowStrikeCutoff, _t, limitVol, true);
+      } else {
+        upperLimit = 1 - _tol;
+      }
+
+      DoublesPair limits = new DoublesPair(lowerLimit, upperLimit);
+      return visitDelta(surface, limits);
+    }
+
+    private Function1D<Double, Double> getDeltaIntegrand(final BlackVolatilitySurfaceDelta surface) {
+      final double eps = 1e-5;
+      final double rootT = Math.sqrt(_t);
+
+      Function1D<Double, Double> integrand = new Function1D<Double, Double>() {
+        @SuppressWarnings("synthetic-access")
+        @Override
+        public Double evaluate(final Double delta) {
+
+          final double vol = surface.getVolatilityForDelta(_t, delta);
+          final double sigmaRootT = vol * rootT;
+          //TODO handle sigmaRootT -> 0
+
+          final double strike = BlackImpliedStrikeFromDeltaFunction.impliedStrike(delta, true, _f, _t, vol);
+          final boolean isCall = strike >= _f;
+          final int sign = isCall ? 1 : -1;
+
+          //TODO if should be the job of the vol surface to provide derivatives
+          double dSigmaDDelta;
+          if (delta < eps) {
+            final double volUp = surface.getVolatilityForDelta(_t, delta + eps);
+            dSigmaDDelta = (volUp - vol) / eps;
+          } else if (delta > 1 - eps) {
+            final double volDown = surface.getVolatilityForDelta(_t, delta - eps);
+            dSigmaDDelta = (vol - volDown) / eps;
+          } else {
+            final double volUp = surface.getVolatilityForDelta(_t, delta + eps);
+            final double volDown = surface.getVolatilityForDelta(_t, delta - eps);
+            dSigmaDDelta = (volUp - volDown) / 2 / eps;
+          }
+
+          final double d1 = NORMAL.getInverseCDF(delta);
+          final double d2 = d1 - sigmaRootT;
+          final double weight = (vol * rootT / NORMAL.getPDF(d1) + dSigmaDDelta * (d1 * rootT - vol * _t)) / strike;
+          final double otmPrice = sign * (_f * (isCall ? delta : 1 - delta) - strike * NORMAL.getCDF(sign * d2));
+          return weight * otmPrice;
+        }
+      };
+
+      return integrand;
+    }
+
+    //********************************************
+    // moneyness surfaces
+    //********************************************
+
+    @Override
+    public Double visitMoneyness(BlackVolatilitySurfaceMoneyness surface, DoublesPair data) {
+      final double l = Math.log(data.first);
+      final double u = Math.log(data.second);
+      Validate.isTrue(l > 0.0, "lower limit <= 0");
+      Validate.isTrue(u > l, "lower limit >= upper limit");
+      BlackVolatilitySurfaceLogMoneyness logMS = BlackVolatilitySurfaceConverter.toLogMoneynessSurface(surface);
+      return visitLogMoneyness(logMS, new DoublesPair(l, u));
+    }
+
+    @Override
+    public Double visitMoneyness(BlackVolatilitySurfaceMoneyness surface) {
+      BlackVolatilitySurfaceLogMoneyness logMS = BlackVolatilitySurfaceConverter.toLogMoneynessSurface(surface);
+      return visitLogMoneyness(logMS);
+    }
+
+    //********************************************
+    // log-moneyness surfaces
+    //********************************************
+
+    /**
+     * Only use if the integral limits have been calculated elsewhere, or you need the contribution from a specific range
+     */
+    @Override
+    public Double visitLogMoneyness(BlackVolatilitySurfaceLogMoneyness surface, DoublesPair data) {
+      final double lower = data.first;
+      final double upper = data.second;
+      Validate.isTrue(upper > lower, "lower limit >= upper limit");
+      final double atmVol = surface.getVolatilityForLogMoneyness(_t, 0.0);
+      if (_t < 1e-4) { //if less than a hour from expiry, only the ATM-vol will count, so must check the integral range spans ATM
+        if (lower * upper < 0.0) {
+          return atmVol * atmVol;
+        } else {
+          return 0.0;
+        }
+      }
+
+      final Function1D<Double, Double> integrand = getLogMoneynessIntegrand(surface);
+      double putPart;
+      if (_addResidual) {
+        putPart = _integrator.integrate(integrand, Math.log(_lowStrikeCutoff / _f), 0.0);
+        putPart += _residual;
+      } else {
+        putPart = _integrator.integrate(integrand, lower, 0.0);
+      }
+      final double callPart = _integrator.integrate(integrand, 0.0, upper);
+      return 2 * (putPart + callPart) / _t;
+    }
+
+    /**
+     * General method when you wish to compute the expected variance from a log-moneyness parametrised surface to within a certain tolerance
+     * @param surface log-moneyness parametrised volatility surface
+     * @return expected variance
+     */
+    @Override
+    public Double visitLogMoneyness(final BlackVolatilitySurfaceLogMoneyness surface) {
+      final double atmVol = surface.getVolatilityForLogMoneyness(_t, 0.0);
+      if (_t < 1e-4) {
+        return atmVol * atmVol;
+      }
+      final double rootT = Math.sqrt(_t);
+      final double invNorTol = NORMAL.getInverseCDF(_tol);
+
+      final Function1D<Double, Double> integrand = getLogMoneynessIntegrand(surface);
+
+      double putPart;
+      if (_addResidual) {
+        putPart = _integrator.integrate(integrand, Math.log(_lowStrikeCutoff / _f), 0.0);
+        putPart += _residual;
+      } else {
+        double l = invNorTol * atmVol * rootT; //initial estimate of lower limit
+        putPart = _integrator.integrate(integrand, l, 0.0);
+        double rem = integrand.evaluate(l);
+        double error = rem / putPart;
+        int step = 1;
+        while (error > _tol) {
+          putPart += _integrator.integrate(integrand, (step + 1) * l, step * l);
+          step++;
+          rem = integrand.evaluate((step + 1) * l);
+          error = rem / putPart;
+        }
+        putPart += rem; //add on the (very small) remainder estimate otherwise we'll always underestimate variance
+      }
+
+      double u = _f * Math.exp(-invNorTol * atmVol * rootT); //initial estimate of upper limit
+      double callPart = _integrator.integrate(integrand, 0.0, u);
+      double rem = integrand.evaluate(u);
+      double error = rem / callPart;
+      int step = 1;
+      while (error > _tol) {
+        callPart += _integrator.integrate(integrand, step * u, (1 + step) * u);
+        step++;
+        rem = integrand.evaluate((1 + step) * u);
+        error = rem / putPart;
+      }
+      //callPart += rem;
+      //don't add on the remainder estimate as it is very conservative, and likely too large
+
+      return 2 * (putPart + callPart) / _t;
+    }
+
+    private Function1D<Double, Double> getLogMoneynessIntegrand(final BlackVolatilitySurfaceLogMoneyness surface) {
+      final double rootT = Math.sqrt(_t);
+
+      final Function1D<Double, Double> integrand = new Function1D<Double, Double>() {
+        @SuppressWarnings("synthetic-access")
+        @Override
+        public Double evaluate(final Double logMoneyness) {
+          final boolean isCall = logMoneyness >= 0.0;
+          final int sign = isCall ? 1 : -1;
+          final double vol = surface.getVolatilityForLogMoneyness(_t, logMoneyness);
+          final double sigmaRootT = vol * rootT;
+
+          if (logMoneyness == 0.0) {
+            return 2 * NORMAL.getCDF(0.5 * sigmaRootT) - 1.;
+          }
+          if (sigmaRootT < 1e-12) {
+            return 0.0;
+          }
+          final double d1 = -logMoneyness / sigmaRootT + 0.5 * sigmaRootT;
+          final double d2 = d1 - sigmaRootT;
+          final double res = sign * (Math.exp(-logMoneyness) * NORMAL.getCDF(sign * d1) - NORMAL.getCDF(sign * d2));
+          return res;
+        }
+      };
+      return integrand;
+    }
   }
 
 }

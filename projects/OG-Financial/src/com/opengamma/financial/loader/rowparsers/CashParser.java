@@ -17,7 +17,7 @@ import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.loader.RowParser;
-import com.opengamma.financial.portfolio.loader.LoaderContext;
+import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;

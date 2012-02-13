@@ -5,6 +5,7 @@
  */
 package com.opengamma.livedata.client;
 
+import org.springframework.beans.factory.DisposableBean;
 import org.springframework.jms.core.JmsTemplate;
 
 import com.opengamma.livedata.LiveDataClient;
@@ -18,7 +19,7 @@ import com.opengamma.util.jms.JmsConnector;
 /**
  * Creates a {@link JmsLiveDataClient}.
  */
-public class RemoteLiveDataClientFactoryBean extends SingletonFactoryBean<LiveDataClient> {
+public class RemoteLiveDataClientFactoryBean extends SingletonFactoryBean<LiveDataClient> implements DisposableBean {
 
   private JmsConnector _jmsConnector;
   private String _subscriptionTopic;
@@ -81,5 +82,13 @@ public class RemoteLiveDataClientFactoryBean extends SingletonFactoryBean<LiveDa
     liveDataClient.start();
     return liveDataClient;
   }
-  
+
+  @Override
+  public void destroy() {
+    LiveDataClient ldc = getObject();
+    if (ldc != null) {
+      ldc.close();
+    }
+  }
+
 }

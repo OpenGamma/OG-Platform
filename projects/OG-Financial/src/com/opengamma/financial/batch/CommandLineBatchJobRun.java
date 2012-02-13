@@ -64,7 +64,6 @@ import com.opengamma.engine.view.permission.PermissiveViewPermissionProvider;
 import com.opengamma.financial.batch.marketdata.BatchMarketDataProvider;
 import com.opengamma.financial.view.AddViewDefinitionRequest;
 import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
-import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.position.impl.MasterPositionSource;
@@ -364,7 +363,7 @@ public class CommandLineBatchJobRun extends BatchJobRun {
     DefaultLiveMarketDataSourceRegistry liveMarketDataSourceRegistry = new DefaultLiveMarketDataSourceRegistry();
     
     ViewProcessor viewProcessor = new ViewProcessorImpl(
-        UniqueId.of("Vp", "Batch"),
+        "batch",
         viewDefinitionRepository,
         liveMarketDataSourceRegistry,
         securitySource,
