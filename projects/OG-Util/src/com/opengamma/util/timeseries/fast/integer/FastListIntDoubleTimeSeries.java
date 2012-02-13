@@ -291,23 +291,24 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
 
   @Override
   public void primitivePutDataPoint(final int time, final double value) {
-    final int index = Arrays.binarySearch(_times.elements(), time);
+    final int index = Arrays.binarySearch(_times.toIntArray(), time);
     if (index >= 0) {
       _values.set(index, value);
     } else {
-      if ((-(index + 1)) >= _times.size()) { // add onto the end.
+      final int insertion_index = -index - 1;
+      if (insertion_index == _times.size()) { // add onto the end.
         _times.add(time);
         _values.add(value);
       } else {
-        _times.add(-(index + 1), time);
-        _values.add(-(index + 1), value);
+        _times.add(insertion_index, time);
+        _values.add(insertion_index, value);
       }
     }
   }
 
   @Override
   public void primitiveRemoveDataPoint(final int time) {
-    final int index = Arrays.binarySearch(_times.elements(), time);
+    final int index = Arrays.binarySearch(_times.toIntArray(), time);
     if (index >= 0) {
       _times.remove(index);
       _values.remove(index);
@@ -337,11 +338,11 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
     if (getClass() != obj.getClass()) {
       if (obj instanceof FastIntDoubleTimeSeries) {
         final FastIntDoubleTimeSeries other = (FastIntDoubleTimeSeries) obj;
-        if (!Arrays.equals(other.valuesArrayFast(), _values.elements())) {
+        if (!Arrays.equals(other.valuesArrayFast(), _values.toDoubleArray())) {
           return false;
         }
         if (other.getEncoding().equals(getEncoding())) {
-          return Arrays.equals(other.timesArrayFast(), _times.elements());
+          return Arrays.equals(other.timesArrayFast(), _times.toIntArray());
         } else {
           final IntIterator otherTimesIterator = other.timesIteratorFast();
           final IntIterator myTimesIterator = _times.iterator();
@@ -357,7 +358,7 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
         }
       } else if (obj instanceof FastLongDoubleTimeSeries) {
         final FastLongDoubleTimeSeries other = (FastLongDoubleTimeSeries) obj;
-        if (!Arrays.equals(other.valuesArrayFast(), _values.elements())) {
+        if (!Arrays.equals(other.valuesArrayFast(), _values.toDoubleArray())) {
           return false;
         }
         final LongIterator otherTimesIterator = other.timesIteratorFast();
@@ -390,8 +391,8 @@ public class FastListIntDoubleTimeSeries extends AbstractFastMutableIntDoubleTim
       } else {
         // encoding of other is different, must check...
         // invariant: other.size() == _times.size();
-        final int[] myTimes = _times.elements();
-        final int[] otherTimes = other._times.elements();
+        final int[] myTimes = _times.toIntArray();
+        final int[] otherTimes = other._times.toIntArray();
         final DateTimeNumericEncoding encoding = other.getEncoding();
         final DateTimeNumericEncoding myEncoding = getEncoding();
         for (int i = 0; i < myTimes.length; i++) {

@@ -44,7 +44,7 @@ $.register_module({
                     grid.onClick.subscribe(function (e, dd) {
                         var current = routes.current().args;
                         routes.go(routes.hash(og.views[obj.page_type].rules.load_item, current, {
-                            del: ['node', 'version', 'sync', 'position'], add: {
+                            del: ['node', 'version', 'sync', 'position', 'timeseries'], add: {
                                 id: slick_manager.data[dd.row].id,
                                 name: current.name || '',
                                 quantity: current.quantity || '',

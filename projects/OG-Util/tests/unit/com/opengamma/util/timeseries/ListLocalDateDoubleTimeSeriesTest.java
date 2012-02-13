@@ -37,4 +37,5 @@ public class ListLocalDateDoubleTimeSeriesTest extends LocalDateDoubleTimeSeries
   public LocalDateDoubleTimeSeries createTimeSeries(DoubleTimeSeries<LocalDate> dts) {
     return new ListLocalDateDoubleTimeSeries(dts);
   }
+  
 }

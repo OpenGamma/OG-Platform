@@ -71,16 +71,12 @@ public class FactorExposureData extends DirectBean {
     sb.append(Long.toString(getFactorSetId()));
     sb.append(".");
     sb.append(getFactorName());
-    sb.append(".");
-    sb.append(getNode());
     return ExternalId.of(EXPOSURE_SCHEME, sb.toString());
   }
   
   public ExternalId getFactorExternalId() {
     StringBuilder sb = new StringBuilder();
     sb.append(getFactorName());
-    sb.append(".");
-    sb.append(getNode());
     return ExternalId.of(FACTOR_SCHEME, sb.toString());
   }
   

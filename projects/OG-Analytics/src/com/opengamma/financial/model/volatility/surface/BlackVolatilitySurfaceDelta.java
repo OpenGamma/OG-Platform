@@ -5,8 +5,9 @@
  */
 package com.opengamma.financial.model.volatility.surface;
 
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackImpliedStrikeFromDeltaFunction;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
@@ -32,6 +33,7 @@ public class BlackVolatilitySurfaceDelta extends BlackVolatilitySurface<Delta> {
    */
   public BlackVolatilitySurfaceDelta(Surface<Double, Double, Double> surface, final ForwardCurve forwardCurve) {
     super(surface);
+    Validate.notNull(forwardCurve, "null forward curve");
     _fc = forwardCurve;
   }
 
@@ -87,11 +89,15 @@ public class BlackVolatilitySurfaceDelta extends BlackVolatilitySurface<Delta> {
     return getVolatility(t, new Delta(delta));
   }
 
+  public ForwardCurve getForwardCurve() {
+    return _fc;
+  }
+
   @Override
   public double getAbsoluteStrike(double t, Delta s) {
     final double vol = getVolatility(t, s);
     final double fwd = _fc.getForward(t);
-    return BlackImpliedStrikeFromDeltaFunction.impliedStrike(s.value(), true, fwd, t, vol);
+    return BlackFormulaRepository.impliedStrike(s.value(), true, fwd, t, vol);
   }
 
   @Override
