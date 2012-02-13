@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.function;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
@@ -69,7 +70,11 @@ public class PortfolioStructure {
     if (parent == null) {
       return null;
     }
-    return getPositionSource().getPortfolioNode(parent);
+    try {
+      return getPositionSource().getPortfolioNode(parent);
+    } catch (DataNotFoundException ex) {
+      return null;
+    }
   }
 
   /**
@@ -85,7 +90,11 @@ public class PortfolioStructure {
     if (parent == null) {
       return null;
     }
-    return getPositionSource().getPortfolioNode(parent);
+    try {
+      return getPositionSource().getPortfolioNode(parent);
+    } catch (DataNotFoundException ex) {
+      return null;
+    }
   }
 
   //-------------------------------------------------------------------------
