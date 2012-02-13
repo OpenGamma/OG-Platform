@@ -42,6 +42,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldAndDiscountCur
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
+import com.opengamma.financial.analytics.model.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.FinancialSecurityUtils;
@@ -63,10 +64,6 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
    * The value name calculated by this function.
    */
   public static final String VALUE_REQUIREMENT = ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
-
-  private static final String RESULT_PROPERTY_TYPE = "Type";
-  private static final String TYPE_FORWARD = "Forward";
-  private static final String TYPE_FUNDING = "Funding";
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -91,7 +88,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     final Security security = (Security) target.getSecurity();
     final ValueProperties.Builder properties = createValueProperties();
     FixedIncomeInstrumentCurveExposureHelper.valuePropertiesForSecurity(security, properties);
-    properties.with(ValuePropertyNames.CURVE_CALCULATION_METHOD, InterpolatedYieldAndDiscountCurveFunction.INTERPOLATED_CALCULATION_METHOD);
+    properties.with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
     return properties;
   }
 
@@ -100,10 +97,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     final ValueProperties.Builder properties = createValueProperties(target);
     properties.withAny(ValuePropertyNames.CURVE);
     final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(2);
-    properties.with(RESULT_PROPERTY_TYPE, TYPE_FORWARD);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
-    results.add(new ValueSpecification(VALUE_REQUIREMENT, targetSpec, properties.get()));
-    properties.withoutAny(RESULT_PROPERTY_TYPE).with(RESULT_PROPERTY_TYPE, TYPE_FUNDING);
     results.add(new ValueSpecification(VALUE_REQUIREMENT, targetSpec, properties.get()));
     return results;
   }
@@ -141,10 +135,10 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     String curveName = null;
     for (Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
-      if (ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES.equals(input.getKey().getValueName())) {
+      if (ValueRequirementNames.YIELD_CURVE.equals(input.getKey().getValueName())) {
         assert curveName == null;
         curveName = input.getKey().getProperty(ValuePropertyNames.CURVE);
-      }
+      } 
     }
     assert curveName != null;
     final ValueProperties.Builder properties = createValueProperties(target);
@@ -161,9 +155,6 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     final ValueProperties constraints = desiredValues.iterator().next().getConstraints();
     final String curveName = constraints.getValues(ValuePropertyNames.CURVE).iterator().next();
     final RawSecurity security = (RawSecurity) target.getSecurity();
-//    final Clock snapshotClock = executionContext.getValuationClock();
-//    final ZonedDateTime now = snapshotClock.zonedDateTime();
-//    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueRequirement curveRequirement = getCurveRequirement(target, curveName, null, null);
     final Object curveObject = inputs.getValue(curveRequirement);
     if (curveObject == null) {
@@ -217,7 +208,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
   
   private FactorExposureData searchForTenorMatch(Collection<FactorExposureData> exposures, FixedIncomeStripWithSecurity strip) {
     for (FactorExposureData exposure : exposures) {
-      if (exposure.getNode() != null) {
+      if (exposure.getNode() != null && exposure.getNode().length() > 0) {
         Period nodePeriod = Period.parse("P" + exposure.getNode());
         if (strip.getTenor().getPeriod().totalMonths() == nodePeriod.totalMonths()) {
           return exposure;
@@ -244,11 +235,11 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
 
   @Override
   public String getShortName() {
-    return "InterestRateInstrumentYieldCurveNodeSensitivitiesFunction";
+    return "ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction";
   }
   
   protected ValueRequirement getSensitivityRequirement(final ExternalId externalId) {
-    return new ValueRequirement(ExternalDataRequirementNames.SENSITIVITY, ComputationTargetType.PRIMITIVE, UniqueId.of(externalId.getScheme().getName(), externalId.getValue()));
+    return new ValueRequirement(/*ExternalDataRequirementNames.SENSITIVITY*/"EXPOSURE", ComputationTargetType.PRIMITIVE, UniqueId.of(externalId.getScheme().getName(), externalId.getValue()));
   }
 
   protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForwardCurve, final String advisoryFundingCurve) {
@@ -260,7 +251,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     if (advisoryFundingCurve != null) {
       properties.with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, advisoryFundingCurve);
     }
-    properties.with(ValuePropertyNames.CURVE_CALCULATION_METHOD, InterpolatedYieldAndDiscountCurveFunction.INTERPOLATED_CALCULATION_METHOD);
+    properties.with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
   }
 
