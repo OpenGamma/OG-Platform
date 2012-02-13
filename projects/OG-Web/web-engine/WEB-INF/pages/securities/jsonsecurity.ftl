@@ -422,8 +422,11 @@
                 "factorName":"${factorExposure.factorName}",
                 "node":"${factorExposure.node}",
                 "priceTsId":"${factorExposure.priceTsId}",
+                "lastPrice":"${factorExposure.lastPrice}",
                 "exposureTsId":"${factorExposure.exposureTsId}",
-                "convexityTsId":"${factorExposure.convexityTsId}"   
+                "lastExposure":"${factorExposure.lastExposure}",
+                "convexityTsId":"${factorExposure.convexityTsId}",
+                "lastConvexity":"${factorExposure.lastConvexity}"   
               }
               <#if factorExposure_has_next>,</#if>
             </#list>
@@ -438,8 +441,11 @@
               "factorName":"${factorExposure.factorName}",
               "node":"${factorExposure.node}",
               "priceTsId":"${factorExposure.priceTsId}",
+              "lastPrice":"${factorExposure.lastPrice}",
               "exposureTsId":"${factorExposure.exposureTsId}",
-              "convexityTsId":"${factorExposure.convexityTsId}"   
+              "lastExposure":"${factorExposure.lastExposure}",
+              "convexityTsId":"${factorExposure.convexityTsId}",
+              "lastConvexity":"${factorExposure.lastConvexity}"   
             }
             <#if factorExposure_has_next>,</#if>
           </#list>
