@@ -167,9 +167,9 @@ $.register_module({
                                 view.layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
-                            if (json.template_data.hts_id) common.gadgets.timeseries({
+                            if (json.template_data.hts_id || args.timeseries) common.gadgets.timeseries({
                                 selector: '.OG-js-details-panel .og-js-timeseries',
-                                id: json.template_data.hts_id
+                                id: json.template_data.hts_id || args.timeseries
                             });
                             $('.og-js-temp-link').unbind().bind('click', function () {
                                 common.gadgets.timeseries({
@@ -235,7 +235,7 @@ $.register_module({
                     }
                 }
             },
-            rules: view.rules(['name', 'type'], ['version']),
+            rules: view.rules(['name', 'type'], ['version', 'timeseries']),
             search: function (args) {
                 if (!search) search = common.search_results.core();
                 if (view.options.slickgrid.columns[0].name === 'loading')

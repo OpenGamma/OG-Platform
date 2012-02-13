@@ -55,14 +55,44 @@
             </tr>
           </thead>
           <tbody>
-            {{each(factor_index, factor) underlyingFactors}}
+            {{each(factor_index, factor) factors}}
             <tr>
               <td><span>${factor.factorType}</span></td>
               <td><span>${factor.factorName}</span></td>
               <td><span>${factor.node}</span></td>
-              <td align="right"><span>${factor.lastPrice} <a href="index.ftl#0/timeseries/${factor.priceTsId}">History</a></span></td>
-              <td align="right"><span>${factor.lastExposure} <a href="index.ftl#0/timeseries/${factor.exposureTsId}">History</a></span></td>
-              <td align="right"><span>${factor.lastConvexity} <a href="index.ftl#0/timeseries/${factor.convexityTsId}">History</a></span></td>
+              {{if factor.priceTsId}}
+                <td><span><a class="og-js-live-anchor" href="{{html
+                  og.common.routes.prefix() +
+                    og.common.routes.hash(og.views.securities.rules.load_item, og.common.routes.current().args, {
+                      add: {timeseries: factor.priceTsId}
+                    })}}">
+                    ${factor.lastPrice || 'timeseries'}</a>
+                </span></td>
+              {{else}}
+                <td><span>{{html factor.lastPrice || ''.lang()}}</span></td>
+              {{/if}}
+              {{if factor.exposureTsId}}
+                <td><span><a class="og-js-live-anchor" href="{{html
+                  og.common.routes.prefix() +
+                    og.common.routes.hash(og.views.securities.rules.load_item, og.common.routes.current().args, {
+                      add: {timeseries: factor.exposureTsId}
+                    })}}">
+                    ${factor.lastExposure || 'timeseries'}</a>
+                </span></td>
+              {{else}}
+                <td><span>{{html factor.lastExposure || ''.lang()}}</span></td>
+              {{/if}}
+              {{if factor.convexityTsId}}
+                <td><span><a class="og-js-live-anchor" href="{{html
+                  og.common.routes.prefix() +
+                    og.common.routes.hash(og.views.securities.rules.load_item, og.common.routes.current().args, {
+                      add: {timeseries: factor.convexityTsId}
+                    })}}">
+                    ${factor.lastConvexity || 'timeseries'}</a>
+                </span></td>
+              {{else}}
+                <td><span>{{html factor.lastConvexity || ''.lang()}}</span></td>
+              {{/if}}
             </tr>
             {{/each}}
           </tbody>
