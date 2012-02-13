@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import javax.time.calendar.ZonedDateTime;
+import javax.time.calendar.LocalDate;
 
 import org.apache.commons.lang.NotImplementedException;
 
@@ -18,12 +18,12 @@ public class FlatDayCount extends StatelessDayCount {
   private static final long serialVersionUID = 1L;
 
   @Override
-  public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
+  public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate) {
     throw new NotImplementedException("Cannot get day count fraction for a flat day count");
   }
 
   @Override
-  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear) {
+  public double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final LocalDate nextCouponDate, final double coupon, final double paymentsPerYear) {
     return 0;
   }
 

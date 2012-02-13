@@ -179,16 +179,16 @@ public class VarianceSwapStaticReplicationTest {
   @Test
   public void testVolSurface() {
 
-    Function<Double, Double> surf = new Function<Double, Double>() {
+    final Function<Double, Double> surf = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... x) {
-        double delta = x[1];
+      public Double evaluate(final Double... x) {
+        final double delta = x[1];
         return 0.2 + 0.3 * (delta - 0.4) * (delta - 0.4);
       }
     };
 
-    BlackVolatilitySurfaceDelta surfaceDelta = new BlackVolatilitySurfaceDelta(FunctionalDoublesSurface.from(surf), FORWARD_CURVE);
-    BlackVolatilitySurfaceStrike surfaceStrike = BlackVolatilitySurfaceConverter.toStrikeSurface(surfaceDelta);
+    final BlackVolatilitySurfaceDelta surfaceDelta = new BlackVolatilitySurfaceDelta(FunctionalDoublesSurface.from(surf), FORWARD_CURVE);
+    final BlackVolatilitySurfaceStrike surfaceStrike = BlackVolatilitySurfaceConverter.toStrikeSurface(surfaceDelta);
 
     final VarianceSwapDataBundle marketStrike = new VarianceSwapDataBundle(surfaceStrike, DISCOUNT, FORWARD_CURVE);
     final VarianceSwapDataBundle marketDelta = new VarianceSwapDataBundle(surfaceDelta, DISCOUNT, FORWARD_CURVE);
@@ -209,9 +209,9 @@ public class VarianceSwapStaticReplicationTest {
     final double sigma2 = 1.0;
     final double w = 0.9;
 
-    Function<Double, Double> surf = new Function<Double, Double>() {
+    final Function<Double, Double> surf = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... x) {
+      public Double evaluate(final Double... x) {
         final double t = x[0];
         final double k = x[1];
         final double fwd = FORWARD_CURVE.getForward(t);
@@ -221,12 +221,12 @@ public class VarianceSwapStaticReplicationTest {
       }
     };
 
-    BlackVolatilitySurface<Strike> surfaceStrike = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surf));
+    final BlackVolatilitySurface<Strike> surfaceStrike = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surf));
     final VarianceSwapDataBundle marketStrike = new VarianceSwapDataBundle(surfaceStrike, DISCOUNT, FORWARD_CURVE);
 
     final double compVar = PRICER.impliedVariance(swap1, marketStrike);
     final double compVarLimits = PRICER.impliedVariance(swap1, marketStrike, STRIKE_CUTOFF);
-    double expected = w * sigma1 * sigma1 + (1 - w) * sigma2 * sigma2;
+    final double expected = w * sigma1 * sigma1 + (1 - w) * sigma2 * sigma2;
     assertEquals(expected, compVar, 1e-7);
     assertEquals(expected, compVarLimits, 2e-3); //TODO The shifted log normal does not perform that well here
 
@@ -238,21 +238,21 @@ public class VarianceSwapStaticReplicationTest {
   @Test
   public void testHestonVolSurface() {
 
-    double kappa = 0.0;
-    double var0 = 0.3;
-    double theta = 0.3;
-    double lambda = 0.5;
-    double eps = 1e-5;
+    final double kappa = 0.0;
+    final double var0 = 0.3;
+    final double theta = 0.3;
+    final double lambda = 0.5;
+    final double eps = 1e-5;
 
-    IntegratedCIRTimeChangeCharacteristicExponent cf = new IntegratedCIRTimeChangeCharacteristicExponent(kappa, theta / var0, lambda / Math.sqrt(var0));
-    Function1D<ComplexNumber, ComplexNumber> func = cf.getFunction(1.0);
-    ComplexNumber v1 = func.evaluate(new ComplexNumber(eps));
-    ComplexNumber v2 = func.evaluate(new ComplexNumber(-eps));
+    final IntegratedCIRTimeChangeCharacteristicExponent cf = new IntegratedCIRTimeChangeCharacteristicExponent(kappa, theta / var0, lambda / Math.sqrt(var0));
+    final Function1D<ComplexNumber, ComplexNumber> func = cf.getFunction(1.0);
+    final ComplexNumber v1 = func.evaluate(new ComplexNumber(eps));
+    final ComplexNumber v2 = func.evaluate(new ComplexNumber(-eps));
 
-    ComplexNumber res = ComplexMathUtils.subtract(v1, v2);
+    final ComplexNumber res = ComplexMathUtils.subtract(v1, v2);
     System.out.println(res.toString());
 
-    double div = var0 * res.getImaginary() / 2 / eps;
+    final double div = var0 * res.getImaginary() / 2 / eps;
     System.out.println(div);
   }
 
