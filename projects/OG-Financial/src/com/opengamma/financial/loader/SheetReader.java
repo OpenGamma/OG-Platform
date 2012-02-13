@@ -6,7 +6,12 @@
 
 package com.opengamma.financial.loader;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
 import java.util.Map;
+
+import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * An abstract table class for importing portfolio data from spreadsheets
@@ -14,6 +19,17 @@ import java.util.Map;
 public abstract class SheetReader {
   
   private String[] _columns; // The column names and order
+  
+  public static SheetReader newSheetReader(String filename) {
+    String extension = filename.substring(filename.lastIndexOf('.')).toLowerCase();
+    if (extension.equals(".csv")) {
+      return new CsvSheetReader(filename);
+    } else if (extension.equals(".xls")) {
+      return new SimpleXlsSheetReader(filename, 0);
+    } else {
+      throw new OpenGammaRuntimeException("Could not identify the input format from the file name extension");
+    }
+  }
   
   public abstract Map<String, String> loadNextRow();
 
@@ -23,6 +39,18 @@ public abstract class SheetReader {
 
   protected void setColumns(String[] columns) {
     _columns = columns;
+  }
+  
+  protected InputStream openFile(String filename) {
+    // Open input file for reading
+    FileInputStream fileInputStream;
+    try {
+      fileInputStream = new FileInputStream(filename);
+    } catch (FileNotFoundException ex) {
+      throw new OpenGammaRuntimeException("Could not open file " + filename + " for reading, exiting immediately.");
+    }
+
+    return fileInputStream;
   }
   
 }

@@ -10,7 +10,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -29,8 +28,6 @@ public class ZippedPortfolioReader implements PortfolioReader {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioImportCmdLineTool.class);
 
-  private static final String CLASS_PREFIX = "com.opengamma.financial.loader.rowparsers.";
-  private static final String CLASS_POSTFIX = "Parser";
   private static final String SHEET_EXTENSION = ".csv";
   private static final String CONFIG_FILE = "METADATA.INI";
   private static final String VERSION_TAG = "version";
@@ -87,20 +84,16 @@ public class ZippedPortfolioReader implements PortfolioReader {
       ZipEntry entry = (ZipEntry) e.nextElement();
       if (!entry.isDirectory() && entry.getName().substring(entry.getName().lastIndexOf('.')).equalsIgnoreCase(SHEET_EXTENSION)) {
         try {
-          // Identify the appropriate parser class from the ZIP entry's file name
-          String className = CLASS_PREFIX + entry.getName().substring(0, entry.getName().lastIndexOf('.')) + CLASS_POSTFIX;
-          Class<?> parserClass = Class.forName(className);
-
-          // Find the constructor
-          Constructor<?> constructor = parserClass.getConstructor(LoaderContext.class);
+          // Get security name
+          String name = entry.getName().substring(0, entry.getName().lastIndexOf('.'));
           
           // Set up a sheet reader for the current CSV file in the ZIP archive
           SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
           
           // Create a generic simple portfolio loader for the current sheet, using a dynamically loaded row parser class
-          SingleSheetPortfolioReader portfolioLoader = new SimplePortfolioReader(sheet, (RowParser) constructor.newInstance(_loaderContext), sheet.getColumns());
+          SingleSheetPortfolioReader portfolioLoader = new SimplePortfolioReader(sheet, sheet.getColumns(), name, _loaderContext);
 
-          s_logger.info("Processing " + entry.getName() + " with " + className);
+          s_logger.info("Processing " + entry.getName() + " as " + name);
           
           // Add a portfolio node named after the current asset class and change to it
           ManageablePortfolioNode subNode = new ManageablePortfolioNode();

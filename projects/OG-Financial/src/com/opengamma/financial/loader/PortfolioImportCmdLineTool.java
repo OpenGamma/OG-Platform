@@ -6,10 +6,6 @@
 
 package com.opengamma.financial.loader;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.lang.reflect.Constructor;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -31,10 +27,6 @@ import com.opengamma.util.PlatformConfigUtils;
 public class PortfolioImportCmdLineTool {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioImportCmdLineTool.class);
-
-  /** Path strings for constructing a fully qualified parser class name **/
-  private static final String CLASS_PREFIX = "com.opengamma.financial.loader.rowparsers.";
-  private static final String CLASS_POSTFIX = "Parser";
 
   /** Tool name */
   private static final String TOOL_NAME = "OpenGamma Portfolio Importer";
@@ -159,57 +151,23 @@ public class PortfolioImportCmdLineTool {
 
   }
   
-  private static PortfolioReader constructPortfolioReader(String filename, String assetClass, 
+  private static PortfolioReader constructPortfolioReader(String filename, String securityClass, 
       LoaderContext loaderContext) {
     
     String extension = filename.substring(filename.lastIndexOf('.'));
     
     // Single CSV or XLS file extension
     if (extension.equalsIgnoreCase(".csv") || extension.equalsIgnoreCase(".xls")) {
-           
       // Check that the asset class was specified on the command line
-      if (assetClass == null) {
+      if (securityClass == null) {
         throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename + " (use '-a')");
+      } else {
+        return new SimplePortfolioReader(filename, securityClass, loaderContext);
       }
-      
-      // Open input file for reading
-      FileInputStream fileInputStream;
-      try {
-        fileInputStream = new FileInputStream(filename);
-      } catch (FileNotFoundException ex) {
-        throw new OpenGammaRuntimeException("Could not open file " + filename + " for reading, exiting immediately.");
-      }
-  
-      try {
-        // Identify the appropriate parser class from the asset class command line option
-        String className = CLASS_PREFIX + assetClass + CLASS_POSTFIX;
-        Class<?> parserClass = Class.forName(className);
-        
-        // Find the constructor
-        Constructor<?> constructor = parserClass.getConstructor(LoaderContext.class);
-
-        
-        // Set up a sheet reader for the specified CSV/XLS file
-        SheetReader sheet;
-        if (extension.equalsIgnoreCase(".csv")) {
-          sheet = new CsvSheetReader(fileInputStream);
-        } else {
-          sheet = new SimpleXlsSheetReader(fileInputStream, 0);
-        }
-        
-        // Create a generic simple portfolio loader for the current sheet, using the dynamically loaded row parser class
-        return new SimplePortfolioReader(sheet, (RowParser) constructor.newInstance(loaderContext), sheet.getColumns());
-        
-      } catch (Throwable ex) {
-        throw new OpenGammaRuntimeException("Could not identify an appropriate loader for file " + filename);
-      }
-
     // Multi-asset ZIP file extension
     } else if (extension.equalsIgnoreCase(".zip")) {
-            
       // Create zipped multi-asset class loader
       return new ZippedPortfolioReader(filename, loaderContext);
-      
     } else {
       throw new OpenGammaRuntimeException("Input filename should end in .CSV or .ZIP");
     }
