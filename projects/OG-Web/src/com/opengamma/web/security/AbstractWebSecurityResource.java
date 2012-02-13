@@ -5,6 +5,9 @@
  */
 package com.opengamma.web.security;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -17,6 +20,7 @@ import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
@@ -50,6 +54,7 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.financial.sensitivities.FactorExposureData;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.master.security.SecurityLoader;
@@ -60,6 +65,8 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.web.AbstractPerRequestWebResource;
 import com.opengamma.web.WebHomeUris;
+
+import freemarker.template.SimpleHash;
 
 /**
  * Abstract base class for RESTful security resources.
@@ -189,6 +196,7 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
       RawSecurity rawSecurity = (RawSecurity) security;
       FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
       SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class, msg.getMessage());
+
       out.put("securityEntryData", securityEntryData);
       RawSecurity underlyingRawSecurity = (RawSecurity) getSecurity(securityEntryData.getFactorSetId());
       if (underlyingRawSecurity != null) {
@@ -196,7 +204,8 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
         @SuppressWarnings("unchecked")
         List<FactorExposureData> factorExposureDataList = OpenGammaFudgeContext.getInstance().fromFudgeMsg(List.class, factorIdMsg.getMessage());
         s_logger.error(factorExposureDataList.toString());
-        out.put("factorExposureDataList", factorExposureDataList);
+        List<FactorExposure> factorExposuresList = convertToFactorExposure(factorExposureDataList);
+        out.put("factorExposuresList", factorExposuresList);
       } else {
         s_logger.error("Couldn't find security");
       }
@@ -207,8 +216,71 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
       FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
       @SuppressWarnings("unchecked")
       List<FactorExposureData> factorExposureDataList = OpenGammaFudgeContext.getInstance().fromFudgeMsg(List.class, msg.getMessage());
-      out.put("factorExposureDataList", factorExposureDataList);
+      List<FactorExposure> factorExposuresList = convertToFactorExposure(factorExposureDataList);
+      out.put("factorExposuresList", factorExposuresList);
     }
+  }
+  
+  private List<FactorExposure> convertToFactorExposure(List<FactorExposureData> factorExposureDataList) {
+    List<FactorExposure> results = new ArrayList<FactorExposure>();
+    for (FactorExposureData exposure : factorExposureDataList) {
+      HistoricalTimeSeries exposureHTS = data().getHistoricalTimeSeriesSource().getHistoricalTimeSeries("EXPOSURE", exposure.getExposureExternalId().toBundle(), null);
+      HistoricalTimeSeries convexityHTS = data().getHistoricalTimeSeriesSource().getHistoricalTimeSeries("CONVEXITY", exposure.getExposureExternalId().toBundle(), null);
+      HistoricalTimeSeries priceHTS = data().getHistoricalTimeSeriesSource().getHistoricalTimeSeries("PX_LAST", exposure.getFactorExternalId().toBundle(), null);
+      results.add(new FactorExposure(exposure.getFactorType().getFactorType(),
+                                     exposure.getFactorName(),
+                                     exposure.getNode(),
+                                     priceHTS != null ? priceHTS.getUniqueId() : null,
+                                     exposureHTS != null ? exposureHTS.getUniqueId() : null,
+                                     convexityHTS != null ? convexityHTS.getUniqueId() : null));
+    }
+    return results;
+  }
+  
+  public class FactorExposure {
+    private final String _factorType;
+    private final String _factorName;
+    private final String _node;
+    private final UniqueId _priceTsId;
+    private final UniqueId _exposureTsId;
+    private final UniqueId _convexityTsId;
+    
+    public FactorExposure(String factorType, String factorName, String node, UniqueId priceTsId, UniqueId exposureTsId, UniqueId convexityTsId) {
+      _factorType = factorType;
+      _factorName = factorName;
+      _node = node;
+      _priceTsId = priceTsId;
+      _exposureTsId = exposureTsId;
+      _convexityTsId = convexityTsId;
+    }
+    
+    public String getFactorType() {
+      return _factorType;
+    }
+    
+    public String getFactorName() {
+      return _factorName;
+    }
+    
+    public String getNode() {
+      return _node;
+    }
+    
+    public UniqueId getPriceTsId() {
+      return _priceTsId;
+    }
+    
+    public UniqueId getExposureTsId() {
+      return _exposureTsId;
+    }
+    
+    public UniqueId getConvexityTsId() {
+      return _convexityTsId;
+    }
+  }
+  
+  private void addExposureTimeSeriesIdMaps(FlexiBean out, Collection<FactorExposureData> factorExposureDataList) {
+
   }
 
   private void addUnderlyingSecurity(FlexiBean out, ExternalId externalId) {

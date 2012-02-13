@@ -82,17 +82,15 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
     final UniqueId uniqueId = ObjectId.parse(idStr).atVersion(version);
     final LocalDate start = (startStr != null ? LocalDate.parse(startStr) : null);
     final LocalDate end = (endStr != null ? LocalDate.parse(endStr) : null);
-    
+    final HistoricalTimeSeries result;
     if (start == null && end == null && maxPoints == null) {
-      final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(uniqueId);
-      return Response.ok(result).build();
+      result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(uniqueId);
     } else if (maxPoints != null) {
-      final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd, maxPoints);
-      return Response.ok(result).build();
+      result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd, maxPoints);
     } else {
-      final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
-      return Response.ok(result).build();
+      result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(uniqueId, start, includeStart, end, includeEnd);
     }
+    return response(result);
   }
 
   @GET
@@ -111,37 +109,32 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
     final ExternalIdBundle bundle = ExternalIdBundle.parse(idStrs);
     final LocalDate start = (startStr != null ? LocalDate.parse(startStr) : null);
     final LocalDate end = (endStr != null ? LocalDate.parse(endStr) : null);
-    
+    final HistoricalTimeSeries result;
     if (idValidityDateStr != null) {
       final LocalDate idValidityDate = (idValidityDateStr == null || "ALL".equals(idValidityDateStr) ? null : LocalDate.parse(idValidityDateStr));
       if (start == null && end == null && maxPoints == null) {
-        final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
             bundle, idValidityDate, dataSource, dataProvider, dataField);
-        return Response.ok(result).build();
       } else if (maxPoints != null) {
-        final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
             bundle, idValidityDate, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, maxPoints);
-        return Response.ok(result).build();
       } else {
-        final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
             bundle, idValidityDate, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd);
-        return Response.ok(result).build();
       }
     } else {
       if (start == null && end == null && maxPoints == null) {
-        final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
             bundle, dataSource, dataProvider, dataField);
-        return Response.ok(result).build();
       } else if (maxPoints != null) {
-        final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
             bundle, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, maxPoints);
-        return Response.ok(result).build();
       } else {
-        final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
             bundle, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd);
-        return Response.ok(result).build();
       }
     }
+    return response(result);
   }
 
   @GET
@@ -159,37 +152,32 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
     final ExternalIdBundle bundle = ExternalIdBundle.parse(idStrs);
     final LocalDate start = (startStr != null ? LocalDate.parse(startStr) : null);
     final LocalDate end = (endStr != null ? LocalDate.parse(endStr) : null);
-    
+    final HistoricalTimeSeries result;
     if (idValidityDateStr != null) {
       final LocalDate idValidityDate = (idValidityDateStr == null || "ALL".equals(idValidityDateStr) ? null : LocalDate.parse(idValidityDateStr));
       if (start == null && end == null && maxPoints == null) {
-        final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
             dataField, bundle, idValidityDate, resolutionKey);
-        return Response.ok(result).build();
       } else if (maxPoints != null) {
-        final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
             dataField, bundle, idValidityDate, resolutionKey, start, includeStart, end, includeEnd, maxPoints);
-        return Response.ok(result).build();
       } else {
-        final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
             dataField, bundle, idValidityDate, resolutionKey, start, includeStart, end, includeEnd);
-        return Response.ok(result).build();
       }
     } else {
       if (start == null && end == null && maxPoints == null) {
-        final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
             dataField, bundle, resolutionKey);
-        return Response.ok(result).build();
       } else if (maxPoints != null) {
-        final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
             dataField, bundle, resolutionKey, start, includeStart, end, includeEnd, maxPoints);
-        return Response.ok(result).build();
       } else {
-        final HistoricalTimeSeries result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
+        result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
             dataField, bundle, resolutionKey, start, includeStart, end, includeEnd);
-        return Response.ok(result).build();
       }
     }
+    return response(result);
   }
 
   @SuppressWarnings("unchecked")

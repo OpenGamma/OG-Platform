@@ -42,14 +42,10 @@ import com.opengamma.id.UniqueId;
     return null;
   }
 
-  private static Map<String, ValueSnapshot> getValueMap(final UnstructuredMarketDataSnapshot snapshot, final UniqueId identifier, final boolean addIfMissing) {
+  private static Map<String, ValueSnapshot> getValueMap(final UnstructuredMarketDataSnapshot snapshot, final UniqueId identifier, final MarketDataValueType type, final boolean addIfMissing) {
     final Map<MarketDataValueSpecification, Map<String, ValueSnapshot>> globalValues = snapshot.getValues();
-    final MarketDataValueSpecification spec = new MarketDataValueSpecification(MarketDataValueType.SECURITY, identifier);
+    final MarketDataValueSpecification spec = new MarketDataValueSpecification(type, identifier);
     Map<String, ValueSnapshot> values = globalValues.get(spec);
-    if (values != null) {
-      return values;
-    }
-    values = globalValues.get(new MarketDataValueSpecification(MarketDataValueType.PRIMITIVE, identifier));
     if ((values == null) && addIfMissing) {
       values = new HashMap<String, ValueSnapshot>();
       globalValues.put(spec, values);
@@ -57,9 +53,10 @@ import com.opengamma.id.UniqueId;
     return values;
   }
 
-  public static void setValue(final UnstructuredMarketDataSnapshot snapshot, final String valueName, final UniqueId identifier, final Double overrideValue, final Double marketValue) {
+  public static void setValue(final UnstructuredMarketDataSnapshot snapshot, final String valueName, final UniqueId identifier,
+      final Double overrideValue, final Double marketValue, final MarketDataValueType type) {
     if ((overrideValue != null) || (marketValue != null)) {
-      final Map<String, ValueSnapshot> values = getValueMap(snapshot, identifier, true);
+      final Map<String, ValueSnapshot> values = getValueMap(snapshot, identifier, type, true);
       final ValueSnapshot value = values.get(valueName);
       if (value != null) {
         if (marketValue != null) {
@@ -71,7 +68,7 @@ import com.opengamma.id.UniqueId;
         values.put(valueName, new ValueSnapshot(marketValue, overrideValue));
       }
     } else {
-      final Map<String, ValueSnapshot> values = getValueMap(snapshot, identifier, false);
+      final Map<String, ValueSnapshot> values = getValueMap(snapshot, identifier, type, false);
       if (values != null) {
         values.remove(valueName);
       }

@@ -27,7 +27,6 @@ import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvi
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
-import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.ehcache.EHCacheUtils;
@@ -37,11 +36,9 @@ import com.opengamma.util.ehcache.EHCacheUtils;
  */
 public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor> {
 
-  private static final String VIEW_PROCESSOR_ID_SCHEME = "Vp";
-  
   private static final Logger s_logger = LoggerFactory.getLogger(ViewProcessorFactoryBean.class);
-  
-  private Long _id;
+
+  private String _name;
   private ViewDefinitionRepository _viewDefinitionRepository;
   private LiveMarketDataSourceRegistry _liveMarketDataSourceRegistry;
   private SecuritySource _securitySource;
@@ -57,14 +54,14 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingGraphStatisticsGathererProvider();
   private ViewPermissionProvider _viewPermissionProvider;
   private OverrideOperationCompiler _overrideOperationCompiler = new DummyOverrideOperationCompiler();
-  
+
   //-------------------------------------------------------------------------
-  public Long getId() {
-    return _id;
+  public String getName() {
+    return _name;
   }
 
-  public void setId(Long id) {
-    _id = id;
+  public void setName(String name) {
+    _name = name;
   }
 
   public ViewDefinitionRepository getViewDefinitionRepository() {
@@ -190,7 +187,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   //-------------------------------------------------------------------------
   protected void checkInjectedInputs() {
     s_logger.debug("Checking injected inputs.");
-    ArgumentChecker.notNullInjected(_id, "id");
+    ArgumentChecker.notNullInjected(_name, "id");
     ArgumentChecker.notNullInjected(getViewDefinitionRepository(), "viewDefinitionRepository");
     ArgumentChecker.notNullInjected(getLiveMarketDataSourceRegistry(), "liveMarketDataSourceRegistry");
     ArgumentChecker.notNullInjected(getFunctionCompilationService(), "functionCompilationService");
@@ -213,7 +210,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   public ViewProcessor createObject() {
     checkInjectedInputs();
     return new ViewProcessorImpl(
-        UniqueId.of(VIEW_PROCESSOR_ID_SCHEME, getId().toString()),
+        getName(),
         getViewDefinitionRepository(),
         getLiveMarketDataSourceRegistry(),
         getSecuritySource(),

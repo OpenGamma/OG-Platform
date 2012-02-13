@@ -78,7 +78,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   private final ReentrantLock _processLock = new ReentrantLock();
   
   // Injected inputs
-  private final UniqueId _uniqueId;
+  private final String _name;
   private final ViewDefinitionRepository _viewDefinitionRepository;
   private final LiveMarketDataSourceRegistry _liveMarketDataSourceRegistry;
   private final SecuritySource _securitySource;
@@ -117,7 +117,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   // TODO: would it be easier to pass in a ViewProcessContext to this constructor ?
 
   public ViewProcessorImpl(
-      UniqueId uniqueId,
+      String name,
       ViewDefinitionRepository viewDefinitionRepository,
       LiveMarketDataSourceRegistry liveMarketDataSourceRegistry,
       SecuritySource securitySource,
@@ -133,7 +133,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       GraphExecutorStatisticsGathererProvider graphExecutionStatisticsProvider,
       ViewPermissionProvider viewPermissionProvider,
       OverrideOperationCompiler overrideOperationCompiler) {
-    _uniqueId = uniqueId;
+    _name = name;
     _viewDefinitionRepository = viewDefinitionRepository;
     _liveMarketDataSourceRegistry = liveMarketDataSourceRegistry;
     _securitySource = securitySource;
@@ -153,8 +153,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
 
   //-------------------------------------------------------------------------
   @Override
-  public UniqueId getUniqueId() {
-    return _uniqueId;
+  public String getName() {
+    return _name;
   }
   
   @Override
@@ -548,9 +548,9 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
         _graphExecutionStatistics,
         _overrideOperationCompiler);
   }
-  
+
   private String generateIdValue(AtomicLong source) {
-    return getUniqueId().getValue() + "-" + source.getAndIncrement();
+    return getName() + "-" + source.getAndIncrement();
   }
 
   //-------------------------------------------------------------------------

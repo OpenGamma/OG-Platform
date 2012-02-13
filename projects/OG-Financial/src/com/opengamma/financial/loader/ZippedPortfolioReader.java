@@ -38,8 +38,11 @@ public class ZippedPortfolioReader implements PortfolioReader {
   
   private ZipFile _zipFile;
   
-  public ZippedPortfolioReader(String filename) {
-   
+  private LoaderContext _loaderContext;
+  
+  public ZippedPortfolioReader(String filename, LoaderContext loaderContext) {
+    _loaderContext = loaderContext;
+    
     try {
       _zipFile = new ZipFile(filename);
     } catch (IOException ex) {
@@ -89,13 +92,13 @@ public class ZippedPortfolioReader implements PortfolioReader {
           Class<?> parserClass = Class.forName(className);
 
           // Find the constructor
-          Constructor<?> constructor = parserClass.getConstructor();
+          Constructor<?> constructor = parserClass.getConstructor(LoaderContext.class);
           
           // Set up a sheet reader for the current CSV file in the ZIP archive
           SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
           
           // Create a generic simple portfolio loader for the current sheet, using a dynamically loaded row parser class
-          SingleSheetPortfolioReader portfolioLoader = new SimplePortfolioReader(sheet, (RowParser) constructor.newInstance(), sheet.getColumns());
+          SingleSheetPortfolioReader portfolioLoader = new SimplePortfolioReader(sheet, (RowParser) constructor.newInstance(_loaderContext), sheet.getColumns());
 
           s_logger.info("Processing " + entry.getName() + " with " + className);
           

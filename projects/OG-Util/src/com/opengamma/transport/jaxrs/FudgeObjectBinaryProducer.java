@@ -19,6 +19,8 @@ import javax.ws.rs.ext.Provider;
 
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
+import org.fudgemsg.wire.FudgeDataOutputStreamWriter;
+import org.fudgemsg.wire.FudgeMsgWriter;
 
 /**
  * A JAX-RS provider to convert RESTful responses to Fudge binary encoded messages.
@@ -66,8 +68,10 @@ public class FudgeObjectBinaryProducer extends FudgeBase implements MessageBodyW
     } else {
       msg = getFudgeContext().toFudgeMsg(obj);
     }
- 
-    getFudgeContext().createMessageWriter(entityStream).writeMessageEnvelope(msg, 0);
+    
+    final FudgeMsgWriter writer = new FudgeMsgWriter(new FudgeDataOutputStreamWriter(getFudgeContext(), entityStream));
+    writer.writeMessageEnvelope(msg, getFudgeTaxonomyId());
+    writer.flush();
   }
 
 }

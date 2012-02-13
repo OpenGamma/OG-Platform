@@ -49,7 +49,7 @@ public class DataViewProcessorResource {
   //CSOFF: just constants
   public static final String PATH_DEFINITION_REPOSITORY = "definitions";
   public static final String PATH_LIVE_DATA_SOURCE_REGISTRY = "liveDataSourceRegistry";
-  public static final String PATH_UNIQUE_ID = "id";
+  public static final String PATH_NAME = "name";
   public static final String PATH_CLIENTS = "clients";
   public static final String PATH_PROCESSES = "processes";
   public static final String PATH_CYCLES = "cycles";
@@ -119,9 +119,9 @@ public class DataViewProcessorResource {
 
   //-------------------------------------------------------------------------
   @GET
-  @Path(PATH_UNIQUE_ID)
-  public Response getUniqueId() {
-    return Response.ok(_viewProcessor.getUniqueId()).build();
+  @Path(PATH_NAME)
+  public Response getName() {
+    return Response.ok(_viewProcessor.getName()).build();
   }
 
   @Path(PATH_DEFINITION_REPOSITORY)

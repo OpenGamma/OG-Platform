@@ -17,6 +17,7 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.loader.RowParser;
+import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
@@ -40,6 +41,10 @@ public class FRAParser extends RowParser {
   protected static final String BBG_ID = "bloomberg identifier";
   //CSON
   
+  public FRAParser(LoaderContext loaderContext) {
+    super(loaderContext);
+  }
+
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> fraDetails) {
     Currency ccy = Currency.of(getWithException(fraDetails, CURRENCY));

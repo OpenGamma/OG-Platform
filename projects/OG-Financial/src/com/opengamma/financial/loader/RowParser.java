@@ -34,6 +34,8 @@ public abstract class RowParser {
   protected DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("0,000");
   // CSON
   
+  private LoaderContext _loaderContext;
+  
   {
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
     builder.appendPattern("dd/MM/yyyy");
@@ -43,6 +45,10 @@ public abstract class RowParser {
     OUTPUT_DATE_FORMATTER = builder.toFormatter();
   }
 
+  public RowParser(LoaderContext loaderContext) {
+    setLoaderContext(loaderContext);
+  }
+  
   /**
    * Constructs one or more securities associated with the supplied row. As a convention, the underlying security
    * is returned at array location 0.
@@ -83,6 +89,14 @@ public abstract class RowParser {
 
   protected LocalDate getDateWithException(Map<String, String> fieldValueMap, String fieldName) {
     return LocalDate.parse(getWithException(fieldValueMap, fieldName), CSV_DATE_FORMATTER);
+  }
+
+  public LoaderContext getLoaderContext() {
+    return _loaderContext;
+  }
+
+  public void setLoaderContext(LoaderContext loaderContext) {
+    _loaderContext = loaderContext;
   }
 
 }

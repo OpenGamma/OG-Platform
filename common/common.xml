@@ -97,8 +97,8 @@
 		<available classname="org.joda.beans.gen.BeanCodeGen" classpathref="lib.path.id" property="joda.bean.present" />
 	</target>
 
-	<target name="joda-bean" depends="joda-bean-present" if="joda.bean.present"
-    description="builds the Joda-Bean files">
+	<!-- builds the Joda-Bean files -->
+	<target name="joda-bean" depends="joda-bean-present" if="joda.bean.present">
 		<java classname="org.joda.beans.gen.BeanCodeGen" classpathref="lib.path.id" fork="true" failonerror="true">
 			<arg value="-R" />
 			<arg value="-indent=2" />
@@ -471,7 +471,7 @@
 		</chmod>
 	</target>
 
-	<target name="dist-nodep" depends="dist-common,clean-src,clean-build,jar">
+	<target name="dist-nodep" depends="dist-common,clean-build,jar">
 		<copy todir="${dist.dir}/${dist.name}" file="${jar.file}" />
 		<antcall target="dist-fixcrlf" />
 	</target>
@@ -485,7 +485,7 @@
 		<antcall target="dist-fixcrlf" />
 	</target>
 
-	<target name="dist-src-nodep" depends="dist-common,clean-src,version">
+	<target name="dist-src-nodep" depends="dist-common,version">
 		<copy todir="${dist.dir}/${dist.name}/src">
 			<fileset dir="${src.dir}" excludes="**/*.class" />
 		</copy>
@@ -572,20 +572,12 @@
 		<delete includeemptydirs="true" dir="${dist.dir}" />
 	</target>
 
-	<!-- clean the project auto-generated source files (.gitignore'd ones) -->
-	<target name="clean-src">
-		<subant genericantfile="${common.dir}/gitignore.xml" failonerror="false">
-			<dirset dir="${src.dir}" />
-		</subant>
-		<delete file="${fudge.proto.gitIgnoreFlag}" />
-	</target>
-
 	<!-- clean all test generated files -->
 	<target name="clean-tests">
 		<delete includeemptydirs="true" failonerror="false" dir="${tests.junit.dir}"/>
 	</target>
 
-	<target name="clean" depends="clean-build, clean-lib, clean-dist, clean-src, clean-tests"
+	<target name="clean" depends="clean-build, clean-lib, clean-dist, clean-tests"
     description="clean the project" />
 
 	<target name="run-hbm2ddl" depends="load-ivy,compile"

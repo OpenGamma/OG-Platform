@@ -12,7 +12,6 @@ import com.opengamma.engine.view.calc.EngineResourceManager;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueId;
-import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.PublicAPI;
 
@@ -26,15 +25,18 @@ import com.opengamma.util.PublicAPI;
  * execute a new one.
  */
 @PublicAPI
-public interface ViewProcessor extends UniqueIdentifiable {
-  
+public interface ViewProcessor {
+
   /**
-   * Gets the unique identifier of the view processor
+   * Gets the the name of the view processor.
+   * <p>
+   * The name can be used to identify the view processor.
+   * It should be unique, although this is not guaranteed.
    * 
-   * @return the identifier, not null
+   * @return the name, not null
    */
-  UniqueId getUniqueId();
-  
+  String getName();
+
   /** 
    * Gets this view processor's view definition repository containing the {@link ViewDefinition}s available for
    * computation.
@@ -42,7 +44,7 @@ public interface ViewProcessor extends UniqueIdentifiable {
    * @return the view definition repository, not null
    */
   ViewDefinitionRepository getViewDefinitionRepository();
-  
+
   //------------------------------------------------------------------------- 
   /**
    * Gets a view process by unique identifier.
@@ -61,8 +63,7 @@ public interface ViewProcessor extends UniqueIdentifiable {
    * @return the view definition repository, not null
    */
   LiveMarketDataSourceRegistry getLiveMarketDataSourceRegistry();
-  
-  
+
   //-------------------------------------------------------------------------
   /**
    * Creates a {@link ViewClient}
@@ -71,7 +72,7 @@ public interface ViewProcessor extends UniqueIdentifiable {
    * @return a new view client, not null
    */
   ViewClient createViewClient(UserPrincipal clientUser);
-  
+
   /**
    * Gets a {@link ViewClient} by unique identifier.
    * 
@@ -81,7 +82,7 @@ public interface ViewProcessor extends UniqueIdentifiable {
    * @throws DataNotFoundException if there is no view with that unique identifier
    */
   ViewClient getViewClient(UniqueId clientId);
-  
+
   //-------------------------------------------------------------------------
   /**
    * Gets the resource manager for view cycles.
@@ -89,5 +90,5 @@ public interface ViewProcessor extends UniqueIdentifiable {
    * @return the resource manager for view cycles, not null
    */
   EngineResourceManager<? extends ViewCycle> getViewCycleManager();
-  
+
 }

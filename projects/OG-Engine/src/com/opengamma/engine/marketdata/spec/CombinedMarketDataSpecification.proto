@@ -8,11 +8,11 @@ namespace com.opengamma.engine.marketdata.spec {
  
   /**
    * Describes market data which is combined from multiple other sources.
-   * prefferedSpecification is used if it has a value, otherwise fallbackSpecification is used.
+   * preferredSpecification is used if it has a value, otherwise fallbackSpecification is used.
    */
   message CombinedMarketDataSpecification extends MarketDataSpecification {
   
-    required com.opengamma.engine.marketdata.spec.MarketDataSpecification prefferedSpecification;
+    required com.opengamma.engine.marketdata.spec.MarketDataSpecification preferredSpecification;
     required com.opengamma.engine.marketdata.spec.MarketDataSpecification fallbackSpecification;
     
     binding Java {

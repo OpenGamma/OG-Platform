@@ -7,6 +7,7 @@ package com.opengamma.component.factory.web;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.concurrent.ScheduledExecutorService;
 
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -117,6 +118,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private HistoricalTimeSeriesLoader _historicalTimeSeriesLoader;
+  /**
+   * The scheduler.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ScheduledExecutorService _scheduler;
 
   //-------------------------------------------------------------------------
   @Override
@@ -151,7 +157,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         getPositionMaster(), getSecurityLoader(), getSecuritySource(), getHistoricalTimeSeriesSource());
     repo.getRestComponents().publishResource(pos);
     
-    JerseyRestResourceFactory prt = new JerseyRestResourceFactory(WebPortfoliosResource.class, getPortfolioMaster(), getPositionMaster());
+    JerseyRestResourceFactory prt = new JerseyRestResourceFactory(WebPortfoliosResource.class, getPortfolioMaster(), getPositionMaster(), getSecuritySource(), getScheduler());
     repo.getRestComponents().publishResource(prt);
     
     JerseyRestResourceFactory hts = new JerseyRestResourceFactory(WebAllHistoricalTimeSeriesResource.class,
@@ -213,6 +219,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         return getHistoricalTimeSeriesSource();
       case 157715905:  // historicalTimeSeriesLoader
         return getHistoricalTimeSeriesLoader();
+      case -160710469:  // scheduler
+        return getScheduler();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -259,6 +267,9 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
       case 157715905:  // historicalTimeSeriesLoader
         setHistoricalTimeSeriesLoader((HistoricalTimeSeriesLoader) newValue);
         return;
+      case -160710469:  // scheduler
+        setScheduler((ScheduledExecutorService) newValue);
+        return;
     }
     super.propertySet(propertyName, newValue, quiet);
   }
@@ -278,6 +289,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
     JodaBeanUtils.notNull(_historicalTimeSeriesSource, "historicalTimeSeriesSource");
     JodaBeanUtils.notNull(_historicalTimeSeriesLoader, "historicalTimeSeriesLoader");
+    JodaBeanUtils.notNull(_scheduler, "scheduler");
     super.validate();
   }
 
@@ -301,6 +313,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesSource(), other.getHistoricalTimeSeriesSource()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesLoader(), other.getHistoricalTimeSeriesLoader()) &&
+          JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
           super.equals(obj);
     }
     return false;
@@ -322,6 +335,7 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesLoader());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
     return hash ^ super.hashCode();
   }
 
@@ -665,6 +679,32 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the scheduler.
+   * @return the value of the property, not null
+   */
+  public ScheduledExecutorService getScheduler() {
+    return _scheduler;
+  }
+
+  /**
+   * Sets the scheduler.
+   * @param scheduler  the new value of the property, not null
+   */
+  public void setScheduler(ScheduledExecutorService scheduler) {
+    JodaBeanUtils.notNull(scheduler, "scheduler");
+    this._scheduler = scheduler;
+  }
+
+  /**
+   * Gets the the {@code scheduler} property.
+   * @return the property, not null
+   */
+  public final Property<ScheduledExecutorService> scheduler() {
+    return metaBean().scheduler().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * The meta-bean for {@code WebsiteBasicsComponentFactory}.
    */
   public static class Meta extends AbstractComponentFactory.Meta {
@@ -739,6 +779,11 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<HistoricalTimeSeriesLoader> _historicalTimeSeriesLoader = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesLoader", WebsiteBasicsComponentFactory.class, HistoricalTimeSeriesLoader.class);
     /**
+     * The meta-property for the {@code scheduler} property.
+     */
+    private final MetaProperty<ScheduledExecutorService> _scheduler = DirectMetaProperty.ofReadWrite(
+        this, "scheduler", WebsiteBasicsComponentFactory.class, ScheduledExecutorService.class);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
@@ -755,7 +800,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         "batchMaster",
         "historicalTimeSeriesMaster",
         "historicalTimeSeriesSource",
-        "historicalTimeSeriesLoader");
+        "historicalTimeSeriesLoader",
+        "scheduler");
 
     /**
      * Restricted constructor.
@@ -792,6 +838,8 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
           return _historicalTimeSeriesSource;
         case 157715905:  // historicalTimeSeriesLoader
           return _historicalTimeSeriesLoader;
+        case -160710469:  // scheduler
+          return _scheduler;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -914,6 +962,14 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<HistoricalTimeSeriesLoader> historicalTimeSeriesLoader() {
       return _historicalTimeSeriesLoader;
+    }
+
+    /**
+     * The meta-property for the {@code scheduler} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ScheduledExecutorService> scheduler() {
+      return _scheduler;
     }
 
   }

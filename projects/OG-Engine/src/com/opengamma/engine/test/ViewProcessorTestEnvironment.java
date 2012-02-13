@@ -97,7 +97,7 @@ public class ViewProcessorTestEnvironment {
 
   public void init() {
     ViewProcessorFactoryBean vpFactBean = new ViewProcessorFactoryBean();
-    vpFactBean.setId(0L);
+    vpFactBean.setName("test");
 
     FudgeContext fudgeContext = OpenGammaFudgeContext.getInstance();
     PositionSource positionSource = getPositionSource() != null ? getPositionSource() : generatePositionSource();
