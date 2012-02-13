@@ -290,7 +290,7 @@ public final class LocalMastersUtils {
    * Gets the htsMaster.
    * @return the htsMaster
    */
-  public HistoricalTimeSeriesMaster getHtsMaster() {
+  public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster() {
     return _htsMaster;
   }
 
@@ -298,7 +298,7 @@ public final class LocalMastersUtils {
    * Gets the htsSource.
    * @return the htsSource
    */
-  public HistoricalTimeSeriesSource getHtsSource() {
+  public HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
     return _htsSource;
   }
   
