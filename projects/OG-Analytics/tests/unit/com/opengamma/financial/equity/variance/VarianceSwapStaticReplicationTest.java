@@ -8,6 +8,7 @@ package com.opengamma.financial.equity.variance;
 import static com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory.getInterpolator;
 import static org.testng.AssertJUnit.assertEquals;
 
+import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
@@ -16,21 +17,19 @@ import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.option.pricing.fourier.IntegratedCIRTimeChangeCharacteristicExponent;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceConverter;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceDelta;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceLogMoneyness;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.financial.model.volatility.surface.Strike;
-import com.opengamma.math.ComplexMathUtils;
 import com.opengamma.math.function.Function;
-import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.interpolation.Interpolator2D;
-import com.opengamma.math.number.ComplexNumber;
 import com.opengamma.math.surface.ConstantDoublesSurface;
 import com.opengamma.math.surface.FunctionalDoublesSurface;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
@@ -109,8 +108,8 @@ public class VarianceSwapStaticReplicationTest {
   private static final double INTEGRAL_TOL = 1e-9;
   private static final double TEST_TOL = 1e-9;
 
-  private static final DoublesPair DELTA_CUTOFF = new DoublesPair(0.96, 0.95);
-  private static final DoublesPair STRIKE_CUTOFF = new DoublesPair(0.15 * SPOT, 0.16 * SPOT);
+  private static final DoublesPair DELTA_CUTOFF = new DoublesPair(0.95, 0.01);
+  private static final DoublesPair STRIKE_CUTOFF = new DoublesPair(0.15 * SPOT, 0.01 * SPOT);
 
   private static final VarianceSwapStaticReplication PRICER = new VarianceSwapStaticReplication(INTEGRAL_TOL);
 
@@ -138,8 +137,8 @@ public class VarianceSwapStaticReplicationTest {
     final double testVar = PRICER.impliedVariance(swap1, new VarianceSwapDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
     final double testVar2 = PRICER.impliedVariance(swap10, new VarianceSwapDataBundle(constVolSurf, DISCOUNT, FORWARD_CURVE));
     final double targetVar = TEST_VOL * TEST_VOL;
-    assertEquals(testVar, targetVar, TEST_TOL);
-    assertEquals(testVar2, targetVar, TEST_TOL);
+    assertEquals(targetVar, testVar, TEST_TOL);
+    assertEquals(targetVar, testVar2, TEST_TOL);
   }
 
   /**
@@ -176,6 +175,10 @@ public class VarianceSwapStaticReplicationTest {
     assertEquals(0.0, noMoreVariance, 1e-9);
   }
 
+  /**
+   * Test that for the same volatility surface, the result is the same for integrals over strike, delta, moneyness and log-moneyness. The volatility surface is defined as a delta surface,
+   *  and converted to a the other surfaces - so the surfaces are numerically different, but conceptually the same thing
+   */
   @Test
   public void testVolSurface() {
 
@@ -188,15 +191,22 @@ public class VarianceSwapStaticReplicationTest {
     };
 
     BlackVolatilitySurfaceDelta surfaceDelta = new BlackVolatilitySurfaceDelta(FunctionalDoublesSurface.from(surf), FORWARD_CURVE);
-    BlackVolatilitySurfaceStrike surfaceStrike = BlackVolatilitySurfaceConverter.toStrikeSurface(surfaceDelta);
+    BlackVolatilitySurfaceLogMoneyness surfaceLogMoneyness = BlackVolatilitySurfaceConverter.toLogMoneynessSurface(surfaceDelta);
+    BlackVolatilitySurfaceMoneyness surfaceMoneyness = BlackVolatilitySurfaceConverter.toMoneynessSurface(surfaceLogMoneyness);
+    BlackVolatilitySurfaceStrike surfaceStrike = BlackVolatilitySurfaceConverter.toStrikeSurface(surfaceLogMoneyness);
 
     final VarianceSwapDataBundle marketStrike = new VarianceSwapDataBundle(surfaceStrike, DISCOUNT, FORWARD_CURVE);
+    final VarianceSwapDataBundle marketLogMoneyness = new VarianceSwapDataBundle(surfaceLogMoneyness, DISCOUNT, FORWARD_CURVE);
+    final VarianceSwapDataBundle marketMoneyness = new VarianceSwapDataBundle(surfaceMoneyness, DISCOUNT, FORWARD_CURVE);
     final VarianceSwapDataBundle marketDelta = new VarianceSwapDataBundle(surfaceDelta, DISCOUNT, FORWARD_CURVE);
 
     final double totalVarStrike = PRICER.impliedVariance(swap1, marketStrike);
+    final double totalVarLogMoneyness = PRICER.impliedVariance(swap1, marketLogMoneyness);
+    final double totalVarMoneyness = PRICER.impliedVariance(swap1, marketMoneyness);
     final double totalVarDelta = PRICER.impliedVariance(swap1, marketDelta);
-    assertEquals(totalVarStrike, totalVarDelta, 1e-7);
-
+    assertEquals(totalVarStrike, totalVarDelta, 1e-7); //TODO why is integral over delta not as good?
+    assertEquals(totalVarStrike, totalVarLogMoneyness, TEST_TOL);
+    assertEquals(totalVarStrike, totalVarMoneyness, TEST_TOL);
   }
 
   /**
@@ -227,34 +237,86 @@ public class VarianceSwapStaticReplicationTest {
     final double compVar = PRICER.impliedVariance(swap1, marketStrike);
     final double compVarLimits = PRICER.impliedVariance(swap1, marketStrike, STRIKE_CUTOFF);
     double expected = w * sigma1 * sigma1 + (1 - w) * sigma2 * sigma2;
-    assertEquals(expected, compVar, 1e-7);
+    assertEquals(expected, compVar, TEST_TOL);
     assertEquals(expected, compVarLimits, 2e-3); //TODO The shifted log normal does not perform that well here
 
     //test a forward start
     final double compVar2 = PRICER.impliedVariance(swap5x10, marketStrike);
-    assertEquals(expected, compVar2, 1e-7);
+    assertEquals(expected, compVar2, 10 * TEST_TOL);
   }
 
+  /**
+   * A general mixed logNormal model. In this case the different forwards for the different branches, themselves generate volatility which must be accounted for
+   */
   @Test
-  public void testHestonVolSurface() {
+  public void testMixedLogNormalVolSurface2() {
 
-    double kappa = 0.0;
-    double var0 = 0.3;
-    double theta = 0.3;
-    double lambda = 0.5;
-    double eps = 1e-5;
+    final double t = swap2.getTimeToObsEnd();
+    final double fwd = FORWARD_CURVE.getForward(t);
 
-    IntegratedCIRTimeChangeCharacteristicExponent cf = new IntegratedCIRTimeChangeCharacteristicExponent(kappa, theta / var0, lambda / Math.sqrt(var0));
-    Function1D<ComplexNumber, ComplexNumber> func = cf.getFunction(1.0);
-    ComplexNumber v1 = func.evaluate(new ComplexNumber(eps));
-    ComplexNumber v2 = func.evaluate(new ComplexNumber(-eps));
+    final int n = 3;
+    final double[] sigma = new double[] {0.2, 0.5, 2.0 };
+    final double[] w = new double[] {0.8, 0.15, 0.05 };
+    final double[] f = new double[n];
+    f[0] = 1.05 * fwd;
+    f[1] = 0.9 * fwd;
+    double sum = 0;
+    for (int i = 0; i < n - 1; i++) {
+      sum += w[i] * f[i];
+    }
+    f[n - 1] = (fwd - sum) / w[n - 1];
+    Validate.isTrue(f[n - 1] > 0);
 
-    ComplexNumber res = ComplexMathUtils.subtract(v1, v2);
-    System.out.println(res.toString());
+    Function<Double, Double> surf = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(Double... x) {
+        final double expiry = x[0];
+        final double k = x[1];
+        final boolean isCall = k > fwd;
+        double price = 0;
+        for (int i = 0; i < n; i++) {
+          price += w[i] * BlackFormulaRepository.price(f[i], k, expiry, sigma[i], isCall);
+        }
+        return BlackFormulaRepository.impliedVolatility(price, fwd, k, expiry, isCall);
+      }
+    };
 
-    double div = var0 * res.getImaginary() / 2 / eps;
-    System.out.println(div);
+    BlackVolatilitySurface<Strike> surfaceStrike = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surf));
+
+    //PDEUtilityTools.printSurface(null, surfaceStrike.getSurface(), 0.1, 4, 5, 300);
+
+    final VarianceSwapDataBundle marketStrike = new VarianceSwapDataBundle(surfaceStrike, DISCOUNT, FORWARD_CURVE);
+
+    final double compVar = PRICER.impliedVariance(swap2, marketStrike);
+
+    double expected = 0;
+    for (int i = 0; i < n; i++) {
+      expected += w[i] * (sigma[i] * sigma[i] + 2 / t * (f[i] / fwd + Math.log(fwd / f[i]) - 1));
+    }
+
+    assertEquals(expected, compVar, 5e-7);
   }
+
+  //  @Test
+  //  public void testHestonVolSurface() {
+  //
+  //    double kappa = 0.0;
+  //    double var0 = 0.3;
+  //    double theta = 0.3;
+  //    double lambda = 0.5;
+  //    double eps = 1e-5;
+  //
+  //    IntegratedCIRTimeChangeCharacteristicExponent cf = new IntegratedCIRTimeChangeCharacteristicExponent(kappa, theta / var0, lambda / Math.sqrt(var0));
+  //    Function1D<ComplexNumber, ComplexNumber> func = cf.getFunction(1.0);
+  //    ComplexNumber v1 = func.evaluate(new ComplexNumber(eps));
+  //    ComplexNumber v2 = func.evaluate(new ComplexNumber(-eps));
+  //
+  //    ComplexNumber res = ComplexMathUtils.subtract(v1, v2);
+  //    System.out.println(res.toString());
+  //
+  //    double div = var0 * res.getImaginary() / 2 / eps;
+  //    System.out.println(div);
+  //  }
 
   // impliedVolatility Tests ------------------------------------------
 
