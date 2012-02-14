@@ -28,13 +28,15 @@ public class ForwardCurve {
   /**
    * 
    * @param spot The current value of the underlying
-   * @param riskFreeCurve The risk free interest rate curve (in FX this is the domistic risk free curve)
+   * @param riskFreeCurve The risk free interest rate curve (in FX this is the domestic risk free curve)
    * @param costOfCarryCurve In equity this would represent the expected dividend yield, while in FX it is the foreign risk free rate
    */
   public ForwardCurve(final double spot, final YieldAndDiscountCurve riskFreeCurve, final YieldAndDiscountCurve costOfCarryCurve) {
-    Function<Double, Double> f = new Function<Double, Double>() {
+    Validate.notNull(riskFreeCurve, "null risk-free curve");
+    Validate.notNull(costOfCarryCurve, "null cost-of-carry curve");
+    final Function<Double, Double> f = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... x) {
+      public Double evaluate(final Double... x) {
         final double t = x[0];
         return spot * costOfCarryCurve.getDiscountFactor(t) / riskFreeCurve.getDiscountFactor(t);
       }
@@ -45,7 +47,6 @@ public class ForwardCurve {
 
   }
 
-  @SuppressWarnings("unused")
   private ForwardCurve(final Curve<Double, Double> fwdCurve, final Curve<Double, Double> driftCurve) {
     Validate.notNull(fwdCurve, "null fwdCurve");
     Validate.notNull(driftCurve, "null driftCurve");

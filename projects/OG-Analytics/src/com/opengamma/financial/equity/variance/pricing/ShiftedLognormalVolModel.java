@@ -5,11 +5,10 @@
  */
 package com.opengamma.financial.equity.variance.pricing;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.model.volatility.BlackFormula;
+import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.minimization.ParameterLimitsTransform;
@@ -27,7 +26,7 @@ public class ShiftedLognormalVolModel {
   private double _expiry;
   private double _vol;
   private double _shift;
-  private BlackFormula _shiftedBlackOption;
+  //private BlackFormula _shiftedBlackOption;
 
   private static final double DEF_TOL = 1.0E-6;
   private static final int DEF_STEPS = 10000;
@@ -43,13 +42,13 @@ public class ShiftedLognormalVolModel {
    * @param lognormalVol annual lognormal (black) vol
    * @param shift absolute level of the shift applied to the forward and strike. A positive value shifts distribution left.
    */
-  public ShiftedLognormalVolModel(final double forward, final double expiry, double lognormalVol, double shift) {
+  public ShiftedLognormalVolModel(final double forward, final double expiry, final double lognormalVol, final double shift) {
 
     _forward = forward;
     _expiry = expiry;
     _vol = lognormalVol;
     _shift = shift;
-    _shiftedBlackOption = new BlackFormula(_forward + _shift, _forward + _shift, _expiry, _vol, null, true);
+    //_shiftedBlackOption = new BlackFormula(_forward + _shift, _forward + _shift, _expiry, _vol, null, true);
   }
 
   /**
@@ -76,7 +75,7 @@ public class ShiftedLognormalVolModel {
     _vol = volShift.getEntry(0);
     _shift = volShift.getEntry(1);
 
-    _shiftedBlackOption = new BlackFormula(_forward + _shift, _forward + _shift, _expiry, _vol, null, true);
+    // _shiftedBlackOption = new BlackFormula(_forward + _shift, _forward + _shift, _expiry, _vol, null, true);
 
   }
 
@@ -100,11 +99,13 @@ public class ShiftedLognormalVolModel {
     final DoubleMatrix1D guess = new DoubleMatrix1D(new double[] {TRANSFORM.transform(volGuess), shiftGuess });
 
     // Targets
-    final double target1Price = new BlackFormula(_forward, strikeTarget1, _expiry,
-        volTarget1, null, strikeTarget1 > _forward).computePrice();
+    final double target1Price = BlackFormulaRepository.price(_forward, strikeTarget1, _expiry, volTarget1, strikeTarget1 > _forward);
+    final double target2Price = BlackFormulaRepository.price(_forward, strikeTarget2, _expiry, volTarget2, strikeTarget2 > _forward);
+    //    final double target1Price = new BlackFormula(_forward, strikeTarget1, _expiry,
+    //        volTarget1, null, strikeTarget1 > _forward).computePrice();
 
-    final double target2Price = new BlackFormula(_forward, strikeTarget2, _expiry,
-        volTarget2, null, strikeTarget2 > _forward).computePrice();
+    //    final double target2Price = new BlackFormula(_forward, strikeTarget2, _expiry,
+    //        volTarget2, null, strikeTarget2 > _forward).computePrice();
 
     // Handle trivial case 1: Same Vol ==> 0.0 shift
     if (CompareUtils.closeEquals(volTarget1, volTarget2, DEF_TOL)) {
@@ -120,8 +121,10 @@ public class ShiftedLognormalVolModel {
         final double vol = TRANSFORM.inverseTransform(volShiftPair.getEntry(0)); // Math.max(1e-9, volShiftPair.getEntry(0));
         final double shift = volShiftPair.getEntry(1);
 
-        diffs[0] = (target1Price - new BlackFormula(_forward + shift, strikeTarget1 + shift, _expiry, vol, null, strikeTarget1 > _forward).computePrice()) * 1.0E+6;
-        diffs[1] = (target2Price - new BlackFormula(_forward + shift, strikeTarget2 + shift, _expiry, vol, null, strikeTarget2 > _forward).computePrice()) * 1.0E+6;
+        diffs[0] = (target1Price - BlackFormulaRepository.price(_forward + shift, strikeTarget1 + shift, _expiry, vol, strikeTarget1 > _forward)) * 1e6;
+        diffs[1] = (target2Price - BlackFormulaRepository.price(_forward + shift, strikeTarget2 + shift, _expiry, vol, strikeTarget2 > _forward)) * 1e6;
+        //        diffs[0] = (target1Price - new BlackFormula(_forward + shift, strikeTarget1 + shift, _expiry, vol, null, strikeTarget1 > _forward).computePrice()) * 1.0E+6;
+        //        diffs[1] = (target2Price - new BlackFormula(_forward + shift, strikeTarget2 + shift, _expiry, vol, null, strikeTarget2 > _forward).computePrice()) * 1.0E+6;
         return new DoubleMatrix1D(diffs);
       }
     };
@@ -142,13 +145,14 @@ public class ShiftedLognormalVolModel {
   }
 
   /**
-   * @param absoluteStrike
-   * @return Price of the calibrated model given a fixed (absolute) strike. So if the forward, was 80, and OTM Put might have a strike of 65.
+   * @param absoluteStrike The absolute strike
+   * @return Price of the calibrated model given a fixed (absolute) strike. So if the forward, was 80, an OTM Put might have a strike of 65.
    */
   public double priceFromFixedStrike(final double absoluteStrike) {
-    _shiftedBlackOption.setStrike(absoluteStrike + _shift);
-    _shiftedBlackOption.setIsCall(absoluteStrike > _forward);
-    return _shiftedBlackOption.computePrice();
+    return BlackFormulaRepository.price(_forward + _shift, absoluteStrike + _shift, _expiry, _vol, absoluteStrike > _forward);
+    //    _shiftedBlackOption.setStrike(absoluteStrike + _shift);
+    //    _shiftedBlackOption.setIsCall(absoluteStrike > _forward);
+    //    return _shiftedBlackOption.computePrice();
   }
 
   /**
@@ -215,21 +219,21 @@ public class ShiftedLognormalVolModel {
     _shift = shift;
   }
 
-  /**
-   * Gets the shiftedBlackOption.
-   * @return the shiftedBlackOption
-   */
-  public final BlackFormula getShiftedBlackOption() {
-    return _shiftedBlackOption;
-  }
-
-  /**
-   * Sets the shiftedBlackOption.
-   * @param shiftedBlackOption  the shiftedBlackOption
-   */
-  public final void setShiftedBlackOption(final BlackFormula shiftedBlackOption) {
-    _shiftedBlackOption = shiftedBlackOption;
-  }
+  //  /**
+  //   * Gets the shiftedBlackOption.
+  //   * @return the shiftedBlackOption
+  //   */
+  //  public final BlackFormula getShiftedBlackOption() {
+  //    return _shiftedBlackOption;
+  //  }
+  //
+  //  /**
+  //   * Sets the shiftedBlackOption.
+  //   * @param shiftedBlackOption  the shiftedBlackOption
+  //   */
+  //  public final void setShiftedBlackOption(final BlackFormula shiftedBlackOption) {
+  //    _shiftedBlackOption = shiftedBlackOption;
+  //  }
 
   @Override
   public int hashCode() {
@@ -242,7 +246,7 @@ public class ShiftedLognormalVolModel {
     result = prime * result + (int) (temp ^ (temp >>> 32));
     temp = Double.doubleToLongBits(_shift);
     result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + ((_shiftedBlackOption == null) ? 0 : _shiftedBlackOption.hashCode());
+    //    result = prime * result + ((_shiftedBlackOption == null) ? 0 : _shiftedBlackOption.hashCode());
     temp = Double.doubleToLongBits(_vol);
     result = prime * result + (int) (temp ^ (temp >>> 32));
     return result;
@@ -270,9 +274,9 @@ public class ShiftedLognormalVolModel {
     if (Double.doubleToLongBits(_vol) != Double.doubleToLongBits(other._vol)) {
       return false;
     }
-    if (!ObjectUtils.equals(_shiftedBlackOption, other._shiftedBlackOption)) {
-      return false;
-    }
+    //    if (!ObjectUtils.equals(_shiftedBlackOption, other._shiftedBlackOption)) {
+    //      return false;
+    //    }
     return true;
   }
 

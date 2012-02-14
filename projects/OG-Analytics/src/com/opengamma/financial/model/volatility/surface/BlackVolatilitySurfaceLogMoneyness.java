@@ -24,7 +24,8 @@ public class BlackVolatilitySurfaceLogMoneyness extends BlackVolatilitySurface<L
   }
 
   /**
-   * @param surface
+   * @param surface The surface, not null
+   * @param forwardCurve The forward curve, not null
    */
   public BlackVolatilitySurfaceLogMoneyness(final Surface<Double, Double, Double> surface, final ForwardCurve forwardCurve) {
     super(surface);
@@ -33,7 +34,7 @@ public class BlackVolatilitySurfaceLogMoneyness extends BlackVolatilitySurface<L
   }
 
   @Override
-  public double getVolatility(double t, double k) {
+  public double getVolatility(final double t, final double k) {
     final double f = _fc.getForward(t);
     final LogMoneyness x = new LogMoneyness(k, f);
     return getVolatility(t, x);
@@ -55,27 +56,27 @@ public class BlackVolatilitySurfaceLogMoneyness extends BlackVolatilitySurface<L
   }
 
   @Override
-  public double getAbsoluteStrike(double t, LogMoneyness s) {
+  public double getAbsoluteStrike(final double t, final LogMoneyness s) {
     return _fc.getForward(t) * Math.exp(s.value());
   }
 
   @Override
-  public BlackVolatilitySurface<LogMoneyness> withShift(double shift, boolean useAdditive) {
+  public BlackVolatilitySurface<LogMoneyness> withShift(final double shift, final boolean useAdditive) {
     return new BlackVolatilitySurfaceLogMoneyness(SurfaceShiftFunctionFactory.getShiftedSurface(getSurface(), shift, useAdditive), _fc);
   }
 
   @Override
-  public BlackVolatilitySurface<LogMoneyness> withSurface(Surface<Double, Double, Double> surface) {
+  public BlackVolatilitySurface<LogMoneyness> withSurface(final Surface<Double, Double, Double> surface) {
     return new BlackVolatilitySurfaceLogMoneyness(surface, _fc);
   }
 
   @Override
-  public <S, U> U accept(BlackVolatilitySurfaceVistor<S, U> vistor, S data) {
+  public <S, U> U accept(final BlackVolatilitySurfaceVistor<S, U> vistor, final S data) {
     return vistor.visitLogMoneyness(this, data);
   }
 
   @Override
-  public <U> U accept(BlackVolatilitySurfaceVistor<?, U> vistor) {
+  public <U> U accept(final BlackVolatilitySurfaceVistor<?, U> vistor) {
     return vistor.visitLogMoneyness(this);
   }
 
