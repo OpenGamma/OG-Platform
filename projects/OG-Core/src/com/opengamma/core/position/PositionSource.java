@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.position;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -29,8 +30,9 @@ public interface PositionSource extends ChangeProvider {
    * A unique identifier exactly specifies a single portfolio at a single version-correction.
    * 
    * @param uniqueId  the unique identifier, not null
-   * @return the portfolio, null if not found
+   * @return the portfolio, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the portfolio cannot be found
    * @throws RuntimeException if an error occurs
    */
   Portfolio getPortfolio(UniqueId uniqueId);
@@ -43,8 +45,9 @@ public interface PositionSource extends ChangeProvider {
    * 
    * @param objectId  the object identifier, not null
    * @param versionCorrection  the version-correction, not null
-   * @return the portfolio, null if not found
+   * @return the portfolio, not null
    * @throws IllegalArgumentException if the identifier or version-correction is invalid
+   * @throws DataNotFoundException if the portfolio cannot be found
    * @throws RuntimeException if an error occurs
    */
   Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection);
@@ -55,8 +58,9 @@ public interface PositionSource extends ChangeProvider {
    * A unique identifier exactly specifies a single node at a single version-correction.
    * 
    * @param uniqueId  the unique identifier, not null
-   * @return the node, null if not found
+   * @return the node, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the node cannot be found
    * @throws RuntimeException if an error occurs
    */
   PortfolioNode getPortfolioNode(UniqueId uniqueId);
@@ -67,8 +71,9 @@ public interface PositionSource extends ChangeProvider {
    * A unique identifier exactly specifies a single position at a single version-correction.
    * 
    * @param uniqueId  the unique identifier, not null
-   * @return the position, null if not found
+   * @return the position, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the position cannot be found
    * @throws RuntimeException if an error occurs
    */
   Position getPosition(UniqueId uniqueId);
@@ -79,8 +84,9 @@ public interface PositionSource extends ChangeProvider {
    * A unique identifier exactly specifies a single trade at a single version-correction.
    * 
    * @param uniqueId  the unique identifier, not null
-   * @return the trade, null if not found
+   * @return the trade, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the trade cannot be found
    * @throws RuntimeException if an error occurs
    */
   Trade getTrade(UniqueId uniqueId);

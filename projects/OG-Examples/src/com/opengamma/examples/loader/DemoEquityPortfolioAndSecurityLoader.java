@@ -23,8 +23,6 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import au.com.bytecode.opencsv.CSVReader;
 import ch.qos.logback.classic.LoggerContext;
@@ -45,8 +43,6 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.util.PlatformConfigUtils;
-import com.opengamma.util.PlatformConfigUtils.RunMode;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -333,21 +329,17 @@ public class DemoEquityPortfolioAndSecurityLoader {
       lc.reset(); 
       configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
       
-      // Set the run mode to EXAMPLE so we use the HSQLDB example database.
-      PlatformConfigUtils.configureSystemProperties(RunMode.EXAMPLE);
-      System.out.println("Starting connections");
-      AbstractApplicationContext appContext = new ClassPathXmlApplicationContext("demoPortfolioLoader.xml");
-      appContext.start();
-      
+      LocalMastersUtils localMastersUtils = LocalMastersUtils.INSTANCE;
       try {
-        DemoEquityPortfolioAndSecurityLoader loader = (DemoEquityPortfolioAndSecurityLoader) appContext.getBean("demoEquityPortfolioAndSecurityLoader");
+        
+        DemoEquityPortfolioAndSecurityLoader loader = new DemoEquityPortfolioAndSecurityLoader();
+        loader.setLoaderContext(localMastersUtils.getLoaderContext());
         System.out.println("Loading data");
         loader.createExamplePortfolio();
+        System.out.println("Finished");
       } finally {
-        appContext.close();
+        localMastersUtils.tearDown();
       }
-      System.out.println("Finished");
-      
     } catch (Exception ex) {
       ex.printStackTrace();
     }

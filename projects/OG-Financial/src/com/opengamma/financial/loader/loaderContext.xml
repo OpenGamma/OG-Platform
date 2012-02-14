@@ -38,6 +38,13 @@
   </bean>
   <alias name="standardJmsConnector" alias="jmsConnector"/>
 
+  <!-- EHCache -->
+  <bean id="standardCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    <property name="shared" value="true"/>
+  </bean>
+
+  <!-- ============================================================================== -->
+  <!-- CONNECTORS AND DATA SOURCES -->  
   <!-- ============================================================================== -->
     
   <bean id="abstractDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean" abstract="true">
@@ -56,7 +63,6 @@
     <property name="minConnectionsPerPartition" value="1"/>
     <property name="maxConnectionsPerPartition" value="10"/>
   </bean>
-
   <bean id="cfgDbConnector" parent="abstractDbConnector">
     <property name="name" value="Config"/>
     <property name="dataSource" ref="cfgDataSource"/>
@@ -74,7 +80,6 @@
     <property name="minConnectionsPerPartition" value="1"/>
     <property name="maxConnectionsPerPartition" value="10"/>
   </bean>
-
   <bean id="finDbConnector" parent="abstractDbConnector">
     <property name="name" value="Financial"/>
     <property name="dataSource" ref="finDataSource"/>
@@ -92,7 +97,6 @@
     <property name="minConnectionsPerPartition" value="1"/>
     <property name="maxConnectionsPerPartition" value="10"/>
   </bean>
-
   <bean id="secDbConnector" parent="abstractDbConnector">
     <property name="name" value="Security"/>
     <property name="dataSource" ref="secDataSource"/>
@@ -115,17 +119,12 @@
     <property name="minConnectionsPerPartition" value="1"/>
     <property name="maxConnectionsPerPartition" value="10"/>
   </bean>
-  
   <bean id="htsDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
     <property name="name" value="TimeSeries"/>
     <property name="dataSource" ref="htsDataSource"/>
     <property name="dialectName" value="${opengamma.hts.db.dbdialect}"/>
   </bean>
   
-  <bean id="standardCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
-    <property name="shared" value="true"/>
-  </bean>
-
   <!-- ================================================================== -->
   <!-- MASTERS & SOURCES -->
   <!-- ================================================================== -->

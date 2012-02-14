@@ -415,7 +415,7 @@
         "maturityDate":"${securityEntryData.maturityDate}",
         "factorSetId":"${securityEntryData.factorSetId}",
         <#if factorExposuresList??>
-          "underlyingFactors":[
+          "factors":[
             <#list factorExposuresList as factorExposure>
               {
                 "factorType":"${factorExposure.factorType}",
