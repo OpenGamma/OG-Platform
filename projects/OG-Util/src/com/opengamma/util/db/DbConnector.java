@@ -288,7 +288,6 @@ public class DbConnector implements Closeable {
     private HibernateTransactionTemplate() {
       _tt = getTransactionTemplate();
       _ht = getHibernateTemplate();
-      _ht.setAllowCreate(false);
     }
 
     public <T> T execute(final HibernateCallback<T> action) throws TransactionException {

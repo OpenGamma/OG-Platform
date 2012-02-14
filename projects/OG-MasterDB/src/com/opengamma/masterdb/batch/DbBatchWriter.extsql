@@ -229,9 +229,9 @@
 -- ==========================================================================
 @NAME(InsertRiskSuccess)
   INSERT INTO rsk_value
-    (id, calculation_configuration_id, value_label, name, value_specification_id, function_unique_id, computation_target_id, run_id, value, eval_instant, compute_node_id)
+    (id, calculation_configuration_id, name, value_specification_id, function_unique_id, computation_target_id, run_id, value, eval_instant, compute_node_id)
   VALUES
-    (:id, :calculation_configuration_id, :value_label, :name, :value_specification_id, :function_unique_id, :computation_target_id, :run_id, :value, :eval_instant, :compute_node_id)
+    (:id, :calculation_configuration_id, :name, :value_specification_id, :function_unique_id, :computation_target_id, :run_id, :value, :eval_instant, :compute_node_id)
 
 @NAME(InsertRiskFailure)
   INSERT INTO rsk_failure 
