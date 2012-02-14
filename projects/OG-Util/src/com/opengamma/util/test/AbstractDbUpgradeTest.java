@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.tuple.Triple;
@@ -47,6 +48,14 @@ public abstract class AbstractDbUpgradeTest extends DbTest {
        * System.out.println(comparison.getFirst() + " found:");
        * System.out.println(comparison.getThird());
        */
+      int diff = StringUtils.indexOfDifference(comparison.getSecond(), comparison.getThird());
+      if (diff >= 0) {
+        System.err.println("Difference at " + diff);
+        System.err.println("Upgraded --->..." + StringUtils.substring(comparison.getSecond(), diff - 200, diff) +
+            "<-!!!->" + StringUtils.substring(comparison.getSecond(), diff, diff + 200) + "...");
+        System.err.println(" Created --->..." + StringUtils.substring(comparison.getThird(), diff - 200, diff) +
+            "<-!!!->" + StringUtils.substring(comparison.getThird(), diff, diff + 200) + "...");
+      }
       assertEquals(getDatabaseType() + ": " + comparison.getFirst(), comparison.getSecond(), comparison.getThird());
     }
   }
