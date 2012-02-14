@@ -8,6 +8,7 @@ package com.opengamma.core.exchange.impl;
 import java.net.URI;
 import java.util.Collection;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.exchange.Exchange;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.id.ExternalId;
@@ -18,6 +19,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.FudgeListWrapper;
 import com.opengamma.util.rest.AbstractRemoteClient;
+import com.sun.jersey.api.client.UniformInterfaceException;
 
 /**
  * Provides remote access to an {@link ExchangeSource}.
@@ -64,15 +66,33 @@ public class RemoteExchangeSource extends AbstractRemoteClient implements Exchan
   //-------------------------------------------------------------------------
   @Override
   public Exchange getSingleExchange(final ExternalId identifier) {
-    return getSingleExchange(ExternalIdBundle.of(identifier));
+    try {
+      return getSingleExchange(ExternalIdBundle.of(identifier));
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException ex) {
+      if (ex.getResponse().getStatus() == 404) {
+        return null;
+      }
+      throw ex;
+    }
   }
 
   @Override
   public Exchange getSingleExchange(final ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     
-    URI uri = DataExchangeSourceResource.uriSearchSingle(getBaseUri(), bundle);
-    return accessRemote(uri).get(Exchange.class);
+    try {
+      URI uri = DataExchangeSourceResource.uriSearchSingle(getBaseUri(), bundle);
+      return accessRemote(uri).get(Exchange.class);
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException ex) {
+      if (ex.getResponse().getStatus() == 404) {
+        return null;
+      }
+      throw ex;
+    }
   }
 
 }

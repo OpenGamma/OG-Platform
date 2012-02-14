@@ -7,12 +7,14 @@ package com.opengamma.financial.currency.rest;
 
 import java.net.URI;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.currency.CurrencyPairs;
 import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.rest.AbstractRemoteClient;
+import com.sun.jersey.api.client.UniformInterfaceException;
 
 /**
  * Provides remote access to a {@link CurrencyPairsSource}.
@@ -35,8 +37,17 @@ public class RemoteCurrencyPairsSource extends AbstractRemoteClient implements C
       name = CurrencyPairs.DEFAULT_CURRENCY_PAIRS;  // TODO: push back to callers
     }
     
-    URI uri = DataCurrencyPairsSourceResource.uriGetPairs(getBaseUri(), name);
-    return accessRemote(uri).get(CurrencyPairs.class);
+    try {
+      URI uri = DataCurrencyPairsSourceResource.uriGetPairs(getBaseUri(), name);
+      return accessRemote(uri).get(CurrencyPairs.class);
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException ex) {
+      if (ex.getResponse().getStatus() == 404) {
+        return null;
+      }
+      throw ex;
+    }
   }
 
   @Override
@@ -47,8 +58,17 @@ public class RemoteCurrencyPairsSource extends AbstractRemoteClient implements C
       name = CurrencyPairs.DEFAULT_CURRENCY_PAIRS;  // TODO: push back to callers
     }
     
-    URI uri = DataCurrencyPairsSourceResource.uriGetPair(getBaseUri(), name, currency1, currency2);
-    return accessRemote(uri).get(CurrencyPair.class);
+    try {
+      URI uri = DataCurrencyPairsSourceResource.uriGetPair(getBaseUri(), name, currency1, currency2);
+      return accessRemote(uri).get(CurrencyPair.class);
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException ex) {
+      if (ex.getResponse().getStatus() == 404) {
+        return null;
+      }
+      throw ex;
+    }
   }
 
 }

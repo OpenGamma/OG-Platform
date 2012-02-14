@@ -198,7 +198,7 @@ public class DataHistoricalTimeSeriesSourceResource extends AbstractDataResource
     
     Map<ExternalIdBundle, HistoricalTimeSeries> result = getHistoricalTimeSeriesSource().getHistoricalTimeSeries(
         identifierSet, dataSource, dataProvider, dataField, start, inclusiveStart, end, includeEnd);
-    return Response.ok(FudgeMapWrapper.of(result)).build();
+    return response(FudgeMapWrapper.of(result));
   }
 
   //-------------------------------------------------------------------------

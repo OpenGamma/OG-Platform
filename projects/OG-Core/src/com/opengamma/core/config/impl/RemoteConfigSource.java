@@ -10,6 +10,7 @@ import java.util.Collection;
 
 import javax.time.Instant;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
@@ -17,6 +18,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.FudgeListWrapper;
 import com.opengamma.util.rest.AbstractRemoteClient;
+import com.sun.jersey.api.client.UniformInterfaceException;
 
 /**
  * Provides remote access to a {@link ConfigSource}.
@@ -69,8 +71,17 @@ public class RemoteConfigSource extends AbstractRemoteClient implements ConfigSo
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(name, "name");
     
-    URI uri = DataConfigSourceResource.uriSearchSingle(getBaseUri(), name, null, clazz);
-    return accessRemote(uri).get(clazz);
+    try {
+      URI uri = DataConfigSourceResource.uriSearchSingle(getBaseUri(), name, null, clazz);
+      return accessRemote(uri).get(clazz);
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException ex) {
+      if (ex.getResponse().getStatus() == 404) {
+        return null;
+      }
+      throw ex;
+    }
   }
 
   @Override
@@ -78,8 +89,17 @@ public class RemoteConfigSource extends AbstractRemoteClient implements ConfigSo
     ArgumentChecker.notNull(clazz, "clazz");
     ArgumentChecker.notNull(name, "name");
     
-    URI uri = DataConfigSourceResource.uriSearchSingle(getBaseUri(), name, versionAsOf, clazz);
-    return accessRemote(uri).get(clazz);
+    try {
+      URI uri = DataConfigSourceResource.uriSearchSingle(getBaseUri(), name, versionAsOf, clazz);
+      return accessRemote(uri).get(clazz);
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException ex) {
+      if (ex.getResponse().getStatus() == 404) {
+        return null;
+      }
+      throw ex;
+    }
   }
 
 }

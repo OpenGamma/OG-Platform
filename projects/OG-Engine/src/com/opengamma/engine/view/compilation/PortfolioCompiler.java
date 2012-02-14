@@ -12,6 +12,7 @@ import java.util.concurrent.ExecutorService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
@@ -143,11 +144,16 @@ public final class PortfolioCompiler {
     // follow the cycle VersionCorrection if no specific portfolio version has been specified, otherwise to use the
     // exact portfolio version requested (which is an important requirement for e.g. PnL Explain). Perhaps the
     // portfolio should be loaded independently of the cycle version correction, so latest always means latest?
-    Portfolio portfolio = portfolioId.isVersioned() ?
-        positionSource.getPortfolio(portfolioId) : positionSource.getPortfolio(portfolioId.getObjectId(), versionCorrection);
-    if (portfolio == null) {
-      throw new OpenGammaRuntimeException("Unable to resolve portfolio '" + portfolioId + "' in position source '" + positionSource + "' used by view definition '"
-          + compilationContext.getViewDefinition().getName() + "'");
+    Portfolio portfolio;
+    try {
+      if (portfolioId.isVersioned()) {
+        portfolio = positionSource.getPortfolio(portfolioId);
+      } else {
+        portfolio = positionSource.getPortfolio(portfolioId.getObjectId(), versionCorrection);
+      }
+    } catch (DataNotFoundException ex) {
+      throw new OpenGammaRuntimeException("Unable to resolve portfolio '" + portfolioId + "' in position source '" + positionSource +
+          "' used by view definition '" + compilationContext.getViewDefinition().getName() + "'", ex);
     }
     Portfolio cloned = new SimplePortfolio(portfolio);
     return resolveSecurities(compilationContext, cloned, versionCorrection);

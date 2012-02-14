@@ -28,7 +28,7 @@ public class RemoteLiveMarketDataSourceRegistry implements LiveMarketDataSourceR
   @SuppressWarnings("unchecked")
   @Override
   public Collection<String> getDataSources() {
-    return _client.access(_baseUri).get(List.class);
+    return _client.accessFudge(_baseUri).get(List.class);
   }
 
 }

@@ -8,6 +8,7 @@ package com.opengamma.engine.position.csv;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
+import static org.testng.AssertJUnit.fail;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,6 +19,7 @@ import java.util.Collection;
 import org.apache.commons.io.FileUtils;
 import org.testng.annotations.Test;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PortfolioNode;
 import com.opengamma.core.position.Position;
@@ -126,9 +128,13 @@ public class CSVPositionSourceTest {
     Portfolio port2b = pm.getPortfolio(portIds[1], VersionCorrection.LATEST);
     assertEquals(4, port2b.getRootNode().getPositions().size());
     
-    // Unknown portfolio should return null
-    Portfolio unknownPort = pm.getPortfolio(UniqueId.of("Wrong scheme", "Irrelevant value"));
-    assertNull(unknownPort);
+    // Unknown portfolio
+    try {
+      pm.getPortfolio(UniqueId.of("Wrong scheme", "Irrelevant value"));
+      fail();
+    } catch (DataNotFoundException ex) {
+      // expected
+    }
     
     // Retrieval by root node
     PortfolioNode rootNode1 = pm.getPortfolioNode(port1.getRootNode().getUniqueId());

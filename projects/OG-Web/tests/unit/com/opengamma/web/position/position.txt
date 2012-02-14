@@ -1,6 +1,6 @@
 {
     "template_data": {
-        "name": "50 x AAPL US Equity",
+        "name": "50 x APPLE INC",
         "object_id": "MemPos~1",
         
         "security_name": "APPLE INC",

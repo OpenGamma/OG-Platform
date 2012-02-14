@@ -13,10 +13,10 @@ import javax.ws.rs.core.Response;
 public abstract class AbstractDataResource {
 
   /**
-   * Creates an "ok" response containing the object, or a 404 if given null.
+   * Creates a RESTful 200 "ok" response containing the object, or a 404 if given null.
    * 
-   * @param value the value to contain in the response, or null to trigger a 404
-   * @return the response
+   * @param value  the value to contain in the response, or null to trigger a 404
+   * @return the response, not null
    */
   protected Response response(final Object value) {
     if (value != null) {
