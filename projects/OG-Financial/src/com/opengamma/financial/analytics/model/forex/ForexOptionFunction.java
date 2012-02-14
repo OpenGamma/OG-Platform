@@ -38,6 +38,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureParameter;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.ExternalId;
@@ -121,7 +122,7 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     final String fullPutForwardCurveName = putForwardCurveName + "_" + putCurrency.getCode();
     final String fullCallForwardCurveName = callForwardCurveName + "_" + callCurrency.getCode();
     final String[] curveNames;
-    if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
+    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
       curveNames = new String[] {fullPutFundingCurveName, fullCallFundingCurveName};
     } else {
       curveNames = new String[] {fullCallFundingCurveName, fullPutFundingCurveName};
@@ -134,7 +135,7 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     final String[] allCurveNames;
     final Currency ccy1;
     final Currency ccy2;
-    if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
+    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
       ccy1 = putCurrency;
       ccy2 = callCurrency;
       curves = new YieldAndDiscountCurve[] {putFundingCurve, putForwardCurve, callFundingCurve, callForwardCurve};
@@ -269,7 +270,7 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     Currency ccy;
-    if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) {
+    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
       ccy = putCurrency;
     } else {
       ccy = callCurrency;

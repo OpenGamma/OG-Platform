@@ -597,6 +597,7 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
   }
   
   //-------------------------------------------------------------------------
+  @SuppressWarnings("unused")
   private SecuritySource getSecuritySource() {
     return _securities;
   }

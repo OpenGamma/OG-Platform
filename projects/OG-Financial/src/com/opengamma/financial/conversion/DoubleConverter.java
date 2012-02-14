@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.conversion;
 
-import com.opengamma.engine.value.ValueRequirement;
-
 import java.util.Collections;
 import java.util.Map;
 
@@ -16,7 +14,7 @@ import java.util.Map;
 public class DoubleConverter implements ResultConverter<Double> {
 
   @Override
-  public Map<String, Double> convert(String valueName, Double value) {
+  public Map<String, Double> convert(final String valueName, final Double value) {
     return Collections.singletonMap(valueName, value);
   }
 
@@ -24,5 +22,5 @@ public class DoubleConverter implements ResultConverter<Double> {
   public Class<?> getConvertedClass() {
     return Double.class;
   }
-  
+
 }

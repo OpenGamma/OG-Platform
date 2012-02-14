@@ -36,7 +36,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.model.forex.ForexUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.schedule.HolidayDateRemovalFunction;
@@ -44,10 +43,10 @@ import com.opengamma.financial.schedule.Schedule;
 import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
 import com.opengamma.financial.schedule.TimeSeriesSamplingFunction;
 import com.opengamma.financial.schedule.TimeSeriesSamplingFunctionFactory;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.FXFutureSecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -96,7 +95,7 @@ public class SimpleFXFuturePnLFunction extends AbstractFunction.NonCompiledInvok
     if (ts.isEmpty()) {
       throw new OpenGammaRuntimeException("Empty price series for id " + underlyingId);
     }
-    if (!ForexUtils.isBaseCurrency(payCurrency, receiveCurrency) && receiveCurrency.equals(security.getCurrency())) {
+    if (!FXUtils.isInBaseQuoteOrder(payCurrency, receiveCurrency) && receiveCurrency.equals(security.getCurrency())) {
       ts = ts.reciprocal();
     }
     final Object pvObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.PRESENT_VALUE, ComputationTargetType.SECURITY, security.getUniqueId()));
@@ -126,7 +125,7 @@ public class SimpleFXFuturePnLFunction extends AbstractFunction.NonCompiledInvok
       return false;
     }
     final Position position = target.getPosition();
-    final Security security = (Security) position.getSecurity();
+    final Security security = position.getSecurity();
     return security instanceof FXFutureSecurity;
   }
 
@@ -182,7 +181,7 @@ public class SimpleFXFuturePnLFunction extends AbstractFunction.NonCompiledInvok
     ExternalId bloombergId;
     final Currency payCurrency = future.getNumerator();
     final Currency receiveCurrency = future.getDenominator();
-    if (ForexUtils.isBaseCurrency(payCurrency, receiveCurrency)) {
+    if (FXUtils.isInBaseQuoteOrder(payCurrency, receiveCurrency)) {
       bloombergId = SecurityUtils.bloombergTickerSecurityId(payCurrency.getCode() + receiveCurrency.getCode() + " Curncy");
     } else {
       bloombergId = SecurityUtils.bloombergTickerSecurityId(receiveCurrency.getCode() + payCurrency.getCode() + " Curncy");
