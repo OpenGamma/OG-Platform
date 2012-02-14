@@ -103,8 +103,8 @@ public class ViewClientTest {
     ArgumentCaptor<ViewDeltaResultModel> deltaFragment = ArgumentCaptor.forClass(ViewDeltaResultModel.class);
     verify(viewResultListenerMock).cycleFragmentCompleted(fullFragment.capture(), deltaFragment.capture());
 
-    assertEquals("ViewProcess~0-0", fullFragment.getValue().getViewProcessId().toString());
-    assertEquals("ViewCycle~0-0~0", fullFragment.getValue().getViewCycleId().toString());
+    assertEquals(UniqueId.of("ViewProcess", client.getUniqueId().getValue()), fullFragment.getValue().getViewProcessId());
+    assertEquals(UniqueId.of("ViewCycle", client.getUniqueId().getValue(), "0"), fullFragment.getValue().getViewCycleId());
 
     assertEquals(
       newHashSet(
