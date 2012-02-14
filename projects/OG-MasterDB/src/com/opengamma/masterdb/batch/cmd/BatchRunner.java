@@ -6,6 +6,7 @@
 package com.opengamma.masterdb.batch.cmd;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.view.ViewProcessor;
@@ -97,7 +98,7 @@ public class BatchRunner {
       ViewProcessor viewProcessor = appContext.getBean("viewProcessor", ViewProcessor.class);
 
       ViewClient viewClient = viewProcessor.createViewClient(UserPrincipal.getLocalUser());
-      MarketDataSpecification marketDataSpec = new HistoricalMarketDataSpecification(_observationDateTime);
+      MarketDataSpecification marketDataSpec = new FixedHistoricalMarketDataSpecification(_observationDateTime);
       ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(_valuationInstant, marketDataSpec);
       ViewCycleExecutionSequence executionSequence = ArbitraryViewCycleExecutionSequence.of(cycleOptions);
 

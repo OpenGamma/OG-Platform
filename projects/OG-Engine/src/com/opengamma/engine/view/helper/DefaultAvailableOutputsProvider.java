@@ -151,13 +151,9 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
    */
   protected Portfolio getPortfolio(UniqueId portfolioId) {
     ArgumentChecker.notNull(portfolioId, "portfolioId");
-    Portfolio portfolio = getPositionSource().getPortfolio(portfolioId);
-    if (portfolio == null) {
-      throw new DataNotFoundException("The portfolio with identifier " + portfolioId + " could not be resolved");
-    }
-    return portfolio;
+    return getPositionSource().getPortfolio(portfolioId);
   }
-  
+
   /**
    * Prepares the portfolio, truncating the number of sub-nodes and positions if required and resolving its securities.
    * 
@@ -179,8 +175,7 @@ public class DefaultAvailableOutputsProvider implements AvailableOutputsProvider
       copy.setRootNode(copyNode(portfolio.getRootNode(), maxNodes, maxPositions));
       portfolio = copy;
     }
-    final Portfolio resolvedPortfolio = PortfolioCompiler.resolvePortfolio(portfolio, getCompiledFunctionService().getExecutorService(), getSecuritySource());
-    return resolvedPortfolio;
+    return PortfolioCompiler.resolvePortfolio(portfolio, getCompiledFunctionService().getExecutorService(), getSecuritySource());
   }
 
 }

@@ -9,6 +9,7 @@ package com.opengamma.language.snapshot;
 import java.util.Arrays;
 import java.util.List;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
 import com.opengamma.id.UniqueId;
@@ -53,6 +54,8 @@ public class FetchSnapshotFunction extends AbstractFunctionInvoker implements Pu
   public static StructuredMarketDataSnapshot invoke(final SessionContext context, final UniqueId uid) {
     try {
       return context.getGlobalContext().getMarketDataSnapshotSource().getSnapshot(uid);
+    } catch (DataNotFoundException ex) {
+      return null;  // TODO: check if null return is correct
     } catch (IllegalArgumentException e) {
       throw new InvokeInvalidArgumentException(IDENTIFIER, "Identifier is not valid");
     }

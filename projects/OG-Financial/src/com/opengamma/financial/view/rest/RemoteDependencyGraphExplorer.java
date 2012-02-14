@@ -28,13 +28,13 @@ public class RemoteDependencyGraphExplorer implements DependencyGraphExplorer {
   @Override
   public DependencyGraph getWholeGraph() {
     URI uriWholeGraph = DataDependencyGraphExplorerResource.uriWholeGraph(_baseUri);
-    return _client.access(uriWholeGraph).get(DependencyGraph.class);
+    return _client.accessFudge(uriWholeGraph).get(DependencyGraph.class);
   }
 
   @Override
   public DependencyGraph getSubgraphProducing(ValueSpecification output) {
     URI uri = DataDependencyGraphExplorerResource.uriSubgraph(_baseUri, output);
-    return _client.access(uri).get(DependencyGraph.class);
+    return _client.accessFudge(uri).get(DependencyGraph.class);
   }
 
 }

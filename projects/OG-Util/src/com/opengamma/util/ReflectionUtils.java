@@ -195,14 +195,27 @@ public final class ReflectionUtils {
         } else if (obj instanceof DisposableBean) {
           ((DisposableBean) obj).destroy();
         } else {
-          obj.getClass().getMethod("close").invoke(obj);
+          invokeNoArgsNoException(obj, "close");
+          invokeNoArgsNoException(obj, "shutdown");
         }
       } catch (Exception ex) {
-        try {
-          obj.getClass().getMethod("shutdown").invoke(obj);
-        } catch (Exception ex2) {
-          // ignored
-        }
+        // ignored
+      }
+    }
+  }
+
+  /**
+   * Invokes a no-args method on an object, throwing no errors.
+   * 
+   * @param obj  the object, null ignored
+   * @param methodName  the method name, not null
+   */
+  public static void invokeNoArgsNoException(final Object obj, final String methodName) {
+    if (obj != null) {
+      try {
+        obj.getClass().getMethod(methodName).invoke(obj);
+      } catch (Exception ex2) {
+        // ignored
       }
     }
   }

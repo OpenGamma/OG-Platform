@@ -6,99 +6,85 @@
 package com.opengamma.financial.model.volatility.surface;
 
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.math.function.Function;
-import com.opengamma.math.function.Function1D;
-import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
-import com.opengamma.math.rootfinding.BracketRoot;
-import com.opengamma.math.statistics.distribution.NormalDistribution;
-import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.math.surface.FunctionalDoublesSurface;
+import com.opengamma.math.surface.Surface;
 
 /**
  * 
  */
 public abstract class BlackVolatilitySurfaceConverter {
 
-  private static final double EPS = 1e-6;
-  private static final BracketRoot BRACKETER = new BracketRoot();
-  private static final BisectionSingleRootFinder ROOT_FINDER = new BisectionSingleRootFinder(EPS);
-  private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
+  private static final  SurfaceConverter CAL = SurfaceConverter.getInstance();
 
-  public static BlackVolatilitySurfaceMoneyness toMoneynessSurface(final BlackVolatilitySurfaceStrike from, final ForwardCurve fwdCurve) {
-
-    final Function<Double, Double> surFunc = new Function<Double, Double>() {
-
-      @Override
-      public Double evaluate(Double... tm) {
-        double t = tm[0];
-        double m = tm[1];
-        double f = fwdCurve.getForward(t);
-        double k = m * f;
-        return from.getVolatility(t, k);
-      }
-    };
-    return new BlackVolatilitySurfaceMoneyness(FunctionalDoublesSurface.from(surFunc), fwdCurve);
+  //********************************
+  //Conversion to delta surface
+  //********************************
+  public static BlackVolatilitySurfaceDelta toDeltaSurface(final BlackVolatilitySurfaceLogMoneyness from) {
+    Surface<Double, Double, Double> surf = CAL.logMoneynessToDelta(from.getSurface());
+    return new BlackVolatilitySurfaceDelta(surf, from.getForwardCurve());
   }
 
-  public static BlackVolatilitySurfaceStrike toStrikeSurface(final BlackVolatilitySurfaceMoneyness from) {
-
-    final Function<Double, Double> surFunc = new Function<Double, Double>() {
-
-      @Override
-      public Double evaluate(Double... tk) {
-        double t = tk[0];
-        double k = tk[1];
-        return from.getVolatility(t, k);
-      }
-    };
-    return new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surFunc));
+  public static BlackVolatilitySurfaceDelta toDeltaSurface(final BlackVolatilitySurfaceMoneyness from) {
+    Surface<Double, Double, Double> surf = CAL.moneynessToDelta(from.getSurface());
+    return new BlackVolatilitySurfaceDelta(surf, from.getForwardCurve());
   }
 
   public static BlackVolatilitySurfaceDelta toDeltaSurface(final BlackVolatilitySurfaceStrike from, final ForwardCurve forwardCurve) {
-
-    final Function<Double, Double> surFunc = new Function<Double, Double>() {
-
-      @Override
-      public Double evaluate(Double... td) {
-        final double t = td[0];
-        double delta = td[1];
-        final double fwd = forwardCurve.getForward(t);
-        final double rootT = Math.sqrt(t);
-        final double inDelta = NORMAL.getInverseCDF(delta);
-
-        Function1D<Double, Double> func = new Function1D<Double, Double>() {
-          @Override
-          public Double evaluate(Double k) {
-            final double sigma = from.getVolatility(t, k);
-            return fwd * Math.exp(-sigma * rootT * inDelta + sigma * sigma * t / 2) - k;
-          }
-        };
-
-        double sigma = from.getVolatility(t, fwd);
-        final double strikeApprox = fwd * Math.exp(-sigma * rootT * inDelta + sigma * sigma * t / 2);
-        double l = 0.8 * strikeApprox;
-        double u = 1.2 * strikeApprox;
-        double minStrike = 0.0;
-        double maxStrike = 1000 * fwd;
-
-        final double[] range = BRACKETER.getBracketedPoints(func, l, u, minStrike, maxStrike);
-        double strike = ROOT_FINDER.getRoot(func, range[0], range[1]);
-        return from.getVolatility(t, strike);
-      }
-    };
-    return new BlackVolatilitySurfaceDelta(FunctionalDoublesSurface.from(surFunc), forwardCurve);
+    Surface<Double, Double, Double> surf = CAL.strikeToDelta(from.getSurface(), forwardCurve);
+    return new BlackVolatilitySurfaceDelta(surf, forwardCurve);
   }
 
+  //********************************
+  //Conversion to log-moneyness surface
+  //********************************
+  public static BlackVolatilitySurfaceLogMoneyness toLogMoneynessSurface(final BlackVolatilitySurfaceDelta from) {
+    Surface<Double, Double, Double> surf = CAL.deltaToLogMoneyness(from.getSurface());
+    return new BlackVolatilitySurfaceLogMoneyness(surf, from.getForwardCurve());
+  }
+
+  public static BlackVolatilitySurfaceLogMoneyness toLogMoneynessSurface(final BlackVolatilitySurfaceMoneyness from) {
+    Surface<Double, Double, Double> surf = CAL.moneynessToLogMoneyness(from.getSurface());
+    return new BlackVolatilitySurfaceLogMoneyness(surf, from.getForwardCurve());
+  }
+
+  public static BlackVolatilitySurfaceLogMoneyness toLogMoneynessSurface(final BlackVolatilitySurfaceStrike from, final ForwardCurve fwdCurve) {
+    Surface<Double, Double, Double> surf = CAL.strikeToMoneyness(from.getSurface(), fwdCurve);
+    return new BlackVolatilitySurfaceLogMoneyness(surf, fwdCurve);
+  }
+
+  //********************************
+  //Conversion to moneyness surface
+  //********************************
+  public static BlackVolatilitySurfaceMoneyness toMoneynessSurface(final BlackVolatilitySurfaceDelta from) {
+    Surface<Double, Double, Double> surf = CAL.deltaToMoneyness(from.getSurface());
+    return new BlackVolatilitySurfaceMoneyness(surf, from.getForwardCurve());
+  }
+
+  public static BlackVolatilitySurfaceMoneyness toMoneynessSurface(final BlackVolatilitySurfaceLogMoneyness from) {
+    Surface<Double, Double, Double> surf = CAL.logMoneynessToMoneyness(from.getSurface());
+    return new BlackVolatilitySurfaceMoneyness(surf, from.getForwardCurve());
+  }
+
+  public static BlackVolatilitySurfaceMoneyness toMoneynessSurface(final BlackVolatilitySurfaceStrike from, final ForwardCurve fwdCurve) {
+    Surface<Double, Double, Double> surf = CAL.strikeToMoneyness(from.getSurface(), fwdCurve);
+    return new BlackVolatilitySurfaceMoneyness(surf, fwdCurve);
+  }
+
+  //********************************
+  // Conversion to strike surface
+  //********************************
   public static BlackVolatilitySurfaceStrike toStrikeSurface(final BlackVolatilitySurfaceDelta from) {
-    final Function<Double, Double> surFunc = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(Double... tk) {
-        double t = tk[0];
-        double k = tk[1];
-        return from.getVolatility(t, k);
-      }
-    };
-    return new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surFunc));
+    final Surface<Double, Double, Double> surf = CAL.deltaToStrike(from.getSurface(), from.getForwardCurve());
+    return new BlackVolatilitySurfaceStrike(surf);
+  }
+
+  public static BlackVolatilitySurfaceStrike toStrikeSurface(final BlackVolatilitySurfaceMoneyness from) {
+    Surface<Double, Double, Double> surf = CAL.moneynessToStrike(from.getSurface(), from.getForwardCurve());
+    return new BlackVolatilitySurfaceStrike(surf);
+  }
+
+  public static BlackVolatilitySurfaceStrike toStrikeSurface(final BlackVolatilitySurfaceLogMoneyness from) {
+    Surface<Double, Double, Double> surf = CAL.logMoneynessToStrike(from.getSurface(), from.getForwardCurve());
+    return new BlackVolatilitySurfaceStrike(surf);
   }
 
 }

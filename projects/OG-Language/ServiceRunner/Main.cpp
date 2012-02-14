@@ -69,6 +69,12 @@ static SERVICE_TABLE_ENTRY *_CreateDispatchTable () {
 /// @param[in] argc number of parameters
 /// @param[in] argv parameters
 int _tmain (int argc, _TCHAR* argv[]) {
+#ifdef _WIN32
+#ifndef _DEBUG
+	fclose (stderr);
+	FreeConsole ();
+#endif /*ifndef _DEBUG */
+#endif /* ifdef _WIN32 */
 	_mainStart ();
 	if (argc == 2) {
 		if (!_tcscmp (argv[1], TEXT ("run"))) {

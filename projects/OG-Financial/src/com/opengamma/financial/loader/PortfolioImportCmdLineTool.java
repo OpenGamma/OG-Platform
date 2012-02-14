@@ -6,10 +6,6 @@
 
 package com.opengamma.financial.loader;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.lang.reflect.Constructor;
-
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.HelpFormatter;
 import org.apache.commons.cli.Option;
@@ -23,9 +19,7 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.util.PlatformConfigUtils;
-import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * Command line harness for portfolio import functionality
@@ -33,10 +27,6 @@ import com.opengamma.util.tuple.ObjectsPair;
 public class PortfolioImportCmdLineTool {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioImportCmdLineTool.class);
-
-  /** Path strings for constructing a fully qualified parser class name **/
-  private static final String CLASS_PREFIX = "com.opengamma.financial.loader.rowparsers.";
-  private static final String CLASS_POSTFIX = "Parser";
 
   /** Tool name */
   private static final String TOOL_NAME = "OpenGamma Portfolio Importer";
@@ -64,21 +54,29 @@ public class PortfolioImportCmdLineTool {
     // Parse command line arguments
     CommandLine cmdLine = getCmdLine(args);
     
+    // Configure the OG platform
+    PlatformConfigUtils.configureSystemProperties(cmdLine.getOptionValue(RUN_MODE_OPT));
+    AbstractApplicationContext applicationContext = 
+        new ClassPathXmlApplicationContext("com/opengamma/financial/loader/loaderContext.xml");
+    
+    // Get an OG loader context, which will provide access to any required masters/sources
+    applicationContext.start();
+    LoaderContext loaderContext = (LoaderContext) applicationContext.getBean("loaderContext");
+
     // Set up writing side
-    ObjectsPair<PortfolioWriter, AbstractApplicationContext> result = constructPortfolioWriter(
+    PortfolioWriter portfolioWriter = constructPortfolioWriter(
         cmdLine.getOptionValue(PORTFOLIO_NAME_OPT), 
-        cmdLine.getOptionValue(RUN_MODE_OPT), 
-        cmdLine.hasOption(WRITE_OPT));
-    PortfolioWriter portfolioWriter = result.getFirst();
-    AbstractApplicationContext applicationContext = result.getSecond();
+        cmdLine.hasOption(WRITE_OPT),
+        loaderContext);
     
      // Set up reading side
-    PortfolioReader portfolioLoader = constructPortfolioLoader(
+    PortfolioReader portfolioReader = constructPortfolioReader(
         cmdLine.getOptionValue(FILE_NAME_OPT), 
-        cmdLine.getOptionValue(ASSET_CLASS_OPT));
+        cmdLine.getOptionValue(ASSET_CLASS_OPT), 
+        loaderContext);
     
     // Load in and write the securities, positions and trades
-    portfolioLoader.writeTo(portfolioWriter);
+    portfolioReader.writeTo(portfolioWriter);
     
     // Flush changes to portfolio master
     portfolioWriter.flush();
@@ -130,10 +128,8 @@ public class PortfolioImportCmdLineTool {
     return options;
   }
 
-  private static ObjectsPair<PortfolioWriter, AbstractApplicationContext> constructPortfolioWriter(
-      String portfolioName, String runMode, boolean write) {
-    
-    AbstractApplicationContext applicationContext;
+  private static PortfolioWriter constructPortfolioWriter(String portfolioName, boolean write,
+      LoaderContext loaderContext) {
     
     if (write) {  
       // Check that the portfolio name was specified on the command line
@@ -142,79 +138,36 @@ public class PortfolioImportCmdLineTool {
       }
       
       s_logger.info("Write option specified, will persist to OpenGamma masters in portfolio '" + portfolioName + "'");
-  
-      // Configure the OG platform
-      PlatformConfigUtils.configureSystemProperties(runMode);
-      applicationContext = new ClassPathXmlApplicationContext("com/opengamma/examples/portfolioloader/loaderContext.xml");
-      
-      // Get an OG loader context, which will provide access to any required masters/sources
-      applicationContext.start();
-      LoaderContext loaderContext = (LoaderContext) applicationContext.getBean("loaderContext");
-  
+    
       // Create a portfolio writer to persist imported positions, trades and securities to the OG masters
-      return new ObjectsPair<PortfolioWriter, AbstractApplicationContext>(
-          new MasterPortfolioWriter(portfolioName, loaderContext), 
-          applicationContext);
+      return new MasterPortfolioWriter(portfolioName, loaderContext);
   
     } else {
       s_logger.info("Write option omitted, will pretty-print instead of persisting to OpenGamma masters");
       
       // Create a dummy portfolio writer to pretty-print instead of persisting
-      return new ObjectsPair<PortfolioWriter, AbstractApplicationContext>(new DummyPortfolioWriter(), null);         
+      return new DummyPortfolioWriter();         
     }
 
   }
   
-  private static PortfolioReader constructPortfolioLoader(String filename, String assetClass) {
+  private static PortfolioReader constructPortfolioReader(String filename, String securityClass, 
+      LoaderContext loaderContext) {
     
     String extension = filename.substring(filename.lastIndexOf('.'));
     
     // Single CSV or XLS file extension
     if (extension.equalsIgnoreCase(".csv") || extension.equalsIgnoreCase(".xls")) {
-           
       // Check that the asset class was specified on the command line
-      if (assetClass == null) {
+      if (securityClass == null) {
         throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename + " (use '-a')");
+      } else {
+        return new SimplePortfolioReader(filename, securityClass, loaderContext);
       }
-      
-      // Open input file for reading
-      FileInputStream fileInputStream;
-      try {
-        fileInputStream = new FileInputStream(filename);
-      } catch (FileNotFoundException ex) {
-        throw new OpenGammaRuntimeException("Could not open file " + filename + " for reading, exiting immediately.");
-      }
-  
-      try {
-        // Identify the appropriate parser class from the asset class command line option
-        String className = CLASS_PREFIX + assetClass + CLASS_POSTFIX;
-        Class<?> parserClass = Class.forName(className);
-        
-        // Find the constructor
-        Constructor<?> constructor = parserClass.getConstructor();
-
-        
-        // Set up a sheet reader for the specified CSV/XLS file
-        SheetReader sheet;
-        if (extension.equalsIgnoreCase(".csv")) {
-          sheet = new CsvSheetReader(fileInputStream);
-        } else {
-          sheet = new SimpleXlsSheetReader(fileInputStream, 0);
-        }
-        
-        // Create a generic simple portfolio loader for the current sheet, using the dynamically loaded row parser class
-        return new SimplePortfolioReader(sheet, (RowParser) constructor.newInstance(), sheet.getColumns());
-        
-      } catch (Throwable ex) {
-        throw new OpenGammaRuntimeException("Could not identify an appropriate loader for file " + filename);
-      }
-
     // Multi-asset ZIP file extension
     } else if (extension.equalsIgnoreCase(".zip")) {
-            
       // Create zipped multi-asset class loader
-      return new ZippedPortfolioReader(filename);
-      
+      return new ZippedPortfolioReader(filename, loaderContext);
     } else {
       throw new OpenGammaRuntimeException("Input filename should end in .CSV or .ZIP");
     }

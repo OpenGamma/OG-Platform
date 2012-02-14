@@ -30,17 +30,19 @@ import com.opengamma.util.tuple.Pair;
  * typically, for last price, you'd use "Market_Value" @see MarketDataRequirementNames
  */
 public class SimulatedMarketDataGenerator implements Runnable {
+
   private static final Logger s_logger = LoggerFactory.getLogger(SimulatedMarketDataGenerator.class);
+  private static final int NUM_FIELDS = 4;
+  private static final double SCALING_FACTOR = 0.005; // i.e. 0.5% * 1SD
+  private static final int MAX_MILLIS_BETWEEN_TICKS = 50;
+
   private MarketDataInjector _marketDataInjector;
   private Map<Pair<ExternalId, String>, Object> _initialValues = new HashMap<Pair<ExternalId, String>, Object>();
   @SuppressWarnings("unchecked")
   private Pair<ExternalId, String>[] _identifiers = new Pair[0];
-
-  private static final int NUM_FIELDS = 4;
-  private static final double SCALING_FACTOR = 0.005; // i.e. 0.5% * 1SD
-  private static final int MAX_MILLIS_BETWEEN_TICKS = 50;
   private Thread _backgroundUpdateThread;
-  
+  private volatile boolean _running = true;
+
   public SimulatedMarketDataGenerator(MarketDataInjector marketDataInjector, Resource initialValuesFile) {
     _marketDataInjector = marketDataInjector;
     readInitialValues(initialValuesFile);
@@ -84,9 +86,8 @@ public class SimulatedMarketDataGenerator implements Runnable {
   }
   
   public void run() {
-    boolean running = true;
     Random random = new Random(); // no need for SecureRandom here..
-    while (running) {      
+    while (_running) {      
       Pair<ExternalId, String> idFieldPair = _identifiers[random.nextInt(_identifiers.length)];
       Object initialValue = _initialValues.get(idFieldPair);
       if (initialValue instanceof Double) {
@@ -105,10 +106,18 @@ public class SimulatedMarketDataGenerator implements Runnable {
       }
     }
   }
-  
+
   private double wiggleValue(Random random, double value) {
     double result = value + (random.nextGaussian() * (value * SCALING_FACTOR));
     //s_logger.warn("wiggleValue = {}", result);
     return result;
   }
+
+  /**
+   * Stops the generator.
+   */
+  public void close() {
+    _running = false;
+  }
+
 }

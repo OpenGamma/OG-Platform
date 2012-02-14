@@ -30,7 +30,58 @@ public class SimpleXlsSheetReader extends SheetReader {
   private int _currentRowNumber;
 //  private int _firstRow;
 //  private int _firstColumn;
+
   
+  public SimpleXlsSheetReader(String filename, int sheetIndex) {
+    InputStream fileInputStream = openFile(filename);
+    _workbook = getWorkbook(fileInputStream);
+    _sheet = _workbook.getSheetAt(sheetIndex);
+    _currentRowNumber = _sheet.getFirstRowNum();
+    
+    // Read in the header row
+    Row rawRow = _sheet.getRow(_currentRowNumber++);
+    
+    // Normalise read-in headers (to lower case) and set as columns
+    String[] columns = new String[rawRow.getPhysicalNumberOfCells()];
+    for (int i = 0; i < rawRow.getPhysicalNumberOfCells(); i++) {
+      columns[i] = getCell(rawRow, i).toLowerCase();
+    }
+    setColumns(columns);
+  }
+  
+  public SimpleXlsSheetReader(String filename, String sheetName) {
+    InputStream fileInputStream = openFile(filename);
+    _workbook = getWorkbook(fileInputStream);
+    _sheet = _workbook.getSheet(sheetName);
+    _currentRowNumber = _sheet.getFirstRowNum();
+
+    // Read in the header row
+    Row rawRow = _sheet.getRow(_currentRowNumber++);
+
+    // Normalise read-in headers (to lower case) and set as columns
+    String[] columns = new String[rawRow.getPhysicalNumberOfCells()];
+    for (int i = 0; i < rawRow.getPhysicalNumberOfCells(); i++) {
+      columns[i] = getCell(rawRow, i).trim().toLowerCase();
+    }
+    setColumns(columns); 
+  }
+  
+  public SimpleXlsSheetReader(String filename, int sheetIndex, String[] columns) {
+    InputStream fileInputStream = openFile(filename);
+    _workbook = getWorkbook(fileInputStream);
+    _sheet = _workbook.getSheetAt(sheetIndex);
+    _currentRowNumber = _sheet.getFirstRowNum();
+    setColumns(columns);
+  }
+  
+  public SimpleXlsSheetReader(String filename, String sheetName, String[] columns) {
+    InputStream fileInputStream = openFile(filename);
+    _workbook = getWorkbook(fileInputStream);
+    _sheet = _workbook.getSheet(sheetName);
+    _currentRowNumber = _sheet.getFirstRowNum();
+    setColumns(columns);
+  }
+
 
   public SimpleXlsSheetReader(InputStream inputStream, int sheetIndex) {
     _workbook = getWorkbook(inputStream);
@@ -78,6 +129,7 @@ public class SimpleXlsSheetReader extends SheetReader {
     setColumns(columns);
   }
 
+  
   private Workbook getWorkbook(InputStream inputStream) {
     try {
       return new HSSFWorkbook(inputStream);

@@ -7,7 +7,7 @@ package com.opengamma.engine.view;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.MarketDataInjector;
-import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
+import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
 import com.opengamma.engine.view.calc.SingleComputationCycle;

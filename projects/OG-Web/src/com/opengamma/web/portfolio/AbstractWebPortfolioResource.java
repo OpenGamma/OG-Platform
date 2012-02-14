@@ -5,12 +5,22 @@
  */
 package com.opengamma.web.portfolio;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.ScheduledExecutorService;
+
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
+import com.opengamma.core.security.SecurityLink;
+import com.opengamma.core.security.SecuritySource;
+import com.opengamma.engine.view.compilation.SecurityLinkResolver;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.web.AbstractPerRequestWebResource;
@@ -29,18 +39,27 @@ public abstract class AbstractWebPortfolioResource extends AbstractPerRequestWeb
    * The backing bean.
    */
   private final WebPortfoliosData _data;
+  /**
+   * The security link resolver.
+   */
+  private SecurityLinkResolver _securityLinkResolver;
 
   /**
    * Creates the resource.
    * @param portfolioMaster  the portfolio master, not null
    * @param positionMaster  the position master, not null
+   * @param securitySource  the security source, not null
+   * @param executor  the executor service, not null
    */
-  protected AbstractWebPortfolioResource(final PortfolioMaster portfolioMaster, final PositionMaster positionMaster) {
+  protected AbstractWebPortfolioResource(final PortfolioMaster portfolioMaster, final PositionMaster positionMaster, final SecuritySource securitySource, final ExecutorService executor) {
     ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
     ArgumentChecker.notNull(positionMaster, "positionMaster");
+    ArgumentChecker.notNull(securitySource, "securitySource");
+    ArgumentChecker.notNull(executor, "executor");
     _data = new WebPortfoliosData();
     data().setPortfolioMaster(portfolioMaster);
     data().setPositionMaster(positionMaster);
+    _securityLinkResolver = new SecurityLinkResolver(executor, securitySource, VersionCorrection.LATEST);
   }
 
   /**
@@ -50,6 +69,7 @@ public abstract class AbstractWebPortfolioResource extends AbstractPerRequestWeb
   protected AbstractWebPortfolioResource(final AbstractWebPortfolioResource parent) {
     super(parent);
     _data = parent._data;
+    _securityLinkResolver = parent._securityLinkResolver;
   }
 
   /**
@@ -77,6 +97,15 @@ public abstract class AbstractWebPortfolioResource extends AbstractPerRequestWeb
     WebPositionsData posData = new WebPositionsData(data().getUriInfo());
     out.put("positionUris", new WebPositionsUris(posData));
     return out;
+  }
+
+  //-------------------------------------------------------------------------
+  protected void resolveSecurities(Collection<ManageablePosition> positions) {
+    Collection<SecurityLink> securityLinks = new ArrayList<SecurityLink>(positions.size());
+    for (ManageablePosition position : positions) {
+      securityLinks.add(position.getSecurityLink());
+    }
+    _securityLinkResolver.resolveSecurities(securityLinks);
   }
 
   //-------------------------------------------------------------------------

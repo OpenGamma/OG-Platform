@@ -10,8 +10,6 @@ import java.math.BigDecimal;
 import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -29,8 +27,6 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
-import com.opengamma.util.PlatformConfigUtils;
-import com.opengamma.util.PlatformConfigUtils.RunMode;
 
 /**
  * Example code to load and aggregate a bond portfolio.
@@ -247,21 +243,17 @@ public class DemoBondPortfolioLoader {
       configurator.setContext(lc);
       lc.reset(); 
       configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
-      
-      PlatformConfigUtils.configureSystemProperties(RunMode.SHAREDDEV);
-      System.out.println("Starting connections");
-      AbstractApplicationContext appContext = new ClassPathXmlApplicationContext("demoPortfolioLoader.xml");
-      appContext.start();
-      
+      LocalMastersUtils localMastersUtils = LocalMastersUtils.INSTANCE;
       try {
-        DemoBondPortfolioLoader loader = (DemoBondPortfolioLoader) appContext.getBean("demoBondPortfolioLoader");
+        LoaderContext loaderContext = localMastersUtils.getLoaderContext();
+        DemoBondPortfolioLoader loader = new DemoBondPortfolioLoader();
+        loader.setLoaderContext(loaderContext);
         System.out.println("Loading data");
         loader.loadTestPortfolio();
+        System.out.println("Finished");
       } finally {
-        appContext.close();
+        localMastersUtils.tearDown();
       }
-      System.out.println("Finished");
-      
     } catch (Exception ex) {
       ex.printStackTrace();
     }

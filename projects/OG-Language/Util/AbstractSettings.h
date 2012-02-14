@@ -94,6 +94,7 @@ protected:
 #ifdef _WIN32
 	PCTSTR RegistryGet (HKEY hKey, PCTSTR pszKey) const;
 	BOOL RegistrySet (HKEY hkey, PCTSTR pszKey, PCTSTR pszValue);
+	BOOL RegistrySet (PCTSTR pszBase, PCTSTR pszKey, PCTSTR pszValue);
 	BOOL RegistrySet (PCTSTR pszKey, PCTSTR pszValue);
 	HKEY RegistryOpenLocal (PCTSTR pszKey) const;
 	HKEY RegistryOpenGlobal (PCTSTR pszKey) const;

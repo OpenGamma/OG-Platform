@@ -15,7 +15,7 @@
     <constructor-arg ref="sharedSecuritySource" />
   </bean>
 
-  <bean id="simulatedMarketDataGenerator" class="com.opengamma.examples.marketdata.SimulatedMarketDataGenerator" init-method="start">
+  <bean id="simulatedMarketDataGenerator" class="com.opengamma.examples.marketdata.SimulatedMarketDataGenerator" init-method="start" destroy-method="close">
     <constructor-arg ref="marketDataProvider" />
     <constructor-arg value="${opengamma.example.marketdata.file}" />
   </bean>

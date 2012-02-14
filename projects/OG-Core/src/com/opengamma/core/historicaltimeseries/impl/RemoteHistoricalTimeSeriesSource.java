@@ -12,7 +12,7 @@ import java.util.Set;
 import javax.time.calendar.LocalDate;
 
 import org.fudgemsg.FudgeMsg;
-
+import com.sun.jersey.api.client.UniformInterfaceException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
@@ -41,25 +41,34 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(final UniqueId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    
-    URI uri = DataHistoricalTimeSeriesSourceResource.uriGet(getBaseUri(), uniqueId);
-    return accessRemote(uri).get(HistoricalTimeSeries.class);
+    try {
+      URI uri = DataHistoricalTimeSeriesSourceResource.uriGet(getBaseUri(), uniqueId);
+      return accessRemote(uri).get(HistoricalTimeSeries.class);
+    } catch (UniformInterfaceException e) {
+      return null;
+    }
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    
-    URI uri = DataHistoricalTimeSeriesSourceResource.uriGet(getBaseUri(), uniqueId, start, includeStart, end, includeEnd, null);
-    return accessRemote(uri).get(HistoricalTimeSeries.class);
+    try {
+      URI uri = DataHistoricalTimeSeriesSourceResource.uriGet(getBaseUri(), uniqueId, start, includeStart, end, includeEnd, null);
+      return accessRemote(uri).get(HistoricalTimeSeries.class);
+    } catch (UniformInterfaceException e) {
+      return null;
+    }
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(UniqueId uniqueId, LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
-    
-    URI uri = DataHistoricalTimeSeriesSourceResource.uriGet(getBaseUri(), uniqueId, start, includeStart, end, includeEnd, maxPoints);
-    return accessRemote(uri).get(HistoricalTimeSeries.class);
+    try {
+      URI uri = DataHistoricalTimeSeriesSourceResource.uriGet(getBaseUri(), uniqueId, start, includeStart, end, includeEnd, maxPoints);
+      return accessRemote(uri).get(HistoricalTimeSeries.class);
+    } catch (UniformInterfaceException e) {
+      return null;
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -83,20 +92,26 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
   public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     ArgumentChecker.notNull(identifierBundle, "identifierBundle");
-    
-    URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchSingle(
-        getBaseUri(), identifierBundle, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, null);
-    return accessRemote(uri).get(HistoricalTimeSeries.class);
+    try {
+      URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchSingle(
+          getBaseUri(), identifierBundle, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, null);
+      return accessRemote(uri).get(HistoricalTimeSeries.class);
+    } catch (UniformInterfaceException e) {
+      return null;
+    }
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
     ArgumentChecker.notNull(identifierBundle, "identifierBundle");
-    
-    URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchSingle(
-        getBaseUri(), identifierBundle, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, maxPoints);
-    return accessRemote(uri).get(HistoricalTimeSeries.class);
+    try {
+      URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchSingle(
+          getBaseUri(), identifierBundle, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, maxPoints);
+      return accessRemote(uri).get(HistoricalTimeSeries.class);
+    } catch (UniformInterfaceException e) {
+      return null;
+    }
   }
 
   @Override
@@ -108,20 +123,26 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
   public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     ArgumentChecker.notNull(identifierBundle, "identifierBundle");
-    
-    URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchSingle(
-        getBaseUri(), identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, null);
-    return accessRemote(uri).get(HistoricalTimeSeries.class);
+    try {
+      URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchSingle(
+          getBaseUri(), identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, null);
+      return accessRemote(uri).get(HistoricalTimeSeries.class);
+    } catch (UniformInterfaceException e) {
+      return null;
+    }
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
     ArgumentChecker.notNull(identifierBundle, "identifierBundle");
-    
-    URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchSingle(
-        getBaseUri(), identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, maxPoints);
-    return accessRemote(uri).get(HistoricalTimeSeries.class);
+    try {
+      URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchSingle(
+          getBaseUri(), identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, maxPoints);
+      return accessRemote(uri).get(HistoricalTimeSeries.class);
+    } catch (UniformInterfaceException e) {
+      return null;
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -157,20 +178,26 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
   public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     ArgumentChecker.notNull(identifierBundle, "identifierBundle");
-    
-    URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchResolve(
-        getBaseUri(), identifierBundle, dataField, resolutionKey, start, includeStart, end, includeEnd, null);
-    return accessRemote(uri).get(HistoricalTimeSeries.class);
+    try {
+      URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchResolve(
+          getBaseUri(), identifierBundle, dataField, resolutionKey, start, includeStart, end, includeEnd, null);
+      return accessRemote(uri).get(HistoricalTimeSeries.class);
+    } catch (UniformInterfaceException e) {
+      return null;
+    }
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
     ArgumentChecker.notNull(identifierBundle, "identifierBundle");
-    
-    URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchResolve(
-        getBaseUri(), identifierBundle, dataField, resolutionKey, start, includeStart, end, includeEnd, maxPoints);
-    return accessRemote(uri).get(HistoricalTimeSeries.class);
+    try {
+      URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchResolve(
+          getBaseUri(), identifierBundle, dataField, resolutionKey, start, includeStart, end, includeEnd, maxPoints);
+      return accessRemote(uri).get(HistoricalTimeSeries.class);
+    } catch (UniformInterfaceException e) {
+      return null;
+    }
   }
 
   @Override
@@ -182,20 +209,26 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
   public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     ArgumentChecker.notNull(identifierBundle, "identifierBundle");
-    
-    URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchResolve(
-        getBaseUri(), identifierBundle, identifierValidityDate, dataField, resolutionKey, start, includeStart, end, includeEnd, null);
-    return accessRemote(uri).get(HistoricalTimeSeries.class);
+    try {
+      URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchResolve(
+          getBaseUri(), identifierBundle, identifierValidityDate, dataField, resolutionKey, start, includeStart, end, includeEnd, null);
+      return accessRemote(uri).get(HistoricalTimeSeries.class);
+    } catch (UniformInterfaceException e) {
+      return null;
+    }
   }
 
   @Override
   public HistoricalTimeSeries getHistoricalTimeSeries(String dataField, ExternalIdBundle identifierBundle, LocalDate identifierValidityDate, String resolutionKey,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd, int maxPoints) {
     ArgumentChecker.notNull(identifierBundle, "identifierBundle");
-    
-    URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchResolve(
-        getBaseUri(), identifierBundle, identifierValidityDate, dataField, resolutionKey, start, includeStart, end, includeEnd, maxPoints);
-    return accessRemote(uri).get(HistoricalTimeSeries.class);
+    try {
+      URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchResolve(
+          getBaseUri(), identifierBundle, identifierValidityDate, dataField, resolutionKey, start, includeStart, end, includeEnd, maxPoints);
+      return accessRemote(uri).get(HistoricalTimeSeries.class);
+    } catch (UniformInterfaceException e) {
+      return null;
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -227,14 +260,20 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
   public Map<ExternalIdBundle, HistoricalTimeSeries> getHistoricalTimeSeries(Set<ExternalIdBundle> identifierSet, String dataSource, String dataProvider, String dataField,
       LocalDate start, boolean includeStart, LocalDate end, boolean includeEnd) {
     ArgumentChecker.notNull(identifierSet, "identifierSet");
-    
-    URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchBulk(getBaseUri());
-    FudgeMsg msg = DataHistoricalTimeSeriesSourceResource.uriSearchBulkData(identifierSet, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd);
-    return accessRemote(uri).post(FudgeMapWrapper.class, msg).getMap();
+    try {
+      URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchBulk(getBaseUri());
+      FudgeMsg msg = DataHistoricalTimeSeriesSourceResource.uriSearchBulkData(identifierSet, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd);
+      return accessRemote(uri).post(FudgeMapWrapper.class, msg).getMap();
+    } catch (UniformInterfaceException e) {
+      return null;
+    }
   }
 
   //-------------------------------------------------------------------------
   private Pair<LocalDate, Double> extractPair(HistoricalTimeSeries historicalTimeSeries) {
+    if (historicalTimeSeries == null) {
+      return null;
+    }
     LocalDateDoubleTimeSeries series = historicalTimeSeries.getTimeSeries();
     if (series.size() == 0) {
       return null;

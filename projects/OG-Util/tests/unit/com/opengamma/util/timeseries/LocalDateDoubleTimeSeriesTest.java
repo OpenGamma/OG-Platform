@@ -39,5 +39,5 @@ public abstract class LocalDateDoubleTimeSeriesTest extends DoubleTimeSeriesTest
   public LocalDate[] emptyTimes() {
     return new LocalDate[] {};
   }
-
+  
 }

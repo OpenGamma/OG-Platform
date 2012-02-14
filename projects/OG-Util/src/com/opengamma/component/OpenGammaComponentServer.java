@@ -5,6 +5,7 @@
  */
 package com.opengamma.component;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -25,8 +26,9 @@ import org.springframework.core.io.Resource;
  * Main entry point for OpenGamma component-based servers.
  * <p>
  * This class starts an OpenGamma JVM process using the specified config file.
+ * A {@link OpenGammaComponentServerMonitor monitor} thread will also be started.
  * <p>
- * Two types of config file format are recognized - properties and props (INI).
+ * Two types of config file format are recognized - properties and INI.
  * A properties file must be in the standard Java format and contain a key "component.ini"
  * which is the resource location of the main INI file.
  * The INI file is described in {@link ComponentConfigLoader}.
@@ -130,6 +132,7 @@ public class OpenGammaComponentServer {
       manager = new ComponentManager();
     }
     try {
+      OpenGammaComponentServerMonitor.create(manager.getRepository());
       manager.start(configFile);
     } catch (Exception ex) {
       ex.printStackTrace(System.err);
@@ -169,6 +172,19 @@ public class OpenGammaComponentServer {
     }
     public VerboseManager(ComponentRepository repo) {
       super(repo);
+    }
+    @Override
+    public ComponentRepository start(Resource resource) {
+      try {
+        System.out.println("  Using file: " + resource.getURI());
+      } catch (IOException ex) {
+        try {
+          System.out.println("  Using file: " + resource.getFile());
+        } catch (IOException ex2) {
+          System.out.println("  Using file: " + resource);
+        }
+      }
+      return super.start(resource);
     }
     @Override
     protected void loadIni(Resource resource) {

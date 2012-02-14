@@ -20,7 +20,6 @@ import org.apache.commons.lang.StringUtils;
 
 import com.opengamma.engine.marketdata.PendingCombinedMarketDataSubscription.PendingCombinedSubscriptionState;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.livedata.UserPrincipal;

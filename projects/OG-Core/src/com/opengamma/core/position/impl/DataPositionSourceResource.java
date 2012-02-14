@@ -28,7 +28,7 @@ import com.opengamma.util.rest.AbstractDataResource;
 /**
  * RESTful resource for positions.
  * <p>
- * The positions resource receives and processes RESTful calls to the position source.
+ * This resource receives and processes RESTful calls to the position source.
  */
 @Path("positionSource")
 public class DataPositionSourceResource extends AbstractDataResource {
@@ -69,11 +69,11 @@ public class DataPositionSourceResource extends AbstractDataResource {
     final ObjectId objectId = ObjectId.parse(idStr);
     if (version != null) {
       final Portfolio result = getPositionSource().getPortfolio(objectId.atVersion(version));
-      return Response.ok(result).build();
+      return response(result);
     } else {
       final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
       final Portfolio result = getPositionSource().getPortfolio(objectId, vc);
-      return Response.ok(result).build();
+      return response(result);
     }
   }
 
@@ -84,7 +84,7 @@ public class DataPositionSourceResource extends AbstractDataResource {
       @QueryParam("version") String version) {
     final ObjectId objectId = ObjectId.parse(idStr);
     final PortfolioNode result = getPositionSource().getPortfolioNode(objectId.atVersion(version));
-    return Response.ok(result).build();
+    return response(result);
   }
 
   @GET
@@ -94,7 +94,7 @@ public class DataPositionSourceResource extends AbstractDataResource {
       @QueryParam("version") String version) {
     final ObjectId objectId = ObjectId.parse(idStr);
     final Position result = getPositionSource().getPosition(objectId.atVersion(version));
-    return Response.ok(result).build();
+    return response(result);
   }
 
   @GET
@@ -104,7 +104,7 @@ public class DataPositionSourceResource extends AbstractDataResource {
       @QueryParam("version") String version) {
     final ObjectId objectId = ObjectId.parse(idStr);
     final Trade result = getPositionSource().getTrade(objectId.atVersion(version));
-    return Response.ok(result).build();
+    return response(result);
   }
 
   //-------------------------------------------------------------------------

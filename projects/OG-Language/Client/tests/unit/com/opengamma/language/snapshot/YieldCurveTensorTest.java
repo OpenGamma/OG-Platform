@@ -12,6 +12,7 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDataSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
 import com.opengamma.id.UniqueId;
@@ -29,9 +30,9 @@ public class YieldCurveTensorTest {
     final ManageableYieldCurveSnapshot snapshot = new ManageableYieldCurveSnapshot();
     final ManageableUnstructuredMarketDataSnapshot values = new ManageableUnstructuredMarketDataSnapshot();
     values.setValues(new LinkedHashMap());
-    UnstructuredMarketDataSnapshotUtil.setValue(values, "V", UniqueId.of("Test", "A"), null, 0.1);
-    UnstructuredMarketDataSnapshotUtil.setValue(values, "V", UniqueId.of("Test", "B"), 0.25, 0.2);
-    UnstructuredMarketDataSnapshotUtil.setValue(values, "V", UniqueId.of("Test", "C"), 0.35, null);
+    UnstructuredMarketDataSnapshotUtil.setValue(values, "V", UniqueId.of("Test", "A"), null, 0.1, MarketDataValueType.SECURITY);
+    UnstructuredMarketDataSnapshotUtil.setValue(values, "V", UniqueId.of("Test", "B"), 0.25, 0.2, MarketDataValueType.SECURITY);
+    UnstructuredMarketDataSnapshotUtil.setValue(values, "V", UniqueId.of("Test", "C"), 0.35, null, MarketDataValueType.SECURITY);
     snapshot.setValues(values);
     return snapshot;
   }

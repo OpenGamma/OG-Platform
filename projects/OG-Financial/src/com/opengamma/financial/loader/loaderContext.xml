@@ -2,17 +2,194 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
-  <import resource="classpath:com/opengamma/financial/demoMasters.xml" />
-
-  <bean id="loaderContext" class="com.opengamma.financial.portfolio.loader.LoaderContext">
+  <!-- The loader context itself -->
+  <bean id="loaderContext" class="com.opengamma.financial.loader.LoaderContext">
+    <property name="configMaster" ref="dbConfigMaster" />
+    <property name="securityMaster" ref="dbSecurityMaster" />
+    <property name="securitySource" ref="sharedSecuritySource" />
     <property name="portfolioMaster" ref="dbPortfolioMaster" />
     <property name="positionMaster" ref="dbPositionMaster" />
-    <property name="securityMaster" ref="dbSecurityMaster" />
-    <property name="configMaster" ref="dbConfigMaster" />
     <property name="historicalTimeSeriesSource" ref="sharedHistoricalTimeSeriesSource" />
     <property name="conventionBundleSource" ref="sharedConventionBundleSource" />
     <property name="holidaySource" ref="sharedHolidaySource" />
-    <property name="securitySource" ref="sharedSecuritySource" />
+  </bean>
+
+  <!-- ============================================================================== -->
+
+  <!-- Property file configuration -->
+  <bean id="demoMastersProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="ignoreUnresolvablePlaceholders" value="true" />
+    <property name="location">
+      <value>classpath:demoMasters-${opengamma.platform.runmode}.properties</value>
+    </property>
+  </bean>
+  
+  <!-- Active MQ -->
+  <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+    <constructor-arg value="${activeMQ.brokerURL}" />
+    <property name="WatchTopicAdvisories" value="false" /> <!-- IGN-94 -->
+  </bean>
+  <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory" destroy-method="stop"> 
+    <constructor-arg ref="activeMQConnectionFactory"/>
+  </bean>
+  <bean id="standardJmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean">
+    <property name="name" value="Masters"/>
+    <property name="connectionFactory" ref="jmsConnectionFactory"/>
+  </bean>
+  <alias name="standardJmsConnector" alias="jmsConnector"/>
+
+  <!-- ============================================================================== -->
+  <!-- CONNECTORS AND DATA SOURCES -->  
+  <!-- ============================================================================== -->
+    
+  <bean id="abstractDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean" abstract="true">
+    <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />
+    <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
+  </bean>
+
+  <bean id="cfgDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+    <property name="driverClass" value="${opengamma.config.jdbc.driver}" />
+    <property name="jdbcUrl" value="${opengamma.config.jdbc.url}" />
+    <property name="username" value="${opengamma.config.jdbc.username}" />
+    <property name="password" value="${opengamma.config.jdbc.password}" />
+    <property name="poolName" value="Config"/>
+    <property name="partitionCount" value="1"/>
+    <property name="acquireIncrement" value="1"/>
+    <property name="minConnectionsPerPartition" value="1"/>
+    <property name="maxConnectionsPerPartition" value="10"/>
+  </bean>
+  <bean id="cfgDbConnector" parent="abstractDbConnector">
+    <property name="name" value="Config"/>
+    <property name="dataSource" ref="cfgDataSource"/>
+    <property name="dialectName" value="${opengamma.config.db.dbdialect}"/>
+  </bean>
+  
+  <bean id="finDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+    <property name="driverClass" value="${opengamma.financial.jdbc.driver}" />
+    <property name="jdbcUrl" value="${opengamma.financial.jdbc.url}" />
+    <property name="username" value="${opengamma.financial.jdbc.username}" />
+    <property name="password" value="${opengamma.financial.jdbc.password}" />
+    <property name="poolName" value="Financial"/>
+    <property name="partitionCount" value="1"/>
+    <property name="acquireIncrement" value="1"/>
+    <property name="minConnectionsPerPartition" value="1"/>
+    <property name="maxConnectionsPerPartition" value="10"/>
+  </bean>
+  <bean id="finDbConnector" parent="abstractDbConnector">
+    <property name="name" value="Financial"/>
+    <property name="dataSource" ref="finDataSource"/>
+    <property name="dialectName" value="${opengamma.financial.db.dbdialect}"/>
+  </bean>
+  
+  <bean id="secDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+    <property name="driverClass" value="${opengamma.financial.jdbc.driver}" />
+    <property name="jdbcUrl" value="${opengamma.financial.jdbc.url}" />
+    <property name="username" value="${opengamma.financial.jdbc.username}" />
+    <property name="password" value="${opengamma.financial.jdbc.password}" />
+    <property name="poolName" value="Security"/>
+    <property name="partitionCount" value="1"/>
+    <property name="acquireIncrement" value="1"/>
+    <property name="minConnectionsPerPartition" value="1"/>
+    <property name="maxConnectionsPerPartition" value="10"/>
+  </bean>
+  <bean id="secDbConnector" parent="abstractDbConnector">
+    <property name="name" value="Security"/>
+    <property name="dataSource" ref="secDataSource"/>
+    <property name="dialectName" value="${opengamma.financial.db.dbdialect}"/>
+    <property name="hibernateMappingFiles">
+      <list>
+        <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles"/>
+      </list>
+    </property>
+  </bean>
+  
+  <bean id="htsDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
+    <property name="driverClass" value="${opengamma.hts.jdbc.driver}" />
+    <property name="jdbcUrl" value="${opengamma.hts.jdbc.url}" />
+    <property name="username" value="${opengamma.hts.jdbc.username}" />
+    <property name="password" value="${opengamma.hts.jdbc.password}" />
+    <property name="poolName" value="TimeSeries"/>
+    <property name="partitionCount" value="1"/>
+    <property name="acquireIncrement" value="1"/>
+    <property name="minConnectionsPerPartition" value="1"/>
+    <property name="maxConnectionsPerPartition" value="10"/>
+  </bean>
+  <bean id="htsDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean">
+    <property name="name" value="TimeSeries"/>
+    <property name="dataSource" ref="htsDataSource"/>
+    <property name="dialectName" value="${opengamma.hts.db.dbdialect}"/>
+  </bean>
+  
+  <!-- ================================================================== -->
+  <!-- MASTERS & SOURCES -->
+  <!-- ================================================================== -->
+  
+  <!-- Config Master/Source -->
+  <bean id="dbConfigMaster" class="com.opengamma.masterdb.spring.DbConfigMasterFactoryBean">
+    <property name="dbConnector" ref="cfgDbConnector" />
+    <property name="uniqueIdScheme" value="${opengamma.config.db.configmaster.scheme}" />
+  </bean>
+  <bean id="sharedConfigSource" class="com.opengamma.master.config.impl.MasterConfigSource">
+    <constructor-arg ref="dbConfigMaster" />
+  </bean>
+
+  <!-- Security Master/Source -->
+  <bean id="dbSecurityMaster" class="com.opengamma.masterdb.spring.DbSecurityMasterFactoryBean">
+    <property name="dbConnector" ref="secDbConnector" />
+    <property name="uniqueIdScheme" value="${opengamma.financial.db.securitymaster.scheme}" />
+    <property name="cacheManager" ref="standardCacheManager" />
+  </bean>
+  <bean id="sharedSecuritySource" class="com.opengamma.financial.spring.FinancialSecuritySourceFactoryBean">
+    <property name="securityMaster" ref="dbSecurityMaster" />
+    <property name="cacheManager" ref="standardCacheManager" />
+  </bean>
+
+  <!-- Portfolio Master -->
+  <bean id="dbPortfolioMaster" class="com.opengamma.masterdb.spring.DbPortfolioMasterFactoryBean">
+    <property name="dbConnector" ref="finDbConnector" />
+    <property name="uniqueIdScheme" value="${opengamma.financial.db.portfoliomaster.scheme}" />
+    <property name="jmsConnector" ref="jmsConnector" />
+    <property name="jmsChangeManagerTopic" value="dbPortfolioMasterChangeManager" />
+  </bean>
+  
+  <!-- Position Master/Source -->
+  <bean id="dbPositionMaster" class="com.opengamma.masterdb.spring.DbPositionMasterFactoryBean">
+    <property name="dbConnector" ref="finDbConnector" />
+    <property name="uniqueIdScheme" value="${opengamma.financial.db.positionmaster.scheme}" />
+  </bean>
+
+  <!-- Historical Time Series Master/Source/Resolver -->
+  <bean id="dbHtsMaster" class="com.opengamma.masterdb.spring.DbHistoricalTimeSeriesMasterFactoryBean">
+    <property name="dbConnector" ref="htsDbConnector"/>
+    <property name="uniqueIdScheme" value="${opengamma.financial.db.htsmaster.scheme}" />
+  </bean>
+  <bean id="sharedHistoricalTimeSeriesSource" class="com.opengamma.financial.spring.HistoricalTimeSeriesSourceFactoryBean">
+    <property name="historicalTimeSeriesMaster" ref="dbHtsMaster"/>
+    <property name="cacheManager" ref="standardCacheManager" />
+    <property name="historicalTimeSeriesResolver" ref="htsResolver" />
+  </bean>
+  <bean id="htsResolver" class="com.opengamma.financial.spring.FieldMappingHistoricalTimeSeriesResolverFactoryBean">
+    <property name="configSource" ref="sharedConfigSource" />
+    <property name="historicalTimeSeriesMaster" ref="dbHtsMaster" />
+    <property name="fieldAdjustmentMaps">
+      <list />
+    </property>
+  </bean>
+
+  <!--  Convention Bundle Source -->
+  <bean id="sharedConventionBundleSource" class="com.opengamma.financial.convention.DefaultConventionBundleSource">
+    <constructor-arg>
+      <bean class="com.opengamma.financial.convention.InMemoryConventionBundleMaster"/>
+    </constructor-arg>
+  </bean>
+
+  <!-- Holiday Master/Source -->
+  <bean id="dbHolidayMaster" class="com.opengamma.masterdb.spring.DbHolidayMasterFactoryBean">
+    <property name="dbConnector" ref="finDbConnector" />
+    <property name="uniqueIdScheme" value="${opengamma.financial.db.holidaymaster.scheme}" />
+  </bean>
+  <bean id="sharedHolidaySource" class="com.opengamma.financial.spring.HolidaySourceFactoryBean">
+    <property name="holidayMaster" ref="dbHolidayMaster"/>
   </bean>
 
 </beans>

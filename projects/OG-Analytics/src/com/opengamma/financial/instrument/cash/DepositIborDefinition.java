@@ -20,7 +20,7 @@ import com.opengamma.util.time.TimeCalculator;
 /**
  * Class describing a deposit underlying a Ibor index. Used in particular for Ibor fixing and curve construction.
  */
-public class DepositIborDefinition extends DepositDefinition {
+public class DepositIborDefinition extends CashDefinition {
 
   /**
    * The Ibor-like index associated to the deposit.

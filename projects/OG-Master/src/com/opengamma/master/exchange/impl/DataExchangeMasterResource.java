@@ -7,7 +7,6 @@ package com.opengamma.master.exchange.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -22,7 +21,6 @@ import com.opengamma.master.exchange.ExchangeDocument;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.exchange.ExchangeSearchRequest;
 import com.opengamma.master.exchange.ExchangeSearchResult;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -69,7 +67,6 @@ public class DataExchangeMasterResource extends AbstractDataResource {
 
   @POST
   @Path("exchangeSearches")
-  @Consumes(FudgeRest.MEDIA)
   public Response search(ExchangeSearchRequest request) {
     ExchangeSearchResult result = getExchangeMaster().search(request);
     return Response.ok(result).build();
@@ -77,7 +74,6 @@ public class DataExchangeMasterResource extends AbstractDataResource {
 
   @POST
   @Path("exchanges")
-  @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, ExchangeDocument request) {
     ExchangeDocument result = getExchangeMaster().add(request);
     URI createdUri = DataExchangeResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());

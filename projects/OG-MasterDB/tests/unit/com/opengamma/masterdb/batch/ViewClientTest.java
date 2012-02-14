@@ -7,14 +7,9 @@ package com.opengamma.masterdb.batch;
 
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
-import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
-import com.opengamma.engine.marketdata.MarketDataInjector;
-import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.*;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.test.ViewProcessorTestEnvironment;

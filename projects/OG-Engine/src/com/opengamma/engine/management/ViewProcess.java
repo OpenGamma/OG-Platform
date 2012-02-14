@@ -38,16 +38,16 @@ public class ViewProcess implements ViewProcessMBean {
     ArgumentChecker.notNull(viewProcess, "viewProcess");
     ArgumentChecker.notNull(viewProcessor, "ViewProcessor");
     _viewProcess = viewProcess;
-    _objectName = createObjectName(viewProcessor.getUniqueId(), viewProcess.getUniqueId());
+    _objectName = createObjectName(viewProcessor.getName(), viewProcess.getUniqueId());
   }
 
   /**
-   * Creates an object name using the scheme "com.opengamma:type=View,ViewProcessor=<viewProcessorId>,name=<viewProcessId>"
+   * Creates an object name using the scheme "com.opengamma:type=View,ViewProcessor=<viewProcessorName>,name=<viewProcessId>"
    */
-  static ObjectName createObjectName(UniqueId viewProcessorId, UniqueId viewProcessId) {
+  static ObjectName createObjectName(String viewProcessorName, UniqueId viewProcessId) {
     ObjectName objectName;
     try {
-      objectName = new ObjectName("com.opengamma:type=ViewProcess,ViewProcessor=ViewProcessor " + viewProcessorId.getValue() + ",name=ViewProcess " + viewProcessId.getValue());
+      objectName = new ObjectName("com.opengamma:type=ViewProcess,ViewProcessor=ViewProcessor " + viewProcessorName + ",name=ViewProcess " + viewProcessId.getValue());
     } catch (MalformedObjectNameException e) {
       throw new CacheException(e);
     }

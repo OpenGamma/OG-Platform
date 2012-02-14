@@ -17,7 +17,7 @@ import org.testng.annotations.Test;
 
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.instrument.cash.DepositDefinition;
+import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.financial.instrument.index.generator.EURDeposit;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
@@ -32,7 +32,7 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Tests related to the pricing of cash deposits by disocunting.
+ * Tests related to the pricing of cash deposits by discounting.
  */
 public class CashDiscountingMethodTest {
 
@@ -48,7 +48,7 @@ public class CashDiscountingMethodTest {
   private static final Period DEPOSIT_PERIOD = Period.ofMonths(6);
   private static final ZonedDateTime END_DATE = ScheduleCalculator.getAdjustedDate(SPOT_DATE, DEPOSIT_PERIOD, GENERATOR);
   private static final double DEPOSIT_AF = GENERATOR.getDayCount().getDayCountFraction(SPOT_DATE, END_DATE);
-  private static final DepositDefinition DEPOSIT_DEFINITION = new DepositDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, RATE, DEPOSIT_AF);
+  private static final CashDefinition DEPOSIT_DEFINITION = new CashDefinition(EUR, SPOT_DATE, END_DATE, NOTIONAL, RATE, DEPOSIT_AF);
 
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves2();
   private static final String[] CURVES_NAME = TestsDataSetsSABR.curves2Names();

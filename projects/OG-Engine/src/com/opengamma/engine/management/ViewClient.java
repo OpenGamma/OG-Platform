@@ -36,16 +36,16 @@ public class ViewClient implements ViewClientMBean {
   public ViewClient(com.opengamma.engine.view.client.ViewClient viewClient) {
     ArgumentChecker.notNull(viewClient, "viewClient");
     _viewClient = viewClient;
-    _objectName = createObjectName(viewClient.getViewProcessor().getUniqueId(), viewClient.getUniqueId());
+    _objectName = createObjectName(viewClient.getViewProcessor().getName(), viewClient.getUniqueId());
   }
   
   /**
-   * Creates an object name using the scheme "com.opengamma:type=ViewClient,ViewProcessor=<viewProcessorId>,name=<viewClientId>"
+   * Creates an object name using the scheme "com.opengamma:type=ViewClient,ViewProcessor=<viewProcessorName>,name=<viewClientId>"
    */
-  /*package*/ static ObjectName createObjectName(UniqueId viewProcessorId, UniqueId viewClientId) {
+  /*package*/ static ObjectName createObjectName(String viewProcessorName, UniqueId viewClientId) {
     ObjectName objectName;
     try {
-      objectName = new ObjectName("com.opengamma:type=ViewClient,ViewProcessor=ViewProcessor " + viewProcessorId.getValue() + ",name=ViewClient " + viewClientId.getValue());
+      objectName = new ObjectName("com.opengamma:type=ViewClient,ViewProcessor=ViewProcessor " + viewProcessorName + ",name=ViewClient " + viewClientId.getValue());
     } catch (MalformedObjectNameException e) {
       throw new CacheException(e);
     }
