@@ -38,6 +38,11 @@
   </bean>
   <alias name="standardJmsConnector" alias="jmsConnector"/>
 
+  <!-- EHCache -->
+  <bean id="standardCacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    <property name="shared" value="true"/>
+  </bean>
+
   <!-- ============================================================================== -->
   <!-- CONNECTORS AND DATA SOURCES -->  
   <!-- ============================================================================== -->
