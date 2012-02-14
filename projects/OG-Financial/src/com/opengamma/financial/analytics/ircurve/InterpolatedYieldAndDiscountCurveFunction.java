@@ -56,6 +56,8 @@ public class InterpolatedYieldAndDiscountCurveFunction extends AbstractFunction 
   @SuppressWarnings("unused")
   private static final Logger s_logger = LoggerFactory.getLogger(InterpolatedYieldAndDiscountCurveFunction.class);
 
+  public static final String INTERPOLATED_CALCULATION_METHOD = "Interpolated";
+
   private final YieldCurveFunctionHelper _helper;
   private final Currency _curveCurrency;
   private final String _curveName;

@@ -15,6 +15,7 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -93,7 +94,7 @@ public class SimpleFuturePresentValueFunction extends AbstractFunction.NonCompil
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Security security = (Security) target.getSecurity();
     return security instanceof EnergyFutureSecurity || security instanceof MetalFutureSecurity || security instanceof IndexFutureSecurity;
   }
 

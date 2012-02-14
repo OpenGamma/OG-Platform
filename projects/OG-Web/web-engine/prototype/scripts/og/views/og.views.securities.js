@@ -167,9 +167,15 @@ $.register_module({
                                 view.layout.inner.close('north');
                                 $('.ui-layout-inner-north').empty();
                             }
-                            if (json.template_data.hts_id) common.gadgets.timeseries({
+                            if (json.template_data.hts_id || args.timeseries) common.gadgets.timeseries({
                                 selector: '.OG-js-details-panel .og-js-timeseries',
-                                id: json.template_data.hts_id
+                                id: json.template_data.hts_id || args.timeseries
+                            });
+                            $('.og-js-temp-link').unbind().bind('click', function () {
+                                common.gadgets.timeseries({
+                                    selector: '.OG-js-details-panel .og-js-temp-timeseries',
+                                    id: json.template_data.hts_id
+                                })
                             });
                             if (show_loading) view.notify(null);
                             setTimeout(view.layout.inner.resizeAll);
@@ -177,14 +183,12 @@ $.register_module({
                     },
                     id: args.id,
                     version: args.version && args.version !== '*' ? args.version : void 0,
-                    loading: function () {
-                        if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});
-                    }
+                    loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
                 });
             },
             state = {};
-        return view = $.extend(new og.views.common.Core(page_name), {
-            filters: ['name', 'type'],
+        return view = $.extend(view = new og.views.common.Core(page_name), {
+            details: details_page,
             load_filter: function (args) {
                 view.filter = function () {
                         var filter_name = view.options.slickgrid.columns[0].name;
@@ -197,7 +201,6 @@ $.register_module({
                 }}]});
                 view.filter();
             },
-            details: details_page,
             options: {
                 slickgrid: {
                     'selector': '.OG-js-search', 'page_type': page_name,
@@ -232,13 +235,7 @@ $.register_module({
                     }
                 }
             },
-            rules: {
-                load: {route: '/' + page_name + '/name:?/type:?', method: module.name + '.load'},
-                load_filter: {
-                    route: '/' + page_name + '/filter:/:id?/name:?/type:?', method: module.name + '.load_filter'
-                },
-                load_item: {route: '/' + page_name + '/:id/name:?/version:?/type:?', method: module.name + '.load_item'}
-            },
+            rules: view.rules(['name', 'type'], ['version', 'timeseries']),
             search: function (args) {
                 if (!search) search = common.search_results.core();
                 if (view.options.slickgrid.columns[0].name === 'loading')

@@ -219,6 +219,8 @@
           .addClass("standard-entry");
         $liveMarketData.appendTo($snapshotSelect);
       });
+      $liveMarketData = $('<option value="bbgwithexternal">Live market data (Bloomberg + time-series)</option>').addClass("standard-entry");
+      $liveMarketData.appendTo($snapshotSelect);
     }
 
     if (selectedView) {

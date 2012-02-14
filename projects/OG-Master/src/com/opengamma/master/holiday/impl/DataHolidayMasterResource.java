@@ -81,7 +81,6 @@ public class DataHolidayMasterResource extends AbstractDataResource {
 
   @POST
   @Path("holidaySearches")
-  @Consumes(FudgeRest.MEDIA)
   public Response search(HolidaySearchRequest request) {
     HolidaySearchResult result = getHolidayMaster().search(request);
     return Response.ok(result).build();
@@ -89,7 +88,6 @@ public class DataHolidayMasterResource extends AbstractDataResource {
 
   @POST
   @Path("holidays")
-  @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, HolidayDocument request) {
     HolidayDocument result = getHolidayMaster().add(request);
     URI createdUri = DataHolidayResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());

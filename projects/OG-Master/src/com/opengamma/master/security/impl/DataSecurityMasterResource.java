@@ -81,7 +81,6 @@ public class DataSecurityMasterResource extends AbstractDataResource {
 
   @POST
   @Path("securitySearches")
-  @Consumes(FudgeRest.MEDIA)
   public Response search(SecuritySearchRequest request) {
     SecuritySearchResult result = getSecurityMaster().search(request);
     return Response.ok(result).build();
@@ -89,7 +88,6 @@ public class DataSecurityMasterResource extends AbstractDataResource {
 
   @POST
   @Path("securities")
-  @Consumes(FudgeRest.MEDIA)
   public Response add(@Context UriInfo uriInfo, SecurityDocument request) {
     SecurityDocument result = getSecurityMaster().add(request);
     URI createdUri = DataSecurityResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());

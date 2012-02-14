@@ -140,9 +140,7 @@ public class EHCachingPositionSource implements PositionSource {
   public Portfolio getPortfolio(UniqueId uniqueId) {
     if (uniqueId.isLatest()) {
       Portfolio portfolio = getUnderlying().getPortfolio(uniqueId);
-      if (portfolio != null) {
-        _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
-      }
+      _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
       return portfolio;
     }
     Element e = _portfolioCache.get(uniqueId);
@@ -150,9 +148,7 @@ public class EHCachingPositionSource implements PositionSource {
       return (Portfolio) e.getValue();
     } else {
       Portfolio portfolio = getUnderlying().getPortfolio(uniqueId);
-      if (portfolio != null) {
-        _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
-      }
+      _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
       return portfolio;
     }
   }
@@ -160,9 +156,7 @@ public class EHCachingPositionSource implements PositionSource {
   @Override
   public Portfolio getPortfolio(ObjectId objectId, VersionCorrection versionCorrection) {
     Portfolio portfolio = getUnderlying().getPortfolio(objectId, versionCorrection);
-    if (portfolio != null) {
-      _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
-    }
+    _portfolioCache.put(new Element(portfolio.getUniqueId(), portfolio));
     return portfolio;
   }
 
@@ -176,9 +170,7 @@ public class EHCachingPositionSource implements PositionSource {
       return (PortfolioNode) e.getValue();
     } else {
       PortfolioNode node = getUnderlying().getPortfolioNode(uniqueId);
-      if (node != null) {
-        _portfolioNodeCache.put(new Element(node.getUniqueId(), node));
-      }
+      _portfolioNodeCache.put(new Element(node.getUniqueId(), node));
       return node;
     }
   }
@@ -193,9 +185,7 @@ public class EHCachingPositionSource implements PositionSource {
       return (Position) e.getValue();
     } else {
       Position position = getUnderlying().getPosition(uniqueId);
-      if (position != null) {
-        _positionCache.put(new Element(position.getUniqueId(), position));
-      }
+      _positionCache.put(new Element(position.getUniqueId(), position));
       return position;
     }
   }
@@ -210,9 +200,7 @@ public class EHCachingPositionSource implements PositionSource {
       return (Trade) e.getValue();
     } else {
       Trade trade = getUnderlying().getTrade(uniqueId);
-      if (trade != null) {
-        _tradeCache.put(new Element(trade.getUniqueId(), trade));
-      }
+      _tradeCache.put(new Element(trade.getUniqueId(), trade));
       return trade;
     }
   }

@@ -29,7 +29,7 @@ import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.marketdata.historical.HistoricalMarketDataProvider;
+import com.opengamma.engine.marketdata.historical.AbstractHistoricalMarketDataProvider;
 import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.view.client.ViewClient;
@@ -42,6 +42,7 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.VersionUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
@@ -140,7 +141,7 @@ public class CommandLineBatchJob {
    * Optional. If not given, you need to pre-populate the
    * batch DB with all necessary market data.   
    */
-  private HistoricalMarketDataProvider _historicalMarketDataProvider;
+  private AbstractHistoricalMarketDataProvider _historicalMarketDataProvider;
   
   /**
    * This is used to determine the name of the property file from
@@ -171,8 +172,7 @@ public class CommandLineBatchJob {
 
   public CommandLineBatchJob() {
     _user = UserPrincipal.getLocalUser();
-    // TODO: TIMEZONE
-    _creationTime = ZonedDateTime.now();  // used later to obtain local date/time and zone
+    _creationTime = ZonedDateTime.now(OpenGammaClock.getInstance());  // used later to obtain local date/time and zone
   }
 
   // --------------------------------------------------------------------------
@@ -307,11 +307,11 @@ public class CommandLineBatchJob {
     _holidayCurrency = holidayCurrency;
   }
   
-  public HistoricalMarketDataProvider getHistoricalMarketDataProvider() {
+  public AbstractHistoricalMarketDataProvider getHistoricalMarketDataProvider() {
     return _historicalMarketDataProvider;
   }
 
-  public void setHistoricalMarketDataProvider(HistoricalMarketDataProvider historicalMarketDataProvider) {
+  public void setHistoricalMarketDataProvider(AbstractHistoricalMarketDataProvider historicalMarketDataProvider) {
     _historicalMarketDataProvider = historicalMarketDataProvider;
   }
 

@@ -42,7 +42,7 @@ import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResource;
 import com.opengamma.financial.depgraph.rest.DependencyGraphBuilderResourceContextBean;
 import com.opengamma.financial.function.rest.DataFunctionRepositoryResource;
 import com.opengamma.financial.view.rest.DataAvailableOutputsProviderResource;
-import com.opengamma.financial.view.rest.DataViewProcessorsResource;
+import com.opengamma.financial.view.rest.DataViewProcessorResource;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.jms.JmsConnector;
@@ -80,11 +80,6 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
   @PropertyDefinition
   private String _jmsBrokerUri;
   /**
-   * The view processor id (currently needed, but may disappear).
-   */
-  @PropertyDefinition
-  private String _viewProcessorId;
-  /**
    * The scheduler.
    */
   @PropertyDefinition(validate = "notNull")
@@ -111,6 +106,7 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     initUserPrincipal(repo, appContext);
     initFunctions(repo, appContext);
     initForDebugging(repo, appContext);
+    registerSpringLifecycleStop(repo, appContext);
   }
 
   /**
@@ -125,14 +121,10 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     if (getJmsBrokerUri() != null) {
       info.addAttribute(ComponentInfoAttributes.JMS_BROKER_URI, getJmsBrokerUri());
     }
-    if (getViewProcessorId() != null) {
-      info.addAttribute(ComponentInfoAttributes.VIEW_PROCESSOR_ID, getViewProcessorId());
-    }
     repo.registerComponent(info, viewProcessor);
     
     if (isPublishRest()) {
-      DataViewProcessorsResource vpResource = new DataViewProcessorsResource(
-          viewProcessor, getVolatilityCubeDefinitionSource(), getJmsConnector(), getFudgeContext(), getScheduler());
+      final DataViewProcessorResource vpResource = new DataViewProcessorResource(viewProcessor, getVolatilityCubeDefinitionSource(), getJmsConnector(), getFudgeContext(), getScheduler());
       repo.getRestComponents().publish(info, vpResource);
     }
   }
@@ -264,8 +256,6 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
         return getJmsConnector();
       case 2047189283:  // jmsBrokerUri
         return getJmsBrokerUri();
-      case 736640360:  // viewProcessorId
-        return getViewProcessorId();
       case -160710469:  // scheduler
         return getScheduler();
       case 1540542824:  // volatilityCubeDefinitionSource
@@ -293,9 +283,6 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
         return;
       case 2047189283:  // jmsBrokerUri
         setJmsBrokerUri((String) newValue);
-        return;
-      case 736640360:  // viewProcessorId
-        setViewProcessorId((String) newValue);
         return;
       case -160710469:  // scheduler
         setScheduler((ScheduledExecutorService) newValue);
@@ -331,7 +318,6 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
           JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           JodaBeanUtils.equal(getJmsBrokerUri(), other.getJmsBrokerUri()) &&
-          JodaBeanUtils.equal(getViewProcessorId(), other.getViewProcessorId()) &&
           JodaBeanUtils.equal(getScheduler(), other.getScheduler()) &&
           JodaBeanUtils.equal(getVolatilityCubeDefinitionSource(), other.getVolatilityCubeDefinitionSource()) &&
           JodaBeanUtils.equal(getMarketDataProviderResolver(), other.getMarketDataProviderResolver()) &&
@@ -348,7 +334,6 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsBrokerUri());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessorId());
     hash += hash * 31 + JodaBeanUtils.hashCode(getScheduler());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVolatilityCubeDefinitionSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataProviderResolver());
@@ -488,31 +473,6 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the view processor id (currently needed, but may disappear).
-   * @return the value of the property
-   */
-  public String getViewProcessorId() {
-    return _viewProcessorId;
-  }
-
-  /**
-   * Sets the view processor id (currently needed, but may disappear).
-   * @param viewProcessorId  the new value of the property
-   */
-  public void setViewProcessorId(String viewProcessorId) {
-    this._viewProcessorId = viewProcessorId;
-  }
-
-  /**
-   * Gets the the {@code viewProcessorId} property.
-   * @return the property, not null
-   */
-  public final Property<String> viewProcessorId() {
-    return metaBean().viewProcessorId().createProperty(this);
-  }
-
-  //-----------------------------------------------------------------------
-  /**
    * Gets the scheduler.
    * @return the value of the property, not null
    */
@@ -623,11 +583,6 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     private final MetaProperty<String> _jmsBrokerUri = DirectMetaProperty.ofReadWrite(
         this, "jmsBrokerUri", SpringViewProcessorComponentFactory.class, String.class);
     /**
-     * The meta-property for the {@code viewProcessorId} property.
-     */
-    private final MetaProperty<String> _viewProcessorId = DirectMetaProperty.ofReadWrite(
-        this, "viewProcessorId", SpringViewProcessorComponentFactory.class, String.class);
-    /**
      * The meta-property for the {@code scheduler} property.
      */
     private final MetaProperty<ScheduledExecutorService> _scheduler = DirectMetaProperty.ofReadWrite(
@@ -652,7 +607,6 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
         "fudgeContext",
         "jmsConnector",
         "jmsBrokerUri",
-        "viewProcessorId",
         "scheduler",
         "volatilityCubeDefinitionSource",
         "marketDataProviderResolver");
@@ -676,8 +630,6 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
           return _jmsConnector;
         case 2047189283:  // jmsBrokerUri
           return _jmsBrokerUri;
-        case 736640360:  // viewProcessorId
-          return _viewProcessorId;
         case -160710469:  // scheduler
           return _scheduler;
         case 1540542824:  // volatilityCubeDefinitionSource
@@ -742,14 +694,6 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
      */
     public final MetaProperty<String> jmsBrokerUri() {
       return _jmsBrokerUri;
-    }
-
-    /**
-     * The meta-property for the {@code viewProcessorId} property.
-     * @return the meta-property, not null
-     */
-    public final MetaProperty<String> viewProcessorId() {
-      return _viewProcessorId;
     }
 
     /**

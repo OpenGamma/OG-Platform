@@ -109,17 +109,25 @@ public class DependencyGraphBuilderFactory {
         while (threads < getMaxAdditionalThreads()) {
           final Runnable command = _commands.poll();
           if (command == null) {
-            s_logger.debug("No pending commands to run - {}", threads);
+            if (s_logger.isDebugEnabled()) {
+              s_logger.debug("No pending commands to run - {}", threads);
+            }
             return;
           }
-          s_logger.debug("Thread capacity available - {}", threads);
+          if (s_logger.isDebugEnabled()) {
+            s_logger.debug("Thread capacity available - {}", threads);
+          }
           threads = _threads.incrementAndGet();
           if (threads <= getMaxAdditionalThreads()) {
-            s_logger.debug("Thread capacity {} acquired for execution", threads);
+            if (s_logger.isDebugEnabled()) {
+              s_logger.debug("Thread capacity {} acquired for execution", threads);
+            }
             executeImpl(command);
             return;
           }
-          s_logger.debug("Too many threads {} - requeuing job", threads);
+          if (s_logger.isDebugEnabled()) {
+            s_logger.debug("Too many threads {} - requeuing job", threads);
+          }
           _commands.add(command);
           threads = _threads.decrementAndGet();
         }
@@ -129,12 +137,16 @@ public class DependencyGraphBuilderFactory {
       public void execute(final Runnable command) {
         final int threads = _threads.incrementAndGet();
         if (threads <= getMaxAdditionalThreads()) {
-          s_logger.debug("Direct execution - {} threads", threads);
+          if (s_logger.isDebugEnabled()) {
+            s_logger.debug("Direct execution - {} threads", threads);
+          }
           executeImpl(command);
           return;
         }
         // Already started too many jobs
-        s_logger.debug("Too many threads {} - queuing job", threads);
+        if (s_logger.isDebugEnabled()) {
+          s_logger.debug("Too many threads {} - queuing job", threads);
+        }
         _commands.add(command);
         threadExit();
       }

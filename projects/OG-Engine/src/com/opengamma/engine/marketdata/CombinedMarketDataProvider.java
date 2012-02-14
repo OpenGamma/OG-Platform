@@ -16,15 +16,14 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.spec.CombinedMarketDataSpecification;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.livedata.UserPrincipal;
 
 /**
- * Implementation of {@link MarketDataProvider} which sources its data from on of two {@link MarketDataProvider}s, 
- *  choosing based on the availability of data.
+ * Implementation of {@link MarketDataProvider} which sources its data from one of two {@link MarketDataProvider}s, 
+ * choosing based on the availability of data.
  */
 public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
 
@@ -209,7 +208,7 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
   public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
     CombinedMarketDataSpecification combinedSpec = (CombinedMarketDataSpecification) marketDataSpec;
     Map<MarketDataProvider, MarketDataSnapshot> snapByProvider = new HashMap<MarketDataProvider, MarketDataSnapshot>();
-    snapByProvider.put(_preferred, _preferred.snapshot(combinedSpec.getPrefferedSpecification()));
+    snapByProvider.put(_preferred, _preferred.snapshot(combinedSpec.getPreferredSpecification()));
     snapByProvider.put(_fallBack, _fallBack.snapshot(combinedSpec.getFallbackSpecification()));
     MarketDataSnapshot preferredSnap = snapByProvider.get(_preferred);
     return new CombinedMarketDataSnapshot(preferredSnap, snapByProvider, this);
@@ -221,7 +220,7 @@ public class CombinedMarketDataProvider extends AbstractMarketDataProvider {
       return false;
     }
     CombinedMarketDataSpecification combinedMarketDataSpec = (CombinedMarketDataSpecification) marketDataSpec;
-    return _preferred.isCompatible(combinedMarketDataSpec.getPrefferedSpecification())
+    return _preferred.isCompatible(combinedMarketDataSpec.getPreferredSpecification())
         && _fallBack.isCompatible(combinedMarketDataSpec.getFallbackSpecification());
   }
 

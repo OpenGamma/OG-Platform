@@ -5,6 +5,7 @@
  */
 package com.opengamma.component;
 
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -25,8 +26,9 @@ import org.springframework.core.io.Resource;
  * Main entry point for OpenGamma component-based servers.
  * <p>
  * This class starts an OpenGamma JVM process using the specified config file.
+ * A {@link OpenGammaComponentServerMonitor monitor} thread will also be started.
  * <p>
- * Two types of config file format are recognized - properties and props (INI).
+ * Two types of config file format are recognized - properties and INI.
  * A properties file must be in the standard Java format and contain a key "component.ini"
  * which is the resource location of the main INI file.
  * The INI file is described in {@link ComponentConfigLoader}.
@@ -116,7 +118,7 @@ public class OpenGammaComponentServer {
   protected void run(int verbosity, String configFile) {
     long start = System.nanoTime();
     if (verbosity > 0) {
-      System.out.println("======== STARTING OPEN GAMMA ========");
+      System.out.println("======== STARTING OPENGAMMA ========");
       if (verbosity > 1) {
         System.out.println(" Config file: " + configFile);
       }
@@ -130,16 +132,17 @@ public class OpenGammaComponentServer {
       manager = new ComponentManager();
     }
     try {
+      OpenGammaComponentServerMonitor.create(manager.getRepository());
       manager.start(configFile);
     } catch (Exception ex) {
       ex.printStackTrace(System.err);
-      System.out.println("======== OPEN GAMMA FAILED ========");
+      System.out.println("======== OPENGAMMA FAILED ========");
       System.exit(1);
     }
     
     if (verbosity > 0) {
       long end = System.nanoTime();
-      System.out.println("======== OPEN GAMMA STARTED in " + ((end - start) / 1000000) + "ms ========");
+      System.out.println("======== OPENGAMMA STARTED in " + ((end - start) / 1000000) + "ms ========");
     }
   }
 
@@ -169,6 +172,19 @@ public class OpenGammaComponentServer {
     }
     public VerboseManager(ComponentRepository repo) {
       super(repo);
+    }
+    @Override
+    public ComponentRepository start(Resource resource) {
+      try {
+        System.out.println("  Using file: " + resource.getURI());
+      } catch (IOException ex) {
+        try {
+          System.out.println("  Using file: " + resource.getFile());
+        } catch (IOException ex2) {
+          System.out.println("  Using file: " + resource);
+        }
+      }
+      return super.start(resource);
     }
     @Override
     protected void loadIni(Resource resource) {

@@ -26,7 +26,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
- * A bean representation of a {@link FXOptionSecurity}.
+ * A bean representation of a {@link FXDigitalOptionSecurity}.
  */
 @BeanDefinition
 public class FXDigitalOptionSecurityBean extends SecurityBean {

@@ -5,17 +5,23 @@
  */
 package com.opengamma.component;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.LinkedHashMap;
 import java.util.Map.Entry;
 import java.util.Properties;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
+import javax.time.calendar.TimeZone;
+
 import org.joda.beans.Bean;
 import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.AbstractResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
@@ -24,6 +30,7 @@ import org.springframework.util.ResourceUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.OpenGammaClock;
 import com.opengamma.util.PlatformConfigUtils;
 
 /**
@@ -57,6 +64,10 @@ public class ComponentManager {
    * The key identifying the next config file in a properties file.
    */
   private static final String MANAGER_NEXT_FILE = "MANAGER.NEXT.FILE";
+  /**
+   * The key identifying the entire combined set of active properties.
+   */
+  private static final String MANAGER_PROPERTIES = "MANAGER.PROPERTIES";
 
   /**
    * The component repository.
@@ -218,6 +229,10 @@ public class ComponentManager {
       } else if (runMode != null && mds == null) {
         PlatformConfigUtils.configureSystemProperties(runMode);
       }
+      String zoneId = global.get("time.zone");
+      if (zoneId != null) {
+        OpenGammaClock.setZone(TimeZone.of(zoneId));
+      }
     }
   }
 
@@ -303,8 +318,9 @@ public class ComponentManager {
    * 
    * @param factory  the factory, not null
    * @param remainingConfig  the config data, not null
+   * @throws Exception allowing throwing of a checked exception
    */
-  protected void setFactoryProperties(ComponentFactory factory, LinkedHashMap<String, String> remainingConfig) {
+  protected void setFactoryProperties(ComponentFactory factory, LinkedHashMap<String, String> remainingConfig) throws Exception {
     if (factory instanceof Bean) {
       Bean bean = (Bean) factory;
       for (MetaProperty<Object> mp : bean.metaBean().metaPropertyIterable()) {
@@ -315,12 +331,49 @@ public class ComponentManager {
         } else if ("null".equals(value)) {
           // forcibly set to null
           mp.set(bean, null);
+        } else if (MANAGER_PROPERTIES.equals(value) && Resource.class.equals(mp.propertyType())) {
+          // set to the combined set of properties
+          setFactoryPropertyManagerProperties(bean, mp);
         } else {
           // set value
           setFactoryProperty(bean, mp, value);
         }
       }
     }
+  }
+
+  /**
+   * Intelligently sets the property to the merged set of properties.
+   * <p>
+   * The key "MANAGER.PROPERTIES" can be used in a properties file to refer to
+   * the entire set of merged properties. This is normally what you want to pass
+   * into other systems (such as Spring) that need a set of properties.
+   * 
+   * @param bean  the bean, not null
+   * @param mp  the property, not null
+   * @throws Exception allowing throwing of a checked exception
+   */
+  protected void setFactoryPropertyManagerProperties(Bean bean, MetaProperty<Object> mp) throws Exception {
+    final ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
+    Properties props = new Properties();
+    props.putAll(getProperties());
+    props.store(out, MANAGER_PROPERTIES + " for " + mp);
+    out.close();
+    Resource resource = new AbstractResource() {
+      @Override
+      public String getDescription() {
+        return MANAGER_PROPERTIES;
+      }
+      @Override
+      public String getFilename() throws IllegalStateException {
+        return MANAGER_PROPERTIES + ".properties";
+      }
+      @Override
+      public InputStream getInputStream() throws IOException {
+        return new ByteArrayInputStream(out.toByteArray());
+      }
+    };
+    mp.set(bean, resource);
   }
 
   /**
@@ -331,8 +384,9 @@ public class ComponentManager {
    * @param bean  the bean, not null
    * @param mp  the property, not null
    * @param value  the value, not null
+   * @throws Exception allowing throwing of a checked exception
    */
-  protected void setFactoryProperty(Bean bean, MetaProperty<Object> mp, String value) {
+  protected void setFactoryProperty(Bean bean, MetaProperty<Object> mp, String value) throws Exception {
     Class<?> propertyType = mp.propertyType();
     if (propertyType == ComponentRepository.class) {
       // set the repo

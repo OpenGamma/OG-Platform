@@ -32,10 +32,13 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunction;
-import com.opengamma.financial.analytics.timeseries.sampling.TimeSeriesSamplingFunctionFactory;
+import com.opengamma.financial.convention.calendar.Calendar;
+import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
+import com.opengamma.financial.schedule.HolidayDateRemovalFunction;
 import com.opengamma.financial.schedule.Schedule;
 import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
+import com.opengamma.financial.schedule.TimeSeriesSamplingFunction;
+import com.opengamma.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -43,6 +46,8 @@ import com.opengamma.util.timeseries.DoubleTimeSeries;
  * 
  */
 public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final HolidayDateRemovalFunction HOLIDAY_REMOVER = HolidayDateRemovalFunction.getInstance();
+  private static final Calendar WEEKEND_CALENDAR = new MondayToFridayCalendar("Weekend");
   private final String _resolutionKey;
   private final String _fieldName;
 
@@ -78,13 +83,13 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
     }
     final Schedule scheduleCalculator = getScheduleCalculator(scheduleCalculatorName);
     final TimeSeriesSamplingFunction samplingFunction = getSamplingFunction(samplingFunctionName);
-    final LocalDate[] schedule = scheduleCalculator.getSchedule(startDate, now, true, false); //REVIEW emcleod should "fromEnd" be hard-coded?
+    final LocalDate[] schedule = HOLIDAY_REMOVER.getStrippedSchedule(scheduleCalculator.getSchedule(startDate, now, true, false), WEEKEND_CALENDAR); //REVIEW emcleod should "fromEnd" be hard-coded?
     final DoubleTimeSeries<?> resultTS = samplingFunction.getSampledTimeSeries(ts, schedule);
     final ValueProperties resultProperties = createValueProperties()
-      .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName)
-      .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName)
-      .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName)
-      .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode()).get();
+        .with(ValuePropertyNames.SAMPLING_PERIOD, samplingPeriodName)
+        .with(ValuePropertyNames.SCHEDULE_CALCULATOR, scheduleCalculatorName)
+        .with(ValuePropertyNames.SAMPLING_FUNCTION, samplingFunctionName)
+        .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode()).get();
     final ValueRequirement vr = new ValueRequirement(ValueRequirementNames.PRICE_SERIES, security, resultProperties);
     final ValueSpecification valueSpecification = new ValueSpecification(vr, getUniqueId());
     final ComputedValue result = new ComputedValue(valueSpecification, resultTS);
@@ -98,7 +103,7 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
     }
     try {
       return FinancialSecurityUtils.getCurrency(target.getSecurity()) != null;
-    } catch (UnsupportedOperationException e) {
+    } catch (final UnsupportedOperationException e) {
       return false;
     }
   }
@@ -112,12 +117,12 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties.Builder properties = createValueProperties();
     properties.withAny(ValuePropertyNames.SAMPLING_PERIOD)
-              .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
-              .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-              .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
+    .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
+    .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
+    .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
     return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, target.getSecurity(), properties.get()), getUniqueId()));
   }
-  
+
   @Override
   public ComputationTargetType getTargetType() {
     return ComputationTargetType.SECURITY;
@@ -126,17 +131,17 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
   private Period getSamplingPeriod(final Set<String> samplingPeriodNames) {
     if (samplingPeriodNames == null || samplingPeriodNames.isEmpty() || samplingPeriodNames.size() != 1) {
       throw new OpenGammaRuntimeException("Missing or non-unique sampling period name: " + samplingPeriodNames);
-    }  
+    }
     return Period.parse(samplingPeriodNames.iterator().next());
   }
-  
+
   private Schedule getScheduleCalculator(final Set<String> scheduleCalculatorNames) {
     if (scheduleCalculatorNames == null || scheduleCalculatorNames.isEmpty() || scheduleCalculatorNames.size() != 1) {
       throw new OpenGammaRuntimeException("Missing or non-unique schedule calculator name: " + scheduleCalculatorNames);
     }
     return ScheduleCalculatorFactory.getScheduleCalculator(scheduleCalculatorNames.iterator().next());
   }
-  
+
   private TimeSeriesSamplingFunction getSamplingFunction(final Set<String> samplingFunctionNames) {
     if (samplingFunctionNames == null || samplingFunctionNames.isEmpty() || samplingFunctionNames.size() != 1) {
       throw new OpenGammaRuntimeException("Missing or non-unique sampling function name: " + samplingFunctionNames);

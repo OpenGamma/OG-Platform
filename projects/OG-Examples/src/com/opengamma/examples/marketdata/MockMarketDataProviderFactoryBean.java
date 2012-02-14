@@ -12,11 +12,11 @@ import javax.time.Instant;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.MarketDataListener;
+import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
-import com.opengamma.engine.marketdata.permission.MarketDataPermissionProvider;
-import com.opengamma.engine.marketdata.permission.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.livedata.UserPrincipal;

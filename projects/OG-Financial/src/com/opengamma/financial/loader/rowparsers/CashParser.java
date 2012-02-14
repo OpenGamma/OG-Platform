@@ -17,16 +17,16 @@ import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.loader.RowParser;
+import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 
+/**
+ * This class parses standard OG import fields to generate a Cash security
+ */
 public class CashParser extends RowParser {
-
-  private static final String ID_SCHEME = "CASH_LOADER";
 
   //CSOFF
   protected String CURRENCY = "currency";
@@ -37,7 +37,11 @@ public class CashParser extends RowParser {
   protected String RATE = "rate";
   protected String AMOUNT = "amount";
   //CSON
-  
+
+  public CashParser(LoaderContext loaderContext) {
+    super(loaderContext);
+  }
+
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> cashDetails) {
     Currency ccy = Currency.of(getWithException(cashDetails, CURRENCY));

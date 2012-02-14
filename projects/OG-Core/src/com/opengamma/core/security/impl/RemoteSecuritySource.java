@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.security.Security;
@@ -22,6 +23,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.FudgeListWrapper;
 import com.opengamma.util.rest.AbstractRemoteClient;
+import com.sun.jersey.api.client.UniformInterfaceException;
 
 /**
  * Provides remote access to an {@link SecuritySource}.
@@ -115,8 +117,17 @@ public class RemoteSecuritySource extends AbstractRemoteClient implements Securi
   public Security getSecurity(final ExternalIdBundle bundle) {
     ArgumentChecker.notNull(bundle, "bundle");
     
-    URI uri = DataSecuritySourceResource.uriSearchSingle(getBaseUri(), bundle, null);
-    return accessRemote(uri).get(Security.class);
+    try {
+      URI uri = DataSecuritySourceResource.uriSearchSingle(getBaseUri(), bundle, null);
+      return accessRemote(uri).get(Security.class);
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException ex) {
+      if (ex.getResponse().getStatus() == 404) {
+        return null;
+      }
+      throw ex;
+    }
   }
 
   @Override
@@ -124,8 +135,17 @@ public class RemoteSecuritySource extends AbstractRemoteClient implements Securi
     ArgumentChecker.notNull(bundle, "bundle");
     ArgumentChecker.notNull(versionCorrection, "versionCorrection");
     
-    URI uri = DataSecuritySourceResource.uriSearchSingle(getBaseUri(), bundle, versionCorrection);
-    return accessRemote(uri).get(Security.class);
+    try {
+      URI uri = DataSecuritySourceResource.uriSearchSingle(getBaseUri(), bundle, versionCorrection);
+      return accessRemote(uri).get(Security.class);
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException ex) {
+      if (ex.getResponse().getStatus() == 404) {
+        return null;
+      }
+      throw ex;
+    }
   }
 
 }

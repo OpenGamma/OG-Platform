@@ -53,7 +53,4 @@ $JAVA  -cp "$CLASSPATH" \
   -Xms1024M \
   -Xmx4096M \
   -Dlogback.configurationFile=jetty-logback.xml \
-  -Dopengamma.platform.runmode=example \
-  -Dopengamma.platform.marketdatasource=direct \
-  -Dopengamma.platform.os=posix \
   com.opengamma.examples.loader.DemoDatabasePopulater

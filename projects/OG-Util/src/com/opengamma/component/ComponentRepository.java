@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.servlet.ServletContext;
 
@@ -22,6 +23,7 @@ import org.springframework.context.Lifecycle;
 import org.springframework.web.context.ServletContextAware;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ReflectionUtils;
 
 /**
  * A repository for OpenGamma components.
@@ -68,7 +70,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   /**
    * The status.
    */
-  private volatile Status _status = Status.CREATING;
+  private AtomicReference<Status> _status = new AtomicReference<Status>(Status.CREATING);
 
   /**
    * Creates an instance.
@@ -255,7 +257,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       registered(info, instance);
       
     } catch (RuntimeException ex) {
-      _status = Status.FAILED;
+      _status.set(Status.FAILED);
       throw new RuntimeException("Failed during registration: " + key, ex);
     }
   }
@@ -284,7 +286,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       registered(key, instance);
       
     } catch (RuntimeException ex) {
-      _status = Status.FAILED;
+      _status.set(Status.FAILED);
       throw new RuntimeException("Failed during registration: " + key, ex);
     }
   }
@@ -305,13 +307,64 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     }
     if (instance instanceof Lifecycle) {
       registerLifecycle0((Lifecycle) instance);
+    } else {
+      findAndRegisterLifeCycle(instance);
     }
     if (instance instanceof ServletContextAware) {
       registerServletContextAware0((ServletContextAware) instance);
     }
   }
 
+  private void findAndRegisterLifeCycle(final Object obj) {
+    if (ReflectionUtils.isCloseable(obj.getClass())) {
+      registerLifecycle0(new Lifecycle() {
+        @Override
+        public void stop() {
+          ReflectionUtils.close(obj);
+        }
+        @Override
+        public void start() {
+        }
+        @Override
+        public boolean isRunning() {
+          return false;
+        }
+        @Override
+        public String toString() {
+          return obj.getClass().getSimpleName() + ":" + obj.toString();
+        }
+      });
+    }
+  }
+
   //-------------------------------------------------------------------------
+  /**
+   * Registers a non-component object that requires closing or shutdown when
+   * the repository stops.
+   * 
+   * @param obj  the object to close/shutdown, not null
+   * @param methodName  the method name to call, not null
+   */
+  public void registerLifecycleStop(final Object obj, final String methodName) {
+    registerLifecycle0(new Lifecycle() {
+      @Override
+      public void stop() {
+        ReflectionUtils.invokeNoArgsNoException(obj, methodName);
+      }
+      @Override
+      public void start() {
+      }
+      @Override
+      public boolean isRunning() {
+        return false;
+      }
+      @Override
+      public String toString() {
+        return obj.getClass().getSimpleName() + ":" + obj.toString();
+      }
+    });
+  }
+
   /**
    * Registers a non-component object implementing {@code Lifecycle}.
    * 
@@ -326,7 +379,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       registered(null, lifecycleObject);
       
     } catch (RuntimeException ex) {
-      _status = Status.FAILED;
+      _status.set(Status.FAILED);
       throw new RuntimeException("Failed during registering Lifecycle: " + lifecycleObject, ex);
     }
   }
@@ -355,7 +408,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       registered(null, servletContextAware);
       
     } catch (RuntimeException ex) {
-      _status = Status.FAILED;
+      _status.set(Status.FAILED);
       throw new RuntimeException("Failed during registering ServletContextAware: " + servletContextAware, ex);
     }
   }
@@ -394,15 +447,15 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   @Override
   public void start() {
     checkStatus(Status.CREATING);
-    _status = Status.STARTING;
+    _status.set(Status.STARTING);
     try {
       for (Lifecycle obj : _lifecycles) {
         obj.start();
       }
-      _status = Status.RUNNING;
+      _status.set(Status.RUNNING);
       
     } catch (RuntimeException ex) {
-      _status = Status.FAILED;
+      _status.set(Status.FAILED);
       throw ex;
     }
   }
@@ -412,15 +465,21 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    */
   @Override
   public void stop() {
-    if (_status == Status.STOPPING) {
-      return;
+    Status status = _status.get();
+    if (status == Status.STOPPING || status == Status.STOPPED) {
+      return;  // nothing to stop in this thread
     }
-    checkStatus(Status.RUNNING);
-    _status = Status.STOPPING;
+    if (_status.compareAndSet(status, Status.STOPPING) == false) {
+      return;  // another thread just beat this one
+    }
     for (Lifecycle obj : _lifecycles) {
-      obj.stop();
+      try {
+        obj.stop();
+      } catch (Exception ex) {
+        // ignore
+      }
     }
-    _status = Status.STOPPED;
+    _status.set(Status.STOPPED);
   }
 
   /**
@@ -430,7 +489,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    */
   @Override
   public boolean isRunning() {
-    return _status == Status.RUNNING;
+    return _status.get() == Status.RUNNING;
   }
 
   //-------------------------------------------------------------------------
@@ -485,7 +544,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   //-------------------------------------------------------------------------
   private void checkStatus(Status status) {
-    if (_status != status) {
+    if (_status.get() != status) {
       throw new IllegalStateException("Invalid repository status, expected " + status + " but was " + _status);
     }
   }

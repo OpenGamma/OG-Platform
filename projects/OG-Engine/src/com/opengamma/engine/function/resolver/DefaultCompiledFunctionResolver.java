@@ -12,7 +12,6 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedMap;
@@ -59,7 +58,7 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   /**
    * Cache of targets.
    */
-  private final ConcurrentMap<ComputationTarget, List<Pair<ResolutionRule, Set<ValueSpecification>>>> _targetCache = new MapMaker().weakKeys().makeMap();
+  private final ConcurrentMap<ComputationTarget, Pair<ResolutionRule[], Set<ValueSpecification>[]>> _targetCache = new MapMaker().weakKeys().makeMap();
 
   /**
    * Creates a resolver.
@@ -155,9 +154,10 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   @SuppressWarnings("unchecked")
   @Override
   public Iterator<Pair<ParameterizedFunction, ValueSpecification>> resolveFunction(final ValueRequirement requirement, final ComputationTarget target) {
-    List<Pair<ResolutionRule, Set<ValueSpecification>>> cached = _targetCache.get(target);
+    Pair<ResolutionRule[], Set<ValueSpecification>[]> cached = _targetCache.get(target);
     if (cached == null) {
-      final LinkedList<Pair<ResolutionRule, Set<ValueSpecification>>> applicableRules = new LinkedList<Pair<ResolutionRule, Set<ValueSpecification>>>();
+      final LinkedList<ResolutionRule> resolutionRules = new LinkedList<ResolutionRule>();
+      final LinkedList<Set<ValueSpecification>> resolutionResults = new LinkedList<Set<ValueSpecification>>();
       final SortedMap<Integer, Collection<ResolutionRule>> priority2Rules = _type2Priority2Rules.get(target.getType());
       if (priority2Rules != null) {
         for (Collection<ResolutionRule> rules : priority2Rules.values()) {
@@ -165,17 +165,20 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
           for (ResolutionRule rule : rules) {
             final Set<ValueSpecification> results = rule.getResults(target, getFunctionCompilationContext());
             if ((results != null) && !results.isEmpty()) {
-              applicableRules.add(Pair.of(rule, results));
+              resolutionRules.add(rule);
+              resolutionResults.add(results);
               rulesFound++;
             }
           }
           if (rulesFound > 1) {
             // sort only the sub-list of rules associated with the priority
-            final Iterator<Pair<ResolutionRule, Set<ValueSpecification>>> iterator = applicableRules.descendingIterator();
+            final Iterator<ResolutionRule> rulesIterator = resolutionRules.descendingIterator();
+            final Iterator<Set<ValueSpecification>> resultsIterator = resolutionResults.descendingIterator();
             final Pair<ResolutionRule, Set<ValueSpecification>>[] found = new Pair[rulesFound];
             for (int i = 0; i < rulesFound; i++) {
-              found[i] = iterator.next();
-              iterator.remove();
+              found[i] = Pair.of(rulesIterator.next(), resultsIterator.next());
+              rulesIterator.remove();
+              resultsIterator.remove();
             }
             // TODO [ENG-260] re-order the last "rulesFound" rules in the list with a cost-based heuristic (cheapest first)
             // TODO [ENG-260] throw an exception if there are two rules which can't be re-ordered
@@ -184,15 +187,20 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
             // We should wrap it at construction in something that will detect the equality case and trigger an exception.
             Arrays.sort(found, RULE_COMPARATOR);
             for (int i = 0; i < rulesFound; i++) {
-              applicableRules.add(found[i]);
+              resolutionRules.add(found[i].getFirst());
+              resolutionResults.add(found[i].getSecond());
             }
           }
         }
       } else {
         s_logger.warn("No rules for target type {}", target);
       }
-      final List<Pair<ResolutionRule, Set<ValueSpecification>>> existing = _targetCache.putIfAbsent(target, applicableRules);
-      cached = (existing != null) ? existing : applicableRules;
+      cached = (Pair<ResolutionRule[], Set<ValueSpecification>[]>) (Pair<?, ?>) Pair.of(resolutionRules.toArray(new ResolutionRule[resolutionRules.size()]),
+          resolutionResults.toArray(new Set[resolutionResults.size()]));
+      final Pair<ResolutionRule[], Set<ValueSpecification>[]> existing = _targetCache.putIfAbsent(target, cached);
+      if (existing != null) {
+        cached = existing;
+      }
     }
     return new It(target, requirement, cached);
   }
@@ -204,33 +212,36 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
   private static final class It implements Iterator<Pair<ParameterizedFunction, ValueSpecification>> {
     private final ComputationTarget _target;
     private final ValueRequirement _requirement;
-    private final Iterator<Pair<ResolutionRule, Set<ValueSpecification>>> _values;
+    private final ResolutionRule[] _rules;
+    private final Set<ValueSpecification>[] _results;
+    private int _itr;
     private Pair<ParameterizedFunction, ValueSpecification> _next;
 
-    private It(final ComputationTarget target, final ValueRequirement requirement, final List<Pair<ResolutionRule, Set<ValueSpecification>>> values) {
+    private It(final ComputationTarget target, final ValueRequirement requirement, final Pair<ResolutionRule[], Set<ValueSpecification>[]> values) {
       _target = target;
       _requirement = requirement;
-      _values = values.iterator();
+      _rules = values.getFirst();
+      _results = values.getSecond();
+      findNext();
     }
 
-    private void takeNext() {
-      if (_next != null) {
-        return;
-      }
-      while (_values.hasNext()) {
-        final Pair<ResolutionRule, Set<ValueSpecification>> value = _values.next();
-        final ValueSpecification result = value.getKey().getResult(_requirement, _target, value.getValue());
+    private void findNext() {
+      while (_itr < _rules.length) {
+        final ResolutionRule rule = _rules[_itr];
+        final Set<ValueSpecification> results = _results[_itr++];
+        final ValueSpecification result = rule.getResult(_requirement, _target, results);
         if (result != null) {
-          _next = Pair.of(value.getKey().getFunction(), result);
+          _next = Pair.of(rule.getFunction(), result);
           return;
         }
       }
+      _next = null;
     }
 
     @Override
     public boolean hasNext() {
       if (_next == null) {
-        takeNext();
+        findNext();
       }
       return _next != null;
     }
@@ -238,11 +249,11 @@ public class DefaultCompiledFunctionResolver implements CompiledFunctionResolver
     @Override
     public Pair<ParameterizedFunction, ValueSpecification> next() {
       if (_next == null) {
-        takeNext();
+        findNext();
       }
-      final Pair<ParameterizedFunction, ValueSpecification> result = _next;
+      Pair<ParameterizedFunction, ValueSpecification> next = _next;
       _next = null;
-      return result;
+      return next;
     }
 
     @Override

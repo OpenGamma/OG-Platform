@@ -12,7 +12,7 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.position.Trade;
@@ -73,10 +73,9 @@ public class ExpandComputedValuesFunction extends AbstractFunctionInvoker implem
       case PORTFOLIO_NODE: {
         final PositionSource positions = sessionContext.getGlobalContext().getPositionSource();
         if (positions != null) {
-          final PortfolioNode node = positions.getPortfolioNode(targetSpec.getUniqueId());
-          if (node != null) {
-            return node.getName();
-          } else {
+          try {
+            return positions.getPortfolioNode(targetSpec.getUniqueId()).getName();
+          } catch (DataNotFoundException ex) {
             s_logger.warn("Node {} not found in position source", targetSpec);
           }
         }
@@ -86,15 +85,16 @@ public class ExpandComputedValuesFunction extends AbstractFunctionInvoker implem
         final PositionSource positions = sessionContext.getGlobalContext().getPositionSource();
         final SecuritySource securities = sessionContext.getGlobalContext().getSecuritySource();
         if ((positions != null) && (securities != null)) {
-          final Position position = positions.getPosition(targetSpec.getUniqueId());
-          if (position != null) {
-            final Security security = position.getSecurityLink().resolve(securities);
-            if (security != null) {
+          try {
+            final Position position = positions.getPosition(targetSpec.getUniqueId());
+            try {
+              final Security security = position.getSecurityLink().resolve(securities);
               return position.getQuantity() + " x " + security.getName();
-            } else {
+              
+            } catch (DataNotFoundException ex) {
               s_logger.warn("Security {} not found in security source for position {}", position.getSecurityLink(), targetSpec);
             }
-          } else {
+          } catch (DataNotFoundException ex) {
             s_logger.warn("Position {} not found in position source", targetSpec);
           }
         }
@@ -118,15 +118,16 @@ public class ExpandComputedValuesFunction extends AbstractFunctionInvoker implem
         final PositionSource positions = sessionContext.getGlobalContext().getPositionSource();
         final SecuritySource securities = sessionContext.getGlobalContext().getSecuritySource();
         if ((positions != null) && (securities != null)) {
-          final Trade trade = positions.getTrade(targetSpec.getUniqueId());
-          if (trade != null) {
-            final Security security = trade.getSecurityLink().resolve(securities);
-            if (security != null) {
+          try {
+            final Trade trade = positions.getTrade(targetSpec.getUniqueId());
+            try {
+              final Security security = trade.getSecurityLink().resolve(securities);
               return trade.getQuantity() + " x " + security.getName() + " (" + trade.getTradeDate() + ")";
-            } else {
+              
+            } catch (DataNotFoundException ex) {
               s_logger.warn("Security {} not found in security source for trade {}", trade.getSecurityLink(), targetSpec);
             }
-          } else {
+          } catch (DataNotFoundException ex) {
             s_logger.warn("Trade {} not found in position source", targetSpec);
           }
         }

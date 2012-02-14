@@ -25,7 +25,9 @@ public class CombinedMarketDataProviderFactoryFactoryBean extends SingletonFacto
   
   @Override
   protected CombinedMarketDataProviderFactory createObject() {
-    return new CombinedMarketDataProviderFactory();
+    CombinedMarketDataProviderFactory factory = new CombinedMarketDataProviderFactory();
+    factory.setUnderlying(getUnderlying());
+    return factory;
   }
 
 }

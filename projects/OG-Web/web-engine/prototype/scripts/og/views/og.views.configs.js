@@ -15,27 +15,16 @@ $.register_module({
         'og.common.util.ui.message',
         'og.common.util.ui.toolbar',
         'og.views.common.layout',
-        'og.views.common.versions',
         'og.views.common.state',
-        'og.views.config_forms.viewdefinition',
-        'og.views.config_forms.yieldcurvedefinition',
-        'og.views.config_forms.curvespecificationbuilderconfiguration',
-        'og.views.config_forms.volatilitycubedefinition',
         'og.views.config_forms.default'
     ],
     obj: function () {
-        var api = og.api,
-            common = og.common,
-            details = common.details,
-            history = common.util.history,
-            masthead = common.masthead,
-            routes = common.routes,
-            search, suppress_update = false,
-            ui = common.util.ui,
-            module = this,
+        var api = og.api, common = og.common, details = common.details,
+            history = common.util.history, masthead = common.masthead, routes = common.routes,
+            search, suppress_update = false, ui = common.util.ui,
+            module = this, view,
             page_name = module.name.split('.').pop(),
             check_state = og.views.common.state.check.partial('/' + page_name),
-            view,
             config_types = [], // used to populate the dropdown in the new button
             toolbar_buttons = {
                 'new': function () {ui.dialog({
@@ -189,13 +178,14 @@ $.register_module({
                 if (new_config_type) rest_options.template = new_config_type; else rest_options.id = args.id;
                 api.rest.configs.get(rest_options);
             };
-        return view = $.extend(new og.views.common.Core(page_name), {
+        return view = $.extend(view = new og.views.common.Core(page_name), {
             default_details: function () {
                 // toolbar here relies on dynamic data, so it is instantiated with a callback instead of having
                 // options passed in (options is set to null for default_details)
                 og.views.common
                     .default_details(page_name, view.name, null, toolbar.partial(view.options.toolbar['default']));
             },
+            details: details_page,
             load: function (args) {
                 view.layout = og.views.common.layout;
                 view.check_state({args: args, conditions: [
@@ -242,12 +232,18 @@ $.register_module({
                     }
                 }
             },
+            rules: $.extend(view.rules(['name', 'type']), {
+                load_new: { // configs have a rule other views don't have, so we need to extend the default set
+                    route: '/' + page_name + '/new/:config_type/name:?/type:?', method: module.name + '.load_new'
+                }
+            }),
             search: function (args) {
                 if (!search) search = common.search_results.core();
                 if (view.options.slickgrid.columns[0].name === 'loading')
                     return setTimeout(view.search.partial(args), 500);
                 if (view.options.slickgrid.columns[0].name === null) return api.rest.configs.get({
                     meta: true,
+                    dependencies: [], // if the page changes, cancel this request
                     handler: function (result) {
                         if (result.error) return view.error(result.message);
                         view.options.slickgrid.columns[0].name = [
@@ -266,17 +262,6 @@ $.register_module({
                     cache_for: 15 * 1000
                 });
                 search.load(view.options.slickgrid);
-            },
-            details: details_page,
-            rules: {
-                load: {route: '/' + page_name + '/name:?/type:?', method: module.name + '.load'},
-                load_item: {route: '/' + page_name + '/:id/name:?/type:?', method: module.name + '.load_item'},
-                load_filter: {
-                    route: '/' + page_name + '/filter:/:id?/name:?/type:?', method: module.name + '.load_filter'
-                },
-                load_new: {
-                    route: '/' + page_name + '/new/:config_type/name:?/type:?', method: module.name + '.load_new'
-                }
             },
             update: function (delivery) {
                 view.search(routes.current().args);

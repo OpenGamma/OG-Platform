@@ -6,6 +6,7 @@
 
 package com.opengamma.financial.loader.rowparsers;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -16,13 +17,18 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.loader.RowParser;
+import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
+/**
+ * This class parses standard OG import fields to generate an FX Forward security
+ */
 public class FXForwardParser extends RowParser {
 
   private static final String ID_SCHEME = "FX_FORWARD_LOADER";
@@ -36,6 +42,10 @@ public class FXForwardParser extends RowParser {
   protected String FORWARD_DATE = "forward date";
   //CSON
   
+  public FXForwardParser(LoaderContext loaderContext) {
+    super(loaderContext);
+  }
+
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> fxForwardDetails) {
     Currency payCurrency = Currency.of(getWithException(fxForwardDetails, PAY_CURRENCY));
@@ -52,6 +62,12 @@ public class FXForwardParser extends RowParser {
     
     ManageableSecurity[] result = {fxForward};
     return result;
+  }
+  
+  public ManageablePosition constructPosition(Map<String, String> row, ManageableSecurity security) {
+    ManageablePosition result = new ManageablePosition(BigDecimal.ONE, security.getExternalIdBundle());
+    
+    return result; 
   }
 
 }

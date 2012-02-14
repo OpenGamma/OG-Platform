@@ -50,11 +50,20 @@ $.register_module({
                 view.search(routes.current().args);
                 view.details(routes.current().args, {hide_loading: true});
             };
+            view.rules = function (filters, extras) {
+                var filter, prefix = 'og.views.' + page_name, page = '/' + page_name, optionals = [
+                    filter = (filters || []).length ? filters.join(':?/') + ':?' : '',
+                    (extras || []).length ? extras.join(':?/') + ':?' : ''
+                ].filter(Boolean).join('/');
+                view.filters = filters || [];
+                return {
+                    load: {route: page + '/' + filter, method: prefix + '.load'},
+                    load_filter: {route: page + '/filter:/:id?/' + optionals, method: prefix + '.load_filter'},
+                    load_item: {route: page + '/:id/' + optionals, method: prefix + '.load_item'}
+                };
+            },
             view.search = function (args) {
-                if (!search) {
-                    search = common.search_results.core();
-                    view.filter = search.filter;
-                }
+                if (!search) (search = common.search_results.core()), view.filter = search.filter;
                 search.load(view.options.slickgrid);
             };
         };

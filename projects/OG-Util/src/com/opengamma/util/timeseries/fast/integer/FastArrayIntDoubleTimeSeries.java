@@ -24,6 +24,7 @@ import java.util.SortedMap;
 
 import org.apache.commons.lang.ArrayUtils;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
@@ -80,9 +81,7 @@ public class FastArrayIntDoubleTimeSeries extends AbstractFastIntDoubleTimeSerie
   public FastArrayIntDoubleTimeSeries(final DateTimeNumericEncoding encoding, final List<Integer> times,
       final List<Double> values) {
     super(encoding);
-    if (times.size() != values.size()) {
-      throw new IllegalArgumentException("lists are of different sizes");
-    }
+    ArgumentChecker.isTrue(times.size() == values.size(), "lists are of different sizes; have {} and {}", times.size(), values.size());
     _times = new int[times.size()];
     _values = new double[values.size()];
     final Iterator<Double> iter = values.iterator();

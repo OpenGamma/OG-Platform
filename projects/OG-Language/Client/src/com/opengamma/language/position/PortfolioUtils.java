@@ -6,6 +6,7 @@
 
 package com.opengamma.language.position;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
@@ -50,6 +51,8 @@ public final class PortfolioUtils {
     s_profilerGet.begin();
     try {
       return positionSource.getPortfolio(identifier);
+    } catch (DataNotFoundException ex) {
+      return null;
     } finally {
       s_profilerGet.end();
     }
