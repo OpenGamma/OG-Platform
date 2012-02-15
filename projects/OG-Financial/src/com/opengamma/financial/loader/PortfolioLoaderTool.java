@@ -41,18 +41,16 @@ public class PortfolioLoaderTool {
   /** Asset class flag */
   private static final String ASSET_CLASS_OPT = "a";
 
- 
   /**
    * ENTRY POINT FOR COMMAND LINE TOOL
    * @param args  Command line args
    */
   public void run(String[] args) { 
-
     s_logger.info(TOOL_NAME + " is initialising...");
     s_logger.info("Current working directory is " + System.getProperty("user.dir"));
-
+    
     // Parse command line arguments
-    CommandLine cmdLine = getCmdLine(args);
+    CommandLine cmdLine = getCmdLine(args, false);
     
     // Configure the OG platform
     PlatformConfigUtils.configureSystemProperties(cmdLine.getOptionValue(RUN_MODE_OPT));
@@ -62,7 +60,29 @@ public class PortfolioLoaderTool {
     // Get an OG loader context, which will provide access to any required masters/sources
     applicationContext.start();
     LoaderContext loaderContext = (LoaderContext) applicationContext.getBean("loaderContext");
+    
+    run(cmdLine, loaderContext);
+    
+    // Clean up and shut down
+    applicationContext.close();
+  }
 
+  /**
+   * ENTRY POINT FOR COMMAND LINE TOOL
+   * @param args  Command line args
+   * @param loaderContext  the loader context
+   */
+  public void run(String[] args, LoaderContext loaderContext) {
+    s_logger.info(TOOL_NAME + " is initialising...");
+    s_logger.info("Current working directory is " + System.getProperty("user.dir"));
+    
+    // Parse command line arguments
+    CommandLine cmdLine = getCmdLine(args, true);
+    
+    run(cmdLine, loaderContext);
+  }
+
+  private void run(CommandLine cmdLine, LoaderContext loaderContext) {
     // Set up writer
     PortfolioWriter portfolioWriter = constructPortfolioWriter(
         cmdLine.getOptionValue(PORTFOLIO_NAME_OPT), 
@@ -81,15 +101,12 @@ public class PortfolioLoaderTool {
     // Flush changes to portfolio master
     portfolioWriter.flush();
     
-    // Clean up and shut down
-    applicationContext.close();
-
     s_logger.info(TOOL_NAME + " is finished.");
   }
   
   
-  private static CommandLine getCmdLine(String[] args) {
-    final Options options = getOptions();
+  private static CommandLine getCmdLine(String[] args, boolean contextProvided) {
+    final Options options = getOptions(contextProvided);
     try {
       return new PosixParser().parse(options, args);
     } catch (ParseException e) {
@@ -99,27 +116,29 @@ public class PortfolioLoaderTool {
     }        
   }
 
-  private static Options getOptions() {
+  private static Options getOptions(boolean contextProvided) {
     Options options = new Options();
     Option filenameOption = new Option(
         FILE_NAME_OPT, "filename", true, "The path to the file containing data to import (CSV or ZIP)");
     filenameOption.setRequired(true);
     options.addOption(filenameOption);
-
+    
     Option portfolioNameOption = new Option(
         PORTFOLIO_NAME_OPT, "name", true, "The name of the destination OpenGamma portfolio");
     options.addOption(portfolioNameOption);
-
-    Option runModeOption = new Option(
-        RUN_MODE_OPT, "runmode", true, "The OpenGamma run mode: shareddev, standalone");
-    runModeOption.setRequired(true);
-    options.addOption(runModeOption);
-
+    
+    if (contextProvided == false) {
+      Option runModeOption = new Option(
+          RUN_MODE_OPT, "runmode", true, "The OpenGamma run mode: shareddev, standalone");
+      runModeOption.setRequired(true);
+      options.addOption(runModeOption);
+    }
+    
     Option writeOption = new Option(
         WRITE_OPT, "write", false, 
         "Actually persists the portfolio to the database if specified, otherwise pretty-prints without persisting");
     options.addOption(writeOption);
-
+    
     Option assetClassOption = new Option(
         ASSET_CLASS_OPT, "assetclass", true, 
         "Specifies the asset class to be found in an input CSV file (ignored if ZIP file is specified)");

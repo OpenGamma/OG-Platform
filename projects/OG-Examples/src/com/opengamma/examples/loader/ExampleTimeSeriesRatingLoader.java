@@ -15,11 +15,8 @@ import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-
 import com.opengamma.examples.marketdata.SimulatedHistoricalDataGenerator;
-import com.opengamma.financial.portfolio.loader.LoaderContext;
+import com.opengamma.examples.tool.AbstractTool;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
@@ -32,24 +29,29 @@ import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating
  * It is designed to run against the HSQLDB example database.  
  * It should be possible to run this class with no extra command line parameters.
  */
-public class TimeSeriesRatingLoader {
+public class ExampleTimeSeriesRatingLoader extends AbstractTool {
 
   /** Logger. */
   @SuppressWarnings("unused")
-  private static final Logger s_logger = LoggerFactory.getLogger(TimeSeriesRatingLoader.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleTimeSeriesRatingLoader.class);
 
+  //-------------------------------------------------------------------------
   /**
-   * The context.
+   * Main method to run the tool.
+   * 
+   * @param args  the arguments, unused
    */
-  private LoaderContext _loaderContext;
-
-  public void setLoaderContext(LoaderContext loaderContext) {
-    _loaderContext = loaderContext;
+  public static void main(String[] args) {  // CSIGNORE
+    if (init()) {
+      new ExampleTimeSeriesRatingLoader().run();
+    }
+    System.exit(0);
   }
- 
-  
-  public void saveHistoricalTimeSeriesRatings() {
-    ConfigMaster configMaster = _loaderContext.getConfigMaster();
+
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doRun() {
+    ConfigMaster configMaster = getToolContext().getConfigMaster();
     ConfigDocument<HistoricalTimeSeriesRating> configDoc = new ConfigDocument<HistoricalTimeSeriesRating>(HistoricalTimeSeriesRating.class);
     List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<HistoricalTimeSeriesRatingRule>();
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "BLOOMBERG", 1));
@@ -60,42 +62,6 @@ public class TimeSeriesRatingLoader {
     configDoc.setName(DEFAULT_CONFIG_NAME);
     configDoc.setValue(ratingConfig);
     ConfigMasterUtils.storeByName(configMaster, configDoc);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Sets up and loads the context.
-   * <p>
-   * This loader requires a Spring configuration file that defines the security,
-   * position and portfolio masters, together with an instance of this bean
-   * under the name "timeSeriesRatingLoader".
-   * 
-   * @param args  the arguments, unused
-   */
-  public static void main(String[] args) {  // CSIGNORE
-    try {
-      LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-      JoranConfigurator configurator = new JoranConfigurator();
-      configurator.setContext(lc);
-      lc.reset(); 
-      configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
-      
-      LocalMastersUtils localMasterUtils = LocalMastersUtils.INSTANCE;
-      
-      try {
-        TimeSeriesRatingLoader populator = new TimeSeriesRatingLoader();
-        populator.setLoaderContext(localMasterUtils.getLoaderContext());
-        System.out.println("Loading data");
-        populator.saveHistoricalTimeSeriesRatings();
-      } finally {
-        localMasterUtils.tearDown();
-      }
-      System.out.println("Finished");
-      
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    System.exit(0);
   }
 
 }
