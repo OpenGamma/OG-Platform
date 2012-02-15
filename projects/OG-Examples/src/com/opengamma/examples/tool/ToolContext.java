@@ -43,6 +43,7 @@ import com.opengamma.master.security.SecurityMaster;
  * A context providing access to standard OpenGamma components for running tools.
  * <p>
  * This class is primarily used by command line tools.
+ * It uses the configuration {@code toolcontext.ini}.
  */
 public final class ToolContext {
 
