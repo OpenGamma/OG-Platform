@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ "`basename $0`" == "stop-jetty.sh" ] ; then
+if [ "`basename $0`" = "stop-jetty.sh" ] ; then
   cd `dirname $0`/..
 fi
 
