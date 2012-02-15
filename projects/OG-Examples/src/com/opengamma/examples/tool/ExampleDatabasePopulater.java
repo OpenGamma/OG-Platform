@@ -8,12 +8,12 @@ package com.opengamma.examples.tool;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
-import com.opengamma.examples.loader.DemoEquityPortfolioAndSecurityLoader;
-import com.opengamma.examples.loader.DemoMultiCurrencySwapPortfolioLoader;
-import com.opengamma.examples.loader.DemoSwapPortfolioLoader;
-import com.opengamma.examples.loader.DemoViewsPopulater;
-import com.opengamma.examples.loader.SimulatedHistoricalDataGeneratorTool;
-import com.opengamma.examples.loader.TimeSeriesRatingLoader;
+import com.opengamma.examples.loader.ExampleEquityPortfolioAndSecurityLoader;
+import com.opengamma.examples.loader.ExampleMultiCurrencySwapPortfolioLoader;
+import com.opengamma.examples.loader.ExampleSwapPortfolioLoader;
+import com.opengamma.examples.loader.ExampleViewsPopulater;
+import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
+import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.util.money.Currency;
 
@@ -62,35 +62,35 @@ public class ExampleDatabasePopulater extends AbstractTool {
   }
 
   private void loadTimeSeriesRating() {
-    TimeSeriesRatingLoader timeSeriesRatingLoader = new TimeSeriesRatingLoader();
+    ExampleTimeSeriesRatingLoader timeSeriesRatingLoader = new ExampleTimeSeriesRatingLoader();
     System.out.println("Creating Timeseries configuration");
     timeSeriesRatingLoader.run(getToolContext());
     System.out.println("Finished");
   }
 
   private void loadSimulatedHistoricalData() {
-    SimulatedHistoricalDataGeneratorTool historicalDataGenerator = new SimulatedHistoricalDataGeneratorTool();
+    ExampleHistoricalDataGeneratorTool historicalDataGenerator = new ExampleHistoricalDataGeneratorTool();
     System.out.println("Creating simulated historical timeseries");
     historicalDataGenerator.run(getToolContext());
     System.out.println("Finished");
   }
 
   private void loadEquityPortfolioAndSecurity() {
-    DemoEquityPortfolioAndSecurityLoader equityLoader = new DemoEquityPortfolioAndSecurityLoader();
+    ExampleEquityPortfolioAndSecurityLoader equityLoader = new ExampleEquityPortfolioAndSecurityLoader();
     System.out.println("Creating example equity portfolio");
     equityLoader.run(getToolContext());
     System.out.println("Finished");
   }
 
   private void loadSwapPortfolio() {
-    DemoSwapPortfolioLoader swapLoader = new DemoSwapPortfolioLoader();
+    ExampleSwapPortfolioLoader swapLoader = new ExampleSwapPortfolioLoader();
     System.out.println("Creating example swap portfolio");
     swapLoader.run(getToolContext());
     System.out.println("Finished");
   }
 
   private void loadMultiCurrencySwapPortfolio() {
-    DemoMultiCurrencySwapPortfolioLoader multiCurrSwapLoader = new DemoMultiCurrencySwapPortfolioLoader();
+    ExampleMultiCurrencySwapPortfolioLoader multiCurrSwapLoader = new ExampleMultiCurrencySwapPortfolioLoader();
     System.out.println("Creating example multi currency swap portfolio");
     multiCurrSwapLoader.run(getToolContext());
     System.out.println("Finished");
@@ -103,8 +103,8 @@ public class ExampleDatabasePopulater extends AbstractTool {
   }
 
   private void loadViews() {
-    DemoViewsPopulater populator = new DemoViewsPopulater();
-    System.out.println("Creating demo view definition");
+    ExampleViewsPopulater populator = new ExampleViewsPopulater();
+    System.out.println("Creating example view definitions");
     populator.run(getToolContext());
     System.out.println("Finished");
   }

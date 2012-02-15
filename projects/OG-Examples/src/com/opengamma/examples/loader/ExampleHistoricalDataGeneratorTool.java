@@ -11,7 +11,7 @@ import com.opengamma.examples.tool.AbstractTool;
 /**
  * Example tool to initialize historical data.
  */
-public class SimulatedHistoricalDataGeneratorTool extends AbstractTool {
+public class ExampleHistoricalDataGeneratorTool extends AbstractTool {
 
   //-------------------------------------------------------------------------
   /**
@@ -22,7 +22,7 @@ public class SimulatedHistoricalDataGeneratorTool extends AbstractTool {
    */
   public static void main(String[] args) {  // CSIGNORE
     if (init()) {
-      new SimulatedHistoricalDataGeneratorTool().run();
+      new ExampleHistoricalDataGeneratorTool().run();
     }
     System.exit(0);
   }

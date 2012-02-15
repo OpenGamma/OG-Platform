@@ -70,16 +70,16 @@ import com.opengamma.util.money.Currency;
  * more than once you will get multiple copies portfolios and securities with the same names.
  * It is designed to run against the HSQLDB example database.
  */
-public class DemoSwapPortfolioLoader extends AbstractTool {
+public class ExampleSwapPortfolioLoader extends AbstractTool {
   /**
    * Logger.
    */
-  private static Logger s_logger = LoggerFactory.getLogger(DemoSwapPortfolioLoader.class);
+  private static Logger s_logger = LoggerFactory.getLogger(ExampleSwapPortfolioLoader.class);
   
   /**
    * The name of the portfolio.
    */
-  public static final String PORTFOLIO_NAME = "Demo Swap Portfolio";
+  public static final String PORTFOLIO_NAME = "Example Swap Portfolio";
   
   /**
    * The scheme used for an identifier which is added to each swap created from the CSV file
@@ -137,7 +137,7 @@ public class DemoSwapPortfolioLoader extends AbstractTool {
    */
   public static void main(String[] args) {  // CSIGNORE
     if (init()) {
-      new DemoSwapPortfolioLoader().run();
+      new ExampleSwapPortfolioLoader().run();
     }
     System.exit(0);
   }
@@ -145,7 +145,7 @@ public class DemoSwapPortfolioLoader extends AbstractTool {
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-    InputStream inputStream = DemoSwapPortfolioLoader.class.getResourceAsStream("demo-swap-portfolio.csv");  
+    InputStream inputStream = ExampleSwapPortfolioLoader.class.getResourceAsStream("example-swap-portfolio.csv");  
     if (inputStream != null) {
       Collection<SwapSecurity> swaps = parseSwaps(inputStream);
       if (swaps.size() == 0) {

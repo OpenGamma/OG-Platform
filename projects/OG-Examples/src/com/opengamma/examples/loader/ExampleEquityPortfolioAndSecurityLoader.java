@@ -51,10 +51,10 @@ import com.opengamma.util.money.Currency;
  * more than once you will get multiple copies portfolios and securities with the same names.
  * It is designed to run against the HSQLDB example database.
  */
-public class DemoEquityPortfolioAndSecurityLoader extends AbstractTool {
+public class ExampleEquityPortfolioAndSecurityLoader extends AbstractTool {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(DemoEquityPortfolioAndSecurityLoader.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleEquityPortfolioAndSecurityLoader.class);
 
   private static final Map<String, String> SECTORS = new HashMap<String, String>();
   static {
@@ -73,7 +73,7 @@ public class DemoEquityPortfolioAndSecurityLoader extends AbstractTool {
   /**
    * The name of the portfolio.
    */
-  public static final String PORTFOLIO_NAME = "Demo Equity Portfolio";
+  public static final String PORTFOLIO_NAME = "Example Equity Portfolio";
 
   //-------------------------------------------------------------------------
   /**
@@ -84,7 +84,7 @@ public class DemoEquityPortfolioAndSecurityLoader extends AbstractTool {
    */
   public static void main(String[] args) {  // CSIGNORE
     if (init()) {
-      new DemoEquityPortfolioAndSecurityLoader().run();
+      new ExampleEquityPortfolioAndSecurityLoader().run();
     }
     System.exit(0);
   }
@@ -173,7 +173,7 @@ public class DemoEquityPortfolioAndSecurityLoader extends AbstractTool {
 
   private Collection<EquitySecurity> loadEquitySecurities() {
     Collection<EquitySecurity> equities = new ArrayList<EquitySecurity>();
-    InputStream inputStream = DemoEquityPortfolioAndSecurityLoader.class.getResourceAsStream("demo-equity.csv");  
+    InputStream inputStream = ExampleEquityPortfolioAndSecurityLoader.class.getResourceAsStream("example-equity.csv");  
     try {
       if (inputStream != null) {
         CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream));

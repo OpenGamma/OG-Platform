@@ -29,11 +29,11 @@ import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating
  * It is designed to run against the HSQLDB example database.  
  * It should be possible to run this class with no extra command line parameters.
  */
-public class TimeSeriesRatingLoader extends AbstractTool {
+public class ExampleTimeSeriesRatingLoader extends AbstractTool {
 
   /** Logger. */
   @SuppressWarnings("unused")
-  private static final Logger s_logger = LoggerFactory.getLogger(TimeSeriesRatingLoader.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleTimeSeriesRatingLoader.class);
 
   //-------------------------------------------------------------------------
   /**
@@ -43,7 +43,7 @@ public class TimeSeriesRatingLoader extends AbstractTool {
    */
   public static void main(String[] args) {  // CSIGNORE
     if (init()) {
-      new TimeSeriesRatingLoader().run();
+      new ExampleTimeSeriesRatingLoader().run();
     }
     System.exit(0);
   }

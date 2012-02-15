@@ -27,14 +27,14 @@ import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.util.money.Currency;
 
 /**
- * Example code to create a set of demo views
+ * Example code to create a set of example views.
  * <p>
  * It is designed to run against the HSQLDB example database.  
  */
-public class DemoViewsPopulater extends AbstractTool {
+public class ExampleViewsPopulater extends AbstractTool {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(DemoViewsPopulater.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleViewsPopulater.class);
 
   //-------------------------------------------------------------------------
   /**
@@ -45,7 +45,7 @@ public class DemoViewsPopulater extends AbstractTool {
    */
   public static void main(String[] args) {  // CSIGNORE
     if (init()) {
-      new DemoViewsPopulater().run();
+      new ExampleViewsPopulater().run();
     }
     System.exit(0);
   }
@@ -90,11 +90,11 @@ public class DemoViewsPopulater extends AbstractTool {
   }
 
   private void createSwapViewDefinition() {
-    saveViewDefinition(makeSwapViewDefinition(DemoSwapPortfolioLoader.PORTFOLIO_NAME));
+    saveViewDefinition(makeSwapViewDefinition(ExampleSwapPortfolioLoader.PORTFOLIO_NAME));
   }
 
   private void createEquityViewDefinition() {
-    saveViewDefinition(makeEquityViewDefinition(DemoEquityPortfolioAndSecurityLoader.PORTFOLIO_NAME));
+    saveViewDefinition(makeEquityViewDefinition(ExampleEquityPortfolioAndSecurityLoader.PORTFOLIO_NAME));
   }
 
   private ViewDefinition makeSwapViewDefinition(String portfolioName) {
@@ -129,8 +129,8 @@ public class DemoViewsPopulater extends AbstractTool {
   }
 
   private ViewDefinition getMultiCurrencySwapViewDefinition() {
-    UniqueId portfolioId = getPortfolioId(DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME);
-    ViewDefinition viewDefinition = new ViewDefinition(DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME + " View", portfolioId, UserPrincipal.getTestUser());
+    UniqueId portfolioId = getPortfolioId(ExampleMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME);
+    ViewDefinition viewDefinition = new ViewDefinition(ExampleMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME + " View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);
@@ -143,7 +143,7 @@ public class DemoViewsPopulater extends AbstractTool {
     defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01);
     defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
     defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
-    for (Currency ccy : DemoMultiCurrencySwapPortfolioLoader.s_currencies) {
+    for (Currency ccy : ExampleMultiCurrencySwapPortfolioLoader.s_currencies) {
       defaultCalc.addSpecificRequirement(new ValueRequirement(ValueRequirementNames.YIELD_CURVE,
           ComputationTargetType.PRIMITIVE, UniqueId.of("CurrencyISO", ccy.getCode()), ValueProperties.with("Curve", "SECONDARY").get()));
     }

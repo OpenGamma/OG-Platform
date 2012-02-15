@@ -63,12 +63,12 @@ import com.opengamma.util.time.Tenor;
  * more than once you will get multiple copies portfolios and securities with the same names.
  * It is designed to run against the HSQLDB example database.
  */
-public class DemoMultiCurrencySwapPortfolioLoader extends AbstractTool {
+public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool {
 
   /**
    * Logger.
    */
-  private static Logger s_logger = LoggerFactory.getLogger(DemoMultiCurrencySwapPortfolioLoader.class);
+  private static Logger s_logger = LoggerFactory.getLogger(ExampleMultiCurrencySwapPortfolioLoader.class);
   
   /**
    * Size of securities in portfolio
@@ -78,7 +78,7 @@ public class DemoMultiCurrencySwapPortfolioLoader extends AbstractTool {
   /**
    * The name of the portfolio.
    */
-  public static final String PORTFOLIO_NAME = "Demo MultiCurrency Swap Portfolio";
+  public static final String PORTFOLIO_NAME = "Example MultiCurrency Swap Portfolio";
   
   /**
    * The scheme used for an identifier which is added to each swap created from the CSV file
@@ -110,8 +110,8 @@ public class DemoMultiCurrencySwapPortfolioLoader extends AbstractTool {
    */
   public static void main(String[] args) {  // CSIGNORE
     if (init()) {
-      new TimeSeriesRatingLoader().run();
-      new DemoMultiCurrencySwapPortfolioLoader().run();
+      new ExampleTimeSeriesRatingLoader().run();
+      new ExampleMultiCurrencySwapPortfolioLoader().run();
     }
     System.exit(0);
   }

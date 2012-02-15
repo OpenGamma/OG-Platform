@@ -7,45 +7,42 @@ package com.opengamma.examples.loader;
 
 import java.math.BigDecimal;
 
-import javax.time.calendar.LocalDate;
-
 import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.examples.tool.AbstractTool;
-import com.opengamma.financial.security.equity.EquitySecurity;
-import com.opengamma.financial.security.equity.GICSCode;
+import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 
 /**
- * Example code to load a simple equity portfolio.
+ * Example code to load and aggregate a bond portfolio.
  * <p>
- * This loads all equity securities previously stored in the master and
- * categorizes them by GICS code.
- * Note that to work correclty, you need to have already loaded your security master with
- * a set of equity definitions, which would typically require some kind of static data source.
+ * This loads all bond securities previously stored in the master and
+ * categorizes them in a hierarchy by domicile, then issuer type, then issuer name.
+ * Note this requires that you've already populated your security master with 
+ * some bond securities, so you typically need some static market data lookup 
+ * service.
  */
-public class DemoEquityPortfolioLoader extends AbstractTool {
+public class ExampleBondPortfolioLoader extends AbstractTool {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(DemoEquityPortfolioLoader.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleBondPortfolioLoader.class);
 
   /**
    * The name of the portfolio.
    */
-  private static final String PORTFOLIO_NAME = "Test Equity Portfolio";
+  private static final String PORTFOLIO_NAME = "Example Bond Portfolio";
 
   //-------------------------------------------------------------------------
   /**
@@ -56,16 +53,19 @@ public class DemoEquityPortfolioLoader extends AbstractTool {
    */
   public static void main(String[] args) {  // CSIGNORE
     if (init()) {
-      new DemoEquityPortfolioLoader().run();
+      new ExampleBondPortfolioLoader().run();
     }
     System.exit(0);
   }
 
   //-------------------------------------------------------------------------
-  @Override
+  /**
+   * Loads the test portfolio into the position master.
+   */
+  @Override 
   protected void doRun() {
-    // load all equity securities
-    final SecuritySearchResult securityShells = loadAllEquitySecurities();
+    // load all bond securities
+    final SecuritySearchResult securityShells = loadAllBondSecurities();
     
     // create shell portfolio
     final ManageablePortfolio portfolio = createPortfolio();
@@ -74,21 +74,17 @@ public class DemoEquityPortfolioLoader extends AbstractTool {
     // add each security to the portfolio
     for (SecurityDocument shellDoc : securityShells.getDocuments()) {
       // load the full detail of the security
-      final EquitySecurity security = loadFullSecurity(shellDoc);
+      final BondSecurity security = loadFullSecurity(shellDoc);
       
-      // build the tree structure using the GICS code
-      final GICSCode gics = security.getGicsCode();
-      if (gics == null) {
-        continue;
-      }
-      final ManageablePortfolioNode subIndustryNode = buildPortfolioTree(rootNode, gics);
+      // build the tree structure
+      final ManageablePortfolioNode issuerNode = buildPortfolioTree(rootNode, security);
       
       // create the position and add it to the master
       final ManageablePosition position = createPosition(security);
       final PositionDocument addedPosition = addPosition(position);
       
       // add the position reference (the unique identifier) to portfolio
-      subIndustryNode.addPosition(addedPosition.getUniqueId());
+      issuerNode.addPosition(addedPosition.getUniqueId());
     }
     
     // adds the complete tree structure to the master
@@ -106,10 +102,10 @@ public class DemoEquityPortfolioLoader extends AbstractTool {
    * 
    * @return all securities in the security master, not null
    */
-  protected SecuritySearchResult loadAllEquitySecurities() {
+  protected SecuritySearchResult loadAllBondSecurities() {
     SecuritySearchRequest secSearch = new SecuritySearchRequest();
     secSearch.setFullDetail(false);
-    secSearch.setSecurityType(EquitySecurity.SECURITY_TYPE);
+    secSearch.setSecurityType(BondSecurity.SECURITY_TYPE);
     SecuritySearchResult securities = getToolContext().getDbSecurityMaster().search(secSearch);
     s_logger.info("Found {} securities", securities.getDocuments().size());
     return securities;
@@ -125,10 +121,10 @@ public class DemoEquityPortfolioLoader extends AbstractTool {
    * @param shellDoc  the document to load, not null
    * @return the equity security, not null
    */
-  protected EquitySecurity loadFullSecurity(SecurityDocument shellDoc) {
+  protected BondSecurity loadFullSecurity(SecurityDocument shellDoc) {
     s_logger.warn("Loading security {} {}", shellDoc.getUniqueId(), shellDoc.getSecurity().getName());
     SecurityDocument doc = getToolContext().getDbSecurityMaster().get(shellDoc.getUniqueId());
-    EquitySecurity sec = (EquitySecurity) doc.getSecurity();
+    BondSecurity sec = (BondSecurity) doc.getSecurity();
     return sec;
   }
 
@@ -150,46 +146,38 @@ public class DemoEquityPortfolioLoader extends AbstractTool {
   /**
    * Create the portfolio tree structure based.
    * <p>
-   * This uses the GICS code to create a tree structure.
+   * This uses the domicile, issuer type and issuer name to create a tree structure.
    * The position will be added to the lowest child node, which is returned.
    * 
    * @param rootNode  the root node of the tree, not null
-   * @param gics  the GICS representation, not null
+   * @param security  the bond security, not null
    * @return the lowest child node, not null
    */
-  protected ManageablePortfolioNode buildPortfolioTree(ManageablePortfolioNode rootNode, GICSCode gics) {
-    String sector = gics.getSectorCode();
-    ManageablePortfolioNode sectorNode = rootNode.findNodeByName(sector);
-    if (sectorNode == null) {
-      s_logger.warn("Creating node for sector {}", sector);
-      sectorNode = new ManageablePortfolioNode(sector);
-      rootNode.addChildNode(sectorNode);
+  protected ManageablePortfolioNode buildPortfolioTree(ManageablePortfolioNode rootNode, BondSecurity security) {
+    String domicile = security.getIssuerDomicile();
+    ManageablePortfolioNode domicileNode = rootNode.findNodeByName(domicile);
+    if (domicileNode == null) {
+      s_logger.warn("Creating node for domicile {}", domicile);
+      domicileNode = new ManageablePortfolioNode(domicile);
+      rootNode.addChildNode(domicileNode);
     }
     
-    String industryGroup = gics.getIndustryGroupCode();
-    ManageablePortfolioNode groupNode = sectorNode.findNodeByName("Group " + industryGroup);
-    if (groupNode == null) {
-      s_logger.warn("Creating node for industry group {}", industryGroup);
-      groupNode = new ManageablePortfolioNode("Group " + industryGroup);
-      sectorNode.addChildNode(groupNode);
+    String issuerType = security.getIssuerType();
+    ManageablePortfolioNode issuerTypeNode = domicileNode.findNodeByName(issuerType);
+    if (issuerTypeNode == null) {
+      s_logger.warn("Creating node for issuer type {}", issuerType);
+      issuerTypeNode = new ManageablePortfolioNode(issuerType);
+      domicileNode.addChildNode(issuerTypeNode);
     }
     
-    String industry = gics.getIndustryCode();
-    ManageablePortfolioNode industryNode = groupNode.findNodeByName("Industry " + industry);
-    if (industryNode == null) {
-      s_logger.warn("Creating node for industry {}", industry);
-      industryNode = new ManageablePortfolioNode("Industry " + industry);
-      groupNode.addChildNode(industryNode);
+    String issuerName = security.getIssuerName();
+    ManageablePortfolioNode issuerNode = issuerTypeNode.findNodeByName(issuerName);
+    if (issuerNode == null) {
+      s_logger.warn("Creating node for isssuer {}", issuerName);
+      issuerNode = new ManageablePortfolioNode(issuerName);
+      issuerTypeNode.addChildNode(issuerNode);
     }
-    
-    String subIndustry = gics.getSubIndustryCode();
-    ManageablePortfolioNode subIndustryNode = industryNode.findNodeByName("Sub industry " + subIndustry);
-    if (subIndustryNode == null) {
-      s_logger.warn("Creating node for sub industry {}", subIndustry);
-      subIndustryNode = new ManageablePortfolioNode("Sub industry " + subIndustry);
-      industryNode.addChildNode(subIndustryNode);
-    }
-    return subIndustryNode;
+    return issuerNode;
   }
 
   /**
@@ -200,30 +188,17 @@ public class DemoEquityPortfolioLoader extends AbstractTool {
    * @param security  the security to add a position for, not null
    * @return the position, not null
    */
-  protected ManageablePosition createPosition(EquitySecurity security) {
+  protected ManageablePosition createPosition(BondSecurity security) {
     s_logger.warn("Creating position {}", security);
     int shares = (RandomUtils.nextInt(490) + 10) * 10;
     ExternalId buid = security.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_BUID);
-    ExternalId ticker = security.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
     ExternalIdBundle bundle;
-    if (buid != null && ticker != null) {
-      bundle = ExternalIdBundle.of(buid, ticker);
+    if (buid != null) {
+      bundle = ExternalIdBundle.of(buid);
     } else {
       bundle = security.getExternalIdBundle();
     }
-    ManageablePosition position = new ManageablePosition(BigDecimal.valueOf(shares), bundle);
-    
-    // create random trades
-    if (shares <= 2000) {
-      ManageableTrade trade = new ManageableTrade(BigDecimal.valueOf(shares), bundle, LocalDate.of(2010, 12, 3), null, ExternalId.of("CPARTY", "BACS"));
-      position.addTrade(trade);
-    } else {
-      ManageableTrade trade1 = new ManageableTrade(BigDecimal.valueOf(2000), bundle, LocalDate.of(2010, 12, 1), null, ExternalId.of("CPARTY", "BACS"));
-      position.addTrade(trade1);
-      ManageableTrade trade2 = new ManageableTrade(BigDecimal.valueOf(shares - 2000), bundle, LocalDate.of(2010, 12, 2), null, ExternalId.of("CPARTY", "BACS"));
-      position.addTrade(trade2);
-    }
-    return position;
+    return new ManageablePosition(BigDecimal.valueOf(shares), bundle);
   }
 
   /**
