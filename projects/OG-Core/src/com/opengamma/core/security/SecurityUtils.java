@@ -265,5 +265,5 @@ public class SecurityUtils {
     }
     return ExternalId.of(ACTIVFEED_TICKER, ticker);
   }
-
+  
 }

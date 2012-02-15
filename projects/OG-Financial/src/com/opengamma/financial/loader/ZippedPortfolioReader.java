@@ -26,7 +26,7 @@ import com.opengamma.master.portfolio.ManageablePortfolioNode;
  */
 public class ZippedPortfolioReader implements PortfolioReader {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioImportCmdLineTool.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderTool.class);
 
   private static final String SHEET_EXTENSION = ".csv";
   private static final String CONFIG_FILE = "METADATA.INI";

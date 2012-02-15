@@ -8,9 +8,6 @@ package com.opengamma.examples.loader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueProperties;
@@ -18,7 +15,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.financial.portfolio.loader.LoaderContext;
+import com.opengamma.examples.tool.AbstractTool;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueId;
@@ -30,40 +27,46 @@ import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.util.money.Currency;
 
 /**
- * Example code to create a set of demo views
+ * Example code to create a set of example views.
  * <p>
  * It is designed to run against the HSQLDB example database.  
- * It should be possible to run this class with no extra command line parameters.
  */
-public class DemoViewsPopulater {
+public class ExampleViewsPopulater extends AbstractTool {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(DemoViewsPopulater.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleViewsPopulater.class);
 
+  //-------------------------------------------------------------------------
   /**
-   * The context.
+   * Main method to run the tool.
+   * No arguments are needed.
+   * 
+   * @param args  the arguments, unused
    */
-  private LoaderContext _loaderContext;
+  public static void main(String[] args) {  // CSIGNORE
+    if (init()) {
+      new ExampleViewsPopulater().run();
+    }
+    System.exit(0);
+  }
 
-  public void setLoaderContext(LoaderContext loaderContext) {
-    _loaderContext = loaderContext;
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doRun() {
+    createEquityViewDefinition();
+    createSwapViewDefinition();
+    createMultiCurrencySwapViewDefinition();
   }
 
   private UniqueId getPortfolioId(String portfolioName) {
     PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
     searchRequest.setName(portfolioName);
-    PortfolioSearchResult searchResult = _loaderContext.getPortfolioMaster().search(searchRequest);
+    PortfolioSearchResult searchResult = getToolContext().getPortfolioMaster().search(searchRequest);
     if (searchResult.getFirstPortfolio() == null) {
       s_logger.error("Couldn't find portfolio {}", portfolioName);
       throw new OpenGammaRuntimeException("Couldn't find portfolio" + portfolioName);
     }
     return searchResult.getFirstPortfolio().getUniqueId();
-  }
-
-  public void persistViewDefinitions() {
-    createEquityViewDefinition();
-    createSwapViewDefinition();
-    createMultiCurrencySwapViewDefinition();
   }
 
   private ViewDefinition makeEquityViewDefinition(String portfolioName) {
@@ -87,11 +90,11 @@ public class DemoViewsPopulater {
   }
 
   private void createSwapViewDefinition() {
-    saveViewDefinition(makeSwapViewDefinition(DemoSwapPortfolioLoader.PORTFOLIO_NAME));
+    saveViewDefinition(makeSwapViewDefinition(ExampleSwapPortfolioLoader.PORTFOLIO_NAME));
   }
 
   private void createEquityViewDefinition() {
-    saveViewDefinition(makeEquityViewDefinition(DemoEquityPortfolioAndSecurityLoader.PORTFOLIO_NAME));
+    saveViewDefinition(makeEquityViewDefinition(ExampleEquityPortfolioAndSecurityLoader.PORTFOLIO_NAME));
   }
 
   private ViewDefinition makeSwapViewDefinition(String portfolioName) {
@@ -126,8 +129,8 @@ public class DemoViewsPopulater {
   }
 
   private ViewDefinition getMultiCurrencySwapViewDefinition() {
-    UniqueId portfolioId = getPortfolioId(DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME);
-    ViewDefinition viewDefinition = new ViewDefinition(DemoMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME + " View", portfolioId, UserPrincipal.getTestUser());
+    UniqueId portfolioId = getPortfolioId(ExampleMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME);
+    ViewDefinition viewDefinition = new ViewDefinition(ExampleMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME + " View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);
@@ -140,7 +143,7 @@ public class DemoViewsPopulater {
     defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01);
     defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
     defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
-    for (Currency ccy : DemoMultiCurrencySwapPortfolioLoader.s_currencies) {
+    for (Currency ccy : ExampleMultiCurrencySwapPortfolioLoader.s_currencies) {
       defaultCalc.addSpecificRequirement(new ValueRequirement(ValueRequirementNames.YIELD_CURVE,
           ComputationTargetType.PRIMITIVE, UniqueId.of("CurrencyISO", ccy.getCode()), ValueProperties.with("Curve", "SECONDARY").get()));
     }
@@ -160,44 +163,7 @@ public class DemoViewsPopulater {
     ConfigDocument<ViewDefinition> configDocument = new ConfigDocument<ViewDefinition>(ViewDefinition.class);
     configDocument.setName(viewDefinition.getName());
     configDocument.setValue(viewDefinition);
-    ConfigMasterUtils.storeByName(_loaderContext.getConfigMaster(), configDocument);
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Sets up and loads the context.
-   * <p>
-   * This loader requires a Spring configuration file that defines the security,
-   * position and portfolio masters, together with an instance of this bean
-   * under the name "demoViewsPopulater".
-   * 
-   * @param args  the arguments, unused
-   */
-  public static void main(String[] args) { // CSIGNORE
-    try {
-      LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-      JoranConfigurator configurator = new JoranConfigurator();
-      configurator.setContext(lc);
-      lc.reset();
-      configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
-
-      LocalMastersUtils localMasterUtils = LocalMastersUtils.INSTANCE;
-
-      try {
-        DemoViewsPopulater populator = new DemoViewsPopulater();
-        populator.setLoaderContext(localMasterUtils.getLoaderContext());
-        System.out.println("Loading data");
-        populator.persistViewDefinitions();
-        System.out.println("Finished");
-      } finally {
-        localMasterUtils.tearDown();
-      }
-      
-
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    System.exit(0);
+    ConfigMasterUtils.storeByName(getToolContext().getConfigMaster(), configDocument);
   }
 
 }

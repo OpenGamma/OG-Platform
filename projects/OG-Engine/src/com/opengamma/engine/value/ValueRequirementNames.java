@@ -288,6 +288,7 @@ public final class ValueRequirementNames {
   public static final String BOND_COUPON_PAYMENT_TIMES = "Bond Coupon Payment Times";
   
   public static final String YIELD_CURVE_NODE_SENSITIVITIES = "Yield Curve Node Sensitivities";
+  public static final String EXTERNAL_SENSITIVITIES = "External Sensitivities";
 
   //SABR fitted surface parameters
   public static final String SABR_SURFACES = "SABR Surfaces";
