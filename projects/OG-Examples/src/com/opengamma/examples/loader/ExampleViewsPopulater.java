@@ -61,7 +61,7 @@ public class ExampleViewsPopulater extends AbstractTool {
   private UniqueId getPortfolioId(String portfolioName) {
     PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
     searchRequest.setName(portfolioName);
-    PortfolioSearchResult searchResult = getToolContext().getDbPortfolioMaster().search(searchRequest);
+    PortfolioSearchResult searchResult = getToolContext().getPortfolioMaster().search(searchRequest);
     if (searchResult.getFirstPortfolio() == null) {
       s_logger.error("Couldn't find portfolio {}", portfolioName);
       throw new OpenGammaRuntimeException("Couldn't find portfolio" + portfolioName);
@@ -163,7 +163,7 @@ public class ExampleViewsPopulater extends AbstractTool {
     ConfigDocument<ViewDefinition> configDocument = new ConfigDocument<ViewDefinition>(ViewDefinition.class);
     configDocument.setName(viewDefinition.getName());
     configDocument.setValue(viewDefinition);
-    ConfigMasterUtils.storeByName(getToolContext().getDbConfigMaster(), configDocument);
+    ConfigMasterUtils.storeByName(getToolContext().getConfigMaster(), configDocument);
   }
 
 }

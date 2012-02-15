@@ -106,7 +106,7 @@ public class ExampleBondPortfolioLoader extends AbstractTool {
     SecuritySearchRequest secSearch = new SecuritySearchRequest();
     secSearch.setFullDetail(false);
     secSearch.setSecurityType(BondSecurity.SECURITY_TYPE);
-    SecuritySearchResult securities = getToolContext().getDbSecurityMaster().search(secSearch);
+    SecuritySearchResult securities = getToolContext().getSecurityMaster().search(secSearch);
     s_logger.info("Found {} securities", securities.getDocuments().size());
     return securities;
   }
@@ -123,7 +123,7 @@ public class ExampleBondPortfolioLoader extends AbstractTool {
    */
   protected BondSecurity loadFullSecurity(SecurityDocument shellDoc) {
     s_logger.warn("Loading security {} {}", shellDoc.getUniqueId(), shellDoc.getSecurity().getName());
-    SecurityDocument doc = getToolContext().getDbSecurityMaster().get(shellDoc.getUniqueId());
+    SecurityDocument doc = getToolContext().getSecurityMaster().get(shellDoc.getUniqueId());
     BondSecurity sec = (BondSecurity) doc.getSecurity();
     return sec;
   }
@@ -208,7 +208,7 @@ public class ExampleBondPortfolioLoader extends AbstractTool {
    * @return the added document, not null
    */
   protected PositionDocument addPosition(ManageablePosition position) {
-    return getToolContext().getDbPositionMaster().add(new PositionDocument(position));
+    return getToolContext().getPositionMaster().add(new PositionDocument(position));
   }
 
   /**
@@ -218,7 +218,7 @@ public class ExampleBondPortfolioLoader extends AbstractTool {
    * @return the added document, not null
    */
   protected PortfolioDocument addPortfolio(ManageablePortfolio portfolio) {
-    return getToolContext().getDbPortfolioMaster().add(new PortfolioDocument(portfolio));
+    return getToolContext().getPortfolioMaster().add(new PortfolioDocument(portfolio));
   }
 
 }

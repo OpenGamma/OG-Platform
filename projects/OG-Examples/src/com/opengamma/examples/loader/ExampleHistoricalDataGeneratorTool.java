@@ -30,7 +30,7 @@ public class ExampleHistoricalDataGeneratorTool extends AbstractTool {
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-    new SimulatedHistoricalDataGenerator(getToolContext().getDbHistoricalTimeSeriesMaster()).run();
+    new SimulatedHistoricalDataGenerator(getToolContext().getHistoricalTimeSeriesMaster()).run();
   }
 
 }

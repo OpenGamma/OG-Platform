@@ -51,7 +51,7 @@ public class ExampleTimeSeriesRatingLoader extends AbstractTool {
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-    ConfigMaster configMaster = getToolContext().getDbConfigMaster();
+    ConfigMaster configMaster = getToolContext().getConfigMaster();
     ConfigDocument<HistoricalTimeSeriesRating> configDoc = new ConfigDocument<HistoricalTimeSeriesRating>(HistoricalTimeSeriesRating.class);
     List<HistoricalTimeSeriesRatingRule> rules = new ArrayList<HistoricalTimeSeriesRatingRule>();
     rules.add(new HistoricalTimeSeriesRatingRule(DATA_SOURCE_NAME, "BLOOMBERG", 1));

@@ -119,7 +119,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool {
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-    YieldCurveConfigPopulator.populateCurveConfigMaster(getToolContext().getDbConfigMaster());
+    YieldCurveConfigPopulator.populateCurveConfigMaster(getToolContext().getConfigMaster());
     Collection<SwapSecurity> swaps = createRandomSwaps();
     if (swaps.size() == 0) {
       throw new OpenGammaRuntimeException("No (valid) swaps were generated.");
@@ -214,7 +214,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool {
 
   private Double getFixedRate(SecureRandom random, Currency ccy, LocalDate tradeDate, Tenor maturity) {
     HistoricalTimeSeriesSource historicalSource = getToolContext().getHistoricalTimeSeriesSource();
-    MasterConfigSource configSource = new MasterConfigSource(getToolContext().getDbConfigMaster());
+    MasterConfigSource configSource = new MasterConfigSource(getToolContext().getConfigMaster());
     ExternalId swapRateForMaturityIdentifier = getSwapRateFor(configSource, ccy, tradeDate, maturity);
     if (swapRateForMaturityIdentifier == null) {
       throw new OpenGammaRuntimeException("Couldn't get swap rate identifier for " + ccy + " [" + maturity + "]" + " from " + tradeDate);
@@ -295,9 +295,9 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool {
   }
 
   private void persistToPortfolio(Collection<SwapSecurity> swaps, String portfolioName) {
-    PortfolioMaster portfolioMaster = getToolContext().getDbPortfolioMaster();
-    PositionMaster positionMaster = getToolContext().getDbPositionMaster();
-    SecurityMaster securityMaster = getToolContext().getDbSecurityMaster();
+    PortfolioMaster portfolioMaster = getToolContext().getPortfolioMaster();
+    PositionMaster positionMaster = getToolContext().getPositionMaster();
+    SecurityMaster securityMaster = getToolContext().getSecurityMaster();
     
     ManageablePortfolioNode rootNode = new ManageablePortfolioNode(portfolioName);
     ManageablePortfolio portfolio = new ManageablePortfolio(portfolioName, rootNode);

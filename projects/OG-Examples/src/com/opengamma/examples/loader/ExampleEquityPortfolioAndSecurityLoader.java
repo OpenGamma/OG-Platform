@@ -162,7 +162,7 @@ public class ExampleEquityPortfolioAndSecurityLoader extends AbstractTool {
    * @return a collection of all securities that have been persisted, not null
    */
   protected Collection<EquitySecurity> createAndPersistEquitySecurities() {
-    SecurityMaster secMaster = getToolContext().getDbSecurityMaster();
+    SecurityMaster secMaster = getToolContext().getSecurityMaster();
     Collection<EquitySecurity> securities = loadEquitySecurities();
     for (EquitySecurity security : securities) {
       SecurityDocument doc = new SecurityDocument(security);
@@ -283,7 +283,7 @@ public class ExampleEquityPortfolioAndSecurityLoader extends AbstractTool {
    * @return the added document, not null
    */
   protected PositionDocument addPosition(ManageablePosition position) {
-    return getToolContext().getDbPositionMaster().add(new PositionDocument(position));
+    return getToolContext().getPositionMaster().add(new PositionDocument(position));
   }
 
   /**
@@ -293,7 +293,7 @@ public class ExampleEquityPortfolioAndSecurityLoader extends AbstractTool {
    * @return the added document, not null
    */
   protected PortfolioDocument addPortfolio(ManageablePortfolio portfolio) {
-    return getToolContext().getDbPortfolioMaster().add(new PortfolioDocument(portfolio));
+    return getToolContext().getPortfolioMaster().add(new PortfolioDocument(portfolio));
   }
 
 }

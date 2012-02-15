@@ -38,16 +38,16 @@ public class ExamplePortfolioLoaderTool extends AbstractTool {
   @Override 
   protected void doRun() {
     LoaderContext context = new LoaderContext();
-    context.setConfigMaster(getToolContext().getDbConfigMaster());
+    context.setConfigMaster(getToolContext().getConfigMaster());
     context.setConventionBundleSource(getToolContext().getConventionBundleSource());
     context.setExchangeSource(getToolContext().getExchangeSource());
-    context.setHistoricalTimeSeriesMaster(getToolContext().getDbHistoricalTimeSeriesMaster());
+    context.setHistoricalTimeSeriesMaster(getToolContext().getHistoricalTimeSeriesMaster());
     context.setHistoricalTimeSeriesSource(getToolContext().getHistoricalTimeSeriesSource());
     context.setHolidaySource(getToolContext().getHolidaySource());
-    context.setPortfolioMaster(getToolContext().getDbPortfolioMaster());
-    context.setPositionMaster(getToolContext().getDbPositionMaster());
+    context.setPortfolioMaster(getToolContext().getPortfolioMaster());
+    context.setPositionMaster(getToolContext().getPositionMaster());
     context.setSecurityLoader(getToolContext().getSecurityLoader());
-    context.setSecurityMaster(getToolContext().getDbSecurityMaster());
+    context.setSecurityMaster(getToolContext().getSecurityMaster());
     context.setSecuritySource(getToolContext().getSecuritySource());
     new PortfolioLoaderTool().run(s_args, context);
   }

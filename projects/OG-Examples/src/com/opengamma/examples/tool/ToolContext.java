@@ -142,7 +142,7 @@ public final class ToolContext {
    * Gets the config master.
    * @return the config master, not null
    */
-  public ConfigMaster getDbConfigMaster() {
+  public ConfigMaster getConfigMaster() {
     return _dbConfigMaster;
   }
 
@@ -150,7 +150,7 @@ public final class ToolContext {
    * Gets the exchange master.
    * @return the exchange master, not null
    */
-  public ExchangeMaster getDbExchangeMaster() {
+  public ExchangeMaster getExchangeMaster() {
     return _dbExchangeMaster;
   }
 
@@ -158,7 +158,7 @@ public final class ToolContext {
    * Gets the holiday master.
    * @return the holiday master, not null
    */
-  public HolidayMaster getDbHolidayMaster() {
+  public HolidayMaster getHolidayMaster() {
     return _dbHolidayMaster;
   }
 
@@ -166,7 +166,7 @@ public final class ToolContext {
    * Gets the security master.
    * @return the security master, not null
    */
-  public SecurityMaster getDbSecurityMaster() {
+  public SecurityMaster getSecurityMaster() {
     return _dbSecurityMaster;
   }
 
@@ -174,7 +174,7 @@ public final class ToolContext {
    * Gets the position master.
    * @return the position master, not null
    */
-  public PositionMaster getDbPositionMaster() {
+  public PositionMaster getPositionMaster() {
     return _dbPositionMaster;
   }
 
@@ -182,7 +182,7 @@ public final class ToolContext {
    * Gets the portfolio master.
    * @return the portfolio master, not null
    */
-  public PortfolioMaster getDbPortfolioMaster() {
+  public PortfolioMaster getPortfolioMaster() {
     return _dbPortfolioMaster;
   }
 
@@ -190,7 +190,7 @@ public final class ToolContext {
    * Gets the snapshot master.
    * @return the snapshot master, not null
    */
-  public MarketDataSnapshotMaster getDbMarketDataSnapshotMaster() {
+  public MarketDataSnapshotMaster getMarketDataSnapshotMaster() {
     return _dbSnapshotMaster;
   }
 
@@ -198,7 +198,7 @@ public final class ToolContext {
    * Gets the time-series master.
    * @return the time-series master, not null
    */
-  public HistoricalTimeSeriesMaster getDbHistoricalTimeSeriesMaster() {
+  public HistoricalTimeSeriesMaster getHistoricalTimeSeriesMaster() {
     return _htsMaster;
   }
 

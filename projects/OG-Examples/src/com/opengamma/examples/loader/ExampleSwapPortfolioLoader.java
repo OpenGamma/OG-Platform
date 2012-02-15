@@ -156,9 +156,9 @@ public class ExampleSwapPortfolioLoader extends AbstractTool {
   }
 
   private void persistToPortfolio(Collection<SwapSecurity> swaps, String portfolioName) {
-    PortfolioMaster portfolioMaster = getToolContext().getDbPortfolioMaster();
-    PositionMaster positionMaster = getToolContext().getDbPositionMaster();
-    SecurityMaster securityMaster = getToolContext().getDbSecurityMaster();
+    PortfolioMaster portfolioMaster = getToolContext().getPortfolioMaster();
+    PositionMaster positionMaster = getToolContext().getPositionMaster();
+    SecurityMaster securityMaster = getToolContext().getSecurityMaster();
     
     ManageablePortfolioNode rootNode = new ManageablePortfolioNode(portfolioName);
     ManageablePortfolio portfolio = new ManageablePortfolio(portfolioName, rootNode);
