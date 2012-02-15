@@ -7,8 +7,6 @@ package com.opengamma.examples.loader;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -29,8 +27,6 @@ import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
-import com.opengamma.util.PlatformConfigUtils;
-import com.opengamma.util.PlatformConfigUtils.RunMode;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -185,20 +181,18 @@ public class DemoViewsPopulater {
       lc.reset();
       configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
 
-      // Set the run mode to EXAMPLE so we use the HSQLDB example database.
-      PlatformConfigUtils.configureSystemProperties(RunMode.EXAMPLE);
-      System.out.println("Starting connections");
-      AbstractApplicationContext appContext = new ClassPathXmlApplicationContext("demoPortfolioLoader.xml");
-      appContext.start();
+      LocalMastersUtils localMasterUtils = LocalMastersUtils.INSTANCE;
 
       try {
-        DemoViewsPopulater populator = (DemoViewsPopulater) appContext.getBean("demoViewsPopulater");
+        DemoViewsPopulater populator = new DemoViewsPopulater();
+        populator.setLoaderContext(localMasterUtils.getLoaderContext());
         System.out.println("Loading data");
         populator.persistViewDefinitions();
+        System.out.println("Finished");
       } finally {
-        appContext.close();
+        localMasterUtils.tearDown();
       }
-      System.out.println("Finished");
+      
 
     } catch (Exception ex) {
       ex.printStackTrace();

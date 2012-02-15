@@ -61,7 +61,7 @@ public abstract class RemoteEngineResourceReference<T extends UniqueIdentifiable
       return;
     }
     try {
-      _client.access(_baseUri).delete();
+      _client.accessFudge(_baseUri).delete();
     } finally {
       _scheduledHeartbeat.cancel(true);
     }

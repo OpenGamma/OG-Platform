@@ -22,10 +22,6 @@ import com.opengamma.util.timeseries.fast.integer.FastMutableIntDoubleTimeSeries
  */
 public class ListDateDoubleTimeSeries extends MutableDateDoubleTimeSeries.Integer {
   private static final FastIntDoubleTimeSeries TIMESERIES_TEMPLATE = new FastListIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS);
-  /**
-   * An empty instance of this type.
-   */
-  public static final ListDateDoubleTimeSeries EMPTY_SERIES = new ListDateDoubleTimeSeries();
   private static final DateTimeConverter<Date> s_converter = new DateEpochDaysConverter();
 
   public ListDateDoubleTimeSeries(final DateTimeConverter<Date> converter, final FastMutableIntDoubleTimeSeries fastTS) {

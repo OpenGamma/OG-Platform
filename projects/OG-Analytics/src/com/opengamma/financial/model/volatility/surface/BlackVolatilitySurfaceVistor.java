@@ -17,9 +17,13 @@ public interface BlackVolatilitySurfaceVistor<S, T> {
 
   T visitMoneyness(final BlackVolatilitySurfaceMoneyness surface, final S data);
 
+  T visitLogMoneyness(final BlackVolatilitySurfaceLogMoneyness surface, final S data);
+
   T visitDelta(final BlackVolatilitySurfaceDelta surface);
 
   T visitStrike(final BlackVolatilitySurfaceStrike surface);
 
   T visitMoneyness(final BlackVolatilitySurfaceMoneyness surface);
+
+  T visitLogMoneyness(final BlackVolatilitySurfaceLogMoneyness surface);
 }

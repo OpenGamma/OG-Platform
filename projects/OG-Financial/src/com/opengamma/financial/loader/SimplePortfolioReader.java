@@ -6,8 +6,10 @@
 
 package com.opengamma.financial.loader;
 
+import java.lang.reflect.Constructor;
 import java.util.Map;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
@@ -18,6 +20,10 @@ import com.opengamma.master.security.ManageableSecurity;
  */
 public class SimplePortfolioReader extends SingleSheetPortfolioReader {
 
+  /** Path strings for constructing a fully qualified parser class name **/
+  private static final String CLASS_PREFIX = "com.opengamma.financial.loader.rowparsers.";
+  private static final String CLASS_POSTFIX = "Parser";
+
   /*
    * Load one or more parsers for different types of securities/trades/whatever here
    */
@@ -27,11 +33,29 @@ public class SimplePortfolioReader extends SingleSheetPortfolioReader {
    * Specify column order and names here (optional, may be inferred from sheet headers instead)
    */
   private String[] _columns;
-
-  public SimplePortfolioReader(SheetReader sheet, RowParser rowParser, String[] columns) {
-    super(sheet);    
+  
+  public SimplePortfolioReader(String filename, RowParser rowParser) {
+    super(SheetReader.newSheetReader(filename));
+    _columns = getSheet().getColumns();
     _rowParser = rowParser;
-    _columns = columns;
+  }
+  
+  public SimplePortfolioReader(SheetReader sheet, String[] columns, RowParser rowParser) {
+    super(sheet);    
+    _columns = getSheet().getColumns();
+    _rowParser = rowParser;
+  }
+
+  public SimplePortfolioReader(String filename, String securityClass, LoaderContext loaderContext) {
+    super(SheetReader.newSheetReader(filename));
+    _columns = getSheet().getColumns();
+    _rowParser = identifyRowParser(securityClass, loaderContext);
+  }
+  
+  public SimplePortfolioReader(SheetReader sheet, String[] columns, String securityClass, LoaderContext loaderContext) {
+    super(sheet);
+    _columns = getSheet().getColumns();
+    _rowParser = identifyRowParser(securityClass, loaderContext);
   }
 
   @Override
@@ -70,4 +94,21 @@ public class SimplePortfolioReader extends SingleSheetPortfolioReader {
     return _columns;
   }
 
+  private RowParser identifyRowParser(String securityClass, LoaderContext loaderContext) {
+    try {
+      // Identify the appropriate parser class from the asset class command line option
+      String className = CLASS_PREFIX + securityClass + CLASS_POSTFIX;
+      Class<?> parserClass = Class.forName(className);
+      
+      // Find the constructor
+      Constructor<?> constructor = parserClass.getConstructor(LoaderContext.class);
+      
+      // Create a generic simple portfolio loader for the current sheet, using the dynamically loaded row parser class
+      return (RowParser) constructor.newInstance(loaderContext);
+      
+    } catch (Throwable ex) {
+      throw new OpenGammaRuntimeException("Could not identify an appropriate loader for security class " + securityClass);
+    }
+  }
+  
 }

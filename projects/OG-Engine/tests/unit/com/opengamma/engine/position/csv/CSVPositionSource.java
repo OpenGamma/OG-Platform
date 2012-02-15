@@ -26,6 +26,7 @@ import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVReader;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.DummyChangeManager;
@@ -159,22 +160,34 @@ public class CSVPositionSource implements PositionSource {
     if (portfolio instanceof Portfolio) {
       return (Portfolio) portfolio;
     }
-    return null;
+    throw new DataNotFoundException("Unable to find portfolio: " + objectId);
   }
 
   @Override
-  public PortfolioNode getPortfolioNode(UniqueId identifier) {
-    return _nodes.get(identifier);
+  public PortfolioNode getPortfolioNode(UniqueId nodeId) {
+    PortfolioNode node = _nodes.get(nodeId);
+    if (node == null) {
+      throw new DataNotFoundException("Unable to find node: " + nodeId);
+    }
+    return node;
   }
 
   @Override
-  public Position getPosition(UniqueId identifier) {
-    return _positions.get(identifier);
+  public Position getPosition(UniqueId positionId) {
+    Position position = _positions.get(positionId);
+    if (position == null) {
+      throw new DataNotFoundException("Unable to find position: " + positionId);
+    }
+    return position;
   }
   
   @Override
-  public Trade getTrade(UniqueId identifier) {
-    return _trades.get(identifier);
+  public Trade getTrade(UniqueId tradeId) {
+    Trade trade = _trades.get(tradeId);
+    if (trade == null) {
+      throw new DataNotFoundException("Unable to find trade: " + tradeId);
+    }
+    return trade;
   }
 
   //-------------------------------------------------------------------------

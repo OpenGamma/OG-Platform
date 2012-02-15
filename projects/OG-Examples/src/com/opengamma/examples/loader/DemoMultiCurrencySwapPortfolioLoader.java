@@ -17,8 +17,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -31,6 +29,7 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
+import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -55,8 +54,6 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.GUIDGenerator;
-import com.opengamma.util.PlatformConfigUtils;
-import com.opengamma.util.PlatformConfigUtils.RunMode;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Tenor;
@@ -138,14 +135,14 @@ public class DemoMultiCurrencySwapPortfolioLoader {
    * @return
    */
   public void createPortfolio() {
-    DemoDatabasePopulater.populateYieldCurveConfig(_loaderContext.getConfigMaster());
+    YieldCurveConfigPopulator.populateCurveConfigMaster(_loaderContext.getConfigMaster());
     Collection<SwapSecurity> swaps = createRandomSwaps();
     if (swaps.size() == 0) {
       throw new OpenGammaRuntimeException("No (valid) swaps were generated.");
     }
     persistToPortfolio(swaps, PORTFOLIO_NAME);
   }
-
+  
   private Collection<SwapSecurity> createRandomSwaps() {
     Collection<SwapSecurity> swaps = new ArrayList<SwapSecurity>();
     
@@ -352,24 +349,25 @@ public class DemoMultiCurrencySwapPortfolioLoader {
       lc.reset(); 
       configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
       
-      // Set the run mode to EXAMPLE so we use the HSQLDB example database.
-      PlatformConfigUtils.configureSystemProperties(RunMode.EXAMPLE);
-      System.out.println("Starting connections");
-      AbstractApplicationContext appContext = new ClassPathXmlApplicationContext("demoPortfolioLoader.xml");
-      appContext.start();
-      
+      LocalMastersUtils localMasterUtils = LocalMastersUtils.INSTANCE;
       try {
-        TimeSeriesRatingLoader populator = appContext.getBean("timeSeriesRatingLoader", TimeSeriesRatingLoader.class);
+        
+        TimeSeriesRatingLoader populator = new TimeSeriesRatingLoader();
+        populator.setLoaderContext(localMasterUtils.getLoaderContext());
+        
         System.out.println("Loading historicalTimeSeries config data");
         populator.saveHistoricalTimeSeriesRatings();
         
-        DemoMultiCurrencySwapPortfolioLoader loader = appContext.getBean("demoMultiCurrencySwapPortfolioLoader", DemoMultiCurrencySwapPortfolioLoader.class);
+        DemoMultiCurrencySwapPortfolioLoader loader = new DemoMultiCurrencySwapPortfolioLoader();
+        loader.setLoaderContext(localMasterUtils.getLoaderContext());
+        
         System.out.println("Loading data");
         loader.createPortfolio();
+        System.out.println("Finished");
       } finally {
-        appContext.close();
+        localMasterUtils.tearDown();
       }
-      System.out.println("Finished");
+      
       
     } catch (Exception ex) {
       ex.printStackTrace();

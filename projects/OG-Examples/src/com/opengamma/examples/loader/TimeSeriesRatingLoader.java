@@ -14,8 +14,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -27,8 +25,6 @@ import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigMasterUtils;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRating;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingRule;
-import com.opengamma.util.PlatformConfigUtils;
-import com.opengamma.util.PlatformConfigUtils.RunMode;
 
 /**
  * Example code to create a timeseries rating document
@@ -84,18 +80,15 @@ public class TimeSeriesRatingLoader {
       lc.reset(); 
       configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
       
-      // Set the run mode to EXAMPLE so we use the HSQLDB example database.
-      PlatformConfigUtils.configureSystemProperties(RunMode.EXAMPLE);
-      System.out.println("Starting connections");
-      AbstractApplicationContext appContext = new ClassPathXmlApplicationContext("demoPortfolioLoader.xml");
-      appContext.start();
+      LocalMastersUtils localMasterUtils = LocalMastersUtils.INSTANCE;
       
       try {
-        TimeSeriesRatingLoader populator = appContext.getBean("timeSeriesRatingLoader", TimeSeriesRatingLoader.class);
+        TimeSeriesRatingLoader populator = new TimeSeriesRatingLoader();
+        populator.setLoaderContext(localMasterUtils.getLoaderContext());
         System.out.println("Loading data");
         populator.saveHistoricalTimeSeriesRatings();
       } finally {
-        appContext.close();
+        localMasterUtils.tearDown();
       }
       System.out.println("Finished");
       

@@ -59,6 +59,7 @@ public abstract class BlackFormulaRepository {
 
   }
 
+
   public static double price(final SimpleOptionData data, final double lognormalVol) {
     return data.getDiscountFactor() * price(data.getForward(), data.getStrike(), data.getTimeToExpiry(), lognormalVol, data.isCall());
   }
