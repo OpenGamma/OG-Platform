@@ -35,6 +35,7 @@ public class SecurityEntryData extends DirectBean {
   private LocalDate _maturityDate;
   @PropertyDefinition
   private ExternalId _factorSetId;
+  
   public static final String EXTERNAL_SENSITIVITIES_SECURITY_TYPE = "EXTERNAL_SENSITIVITIES_SECURITY";
   
   public SecurityEntryData() {
