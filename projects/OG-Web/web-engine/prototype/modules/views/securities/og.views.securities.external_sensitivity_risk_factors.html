@@ -20,16 +20,8 @@
       </section>
       <section>
         <table class="OG-table">
-          <col style="width: 40%" />
-          <col style="width: 60%" />
           <thead>
-            <tr>
-              <th><span>${securityType}</span></th><th>&nbsp;</th>
-            </tr>
-          </thead>
-        </table>
-        <table class="OG-table">
-          <thead>
+            <tr><th colspan="6"><span>${securityType.lang()}</span></th></tr>
             <tr>
               <th>Factor Type</th>
               <th>Factor Name</th>
@@ -82,7 +74,6 @@
             {{/each}}
           </tbody>
         </table>
-              
       </section>
       <section class="OG-timeseries og-js-timeseries"></section>
     </div>

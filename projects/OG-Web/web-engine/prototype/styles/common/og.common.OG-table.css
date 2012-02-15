@@ -76,6 +76,20 @@
     border-bottom: 4px solid #f3f3f3;
 }
 
+/* Second level header support */
+
+    .OG-table thead tr + tr th {
+        background-color: #f3f3f3;
+        border-bottom: 2px solid #fff;
+        border-right: 2px solid #fff;
+        color: #999;
+        padding-left: 2px;
+    }
+
+    .OG-table thead tr + tr th:first-child {
+        padding-left: 10px;
+    }
+
 /* Sub list content */
 
     .OG-table .og-sub-list {
