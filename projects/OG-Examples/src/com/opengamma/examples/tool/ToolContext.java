@@ -37,6 +37,7 @@ import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.region.impl.InMemoryRegionMaster;
 import com.opengamma.master.region.impl.MasterRegionSource;
 import com.opengamma.master.region.impl.RegionFileReader;
+import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 
 /**
@@ -73,6 +74,7 @@ public final class ToolContext {
   private final LoaderContext _loaderContext;
   private final HistoricalTimeSeriesSource _htsSource;
   private final ConventionBundleSource _conventionBundleSource;
+  private final SecurityLoader _securityLoader;
 
   private ToolContext() {
     ComponentManager manager = new ComponentManager();
@@ -108,6 +110,7 @@ public final class ToolContext {
     _snapshotSource = _repo.getInstance(MarketDataSnapshotSource.class, "shared");
     _htsSource = _repo.getInstance(HistoricalTimeSeriesSource.class, "shared");
     _conventionBundleSource = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
+    _securityLoader = _repo.getInstance(SecurityLoader.class, "standard");
     
     _loaderContext = new LoaderContext();
     _loaderContext.setConfigMaster(_dbConfigMaster);
@@ -279,6 +282,14 @@ public final class ToolContext {
    */
   public ConventionBundleSource getConventionBundleSource() {
     return _conventionBundleSource;
+  }
+
+  /**
+   * Gets the securityLoader.
+   * @return the securityLoader
+   */
+  public SecurityLoader getSecurityLoader() {
+    return _securityLoader;
   }
 
 }
