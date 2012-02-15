@@ -23,6 +23,30 @@ public class CsvSheetReader extends SheetReader {
 
   private CSVReader _csvReader;
 
+  public CsvSheetReader(String filename, String[] columns) {
+
+    // Open file
+    InputStream fileInputStream = openFile(filename);
+
+    // Set up CSV reader
+    _csvReader = new CSVReader(new InputStreamReader(fileInputStream));
+    
+    // Set columns
+    setColumns(columns);
+  }
+  
+  public CsvSheetReader(String filename) {
+    
+    // Open file
+    InputStream fileInputStream = openFile(filename);
+    
+    // Set up CSV reader
+    _csvReader = new CSVReader(new InputStreamReader(fileInputStream));
+    
+    // Set columns
+    setColumns(readHeaderRow());
+  }
+  
   public CsvSheetReader(InputStream inputStream, String[] columns) {
     
     // Set up CSV reader
@@ -31,26 +55,14 @@ public class CsvSheetReader extends SheetReader {
     // Set columns
     setColumns(columns);
   }
-  
+ 
   public CsvSheetReader(InputStream inputStream) {
     
     // Set up CSV reader
     _csvReader = new CSVReader(new InputStreamReader(inputStream));
     
-    // Read in the header row
-    String[] rawRow;
-    try {
-      rawRow = _csvReader.readNext();
-    } catch (IOException ex) {
-      throw new OpenGammaRuntimeException("Error reading CSV file header row: " + ex.getMessage());
-    }
-    
-    // Normalise read-in headers (to lower case) and set as columns
-    String[] columns = new String[rawRow.length];
-    for (int i = 0; i < rawRow.length; i++) {
-      columns[i] = rawRow[i].trim().toLowerCase();
-    }
-    setColumns(columns);
+    // Set columns
+    setColumns(readHeaderRow());
   }
 
   @Override
@@ -81,4 +93,21 @@ public class CsvSheetReader extends SheetReader {
     return result;
   }
 
+  private String[] readHeaderRow() {
+    // Read in the header row
+    String[] rawRow;
+    try {
+      rawRow = _csvReader.readNext();
+    } catch (IOException ex) {
+      throw new OpenGammaRuntimeException("Error reading CSV file header row: " + ex.getMessage());
+    }
+    
+    // Normalise read-in headers (to lower case) and set as columns
+    String[] columns = new String[rawRow.length];
+    for (int i = 0; i < rawRow.length; i++) {
+      columns[i] = rawRow[i].trim().toLowerCase();
+    }
+    
+    return columns;
+  }
 }

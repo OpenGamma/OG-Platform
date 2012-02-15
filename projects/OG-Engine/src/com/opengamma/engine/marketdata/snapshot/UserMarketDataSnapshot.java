@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.marketdatasnapshot.MarketDataSnapshotSource;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueSpecification;
 import com.opengamma.core.marketdatasnapshot.MarketDataValueType;
@@ -191,7 +192,11 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   @Override
   public void init() {
-    _snapshot = getSnapshotSource().getSnapshot(getSnapshotId());
+    try {
+      _snapshot = getSnapshotSource().getSnapshot(getSnapshotId());
+    } catch (DataNotFoundException ex) {
+      _snapshot = null;
+    }
   }
   
   @Override

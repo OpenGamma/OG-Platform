@@ -18,23 +18,19 @@ import javax.time.calendar.LocalDate;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.core.io.Resource;
 
 import au.com.bytecode.opencsv.CSVReader;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
+import com.opengamma.examples.loader.LocalMastersUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
-import com.opengamma.masterdb.historicaltimeseries.DbHistoricalTimeSeriesMaster;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.PlatformConfigUtils;
-import com.opengamma.util.PlatformConfigUtils.RunMode;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
@@ -59,23 +55,22 @@ public class SimulatedHistoricalDataGenerator {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SimulatedHistoricalDataGenerator.class);
   
-  private final DbHistoricalTimeSeriesMaster _htsMaster;
+  private final HistoricalTimeSeriesMaster _htsMaster;
   private Map<Pair<ExternalId, String>, Double> _initialValues = new HashMap<Pair<ExternalId, String>, Double>();
 
   private static final int NUM_FIELDS = 4;
   private static final double SCALING_FACTOR = 0.005; // i.e. 0.5% * 1SD
   private static final int TS_LENGTH = 2; // length of timeseries in years
   
-  public SimulatedHistoricalDataGenerator(DbHistoricalTimeSeriesMaster htsMaster, Resource initialValuesFile) {
+  public SimulatedHistoricalDataGenerator(HistoricalTimeSeriesMaster htsMaster) {
     ArgumentChecker.notNull(htsMaster, "htsMaster");
-    ArgumentChecker.notNull(initialValuesFile, "initialValuesFile");
     _htsMaster = htsMaster;
-    readInitialValues(initialValuesFile);
+    readInitialValues();
   }
   
-  public void readInitialValues(Resource initialValuesFile) {
+  public void readInitialValues() {
     try {
-      CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(initialValuesFile.getInputStream())));
+      CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(SimulatedHistoricalDataGenerator.class.getResourceAsStream("historical-data.csv"))));
       // Read header row
       @SuppressWarnings("unused")
       String[] headers = reader.readNext();
@@ -162,21 +157,15 @@ public class SimulatedHistoricalDataGenerator {
       lc.reset(); 
       configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
       
-      // Set the run mode to EXAMPLE so we use the HSQLDB example database.
-      PlatformConfigUtils.configureSystemProperties(RunMode.EXAMPLE);
-      System.out.println("Starting connections");
-      AbstractApplicationContext appContext = new ClassPathXmlApplicationContext("demoPortfolioLoader.xml");
-      appContext.start();
-      
+      LocalMastersUtils localMasterUtils = LocalMastersUtils.INSTANCE;
       try {
-        SimulatedHistoricalDataGenerator loader = appContext.getBean("simulatedHistoricalDataGenerator", SimulatedHistoricalDataGenerator.class);
+        SimulatedHistoricalDataGenerator loader = new SimulatedHistoricalDataGenerator(localMasterUtils.getHistoricalTimeSeriesMaster());
         System.out.println("Loading data");
         loader.run();
+        System.out.println("Finished");
       } finally {
-        appContext.close();
+        localMasterUtils.tearDown();
       }
-      System.out.println("Finished");
-      
     } catch (Exception ex) {
       ex.printStackTrace();
     }

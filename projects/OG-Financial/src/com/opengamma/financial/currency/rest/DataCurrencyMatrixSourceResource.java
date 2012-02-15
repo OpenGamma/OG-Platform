@@ -56,7 +56,7 @@ public class DataCurrencyMatrixSourceResource extends AbstractDataResource {
   @Path("currencyMatrices/{name}")
   public Response getMatrix(@PathParam("name") String name) {
     CurrencyMatrix result = getCurrencyMatrixSource().getCurrencyMatrix(name);
-    return Response.ok(result).build();
+    return response(result);
   }
 
   //-------------------------------------------------------------------------

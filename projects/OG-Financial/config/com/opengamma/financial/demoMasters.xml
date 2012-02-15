@@ -26,11 +26,6 @@
   </bean>
   <alias name="standardJmsConnector" alias="jmsConnector"/>
 
-  <bean id="htsResolver" class="com.opengamma.financial.spring.DefaultHistoricalTimeSeriesResolverFactoryBean">
-    <property name="configSource" ref="sharedConfigSource"/>
-    <property name="historicalTimeSeriesMaster" ref="dbHtsMaster"/>
-  </bean>
-
   <!-- ============================================================================== -->
   <bean id="regionFileReader" class="com.opengamma.master.region.impl.RegionFileReader" factory-method="createPopulated" />
   <bean id="regionMaster" factory-bean="regionFileReader" factory-method="getRegionMaster" />
@@ -215,6 +210,13 @@
     <property name="dbConnector" ref="htsDbConnector"/>
     <property name="uniqueIdScheme" value="${opengamma.financial.db.htsmaster.scheme}" />
   </bean>
+  
+  <!-- Default HTS Resolver with no BBG dep -->
+  <bean id="htsResolver" class="com.opengamma.financial.spring.DefaultHistoricalTimeSeriesResolverFactoryBean">
+    <property name="configSource" ref="sharedConfigSource" />
+    <property name="historicalTimeSeriesMaster" ref="dbHtsMaster" />
+  </bean>
+  
   <bean id="sharedHistoricalTimeSeriesSource" class="com.opengamma.financial.spring.HistoricalTimeSeriesSourceFactoryBean">
     <property name="historicalTimeSeriesMaster" ref="dbHtsMaster"/>
     <property name="cacheManager" ref="standardCacheManager" />

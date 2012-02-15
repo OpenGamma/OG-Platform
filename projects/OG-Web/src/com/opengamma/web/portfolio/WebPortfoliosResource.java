@@ -7,6 +7,7 @@ package com.opengamma.web.portfolio;
 
 import java.net.URI;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.FormParam;
@@ -19,14 +20,12 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import com.opengamma.web.server.push.rest.MasterType;
-import com.opengamma.web.server.push.rest.Subscribe;
-import com.opengamma.web.server.push.rest.SubscribeMaster;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 
 import com.opengamma.DataNotFoundException;
+import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.DocumentVisibility;
@@ -41,6 +40,9 @@ import com.opengamma.master.portfolio.PortfolioSearchSortOrder;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.web.WebPaging;
+import com.opengamma.web.server.push.rest.MasterType;
+import com.opengamma.web.server.push.rest.Subscribe;
+import com.opengamma.web.server.push.rest.SubscribeMaster;
 
 /**
  * RESTful resource for all portfolios.
@@ -54,9 +56,11 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
    * Creates the resource.
    * @param portfolioMaster  the portfolio master, not null
    * @param positionMaster  the position master, not null
+   * @param securitySource  the security source, not null
+   * @param executor  the executor service, not null
    */
-  public WebPortfoliosResource(final PortfolioMaster portfolioMaster, final PositionMaster positionMaster) {
-    super(portfolioMaster, positionMaster);
+  public WebPortfoliosResource(final PortfolioMaster portfolioMaster, final PositionMaster positionMaster, final SecuritySource securitySource, final ExecutorService executor) {
+    super(portfolioMaster, positionMaster, securitySource, executor);
   }
 
   //-------------------------------------------------------------------------

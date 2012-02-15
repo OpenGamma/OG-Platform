@@ -9,11 +9,13 @@ import java.net.URI;
 
 import javax.time.InstantProvider;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.rest.AbstractRemoteClient;
+import com.sun.jersey.api.client.UniformInterfaceException;
 
 /**
  * Provides access to a remote {@link InterpolatedYieldCurveDefinitionSource}.
@@ -35,8 +37,17 @@ public class RemoteInterpolatedYieldCurveDefinitionSource extends AbstractRemote
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(name, "name");
     
-    URI uri = DataInterpolatedYieldCurveDefinitionSourceResource.uriSearchSingle(getBaseUri(), currency, name, null);
-    return accessRemote(uri).get(YieldCurveDefinition.class);
+    try {
+      URI uri = DataInterpolatedYieldCurveDefinitionSourceResource.uriSearchSingle(getBaseUri(), currency, name, null);
+      return accessRemote(uri).get(YieldCurveDefinition.class);
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException ex) {
+      if (ex.getResponse().getStatus() == 404) {
+        return null;
+      }
+      throw ex;
+    }
   }
 
   @Override
@@ -44,8 +55,17 @@ public class RemoteInterpolatedYieldCurveDefinitionSource extends AbstractRemote
     ArgumentChecker.notNull(currency, "currency");
     ArgumentChecker.notNull(name, "name");
     
-    URI uri = DataInterpolatedYieldCurveDefinitionSourceResource.uriSearchSingle(getBaseUri(), currency, name, versionAsOf);
-    return accessRemote(uri).get(YieldCurveDefinition.class);
+    try {
+      URI uri = DataInterpolatedYieldCurveDefinitionSourceResource.uriSearchSingle(getBaseUri(), currency, name, versionAsOf);
+      return accessRemote(uri).get(YieldCurveDefinition.class);
+    } catch (DataNotFoundException ex) {
+      return null;
+    } catch (UniformInterfaceException ex) {
+      if (ex.getResponse().getStatus() == 404) {
+        return null;
+      }
+      throw ex;
+    }
   }
 
 }

@@ -12,8 +12,6 @@ import javax.time.calendar.LocalDate;
 import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
@@ -33,8 +31,6 @@ import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
-import com.opengamma.util.PlatformConfigUtils;
-import com.opengamma.util.PlatformConfigUtils.RunMode;
 
 /**
  * Example code to load a simple equity portfolio.
@@ -277,20 +273,16 @@ public class DemoEquityPortfolioLoader {
       lc.reset(); 
       configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
       
-      PlatformConfigUtils.configureSystemProperties(RunMode.SHAREDDEV);
-      System.out.println("Starting connections");
-      AbstractApplicationContext appContext = new ClassPathXmlApplicationContext("demoPortfolioLoader.xml");
-      appContext.start();
-      
+      LocalMastersUtils localMasterUtils = LocalMastersUtils.INSTANCE;
       try {
-        DemoEquityPortfolioLoader loader = (DemoEquityPortfolioLoader) appContext.getBean("demoEquityPortfolioLoader");
+        DemoEquityPortfolioLoader loader = new DemoEquityPortfolioLoader();
+        loader.setLoaderContext(localMasterUtils.getLoaderContext());
         System.out.println("Loading data");
         loader.loadTestPortfolio();
+        System.out.println("Finished");
       } finally {
-        appContext.close();
+        localMasterUtils.tearDown();
       }
-      System.out.println("Finished");
-      
     } catch (Exception ex) {
       ex.printStackTrace();
     }

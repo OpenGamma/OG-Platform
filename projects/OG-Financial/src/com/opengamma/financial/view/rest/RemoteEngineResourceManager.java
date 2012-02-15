@@ -34,7 +34,7 @@ public abstract class RemoteEngineResourceManager<T extends UniqueIdentifiable> 
   
   @Override
   public EngineResourceReference<T> createReference(UniqueId cycleId) {
-    ClientResponse response = _client.access(_baseUri).post(ClientResponse.class);
+    ClientResponse response = _client.accessFudge(_baseUri).post(ClientResponse.class);
     URI baseUri = response.getLocation();
     return getRemoteReference(baseUri, _scheduler);
   }

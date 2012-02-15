@@ -7,6 +7,7 @@ package com.opengamma.master.security;
 
 import java.util.Map;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -147,13 +148,11 @@ public class ManageableSecurityLink extends AbstractLink<Security> implements Se
     ObjectId objectId = getObjectId();
     ExternalIdBundle bundle = getExternalId();
     if (security != null) {
-      
       // Try to retrieve the security's assigned name
-//      String name = security.getName();
-//      if (name != null && !(name.trim().equals(""))) {
-//        return name;
-//      }
-      
+      String name = security.getName();
+      if (StringUtils.isNotBlank(name)) {
+        return name;
+      }      
       bundle = security.getExternalIdBundle();
     }
     if (bundle != null && bundle.size() > 0) {

@@ -6,7 +6,11 @@
 
 package com.opengamma.financial.loader;
 
-import com.opengamma.financial.portfolio.loader.LoaderContext;
+import javax.time.Instant;
+import javax.time.calendar.ZonedDateTime;
+
+import com.opengamma.id.ExternalIdSearch;
+import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -21,6 +25,7 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.master.security.SecuritySearchSortOrder;
 
 /**
  * A class that facilitates writing securities and portfolio positions and trades
@@ -50,24 +55,70 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     _portfolioDocument = createOrOpenPortfolio(portfolioName);
 
   }
+
   
+  // This contains a name-based security comparison :(
+//  public ManageableSecurity writeSecurity(ManageableSecurity security) {
+//    
+//    // If security already exists don't write the new one, but return the original instead
+//    SecuritySearchRequest nameRequest = new SecuritySearchRequest();
+//    nameRequest.setName(security.getName());
+//    SecuritySearchResult searchResult = _securityMaster.search(nameRequest);
+//    ManageableSecurity origSecurity = searchResult.getFirstSecurity();
+//    if (origSecurity != null) { 
+//      security = origSecurity;
+//    } else {
+//      _securityMaster.add(new SecurityDocument(security));
+//    }
+//
+//    return security;
+//  }
+
+  // Alternative implementation for adding a security, with alternative comparison method and updating/adding
+  // Not tested, might not work as external IDs probably won't be populated in the new security
   @Override
   public ManageableSecurity writeSecurity(ManageableSecurity security) {
-    
-    // If security already exists don't write the new one, but return the original instead
-    SecuritySearchRequest nameRequest = new SecuritySearchRequest();
-    nameRequest.setName(security.getName());
-    SecuritySearchResult searchResult = _securityMaster.search(nameRequest);
-    ManageableSecurity origSecurity = searchResult.getFirstSecurity();
-    if (origSecurity != null) { 
-      security = origSecurity;
+    SecuritySearchRequest secReq = new SecuritySearchRequest();
+    ExternalIdSearch idSearch = new ExternalIdSearch(security.getExternalIdBundle());  // match any one of the IDs
+    secReq.setVersionCorrection(VersionCorrection.ofVersionAsOf(ZonedDateTime.now())); // valid now
+    secReq.setExternalIdSearch(idSearch);
+    secReq.setFullDetail(true);
+    secReq.setSortOrder(SecuritySearchSortOrder.VERSION_FROM_INSTANT_DESC);
+    SecuritySearchResult searchResult = _securityMaster.search(secReq);
+    if (searchResult.getDocuments().size() > 0) {
+      SecurityDocument firstDocument = searchResult.getFirstDocument();
+      ManageableSecurity foundSecurity = firstDocument.getSecurity();
+      if (weakEquals(foundSecurity, security)) {
+        // It's already there, don't update or add it
+        return foundSecurity;
+      } else {
+        // Found it but contents differ, so update it
+        SecurityDocument updateDoc = new SecurityDocument(security);
+        updateDoc.setUniqueId(foundSecurity.getUniqueId());
+        updateDoc.setVersionFromInstant(firstDocument.getVersionFromInstant());
+        updateDoc.setVersionToInstant(firstDocument.getVersionToInstant());
+        updateDoc.setCorrectionFromInstant(Instant.now());
+        SecurityDocument result = _securityMaster.update(updateDoc);
+        return result.getSecurity();
+      }
     } else {
-      _securityMaster.add(new SecurityDocument(security));
+      // Not found, so add it
+      SecurityDocument addDoc = new SecurityDocument(security);
+      SecurityDocument result = _securityMaster.add(addDoc);
+      return result.getSecurity();
     }
-
-    return security;
   }
-
+  
+  // This weak equals does not actually compare the security's fields, just the type, external ids and attributes :(
+  private boolean weakEquals(ManageableSecurity sec1, ManageableSecurity sec2) {
+    return sec1.getName().equals(sec2.getName()) &&
+           sec1.getSecurityType().equals(sec2.getSecurityType()) &&
+           sec1.getExternalIdBundle().equals(sec2.getExternalIdBundle()) &&
+           sec1.getAttributes().equals(sec2.getAttributes());
+  }
+  
+  
+  
   @Override
   public ManageablePosition writePosition(ManageablePosition position) {
     

@@ -5,6 +5,7 @@
  */
 package com.opengamma.core.marketdatasnapshot;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
@@ -23,8 +24,9 @@ public interface MarketDataSnapshotSource {
    * A unique identifier exactly specifies a single snapshot at a single version-correction.
    * 
    * @param uniqueId  the unique identifier, not null
-   * @return the snapshot, null if not found
+   * @return the snapshot, not null
    * @throws IllegalArgumentException if the identifier is invalid
+   * @throws DataNotFoundException if the snapshot could not be found
    * @throws RuntimeException if an error occurs
    */
   StructuredMarketDataSnapshot getSnapshot(UniqueId uniqueId);

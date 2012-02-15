@@ -28,8 +28,6 @@ import javax.time.calendar.format.DateTimeFormatterBuilder;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import au.com.bytecode.opencsv.CSVReader;
 import ch.qos.logback.classic.LoggerContext;
@@ -63,8 +61,6 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.GUIDGenerator;
-import com.opengamma.util.PlatformConfigUtils;
-import com.opengamma.util.PlatformConfigUtils.RunMode;
 import com.opengamma.util.i18n.Country;
 import com.opengamma.util.money.Currency;
 
@@ -321,21 +317,18 @@ public class DemoSwapPortfolioLoader {
       lc.reset(); 
       configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
       
-      // Set the run mode to EXAMPLE so we use the HSQLDB example database.
-      PlatformConfigUtils.configureSystemProperties(RunMode.EXAMPLE);
-      System.out.println("Starting connections");
-      AbstractApplicationContext appContext = new ClassPathXmlApplicationContext("demoPortfolioLoader.xml");
-      appContext.start();
+      LocalMastersUtils localMasterUtils = LocalMastersUtils.INSTANCE;
       
       try {
-        DemoSwapPortfolioLoader loader = appContext.getBean("demoSwapPortfolioLoader", DemoSwapPortfolioLoader.class);
+        
+        DemoSwapPortfolioLoader loader = new DemoSwapPortfolioLoader();
+        loader.setLoaderContext(localMasterUtils.getLoaderContext());
         System.out.println("Loading data");
         loader.createExamplePortfolio();
+        System.out.println("Finished");
       } finally {
-        appContext.close();
+        localMasterUtils.tearDown();
       }
-      System.out.println("Finished");
-      
     } catch (Exception ex) {
       ex.printStackTrace();
     }

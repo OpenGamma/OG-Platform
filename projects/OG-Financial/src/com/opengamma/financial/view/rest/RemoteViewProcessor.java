@@ -51,9 +51,9 @@ public class RemoteViewProcessor implements ViewProcessor {
   }
 
   @Override
-  public UniqueId getUniqueId() {
-    URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_UNIQUE_ID).build();
-    return _client.accessFudge(uri).get(UniqueId.class);
+  public String getName() {
+    URI uri = UriBuilder.fromUri(_baseUri).path(DataViewProcessorResource.PATH_NAME).build();
+    return _client.accessFudge(uri).get(String.class);
   }
 
   @Override

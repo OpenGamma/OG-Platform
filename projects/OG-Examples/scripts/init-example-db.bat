@@ -39,9 +39,6 @@ FOR /R lib %%a IN (*.zip) DO set CLASSPATH=!CLASSPATH!;%%a
   -Xms1024M ^
   -Xmx1024M ^
   -Dlogback.configurationFile=jetty-logback.xml ^
-  -Dopengamma.platform.runmode=example ^
-  -Dopengamma.platform.marketdatasource=direct ^
-  -Dopengamma.platform.os=posix ^
   com.opengamma.examples.loader.DemoDatabasePopulater
 
 REM PLAT-1527

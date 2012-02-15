@@ -28,7 +28,7 @@ import org.springframework.core.io.Resource;
  * This class starts an OpenGamma JVM process using the specified config file.
  * A {@link OpenGammaComponentServerMonitor monitor} thread will also be started.
  * <p>
- * Two types of config file format are recognized - properties and props (INI).
+ * Two types of config file format are recognized - properties and INI.
  * A properties file must be in the standard Java format and contain a key "component.ini"
  * which is the resource location of the main INI file.
  * The INI file is described in {@link ComponentConfigLoader}.
