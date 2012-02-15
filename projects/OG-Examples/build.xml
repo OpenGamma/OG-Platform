@@ -7,7 +7,7 @@
 	<property name="webapp.dir" value="${lib.dir}/webapp/com.opengamma/og-web" />
 	<property name="sql.dir" value="${lib.dir}/sql/com.opengamma/og-masterdb" />
 
-	<target name="new-hsqldb" depends="jetty-stop, resolve" description="--> creates the hsqldb tables">
+	<target name="new-hsqldb" depends="jetty-stop, resolve" description="creates a new hsql database">
 		<unzip dest="${basedir}/temp" overwrite="true">
 			<fileset dir="${sql.dir}">
 				<include name="*.zip" />
@@ -92,8 +92,10 @@
 		<echo>${jetty.stop.status}</echo>
 	</target>
 
-	<target name="demo-database" depends="compile-src,jetty-stop" description="--> initialize demo portfolio and view in database">
-		<java classname="com.opengamma.examples.loader.DemoDatabasePopulater" classpathref="jetty.run.path" failonerror="true" fork="true">
+  <target name="demo-database" depends="init-database"><!-- deprecated old target -->
+  </target>
+	<target name="init-database" depends="compile-src,jetty-stop" description="initialize demo portfolio and view in database">
+		<java classname="com.opengamma.examples.tool.ExampleDatabasePopulater" classpathref="jetty.run.path" failonerror="true" fork="true">
 			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
