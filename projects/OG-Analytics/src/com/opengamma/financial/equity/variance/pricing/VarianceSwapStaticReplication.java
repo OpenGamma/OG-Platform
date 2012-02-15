@@ -18,7 +18,7 @@ import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceDe
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceLogMoneyness;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceVistor;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceVisitor;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.Integrator1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
@@ -255,7 +255,7 @@ public class VarianceSwapStaticReplication {
   /**
    * Converts from cutoff limit and spread expressed in the same units as the volatility surface (e.g. moneyness, delta etc) and returns (absolute strike points and volatilities)
    */
-  private class ExtrapolationParameters implements BlackVolatilitySurfaceVistor<DoublesPair, Pair<double[], double[]>> {
+  private class ExtrapolationParameters implements BlackVolatilitySurfaceVisitor<DoublesPair, Pair<double[], double[]>> {
 
     private final double _t;
     private final double _f;
@@ -346,7 +346,7 @@ public class VarianceSwapStaticReplication {
 
   }
 
-  private class VarianceCalculator implements BlackVolatilitySurfaceVistor<DoublesPair, Double> {
+  private class VarianceCalculator implements BlackVolatilitySurfaceVisitor<DoublesPair, Double> {
 
     private final double _t;
     private final double _f;

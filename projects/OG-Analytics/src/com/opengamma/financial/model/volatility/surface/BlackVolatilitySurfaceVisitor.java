@@ -9,7 +9,7 @@ package com.opengamma.financial.model.volatility.surface;
  * @param <S> Type of the arguments
  * @param <T> Return type of the function
  */
-public interface BlackVolatilitySurfaceVistor<S, T> {
+public interface BlackVolatilitySurfaceVisitor<S, T> {
 
   T visitDelta(final BlackVolatilitySurfaceDelta surface, final S data);
 

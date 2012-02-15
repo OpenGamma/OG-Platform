@@ -118,7 +118,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
   private void addFXForwardCurveFunction(List<FunctionConfiguration> configs) {
     configs.add(new ParameterizedFunctionConfiguration(DummyFXForwardCurveFunction.class.getName(), Arrays.asList("DEFAULT", "EUR", "USD")));    
     configs.add(new StaticFunctionConfiguration(FXForwardCurveFromYieldCurveFunction.class.getName()));
-    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurveDefaultPropertiesFunction.class.getName(), Arrays.asList("FUNDING", "FUNDING")));
+    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurveDefaultPropertiesFunction.class.getName(), Arrays.asList("DEFAULT", "FUNDING", "FUNDING")));
   }
   
   private void addVolatilityCubeFunction(List<FunctionConfiguration> configs, String... parameters) {

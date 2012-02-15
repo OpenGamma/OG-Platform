@@ -71,13 +71,13 @@ public class BlackVolatilitySurfaceLogMoneyness extends BlackVolatilitySurface<L
   }
 
   @Override
-  public <S, U> U accept(final BlackVolatilitySurfaceVistor<S, U> vistor, final S data) {
-    return vistor.visitLogMoneyness(this, data);
+  public <S, U> U accept(final BlackVolatilitySurfaceVisitor<S, U> visitor, final S data) {
+    return visitor.visitLogMoneyness(this, data);
   }
 
   @Override
-  public <U> U accept(final BlackVolatilitySurfaceVistor<?, U> vistor) {
-    return vistor.visitLogMoneyness(this);
+  public <U> U accept(final BlackVolatilitySurfaceVisitor<?, U> visitor) {
+    return visitor.visitLogMoneyness(this);
   }
 
 }
