@@ -13,20 +13,15 @@ import java.util.Set;
 
 import javax.time.InstantProvider;
 import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
-import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -41,7 +36,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
-import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.tuple.Pair;
 
@@ -49,18 +43,22 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 //TODO this class needs to be re-written, as each instrument type needs a different set of inputs
-public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction {
-  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionVolatilitySurfaceDataFunction.class);
+public class RawVolatilitySurfaceDataFunctionOld extends AbstractFunction {
+  /**
+   * Value specification property for the surface result. This allows surface to be distinguished by instrument type (e.g. an FX volatility
+   * surface, swaption ATM volatility surface).
+   */
+  public static final String PROPERTY_SURFACE_INSTRUMENT_TYPE = "InstrumentType";
+
   private VolatilitySurfaceDefinition<?, ?> _definition;
   private ValueSpecification _result;
   private Set<ValueSpecification> _results;
-  private String _underlyingIdentifierAsString;
   private final String _definitionName;
   private final String _specificationName;
-  private String _instrumentType;
+  private final String _instrumentType;
   private VolatilitySurfaceSpecification _specification;
 
-  public EquityOptionVolatilitySurfaceDataFunction(final String definitionName, final String instrumentType, final String specificationName) {
+  public RawVolatilitySurfaceDataFunctionOld(final String definitionName, final String instrumentType, final String specificationName) {
     Validate.notNull(definitionName, "Definition Name");
     Validate.notNull(instrumentType, "Instrument Type");
     Validate.notNull(specificationName, "Specification Name");
@@ -70,10 +68,6 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
     _specificationName = specificationName;
     _result = null;
     _results = null;
-  }
-
-  public String getCurrencyLabel() {
-    return _underlyingIdentifierAsString;
   }
 
   public String getDefinitionName() {
@@ -90,45 +84,36 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
     final ConfigDBVolatilitySurfaceDefinitionSource volSurfaceDefinitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
     _definition = volSurfaceDefinitionSource.getDefinition(_definitionName, _instrumentType);
     if (_definition == null) {
-      throw new OpenGammaRuntimeException("Couldn't find Equity Option Volatility Surface Definition " + _definitionName);
+      throw new OpenGammaRuntimeException("Couldn't find Volatility Surface Definition for " + _instrumentType + " called " + _definitionName);
     }
     final ConfigDBVolatilitySurfaceSpecificationSource volatilitySurfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
     _specification = volatilitySurfaceSpecificationSource.getSpecification(_specificationName, _instrumentType);
     if (_specification == null) {
-      throw new OpenGammaRuntimeException("Couldn't find Equity Option Volatility Surface Specification " + _specificationName);
+      throw new OpenGammaRuntimeException("Couldn't find Volatility Surface Specification for " + _instrumentType + " called " + _specificationName);
     }
-    _result = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getTarget().getUniqueId()),
-        createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName)
-                               .with(RawVolatilitySurfaceDataFunctionOld.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
-                               .withAny(EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD/*, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()*/).get());
+    _result = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getTarget()),
+        createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get());
     _results = Collections.singleton(_result);
   }
 
   @Override
   public String getShortName() {
-    return _underlyingIdentifierAsString + "-" + _definitionName + " for " + _instrumentType + " from " + _specificationName + " Volatility Surface Data";
+    return _definitionName + " for " + _instrumentType + " from " + _specificationName + " Volatility Surface Data";
   }
 
+  @SuppressWarnings("unchecked")
   public static <X, Y> Set<ValueRequirement> buildRequirements(final VolatilitySurfaceSpecification specification,
-                                                        final VolatilitySurfaceDefinition<X, Y> definition,
-                                                        final ZonedDateTime atInstant) {
+      final VolatilitySurfaceDefinition<X, Y> definition,
+      final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
-
-    final BloombergEquityOptionVolatilitySurfaceInstrumentProvider provider = (BloombergEquityOptionVolatilitySurfaceInstrumentProvider) specification.getSurfaceInstrumentProvider();
+    final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
     for (final X x : definition.getXs()) {
       // don't care what these are
       for (final Y y : definition.getYs()) {
-        provider.init(true); // generate puts
-        final ExternalId putIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.toLocalDate());
-        result.add(new ValueRequirement(provider.getDataFieldName(), putIdentifier));
-        provider.init(false);
-        final ExternalId callIdentifier = provider.getInstrument((LocalDate) x, (Double) y, atInstant.toLocalDate());
-        result.add(new ValueRequirement(provider.getDataFieldName(), callIdentifier));
+        final ExternalId identifier = provider.getInstrument(x, y, atInstant.toLocalDate());
+        result.add(new ValueRequirement(provider.getDataFieldName(), identifier));
       }
     }
-    // add the underlying    
-    ExternalId temp = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, definition.getTarget().getUniqueId().getValue());
-    result.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, temp));
     return result;
   }
 
@@ -170,42 +155,27 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
         return ObjectUtils.equals(target.getUniqueId(), _definition.getTarget().getUniqueId());
       }
 
-      @SuppressWarnings("synthetic-access")
+      @SuppressWarnings({"unchecked", "synthetic-access" })
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {
         final Clock snapshotClock = executionContext.getValuationClock();
-        ExternalId temp = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, _definition.getTarget().getUniqueId().getValue());
-        final ValueRequirement underlyingSpotValueRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, temp);
-        final Double underlyingSpot = (Double) inputs.getValue(underlyingSpotValueRequirement);
-        if (underlyingSpot == null) {
-          s_logger.error("Could not get underlying spot value for " + _definition.getTarget().getUniqueId());
-          return Collections.emptySet();
-        }
         final ZonedDateTime now = snapshotClock.zonedDateTime();
         final Map<Pair<Object, Object>, Double> volatilityValues = new HashMap<Pair<Object, Object>, Double>();
-        //int numFound = 0;
         for (final Object x : _definition.getXs()) {
           for (final Object y : _definition.getYs()) {
-            double strike = (Double) y;
-            LocalDate expiry = (LocalDate) x;
-            final BloombergEquityOptionVolatilitySurfaceInstrumentProvider provider = (BloombergEquityOptionVolatilitySurfaceInstrumentProvider) _specification.getSurfaceInstrumentProvider();
-            if (strike < underlyingSpot) {
-              provider.init(false); // generate identifiers for call options
-            } else {
-              provider.init(true); // generate identifiers for put options
-            }
-            final ExternalId identifier = provider.getInstrument(expiry, strike, now.toLocalDate());
+            final SurfaceInstrumentProvider<Object, Object> provider = (SurfaceInstrumentProvider<Object, Object>) _specification.getSurfaceInstrumentProvider();
+            final ExternalId identifier = provider.getInstrument(x, y, now.toLocalDate());
             final ValueRequirement requirement = new ValueRequirement(provider.getDataFieldName(), identifier);
             if (inputs.getValue(requirement) != null) {
               final Double volatility = (Double) inputs.getValue(requirement);
-              volatilityValues.put(Pair.of((Object) expiry, (Object) strike), volatility / 100);
+              volatilityValues.put(Pair.of(x, y), volatility);
             }
           }
         }
         final VolatilitySurfaceData<?, ?> volSurfaceData = new VolatilitySurfaceData<Object, Object>(_definition.getName(), _specification.getName(),
-                                                                                                     _definition.getTarget().getUniqueId(),
-                                                                                                     _definition.getXs(), _definition.getYs(), volatilityValues);
+            _definition.getTarget(),
+            _definition.getXs(), _definition.getYs(), volatilityValues);
         final ComputedValue resultValue = new ComputedValue(_result, volSurfaceData);
         return Collections.singleton(resultValue);
       }
@@ -214,6 +184,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
       public boolean canHandleMissingInputs() {
         return true;
       }
+
     };
   }
 }
