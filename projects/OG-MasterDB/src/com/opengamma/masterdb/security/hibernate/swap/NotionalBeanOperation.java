@@ -15,6 +15,7 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.NotionalVisitor;
 import com.opengamma.financial.security.swap.SecurityNotional;
+import com.opengamma.financial.security.swap.VarianceSwapNotional;
 import com.opengamma.id.UniqueId;
 import com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterDao;
 
@@ -37,8 +38,7 @@ public final class NotionalBeanOperation {
 
       @Override
       public NotionalBean visitCommodityNotional(CommodityNotional notional) {
-        final NotionalBean bean = createNotionalBean(notional);
-        return bean;
+        return createNotionalBean(notional);
       }
 
       @Override
@@ -56,6 +56,14 @@ public final class NotionalBeanOperation {
         return bean;
       }
 
+      @Override
+      public NotionalBean visitVarianceSwapNotional(VarianceSwapNotional notional) {
+        NotionalBean bean = createNotionalBean(notional);
+        bean.setCurrency(secMasterSession.getOrCreateCurrencyBean(notional.getCurrency().getCode()));
+        bean.setAmount(notional.getAmount());
+        return bean;
+      }
+
     });
   }
 
@@ -64,21 +72,23 @@ public final class NotionalBeanOperation {
 
       @Override
       public Notional visitCommodityNotional(final CommodityNotional ignore) {
-        final CommodityNotional notional = new CommodityNotional();
-        return notional;
+        return new CommodityNotional();
       }
 
       @Override
       public Notional visitInterestRateNotional(InterestRateNotional ignore) {
-        final InterestRateNotional notional = new InterestRateNotional(currencyBeanToCurrency(bean.getCurrency()), bean.getAmount());
-        return notional;
+        return new InterestRateNotional(currencyBeanToCurrency(bean.getCurrency()), bean.getAmount());
       }
 
       @Override
       public Notional visitSecurityNotional(SecurityNotional ignore) {
         UniqueId uniqueId = uniqueIdBeanToUniqueId(bean.getIdentifier());
-        final SecurityNotional notional = new SecurityNotional(uniqueId);
-        return notional;
+        return new SecurityNotional(uniqueId);
+      }
+
+      @Override
+      public Notional visitVarianceSwapNotional(VarianceSwapNotional notional) {
+        return new VarianceSwapNotional(currencyBeanToCurrency(bean.getCurrency()), bean.getAmount());
       }
 
     });

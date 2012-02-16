@@ -20,4 +20,7 @@ public interface SwapLegVisitor<T> {
   
   T visitFloatingGearingIRLeg(FloatingGearingIRLeg swapLeg);
 
+  T visitFixedVarianceSwapLeg(FixedVarianceSwapLeg swapLeg);
+
+  T visitFloatingVarianceSwapLeg(FloatingVarianceSwapLeg swapLeg);
 }
