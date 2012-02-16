@@ -21,27 +21,25 @@ $.register_module({
                 // listen to all clicks that bubble up and capture their titles
                 // overwrite href with new filter values
                 $('a[href]').live('click', function (e) {
-                    var anchor = $(e.target), current, parsed, rule, page, add, href;
+                    var anchor = $(e.target), current, parsed, rule, view, href;
                     title = anchor.attr('title');
                     if (!anchor.is('.og-js-live-anchor')) return;
-                    page = (parsed = routes.parse(anchor.attr('href'))).page.slice(1);
-                    current = routes.current();
-                    if (current.page !== parsed.page) return;
-                    if (!og.views[page].filters || !og.views[page].filters.length) return;
-                    add = og.views[page].filters.reduce(function (acc, val) {
-                        return (acc[val] = current.args[val]), acc;
-                    }, {});
+                    view = og.views[(parsed = routes.parse(anchor.attr('href'))).page.slice(1)];
+                    if (!view.filter_params.length || (current = routes.current()).page !== parsed.page) return;
                     rule = parsed.args.id ? 'load_item' : 'load';
-                    href = routes.prefix() + routes.hash(og.views[page].rules[rule], parsed.args, {add: add});
+                    href = routes.prefix() + routes.hash(view.rules[rule], parsed.args, {
+                        add: view.filter_params
+                            .reduce(function (acc, val) {return (acc[val] = current.args[val]), acc;}, {})
+                    });
                     anchor.attr('href', href);
                 });
-                $(window).bind('hashchange', function () {
+                $(window).on('hashchange', function () {
                     routes.handler();
                     set_title(title || routes.current().hash);
                     title = null;
                 });
                 // escape key will break long-polling, so prevent the default action
-                $(window).bind('keydown', function (e) {if (e.keyCode === $.ui.keyCode.ESCAPE) e.preventDefault();});
+                $(window).on('keydown', function (e) {if (e.keyCode === $.ui.keyCode.ESCAPE) e.preventDefault();});
                 $(function () { // in addition to binding hash change events to window, also fire it onload
                     var common = og.views.common;
                     $('.OG-js-loading').hide();
