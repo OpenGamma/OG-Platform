@@ -53,4 +53,4 @@ $JAVA  -cp "$CLASSPATH" \
   -Xms1024M \
   -Xmx4096M \
   -Dlogback.configurationFile=jetty-logback.xml \
-  com.opengamma.examples.loader.DemoDatabasePopulater
+  com.opengamma.examples.tool.ExampleDatabasePopulater

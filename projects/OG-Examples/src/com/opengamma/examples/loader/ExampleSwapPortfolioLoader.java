@@ -30,11 +30,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVReader;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.region.RegionUtils;
+import com.opengamma.examples.tool.AbstractTool;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -42,7 +41,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
-import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
@@ -67,20 +65,21 @@ import com.opengamma.util.money.Currency;
 /**
  * Example code to load a very simple swap portfolio.
  * <p>
- * This code is kept deliberately as simple as possible.  There are no checks for the securities or portfolios already existing, so if you run it 
- * more than once you will get multiple copies portfolios and securities with the same names.  It is designed to run against the HSQLDB example
- * database.  It should be possible to run this class with no extra parameters.
+ * This code is kept deliberately as simple as possible.
+ * There are no checks for the securities or portfolios already existing, so if you run it
+ * more than once you will get multiple copies portfolios and securities with the same names.
+ * It is designed to run against the HSQLDB example database.
  */
-public class DemoSwapPortfolioLoader {
+public class ExampleSwapPortfolioLoader extends AbstractTool {
   /**
    * Logger.
    */
-  private static Logger s_logger = LoggerFactory.getLogger(DemoSwapPortfolioLoader.class);
+  private static Logger s_logger = LoggerFactory.getLogger(ExampleSwapPortfolioLoader.class);
   
   /**
    * The name of the portfolio.
    */
-  public static final String PORTFOLIO_NAME = "Demo Swap Portfolio";
+  public static final String PORTFOLIO_NAME = "Example Swap Portfolio";
   
   /**
    * The scheme used for an identifier which is added to each swap created from the CSV file
@@ -129,39 +128,24 @@ public class DemoSwapPortfolioLoader {
     OUTPUT_DATE_FORMATTER = builder.toFormatter();
   }
 
-  /**
-   * The context.
-   */
-  private LoaderContext _loaderContext;
-
   //-------------------------------------------------------------------------
   /**
-   * Sets the loader context.
-   * <p>
-   * This initializes this bean, typically from Spring.
+   * Main method to run the tool.
+   * No arguments are needed.
    * 
-   * @param loaderContext  the context, not null
+   * @param args  the arguments, unused
    */
-  public void setLoaderContext(final LoaderContext loaderContext) {
-    _loaderContext = loaderContext;
-  }
-  
-  /**
-   * Gets the loader context.
-   * <p>
-   * This lets us access the masters that should have been initialized via Spring.
-   * @return the loader context
-   */
-  public LoaderContext getLoaderContext() {
-    return _loaderContext;
+  public static void main(String[] args) {  // CSIGNORE
+    if (init()) {
+      new ExampleSwapPortfolioLoader().run();
+    }
+    System.exit(0);
   }
 
-  /**
-   * Loads the test portfolio into the position master.
-   * @return
-   */
-  public void createExamplePortfolio() {
-    InputStream inputStream = DemoSwapPortfolioLoader.class.getResourceAsStream("demo-swap-portfolio.csv");  
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doRun() {
+    InputStream inputStream = ExampleSwapPortfolioLoader.class.getResourceAsStream("example-swap-portfolio.csv");  
     if (inputStream != null) {
       Collection<SwapSecurity> swaps = parseSwaps(inputStream);
       if (swaps.size() == 0) {
@@ -172,9 +156,9 @@ public class DemoSwapPortfolioLoader {
   }
 
   private void persistToPortfolio(Collection<SwapSecurity> swaps, String portfolioName) {
-    PortfolioMaster portfolioMaster = _loaderContext.getPortfolioMaster();
-    PositionMaster positionMaster = _loaderContext.getPositionMaster();
-    SecurityMaster securityMaster = _loaderContext.getSecurityMaster();
+    PortfolioMaster portfolioMaster = getToolContext().getPortfolioMaster();
+    PositionMaster positionMaster = getToolContext().getPositionMaster();
+    SecurityMaster securityMaster = getToolContext().getSecurityMaster();
     
     ManageablePortfolioNode rootNode = new ManageablePortfolioNode(portfolioName);
     ManageablePortfolio portfolio = new ManageablePortfolio(portfolioName, rootNode);
@@ -298,42 +282,5 @@ public class DemoSwapPortfolioLoader {
     
     return swap;
   }
-  
-  //-------------------------------------------------------------------------
-  /**
-   * Sets up and loads the database.
-   * <p>
-   * This loader requires a Spring configuration file that defines the security,
-   * position and portfolio masters, together with an instance of this bean
-   * under the name "demoSwapPortfolioLoader".
-   * 
-   * @param args  the arguments, unused
-   */
-  public static void main(String[] args) {  // CSIGNORE
-    try {
-      LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-      JoranConfigurator configurator = new JoranConfigurator();
-      configurator.setContext(lc);
-      lc.reset(); 
-      configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
-      
-      LocalMastersUtils localMasterUtils = LocalMastersUtils.INSTANCE;
-      
-      try {
-        
-        DemoSwapPortfolioLoader loader = new DemoSwapPortfolioLoader();
-        loader.setLoaderContext(localMasterUtils.getLoaderContext());
-        System.out.println("Loading data");
-        loader.createExamplePortfolio();
-        System.out.println("Finished");
-      } finally {
-        localMasterUtils.tearDown();
-      }
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    System.exit(0);
-  }
-
 
 }

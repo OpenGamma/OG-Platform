@@ -18,9 +18,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -28,12 +25,12 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.examples.tool.AbstractTool;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
@@ -61,16 +58,17 @@ import com.opengamma.util.time.Tenor;
 /**
  * Example code to load a very simple multicurrency swap portfolio.
  * <p>
- * This code is kept deliberately as simple as possible.  There are no checks for the securities or portfolios already existing, so if you run it 
- * more than once you will get multiple copies portfolios and securities with the same names.  It is designed to run against the HSQLDB example
- * database.  It should be possible to run this class with no extra parameters.
+ * This code is kept deliberately as simple as possible.
+ * There are no checks for the securities or portfolios already existing, so if you run it
+ * more than once you will get multiple copies portfolios and securities with the same names.
+ * It is designed to run against the HSQLDB example database.
  */
-public class DemoMultiCurrencySwapPortfolioLoader {
+public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool {
 
   /**
    * Logger.
    */
-  private static Logger s_logger = LoggerFactory.getLogger(DemoMultiCurrencySwapPortfolioLoader.class);
+  private static Logger s_logger = LoggerFactory.getLogger(ExampleMultiCurrencySwapPortfolioLoader.class);
   
   /**
    * Size of securities in portfolio
@@ -80,7 +78,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
   /**
    * The name of the portfolio.
    */
-  public static final String PORTFOLIO_NAME = "Demo MultiCurrency Swap Portfolio";
+  public static final String PORTFOLIO_NAME = "Example MultiCurrency Swap Portfolio";
   
   /**
    * The scheme used for an identifier which is added to each swap created from the CSV file
@@ -103,39 +101,25 @@ public class DemoMultiCurrencySwapPortfolioLoader {
                             Tenor.ofYears(7), Tenor.ofYears(10), Tenor.ofYears(12), Tenor.ofYears(15), Tenor.ofYears(20) };
   }
 
-  /**
-   * The context.
-   */
-  private LoaderContext _loaderContext;
-
   //-------------------------------------------------------------------------
   /**
-   * Sets the loader context.
-   * <p>
-   * This initializes this bean, typically from Spring.
+   * Main method to run the tool.
+   * No arguments are needed.
    * 
-   * @param loaderContext  the context, not null
+   * @param args  the arguments, unused
    */
-  public void setLoaderContext(final LoaderContext loaderContext) {
-    _loaderContext = loaderContext;
-  }
-  
-  /**
-   * Gets the loader context.
-   * <p>
-   * This lets us access the masters that should have been initialized via Spring.
-   * @return the loader context
-   */
-  public LoaderContext getLoaderContext() {
-    return _loaderContext;
+  public static void main(String[] args) {  // CSIGNORE
+    if (init()) {
+      new ExampleTimeSeriesRatingLoader().run();
+      new ExampleMultiCurrencySwapPortfolioLoader().run();
+    }
+    System.exit(0);
   }
 
-  /**
-   * Loads the test portfolio into the position master.
-   * @return
-   */
-  public void createPortfolio() {
-    YieldCurveConfigPopulator.populateCurveConfigMaster(_loaderContext.getConfigMaster());
+  //-------------------------------------------------------------------------
+  @Override
+  protected void doRun() {
+    YieldCurveConfigPopulator.populateCurveConfigMaster(getToolContext().getConfigMaster());
     Collection<SwapSecurity> swaps = createRandomSwaps();
     if (swaps.size() == 0) {
       throw new OpenGammaRuntimeException("No (valid) swaps were generated.");
@@ -229,8 +213,8 @@ public class DemoMultiCurrencySwapPortfolioLoader {
   }
 
   private Double getFixedRate(SecureRandom random, Currency ccy, LocalDate tradeDate, Tenor maturity) {
-    HistoricalTimeSeriesSource historicalSource = _loaderContext.getHistoricalTimeSeriesSource();
-    MasterConfigSource configSource = new MasterConfigSource(_loaderContext.getConfigMaster());
+    HistoricalTimeSeriesSource historicalSource = getToolContext().getHistoricalTimeSeriesSource();
+    MasterConfigSource configSource = new MasterConfigSource(getToolContext().getConfigMaster());
     ExternalId swapRateForMaturityIdentifier = getSwapRateFor(configSource, ccy, tradeDate, maturity);
     if (swapRateForMaturityIdentifier == null) {
       throw new OpenGammaRuntimeException("Couldn't get swap rate identifier for " + ccy + " [" + maturity + "]" + " from " + tradeDate);
@@ -249,7 +233,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
   }
 
   private Double getInitialRate(LocalDate tradeDate, ExternalId liborIdentifier) {
-    HistoricalTimeSeriesSource historicalSource = _loaderContext.getHistoricalTimeSeriesSource();
+    HistoricalTimeSeriesSource historicalSource = getToolContext().getHistoricalTimeSeriesSource();
     HistoricalTimeSeries initialRateSeries = historicalSource.getHistoricalTimeSeries(
         MarketDataRequirementNames.MARKET_VALUE, liborIdentifier.toBundle(), 
         HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME, tradeDate, true, tradeDate, true);
@@ -262,7 +246,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
 
   private ConventionBundle getLiborConventionBundle(ConventionBundle swapConvention) {
     // get the convention of the identifier of the initial rate
-    ConventionBundleSource conventionSource = _loaderContext.getConventionBundleSource();
+    ConventionBundleSource conventionSource = getToolContext().getConventionBundleSource();
     ConventionBundle liborConvention = conventionSource.getConventionBundle(swapConvention.getSwapFloatingLegInitialRate());
     if (liborConvention == null) {
       throw new OpenGammaRuntimeException("Couldn't get libor convention for " + swapConvention.getSwapFloatingLegInitialRate());
@@ -271,7 +255,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
   }
 
   private ConventionBundle getSwapConventionBundle(Currency ccy) {
-    ConventionBundleSource conventionSource = _loaderContext.getConventionBundleSource();
+    ConventionBundleSource conventionSource = getToolContext().getConventionBundleSource();
     ConventionBundle swapConvention = conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ccy.getCode() + "_SWAP"));
     if (swapConvention == null) {
       throw new OpenGammaRuntimeException("Couldn't get swap convention for " + ccy.getCode());
@@ -280,7 +264,7 @@ public class DemoMultiCurrencySwapPortfolioLoader {
   }
 
   private LocalDate getTradeDate(SecureRandom random, Currency ccy) {
-    HolidaySource holidaySource = _loaderContext.getHolidaySource();
+    HolidaySource holidaySource = getToolContext().getHolidaySource();
     LocalDate tradeDate;
     do {
       tradeDate = DateUtils.previousWeekDay().minusDays(random.nextInt(DAYS_TRADING));
@@ -311,9 +295,9 @@ public class DemoMultiCurrencySwapPortfolioLoader {
   }
 
   private void persistToPortfolio(Collection<SwapSecurity> swaps, String portfolioName) {
-    PortfolioMaster portfolioMaster = _loaderContext.getPortfolioMaster();
-    PositionMaster positionMaster = _loaderContext.getPositionMaster();
-    SecurityMaster securityMaster = _loaderContext.getSecurityMaster();
+    PortfolioMaster portfolioMaster = getToolContext().getPortfolioMaster();
+    PositionMaster positionMaster = getToolContext().getPositionMaster();
+    SecurityMaster securityMaster = getToolContext().getSecurityMaster();
     
     ManageablePortfolioNode rootNode = new ManageablePortfolioNode(portfolioName);
     ManageablePortfolio portfolio = new ManageablePortfolio(portfolioName, rootNode);
@@ -330,50 +314,5 @@ public class DemoMultiCurrencySwapPortfolioLoader {
     }
     portfolioMaster.add(portfolioDoc);
   }
-  
-  //-------------------------------------------------------------------------
-  /**
-   * Sets up and loads the database.
-   * <p>
-   * This loader requires a Spring configuration file that defines the security,
-   * position and portfolio masters, together with an instance of this bean
-   * under the name "demoMultiSwapPortfolioLoader".
-   * 
-   * @param args  the arguments, unused
-   */
-  public static void main(String[] args) {  // CSIGNORE
-    try {
-      LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-      JoranConfigurator configurator = new JoranConfigurator();
-      configurator.setContext(lc);
-      lc.reset(); 
-      configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
-      
-      LocalMastersUtils localMasterUtils = LocalMastersUtils.INSTANCE;
-      try {
-        
-        TimeSeriesRatingLoader populator = new TimeSeriesRatingLoader();
-        populator.setLoaderContext(localMasterUtils.getLoaderContext());
-        
-        System.out.println("Loading historicalTimeSeries config data");
-        populator.saveHistoricalTimeSeriesRatings();
-        
-        DemoMultiCurrencySwapPortfolioLoader loader = new DemoMultiCurrencySwapPortfolioLoader();
-        loader.setLoaderContext(localMasterUtils.getLoaderContext());
-        
-        System.out.println("Loading data");
-        loader.createPortfolio();
-        System.out.println("Finished");
-      } finally {
-        localMasterUtils.tearDown();
-      }
-      
-      
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    System.exit(0);
-  }
-
 
 }
