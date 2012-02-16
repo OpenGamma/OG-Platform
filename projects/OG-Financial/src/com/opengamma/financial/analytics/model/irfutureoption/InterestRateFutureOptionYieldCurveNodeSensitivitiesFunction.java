@@ -13,8 +13,6 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
@@ -45,7 +43,7 @@ import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunctionOld;
+import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.instrument.InstrumentDefinition;
@@ -74,24 +72,12 @@ import com.opengamma.util.money.Currency;
 public class InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction extends AbstractFunction.NonCompiledInvoker {
   @SuppressWarnings("unchecked")
   private static final VolatilityFunctionProvider<SABRFormulaData> SABR_FUNCTION = (VolatilityFunctionProvider<SABRFormulaData>) VolatilityFunctionFactory
-      .getCalculator(VolatilityFunctionFactory.HAGAN);
+  .getCalculator(VolatilityFunctionFactory.HAGAN);
   private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRCalculator.getInstance());
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
   private InterestRateFutureOptionTradeConverter _converter;
   private FixedIncomeConverterDataProvider _dataConverter;
-  private final String _forwardCurveName;
-  private final String _fundingCurveName;
-  private final String _surfaceName;
-
-  public InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction(final String forwardCurveName, final String fundingCurveName, final String surfaceName) {
-    Validate.notNull(forwardCurveName, "forward curve name");
-    Validate.notNull(fundingCurveName, "funding curve name");
-    Validate.notNull(surfaceName, "surface name");
-    _forwardCurveName = forwardCurveName;
-    _fundingCurveName = fundingCurveName;
-    _surfaceName = surfaceName;
-  }
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -108,15 +94,19 @@ public class InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction extends
     final Trade trade = target.getTrade();
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ValueProperties constraints = desiredValues.iterator().next().getConstraints();
+    final String forwardCurveName = constraints.getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE).iterator().next();
+    final String fundingCurveName = constraints.getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE).iterator().next();
+    final String surfaceName = constraints.getValues(ValuePropertyNames.SURFACE).iterator().next();
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    final ValueRequirement forwardCurveSpecRequirement = getCurveSpecRequirement(target, _forwardCurveName);
+    final ValueRequirement forwardCurveSpecRequirement = getCurveSpecRequirement(target, forwardCurveName);
     final Object forwardCurveSpecObject = inputs.getValue(forwardCurveSpecRequirement);
     if (forwardCurveSpecObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + forwardCurveSpecRequirement);
     }
     Object fundingCurveSpecObject = null;
-    if (!_forwardCurveName.equals(_fundingCurveName)) {
-      final ValueRequirement fundingCurveSpecRequirement = getCurveSpecRequirement(target, _fundingCurveName);
+    if (!forwardCurveName.equals(fundingCurveName)) {
+      final ValueRequirement fundingCurveSpecRequirement = getCurveSpecRequirement(target, fundingCurveName);
       fundingCurveSpecObject = inputs.getValue(fundingCurveSpecRequirement);
       if (fundingCurveSpecObject == null) {
         throw new OpenGammaRuntimeException("Could not get " + fundingCurveSpecRequirement);
@@ -133,8 +123,8 @@ public class InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction extends
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for trade " + trade + " was null");
     }
-    FinancialSecurity security = (FinancialSecurity) trade.getSecurity();
-    final InstrumentDerivative derivative = _dataConverter.convert(security, definition, now, new String[] {_fundingCurveName, _forwardCurveName}, dataSource);
+    final FinancialSecurity security = (FinancialSecurity) trade.getSecurity();
+    final InstrumentDerivative derivative = _dataConverter.convert(security, definition, now, new String[] {fundingCurveName, forwardCurveName}, dataSource);
     final double[][] array = FunctionUtils.decodeJacobian(jacobianObject);
     final DoubleMatrix2D jacobian = new DoubleMatrix2D(array);
     DoubleMatrix1D sensitivitiesForCurves;
@@ -142,88 +132,20 @@ public class InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction extends
     if (couponSensitivityObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY);
     }
-    final SABRInterestRateDataBundle bundle = new SABRInterestRateDataBundle(getModelParameters(target, inputs), getYieldCurves(target, inputs));
+    final SABRInterestRateDataBundle bundle = new SABRInterestRateDataBundle(getModelParameters(target, inputs, surfaceName), getYieldCurves(target, inputs, forwardCurveName, fundingCurveName));
     final DoubleMatrix1D couponSensitivity = (DoubleMatrix1D) couponSensitivityObject;
     sensitivitiesForCurves = CALCULATOR.calculateFromPresentValue(derivative, null, bundle, couponSensitivity, jacobian, NSC);
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-    if (_fundingCurveName.equals(_forwardCurveName)) {
-      return YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(_forwardCurveName, bundle, sensitivitiesForCurves, forwardCurveSpec, getForwardResultSpec(target, currency));
+    if (fundingCurveName.equals(forwardCurveName)) {
+      return YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(forwardCurveName, bundle, sensitivitiesForCurves, forwardCurveSpec, getForwardResultSpec(target, currency,
+          forwardCurveName, fundingCurveName, surfaceName));
     }
     final Map<String, InterpolatedYieldCurveSpecificationWithSecurities> curveSpecs = new HashMap<String, InterpolatedYieldCurveSpecificationWithSecurities>();
-    curveSpecs.put(_forwardCurveName, forwardCurveSpec);
-    curveSpecs.put(_fundingCurveName, fundingCurveSpec);
-    return YieldCurveNodeSensitivitiesHelper.getSensitivitiesForMultipleCurves(_forwardCurveName, _fundingCurveName, getForwardResultSpec(target, currency), getFundingResultSpec(target, currency),
-        bundle, sensitivitiesForCurves, curveSpecs);
-  }
-
-  @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    requirements.add(getSurfaceRequirement(target));
-    if (_forwardCurveName.equals(_fundingCurveName)) {
-      requirements.add(getCurveRequirement(target, _forwardCurveName, null, null));
-      requirements.add(getCouponSensitivityRequirement(target));
-      requirements.add(getCurveSpecRequirement(target, _forwardCurveName));
-      requirements.add(getJacobianRequirement(target));
-      return requirements;
-    }
-    requirements.add(getCurveRequirement(target, _forwardCurveName, _forwardCurveName, _fundingCurveName));
-    requirements.add(getCurveRequirement(target, _fundingCurveName, _forwardCurveName, _fundingCurveName));
-    requirements.add(getSurfaceRequirement(target));
-    requirements.add(getCouponSensitivityRequirement(target));
-    requirements.add(getCurveSpecRequirement(target, _forwardCurveName));
-    requirements.add(getCurveSpecRequirement(target, _fundingCurveName));
-    requirements.add(getJacobianRequirement(target));
-    return requirements;
-  }
-
-  private ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForward, final String advisoryFunding) {
-    return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), curveName, advisoryForward, advisoryFunding);
-  }
-
-  protected ValueRequirement getSurfaceRequirement(final ComputationTarget target) {
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-    final ValueProperties properties = ValueProperties.with(ValuePropertyNames.CURRENCY, currency.getCode()).with(ValuePropertyNames.SURFACE, _surfaceName)
-        .with(RawVolatilitySurfaceDataFunctionOld.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
-    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);
-  }
-
-  protected YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs) {
-    final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, _forwardCurveName, null, null);
-    final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
-    if (forwardCurveObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + forwardCurveRequirement);
-    }
-    Object fundingCurveObject = null;
-    if (!_forwardCurveName.equals(_fundingCurveName)) {
-      final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, _fundingCurveName, null, null);
-      fundingCurveObject = inputs.getValue(fundingCurveRequirement);
-      if (fundingCurveObject == null) {
-        throw new OpenGammaRuntimeException("Could not get " + fundingCurveRequirement);
-      }
-    }
-    final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
-    final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve : (YieldAndDiscountCurve) fundingCurveObject;
-    return new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
-  }
-
-  private SABRInterestRateParameters getModelParameters(final ComputationTarget target, final FunctionInputs inputs) {
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-    final ValueRequirement surfacesRequirement = getSurfaceRequirement(target);
-    final Object surfacesObject = inputs.getValue(surfacesRequirement);
-    if (surfacesObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + surfacesRequirement);
-    }
-    final SABRFittedSurfaces surfaces = (SABRFittedSurfaces) surfacesObject;
-    if (!surfaces.getCurrency().equals(currency)) {
-      throw new OpenGammaRuntimeException("Don't know how this happened");
-    }
-    final InterpolatedDoublesSurface alphaSurface = surfaces.getAlphaSurface();
-    final InterpolatedDoublesSurface betaSurface = surfaces.getBetaSurface();
-    final InterpolatedDoublesSurface nuSurface = surfaces.getNuSurface();
-    final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
-    final DayCount dayCount = surfaces.getDayCount();
-    return new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
+    curveSpecs.put(forwardCurveName, forwardCurveSpec);
+    curveSpecs.put(fundingCurveName, fundingCurveSpec);
+    return YieldCurveNodeSensitivitiesHelper.getSensitivitiesForMultipleCurves(forwardCurveName, fundingCurveName,
+        getForwardResultSpec(target, currency, forwardCurveName, fundingCurveName, surfaceName),
+        getFundingResultSpec(target, currency, forwardCurveName, fundingCurveName, surfaceName), bundle, sensitivitiesForCurves, curveSpecs);
   }
 
   @Override
@@ -245,33 +167,192 @@ public class InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction extends
     return Sets.newHashSet(getFundingResultSpec(target, ccy), getForwardResultSpec(target, ccy));
   }
 
+  @Override
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final Set<String> forwardCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+    if (forwardCurves == null || forwardCurves.size() != 1) {
+      return null;
+    }
+    final Set<String> fundingCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    if (fundingCurves == null || fundingCurves.size() != 1) {
+      return null;
+    }
+    final Set<String> surfaceNames = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE);
+    if (surfaceNames == null || surfaceNames.size() != 1) {
+      return null;
+    }
+    final String forwardCurveName = forwardCurves.iterator().next();
+    final String fundingCurveName = fundingCurves.iterator().next();
+    final String surfaceName = surfaceNames.iterator().next();
+    final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+    requirements.add(getSurfaceRequirement(target, surfaceName));
+    if (forwardCurveName.equals(fundingCurveName)) {
+      requirements.add(getCurveRequirement(target, forwardCurveName, null, null));
+      requirements.add(getCouponSensitivityRequirement(target));
+      requirements.add(getCurveSpecRequirement(target, forwardCurveName));
+      requirements.add(getJacobianRequirement(target));
+      return requirements;
+    }
+    requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName));
+    requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName));
+    requirements.add(getSurfaceRequirement(target, surfaceName));
+    requirements.add(getCouponSensitivityRequirement(target, forwardCurveName, fundingCurveName));
+    requirements.add(getCurveSpecRequirement(target, forwardCurveName));
+    requirements.add(getCurveSpecRequirement(target, fundingCurveName));
+    requirements.add(getJacobianRequirement(target, forwardCurveName, fundingCurveName));
+    return requirements;
+  }
+
+  @Override
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    String forwardCurveName = null;
+    String fundingCurveName = null;
+    String surfaceName = null;
+    for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
+      final ValueProperties properties = input.getKey().getProperties();
+      if (ValueRequirementNames.YIELD_CURVE.equals(input.getKey().getValueName())) {
+        forwardCurveName = properties.getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE).iterator().next();
+        fundingCurveName = properties.getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE).iterator().next();
+        if (surfaceName != null) {
+          break;
+        }
+      }
+      if (ValueRequirementNames.SABR_SURFACES.equals(input.getKey().getValueName())) {
+        surfaceName = properties.getValues(ValuePropertyNames.SURFACE).iterator().next();
+        if (forwardCurveName != null) {
+          break;
+        }
+      }
+    }
+    assert forwardCurveName != null;
+    assert fundingCurveName != null;
+    assert surfaceName != null;
+    final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    if (fundingCurveName.equals(forwardCurveName)) {
+      return Sets.newHashSet(getForwardResultSpec(target, ccy, forwardCurveName, fundingCurveName, surfaceName));
+    }
+    return Sets.newHashSet(getFundingResultSpec(target, ccy, forwardCurveName, fundingCurveName, surfaceName), getForwardResultSpec(target, ccy, forwardCurveName, fundingCurveName, surfaceName));
+  }
+
+  private ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForward, final String advisoryFunding) {
+    return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), curveName, advisoryForward, advisoryFunding,
+        MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
+  }
+
+  protected ValueRequirement getSurfaceRequirement(final ComputationTarget target, final String surfaceName) {
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    final ValueProperties properties = ValueProperties.builder()
+        .with(ValuePropertyNames.CURRENCY, currency.getCode())
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
+    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);
+  }
+
+  protected YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs, final String forwardCurveName, final String fundingCurveName) {
+    final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, forwardCurveName, null, null);
+    final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
+    if (forwardCurveObject == null) {
+      throw new OpenGammaRuntimeException("Could not get " + forwardCurveRequirement);
+    }
+    Object fundingCurveObject = null;
+    if (!forwardCurveName.equals(fundingCurveName)) {
+      final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, fundingCurveName, null, null);
+      fundingCurveObject = inputs.getValue(fundingCurveRequirement);
+      if (fundingCurveObject == null) {
+        throw new OpenGammaRuntimeException("Could not get " + fundingCurveRequirement);
+      }
+    }
+    final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
+    final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve : (YieldAndDiscountCurve) fundingCurveObject;
+    return new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
+  }
+
+  private SABRInterestRateParameters getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final String surfaceName) {
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
+    final ValueRequirement surfacesRequirement = getSurfaceRequirement(target, surfaceName);
+    final Object surfacesObject = inputs.getValue(surfacesRequirement);
+    if (surfacesObject == null) {
+      throw new OpenGammaRuntimeException("Could not get " + surfacesRequirement);
+    }
+    final SABRFittedSurfaces surfaces = (SABRFittedSurfaces) surfacesObject;
+    if (!surfaces.getCurrency().equals(currency)) {
+      throw new OpenGammaRuntimeException("Don't know how this happened");
+    }
+    final InterpolatedDoublesSurface alphaSurface = surfaces.getAlphaSurface();
+    final InterpolatedDoublesSurface betaSurface = surfaces.getBetaSurface();
+    final InterpolatedDoublesSurface nuSurface = surfaces.getNuSurface();
+    final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
+    final DayCount dayCount = surfaces.getDayCount();
+    return new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
+  }
+
   private ValueSpecification getForwardResultSpec(final ComputationTarget target, final Currency ccy) {
-    ValueProperties result = createValueProperties().with(ValuePropertyNames.CURRENCY, ccy.getCode()).with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING).with(ValuePropertyNames.CURVE, _forwardCurveName).get();
+    final ValueProperties result = createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, ccy.getCode())
+        .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)
+        .withAny(ValuePropertyNames.CURVE)
+        .withAny(ValuePropertyNames.SURFACE)
+        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).get();
     return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
   }
 
   private ValueSpecification getFundingResultSpec(final ComputationTarget target, final Currency ccy) {
-    ValueProperties result = createValueProperties().with(ValuePropertyNames.CURRENCY, ccy.getCode()).with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING).with(ValuePropertyNames.CURVE, _fundingCurveName).get();
+    final ValueProperties result = createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, ccy.getCode())
+        .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)
+        .withAny(ValuePropertyNames.CURVE)
+        .withAny(ValuePropertyNames.SURFACE)
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE).get();
     return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
   }
 
-  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName) {
-    return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), curveName, _forwardCurveName, _fundingCurveName,
+  private ValueSpecification getForwardResultSpec(final ComputationTarget target, final Currency ccy, final String forwardCurveName, final String fundingCurveName, final String surfaceName) {
+    final ValueProperties result = createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, ccy.getCode())
+        .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)
+        .with(ValuePropertyNames.CURVE, forwardCurveName)
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).get();
+    return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
+  }
+
+  private ValueSpecification getFundingResultSpec(final ComputationTarget target, final Currency ccy, final String forwardCurveName, final String fundingCurveName, final String surfaceName) {
+    final ValueProperties result = createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, ccy.getCode())
+        .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)
+        .with(ValuePropertyNames.CURVE, fundingCurveName)
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).get();
+    return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
+  }
+
+  private ValueRequirement getJacobianRequirement(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {
+    return YieldCurveFunction.getJacobianRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), forwardCurveName, fundingCurveName,
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
   }
 
-  protected ValueRequirement getJacobianRequirement(final ComputationTarget target) {
-    return YieldCurveFunction.getJacobianRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), _forwardCurveName, _fundingCurveName,
+  private ValueRequirement getJacobianRequirement(final ComputationTarget target) {
+    return YieldCurveFunction.getJacobianRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()),
         MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
   }
 
-  protected ValueRequirement getCouponSensitivityRequirement(final ComputationTarget target) {
-    return YieldCurveFunction.getCouponSensitivityRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), _forwardCurveName, _fundingCurveName);
+  private ValueRequirement getCouponSensitivityRequirement(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {
+    return YieldCurveFunction.getCouponSensitivityRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), forwardCurveName, fundingCurveName);
   }
 
-  protected ValueRequirement getCurveSpecRequirement(final ComputationTarget target, final String curveName) {
+  private ValueRequirement getCouponSensitivityRequirement(final ComputationTarget target) {
+    return YieldCurveFunction.getCouponSensitivityRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()));
+  }
+
+  private ValueRequirement getCurveSpecRequirement(final ComputationTarget target, final String curveName) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
     final ValueProperties.Builder properties = ValueProperties.builder().with(ValuePropertyNames.CURVE, curveName);
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());

@@ -28,7 +28,8 @@ public class InterestRateFutureOptionDefaultValuesFunction extends DefaultProper
     ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY,
     ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY,
     ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY,
-    ValueRequirementNames.VEGA_QUOTE_MATRIX};
+    ValueRequirementNames.VEGA_QUOTE_MATRIX,
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES};
   private final String[] _applicableCurrencyNames;
   private final String _forwardCurve;
   private final String _fundingCurve;
