@@ -170,11 +170,17 @@ public final class ReflectionUtils {
       }
     } catch (Exception ex) {
       try {
-        if (Modifier.isPublic(type.getMethod("shutdown").getModifiers())) {
+        if (Modifier.isPublic(type.getMethod("stop").getModifiers())) {
           return true;
         }
       } catch (Exception ex2) {
-        // ignored
+        try {
+          if (Modifier.isPublic(type.getMethod("shutdown").getModifiers())) {
+            return true;
+          }
+        } catch (Exception ex3) {
+          // ignored
+        }
       }
     }
     return false;
@@ -196,6 +202,7 @@ public final class ReflectionUtils {
           ((DisposableBean) obj).destroy();
         } else {
           invokeNoArgsNoException(obj, "close");
+          invokeNoArgsNoException(obj, "stop");
           invokeNoArgsNoException(obj, "shutdown");
         }
       } catch (Exception ex) {

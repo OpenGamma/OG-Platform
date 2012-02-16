@@ -14,7 +14,7 @@ else
   fi
 fi
 
-if [ "`basename $0`" == "init-example-db.sh" ] ; then
+if [ "`basename $0`" = "init-example-db.sh" ] ; then
   cd `dirname $0`/.. #PLAT-1527
 fi
 
@@ -53,4 +53,4 @@ $JAVA  -cp "$CLASSPATH" \
   -Xms1024M \
   -Xmx4096M \
   -Dlogback.configurationFile=jetty-logback.xml \
-  com.opengamma.examples.loader.DemoDatabasePopulater
+  com.opengamma.examples.tool.ExampleDatabasePopulater

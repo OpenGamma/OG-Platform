@@ -12,7 +12,7 @@ import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesFieldA
 import com.opengamma.util.spring.SpringFactoryBean;
 
 /**
- * Spring factory bean for {@link HistoricalTimeSeriesFieldAdjustmentMap}.
+ * Spring factory bean for {@code HistoricalTimeSeriesFieldAdjustmentMap}.
  */
 public class MockHistoricalTimeSeriesFieldAdjustmentMapFactoryBean extends SpringFactoryBean<HistoricalTimeSeriesFieldAdjustmentMap> {
 

@@ -27,7 +27,6 @@ $.register_module({
             ui = common.util.ui,
             module = this,
             page_name = module.name.split('.').pop(),
-            check_state = og.views.common.state.check.partial('/' + page_name),
             view,
             toolbar_buttons = {
                 'new': function () {ui.dialog({
@@ -171,12 +170,6 @@ $.register_module({
                                 selector: '.OG-js-details-panel .og-js-timeseries',
                                 id: json.template_data.hts_id || args.timeseries
                             });
-                            $('.og-js-temp-link').unbind().bind('click', function () {
-                                common.gadgets.timeseries({
-                                    selector: '.OG-js-details-panel .og-js-temp-timeseries',
-                                    id: json.template_data.hts_id
-                                })
-                            });
                             if (show_loading) view.notify(null);
                             setTimeout(view.layout.inner.resizeAll);
                         }});
@@ -196,7 +189,7 @@ $.register_module({
                             return setTimeout(view.filter, 500);
                         search.filter();
                 };
-                check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
+                view.check_state({args: args, conditions: [{new_value: 'id', method: function (args) {
                     view[args.id ? 'load_item' : 'load'](args);
                 }}]});
                 view.filter();

@@ -22,11 +22,11 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.PlatformConfigUtils;
 
 /**
- * Command line harness for portfolio import functionality
+ * Provides standard portfolio loader functionality
  */
-public class PortfolioImportCmdLineTool {
+public class PortfolioLoaderTool {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioImportCmdLineTool.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderTool.class);
 
   /** Tool name */
   private static final String TOOL_NAME = "OpenGamma Portfolio Importer";
@@ -41,18 +41,16 @@ public class PortfolioImportCmdLineTool {
   /** Asset class flag */
   private static final String ASSET_CLASS_OPT = "a";
 
- 
   /**
    * ENTRY POINT FOR COMMAND LINE TOOL
-   * @param args
+   * @param args  Command line args
    */
-  public static void main(String[] args) { //CSIGNORE
-
+  public void run(String[] args) { 
     s_logger.info(TOOL_NAME + " is initialising...");
     s_logger.info("Current working directory is " + System.getProperty("user.dir"));
-
+    
     // Parse command line arguments
-    CommandLine cmdLine = getCmdLine(args);
+    CommandLine cmdLine = getCmdLine(args, false);
     
     // Configure the OG platform
     PlatformConfigUtils.configureSystemProperties(cmdLine.getOptionValue(RUN_MODE_OPT));
@@ -62,14 +60,36 @@ public class PortfolioImportCmdLineTool {
     // Get an OG loader context, which will provide access to any required masters/sources
     applicationContext.start();
     LoaderContext loaderContext = (LoaderContext) applicationContext.getBean("loaderContext");
+    
+    run(cmdLine, loaderContext);
+    
+    // Clean up and shut down
+    applicationContext.close();
+  }
 
-    // Set up writing side
+  /**
+   * ENTRY POINT FOR COMMAND LINE TOOL
+   * @param args  Command line args
+   * @param loaderContext  the loader context
+   */
+  public void run(String[] args, LoaderContext loaderContext) {
+    s_logger.info(TOOL_NAME + " is initialising...");
+    s_logger.info("Current working directory is " + System.getProperty("user.dir"));
+    
+    // Parse command line arguments
+    CommandLine cmdLine = getCmdLine(args, true);
+    
+    run(cmdLine, loaderContext);
+  }
+
+  private void run(CommandLine cmdLine, LoaderContext loaderContext) {
+    // Set up writer
     PortfolioWriter portfolioWriter = constructPortfolioWriter(
         cmdLine.getOptionValue(PORTFOLIO_NAME_OPT), 
         cmdLine.hasOption(WRITE_OPT),
         loaderContext);
     
-     // Set up reading side
+     // Set up reader
     PortfolioReader portfolioReader = constructPortfolioReader(
         cmdLine.getOptionValue(FILE_NAME_OPT), 
         cmdLine.getOptionValue(ASSET_CLASS_OPT), 
@@ -81,15 +101,12 @@ public class PortfolioImportCmdLineTool {
     // Flush changes to portfolio master
     portfolioWriter.flush();
     
-    // Clean up and shut down
-    shutDown(portfolioWriter, applicationContext, cmdLine.hasOption(WRITE_OPT));
-
     s_logger.info(TOOL_NAME + " is finished.");
   }
   
   
-  private static CommandLine getCmdLine(String[] args) {
-    final Options options = getOptions();
+  private static CommandLine getCmdLine(String[] args, boolean contextProvided) {
+    final Options options = getOptions(contextProvided);
     try {
       return new PosixParser().parse(options, args);
     } catch (ParseException e) {
@@ -99,27 +116,29 @@ public class PortfolioImportCmdLineTool {
     }        
   }
 
-  private static Options getOptions() {
+  private static Options getOptions(boolean contextProvided) {
     Options options = new Options();
     Option filenameOption = new Option(
         FILE_NAME_OPT, "filename", true, "The path to the file containing data to import (CSV or ZIP)");
     filenameOption.setRequired(true);
     options.addOption(filenameOption);
-
+    
     Option portfolioNameOption = new Option(
         PORTFOLIO_NAME_OPT, "name", true, "The name of the destination OpenGamma portfolio");
     options.addOption(portfolioNameOption);
-
-    Option runModeOption = new Option(
-        RUN_MODE_OPT, "runmode", true, "The OpenGamma run mode: shareddev, standalone");
-    runModeOption.setRequired(true);
-    options.addOption(runModeOption);
-
+    
+    if (contextProvided == false) {
+      Option runModeOption = new Option(
+          RUN_MODE_OPT, "runmode", true, "The OpenGamma run mode: shareddev, standalone");
+      runModeOption.setRequired(true);
+      options.addOption(runModeOption);
+    }
+    
     Option writeOption = new Option(
         WRITE_OPT, "write", false, 
         "Actually persists the portfolio to the database if specified, otherwise pretty-prints without persisting");
     options.addOption(writeOption);
-
+    
     Option assetClassOption = new Option(
         ASSET_CLASS_OPT, "assetclass", true, 
         "Specifies the asset class to be found in an input CSV file (ignored if ZIP file is specified)");
@@ -170,13 +189,6 @@ public class PortfolioImportCmdLineTool {
       return new ZippedPortfolioReader(filename, loaderContext);
     } else {
       throw new OpenGammaRuntimeException("Input filename should end in .CSV or .ZIP");
-    }
-  }
-  
-  private static void shutDown(PortfolioWriter portfolioWriter, AbstractApplicationContext applicationContext, boolean write) {
-    if (write) {
-      // Shut down active context
-      applicationContext.close();
     }
   }
   

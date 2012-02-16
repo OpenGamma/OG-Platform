@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ "`basename $0`" == "start-jetty.sh" ] ; then
+if [ "`basename $0`" = "start-jetty.sh" ] ; then
   cd `dirname $0`/..
 fi
 
@@ -32,4 +32,4 @@ $JAVA $JMX_OPTS $MEM_OPTS -cp $CLASSPATH \
   -Dlogback.configurationFile=jetty-logback.xml \
   -Dcommandmonitor.secret=OpenGamma -Dcommandmonitor.port=8079 \
   com.opengamma.component.OpenGammaComponentServer \
-  -q classpath:fullstack/fullstack-example.properties
+  -q classpath:fullstack/fullstack-example-bin.properties

@@ -11,11 +11,8 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
-
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.financial.portfolio.loader.LoaderContext;
+import com.opengamma.examples.tool.AbstractTool;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -32,43 +29,41 @@ import com.opengamma.master.security.SecuritySearchResult;
  * Example code to load and aggregate a bond portfolio.
  * <p>
  * This loads all bond securities previously stored in the master and
- * categorizes them in a heirarchy by domicile, then issuer type, then issuer name.
+ * categorizes them in a hierarchy by domicile, then issuer type, then issuer name.
  * Note this requires that you've already populated your security master with 
  * some bond securities, so you typically need some static market data lookup 
  * service.
  */
-public class DemoBondPortfolioLoader {
+public class ExampleBondPortfolioLoader extends AbstractTool {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(DemoBondPortfolioLoader.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ExampleBondPortfolioLoader.class);
 
   /**
    * The name of the portfolio.
    */
-  private static final String PORTFOLIO_NAME = "Test Bond Portfolio";
-
-  /**
-   * The context.
-   */
-  private LoaderContext _loaderContext;
+  private static final String PORTFOLIO_NAME = "Example Bond Portfolio";
 
   //-------------------------------------------------------------------------
   /**
-   * Sets the loader context.
-   * <p>
-   * This initializes this bean, typically from Spring.
+   * Main method to run the tool.
+   * No arguments are needed.
    * 
-   * @param loaderContext  the context, not null
+   * @param args  the arguments, unused
    */
-  public void setLoaderContext(final LoaderContext loaderContext) {
-    _loaderContext = loaderContext;
+  public static void main(String[] args) {  // CSIGNORE
+    if (init()) {
+      new ExampleBondPortfolioLoader().run();
+    }
+    System.exit(0);
   }
 
   //-------------------------------------------------------------------------
   /**
    * Loads the test portfolio into the position master.
    */
-  public void loadTestPortfolio() {
+  @Override 
+  protected void doRun() {
     // load all bond securities
     final SecuritySearchResult securityShells = loadAllBondSecurities();
     
@@ -111,7 +106,7 @@ public class DemoBondPortfolioLoader {
     SecuritySearchRequest secSearch = new SecuritySearchRequest();
     secSearch.setFullDetail(false);
     secSearch.setSecurityType(BondSecurity.SECURITY_TYPE);
-    SecuritySearchResult securities = _loaderContext.getSecurityMaster().search(secSearch);
+    SecuritySearchResult securities = getToolContext().getSecurityMaster().search(secSearch);
     s_logger.info("Found {} securities", securities.getDocuments().size());
     return securities;
   }
@@ -128,7 +123,7 @@ public class DemoBondPortfolioLoader {
    */
   protected BondSecurity loadFullSecurity(SecurityDocument shellDoc) {
     s_logger.warn("Loading security {} {}", shellDoc.getUniqueId(), shellDoc.getSecurity().getName());
-    SecurityDocument doc = _loaderContext.getSecurityMaster().get(shellDoc.getUniqueId());
+    SecurityDocument doc = getToolContext().getSecurityMaster().get(shellDoc.getUniqueId());
     BondSecurity sec = (BondSecurity) doc.getSecurity();
     return sec;
   }
@@ -213,7 +208,7 @@ public class DemoBondPortfolioLoader {
    * @return the added document, not null
    */
   protected PositionDocument addPosition(ManageablePosition position) {
-    return _loaderContext.getPositionMaster().add(new PositionDocument(position));
+    return getToolContext().getPositionMaster().add(new PositionDocument(position));
   }
 
   /**
@@ -223,41 +218,7 @@ public class DemoBondPortfolioLoader {
    * @return the added document, not null
    */
   protected PortfolioDocument addPortfolio(ManageablePortfolio portfolio) {
-    return _loaderContext.getPortfolioMaster().add(new PortfolioDocument(portfolio));
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Sets up and loads the database.
-   * <p>
-   * This loader requires a Spring configuration file that defines the security,
-   * position and portfolio masters, together with an instance of this bean
-   * under the name "demoBondPortfolioLoader".
-   * 
-   * @param args  the arguments, unused
-   */
-  public static void main(String[] args) {  // CSIGNORE
-    try {
-      LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-      JoranConfigurator configurator = new JoranConfigurator();
-      configurator.setContext(lc);
-      lc.reset(); 
-      configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
-      LocalMastersUtils localMastersUtils = LocalMastersUtils.INSTANCE;
-      try {
-        LoaderContext loaderContext = localMastersUtils.getLoaderContext();
-        DemoBondPortfolioLoader loader = new DemoBondPortfolioLoader();
-        loader.setLoaderContext(loaderContext);
-        System.out.println("Loading data");
-        loader.loadTestPortfolio();
-        System.out.println("Finished");
-      } finally {
-        localMastersUtils.tearDown();
-      }
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    System.exit(0);
+    return getToolContext().getPortfolioMaster().add(new PortfolioDocument(portfolio));
   }
 
 }

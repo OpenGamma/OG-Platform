@@ -33,8 +33,7 @@ public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityV
   private final ConventionBundleSource _conventionSource;
   private final RegionSource _regionSource;
 
-  public InterestRateFutureSecurityConverter(final HolidaySource holidaySource,
-      final ConventionBundleSource conventionSource, final RegionSource regionSource) {
+  public InterestRateFutureSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource) {
     Validate.notNull(holidaySource, "holiday source");
     Validate.notNull(conventionSource, "convention source");
     Validate.notNull(regionSource, "region source");
@@ -54,10 +53,9 @@ public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityV
     }
     final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, RegionUtils.currencyRegionId(currency)); //TODO exchange region?
     final double paymentAccrualFactor = getAccrualFactor(iborConvention.getPeriod());
-    final IborIndex iborIndex = new IborIndex(currency, iborConvention.getPeriod(), iborConvention.getSettlementDays(),
-        calendar, iborConvention.getDayCount(), iborConvention.getBusinessDayConvention(),
-        iborConvention.isEOMConvention());
-    final double notional = security.getUnitAmount();
+    final IborIndex iborIndex = new IborIndex(currency, iborConvention.getPeriod(), iborConvention.getSettlementDays(), calendar, iborConvention.getDayCount(),
+        iborConvention.getBusinessDayConvention(), iborConvention.isEOMConvention());
+    final double notional = security.getUnitAmount() * 100.0 / paymentAccrualFactor; // Unit amount in percent
     final double referencePrice = 0.0; // TODO CASE - Future refactor - Confirm referencePrice
     return new InterestRateFutureDefinition(lastTradeDate, iborIndex, referencePrice, notional, paymentAccrualFactor);
   }
