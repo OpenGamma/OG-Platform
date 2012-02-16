@@ -20,10 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import au.com.bytecode.opencsv.CSVReader;
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.joran.JoranConfigurator;
 
-import com.opengamma.examples.loader.LocalMastersUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdWithDates;
@@ -42,7 +39,7 @@ import com.opengamma.util.tuple.Pair;
  * <identification-scheme>, <identifier-value>, <datafield>, <value>
  */
 public class SimulatedHistoricalDataGenerator {
-  
+
   /**
    * OG Simulated data provider name
    */
@@ -65,10 +62,10 @@ public class SimulatedHistoricalDataGenerator {
   public SimulatedHistoricalDataGenerator(HistoricalTimeSeriesMaster htsMaster) {
     ArgumentChecker.notNull(htsMaster, "htsMaster");
     _htsMaster = htsMaster;
-    readInitialValues();
+    readInitialValues(_initialValues);
   }
-  
-  public void readInitialValues() {
+
+  private static void readInitialValues(Map<Pair<ExternalId, String>, Double> initialValues) {
     try {
       CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(SimulatedHistoricalDataGenerator.class.getResourceAsStream("historical-data.csv"))));
       // Read header row
@@ -87,7 +84,7 @@ public class SimulatedHistoricalDataGenerator {
           String valueStr = line[3];
           Double value = Double.parseDouble(valueStr);
           ExternalId id = ExternalId.of(scheme, identifier);
-          _initialValues.put(Pair.of(id, fieldName), value);
+          initialValues.put(Pair.of(id, fieldName), value);
         }
       }
     } catch (FileNotFoundException e) {
@@ -96,7 +93,8 @@ public class SimulatedHistoricalDataGenerator {
       e.printStackTrace();
     }    
   }
-  
+
+  //-------------------------------------------------------------------------
   public void run() {
     Random random = new Random(); // noMarket need for SecureRandom here..
     StringBuilder buf = new StringBuilder("loading ").append(_initialValues.size()).append(" timeseries");
@@ -120,7 +118,7 @@ public class SimulatedHistoricalDataGenerator {
     }
     s_logger.info(buf.toString());
   }
-  
+
   private LocalDateDoubleTimeSeries getHistoricalDataPoints(Random random, Double startValue, int tsLength) {
     MapLocalDateDoubleTimeSeries result = new MapLocalDateDoubleTimeSeries();
     LocalDate date = DateUtils.previousWeekDay(LocalDate.now().minusYears(tsLength));
@@ -138,37 +136,5 @@ public class SimulatedHistoricalDataGenerator {
     //s_logger.warn("wiggleValue = {}", result);
     return result;
   }
-  
-  //-------------------------------------------------------------------------
-  /**
-   * Sets up and loads the database.
-   * <p>
-   * This loader requires a Spring configuration file that defines the security,
-   * position and portfolio masters, together with an instance of this bean
-   * under the name "simulatedHistoricalDataGenerator".
-   * 
-   * @param args  the arguments, unused
-   */
-  public static void main(String[] args) {  // CSIGNORE
-    try {
-      LoggerContext lc = (LoggerContext) LoggerFactory.getILoggerFactory();
-      JoranConfigurator configurator = new JoranConfigurator();
-      configurator.setContext(lc);
-      lc.reset(); 
-      configurator.doConfigure("src/com/opengamma/examples/server/logback.xml");
-      
-      LocalMastersUtils localMasterUtils = LocalMastersUtils.INSTANCE;
-      try {
-        SimulatedHistoricalDataGenerator loader = new SimulatedHistoricalDataGenerator(localMasterUtils.getHistoricalTimeSeriesMaster());
-        System.out.println("Loading data");
-        loader.run();
-        System.out.println("Finished");
-      } finally {
-        localMasterUtils.tearDown();
-      }
-    } catch (Exception ex) {
-      ex.printStackTrace();
-    }
-    System.exit(0);
-  }
+
 }

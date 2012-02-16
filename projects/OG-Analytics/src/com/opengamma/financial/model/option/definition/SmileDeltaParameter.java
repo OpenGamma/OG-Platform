@@ -32,15 +32,15 @@ public class SmileDeltaParameter {
 
   /**
    * Constructor from volatility
-   * @param timeToMaturity The time to maturity associated to the data.
+   * @param timeToExpiration The time to expiration associated to the data.
    * @param delta Delta of the different data points. Must be positive and sorted in ascending order. The put will have as delta the opposite of the numbers.
    * @param volatility The volatilities.
    */
-  public SmileDeltaParameter(final double timeToMaturity, final double[] delta, final double[] volatility) {
+  public SmileDeltaParameter(final double timeToExpiration, final double[] delta, final double[] volatility) {
     Validate.notNull(delta, "Delta");
     Validate.notNull(volatility, "Volatility");
     Validate.isTrue(2 * delta.length + 1 == volatility.length, "Length of delta should be coherent with volatility length");
-    _timeToExpiry = timeToMaturity;
+    _timeToExpiry = timeToExpiration;
     _delta = delta;
     _volatility = volatility;
   }

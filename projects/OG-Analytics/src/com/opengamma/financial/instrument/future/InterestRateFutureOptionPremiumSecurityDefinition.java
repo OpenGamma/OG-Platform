@@ -5,18 +5,17 @@
  */
 package com.opengamma.financial.instrument.future;
 
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.util.money.Currency;
-
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
+import com.opengamma.util.time.TimeCalculator;
 
 /**
  * Description of an interest rate future option security with premium paid up-front (CME type). The option is of American type.
@@ -98,10 +97,10 @@ public class InterestRateFutureOptionPremiumSecurityDefinition implements Instru
 
   @Override
   public InterestRateFutureOptionPremiumSecurity toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+    Validate.isTrue(!date.isAfter(_expirationDate), "Date is after expiration date");
     final Double referencePrice = 0.0; // FIXME FutureRefactor Urgently need to update Options on Futures 
     final InterestRateFuture underlyingFuture = _underlyingFuture.toDerivative(date, referencePrice, yieldCurveNames);
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final double expirationTime = actAct.getDayCountFraction(date, _expirationDate);
+    final double expirationTime = TimeCalculator.getTimeBetween(date, _expirationDate);
     return new InterestRateFutureOptionPremiumSecurity(underlyingFuture, expirationTime, _strike, _isCall);
   }
 
