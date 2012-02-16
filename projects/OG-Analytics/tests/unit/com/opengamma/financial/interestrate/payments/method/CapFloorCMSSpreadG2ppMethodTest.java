@@ -75,7 +75,7 @@ public class CapFloorCMSSpreadG2ppMethodTest {
    */
   public void presentValue() {
     CurrencyAmount pv = METHOD_NI.presentValue(CMS_SPREAD, BUNDLE_G2PP);
-    double pvPreviousRun = 73547.514; // 5Y - 6M - strike 10bp
+    double pvPreviousRun = 73582.631; // 5Y - 6M - strike 10bp
     assertEquals("CMS spread: G2++ - present value", pvPreviousRun, pv.getAmount(), TOLERANCE_PV);
   }
 
