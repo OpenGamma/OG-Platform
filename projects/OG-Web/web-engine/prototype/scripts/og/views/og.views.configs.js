@@ -24,7 +24,6 @@ $.register_module({
             search, suppress_update = false, ui = common.util.ui,
             module = this, view,
             page_name = module.name.split('.').pop(),
-            check_state = og.views.common.state.check.partial('/' + page_name),
             config_types = [], // used to populate the dropdown in the new button
             toolbar_buttons = {
                 'new': function () {ui.dialog({
