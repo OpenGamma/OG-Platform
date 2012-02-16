@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.examples.startup;
+package com.opengamma.examples;
 
 import com.opengamma.component.OpenGammaComponentServer;
 
@@ -13,6 +13,10 @@ import com.opengamma.component.OpenGammaComponentServer;
  * <p>
  * This file is intended for use with an IDE and a checked out source code tree.
  * It relies on the OG-Web directory being alongside OG-Examples in the file system.
+ * The server will not start correctly if you have obtained a distribution built using Ant "dist".
+ * <p>
+ * Before running this class, you must have setup the example HSQL database.
+ * To do this, run the Ant tasks "new-hsqldb" and "init-database".
  * <p>
  * Command lines should just start {@link OpenGammaComponentServer}.
  */
@@ -29,6 +33,9 @@ public class ExampleComponentServerDev extends OpenGammaComponentServer {
    */
   public static void main(String[] args) { // CSIGNORE
     if (args.length == 0) {
+      // if no command line arguments, then use default arguments suitable for development in an IDE
+      // the first argument is for verbose startup, to aid understanding
+      // the second argument defines the start of a chain of properties files providing the configuration
       args = new String[] {"-v", "classpath:fullstack/fullstack-example-dev.properties"};
     }
     new ExampleComponentServerDev().run(args);

@@ -31,7 +31,7 @@ $.register_module({
                         buffer: 17
                     });
                     grid = new Slick.Grid(obj.selector, slick_manager.data, obj.columns, options);
-                    grid.setSelectionModel(new Slick.RowSelectionModel());
+                    grid.setSelectionModel(new Slick.RowSelectionModel);
                     window.onresize = function () {
                         setTimeout(function () {
                             grid.resizeCanvas();
@@ -40,11 +40,10 @@ $.register_module({
                     };
                     // Setup filter inputs
                     og.common.search.filter({location: obj.selector});
-
                     grid.onClick.subscribe(function (e, dd) {
                         var current = routes.current().args;
                         routes.go(routes.hash(og.views[obj.page_type].rules.load_item, current, {
-                            del: ['node', 'version', 'sync', 'position', 'timeseries'], add: {
+                            del: og.views[obj.page_type].extra_params, add: {
                                 id: slick_manager.data[dd.row].id,
                                 name: current.name || '',
                                 quantity: current.quantity || '',

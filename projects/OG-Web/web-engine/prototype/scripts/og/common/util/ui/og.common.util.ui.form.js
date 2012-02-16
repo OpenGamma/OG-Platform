@@ -147,7 +147,7 @@ $.register_module({
                         if (!val.selector) throw new TypeError(klass + '#' + self + ': val.selector is not defined');
                         if (dom_events[type]) return dom_events[type].push(val);
                         dom_events[type] = [val];
-                        $root.bind(type, delegator);
+                        $root.on(type, delegator);
                     });
                 });
             };
