@@ -22,11 +22,25 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import java.util.Map;
 
 /**
- * TODO FloatingVarianceLeg so it's consistent with FloatingInterestRateLeg?
+ * Floating leg for variance swaps.
  */
 @BeanDefinition
 public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * @param dayCount The day count convention, not null
+   * @param frequency The frequency, not null
+   * @param regionId The region ID, not null
+   * @param businessDayConvention The business day convention, not null
+   * @param notional The notional, not null
+   * @param eom The end-of-month flag
+   * @param underlyingId The ID of the underlying, not null
+   * @param monitoringFrequency The monitoring frequency
+   * @param annualizationFactor The annualization factor
+   */
   public FloatingVarianceSwapLeg(DayCount dayCount,
                                  Frequency frequency,
                                  ExternalId regionId,

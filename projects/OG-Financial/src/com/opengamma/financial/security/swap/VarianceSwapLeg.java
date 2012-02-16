@@ -18,11 +18,18 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 /**
  * Base class for the legs of a variance swap
- * TODO VarianceLeg so it's consistent with InterestRateLeg?
  */
 @BeanDefinition
 public abstract class VarianceSwapLeg extends SwapLeg {
 
+  /**
+   * @param dayCount The day count convention, not null
+   * @param frequency The frequency, not null
+   * @param regionId The region ID, not null
+   * @param businessDayConvention The business day convention, not null
+   * @param notional The notional, not null
+   * @param eom The end-of-month flag
+   */
   protected VarianceSwapLeg(DayCount dayCount,
                             Frequency frequency,
                             ExternalId regionId,
@@ -32,6 +39,7 @@ public abstract class VarianceSwapLeg extends SwapLeg {
     super(dayCount, frequency, regionId, businessDayConvention, notional, eom);
   }
 
+  /** For the builder */
   VarianceSwapLeg() {
   }
 

@@ -6,7 +6,7 @@
 package com.opengamma.financial.security.swap;
 
 /**
- *
+ * The type of a variance swap.
  */
 public enum VarianceSwapType {
   /**

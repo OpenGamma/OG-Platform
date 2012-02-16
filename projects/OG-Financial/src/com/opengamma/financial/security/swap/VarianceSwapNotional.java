@@ -18,7 +18,7 @@ import org.joda.beans.Property;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 
 /**
- * TODO VarianceNotional (so it's consitent with InterestRateNotional)?
+ * Notional for variance swaps.
  */
 @BeanDefinition
 public class VarianceSwapNotional extends Notional {
@@ -38,6 +38,10 @@ public class VarianceSwapNotional extends Notional {
   @PropertyDefinition
   private double _amount;
 
+  /**
+   * @param currency The notional curency, not null
+   * @param amount The notional amount
+   */
   public VarianceSwapNotional(Currency currency, double amount) {
     _currency = currency;
     _amount = amount;

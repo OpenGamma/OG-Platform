@@ -22,11 +22,24 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import java.util.Map;
 
 /**
- *
+ * Fixed leg for variance swaps
  */
 @BeanDefinition
 public class FixedVarianceSwapLeg extends VarianceSwapLeg {
 
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * @param dayCount The day count convention, not null
+   * @param frequency The frequency, not null
+   * @param regionId The region ID, not null
+   * @param businessDayConvention The business day convention, not null
+   * @param notional The notional, not null
+   * @param eom The end-of-month flag
+   * @param strike The strike
+   * @param type The variance swap type, not null
+   */
   public FixedVarianceSwapLeg(DayCount dayCount,
                               Frequency frequency,
                               ExternalId regionId,
