@@ -32,9 +32,13 @@ public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
    */
   private static final CashFlowEquivalentCalculator CFEC = CashFlowEquivalentCalculator.getInstance();
   /**
-   * Minimal number of integration steps in the integration.
+   * Minimal number of integration steps.
    */
   private static final int NB_INTEGRATION = 10;
+  /**
+   * Limits used in the numerical integration (the number of standard deviation from the mean).
+   */
+  private static final double INTEGRATION_LIMIT = 10.0;
 
   /**
    * Computes the present value of a CMS spread by numerical integration.
@@ -118,17 +122,18 @@ public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
     double[] hthetaTp = MODEL_G2PP.volatilityMaturityPart(g2Data.getG2ppParameter(), theta, tp);
     double[] alphaTp = new double[] {Math.sqrt(gamma[0][0]) * hthetaTp[0], Math.sqrt(gamma[1][1]) * hthetaTp[1]};
     double tau2Tp = alphaTp[0] * alphaTp[0] + alphaTp[1] * alphaTp[1] + 2 * rhog2pp * gamma[0][1] * hthetaTp[0] * hthetaTp[1];
+
     // Integration
     final SpreadIntegrant integrant = new SpreadIntegrant(discountedCashFlowFixed, alphaFixed, tau2Fixed, discountedCashFlowIbor, alphaIbor, tau2Ibor, alphaTp, tau2Tp, rhobar, strike,
         cmsSpread.isCap());
-    final double limit = 10.0;
-    final double absoluteTolerance = 1.0E-5;
-    final double relativeTolerance = 1.0E-5;
+    final double absoluteTolerance = 1.0E-6; // 1.0E-5;
+    final double relativeTolerance = 1.0E-6; // 1.0E-5
     final RungeKuttaIntegrator1D integrator1D = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, NB_INTEGRATION);
     IntegratorRepeated2D integrator2D = new IntegratorRepeated2D(integrator1D);
     double pv = 0.0;
     try {
-      pv = 1.0 / (2.0 * Math.PI * Math.sqrt(1 - rhobar * rhobar)) * integrator2D.integrate(integrant, new Double[] {-limit, -limit}, new Double[] {limit, limit});
+      pv = 1.0 / (2.0 * Math.PI * Math.sqrt(1 - rhobar * rhobar))
+          * integrator2D.integrate(integrant, new Double[] {-INTEGRATION_LIMIT, -INTEGRATION_LIMIT}, new Double[] {INTEGRATION_LIMIT, INTEGRATION_LIMIT});
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
