@@ -40,6 +40,9 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="OG-Util" exported="" />
     <orderEntry type="module" module-name="OG-Security" exported="" />
+    <orderEntry type="module" module-name="OG-Core" />
+    <orderEntry type="module" module-name="Fudge-Java" />
+    <orderEntry type="module" module-name="Fudge-Proto" />
     <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-LiveData-default">
         <CLASSES>
@@ -55,7 +58,6 @@
         </SOURCES>
       </library>
     </orderEntry>
-    <orderEntry type="module" module-name="OG-Core" />
   </component>
 </module>
 

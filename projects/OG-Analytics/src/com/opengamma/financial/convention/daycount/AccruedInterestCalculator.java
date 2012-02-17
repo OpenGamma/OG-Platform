@@ -233,18 +233,17 @@ public final class AccruedInterestCalculator {
     Validate.isTrue(exDividendDays >= 0);
     final int length = nominalDates.length;
     Validate.isTrue(index >= 0 && index < length);
-    final ZonedDateTime previousCouponDate = ZonedDateTime.of(LocalDateTime.ofMidnight(nominalDates[index]), TimeZone.UTC);
-    final ZonedDateTime date = ZonedDateTime.of(LocalDateTime.ofMidnight(settlementDate), TimeZone.UTC);
-    final ZonedDateTime nextCouponDate = ZonedDateTime.of(LocalDateTime.ofMidnight(nominalDates[index + 1]), TimeZone.UTC);
+    final LocalDate previousCouponDate = nominalDates[index];
+    final LocalDate nextCouponDate = nominalDates[index + 1];
     double accruedInterest;
-    if (date.isAfter(nextCouponDate)) {
-      if (date.isBefore(ZonedDateTime.of(LocalDateTime.ofMidnight(settlementDates[index + 1]), TimeZone.UTC))) {
+    if (settlementDate.isAfter(nextCouponDate)) {
+      if (settlementDate.isBefore(settlementDates[index + 1])) {
         accruedInterest = coupon;
       } else {
         accruedInterest = 0;
       }
     } else {
-      accruedInterest = getAccruedInterest(dayCount, index, length, previousCouponDate, date, nextCouponDate, coupon, paymentsPerYear, isEndOfMonthConvention);
+      accruedInterest = getAccruedInterest(dayCount, index, length, previousCouponDate, settlementDate, nextCouponDate, coupon, paymentsPerYear, isEndOfMonthConvention);
     }
     LocalDate exDividendDate = nominalDates[index + 1];
     for (int i = 0; i < exDividendDays; i++) {
@@ -276,7 +275,25 @@ public final class AccruedInterestCalculator {
       return ((ThirtyUThreeSixty) dayCount).getAccruedInterest(previousCouponDate, date, coupon, isEndOfMonthConvention);
     }
     return dayCount.getAccruedInterest(previousCouponDate, date, nextCouponDate, coupon, paymentsPerYear);
+  }
 
+  public static double getAccruedInterest(final DayCount dayCount, final int index, final int length, final LocalDate previousCouponDate, final LocalDate date,
+      final LocalDate nextCouponDate, final double coupon, final double paymentsPerYear, final boolean isEndOfMonthConvention) {
+    if (dayCount instanceof ActualActualICMANormal) {
+      if (isEndOfMonthConvention) {
+        throw new IllegalArgumentException("Inconsistent definition; asked for accrual with EOM convention but are not using Actual/Actual ICMA");
+      }
+      final StubType stubType = getStubType(index, length, previousCouponDate, nextCouponDate, paymentsPerYear, isEndOfMonthConvention);
+      return ((ActualActualICMANormal) dayCount).getAccruedInterest(previousCouponDate, date, nextCouponDate, coupon, paymentsPerYear, stubType);
+
+    } else if (dayCount instanceof ActualActualICMA) {
+      final StubType stubType = getStubType(index, length, previousCouponDate, nextCouponDate, paymentsPerYear, isEndOfMonthConvention);
+      return ((ActualActualICMA) dayCount).getAccruedInterest(previousCouponDate, date, nextCouponDate, coupon, paymentsPerYear, stubType);
+
+    } else if (dayCount instanceof ThirtyUThreeSixty) {
+      return ((ThirtyUThreeSixty) dayCount).getAccruedInterest(previousCouponDate, date, coupon, isEndOfMonthConvention);
+    }
+    return dayCount.getAccruedInterest(previousCouponDate, date, nextCouponDate, coupon, paymentsPerYear);
   }
 
   private static StubType getStubType(final int index, final int length, final ZonedDateTime previousCouponDate, final ZonedDateTime nextCouponDate, final double paymentsPerYear,
@@ -294,4 +311,18 @@ public final class AccruedInterestCalculator {
     return stubType;
   }
 
+  private static StubType getStubType(final int index, final int length, final LocalDate previousCouponDate, final LocalDate nextCouponDate, final double paymentsPerYear,
+      final boolean isEndOfMonthConvention) {
+    StubType stubType;
+    if (index == 0) {
+      stubType = StubCalculator.getStartStubType(new LocalDate[] {previousCouponDate, nextCouponDate}, paymentsPerYear, isEndOfMonthConvention);
+
+    } else if (index == length - 2) {
+      stubType = StubCalculator.getEndStubType(new LocalDate[] {previousCouponDate, nextCouponDate}, paymentsPerYear, isEndOfMonthConvention);
+
+    } else {
+      stubType = StubType.NONE;
+    }
+    return stubType;
+  }
 }

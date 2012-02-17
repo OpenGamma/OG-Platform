@@ -20,7 +20,7 @@ import com.opengamma.master.security.ManageableSecurity;
  */
 public class DummyPortfolioWriter implements PortfolioWriter {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioImportCmdLineTool.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderTool.class);
 
   private ManageablePortfolioNode _node = new ManageablePortfolioNode();
   

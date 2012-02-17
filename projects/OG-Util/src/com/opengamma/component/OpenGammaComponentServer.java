@@ -136,7 +136,7 @@ public class OpenGammaComponentServer {
       manager.start(configFile);
     } catch (Exception ex) {
       ex.printStackTrace(System.err);
-      System.out.println("======== OPENGAMMA FAILED ========");
+      System.out.println("======== OPENGAMMA STARTUP FAILED ========");
       System.exit(1);
     }
     

@@ -714,7 +714,8 @@ CREATE TABLE sec_cash (
     amount double precision NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_cash2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
-    CONSTRAINT sec_fk_cash2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id)
+    CONSTRAINT sec_fk_cash2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_cash2daycount FOREIGN KEY (daycount_id) REFERENCES sec_daycount (id)
 );
 
 CREATE TABLE sec_fra (
@@ -813,8 +814,8 @@ CREATE TABLE sec_fxforward (
   region_identifier varchar(255) NOT NULL,
   pay_currency_id bigint NOT NULL,
   receive_currency_id bigint NOT NULL,
-  pay_amount DOUBLE PRECISION,
-  receive_amount DOUBLE PRECISION,
+  pay_amount DOUBLE PRECISION NOT NULL,
+  receive_amount DOUBLE PRECISION NOT NULL,
   forward_date timestamp without time zone NOT NULL,
   forward_zone varchar(50) NOT NULL,
   PRIMARY KEY (id),
@@ -832,8 +833,8 @@ CREATE TABLE sec_nondeliverablefxforward (
   region_identifier varchar(255) NOT NULL,
   pay_currency_id bigint NOT NULL,
   receive_currency_id bigint NOT NULL,
-  pay_amount DOUBLE PRECISION,
-  receive_amount DOUBLE PRECISION,
+  pay_amount DOUBLE PRECISION NOT NULL,
+  receive_amount DOUBLE PRECISION NOT NULL,
   forward_date timestamp without time zone NOT NULL,
   forward_zone varchar(50) NOT NULL,
   is_delivery_in_receive_currency boolean NOT NULL,

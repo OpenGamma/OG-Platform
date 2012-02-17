@@ -32,6 +32,33 @@
             <tr><td><span>Maturity Date</span></td><td><span>${maturityDate}</span></td></tr>
           </tbody>
         </table>
+      </section>
+      <section>
+        <table class="OG-table">
+          <thead>
+            <tr>
+              <th><span>Attributes</span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+        </table>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{each(attribute_index, attribute_value) attributes}}
+            <tr>
+              <td><span>${attribute_index}</span></td>
+              <td><span>${attribute_value}</span></td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
         <br/>
         <table class="OG-table">
           <col style="width: 40%" />

@@ -55,7 +55,8 @@ $.register_module({
                     filter = (filters || []).length ? filters.join(':?/') + ':?' : '',
                     (extras || []).length ? extras.join(':?/') + ':?' : ''
                 ].filter(Boolean).join('/');
-                view.filters = filters || [];
+                view.filter_params = filters || [];
+                view.extra_params = extras || [];
                 return {
                     load: {route: page + '/' + filter, method: prefix + '.load'},
                     load_filter: {route: page + '/filter:/:id?/' + optionals, method: prefix + '.load_filter'},

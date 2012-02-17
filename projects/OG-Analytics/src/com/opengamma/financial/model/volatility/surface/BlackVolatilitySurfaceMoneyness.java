@@ -19,7 +19,7 @@ public class BlackVolatilitySurfaceMoneyness extends BlackVolatilitySurface<Mone
 
   private final ForwardCurve _fc;
 
-  public BlackVolatilitySurfaceMoneyness(BlackVolatilitySurfaceMoneyness other) {
+  public BlackVolatilitySurfaceMoneyness(final BlackVolatilitySurfaceMoneyness other) {
     super(other.getSurface());
     _fc = other.getForwardCurve();
   }
@@ -64,28 +64,28 @@ public class BlackVolatilitySurfaceMoneyness extends BlackVolatilitySurface<Mone
   }
 
   @Override
-  public double getAbsoluteStrike(double t, Moneyness s) {
+  public double getAbsoluteStrike(final double t, final Moneyness s) {
     return _fc.getForward(t) * s.value();
   }
 
   @Override
-  public BlackVolatilitySurface<Moneyness> withShift(double shift, boolean useAdditive) {
+  public BlackVolatilitySurface<Moneyness> withShift(final double shift, final boolean useAdditive) {
     return new BlackVolatilitySurfaceMoneyness(SurfaceShiftFunctionFactory.getShiftedSurface(getSurface(), shift, useAdditive), _fc);
   }
 
   @Override
-  public BlackVolatilitySurface<Moneyness> withSurface(Surface<Double, Double, Double> surface) {
+  public BlackVolatilitySurface<Moneyness> withSurface(final Surface<Double, Double, Double> surface) {
     return new BlackVolatilitySurfaceMoneyness(surface, _fc);
   }
 
   @Override
-  public <S, U> U accept(BlackVolatilitySurfaceVistor<S, U> vistor, S data) {
-    return vistor.visitMoneyness(this, data);
+  public <S, U> U accept(final BlackVolatilitySurfaceVisitor<S, U> visitor, final S data) {
+    return visitor.visitMoneyness(this, data);
   }
 
   @Override
-  public <U> U accept(BlackVolatilitySurfaceVistor<?, U> vistor) {
-    return vistor.visitMoneyness(this);
+  public <U> U accept(final BlackVolatilitySurfaceVisitor<?, U> visitor) {
+    return visitor.visitMoneyness(this);
   }
 
 

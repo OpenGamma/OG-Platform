@@ -304,7 +304,7 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
 
   @Override
   public void primitivePutDataPoint(final long time, final T value) {
-    final int index = Arrays.binarySearch(_times.elements(), time);
+    final int index = Arrays.binarySearch(_times.elements(), 0, _times.size(), time);  // raw elements() may be larger than size
     if (index >= 0) {
       _values.set(index, value);
     } else {
@@ -315,7 +315,7 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
 
   @Override
   public void primitiveRemoveDataPoint(final long time) {
-    final int index = Arrays.binarySearch(_times.elements(), time);
+    final int index = Arrays.binarySearch(_times.elements(), 0, _times.size(), time);  // raw elements() may be larger than size
     if (index >= 0) {
       _times.remove(index);
       _values.remove(index);
@@ -355,7 +355,7 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
           return false;
         }
         if (other.getEncoding().equals(getEncoding())) {
-          return Arrays.equals(other.timesArrayFast(), _times.elements());
+          return Arrays.equals(other.timesArrayFast(), timesArrayFast());
         } else {
           final LongIterator otherTimesIterator = other.timesIteratorFast();
           final LongIterator myTimesIterator = _times.iterator();
@@ -404,11 +404,11 @@ public class FastListLongObjectTimeSeries<T> extends AbstractFastMutableLongObje
       } else {
         // encoding of other is different, must check...
         // invariant: other.size() == _times.size();
-        final long[] myTimes = _times.elements();
-        final long[] otherTimes = other._times.elements();
+        final long[] myTimes = _times.elements();  // raw elements() may be larger than size
+        final long[] otherTimes = other._times.elements();  // raw elements() may be larger than size
         final DateTimeNumericEncoding encoding = other.getEncoding();
         final DateTimeNumericEncoding myEncoding = getEncoding();
-        for (int i = 0; i < myTimes.length; i++) {
+        for (int i = 0; i < size(); i++) {
           if (myTimes[i] != encoding.convertToLong(otherTimes[i], myEncoding)) {
             return false;
           }

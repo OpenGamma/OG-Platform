@@ -165,7 +165,7 @@ public class TwoStateMarkovChainSABRFitterTest {
 
     final BlackVolatilitySurfaceStrike volSurface = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION));
 
-    final LocalVolatilitySurfaceStrike localVol = cal.getLocalVolatility(volSurface, SPOT, RATE);
+    final LocalVolatilitySurfaceStrike localVol = cal.getLocalVolatility(volSurface, new ForwardCurve(SPOT, RATE));
 
     final ConvectionDiffusionPDEDataBundle db1 = LocalVolDensity.getConvectionDiffusionPDEDataBundle(FORWARD_CURVE, localVol);
     final ExtendedConvectionDiffusionPDEDataBundle db2 = LocalVolDensity.getExtendedConvectionDiffusionPDEDataBundle(FORWARD_CURVE, localVol);
@@ -203,7 +203,7 @@ public class TwoStateMarkovChainSABRFitterTest {
     final DupireLocalVolatilityCalculator cal = new DupireLocalVolatilityCalculator();
 
     final BlackVolatilitySurfaceStrike volSurface = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(SABR_VOL_FUNCTION));
-    final LocalVolatilitySurfaceStrike localVol = cal.getLocalVolatility(volSurface, SPOT, RATE);
+    final LocalVolatilitySurfaceStrike localVol = cal.getLocalVolatility(volSurface, new ForwardCurve(SPOT, RATE));
 
     PDEUtilityTools.printSurface("localVolTest", localVol.getSurface(), 0, 5.0, SPOT / 4.0, SPOT * 4.0);
   }

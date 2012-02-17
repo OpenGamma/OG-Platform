@@ -24,42 +24,55 @@ public class ActualActualICMA extends ActualTypeDayCount {
   private static final long serialVersionUID = 1L;
 
   @Override
-  public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
+  public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate) {
     throw new NotImplementedException("Cannot get daycount fraction; need information about the coupon and payment frequency");
   }
 
+  //  @Override
+  //  public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
+  //    throw new NotImplementedException("Cannot get daycount fraction; need information about the coupon and payment frequency");
+  //  }
+
   @Override
-  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear) {
+  public double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final LocalDate nextCouponDate, final double coupon, final double paymentsPerYear) {
     return getAccruedInterest(previousCouponDate, date, nextCouponDate, coupon, paymentsPerYear, StubType.NONE);
   }
 
+  //  @Override
+  //  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear) {
+  //    return getAccruedInterest(previousCouponDate, date, nextCouponDate, coupon, paymentsPerYear, StubType.NONE);
+  //  }
+
   public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear,
+      final StubType stubType) {
+    return getAccruedInterest(previousCouponDate.toLocalDate(), date.toLocalDate(), nextCouponDate.toLocalDate(), coupon, paymentsPerYear, stubType);
+  }
+
+  public double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final LocalDate nextCouponDate, final double coupon, final double paymentsPerYear,
       final StubType stubType) {
     testDates(previousCouponDate, date, nextCouponDate);
     Validate.notNull(stubType, "stub type");
 
-    final LocalDate previous = previousCouponDate.toLocalDate();
-    final LocalDate next = nextCouponDate.toLocalDate();
     long daysBetween, daysBetweenCoupons;
-    final long previousCouponDateJulian = previous.toModifiedJulianDays();
-    final long nextCouponDateJulian = next.toModifiedJulianDays();
-    final long dateJulian = date.toLocalDate().toModifiedJulianDays();
+    final long previousCouponDateJulian = previousCouponDate.toModifiedJulianDays();
+    final long nextCouponDateJulian = nextCouponDate.toModifiedJulianDays();
+    final long dateJulian = date.toModifiedJulianDays();
     final int months = (int) (12 / paymentsPerYear);
     switch (stubType) {
       case NONE: {
         daysBetween = dateJulian - previousCouponDateJulian;
-        daysBetweenCoupons = next.toModifiedJulianDays() - previousCouponDateJulian;
+        daysBetweenCoupons = nextCouponDate.toModifiedJulianDays() - previousCouponDateJulian;
         return coupon * daysBetween / daysBetweenCoupons / paymentsPerYear;
       }
       case SHORT_START: {
-        final LocalDate notionalStart = getEOMAdjustedDate(next, next.minusMonths(months));
+        final LocalDate notionalStart = getEOMAdjustedDate(nextCouponDate, nextCouponDate.minusMonths(months));
         daysBetweenCoupons = nextCouponDateJulian - notionalStart.toLocalDate().toModifiedJulianDays();
         daysBetween = dateJulian - previousCouponDateJulian;
         return coupon * daysBetween / daysBetweenCoupons / paymentsPerYear;
       }
       case LONG_START: {
-        final long firstNotionalJulian = getEOMAdjustedDate(next, next.minusMonths(months * 2)).toModifiedJulianDays();
-        final long secondNotionalJulian = getEOMAdjustedDate(next, next.minusMonths(months)).toModifiedJulianDays();
+        final long firstNotionalJulian = getEOMAdjustedDate(nextCouponDate, nextCouponDate.minusMonths(months * 2)).toModifiedJulianDays();
+        final long secondNotionalJulian = getEOMAdjustedDate(nextCouponDate, nextCouponDate.minusMonths(months)).toModifiedJulianDays();
         final long daysBetweenStub = secondNotionalJulian - previousCouponDateJulian;
         final double daysBetweenTwoNotionalCoupons = secondNotionalJulian - firstNotionalJulian;
         if (dateJulian > secondNotionalJulian) {
@@ -70,14 +83,14 @@ public class ActualActualICMA extends ActualTypeDayCount {
         return coupon * (daysBetween / daysBetweenTwoNotionalCoupons) / paymentsPerYear;
       }
       case SHORT_END: {
-        final LocalDate notionalEnd = getEOMAdjustedDate(previous, previous.plusMonths(months));
+        final LocalDate notionalEnd = getEOMAdjustedDate(previousCouponDate, previousCouponDate.plusMonths(months));
         daysBetweenCoupons = notionalEnd.toModifiedJulianDays() - previousCouponDateJulian;
         daysBetween = dateJulian - previousCouponDateJulian;
         return coupon * daysBetween / daysBetweenCoupons / paymentsPerYear;
       }
       case LONG_END: {
-        final long firstNotionalJulian = getEOMAdjustedDate(previous, previous.plusMonths(months)).toModifiedJulianDays();
-        final long secondNotionalJulian = getEOMAdjustedDate(previous, previous.plusMonths(2 * months)).toModifiedJulianDays();
+        final long firstNotionalJulian = getEOMAdjustedDate(previousCouponDate, previousCouponDate.plusMonths(months)).toModifiedJulianDays();
+        final long secondNotionalJulian = getEOMAdjustedDate(previousCouponDate, previousCouponDate.plusMonths(2 * months)).toModifiedJulianDays();
         final long daysBetweenPreviousAndFirstNotional = firstNotionalJulian - previousCouponDateJulian;
         if (dateJulian < firstNotionalJulian) {
           daysBetween = dateJulian - previousCouponDateJulian;

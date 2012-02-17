@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.model.equity.futures;
 import java.util.Collections;
 import java.util.Set;
 
-import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
@@ -48,7 +47,7 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class EquityIndexDividendFutureYieldCurveNodeSensitivityFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final String DIVIDEND_YIELD_FIELD = "EQY_DVD_YLD_EST";
+  //private static final String DIVIDEND_YIELD_FIELD = "EQY_DVD_YLD_EST";
   private static final EquityFuturesRatesSensitivityCalculator CALCULATOR = EquityFuturesRatesSensitivityCalculator.getInstance();
   private final String _fundingCurveName;
   private EquityIndexDividendFutureSecurityConverter _converter;
@@ -65,8 +64,8 @@ public class EquityIndexDividendFutureYieldCurveNodeSensitivityFunction extends 
   
   @Override
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
-    final Clock snapshotClock = executionContext.getValuationClock();
-    final ZonedDateTime now = snapshotClock.zonedDateTime();
+    //final Clock snapshotClock = executionContext.getValuationClock();
+    //final ZonedDateTime now = snapshotClock.zonedDateTime();
     final EquityIndexDividendFutureSecurity security = (EquityIndexDividendFutureSecurity) target.getSecurity();
     final ZonedDateTime valuationTime = executionContext.getValuationClock().zonedDateTime();
     //final Double lastMarginPrice = getLatestValueFromTimeSeries(HistoricalTimeSeriesFields.LAST_PRICE, executionContext, security.getExternalIdBundle(), now);
@@ -112,6 +111,7 @@ public class EquityIndexDividendFutureYieldCurveNodeSensitivityFunction extends 
     return Collections.singleton(getValueSpecification(target));
   }
   
+  @SuppressWarnings("unused")
   private Double getLatestValueFromTimeSeries(final String field, final FunctionExecutionContext executionContext, final ExternalIdBundle idBundle, final ZonedDateTime now) {
     final ZonedDateTime startDate = now.minusDays(7);
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);

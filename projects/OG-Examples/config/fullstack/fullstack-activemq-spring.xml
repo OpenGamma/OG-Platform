@@ -5,6 +5,8 @@
   xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
   http://activemq.apache.org/schema/core http://activemq.apache.org/schema/core/activemq-core.xsd">
 
+  <!-- This config file is called from fullstack.ini via SpringActiveMqComponentFactory -->
+
     <!-- 
         The <broker> element is used to configure the ActiveMQ broker. 
     -->

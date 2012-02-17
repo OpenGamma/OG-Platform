@@ -19,6 +19,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.forex.calculator.PresentValueForexCalculator;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -38,9 +39,9 @@ public class ForexForwardPresentValueFunction extends ForexForwardFunction {
         .with(ValuePropertyNames.PAY_CURVE, getPayFundingCurveName())
         .with(ValuePropertyNames.RECEIVE_CURVE, getReceiveFundingCurveName()).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), properties);
-    return Collections.singleton(new ComputedValue(spec, ForexUtils.getMultipleCurrencyAmountAsMatrix(result)));
+    return Collections.singleton(new ComputedValue(spec, FXUtils.getMultipleCurrencyAmountAsMatrix(result)));
   }
-  
+
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {

@@ -40,6 +40,15 @@
         <SOURCES />
       </library>
     </orderEntry>
+    <orderEntry type="module" module-name="OG-Analytics" />
+    <orderEntry type="module" module-name="OG-Util" />
+    <orderEntry type="module" module-name="Fudge-Java" />
+    <orderEntry type="module" module-name="Fudge-Proto" />
+    <orderEntry type="module" module-name="OG-Master" />
+    <orderEntry type="module" module-name="OG-Core" />
+    <orderEntry type="module" module-name="OG-Engine" />
+    <orderEntry type="module" module-name="OG-LiveData" />
+    <orderEntry type="module" module-name="OG-Security" />
     <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-Language-default">
         <CLASSES>
