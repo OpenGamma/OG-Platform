@@ -90,4 +90,9 @@ import com.opengamma.OpenGammaRuntimeException;
     return getClass().hashCode();
   }
 
+  @Override
+  public String toString() {
+    return "DayCount [" + getConventionName() + "]";
+  }
+  
 }

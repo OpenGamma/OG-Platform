@@ -82,15 +82,21 @@ public abstract class AbstractTool {
    */
   public final void run(ToolContext toolContext) {
     _toolContext = toolContext;
-    doRun();
+    try {
+      doRun();
+    } catch (RuntimeException ex) {
+      throw ex;
+    } catch (Exception ex) {
+      throw new RuntimeException(ex);
+    }
   }
 
   /**
    * Override in subclasses to implement the tool.
    * 
-   * @throws RuntimeException if an error occurs
+   * @throws Exception if an error occurs
    */
-  protected abstract void doRun();
+  protected abstract void doRun() throws Exception;
 
   /**
    * Gets the tool context.

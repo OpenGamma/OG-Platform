@@ -35,44 +35,36 @@
       </section>
       <section>
         <table class="OG-table">
-          <thead>
-            <tr>
-              <th><span>Attributes</span></th><th>&nbsp;</th>
-            </tr>
-          </thead>
-        </table>
-        <table class="OG-table">
           <col style="width: 40%" />
           <col style="width: 60%" />
           <thead>
+            <tr><th colspan="2"><span>Attributes</span></th></tr>
             <tr>
               <th>Name</th>
               <th>Value</th>
             </tr>
           </thead>
           <tbody>
-            {{each(attribute_index, attribute_value) attributes}}
-            <tr>
-              <td><span>${attribute_index}</span></td>
-              <td><span>${attribute_value}</span></td>
-            </tr>
-            {{/each}}
+            {{if attributes.length}}
+              {{each(attribute_index, attribute_value) attributes}}
+              <tr>
+                <td><span>${attribute_index}</span></td>
+                <td><span>${attribute_value}</span></td>
+              </tr>
+              {{/each}}
+            {{else}}
+              <tr>
+                <td colspan="2"><span>(no values)</span></td>
+              </tr>
+            {{/if}}
           </tbody>
         </table>
-        <br/>
-        <table class="OG-table">
-          <col style="width: 40%" />
-          <col style="width: 60%" />
-          <thead>
-            <tr>
-              <th><span>Risk Factors</span></th><th>&nbsp;</th>
-            </tr>
-          </thead>
-        </table>
-
+      </section>
+      <section>
         <table class="OG-table">
           <thead>
-            <tr>
+          <tr><th colspan="6"><span>Risk Factors</span></th></tr>
+          <tr>
               <th>Factor Type</th>
               <th>Factor Name</th>
               <th>Node</th>
@@ -82,6 +74,7 @@
             </tr>
           </thead>
           <tbody>
+          {{if factors.length}}
             {{each(factor_index, factor) factors}}
             <tr>
               <td><span>${factor.factorType}</span></td>
@@ -122,6 +115,11 @@
               {{/if}}
             </tr>
             {{/each}}
+          {{else}}
+            <tr>
+              <td colspan="6"><span>(no values)</span></td>
+            </tr>
+          {{/if}}
           </tbody>
         </table>
       </section>

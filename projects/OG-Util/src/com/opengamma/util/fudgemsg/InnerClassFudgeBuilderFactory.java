@@ -10,6 +10,10 @@ import org.fudgemsg.mapping.*;
 import java.lang.reflect.Constructor;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Utilities for converting Beans to Fudge and vice versa.
@@ -41,6 +45,7 @@ public final class InnerClassFudgeBuilderFactory extends FudgeBuilderFactoryAdap
 
   private <T> boolean canBeUsed(final Class<T> clazz) {
     return
+      !(Map.class.isAssignableFrom(clazz) || Set.class.isAssignableFrom(clazz) || List.class.isAssignableFrom(clazz) || Collection.class.isAssignableFrom(clazz)) &&
       clazz.getEnclosingClass() != null                       // the class is inner class 
         && (constructorsCount(clazz) == 1)                    // and it have single only constructor
         && clazz.getSuperclass().getEnclosingClass() == null  // and its super class is not inner one    
