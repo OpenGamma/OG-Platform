@@ -134,9 +134,6 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     final Security security = (Security) target.getPosition().getSecurity();
-    if (RawSecurityUtils.isExternallyProvidedSensitivitiesSecurity(security)) {
-      return true;
-    }
     if (!(security instanceof FinancialSecurity)) {
       return false;
     }
