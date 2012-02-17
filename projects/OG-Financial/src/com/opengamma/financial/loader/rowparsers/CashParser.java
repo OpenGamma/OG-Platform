@@ -21,6 +21,7 @@ import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -28,12 +29,14 @@ import com.opengamma.util.money.Currency;
  */
 public class CashParser extends RowParser {
 
+  private static final String ID_SCHEME = "MANUAL_LOAD";
+
   //CSOFF
   protected String CURRENCY = "currency";
   protected String REGION = "region";
   protected String START = "start";
   protected String MATURITY = "maturity";
-  protected String DAY_COUNT = "dayCount";
+  protected String DAY_COUNT = "daycount";
   protected String RATE = "rate";
   protected String AMOUNT = "amount";
   //CSON
@@ -59,7 +62,8 @@ public class CashParser extends RowParser {
     cash.setName("Cash " + ccy.getCode() + " " + NOTIONAL_FORMATTER.format(amount) + " @ "
         + RATE_FORMATTER.format(rate) + ", maturity "
         + maturity.toString(OUTPUT_DATE_FORMATTER));
-    
+    cash.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+
     ManageableSecurity[] result = {cash};
     return result;
   }

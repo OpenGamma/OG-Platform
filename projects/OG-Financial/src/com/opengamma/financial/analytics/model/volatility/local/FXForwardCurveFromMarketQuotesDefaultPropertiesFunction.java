@@ -19,12 +19,12 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class FXForwardCurveDefaultPropertiesFunction extends DefaultPropertyFunction {
+public class FXForwardCurveFromMarketQuotesDefaultPropertiesFunction extends DefaultPropertyFunction {
   private final String _forwardCurveInterpolator;
   private final String _forwardCurveLeftExtrapolator;
   private final String _forwardCurveRightExtrapolator;
 
-  public FXForwardCurveDefaultPropertiesFunction(final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
+  public FXForwardCurveFromMarketQuotesDefaultPropertiesFunction(final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
       final String forwardCurveRightExtrapolator) {
     super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(forwardCurveInterpolator, "forward curve interpolator");
@@ -37,20 +37,20 @@ public class FXForwardCurveDefaultPropertiesFunction extends DefaultPropertyFunc
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
+    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR);
+    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
+    defaults.addValuePropertyName(ValueRequirementNames.FORWARD_CURVE, FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR.equals(propertyName)) {
+    if (FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR.equals(propertyName)) {
       return Collections.singleton(_forwardCurveInterpolator);
     }
-    if (InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR.equals(propertyName)) {
+    if (FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR.equals(propertyName)) {
       return Collections.singleton(_forwardCurveLeftExtrapolator);
     }
-    if (InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR.equals(propertyName)) {
+    if (FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR.equals(propertyName)) {
       return Collections.singleton(_forwardCurveRightExtrapolator);
     }
     return null;

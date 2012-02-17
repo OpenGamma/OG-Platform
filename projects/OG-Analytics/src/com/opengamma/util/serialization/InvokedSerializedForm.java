@@ -29,7 +29,7 @@ public final class InvokedSerializedForm implements Serializable {
 
   private static final Object[] EMPTY_ARRAY = new Object[0];
 
-  private static final String[] s_methodPrefixes = new String[] {"as", "get", "to" };
+  private static final String[] s_methodPrefixes = new String[] {"as", "get", "to", "from"};
 
   private final Class<?> _outerClass;
   private final Object _outerInstance;
@@ -53,7 +53,7 @@ public final class InvokedSerializedForm implements Serializable {
       _replacementInstance = outer;
     }
     String preferredMethod = method;
-    for (String prefix : s_methodPrefixes) {
+    for (final String prefix : s_methodPrefixes) {
       if (Character.isUpperCase(method.charAt(prefix.length())) && method.startsWith(prefix)) {
         preferredMethod = method.substring(prefix.length());
         break;
@@ -93,7 +93,7 @@ public final class InvokedSerializedForm implements Serializable {
           _replacementInstance = getOuterClass().newInstance();
         }
         return method.invoke(_replacementInstance, params);
-      } catch (Exception e) {
+      } catch (final Exception e) {
         throw new OpenGammaRuntimeException("Couldn't replace " + toString(), e);
       }
     }
@@ -104,9 +104,9 @@ public final class InvokedSerializedForm implements Serializable {
     final Class<?> clazz = (getOuterInstance() != null) ? getOuterInstance().getClass() : getOuterClass();
     final Method[] methods = clazz.getMethods();
     if (Character.isUpperCase(getMethod().charAt(0))) {
-      for (String prefix : s_methodPrefixes) {
+      for (final String prefix : s_methodPrefixes) {
         final String methodName = prefix + getMethod();
-        for (Method method : methods) {
+        for (final Method method : methods) {
           if (methodName.equals(method.getName())) {
             final Object r = tryMethod(method);
             if (r != null) {
@@ -117,7 +117,7 @@ public final class InvokedSerializedForm implements Serializable {
       }
     } else {
       clazz.getMethods();
-      for (Method method : methods) {
+      for (final Method method : methods) {
         if (getMethod().equals(method.getName())) {
           final Object r = tryMethod(method);
           if (r != null) {
@@ -139,7 +139,7 @@ public final class InvokedSerializedForm implements Serializable {
       sb.append(getOuterInstance().toString());
     }
     sb.append(", ").append(getMethod());
-    for (Object param : getParameters()) {
+    for (final Object param : getParameters()) {
       sb.append(", ").append(param.toString());
     }
     sb.append(']');

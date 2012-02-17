@@ -58,6 +58,9 @@ public class SimulatedMarketDataGenerator implements Runnable {
       int lineNum = 1;
       while ((line = reader.readNext()) != null) {
         lineNum++;
+        if (line.length > 0 && line[0].startsWith("#")) {
+          continue;
+        }
         if (line.length != NUM_FIELDS) {
           s_logger.error("Not enough fields in CSV on line " + lineNum);
         } else {

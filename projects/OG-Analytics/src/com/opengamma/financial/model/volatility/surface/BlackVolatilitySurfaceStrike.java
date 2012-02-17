@@ -16,38 +16,38 @@ public class BlackVolatilitySurfaceStrike extends BlackVolatilitySurface<Strike>
   /**
    * @param surface The time to maturity should be the first coordinate and the strike the second
    */
-  public BlackVolatilitySurfaceStrike(Surface<Double, Double, Double> surface) {
+  public BlackVolatilitySurfaceStrike(final Surface<Double, Double, Double> surface) {
     super(surface);
   }
 
   @Override
-  public double getVolatility(double t, double k) {
+  public double getVolatility(final double t, final double k) {
     return getVolatility(t, new Strike(k));
   }
 
   @Override
-  public double getAbsoluteStrike(double t, Strike s) {
+  public double getAbsoluteStrike(final double t, final Strike s) {
     return s.value();
   }
 
   @Override
-  public BlackVolatilitySurface<Strike> withShift(double shift, boolean useAdditive) {
+  public BlackVolatilitySurface<Strike> withShift(final double shift, final boolean useAdditive) {
     return new BlackVolatilitySurfaceStrike(SurfaceShiftFunctionFactory.getShiftedSurface(getSurface(), shift, useAdditive));
   }
 
   @Override
-  public BlackVolatilitySurface<Strike> withSurface(Surface<Double, Double, Double> surface) {
+  public BlackVolatilitySurface<Strike> withSurface(final Surface<Double, Double, Double> surface) {
     return new BlackVolatilitySurfaceStrike(surface);
   }
 
   @Override
-  public <S, U> U accept(BlackVolatilitySurfaceVistor<S, U> vistor, S data) {
-    return vistor.visitStrike(this, data);
+  public <S, U> U accept(final BlackVolatilitySurfaceVisitor<S, U> visitor, final S data) {
+    return visitor.visitStrike(this, data);
   }
 
   @Override
-  public <U> U accept(BlackVolatilitySurfaceVistor<?, U> vistor) {
-    return vistor.visitStrike(this);
+  public <U> U accept(final BlackVolatilitySurfaceVisitor<?, U> visitor) {
+    return visitor.visitStrike(this);
 
   }
 

@@ -6,6 +6,7 @@
       <artifact name="og-web" type="source" ext="jar" />
       <artifact name="web-engine" type="webapp" ext="zip" />
       <artifact name="web-marketdata" type="webapp" ext="zip" />
+      <artifact name="web-sharedmasters" type="webapp" ext="zip" />
       <artifact name="og-web" type="resource" ext="zip" />
     </publications>
     

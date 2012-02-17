@@ -95,7 +95,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext
         .getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, conventionSource);
+    final CashSecurityConverter cashConverter = new CashSecurityConverter();
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
         regionSource);
@@ -127,7 +127,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
 
   protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     final ValueProperties.Builder properties = createValueProperties();
-    FixedIncomeInstrumentCurveExposureHelper.valuePropertiesForSecurity((FinancialSecurity) target.getSecurity(), properties);
+    FixedIncomeInstrumentCurveExposureHelper.valuePropertiesForSecurity(target.getSecurity(), properties);
     return properties;
   }
 

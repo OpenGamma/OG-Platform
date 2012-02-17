@@ -59,7 +59,7 @@ public final class VarianceSwapRatesSensitivityCalculator {
     Validate.notNull(swap, "null VarianceSwap");
     Validate.notNull(market, "null VarianceSwapDataBundle");
 
-    VarianceSwapPresentValueCalculator pricer = VarianceSwapPresentValueCalculator.getInstance();
+    final VarianceSwapPresentValueCalculator pricer = VarianceSwapPresentValueCalculator.getInstance();
 
     // Shift UP
     VarianceSwapDataBundle bumpedMarket = new VarianceSwapDataBundle(market.getVolatilitySurface(), market.getDiscountCurve(), market.getForwardCurve().withFractionalShift(relShift));
@@ -106,13 +106,13 @@ public final class VarianceSwapRatesSensitivityCalculator {
     Validate.notNull(swap);
     // Sensitivity from the discounting
 
-    VarianceSwapStaticReplication pricer = new VarianceSwapStaticReplication();
-    double pv = pricer.presentValue(swap, market);
-    double timeToSettlement = swap.getTimeToSettlement();
+    final VarianceSwapStaticReplication pricer = new VarianceSwapStaticReplication();
+    final double pv = pricer.presentValue(swap, market);
+    final double timeToSettlement = swap.getTimeToSettlement();
 
     // Sensitivity from forward projection
-    double fwdSens = calcForwardSensitivity(swap, market, shift);
-    double fwd = market.getForwardCurve().getForward(timeToSettlement);
+    final double fwdSens = calcForwardSensitivity(swap, market, shift);
+    final double fwd = market.getForwardCurve().getForward(timeToSettlement);
 
     return timeToSettlement * (fwd * fwdSens - pv);
 
@@ -174,7 +174,7 @@ public final class VarianceSwapRatesSensitivityCalculator {
     final Map<String, List<DoublesPair>> curveSensitivities = new HashMap<String, List<DoublesPair>>();
     curveSensitivities.put(discCrvName, Lists.newArrayList(new DoublesPair(settlement, sens)));
 
-    NodeSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
+    final NodeSensitivityCalculator distributor = PresentValueNodeSensitivityCalculator.getDefaultInstance();
     return distributor.curveToNodeSensitivities(curveSensitivities, interpolatedCurves);
   }
 
@@ -203,15 +203,15 @@ public final class VarianceSwapRatesSensitivityCalculator {
     Validate.notNull(swap, "null VarianceSwap");
     Validate.notNull(market, "null VarianceSwapDataBundle");
 
-    VarianceSwapPresentValueCalculator pricer = VarianceSwapPresentValueCalculator.getInstance();
+    final VarianceSwapPresentValueCalculator pricer = VarianceSwapPresentValueCalculator.getInstance();
 
     // Parallel shift UP
-    BlackVolatilitySurface<?> upSurface = market.getVolatilitySurface().withShift(shift, true);
-    double pvUp = pricer.visitVarianceSwap(swap, new VarianceSwapDataBundle(upSurface, market.getDiscountCurve(), market.getForwardCurve()));
+    final BlackVolatilitySurface<?> upSurface = market.getVolatilitySurface().withShift(shift, true);
+    final double pvUp = pricer.visitVarianceSwap(swap, new VarianceSwapDataBundle(upSurface, market.getDiscountCurve(), market.getForwardCurve()));
 
     // Parallel shift DOWN
-    BlackVolatilitySurface<?> downSurface = market.getVolatilitySurface().withShift(-shift, true);
-    double pvDown = pricer.visitVarianceSwap(swap, new VarianceSwapDataBundle(downSurface, market.getDiscountCurve(), market.getForwardCurve()));
+    final BlackVolatilitySurface<?> downSurface = market.getVolatilitySurface().withShift(-shift, true);
+    final double pvDown = pricer.visitVarianceSwap(swap, new VarianceSwapDataBundle(downSurface, market.getDiscountCurve(), market.getForwardCurve()));
 
     // Centered-difference result
     return (pvUp - pvDown) / (2.0 * shift);
@@ -244,9 +244,9 @@ public final class VarianceSwapRatesSensitivityCalculator {
     Validate.notNull(market, "null VarianceSwapDataBundle");
 
     // Unpack market data
-    Surface<Double, Double, Double> surface = market.getVolatilitySurface().getSurface();
+    final Surface<Double, Double, Double> surface = market.getVolatilitySurface().getSurface();
     Validate.isTrue(surface instanceof InterpolatedDoublesSurface,
-    "Currently will only accept a Equity VolatilitySurfaces based on an InterpolatedDoublesSurface");
+        "Currently will only accept a Equity VolatilitySurfaces based on an InterpolatedDoublesSurface");
 
     final InterpolatedDoublesSurface blackSurf = (InterpolatedDoublesSurface) surface;
     final Double[] maturities = blackSurf.getXData();
@@ -274,13 +274,13 @@ public final class VarianceSwapRatesSensitivityCalculator {
    * @param shift Size of shift made in centered-finite difference approximation. e.g. 1% would be 0.01, and 1bp 0.0001
    * @return Currency amount per unit amount change in the black volatility at the point provided
    */
-  public double calcBlackVegaForSinglePoint(final VarianceSwap swap, final VarianceSwapDataBundle market, double maturity, double strike, final double shift) {
+  public double calcBlackVegaForSinglePoint(final VarianceSwap swap, final VarianceSwapDataBundle market, final double maturity, final double strike, final double shift) {
 
     final VarianceSwapPresentValueCalculator pricer = VarianceSwapPresentValueCalculator.getInstance();
 
-    Surface<Double, Double, Double> surface = market.getVolatilitySurface().getSurface();
+    final Surface<Double, Double, Double> surface = market.getVolatilitySurface().getSurface();
     Validate.isTrue(surface instanceof InterpolatedDoublesSurface,
-    "Currently will only accept a Equity VolatilitySurfaces based on an InterpolatedDoublesSurface");
+        "Currently will only accept a Equity VolatilitySurfaces based on an InterpolatedDoublesSurface");
 
     final InterpolatedDoublesSurface blackSurf = (InterpolatedDoublesSurface) surface;
     final InterpolatedSurfaceAdditiveShiftFunction volShifter = new InterpolatedSurfaceAdditiveShiftFunction();
@@ -314,9 +314,9 @@ public final class VarianceSwapRatesSensitivityCalculator {
     Validate.notNull(swap, "null VarianceSwap");
     Validate.notNull(market, "null VarianceSwapDataBundle");
 
-    int nObsExpected = swap.getObsExpected();
-    int nObsSoFar = swap.getObservations().length;
-    int nObsDidntHappen = swap.getObsDisrupted();
+    final int nObsExpected = swap.getObsExpected();
+    final int nObsSoFar = swap.getObservations().length;
+    final int nObsDidntHappen = swap.getObsDisrupted();
 
     return (nObsExpected - nObsSoFar - nObsDidntHappen) / nObsExpected * swap.getVarNotional();
   }

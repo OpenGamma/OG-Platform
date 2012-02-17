@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.analytics.model.volatility.local;
 
-import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.util.Collections;
@@ -57,7 +57,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * 
  */
-public class ForwardCurveFromFXForwardFunction extends AbstractFunction {
+public class FXForwardCurveFromMarketQuotesFunction extends AbstractFunction {
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
   private final String _definitionName;
   private final String _specificationName;
@@ -65,7 +65,7 @@ public class ForwardCurveFromFXForwardFunction extends AbstractFunction {
   private FXForwardCurveSpecification _specification;
   private final String _curveName;
 
-  public ForwardCurveFromFXForwardFunction(final String definitionName, final String specificationName, final String curveName) {
+  public FXForwardCurveFromMarketQuotesFunction(final String definitionName, final String specificationName, final String curveName) {
     ArgumentChecker.notNull(definitionName, "definition name");
     ArgumentChecker.notNull(specificationName, "specification name");
     _definitionName = definitionName;

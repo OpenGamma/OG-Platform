@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.analytics.model.volatility.local;
 
-import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -74,7 +74,7 @@ public class DummyFXForwardCurveFunction extends AbstractFunction {
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
         final ValueProperties properties = createValueProperties()
             .with(ValuePropertyNames.CURVE, _curveName)
-            .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
+            .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, "Dummy")
             .withAny(PROPERTY_FORWARD_CURVE_INTERPOLATOR)
             .withAny(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR)
             .withAny(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR).get();

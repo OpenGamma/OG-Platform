@@ -147,10 +147,10 @@ public final class ScheduleCalculator {
    * @return The end date.
    */
   public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final Period tenor, final BusinessDayConvention convention, final Calendar calendar, boolean endOfMonthRule) {
-    Validate.notNull(startDate);
-    Validate.notNull(convention);
-    Validate.notNull(calendar);
-    Validate.notNull(tenor);
+    Validate.notNull(startDate, "Start date");
+    Validate.notNull(convention, "Convention");
+    Validate.notNull(calendar, "Calendar");
+    Validate.notNull(tenor, "Tenor");
     ZonedDateTime endDate = startDate.plus(tenor); // Unadjusted date.
     // Adjusted to month-end: when start date is last business day of the month, the end date is the last business day of the month.
     boolean isStartDateEOM = (startDate.getMonthOfYear() != getAdjustedDate(startDate, 1, calendar).getMonthOfYear());
@@ -171,6 +171,18 @@ public final class ScheduleCalculator {
   public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final Period tenor, final GeneratorDeposit generator) {
     Validate.notNull(generator, "Generator");
     return getAdjustedDate(startDate, tenor, generator.getBusinessDayConvention(), generator.getCalendar(), generator.isEndOfMonth());
+  }
+
+  /**
+   * Compute the end date of a period from the start date, a period and a Ibor index. The index is used for the conventions.
+   * @param startDate The period start date.
+   * @param tenor The period tenor.
+   * @param index The Ibor index.
+   * @return The end date.
+   */
+  public static ZonedDateTime getAdjustedDate(final ZonedDateTime startDate, final Period tenor, final IborIndex index) {
+    Validate.notNull(index, "Index");
+    return getAdjustedDate(startDate, tenor, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth());
   }
 
   /**

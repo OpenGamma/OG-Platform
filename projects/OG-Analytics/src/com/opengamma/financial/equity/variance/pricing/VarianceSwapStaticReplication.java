@@ -18,7 +18,7 @@ import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceDe
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceLogMoneyness;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceVistor;
+import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceVisitor;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.Integrator1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
@@ -53,7 +53,7 @@ public class VarianceSwapStaticReplication {
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
 
   private final Integrator1D<Double, Double> _integrator;
-  private double _tol;
+  private final double _tol;
 
   public VarianceSwapStaticReplication() {
     _tol = DEFULT_TOLERANCE;
@@ -83,7 +83,7 @@ public class VarianceSwapStaticReplication {
     return presentValue(deriv, market, null);
   }
 
-  public double presentValue(final VarianceSwap deriv, final VarianceSwapDataBundle market, DoublesPair cutoff) {
+  public double presentValue(final VarianceSwap deriv, final VarianceSwapDataBundle market, final DoublesPair cutoff) {
     Validate.notNull(deriv, "VarianceSwap deriv");
     Validate.notNull(market, "VarianceSwapDataBundle market");
 
@@ -92,13 +92,13 @@ public class VarianceSwapStaticReplication {
     }
 
     // Compute contribution from past realizations
-    double realizedVar = new RealizedVariance().evaluate(deriv); // Realized variance of log returns already observed
+    final double realizedVar = new RealizedVariance().evaluate(deriv); // Realized variance of log returns already observed
     // Compute contribution from future realizations
-    double remainingVar = impliedVariance(deriv, market, cutoff); // Remaining variance implied by option prices
+    final double remainingVar = impliedVariance(deriv, market, cutoff); // Remaining variance implied by option prices
 
     // Compute weighting
-    double nObsExpected = deriv.getObsExpected(); // Expected number as of trade inception
-    double nObsDisrupted = deriv.getObsDisrupted(); // Number of observations missed due to market disruption
+    final double nObsExpected = deriv.getObsExpected(); // Expected number as of trade inception
+    final double nObsDisrupted = deriv.getObsDisrupted(); // Number of observations missed due to market disruption
     double nObsActual = 0;
 
     if (deriv.getTimeToObsStart() <= 0) {
@@ -106,8 +106,8 @@ public class VarianceSwapStaticReplication {
       nObsActual = deriv.getObservations().length - 1; // From observation start until valuation
     }
 
-    double totalVar = realizedVar * (nObsActual / nObsExpected) + remainingVar * (nObsExpected - nObsActual - nObsDisrupted) / nObsExpected;
-    double finalPayment = deriv.getVarNotional() * (totalVar - deriv.getVarStrike());
+    final double totalVar = realizedVar * (nObsActual / nObsExpected) + remainingVar * (nObsExpected - nObsActual - nObsDisrupted) / nObsExpected;
+    final double finalPayment = deriv.getVarNotional() * (totalVar - deriv.getVarStrike());
 
     final double df = market.getDiscountCurve().getDiscountFactor(deriv.getTimeToSettlement());
     return df * finalPayment;
@@ -132,14 +132,15 @@ public class VarianceSwapStaticReplication {
    * 
    * @param deriv VarianceSwap derivative to be priced
    * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
+   * @param cutoff The cutoff
    * @return presentValue of the *remaining* variance in the swap.
    */
-  public double impliedVariance(final VarianceSwap deriv, final VarianceSwapDataBundle market, DoublesPair cutoff) {
+  public double impliedVariance(final VarianceSwap deriv, final VarianceSwapDataBundle market, final DoublesPair cutoff) {
 
     validateData(deriv, market);
 
     final double timeToLastObs = deriv.getTimeToObsEnd();
-    if (timeToLastObs <= 0) {//expired swap returns 0 variance
+    if (timeToLastObs <= 0) { //expired swap returns 0 variance
       return 0.0;
     }
 
@@ -186,24 +187,25 @@ public class VarianceSwapStaticReplication {
    * 
    * @param expiry Time from spot until last observation
    * @param market VarianceSwapDataBundle containing volatility surface, forward underlying, and funding curve
+   * @param cutoff The cutoff
    * @return presentValue of the *remaining* variance in the swap.
    */
-  protected double impliedVarianceFromSpot(final double expiry, final VarianceSwapDataBundle market, DoublesPair cutoff) {
+  protected double impliedVarianceFromSpot(final double expiry, final VarianceSwapDataBundle market, final DoublesPair cutoff) {
     // 1. Unpack Market data
     final double fwd = market.getForwardCurve().getForward(expiry);
     final BlackVolatilitySurface<?> volSurf = market.getVolatilitySurface();
 
-    varianceCalculator varCal;
+    VarianceCalculator varCal;
     if (cutoff == null) {
-      varCal = new varianceCalculator(fwd, expiry);
+      varCal = new VarianceCalculator(fwd, expiry);
     } else {
-      ExtrapolationParameters exParCal = new ExtrapolationParameters(fwd, expiry);
-      Pair<double[], double[]> pars = exParCal.getparameters(volSurf, cutoff);
-      double[] ks = pars.getFirst();
-      double[] vols = pars.getSecond();
+      final ExtrapolationParameters exParCal = new ExtrapolationParameters(fwd, expiry);
+      final Pair<double[], double[]> pars = exParCal.getparameters(volSurf, cutoff);
+      final double[] ks = pars.getFirst();
+      final double[] vols = pars.getSecond();
       final double res = getResidual(fwd, expiry, ks, vols);
 
-      varCal = new varianceCalculator(fwd, expiry, res, ks[0]);
+      varCal = new VarianceCalculator(fwd, expiry, res, ks[0]);
     }
 
     return varCal.getVariance(volSurf);
@@ -212,7 +214,7 @@ public class VarianceSwapStaticReplication {
   protected double getResidual(final double fwd, final double expiry, final double[] ks, final double[] vols) {
 
     // Check for trivial case where cutoff is so low that there's no effective value in the option
-    double cutoffPrice = BlackFormulaRepository.price(fwd, ks[0], expiry, vols[0], ks[0] > fwd);
+    final double cutoffPrice = BlackFormulaRepository.price(fwd, ks[0], expiry, vols[0], ks[0] > fwd);
     if (CompareUtils.closeEquals(cutoffPrice, 0)) {
       return 0.0; //i.e. the tail function is never used
     }
@@ -224,7 +226,7 @@ public class VarianceSwapStaticReplication {
     // then setting f(k) = f(k_min) for k < k_min. This ensures the implied volatility and the integrand are well behaved in the limit k -> 0.
     final Function1D<Double, Double> shiftedLnIntegrand = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double strike) {
+      public Double evaluate(final Double strike) {
         return leftExtrapolator.priceFromFixedStrike(strike) / (strike * strike);
       }
     };
@@ -253,7 +255,7 @@ public class VarianceSwapStaticReplication {
   /**
    * Converts from cutoff limit and spread expressed in the same units as the volatility surface (e.g. moneyness, delta etc) and returns (absolute strike points and volatilities)
    */
-  private class ExtrapolationParameters implements BlackVolatilitySurfaceVistor<DoublesPair, Pair<double[], double[]>> {
+  private class ExtrapolationParameters implements BlackVolatilitySurfaceVisitor<DoublesPair, Pair<double[], double[]>> {
 
     private final double _t;
     private final double _f;
@@ -263,12 +265,12 @@ public class VarianceSwapStaticReplication {
       _f = forward;
     }
 
-    public Pair<double[], double[]> getparameters(BlackVolatilitySurface<?> surf, DoublesPair cutoff) {
+    public Pair<double[], double[]> getparameters(final BlackVolatilitySurface<?> surf, final DoublesPair cutoff) {
       return surf.accept(this, cutoff);
     }
 
     @Override
-    public Pair<double[], double[]> visitDelta(BlackVolatilitySurfaceDelta surface, DoublesPair data) {
+    public Pair<double[], double[]> visitDelta(final BlackVolatilitySurfaceDelta surface, final DoublesPair data) {
       Validate.isTrue(data.first > 0.0 && data.first < 1.0, "cut off must be a valide delta (0,1)");
       Validate.isTrue(data.second > 0.0 && data.second < data.first, "spread must be positive and numerically less than cutoff");
       final double[] deltas = new double[2];
@@ -285,7 +287,7 @@ public class VarianceSwapStaticReplication {
     }
 
     @Override
-    public Pair<double[], double[]> visitStrike(BlackVolatilitySurfaceStrike surface, DoublesPair data) {
+    public Pair<double[], double[]> visitStrike(final BlackVolatilitySurfaceStrike surface, final DoublesPair data) {
       Validate.isTrue(data.first > 0.0, "cut off must be greater than zero");
       Validate.isTrue(data.second > 0.0, "spread must be positive");
       final double[] k = new double[2];
@@ -298,7 +300,7 @@ public class VarianceSwapStaticReplication {
     }
 
     @Override
-    public Pair<double[], double[]> visitMoneyness(BlackVolatilitySurfaceMoneyness surface, DoublesPair data) {
+    public Pair<double[], double[]> visitMoneyness(final BlackVolatilitySurfaceMoneyness surface, final DoublesPair data) {
       Validate.isTrue(data.first > 0.0, "cut off must be greater than zero");
       Validate.isTrue(data.second > 0.0, "spread must be positive");
       final double[] k = new double[2];
@@ -311,7 +313,7 @@ public class VarianceSwapStaticReplication {
     }
 
     @Override
-    public Pair<double[], double[]> visitLogMoneyness(BlackVolatilitySurfaceLogMoneyness surface, DoublesPair data) {
+    public Pair<double[], double[]> visitLogMoneyness(final BlackVolatilitySurfaceLogMoneyness surface, final DoublesPair data) {
       Validate.isTrue(data.second > 0.0, "spread must be positive");
       final double[] k = new double[2];
       final double[] vols = new double[2];
@@ -323,28 +325,28 @@ public class VarianceSwapStaticReplication {
     }
 
     @Override
-    public Pair<double[], double[]> visitDelta(BlackVolatilitySurfaceDelta surface) {
+    public Pair<double[], double[]> visitDelta(final BlackVolatilitySurfaceDelta surface) {
       throw new NotImplementedException();
     }
 
     @Override
-    public Pair<double[], double[]> visitStrike(BlackVolatilitySurfaceStrike surface) {
+    public Pair<double[], double[]> visitStrike(final BlackVolatilitySurfaceStrike surface) {
       throw new NotImplementedException();
     }
 
     @Override
-    public Pair<double[], double[]> visitMoneyness(BlackVolatilitySurfaceMoneyness surface) {
+    public Pair<double[], double[]> visitMoneyness(final BlackVolatilitySurfaceMoneyness surface) {
       throw new NotImplementedException();
     }
 
     @Override
-    public Pair<double[], double[]> visitLogMoneyness(BlackVolatilitySurfaceLogMoneyness surface) {
+    public Pair<double[], double[]> visitLogMoneyness(final BlackVolatilitySurfaceLogMoneyness surface) {
       throw new NotImplementedException();
     }
 
   }
 
-  private class varianceCalculator implements BlackVolatilitySurfaceVistor<DoublesPair, Double> {
+  private class VarianceCalculator implements BlackVolatilitySurfaceVisitor<DoublesPair, Double> {
 
     private final double _t;
     private final double _f;
@@ -352,7 +354,7 @@ public class VarianceSwapStaticReplication {
     private final double _lowStrikeCutoff;
     private final boolean _addResidual;
 
-    public varianceCalculator(final double forward, final double expiry) {
+    public VarianceCalculator(final double forward, final double expiry) {
       _f = forward;
       _t = expiry;
       _addResidual = false;
@@ -360,7 +362,7 @@ public class VarianceSwapStaticReplication {
       _residual = 0.0;
     }
 
-    public varianceCalculator(final double forward, final double expiry, final double residual, final double lowStrikeCutoff) {
+    public VarianceCalculator(final double forward, final double expiry, final double residual, final double lowStrikeCutoff) {
       _f = forward;
       _t = expiry;
       _addResidual = true;
@@ -372,9 +374,9 @@ public class VarianceSwapStaticReplication {
       return surf.accept(this);
     }
 
-    public double getVariance(final BlackVolatilitySurface<?> surf, final DoublesPair limits) {
-      return surf.accept(this, limits);
-    }
+    //    public double getVariance(final BlackVolatilitySurface<?> surf, final DoublesPair limits) {
+    //      return surf.accept(this, limits);
+    //    }
 
     //********************************************
     // strike surfaces
@@ -431,7 +433,7 @@ public class VarianceSwapStaticReplication {
           final boolean isCall = strike >= _f;
           final double vol = surface.getVolatility(_t, strike);
           final double otmPrice = BlackFormulaRepository.price(_f, strike, _t, vol, isCall);
-          double res = (isCall ? otmPrice / strike : otmPrice / 2 / strike);
+          final double res = (isCall ? otmPrice / strike : otmPrice / 2 / strike);
           return res;
         }
       };
@@ -504,7 +506,7 @@ public class VarianceSwapStaticReplication {
         return dnsVol * dnsVol; //this will be identical to atm-vol for t-> 0
       }
 
-      Function1D<Double, Double> integrand = getDeltaIntegrand(surface);
+      final Function1D<Double, Double> integrand = getDeltaIntegrand(surface);
       //find the delta corresponding to the at-the-money-forward (NOTE this is not the DNS of delta = 0.5)
       final double atmfVol = surface.getVolatility(_t, _f);
       final double atmfDelta = BlackFormulaRepository.delta(_f, _f, _t, atmfVol, true);
@@ -530,7 +532,7 @@ public class VarianceSwapStaticReplication {
     }
 
     @Override
-    public Double visitDelta(BlackVolatilitySurfaceDelta surface) {
+    public Double visitDelta(final BlackVolatilitySurfaceDelta surface) {
 
       if (_t < 1e-4) {
         final double atmVol = surface.getVolatility(_t, _f);
@@ -546,7 +548,7 @@ public class VarianceSwapStaticReplication {
         upperLimit = 1 - _tol;
       }
 
-      DoublesPair limits = new DoublesPair(lowerLimit, upperLimit);
+      final DoublesPair limits = new DoublesPair(lowerLimit, upperLimit);
       return visitDelta(surface, limits);
     }
 
@@ -554,7 +556,7 @@ public class VarianceSwapStaticReplication {
       final double eps = 1e-5;
       final double rootT = Math.sqrt(_t);
 
-      Function1D<Double, Double> integrand = new Function1D<Double, Double>() {
+      final Function1D<Double, Double> integrand = new Function1D<Double, Double>() {
         @SuppressWarnings("synthetic-access")
         @Override
         public Double evaluate(final Double delta) {
@@ -597,18 +599,18 @@ public class VarianceSwapStaticReplication {
     //********************************************
 
     @Override
-    public Double visitMoneyness(BlackVolatilitySurfaceMoneyness surface, DoublesPair data) {
+    public Double visitMoneyness(final BlackVolatilitySurfaceMoneyness surface, final DoublesPair data) {
       final double l = Math.log(data.first);
       final double u = Math.log(data.second);
       Validate.isTrue(l > 0.0, "lower limit <= 0");
       Validate.isTrue(u > l, "lower limit >= upper limit");
-      BlackVolatilitySurfaceLogMoneyness logMS = BlackVolatilitySurfaceConverter.toLogMoneynessSurface(surface);
+      final BlackVolatilitySurfaceLogMoneyness logMS = BlackVolatilitySurfaceConverter.toLogMoneynessSurface(surface);
       return visitLogMoneyness(logMS, new DoublesPair(l, u));
     }
 
     @Override
-    public Double visitMoneyness(BlackVolatilitySurfaceMoneyness surface) {
-      BlackVolatilitySurfaceLogMoneyness logMS = BlackVolatilitySurfaceConverter.toLogMoneynessSurface(surface);
+    public Double visitMoneyness(final BlackVolatilitySurfaceMoneyness surface) {
+      final BlackVolatilitySurfaceLogMoneyness logMS = BlackVolatilitySurfaceConverter.toLogMoneynessSurface(surface);
       return visitLogMoneyness(logMS);
     }
 
@@ -620,7 +622,7 @@ public class VarianceSwapStaticReplication {
      * Only use if the integral limits have been calculated elsewhere, or you need the contribution from a specific range
      */
     @Override
-    public Double visitLogMoneyness(BlackVolatilitySurfaceLogMoneyness surface, DoublesPair data) {
+    public Double visitLogMoneyness(final BlackVolatilitySurfaceLogMoneyness surface, final DoublesPair data) {
       final double lower = data.first;
       final double upper = data.second;
       Validate.isTrue(upper > lower, "lower limit >= upper limit");
@@ -666,7 +668,7 @@ public class VarianceSwapStaticReplication {
         putPart = _integrator.integrate(integrand, Math.log(_lowStrikeCutoff / _f), 0.0);
         putPart += _residual;
       } else {
-        double l = invNorTol * atmVol * rootT; //initial estimate of lower limit
+        final double l = invNorTol * atmVol * rootT; //initial estimate of lower limit
         putPart = _integrator.integrate(integrand, l, 0.0);
         double rem = integrand.evaluate(l);
         double error = rem / putPart;
@@ -680,7 +682,7 @@ public class VarianceSwapStaticReplication {
         putPart += rem; //add on the (very small) remainder estimate otherwise we'll always underestimate variance
       }
 
-      double u = _f * Math.exp(-invNorTol * atmVol * rootT); //initial estimate of upper limit
+      final double u = _f * Math.exp(-invNorTol * atmVol * rootT); //initial estimate of upper limit
       double callPart = _integrator.integrate(integrand, 0.0, u);
       double rem = integrand.evaluate(u);
       double error = rem / callPart;

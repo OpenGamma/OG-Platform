@@ -54,6 +54,24 @@ public class SmileDeltaTermStructureParameter implements VolatilityModel<Triple<
   /**
    * Constructor from market data.
    * @param timeToExpiration The time to expiration of each volatility smile.
+   * @param delta The delta at which the volatilities are given. Must be positive and sorted in ascending order. The put will have as delta the opposite of the numbers.
+   * Common to all time to expiration.
+   * @param volatility The volatilities at each delta.
+   */
+  public SmileDeltaTermStructureParameter(final double[] timeToExpiration, final double[] delta, double[][] volatility) {
+    int nbExp = timeToExpiration.length;
+    Validate.isTrue(volatility.length == nbExp, "Volatility length should be coherent with time to expiration length");
+    Validate.isTrue(volatility[0].length == 2 * delta.length + 1, "Risk volatility size should be coherent with time to delta length");
+    _timeToExpiration = timeToExpiration;
+    _volatilityTerm = new SmileDeltaParameter[nbExp];
+    for (int loopexp = 0; loopexp < nbExp; loopexp++) {
+      _volatilityTerm[loopexp] = new SmileDeltaParameter(timeToExpiration[loopexp], delta, volatility[loopexp]);
+    }
+  }
+
+  /**
+   * Constructor from market data.
+   * @param timeToExpiration The time to expiration of each volatility smile.
    * @param delta The delta at which the volatilities are given. Common to all time to expiration.
    * @param atm The ATM volatilities for each time to expiration. The length should be equal to the length of timeToExpiration.
    * @param riskReversal The risk reversal figures.
