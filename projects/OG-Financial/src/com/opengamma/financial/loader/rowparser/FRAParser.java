@@ -4,8 +4,9 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader.rowparsers;
+package com.opengamma.financial.loader.rowparser;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -16,10 +17,12 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
@@ -73,6 +76,22 @@ public class FRAParser extends RowParser {
     fra.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
 
     ManageableSecurity[] result = {fra};
+    return result;
+  }
+
+  @Override
+  public Map<String, String> constructRow(ManageableSecurity security) {
+    Map<String, String> result = new HashMap<String, String>();
+    FRASecurity fra = (FRASecurity) security;
+    
+    result.put(CURRENCY, fra.getCurrency().getCode());
+    result.put(REGION, RegionUtils.getRegions(getLoaderContext().getRegionSource(), fra.getRegionId()).iterator().next().getFullName());
+    result.put(START_DATE, fra.getStartDate().toString(CSV_DATE_FORMATTER));
+    result.put(END_DATE, fra.getEndDate().toString(CSV_DATE_FORMATTER));
+    result.put(RATE, Double.toString(fra.getRate()));
+    result.put(AMOUNT, Double.toString(fra.getAmount()));
+    result.put(BBG_ID, fra.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER).getValue());
+
     return result;
   }
 

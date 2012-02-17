@@ -4,9 +4,10 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader.rowparsers;
+package com.opengamma.financial.loader.rowparser;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -16,7 +17,6 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.id.ExternalId;
@@ -70,4 +70,18 @@ public class FXForwardParser extends RowParser {
     return result; 
   }
 
+  public Map<String, String> constructRow(ManageableSecurity security) {
+    Map<String, String> result = new HashMap<String, String>();
+    FXForwardSecurity fxForward = (FXForwardSecurity) security;
+    
+    result.put(PAY_CURRENCY, fxForward.getPayCurrency().getCode());
+    result.put(RECEIVE_CURRENCY, fxForward.getReceiveCurrency().getCode());
+    result.put(PAY_AMOUNT, Double.toString(fxForward.getPayAmount()));
+    result.put(RECEIVE_AMOUNT, Double.toString(fxForward.getReceiveAmount()));
+    result.put(COUNTRY, RegionUtils.getRegions(getLoaderContext().getRegionSource(), fxForward.getRegionId()).iterator().next().getFullName());
+    result.put(FORWARD_DATE, fxForward.getForwardDate().toString(CSV_DATE_FORMATTER));
+    
+    return result;
+  }
+  
 }

@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader;
+package com.opengamma.financial.loader.portfolio;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,6 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.loader.LoaderContext;
+import com.opengamma.financial.loader.PortfolioLoaderTool;
+import com.opengamma.financial.loader.sheet.CsvSheetReader;
+import com.opengamma.financial.loader.sheet.SheetReader;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 
 /**

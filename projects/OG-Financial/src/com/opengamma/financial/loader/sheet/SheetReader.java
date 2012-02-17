@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader;
+package com.opengamma.financial.loader.sheet;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -33,11 +33,11 @@ public abstract class SheetReader {
   
   public abstract Map<String, String> loadNextRow();
 
-  protected String[] getColumns() {
+  public String[] getColumns() {
     return _columns;
   }
 
-  protected void setColumns(String[] columns) {
+  public void setColumns(String[] columns) {
     _columns = columns;
   }
   

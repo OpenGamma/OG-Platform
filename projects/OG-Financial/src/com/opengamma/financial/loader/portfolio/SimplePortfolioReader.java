@@ -4,12 +4,15 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader;
+package com.opengamma.financial.loader.portfolio;
 
 import java.lang.reflect.Constructor;
 import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.loader.LoaderContext;
+import com.opengamma.financial.loader.rowparser.RowParser;
+import com.opengamma.financial.loader.sheet.SheetReader;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
@@ -21,7 +24,7 @@ import com.opengamma.master.security.ManageableSecurity;
 public class SimplePortfolioReader extends SingleSheetPortfolioReader {
 
   /** Path strings for constructing a fully qualified parser class name **/
-  private static final String CLASS_PREFIX = "com.opengamma.financial.loader.rowparsers.";
+  private static final String CLASS_PREFIX = "com.opengamma.financial.loader.rowparser.";
   private static final String CLASS_POSTFIX = "Parser";
 
   /*

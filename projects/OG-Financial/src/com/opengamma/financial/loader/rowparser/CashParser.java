@@ -4,8 +4,9 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader.rowparsers;
+package com.opengamma.financial.loader.rowparser;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -16,10 +17,11 @@ import javax.time.calendar.TimeZone;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
@@ -29,7 +31,7 @@ import com.opengamma.util.money.Currency;
  */
 public class CashParser extends RowParser {
 
-  private static final String ID_SCHEME = "MANUAL_LOAD";
+  private static final String ID_SCHEME = "CASH_LOADER";
 
   //CSOFF
   protected String CURRENCY = "currency";
@@ -58,6 +60,7 @@ public class CashParser extends RowParser {
     DayCount dayCount = DayCountFactory.INSTANCE.getDayCount(getWithException(cashDetails, DAY_COUNT));
     double rate = Double.parseDouble(getWithException(cashDetails, RATE));
     double amount = Double.parseDouble(getWithException(cashDetails, AMOUNT));
+    
     CashSecurity cash = new CashSecurity(ccy, region, start.atZone(TimeZone.UTC), maturity.atZone(TimeZone.UTC), dayCount, rate, amount);
     cash.setName("Cash " + ccy.getCode() + " " + NOTIONAL_FORMATTER.format(amount) + " @ "
         + RATE_FORMATTER.format(rate) + ", maturity "
@@ -65,6 +68,22 @@ public class CashParser extends RowParser {
     cash.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
 
     ManageableSecurity[] result = {cash};
+    return result;
+  }
+
+  @Override
+  public Map<String, String> constructRow(ManageableSecurity security) {
+    Map<String, String> result = new HashMap<String, String>();
+    CashSecurity cash = (CashSecurity) security;
+    
+    result.put(CURRENCY, cash.getCurrency().getCode());
+    result.put(REGION, RegionUtils.getRegions(getLoaderContext().getRegionSource(), cash.getRegionId()).iterator().next().getFullName());
+    result.put(START, cash.getStart().toString(CSV_DATE_FORMATTER));
+    result.put(MATURITY, cash.getMaturity().toString(CSV_DATE_FORMATTER));
+    result.put(DAY_COUNT, cash.getDayCount().getConventionName());
+    result.put(RATE, Double.toString(cash.getRate()));
+    result.put(AMOUNT, Double.toString(cash.getAmount()));
+    
     return result;
   }
 

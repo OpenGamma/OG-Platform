@@ -19,6 +19,12 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.loader.portfolio.DummyPortfolioWriter;
+import com.opengamma.financial.loader.portfolio.MasterPortfolioWriter;
+import com.opengamma.financial.loader.portfolio.PortfolioReader;
+import com.opengamma.financial.loader.portfolio.PortfolioWriter;
+import com.opengamma.financial.loader.portfolio.SimplePortfolioReader;
+import com.opengamma.financial.loader.portfolio.ZippedPortfolioReader;
 import com.opengamma.util.PlatformConfigUtils;
 
 /**

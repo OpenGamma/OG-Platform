@@ -4,8 +4,9 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader.rowparsers;
+package com.opengamma.financial.loader.rowparser;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -15,9 +16,10 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
@@ -67,6 +69,22 @@ public class IRFutureParser extends RowParser {
 
     ManageableSecurity[] result = {irFuture};
     return result;
+  }
+
+  public Map<String, String> constructRow(ManageableSecurity security) {
+    Map<String, String> result = new HashMap<String, String>();
+    InterestRateFutureSecurity future = (InterestRateFutureSecurity) security;
+    
+    result.put(EXPIRY, future.getExpiry().getExpiry().toString(CSV_DATE_FORMATTER));
+    result.put(TRADING_EXCHANGE, future.getTradingExchange());
+    result.put(SETTLEMENT_EXCHANGE, future.getSettlementExchange());
+    result.put(CURRENCY, future.getCurrency().getCode());
+    result.put(UNIT_AMOUNT, Double.toString(future.getUnitAmount()));
+    result.put(UNDERLYING_ID, future.getUnderlyingId().toString());
+    result.put(NAME, future.getName());
+    result.put(BBG_CODE, future.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER).getValue());
+    
+    return result;  
   }
 
 }

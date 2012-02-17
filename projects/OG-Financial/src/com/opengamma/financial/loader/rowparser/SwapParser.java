@@ -4,8 +4,9 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader.rowparsers;
+package com.opengamma.financial.loader.rowparser;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -14,14 +15,15 @@ import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
 
 import com.opengamma.core.region.RegionUtils;
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
-import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.loader.LoaderContext;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
@@ -136,6 +138,29 @@ public class SwapParser extends RowParser {
 
     ManageableSecurity[] result = {swap};
     return result;
+  }
+
+  public Map<String, String> constructRow(ManageableSecurity security) {
+    Map<String, String> result = new HashMap<String, String>();
+    SwapSecurity swap = (SwapSecurity) security;
+    
+    result.put(TRADE_DATE, swap.getTradeDate().toString(CSV_DATE_FORMATTER));
+    result.put(EFFECTIVE_DATE, swap.getEffectiveDate().toString(CSV_DATE_FORMATTER));
+    result.put(TERMINATION_DATE, swap.getMaturityDate().toString(CSV_DATE_FORMATTER));
+    
+    // TODO not ready yet
+//    result.put(PAY_FIXED,);
+//    
+//    SwapLeg payLeg = swap.getPayLeg();
+//    SwapLeg receiveLeg = swap.getReceiveLeg();
+//    
+//    FixedInterestRateLeg fixedLeg;
+//    FloatingInterestRateLeg floatingLeg;
+//    
+//    
+//    result.put(FIXED_LEG_CURRENCY, )
+    
+    return result;  
   }
 
 }
