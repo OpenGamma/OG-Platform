@@ -14,7 +14,7 @@ import com.opengamma.masterdb.security.hibernate.EnumUserType;
  */
 public class VarianceSwapTypeUserType extends EnumUserType<VarianceSwapType> {
 
-  protected VarianceSwapTypeUserType() {
+  public VarianceSwapTypeUserType() {
     super(VarianceSwapType.class, VarianceSwapType.values());
   }
 
