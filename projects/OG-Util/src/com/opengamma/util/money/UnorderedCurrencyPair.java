@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.money;
 
+import java.util.regex.Pattern;
+
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -48,6 +50,19 @@ public final class UnorderedCurrencyPair implements UniqueIdentifiable, ObjectId
     return new UnorderedCurrencyPair(ccy1, ccy2);
   }
 
+  public static UnorderedCurrencyPair of(UniqueId uniqueId) {
+    ArgumentChecker.notNull(uniqueId, "unique id");
+    if (uniqueId.getScheme().equals(OBJECT_SCHEME)) {
+      Pattern validate = Pattern.compile("[A-Z]{6}");
+      String value = uniqueId.getValue();
+      if (validate.matcher(value).matches()) {
+        Currency ccy1 = Currency.of(value.substring(0, 3));
+        Currency ccy2 = Currency.of(value.substring(3));
+        return new UnorderedCurrencyPair(ccy1, ccy2);
+      }
+    }
+    throw new UnsupportedOperationException("Cannot create an UnorderedCurrencyPair from this UniqueId; need an ObjectScheme of UnorderedCurrencyPair, have " + uniqueId.getScheme());
+  }
   //-------------------------------------------------------------------------
   /**
    * Constructs a new instance.
@@ -68,7 +83,7 @@ public final class UnorderedCurrencyPair implements UniqueIdentifiable, ObjectId
       _idValue = currency2.getCode() + currency1.getCode();
     }
   }
-
+  
   //-------------------------------------------------------------------------
   /**
    * Gets one of the two currencies.

@@ -24,7 +24,6 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.financial.analytics.model.forex.ForexUtils;
 import com.opengamma.financial.analytics.model.forex.ForexVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -34,6 +33,7 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVan
 import com.opengamma.financial.model.volatility.smile.fitting.sabr.ForexSmileDeltaSurfaceDataBundle;
 import com.opengamma.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
@@ -61,7 +61,7 @@ public abstract class ForexLocalVolatilityPDEGridFunction extends LocalVolatilit
     final Currency putCurrency = fxOption.getPutCurrency();
     final Currency callCurrency = fxOption.getCallCurrency();
     double strike;
-    if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) {
+    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
       strike = fxOption.getPutAmount() / fxOption.getCallAmount(); //TODO check this
     } else {
       strike = fxOption.getCallAmount() / fxOption.getPutAmount();

@@ -116,10 +116,11 @@ public class SecurityPriceSeriesFunction extends AbstractFunction.NonCompiledInv
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties.Builder properties = createValueProperties();
-    properties.withAny(ValuePropertyNames.SAMPLING_PERIOD)
-    .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
-    .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
-    .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
+    properties
+      .withAny(ValuePropertyNames.SAMPLING_PERIOD)
+      .withAny(ValuePropertyNames.SCHEDULE_CALCULATOR)
+      .withAny(ValuePropertyNames.SAMPLING_FUNCTION)
+      .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode());
     return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PRICE_SERIES, target.getSecurity(), properties.get()), getUniqueId()));
   }
 

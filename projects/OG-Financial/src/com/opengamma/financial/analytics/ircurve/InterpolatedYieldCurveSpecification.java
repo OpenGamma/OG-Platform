@@ -8,7 +8,6 @@ package com.opengamma.financial.analytics.ircurve;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Set;
 import java.util.SortedSet;
 import java.util.TreeSet;
 

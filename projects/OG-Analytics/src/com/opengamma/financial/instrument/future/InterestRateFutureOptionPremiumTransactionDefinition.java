@@ -10,13 +10,12 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumTransaction;
+import com.opengamma.util.time.TimeCalculator;
 
 /**
  * Description of transaction on an interest rate future option security with premium paid up-front (CME type).
@@ -92,8 +91,12 @@ public class InterestRateFutureOptionPremiumTransactionDefinition implements Ins
   @Override
   public InterestRateFutureOptionPremiumTransaction toDerivative(ZonedDateTime date, String... yieldCurveNames) {
     final InterestRateFutureOptionPremiumSecurity option = _underlyingOption.toDerivative(date, yieldCurveNames);
-    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-    final double premiumTime = actAct.getDayCountFraction(date, _premium.getPaymentDate());
+    //    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    final double premiumTime = TimeCalculator.getTimeBetween(date, _premium.getPaymentDate());
+    if (premiumTime < 0) { // Premium payment in the past.
+      // The premium payment is in the past and is represented by a 0 payment today.
+      return new InterestRateFutureOptionPremiumTransaction(option, _quantity, 0.0, 0.0);
+    }
     return new InterestRateFutureOptionPremiumTransaction(option, _quantity, premiumTime, _tradePrice);
   }
 

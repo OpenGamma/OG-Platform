@@ -31,7 +31,7 @@ public class BlackVolatilitySurfaceDelta extends BlackVolatilitySurface<Delta> {
    * @param surface A implied volatility surface parameterised by time and (call) delta
    * @param forwardCurve the forward curve
    */
-  public BlackVolatilitySurfaceDelta(Surface<Double, Double, Double> surface, final ForwardCurve forwardCurve) {
+  public BlackVolatilitySurfaceDelta(final Surface<Double, Double, Double> surface, final ForwardCurve forwardCurve) {
     super(surface);
     Validate.notNull(forwardCurve, "null forward curve");
     _fc = forwardCurve;
@@ -50,9 +50,9 @@ public class BlackVolatilitySurfaceDelta extends BlackVolatilitySurface<Delta> {
     final boolean isCall = k >= fwd;
     final double omega = isCall ? 0 : 1;
 
-    Function1D<Double, Double> func = new Function1D<Double, Double>() {
+    final Function1D<Double, Double> func = new Function1D<Double, Double>() {
       @Override
-      public Double evaluate(Double delta) {
+      public Double evaluate(final Double delta) {
         final double sigma = getVolatilityForDelta(t, omega + delta);
         return BlackFormulaRepository.delta(fwd, k, t, sigma, isCall) - delta;
       }
@@ -74,7 +74,7 @@ public class BlackVolatilitySurfaceDelta extends BlackVolatilitySurface<Delta> {
       maxDelta = 0.0;
     }
     final double[] range = BRACKETER.getBracketedPoints(func, l, h, minDelta, maxDelta);
-    double delta = omega + ROOT_FINDER.getRoot(func, range[0], range[1]);
+    final double delta = omega + ROOT_FINDER.getRoot(func, range[0], range[1]);
     return getVolatilityForDelta(t, delta);
   }
 
@@ -94,30 +94,30 @@ public class BlackVolatilitySurfaceDelta extends BlackVolatilitySurface<Delta> {
   }
 
   @Override
-  public double getAbsoluteStrike(double t, Delta s) {
+  public double getAbsoluteStrike(final double t, final Delta s) {
     final double vol = getVolatility(t, s);
     final double fwd = _fc.getForward(t);
     return BlackFormulaRepository.impliedStrike(s.value(), true, fwd, t, vol);
   }
 
   @Override
-  public BlackVolatilitySurface<Delta> withShift(double shift, boolean useAdditive) {
+  public BlackVolatilitySurface<Delta> withShift(final double shift, final boolean useAdditive) {
     return new BlackVolatilitySurfaceDelta(SurfaceShiftFunctionFactory.getShiftedSurface(getSurface(), shift, useAdditive), _fc);
   }
 
   @Override
-  public BlackVolatilitySurface<Delta> withSurface(Surface<Double, Double, Double> surface) {
+  public BlackVolatilitySurface<Delta> withSurface(final Surface<Double, Double, Double> surface) {
     return new BlackVolatilitySurfaceDelta(surface, _fc);
   }
 
   @Override
-  public <S, U> U accept(BlackVolatilitySurfaceVistor<S, U> vistor, S data) {
-    return vistor.visitDelta(this, data);
+  public <S, U> U accept(final BlackVolatilitySurfaceVisitor<S, U> visitor, final S data) {
+    return visitor.visitDelta(this, data);
   }
 
   @Override
-  public <U> U accept(BlackVolatilitySurfaceVistor<?, U> vistor) {
-    return vistor.visitDelta(this);
+  public <U> U accept(final BlackVolatilitySurfaceVisitor<?, U> visitor) {
+    return visitor.visitDelta(this);
   }
 
 }

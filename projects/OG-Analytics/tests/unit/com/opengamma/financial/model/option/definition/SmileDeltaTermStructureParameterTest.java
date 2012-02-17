@@ -56,6 +56,16 @@ public class SmileDeltaTermStructureParameterTest {
   }
 
   @Test
+  public void constructor2() {
+    double[][] vol = new double[NB_EXP][];
+    for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
+      vol[loopexp] = VOLATILITY_TERM[loopexp].getVolatility();
+    }
+    SmileDeltaTermStructureParameter smileTermVol = new SmileDeltaTermStructureParameter(TIME_TO_EXPIRY, DELTA, vol);
+    assertEquals("Smile by delta term structure: constructor", SMILE_TERM, smileTermVol);
+  }
+
+  @Test
   /**
    * Tests the volatility at a point of the grid.
    */

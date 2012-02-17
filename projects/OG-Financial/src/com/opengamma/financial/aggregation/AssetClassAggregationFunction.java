@@ -38,6 +38,8 @@ import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecu
 import com.opengamma.financial.security.option.NonDeliverableFXOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.sensitivities.SecurityEntryData;
+import com.opengamma.master.security.RawSecurity;
 
 /**
  * Function to classify positions by asset class.  Note that this bins all types of options together.
@@ -208,6 +210,11 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
 
       });
     } else {
+      if (security instanceof RawSecurity && security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {
+        if (security.getAttributes().containsKey("Security Type")) {
+          return security.getAttributes().get("Security Type");
+        }
+      }
       return UNKNOWN;
     }
   }

@@ -195,6 +195,7 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
       SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class, msg.getMessage());
 
       out.put("securityEntryData", securityEntryData);
+      out.put("securityAttributes", security.getAttributes());
       RawSecurity underlyingRawSecurity = (RawSecurity) getSecurity(securityEntryData.getFactorSetId());
       if (underlyingRawSecurity != null) {
         FudgeMsgEnvelope factorIdMsg = OpenGammaFudgeContext.getInstance().deserialize(underlyingRawSecurity.getRawData());
@@ -303,10 +304,6 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
     }
   }
   
-  private void addExposureTimeSeriesIdMaps(FlexiBean out, Collection<FactorExposureData> factorExposureDataList) {
-
-  }
-
   private void addUnderlyingSecurity(FlexiBean out, ExternalId externalId) {
     Security underlyingSec = getSecurity(externalId);
     if (underlyingSec != null) {

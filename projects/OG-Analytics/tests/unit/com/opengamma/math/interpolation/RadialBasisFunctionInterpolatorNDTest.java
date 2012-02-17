@@ -17,6 +17,7 @@ public class RadialBasisFunctionInterpolatorNDTest extends InterpolatorNDTestCas
   private static final GaussianRadialBasisFunction BASIS_FUNCTION = new GaussianRadialBasisFunction();
   private static final boolean USE_NORMALIZED = false;
   private static final InterpolatorND INTERPOLATOR = new RadialBasisFunctionInterpolatorND(BASIS_FUNCTION, USE_NORMALIZED);
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullBasisFunction() {
     new RadialBasisFunctionInterpolatorND(null, false);

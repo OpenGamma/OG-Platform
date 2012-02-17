@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import javax.time.calendar.ZonedDateTime;
+import javax.time.calendar.LocalDate;
 
 /**
  * The '30E+/360 ISDA' day count.
@@ -16,7 +16,7 @@ public class ThirtyEPlusThreeSixtyISDA extends ThirtyThreeSixtyTypeDayCount {
   private static final long serialVersionUID = 1L;
 
   @Override
-  public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
+  public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate) {
     testDates(firstDate, secondDate);
     double d1 = firstDate.getDayOfMonth();
     double d2 = secondDate.getDayOfMonth();

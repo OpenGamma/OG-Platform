@@ -14,6 +14,7 @@ import com.opengamma.math.curve.FunctionalDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.integration.RungeKuttaIntegrator1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -24,29 +25,7 @@ public class ForwardCurve {
   private final Curve<Double, Double> _drift;
   private final double _spot;
 
-
-  /**
-   * 
-   * @param spot The current value of the underlying
-   * @param riskFreeCurve The risk free interest rate curve (in FX this is the domistic risk free curve)
-   * @param costOfCarryCurve In equity this would represent the expected dividend yield, while in FX it is the foreign risk free rate
-   */
-  public ForwardCurve(final double spot, final YieldAndDiscountCurve riskFreeCurve, final YieldAndDiscountCurve costOfCarryCurve) {
-    Function<Double, Double> f = new Function<Double, Double>() {
-      @Override
-      public Double evaluate(Double... x) {
-        final double t = x[0];
-        return spot * costOfCarryCurve.getDiscountFactor(t) / riskFreeCurve.getDiscountFactor(t);
-      }
-    };
-    _spot = spot;
-    _fwdCurve = new FunctionalDoublesCurve(f);
-    _drift = getDriftCurve(_fwdCurve); //TODO YieldAndDiscountCurve should have a getForwardRate method, which should be used here
-
-  }
-
-  @SuppressWarnings("unused")
-  private ForwardCurve(final Curve<Double, Double> fwdCurve, final Curve<Double, Double> driftCurve) {
+  public ForwardCurve(final Curve<Double, Double> fwdCurve, final Curve<Double, Double> driftCurve) {
     Validate.notNull(fwdCurve, "null fwdCurve");
     Validate.notNull(driftCurve, "null driftCurve");
     _fwdCurve = fwdCurve;
@@ -57,7 +36,7 @@ public class ForwardCurve {
   public ForwardCurve(final Curve<Double, Double> fwdCurve) {
     Validate.notNull(fwdCurve, "curve");
     _fwdCurve = fwdCurve;
-    _drift = getDriftCurve(fwdCurve);
+    _drift = getDriftCurve(fwdCurve);  //TODO YieldAndDiscountCurve should have a getForwardRate method, which should be used here
     _spot = _fwdCurve.getYValue(0.0);
   }
 
@@ -145,9 +124,20 @@ public class ForwardCurve {
     return _spot;
   }
 
-  private static Curve<Double, Double> getDriftCurve(final Curve<Double, Double> fwdCurve) {
+  protected static Curve<Double, Double> getForwardCurve(final double spot, final YieldAndDiscountCurve riskFreeCurve, final YieldAndDiscountCurve costOfCarryCurve) {
+    ArgumentChecker.notNull(riskFreeCurve, "risk-free curve");
+    ArgumentChecker.notNull(costOfCarryCurve, "cost-of-carry curve");
+    final Function<Double, Double> f = new Function<Double, Double>() {
+      @Override
+      public Double evaluate(final Double... x) {
+        final double t = x[0];
+        return spot * costOfCarryCurve.getDiscountFactor(t) / riskFreeCurve.getDiscountFactor(t);
+      }
+    };
+    return FunctionalDoublesCurve.from(f);
+  }
 
-
+  protected static Curve<Double, Double> getDriftCurve(final Curve<Double, Double> fwdCurve) {
     final Function1D<Double, Double> drift = new Function1D<Double, Double>() {
       private final double _eps = 1e-3;
 
@@ -164,6 +154,7 @@ public class ForwardCurve {
         final double down = Math.log(fwdCurve.getYValue(t - _eps));
         return (up - down) / 2 / _eps;
       }
+
     };
 
     return FunctionalDoublesCurve.from(drift);
