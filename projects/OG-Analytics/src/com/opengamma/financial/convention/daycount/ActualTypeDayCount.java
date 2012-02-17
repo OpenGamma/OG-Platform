@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.convention.daycount;
 
-import javax.time.calendar.ZonedDateTime;
+import javax.time.calendar.LocalDate;
 
 /**
  * Base class for 'actual' style day counts.
@@ -16,6 +16,6 @@ public abstract class ActualTypeDayCount extends StatelessDayCount {
   private static final long serialVersionUID = 1L;
 
   @Override
-  public abstract double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear);
+  public abstract double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final LocalDate nextCouponDate, final double coupon, final double paymentsPerYear);
 
 }

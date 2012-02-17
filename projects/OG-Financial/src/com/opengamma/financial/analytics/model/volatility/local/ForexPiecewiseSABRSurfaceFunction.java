@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.analytics.model.volatility.local;
 
-import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_LAMBDA;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS;
@@ -31,7 +31,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.analytics.model.forex.ForexVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
+import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunctionOld;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.volatility.smile.fitting.sabr.ForexSmileDeltaSurfaceDataBundle;
 import com.opengamma.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
@@ -52,7 +52,7 @@ public class ForexPiecewiseSABRSurfaceFunction extends PiecewiseSABRSurfaceFunct
   @Override
   protected ValueProperties getResultProperties() {
     return createValueProperties()
-        .withAny(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE)
+        .withAny(RawVolatilitySurfaceDataFunctionOld.PROPERTY_SURFACE_INSTRUMENT_TYPE)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(PROPERTY_SURFACE_TYPE)
         .withAny(PROPERTY_X_AXIS)
@@ -69,7 +69,7 @@ public class ForexPiecewiseSABRSurfaceFunction extends PiecewiseSABRSurfaceFunct
   protected ValueProperties getResultProperties(final String surfaceName, final String forwardCurveCalculationMethod, final String forwardCurveInterpolator,
       final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator) {
     return createValueProperties()
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
+        .with(RawVolatilitySurfaceDataFunctionOld.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .withAny(PROPERTY_SURFACE_TYPE)
         .withAny(PROPERTY_X_AXIS)
@@ -86,7 +86,7 @@ public class ForexPiecewiseSABRSurfaceFunction extends PiecewiseSABRSurfaceFunct
       final String forwardCurveCalculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
       final String forwardCurveRightExtrapolator) {
     return createValueProperties()
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
+        .with(RawVolatilitySurfaceDataFunctionOld.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
         .with(PROPERTY_X_AXIS, xAxis)

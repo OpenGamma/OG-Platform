@@ -9,11 +9,11 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.examples.loader.ExampleEquityPortfolioAndSecurityLoader;
+import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
 import com.opengamma.examples.loader.ExampleMultiCurrencySwapPortfolioLoader;
 import com.opengamma.examples.loader.ExampleSwapPortfolioLoader;
-import com.opengamma.examples.loader.ExampleViewsPopulater;
-import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
 import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
+import com.opengamma.examples.loader.ExampleViewsPopulater;
 import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.util.money.Currency;
 
@@ -98,7 +98,7 @@ public class ExampleDatabasePopulater extends AbstractTool {
 
   private void loadLiborRawSecurities() {
     System.out.println("Creating libor raw securities");
-    PortfolioLoaderHelper.persistLiborRawSecurities(getAllCurrencies(), getToolContext().getLoaderContext());
+    PortfolioLoaderHelper.persistLiborRawSecurities(getAllCurrencies(), getLoaderContext());
     System.out.println("Finished");
   }
 

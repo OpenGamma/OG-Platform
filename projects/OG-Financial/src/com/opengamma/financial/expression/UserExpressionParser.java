@@ -52,7 +52,7 @@ public abstract class UserExpressionParser {
    * @param name name of the property, e.g. currency
    * @param method the function to supply the synthetic value
    */
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   public <T, S> void setSynthetic(final Class<T> object, final Class<S> type, final String name, final Function<T, S> method) {
     Map synthetics = _synthetics.get(object);
     if (synthetics == null) {
@@ -62,7 +62,7 @@ public abstract class UserExpressionParser {
     synthetics.put(name, Pair.of(type, method));
   }
 
-  @SuppressWarnings("unchecked")
+  @SuppressWarnings({"unchecked", "rawtypes" })
   protected Pair<Class<?>, Function<Object, Object>> getSynthetic(final Object value, final String name) {
     Class clazz = value.getClass();
     do {

@@ -13,7 +13,6 @@ import java.util.Iterator;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePositionComparator;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.currency.CurrencyPair;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -26,16 +25,16 @@ public class CurrenciesAggregationFunction implements AggregationFunction<String
   private static final String NAME = "Currencies";
   private static final String NO_CURRENCY = "No currency";
   private final Comparator<Position> _comparator = new SimplePositionComparator();
-  private SecuritySource _secSource;
-  
-  public CurrenciesAggregationFunction(SecuritySource secSource) {
+  private final SecuritySource _secSource;
+
+  public CurrenciesAggregationFunction(final SecuritySource secSource) {
     _secSource = secSource;
   }
-  
+
   @Override
-  public String classifyPosition(Position position) {
+  public String classifyPosition(final Position position) {
     try {
-      Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(position.getSecurity(), _secSource);
+      final Collection<Currency> currencies = FinancialSecurityUtils.getCurrencies(position.getSecurity(), _secSource);
       if (currencies == null || currencies.size() == 0) {
         return NO_CURRENCY;
       }
@@ -45,19 +44,19 @@ public class CurrenciesAggregationFunction implements AggregationFunction<String
         case 1:
           return currencies.iterator().next().getCode();
         case 2: {
-          Iterator<Currency> iter = currencies.iterator();
-          Currency base = iter.next();
-          Currency counter = iter.next();
-          UnorderedCurrencyPair unordered = UnorderedCurrencyPair.of(base, counter);
-          StringBuilder sb = new StringBuilder();
+          final Iterator<Currency> iter = currencies.iterator();
+          final Currency base = iter.next();
+          final Currency counter = iter.next();
+          final UnorderedCurrencyPair unordered = UnorderedCurrencyPair.of(base, counter);
+          final StringBuilder sb = new StringBuilder();
           sb.append(unordered.getFirstCurrency().getCode());
           sb.append("/");
           sb.append(unordered.getSecondCurrency().getCode());
           return sb.toString();
         }
         default: {
-          StringBuilder sb = new StringBuilder();
-          Iterator<Currency> iterator = currencies.iterator();
+          final StringBuilder sb = new StringBuilder();
+          final Iterator<Currency> iterator = currencies.iterator();
           while (iterator.hasNext()) {
             sb.append(iterator.next());
             if (iterator.hasNext()) {
@@ -67,12 +66,13 @@ public class CurrenciesAggregationFunction implements AggregationFunction<String
           return sb.toString();
         }
       }
-      
-    } catch (UnsupportedOperationException ex) {
+
+    } catch (final UnsupportedOperationException ex) {
       return NO_CURRENCY;
     }
   }
 
+  @Override
   public String getName() {
     return NAME;
   }
@@ -83,10 +83,11 @@ public class CurrenciesAggregationFunction implements AggregationFunction<String
   }
 
   @Override
-  public int compare(String currency1, String currency2) {
+  public int compare(final String currency1, final String currency2) {
     return currency1.compareTo(currency2);
   }
-  
+
+  @Override
   public Comparator<Position> getPositionComparator() {
     return _comparator;
   }

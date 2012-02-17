@@ -6,7 +6,6 @@
 package com.opengamma.financial.convention.daycount;
 
 import javax.time.calendar.LocalDate;
-import javax.time.calendar.ZonedDateTime;
 
 /**
  * The 'Actual/Actual ISDA' day count.
@@ -17,10 +16,8 @@ public class ActualActualISDA extends ActualTypeDayCount {
   private static final long serialVersionUID = 1L;
 
   @Override
-  public double getDayCountFraction(final ZonedDateTime firstDateTime, final ZonedDateTime secondDateTime) {
-    testDates(firstDateTime, secondDateTime);
-    final LocalDate firstDate = firstDateTime.toLocalDate();
-    final LocalDate secondDate = secondDateTime.toLocalDate();
+  public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate) {
+    testDates(firstDate, secondDate);
     final int y1 = firstDate.getYear();
     final int y2 = secondDate.getYear();
     if (y1 == y2) {
@@ -39,7 +36,7 @@ public class ActualActualISDA extends ActualTypeDayCount {
   }
 
   @Override
-  public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear) {
+  public double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final LocalDate nextCouponDate, final double coupon, final double paymentsPerYear) {
     return getDayCountFraction(previousCouponDate, date) * coupon;
   }
 

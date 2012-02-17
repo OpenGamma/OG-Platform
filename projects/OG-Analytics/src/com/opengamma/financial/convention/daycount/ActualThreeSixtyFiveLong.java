@@ -9,6 +9,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.NotImplementedException;
+import org.apache.commons.lang.Validate;
 
 /**
  * The 'Actual/365L' day count.
@@ -19,27 +20,33 @@ public class ActualThreeSixtyFiveLong extends ActualTypeDayCount {
   private static final long serialVersionUID = 1L;
 
   @Override
-  public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
+  public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate) {
     throw new NotImplementedException("Need information on payment frequency to get day count");
   }
 
   @Override
   public double getAccruedInterest(final ZonedDateTime previousCouponDate, final ZonedDateTime date, final ZonedDateTime nextCouponDate, final double coupon, final double paymentsPerYear) {
+    Validate.notNull(previousCouponDate);
+    Validate.notNull(date);
+    Validate.notNull(nextCouponDate);
+    return getAccruedInterest(previousCouponDate.toLocalDate(), date.toLocalDate(), nextCouponDate.toLocalDate(), coupon, paymentsPerYear);
+  }
+
+  @Override
+  public double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final LocalDate nextCouponDate, final double coupon, final double paymentsPerYear) {
     testDates(previousCouponDate, date, nextCouponDate);
-    final LocalDate previous = previousCouponDate.toLocalDate();
-    final LocalDate next = nextCouponDate.toLocalDate();
     double daysPerYear;
     if (paymentsPerYear == 1) {
-      if (next.isLeapYear()) {
-        final LocalDate feb29 = LocalDate.of(next.getYear(), 2, 29);
-        if (!next.isBefore(feb29) && previous.isBefore(feb29)) {
+      if (nextCouponDate.isLeapYear()) {
+        final LocalDate feb29 = LocalDate.of(nextCouponDate.getYear(), 2, 29);
+        if (!nextCouponDate.isBefore(feb29) && previousCouponDate.isBefore(feb29)) {
           daysPerYear = 366;
         } else {
           daysPerYear = 365;
         }
-      } else if (previous.isLeapYear()) {
-        final LocalDate feb29 = LocalDate.of(previous.getYear(), 2, 29);
-        if (!next.isBefore(feb29) && previous.isBefore(feb29)) {
+      } else if (previousCouponDate.isLeapYear()) {
+        final LocalDate feb29 = LocalDate.of(previousCouponDate.getYear(), 2, 29);
+        if (!nextCouponDate.isBefore(feb29) && previousCouponDate.isBefore(feb29)) {
           daysPerYear = 366;
         } else {
           daysPerYear = 365;
@@ -48,9 +55,9 @@ public class ActualThreeSixtyFiveLong extends ActualTypeDayCount {
         daysPerYear = 365;
       }
     } else {
-      daysPerYear = next.isLeapYear() ? 366 : 365;
+      daysPerYear = nextCouponDate.isLeapYear() ? 366 : 365;
     }
-    final long firstJulianDate = previous.toModifiedJulianDays();
+    final long firstJulianDate = previousCouponDate.toModifiedJulianDays();
     final long secondJulianDate = date.toLocalDate().toModifiedJulianDays();
     return coupon * (secondJulianDate - firstJulianDate) / daysPerYear;
   }

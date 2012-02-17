@@ -58,8 +58,8 @@ public class ForwardRateAgreementDefinitionTest {
   private static final double FRA_RATE = 0.05;
   private static final double NOTIONAL = 1000000; //1m
   // Coupon with specific payment and accrual dates.
-  private static final ForwardRateAgreementDefinition FRA_DEFINITION_1 = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT,
-      NOTIONAL, FIXING_DATE, INDEX, FRA_RATE);
+  private static final ForwardRateAgreementDefinition FRA_DEFINITION_1 = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL,
+      FIXING_DATE, INDEX, FRA_RATE);
   private static final ForwardRateAgreementDefinition FRA_DEFINITION_2 = ForwardRateAgreementDefinition.from(FRA_DEFINITION_1, FIXING_DATE, INDEX, FRA_RATE);
   //private static final ForwardRateAgreementDefinition FRA_DEFINITION_3 = ForwardRateAgreementDefinition.from(ACCRUAL_START_DATE, ACCRUAL_END_DATE, NOTIONAL, INDEX, FRA_RATE);
 
@@ -128,10 +128,26 @@ public class ForwardRateAgreementDefinitionTest {
   }
 
   @Test
+  public void fromTrade() {
+    final ZonedDateTime tradeDate = DateUtils.getUTCDate(2011, 1, 3);
+    final Period startPeriod = Period.ofMonths(6);
+    final ForwardRateAgreementDefinition fraFromTrade = ForwardRateAgreementDefinition.fromTrade(tradeDate, startPeriod, NOTIONAL, INDEX, FRA_RATE);
+    final Period endPeriod = Period.ofMonths(9);
+    final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(tradeDate, SETTLEMENT_DAYS, CALENDAR);
+    final ZonedDateTime accrualStartDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, INDEX);
+    final ZonedDateTime accrualEndDate = ScheduleCalculator.getAdjustedDate(spotDate, endPeriod, INDEX);
+    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -SETTLEMENT_DAYS, CALENDAR);
+    final double accrualFactor = DAY_COUNT_INDEX.getDayCountFraction(accrualStartDate, accrualEndDate);
+    final ForwardRateAgreementDefinition fraExpected = new ForwardRateAgreementDefinition(CUR, accrualStartDate, accrualStartDate, accrualEndDate, accrualFactor, NOTIONAL, fixingDate, INDEX,
+        FRA_RATE);
+    assertEquals("FRA builder", fraExpected, fraFromTrade);
+  }
+
+  @Test
   public void equalHash() {
     assertTrue(FRA_DEFINITION_1.equals(FRA_DEFINITION_1));
-    final ForwardRateAgreementDefinition newFRA = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE,
-        INDEX, FRA_RATE);
+    final ForwardRateAgreementDefinition newFRA = new ForwardRateAgreementDefinition(CUR, PAYMENT_DATE, ACCRUAL_START_DATE, ACCRUAL_END_DATE, ACCRUAL_FACTOR_PAYMENT, NOTIONAL, FIXING_DATE, INDEX,
+        FRA_RATE);
     assertEquals(newFRA.equals(FRA_DEFINITION_1), true);
     assertEquals(newFRA.hashCode() == FRA_DEFINITION_1.hashCode(), true);
     ForwardRateAgreementDefinition modifiedFRA;

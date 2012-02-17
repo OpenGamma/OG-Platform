@@ -98,7 +98,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * 
    * @param <T>  the type
    * @param type  the type to get, not null
-   * @param classifier  the classifier that distinguishes the component, empty for default, not null
+   * @param classifier  the classifier that distinguishes the component, not null
    * @return the component instance, not null
    * @throws IllegalArgumentException if no component is available
    */
@@ -110,6 +110,26 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
       throw new IllegalArgumentException("No component available: " + key);
     }
     return type.cast(result);
+  }
+
+  /**
+   * Gets an instance of a component.
+   * <p>
+   * This finds an instance that matches the specified information.
+   * This may be used to find both component and infrastructure instances.
+   * 
+   * @param info  the component info, not null
+   * @return the component instance, not null
+   * @throws IllegalArgumentException if no component is available
+   */
+  public Object getInstance(ComponentInfo info) {
+    ArgumentChecker.notNull(info, "info");
+    ComponentKey key = info.toComponentKey();
+    Object result = _instanceMap.get(key);
+    if (result == null) {
+      throw new IllegalArgumentException("No component available: " + key);
+    }
+    return result;
   }
 
   //-------------------------------------------------------------------------

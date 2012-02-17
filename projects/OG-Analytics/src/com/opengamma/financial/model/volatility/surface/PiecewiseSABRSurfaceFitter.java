@@ -329,6 +329,7 @@ public class PiecewiseSABRSurfaceFitter {
   }
 
   /**
+   * @deprecated
    * For a given expiry and strike, perform an interpolation between either the volatility or integrated variances
    *  of points with the same modified log-moneyness (d = Math.log(forward / k) / Math.sqrt(1 + lambda * t)) on the fitted smiles.
    *  The interpolation is a natural cubic spline using the four nearest points.

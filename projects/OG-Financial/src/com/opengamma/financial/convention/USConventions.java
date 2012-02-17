@@ -18,6 +18,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
+import com.opengamma.financial.sensitivities.FactorExposureData;
+import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 
@@ -325,6 +327,35 @@ public class USConventions {
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USDSWAPP80Y"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "USDSWAPP80Y")),
         "USDSWAPP80Y", thirty360, modified, Period.ofYears(80), 2, false, null);
+    
+    
+    conventionMaster.addConventionBundle(
+        ExternalId.of(FactorExposureData.FACTOR_SCHEME, "IR.SWAP.USD.1M").toBundle(),
+        "IR.SWAP.USD.1M", act360, modified, Period.ofMonths(1), 2, false, null);
+    conventionMaster.addConventionBundle(
+        ExternalId.of(FactorExposureData.FACTOR_SCHEME, "IR.SWAP.USD.6M").toBundle(),
+        "IR.SWAP.USD.6M", act360, modified, Period.ofMonths(6), 2, false, null);
+    conventionMaster.addConventionBundle(
+        ExternalId.of(FactorExposureData.FACTOR_SCHEME, "IR.SWAP.USD.12M").toBundle(),
+        "IR.SWAP.USD.12M", act360, modified, Period.ofMonths(12), 2, false, null);
+    conventionMaster.addConventionBundle(
+        ExternalId.of(FactorExposureData.FACTOR_SCHEME, "IR.SWAP.USD.24M").toBundle(),
+        "IR.SWAP.USD.24M", act360, modified, Period.ofMonths(24), 2, false, null);
+    conventionMaster.addConventionBundle(
+        ExternalId.of(FactorExposureData.FACTOR_SCHEME, "IR.SWAP.USD.36M").toBundle(),
+        "IR.SWAP.USD.36M", act360, modified, Period.ofMonths(36), 2, false, null);
+    conventionMaster.addConventionBundle(
+        ExternalId.of(FactorExposureData.FACTOR_SCHEME, "IR.SWAP.USD.60M").toBundle(),
+        "IR.SWAP.USD.60M", act360, modified, Period.ofMonths(60), 2, false, null);
+    conventionMaster.addConventionBundle(
+        ExternalId.of(FactorExposureData.FACTOR_SCHEME, "IR.SWAP.USD.84M").toBundle(),
+        "IR.SWAP.USD.84M", act360, modified, Period.ofMonths(84), 2, false, null);
+    conventionMaster.addConventionBundle(
+        ExternalId.of(FactorExposureData.FACTOR_SCHEME, "IR.SWAP.USD.120M").toBundle(),
+        "IR.SWAP.USD.120M", act360, modified, Period.ofMonths(120), 2, false, null);
+    conventionMaster.addConventionBundle(
+        ExternalId.of(FactorExposureData.FACTOR_SCHEME, "IR.SWAP.USD.360M").toBundle(),
+        "IR.SWAP.USD.360M", act360, modified, Period.ofMonths(360), 2, false, null);
   }
 
   public static void addCAPMConvention(final ConventionBundleMaster conventionMaster) {

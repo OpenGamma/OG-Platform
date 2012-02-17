@@ -172,7 +172,6 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     Validate.isTrue(!date.isAfter(getFixingPeriodStartDate()), "Date is after last payment date");
-    //    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final String discountingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final double lastTradingTime = TimeCalculator.getTimeBetween(date, getLastTradingDate());
