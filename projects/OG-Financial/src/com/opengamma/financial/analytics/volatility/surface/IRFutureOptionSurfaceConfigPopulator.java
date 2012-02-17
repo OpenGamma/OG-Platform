@@ -40,8 +40,13 @@ public class IRFutureOptionSurfaceConfigPopulator {
     final VolatilitySurfaceDefinition<Integer, Double> usVolSurfaceDefinition = new VolatilitySurfaceDefinition<Integer, Double>("DEFAULT_IR_FUTURE_OPTION",
         Currency.USD, futureOptionNumbers, strikes);
     final FuturePriceCurveDefinition<Integer> usFuturePriceCurveDefinition = new FuturePriceCurveDefinition<Integer>("DEFAULT_IR_FUTURE_PRICE", Currency.USD, futureOptionNumbers);
+    final VolatilitySurfaceDefinition<Integer, Double> euVolSurfaceDefinition = new VolatilitySurfaceDefinition<Integer, Double>("DEFAULT_IR_FUTURE_OPTION",
+        Currency.EUR, futureOptionNumbers, strikes);
+    final FuturePriceCurveDefinition<Integer> euFuturePriceCurveDefinition = new FuturePriceCurveDefinition<Integer>("DEFAULT_IR_FUTURE_PRICE", Currency.EUR, futureOptionNumbers);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usFuturePriceCurveDefinition));
+    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(euVolSurfaceDefinition));
+    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(euFuturePriceCurveDefinition));
   }
 
   private static ConfigDocument<VolatilitySurfaceDefinition<Integer, Double>> makeConfigDocument(final VolatilitySurfaceDefinition<Integer, Double> definition) {
@@ -73,12 +78,19 @@ public class IRFutureOptionSurfaceConfigPopulator {
   }
 
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster) {
-    final SurfaceInstrumentProvider<Number, Double> surfaceInstrumentProvider = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider("ED", "Comdty",
+    final SurfaceInstrumentProvider<Number, Double> usSurfaceInstrumentProvider = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider("ED", "Comdty",
         MarketDataRequirementNames.IMPLIED_VOLATILITY, 97.775);
-    final FuturePriceCurveInstrumentProvider<Number> curveInstrumentProvider = new BloombergIRFuturePriceCurveInstrumentProvider("ED", "Comdty", MarketDataRequirementNames.MARKET_VALUE);
-    final VolatilitySurfaceSpecification usVolSurfaceDefinition = new VolatilitySurfaceSpecification("DEFAULT_IR_FUTURE_OPTION", Currency.USD, surfaceInstrumentProvider);
-    final FuturePriceCurveSpecification usFutureCurveDefinition = new FuturePriceCurveSpecification("DEFAULT_IR_FUTURE_PRICE", Currency.USD, curveInstrumentProvider);
+    final FuturePriceCurveInstrumentProvider<Number> usCurveInstrumentProvider = new BloombergIRFuturePriceCurveInstrumentProvider("ED", "Comdty", MarketDataRequirementNames.MARKET_VALUE);
+    final VolatilitySurfaceSpecification usVolSurfaceDefinition = new VolatilitySurfaceSpecification("DEFAULT_IR_FUTURE_OPTION", Currency.USD, usSurfaceInstrumentProvider);
+    final FuturePriceCurveSpecification usFutureCurveDefinition = new FuturePriceCurveSpecification("DEFAULT_IR_FUTURE_PRICE", Currency.USD, usCurveInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usFutureCurveDefinition));
+    final SurfaceInstrumentProvider<Number, Double> euSurfaceInstrumentProvider = new BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider("ER", "Comdty",
+        MarketDataRequirementNames.IMPLIED_VOLATILITY, 97.775);
+    final FuturePriceCurveInstrumentProvider<Number> euCurveInstrumentProvider = new BloombergIRFuturePriceCurveInstrumentProvider("ER", "Comdty", MarketDataRequirementNames.MARKET_VALUE);
+    final VolatilitySurfaceSpecification euVolSurfaceDefinition = new VolatilitySurfaceSpecification("DEFAULT_IR_FUTURE_OPTION", Currency.EUR, euSurfaceInstrumentProvider);
+    final FuturePriceCurveSpecification euFutureCurveDefinition = new FuturePriceCurveSpecification("DEFAULT_IR_FUTURE_PRICE", Currency.EUR, euCurveInstrumentProvider);
+    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(euVolSurfaceDefinition));
+    ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(euFutureCurveDefinition));
   }
 }

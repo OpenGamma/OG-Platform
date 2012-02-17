@@ -32,10 +32,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.SimpleFutureConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.model.forex.ForexUtils;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.future.FXFutureSecurity;
+import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.simpleinstruments.derivative.SimpleInstrument;
 import com.opengamma.financial.simpleinstruments.pricing.SimpleFXFutureDataBundle;
 import com.opengamma.financial.simpleinstruments.pricing.SimpleFXFuturePresentValueCalculator;
@@ -51,47 +50,47 @@ public class SimpleFXFuturePresentValueFunction extends AbstractFunction.NonComp
   private static final SimpleFXFuturePresentValueCalculator CALCULATOR = new SimpleFXFuturePresentValueCalculator();
   private final String _payCurveName;
   private final String _receiveCurveName;
-  
+
   public SimpleFXFuturePresentValueFunction(final String payCurveName, final String receiveCurveName) {
     Validate.notNull(payCurveName, "pay curve name");
     Validate.notNull(receiveCurveName, "receive curve name");
     _payCurveName = payCurveName;
     _receiveCurveName = receiveCurveName;
   }
-  
+
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final FXFutureSecurity security = (FXFutureSecurity) target.getSecurity();
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final Currency payCurrency = security.getNumerator();    
+    final Currency payCurrency = security.getNumerator();
     final Object payCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(payCurrency, _payCurveName, null, null));
     if (payCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + _payCurveName + " curve");
     }
-    final Currency receiveCurrency = security.getDenominator();    
+    final Currency receiveCurrency = security.getDenominator();
     final Object receiveCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(receiveCurrency, _receiveCurveName, null, null));
     if (receiveCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + _receiveCurveName + " curve");
     }
-    final ExternalId underlyingIdentifier = getSpotIdentifier(security);    
+    final ExternalId underlyingIdentifier = getSpotIdentifier(security);
     final Object spotObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, underlyingIdentifier));
     if (spotObject == null) {
       throw new OpenGammaRuntimeException("Could not get market data for " + underlyingIdentifier);
     }
     double spot = (Double) spotObject;
-    if (!ForexUtils.isBaseCurrency(payCurrency, receiveCurrency) && receiveCurrency.equals(security.getCurrency())) {
+    if (!FXUtils.isInBaseQuoteOrder(payCurrency, receiveCurrency) && receiveCurrency.equals(security.getCurrency())) {
       spot = 1. / spot;
     }
     final YieldAndDiscountCurve payCurve = (YieldAndDiscountCurve) payCurveObject;
     final YieldAndDiscountCurve receiveCurve = (YieldAndDiscountCurve) receiveCurveObject;
     final SimpleFXFutureDataBundle data = new SimpleFXFutureDataBundle(payCurve, receiveCurve, spot);
-    final SimpleInstrument instrument = security.accept(CONVERTER).toDerivative(now);    
-    final CurrencyAmount pv = instrument.accept(CALCULATOR, data); 
+    final SimpleInstrument instrument = security.accept(CONVERTER).toDerivative(now);
+    final CurrencyAmount pv = instrument.accept(CALCULATOR, data);
     final ValueProperties properties = createValueProperties()
-      .with(ValuePropertyNames.PAY_CURVE, _payCurveName)
-      .with(ValuePropertyNames.RECEIVE_CURVE, _receiveCurveName)
-      .with(ValuePropertyNames.CURRENCY, pv.getCurrency().getCode()).get();    
+        .with(ValuePropertyNames.PAY_CURVE, _payCurveName)
+        .with(ValuePropertyNames.RECEIVE_CURVE, _receiveCurveName)
+        .with(ValuePropertyNames.CURRENCY, pv.getCurrency().getCode()).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, pv.getAmount()));
   }
@@ -102,25 +101,25 @@ public class SimpleFXFuturePresentValueFunction extends AbstractFunction.NonComp
   }
 
   @Override
-  public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    final Security security = (Security) target.getSecurity();
+    final Security security = target.getSecurity();
     return security instanceof FXFutureSecurity;
   }
 
   @Override
-  public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
-      .with(ValuePropertyNames.PAY_CURVE, _payCurveName)
-      .with(ValuePropertyNames.RECEIVE_CURVE, _receiveCurveName)
-      .with(ValuePropertyNames.CURRENCY, ((FXFutureSecurity) target.getSecurity()).getDenominator().getCode()).get();
+        .with(ValuePropertyNames.PAY_CURVE, _payCurveName)
+        .with(ValuePropertyNames.RECEIVE_CURVE, _receiveCurveName)
+        .with(ValuePropertyNames.CURRENCY, ((FXFutureSecurity) target.getSecurity()).getDenominator().getCode()).get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), properties));
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final FXFutureSecurity future = (FXFutureSecurity) target.getSecurity();
     final ExternalId underlyingIdentifier = getSpotIdentifier(future);
     final ValueRequirement payYieldCurve = YieldCurveFunction.getCurveRequirement(future.getNumerator(), _payCurveName, null, null);
@@ -133,7 +132,7 @@ public class SimpleFXFuturePresentValueFunction extends AbstractFunction.NonComp
     ExternalId bloombergId;
     final Currency payCurrency = future.getNumerator();
     final Currency receiveCurrency = future.getDenominator();
-    if (ForexUtils.isBaseCurrency(payCurrency, receiveCurrency)) {
+    if (FXUtils.isInBaseQuoteOrder(payCurrency, receiveCurrency)) {
       bloombergId = SecurityUtils.bloombergTickerSecurityId(payCurrency.getCode() + receiveCurrency.getCode() + " Curncy");
     } else {
       bloombergId = SecurityUtils.bloombergTickerSecurityId(receiveCurrency.getCode() + payCurrency.getCode() + " Curncy");

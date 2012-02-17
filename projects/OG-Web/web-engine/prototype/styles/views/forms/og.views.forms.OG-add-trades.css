@@ -13,6 +13,7 @@
 
 .OG-add-trades label span {
     display: block;
+    color: #999;
 }
 
 .OG-add-trades .og-premium + select {
@@ -31,7 +32,24 @@
     width: 16%;
 }
 
+.OG-add-trades em {
+  color: #ccc;
+  clear: left;
+  display: block;
+}
+
+.OG-add-trades .og-general {
+  float: left;
+  width: 310px;
+  border-right: 1px solid #ebebeb;
+}
+
 /* User attributes */
+    .OG-add-trades .og-attributes {
+      float:right;
+      width: 310px;
+    }
+
     .OG-add-trades .og-attributes input {
         width: 40%;
     }
@@ -41,12 +59,8 @@
     }
 
     .OG-add-trades .og-awesome-list {
-        border: 1px solid;
-        border-left-color: #e3e9ef;
-        border-bottom-color: #e3e9ef;
-        border-right-color: #abadb3;
-        border-top-color: #abadb3;
-        overflow: auto;
-        height: 100px;
+        border: 1px solid #E3E3E3;
+        overflow-y: scroll;
+        height: 71px;
         margin-top: 4px;
     }

@@ -118,6 +118,7 @@ public class PiecewiseSABRSurfaceFitter1Test {
   }
 
   //  //Fit the market data at each time slice and print the smiles and a functions of both strike and delta
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Test
   (enabled = false)
   public void fitMarketData() {

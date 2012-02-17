@@ -90,8 +90,8 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
   public InterestRateInstrumentYieldCurveNodeSensitivitiesFunction(final String curveCalculationType) {
     Validate.notNull(curveCalculationType, "curve calculation type");
     Validate.isTrue(curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING) ||
-                    curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING),
-                    "Did not recognise curve calculation type " + curveCalculationType);
+        curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING),
+        "Did not recognise curve calculation type " + curveCalculationType);
     _curveCalculationType = curveCalculationType;
   }
 
@@ -102,7 +102,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext
         .getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, conventionSource);
+    final CashSecurityConverter cashConverter = new CashSecurityConverter();
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
         regionSource);
@@ -112,9 +112,9 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
     _visitor =
         FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-            .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
-            .futureSecurityVisitor(futureConverter)
-            .bondSecurityVisitor(bondConverter).create();
+        .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
+        .futureSecurityVisitor(futureConverter)
+        .bondSecurityVisitor(bondConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
 
@@ -190,7 +190,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     String forwardCurveName = null;
     String fundingCurveName = null;
-    for (Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
+    for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
       if (ValueRequirementNames.YIELD_CURVE_JACOBIAN.equals(input.getKey().getValueName())) {
         assert forwardCurveName == null;
         assert fundingCurveName == null;

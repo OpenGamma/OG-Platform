@@ -18,12 +18,12 @@ public abstract class BlackVolatilitySurface<T extends StrikeType> extends Volat
   /**
    * @param surface  The time to maturity should be the first coordinate and the abstraction of strike the second
    */
-  public BlackVolatilitySurface(Surface<Double, Double, Double> surface) {
+  public BlackVolatilitySurface(final Surface<Double, Double, Double> surface) {
     super(surface);
   }
 
   public double getVolatility(final double t, final T s) {
-    DoublesPair temp = new DoublesPair(t, s.value());
+    final DoublesPair temp = new DoublesPair(t, s.value());
     return getVolatility(temp);
   }
 
@@ -36,8 +36,8 @@ public abstract class BlackVolatilitySurface<T extends StrikeType> extends Volat
 
   public abstract BlackVolatilitySurface<T> withSurface(Surface<Double, Double, Double> surface);
 
-  public abstract <S, U> U accept(final BlackVolatilitySurfaceVistor<S, U> vistor, final S data);
+  public abstract <S, U> U accept(final BlackVolatilitySurfaceVisitor<S, U> visitor, final S data);
 
-  public abstract <U> U accept(final BlackVolatilitySurfaceVistor<?, U> vistor);
+  public abstract <U> U accept(final BlackVolatilitySurfaceVisitor<?, U> visitor);
 
 }

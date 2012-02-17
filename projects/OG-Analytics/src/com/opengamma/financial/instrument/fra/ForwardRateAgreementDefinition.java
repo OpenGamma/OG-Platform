@@ -6,6 +6,7 @@
 package com.opengamma.financial.instrument.fra;
 
 import javax.time.calendar.LocalDateTime;
+import javax.time.calendar.Period;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
@@ -96,6 +97,28 @@ public class ForwardRateAgreementDefinition extends CouponFloatingDefinition {
 
   /**
    * Builder of FRA from a coupon, the fixing date and the index. The fixing period dates are deduced from the index and the fixing date.
+   * @param tradeDate The FRA trade date.
+   * @param startPeriod The period from trade to start date. 
+   * @param notional The notional
+   * @param index The FRA Ibor index.
+   * @param rate The FRA rate.
+   * @return The FRA.
+   */
+  public static ForwardRateAgreementDefinition fromTrade(final ZonedDateTime tradeDate, final Period startPeriod, final double notional, final IborIndex index, final double rate) {
+    Validate.notNull(tradeDate, "trade date");
+    Validate.notNull(startPeriod, "start period");
+    Validate.notNull(index, "index");
+    final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(tradeDate, index.getSpotLag(), index.getCalendar());
+    final ZonedDateTime accrualStartDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, index);
+    final Period endPeriod = startPeriod.plus(index.getTenor());
+    final ZonedDateTime accrualEndDate = ScheduleCalculator.getAdjustedDate(spotDate, endPeriod, index);
+    final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(accrualStartDate, -index.getSpotLag(), index.getCalendar());
+    final double accrualFactor = index.getDayCount().getDayCountFraction(accrualStartDate, accrualEndDate);
+    return new ForwardRateAgreementDefinition(index.getCurrency(), accrualStartDate, accrualStartDate, accrualEndDate, accrualFactor, notional, fixingDate, index, rate);
+  }
+
+  /**
+   * Builder of FRA from the accrual start date, the accrual end date and the index.
    * @param accrualStartDate (Unadjusted) start date of the accrual period 
    * @param accrualEndDate (Unadjusted) end date of the accrual period 
    * @param notional The notional

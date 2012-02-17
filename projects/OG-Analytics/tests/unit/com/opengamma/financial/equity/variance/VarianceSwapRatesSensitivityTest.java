@@ -60,11 +60,11 @@ public class VarianceSwapRatesSensitivityTest {
   @Test
   public void testForwardSensitivity() {
 
-    double relShift = 0.01;
+    final double relShift = 0.01;
 
-    double deltaSkew = deltaCalculator.calcForwardSensitivity(swap5y, MARKET, relShift);
-    double deltaFlatLong = deltaCalculator.calcForwardSensitivity(swap10y, MARKET, relShift);
-    double deltaFlatShort = deltaCalculator.calcForwardSensitivity(swap1y, MARKET, relShift);
+    final double deltaSkew = deltaCalculator.calcForwardSensitivity(swap5y, MARKET, relShift);
+    final double deltaFlatLong = deltaCalculator.calcForwardSensitivity(swap10y, MARKET, relShift);
+    final double deltaFlatShort = deltaCalculator.calcForwardSensitivity(swap1y, MARKET, relShift);
 
     assertTrue(Math.abs(deltaSkew) > Math.abs(deltaFlatShort));
     assertTrue(Math.abs(deltaSkew) > Math.abs(deltaFlatLong));
@@ -82,11 +82,11 @@ public class VarianceSwapRatesSensitivityTest {
     final BlackVolatilitySurfaceDelta DELTA_VOL_SURFACE = new BlackVolatilitySurfaceDelta(DELTA_SURFACE, FORWARD_CURVE);
     final VarianceSwapDataBundle DELTA_MARKET = new VarianceSwapDataBundle(DELTA_VOL_SURFACE, FUNDING, FORWARD_CURVE);
 
-    double relShift = 0.1;
+    final double relShift = 0.1;
 
-    double deltaSkew = deltaCalculator.calcForwardSensitivity(swap5y, DELTA_MARKET, relShift);
-    double deltaFlatLong = deltaCalculator.calcForwardSensitivity(swap10y, DELTA_MARKET, relShift);
-    double deltaFlatShort = deltaCalculator.calcForwardSensitivity(swap1y, DELTA_MARKET, relShift);
+    final double deltaSkew = deltaCalculator.calcForwardSensitivity(swap5y, DELTA_MARKET, relShift);
+    final double deltaFlatLong = deltaCalculator.calcForwardSensitivity(swap10y, DELTA_MARKET, relShift);
+    final double deltaFlatShort = deltaCalculator.calcForwardSensitivity(swap1y, DELTA_MARKET, relShift);
 
     assertEquals(0.0, deltaSkew, TOLERATED);
     assertEquals(0.0, deltaFlatLong, TOLERATED);
@@ -96,13 +96,13 @@ public class VarianceSwapRatesSensitivityTest {
   @Test
   public void testTotalRateSensitivity() {
 
-    double relShift = 0.01;
+    final double relShift = 0.01;
 
-    double delta = deltaCalculator.calcForwardSensitivity(swap5y, MARKET, relShift);
-    double pv = pricer_without_cutoff.presentValue(swap5y, MARKET);
-    double settlement = swap5y.getTimeToSettlement();
+    final double delta = deltaCalculator.calcForwardSensitivity(swap5y, MARKET, relShift);
+    final double pv = pricer_without_cutoff.presentValue(swap5y, MARKET);
+    final double settlement = swap5y.getTimeToSettlement();
 
-    double totalRateSens = deltaCalculator.calcDiscountRateSensitivity(swap5y, MARKET, relShift);
+    final double totalRateSens = deltaCalculator.calcDiscountRateSensitivity(swap5y, MARKET, relShift);
     final double fwd = FORWARD_CURVE.getForward(settlement);
 
     assertEquals(totalRateSens, settlement * (delta * fwd - pv), TOLERATED);
@@ -112,9 +112,9 @@ public class VarianceSwapRatesSensitivityTest {
   @Test
   public void testDiscountRateSensitivityWithNoSkew() {
 
-    double rateSens = deltaCalculator.calcDiscountRateSensitivity(swap10y, MARKET);
-    double pv = pricer_without_cutoff.presentValue(swap10y, MARKET);
-    double settlement = swap10y.getTimeToSettlement();
+    final double rateSens = deltaCalculator.calcDiscountRateSensitivity(swap10y, MARKET);
+    final double pv = pricer_without_cutoff.presentValue(swap10y, MARKET);
+    final double settlement = swap10y.getTimeToSettlement();
 
     assertEquals(-settlement * pv, rateSens, TOLERATED);
   }
@@ -122,8 +122,8 @@ public class VarianceSwapRatesSensitivityTest {
   @Test
   public void testPV01() {
 
-    double rateSens = deltaCalculator.calcDiscountRateSensitivity(swapStartsNow, MARKET);
-    double pv01 = deltaCalculator.calcPV01(swapStartsNow, MARKET);
+    final double rateSens = deltaCalculator.calcDiscountRateSensitivity(swapStartsNow, MARKET);
+    final double pv01 = deltaCalculator.calcPV01(swapStartsNow, MARKET);
 
     assertEquals(pv01 * 10000, rateSens, TOLERATED);
   }
@@ -131,10 +131,10 @@ public class VarianceSwapRatesSensitivityTest {
   @Test
   public void testBucketedDeltaVsPV01() {
 
-    double rateSens = deltaCalculator.calcDiscountRateSensitivity(swapStartsNow, MARKET);
-    DoubleMatrix1D deltaBuckets = deltaCalculator.calcDeltaBucketed(swapStartsNow, MARKET);
-    int nDeltas = deltaBuckets.getNumberOfElements();
-    int nYieldNodes = MARKET.getDiscountCurve().getCurve().size();
+    final double rateSens = deltaCalculator.calcDiscountRateSensitivity(swapStartsNow, MARKET);
+    final DoubleMatrix1D deltaBuckets = deltaCalculator.calcDeltaBucketed(swapStartsNow, MARKET);
+    final int nDeltas = deltaBuckets.getNumberOfElements();
+    final int nYieldNodes = MARKET.getDiscountCurve().getCurve().size();
     assertEquals(nDeltas, nYieldNodes, TOLERATED);
 
     double bucketSum = 0.0;
@@ -162,9 +162,9 @@ public class VarianceSwapRatesSensitivityTest {
   public void testBlackVegaForEntireSurface() {
 
     // Compute the surface
-    NodalDoublesSurface vegaSurface = deltaCalculator.calcBlackVegaForEntireSurface(swapStartsNow, MARKET);
+    final NodalDoublesSurface vegaSurface = deltaCalculator.calcBlackVegaForEntireSurface(swapStartsNow, MARKET);
     // Sum up each constituent
-    double[] vegaBuckets = vegaSurface.getZDataAsPrimitive();
+    final double[] vegaBuckets = vegaSurface.getZDataAsPrimitive();
     double sumVegaBuckets = 0.0;
     for (int i = 0; i < vegaSurface.size(); i++) {
       sumVegaBuckets += vegaBuckets[i];
@@ -189,9 +189,9 @@ public class VarianceSwapRatesSensitivityTest {
     final VarianceSwapDataBundle DELTA_MARKET = new VarianceSwapDataBundle(DELTA_VOL_SURFACE, FUNDING, FORWARD_CURVE);
 
     // Compute the surface
-    NodalDoublesSurface vegaSurface = deltaCalculator.calcBlackVegaForEntireSurface(swapStartsNow, DELTA_MARKET);
+    final NodalDoublesSurface vegaSurface = deltaCalculator.calcBlackVegaForEntireSurface(swapStartsNow, DELTA_MARKET);
     // Sum up each constituent
-    double[] vegaBuckets = vegaSurface.getZDataAsPrimitive();
+    final double[] vegaBuckets = vegaSurface.getZDataAsPrimitive();
     double sumVegaBuckets = 0.0;
     for (int i = 0; i < vegaSurface.size(); i++) {
       sumVegaBuckets += vegaBuckets[i];
@@ -246,7 +246,6 @@ public class VarianceSwapRatesSensitivityTest {
   private static double[] rates = {0.02, 0.03, 0.05, 0.05, 0.04 };
   private static final YieldCurve FUNDING = new YieldCurve(new InterpolatedDoublesCurve(maturities, rates, INTERPOLATOR_1D_DBLQUAD, true));
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
   private static final VarianceSwapDataBundle MARKET = new VarianceSwapDataBundle(VOL_SURFACE, FUNDING, FORWARD_CURVE);
 
   // The derivative

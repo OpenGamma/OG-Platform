@@ -278,6 +278,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefi
   }
 
   //TODO this is horrible - we need to add fields to the security
+  // use the tenor from the convention
   private Period getUnderlyingTenor(final ExternalId id) {
     if (id.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER)) {
       final String bbgCode = id.getValue();
