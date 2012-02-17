@@ -82,7 +82,7 @@ public class UserEntitlementChecker extends AbstractEntitlementChecker {
         boolean hasPermission = user.hasPermission(permission);
         returnValue.put(requestedSpec, hasPermission);                
       } else {
-        s_logger.debug("Could not resolve live data spec {} - no permissions are granted", userPrincipal.getUserName(), requestedSpec);
+        s_logger.debug("Could not resolve live data spec {} - no permissions are granted to {}", requestedSpec, userPrincipal.getUserName());
         returnValue.put(requestedSpec, false);
       }
     }

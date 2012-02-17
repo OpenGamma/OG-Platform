@@ -266,7 +266,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     }
   }
   
-  private void verifyConnectionOk() {
+  protected void verifyConnectionOk() {
     if (getConnectionStatus() == ConnectionStatus.NOT_CONNECTED) {
       throw new IllegalStateException("Connection to market data API down");
     }
