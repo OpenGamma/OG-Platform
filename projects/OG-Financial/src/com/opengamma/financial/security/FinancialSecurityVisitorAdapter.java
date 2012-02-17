@@ -228,7 +228,7 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
 
   }
 
-  public FinancialSecurityVisitorAdapter(final BondSecurityVisitor<T> bondSecurityVisitor,
+  public FinancialSecurityVisitorAdapter(final BondSecurityVisitor<T> bondSecurityVisitor, //CSIGNORE
                                          final CashSecurityVisitor<T> cashSecurityVisitor,
                                          final EquitySecurityVisitor<T> equitySecurityVisitor,
                                          final FRASecurityVisitor<T> fraSecurityVisitor,
@@ -249,7 +249,7 @@ public class FinancialSecurityVisitorAdapter<T> implements FinancialSecurityVisi
                                          final NonDeliverableFXForwardSecurityVisitor<T> nonDeliverableFxForwardSecurityVisitor,
                                          final CapFloorSecurityVisitor<T> capFloorSecurityVisitor,
                                          final CapFloorCMSSpreadSecurityVisitor<T> capFloorCMSSpreadSecurityVisitor,
-                                         final EquityVarianceSwapSecurityVisitor<T> equityVarianceSwapSecurityVisitor) {
+                                         final EquityVarianceSwapSecurityVisitor<T> equityVarianceSwapSecurityVisitor) { 
     _bondSecurityVisitor = bondSecurityVisitor;
     _cashSecurityVisitor = cashSecurityVisitor;
     _equitySecurityVisitor = equitySecurityVisitor;
