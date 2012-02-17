@@ -1,41 +1,55 @@
 <section>
   <div class="OG-add-trades OG-js-add-trades">
-    <div>
-      <label>
-        <span>Quantity</span>
-        <input type="text" name="quantity" />
-      </label>
-    </div><div>
-      <label>
-        <span>Counterparty</span>
-        <input type="text" name="counterParty" />
-      </label>
-    </div><div>
-      <label>
-        <span>Trade Date / Time</span>
-        <input class="OG-js-datetimepicker og-datetimepicker" type="text" name="trade_date_time" />
-      </label>
-      <button class="og-inline-form">now</button>
-    </div><div>
-      <label class="og-premium">
-        <span>Premium</span>
-        <input type="text" name="premium" />
-      </label>
-      {{html item_0}}
-    </div><div>
-      <label>
-        <span>Premium Date / Time</span>
-        <input class="OG-js-datetimepicker og-datetimepicker" type="text" name="premium_date_time" />
-      </label>
-      <button class="og-inline-form">now</button>
-    </div><div class="og-attributes">
-      <label>
-        <span>User attributes</span>
-        <input type="text" name="attr_key" /> =
-      </label>
-      <input type="text" name="attr_val" />
-      <a href="#" class="OG-link-add og-js-add-attribute">add</a>
-      <ul class="og-awesome-list"></ul>
-    </div>
+    <section class="og-general">
+      <div>
+        <label>
+          <span>Quantity *</span>
+          <input type="text" name="quantity" />
+        </label>
+      </div><div>
+        <label>
+          <span>Counterparty *</span>
+          <input type="text" name="counterParty" />
+        </label>
+      </div><div>
+        <label>
+          <span>Trade Date / Time *</span>
+          <input class="OG-js-datetimepicker og-datetimepicker" type="text" name="trade_date_time" />
+        </label>
+        <button class="og-inline-form">now</button>
+      </div><div>
+        <label class="og-premium">
+          <span>Premium</span>
+          <input type="text" name="premium" />
+        </label>
+        {{html item_0}}
+      </div><div>
+        <label>
+          <span>Premium Date / Time</span>
+          <input class="OG-js-datetimepicker og-datetimepicker" type="text" name="premium_date_time" />
+        </label>
+        <button class="og-inline-form">now</button>
+      </div>
+    </section>
+    <section class="og-attributes">
+      <div class="og-js-deal-attributes">
+        <label>
+          <span>Deal  attributes</span>
+          <input type="text" name="attr_key" /> =
+        </label>
+        <input type="text" name="attr_val" />
+        <a href="#" class="OG-link-add og-js-add-attribute">add</a>
+        <ul class="og-awesome-list"></ul>
+      </div><div class="og-js-user-attributes">
+        <label>
+          <span>User attributes</span>
+          <input type="text" name="attr_key" /> =
+        </label>
+        <input type="text" name="attr_val" />
+        <a href="#" class="OG-link-add og-js-add-attribute">add</a>
+        <ul class="og-awesome-list"></ul>
+      </div>
+    </section>
+    <em>* required fields</em>
   </div>
 </section>

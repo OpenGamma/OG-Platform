@@ -44,6 +44,16 @@ public class SmileDeltaParameterTest {
 
   @Test
   /**
+   * Tests the constructor directly from volatilities (not RR and S).
+   */
+  public void constructorVolatility() {
+    double[] volatility = SMILE.getVolatility();
+    SmileDeltaParameter smileFromVolatility = new SmileDeltaParameter(TIME_TO_EXPIRY, DELTA, volatility);
+    assertEquals("Smile by delta: constructor", SMILE, smileFromVolatility);
+  }
+
+  @Test
+  /**
    * Tests the getters.
    */
   public void getter() {

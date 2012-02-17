@@ -36,6 +36,8 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="OG-Util" exported="" />
+    <orderEntry type="module" module-name="Fudge-Java" />
+    <orderEntry type="module" module-name="Fudge-Proto" />
     <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-Security-default">
         <CLASSES>

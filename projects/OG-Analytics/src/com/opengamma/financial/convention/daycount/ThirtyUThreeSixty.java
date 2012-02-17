@@ -6,6 +6,7 @@
 package com.opengamma.financial.convention.daycount;
 
 import javax.time.calendar.CalendricalMatchers;
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 /**
@@ -17,11 +18,15 @@ public class ThirtyUThreeSixty extends ThirtyThreeSixtyTypeDayCount {
   private static final long serialVersionUID = 1L;
 
   @Override
-  public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate) {
+  public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate) {
     return getDayCountFraction(firstDate, secondDate, false);
   }
 
   public double getDayCountFraction(final ZonedDateTime firstDate, final ZonedDateTime secondDate, final boolean isEOMConvention) {
+    return getDayCountFraction(firstDate.toLocalDate(), secondDate.toLocalDate(), isEOMConvention);
+  }
+
+  public double getDayCountFraction(final LocalDate firstDate, final LocalDate secondDate, final boolean isEOMConvention) {
     testDates(firstDate, secondDate);
     double d1 = firstDate.getDayOfMonth();
     double d2 = secondDate.getDayOfMonth();
@@ -47,6 +52,10 @@ public class ThirtyUThreeSixty extends ThirtyThreeSixtyTypeDayCount {
     return coupon * getDayCountFraction(previousCouponDate, date, isEOMConvention);
   }
 
+  public double getAccruedInterest(final LocalDate previousCouponDate, final LocalDate date, final double coupon, final boolean isEOMConvention) {
+    return coupon * getDayCountFraction(previousCouponDate, date, isEOMConvention);
+  }
+
   @Override
   public String getConventionName() {
     return "30U/360";
@@ -58,7 +67,7 @@ public class ThirtyUThreeSixty extends ThirtyThreeSixtyTypeDayCount {
    * @param date  the date to check, not null
    * @return whether it is the last day
    */
-  private static boolean isLastDayOfFebruary(final ZonedDateTime date) {
+  private static boolean isLastDayOfFebruary(final LocalDate date) {
     return date.matches(CalendricalMatchers.lastDayOfMonth());
   }
 

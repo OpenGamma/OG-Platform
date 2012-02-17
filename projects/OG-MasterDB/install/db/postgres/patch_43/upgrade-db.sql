@@ -90,6 +90,7 @@ BEGIN;
   ALTER TABLE sec_cash ADD CONSTRAINT sec_fk_cash2daycount FOREIGN KEY (daycount_id) REFERENCES sec_daycount (id);
   ALTER TABLE sec_cash ALTER COLUMN start_date DROP DEFAULT;
   ALTER TABLE sec_cash ALTER COLUMN start_zone DROP DEFAULT;
+  ALTER TABLE sec_cash ALTER COLUMN daycount_id DROP DEFAULT;
 COMMIT;
 --------------------------------------------------------------------------------------
 -- FX DIGITALS

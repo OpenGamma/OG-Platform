@@ -414,6 +414,15 @@
         "currency":"${securityEntryData.currency}",
         "maturityDate":"${securityEntryData.maturityDate}",
         "factorSetId":"${securityEntryData.factorSetId}",
+        <#if securityAttributes??>
+          "attributes":{
+            <#list securityAttributes?keys as key>
+              <#assign value = securityAttributes[key]>
+                "${key}" : "${value}"
+              <#if key_has_next>,</#if>
+            </#list>
+          },
+        </#if>
         <#if factorExposuresList??>
           "factors":[
             <#list factorExposuresList as factorExposure>

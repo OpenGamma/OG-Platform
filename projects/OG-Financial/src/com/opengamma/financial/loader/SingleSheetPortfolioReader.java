@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  */
 public abstract class SingleSheetPortfolioReader implements PortfolioReader {
  
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioImportCmdLineTool.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderTool.class);
 
   private SheetReader _sheet;         // The spreadsheet from which to import
      

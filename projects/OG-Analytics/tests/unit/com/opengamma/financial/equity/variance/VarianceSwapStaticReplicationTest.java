@@ -80,7 +80,7 @@ public class VarianceSwapStaticReplicationTest {
 
   private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0, 1.0, 5.0, 5.0, 5.0, 5.0, 5.0, 10.0, 10.0, 10.0, 10.0, 10.0 };
 
-  private static final double[] PUTDELTAS = new double[] {0.1, 0.25, 0.5, 0.75, 0.9, 0.1, 0.25, 0.5, 0.75, 0.9, 0.1, 0.25, 0.5, 0.75, 0.9, 0.1, 0.25, 0.5, 0.75, 0.9 };
+  //private static final double[] PUTDELTAS = new double[] {0.1, 0.25, 0.5, 0.75, 0.9, 0.1, 0.25, 0.5, 0.75, 0.9, 0.1, 0.25, 0.5, 0.75, 0.9, 0.1, 0.25, 0.5, 0.75, 0.9 };
 
   private static final double[] CALLDELTAS = new double[] {0.9, 0.75, 0.5, 0.25, 0.1, 0.9, 0.75, 0.5, 0.25, 0.1, 0.9, 0.75, 0.5, 0.25, 0.1, 0.9, 0.75, 0.5, 0.25, 0.1 };
 
@@ -182,18 +182,18 @@ public class VarianceSwapStaticReplicationTest {
   @Test
   public void testVolSurface() {
 
-    Function<Double, Double> surf = new Function<Double, Double>() {
+    final Function<Double, Double> surf = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... x) {
-        double delta = x[1];
+      public Double evaluate(final Double... x) {
+        final double delta = x[1];
         return 0.2 + 0.3 * (delta - 0.4) * (delta - 0.4);
       }
     };
 
-    BlackVolatilitySurfaceDelta surfaceDelta = new BlackVolatilitySurfaceDelta(FunctionalDoublesSurface.from(surf), FORWARD_CURVE);
-    BlackVolatilitySurfaceLogMoneyness surfaceLogMoneyness = BlackVolatilitySurfaceConverter.toLogMoneynessSurface(surfaceDelta);
-    BlackVolatilitySurfaceMoneyness surfaceMoneyness = BlackVolatilitySurfaceConverter.toMoneynessSurface(surfaceLogMoneyness);
-    BlackVolatilitySurfaceStrike surfaceStrike = BlackVolatilitySurfaceConverter.toStrikeSurface(surfaceLogMoneyness);
+    final BlackVolatilitySurfaceDelta surfaceDelta = new BlackVolatilitySurfaceDelta(FunctionalDoublesSurface.from(surf), FORWARD_CURVE);
+    final BlackVolatilitySurfaceLogMoneyness surfaceLogMoneyness = BlackVolatilitySurfaceConverter.toLogMoneynessSurface(surfaceDelta);
+    final BlackVolatilitySurfaceMoneyness surfaceMoneyness = BlackVolatilitySurfaceConverter.toMoneynessSurface(surfaceLogMoneyness);
+    final BlackVolatilitySurfaceStrike surfaceStrike = BlackVolatilitySurfaceConverter.toStrikeSurface(surfaceLogMoneyness);
 
     final VarianceSwapDataBundle marketStrike = new VarianceSwapDataBundle(surfaceStrike, DISCOUNT, FORWARD_CURVE);
     final VarianceSwapDataBundle marketLogMoneyness = new VarianceSwapDataBundle(surfaceLogMoneyness, DISCOUNT, FORWARD_CURVE);
@@ -219,9 +219,9 @@ public class VarianceSwapStaticReplicationTest {
     final double sigma2 = 1.0;
     final double w = 0.9;
 
-    Function<Double, Double> surf = new Function<Double, Double>() {
+    final Function<Double, Double> surf = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... x) {
+      public Double evaluate(final Double... x) {
         final double t = x[0];
         final double k = x[1];
         final double fwd = FORWARD_CURVE.getForward(t);
@@ -231,12 +231,12 @@ public class VarianceSwapStaticReplicationTest {
       }
     };
 
-    BlackVolatilitySurface<Strike> surfaceStrike = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surf));
+    final BlackVolatilitySurface<Strike> surfaceStrike = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surf));
     final VarianceSwapDataBundle marketStrike = new VarianceSwapDataBundle(surfaceStrike, DISCOUNT, FORWARD_CURVE);
 
     final double compVar = PRICER.impliedVariance(swap1, marketStrike);
     final double compVarLimits = PRICER.impliedVariance(swap1, marketStrike, STRIKE_CUTOFF);
-    double expected = w * sigma1 * sigma1 + (1 - w) * sigma2 * sigma2;
+    final double expected = w * sigma1 * sigma1 + (1 - w) * sigma2 * sigma2;
     assertEquals(expected, compVar, TEST_TOL);
     assertEquals(expected, compVarLimits, 2e-3); //TODO The shifted log normal does not perform that well here
 
@@ -267,9 +267,9 @@ public class VarianceSwapStaticReplicationTest {
     f[n - 1] = (fwd - sum) / w[n - 1];
     Validate.isTrue(f[n - 1] > 0);
 
-    Function<Double, Double> surf = new Function<Double, Double>() {
+    final Function<Double, Double> surf = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... x) {
+      public Double evaluate(final Double... x) {
         final double expiry = x[0];
         final double k = x[1];
         final boolean isCall = k > fwd;
@@ -281,7 +281,7 @@ public class VarianceSwapStaticReplicationTest {
       }
     };
 
-    BlackVolatilitySurface<Strike> surfaceStrike = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surf));
+    final BlackVolatilitySurface<Strike> surfaceStrike = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surf));
 
     //PDEUtilityTools.printSurface(null, surfaceStrike.getSurface(), 0.1, 4, 5, 300);
 

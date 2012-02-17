@@ -10,6 +10,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
@@ -22,11 +23,12 @@ import com.opengamma.master.portfolio.ManageablePortfolioNode;
 
 /**
  * Portfolio reader that reads multiple CSV files within a ZIP archive, identifies the correct parser class for each,
- * using the file name, and persists all loaded trades/entries using the specified portfolio writer.
+ * using the file name, and persists all loaded trades/entries using the specified portfolio writer. Folder structure
+ * in the ZIP archive is replicated in the portfolio node structure.
  */
 public class ZippedPortfolioReader implements PortfolioReader {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioImportCmdLineTool.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderTool.class);
 
   private static final String SHEET_EXTENSION = ".csv";
   private static final String CONFIG_FILE = "METADATA.INI";
@@ -76,7 +78,7 @@ public class ZippedPortfolioReader implements PortfolioReader {
   @Override
   public void writeTo(PortfolioWriter portfolioWriter) {
 
-    ManageablePortfolioNode node = portfolioWriter.getCurrentNode();
+    ManageablePortfolioNode rootNode = portfolioWriter.getCurrentNode();
     
     // Iterate through the CSV file entries in the ZIP archive
     Enumeration<?> e = _zipFile.entries();
@@ -84,37 +86,58 @@ public class ZippedPortfolioReader implements PortfolioReader {
       ZipEntry entry = (ZipEntry) e.nextElement();
       if (!entry.isDirectory() && entry.getName().substring(entry.getName().lastIndexOf('.')).equalsIgnoreCase(SHEET_EXTENSION)) {
         try {
-          // Get security name
-          String name = entry.getName().substring(0, entry.getName().lastIndexOf('.'));
-          
+          // Extract full path
+          String[] path = entry.getName().split("/");
+
+          // Extract security name
+          String secType = path[path.length - 1].substring(0, path[path.length - 1].lastIndexOf('.'));
+
           // Set up a sheet reader for the current CSV file in the ZIP archive
           SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
-          
-          // Create a generic simple portfolio loader for the current sheet, using a dynamically loaded row parser class
-          SingleSheetPortfolioReader portfolioLoader = new SimplePortfolioReader(sheet, sheet.getColumns(), name, _loaderContext);
 
-          s_logger.info("Processing " + entry.getName() + " as " + name);
+          // Create a generic simple portfolio loader for the current sheet, using a dynamically loaded row parser class
+          SingleSheetPortfolioReader portfolioReader = new SimplePortfolioReader(sheet, sheet.getColumns(), secType, _loaderContext);
+
+          s_logger.info("Processing " + entry.getName() + " as " + secType);
+
+          // Replicate the zip entry's path in the portfolio node tree:
+          // Start at root and traverse existing portfolio nodes that match,
+          // Create the rest of the path with new portfolio nodes
+          ManageablePortfolioNode currentNode = rootNode;
+          for (String p : Arrays.copyOf(path, path.length - 1)) {
+            ManageablePortfolioNode childNode = null;
+            for (ManageablePortfolioNode n : currentNode.getChildNodes()) {
+              if (n.getName().equals(p)) {
+                childNode = n;
+                break;
+              }
+            }
+            if (childNode == null) {
+              childNode = new ManageablePortfolioNode();
+              childNode.setName(p);
+              currentNode.addChildNode(childNode);
+            }
+            currentNode = childNode;
+          }
           
-          // Add a portfolio node named after the current asset class and change to it
-          ManageablePortfolioNode subNode = new ManageablePortfolioNode();
-          subNode.setName(entry.getName().substring(0, entry.getName().lastIndexOf('.')));
-          node.addChildNode(subNode);
-          portfolioWriter.setCurrentNode(subNode);
+          portfolioWriter.setCurrentNode(currentNode);
           
           // Persist the current sheet's trades/positions using the specified portfolio writer
-          portfolioLoader.writeTo(portfolioWriter);
+          portfolioReader.writeTo(portfolioWriter);
           
           // Change back to the root portfolio node
-          portfolioWriter.setCurrentNode(node);
+          portfolioWriter.setCurrentNode(rootNode);
           
           // Flush changes to portfolio master
           portfolioWriter.flush();
 
         } catch (Throwable ex) {
           //throw new OpenGammaRuntimeException("Could not identify an appropriate loader for ZIP entry " + entry.getName());
-          s_logger.warn("Could not identify an appropriate loader for " + entry.getName() + ", skipping file.");
+          s_logger.warn("Could not identify an appropriate loader for " + entry.getName() + ", skipping file (exception is " + ex + ")");
         }
       }
     }
   }
+  
+ 
 }

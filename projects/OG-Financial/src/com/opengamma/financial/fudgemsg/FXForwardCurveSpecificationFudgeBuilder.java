@@ -49,7 +49,8 @@ public class FXForwardCurveSpecificationFudgeBuilder implements FudgeBuilder<FXF
     //    final String postfix = message.getString("postfix");
     //final FXForwardCurveInstrumentProvider provider = deserializer.fieldValueToObject(FXForwardCurveInstrumentProvider.class, message.getByName("curveInstrumentProvider"));
     //return new FXForwardCurveSpecification(name, target, new BloombergFXForwardCurveInstrumentProvider(prefix, postfix, dataFieldName));
-    return new FXForwardCurveSpecification("DEFAULT_FX_FORWARD", UnorderedCurrencyPair.of(Currency.USD, Currency.EUR), new BloombergFXForwardCurveInstrumentProvider("EUR", "Curncy", MarketDataRequirementNames.MARKET_VALUE));
+    return new FXForwardCurveSpecification("DEFAULT_FX_FORWARD", UnorderedCurrencyPair.of(Currency.USD, Currency.EUR), 
+        new BloombergFXForwardCurveInstrumentProvider("EUR", "Curncy", MarketDataRequirementNames.MARKET_VALUE));
   }
 
 }

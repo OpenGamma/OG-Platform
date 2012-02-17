@@ -56,6 +56,7 @@ public final class ValueRequirementNames {
   public static final String FAIR_VALUE = "FairValue";
   public static final String POSITION_FAIR_VALUE = "PositionFairValue";
   public static final String VALUE_FAIR_VALUE = "ValueFairValue";
+  public static final String MARK = "Mark";
   
   // Greeks Names:
   public static final String DELTA = "Delta";
@@ -288,6 +289,7 @@ public final class ValueRequirementNames {
   public static final String BOND_COUPON_PAYMENT_TIMES = "Bond Coupon Payment Times";
   
   public static final String YIELD_CURVE_NODE_SENSITIVITIES = "Yield Curve Node Sensitivities";
+  public static final String EXTERNAL_SENSITIVITIES = "External Sensitivities";
 
   //SABR fitted surface parameters
   public static final String SABR_SURFACES = "SABR Surfaces";

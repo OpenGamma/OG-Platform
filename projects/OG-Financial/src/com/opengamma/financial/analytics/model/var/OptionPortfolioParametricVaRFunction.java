@@ -5,65 +5,11 @@
  */
 package com.opengamma.financial.analytics.model.var;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import javax.time.calendar.Clock;
-import javax.time.calendar.LocalDate;
-
-import org.apache.commons.lang.Validate;
-
-import com.google.common.collect.Sets;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.position.PortfolioNode;
-import com.opengamma.core.position.Position;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.function.AbstractFunction;
-import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.function.FunctionExecutionContext;
-import com.opengamma.engine.function.FunctionInputs;
-import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.greeks.AvailableValueGreeks;
-import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTimeSeriesProvider;
-import com.opengamma.financial.covariance.CovarianceCalculator;
-import com.opengamma.financial.covariance.CovarianceMatrixCalculator;
-import com.opengamma.financial.covariance.HistoricalCovarianceCalculator;
-import com.opengamma.financial.pnl.SensitivityAndReturnDataBundle;
-import com.opengamma.financial.pnl.UnderlyingType;
-import com.opengamma.financial.schedule.Schedule;
-import com.opengamma.financial.schedule.ScheduleCalculatorFactory;
-import com.opengamma.financial.schedule.TimeSeriesSamplingFunction;
-import com.opengamma.financial.schedule.TimeSeriesSamplingFunctionFactory;
-import com.opengamma.financial.security.option.EquityOptionSecurity;
-import com.opengamma.financial.sensitivity.Sensitivity;
-import com.opengamma.financial.sensitivity.ValueGreek;
-import com.opengamma.financial.sensitivity.ValueGreekSensitivity;
-import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
-import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
-import com.opengamma.financial.var.NormalLinearVaRCalculator;
-import com.opengamma.financial.var.parametric.DeltaCovarianceMatrixStandardDeviationCalculator;
-import com.opengamma.financial.var.parametric.DeltaMeanCalculator;
-import com.opengamma.financial.var.parametric.ParametricVaRDataBundle;
-import com.opengamma.financial.var.parametric.VaRCovarianceMatrixCalculator;
-import com.opengamma.math.matrix.ColtMatrixAlgebra;
-import com.opengamma.math.matrix.MatrixAlgebra;
-import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
  * 
  */
-public class OptionPortfolioParametricVaRFunction {/* extends AbstractFunction.NonCompiledInvoker {
+public class OptionPortfolioParametricVaRFunction { /* extends AbstractFunction.NonCompiledInvoker {
   private final String _resolutionKey;
   private final LocalDate _startDate;
   private final Set<ValueGreek> _valueGreeks;

@@ -9,8 +9,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.security.cash.CashSecurity;
@@ -21,15 +19,6 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class CashSecurityConverter implements CashSecurityVisitor<InstrumentDefinition<?>> {
-  private final HolidaySource _holidaySource;
-  private final ConventionBundleSource _conventionSource;
-
-  public CashSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource) {
-    Validate.notNull(holidaySource, "holiday source");
-    Validate.notNull(conventionSource, "convention source");
-    _holidaySource = holidaySource;
-    _conventionSource = conventionSource;
-  }
 
   @Override
   public CashDefinition visitCashSecurity(final CashSecurity security) {

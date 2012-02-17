@@ -7,18 +7,19 @@ package com.opengamma.financial.model.volatility.surface;
 
 /**
  * 
+ * @param <T> The strike type (e.g. delta)
  */
 public class StrikeAlgebra<T extends StrikeType> {
 
   @SuppressWarnings("unchecked")
   public T add(final T a, final T b) {
-    double sum = a.value() + b.value();
+    final double sum = a.value() + b.value();
     return (T) a.with(sum);
   }
 
   @SuppressWarnings("unchecked")
   public T subtract(final T a, final T b) {
-    double diff = a.value() - b.value();
+    final double diff = a.value() - b.value();
     return (T) a.with(diff);
   }
 

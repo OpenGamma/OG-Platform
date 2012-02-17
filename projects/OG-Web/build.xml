@@ -15,6 +15,9 @@
 		<zip destfile="${dist.dir}/web-marketdata-webapp.zip" basedir="${basedir}">
 			<include name="web-marketdata/**/*" />
 		</zip>
+		<zip destfile="${dist.dir}/web-sharedmasters-webapp.zip" basedir="${basedir}">
+			<include name="web-sharedmasters/**/*" />
+		</zip>
 	</target>
 	
 	<target name="zip-resources" description="--> create resources file for publishing">
