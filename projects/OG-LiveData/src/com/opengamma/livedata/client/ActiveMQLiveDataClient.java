@@ -5,6 +5,7 @@
  */
 package com.opengamma.livedata.client;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -24,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.jms.support.JmsUtils;
 
+import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Sets.SetView;
 import com.opengamma.OpenGammaRuntimeException;
@@ -105,24 +107,22 @@ public class ActiveMQLiveDataClient extends JmsLiveDataClient {
       }
     }
     SetView<String> remaining = Sets.difference(new HashSet<String>(specs), ret.keySet());
-    if (remaining.isEmpty()) {
-      return ret;
-    }
-    
-    //TODO do I need to partition here
-    String topicName = getCompositeTopicName(remaining);
-    try {
-      Topic topic = session.createTopic(topicName);
+    List<String> remainingList = new ArrayList<String>(remaining);
+    for (List<String> partition : Lists.partition(remainingList, 100)) {
+      String topicName = getCompositeTopicName(partition);
+      try {
+        Topic topic = session.createTopic(topicName);
 
-      final MessageConsumer messageConsumer = session.createConsumer(topic);
-      messageConsumer.setMessageListener(jmsDispatcher);
-      ConsumerRecord record = new ConsumerRecord(messageConsumer, specs);
-      for (String tickDistributionSpecification : specs) {
-        _messageConsumersBySpec.put(tickDistributionSpecification, record);
-        ret.put(tickDistributionSpecification, getCloseAction(tickDistributionSpecification, record)); 
-      }
-    } catch (JMSException e) {
-      throw new OpenGammaRuntimeException("Failed to create subscription to JMS topics " + specs, e);
+        final MessageConsumer messageConsumer = session.createConsumer(topic);
+        messageConsumer.setMessageListener(jmsDispatcher);
+        ConsumerRecord record = new ConsumerRecord(messageConsumer, partition);
+        for (String tickDistributionSpecification : partition) {
+          _messageConsumersBySpec.put(tickDistributionSpecification, record);
+          ret.put(tickDistributionSpecification, getCloseAction(tickDistributionSpecification, record)); 
+        }
+      } catch (JMSException e) {
+        throw new OpenGammaRuntimeException("Failed to create subscription to JMS topics " + partition, e);
+      }  
     }
     return ret;
   }
