@@ -14,6 +14,7 @@ import com.opengamma.examples.loader.ExampleMultiCurrencySwapPortfolioLoader;
 import com.opengamma.examples.loader.ExampleSwapPortfolioLoader;
 import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.examples.loader.ExampleViewsPopulater;
+import com.opengamma.examples.loader.ExampleMixedPortfolioLoader;
 import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.util.money.Currency;
 
@@ -58,7 +59,16 @@ public class ExampleDatabasePopulater extends AbstractTool {
     
     loadLiborRawSecurities();
     
+    loadMixedPortfolio();
+    
     loadViews();
+  }
+
+  private void loadMixedPortfolio() {
+    ExampleMixedPortfolioLoader mixedPortfolioLoader = new ExampleMixedPortfolioLoader();
+    System.out.println("Creating example mixed portfolio");
+    mixedPortfolioLoader.run(getToolContext());
+    System.out.println("Finished");
   }
 
   private void loadTimeSeriesRating() {
