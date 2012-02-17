@@ -51,6 +51,8 @@ public final class OpenGammaFudgeContext {
   public static FudgeContext constructContext() {
     FudgeContext fudgeContext = new FudgeContext();
     ExtendedFudgeBuilderFactory.init(fudgeContext.getObjectDictionary());
+    InnerClassFudgeBuilderFactory.init(fudgeContext.getObjectDictionary());
+    //
     fudgeContext.getObjectDictionary().addAllAnnotatedBuilders();
     fudgeContext.getTypeDictionary().addAllAnnotatedSecondaryTypes();
     return fudgeContext;

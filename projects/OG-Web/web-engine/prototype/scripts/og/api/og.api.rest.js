@@ -150,8 +150,7 @@ $.register_module({
             /** @ignore */
             check = function (params) {
                 common.check(params);
-                if (typeof params.bundle.config.handler !== 'function')
-                    throw new TypeError(params.bundle.method + ': config.handler must be a function');
+                if (typeof params.bundle.config.handler !== 'function') params.bundle.config.handler = $.noop;
                 if (params.bundle.config.page && (params.bundle.config.from || params.bundle.config.to))
                     throw new TypeError(params.bundle.method + ': config.page + config.from/to is ambiguous');
                 if (str(params.bundle.config.to) && !str(params.bundle.config.from))
@@ -403,7 +402,10 @@ $.register_module({
                     meta = check({
                         bundle: {method: root + '#put', config: config},
                         dependencies: [{fields: ['version'], require: 'id'}],
-                        required: [{condition: !id, all_of: fields}, {condition: !!id, all_of: ['quantity']}]
+                        required: [
+                            {condition: !id, all_of:  ['identifier', 'quantity', 'scheme_type']},
+                            {condition: !!id, all_of: ['quantity']}
+                        ]
                     });
                     meta.type = id ? 'PUT' : 'POST';
                     fields.forEach(function (val, idx) {if (val = str(config[val])) data[api_fields[idx]] = val;});
