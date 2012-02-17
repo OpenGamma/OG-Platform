@@ -109,9 +109,6 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext myContext, final ComputationTarget target) {
         final VolatilitySurfaceDefinition<Object, Object> definition = getSurfaceDefinition(definitionSource, target);
-        if (definition == null) {
-          final int i = 0;
-        }
         return Collections.singleton(new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(definition.getTarget()),
             createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get()));
       }
