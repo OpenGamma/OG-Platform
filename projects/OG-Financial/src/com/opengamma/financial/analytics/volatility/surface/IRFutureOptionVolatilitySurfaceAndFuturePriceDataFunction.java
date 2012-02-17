@@ -224,11 +224,11 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
         final ValueSpecification volSurfaceResult = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA,
             new ComputationTargetSpecification(volSurfaceDefinition.getTarget()),
             createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName)
-            .with(RawVolatilitySurfaceDataFunctionOld.PROPERTY_SURFACE_INSTRUMENT_TYPE, _volSurfaceInstrumentType).get());
+            .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _volSurfaceInstrumentType).get());
         final ValueSpecification futurePriceCurveResult = new ValueSpecification(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA,
             new ComputationTargetSpecification(priceCurveSpecification.getTarget()),
             createValueProperties().with(ValuePropertyNames.CURVE, _definitionName)
-            .with(RawVolatilitySurfaceDataFunctionOld.PROPERTY_SURFACE_INSTRUMENT_TYPE, _priceCurveInstrumentType).get());
+            .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _priceCurveInstrumentType).get());
         final ComputedValue volSurfaceResultValue = new ComputedValue(volSurfaceResult, volSurfaceData);
         final FuturePriceCurveData<Double> futurePriceCurveData = new FuturePriceCurveData<Double>(priceCurveDefinition.getName(), priceCurveSpecification.getName(),
             priceCurveDefinition.getTarget(), ts.toArray(new Double[0]), futurePriceValues);
