@@ -8,7 +8,7 @@ package com.opengamma.examples.tool;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
-import com.opengamma.examples.loader.ExampleEquityPortfolioAndSecurityLoader;
+import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
 import com.opengamma.examples.loader.ExampleMultiCurrencySwapPortfolioLoader;
 import com.opengamma.examples.loader.ExampleSwapPortfolioLoader;
@@ -47,11 +47,12 @@ public class ExampleDatabasePopulater extends AbstractTool {
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
+    
     loadTimeSeriesRating();
     
     loadSimulatedHistoricalData();
     
-    loadEquityPortfolioAndSecurity();
+    loadEquityPortfolio();
     
     loadSwapPortfolio();
     
@@ -59,9 +60,9 @@ public class ExampleDatabasePopulater extends AbstractTool {
     
     loadLiborRawSecurities();
     
-    loadMixedPortfolio();
-    
     loadViews();
+    
+    loadMixedPortfolio();
   }
 
   private void loadMixedPortfolio() {
@@ -85,8 +86,8 @@ public class ExampleDatabasePopulater extends AbstractTool {
     System.out.println("Finished");
   }
 
-  private void loadEquityPortfolioAndSecurity() {
-    ExampleEquityPortfolioAndSecurityLoader equityLoader = new ExampleEquityPortfolioAndSecurityLoader();
+  private void loadEquityPortfolio() {
+    ExampleEquityPortfolioLoader equityLoader = new ExampleEquityPortfolioLoader();
     System.out.println("Creating example equity portfolio");
     equityLoader.run(getToolContext());
     System.out.println("Finished");
