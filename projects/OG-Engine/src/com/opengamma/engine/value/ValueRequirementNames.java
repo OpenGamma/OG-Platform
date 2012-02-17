@@ -56,6 +56,7 @@ public final class ValueRequirementNames {
   public static final String FAIR_VALUE = "FairValue";
   public static final String POSITION_FAIR_VALUE = "PositionFairValue";
   public static final String VALUE_FAIR_VALUE = "ValueFairValue";
+  public static final String MARK = "Mark";
   
   // Greeks Names:
   public static final String DELTA = "Delta";

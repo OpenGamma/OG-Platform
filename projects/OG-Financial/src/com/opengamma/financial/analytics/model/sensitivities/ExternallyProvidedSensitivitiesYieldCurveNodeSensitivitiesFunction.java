@@ -74,7 +74,6 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
    * The value name calculated by this function.
    */
   public static final String YCNS_REQUIREMENT = ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
-  public static final String EXTERNAL_SENSITIVITIES_REQUIREMENT = ValueRequirementNames.EXTERNAL_SENSITIVITIES;
   private static final CharSequence SWAP_TEXT = "SWAP";
 
   @Override
@@ -106,7 +105,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
   
   private ValueProperties.Builder createCurrencyValueProperties(final ComputationTarget target) {
     final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
-    SecurityEntryData securityEntryData = RawSecurityUtils.deserialize(security);
+    SecurityEntryData securityEntryData = RawSecurityUtils.decodeSecurityEntryData(security);
     final Currency ccy = securityEntryData.getCurrency();
     final ValueProperties.Builder properties = createValueProperties();
     properties.with(ValuePropertyNames.CURRENCY, ccy.getCode());
@@ -120,60 +119,46 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(2);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     results.add(new ValueSpecification(YCNS_REQUIREMENT, targetSpec, properties.get()));
-    
-    final ValueProperties.Builder externalProperties = createValueProperties(target);
-    externalProperties.withAny(ValuePropertyNames.CURRENCY);
-    results.add(new ValueSpecification(EXTERNAL_SENSITIVITIES_REQUIREMENT, targetSpec, externalProperties.get()));
-    s_logger.warn("getResults(1) = " + results);
+    s_logger.debug("getResults(1) = " + results);
     return results;
   }
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<String> curves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
     
+    final Set<String> curves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
     if ((curves == null) || (curves.size() != 1)) {
+      s_logger.warn("no curve specified, just returning requirements for external sensitivities");
       // Can't support an unbound request; an injection function must be used (or declare all as optional and use [PLAT-1771])
       return null;
     }
     // TODO: if "CURVE" is specified, check that it is one of the forward/funding curve names
     final String curve = curves.iterator().next();
-    final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(6);
-    
+    final Set<ValueRequirement> requirements = Sets.newHashSet();  
     requirements.add(getCurveRequirement(target, curve, curve, curve));
     requirements.add(getCurveSpecRequirement(target, curve));
-    
     requirements.addAll(getSensitivityRequirements(context.getSecuritySource(), (RawSecurity) target.getPosition().getSecurity()));
-
     return requirements;
   }
   
-  protected Set<ValueRequirement> getSensitivityRequirements(SecuritySource secSource, RawSecurity rawSecurity) {
-    Set<ValueRequirement> requirements = Sets.newHashSet();
-    Collection<FactorExposureData> decodedSensitivities = decodeSensitivities(secSource, rawSecurity);
-    for (FactorExposureData exposureEntry : decodedSensitivities) {
-      requirements.add(getSensitivityRequirement(exposureEntry.getExposureExternalId()));
-    }
-    return requirements;
-  }
+
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     String curveName = null;
+    final ComputationTargetSpecification targetSpec = target.toSpecification();
+    final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(2);
     for (Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
       if (ValueRequirementNames.YIELD_CURVE.equals(input.getKey().getValueName())) {
         assert curveName == null;
         curveName = input.getKey().getProperty(ValuePropertyNames.CURVE);
-      } 
+        assert curveName != null;
+        final ValueProperties.Builder properties = createValueProperties(target);
+        properties.with(ValuePropertyNames.CURVE, curveName);
+        results.add(new ValueSpecification(YCNS_REQUIREMENT, targetSpec, properties.get()));
+      }
     }
-    assert curveName != null;
-    final ValueProperties.Builder properties = createValueProperties(target);
-    properties.with(ValuePropertyNames.CURVE, curveName);
-    final ComputationTargetSpecification targetSpec = target.toSpecification();
-    final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(2);
-    results.add(new ValueSpecification(YCNS_REQUIREMENT, targetSpec, properties.get()));
-    results.add(new ValueSpecification(EXTERNAL_SENSITIVITIES_REQUIREMENT, targetSpec, createCurrencyValueProperties(target).get()));
-    s_logger.warn("getResults(2) returning " + results);
+    s_logger.debug("getResults(2) returning " + results);
     return results;
   }
 
@@ -211,40 +196,14 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     properties.with(ValuePropertyNames.CURVE, curveName);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ValueSpecification resultSpec = new ValueSpecification(YCNS_REQUIREMENT, targetSpec, properties.with(ValuePropertyNames.CURVE, curveName).get());
-    Set<ComputedValue> ycnsResults = YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(curveName, bundle, sensitivitiesForCurves, curveSpec, resultSpec);
-    Set<ComputedValue> externalResults = getResultsForExternalRiskFactors(executionContext.getSecuritySource(), inputs, target, security);
-    Set<ComputedValue> results = Sets.newHashSet();
-    results.addAll(ycnsResults);
-    results.addAll(externalResults);
-    //s_logger.warn("execute, returning " + results);
+    Set<ComputedValue> results = YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(curveName, bundle, sensitivitiesForCurves, curveSpec, resultSpec);
+    //s_logger.debug("execute, returning " + results);
     return results;
   }
   
-  private Set<ComputedValue> getResultsForExternalRiskFactors(SecuritySource secSource, FunctionInputs inputs, ComputationTarget target, RawSecurity security) {
-    List<FactorExposureData> factors = decodeSensitivities(secSource, security);
-    Collections.sort(factors, new FactorExposureDataComparator());
-    
-    List<String> indices = Lists.newArrayList();
-    List<String> labels = Lists.newArrayList();
-    DoubleList values = new DoubleArrayList();
-    for (FactorExposureData factor : factors) {
-      ComputedValue computedValue = inputs.getComputedValue(getSensitivityRequirement(factor.getExposureExternalId()));
-      if (computedValue != null) {
-        indices.add(factor.getExposureExternalId().toString());
-        labels.add(factor.getExposureExternalId().getValue());
-        values.add((Double) computedValue.getValue());
-      } else {
-        s_logger.error("Value was null when getting required input data " + factor.getExposureExternalId());
-      }
-    }
-    StringLabelledMatrix1D labelledMatrix = new StringLabelledMatrix1D(indices.toArray(new String[] {}), labels.toArray(), values.toDoubleArray());
-    ValueSpecification valueSpecification = new ValueSpecification(EXTERNAL_SENSITIVITIES_REQUIREMENT, target.toSpecification(), createCurrencyValueProperties(target).get());
-    return Collections.singleton(new ComputedValue(valueSpecification, labelledMatrix));
-  }
-
   private DoubleMatrix1D getSensitivities(SecuritySource secSource, FunctionInputs inputs, RawSecurity rawSecurity, InterpolatedYieldCurveSpecificationWithSecurities curveSpec, 
                                           YieldAndDiscountCurve curve) {
-    Collection<FactorExposureData> decodedSensitivities = decodeSensitivities(secSource, rawSecurity);
+    Collection<FactorExposureData> decodedSensitivities = RawSecurityUtils.decodeFactorExposureData(secSource, rawSecurity);
     double[] entries = new double[curveSpec.getStrips().size()];
     int i = 0;
     for (FixedIncomeStripWithSecurity strip : curveSpec.getStrips()) {
@@ -255,7 +214,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
           Double value = (Double) computedValue.getValue();
           entries[i] = value;
         } else {
-          s_logger.error("Value was null when getting required input data " + externalSensitivitiesData.getExposureExternalId());
+          s_logger.warn("Value was null when getting required input data " + externalSensitivitiesData.getExposureExternalId());
           entries[i] = 0d;
         }
       } else {
@@ -280,23 +239,18 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     return null;
   }
   
-  private List<FactorExposureData> decodeSensitivities(SecuritySource secSource, RawSecurity rawSecurity) {
-    FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
-    SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class, msg.getMessage());
-    RawSecurity underlyingRawSecurity = (RawSecurity) secSource.getSecurity(securityEntryData.getFactorSetId().toBundle());
-    if (underlyingRawSecurity != null) {
-      FudgeMsgEnvelope factorIdMsg = OpenGammaFudgeContext.getInstance().deserialize(underlyingRawSecurity.getRawData());
-      @SuppressWarnings("unchecked")
-      List<FactorExposureData> factorExposureDataList = OpenGammaFudgeContext.getInstance().fromFudgeMsg(List.class, factorIdMsg.getMessage());     
-      return factorExposureDataList;
-    } else {
-      throw new OpenGammaRuntimeException("Couldn't find factor list security " + securityEntryData.getFactorSetId());
-    }
-  }
-
   @Override
   public String getShortName() {
     return "ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction";
+  }
+  
+  protected Set<ValueRequirement> getSensitivityRequirements(SecuritySource secSource, RawSecurity rawSecurity) {
+    Set<ValueRequirement> requirements = Sets.newHashSet();
+    Collection<FactorExposureData> decodedSensitivities = RawSecurityUtils.decodeFactorExposureData(secSource, rawSecurity);
+    for (FactorExposureData exposureEntry : decodedSensitivities) {
+      requirements.add(getSensitivityRequirement(exposureEntry.getExposureExternalId()));
+    }
+    return requirements;
   }
   
   protected ValueRequirement getSensitivityRequirement(final ExternalId externalId) {

@@ -38,6 +38,34 @@
           <col style="width: 60%" />
           <thead>
             <tr>
+              <th><span>Attributes</span></th><th>&nbsp;</th>
+            </tr>
+          </thead>
+        </table>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Value</th>
+            </tr>
+          </thead>
+          <tbody>
+            {{each(attribute_index, attribute_value) attributes}}
+            <tr>
+              <td><span>${attribute_index}</span></td>
+              <td><span>${attribute_value}</span></td>
+            </tr>
+            {{/each}}
+          </tbody>
+        </table>
+        <br/>
+        <table class="OG-table">
+          <col style="width: 40%" />
+          <col style="width: 60%" />
+          <thead>
+            <tr>
               <th><span>Risk Factors</span></th><th>&nbsp;</th>
             </tr>
           </thead>
