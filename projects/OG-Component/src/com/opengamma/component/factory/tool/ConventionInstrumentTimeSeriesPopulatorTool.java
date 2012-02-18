@@ -22,6 +22,7 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.financial.convention.ConventionInstrumentTimeSeriesPopulator;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 
 // TODO jonathan 2012-02-17 -- come back to this when we have some established way of using the component factory
@@ -49,13 +50,17 @@ public class ConventionInstrumentTimeSeriesPopulatorTool extends AbstractCompone
   @PropertyDefinition(validate = "notNull")
   private String _dataField;
   
+  @PropertyDefinition(validate = "notNull")
+  private String _identifierScheme;
+  
   @PropertyDefinition
   private boolean _updateExisting;
   
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
     ConventionInstrumentTimeSeriesPopulator populator = new ConventionInstrumentTimeSeriesPopulator(
-        getHistoricalTimeSeriesSource(), getHistoricalTimeSeriesLoader(), getDataSource(), getDataProvider(), getDataField(), isUpdateExisting());
+        getHistoricalTimeSeriesSource(), getHistoricalTimeSeriesLoader(), getDataSource(), getDataProvider(),
+        getDataField(), ExternalScheme.of(getIdentifierScheme()), isUpdateExisting());
     populator.populate();
   }
 
@@ -90,6 +95,8 @@ public class ConventionInstrumentTimeSeriesPopulatorTool extends AbstractCompone
         return getDataProvider();
       case -386794640:  // dataField
         return getDataField();
+      case 144370606:  // identifierScheme
+        return getIdentifierScheme();
       case -1252525708:  // updateExisting
         return isUpdateExisting();
     }
@@ -114,6 +121,9 @@ public class ConventionInstrumentTimeSeriesPopulatorTool extends AbstractCompone
       case -386794640:  // dataField
         setDataField((String) newValue);
         return;
+      case 144370606:  // identifierScheme
+        setIdentifierScheme((String) newValue);
+        return;
       case -1252525708:  // updateExisting
         setUpdateExisting((Boolean) newValue);
         return;
@@ -128,6 +138,7 @@ public class ConventionInstrumentTimeSeriesPopulatorTool extends AbstractCompone
     JodaBeanUtils.notNull(_dataSource, "dataSource");
     JodaBeanUtils.notNull(_dataProvider, "dataProvider");
     JodaBeanUtils.notNull(_dataField, "dataField");
+    JodaBeanUtils.notNull(_identifierScheme, "identifierScheme");
     super.validate();
   }
 
@@ -143,6 +154,7 @@ public class ConventionInstrumentTimeSeriesPopulatorTool extends AbstractCompone
           JodaBeanUtils.equal(getDataSource(), other.getDataSource()) &&
           JodaBeanUtils.equal(getDataProvider(), other.getDataProvider()) &&
           JodaBeanUtils.equal(getDataField(), other.getDataField()) &&
+          JodaBeanUtils.equal(getIdentifierScheme(), other.getIdentifierScheme()) &&
           JodaBeanUtils.equal(isUpdateExisting(), other.isUpdateExisting()) &&
           super.equals(obj);
     }
@@ -157,6 +169,7 @@ public class ConventionInstrumentTimeSeriesPopulatorTool extends AbstractCompone
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataProvider());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDataField());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getIdentifierScheme());
     hash += hash * 31 + JodaBeanUtils.hashCode(isUpdateExisting());
     return hash ^ super.hashCode();
   }
@@ -293,6 +306,32 @@ public class ConventionInstrumentTimeSeriesPopulatorTool extends AbstractCompone
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the identifierScheme.
+   * @return the value of the property, not null
+   */
+  public String getIdentifierScheme() {
+    return _identifierScheme;
+  }
+
+  /**
+   * Sets the identifierScheme.
+   * @param identifierScheme  the new value of the property, not null
+   */
+  public void setIdentifierScheme(String identifierScheme) {
+    JodaBeanUtils.notNull(identifierScheme, "identifierScheme");
+    this._identifierScheme = identifierScheme;
+  }
+
+  /**
+   * Gets the the {@code identifierScheme} property.
+   * @return the property, not null
+   */
+  public final Property<String> identifierScheme() {
+    return metaBean().identifierScheme().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the updateExisting.
    * @return the value of the property
    */
@@ -352,6 +391,11 @@ public class ConventionInstrumentTimeSeriesPopulatorTool extends AbstractCompone
     private final MetaProperty<String> _dataField = DirectMetaProperty.ofReadWrite(
         this, "dataField", ConventionInstrumentTimeSeriesPopulatorTool.class, String.class);
     /**
+     * The meta-property for the {@code identifierScheme} property.
+     */
+    private final MetaProperty<String> _identifierScheme = DirectMetaProperty.ofReadWrite(
+        this, "identifierScheme", ConventionInstrumentTimeSeriesPopulatorTool.class, String.class);
+    /**
      * The meta-property for the {@code updateExisting} property.
      */
     private final MetaProperty<Boolean> _updateExisting = DirectMetaProperty.ofReadWrite(
@@ -366,6 +410,7 @@ public class ConventionInstrumentTimeSeriesPopulatorTool extends AbstractCompone
         "dataSource",
         "dataProvider",
         "dataField",
+        "identifierScheme",
         "updateExisting");
 
     /**
@@ -387,6 +432,8 @@ public class ConventionInstrumentTimeSeriesPopulatorTool extends AbstractCompone
           return _dataProvider;
         case -386794640:  // dataField
           return _dataField;
+        case 144370606:  // identifierScheme
+          return _identifierScheme;
         case -1252525708:  // updateExisting
           return _updateExisting;
       }
@@ -447,6 +494,14 @@ public class ConventionInstrumentTimeSeriesPopulatorTool extends AbstractCompone
      */
     public final MetaProperty<String> dataField() {
       return _dataField;
+    }
+
+    /**
+     * The meta-property for the {@code identifierScheme} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<String> identifierScheme() {
+      return _identifierScheme;
     }
 
     /**
