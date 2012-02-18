@@ -24,6 +24,10 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.financial.convention.ConventionInstrumentTimeSeriesPopulator;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 
+// TODO jonathan 2012-02-17 -- come back to this when we have some established way of using the component factory
+// infrastructure to run 'tools'. Currently this is designed to sit at the end of an ini file where the tool will be
+// run. It isn't a 'component factory' at all.
+
 /**
  * Component factory which runs the {@link ConventionInstrumentTimeSeriesPopulator}.
  */
