@@ -94,7 +94,7 @@ public class ExampleViewsPopulater extends AbstractTool {
   }
 
   private void createEquityViewDefinition() {
-    saveViewDefinition(makeEquityViewDefinition(ExampleEquityPortfolioAndSecurityLoader.PORTFOLIO_NAME));
+    saveViewDefinition(makeEquityViewDefinition(ExampleEquityPortfolioLoader.PORTFOLIO_NAME));
   }
 
   private ViewDefinition makeSwapViewDefinition(String portfolioName) {

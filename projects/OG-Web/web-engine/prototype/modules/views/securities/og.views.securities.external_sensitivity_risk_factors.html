@@ -32,6 +32,7 @@
             </tr>
           </thead>
           <tbody>
+          {{if factors.length}}
             {{each(factor_index, factor) factors}}
             <tr>
               <td><span>${factor.factorType}</span></td>
@@ -72,6 +73,11 @@
               {{/if}}
             </tr>
             {{/each}}
+          {{else}}
+            <tr>
+              <td colspan="6"><span>(no values)</span></td>
+            </tr>
+          {{/if}}
           </tbody>
         </table>
       </section>

@@ -29,14 +29,12 @@ import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveDefi
 import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpecification;
 import com.opengamma.financial.analytics.volatility.surface.Grid2DInterpolatedVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunctionOld;
+import com.opengamma.financial.analytics.volatility.surface.RawFXVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
+import com.opengamma.financial.analytics.volatility.surface.fitting.RawIRFutureOptionVolatilitySurfaceDataFunction;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
-import com.opengamma.util.PlatformConfigUtils;
-import com.opengamma.util.PlatformConfigUtils.RunMode;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
@@ -65,10 +63,9 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
   
   public RepositoryConfiguration constructRepositoryConfiguration() {
     final List<FunctionConfiguration> configs = new ArrayList<FunctionConfiguration>();
-    addConfigFor(configs, RawVolatilitySurfaceDataFunctionOld.class.getName(), new String[] {"DEFAULT", "SWAPTION", "DEFAULT"});
     addConfigFor(configs, IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction.class.getName(), new String[] {"DEFAULT", "DEFAULT", "IR_FUTURE_OPTION", "IR_FUTURE_PRICE"});
-    addConfigFor(configs, RawVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "IR_FUTURE_OPTION", "DEFAULT"});
-    addConfigFor(configs, RawVolatilitySurfaceDataFunctionOld.class.getName(), new String[] {"DEFAULT", "FX_VANILLA_OPTION", "DEFAULT"});
+    addConfigFor(configs, RawIRFutureOptionVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "DEFAULT"});
+    addConfigFor(configs, RawFXVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "DEFAULT"});
     addConfigFor(configs, EquityOptionVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DEFAULT"});
     addConfigFor(configs, Grid2DInterpolatedVolatilitySurfaceFunction.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator", 
       "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator"});
@@ -94,8 +91,16 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
       }
       configurations.add(new ParameterizedFunctionConfiguration(className, Arrays.asList(params)));
       return;
-    } else {
+    } else if (className.equals(EquityOptionVolatilitySurfaceDataFunction.class.getName())) {
       if (params.length != 3) {
+        s_logger.error("Not enough parameters for " + className);
+        s_logger.error(Arrays.asList(params).toString());
+        throw new OpenGammaRuntimeException("Not enough parameters for " + className);
+      }
+      configurations.add(new ParameterizedFunctionConfiguration(className, Arrays.asList(params)));
+      return;
+    } else {
+      if (params.length != 2) {
         s_logger.error("Not enough parameters for " + className);
         s_logger.error(Arrays.asList(params).toString());
         throw new OpenGammaRuntimeException("Not enough parameters for " + className);
