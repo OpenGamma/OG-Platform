@@ -13,10 +13,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.Iterables;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
 import com.opengamma.util.ArgumentChecker;
 
@@ -27,27 +29,38 @@ import com.opengamma.util.ArgumentChecker;
 public class ConventionInstrumentTimeSeriesPopulator {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ConventionInstrumentTimeSeriesPopulator.class);
+
+  private final InMemoryConventionBundleMaster _conventionMaster;
   
   private final HistoricalTimeSeriesSource _htsSource;
   private final HistoricalTimeSeriesLoader _htsLoader;
   private final String _dataSource;
   private final String _dataProvider;
   private final String _dataField;
+  private final ExternalScheme _identifierScheme;
   private final boolean _updateExisting;
   
   public ConventionInstrumentTimeSeriesPopulator(HistoricalTimeSeriesSource htsSource,
-      HistoricalTimeSeriesLoader htsLoader, String dataSource, String dataProvider, String dataField, boolean updateExisting) {
+      HistoricalTimeSeriesLoader htsLoader, String dataSource, String dataProvider, String dataField,
+      ExternalScheme identifierScheme, boolean updateExisting) {
     ArgumentChecker.notNull(htsSource, "htsSource");
     ArgumentChecker.notNull(htsLoader, "htsLoader");
     ArgumentChecker.notNull(dataSource, "dataSource");
     ArgumentChecker.notNull(dataProvider, "dataProvider");
     ArgumentChecker.notNull(dataField, "dataField");
+    ArgumentChecker.notNull(identifierScheme, "identifierScheme");
+    _conventionMaster = new InMemoryConventionBundleMaster();
     _htsSource = htsSource;
     _htsLoader = htsLoader;
     _dataSource = dataSource;
     _dataProvider = dataProvider;
     _dataField = dataField;
+    _identifierScheme = identifierScheme;
     _updateExisting = updateExisting;
+  }
+  
+  private InMemoryConventionBundleMaster getConventionMaster() {
+    return _conventionMaster;
   }
   
   private HistoricalTimeSeriesSource getHistoricalTimeSeriesSource() {
@@ -70,24 +83,51 @@ public class ConventionInstrumentTimeSeriesPopulator {
     return _dataField;
   }
   
+  private ExternalScheme getIdentifierScheme() {
+    return _identifierScheme;
+  }
+  
   private boolean isUpdateExisting() {
     return _updateExisting;
   }
   
   //-------------------------------------------------------------------------
   public void populate() {
-    InMemoryConventionBundleMaster conventionMaster = new InMemoryConventionBundleMaster();
-    Collection<ConventionBundle> conventions = conventionMaster.getAll();
+    Collection<ConventionBundle> conventions = getConventionMaster().getAll();
     Set<ExternalId> externalIds = new HashSet<ExternalId>();
     for (ConventionBundle convention : conventions) {
-      externalIds.add(convention.getBasisSwapPayFloatingLegInitialRate());
-      externalIds.add(convention.getBasisSwapReceiveFloatingLegInitialRate());
-      externalIds.add(convention.getSwapFloatingLegInitialRate());
+      addExternalId(convention.getBasisSwapPayFloatingLegInitialRate(), externalIds);
+      addExternalId(convention.getBasisSwapReceiveFloatingLegInitialRate(), externalIds);
+      addExternalId(convention.getSwapFloatingLegInitialRate(), externalIds);
     }
-    s_logger.info("Checking {} time-series", externalIds.size());
+    s_logger.info("Checking {} time-series: {}", externalIds.size(), externalIds);
     for (ExternalId externalId : externalIds) {
       ensureTimeseries(externalId);
     }
+  }
+  
+  private void addExternalId(ExternalId externalId, Set<ExternalId> externalIds) {
+    if (externalId == null) {
+      return;
+    }
+    if (externalId.isNotScheme(getIdentifierScheme())) {
+      ConventionBundleSearchResult result = getConventionMaster().searchConventionBundle(new ConventionBundleSearchRequest(externalId));
+      if (result.getResults().size() == 0) {
+        s_logger.warn("Unable to find mapping from {} to identifier with scheme {}", externalId, getIdentifierScheme());
+        return;
+      }
+      if (result.getResults().size() > 1) {
+        s_logger.warn("Found multiple conventions for {}, with potentially ambiguous mappings to scheme {}", externalId, getIdentifierScheme());
+        return;
+      }
+      ConventionBundleDocument searchResult = Iterables.getOnlyElement(result.getResults());
+      externalId = searchResult.getConventionSet().getIdentifiers().getExternalId(getIdentifierScheme());
+      if (externalId == null) {
+        s_logger.warn("Convention for {} does not include a mapping to an identifier with scheme {}", externalId, getIdentifierScheme());
+        return;
+      }
+    }
+    externalIds.add(externalId);
   }
   
   private void ensureTimeseries(ExternalId externalId) {
