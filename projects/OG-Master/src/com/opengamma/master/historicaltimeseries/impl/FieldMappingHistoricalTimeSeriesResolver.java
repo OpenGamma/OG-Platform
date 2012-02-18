@@ -78,7 +78,7 @@ public class FieldMappingHistoricalTimeSeriesResolver extends DefaultHistoricalT
     
     ManageableHistoricalTimeSeriesInfo selectedResult = select(timeSeriesCandidates, resolutionKey);
     if (selectedResult == null) {
-      s_logger.warn("Resolver failed to find any time-series for {} using {}/{}", new Object[] {identifierBundle, dataField, resolutionKey});
+      s_logger.debug("Resolver failed to find any time-series for {} using {}/{}", new Object[] {identifierBundle, dataField, resolutionKey});
       return null;
     }
     HistoricalTimeSeriesFieldAdjustment fieldAdjustment = fieldMappings.get(selectedResult.getDataSource());
