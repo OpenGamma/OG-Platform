@@ -40,6 +40,7 @@ import com.opengamma.financial.model.option.definition.SmileDeltaTermStructurePa
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
@@ -187,7 +188,9 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return target.getSecurity() instanceof FXOptionSecurity || target.getSecurity() instanceof FXBarrierOptionSecurity;
+    return target.getSecurity() instanceof FXOptionSecurity || 
+      target.getSecurity() instanceof FXBarrierOptionSecurity ||
+      target.getSecurity() instanceof FXDigitalOptionSecurity;
   }
 
   @Override
