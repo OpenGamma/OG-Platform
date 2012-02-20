@@ -194,6 +194,8 @@ public class SpringViewProcessorComponentFactory extends AbstractSpringComponent
     
     FunctionResolver functionResolver = appContext.getBean(FunctionResolver.class);
     ComputationTargetResolver targetResolver = appContext.getBean(ComputationTargetResolver.class);
+    ComponentInfo infoTR = new ComponentInfo(ComputationTargetResolver.class, getClassifier());
+    repo.registerComponent(infoTR, targetResolver);
     
     if (isPublishRest()) {
       repo.getRestComponents().publishResource(new DataFunctionRepositoryResource(compiledFunctionService.getFunctionRepository()));

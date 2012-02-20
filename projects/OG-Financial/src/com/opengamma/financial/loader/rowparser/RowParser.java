@@ -3,7 +3,6 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.loader.rowparser;
 
 import java.math.BigDecimal;
@@ -15,7 +14,7 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatterBuilder;
 
-import com.opengamma.financial.loader.LoaderContext;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
@@ -26,17 +25,17 @@ import com.opengamma.master.security.ManageableSecurity;
 public abstract class RowParser {
 
   // CSOFF
-  /** Standard date-time formatter for the input */
+  /** Standard date-time formatter for the input. */
   protected DateTimeFormatter CSV_DATE_FORMATTER;
-  /** Standard date-time formatter for the output */
+  /** Standard date-time formatter for the output. */
   protected DateTimeFormatter OUTPUT_DATE_FORMATTER;
-  /** Standard rate formatter */
+  /** Standard rate formatter. */
   protected DecimalFormat RATE_FORMATTER = new DecimalFormat("0.###%");
-  /** Standard notional formatter */
+  /** Standard notional formatter. */
   protected DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("0,000");
   // CSON
-  
-  private LoaderContext _loaderContext;
+
+  private ToolContext _toolContext;
   
   {
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
@@ -47,8 +46,8 @@ public abstract class RowParser {
     OUTPUT_DATE_FORMATTER = builder.toFormatter();
   }
 
-  public RowParser(LoaderContext loaderContext) {
-    setLoaderContext(loaderContext);
+  public RowParser(ToolContext toolContext) {
+    _toolContext = toolContext;
   }
   
   /**
@@ -144,12 +143,12 @@ public abstract class RowParser {
     return LocalDate.parse(getWithException(fieldValueMap, fieldName), CSV_DATE_FORMATTER);
   }
 
-  public LoaderContext getLoaderContext() {
-    return _loaderContext;
+  public ToolContext getToolContext() {
+    return _toolContext;
   }
 
-  public void setLoaderContext(LoaderContext loaderContext) {
-    _loaderContext = loaderContext;
+  public void setToolContext(ToolContext toolContext) {
+    _toolContext = toolContext;
   }
 
 }

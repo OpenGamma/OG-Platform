@@ -3,7 +3,6 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.loader.portfolio;
 
 import java.io.BufferedReader;
@@ -19,10 +18,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.loader.PortfolioLoaderTool;
 import com.opengamma.financial.loader.sheet.CsvSheetReader;
 import com.opengamma.financial.loader.sheet.SheetReader;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 
 /**
@@ -38,13 +37,12 @@ public class ZippedPortfolioReader implements PortfolioReader {
   private static final String CONFIG_FILE = "METADATA.INI";
   private static final String VERSION_TAG = "version";
   private static final String VERSION = "1.0";
-  
+
   private ZipFile _zipFile;
-  
-  private LoaderContext _loaderContext;
-  
-  public ZippedPortfolioReader(String filename, LoaderContext loaderContext) {
-    _loaderContext = loaderContext;
+  private ToolContext _toolContext;
+
+  public ZippedPortfolioReader(String filename, ToolContext toolContext) {
+    _toolContext = toolContext;
     
     try {
       _zipFile = new ZipFile(filename);
@@ -100,7 +98,7 @@ public class ZippedPortfolioReader implements PortfolioReader {
           SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
 
           // Create a generic simple portfolio loader for the current sheet, using a dynamically loaded row parser class
-          SingleSheetPortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(sheet, sheet.getColumns(), secType, _loaderContext);
+          SingleSheetPortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(sheet, sheet.getColumns(), secType, _toolContext);
 
           s_logger.info("Processing " + entry.getName() + " as " + secType);
 

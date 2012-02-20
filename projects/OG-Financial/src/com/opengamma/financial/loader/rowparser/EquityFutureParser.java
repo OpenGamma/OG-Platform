@@ -18,8 +18,8 @@ import javax.time.calendar.ZoneOffset;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
@@ -53,8 +53,8 @@ public class EquityFutureParser extends RowParser {
   protected String REFERENCE_PRICE = "reference price";
   //CSON
 
-  public EquityFutureParser(LoaderContext loaderContext) {
-    super(loaderContext);
+  public EquityFutureParser(ToolContext toolContext) {
+    super(toolContext);
   }
 
  /**
