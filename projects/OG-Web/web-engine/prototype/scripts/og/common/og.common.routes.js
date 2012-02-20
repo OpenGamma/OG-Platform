@@ -44,8 +44,10 @@ $.register_module({
                     var common = og.views.common;
                     $('.OG-js-loading').hide();
                     $('.ui-layout-container').show();
-                    common.layout = /^.*\/analytics\.ftl$/.test(window.location.href) ? common.layout.analytics()
-                        : common.layout['default']();
+                    if (!/^.*\/analytics2\.ftl$/.test(window.location.href)) {
+                        common.layout = /^.*\/analytics\.ftl$/.test(window.location.href) ? common.layout.analytics()
+                            : common.layout['default']();
+                    }
                     routes.handler();
                     set_title(routes.current().hash);
                 });

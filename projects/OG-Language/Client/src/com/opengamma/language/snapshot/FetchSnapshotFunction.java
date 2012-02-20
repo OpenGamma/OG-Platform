@@ -55,7 +55,7 @@ public class FetchSnapshotFunction extends AbstractFunctionInvoker implements Pu
     try {
       return context.getGlobalContext().getMarketDataSnapshotSource().getSnapshot(uid);
     } catch (DataNotFoundException ex) {
-      return null;  // TODO: check if null return is correct
+      throw new InvokeInvalidArgumentException(IDENTIFIER, "Identifier not found");
     } catch (IllegalArgumentException e) {
       throw new InvokeInvalidArgumentException(IDENTIFIER, "Identifier is not valid");
     }

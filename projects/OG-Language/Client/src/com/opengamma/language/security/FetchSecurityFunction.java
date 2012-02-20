@@ -9,6 +9,7 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
@@ -34,6 +35,9 @@ public class FetchSecurityFunction extends AbstractFunctionInvoker implements Pu
 
   private final MetaFunction _meta;
 
+  private static final int IDENTIFIERS = 0;
+  private static final int UNIQUE_ID = 1;
+
   private static List<MetaParameter> parameters() {
     final MetaParameter identifiers = new MetaParameter("identifiers", JavaTypeInfo.builder(ExternalIdBundle.class).allowNull().get());
     final MetaParameter uniqueIdentifier = new MetaParameter("uniqueId", JavaTypeInfo.builder(UniqueId.class).allowNull().get());
@@ -53,24 +57,32 @@ public class FetchSecurityFunction extends AbstractFunctionInvoker implements Pu
 
   @Override
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
-    final ExternalIdBundle identifiers = (ExternalIdBundle) parameters[0];
-    final UniqueId uniqueId = (UniqueId) parameters[1];
+    final ExternalIdBundle identifiers = (ExternalIdBundle) parameters[IDENTIFIERS];
+    final UniqueId uniqueId = (UniqueId) parameters[UNIQUE_ID];
     if (identifiers == null) {
       if (uniqueId == null) {
-        throw new InvokeInvalidArgumentException(1, "Unique identifier must be specified if identifier bundle is omitted");
+        throw new InvokeInvalidArgumentException(UNIQUE_ID, "Unique identifier must be specified if identifier bundle is omitted");
       } else {
-        return sessionContext.getGlobalContext().getSecuritySource().getSecurity(uniqueId);
+        try {
+          return sessionContext.getGlobalContext().getSecuritySource().getSecurity(uniqueId);
+        } catch (DataNotFoundException e) {
+          throw new InvokeInvalidArgumentException(UNIQUE_ID, "Unique identifier not found");
+        }
       }
     } else {
       if (uniqueId == null) {
-        final Collection<Security> securities = sessionContext.getGlobalContext().getSecuritySource().getSecurities(identifiers);
-        if (securities.size() == 1) {
-          return securities.iterator().next();
-        } else {
-          return securities;
+        try {
+          final Collection<Security> securities = sessionContext.getGlobalContext().getSecuritySource().getSecurities(identifiers);
+          if (securities.size() == 1) {
+            return securities.iterator().next();
+          } else {
+            return securities;
+          }
+        } catch (DataNotFoundException e) {
+          throw new InvokeInvalidArgumentException(IDENTIFIERS, "Identifier(s) not found");
         }
       } else {
-        throw new InvokeInvalidArgumentException(1, "Unique identifier must be omitted if identifier bundle is specified");
+        throw new InvokeInvalidArgumentException(UNIQUE_ID, "Unique identifier must be omitted if identifier bundle is specified");
       }
     }
   }

@@ -19,6 +19,12 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.loader.portfolio.DummyPortfolioWriter;
+import com.opengamma.financial.loader.portfolio.MasterPortfolioWriter;
+import com.opengamma.financial.loader.portfolio.PortfolioReader;
+import com.opengamma.financial.loader.portfolio.PortfolioWriter;
+import com.opengamma.financial.loader.portfolio.SingleSheetSimplePortfolioReader;
+import com.opengamma.financial.loader.portfolio.ZippedPortfolioReader;
 import com.opengamma.util.PlatformConfigUtils;
 
 /**
@@ -181,7 +187,7 @@ public class PortfolioLoaderTool {
       if (securityClass == null) {
         throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename + " (use '-a')");
       } else {
-        return new SimplePortfolioReader(filename, securityClass, loaderContext);
+        return new SingleSheetSimplePortfolioReader(filename, securityClass, loaderContext);
       }
     // Multi-asset ZIP file extension
     } else if (extension.equalsIgnoreCase(".zip")) {
