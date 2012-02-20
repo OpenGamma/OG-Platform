@@ -8,10 +8,6 @@ package com.opengamma.examples.tool;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 
-import java.io.IOException;
-
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.component.factory.tool.ToolContextUtils;
@@ -32,31 +28,36 @@ public class ExampleDatabasePopulaterTest {
 
   private static final String CONFIG_RESOURCE_LOCATION = "classpath:toolcontext/toolcontext-example.properties";
   
-  @BeforeMethod
-  public void setUp() throws IOException {
-    DBTestUtils.createHsqlDB(CONFIG_RESOURCE_LOCATION);
-  }
-  
-  @AfterMethod
-  public void runAfter() throws IOException {
-    DBTestUtils.cleanUp(CONFIG_RESOURCE_LOCATION);
-  }
+//  @BeforeMethod
+//  public void setUp() throws IOException {
+//    DBTestUtils.createHsqlDB(CONFIG_RESOURCE_LOCATION);
+//  }
+//  
+//  @AfterMethod
+//  public void runAfter() throws IOException {
+//    DBTestUtils.cleanUp(CONFIG_RESOURCE_LOCATION);
+//  }
   
   @Test
-  public void testPortfolioAndDataLoaded() {
-    new ExampleDatabasePopulater().run();
-    
-    ToolContext toolContext = getToolContext();
-    try {
-      assertMixedPortfolio(toolContext);
-      assertEquityPortfolio(toolContext);
-      assertSwapPortfolio(toolContext);
-      assertMultiCurrencySwapPortfolio(toolContext);
+  public void testPortfolioAndDataLoaded() throws Exception {
+    for (int i = 0; i < 2; i++) {
+      DBTestUtils.createHsqlDB(CONFIG_RESOURCE_LOCATION);
       
-    } finally {
-      if (toolContext != null) {
-        toolContext.close();
+      new ExampleDatabasePopulater().run();
+      
+      ToolContext toolContext = getToolContext();
+      try {
+        assertMixedPortfolio(toolContext);
+        assertEquityPortfolio(toolContext);
+        assertSwapPortfolio(toolContext);
+        assertMultiCurrencySwapPortfolio(toolContext);
+        
+      } finally {
+        if (toolContext != null) {
+          toolContext.close();
+        }
       }
+      DBTestUtils.cleanUp(CONFIG_RESOURCE_LOCATION);
     }
   }
 

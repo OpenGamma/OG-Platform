@@ -60,9 +60,9 @@ public class ExampleDatabasePopulater extends AbstractTool {
     
     loadLiborRawSecurities();
     
-    loadViews();
-    
     loadMixedPortfolio();
+    
+    loadViews();
   }
 
   private void loadMixedPortfolio() {

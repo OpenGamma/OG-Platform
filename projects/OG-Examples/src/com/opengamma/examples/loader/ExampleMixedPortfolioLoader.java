@@ -171,7 +171,33 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
         99.651404, 3.8075E10, 100.0, 100.0, 100.0, 100.0);
     bond1.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "US912828KY53"));
     bond1.setName("T 2 5/8 06/30/14");
+    
+    final GovernmentBondSecurity bond2 = new GovernmentBondSecurity("US TREASURY N/B", "Sovereign", "US", "US GOVERNMENT", 
+        Currency.USD, SimpleYieldConvention.US_STREET, 
+        new Expiry(ZonedDateTime.of(LocalDateTime.of(2015, 8, 31, 18, 0), TimeZone.UTC)), "FIXED", 1.25, 
+        SimpleFrequency.SEMI_ANNUAL, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), 
+        ZonedDateTime.of(LocalDateTime.of(2010, 8, 31, 18, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2011, 2, 14, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2011, 2, 28, 11, 0), TimeZone.UTC), 
+        99.402797, 3.6881E10, 100.0, 100.0, 100.0, 100.0);
+    bond2.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "US912828NV87"));
+    bond2.setName("T 1 1/4 08/31/15");
+    
+    final GovernmentBondSecurity bond3 = new GovernmentBondSecurity("TSY 8% 2021", "Sovereign", "GB", "UK GILT STOCK", 
+        Currency.GBP, SimpleYieldConvention.UK_BUMP_DMO_METHOD, 
+        new Expiry(ZonedDateTime.of(LocalDateTime.of(2021, 6, 7, 18, 0), TimeZone.UTC)), "FIXED", 8.0, 
+        SimpleFrequency.SEMI_ANNUAL, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA"), 
+        ZonedDateTime.of(LocalDateTime.of(1996, 2, 29, 18, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2011, 1, 28, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(1996, 6, 7, 12, 0), TimeZone.UTC), 
+        99.0625, 2.2686E10, 0.01, 0.01, 100.0, 100.0);
+    bond3.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GB0009997999"));
+    bond3.setName("UKT 8 06/07/21");
+    bond3.setAnnouncementDate(ZonedDateTime.of(LocalDateTime.of(1996, 2, 20, 11, 0), TimeZone.UTC));
+    
     securities.add(bond1);
+    securities.add(bond2);
+    securities.add(bond3);
     return securities;
   }
 
