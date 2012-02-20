@@ -1,5 +1,0 @@
-"Name","Number of contracts","Reference Price","Currency","Trading Exchange","Settlement Exchange","Unit Amount","Trade Date","Expiry","Settlement Date","Underlying ID","BBG Code"
-"S&P 500 FUTURE Dec11","100",1332.4,"USD","CME","CME",250,"13/09/2011","15/12/2011","15/12/2011","SPZ1 Index","SPZ1 Index"
-"NIKKEI 225 (OSE) Dec11","100",8400,"JPY","XOSE","XOSE",1000,"22/09/2011","08/12/2011","08/12/2011","NKY Index","NKZ1 Index"
-"EURO STOXX 50 Dec11","100",1991.8,"EUR","XEUR","XEUR",10,"22/09/2011","16/12/2011","16/12/2011","SX5E Index","VGZ1 Index"
-"EURO STOXX 50 Dec11","100",1991.8,"EUR","XEUR","XEUR",5,"25/12/2011","16/12/2011","16/12/2011","SX5E Index","VGZ1 Index"
