@@ -118,6 +118,8 @@ import com.opengamma.financial.analytics.model.forex.ForexOptionVegaQuoteFunctio
 import com.opengamma.financial.analytics.model.forex.ForexOptionYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
+import com.opengamma.financial.analytics.model.ircurve.InterpolatedYieldCurveDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.ircurve.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionDefaultValuesFunction;
 import com.opengamma.financial.analytics.model.irfutureoption.InterestRateFutureOptionPresentValueFunction;
@@ -772,6 +774,13 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateInstrumentPV01Function.class));
     functionConfigs.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class, MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING));
     functionConfigs.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class, InterpolatedYieldCurveFunction.CALCULATION_METHOD_NAME));
+    functionConfigs.add(functionConfiguration(InterpolatedYieldCurveFunction.class));
+    final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
+    final String rightExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
+    functionConfigs.add(functionConfiguration(InterpolatedYieldCurveDefaultPropertiesFunction.class, "FUNDING", leftExtrapolatorName, rightExtrapolatorName, "USD", "EUR"));
+    functionConfigs.add(functionConfiguration(InterpolatedYieldCurveDefaultPropertiesFunction.class, "FORWARD_3M", leftExtrapolatorName, rightExtrapolatorName, "USD", "EUR"));
+    functionConfigs.add(functionConfiguration(InterpolatedYieldCurveDefaultPropertiesFunction.class, "FORWARD_6M", leftExtrapolatorName, rightExtrapolatorName, "USD", "EUR"));    
     functionConfigs.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING));
     functionConfigs.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
     functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "FORWARD_3M", "FUNDING", InterestRateInstrumentParRateFunction.VALUE_REQUIREMENT,

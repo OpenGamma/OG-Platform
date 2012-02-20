@@ -30,12 +30,12 @@ public final class InstrumentSensitivityCalculator {
    * Calculates the sensitivity of the present value (PV) of an instrument to changes in the par-rates of the instruments used to build the curve (i.e. bucketed delta)
    * @param ird The instrument of interest
    * @param fixedCurves any fixed curves (can be null)
-   * @param interpolatedCurves The set of interpolatedCurves 
+   * @param interpolatedCurves The set of interpolatedCurves
    * @param couponSensitivity The sensitivity of the PV of the instruments used to build the curve(s) to their coupon rate (with the curve fixed)
-   * @param pvJacobian Matrix of sensitivity of the PV of the instruments used to build the curve(s) to the yields - 
-   * the i,j element is dx_i/dy_j where x_i is the PV of the ith instrument and y_j is the jth yield 
+   * @param pvJacobian Matrix of sensitivity of the PV of the instruments used to build the curve(s) to the yields -
+   * the i,j element is dx_i/dy_j where x_i is the PV of the ith instrument and y_j is the jth yield
    * @param nsc A {@link PresentValueNodeSensitivityCalculator}, not null
-   * @return bucked delta
+   * @return bucketed delta
    */
   public DoubleMatrix1D calculateFromPresentValue(final InstrumentDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves,
       final DoubleMatrix1D couponSensitivity, final DoubleMatrix2D pvJacobian, final PresentValueNodeSensitivityCalculator nsc) {
@@ -65,10 +65,10 @@ public final class InstrumentSensitivityCalculator {
    * @param ird The instrument of interest
    * @param fixedCurves any fixed curves (can be null)
    * @param interpolatedCurves The set of interpolatedCurves
-   * @param parRateJacobian Matrix of sensitivity of the par-rate of the instruments used to build the curve(s) to the yields - 
+   * @param parRateJacobian Matrix of sensitivity of the par-rate of the instruments used to build the curve(s) to the yields -
    * the i,j element is dr_i/dy_j where r_i is the par-rate of the ith instrument and y_j is the jth yield
    * @param  nsc A {@link PresentValueNodeSensitivityCalculator}, not null
-   * @return bucked delta
+   * @return bucketed delta
    */
   public DoubleMatrix1D calculateFromParRate(final InstrumentDerivative ird, final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves, final DoubleMatrix2D parRateJacobian,
       final PresentValueNodeSensitivityCalculator nsc) {
@@ -92,4 +92,16 @@ public final class InstrumentSensitivityCalculator {
     return new DoubleMatrix1D(res);
   }
 
+  /**
+   * Calculates the sensitivity of the present value (PV) of an instrument to changes in the node points of an interpolated curve.
+   * @param ird The instrument of interest
+   * @param interpolatedCurves The set of interpolatedCurves
+   * the i,j element is dr_i/dy_j where r_i is the par-rate of the ith instrument and y_j is the jth yield
+   * @param  nsc A {@link PresentValueNodeSensitivityCalculator}, not null
+   * @return bucketed delta
+   */
+  public DoubleMatrix1D calculateFromSimpleInterpolatedCurve(final InstrumentDerivative ird, final YieldCurveBundle interpolatedCurves, final PresentValueNodeSensitivityCalculator nsc) {
+    Validate.notNull(nsc, "node sensitivity calculator");
+    return nsc.calculateSensitivities(ird, null, interpolatedCurves);
+  }
 }

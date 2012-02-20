@@ -6,7 +6,9 @@
 package com.opengamma.component;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -40,6 +42,7 @@ public class ComponentConfigLoader {
    * @return the config, not null
    */
   public ComponentConfig load(Resource resource, ConcurrentMap<String, String> properties) {
+    Map<String, String> iniProperties = extractIniProperties(properties);
     properties = adjustProperties(properties);
     
     List<String> lines = readLines(resource);
@@ -72,7 +75,32 @@ public class ComponentConfigLoader {
         }
       }
     }
+    
+    // override config with properties prefixed by INI
+    for (Entry<String, String> entry : iniProperties.entrySet()) {
+      String iniGroup = StringUtils.substringBefore(entry.getKey(), ".");
+      String iniKey = StringUtils.substringAfter(entry.getKey(), ".");
+      config.getGroup(iniGroup).put(iniKey, entry.getValue());  // throws exception if iniGroup not found
+    }
     return config;
+  }
+
+  /**
+   * Extracts any properties that start with "INI.".
+   * <p>
+   * These directly override any INI file settings.
+   * 
+   * @param properties  the properties, not null
+   * @return the extracted set of INI properties, not null
+   */
+  private Map<String, String> extractIniProperties(ConcurrentMap<String, String> properties) {
+    Map<String, String> extracted = new HashMap<String, String>();
+    for (String key : properties.keySet()) {
+      if (key.startsWith("INI.") && key.substring(4).contains(".")) {
+        extracted.put(key.substring(4), properties.get(key));
+      }
+    }
+    return extracted;
   }
 
   //-------------------------------------------------------------------------

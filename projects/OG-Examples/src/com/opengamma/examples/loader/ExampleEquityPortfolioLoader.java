@@ -5,7 +5,18 @@
  */
 package com.opengamma.examples.loader;
 
+import static com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper.getWithException;
+import static com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper.normaliseHeaders;
+
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 
@@ -13,6 +24,9 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import au.com.bytecode.opencsv.CSVReader;
+
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.examples.tool.AbstractTool;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -26,26 +40,40 @@ import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.security.SecurityDocument;
-import com.opengamma.master.security.SecuritySearchRequest;
-import com.opengamma.master.security.SecuritySearchResult;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.util.money.Currency;
 
 /**
- * Example code to load a simple equity portfolio.
+ * Example code to load a very simple equity portfolio.
  * <p>
- * This loads all equity securities previously stored in the master and
- * categorizes them by GICS code.
- * Note that to work correclty, you need to have already loaded your security master with
- * a set of equity definitions, which would typically require some kind of static data source.
+ * This code is kept deliberately as simple as possible.
+ * There are no checks for the securities or portfolios already existing, so if you run it
+ * more than once you will get multiple copies portfolios and securities with the same names.
+ * It is designed to run against the HSQLDB example database.
  */
 public class ExampleEquityPortfolioLoader extends AbstractTool {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleEquityPortfolioLoader.class);
 
+  private static final Map<String, String> SECTORS = new HashMap<String, String>();
+  static {
+    SECTORS.put("10", "10 Energy");
+    SECTORS.put("15", "15 Materials");
+    SECTORS.put("20", "20 Industrials");
+    SECTORS.put("25", "25 Consumer discretionary");
+    SECTORS.put("30", "30 Consumer staples");
+    SECTORS.put("35", "35 Health care");
+    SECTORS.put("40", "40 Financials");
+    SECTORS.put("45", "45 Information technology");
+    SECTORS.put("50", "50 Telecommunication");
+    SECTORS.put("55", "55 Utilities");
+  }
+  
   /**
    * The name of the portfolio.
    */
-  private static final String PORTFOLIO_NAME = "Example Equity Portfolio";
+  public static final String PORTFOLIO_NAME = "Example Equity Portfolio";
 
   //-------------------------------------------------------------------------
   /**
@@ -65,26 +93,52 @@ public class ExampleEquityPortfolioLoader extends AbstractTool {
   @Override
   protected void doRun() {
     // load all equity securities
-    final SecuritySearchResult securityShells = loadAllEquitySecurities();
+    final Collection<EquitySecurity> securities = createAndPersistEquitySecurities();
     
     // create shell portfolio
-    final ManageablePortfolio portfolio = createPortfolio();
+    final ManageablePortfolio portfolio = createEmptyPortfolio();
     final ManageablePortfolioNode rootNode = portfolio.getRootNode();
     
     // add each security to the portfolio
-    for (SecurityDocument shellDoc : securityShells.getDocuments()) {
-      // load the full detail of the security
-      final EquitySecurity security = loadFullSecurity(shellDoc);
+    for (EquitySecurity security : securities) {
       
-      // build the tree structure using the GICS code
-      final GICSCode gics = security.getGicsCode();
-      if (gics == null) {
+      GICSCode gics = security.getGicsCode();
+      if (gics == null || gics.isPartial()) {
         continue;
       }
-      final ManageablePortfolioNode subIndustryNode = buildPortfolioTree(rootNode, gics);
+      String sector = SECTORS.get(gics.getSectorCode());
+      String industryGroup = gics.getIndustryGroupCode();
+      String industry = gics.getIndustryCode();
+      String subIndustry = gics.getSubIndustryCode();
+      
+      // create portfolio structure
+      ManageablePortfolioNode sectorNode = rootNode.findNodeByName(sector);
+      if (sectorNode == null) {
+        s_logger.debug("Creating node for sector {}", sector);
+        sectorNode = new ManageablePortfolioNode(sector);
+        rootNode.addChildNode(sectorNode);
+      }
+      ManageablePortfolioNode groupNode = sectorNode.findNodeByName("Group " + industryGroup);
+      if (groupNode == null) {
+        s_logger.debug("Creating node for industry group {}", industryGroup);
+        groupNode = new ManageablePortfolioNode("Group " + industryGroup);
+        sectorNode.addChildNode(groupNode);
+      }
+      ManageablePortfolioNode industryNode = groupNode.findNodeByName("Industry " + industry);
+      if (industryNode == null) {
+        s_logger.debug("Creating node for industry {}", industry);
+        industryNode = new ManageablePortfolioNode("Industry " + industry);
+        groupNode.addChildNode(industryNode);
+      }
+      ManageablePortfolioNode subIndustryNode = industryNode.findNodeByName("Sub industry " + subIndustry);
+      if (subIndustryNode == null) {
+        s_logger.debug("Creating node for sub industry {}", subIndustry);
+        subIndustryNode = new ManageablePortfolioNode("Sub industry " + subIndustry);
+        industryNode.addChildNode(subIndustryNode);
+      }
       
       // create the position and add it to the master
-      final ManageablePosition position = createPosition(security);
+      final ManageablePosition position = createPositionAndTrade(security);
       final PositionDocument addedPosition = addPosition(position);
       
       // add the position reference (the unique identifier) to portfolio
@@ -95,52 +149,98 @@ public class ExampleEquityPortfolioLoader extends AbstractTool {
     addPortfolio(portfolio);
   }
 
+  protected EquitySecurity createEquitySecurity(String companyName, Currency currency, String exchange, String exchangeCode, String gicsCode, ExternalId... identifiers) {
+    EquitySecurity equitySecurity = new EquitySecurity(exchange, exchangeCode, companyName, currency);
+    equitySecurity.setGicsCode(GICSCode.of(gicsCode));
+    equitySecurity.setExternalIdBundle(ExternalIdBundle.of(identifiers));
+    equitySecurity.setName(companyName);
+    return equitySecurity;
+  }
   /**
-   * Loads all securities from the master.
-   * <p>
-   * This loads all the securities into memory.
-   * However, by setting "full detail" to false, only minimal information is loaded.
-   * <p>
-   * An alternate approach to scalability would be to batch the results using the
-   * paging controls of the search request.
+   * Creates securities and adds them to the master.
    * 
-   * @return all securities in the security master, not null
+   * @return a collection of all securities that have been persisted, not null
    */
-  protected SecuritySearchResult loadAllEquitySecurities() {
-    SecuritySearchRequest secSearch = new SecuritySearchRequest();
-    secSearch.setFullDetail(false);
-    secSearch.setSecurityType(EquitySecurity.SECURITY_TYPE);
-    SecuritySearchResult securities = getToolContext().getSecurityMaster().search(secSearch);
-    s_logger.info("Found {} securities", securities.getDocuments().size());
+  protected Collection<EquitySecurity> createAndPersistEquitySecurities() {
+    SecurityMaster secMaster = getToolContext().getSecurityMaster();
+    Collection<EquitySecurity> securities = loadEquitySecurities();
+    for (EquitySecurity security : securities) {
+      SecurityDocument doc = new SecurityDocument(security);
+      secMaster.add(doc);
+    }
     return securities;
   }
 
-  /**
-   * Loads the full detail of the security.
-   * <p>
-   * The search used an optimization where the "full detail" of the security was not loaded.
-   * It is thus necessary to load the full information about the security before processing.
-   * The unique identifier is the key to loading the security.
-   * 
-   * @param shellDoc  the document to load, not null
-   * @return the equity security, not null
-   */
-  protected EquitySecurity loadFullSecurity(SecurityDocument shellDoc) {
-    s_logger.warn("Loading security {} {}", shellDoc.getUniqueId(), shellDoc.getSecurity().getName());
-    SecurityDocument doc = getToolContext().getSecurityMaster().get(shellDoc.getUniqueId());
-    EquitySecurity sec = (EquitySecurity) doc.getSecurity();
-    return sec;
+  private Collection<EquitySecurity> loadEquitySecurities() {
+    Collection<EquitySecurity> equities = new ArrayList<EquitySecurity>();
+    InputStream inputStream = ExampleEquityPortfolioLoader.class.getResourceAsStream("example-equity.csv");  
+    try {
+      if (inputStream != null) {
+        CSVReader csvReader = new CSVReader(new InputStreamReader(inputStream));
+        
+        String[] headers = csvReader.readNext();
+        normaliseHeaders(headers);
+        
+        String[] line;
+        int rowIndex = 1;
+        while ((line = csvReader.readNext()) != null) {
+          Map<String, String> equityDetails = new HashMap<String, String>();
+          for (int i = 0; i < headers.length; i++) {
+            if (i >= line.length) {
+              // Run out of headers for this line
+              break;
+            }
+            equityDetails.put(headers[i], line[i]);
+          }
+          try {
+            equities.add(parseEquity(equityDetails));
+          } catch (Exception e) {
+            s_logger.warn("Skipped row " + rowIndex + " because of an error", e);
+          }
+          rowIndex++;
+        }
+      }
+    } catch (FileNotFoundException ex) {
+      throw new OpenGammaRuntimeException("File '" + inputStream + "' could not be found");
+    } catch (IOException ex) {
+      throw new OpenGammaRuntimeException("An error occurred while reading file '" + inputStream + "'");
+    }
+    
+    StringBuilder sb = new StringBuilder();
+    sb.append("Parsed ").append(equities.size()).append(" equities:\n");
+    for (EquitySecurity equity : equities) {
+      sb.append("\t").append(equity.getName()).append("\n");
+    }
+    s_logger.info(sb.toString());
+    
+    return equities;
+  }
+
+  private EquitySecurity parseEquity(Map<String, String> equityDetails) {
+    String companyName = getWithException(equityDetails, "companyname");
+    String currency = getWithException(equityDetails, "currency");
+    String exchange = getWithException(equityDetails, "exchange");
+    String exchangeCode = getWithException(equityDetails, "exchangecode");
+    String gicsCode = getWithException(equityDetails, "giscode");
+    String isin = getWithException(equityDetails, "isin");
+    String cusip = getWithException(equityDetails, "cusip");
+    String ticker = getWithException(equityDetails, "ticker");
+    
+    return createEquitySecurity(companyName, Currency.of(currency), exchange, exchangeCode, gicsCode,
+        ExternalId.of(SecurityUtils.ISIN, isin), 
+        ExternalId.of(SecurityUtils.CUSIP, cusip), 
+        ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, ticker));
   }
 
   /**
-   * Create a shell portfolio.
+   * Create a empty portfolio.
    * <p>
    * This creates the portfolio and the root of the tree structure that holds the positions.
    * Subsequent methods then populate the tree.
    * 
-   * @return the shell portfolio, not null
+   * @return the emoty portfolio, not null
    */
-  protected ManageablePortfolio createPortfolio() {
+  protected ManageablePortfolio createEmptyPortfolio() {
     ManageablePortfolio portfolio = new ManageablePortfolio(PORTFOLIO_NAME);
     ManageablePortfolioNode rootNode = portfolio.getRootNode();
     rootNode.setName("Root");
@@ -148,72 +248,22 @@ public class ExampleEquityPortfolioLoader extends AbstractTool {
   }
 
   /**
-   * Create the portfolio tree structure based.
-   * <p>
-   * This uses the GICS code to create a tree structure.
-   * The position will be added to the lowest child node, which is returned.
-   * 
-   * @param rootNode  the root node of the tree, not null
-   * @param gics  the GICS representation, not null
-   * @return the lowest child node, not null
-   */
-  protected ManageablePortfolioNode buildPortfolioTree(ManageablePortfolioNode rootNode, GICSCode gics) {
-    String sector = gics.getSectorCode();
-    ManageablePortfolioNode sectorNode = rootNode.findNodeByName(sector);
-    if (sectorNode == null) {
-      s_logger.warn("Creating node for sector {}", sector);
-      sectorNode = new ManageablePortfolioNode(sector);
-      rootNode.addChildNode(sectorNode);
-    }
-    
-    String industryGroup = gics.getIndustryGroupCode();
-    ManageablePortfolioNode groupNode = sectorNode.findNodeByName("Group " + industryGroup);
-    if (groupNode == null) {
-      s_logger.warn("Creating node for industry group {}", industryGroup);
-      groupNode = new ManageablePortfolioNode("Group " + industryGroup);
-      sectorNode.addChildNode(groupNode);
-    }
-    
-    String industry = gics.getIndustryCode();
-    ManageablePortfolioNode industryNode = groupNode.findNodeByName("Industry " + industry);
-    if (industryNode == null) {
-      s_logger.warn("Creating node for industry {}", industry);
-      industryNode = new ManageablePortfolioNode("Industry " + industry);
-      groupNode.addChildNode(industryNode);
-    }
-    
-    String subIndustry = gics.getSubIndustryCode();
-    ManageablePortfolioNode subIndustryNode = industryNode.findNodeByName("Sub industry " + subIndustry);
-    if (subIndustryNode == null) {
-      s_logger.warn("Creating node for sub industry {}", subIndustry);
-      subIndustryNode = new ManageablePortfolioNode("Sub industry " + subIndustry);
-      industryNode.addChildNode(subIndustryNode);
-    }
-    return subIndustryNode;
-  }
-
-  /**
    * Create a position of a random number of shares.
    * <p>
-   * This creates the position using a random number of units.
+   * This creates the position using a random number of units and create one or two trades making up the position.
    * 
    * @param security  the security to add a position for, not null
    * @return the position, not null
    */
-  protected ManageablePosition createPosition(EquitySecurity security) {
-    s_logger.warn("Creating position {}", security);
+  protected ManageablePosition createPositionAndTrade(EquitySecurity security) {
+    s_logger.debug("Creating position {}", security);
     int shares = (RandomUtils.nextInt(490) + 10) * 10;
-    ExternalId buid = security.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_BUID);
-    ExternalId ticker = security.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
-    ExternalIdBundle bundle;
-    if (buid != null && ticker != null) {
-      bundle = ExternalIdBundle.of(buid, ticker);
-    } else {
-      bundle = security.getExternalIdBundle();
-    }
+    
+    ExternalIdBundle bundle = security.getExternalIdBundle(); // we could add an identifier pointing back to the original source database if we're doing an ETL.
+
     ManageablePosition position = new ManageablePosition(BigDecimal.valueOf(shares), bundle);
     
-    // create random trades
+    // create random trades that add up in shares to the position they're under (this is not enforced by the system)
     if (shares <= 2000) {
       ManageableTrade trade = new ManageableTrade(BigDecimal.valueOf(shares), bundle, LocalDate.of(2010, 12, 3), null, ExternalId.of("CPARTY", "BACS"));
       position.addTrade(trade);
