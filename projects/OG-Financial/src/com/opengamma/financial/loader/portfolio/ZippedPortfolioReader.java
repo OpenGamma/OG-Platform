@@ -100,7 +100,7 @@ public class ZippedPortfolioReader implements PortfolioReader {
           SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
 
           // Create a generic simple portfolio loader for the current sheet, using a dynamically loaded row parser class
-          SingleSheetPortfolioReader portfolioReader = new SimplePortfolioReader(sheet, sheet.getColumns(), secType, _loaderContext);
+          SingleSheetPortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(sheet, sheet.getColumns(), secType, _loaderContext);
 
           s_logger.info("Processing " + entry.getName() + " as " + secType);
 

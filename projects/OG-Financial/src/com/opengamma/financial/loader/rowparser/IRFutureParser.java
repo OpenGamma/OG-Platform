@@ -18,8 +18,6 @@ import javax.time.calendar.ZonedDateTime;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
-import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;

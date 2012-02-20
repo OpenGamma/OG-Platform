@@ -15,13 +15,10 @@ import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.core.region.RegionUtils;
-import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.schedule.ScheduleCalculator;
-import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;

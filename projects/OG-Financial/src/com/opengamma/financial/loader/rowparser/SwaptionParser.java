@@ -6,7 +6,6 @@
 
 package com.opengamma.financial.loader.rowparser;
 
-import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -132,13 +131,6 @@ public class SwaptionParser extends RowParser {
     return years + "Y x " + swapLength + "Y";
   }
 
-  public Map<String, String> constructRow(ManageableSecurity security) {
-    Map<String, String> result = new HashMap<String, String>();
-    SwaptionSecurity swaption = (SwaptionSecurity) security;
-    
-    // TODO not ready yet
-
-    return result;  
-  }
+  // TODO implement constructRow for portfolio export
 
 }

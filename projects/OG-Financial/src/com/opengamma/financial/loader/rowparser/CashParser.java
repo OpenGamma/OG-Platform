@@ -20,8 +20,6 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.money.Currency;
