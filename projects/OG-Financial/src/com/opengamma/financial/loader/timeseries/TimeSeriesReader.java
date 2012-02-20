@@ -3,7 +3,6 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.loader.timeseries;
 
 public interface TimeSeriesReader {

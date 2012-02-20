@@ -3,7 +3,6 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.loader;
 
 import org.apache.commons.cli.CommandLine;
@@ -12,11 +11,8 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.loader.portfolio.DummyPortfolioWriter;
@@ -25,7 +21,7 @@ import com.opengamma.financial.loader.portfolio.PortfolioReader;
 import com.opengamma.financial.loader.portfolio.PortfolioWriter;
 import com.opengamma.financial.loader.portfolio.SingleSheetSimplePortfolioReader;
 import com.opengamma.financial.loader.portfolio.ZippedPortfolioReader;
-import com.opengamma.util.PlatformConfigUtils;
+import com.opengamma.financial.tool.ToolContext;
 
 /**
  * Provides standard portfolio loader functionality
@@ -40,8 +36,6 @@ public class PortfolioLoaderTool {
   private static final String FILE_NAME_OPT = "f";
   /** Portfolio name option flag*/
   private static final String PORTFOLIO_NAME_OPT = "n";
-  /** Run mode option flag */
-  private static final String RUN_MODE_OPT = "r";
   /** Write option flag */
   private static final String WRITE_OPT = "w";
   /** Asset class flag */
@@ -50,56 +44,30 @@ public class PortfolioLoaderTool {
   /**
    * ENTRY POINT FOR COMMAND LINE TOOL
    * @param args  Command line args
+   * @param toolContext  the loader context
    */
-  public void run(String[] args) { 
-    s_logger.info(TOOL_NAME + " is initialising...");
-    s_logger.info("Current working directory is " + System.getProperty("user.dir"));
-    
-    // Parse command line arguments
-    CommandLine cmdLine = getCmdLine(args, false);
-    
-    // Configure the OG platform
-    PlatformConfigUtils.configureSystemProperties(cmdLine.getOptionValue(RUN_MODE_OPT));
-    AbstractApplicationContext applicationContext = 
-        new ClassPathXmlApplicationContext("com/opengamma/financial/loader/loaderContext.xml");
-    
-    // Get an OG loader context, which will provide access to any required masters/sources
-    applicationContext.start();
-    LoaderContext loaderContext = (LoaderContext) applicationContext.getBean("loaderContext");
-    
-    run(cmdLine, loaderContext);
-    
-    // Clean up and shut down
-    applicationContext.close();
-  }
-
-  /**
-   * ENTRY POINT FOR COMMAND LINE TOOL
-   * @param args  Command line args
-   * @param loaderContext  the loader context
-   */
-  public void run(String[] args, LoaderContext loaderContext) {
+  public void run(String[] args, ToolContext toolContext) {
     s_logger.info(TOOL_NAME + " is initialising...");
     s_logger.info("Current working directory is " + System.getProperty("user.dir"));
     
     // Parse command line arguments
     CommandLine cmdLine = getCmdLine(args, true);
     
-    run(cmdLine, loaderContext);
+    run(cmdLine, toolContext);
   }
 
-  private void run(CommandLine cmdLine, LoaderContext loaderContext) {
+  private void run(CommandLine cmdLine, ToolContext toolContext) {
     // Set up writer
     PortfolioWriter portfolioWriter = constructPortfolioWriter(
         cmdLine.getOptionValue(PORTFOLIO_NAME_OPT), 
         cmdLine.hasOption(WRITE_OPT),
-        loaderContext);
+        toolContext);
     
      // Set up reader
     PortfolioReader portfolioReader = constructPortfolioReader(
         cmdLine.getOptionValue(FILE_NAME_OPT), 
         cmdLine.getOptionValue(ASSET_CLASS_OPT), 
-        loaderContext);
+        toolContext);
     
     // Load in and write the securities, positions and trades
     portfolioReader.writeTo(portfolioWriter);
@@ -133,13 +101,6 @@ public class PortfolioLoaderTool {
         PORTFOLIO_NAME_OPT, "name", true, "The name of the destination OpenGamma portfolio");
     options.addOption(portfolioNameOption);
     
-    if (contextProvided == false) {
-      Option runModeOption = new Option(
-          RUN_MODE_OPT, "runmode", true, "The OpenGamma run mode: shareddev, standalone");
-      runModeOption.setRequired(true);
-      options.addOption(runModeOption);
-    }
-    
     Option writeOption = new Option(
         WRITE_OPT, "write", false, 
         "Actually persists the portfolio to the database if specified, otherwise pretty-prints without persisting");
@@ -153,9 +114,7 @@ public class PortfolioLoaderTool {
     return options;
   }
 
-  private static PortfolioWriter constructPortfolioWriter(String portfolioName, boolean write,
-      LoaderContext loaderContext) {
-    
+  private static PortfolioWriter constructPortfolioWriter(String portfolioName, boolean write, ToolContext toolContext) {
     if (write) {  
       // Check that the portfolio name was specified on the command line
       if (portfolioName == null) {
@@ -163,10 +122,10 @@ public class PortfolioLoaderTool {
       }
       
       s_logger.info("Write option specified, will persist to OpenGamma masters in portfolio '" + portfolioName + "'");
-    
+      
       // Create a portfolio writer to persist imported positions, trades and securities to the OG masters
-      return new MasterPortfolioWriter(portfolioName, loaderContext);
-  
+      return new MasterPortfolioWriter(portfolioName, toolContext);
+      
     } else {
       s_logger.info("Write option omitted, will pretty-print instead of persisting to OpenGamma masters");
       
@@ -175,10 +134,8 @@ public class PortfolioLoaderTool {
     }
 
   }
-  
-  private static PortfolioReader constructPortfolioReader(String filename, String securityClass, 
-      LoaderContext loaderContext) {
-    
+
+  private static PortfolioReader constructPortfolioReader(String filename, String securityClass, ToolContext toolContext) {
     String extension = filename.substring(filename.lastIndexOf('.'));
     
     // Single CSV or XLS file extension
@@ -187,15 +144,15 @@ public class PortfolioLoaderTool {
       if (securityClass == null) {
         throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename + " (use '-a')");
       } else {
-        return new SingleSheetSimplePortfolioReader(filename, securityClass, loaderContext);
+        return new SingleSheetSimplePortfolioReader(filename, securityClass, toolContext);
       }
     // Multi-asset ZIP file extension
     } else if (extension.equalsIgnoreCase(".zip")) {
       // Create zipped multi-asset class loader
-      return new ZippedPortfolioReader(filename, loaderContext);
+      return new ZippedPortfolioReader(filename, toolContext);
     } else {
       throw new OpenGammaRuntimeException("Input filename should end in .CSV or .ZIP");
     }
   }
-  
+
 }
