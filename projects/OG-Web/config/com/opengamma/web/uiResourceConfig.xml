@@ -130,14 +130,6 @@
     <bundle idref="jquery.css" />
     <bundle idref="slickgrid.css" />
   </bundle>
-  <bundle id="og_analytics.css">
-    <fragment>/styles/common/og.common.reset.css</fragment>
-    <fragment>/styles/common/og.common.core.css</fragment>
-    <fragment>/styles/common/og.common.form.css</fragment>
-    <fragment>/styles/common/og.common.fonts.css</fragment>
-    <fragment>/styles/common/og.common.links.css</fragment>
-    <fragment>/styles/common/og.common.buttons.css</fragment>	
-  </bundle>  
   <!--                                -->
   <!--  JavaScript                    -->
   <!--                                -->
@@ -271,6 +263,8 @@
   </bundle>
   <bundle id="analytics.js">
     <fragment>/scripts/og/views/og.views.analytics.js</fragment>
+  </bundle>
+  <bundle id="analytics2.js">
     <fragment>/scripts/og/views/og.views.analytics2.js</fragment>
   </bundle>
   <bundle id="ie.js">

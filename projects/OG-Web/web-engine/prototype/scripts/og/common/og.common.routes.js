@@ -47,7 +47,7 @@ $.register_module({
                     if (!/^.*\/analytics2\.ftl$/.test(window.location.href)) {
                         common.layout = /^.*\/analytics\.ftl$/.test(window.location.href) ? common.layout.analytics()
                             : common.layout['default']();
-                    }
+                    } else common.layout.analytics2();
                     routes.handler();
                     set_title(routes.current().hash);
                 });

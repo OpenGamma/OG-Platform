@@ -8,11 +8,23 @@
 <meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
 <title>OpenGamma</title>
 <!--[if lt IE 9]><script type="text/javascript" src="/prototype/scripts/lib/html5.js"></script><![endif]-->
-${ogStyle.print('og_analytics.css', 'all',false)}
+${ogStyle.print('og_all.css', 'all',false)}
 </head>
 <body>
-<div id="analytics"></div>
+<div class="ui-layout-container">
+  <div class="ui-layout-center">
+    <div id="analytics"></div>
+  </div>
+  <div class="ui-layout-north">
+    north
+  </div>
+  <div class="ui-layout-south">
+    footer
+  </div>
+  <div class="ui-layout-east">&nbsp;</div>
+  <div class="ui-layout-west">&nbsp;</div>
+</div>
 <!--[if IE]>${ogScript.print('ie.js',false)}<![endif]-->
-${ogScript.print('og_analytics.js',false)}
+${ogScript.print('og_analytics2.js',false)}
 </body>
 </html>
