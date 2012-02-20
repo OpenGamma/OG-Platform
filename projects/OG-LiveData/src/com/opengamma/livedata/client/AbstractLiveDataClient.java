@@ -8,21 +8,23 @@ package com.opengamma.livedata.client;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.ReadLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.common.collect.HashMultimap;
+import com.google.common.collect.Multimap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.livedata.LiveDataClient;
 import com.opengamma.livedata.LiveDataListener;
@@ -53,8 +55,20 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   private final Timer _timer = new Timer("LiveDataClient Timer");
   private HeartbeatSender _heartbeatSender;
   private final Lock _subscriptionLock = new ReentrantLock();
-  private final Map<LiveDataSpecification, Set<SubscriptionHandle>> _fullyQualifiedSpec2PendingSubscriptions =
-    new HashMap<LiveDataSpecification, Set<SubscriptionHandle>>();
+  
+  
+  private final ReentrantReadWriteLock _pendingSubscriptionLock = new ReentrantReadWriteLock();
+  private final ReadLock _pendingSubscriptionReadLock = _pendingSubscriptionLock.readLock();
+  private final WriteLock _pendingSubscriptionWriteLock = _pendingSubscriptionLock.writeLock();
+  private final Multimap<LiveDataSpecification, SubscriptionHandle> _fullyQualifiedSpec2PendingSubscriptions = HashMultimap.create();
+  
+  /**
+   * This is the reverse of _fullyQualifiedSpec2PendingSubscriptions
+   * REVIEW simon 2012-02-20 -- I suspect that these could just be a BiMap, but it's not obvious from the current implementation
+   */
+  private final Multimap<SubscriptionHandle, LiveDataSpecification> _specsByHandle = HashMultimap.create();
+  
+  
   private final Set<LiveDataSpecification> _activeSubscriptionSpecifications =
     new HashSet<LiveDataSpecification>();
   
@@ -248,20 +262,18 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   
   
   protected void subscriptionStartingToReceiveTicks(SubscriptionHandle subHandle, LiveDataSubscriptionResponse response) {
-    synchronized (_fullyQualifiedSpec2PendingSubscriptions) {
-      
-      Set<SubscriptionHandle> subscriptionHandleSet = _fullyQualifiedSpec2PendingSubscriptions.get(response.getFullyQualifiedSpecification());
-      if (subscriptionHandleSet == null) {
-        subscriptionHandleSet = new HashSet<SubscriptionHandle>();
-        _fullyQualifiedSpec2PendingSubscriptions.put(response.getFullyQualifiedSpecification(), subscriptionHandleSet);
-      }
-      
-      subscriptionHandleSet.add(subHandle);
-    } 
+    _pendingSubscriptionWriteLock.lock();
+    try {
+      _fullyQualifiedSpec2PendingSubscriptions.put(response.getFullyQualifiedSpecification(), subHandle);
+      _specsByHandle.put(subHandle, response.getFullyQualifiedSpecification());
+    } finally {
+      _pendingSubscriptionWriteLock.unlock();
+    }
   }
   
   protected void subscriptionRequestSatisfied(SubscriptionHandle subHandle, LiveDataSubscriptionResponse response) {
-    synchronized (_fullyQualifiedSpec2PendingSubscriptions) {
+    _pendingSubscriptionWriteLock.lock();
+    try {
       // Atomically (to valueUpdate callers) turn the pending subscription into a full subscription.
       // REVIEW jonathan 2010-12-01 -- rearranged this so that the internal _subscriptionLock is not being held while
       // releasing ticks to listeners, which is a recipe for deadlock.
@@ -274,6 +286,8 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
       } finally {
         _subscriptionLock.unlock();
       }
+    } finally {
+      _pendingSubscriptionWriteLock.unlock();
     }
   }
   
@@ -282,16 +296,14 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   }
   
   protected void removePendingSubscription(SubscriptionHandle subHandle) {
-    synchronized (_fullyQualifiedSpec2PendingSubscriptions) {
-      for (Iterator<Set<SubscriptionHandle>> iterator = _fullyQualifiedSpec2PendingSubscriptions.values().iterator(); iterator.hasNext(); ) {
-        Set<SubscriptionHandle> handleSet = iterator.next();
-        boolean removed = handleSet.remove(subHandle);
-        if (removed && handleSet.isEmpty()) {
-          iterator.remove();
-        }
+    _pendingSubscriptionWriteLock.lock();
+    try {
+      Collection<LiveDataSpecification> specs = _specsByHandle.removeAll(subHandle);
+      for (LiveDataSpecification liveDataSpecification : specs) {
+        _fullyQualifiedSpec2PendingSubscriptions.remove(liveDataSpecification, subHandle);
       }
-      
-
+    } finally {
+      _pendingSubscriptionWriteLock.unlock();
     }
   }
   
@@ -342,16 +354,16 @@ public abstract class AbstractLiveDataClient implements LiveDataClient {
   protected void valueUpdate(LiveDataValueUpdateBean update) {
     
     s_logger.debug("{}", update);
-    
-    synchronized (_fullyQualifiedSpec2PendingSubscriptions) { 
-      Set<SubscriptionHandle> pendingSubscriptions = _fullyQualifiedSpec2PendingSubscriptions.get(update.getSpecification());
-      if (pendingSubscriptions != null) {
-        for (SubscriptionHandle pendingSubscription : pendingSubscriptions) {
-          pendingSubscription.addTickOnHold(update);      
-        }
+
+    _pendingSubscriptionReadLock.lock();
+    try {
+      Collection<SubscriptionHandle> pendingSubscriptions = _fullyQualifiedSpec2PendingSubscriptions.get(update.getSpecification());
+      for (SubscriptionHandle pendingSubscription : pendingSubscriptions) {
+        pendingSubscription.addTickOnHold(update);
       }
+    } finally {
+      _pendingSubscriptionReadLock.unlock();
     }
-    
     getValueDistributor().notifyListeners(update);
   }
 
