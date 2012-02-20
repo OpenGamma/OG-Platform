@@ -1,0 +1,4 @@
+"Pay currency","Pay amount","Receive currency","Receive amount","Country","Forward date"
+USD,100000,EUR,90000,GB,01/12/2011
+GBP,100000,EUR,120000,GB,03/08/2013
+JPY,1000000,USD,10000,GB,06/04/2012
