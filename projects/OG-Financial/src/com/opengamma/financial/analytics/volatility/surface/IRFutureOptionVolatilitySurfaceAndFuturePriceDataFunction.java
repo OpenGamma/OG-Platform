@@ -183,6 +183,11 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
         if (target.getType() != ComputationTargetType.PRIMITIVE) {
           return false;
         }
+        try {
+          getResults(myContext, target);
+        } catch (final OpenGammaRuntimeException e) {
+          return false;
+        }
         return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
       }
 

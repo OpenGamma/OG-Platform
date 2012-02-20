@@ -98,7 +98,6 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
     final ConfigDBVolatilitySurfaceDefinitionSource definitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
     final ConfigDBVolatilitySurfaceSpecificationSource specificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
     final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    //TODO ENG-252 see MarketInstrumentImpliedYieldCurveFunction; need to work out the expiry more efficiently
     return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
 
       @Override
@@ -125,6 +124,11 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
       @Override
       public boolean canApplyTo(final FunctionCompilationContext myContext, final ComputationTarget target) {
         if (target.getType() != ComputationTargetType.PRIMITIVE) {
+          return false;
+        }
+        try {
+          getResults(myContext, target);
+        } catch (final OpenGammaRuntimeException e) {
           return false;
         }
         return isCorrectIdType(target);
