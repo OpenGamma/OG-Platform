@@ -18,6 +18,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
@@ -121,7 +122,6 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
         return requirements;
       }
 
-      @SuppressWarnings("synthetic-access")
       @Override
       public boolean canApplyTo(final FunctionCompilationContext myContext, final ComputationTarget target) {
         if (target.getType() != ComputationTargetType.PRIMITIVE) {
@@ -164,15 +164,24 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
         return true;
       }
 
-      @SuppressWarnings("unchecked")
+      @SuppressWarnings({"unchecked", "synthetic-access" })
       private VolatilitySurfaceDefinition<Object, Object> getSurfaceDefinition(final ConfigDBVolatilitySurfaceDefinitionSource source, final ComputationTarget target) {
         final String definitionName = _definitionName + "_" + target.getUniqueId().getValue();
-        return (VolatilitySurfaceDefinition<Object, Object>) source.getDefinition(definitionName, _instrumentType);
+        final VolatilitySurfaceDefinition<Object, Object> definition = (VolatilitySurfaceDefinition<Object, Object>) source.getDefinition(definitionName, _instrumentType);
+        if (definition == null) {
+          throw new OpenGammaRuntimeException("Could not get volatility surface definition named " + definitionName);
+        }
+        return definition;
       }
 
+      @SuppressWarnings("synthetic-access")
       private VolatilitySurfaceSpecification getSurfaceSpecification(final ConfigDBVolatilitySurfaceSpecificationSource source, final ComputationTarget target) {
         final String specificationName = _specificationName + "_" + target.getUniqueId().getValue();
-        return source.getSpecification(specificationName, _instrumentType);
+        final VolatilitySurfaceSpecification specification = source.getSpecification(specificationName, _instrumentType);
+        if (specification == null) {
+          throw new OpenGammaRuntimeException("Could not get volatility surface specification named " + specificationName);
+        }
+        return specification;
       }
     };
   }
