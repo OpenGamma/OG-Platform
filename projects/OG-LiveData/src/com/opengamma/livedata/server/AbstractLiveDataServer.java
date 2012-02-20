@@ -537,9 +537,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     Collection<String> snapshotsToActuallyDo = new ArrayList<String>();
     Map<String, LiveDataSpecification> securityUniqueId2LiveDataSpecificationFromClient = new HashMap<String, LiveDataSpecification>(); 
     
+    Map<LiveDataSpecification, DistributionSpecification> resolved = getDistributionSpecificationResolver().resolve(liveDataSpecificationsFromClient);
     for (LiveDataSpecification liveDataSpecificationFromClient : liveDataSpecificationsFromClient) {
-      DistributionSpecification distributionSpec = getDistributionSpecificationResolver()
-        .resolve(liveDataSpecificationFromClient);
+      DistributionSpecification distributionSpec = resolved.get(liveDataSpecificationFromClient);
       LiveDataSpecification fullyQualifiedSpec = distributionSpec.getFullyQualifiedLiveDataSpecification();
       
       MarketDataDistributor currentlyActiveDistributor = getMarketDataDistributor(distributionSpec);
