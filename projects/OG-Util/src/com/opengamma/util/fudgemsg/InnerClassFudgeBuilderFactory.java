@@ -10,10 +10,6 @@ import org.fudgemsg.mapping.*;
 import java.lang.reflect.Constructor;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Utilities for converting Beans to Fudge and vice versa.
@@ -23,7 +19,7 @@ public final class InnerClassFudgeBuilderFactory extends FudgeBuilderFactoryAdap
   /**
    * Map of bean class to builder.
    */
-  private final FudgeBuilder _innerClassFudgeBuilder = new InnerClassFudgeBuilder(getDelegate());
+  private final FudgeBuilder _innerClassFudgeBuilder = new InnerClassFudgeBuilder();
 
   /**
    * Initializes an instance of this factory.
@@ -43,45 +39,10 @@ public final class InnerClassFudgeBuilderFactory extends FudgeBuilderFactoryAdap
     super(parent);
   }
 
-  private <T> boolean canBeUsed(final Class<T> clazz) {
-    return
-      !(Map.class.isAssignableFrom(clazz) || Set.class.isAssignableFrom(clazz) || List.class.isAssignableFrom(clazz) || Collection.class.isAssignableFrom(clazz)) &&
-        clazz.getEnclosingClass() != null                       // the class is inner class 
-        && (constructorsCount(clazz) == 1)                    // and it have single only constructor
-        && clazz.getSuperclass().getEnclosingClass() == null  // and its super class is not inner one    
-        && hasSingleZeroArgConstructor(clazz.getSuperclass());// and its super class has single zero param constructor
-  }
-
-  private static boolean hasSingleZeroArgConstructor(final Class clazz) {
-    return AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
-      @Override
-      public Boolean run() {
-        Constructor<?>[] ctors = clazz.getDeclaredConstructors();
-        return ctors.length == 1 && ctors[0].getParameterTypes().length == 0;
-      }
-    });
-  }
-
-  private static int constructorsCount(final Class clazz) {
-    return AccessController.doPrivileged(new PrivilegedAction<Integer>() {
-      @Override
-      public Integer run() {
-        Constructor<?>[] ctors = clazz.getDeclaredConstructors();
-        return ctors.length;
-      }
-    });
-  }
-
-
   @Override
   public <T> FudgeMessageBuilder<T> createMessageBuilder(final Class<T> clazz) {
-    if (canBeUsed(clazz)) {
-      FudgeMessageBuilder defaultBuilder = super.createMessageBuilder(clazz);
-      if (defaultBuilder.getClass().getName().equals("org.fudgemsg.mapping.JavaBeanBuilder")) {
-        return _innerClassFudgeBuilder;
-      } else {
-        return defaultBuilder;
-      }
+    if (AutoFudgable.class.isAssignableFrom(clazz)) {
+      return _innerClassFudgeBuilder;
     } else {
       return super.createMessageBuilder(clazz);
     }
@@ -90,13 +51,8 @@ public final class InnerClassFudgeBuilderFactory extends FudgeBuilderFactoryAdap
 
   @Override
   public <T> FudgeObjectBuilder<T> createObjectBuilder(final Class<T> clazz) {
-    if (canBeUsed(clazz)) {
-      FudgeObjectBuilder defaultBuilder = super.createObjectBuilder(clazz);
-      if (defaultBuilder.getClass().getName().equals("org.fudgemsg.mapping.JavaBeanBuilder")) {
-        return _innerClassFudgeBuilder;
-      } else {
-        return defaultBuilder;
-      }
+    if (AutoFudgable.class.isAssignableFrom(clazz)) {
+      return _innerClassFudgeBuilder;
     } else {
       return super.createObjectBuilder(clazz);
     }
