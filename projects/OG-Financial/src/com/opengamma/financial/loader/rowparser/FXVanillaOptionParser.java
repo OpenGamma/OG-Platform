@@ -3,7 +3,6 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.loader.rowparser;
 
 import java.util.HashMap;
@@ -17,10 +16,10 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
@@ -46,8 +45,8 @@ public class FXVanillaOptionParser extends RowParser {
   protected String IS_LONG = "is long";
   //CSON
   
-  public FXVanillaOptionParser(LoaderContext loaderContext) {
-    super(loaderContext);
+  public FXVanillaOptionParser(ToolContext toolContext) {
+    super(toolContext);
   }
 
   @Override
@@ -64,8 +63,8 @@ public class FXVanillaOptionParser extends RowParser {
         getWithException(fxOptionDetails, EXPIRY), CSV_DATE_FORMATTER),
         LocalTime.of(16, 0)), TimeZone.UTC), ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR); //TODO shouldn't be hard-coding time and zone
     ZonedDateTime settlementDate;
-    if (getLoaderContext() != null) {
-      Calendar calendar = CalendarUtils.getCalendar(getLoaderContext().getHolidaySource(), putCurrency, callCurrency);
+    if (getToolContext() != null) {
+      Calendar calendar = CalendarUtils.getCalendar(getToolContext().getHolidaySource(), putCurrency, callCurrency);
       settlementDate = ScheduleCalculator.getAdjustedDate(expiry.getExpiry().toLocalDate(), SETTLEMENT_DAYS, calendar).atStartOfDayInZone(TimeZone.UTC); //expiry.getExpiry().plusDays(2);
     } else {
       settlementDate = expiry.getExpiry().plusDays(SETTLEMENT_DAYS);

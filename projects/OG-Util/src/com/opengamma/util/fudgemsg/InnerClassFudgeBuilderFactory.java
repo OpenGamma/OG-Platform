@@ -5,11 +5,12 @@
  */
 package com.opengamma.util.fudgemsg;
 
-import org.fudgemsg.mapping.*;
-
-import java.lang.reflect.Constructor;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
+import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeBuilderFactory;
+import org.fudgemsg.mapping.FudgeBuilderFactoryAdapter;
+import org.fudgemsg.mapping.FudgeMessageBuilder;
+import org.fudgemsg.mapping.FudgeObjectBuilder;
+import org.fudgemsg.mapping.FudgeObjectDictionary;
 
 /**
  * Utilities for converting Beans to Fudge and vice versa.
@@ -19,6 +20,7 @@ public final class InnerClassFudgeBuilderFactory extends FudgeBuilderFactoryAdap
   /**
    * Map of bean class to builder.
    */
+  @SuppressWarnings("rawtypes")
   private final FudgeBuilder _innerClassFudgeBuilder = new InnerClassFudgeBuilder();
 
   /**
@@ -39,6 +41,7 @@ public final class InnerClassFudgeBuilderFactory extends FudgeBuilderFactoryAdap
     super(parent);
   }
 
+  @SuppressWarnings("unchecked")
   @Override
   public <T> FudgeMessageBuilder<T> createMessageBuilder(final Class<T> clazz) {
     if (AutoFudgable.class.isAssignableFrom(clazz)) {
@@ -49,6 +52,7 @@ public final class InnerClassFudgeBuilderFactory extends FudgeBuilderFactoryAdap
   }
 
 
+  @SuppressWarnings("unchecked")
   @Override
   public <T> FudgeObjectBuilder<T> createObjectBuilder(final Class<T> clazz) {
     if (AutoFudgable.class.isAssignableFrom(clazz)) {

@@ -6,7 +6,6 @@
 package com.opengamma.examples.tool.portfolio;
 
 import com.opengamma.examples.tool.AbstractTool;
-import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.loader.PortfolioLoaderTool;
 
 /**
@@ -37,19 +36,7 @@ public class ExamplePortfolioLoaderTool extends AbstractTool {
    */
   @Override 
   protected void doRun() {
-    LoaderContext context = new LoaderContext();
-    context.setConfigMaster(getToolContext().getConfigMaster());
-    context.setConventionBundleSource(getToolContext().getConventionBundleSource());
-    context.setExchangeSource(getToolContext().getExchangeSource());
-    context.setHistoricalTimeSeriesMaster(getToolContext().getHistoricalTimeSeriesMaster());
-    context.setHistoricalTimeSeriesSource(getToolContext().getHistoricalTimeSeriesSource());
-    context.setHolidaySource(getToolContext().getHolidaySource());
-    context.setPortfolioMaster(getToolContext().getPortfolioMaster());
-    context.setPositionMaster(getToolContext().getPositionMaster());
-    context.setSecurityLoader(getToolContext().getSecurityLoader());
-    context.setSecurityMaster(getToolContext().getSecurityMaster());
-    context.setSecuritySource(getToolContext().getSecuritySource());
-    new PortfolioLoaderTool().run(s_args, context);
+    new PortfolioLoaderTool().run(s_args, getToolContext());
   }
 
 }

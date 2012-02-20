@@ -3,7 +3,6 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.loader.rowparser;
 
 import java.util.HashMap;
@@ -16,11 +15,11 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
@@ -46,8 +45,8 @@ public class IRFutureOptionParser extends RowParser {
   protected String IS_CALL = "call";
   //CSON
   
-  public IRFutureOptionParser(LoaderContext loaderContext) {
-    super(loaderContext);
+  public IRFutureOptionParser(ToolContext toolContext) {
+    super(toolContext);
   }
  
   @Override

@@ -3,24 +3,23 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.loader.portfolio;
 
 import java.util.Map;
 
-import com.opengamma.financial.loader.LoaderContext;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
-import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionMaster;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 
+/**
+ * Portfolio reader.
+ */
 public class MasterPortfolioReader implements PortfolioReader {
 
   private PortfolioMaster _portfolioMaster;
@@ -30,14 +29,14 @@ public class MasterPortfolioReader implements PortfolioReader {
   private PortfolioDocument _portfolioDocument;
   private ManageablePortfolioNode _currentNode;
 
-  public MasterPortfolioReader(String portfolioName, LoaderContext loaderContext) {
-    _portfolioMaster = loaderContext.getPortfolioMaster();
-    _positionMaster = loaderContext.getPositionMaster();
-    _securityMaster = loaderContext.getSecurityMaster();
+  public MasterPortfolioReader(String portfolioName, ToolContext toolContext) {
+    _portfolioMaster = toolContext.getPortfolioMaster();
+    _positionMaster = toolContext.getPositionMaster();
+    _securityMaster = toolContext.getSecurityMaster();
     
     _portfolioDocument = openPortfolio(portfolioName);
   }
-  
+
   public MasterPortfolioReader(String portfolioName, PortfolioMaster portfolioMaster, PositionMaster positionMaster, SecurityMaster securityMaster) {
     _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;

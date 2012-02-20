@@ -13,7 +13,6 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
 import com.opengamma.component.factory.tool.ToolContextUtils;
-import com.opengamma.financial.portfolio.loader.LoaderContext;
 import com.opengamma.financial.tool.ToolContext;
 
 /**
@@ -105,26 +104,6 @@ public abstract class AbstractTool {
    */
   protected ToolContext getToolContext() {
     return _toolContext;
-  }
-
-  /**
-   * Gets the loader context.
-   * 
-   * @return the loader context, not null
-   */
-  protected LoaderContext getLoaderContext() {
-    LoaderContext loaderContext = new LoaderContext();
-    loaderContext.setConfigMaster(getToolContext().getConfigMaster());
-    loaderContext.setSecurityMaster(getToolContext().getSecurityMaster());
-    loaderContext.setPositionMaster(getToolContext().getPositionMaster());
-    loaderContext.setPortfolioMaster(getToolContext().getPortfolioMaster());
-    loaderContext.setHistoricalTimeSeriesMaster(getToolContext().getHistoricalTimeSeriesMaster());
-    loaderContext.setExchangeSource(getToolContext().getExchangeSource());
-    loaderContext.setHolidaySource(getToolContext().getHolidaySource());
-    loaderContext.setSecuritySource(getToolContext().getSecuritySource());
-    loaderContext.setHistoricalTimeSeriesSource(getToolContext().getHistoricalTimeSeriesSource());
-    loaderContext.setConventionBundleSource(getToolContext().getConventionBundleSource());
-    return loaderContext;
   }
 
 }

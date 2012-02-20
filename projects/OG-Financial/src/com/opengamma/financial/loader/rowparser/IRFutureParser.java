@@ -3,7 +3,6 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.loader.rowparser;
 
 import java.util.HashMap;
@@ -16,8 +15,8 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
@@ -43,8 +42,8 @@ public class IRFutureParser extends RowParser {
   protected String BBG_CODE = "bbg code";
   //CSON
   
-  public IRFutureParser(LoaderContext loaderContext) {
-    super(loaderContext);
+  public IRFutureParser(ToolContext toolContext) {
+    super(toolContext);
   }
 
   @Override
