@@ -4,12 +4,15 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader;
+package com.opengamma.financial.loader.portfolio;
 
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import com.opengamma.financial.loader.PortfolioLoaderTool;
+import com.opengamma.financial.loader.sheet.SheetReader;
 
 /**
  * Abstract class for importing data from various 3rd party file formats

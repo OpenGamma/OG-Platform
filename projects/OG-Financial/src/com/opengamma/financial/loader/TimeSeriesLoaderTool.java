@@ -19,33 +19,33 @@ import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.loader.portfolio.DummyPortfolioWriter;
-import com.opengamma.financial.loader.portfolio.MasterPortfolioWriter;
-import com.opengamma.financial.loader.portfolio.PortfolioReader;
-import com.opengamma.financial.loader.portfolio.PortfolioWriter;
-import com.opengamma.financial.loader.portfolio.SingleSheetSimplePortfolioReader;
-import com.opengamma.financial.loader.portfolio.ZippedPortfolioReader;
+import com.opengamma.financial.loader.timeseries.DummyTimeSeriesWriter;
+import com.opengamma.financial.loader.timeseries.MasterTimeSeriesWriter;
+import com.opengamma.financial.loader.timeseries.SingleSheetMultiTimeSeriesReader;
+import com.opengamma.financial.loader.timeseries.TimeSeriesReader;
+import com.opengamma.financial.loader.timeseries.TimeSeriesWriter;
 import com.opengamma.util.PlatformConfigUtils;
 
 /**
- * Provides standard portfolio loader functionality
+ * Provides standard time series loader functionality
  */
-public class PortfolioLoaderTool {
+public class TimeSeriesLoaderTool {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderTool.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(TimeSeriesLoaderTool.class);
 
   /** Tool name */
-  private static final String TOOL_NAME = "OpenGamma Portfolio Importer";
+  private static final String TOOL_NAME = "OpenGamma Time Series Importer";
   /** File name option flag */
   private static final String FILE_NAME_OPT = "f";
-  /** Portfolio name option flag*/
-  private static final String PORTFOLIO_NAME_OPT = "n";
+  /** Time series data source option flag*/
+  private static final String TIME_SERIES_DATASOURCE_OPT = "s";
+  private static final String TIME_SERIES_DATAPROVIDER_OPT = "p";
+  private static final String TIME_SERIES_DATAFIELD_OPT = "d";
+  private static final String TIME_SERIES_OBSERVATIONTIME_OPT = "o";
   /** Run mode option flag */
   private static final String RUN_MODE_OPT = "r";
   /** Write option flag */
   private static final String WRITE_OPT = "w";
-  /** Asset class flag */
-  private static final String ASSET_CLASS_OPT = "a";
 
   /**
    * ENTRY POINT FOR COMMAND LINE TOOL
@@ -90,22 +90,24 @@ public class PortfolioLoaderTool {
 
   private void run(CommandLine cmdLine, LoaderContext loaderContext) {
     // Set up writer
-    PortfolioWriter portfolioWriter = constructPortfolioWriter(
-        cmdLine.getOptionValue(PORTFOLIO_NAME_OPT), 
+    TimeSeriesWriter timeSeriesWriter = constructTimeSeriesWriter(
         cmdLine.hasOption(WRITE_OPT),
         loaderContext);
     
      // Set up reader
-    PortfolioReader portfolioReader = constructPortfolioReader(
-        cmdLine.getOptionValue(FILE_NAME_OPT), 
-        cmdLine.getOptionValue(ASSET_CLASS_OPT), 
+    TimeSeriesReader timeSeriesReader = constructTimeSeriesReader(
+        cmdLine.getOptionValue(FILE_NAME_OPT),
+        cmdLine.getOptionValue(TIME_SERIES_DATASOURCE_OPT),
+        cmdLine.getOptionValue(TIME_SERIES_DATAPROVIDER_OPT),
+        cmdLine.getOptionValue(TIME_SERIES_DATAFIELD_OPT),
+        cmdLine.getOptionValue(TIME_SERIES_OBSERVATIONTIME_OPT),
         loaderContext);
     
     // Load in and write the securities, positions and trades
-    portfolioReader.writeTo(portfolioWriter);
+    timeSeriesReader.writeTo(timeSeriesWriter);
     
     // Flush changes to portfolio master
-    portfolioWriter.flush();
+    timeSeriesWriter.flush();
     
     s_logger.info(TOOL_NAME + " is finished.");
   }
@@ -129,9 +131,18 @@ public class PortfolioLoaderTool {
     filenameOption.setRequired(true);
     options.addOption(filenameOption);
     
-    Option portfolioNameOption = new Option(
-        PORTFOLIO_NAME_OPT, "name", true, "The name of the destination OpenGamma portfolio");
-    options.addOption(portfolioNameOption);
+    Option timeSeriesDataSourceOption = new Option(
+        TIME_SERIES_DATASOURCE_OPT, "name", true, "The name of the time series data source");
+    options.addOption(timeSeriesDataSourceOption);
+    Option timeSeriesDataProviderOption = new Option(
+        TIME_SERIES_DATAPROVIDER_OPT, "name", true, "The name of the time series data provider");
+    options.addOption(timeSeriesDataProviderOption);
+    Option timeSeriesDataFieldOption = new Option(
+        TIME_SERIES_DATAFIELD_OPT, "name", true, "The name of the time series data field");
+    options.addOption(timeSeriesDataFieldOption);
+    Option timeSeriesObservationTimeOption = new Option(
+        TIME_SERIES_OBSERVATIONTIME_OPT, "name", true, "The time series observation time");
+    options.addOption(timeSeriesObservationTimeOption);
     
     if (contextProvided == false) {
       Option runModeOption = new Option(
@@ -142,57 +153,38 @@ public class PortfolioLoaderTool {
     
     Option writeOption = new Option(
         WRITE_OPT, "write", false, 
-        "Actually persists the portfolio to the database if specified, otherwise pretty-prints without persisting");
+        "Actually persists the time series to the database if specified, otherwise pretty-prints without persisting");
     options.addOption(writeOption);
-    
-    Option assetClassOption = new Option(
-        ASSET_CLASS_OPT, "assetclass", true, 
-        "Specifies the asset class to be found in an input CSV file (ignored if ZIP file is specified)");
-    options.addOption(assetClassOption);
-    
+        
     return options;
   }
 
-  private static PortfolioWriter constructPortfolioWriter(String portfolioName, boolean write,
+  private static TimeSeriesWriter constructTimeSeriesWriter(boolean write,
       LoaderContext loaderContext) {
     
     if (write) {  
-      // Check that the portfolio name was specified on the command line
-      if (portfolioName == null) {
-        throw new OpenGammaRuntimeException("Portfolio name omitted, cannot persist to OpenGamma masters");
-      }
-      
-      s_logger.info("Write option specified, will persist to OpenGamma masters in portfolio '" + portfolioName + "'");
+      s_logger.info("Write option specified, will persist to OpenGamma masters");
     
       // Create a portfolio writer to persist imported positions, trades and securities to the OG masters
-      return new MasterPortfolioWriter(portfolioName, loaderContext);
+      return new MasterTimeSeriesWriter(loaderContext);
   
     } else {
       s_logger.info("Write option omitted, will pretty-print instead of persisting to OpenGamma masters");
       
       // Create a dummy portfolio writer to pretty-print instead of persisting
-      return new DummyPortfolioWriter();         
+      return new DummyTimeSeriesWriter();         
     }
 
   }
   
-  private static PortfolioReader constructPortfolioReader(String filename, String securityClass, 
-      LoaderContext loaderContext) {
+  private static TimeSeriesReader constructTimeSeriesReader(String filename, 
+      String dataSource, String dataProvider, String dataField, String observationTime, LoaderContext loaderContext) {
     
     String extension = filename.substring(filename.lastIndexOf('.'));
     
     // Single CSV or XLS file extension
     if (extension.equalsIgnoreCase(".csv") || extension.equalsIgnoreCase(".xls")) {
-      // Check that the asset class was specified on the command line
-      if (securityClass == null) {
-        throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename + " (use '-a')");
-      } else {
-        return new SingleSheetSimplePortfolioReader(filename, securityClass, loaderContext);
-      }
-    // Multi-asset ZIP file extension
-    } else if (extension.equalsIgnoreCase(".zip")) {
-      // Create zipped multi-asset class loader
-      return new ZippedPortfolioReader(filename, loaderContext);
+      return new SingleSheetMultiTimeSeriesReader(filename, dataSource, dataProvider, dataField, observationTime);
     } else {
       throw new OpenGammaRuntimeException("Input filename should end in .CSV or .ZIP");
     }

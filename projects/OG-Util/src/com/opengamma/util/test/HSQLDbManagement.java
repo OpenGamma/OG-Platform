@@ -6,11 +6,11 @@
 package com.opengamma.util.test;
 
 import java.io.File;
+import java.sql.SQLInvalidAuthorizationSpecException;
 
 import org.apache.commons.io.FileUtils;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.HSQLDialect;
-import org.hsqldb.HsqlException;
 
 /**
  * Database management for HSQL databases.
@@ -139,8 +139,12 @@ public final class HSQLDbManagement extends AbstractDbManagement {
   public void dropSchema(String catalog, String schema) {
     try {
       super.dropSchema(catalog, schema);
-    } catch (HsqlException ex) {
-      FileUtils.deleteQuietly(getFile());
+    } catch (RuntimeException ex) {
+      // try deleting database
+      if (ex.getCause() instanceof SQLInvalidAuthorizationSpecException) {
+        FileUtils.deleteQuietly(getFile());
+        super.dropSchema(catalog, schema);
+      }
     }
   }
 
