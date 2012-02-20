@@ -60,7 +60,10 @@ import com.opengamma.util.time.Expiry;
  * 
  */
 public class ExampleMixedPortfolioLoader extends AbstractTool {
-  private static final String PORTFOLIO_NAME = "Example Mixed Portfolio";
+  /**
+   * Example mixed portfolio name
+   */
+  public static final String PORTFOLIO_NAME = "Example Mixed Portfolio";
   private static final String ID_SCHEME = "MIXED_PORFOLIO_LOADER";
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
