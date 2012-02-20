@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader.rowparsers;
+package com.opengamma.financial.loader.rowparser;
 
 import java.util.Map;
 
@@ -20,7 +20,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
-import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
@@ -138,4 +137,5 @@ public class SwapParser extends RowParser {
     return result;
   }
 
+  // TODO implement constructRow for portfolio export
 }

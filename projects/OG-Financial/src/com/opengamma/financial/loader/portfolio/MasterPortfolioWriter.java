@@ -4,11 +4,12 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader;
+package com.opengamma.financial.loader.portfolio;
 
 import javax.time.Instant;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolio;

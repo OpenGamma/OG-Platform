@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader;
+package com.opengamma.financial.loader.sheet;
 
 import java.io.IOException;
 import java.io.InputStream;

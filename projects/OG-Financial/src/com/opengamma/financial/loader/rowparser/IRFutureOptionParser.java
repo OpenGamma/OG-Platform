@@ -4,8 +4,9 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader.rowparsers;
+package com.opengamma.financial.loader.rowparser;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -15,7 +16,6 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.ExerciseType;
@@ -71,6 +71,21 @@ public class IRFutureOptionParser extends RowParser {
 
     ManageableSecurity[] result = {security};
     return result;
+  }
+
+  public Map<String, String> constructRow(ManageableSecurity security) {
+    Map<String, String> result = new HashMap<String, String>();
+    IRFutureOptionSecurity futureOption = (IRFutureOptionSecurity) security;
+    
+    result.put(EXCHANGE, futureOption.getExchange());
+    result.put(EXPIRY, futureOption.getExpiry().getExpiry().toString(CSV_DATE_FORMATTER));
+    result.put(UNDERLYING_ID, futureOption.getUnderlyingId().toString());
+    result.put(POINT_VALUE, Double.toString(futureOption.getPointValue()));
+    result.put(CURRENCY, futureOption.getCurrency().getCode());
+    result.put(STRIKE, Double.toString(futureOption.getStrike()));
+    result.put(IS_CALL, Boolean.toString(futureOption.getOptionType() == OptionType.CALL));
+    
+    return result;  
   }
 
 }

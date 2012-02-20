@@ -4,8 +4,9 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader.rowparsers;
+package com.opengamma.financial.loader.rowparser;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -16,7 +17,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.analytics.conversion.CalendarUtils;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
@@ -79,4 +79,18 @@ public class FXDigitalOptionParser extends RowParser {
     return result;
   }
 
+  public Map<String, String> constructRow(ManageableSecurity security) {
+    Map<String, String> result = new HashMap<String, String>();
+    FXDigitalOptionSecurity digital = (FXDigitalOptionSecurity) security;
+    
+    result.put(PUT_CURRENCY, digital.getPutCurrency().getCode());
+    result.put(CALL_CURRENCY, digital.getCallCurrency().getCode());
+    result.put(PUT_AMOUNT, Double.toString(digital.getPutAmount()));
+    result.put(CALL_AMOUNT, Double.toString(digital.getCallAmount()));
+    result.put(EXPIRY, digital.getExpiry().getExpiry().toString(CSV_DATE_FORMATTER));
+    result.put(IS_LONG, Boolean.toString(digital.isLong()));
+    
+    return result;
+  }
+  
 }

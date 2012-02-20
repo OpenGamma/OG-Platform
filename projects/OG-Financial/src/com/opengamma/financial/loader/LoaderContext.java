@@ -8,6 +8,7 @@ package com.opengamma.financial.loader;
 import com.opengamma.core.exchange.ExchangeSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.config.ConfigMaster;
@@ -66,6 +67,10 @@ public class LoaderContext {
    * The exchange source.
    */
   private ExchangeSource _exchangeSource;
+  /**
+   * The region source.
+   */
+  private RegionSource _regionSource;
   
   //-------------------------------------------------------------------------
   /**
@@ -242,6 +247,14 @@ public class LoaderContext {
    */
   public void setExchangeSource(ExchangeSource exchangeSource) {
     _exchangeSource = exchangeSource;
+  }
+
+  public RegionSource getRegionSource() {
+    return _regionSource;
+  }
+
+  public void setRegionSource(RegionSource regionSource) {
+    _regionSource = regionSource;
   }
  
 }

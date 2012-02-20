@@ -4,7 +4,7 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader.rowparsers;
+package com.opengamma.financial.loader.rowparser;
 
 import java.util.Map;
 
@@ -20,7 +20,6 @@ import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
@@ -131,5 +130,7 @@ public class SwaptionParser extends RowParser {
     int years = (int) (daysBetween / 365);
     return years + "Y x " + swapLength + "Y";
   }
+
+  // TODO implement constructRow for portfolio export
 
 }

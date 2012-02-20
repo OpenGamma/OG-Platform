@@ -3,16 +3,17 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.examples.newloader;
+package com.opengamma.examples.tool.timeseries;
 
 import com.opengamma.examples.tool.AbstractTool;
 import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.loader.PortfolioLoaderTool;
+import com.opengamma.financial.loader.TimeSeriesLoaderTool;
 
 /**
  * Wrapper to expose the Examples classpath to the standard portfolio loader tool
  */
-public class ExamplePortfolioLoaderTool extends AbstractTool {
+public class ExampleTimeSeriesLoaderTool extends AbstractTool {
 
   private static String[] s_args;
 
@@ -26,7 +27,7 @@ public class ExamplePortfolioLoaderTool extends AbstractTool {
   public static void main(String[] args) {  // CSIGNORE
     if (init()) {
       s_args = args;
-      new ExamplePortfolioLoaderTool().run();
+      new ExampleTimeSeriesLoaderTool().run();
     }
     System.exit(0);
   }
@@ -49,7 +50,7 @@ public class ExamplePortfolioLoaderTool extends AbstractTool {
     context.setSecurityLoader(getToolContext().getSecurityLoader());
     context.setSecurityMaster(getToolContext().getSecurityMaster());
     context.setSecuritySource(getToolContext().getSecuritySource());
-    new PortfolioLoaderTool().run(s_args, context);
+    new TimeSeriesLoaderTool().run(s_args, context);
   }
 
 }

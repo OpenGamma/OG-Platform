@@ -4,12 +4,15 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader;
+package com.opengamma.financial.loader.portfolio;
 
 import java.lang.reflect.Constructor;
 import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.loader.LoaderContext;
+import com.opengamma.financial.loader.rowparser.RowParser;
+import com.opengamma.financial.loader.sheet.SheetReader;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
@@ -18,10 +21,10 @@ import com.opengamma.master.security.ManageableSecurity;
  * A simple portfolio reader assumes that the input sheet only contains one asset class, and may also be used as a base
  * class for specific asset class loaders that follow this rule.
  */
-public class SimplePortfolioReader extends SingleSheetPortfolioReader {
+public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader {
 
   /** Path strings for constructing a fully qualified parser class name **/
-  private static final String CLASS_PREFIX = "com.opengamma.financial.loader.rowparsers.";
+  private static final String CLASS_PREFIX = "com.opengamma.financial.loader.rowparser.";
   private static final String CLASS_POSTFIX = "Parser";
 
   /*
@@ -34,25 +37,25 @@ public class SimplePortfolioReader extends SingleSheetPortfolioReader {
    */
   private String[] _columns;
   
-  public SimplePortfolioReader(String filename, RowParser rowParser) {
+  public SingleSheetSimplePortfolioReader(String filename, RowParser rowParser) {
     super(SheetReader.newSheetReader(filename));
     _columns = getSheet().getColumns();
     _rowParser = rowParser;
   }
   
-  public SimplePortfolioReader(SheetReader sheet, String[] columns, RowParser rowParser) {
+  public SingleSheetSimplePortfolioReader(SheetReader sheet, String[] columns, RowParser rowParser) {
     super(sheet);    
     _columns = getSheet().getColumns();
     _rowParser = rowParser;
   }
 
-  public SimplePortfolioReader(String filename, String securityClass, LoaderContext loaderContext) {
+  public SingleSheetSimplePortfolioReader(String filename, String securityClass, LoaderContext loaderContext) {
     super(SheetReader.newSheetReader(filename));
     _columns = getSheet().getColumns();
     _rowParser = identifyRowParser(securityClass, loaderContext);
   }
   
-  public SimplePortfolioReader(SheetReader sheet, String[] columns, String securityClass, LoaderContext loaderContext) {
+  public SingleSheetSimplePortfolioReader(SheetReader sheet, String[] columns, String securityClass, LoaderContext loaderContext) {
     super(sheet);
     _columns = getSheet().getColumns();
     _rowParser = identifyRowParser(securityClass, loaderContext);

@@ -3,9 +3,10 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.loader.rowparsers;
+package com.opengamma.financial.loader.rowparser;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -17,7 +18,6 @@ import javax.time.calendar.ZoneOffset;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.financial.loader.RowParser;
 import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.future.EquityFutureSecurity;
 import com.opengamma.id.ExternalId;
@@ -36,7 +36,7 @@ import com.opengamma.util.time.ExpiryAccuracy;
  */
 public class EquityFutureParser extends RowParser {
 
-  private static final String ID_SCHEME = "MANUAL_LOAD";
+  private static final String ID_SCHEME = "EQUITY_FUTURE_LOADER";
 
   //CSOFF
   protected String EXPIRY = "expiry";
@@ -110,6 +110,37 @@ public class EquityFutureParser extends RowParser {
     security.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     
     ManageableSecurity[] result = {security};
+    return result;
+  }
+
+  @Override
+  public Map<String, String> constructRow(ManageableTrade trade) {
+    Map<String, String> result = new HashMap<String, String>();
+    
+    result.put(TRADE_DATE, trade.getTradeDate().toString(CSV_DATE_FORMATTER));
+    result.put(NUMBER_OF_CONTRACTS, trade.getQuantity().toPlainString());
+    if (trade.getPremium() != null) {
+      result.put(REFERENCE_PRICE, Double.toString(trade.getPremium()));
+    }
+    
+    return result;
+  }
+
+  @Override
+  public Map<String, String> constructRow(ManageableSecurity security) {
+    Map<String, String> result = new HashMap<String, String>();
+    EquityFutureSecurity equityFuture = (EquityFutureSecurity) security;
+    
+    result.put(CURRENCY, equityFuture.getCurrency().getCode());
+    result.put(TRADING_EXCHANGE, equityFuture.getTradingExchange());
+    result.put(SETTLEMENT_EXCHANGE, equityFuture.getSettlementExchange());
+    result.put(UNIT_AMOUNT, Double.toString(equityFuture.getUnitAmount()));
+    result.put(UNDERLYING_ID, equityFuture.getUnderlyingId().toString());
+    result.put(EXPIRY, equityFuture.getExpiry().getExpiry().toString(CSV_DATE_FORMATTER));
+    result.put(SETTLEMENT_DATE, equityFuture.getSettlementDate().toString(CSV_DATE_FORMATTER));
+    result.put(BBG_CODE, equityFuture.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER).getValue());
+    result.put(NAME, equityFuture.getName());
+    
     return result;
   }
 

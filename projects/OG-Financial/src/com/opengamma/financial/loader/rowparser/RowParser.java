@@ -4,16 +4,18 @@
  * Please see distribution for license.
  */
 
-package com.opengamma.financial.loader;
+package com.opengamma.financial.loader.rowparser;
 
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatterBuilder;
 
+import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
@@ -47,6 +49,57 @@ public abstract class RowParser {
 
   public RowParser(LoaderContext loaderContext) {
     setLoaderContext(loaderContext);
+  }
+  
+  /**
+   * Constructs a row from the supplied trade.
+   * @param trade The trade to convert
+   * @return      The mapping from column names to contents of the current row
+  */
+  public Map<String, String> constructRow(ManageableTrade trade) {
+    return new HashMap<String, String>();
+  }
+
+  /**
+   * Constructs a row from the supplied position.
+   * @param position The position to convert
+   * @return      The mapping from column names to contents of the current row
+  */
+  public Map<String, String> constructRow(ManageablePosition position) {
+    return new HashMap<String, String>();
+  }
+
+  /**
+   * Constructs a row from the supplied security.
+   * @param security The security to convert
+   * @return      The mapping from column names to contents of the current row
+  */
+  public Map<String, String> constructRow(ManageableSecurity security) {
+    return new HashMap<String, String>();
+  }
+  
+  /**
+   * Constructs a row from the supplied security, position and trade.
+   * @param security  The security to convert
+   * @param position  The position to convert
+   * @param trade     The trade to convert
+   * @return          The mapping from column names to contents of the current row
+   */
+  public Map<String, String> constructRow(ManageableSecurity security, ManageablePosition position, ManageableTrade trade) {
+    Map<String, String> result = new HashMap<String, String>();
+    Map<String, String> securityRow = constructRow(security);
+    Map<String, String> positionRow = constructRow(position);
+    Map<String, String> tradeRow = constructRow(trade);
+    if (securityRow != null) {
+      result.putAll(securityRow);
+    }
+    if (positionRow != null) {
+      result.putAll(positionRow);
+    }
+    if (tradeRow != null) {
+      result.putAll(tradeRow);
+    }
+    return result;
   }
   
   /**
