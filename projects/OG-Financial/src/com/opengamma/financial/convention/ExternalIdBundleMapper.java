@@ -14,6 +14,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock.WriteLock;
 import com.google.common.collect.BiMap;
 import com.google.common.collect.HashBiMap;
 import com.google.common.collect.HashMultimap;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -128,6 +129,20 @@ import com.opengamma.id.UniqueIdSupplier;
     _readLock.lock();
     try {
       return _uniqueIdMap.get(uniqueId);
+    } finally {
+      _readLock.unlock();
+    }
+  }
+  
+  /**
+   * Gets all objects in the mapper.
+   * 
+   * @return an unmodifiable collection of all the objects in the mapper, not null 
+   */
+  Collection<T> getAll() {
+    _readLock.lock();
+    try {
+      return ImmutableList.copyOf(_toMap.values());
     } finally {
       _readLock.unlock();
     }

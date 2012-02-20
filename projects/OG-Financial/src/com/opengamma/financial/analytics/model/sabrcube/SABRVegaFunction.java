@@ -30,7 +30,7 @@ import com.opengamma.financial.analytics.model.VegaMatrixHelper;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.analytics.volatility.cube.fitting.FittedSmileDataPoints;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunctionOld;
+import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -50,11 +50,11 @@ public class SABRVegaFunction extends SABRFunction {
   private static final GridInterpolator2D NODE_SENSITIVITY_CALCULATOR = new GridInterpolator2D(INTERPOLATOR, INTERPOLATOR);
   private VolatilityCubeDefinition _definition;
 
-  public SABRVegaFunction(final Currency currency, final String cubeName, final boolean useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
+  public SABRVegaFunction(final Currency currency, final String cubeName, final boolean useSABRExtrapolation, final String forwardCurveName, final String fundingCurveName) {
     super(currency, cubeName, useSABRExtrapolation, forwardCurveName, fundingCurveName);
   }
 
-  public SABRVegaFunction(final String currency, final String cubeName, final String useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
+  public SABRVegaFunction(final String currency, final String cubeName, final String useSABRExtrapolation, final String forwardCurveName, final String fundingCurveName) {
     super(currency, cubeName, useSABRExtrapolation, forwardCurveName, fundingCurveName);
   }
 
@@ -140,7 +140,7 @@ public class SABRVegaFunction extends SABRFunction {
     return Sets.newHashSet(getResultSpec(target));
   }
 
-  private ValueProperties getModelSensitivityProperties(String ccyCode) {
+  private ValueProperties getModelSensitivityProperties(final String ccyCode) {
     return ValueProperties.builder().with(ValuePropertyNames.CURRENCY, ccyCode).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName()).with(ValuePropertyNames.CUBE, getHelper().getDefinitionName())
         .with(ValuePropertyNames.CALCULATION_METHOD, isUseSABRExtrapolation() ? SABR_RIGHT_EXTRAPOLATION : SABR_NO_EXTRAPOLATION).get();
@@ -155,6 +155,6 @@ public class SABRVegaFunction extends SABRFunction {
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode()).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName()).with(ValuePropertyNames.CUBE, getHelper().getDefinitionName())
         .with(ValuePropertyNames.CALCULATION_METHOD, isUseSABRExtrapolation() ? SABR_RIGHT_EXTRAPOLATION : SABR_NO_EXTRAPOLATION)
-        .with(RawVolatilitySurfaceDataFunctionOld.PROPERTY_SURFACE_INSTRUMENT_TYPE, "SWAPTION_CUBE").get());
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "SWAPTION_CUBE").get());
   }
 }

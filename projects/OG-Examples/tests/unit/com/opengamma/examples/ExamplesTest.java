@@ -45,8 +45,8 @@ public class ExamplesTest {
     DbTool dbTool = new DbTool();
     dbTool.setCatalog("og-financial");
     dbTool.setJdbcUrl(props.getProperty("db.standard.url"));
-    dbTool.setUser("");
-    dbTool.setPassword("");
+    dbTool.setUser("OpenGamma");
+    dbTool.setPassword("OpenGamma");
     dbTool.setDrop(true);
     dbTool.setCreate(true);
     dbTool.setCreateTables(true);
