@@ -43,10 +43,9 @@ $.register_module({
                 $(function () { // in addition to binding hash change events to window, also fire it onload
                     var common = og.views.common;
                     $('.OG-js-loading').hide();
-                    $('.ui-layout-container').show();
                     if (!/^.*\/analytics2\.ftl$/.test(window.location.href)) {
                         common.layout = /^.*\/analytics\.ftl$/.test(window.location.href) ? common.layout.analytics()
-                            : common.layout['default']();
+                            : common.layout.admin();
                     } else common.layout.analytics2();
                     routes.handler();
                     set_title(routes.current().hash);
