@@ -260,6 +260,15 @@ public abstract class DbDialect {
     return new DefaultLobHandler();
   }
 
+  /**
+   * Closes the dialect at server shutdown.
+   * <p>
+   * This implementation does nothing.
+   * The main use is for a database that needs flushing on exit, like HSQL.
+   */
+  public void close() {
+  }
+
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
