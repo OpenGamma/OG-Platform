@@ -79,7 +79,6 @@
     <fragment>/styles/common/details/og.common.OG-details-positions.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-timeseries.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-holiday.css</fragment>
-    <fragment>/styles/common/details/og.common.OG-details.OG-region.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-config.css</fragment>
   </bundle>
   <bundle id="common.forms.css">
