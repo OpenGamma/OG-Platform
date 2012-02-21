@@ -51,6 +51,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
+import com.opengamma.financial.analytics.model.ircurve.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.InstrumentDefinition;
@@ -90,7 +91,8 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
   public InterestRateInstrumentYieldCurveNodeSensitivitiesFunction(final String curveCalculationType) {
     Validate.notNull(curveCalculationType, "curve calculation type");
     Validate.isTrue(curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING) ||
-        curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING),
+        curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING) ||
+        curveCalculationType.equals(InterpolatedYieldCurveFunction.CALCULATION_METHOD_NAME),
         "Did not recognise curve calculation type " + curveCalculationType);
     _curveCalculationType = curveCalculationType;
   }
@@ -169,19 +171,23 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final String forwardCurve = forwardCurves.iterator().next();
     final String fundingCurve = fundingCurves.iterator().next();
     final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(6);
-    if (forwardCurve.equals(fundingCurve)) {
+    if (_curveCalculationType.equals(InterpolatedYieldCurveFunction.CALCULATION_METHOD_NAME)) {
       requirements.add(getCurveRequirement(target, forwardCurve, forwardCurve, forwardCurve));
-      requirements.add(getJacobianRequirement(target, forwardCurve, forwardCurve));
-      requirements.add(getCurveSpecRequirement(target, forwardCurve));
     } else {
-      requirements.add(getCurveRequirement(target, forwardCurve, forwardCurve, fundingCurve));
-      requirements.add(getCurveRequirement(target, fundingCurve, forwardCurve, fundingCurve));
-      requirements.add(getJacobianRequirement(target, forwardCurve, fundingCurve));
-      requirements.add(getCurveSpecRequirement(target, forwardCurve));
-      requirements.add(getCurveSpecRequirement(target, fundingCurve));
-    }
-    if (_curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)) {
-      requirements.add(getCouponSensitivityRequirement(target, forwardCurve, fundingCurve));
+      if (forwardCurve.equals(fundingCurve)) {
+        requirements.add(getCurveRequirement(target, forwardCurve, forwardCurve, forwardCurve));
+        requirements.add(getJacobianRequirement(target, forwardCurve, forwardCurve));
+        requirements.add(getCurveSpecRequirement(target, forwardCurve));
+      } else {
+        requirements.add(getCurveRequirement(target, forwardCurve, forwardCurve, fundingCurve));
+        requirements.add(getCurveRequirement(target, fundingCurve, forwardCurve, fundingCurve));
+        requirements.add(getJacobianRequirement(target, forwardCurve, fundingCurve));
+        requirements.add(getCurveSpecRequirement(target, forwardCurve));
+        requirements.add(getCurveSpecRequirement(target, fundingCurve));
+      }
+      if (_curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)) {
+        requirements.add(getCouponSensitivityRequirement(target, forwardCurve, fundingCurve));
+      }
     }
     return requirements;
   }
@@ -204,15 +210,20 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     properties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final Set<ValueSpecification> result;
-    if (forwardCurveName.equals(fundingCurveName)) {
+    if (_curveCalculationType.equals(InterpolatedYieldCurveFunction.CALCULATION_METHOD_NAME)) {
       properties.with(ValuePropertyNames.CURVE, forwardCurveName);
       result = Collections.singleton(new ValueSpecification(VALUE_REQUIREMENT, targetSpec, properties.get()));
     } else {
-      result = Sets.newHashSetWithExpectedSize(2);
-      properties.with(ValuePropertyNames.CURVE, forwardCurveName);
-      result.add(new ValueSpecification(VALUE_REQUIREMENT, targetSpec, properties.get()));
-      properties.withoutAny(ValuePropertyNames.CURVE).with(ValuePropertyNames.CURVE, fundingCurveName);
-      result.add(new ValueSpecification(VALUE_REQUIREMENT, targetSpec, properties.get()));
+      if (forwardCurveName.equals(fundingCurveName)) {
+        properties.with(ValuePropertyNames.CURVE, forwardCurveName);
+        result = Collections.singleton(new ValueSpecification(VALUE_REQUIREMENT, targetSpec, properties.get()));
+      } else {
+        result = Sets.newHashSetWithExpectedSize(2);
+        properties.with(ValuePropertyNames.CURVE, forwardCurveName);
+        result.add(new ValueSpecification(VALUE_REQUIREMENT, targetSpec, properties.get()));
+        properties.withoutAny(ValuePropertyNames.CURVE).with(ValuePropertyNames.CURVE, fundingCurveName);
+        result.add(new ValueSpecification(VALUE_REQUIREMENT, targetSpec, properties.get()));
+      }
     }
     return result;
   }
@@ -277,13 +288,15 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     DoubleMatrix1D sensitivitiesForCurves;
     if (_curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING)) {
       sensitivitiesForCurves = CALCULATOR.calculateFromParRate(derivative, null, bundle, jacobian, PresentValueNodeSensitivityCalculator.getDefaultInstance());
-    } else {
+    } else if (_curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)) {
       final Object couponSensitivityObject = inputs.getValue(getCouponSensitivityRequirement(target, forwardCurveName, fundingCurveName));
       if (couponSensitivityObject == null) {
         throw new OpenGammaRuntimeException("Could not get " + ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY);
       }
       final DoubleMatrix1D couponSensitivity = (DoubleMatrix1D) couponSensitivityObject;
       sensitivitiesForCurves = CALCULATOR.calculateFromPresentValue(derivative, null, bundle, couponSensitivity, jacobian, PresentValueNodeSensitivityCalculator.getDefaultInstance());
+    } else {
+      sensitivitiesForCurves = CALCULATOR.calculateFromSimpleInterpolatedCurve(derivative, bundle, PresentValueNodeSensitivityCalculator.getDefaultInstance());
     }
     final ValueProperties.Builder properties = createValueProperties(target);
     properties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);

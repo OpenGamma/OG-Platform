@@ -21,7 +21,7 @@ import static com.opengamma.financial.analytics.model.volatility.local.LocalVola
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_TIME_STEPS;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS;
-import static com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunctionOld.PROPERTY_SURFACE_INSTRUMENT_TYPE;
+import static com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE;
 
 import java.util.Collections;
 import java.util.Map;
@@ -44,7 +44,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunctionOld;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.local.DupireLocalVolatilityCalculator;
@@ -158,7 +157,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEValuePropertyNames.LOCAL_VOLATILITY_METHOD)
-        .withAny(RawVolatilitySurfaceDataFunctionOld.PROPERTY_SURFACE_INSTRUMENT_TYPE)
+        .withAny(PROPERTY_SURFACE_INSTRUMENT_TYPE)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(PROPERTY_SURFACE_TYPE)
         .withAny(PROPERTY_X_AXIS)
@@ -367,7 +366,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
   private ValueProperties getLocalVolSurfaceProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String lambda, final String h,
       final String forwardCurveCalculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator) {
     return ValueProperties.builder()
-        .with(RawVolatilitySurfaceDataFunctionOld.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
+        .with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
         .with(PROPERTY_X_AXIS, xAxis)
@@ -395,7 +394,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
       final String forwardCurveRightExtrapolator) {
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEValuePropertyNames.LOCAL_VOLATILITY_METHOD)
-        .with(RawVolatilitySurfaceDataFunctionOld.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
+        .with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
         .with(ValuePropertyNames.SURFACE, definitionName)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
         .with(PROPERTY_X_AXIS, xAxis)
@@ -421,7 +420,7 @@ public abstract class LocalVolatilityPDEGridFunction extends AbstractFunction.No
       final String spaceGridBunching, final String maxMoneyness, final String pdeDirection) {
     return createValueProperties()
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEValuePropertyNames.LOCAL_VOLATILITY_METHOD)
-        .with(RawVolatilitySurfaceDataFunctionOld.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
+        .with(PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
         .with(ValuePropertyNames.SURFACE, definitionName)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
         .with(PROPERTY_X_AXIS, xAxis)

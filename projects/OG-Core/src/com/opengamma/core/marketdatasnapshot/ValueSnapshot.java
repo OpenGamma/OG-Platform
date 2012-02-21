@@ -8,6 +8,8 @@ package com.opengamma.core.marketdatasnapshot;
 import java.io.Serializable;
 
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
@@ -156,5 +158,12 @@ public class ValueSnapshot implements Serializable {
     Double overrideValue = msg.getDouble("overrideValue");
     return new ValueSnapshot(marketValue, overrideValue);
   }
+
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+  
+  
 
 }

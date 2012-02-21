@@ -18,13 +18,12 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.support.AbstractApplicationContext;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.master.security.SecurityDocument;
@@ -116,27 +115,17 @@ public class PortfolioLoaderHelper {
   }
 
   public static LocalDate getDateWithException(Map<String, String> fieldValueMap, String fieldName) {
-
     return LocalDate.parse(getWithException(fieldValueMap, fieldName), CSV_DATE_FORMATTER);
-
   }
 
-  public static AbstractApplicationContext getApplicationContext() {
-    return new ClassPathXmlApplicationContext("com/opengamma/financial/portfolio/loader/loaderContext.xml");
-  }
-
-  public static LoaderContext getLoaderContext(AbstractApplicationContext context) {
-    return (LoaderContext) context.getBean("loaderContext");
-  }
-
-  public static void persistLiborRawSecurities(Set<Currency> currencies, LoaderContext loaderContext) {
-    SecurityMaster securityMaster = loaderContext.getSecurityMaster();
+  public static void persistLiborRawSecurities(Set<Currency> currencies, ToolContext toolContext) {
+    SecurityMaster securityMaster = toolContext.getSecurityMaster();
     byte[] rawData = new byte[] {0 };
     StringBuilder sb = new StringBuilder();
     sb.append("Created ").append(currencies.size()).append(" libor securities:\n");
     for (Currency ccy : currencies) {
-      ConventionBundle swapConvention = getSwapConventionBundle(ccy, loaderContext.getConventionBundleSource());
-      ConventionBundle liborConvention = getLiborConventionBundle(swapConvention, loaderContext.getConventionBundleSource());
+      ConventionBundle swapConvention = getSwapConventionBundle(ccy, toolContext.getConventionBundleSource());
+      ConventionBundle liborConvention = getLiborConventionBundle(swapConvention, toolContext.getConventionBundleSource());
       sb.append("\t").append(liborConvention.getIdentifiers()).append("\n");
       RawSecurity rawSecurity = new RawSecurity(LIBOR_RATE_SECURITY_TYPE, rawData);
       rawSecurity.setExternalIdBundle(liborConvention.getIdentifiers());
