@@ -24,7 +24,7 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 public class SingleSheetMultiTimeSeriesReader implements TimeSeriesReader {
 
   private static final Logger s_logger = LoggerFactory.getLogger(TimeSeriesLoaderTool.class);
-  private static final String ID_SCHEME = "TIME_SERIES_LOADER";
+//  private static final String ID_SCHEME = "TIME_SERIES_LOADER";
   private static final int BUFFER_SIZE = 32;
   
   // CSOFF
@@ -49,25 +49,27 @@ public class SingleSheetMultiTimeSeriesReader implements TimeSeriesReader {
   
   private SheetReader _sheet;         // The spreadsheet from which to import
 
-  private String _dataSource, _dataProvider, _dataField, _observationTime;
+  private String _dataSource, _dataProvider, _dataField, _observationTime, _idScheme;
 
-  public SingleSheetMultiTimeSeriesReader(SheetReader sheet, String dataSource, String dataProvider, String dataField, String observationTime) {
+  public SingleSheetMultiTimeSeriesReader(SheetReader sheet, String dataSource, String dataProvider, String dataField, String observationTime, String idScheme) {
     _sheet = sheet;
 
     _dataSource = dataSource;
     _dataProvider = dataProvider;
     _dataField = dataField;
     _observationTime = observationTime;
+    _idScheme = idScheme;
   }
 
-  public SingleSheetMultiTimeSeriesReader(String filename, String dataSource, String dataProvider, String dataField, String observationTime) {
+  public SingleSheetMultiTimeSeriesReader(String filename, String dataSource, String dataProvider, String dataField, String observationTime, String idScheme) {
     _sheet = SheetReader.newSheetReader(filename);
 
     _dataSource = dataSource;
     _dataProvider = dataProvider;
     _dataField = dataField;
     _observationTime = observationTime;
-}
+    _idScheme = idScheme;
+  }
 
   @Override
   public void writeTo(TimeSeriesWriter timeSeriesWriter) {
@@ -97,7 +99,7 @@ public class SingleSheetMultiTimeSeriesReader implements TimeSeriesReader {
       for (String key : tsData.keySet()) {
         s_logger.info("Writing " + tsData.get(key).size() + " data points to time series " + key);
         timeSeriesWriter.writeDataPoints(
-            ExternalId.of(ExternalScheme.of(ID_SCHEME), key), 
+            ExternalId.of(ExternalScheme.of(_idScheme), key), 
             _dataSource,
             _dataProvider,
             _dataField,

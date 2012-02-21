@@ -161,7 +161,10 @@ import com.opengamma.financial.analytics.model.sabrcube.SABRVegaFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction;
 import com.opengamma.financial.analytics.model.sabrcube.SABRYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSecurityMarkFunction;
+import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesCreditFactorsFunction;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesNonYieldCurveFunction;
+import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveCS01Function;
+import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveDV01Function;
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFXFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunction;
@@ -453,6 +456,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FAIR_VALUE);
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE);
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PV01);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.DV01);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.CS01);
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FX_CURRENCY_EXPOSURE);
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.FX_PRESENT_VALUE);
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.VEGA_MATRIX);
@@ -462,7 +467,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PRICE_SERIES);
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.PNL_SERIES);
     addFilteredSummingFunction(functionConfigs, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
-    addSummingFunction(functionConfigs, ValueRequirementNames.EXTERNAL_SENSITIVITIES);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.EXTERNAL_SENSITIVITIES);
+    addFilteredSummingFunction(functionConfigs, ValueRequirementNames.CREDIT_SENSITIVITIES);
     addSummingFunction(functionConfigs, ValueRequirementNames.WEIGHT);
 
     addSummingFunction(functionConfigs, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY);
@@ -854,9 +860,13 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     final String defaultSamplingCalculatorName = TimeSeriesSamplingFunctionFactory.PREVIOUS_AND_FIRST_VALUE_PADDING;
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesNonYieldCurveFunction.class));
+
+    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesCreditFactorsFunction.class));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivityPnLFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
     functionConfigs.add(functionConfiguration(ExternallyProvidedSecurityMarkFunction.class));
+    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurveDV01Function.class));
+    functionConfigs.add(functionConfiguration(ExternallyProvidedSensitivitiesYieldCurveCS01Function.class));
   }
 
   //-------------------------------------------------------------------------

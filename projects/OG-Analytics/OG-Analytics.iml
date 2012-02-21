@@ -27,8 +27,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="OG-Util" exported="" />
-    <orderEntry type="module" module-name="Fudge-Java" />
-    <orderEntry type="module" module-name="Fudge-Proto" />
     <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-Analytics-default">
         <CLASSES>
