@@ -9,9 +9,7 @@ package com.opengamma.financial.loader.portfolio;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.loader.LoaderContext;
+
 import com.opengamma.financial.loader.rowparser.RowParser;
 import com.opengamma.financial.loader.sheet.SheetWriter;
 import com.opengamma.master.portfolio.ManageablePortfolio;

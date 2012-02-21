@@ -3,7 +3,6 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.loader.rowparser;
 
 import java.util.HashMap;
@@ -17,8 +16,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
@@ -41,8 +40,8 @@ public class FRAParser extends RowParser {
   protected static final String BBG_ID = "bloomberg identifier";
   //CSON
   
-  public FRAParser(LoaderContext loaderContext) {
-    super(loaderContext);
+  public FRAParser(ToolContext toolContext) {
+    super(toolContext);
   }
 
   @Override
@@ -82,7 +81,7 @@ public class FRAParser extends RowParser {
     FRASecurity fra = (FRASecurity) security;
     
     result.put(CURRENCY, fra.getCurrency().getCode());
-    result.put(REGION, RegionUtils.getRegions(getLoaderContext().getRegionSource(), fra.getRegionId()).iterator().next().getFullName());
+    result.put(REGION, RegionUtils.getRegions(getToolContext().getRegionSource(), fra.getRegionId()).iterator().next().getFullName());
     result.put(START_DATE, fra.getStartDate().toString(CSV_DATE_FORMATTER));
     result.put(END_DATE, fra.getEndDate().toString(CSV_DATE_FORMATTER));
     result.put(RATE, Double.toString(fra.getRate()));
