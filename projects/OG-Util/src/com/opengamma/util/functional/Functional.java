@@ -59,7 +59,6 @@ public class Functional {
     return submap;
   }
 
-
   /**
    * Creates reversed map of type Map<V, Collection<K>> from map of type Map<K, V>.
    * 
@@ -157,28 +156,6 @@ public class Functional {
     return !iter.hasNext();
   }
 
-  public static final Iterable EMPTY_ITERABLE = new Iterable() {
-    @Override
-    public Iterator iterator() {
-      return new Iterator() {
-        @Override
-        public boolean hasNext() {
-          return false;
-        }
-
-        @Override
-        public Object next() {
-          return null;
-        }
-
-        @Override
-        public void remove() {
-          throw new UnsupportedOperationException("don't mutate");
-        }
-      };
-    }
-  };
-
   public static <T, S> T reduce(T acc, Iterable<? extends S> c, Function2<T, S, T> reducer) {
     T result = acc;
     final Iterator<? extends S> iter = c.iterator();
@@ -204,7 +181,7 @@ public class Functional {
     return reduce(new LinkedList<T>(), c, new Function2<LinkedList<T>, T, LinkedList<T>>() {
       @Override
       public LinkedList<T> execute(LinkedList<T> acc, T e) {
-        if (predicate.execute(e)){
+        if (predicate.execute(e)) {
           acc.add(e);
         }
         return acc;
@@ -234,6 +211,13 @@ public class Functional {
     return into;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Class for implementing a reducer.
+   * 
+   * @param <T>  the first type
+   * @param <S>  the second type
+   */
   public abstract static class Reduce<T, S> extends Function3<T, Iterable<? extends S>, Function2<T, S, T>, T> {
 
     public abstract T reduce(T acc, S v);
@@ -253,6 +237,11 @@ public class Functional {
     }
   }
 
+  /**
+   * Class for implementing a reducer on a single type.
+   * 
+   * @param <S>  the second type
+   */
   public abstract static class ReduceSame<S> extends Function2<Iterable<? extends S>, Function2<S, S, S>, S> {
 
     public abstract S reduce(S acc, S v);

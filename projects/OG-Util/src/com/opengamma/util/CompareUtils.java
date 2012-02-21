@@ -175,11 +175,13 @@ public final class CompareUtils {
   /**
    * Compare two items, with the ordering determined by a list of those items.
    * <p>
-   * nulls are permitted and sort low, and if a or b are not in the list, then
+   * Nulls are permitted and sort low, and if a or b are not in the list, then
    * the result of comparing the toString() output is used instead.
-   * @param list
-   * @param a
-   * @param b
+   * 
+   * @param <T> the list type
+   * @param list  the list, not null
+   * @param a  the first object, may be null
+   * @param b  the second object, may be null
    * @return 0, if equal, -1 if a < b, +1 if a > b
    */
   public static <T> int compareByList(List<T> list, T a, T b) {

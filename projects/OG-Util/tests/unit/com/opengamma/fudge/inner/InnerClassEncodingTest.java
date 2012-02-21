@@ -8,10 +8,10 @@ package com.opengamma.fudge.inner;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import org.testng.annotations.Test;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static com.opengamma.util.fudgemsg.AutoFudgable.autoFudge;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -26,9 +26,9 @@ public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
     TestOuterClass inner = new TestOuterClass() {
     };
 
-    assertEncodeDecodeCycle((Class) inner.getClass(), inner);
+    
 
-    TestOuterClass cycled = cycleObjectOverBytes(inner);
+    TestOuterClass cycled = cycleObjectOverBytes(autoFudge(inner)).object();
     for (int i = 0; i < 100; i++) {
       double randomArg = generator.nextDouble();
       assertEquals(inner.eval(randomArg), cycled.eval(randomArg));
@@ -44,9 +44,9 @@ public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
       }
     };
 
-    assertEncodeDecodeCycle((Class) inner.getClass(), inner);
+    
 
-    TestOuterClass cycled = cycleObjectOverBytes(inner);
+    TestOuterClass cycled = cycleObjectOverBytes(autoFudge(inner)).object();
     for (int i = 0; i < 100; i++) {
       double randomArg = generator.nextDouble();
       assertEquals(inner.eval(randomArg), cycled.eval(randomArg));
@@ -72,11 +72,9 @@ public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
         }
         return sum;
       }
-    };
+    };    
 
-    assertEncodeDecodeCycle((Class) inner.getClass(), inner);
-
-    TestOuterClass cycled = cycleObjectOverBytes(inner);
+    TestOuterClass cycled = cycleObjectOverBytes(autoFudge(inner)).object();    
 
     for (int i = 0; i < 100; i++) {
       double randomArg = generator.nextDouble();
@@ -95,9 +93,7 @@ public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
       }
     };
 
-    assertEncodeDecodeCycle((Class) inner.getClass(), inner);
-
-    TestOuterClass cycled = cycleObjectOverBytes(inner);
+    TestOuterClass cycled = cycleObjectOverBytes(autoFudge(inner)).object();
     for (int i = 0; i < 100; i++) {
       double randomArg = generator.nextDouble();
       assertEquals(inner.eval(randomArg), cycled.eval(randomArg));
@@ -128,9 +124,9 @@ public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
       }
     };
 
-    assertEncodeDecodeCycle((Class) inner.getClass(), inner);
+    
 
-    TestOuterClass cycled = cycleObjectOverBytes(inner);
+    TestOuterClass cycled = cycleObjectOverBytes(autoFudge(inner)).object();
 
     for (int i = 0; i < 100; i++) {
       double randomArg = generator.nextDouble();
@@ -159,9 +155,9 @@ public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
       }
     };
 
-    assertEncodeDecodeCycle((Class) inner.getClass(), inner);
+    
 
-    TestOuterClass cycled = cycleObjectOverBytes(inner);
+    TestOuterClass cycled = cycleObjectOverBytes(autoFudge(inner)).object();
 
     for (int i = 0; i < 100; i++) {
       double randomArg = generator.nextDouble();
@@ -178,9 +174,9 @@ public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
       }
     };
 
-    assertEncodeDecodeCycle((Class) inner.getClass(), inner);
+    
 
-    TestOuterClass cycled = cycleObjectOverBytes(inner);
+    TestOuterClass cycled = cycleObjectOverBytes(autoFudge(inner)).object();
     for (int i = 0; i < 100; i++) {
       double randomArg = generator.nextDouble();
       assertEquals(inner.eval(randomArg), cycled.eval(randomArg));
@@ -197,7 +193,7 @@ public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
       }
     };
 
-    TestOuterInterface cycled = cycleObjectOverBytes(inner);
+    TestOuterInterface cycled = cycleObjectOverBytes(autoFudge(inner)).object();
     for (int i = 0; i < 100; i++) {
       double randomArg = generator.nextDouble();
       assertEquals(inner.eval(randomArg), cycled.eval(randomArg));
@@ -213,7 +209,7 @@ public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
       }
     };
 
-    TestOuterInterface cycled = cycleObjectOverBytes(inner);
+    TestOuterInterface cycled = cycleObjectOverBytes(autoFudge(inner)).object();
     for (int i = 0; i < 100; i++) {
       double randomArg = generator.nextDouble();
       assertEquals(inner.eval(randomArg), cycled.eval(randomArg));
@@ -241,7 +237,7 @@ public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
       }
     };
 
-    TestOuterInterface cycled = cycleObjectOverBytes(inner);
+    TestOuterInterface cycled = cycleObjectOverBytes(autoFudge(inner)).object();
 
     for (int i = 0; i < 100; i++) {
       double randomArg = generator.nextDouble();
@@ -260,7 +256,7 @@ public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
       }
     };
 
-    TestOuterInterface cycled = cycleObjectOverBytes(inner);
+    TestOuterInterface cycled = cycleObjectOverBytes(autoFudge(inner)).object();
     for (int i = 0; i < 100; i++) {
       double randomArg = generator.nextDouble();
       assertEquals(inner.eval(randomArg), cycled.eval(randomArg));
@@ -291,7 +287,7 @@ public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
       }
     };
 
-    TestOuterInterface cycled = cycleObjectOverBytes(inner);
+    TestOuterInterface cycled = cycleObjectOverBytes(autoFudge(inner)).object();
 
     for (int i = 0; i < 100; i++) {
       double randomArg = generator.nextDouble();
@@ -320,7 +316,7 @@ public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
       }
     };
 
-    TestOuterInterface cycled = cycleObjectOverBytes(inner);
+    TestOuterInterface cycled = cycleObjectOverBytes(autoFudge(inner)).object();
 
     for (int i = 0; i < 100; i++) {
       double randomArg = generator.nextDouble();
@@ -339,10 +335,23 @@ public class InnerClassEncodingTest extends AbstractFudgeBuilderTestCase {
       }
     };
 
-    TestOuterInterface cycled = cycleObjectOverBytes(inner);
+    TestOuterInterface cycled = cycleObjectOverBytes(autoFudge(inner)).object();
     for (int i = 0; i < 100; i++) {
       double randomArg = generator.nextDouble();
       assertEquals(inner.eval(randomArg), cycled.eval(randomArg));
     }
   }
+
+  public void test_a_collection_which_is_inner_class() {
+
+    Map<Byte, Byte> map = Collections.unmodifiableMap(new HashMap<Byte, Byte>() {{
+      this.put((byte) 1, (byte) 2);
+    }});
+
+    Map cycled = cycleObjectOverBytes(map);
+
+    assertEquals(cycled.get((byte)1), (byte)2);
+  }
+
+
 }
