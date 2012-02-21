@@ -54,7 +54,7 @@ public class FixedVarianceSwapLeg extends VarianceSwapLeg {
   }
 
   /** For the builder */
-  private FixedVarianceSwapLeg() {
+  FixedVarianceSwapLeg() {
   }
 
   @Override

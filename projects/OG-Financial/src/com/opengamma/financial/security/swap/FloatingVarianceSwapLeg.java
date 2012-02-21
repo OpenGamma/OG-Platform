@@ -57,7 +57,7 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
   }
 
   /** For the builder */
-  private FloatingVarianceSwapLeg() {
+  FloatingVarianceSwapLeg() {
   }
 
   @Override
