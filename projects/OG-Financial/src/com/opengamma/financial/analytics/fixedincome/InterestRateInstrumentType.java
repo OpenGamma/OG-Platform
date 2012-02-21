@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.fixedincome;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.Security;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
@@ -77,7 +76,7 @@ public enum InterestRateInstrumentType {
   public static boolean isFixedIncomeInstrumentType(final FinancialSecurity security) {
     try {
       return security.accept(TYPE_IDENTIFIER) != null;
-    } catch (OpenGammaRuntimeException e) {
+    } catch (final OpenGammaRuntimeException e) {
       return false;
     }
   }
@@ -134,9 +133,9 @@ public enum InterestRateInstrumentType {
     public InterestRateInstrumentType visitEquityOptionSecurity(final EquityOptionSecurity security) {
       return null;
     }
-    
+
     @Override
-    public InterestRateInstrumentType visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+    public InterestRateInstrumentType visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
       return null;
     }
 
@@ -151,7 +150,7 @@ public enum InterestRateInstrumentType {
     }
 
     @Override
-    public InterestRateInstrumentType visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+    public InterestRateInstrumentType visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
       return null;
     }
 
@@ -159,10 +158,10 @@ public enum InterestRateInstrumentType {
     public InterestRateInstrumentType visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
       return null;
     }
-    
+
     @Override
     public InterestRateInstrumentType visitEquityIndexDividendFutureOptionSecurity(
-        EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+        final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
       return null;
     }
 
@@ -180,9 +179,9 @@ public enum InterestRateInstrumentType {
     public InterestRateInstrumentType visitFXForwardSecurity(final FXForwardSecurity security) {
       return null;
     }
-    
+
     @Override
-    public InterestRateInstrumentType visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+    public InterestRateInstrumentType visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
       return null;
     }
 

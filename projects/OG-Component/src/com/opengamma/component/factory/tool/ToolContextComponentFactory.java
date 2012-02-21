@@ -167,7 +167,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     for (MetaProperty<Object> mp : mapTarget.values()) {
       mp.set(context, property(mp.name()).get());
     }
-    context.setContextManager(this);
+    context.setContextManager(repo);
     repo.registerInfrastructure(ToolContext.class, getClassifier(), context);
   }
 

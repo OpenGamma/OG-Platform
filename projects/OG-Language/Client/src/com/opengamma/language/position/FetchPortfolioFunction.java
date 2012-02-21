@@ -9,12 +9,14 @@ package com.opengamma.language.position;
 import java.util.Arrays;
 import java.util.List;
 
+import com.opengamma.DataNotFoundException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.language.context.SessionContext;
 import com.opengamma.language.definition.Categories;
 import com.opengamma.language.definition.DefinitionAnnotater;
 import com.opengamma.language.definition.JavaTypeInfo;
 import com.opengamma.language.definition.MetaParameter;
+import com.opengamma.language.error.InvokeInvalidArgumentException;
 import com.opengamma.language.function.AbstractFunctionInvoker;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
@@ -30,6 +32,8 @@ public class FetchPortfolioFunction extends AbstractFunctionInvoker implements P
   public static final FetchPortfolioFunction INSTANCE = new FetchPortfolioFunction();
   
   private final MetaFunction _meta;
+  
+  private static final int IDENTIFIER = 0;
 
   private static List<MetaParameter> parameters() {
     final MetaParameter identifier = new MetaParameter("identifier", JavaTypeInfo.builder(UniqueId.class).get());
@@ -49,7 +53,12 @@ public class FetchPortfolioFunction extends AbstractFunctionInvoker implements P
 
   @Override
   protected Object invokeImpl(final SessionContext sessionContext, final Object[] parameters) {
-    return sessionContext.getGlobalContext().getPositionSource().getPortfolio((UniqueId) parameters[0]);
+    final UniqueId identifier = (UniqueId) parameters[IDENTIFIER];
+    try {
+      return sessionContext.getGlobalContext().getPositionSource().getPortfolio(identifier);
+    } catch (DataNotFoundException e) {
+      throw new InvokeInvalidArgumentException(IDENTIFIER, "Identifier not found");
+    }
   }
 
   // PublishedFunction
