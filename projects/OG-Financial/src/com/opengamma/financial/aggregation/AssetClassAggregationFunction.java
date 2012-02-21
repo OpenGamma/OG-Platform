@@ -47,6 +47,7 @@ import com.opengamma.master.security.RawSecurity;
  * @author jim
  */
 public class AssetClassAggregationFunction implements AggregationFunction<String> {
+  
   /* package */static final String FX_OPTIONS = "FX Options";
   /* package */static final String NONDELIVERABLE_FX_OPTIONS = "Non-deliverable FX Options";
   /* package */static final String FX_BARRIER_OPTIONS = "FX Barrier Options";
@@ -235,7 +236,17 @@ public class AssetClassAggregationFunction implements AggregationFunction<String
 
   @Override
   public int compare(String assetClass1, String assetClass2) {
-    return ALL_CATEGORIES.indexOf(assetClass2) - ALL_CATEGORIES.indexOf(assetClass1);
+    if (ALL_CATEGORIES.contains(assetClass1)) {
+      if (ALL_CATEGORIES.contains(assetClass2)) {
+        return assetClass1.compareTo(assetClass2);
+      } else {
+        return -1;
+      }
+    } else if (ALL_CATEGORIES.contains(assetClass2)) {
+      return 1;
+    } else {
+      return ALL_CATEGORIES.indexOf(assetClass2) - ALL_CATEGORIES.indexOf(assetClass1);
+    }
   }
   
   public Comparator<Position> getPositionComparator() {
