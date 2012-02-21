@@ -257,7 +257,7 @@ public class FixedIncomeConverterDataProvider {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
       final ExternalIdBundle id = getIndexIdForSwap(floatingLeg);
-      final LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate().minusDays(7);
+      final LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate().minusMonths(2);
       final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, now.toLocalDate(), false);
       if (ts == null) {
         throw new OpenGammaRuntimeException("Could not get time series of underlying index " + id.getExternalIds().toString() + " bundle used was " + id);
