@@ -3,13 +3,12 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.loader.timeseries;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import com.opengamma.financial.loader.LoaderContext;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdSearch;
@@ -24,13 +23,16 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
+/**
+ * Time-series writer.
+ */
 public class MasterTimeSeriesWriter implements TimeSeriesWriter {
 
   private HistoricalTimeSeriesMaster _htsMaster;
   private Map<ExternalId, ObjectIdentifiable> _idMap = new HashMap<ExternalId, ObjectIdentifiable>();
   
-  public MasterTimeSeriesWriter(LoaderContext loaderContext) {
-    _htsMaster = loaderContext.getHistoricalTimeSeriesMaster();
+  public MasterTimeSeriesWriter(ToolContext toolContext) {
+    _htsMaster = toolContext.getHistoricalTimeSeriesMaster();
   }
 
   @Override

@@ -290,6 +290,9 @@ public final class ValueRequirementNames {
   
   public static final String YIELD_CURVE_NODE_SENSITIVITIES = "Yield Curve Node Sensitivities";
   public static final String EXTERNAL_SENSITIVITIES = "External Sensitivities";
+  public static final String CREDIT_SENSITIVITIES = "Credit Sensitivities";
+  public static final String DV01 = "DV01";
+  public static final String CS01 = "CS01";
 
   //SABR fitted surface parameters
   public static final String SABR_SURFACES = "SABR Surfaces";

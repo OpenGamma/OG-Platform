@@ -3,7 +3,6 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.loader.rowparser;
 
 import java.util.HashMap;
@@ -17,8 +16,8 @@ import javax.time.calendar.TimeZone;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
@@ -41,8 +40,8 @@ public class CashParser extends RowParser {
   protected String AMOUNT = "amount";
   //CSON
 
-  public CashParser(LoaderContext loaderContext) {
-    super(loaderContext);
+  public CashParser(ToolContext toolContext) {
+    super(toolContext);
   }
 
   @Override
@@ -75,7 +74,7 @@ public class CashParser extends RowParser {
     CashSecurity cash = (CashSecurity) security;
     
     result.put(CURRENCY, cash.getCurrency().getCode());
-    result.put(REGION, RegionUtils.getRegions(getLoaderContext().getRegionSource(), cash.getRegionId()).iterator().next().getFullName());
+    result.put(REGION, RegionUtils.getRegions(getToolContext().getRegionSource(), cash.getRegionId()).iterator().next().getFullName());
     result.put(START, cash.getStart().toString(CSV_DATE_FORMATTER));
     result.put(MATURITY, cash.getMaturity().toString(CSV_DATE_FORMATTER));
     result.put(DAY_COUNT, cash.getDayCount().getConventionName());
