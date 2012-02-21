@@ -14,6 +14,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import org.springframework.beans.factory.DisposableBean;
+import org.springframework.context.Lifecycle;
 import org.springframework.util.ClassUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -161,6 +162,8 @@ public final class ReflectionUtils {
   public static boolean isCloseable(final Class<?> type) {
     if (Closeable.class.isAssignableFrom(type)) {
       return true;
+    } else if (Lifecycle.class.isAssignableFrom(type)) {
+      return true;
     } else if (DisposableBean.class.isAssignableFrom(type)) {
       return true;
     }
@@ -198,6 +201,8 @@ public final class ReflectionUtils {
       try {
         if (obj instanceof Closeable) {
           ((Closeable) obj).close();
+        } else if (obj instanceof Lifecycle) {
+          ((Lifecycle) obj).stop();
         } else if (obj instanceof DisposableBean) {
           ((DisposableBean) obj).destroy();
         } else {

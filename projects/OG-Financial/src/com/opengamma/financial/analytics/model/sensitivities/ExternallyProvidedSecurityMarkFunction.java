@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.model.sensitivities;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 
 import javax.time.calendar.LocalDate;
@@ -16,7 +15,6 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -41,19 +39,19 @@ import com.opengamma.util.tuple.Pair;
  */
 public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(ExternallyProvidedSecurityMarkFunction.class);
-    
+
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
-    SecurityEntryData securityEntryData = RawSecurityUtils.decodeSecurityEntryData(security);
-    UniqueId uid = UniqueId.of(securityEntryData.getId().getScheme().getName(), securityEntryData.getId().getValue());
-//    final double price = (Double) inputs.getValue(
-//        new ValueRequirement(
-//            MarketDataRequirementNames.MARKET_VALUE,
-//            ComputationTargetType.PRIMITIVE,
-//            uid));
-    HistoricalTimeSeriesSource htsSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
-    Pair<LocalDate, Double> latestDataPoint = htsSource.getLatestDataPoint("PX_LAST", securityEntryData.getId().toBundle(), null);
+    final SecurityEntryData securityEntryData = RawSecurityUtils.decodeSecurityEntryData(security);
+    final UniqueId uid = UniqueId.of(securityEntryData.getId().getScheme().getName(), securityEntryData.getId().getValue());
+    //    final double price = (Double) inputs.getValue(
+    //        new ValueRequirement(
+    //            MarketDataRequirementNames.MARKET_VALUE,
+    //            ComputationTargetType.PRIMITIVE,
+    //            uid));
+    final HistoricalTimeSeriesSource htsSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
+    final Pair<LocalDate, Double> latestDataPoint = htsSource.getLatestDataPoint("PX_LAST", securityEntryData.getId().toBundle(), null);
     if (latestDataPoint == null) {
       throw new OpenGammaRuntimeException("Couldn't get last Market_Value data point for " + securityEntryData.getId());
     }
@@ -62,10 +60,10 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
     return Collections.<ComputedValue>singleton(
         new ComputedValue(
             new ValueSpecification(
-                new ValueRequirement(ValueRequirementNames.MARK, ComputationTargetType.POSITION, target.getPosition().getUniqueId(), 
-                                     ValueProperties.with(ValuePropertyNames.CURRENCY, securityEntryData.getCurrency().getCode()).get()),
-                getUniqueId()),
-                price));
+                new ValueRequirement(ValueRequirementNames.MARK, ComputationTargetType.POSITION, target.getPosition().getUniqueId(),
+                    ValueProperties.with(ValuePropertyNames.CURRENCY, securityEntryData.getCurrency().getCode()).get()),
+                    getUniqueId()),
+                    price));
   }
 
   @Override
@@ -79,11 +77,11 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
-//      final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
-//      final SecurityEntryData securityEntryData = RawSecurityUtils.decodeSecurityEntryData(security);
-//      final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-//      UniqueId uid = UniqueId.of(securityEntryData.getId().getScheme().getName(), securityEntryData.getId().getValue());
-//      requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, uid));
+      //      final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
+      //      final SecurityEntryData securityEntryData = RawSecurityUtils.decodeSecurityEntryData(security);
+      //      final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
+      //      UniqueId uid = UniqueId.of(securityEntryData.getId().getScheme().getName(), securityEntryData.getId().getValue());
+      //      requirements.add(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, ComputationTargetType.PRIMITIVE, uid));
       return Collections.emptySet();//requirements;
     }
     return null;
@@ -93,15 +91,15 @@ public class ExternallyProvidedSecurityMarkFunction extends AbstractFunction.Non
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     if (canApplyTo(context, target)) {
       final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
-      SecurityEntryData securityEntryData = RawSecurityUtils.decodeSecurityEntryData(security);
-      UniqueId uid = UniqueId.of(securityEntryData.getId().getScheme().getName(), securityEntryData.getId().getValue());
+      final SecurityEntryData securityEntryData = RawSecurityUtils.decodeSecurityEntryData(security);
+      final UniqueId uid = UniqueId.of(securityEntryData.getId().getScheme().getName(), securityEntryData.getId().getValue());
       return Collections.<ValueSpecification>singleton(
-          new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARK, 
-                                                      ComputationTargetType.POSITION, 
-                                                      target.getPosition().getUniqueId(), 
-                                                      ValueProperties.with(ValuePropertyNames.CURRENCY, 
-                                                      securityEntryData.getCurrency().getCode()).get()), 
-                                 getUniqueId()));
+          new ValueSpecification(new ValueRequirement(ValueRequirementNames.MARK,
+              ComputationTargetType.POSITION,
+              target.getPosition().getUniqueId(),
+              ValueProperties.with(ValuePropertyNames.CURRENCY,
+                  securityEntryData.getCurrency().getCode()).get()),
+                  getUniqueId()));
     }
     return null;
   }

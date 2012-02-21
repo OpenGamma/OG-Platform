@@ -42,8 +42,6 @@
       </library>
     </orderEntry>
     <orderEntry type="module" module-name="OG-Util" />
-    <orderEntry type="module" module-name="Fudge-Java" />
-    <orderEntry type="module" module-name="Fudge-Proto" />
     <orderEntry type="module" module-name="OG-Security" />
     <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-Engine-default">

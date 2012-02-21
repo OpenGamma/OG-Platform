@@ -278,8 +278,7 @@ $.register_module({
                         'Continue Working': function () {
                             $(this).dialog('close');
                             og.api.rest.configs.get({
-                                id: routes.current().args.id, handler: $.noop,
-                                update: view.update, dependencies: view.dependencies
+                                id: routes.current().args.id, update: view.update, dependencies: view.dependencies
                             });
                         }
                     }

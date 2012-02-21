@@ -8,8 +8,9 @@ package com.opengamma.examples.tool;
 import java.util.Set;
 
 import com.google.common.collect.Sets;
-import com.opengamma.examples.loader.ExampleEquityPortfolioAndSecurityLoader;
+import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
+import com.opengamma.examples.loader.ExampleMixedPortfolioLoader;
 import com.opengamma.examples.loader.ExampleMultiCurrencySwapPortfolioLoader;
 import com.opengamma.examples.loader.ExampleSwapPortfolioLoader;
 import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
@@ -46,11 +47,12 @@ public class ExampleDatabasePopulater extends AbstractTool {
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
+    
     loadTimeSeriesRating();
     
     loadSimulatedHistoricalData();
     
-    loadEquityPortfolioAndSecurity();
+    loadEquityPortfolio();
     
     loadSwapPortfolio();
     
@@ -59,6 +61,15 @@ public class ExampleDatabasePopulater extends AbstractTool {
     loadLiborRawSecurities();
     
     loadViews();
+    
+    loadMixedPortfolio();
+  }
+
+  private void loadMixedPortfolio() {
+    ExampleMixedPortfolioLoader mixedPortfolioLoader = new ExampleMixedPortfolioLoader();
+    System.out.println("Creating example mixed portfolio");
+    mixedPortfolioLoader.run(getToolContext());
+    System.out.println("Finished");
   }
 
   private void loadTimeSeriesRating() {
@@ -75,8 +86,8 @@ public class ExampleDatabasePopulater extends AbstractTool {
     System.out.println("Finished");
   }
 
-  private void loadEquityPortfolioAndSecurity() {
-    ExampleEquityPortfolioAndSecurityLoader equityLoader = new ExampleEquityPortfolioAndSecurityLoader();
+  private void loadEquityPortfolio() {
+    ExampleEquityPortfolioLoader equityLoader = new ExampleEquityPortfolioLoader();
     System.out.println("Creating example equity portfolio");
     equityLoader.run(getToolContext());
     System.out.println("Finished");
@@ -98,7 +109,7 @@ public class ExampleDatabasePopulater extends AbstractTool {
 
   private void loadLiborRawSecurities() {
     System.out.println("Creating libor raw securities");
-    PortfolioLoaderHelper.persistLiborRawSecurities(getAllCurrencies(), getLoaderContext());
+    PortfolioLoaderHelper.persistLiborRawSecurities(getAllCurrencies(), getToolContext());
     System.out.println("Finished");
   }
 

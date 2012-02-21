@@ -12,7 +12,7 @@ import static com.opengamma.financial.analytics.model.volatility.local.LocalVola
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS;
-import static com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunctionOld.PROPERTY_SURFACE_INSTRUMENT_TYPE;
+import static com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE;
 
 import java.util.Collections;
 import java.util.Map;

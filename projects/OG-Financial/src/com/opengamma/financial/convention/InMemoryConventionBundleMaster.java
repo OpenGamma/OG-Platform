@@ -215,6 +215,10 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final Collection<ConventionBundle> collection = _mapper.get(request.getIdentifiers());
     return new ConventionBundleSearchResult(wrapReferenceRatesWithDocuments(collection));
   }
+  
+  /*package*/ Collection<ConventionBundle> getAll() {
+    return _mapper.getAll();
+  }
 
   private Collection<ConventionBundleDocument> wrapReferenceRatesWithDocuments(final Collection<ConventionBundle> referenceRates) {
     final Collection<ConventionBundleDocument> results = new ArrayList<ConventionBundleDocument>(referenceRates.size());

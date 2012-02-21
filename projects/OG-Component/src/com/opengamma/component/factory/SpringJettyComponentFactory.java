@@ -13,6 +13,7 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.context.Lifecycle;
@@ -34,6 +35,8 @@ import com.opengamma.util.rest.IllegalArgumentExceptionMapper;
 import com.opengamma.util.rest.ThrowableExceptionMapper;
 import com.opengamma.util.rest.UnsupportedOperationExceptionMapper;
 import com.opengamma.util.rest.WebApplicationExceptionMapper;
+import org.joda.beans.Property;
+import org.joda.beans.impl.direct.DirectMetaProperty;
 
 /**
  * Component definition for the Jetty server defined in Spring.
@@ -43,8 +46,20 @@ import com.opengamma.util.rest.WebApplicationExceptionMapper;
 @BeanDefinition
 public class SpringJettyComponentFactory extends AbstractSpringComponentFactory implements ComponentFactory {
 
+  /**
+   * The flag indicating if the component is active.
+   * This can be used from configuration to disable the jetty server.
+   * True by default.
+   */
+  @PropertyDefinition
+  private boolean _active = true;
+
+  //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
+    if (isActive() == false) {
+      return;
+    }
     GenericApplicationContext appContext = createApplicationContext(repo);
     
     String[] beanNames = appContext.getBeanNamesForType(Server.class);
@@ -125,11 +140,20 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
 
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -1422950650:  // active
+        return isActive();
+    }
     return super.propertyGet(propertyName, quiet);
   }
 
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
+    switch (propertyName.hashCode()) {
+      case -1422950650:  // active
+        setActive((Boolean) newValue);
+        return;
+    }
     super.propertySet(propertyName, newValue, quiet);
   }
 
@@ -139,7 +163,9 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
       return true;
     }
     if (obj != null && obj.getClass() == this.getClass()) {
-      return super.equals(obj);
+      SpringJettyComponentFactory other = (SpringJettyComponentFactory) obj;
+      return JodaBeanUtils.equal(isActive(), other.isActive()) &&
+          super.equals(obj);
     }
     return false;
   }
@@ -147,7 +173,39 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
   @Override
   public int hashCode() {
     int hash = 7;
+    hash += hash * 31 + JodaBeanUtils.hashCode(isActive());
     return hash ^ super.hashCode();
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the flag indicating if the component is active.
+   * This can be used from configuration to disable the jetty server.
+   * True by default.
+   * @return the value of the property
+   */
+  public boolean isActive() {
+    return _active;
+  }
+
+  /**
+   * Sets the flag indicating if the component is active.
+   * This can be used from configuration to disable the jetty server.
+   * True by default.
+   * @param active  the new value of the property
+   */
+  public void setActive(boolean active) {
+    this._active = active;
+  }
+
+  /**
+   * Gets the the {@code active} property.
+   * This can be used from configuration to disable the jetty server.
+   * True by default.
+   * @return the property, not null
+   */
+  public final Property<Boolean> active() {
+    return metaBean().active().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -161,15 +219,30 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
     static final Meta INSTANCE = new Meta();
 
     /**
+     * The meta-property for the {@code active} property.
+     */
+    private final MetaProperty<Boolean> _active = DirectMetaProperty.ofReadWrite(
+        this, "active", SpringJettyComponentFactory.class, Boolean.TYPE);
+    /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap());
+      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
+        "active");
 
     /**
      * Restricted constructor.
      */
     protected Meta() {
+    }
+
+    @Override
+    protected MetaProperty<?> metaPropertyGet(String propertyName) {
+      switch (propertyName.hashCode()) {
+        case -1422950650:  // active
+          return _active;
+      }
+      return super.metaPropertyGet(propertyName);
     }
 
     @Override
@@ -188,6 +261,14 @@ public class SpringJettyComponentFactory extends AbstractSpringComponentFactory 
     }
 
     //-----------------------------------------------------------------------
+    /**
+     * The meta-property for the {@code active} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> active() {
+      return _active;
+    }
+
   }
 
   ///CLOVER:ON

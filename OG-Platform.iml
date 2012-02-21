@@ -27,8 +27,6 @@
     <orderEntry type="module" module-name="OG-LiveData" />
     <orderEntry type="module" module-name="OG-Util" />
     <orderEntry type="module" module-name="OG-Analytics" />
-    <orderEntry type="module" module-name="Fudge-Java" />
-    <orderEntry type="module" module-name="Fudge-Proto" />
     <orderEntry type="module" module-name="OG-Core" />
     <orderEntry type="module" module-name="OG-Master" />
     <orderEntry type="module-library" exported="">
