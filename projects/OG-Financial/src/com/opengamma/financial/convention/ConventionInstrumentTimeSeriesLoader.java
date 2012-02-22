@@ -96,8 +96,6 @@ public class ConventionInstrumentTimeSeriesLoader {
     Collection<ConventionBundle> conventions = getConventionMaster().getAll();
     Set<ExternalId> externalIds = new HashSet<ExternalId>();
     for (ConventionBundle convention : conventions) {
-      addExternalId(convention.getBasisSwapPayFloatingLegInitialRate(), externalIds);
-      addExternalId(convention.getBasisSwapReceiveFloatingLegInitialRate(), externalIds);
       addExternalId(convention.getSwapFloatingLegInitialRate(), externalIds);
     }
     s_logger.info("Checking {} time-series: {}", externalIds.size(), externalIds);
