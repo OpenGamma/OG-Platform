@@ -118,17 +118,17 @@ $.register_module({
                                     This position has been deleted\
                                 </section>\
                             ', $html = $.tmpl(template, json.template_data);
-                        $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
-                        $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                        $('.OG-layout-admin-details-center .ui-layout-header').html($html.find('> header'));
+                        $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
                         ui.toolbar(view.options.toolbar.active);
                         if (json.template_data && json.template_data.deleted) {
-                            $('.ui-layout-inner-north').html(error_html);
+                            $('.OG-layout-admin-details-north').html(error_html);
                             view.layout.inner.sizePane('north', '0');
                             view.layout.inner.open('north');
                             $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
                         } else {
                             view.layout.inner.close('north');
-                            $('.ui-layout-inner-north').empty();
+                            $('.OG-layout-admin-details-north').empty();
                         }
                         common.gadgets.positions({
                             id: args.id, selector: '.og-js-details-positions', view: view,

@@ -129,12 +129,12 @@ $.register_module({
                                         This configuration has been deleted\
                                     </section>';
                             if (json.deleted) {
-                                $('.ui-layout-inner-north').html(error_html);
+                                $('.OG-layout-admin-details-north').html(error_html);
                                 view.layout.inner.sizePane('north', '0');
                                 view.layout.inner.open('north');
                             } else {
                                 view.layout.inner.close('north');
-                                $('.ui-layout-inner-north').empty();
+                                $('.OG-layout-admin-details-north').empty();
                             }
                             if (is_new || json.deleted) toolbar({
                                 buttons: [
@@ -159,7 +159,7 @@ $.register_module({
                             view.notify(null);
                             setTimeout(view.layout.inner.resizeAll);
                         },
-                        selector: '.ui-layout-inner-center .ui-layout-content',
+                        selector: '.OG-layout-admin-details-center .ui-layout-content',
                         type: details_json.template_data.type
                     };
                     if (render_type !== config_type)
