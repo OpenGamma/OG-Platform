@@ -94,9 +94,9 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
     final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
     switch (type) {
       case SWAP_FIXED_IBOR:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case SWAP_FIXED_IBOR_WITH_SPREAD:
-        return new String[] {fundingCurveName, forwardCurveName};
+        return new String[] {fundingCurveName, forwardCurveName };
       case SWAP_IBOR_IBOR:
         return new String[] {fundingCurveName, forwardCurveName, forwardCurveName};
       case CASH:

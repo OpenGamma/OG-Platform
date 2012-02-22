@@ -9,6 +9,8 @@ import java.sql.Driver;
 
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.HSQLDialect;
+import org.hsqldb.Database;
+import org.hsqldb.DatabaseManager;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 
@@ -86,6 +88,15 @@ public class HSQLDbDialect extends DbDialect {
     } else {
       return prefix + "= " + paramName + ' ';
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Closes the HSQL database, initiating a shutdown.
+   */
+  @Override
+  public void close() {
+    DatabaseManager.closeDatabases(Database.CLOSEMODE_NORMAL);
   }
 
 }
