@@ -24,7 +24,7 @@ $.register_module({
             },
             request_id = 1,
             MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, STALL = 500 /* 500ms */,
-            INSTANT = 10 /* 10ms */, RESUBSCRIBE = 30000 /* 20s */,
+            INSTANT = 0 /* 0ms */, RESUBSCRIBE = 30000 /* 20s */,
             TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */,
             /** @ignore */
             register = function (req) {
@@ -125,7 +125,7 @@ $.register_module({
                 };
                 if (is_get && !register({id: promise.id, config: config, current: current, url: url, method: method}))
                     // if registration fails, it's because we don't have a client ID yet, so stall
-                    return (setTimeout(request.partial(method, config, promise), STALL)), promise;
+                    return setTimeout(request.partial(method, config, promise), STALL), promise;
                 else
                     if (og.app.READ_ONLY) return setTimeout(function () {
                         var result = {error: true, data: null, meta: {}, message: 'The app is in read-only mode.'};
@@ -138,12 +138,12 @@ $.register_module({
                     warn(module.name + ': only GETs can be cached'), delete config.meta.cache_for;
                 start_loading(config.meta.loading);
                 if (is_get && get_cache(url) && typeof get_cache(url) === 'object')
-                    return (setTimeout(function () {
+                    return setTimeout(function () {
                         config.meta.handler(get_cache(url));
                         promise.deferred.resolve(get_cache(url));
-                    }, INSTANT)), promise;
+                    }, INSTANT), promise;
                 if (is_get && get_cache(url)) // if get_cache returns true a request is already outstanding, so stall
-                    return (setTimeout(request.partial(method, config, promise), STALL)), promise;
+                    return setTimeout(request.partial(method, config, promise), STALL), promise;
                 if (is_get && config.meta.cache_for) set_cache(url, true);
                 outstanding_requests[promise.id] = {current: current, dependencies: config.meta.dependencies};
                 return send(), promise;

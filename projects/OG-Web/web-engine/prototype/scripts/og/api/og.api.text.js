@@ -16,7 +16,7 @@ $.register_module({
             },
             html_path = path.partial(module.html_root, '.html'),
             data_path = path.partial(module.data_root, '.json'),
-            STALL = 500 /* 500ms */, INSTANT = 10 /* 10ms */
+            STALL = 500 /* 500ms */, INSTANT = 0 /* 0ms */,
             Promise = function () {
                 var deferred = new $.Deferred, promise = deferred.promise();
                 promise.deferred = deferred;
