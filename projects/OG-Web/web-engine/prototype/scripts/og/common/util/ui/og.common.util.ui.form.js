@@ -50,12 +50,8 @@ $.register_module({
                 block.children.forEach(function (child) {if (child.process) child.process(data, errors);});
                 try {if (processor) processor(data);} catch (error) {errors.push(error);}
             };
-            if (url || module) {
-                if (url) api_text({handler: function (result) {template = result;}, url: url});
-                else if (module) api_text({handler: function (result) {template = result;}, module: module});
-            } else {
-                template = '';
-            }
+            $.when(url || module ? api_text(url ? {url: url} : {module: module}) : void 0)
+                .then(function (result) {template = result || '';});
             if (form) form.attach(handlers);
         };
         /**
@@ -76,12 +72,8 @@ $.register_module({
             field.process = function (data, errors) {
                 try {if (processor) processor(data);} catch (error) {errors.push(error);}
             };
-            if (url || module) {
-                if (url) api_text({handler: function (result) {template = result;}, url: url});
-                else if (module) api_text({handler: function (result) {template = result;}, module: module});
-            } else {
-                template = '';
-            }
+            $.when(url || module ? api_text(url ? {url: url} : {module: module}) : void 0)
+                .then(function (result) {template = result || '';});
             form.attach(handlers);
         };
         /**
