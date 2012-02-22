@@ -95,6 +95,8 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
     switch (type) {
       case SWAP_FIXED_IBOR:
         return new String[] {fundingCurveName, forwardCurveName };
+      case SWAP_FIXED_IBOR_WITH_SPREAD:
+        return new String[] {fundingCurveName, forwardCurveName };
       case SWAP_IBOR_IBOR:
         return new String[] {fundingCurveName, forwardCurveName, forwardCurveName };
       case CASH:

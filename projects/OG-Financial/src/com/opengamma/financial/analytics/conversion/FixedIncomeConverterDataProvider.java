@@ -275,7 +275,7 @@ public class FixedIncomeConverterDataProvider {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
       final ExternalIdBundle id = getIndexIdForSwap(floatingLeg);
       final LocalDate startDate = swapStartDate.isBefore(now) ? swapStartDate.toLocalDate().minusDays(7) : now.toLocalDate()
-          .minusDays(7);
+          .minusMonths(2);
       final HistoricalTimeSeries ts = dataSource
           .getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, now.toLocalDate(), false);
       if (ts == null) {
@@ -289,7 +289,7 @@ public class FixedIncomeConverterDataProvider {
       //TODO this normalization should not be done here
       if (type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_CMS ||
           type == InterestRateInstrumentType.SWAP_IBOR_CMS || type == InterestRateInstrumentType.SWAP_IBOR_CMS ||
-          type == InterestRateInstrumentType.SWAP_CMS_CMS) {
+          type == InterestRateInstrumentType.SWAP_CMS_CMS || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD) {
         localDateTS = localDateTS.divide(100);
       } else if (type == InterestRateInstrumentType.SWAP_IBOR_IBOR) { //TODO not really - valid for tenor swaps but we really need to normalize the time series rather than doing it here
         localDateTS = localDateTS.divide(10000);

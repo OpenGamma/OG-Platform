@@ -207,6 +207,7 @@ public class DbConnector implements Closeable {
     ReflectionUtils.close(getDataSource());
     ReflectionUtils.close(getTransactionManager());
     ReflectionUtils.close(getHibernateSessionFactory());
+    getDialect().close();
   }
 
   //-------------------------------------------------------------------------

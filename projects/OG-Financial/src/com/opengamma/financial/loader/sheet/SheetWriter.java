@@ -9,10 +9,13 @@ package com.opengamma.financial.loader.sheet;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
+import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
 
 public abstract class SheetWriter {
+  
+  public abstract void writeNextRow(Map<String, String> row);
 
   private String[] _columns; // The column names and order
 
