@@ -48,6 +48,7 @@ protected:
 	virtual bool SendOk () const { return true; }
 
 	bool SendMsg (FudgeMsg msg);
+	bool PostMsg (FudgeMsg msg);
 	FudgeMsg RecvMsg (long lTimeout);
 public:
 	CRequestBuilder (const CConnector *poConnector);
@@ -61,14 +62,15 @@ public:
     const CConnector *GetConnector () const { m_poConnector->Retain (); return m_poConnector; }
 
 #define CONCAT(_a_, _b_) _a_##_b_
-#define REQUESTBUILDER_REQUEST(_objtype_) \
+
+#define REQUESTBUILDER_REQUEST_(_objtype_, _method_) \
 protected: \
 	_objtype_ m_request; \
 	bool Send (_objtype_ *obj) { \
 		if (!obj) return false; \
 		FudgeMsg msg; \
 		if (CONCAT(_objtype_, _toFudgeMsg) (obj, &msg) != FUDGE_OK) return false; \
-		bool bResult = SendMsg (msg); \
+		bool bResult = _method_ (msg); \
 		FudgeMsg_release (msg); \
 		return bResult; \
 	} \
@@ -77,6 +79,9 @@ protected: \
 	} \
 public: \
 	bool Send () { return SendOk () ? Send (&m_request) : false; }
+
+#define REQUESTBUILDER_REQUEST(_objtype_) REQUESTBUILDER_REQUEST_ (_objtype_, SendMsg)
+#define REQUESTBUILDER_POST(_objtype_) REQUESTBUILDER_REQUEST_ (_objtype_, PostMsg)
 
 #define REQUESTBUILDER_RESPONSE(_objtype_) \
 protected: \

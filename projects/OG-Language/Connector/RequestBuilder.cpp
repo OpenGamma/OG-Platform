@@ -25,6 +25,15 @@ bool CRequestBuilder::SendMsg (FudgeMsg msg) {
 	return m_poQuery != NULL;
 }
 
+/// Posts the message to the Java stack, no response is expected.
+///
+/// @param[in] msg message to send
+/// @return TRUE if the call was initiated, FALSE if there was an error
+bool CRequestBuilder::PostMsg (FudgeMsg msg) {
+	LOGDEBUG (TEXT ("Sending request"));
+	return m_poConnector->Send (msg);
+}
+
 /// Waits for a response from the Java stack.
 ///
 /// @param[in] lTimeout maximum time to wait for a response in milliseconds
