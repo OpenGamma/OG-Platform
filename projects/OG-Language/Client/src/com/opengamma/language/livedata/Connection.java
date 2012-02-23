@@ -16,8 +16,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class Connection {
 
-  private Listener _listener;
-  private Data _value;
+  private volatile Listener _listener;
+  private volatile Data _value;
 
   /**
    * Callback interface for receiving asynchronous values from the connection.
@@ -36,11 +36,8 @@ public class Connection {
    */
   protected void setValue(final Data value) {
     ArgumentChecker.notNull(value, "value");
-    final Listener listener;
-    synchronized (this) {
-      listener = _listener;
-      _value = value;
-    }
+    final Listener listener = _listener;
+    _value = value;
     if (listener != null) {
       listener.newValue(value);
     }
@@ -51,7 +48,7 @@ public class Connection {
    * 
    * @return the value
    */
-  public synchronized Data getValue() {
+  public Data getValue() {
     return _value;
   }
 
@@ -60,7 +57,7 @@ public class Connection {
    * 
    * @param listener listener to receive results, or null to remove the existing listener
    */
-  public synchronized void setListener(final Listener listener) {
+  public void setListener(final Listener listener) {
     _listener = listener;
   }
 
@@ -69,7 +66,7 @@ public class Connection {
    * call {@link #setValue} any more.
    */
   public void cancel() {
-    // Default is a no-op
+    setListener(null);
   }
 
 }

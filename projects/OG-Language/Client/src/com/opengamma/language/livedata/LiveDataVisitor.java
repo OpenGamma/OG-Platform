@@ -18,8 +18,10 @@ import com.opengamma.language.connector.LiveData;
 public interface LiveDataVisitor<T1, T2> {
 
   T1 visitConnect(Connect message, T2 data) throws AsynchronousExecution;
-
+  
   T1 visitCustom(Custom message, T2 data) throws AsynchronousExecution;
+  
+  T1 visitDisconnect(Disconnect message, T2 data) throws AsynchronousExecution;
 
   T1 visitQueryAvailable(QueryAvailable message, T2 data) throws AsynchronousExecution;
 
