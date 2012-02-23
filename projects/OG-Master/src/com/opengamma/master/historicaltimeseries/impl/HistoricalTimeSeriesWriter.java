@@ -11,6 +11,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdSearch;
+import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
@@ -35,6 +36,45 @@ public class HistoricalTimeSeriesWriter {
     _htsMaster = htsMaster;
   }
 
+  /**
+   * Updates an existing time-series in the master.
+   * 
+   * @param description  a description of the time-series for display purposes, not null
+   * @param dataSource  the data source, not null
+   * @param dataProvider  the data provider, not null
+   * @param dataField  the data field, not null
+   * @param observationTime  the descriptive observation time key, e.g. LONDON_CLOSE, not null
+   * @param oId  the unique identifier of the time-series to be updated, not null
+   * @param timeSeries  the time-series, not null
+   * @return the unique identifier of the time-series
+   */
+  public UniqueId writeTimeSeries(String description, String dataSource, String dataProvider, String dataField,
+      String observationTime, ObjectId oId, LocalDateDoubleTimeSeries timeSeries) {
+    
+    UniqueId uId = oId.atLatestVersion();
+    
+    ManageableHistoricalTimeSeries existingManageableTs = _htsMaster.getTimeSeries(uId);
+    LocalDateDoubleTimeSeries existingTs = existingManageableTs.getTimeSeries();
+   
+    // There is a matching time-series already in the master so update it to reflect the new time-series
+    // 1: 'correct' any differences in the subseries already present
+    LocalDateDoubleTimeSeries tsIntersection = timeSeries.subSeries(existingTs.getEarliestTime(), true, existingTs.getLatestTime(), true);
+    if (!tsIntersection.equals(existingTs)) {
+      s_logger.info("Correcting time series " + oId + "[" + dataField + "] from " + existingTs.getEarliestTime() + " to " + existingTs.getLatestTime());
+      uId = _htsMaster.correctTimeSeriesDataPoints(oId, tsIntersection);
+    }
+    // 2: 'update' the time-series to add any new, later points
+    if (existingTs.getLatestTime().isBefore(timeSeries.getLatestTime())) {
+      LocalDateDoubleTimeSeries newSeries = timeSeries.subSeries(existingTs.getLatestTime(), false, timeSeries.getLatestTime(), true);
+      if (newSeries.size() > 0) {
+        s_logger.info("Updating time series " + oId + "[" + dataField + "] from " + newSeries.getEarliestTime() + " to " + newSeries.getLatestTime());
+        uId = _htsMaster.updateTimeSeriesDataPoints(oId, newSeries);
+      }
+    }
+    
+    return uId;
+  }
+  
   //-------------------------------------------------------------------------
   /**
    * Adds or updates a time-series in the master.
@@ -66,28 +106,11 @@ public class HistoricalTimeSeriesWriter {
     htsSearchReq.setDataField(dataField);
     HistoricalTimeSeriesInfoSearchResult searchResult = _htsMaster.search(htsSearchReq);
     if (searchResult.getDocuments().size() > 0) {
+      // update existing time series
       HistoricalTimeSeriesInfoDocument existingTsDoc = searchResult.getFirstDocument();
-      ManageableHistoricalTimeSeries existingManageableTs = _htsMaster.getTimeSeries(existingTsDoc.getUniqueId());
-      LocalDateDoubleTimeSeries existingTs = existingManageableTs.getTimeSeries();
-      UniqueId tsId = existingTsDoc.getUniqueId();
-      // There is a matching time-series already in the master so update it to reflect the new time-series
-      // 1: 'correct' any differences in the subseries already present
-      LocalDateDoubleTimeSeries tsIntersection = timeSeries.subSeries(existingTs.getEarliestTime(), true, existingTs.getLatestTime(), true);
-      if (!tsIntersection.equals(existingTs)) {
-        s_logger.info("Correcting time series " + externalIdBundle + "[" + dataField + "] from " + existingTs.getEarliestTime() + " to " + existingTs.getLatestTime());
-        tsId = _htsMaster.correctTimeSeriesDataPoints(existingTsDoc.getObjectId(), tsIntersection);
-      }
-      // 2: 'update' the time-series to add any new, later points
-      if (existingTs.getLatestTime().isBefore(timeSeries.getLatestTime())) {
-        LocalDateDoubleTimeSeries newSeries = timeSeries.subSeries(existingTs.getLatestTime(), false, timeSeries.getLatestTime(), true);
-        if (newSeries.size() > 0) {
-          s_logger.info("Updating time series " + externalIdBundle + "[" + dataField + "] from " + newSeries.getEarliestTime() + " to " + newSeries.getLatestTime());
-          tsId = _htsMaster.updateTimeSeriesDataPoints(existingTsDoc.getObjectId(), newSeries);
-        }
-      }
-      return tsId;
+      return writeTimeSeries(description, dataSource, dataProvider, dataField, observationTime, existingTsDoc.getObjectId(), timeSeries);
     } else {
-      // add it
+      // add new time series
       ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
       info.setDataField(dataField);
       info.setDataSource(dataSource);
