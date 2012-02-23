@@ -38,6 +38,11 @@ public class LiveDataAdapter<T1, T2> implements LiveDataVisitor<T1, T2> {
   }
 
   @Override
+  public T1 visitDisconnect(final Disconnect message, final T2 data) throws AsynchronousExecution {
+    return getUnderlying().visitDisconnect(message, data);
+  }
+
+  @Override
   public T1 visitQueryAvailable(final QueryAvailable message, final T2 data) throws AsynchronousExecution {
     return getUnderlying().visitQueryAvailable(message, data);
   }
