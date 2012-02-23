@@ -39,6 +39,7 @@ public class TimeSeriesLoaderTool {
   private static final String TIME_SERIES_DATAFIELD_OPT = "d";
   private static final String TIME_SERIES_OBSERVATIONTIME_OPT = "o";
   private static final String TIME_SERIES_IDSCHEME_OPT = "i";
+  private static final String TIME_SERIES_DATEFORMAT_OPT = "t";
   /** Write option flag */
   private static final String WRITE_OPT = "w";
 
@@ -71,6 +72,7 @@ public class TimeSeriesLoaderTool {
         cmdLine.getOptionValue(TIME_SERIES_DATAFIELD_OPT),
         cmdLine.getOptionValue(TIME_SERIES_OBSERVATIONTIME_OPT),
         cmdLine.getOptionValue(TIME_SERIES_IDSCHEME_OPT),
+        cmdLine.getOptionValue(TIME_SERIES_DATEFORMAT_OPT),
         toolContext);
     
     // Load in and write the securities, positions and trades
@@ -104,18 +106,26 @@ public class TimeSeriesLoaderTool {
     Option timeSeriesDataSourceOption = new Option(
         TIME_SERIES_DATASOURCE_OPT, "source", true, "The name of the time series data source");
     options.addOption(timeSeriesDataSourceOption);
+    
     Option timeSeriesDataProviderOption = new Option(
         TIME_SERIES_DATAPROVIDER_OPT, "provider", true, "The name of the time series data provider");
     options.addOption(timeSeriesDataProviderOption);
+    
     Option timeSeriesDataFieldOption = new Option(
         TIME_SERIES_DATAFIELD_OPT, "field", true, "The name of the time series data field");
     options.addOption(timeSeriesDataFieldOption);
+    
     Option timeSeriesObservationTimeOption = new Option(
         TIME_SERIES_OBSERVATIONTIME_OPT, "time", true, "The time series observation time");
     options.addOption(timeSeriesObservationTimeOption);
+    
     Option timeSeriesIdSchemeOption = new Option(
-        TIME_SERIES_IDSCHEME_OPT, "name", true, "The time series ID scheme (e.g. RIC)");
+        TIME_SERIES_IDSCHEME_OPT, "scheme", true, "The time series ID scheme (e.g. RIC)");
     options.addOption(timeSeriesIdSchemeOption);
+    
+    Option timeSeriesDateFormatOption = new Option(
+        TIME_SERIES_DATEFORMAT_OPT, "date", true, "The JodaTime date format (e.g. yyyyMMdd)");
+    options.addOption(timeSeriesDateFormatOption);
     
     Option writeOption = new Option(
         WRITE_OPT, "write", false, 
@@ -142,13 +152,13 @@ public class TimeSeriesLoaderTool {
   }
   
   private static TimeSeriesReader constructTimeSeriesReader(String filename, 
-      String dataSource, String dataProvider, String dataField, String observationTime, String idScheme, ToolContext toolContext) {
+      String dataSource, String dataProvider, String dataField, String observationTime, String idScheme, String dateFormat, ToolContext toolContext) {
     
     String extension = filename.substring(filename.lastIndexOf('.'));
     
     // Single CSV or XLS file extension
     if (extension.equalsIgnoreCase(".csv") || extension.equalsIgnoreCase(".xls")) {
-      return new SingleSheetMultiTimeSeriesReader(filename, dataSource, dataProvider, dataField, observationTime, idScheme);
+      return new SingleSheetMultiTimeSeriesReader(filename, dataSource, dataProvider, dataField, observationTime, idScheme, dateFormat);
     } else {
       throw new OpenGammaRuntimeException("Input filename should end in .CSV or .ZIP");
     }
