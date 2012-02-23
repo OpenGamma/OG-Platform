@@ -16,7 +16,16 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.examples.tool.AbstractTool;
+import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
+import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
+import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
@@ -33,6 +42,7 @@ import com.opengamma.util.money.Currency;
  */
 public class ExampleViewsPopulater extends AbstractTool {
 
+  private static final String DEFAULT_CALC_CONFIG = "Default";
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleViewsPopulater.class);
 
@@ -56,6 +66,66 @@ public class ExampleViewsPopulater extends AbstractTool {
     createEquityViewDefinition();
     createSwapViewDefinition();
     createMultiCurrencySwapViewDefinition();
+    createMixedPortfolioViewDefinition();
+  }
+  
+  private void createEquityViewDefinition() {
+    storeViewDefinition(getEquityViewDefinition(ExampleEquityPortfolioLoader.PORTFOLIO_NAME));
+  }
+  
+  private void createSwapViewDefinition() {
+    storeViewDefinition(getSwapViewDefinition(ExampleSwapPortfolioLoader.PORTFOLIO_NAME));
+  }
+  
+  private void createMultiCurrencySwapViewDefinition() {
+    storeViewDefinition(getMultiCurrencySwapViewDefinition());
+  }
+
+  private void createMixedPortfolioViewDefinition() {
+    storeViewDefinition(getMixedPortfolioViewDefinition());
+  }
+  
+  private ViewDefinition getMixedPortfolioViewDefinition() {
+    UniqueId portfolioId = getPortfolioId(ExampleMixedPortfolioLoader.PORTFOLIO_NAME);
+    ViewDefinition viewDefinition = new ViewDefinition(ExampleMixedPortfolioLoader.PORTFOLIO_NAME + " View", portfolioId, UserPrincipal.getTestUser());
+    viewDefinition.setDefaultCurrency(Currency.USD);
+    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+    viewDefinition.setMaxFullCalculationPeriod(500L);
+    viewDefinition.setMinDeltaCalculationPeriod(500L);
+    viewDefinition.setMinFullCalculationPeriod(500L);
+    
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, BondSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, ValueProperties.none());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, CapFloorSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, ValueProperties.none());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityVarianceSwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, ValueProperties.none());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, FRASecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, ValueProperties.none());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, FutureSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, ValueProperties.none());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, FXForwardSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, ValueProperties.none());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, ValueProperties.none());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, IRFutureOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, ValueProperties.none());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, ValueProperties.none());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, SwaptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, ValueProperties.none());
+    
+    return viewDefinition;
+  }
+
+  private ViewDefinition getEquityViewDefinition(String portfolioName) {
+    UniqueId portfolioId = getPortfolioId(portfolioName);
+    ViewDefinition equityViewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
+    equityViewDefinition.setDefaultCurrency(Currency.USD);
+    equityViewDefinition.setMaxFullCalculationPeriod(30000L);
+    equityViewDefinition.setMinFullCalculationPeriod(500L);
+    equityViewDefinition.setMinDeltaCalculationPeriod(500L);
+    equityViewDefinition.setMaxDeltaCalculationPeriod(30000L);
+    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE, ValueProperties.none());
+    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.CAPM_BETA, ValueProperties.none());
+    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR, ValueProperties.none());
+//    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.JENSENS_ALPHA, ValueProperties.none());
+    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.SHARPE_RATIO, ValueProperties.none());
+//    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TOTAL_RISK_ALPHA, ValueProperties.none());
+    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TREYNOR_RATIO, ValueProperties.none());
+    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.WEIGHT, ValueProperties.none());
+    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL, ValueProperties.none());
+    return equityViewDefinition;
   }
 
   private UniqueId getPortfolioId(String portfolioName) {
@@ -69,35 +139,7 @@ public class ExampleViewsPopulater extends AbstractTool {
     return searchResult.getFirstPortfolio().getUniqueId();
   }
 
-  private ViewDefinition makeEquityViewDefinition(String portfolioName) {
-    UniqueId portfolioId = getPortfolioId(portfolioName);
-    ViewDefinition equityViewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
-    equityViewDefinition.setDefaultCurrency(Currency.USD);
-    equityViewDefinition.setMaxFullCalculationPeriod(30000L);
-    equityViewDefinition.setMinFullCalculationPeriod(500L);
-    equityViewDefinition.setMinDeltaCalculationPeriod(500L);
-    equityViewDefinition.setMaxDeltaCalculationPeriod(30000L);
-    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE, ValueProperties.none());
-    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.CAPM_BETA, ValueProperties.none());
-    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR, ValueProperties.none());
-//    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.JENSENS_ALPHA, ValueProperties.none());
-    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.SHARPE_RATIO, ValueProperties.none());
-//    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TOTAL_RISK_ALPHA, ValueProperties.none());
-    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TREYNOR_RATIO, ValueProperties.none());
-    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.WEIGHT, ValueProperties.none());
-    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL, ValueProperties.none());
-    return equityViewDefinition;
-  }
-
-  private void createSwapViewDefinition() {
-    saveViewDefinition(makeSwapViewDefinition(ExampleSwapPortfolioLoader.PORTFOLIO_NAME));
-  }
-
-  private void createEquityViewDefinition() {
-    saveViewDefinition(makeEquityViewDefinition(ExampleEquityPortfolioLoader.PORTFOLIO_NAME));
-  }
-
-  private ViewDefinition makeSwapViewDefinition(String portfolioName) {
+  private ViewDefinition getSwapViewDefinition(String portfolioName) {
     UniqueId portfolioId = getPortfolioId(portfolioName);
     ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
@@ -106,7 +148,7 @@ public class ExampleViewsPopulater extends AbstractTool {
     viewDefinition.setMinDeltaCalculationPeriod(500L);
     viewDefinition.setMinFullCalculationPeriod(500L);
 
-    ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, "Default");
+    ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
     ValueProperties defaultProperties = ValueProperties.with("ForwardCurve", "SECONDARY").with("FundingCurve", "SECONDARY").with("Currency", "USD").get();
     defaultCalc.setDefaultProperties(defaultProperties);
     defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01);
@@ -122,10 +164,6 @@ public class ExampleViewsPopulater extends AbstractTool {
     viewDefinition.addViewCalculationConfiguration(defaultCalc);
 
     return viewDefinition;
-  }
-
-  private void createMultiCurrencySwapViewDefinition() {
-    saveViewDefinition(getMultiCurrencySwapViewDefinition());
   }
 
   private ViewDefinition getMultiCurrencySwapViewDefinition() {
@@ -159,7 +197,7 @@ public class ExampleViewsPopulater extends AbstractTool {
     return viewDefinition;
   }
 
-  private void saveViewDefinition(ViewDefinition viewDefinition) {
+  private void storeViewDefinition(ViewDefinition viewDefinition) {
     ConfigDocument<ViewDefinition> configDocument = new ConfigDocument<ViewDefinition>(ViewDefinition.class);
     configDocument.setName(viewDefinition.getName());
     configDocument.setValue(viewDefinition);
