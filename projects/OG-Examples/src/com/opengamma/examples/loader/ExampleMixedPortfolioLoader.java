@@ -95,23 +95,23 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
     PortfolioDocument portfolioDoc = new PortfolioDocument();
     portfolioDoc.setPortfolio(portfolio);
     
-    addPortfolioNode(rootNode, getIborSwaps(), "Ibor swaps");
-    addPortfolioNode(rootNode, getCMSwaps(), "CM swaps");
-    addPortfolioNode(rootNode, getSimpleFixedIncome(), "Fixed income");
-    addPortfolioNode(rootNode, getSimpleFX(), "FX forward");
-    addPortfolioNode(rootNode, getFXOptions(), "FX options");
-    addPortfolioNode(rootNode, getBonds(), "Bonds");
-    addPortfolioNode(rootNode, getSwaptions(), "Swaptions");
-    addPortfolioNode(rootNode, getIborCapFloor(), "Ibor cap/floor");
-    addPortfolioNode(rootNode, getCMCapFloor(), "CM cap/floor");
-    addPortfolioNode(rootNode, getIRFutureOptions(), "IR future options");
-    addPortfolioNode(rootNode, getEquity(), "Equity");
+    addPortfolioNode(rootNode, getIborSwaps(), "Ibor swaps", BigDecimal.ONE);
+    addPortfolioNode(rootNode, getCMSwaps(), "CM swaps", BigDecimal.ONE);
+    addPortfolioNode(rootNode, getSimpleFixedIncome(), "Fixed income", BigDecimal.ONE);
+    addPortfolioNode(rootNode, getSimpleFX(), "FX forward", BigDecimal.ONE);
+    addPortfolioNode(rootNode, getFXOptions(), "FX options", BigDecimal.ONE);
+    addBondNode(rootNode);
+    addPortfolioNode(rootNode, getSwaptions(), "Swaptions", BigDecimal.ONE);
+    addPortfolioNode(rootNode, getIborCapFloor(), "Ibor cap/floor", BigDecimal.ONE);
+    addPortfolioNode(rootNode, getCMCapFloor(), "CM cap/floor", BigDecimal.ONE);
+    addPortfolioNode(rootNode, getIRFutureOptions(), "IR future options", BigDecimal.valueOf(100));
+    addEquityNode(rootNode);
     
     portfolioMaster.add(portfolioDoc);
   }
 
-  private Collection<FinancialSecurity> getEquity() {
-    List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
+  private void addEquityNode(ManageablePortfolioNode rootNode) {
+    final ManageablePortfolioNode portfolioNode = new ManageablePortfolioNode("Equity");
     
     EquityVarianceSwapSecurity equityVarianceSwap = new EquityVarianceSwapSecurity(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "DJX"), 
         Currency.USD, 0.5, 1000000.0, true, 250.0, ZonedDateTime.of(LocalDateTime.of(2010, 11, 1, 16, 0), TimeZone.UTC), 
@@ -119,21 +119,99 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
         ZonedDateTime.of(LocalDateTime.of(2010, 11, 1, 16, 0), TimeZone.UTC), RegionUtils.currencyRegionId(Currency.USD), SimpleFrequency.DAILY);
     equityVarianceSwap.setName("Equity Variance Swap, USD 1MM, strike=0.5, maturing 2012-11-01");
     equityVarianceSwap.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    securities.add(equityVarianceSwap);
+    storeFinancialSecurity(equityVarianceSwap);
+    addPosition(portfolioNode, equityVarianceSwap, BigDecimal.ONE);
     
     EquityIndexDividendFutureSecurity dividendFuture = new EquityIndexDividendFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC)), 
         "XEUR", "XEUR", Currency.USD, 1000.0, ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC), ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "HSBA"));
     dividendFuture.setName("HSBC Holdings SSDF Dec11");
     dividendFuture.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "H2SBZ1GR"));
-    securities.add(dividendFuture);
+    storeFinancialSecurity(dividendFuture);
+    addPosition(portfolioNode, dividendFuture, BigDecimal.valueOf(100));
     
     EquityFutureSecurity equityFuture = new EquityFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC)), 
         "XCME", "XCME", Currency.USD, 250.0, ZonedDateTime.of(LocalDateTime.of(2012, 12, 20, 21, 15), TimeZone.UTC), ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "SPX"));
     equityFuture.setName("S&P 500 FUTURE Dec12");
     equityFuture.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "SPZ2"));
-    securities.add(equityFuture);
+    storeFinancialSecurity(equityFuture);
+    addPosition(portfolioNode, equityFuture, BigDecimal.ONE);
     
-    return securities;
+    rootNode.addChildNode(portfolioNode);
+  }
+
+  private void addBondNode(ManageablePortfolioNode rootNode) {
+    
+    final ManageablePortfolioNode portfolioNode = new ManageablePortfolioNode("Bonds");
+   
+    final GovernmentBondSecurity bond1 = new GovernmentBondSecurity("US TREASURY N/B", "Sovereign", "US", "US GOVERNMENT", 
+        Currency.USD, SimpleYieldConvention.US_STREET, 
+        new Expiry(ZonedDateTime.of(LocalDateTime.of(2013, 12, 15, 16, 0), TimeZone.UTC)), "FIXED", 2.625, 
+        SimpleFrequency.SEMI_ANNUAL, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), 
+        ZonedDateTime.of(LocalDateTime.of(2009, 5, 30, 18, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2011, 5, 28, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2009, 12, 31, 11, 0), TimeZone.UTC), 
+        99.651404, 3.8075E10, 100.0, 100.0, 100.0, 100.0);
+    bond1.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "US912828KY53"));
+    bond1.setName("T 2 5/8 06/30/14");
+    storeFinancialSecurity(bond1);
+    addPosition(portfolioNode, bond1, BigDecimal.valueOf(2120));
+    
+    final GovernmentBondSecurity bond2 = new GovernmentBondSecurity("US TREASURY N/B", "Sovereign", "US", "US GOVERNMENT", 
+        Currency.USD, SimpleYieldConvention.US_STREET, 
+        new Expiry(ZonedDateTime.of(LocalDateTime.of(2015, 8, 31, 18, 0), TimeZone.UTC)), "FIXED", 1.25, 
+        SimpleFrequency.SEMI_ANNUAL, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), 
+        ZonedDateTime.of(LocalDateTime.of(2010, 8, 31, 18, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2011, 2, 14, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2011, 2, 28, 11, 0), TimeZone.UTC), 
+        99.402797, 3.6881E10, 100.0, 100.0, 100.0, 100.0);
+    bond2.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "US912828NV87"));
+    bond2.setName("T 1 1/4 08/31/15");
+    storeFinancialSecurity(bond2);
+    addPosition(portfolioNode, bond2, BigDecimal.valueOf(3940));
+    
+    final GovernmentBondSecurity bond3 = new GovernmentBondSecurity("TSY 8% 2021", "Sovereign", "GB", "UK GILT STOCK", 
+        Currency.GBP, SimpleYieldConvention.UK_BUMP_DMO_METHOD, 
+        new Expiry(ZonedDateTime.of(LocalDateTime.of(2021, 6, 7, 18, 0), TimeZone.UTC)), "FIXED", 8.0, 
+        SimpleFrequency.SEMI_ANNUAL, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA"), 
+        ZonedDateTime.of(LocalDateTime.of(1996, 2, 29, 18, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2011, 1, 28, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(1996, 6, 7, 12, 0), TimeZone.UTC), 
+        99.0625, 2.2686E10, 0.01, 0.01, 100.0, 100.0);
+    bond3.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GB0009997999"));
+    bond3.setName("UKT 8 06/07/21");
+    bond3.setAnnouncementDate(ZonedDateTime.of(LocalDateTime.of(1996, 2, 20, 11, 0), TimeZone.UTC));
+    storeFinancialSecurity(bond3);
+    addPosition(portfolioNode, bond3, BigDecimal.valueOf(4690));
+    
+    final List<BondFutureDeliverable> bondFutureDelivarables = new ArrayList<BondFutureDeliverable>();
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FF0")), 0.9221));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FJ2")), 1.0132));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FA1")), 1.037));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FE3")), 0.9485));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FB9")), 1.0125));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FM5")), 1.0273));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FG8")), 0.9213));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810PT9")), 0.8398));
+    
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FP8")), 0.9301));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FT0")), 0.8113));
+    
+    final BondFutureSecurity bond4 = new BondFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 3, 21, 20, 0), TimeZone.UTC)), 
+        "XCBT", "XCBT", Currency.USD, 1000.0, bondFutureDelivarables, "Bond", ZonedDateTime.of(LocalDateTime.of(2012, 3, 1, 0, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2012, 3, 1, 0, 0), TimeZone.UTC));
+    bond4.setName("US LONG BOND(CBT) Mar12");
+    bond4.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USH12"));
+    storeFinancialSecurity(bond4);
+    addPosition(portfolioNode, bond4, BigDecimal.valueOf(10));
+    
+    rootNode.addChildNode(portfolioNode);
+  }
+
+  private void addPosition(final ManageablePortfolioNode portfolioNode, final FinancialSecurity security, final BigDecimal quantity) {
+    PositionMaster positionMaster = getToolContext().getPositionMaster();
+    ManageablePosition position = new ManageablePosition(quantity, security.getExternalIdBundle());
+    PositionDocument addedDoc = positionMaster.add(new PositionDocument(position));
+    portfolioNode.addPosition(addedDoc.getUniqueId());
   }
 
   private Collection<FinancialSecurity> getIRFutureOptions() {
@@ -176,80 +254,18 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
     securityMaster.add(toAddDoc);
   }
 
-  private void addPortfolioNode(final ManageablePortfolioNode rootNode, final Collection<FinancialSecurity> finSecurities, final String portfolioNodeName) {
+  private void addPortfolioNode(final ManageablePortfolioNode rootNode, final Collection<FinancialSecurity> finSecurities, final String portfolioNodeName, BigDecimal quantity) {
     PositionMaster positionMaster = getToolContext().getPositionMaster();
     final ManageablePortfolioNode portfolioNode = new ManageablePortfolioNode(portfolioNodeName);
     for (final FinancialSecurity security : finSecurities) {
       storeFinancialSecurity(security);
-      ManageablePosition position = new ManageablePosition(BigDecimal.ONE, security.getExternalIdBundle());
+      ManageablePosition position = new ManageablePosition(quantity, security.getExternalIdBundle());
       PositionDocument addedDoc = positionMaster.add(new PositionDocument(position));
       portfolioNode.addPosition(addedDoc.getUniqueId());
     }
     rootNode.addChildNode(portfolioNode);
   }
   
-  private Collection<FinancialSecurity> getBonds() {
-    final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
-    final GovernmentBondSecurity bond1 = new GovernmentBondSecurity("US TREASURY N/B", "Sovereign", "US", "US GOVERNMENT", 
-        Currency.USD, SimpleYieldConvention.US_STREET, 
-        new Expiry(ZonedDateTime.of(LocalDateTime.of(2013, 12, 15, 16, 0), TimeZone.UTC)), "FIXED", 2.625, 
-        SimpleFrequency.SEMI_ANNUAL, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), 
-        ZonedDateTime.of(LocalDateTime.of(2009, 5, 30, 18, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2011, 5, 28, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2009, 12, 31, 11, 0), TimeZone.UTC), 
-        99.651404, 3.8075E10, 100.0, 100.0, 100.0, 100.0);
-    bond1.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "US912828KY53"));
-    bond1.setName("T 2 5/8 06/30/14");
-    securities.add(bond1);
-    
-    final GovernmentBondSecurity bond2 = new GovernmentBondSecurity("US TREASURY N/B", "Sovereign", "US", "US GOVERNMENT", 
-        Currency.USD, SimpleYieldConvention.US_STREET, 
-        new Expiry(ZonedDateTime.of(LocalDateTime.of(2015, 8, 31, 18, 0), TimeZone.UTC)), "FIXED", 1.25, 
-        SimpleFrequency.SEMI_ANNUAL, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), 
-        ZonedDateTime.of(LocalDateTime.of(2010, 8, 31, 18, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2011, 2, 14, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2011, 2, 28, 11, 0), TimeZone.UTC), 
-        99.402797, 3.6881E10, 100.0, 100.0, 100.0, 100.0);
-    bond2.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "US912828NV87"));
-    bond2.setName("T 1 1/4 08/31/15");
-    securities.add(bond2);
-    
-    final GovernmentBondSecurity bond3 = new GovernmentBondSecurity("TSY 8% 2021", "Sovereign", "GB", "UK GILT STOCK", 
-        Currency.GBP, SimpleYieldConvention.UK_BUMP_DMO_METHOD, 
-        new Expiry(ZonedDateTime.of(LocalDateTime.of(2021, 6, 7, 18, 0), TimeZone.UTC)), "FIXED", 8.0, 
-        SimpleFrequency.SEMI_ANNUAL, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA"), 
-        ZonedDateTime.of(LocalDateTime.of(1996, 2, 29, 18, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2011, 1, 28, 11, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(1996, 6, 7, 12, 0), TimeZone.UTC), 
-        99.0625, 2.2686E10, 0.01, 0.01, 100.0, 100.0);
-    bond3.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GB0009997999"));
-    bond3.setName("UKT 8 06/07/21");
-    bond3.setAnnouncementDate(ZonedDateTime.of(LocalDateTime.of(1996, 2, 20, 11, 0), TimeZone.UTC));
-    securities.add(bond3);
-    
-    final List<BondFutureDeliverable> bondFutureDelivarables = new ArrayList<BondFutureDeliverable>();
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FF0")), 0.9221));
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FJ2")), 1.0132));
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FA1")), 1.037));
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FE3")), 0.9485));
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FB9")), 1.0125));
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FM5")), 1.0273));
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FG8")), 0.9213));
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810PT9")), 0.8398));
-    
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FP8")), 0.9301));
-    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FT0")), 0.8113));
-    
-    final BondFutureSecurity bond4 = new BondFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 3, 21, 20, 0), TimeZone.UTC)), 
-        "XCBT", "XCBT", Currency.USD, 1000.0, bondFutureDelivarables, "Bond", ZonedDateTime.of(LocalDateTime.of(2012, 3, 1, 0, 0), TimeZone.UTC), 
-        ZonedDateTime.of(LocalDateTime.of(2012, 3, 1, 0, 0), TimeZone.UTC));
-    bond4.setName("US LONG BOND(CBT) Mar12");
-    bond4.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USH12"));
-    securities.add(bond4);
-    return securities;
-    
-  }
-
   private List<FinancialSecurity> getCMCapFloor() {
     final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
     
