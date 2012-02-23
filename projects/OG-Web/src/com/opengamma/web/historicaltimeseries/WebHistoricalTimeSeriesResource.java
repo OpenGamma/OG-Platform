@@ -7,6 +7,7 @@ package com.opengamma.web.historicaltimeseries;
 
 import java.io.StringWriter;
 import java.net.URI;
+import java.util.Collection;
 import java.util.Map;
 
 import javax.ws.rs.DELETE;
@@ -23,7 +24,10 @@ import au.com.bytecode.opencsv.CSVWriter;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoDocument;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchRequest;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoSearchResult;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
+import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeriesInfo;
 
 /**
  * RESTful resource for a historical time-series.
@@ -125,11 +129,21 @@ public class WebHistoricalTimeSeriesResource extends AbstractWebHistoricalTimeSe
     HistoricalTimeSeriesInfoDocument doc = data().getInfo();
     out.put("infoDoc", doc);
     out.put("info", doc.getInfo());
+    out.put("related", getRelatedTimeSeries());
     out.put("timeseries", data().getTimeSeries());
     out.put("deleted", !doc.isLatest());
     return out;
   }
 
+  private Collection<ManageableHistoricalTimeSeriesInfo> getRelatedTimeSeries() {
+    HistoricalTimeSeriesInfoSearchRequest searchRequest = 
+        new HistoricalTimeSeriesInfoSearchRequest(data().getInfo().getInfo().getExternalIdBundle().toBundle());
+    HistoricalTimeSeriesInfoSearchResult searchResult = data().getHistoricalTimeSeriesMaster().search(searchRequest);    
+    Collection<ManageableHistoricalTimeSeriesInfo> result = searchResult.getInfoList();
+    result.remove(data().getInfo().getInfo()); // remove the original time series itself from its related list
+    return result;
+  }
+  
   //-------------------------------------------------------------------------
   /**
    * Builds a URI for this resource.
