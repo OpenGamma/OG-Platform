@@ -99,7 +99,7 @@ public final class SessionConnections {
       connection.cancel();
       _context.getGlobalContext().getLiveDataDispatcher().dispatchValue(_context, identifier, null);
     } else {
-      s_logger.warn("Invalid connection {}", identifier);
+      s_logger.warn("Invalid connection {} for cancelation", identifier);
     }
   }
 
@@ -118,7 +118,7 @@ public final class SessionConnections {
     if (connection != null) {
       return new Result(identifier, connection.getValue());
     } else {
-      s_logger.warn("Invalid connection {}", identifier);
+      s_logger.warn("Invalid connection {} for query", identifier);
       return null;
     }
   }
