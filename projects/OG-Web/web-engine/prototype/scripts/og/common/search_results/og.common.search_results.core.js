@@ -32,12 +32,14 @@ $.register_module({
                     });
                     grid = new Slick.Grid(obj.selector, slick_manager.data, obj.columns, options);
                     grid.setSelectionModel(new Slick.RowSelectionModel);
-                    window.onresize = function () {
+                    $(window).on('resize', function () {
                         setTimeout(function () {
+                            var args = process_args();
+                            args.filter = false;
                             grid.resizeCanvas();
-                            filter($.extend(process_args(), {filter: false}));
+                            filter(args);
                         }, 300);
-                    };
+                    });
                     // Setup filter inputs
                     og.common.search.filter({location: obj.selector});
                     grid.onClick.subscribe(function (e, dd) {

@@ -126,12 +126,11 @@ $.register_module({
                 if (is_get && !register({id: promise.id, config: config, current: current, url: url, method: method}))
                     // if registration fails, it's because we don't have a client ID yet, so stall
                     return setTimeout(request.partial(method, config, promise), STALL), promise;
-                else
-                    if (og.app.READ_ONLY) return setTimeout(function () {
-                        var result = {error: true, data: null, meta: {}, message: 'The app is in read-only mode.'};
-                        config.meta.handler(result);
-                        promise.deferred.reject(result);
-                    }, INSTANT), promise;
+                if (!is_get && og.app.READ_ONLY) return setTimeout(function () {
+                    var result = {error: true, data: null, meta: {}, message: 'The app is in read-only mode.'};
+                    config.meta.handler(result);
+                    promise.deferred.reject(result);
+                }, INSTANT), promise;
                 if (config.meta.update && !is_get) warn(module.name + ': update functions are only for GETs');
                 if (config.meta.update && is_get) config.data['clientId'] = api.id;
                 if (config.meta.cache_for && !is_get)

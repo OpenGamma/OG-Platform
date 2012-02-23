@@ -134,7 +134,7 @@ $.register_module({
                             id: args.id, selector: '.og-js-details-positions', view: view,
                             version: args.version, editable: args.version && args.version !== '*' ? false : true
                         });
-                        common.gadgets.trades.render({
+                        common.gadgets.trades({
                             id: args.id, version: args.version, selector: '.og-js-trades-table'
                         });
                         if (show_loading) view.notify(null);
