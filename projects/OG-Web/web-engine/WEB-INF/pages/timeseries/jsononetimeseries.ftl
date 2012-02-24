@@ -1,6 +1,7 @@
 <#escape x as x?html>
 {
     "template_data": {
+            "name": "${info.name}",
             "object_id": "${info.uniqueId.objectId}",
             "version_id": "${info.uniqueId.version}",
             "data_field": "${info.dataField}",
