@@ -28,6 +28,7 @@ public abstract class ViewClientDescriptorFunction extends AbstractFunctionInvok
 
   private static final MetaParameter VIEW_PARAMETER = new MetaParameter("view", JavaTypeInfo.builder(UniqueId.class).get());
   private static final MetaParameter DATA_SOURCE_PARAMETER = new MetaParameter("dataSource", JavaTypeInfo.builder(String.class).allowNull().get());
+  private static final MetaParameter VALUATION_TIME = new MetaParameter("valuationTime", JavaTypeInfo.builder(Instant.class).allowNull().get());
   private static final MetaParameter FIRST_VALUATION_TIME_PARAMETER = new MetaParameter("firstValuationTime", JavaTypeInfo.builder(Instant.class).get());
   private static final MetaParameter LAST_VALUATION_TIME_PARAMETER = new MetaParameter("lastValuationTime", JavaTypeInfo.builder(Instant.class).get());
   private static final MetaParameter SAMPLE_PERIOD_PARAMETER = new MetaParameter("samplePeriod", JavaTypeInfo.builder(Integer.class).defaultValue(ViewClientDescriptor.DEFAULT_SAMPLE_PERIOD).get());
@@ -107,12 +108,12 @@ public abstract class ViewClientDescriptorFunction extends AbstractFunctionInvok
   private static final class TickingSnapshot extends ViewClientDescriptorFunction {
 
     private TickingSnapshot() {
-      super("TickingSnapshotViewClient", Arrays.asList(VIEW_PARAMETER, SNAPSHOT_PARAMETER));
+      super("TickingSnapshotViewClient", Arrays.asList(VIEW_PARAMETER, SNAPSHOT_PARAMETER, VALUATION_TIME));
     }
 
     @Override
     protected ViewClientDescriptor invokeImpl(final Object[] parameters) {
-      return ViewClientDescriptor.tickingSnapshot((UniqueId) parameters[0], (UniqueId) parameters[1]);
+      return ViewClientDescriptor.tickingSnapshot((UniqueId) parameters[0], (UniqueId) parameters[1], (Instant) parameters[2]);
     }
 
   }
@@ -125,12 +126,12 @@ public abstract class ViewClientDescriptorFunction extends AbstractFunctionInvok
   private static final class StaticSnapshot extends ViewClientDescriptorFunction {
 
     private StaticSnapshot() {
-      super("StaticSnapshotViewClient", Arrays.asList(VIEW_PARAMETER, SNAPSHOT_PARAMETER));
+      super("StaticSnapshotViewClient", Arrays.asList(VIEW_PARAMETER, SNAPSHOT_PARAMETER, VALUATION_TIME));
     }
 
     @Override
     protected ViewClientDescriptor invokeImpl(final Object[] parameters) {
-      return ViewClientDescriptor.staticSnapshot((UniqueId) parameters[0], (UniqueId) parameters[1]);
+      return ViewClientDescriptor.staticSnapshot((UniqueId) parameters[0], (UniqueId) parameters[1], (Instant) parameters[2]);
     }
 
   }

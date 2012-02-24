@@ -57,7 +57,7 @@ public class GeneratorOIS {
   private final boolean _fromEnd;
 
   /**
-   * Constructor from all details. The stub is short and date constrcuted from the end.
+   * Constructor from all details. The stub is short and date constructed from the end.
    * @param name The generator name.
    * @param index The ON index of the floating leg.
    * @param legsPeriod The legs period of payments (both fixed and ON legs have the same payment frequency).
@@ -66,7 +66,8 @@ public class GeneratorOIS {
    * @param endOfMonth The flag indicating if the end-of-month rule is used (used for both legs).
    * @param spotLag The index spot lag in days between trade and settlement date (usually 2 or 0).
    */
-  public GeneratorOIS(String name, IndexON index, Period legsPeriod, DayCount fixedLegDayCount, BusinessDayConvention businessDayConvention, boolean endOfMonth, final int spotLag) {
+  public GeneratorOIS(final String name, final IndexON index, final Period legsPeriod, final DayCount fixedLegDayCount, final BusinessDayConvention businessDayConvention, final boolean endOfMonth,
+      final int spotLag) {
     Validate.notNull(name, "Name");
     Validate.notNull(legsPeriod, "Period");
     Validate.notNull(fixedLegDayCount, "Fixed leg day count");
@@ -179,7 +180,7 @@ public class GeneratorOIS {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -189,7 +190,7 @@ public class GeneratorOIS {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    GeneratorOIS other = (GeneratorOIS) obj;
+    final GeneratorOIS other = (GeneratorOIS) obj;
     if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
       return false;
     }
