@@ -58,11 +58,54 @@ public final class PeriodFrequency implements Frequency, Serializable {
    */
   public static final PeriodFrequency CONTINUOUS = new PeriodFrequency(CONTINUOUS_NAME, Period.ZERO);
   /**
-   * A continuous frequency, with a period of zero.
+   * A frequency with a period of four months
    */
-  public static final Map<PeriodFrequency, PeriodFrequency> s_cache = 
-    ImmutableMap.<PeriodFrequency, PeriodFrequency>builder().put(ANNUAL, ANNUAL).put(SEMI_ANNUAL, SEMI_ANNUAL).put(QUARTERLY,
-      QUARTERLY).put(BIMONTHLY, BIMONTHLY).put(MONTHLY, MONTHLY).put(BIWEEKLY, BIWEEKLY).put(WEEKLY, WEEKLY).put(DAILY, DAILY).put(CONTINUOUS, CONTINUOUS).build();
+  public static final PeriodFrequency FOUR_MONTHS = new PeriodFrequency(FOUR_MONTH_NAME, Period.ofMonths(4));
+  /**
+   * A frequency with a period of five months
+   */
+  public static final PeriodFrequency FIVE_MONTHS = new PeriodFrequency(FIVE_MONTH_NAME, Period.ofMonths(5));
+  /**
+   * A frequency with a period of seven months
+   */
+  public static final PeriodFrequency SEVEN_MONTHS = new PeriodFrequency(SEVEN_MONTH_NAME, Period.ofMonths(7));
+  /**
+   * A frequency with a period of eight months
+   */
+  public static final PeriodFrequency EIGHT_MONTHS = new PeriodFrequency(EIGHT_MONTH_NAME, Period.ofMonths(8));
+  /**
+   * A frequency with a period of nine months
+   */
+  public static final PeriodFrequency NINE_MONTHS = new PeriodFrequency(NINE_MONTH_NAME, Period.ofMonths(9));
+  /**
+   * A frequency with a period of ten months
+   */
+  public static final PeriodFrequency TEN_MONTHS = new PeriodFrequency(TEN_MONTH_NAME, Period.ofMonths(10));
+  /**
+   * A frequency with a period of eleven months
+   */
+  public static final PeriodFrequency ELEVEN_MONTHS = new PeriodFrequency(ELEVEN_MONTH_NAME, Period.ofMonths(11));
+
+  /** A map containing all of the frequency */
+  public static final Map<PeriodFrequency, PeriodFrequency> s_cache =
+      ImmutableMap.<PeriodFrequency, PeriodFrequency>builder()
+          .put(ANNUAL, ANNUAL)
+          .put(SEMI_ANNUAL, SEMI_ANNUAL)
+          .put(QUARTERLY, QUARTERLY)
+          .put(BIMONTHLY, BIMONTHLY)
+          .put(MONTHLY, MONTHLY)
+          .put(BIWEEKLY, BIWEEKLY)
+          .put(WEEKLY, WEEKLY)
+          .put(DAILY, DAILY)
+          .put(CONTINUOUS, CONTINUOUS)
+          .put(FOUR_MONTHS, FOUR_MONTHS)
+          .put(FIVE_MONTHS, FIVE_MONTHS)
+          .put(SEVEN_MONTHS, SEVEN_MONTHS)
+          .put(EIGHT_MONTHS, EIGHT_MONTHS)
+          .put(NINE_MONTHS, NINE_MONTHS)
+          .put(TEN_MONTHS, TEN_MONTHS)
+          .put(ELEVEN_MONTHS, ELEVEN_MONTHS)
+          .build();
 
   /**
    * The name of the convention.
@@ -81,11 +124,20 @@ public final class PeriodFrequency implements Frequency, Serializable {
    * @return a period frequency, not null
    */
   public static PeriodFrequency of(final String name, final Period period) {
-    PeriodFrequency temp = new PeriodFrequency(name, period);
+    final PeriodFrequency temp = new PeriodFrequency(name, period);
     if (s_cache.containsKey(temp)) {
       return s_cache.get(temp);
     }
     return temp;
+  }
+
+  public static PeriodFrequency of(final Period period) {
+    for (final Map.Entry<PeriodFrequency, PeriodFrequency> entry : s_cache.entrySet()) {
+      if (entry.getKey().getPeriod().equals(period)) {
+        return entry.getValue();
+      }
+    }
+    return new PeriodFrequency(period.toString(), period);
   }
 
   /**
@@ -118,12 +170,12 @@ public final class PeriodFrequency implements Frequency, Serializable {
 
   // -------------------------------------------------------------------------
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj instanceof PeriodFrequency) {
-      PeriodFrequency other = (PeriodFrequency) obj;
+      final PeriodFrequency other = (PeriodFrequency) obj;
       return _name.equals(other._name) && _period.equals(other._period);
     }
     return false;
@@ -139,9 +191,6 @@ public final class PeriodFrequency implements Frequency, Serializable {
     return "Frequency[" + "name =  " + _name + " period = " + _period + "]";
   }
 
-  // -------------------------------------------------------------------------
-  // REVIEW Elaine 2010-06-18 This is awful, but I'm not sure if we actually need SimpleFrequency,
-  // so I'm going to use PeriodFrequency where possible and see if this class can be eliminated entirely
   /**
    * Converts this to a simple frequency.
    * 
@@ -174,6 +223,27 @@ public final class PeriodFrequency implements Frequency, Serializable {
     }
     if (_name.equals(WEEKLY_NAME)) {
       return SimpleFrequency.WEEKLY;
+    }
+    if (_name.equals(FOUR_MONTH_NAME)) {
+      return SimpleFrequency.FOUR_MONTHS;
+    }
+    if (_name.equals(FIVE_MONTH_NAME)) {
+      return SimpleFrequency.FIVE_MONTHS;
+    }
+    if (_name.equals(SEVEN_MONTH_NAME)) {
+      return SimpleFrequency.SEVEN_MONTHS;
+    }
+    if (_name.equals(EIGHT_MONTH_NAME)) {
+      return SimpleFrequency.EIGHT_MONTHS;
+    }
+    if (_name.equals(NINE_MONTH_NAME)) {
+      return SimpleFrequency.NINE_MONTHS;
+    }
+    if (_name.equals(TEN_MONTH_NAME)) {
+      return SimpleFrequency.TEN_MONTHS;
+    }
+    if (_name.equals(ELEVEN_MONTH_NAME)) {
+      return SimpleFrequency.ELEVEN_MONTHS;
     }
     throw new IllegalArgumentException("Cannot get a simple frequency for " + toString());
   }

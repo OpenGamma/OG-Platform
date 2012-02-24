@@ -16,6 +16,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -24,6 +25,7 @@ import com.opengamma.id.ExternalIdBundle;
  * 
  */
 public class AUConventions {
+  private static final char[] MONTH_NAMES = new char[] {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K' };
 
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
     Validate.notNull(conventionMaster, "convention master");
@@ -168,6 +170,37 @@ public class AUConventions {
 
     //TODO holiday associated with AUD swaps is Sydney
     final ExternalId au = RegionUtils.financialRegionId("AU");
+    final DayCount swapFixedDayCount = act365;
+    final BusinessDayConvention swapFixedBusinessDay = modified;
+    final Frequency swapFixedPaymentFrequency = semiAnnual;
+    final DayCount swapFloatDayCount = act365;
+    final BusinessDayConvention swapFloatBusinessDay = modified;
+    final Frequency swapFloatPaymentFrequency = semiAnnual;
+
+    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }) {
+      final String bbgOISId = "ADSO" + MONTH_NAMES[i - 1] + " Curncy";
+      final String ogOISName = "AUD OIS " + i + "m";
+      final Frequency frequency = PeriodFrequency.of(Period.ofMonths(i));
+      conventionMaster.addConventionBundle(
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgOISId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogOISName)), ogOISName,
+          swapFixedDayCount, swapFixedBusinessDay, frequency, 2, au, swapFloatDayCount, swapFloatBusinessDay, frequency,
+          1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBA OVERNIGHT CASH RATE"), au, true); //TODO need BBSW rate
+    }
+    for (int i = 1; i <= 30; i++) {
+      final String bbgSwapId = "ADSW" + i + " Curncy";
+      final String ogSwapName = "AUD SWAP " + i + "y";
+      final String bbgOISId = "ADSO" + i + " Curncy";
+      final String ogOISName = "AUD OIS " + i + "y";
+      conventionMaster.addConventionBundle(
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgSwapId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogSwapName)), ogSwapName,
+          swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, au, swapFloatDayCount, swapFloatBusinessDay, swapFloatPaymentFrequency,
+          1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD LIBOR 6m"), au, true);
+      conventionMaster.addConventionBundle(
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgOISId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogOISName)), ogOISName,
+          swapFixedDayCount, swapFixedBusinessDay, annual, 2, au, swapFloatDayCount, swapFloatBusinessDay, annual,
+          1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBA OVERNIGHT CASH RATE"), au, true);
+    }
+
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_SWAP")), "AUD_SWAP", act365, modified, semiAnnual, 1, au, act365,
         modified, semiAnnual, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD LIBOR 6m"), au, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_3M_SWAP")), "AUD_3M_SWAP", act365, modified, quarterly, 1, au,
@@ -177,11 +210,6 @@ public class AUConventions {
     //TODO: Change the reference index to BBSW. Unfortunately we don't have the BBSW time series for the moment.
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_OIS_SWAP")), "AUD_OIS_SWAP", act365, modified, annual, 0, au,
         act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBA OVERNIGHT CASH RATE"), au, true);
-    //    conventionMaster
-    //        .addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_OIS_CASH")), "AUD_OIS_CASH", act365, following, null, 1, false, null);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_OIS_CASH")), "AUD_OIS_CASH", act365, modified, annual, 2, au,
-        act365, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBA OVERNIGHT CASH RATE"), au, true);
-
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_SWAPTION")), "AUD_SWAPTION", false);
   }
 }

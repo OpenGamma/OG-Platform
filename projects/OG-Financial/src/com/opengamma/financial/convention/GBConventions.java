@@ -16,6 +16,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.id.ExternalId;
@@ -26,6 +27,7 @@ import com.opengamma.id.ExternalIdBundle;
  * 
  */
 public class GBConventions {
+  private static final char[] MONTH_NAMES = new char[] {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K' };
 
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
     Validate.notNull(conventionMaster, "convention master");
@@ -168,6 +170,35 @@ public class GBConventions {
 
     //TODO holiday associated with GBP swaps is London
     final ExternalId gb = RegionUtils.financialRegionId("GB");
+    final DayCount swapFixedDayCount = act365;
+    final BusinessDayConvention swapFixedBusinessDay = modified;
+    final Frequency swapFixedPaymentFrequency = annual;
+    final DayCount swapFloatDayCount = act365;
+    final BusinessDayConvention swapFloatBusinessDay = modified;
+    final Frequency swapFloatPaymentFrequency = semiAnnual;
+    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }) {
+      final String bbgOISId = "BPSWS" + MONTH_NAMES[i - 1] + " Curncy";
+      final String ogOISName = "GBP OIS " + i + "m";
+      final Frequency frequency = PeriodFrequency.of(Period.ofMonths(i));
+      conventionMaster.addConventionBundle(
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgOISId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogOISName)), ogOISName,
+          swapFixedDayCount, swapFixedBusinessDay, frequency, 0, gb, swapFloatDayCount, swapFloatBusinessDay, frequency,
+          0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP SONIO/N"), gb, true);
+    }
+    for (int i = 1; i <= 30; i++) {
+      final String bbgSwapId = "BPSW" + i + " Curncy";
+      final String ogSwapName = "GBP SWAP " + i + "y";
+      final String bbgOISId = "BPSWS" + i + " Curncy";
+      final String ogOISName = "GBP OIS " + i + "y";
+      conventionMaster.addConventionBundle(
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgSwapId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogSwapName)), ogSwapName,
+          swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 0, gb, swapFloatDayCount, swapFloatBusinessDay, swapFloatPaymentFrequency,
+          0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP LIBOR 6m"), gb, true);
+      conventionMaster.addConventionBundle(
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgOISId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogOISName)), ogOISName,
+          swapFixedDayCount, swapFixedBusinessDay, annual, 0, gb, swapFloatDayCount, swapFloatBusinessDay, annual,
+          0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP SONIO/N"), gb, true);
+    }
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP_SWAP")), "GBP_SWAP", act365, modified, semiAnnual, 0, gb, act365,
         modified, semiAnnual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP LIBOR 6m"), gb, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP_3M_SWAP")), "GBP_3M_SWAP", act365, modified, semiAnnual, 0, gb,
