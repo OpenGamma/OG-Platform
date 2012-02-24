@@ -11,7 +11,7 @@ $.register_module({
         'og.common.util.ui.Form'
     ],
     obj: function () {
-        var PANEL = '.ui-layout-inner-south', CONTENT = PANEL + ' .ui-layout-content', ORIG = 'origDealValue',
+        var PANEL = '.OG-layout-admin-details-south', CONTENT = PANEL + ' .ui-layout-content', ORIG = 'origDealValue',
             ui = og.common.util.ui, Form = og.common.util.ui.Form, sync;
         return sync = {
             load: function (args) {
@@ -47,11 +47,7 @@ $.register_module({
                 });
             },
             clear: function () {$(CONTENT).empty();},
-            setup: function () {
-                $(PANEL).removeClass(function (i , classes) {
-                    return (classes.match(/OG-(?:.+)/g) || []).join(' ');
-                }).addClass('OG-sync');
-            }
+            setup: function () {$(PANEL).removeClass('OG-versions').addClass('OG-sync');}
         }
     }
 });

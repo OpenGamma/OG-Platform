@@ -1,0 +1,17 @@
+/*
+ * Common generic styles
+ *
+ * @copyright 2009 - present by OpenGamma Inc
+ * @license See distribution for license
+ *
+ */
+
+.OG-logo-light-small:before {
+  background: url('/prototype/images/common/sprites/main-sprite-sheet.png');
+  content: "";
+  cursor: pointer;
+  background-position: -46px -60px;
+  height: 14px;
+  width: 80px;
+  position: absolute;
+}
