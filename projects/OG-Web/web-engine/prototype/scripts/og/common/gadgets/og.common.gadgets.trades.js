@@ -7,7 +7,7 @@ $.register_module({
     dependencies: ['og.common.util.ui.dialog'],
     obj: function () {
         var ui = og.common.util.ui, api = og.api,
-            template_data, original_config_object,
+            template_data, orig_config,
             dependencies = ['id', 'node', 'version'],
             html = {}, action = {}, $add_trades,
             load, reload, attach_trades_link, format_trades,
@@ -288,9 +288,10 @@ $.register_module({
             });
         };
         load = function (config) {
-            var version = config.version !== '*' ? config.version : (void 0), handler = function (result) {
+            var handler, version = config.version !== '*' ? config.version : void 0;
+            handler = function (result) {
                 if (result.error) return alert(result.message);
-                original_config_object = config;
+                orig_config = config;
                 template_data = result.data.template_data;
                 var trades = result.data.trades, selector = config.selector, tbody, has_attributes = false,
                     fields = ['id', 'quantity', 'counterParty', 'trade_date_time', 'premium', 'premium_date_time'];
@@ -348,9 +349,7 @@ $.register_module({
                     if (version) return;
                     var swap_css = function (elm, css) {
                         $(elm).find('td').css(css);
-                        if ($(elm).next().hasClass('og-js-attribute')) {
-                            $(elm).next().find('> td').css(css);
-                        }
+                        if ($(elm).next().is('.og-js-attribute')) $(elm).next().find('> td').css(css);
                     };
                     $(selector + ' .og-row').hover(
                         function () {
@@ -363,8 +362,8 @@ $.register_module({
                         }
                     ).click(function (e) {
                         var trade_id = $(this).find('td:first-child').text();
-                        if ($(e.target).is('.og-del')) e.stopPropagation(), action.del(trade_id);
-                        else action.edit(trade_id);
+                        if ($(e.target).is('.og-del')) return e.stopPropagation(), action.del(trade_id);
+                        action.edit(trade_id);
                     })
                 }());
             };
@@ -372,7 +371,8 @@ $.register_module({
                 dependencies: dependencies, id: config.id, handler: handler, cache_for: 500, version: version
             });
         };
-        reload = function () {load(original_config_object);};
-        return {render: load, reload: reload, format: format_trades}
+        load.reload = load.partial(orig_config);
+        load.format = format_trades;
+        return load;
     }
 });
