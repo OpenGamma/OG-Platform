@@ -105,7 +105,7 @@
   @INCLUDE(SearchWhere)
   ORDER BY
     id
-  @OFFSETFETCH
+  @OFFSETFETCH(:paging_offset,:paging_fetch)
 
 
 -- ==========================================================================
@@ -304,7 +304,7 @@
   ORDER BY
     ver_from_instant DESC,
     corr_from_instant DESC
-  @OFFSETFETCH
+  @OFFSETFETCH(:paging_offset,:paging_fetch)
 
 
 -- ==========================================================================
@@ -447,7 +447,7 @@
               AND point_date = p.point_date
           )
       ORDER BY point_date @INCLUDE(:order) 
-      @OFFSETFETCH
+      @OFFSETFETCH(:paging_offset,:paging_fetch)
     ) AS points
   ORDER BY point_date ASC
 

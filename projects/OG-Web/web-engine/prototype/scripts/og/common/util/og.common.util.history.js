@@ -6,14 +6,15 @@ $.register_module({
     name: 'og.common.util.history',
     dependencies: ['og.common.util.HashQueue', 'og.dev'],
     obj: function () {
-        var HashQueue = og.common.util.HashQueue, queues = {}, queue, module = this, cache = window['localStorage'];
+        var HashQueue = og.common.util.HashQueue, queues = {}, queue, remove,
+            module = this, cache = window['localStorage'];
         remove = function (item) {
             try { // if cahce is restricted, bail
                 cache['removeItem'](item);
             } catch (error) {
                 og.dev.warn(module.name + ': ' + item + ' remove failed\n', error);
             }
-        },
+        };
         queue = function (item) {
             if (typeof item !== 'string') throw new TypeError(module.name + ': item should be a string');
             if (queues[item]) return queues[item];

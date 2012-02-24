@@ -185,7 +185,7 @@ $.register_module({
                 common.gadgets.positions({
                     id: position, selector: '.og-js-details-positions', editable: false, view: view
                 });
-                common.gadgets.trades.render({id: position, selector: '.og-js-trades-table'});
+                common.gadgets.trades({id: position, selector: '.og-js-trades-table'});
             };
             render_position_rows = function (selector, json) {
                 var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions,
@@ -351,17 +351,17 @@ $.register_module({
                                 </section>\
                             ',
                             $html = $.tmpl(template, json.template_data);
-                        $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
-                        $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                        $('.OG-layout-admin-details-center .ui-layout-header').html($html.find('> header'));
+                        $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
                         ui.toolbar(view.options.toolbar.active);
                         if (json.template_data && json.template_data.deleted) {
-                            $('.ui-layout-inner-north').html(error_html);
+                            $('.OG-layout-admin-details-north').html(error_html);
                             view.layout.inner.sizePane('north', '0');
                             view.layout.inner.open('north');
                             $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
                         } else {
                             view.layout.inner.close('north');
-                            $('.ui-layout-inner-north').empty();
+                            $('.OG-layout-admin-details-north').empty();
                         }
                         render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
                         render_position_rows('.OG-js-details-panel .og-js-positions', json);

@@ -34,9 +34,9 @@ $.register_module({
                         });
                         api.text({module: module.name, handler: function (template) {
                             var $html = $.tmpl(template, json.template_data);
-                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
-                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
-                            view.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
+                            $('.OG-layout-admin-details-center .ui-layout-header').html($html.find('> header'));
+                            $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
+                            view.layout.inner.close('north'), $('.OG-layout-admin-details-north').empty();
                             $('.OG-holiday .og-calendar').datepicker({
                                 numberOfMonths: [4, 3],                     // Layout configuration
                                 showCurrentAtPos: new Date().getMonth(),    // Makes the first month January

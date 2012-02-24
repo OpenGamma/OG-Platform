@@ -122,20 +122,20 @@ $.register_module({
                                 item: 'history.' + page_name + '.recent',
                                 value: routes.current().hash
                             });
-                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
-                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                            $('.OG-layout-admin-details-center .ui-layout-header').html($html.find('> header'));
+                            $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
                             ui.toolbar(view.options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
-                                $('.ui-layout-inner-north').html(error_html);
+                                $('.OG-layout-admin-details-north').html(error_html);
                                 view.layout.inner.sizePane('north', '0');
                                 view.layout.inner.open('north');
                                 $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
                             } else {
                                 view.layout.inner.close('north');
-                                $('.ui-layout-inner-north').empty();
+                                $('.OG-layout-admin-details-north').empty();
                             }
                             // Identifiers
-                            $('.ui-layout-inner-center .og-js-identifiers').html(
+                            $('.OG-layout-admin-details-center .og-js-identifiers').html(
                                 json_id.reduce(function (acc, cur) {
                                     return acc + '<tr><td><span>'+  cur.scheme +'<span></td><td>'+ cur.value +
                                         '</td></tr>';

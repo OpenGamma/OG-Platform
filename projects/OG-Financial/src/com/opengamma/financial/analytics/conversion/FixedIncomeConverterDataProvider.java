@@ -29,6 +29,7 @@ import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.financial.instrument.swap.SwapDefinition;
+import com.opengamma.financial.instrument.swap.SwapFixedOISSimplifiedDefinition;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
@@ -84,6 +85,9 @@ public class FixedIncomeConverterDataProvider {
       }
     }
     if (security instanceof SwapSecurity) {
+      if (definition instanceof SwapFixedOISSimplifiedDefinition) {
+        return definition.toDerivative(now, curveNames);
+      }
       return convert((SwapSecurity) security, (SwapDefinition) definition, now, curveNames, dataSource);
     }
     if (security instanceof CapFloorCMSSpreadSecurity) {
@@ -236,18 +240,18 @@ public class FixedIncomeConverterDataProvider {
         return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, receiveLegTS}, curveNames);
       }
       if (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS) {
-        return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, payLegTS}, curveNames);
+        return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, payLegTS }, curveNames);
       }
-      return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS}, curveNames);
+      return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS }, curveNames);
     }
     if (receiveLegTS != null) {
       if (receiveLegTS.isEmpty()) {
         throw new OpenGammaRuntimeException("Time series was empty for floating leg for swap: reference index is " + ((FloatingInterestRateLeg) receiveLeg).getFloatingReferenceRateId());
       }
       if (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS) {
-        return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS, receiveLegTS}, curveNames);
+        return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS, receiveLegTS }, curveNames);
       }
-      return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS}, curveNames);
+      return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS }, curveNames);
     }
     throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");
   }
@@ -273,7 +277,7 @@ public class FixedIncomeConverterDataProvider {
         localDateTS = localDateTS.divide(100);
       } else if (type == InterestRateInstrumentType.SWAP_IBOR_IBOR) { //TODO not really - valid for tenor swaps but we really need to normalize the time series rather than doing it here
         localDateTS = localDateTS.divide(10000);
-      } else {
+      } else if (type != InterestRateInstrumentType.SWAP_FIXED_OIS) {
         throw new OpenGammaRuntimeException("Couldn't identify swap type");
       }
       final FastLongDoubleTimeSeries convertedTS = localDateTS.toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);

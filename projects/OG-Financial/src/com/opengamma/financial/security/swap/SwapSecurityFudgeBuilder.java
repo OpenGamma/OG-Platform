@@ -36,13 +36,13 @@ public class SwapSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fu
   public static final String RECEIVE_LEG_FIELD_NAME = "receiveLeg";
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, SwapSecurity object) {
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final SwapSecurity object) {
     final MutableFudgeMsg msg = serializer.newMessage();
     SwapSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
     return msg;
   }
 
-  public static void toFudgeMsg(FudgeSerializer serializer, SwapSecurity object, final MutableFudgeMsg msg) {
+  public static void toFudgeMsg(final FudgeSerializer serializer, final SwapSecurity object, final MutableFudgeMsg msg) {
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
     addToMessage(msg, TRADE_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getTradeDate()));
     addToMessage(msg, EFFECTIVE_DATE_FIELD_NAME, ZonedDateTimeFudgeBuilder.toFudgeMsg(serializer, object.getEffectiveDate()));
@@ -53,13 +53,13 @@ public class SwapSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fu
   }
 
   @Override
-  public SwapSecurity buildObject(FudgeDeserializer deserializer, FudgeMsg msg) {
-    SwapSecurity object = new SwapSecurity();
+  public SwapSecurity buildObject(final FudgeDeserializer deserializer, final FudgeMsg msg) {
+    final SwapSecurity object = new SwapSecurity();
     SwapSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
     return object;
   }
 
-  public static void fromFudgeMsg(FudgeDeserializer deserializer, FudgeMsg msg, SwapSecurity object) {
+  public static void fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg, final SwapSecurity object) {
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
     object.setTradeDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(TRADE_DATE_FIELD_NAME)));
     object.setEffectiveDate(ZonedDateTimeFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EFFECTIVE_DATE_FIELD_NAME)));
@@ -68,5 +68,4 @@ public class SwapSecurityFudgeBuilder extends AbstractFudgeBuilder implements Fu
     object.setPayLeg(deserializer.fudgeMsgToObject(SwapLeg.class, msg.getMessage(PAY_LEG_FIELD_NAME)));
     object.setReceiveLeg(deserializer.fudgeMsgToObject(SwapLeg.class, msg.getMessage(RECEIVE_LEG_FIELD_NAME)));
   }
-
 }
