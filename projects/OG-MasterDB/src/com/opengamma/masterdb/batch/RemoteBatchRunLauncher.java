@@ -6,6 +6,8 @@
 package com.opengamma.masterdb.batch;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.component.ComponentInfo;
+import com.opengamma.component.ComponentServer;
 import com.opengamma.engine.marketdata.spec.MarketData;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.client.ViewClient;
@@ -14,10 +16,15 @@ import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.financial.view.rest.RemoteViewProcessor;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
+import com.opengamma.master.holiday.HolidayMetaDataResult;
+import com.opengamma.master.impl.AbstractRemoteMaster;
+import com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean;
 import com.opengamma.util.jms.JmsConnector;
 import com.opengamma.util.jms.JmsConnectorFactoryBean;
+import com.opengamma.util.rest.AbstractRemoteClient;
 import com.opengamma.util.test.TestProperties;
 import org.apache.activemq.ActiveMQConnectionFactory;
+import org.fudgemsg.FudgeMsgEnvelope;
 
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -38,20 +45,24 @@ public class RemoteBatchRunLauncher {
   public static void main(String[] args) {
 
     final Properties props = TestProperties.getTestProperties();
+    
+    String ogConfigurationURL = System.getProperty("config.uri", props.getProperty("opengamma.config.uri"));
 
-    final StringBuilder uriString = new StringBuilder("http://");
-    uriString.append(System.getProperty("web.host", props.getProperty("opengamma.engine.host")));
-    uriString.append(':').append(System.getProperty("web.port", props.getProperty("opengamma.engine.port")));
-    uriString.append(System.getProperty("web.path", props.getProperty("opengamma.engine.path")));
-    uriString.append("jax/data/viewProcessors/Vp~0/");
-
-    URI vpBase;
-    try {
-      vpBase = new URI(uriString.toString());
-    } catch (URISyntaxException ex) {
-      throw new OpenGammaRuntimeException("Invalid URI", ex);
+    class ConfigRemoteClient extends AbstractRemoteClient {
+      ConfigRemoteClient(URI baseUri) {
+        super(baseUri);
+      }
+      
+      public ComponentServer getComponentServer(){
+        return accessRemote(getBaseUri()).get(ComponentServer.class);
+      }
     }
-
+    ConfigRemoteClient configRemoteClient = new ConfigRemoteClient(URI.create(ogConfigurationURL));        
+    
+    ComponentInfo viewProcessorInfo = configRemoteClient.getComponentServer().getComponentInfo(ViewProcessor.class, "main");
+    
+    URI viewProcessorUri = URI.create(ogConfigurationURL).resolve(viewProcessorInfo.getUri());
+   
     ActiveMQConnectionFactory activeMQConnectionFactory = new ActiveMQConnectionFactory(props.getProperty("activeMQ.brokerURL"));
     activeMQConnectionFactory.setWatchTopicAdvisories(false);
 
@@ -63,14 +74,13 @@ public class RemoteBatchRunLauncher {
     ScheduledExecutorService heartbeatScheduler = Executors.newSingleThreadScheduledExecutor();
     try {
       ViewProcessor vp = new RemoteViewProcessor(
-        vpBase,
+        viewProcessorUri,
         jmsConnector,
         heartbeatScheduler);
       ViewClient vc = vp.createViewClient(UserPrincipal.getLocalUser());
 
-      Map<UniqueId, String> viewDefinitions = vp.getViewDefinitionRepository().getDefinitionEntries();
-
-      UniqueId viewDefUniqueId = viewDefinitions.keySet().iterator().next();
+     
+      UniqueId viewDefUniqueId = UniqueId.parse("DbCfg~990266");
 
       //com.opengamma.engine.view.ViewDefinition viewDefinition = vp.getViewDefinitionRepository().getDefinition(viewDefUniqueId);
       //System.out.println(viewDefinitions);

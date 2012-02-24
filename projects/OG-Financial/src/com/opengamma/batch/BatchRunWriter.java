@@ -79,35 +79,6 @@ public interface BatchRunWriter {
   void addValuesToMarketData(ObjectId marketDataId, Set<MarketDataValue> values);
 
   /**
-   * Search batch data snapshots.
-   *
-   * @param pagingRequest the paging request, limiting number of market data returned
-   * @return requested market data without actual values, not null
-   * @throws IllegalArgumentException if the request is invalid
-   */
-  Pair<List<MarketData>, Paging> getMarketData(PagingRequest pagingRequest);
-
-  /**
-   * Search market data by id.
-   *
-   * @param filter the filter, limiting number of values returned
-   * @param marketDataId the id of the market data to get               
-   * @return requested market data, not null
-   * @throws IllegalArgumentException if the request is invalid
-   */
-  MarketData getMarketDataById(ObjectId marketDataId);
-
-  /**
-   * Gets market data values of given market data
-   *
-   * @param marketDataId the object id of the market data
-   * @param pagingRequest the paging request, limiting number of market data values returned
-   * @return requested market data values, not null
-   * @throws IllegalArgumentException if the request is invalid
-   */
-  Pair<List<MarketDataValue>, Paging> getMarketDataValues(final ObjectId marketDataId, final PagingRequest pagingRequest);
-
-  /**
    * Delete market data by id.
    *
    * @param marketDataId the id of the market data to delete               

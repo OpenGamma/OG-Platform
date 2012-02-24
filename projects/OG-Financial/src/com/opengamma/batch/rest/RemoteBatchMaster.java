@@ -6,23 +6,29 @@
 package com.opengamma.batch.rest;
 
 
+import com.opengamma.batch.BatchMaster;
 import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.batch.domain.RiskRun;
+import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.impl.AbstractRemoteMaster;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.master.security.impl.DataSecurityMasterResource;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.paging.Paging;
+import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.tuple.Pair;
 
 import java.net.URI;
+import java.util.List;
 import java.util.Set;
 
 /**
  * Provides access to a remote {@link com.opengamma.financial.batch.BatchMaster}.
  */
-public class RemoteBatchMaster extends AbstractRemoteMaster {
+public class RemoteBatchMaster extends AbstractRemoteMaster implements BatchMaster {
 
   /**
    * Creates an instance.
@@ -33,35 +39,57 @@ public class RemoteBatchMaster extends AbstractRemoteMaster {
     super(baseUri);
   }
 
-  public BatchRunSearchResult searchBatchRun(BatchRunSearchRequest request) {    
-    ArgumentChecker.notNull(request, "request");        
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Pair<List<RiskRun>, Paging> searchRiskRun(BatchRunSearchRequest batchRunSearchRequest) {
+    ArgumentChecker.notNull(batchRunSearchRequest, "batchRunSearchRequest");
     URI uri = BatchRunResource.uriSearch(getBaseUri());
-    return accessRemote(uri).post(BatchRunSearchResult.class, request);
+    return accessRemote(uri).post(Pair.class, batchRunSearchRequest);
   }
 
-  public RiskRun getBatchRun(ObjectId batchUniqueId) {
-    ArgumentChecker.notNull(batchUniqueId, "batchUniqueId");        
-    URI uri = BatchRunResource.uri(getBaseUri(), batchUniqueId);
+  @Override
+  public RiskRun getRiskRun(ObjectId batchId) {
+    ArgumentChecker.notNull(batchId, "batchId");        
+    URI uri = BatchRunResource.uri(getBaseUri(), batchId);
     return accessRemote(uri).get(RiskRun.class);
   }
 
-  public void deleteBatchRun(ObjectId batchUniqueId) {
-    ArgumentChecker.notNull(batchUniqueId, "batchUniqueId");        
-    URI uri = BatchRunResource.uri(getBaseUri(), batchUniqueId);
+  @Override
+  public void deleteRiskRun(ObjectId batchId) {
+    ArgumentChecker.notNull(batchId, "batchId");        
+    URI uri = BatchRunResource.uri(getBaseUri(), batchId);
     accessRemote(uri).delete();
   }
 
-  public UniqueId createMarketData(UniqueId MarketDataUid) {
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
-  }
-
-  public void addValuesToSnapshot(UniqueId marketDataSnapshotUniqueId, Set<MarketDataValue> values) {
-    //To change body of implemented methods use File | Settings | File Templates.
+  @SuppressWarnings("unchecked")
+  @Override
+  public Pair<List<ViewResultEntry>, Paging> getBatchValues(ObjectId batchId, PagingRequest pagingRequest) {
+    ArgumentChecker.notNull(batchId, "batchId");        
+    URI uri = BatchRunResource.uriBatchValues(getBaseUri(), batchId);
+    return accessRemote(uri).post(Pair.class, pagingRequest);
   }
   
-  public MarketData getSnapshot(ObjectId marketDataId) {
-    ArgumentChecker.notNull(marketDataId, "marketDataId");        
-    URI uri = MarketDataResource.uri(getBaseUri(), marketDataId);
+  //////////////////////////////////
+
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Pair<List<MarketData>, Paging> getMarketData(PagingRequest pagingRequest) {
+    URI uri = MarketDataResource.uriMarketData(getBaseUri());
+    return accessRemote(uri).post(Pair.class, pagingRequest);
+  }
+
+  @Override
+  public MarketData getMarketDataById(ObjectId marketDataId) {
+    URI uri = MarketDataResource.uriMarketData(getBaseUri(), marketDataId);
     return accessRemote(uri).get(MarketData.class);
+  }
+
+  @SuppressWarnings("unchecked")
+  @Override
+  public Pair<List<MarketDataValue>, Paging> getMarketDataValues(ObjectId marketDataId, PagingRequest pagingRequest) {
+    URI uri = MarketDataResource.uriMarketDataValues(getBaseUri(), marketDataId);
+    return accessRemote(uri).post(Pair.class, pagingRequest);
   }
 }

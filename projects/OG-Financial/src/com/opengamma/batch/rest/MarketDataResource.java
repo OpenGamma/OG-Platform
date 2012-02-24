@@ -5,11 +5,10 @@
  */
 package com.opengamma.batch.rest;
 
-import com.opengamma.batch.BatchMaster;
+import com.opengamma.batch.BatchMasterWriter;
 import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
@@ -17,10 +16,8 @@ import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.tuple.Pair;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.ext.Providers;
 import java.net.URI;
 import java.util.List;
 import java.util.Set;
@@ -33,7 +30,8 @@ public class MarketDataResource extends AbstractDataResource {
   /**
    * The batch master.
    */
-  private final BatchMaster _batchMaster;
+  private final BatchMasterWriter _batchMaster;
+
 
   /**
    * The id of the market data
@@ -46,7 +44,7 @@ public class MarketDataResource extends AbstractDataResource {
    * @param batchMaster  the underlying batch master, not null
    * @param marketDataId  the id of market data, not null
    */
-  public MarketDataResource(final ObjectId marketDataId, final BatchMaster batchMaster) {
+  public MarketDataResource(final ObjectId marketDataId, final BatchMasterWriter batchMaster) {
     _batchMaster = batchMaster;
     _marketDataId = marketDataId;
   }
@@ -56,7 +54,7 @@ public class MarketDataResource extends AbstractDataResource {
    *
    * @return the batch master, not null
    */
-  public BatchMaster getMaster() {
+  public BatchMasterWriter getMaster() {
     return _batchMaster;
   }
 
@@ -88,35 +86,35 @@ public class MarketDataResource extends AbstractDataResource {
 
 
   /**
-   * Builds a URI for the resource.
+   * Builds a URI for the values of a given marget data.
    *
    * @param baseUri  the base URI, not null
-   * @param snapshotId  the resource identifier, not null
+   * @param marketDataId  the id of market data
    * @return the URI, not null
    */
-  public static URI uri(URI baseUri, ObjectId snapshotId) {
-    UriBuilder b = UriBuilder.fromUri(baseUri).path("/batch/snapshots/{snapshotId}");
-    return b.build(snapshotId);
+  public static URI uriMarketDataValues(URI baseUri, ObjectId marketDataId) {
+    return UriBuilder.fromUri(baseUri).path("/marketDataSnapshot/{id}/values").build(marketDataId);  
   }
 
   /**
    * Builds a URI for all market data snapshots.
    *
    * @param baseUri  the base URI, not null
-   * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
-  public static URI marketDataSnapshotUri(URI baseUri, String searchMsg) {
-    UriBuilder bld = UriBuilder.fromUri(baseUri).path("/marketDataSnapshot");
-    if (searchMsg != null) {
-      bld.queryParam("msg", searchMsg);
-    }
-    return bld.build();
+  public static URI uriMarketData(URI baseUri) {
+    return UriBuilder.fromUri(baseUri).path("/marketDataSnapshot").build();
   }
 
-  public static URI marketDataSnapshotUri(URI baseUri, UniqueId marketDataSnapshotUid) {
-    return UriBuilder.fromUri(baseUri).path("/marketDataSnapshot/{uid}").build(marketDataSnapshotUid);
+  /**
+   * Builds a URI for a market data snapshot of given id.
+   *
+   * @param baseUri  the base URI, not null
+   * @param marketDataId  the id of market data
+   * @return the URI, not null
+   */
+  public static URI uriMarketData(URI baseUri, ObjectId marketDataId) {
+    return UriBuilder.fromUri(baseUri).path("/marketDataSnapshot/{id}").build(marketDataId);
   }
-
 
 }

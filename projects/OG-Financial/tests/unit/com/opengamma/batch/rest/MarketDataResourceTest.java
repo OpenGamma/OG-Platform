@@ -7,6 +7,7 @@ package com.opengamma.batch.rest;
 
 
 import com.opengamma.batch.BatchMaster;
+import com.opengamma.batch.BatchMasterWriter;
 import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.id.UniqueId;
@@ -34,14 +35,14 @@ public class MarketDataResourceTest {
 
   private UniqueId _baseMarketDataUid = UniqueId.of("Test", "BaseMarketData");
   private MarketData _marketData;
-  private BatchMaster _batchMaster;
+  private BatchMasterWriter _batchMaster;
   private MarketDataResource _resource;
 
   @BeforeMethod
   public void setUp() {
     _marketData = new MarketData(_baseMarketDataUid);
 
-    _batchMaster = mock(BatchMaster.class);
+    _batchMaster = mock(BatchMasterWriter.class);
     _resource = new MarketDataResource(_marketData.getObjectId(), _batchMaster);
     when(_batchMaster.getMarketDataById(_marketData.getObjectId())).thenReturn(_marketData);
   }

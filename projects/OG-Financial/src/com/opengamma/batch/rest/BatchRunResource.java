@@ -8,14 +8,23 @@ package com.opengamma.batch.rest;
 
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.batch.domain.RiskRun;
+import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.id.ObjectId;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoMetaDataRequest;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.paging.Paging;
+import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.rest.AbstractDataResource;
+import com.opengamma.util.rest.RestUtils;
+import com.opengamma.util.tuple.Pair;
 
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
+import javax.ws.rs.core.UriInfo;
 import java.net.URI;
+import java.util.List;
 
 /**
  * RESTful resource for batch.
@@ -66,6 +75,13 @@ public class BatchRunResource extends AbstractDataResource {
     RiskRun result = getMaster().getRiskRun(_batchRunId);
     return Response.ok(result).build();
   }
+  
+  @GET
+  @Path("values")
+  public Response getBatchValues(PagingRequest pagingRequest) {
+    Pair<List<ViewResultEntry>, Paging> result = getMaster().getBatchValues(_batchRunId, pagingRequest);
+    return Response.ok(result).build();
+  }
 
 
   /**
@@ -89,6 +105,18 @@ public class BatchRunResource extends AbstractDataResource {
    */
   public static URI uri(URI baseUri, ObjectId batchRunId) {
     return UriBuilder.fromUri(baseUri).path("/batchRun/{uid}").build(batchRunId);
+  }
+  
+  /**
+   * Builds a URI for getBatchValues.
+   * 
+   * @param baseUri  the base URI, not null
+   * @param batchRunId the batch id which values we want to build the uri for                          
+   * @param request  the paging request, may be null           
+   * @return the URI, not null
+   */
+  public static URI uriBatchValues(URI baseUri, ObjectId batchRunId) {
+    return UriBuilder.fromUri(baseUri).path("/batchRun/{uid}/values").build(batchRunId);
   }
 
 

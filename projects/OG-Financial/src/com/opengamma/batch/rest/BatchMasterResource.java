@@ -6,6 +6,7 @@
 package com.opengamma.batch.rest;
 
 import com.opengamma.batch.BatchMaster;
+import com.opengamma.batch.BatchMasterWriter;
 import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.id.ObjectId;
@@ -34,14 +35,14 @@ public class BatchMasterResource extends AbstractDataResource {
   /**
    * The batch master.
    */
-  private final BatchMaster _batchMaster;
+  private final BatchMasterWriter _batchMaster;
 
   /**
    * Creates the resource, exposing the underlying master over REST.
    *
    * @param batchMaster  the underlying batch master, not null
    */
-  public BatchMasterResource(final BatchMaster batchMaster) {
+  public BatchMasterResource(final BatchMasterWriter batchMaster) {
     ArgumentChecker.notNull(batchMaster, "batchMaster");
     _batchMaster = batchMaster;
   }
@@ -53,15 +54,15 @@ public class BatchMasterResource extends AbstractDataResource {
    *
    * @return the batch master, not null
    */
-  public BatchMaster getMaster() {
+  public BatchMasterWriter getMaster() {
     return _batchMaster;
   }
 
   /*
     Get snapshot by id
    */
-  @Path("snapshot/{snapshotId}")
-  public MarketDataResource snapshots(@PathParam("snapshotId") final String snapshotId) {
+  @Path("marketDataSnapshot/{id}")
+  public MarketDataResource snapshots(@PathParam("id") final String snapshotId) {
     ObjectId id = ObjectId.parse(snapshotId);
     return new MarketDataResource(id, getMaster());
   }
