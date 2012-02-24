@@ -132,14 +132,14 @@ $.register_module({
                                     </section>\
                                 ',
                                 $html = $.tmpl(template, json.template_data), html = [], id, json_id = json.identifiers;
-                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
-                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
-                            if (!Object.keys(json_id)[0]) $('.ui-layout-inner-center .og-js-identifiers')
+                            $('.OG-layout-admin-details-center .ui-layout-header').html($html.find('> header'));
+                            $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
+                            if (!Object.keys(json_id)[0]) $('.OG-layout-admin-details-center .og-js-identifiers')
                                 .html('<tr><td><span>' + ''.lang() + '</span></td><td></td></tr>');
                             else for (id in json_id) {
                                 if (json_id.hasOwnProperty(id)) html.push('<tr><td><span>', id.lang(),
                                     '<span></td><td>', json_id[id].replace(id + '-', ''), '</td></tr>');
-                                $('.ui-layout-inner-center .og-js-identifiers').html(html.join(''));
+                                $('.OG-layout-admin-details-center .og-js-identifiers').html(html.join(''));
                             }
                             (function () {
                                 if (json.template_data['underlyingOid']) {
@@ -153,18 +153,18 @@ $.register_module({
                                             json.template_data['underlyingExternalId'],
                                         anchor = '<a class="og-js-live-anchor" href="' + routes.prefix() + hash + '">' +
                                             text + '</a>';
-                                        $('.ui-layout-inner-center .OG-js-underlying-id').html(anchor);
+                                        $('.OG-layout-admin-details-center .OG-js-underlying-id').html(anchor);
                                 }
                             }());
                             ui.toolbar(view.options.toolbar.active);
                             if (json.template_data && json.template_data.deleted) {
-                                $('.ui-layout-inner-north').html(error_html);
+                                $('.OG-layout-admin-details-north').html(error_html);
                                 view.layout.inner.sizePane('north', '0');
                                 view.layout.inner.open('north');
                                 $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
                             } else {
                                 view.layout.inner.close('north');
-                                $('.ui-layout-inner-north').empty();
+                                $('.OG-layout-admin-details-north').empty();
                             }
                             if (json.template_data.hts_id || args.timeseries) common.gadgets.timeseries({
                                 selector: '.OG-js-details-panel .og-js-timeseries',

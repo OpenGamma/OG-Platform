@@ -19,11 +19,11 @@ $.register_module({
                         recent_list: og.common.util.history.get_html('history.' + page_name + '.recent') ||
                             'no recently viewed ' + page_name
                     });
-                $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
-                $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
+                $('.OG-layout-admin-details-center .ui-layout-header').html($html.find('> header'));
+                $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
                 layout.inner.options.south.onclose = null;
-                layout.inner.close('north'), $('.ui-layout-inner-north').empty();
-                layout.inner.close('south'), $('.ui-layout-inner-south').empty();
+                layout.inner.close('north'), $('.OG-layout-admin-details-north').empty();
+                layout.inner.close('south'), $('.OG-layout-admin-details-south').empty();
                 if (!og.views.common.layout.inner.state.south.isClosed) {og.views.common.versions.clear()}
                 // if options are not passed in, do not create a toolbar
                 if (options) og.common.util.ui.toolbar(options.toolbar['default']);
