@@ -41,8 +41,8 @@ $.register_module({
             };
             view.name = page_name[0].toUpperCase() + page_name.substring(1);
             view.notify = function (message, duration) {
-                if (!message) return ui.message({location: '.ui-layout-inner-center', destroy: true});
-                ui.message({location: '.ui-layout-inner-center', css: {left: 0}, message: message});
+                if (!message) return ui.message({location: '.OG-layout-admin-details-center', destroy: true});
+                ui.message({location: '.OG-layout-admin-details-center', css: {left: 0}, message: message});
                 if (duration) setTimeout(view.notify.partial(null), duration);
             };
             view.update = function (delivery) {

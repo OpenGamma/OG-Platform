@@ -11,8 +11,8 @@ echo ### Creating empty database
   com.opengamma.util.test.DbTool ^
   -jdbcUrl jdbc:hsqldb:file:install/db/hsqldb/example-db ^
   -database og-financial ^
-  -user "" ^
-  -password "" ^
+  -user "OpenGamma" ^
+  -password "OpenGamma" ^
   -drop true ^
   -create true ^
   -createtables true ^
@@ -22,8 +22,8 @@ echo ### Creating empty database
   com.opengamma.util.test.DbTool ^
   -jdbcUrl jdbc:hsqldb:file:temp/hsqldb/og-fin-user ^
   -database og-financial ^
-  -user "" ^
-  -password "" ^
+  -user "OpenGamma" ^
+  -password "OpenGamma" ^
   -drop true ^
   -create true ^
   -createtables true ^

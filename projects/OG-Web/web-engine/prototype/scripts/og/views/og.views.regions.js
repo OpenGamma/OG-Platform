@@ -32,9 +32,9 @@ $.register_module({
                         });
                         og.api.text({module: module.name, handler: function (template) {
                             var $html = $.tmpl(template, json);
-                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
-                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
-                            view.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
+                            $('.OG-layout-admin-details-center .ui-layout-header').html($html.find('> header'));
+                            $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
+                            view.layout.inner.close('north'), $('.OG-layout-admin-details-north').empty();
                             region_functions.render_regions('.OG-details-content .og-js-parent_regions', json.parent);
                             region_functions.render_regions('.OG-details-content .og-js-child_regions', json.child);
                             if (show_loading) view.notify(null);

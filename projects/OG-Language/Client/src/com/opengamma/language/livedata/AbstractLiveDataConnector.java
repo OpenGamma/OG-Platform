@@ -29,7 +29,7 @@ public abstract class AbstractLiveDataConnector extends AbstractInvoker implemen
   /**
    * Connection abstraction passed to the subclass.
    */
-  protected final class AbstractConnection extends Connection {
+  public final class AbstractConnection extends Connection {
 
     private final SessionContext _context;
     private Runnable _cancel;
@@ -56,6 +56,10 @@ public abstract class AbstractLiveDataConnector extends AbstractInvoker implemen
 
     public void setCancelHandler(final Runnable cancel) {
       _cancel = cancel;
+    }
+    
+    public Runnable getCancelHandler () {
+      return _cancel;
     }
 
     @Override

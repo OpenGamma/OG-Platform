@@ -29,14 +29,13 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborSpreadDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponOISDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponOISSimplifiedDefinition;
-import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
 import com.opengamma.financial.instrument.index.GeneratorOIS;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.financial.instrument.index.IndexSwap;
-import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.instrument.swap.SwapDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
+import com.opengamma.financial.instrument.swap.SwapFixedIborSpreadDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedOISDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedOISSimplifiedDefinition;
 import com.opengamma.financial.instrument.swap.SwapIborIborDefinition;
@@ -121,10 +120,10 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefi
       throw new OpenGammaRuntimeException("Could not get convention for " + swapSecurity);
     }
     final AnnuityCouponFixedDefinition fixedLegDefinition = getFixedSwapLegDefinition(effectiveDate, maturityDate, fixedLeg, calendar, conventions, payFixed);
-    final AnnuityDefinition<? extends PaymentDefinition> floatingLegDefinition = hasSpread ? getIborSwapLegWithSpreadDefinition(effectiveDate, maturityDate, (FloatingSpreadIRLeg) floatLeg,
-          calendar,
-          currency, !payFixed) : getIborSwapLegDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed);
-    return new SwapFixedIborDefinition(fixedLegDefinition, floatingLegDefinition);
+    if (hasSpread) {
+      return new SwapFixedIborSpreadDefinition(fixedLegDefinition, getIborSwapLegWithSpreadDefinition(effectiveDate, maturityDate, (FloatingSpreadIRLeg) floatLeg, calendar, currency, !payFixed));
+    }
+    return new SwapFixedIborDefinition(fixedLegDefinition, getIborSwapLegDefinition(effectiveDate, maturityDate, floatLeg, calendar, currency, !payFixed));
   }
 
   private SwapDefinition getFixedOISSwapDefinition(final SwapSecurity swapSecurity, final boolean payFixed) {

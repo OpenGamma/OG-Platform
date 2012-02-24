@@ -1,0 +1,89 @@
+.OG-layout-admin-container {
+    height: 100%;
+    margin: 0 5px;
+}
+
+.OG-layout-admin-masthead {
+    background: transparent;
+    z-index: 0!important;
+}
+
+.OG-layout-admin-footer {
+    background: transparent;
+    z-index: 1!important;
+}
+
+.OG-layout-admin-search,
+.OG-layout-analytics { /* legacy analytics */
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    background: #fff;
+    border-radius: 5px;
+    position: relative;
+    -webkit-box-shadow: 0 0 1px 1px #ccc;
+    -moz-box-shadow: 0 0 1px 1px #ccc;
+    box-shadow: 0 0 1px 1px #ccc;
+    overflow: hidden;
+}
+
+.OG-layout-admin-search:after,
+.OG-layout-analytics:after {
+    -webkit-border-top-left-radius: 5px;
+    -webkit-border-top-right-radius: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    content: '';
+    background-color: #2b343c;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+}
+
+.OG-layout-admin-details-center,
+.OG-layout-admin-details-south {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    background: #fff;
+    border: 1px solid #fff;
+    border-radius: 5px;
+    position: relative;
+    overflow: auto;
+    -webkit-box-shadow: 0 0 1px 1px #ccc;
+    -moz-box-shadow: 0 0 1px 1px #ccc;
+    box-shadow: 0 0 1px 1px #ccc;
+}
+
+.OG-layout-admin-details-center .ui-layout-header { /* Keeps the header in the main section from jumping on load */
+    min-height: 74px;
+}
+
+/* Fade page top and bottom */
+.OG-layout-admin-details-center .ui-layout-header {
+    position: relative;
+    border-bottom: 1px solid #f1f1f1;
+    margin-bottom: 1px;
+}
+
+.OG-layout-admin-details-center:after {
+    background: none; /* IE10+ */
+    background: -moz-linear-gradient(top, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,rgba(255,255,255,0)), color-stop(100%,rgba(255,255,255,1))); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%); /* Opera11.10+ */
+    background: -ms-linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%); /* IE10+ */
+    background: linear-gradient(top, rgba(255,255,255,0) 0%,rgba(255,255,255,1) 100%); /* W3C */  content: '';
+    position: absolute;
+    left: 0;
+    right: 16px;
+    bottom: 0;
+    height: 5px;
+    display: block;
+}
+
+.OG-layout-admin-details-center .ui-layout-header header {
+    padding: 10px;
+}
