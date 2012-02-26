@@ -25,8 +25,8 @@ import com.opengamma.util.money.Currency;
 public class VolatilitySurfaceSpecificationFudgeBuilder implements FudgeBuilder<VolatilitySurfaceSpecification> {
 
   @Override
-  public MutableFudgeMsg buildMessage(FudgeSerializer serializer, VolatilitySurfaceSpecification object) {
-    MutableFudgeMsg message = serializer.newMessage();
+  public MutableFudgeMsg buildMessage(final FudgeSerializer serializer, final VolatilitySurfaceSpecification object) {
+    final MutableFudgeMsg message = serializer.newMessage();
     // the following forces it not to use a secondary type if one is available.
     message.add("target", FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
     // for compatibility with old code, remove.
@@ -37,25 +37,30 @@ public class VolatilitySurfaceSpecificationFudgeBuilder implements FudgeBuilder<
       message.add("currency", Currency.USD);
     }
     message.add("name", object.getName());
+    //    if (object.getSurfaceQuoteType() != null) {
+    //      message.add("quote", object.getSurfaceQuoteType());
+    //    }
     serializer.addToMessageWithClassHeaders(message, "surfaceInstrumentProvider", null, object.getSurfaceInstrumentProvider());
-    return message; 
+    return message;
   }
 
   @Override
-  public VolatilitySurfaceSpecification buildObject(FudgeDeserializer deserializer, FudgeMsg message) {
+  public VolatilitySurfaceSpecification buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
     UniqueIdentifiable target;
     if (!message.hasField("target")) {
       target = deserializer.fieldValueToObject(Currency.class, message.getByName("currency"));
     } else {
-//      try {
       target = deserializer.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
-//      } catch (Exception fre) { // arghhhhhh
-//        target = Currency.of(message.getString("target"));
-//      }
     }
-    String name = message.getString("name");
-    FudgeField field = message.getByName("surfaceInstrumentProvider");
-    SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider = (SurfaceInstrumentProvider<?, ?>) deserializer.fieldValueToObject(field);
+    //    String quoteType;
+    //    if (message.hasField("quote") && message.getString("quote") != null) {
+    //      quoteType = message.getString("quote");
+    //    } else {
+    //      quoteType = SurfaceQuoteType.CALL_DELTA;
+    //    }
+    final String name = message.getString("name");
+    final FudgeField field = message.getByName("surfaceInstrumentProvider");
+    final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider = (SurfaceInstrumentProvider<?, ?>) deserializer.fieldValueToObject(field);
     return new VolatilitySurfaceSpecification(name, target, surfaceInstrumentProvider);
   }
 

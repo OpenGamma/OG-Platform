@@ -177,7 +177,7 @@ public class SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction extends Abs
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final Currency currency = Currency.USD;//Currency.of(((UniqueId) target.getValue()).getValue());
+    final Currency currency = Currency.of(((UniqueId) target.getValue()).getValue());
     final ValueProperties resultProperties = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .withAny(ValuePropertyNames.SURFACE)
