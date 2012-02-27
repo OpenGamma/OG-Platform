@@ -6,6 +6,8 @@
 
 package com.opengamma.language.view;
 
+
+import com.opengamma.engine.view.CycleInfo;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -15,8 +17,10 @@ import javax.time.Instant;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -35,6 +39,13 @@ import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.function.PublishedFunction;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.Cancelable;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.time.Instant;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Returns the latest result from a calculating view
@@ -184,6 +195,11 @@ public class GetViewResultFunction extends AbstractFunctionInvoker implements Pu
     public void viewDefinitionCompiled(final CompiledViewDefinition compiledViewDefinition, final boolean hasMarketDataPermissions) {
       // Ignore
       s_logger.debug("View definition compiled");
+    }
+
+    @Override
+    public void cycleInitiated(CycleInfo cycleInfo) {
+      // ignore
     }
 
     // Cancellable

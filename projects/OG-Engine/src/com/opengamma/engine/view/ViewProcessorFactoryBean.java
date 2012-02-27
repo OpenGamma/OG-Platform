@@ -5,6 +5,7 @@
  */
 package com.opengamma.engine.view;
 
+import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -54,6 +55,7 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
   private GraphExecutorStatisticsGathererProvider _graphExecutionStatistics = new DiscardingGraphStatisticsGathererProvider();
   private ViewPermissionProvider _viewPermissionProvider;
   private OverrideOperationCompiler _overrideOperationCompiler = new DummyOverrideOperationCompiler();
+  private ViewResultListenerFactory batchViewClientFactory;
 
   //-------------------------------------------------------------------------
   public String getName() {
@@ -225,7 +227,15 @@ public class ViewProcessorFactoryBean extends SingletonFactoryBean<ViewProcessor
         getDependencyGraphExecutorFactory(),
         getGraphExecutionStatistics(),
         getViewPermissionProvider(),
-        getOverrideOperationCompiler());
+        getOverrideOperationCompiler(),
+        getViewResultListenerFactory());
   }
 
+  public void setViewResultListenerFactory(ViewResultListenerFactory viewResultListenerFactory) {
+    this.batchViewClientFactory = viewResultListenerFactory;
+  }
+
+  public ViewResultListenerFactory getViewResultListenerFactory() {
+    return batchViewClientFactory;
+  }
 }

@@ -18,6 +18,8 @@ import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.depgraph.DependencyGraphExplorer;
 import com.opengamma.engine.depgraph.DependencyGraphExplorerImpl;
 import com.opengamma.engine.depgraph.DependencyNode;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
@@ -39,14 +41,17 @@ public class CompiledViewDefinitionWithGraphsImpl extends CompiledViewDefinition
    * @param functionInitId  the function init ID that was used when creating the dependency graphs
    */
   public CompiledViewDefinitionWithGraphsImpl(ViewDefinition viewDefinition,
-      Map<String, DependencyGraph> graphsByConfiguration, Portfolio portfolio, long functionInitId) {
+      Map<String, DependencyGraph> graphsByConfiguration,
+      Portfolio portfolio, long functionInitId) {
     this(viewDefinition, portfolio, processCompiledCalculationConfigurations(graphsByConfiguration),
         processValidityRange(graphsByConfiguration), graphsByConfiguration, functionInitId);
   }
   
   private CompiledViewDefinitionWithGraphsImpl(ViewDefinition viewDefinition, Portfolio portfolio,
       Collection<CompiledViewCalculationConfiguration> compiledCalculationConfigurations,
-      Pair<Instant, Instant> validityRange, Map<String, DependencyGraph> graphsByConfiguration, long functionInitId) {
+      Pair<Instant, Instant> validityRange,
+      Map<String, DependencyGraph> graphsByConfiguration,
+      long functionInitId) {
     super(viewDefinition, portfolio, compiledCalculationConfigurations, validityRange.getFirst(), validityRange.getSecond());
     _functionInitId = functionInitId;
     _graphsByConfiguration = Collections.unmodifiableMap(graphsByConfiguration);

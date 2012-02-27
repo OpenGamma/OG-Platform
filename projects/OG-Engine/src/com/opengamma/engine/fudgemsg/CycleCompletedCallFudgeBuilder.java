@@ -32,9 +32,6 @@ public class CycleCompletedCallFudgeBuilder implements FudgeBuilder<CycleComplet
     MutableFudgeMsg msg = serializer.newMessage();
     ViewComputationResultModel fullResult = object.getFullResult();
     ViewDeltaResultModel deltaResult = object.getDeltaResult();
-    if (fullResult == null && deltaResult == null) {
-      throw new OpenGammaRuntimeException("Unexpectedly useless CycleCompletedCall");
-    }
     serializer.addToMessage(msg, FULL_RESULT_FIELD, null, fullResult);
     serializer.addToMessage(msg, DELTA_RESULT_FIELD, null, deltaResult);
     return msg;

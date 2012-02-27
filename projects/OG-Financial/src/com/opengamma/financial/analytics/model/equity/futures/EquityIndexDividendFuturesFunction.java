@@ -95,7 +95,7 @@ public class EquityIndexDividendFuturesFunction extends AbstractFunction.NonComp
 
   @Override
   /**
-   * @param target The ComputationTarget is a TradeImpl
+   * @param target The HbComputationTargetSpecification is a TradeImpl
    */
   public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();

@@ -9,11 +9,15 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.Instant;
 
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.listener.CycleInitiatedCall;
 import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
 import com.opengamma.engine.view.listener.CycleCompletedCall;
 import com.opengamma.engine.view.listener.CycleExecutionFailedCall;
@@ -25,6 +29,9 @@ import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.AbstractTestResultListener;
 
+import java.util.Map;
+import java.util.Set;
+
 /**
  * Implementation of {@link ViewResultListener} for use in tests.
  */
@@ -33,9 +40,13 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   public ViewDefinitionCompiledCall getViewDefinitionCompiled(long timeoutMillis) throws InterruptedException {
     return expectNextCall(ViewDefinitionCompiledCall.class, timeoutMillis);
   }
-  
+
   public ViewDefinitionCompilationFailedCall getViewDefinitionCompilationFailed(long timeoutMillis) throws InterruptedException {
     return expectNextCall(ViewDefinitionCompilationFailedCall.class, timeoutMillis);
+  }
+  
+  public CycleInitiatedCall getCycleInitiated(long timeoutMillis) throws InterruptedException {
+    return expectNextCall(CycleInitiatedCall.class, timeoutMillis);
   }
   
   public CycleCompletedCall getCycleCompleted(long timeoutMillis) throws InterruptedException {
@@ -82,7 +93,7 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   public void assertViewDefinitionCompilationFailed(long timeoutMillis) {
     assertViewDefinitionCompilationFailed(timeoutMillis, null);
   }
-  
+
   public void assertViewDefinitionCompilationFailed(long timeoutMillis, String exceptionMessage) {
     ViewDefinitionCompilationFailedCall call;
     try {
@@ -94,7 +105,20 @@ public class TestViewResultListener extends AbstractTestResultListener implement
       assertEquals(exceptionMessage, call.getException().getMessage());
     }
   }
-  
+
+  public void assertCycleInitiated() {
+    assertCycleInitiated(0);
+  }
+
+  public void assertCycleInitiated(long timeoutMillis) {
+    CycleInitiatedCall call;
+    try {
+      call = getCycleInitiated(timeoutMillis);
+    } catch (Exception e) {
+      throw new AssertionError("Expected CycleInitiated call error: " + e.getMessage());
+    }
+  }
+
   public void assertCycleCompleted() {
     assertCycleCompleted(0);
   }
@@ -199,6 +223,11 @@ public class TestViewResultListener extends AbstractTestResultListener implement
   @Override
   public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
     callReceived(new ViewDefinitionCompilationFailedCall(valuationTime, exception));
+  }
+
+  @Override
+  public void cycleInitiated(CycleInfo cycleInfo) {
+    callReceived(new CycleInitiatedCall(cycleInfo), true);
   }
 
   @Override

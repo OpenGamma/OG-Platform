@@ -178,7 +178,7 @@ public class ComputationTarget implements Serializable {
         return getPosition().getSecurity().getName();
         
       case PRIMITIVE:
-        return null;
+        return toString();
         
       default:
         throw new RuntimeException("Unexpected type" + getType());
