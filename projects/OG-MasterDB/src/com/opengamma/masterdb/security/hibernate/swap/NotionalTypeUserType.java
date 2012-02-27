@@ -9,6 +9,7 @@ import com.opengamma.financial.security.swap.CommodityNotional;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.NotionalVisitor;
 import com.opengamma.financial.security.swap.SecurityNotional;
+import com.opengamma.financial.security.swap.VarianceSwapNotional;
 import com.opengamma.masterdb.security.hibernate.EnumUserType;
 
 /**
@@ -19,6 +20,7 @@ public class NotionalTypeUserType extends EnumUserType<NotionalType> {
   private static final String COMMODITY = "Commodity";
   private static final String INTEREST_RATE = "Interest rate";
   private static final String SECURITY = "Security";
+  private static final String VARIANCE = "Variance";
 
   public NotionalTypeUserType() {
     super(NotionalType.class, NotionalType.values());
@@ -41,6 +43,11 @@ public class NotionalTypeUserType extends EnumUserType<NotionalType> {
       @Override
       public String visitSecurityNotional(SecurityNotional notional) {
         return SECURITY;
+      }
+
+      @Override
+      public String visitVarianceSwapNotional(VarianceSwapNotional notional) {
+        return VARIANCE;
       }
 
     });
