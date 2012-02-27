@@ -269,14 +269,14 @@ public class OpenGammaComponentServer {
       if (registeredKey instanceof ComponentInfo) {
         ComponentInfo info = (ComponentInfo) registeredKey;
         if (info.getAttributes().isEmpty()) {
-          System.out.println(" Registered: " + info.toComponentKey());
+          System.out.println(" Registered component: " + info.toComponentKey());
         } else {
-          System.out.println(" Registered: " + info.toComponentKey() + " " + info.getAttributes());
+          System.out.println(" Registered component: " + info.toComponentKey() + " " + info.getAttributes());
         }
       } else if (registeredKey instanceof ComponentKey) {
-        System.out.println(" Registered: " + registeredKey);
+        System.out.println(" Registered component: " + registeredKey);
       } else {
-        System.out.println(" Registered: " + registeredObject);
+        System.out.println(" Registered callback: " + registeredObject);
       }
       super.registered(registeredKey, registeredObject);
     }
