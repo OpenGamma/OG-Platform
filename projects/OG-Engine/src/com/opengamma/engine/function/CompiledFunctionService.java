@@ -120,7 +120,7 @@ public class CompiledFunctionService {
           try {
             definition.init(getFunctionCompilationContext());
           } catch (Exception e) {
-            s_logger.warn("Couldn't initialize function {} id={}", definition.getShortName(), definition.getUniqueId());
+            s_logger.error("Couldn't initialize function {} id={}", definition.getShortName(), definition.getUniqueId());
             throw new OpenGammaRuntimeException("Couldn't initialize function", e);
           }
         }

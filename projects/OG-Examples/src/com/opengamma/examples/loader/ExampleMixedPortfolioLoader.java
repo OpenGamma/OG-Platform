@@ -95,9 +95,9 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
     PortfolioDocument portfolioDoc = new PortfolioDocument();
     portfolioDoc.setPortfolio(portfolio);
     
-//    addPortfolioNode(rootNode, getIborSwaps(), "Ibor swaps", BigDecimal.ONE);
+    addPortfolioNode(rootNode, getIborSwaps(), "Ibor swaps", BigDecimal.ONE);
     addPortfolioNode(rootNode, getCMSwaps(), "CM swaps", BigDecimal.ONE);
-    /*addPortfolioNode(rootNode, getSimpleFixedIncome(), "Fixed income", BigDecimal.ONE);
+    addPortfolioNode(rootNode, getSimpleFixedIncome(), "Fixed income", BigDecimal.ONE);
     addPortfolioNode(rootNode, getSimpleFX(), "FX forward", BigDecimal.ONE);
     addPortfolioNode(rootNode, getFXOptions(), "FX options", BigDecimal.ONE);
     addBondNode(rootNode);
@@ -105,7 +105,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
     addPortfolioNode(rootNode, getIborCapFloor(), "Ibor cap/floor", BigDecimal.ONE);
     addPortfolioNode(rootNode, getCMCapFloor(), "CM cap/floor", BigDecimal.ONE);
     addPortfolioNode(rootNode, getIRFutureOptions(), "IR future options", BigDecimal.valueOf(100));
-    addEquityNode(rootNode);*/
+    addEquityNode(rootNode);
     
     portfolioMaster.add(portfolioDoc);
   }
@@ -522,7 +522,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                     ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDSWAPP6Y"), 
                                     FloatingRateType.CMS));
     swap1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    swap1.setName("Swap: pay 5% fixed vs USSW6, start=1/5/2000, maturity=1/5/2040, notional=USD 15MM");
+    swap1.setName("Swap: pay 5% fixed vs USDSWAPP6Y, start=1/5/2000, maturity=1/5/2040, notional=USD 15MM");
     final SwapSecurity swap2 = new SwapSecurity(
         ZonedDateTime.of(LocalDateTime.of(2000, 5, 1, 11, 0), TimeZone.UTC), 
         ZonedDateTime.of(LocalDateTime.of(2000, 5, 1, 11, 0), TimeZone.UTC), 
@@ -545,7 +545,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                     ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDSWAPP6Y"), 
                                     FloatingRateType.CMS));
     swap2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    swap2.setName("Swap: pay 6m Libor vs USSW6, start=1/5/2000, maturity=1/5/2040, notional=USD 15MM");
+    swap2.setName("Swap: pay 6m Libor vs USDSWAPP6Y, start=1/5/2000, maturity=1/5/2040, notional=USD 15MM");
     final SwapSecurity swap3 = new SwapSecurity(
         ZonedDateTime.of(LocalDateTime.of(2000, 5, 1, 11, 0), TimeZone.UTC), 
         ZonedDateTime.of(LocalDateTime.of(2000, 5, 1, 11, 0), TimeZone.UTC), 
@@ -568,7 +568,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                     ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDSWAPP6Y"), 
                                     FloatingRateType.CMS));
     swap3.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
-    swap3.setName("Swap: pay USSW10 vs USSW6, start=1/5/2000, maturity=1/5/2040, notional=USD 15MM");
+    swap3.setName("Swap: pay USSW10 vs USDSWAPP10Y, start=1/5/2000, maturity=1/5/2040, notional=USD 15MM");
     securities.add(swap1);
     securities.add(swap2);
     securities.add(swap3);
