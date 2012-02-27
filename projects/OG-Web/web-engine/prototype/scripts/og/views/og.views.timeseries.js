@@ -117,9 +117,8 @@ $.register_module({
                                 }, '')
                             }(val)) || title;
                         });
-                        $html = $.tmpl(template, $.extend(json.template_data, {
-                            title: title || json.template_data.name
-                        }));
+                        json.template_data.title = title || json.template_data.name;
+                        $html = $.tmpl(template, json.template_data);
                         history.put({
                             name: title + ' (' + json.template_data.data_field + ')',
                             item: 'history.' + page_name + '.recent',
