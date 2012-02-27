@@ -58,6 +58,34 @@ public final class SimpleFrequency implements Frequency, Serializable {
    */
   // TODO where converting to/from say continuously compounded interest rates, can't use Double.MAX_VALUE, but need different formula
   public static final SimpleFrequency CONTINUOUS = new SimpleFrequency(CONTINUOUS_NAME, Double.MAX_VALUE);
+  /**
+   * A frequency with a period of four months
+   */
+  public static final SimpleFrequency FOUR_MONTHS = new SimpleFrequency(FOUR_MONTH_NAME, 3);
+  /**
+   * A frequency with a period of five months
+   */
+  public static final SimpleFrequency FIVE_MONTHS = new SimpleFrequency(FIVE_MONTH_NAME, 2.4);
+  /**
+   * A frequency with a period of seven months
+   */
+  public static final SimpleFrequency SEVEN_MONTHS = new SimpleFrequency(SEVEN_MONTH_NAME, 12. / 7);
+  /**
+   * A frequency with a period of eight months
+   */
+  public static final SimpleFrequency EIGHT_MONTHS = new SimpleFrequency(EIGHT_MONTH_NAME, 1.5);
+  /**
+   * A frequency with a period of nine months
+   */
+  public static final SimpleFrequency NINE_MONTHS = new SimpleFrequency(NINE_MONTH_NAME, 4. / 3);
+  /**
+   * A frequency with a period of ten months
+   */
+  public static final SimpleFrequency TEN_MONTHS = new SimpleFrequency(TEN_MONTH_NAME, 1.2);
+  /**
+   * A frequency with a period of eleven months
+   */
+  public static final SimpleFrequency ELEVEN_MONTHS = new SimpleFrequency(ELEVEN_MONTH_NAME, 12. / 11);
 
   /**
    * The name of the convention.
@@ -100,12 +128,12 @@ public final class SimpleFrequency implements Frequency, Serializable {
 
   // -------------------------------------------------------------------------
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (obj == this) {
       return true;
     }
     if (obj instanceof SimpleFrequency) {
-      SimpleFrequency other = (SimpleFrequency) obj;
+      final SimpleFrequency other = (SimpleFrequency) obj;
       return _name.equals(other._name) && _periodsPerYear.equals(other._periodsPerYear);
     }
     return false;
@@ -156,6 +184,27 @@ public final class SimpleFrequency implements Frequency, Serializable {
     }
     if (_name.equals(WEEKLY_NAME)) {
       return PeriodFrequency.WEEKLY;
+    }
+    if (_name.equals(FOUR_MONTH_NAME)) {
+      return PeriodFrequency.FOUR_MONTHS;
+    }
+    if (_name.equals(FIVE_MONTH_NAME)) {
+      return PeriodFrequency.FIVE_MONTHS;
+    }
+    if (_name.equals(SEVEN_MONTH_NAME)) {
+      return PeriodFrequency.SEVEN_MONTHS;
+    }
+    if (_name.equals(EIGHT_MONTH_NAME)) {
+      return PeriodFrequency.EIGHT_MONTHS;
+    }
+    if (_name.equals(NINE_MONTH_NAME)) {
+      return PeriodFrequency.NINE_MONTHS;
+    }
+    if (_name.equals(TEN_MONTH_NAME)) {
+      return PeriodFrequency.TEN_MONTHS;
+    }
+    if (_name.equals(ELEVEN_MONTH_NAME)) {
+      return PeriodFrequency.ELEVEN_MONTHS;
     }
     throw new IllegalArgumentException("Cannot get a period frequency for " + toString());
   }

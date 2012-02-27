@@ -75,7 +75,7 @@ $.register_module({
                           (Volatility Cube Definition)\
                         </header>\
                     ';
-                    $('.ui-layout-inner-center .ui-layout-header').html(header);
+                    $('.OG-layout-admin-details-center .ui-layout-header').html(header);
                     load_handler(form);
                 }},
                 {type: 'click', selector: form_id + ' .og-js-rem', handler: function (e) {
@@ -88,7 +88,7 @@ $.register_module({
                 }},
                 {type: 'form:submit', handler: save_resource},
                 {type: 'keyup', selector: form_id + ' input[name=name]', handler: function (e) {
-                    $('.ui-layout-inner-center .og-js-name').text($(e.target).val());
+                    $('.OG-layout-admin-details-center .og-js-name').text($(e.target).val());
                 }}
             ]);
             form.children = fields.map(function (field) {

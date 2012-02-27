@@ -17,8 +17,6 @@ import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
 
-import com.opengamma.web.batch.WebBatchData;
-import com.opengamma.web.batch.WebBatchUris;
 import com.opengamma.web.config.WebConfigData;
 import com.opengamma.web.config.WebConfigUris;
 import com.opengamma.web.exchange.WebExchangeData;
@@ -100,10 +98,6 @@ public class WebHomeResource extends AbstractWebResource {
     WebConfigData configData = new WebConfigData();
     configData.setUriInfo(uriInfo);
     out.put("configUris", new WebConfigUris(configData));
-    
-    WebBatchData batchData = new WebBatchData();
-    batchData.setUriInfo(uriInfo);
-    out.put("batchUris", new WebBatchUris(batchData));
     
     return out;
   }

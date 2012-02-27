@@ -266,7 +266,7 @@ public final class ScheduleCalculator {
   * Compute a schedule of adjusted dates from a start date, an end date and the period between dates.
   * @param startDate The start date.
   * @param endDate The end date.
-  * @param tenorPeriod The period between each date.
+  * @param schedulePeriod The period between each date in the schedule.
   * @param stubShort In case the the periods do not fit exactly between start and end date, is the remaining interval shorter (true) or longer (false) than the requested period.
   * @param fromEnd The dates in the schedule can be computed from the end date (true) or from the start date (false).
   * @param convention The business day convention.
@@ -274,11 +274,30 @@ public final class ScheduleCalculator {
   * @param eomRule Flag indicating if the end-of-month rule should be applied.  
   * @return The adjusted dates schedule.
   */
-  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period tenorPeriod, final boolean stubShort, final boolean fromEnd,
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Period schedulePeriod, final boolean stubShort, final boolean fromEnd,
       final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule) {
-    ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, endDate, tenorPeriod, stubShort, fromEnd);
+    ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, endDate, schedulePeriod, stubShort, fromEnd);
     boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonthOfYear() != startDate.getMonthOfYear()));
     return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply);
+  }
+
+  /**
+  * Compute a schedule of adjusted dates from a start date, an end date and the period between dates.
+  * @param startDate The start date.
+  * @param endDate The end date.
+  * @param scheduleFrequency The frequency of dates in the schedule.
+  * @param stubShort In case the the periods do not fit exactly between start and end date, is the remaining interval shorter (true) or longer (false) than the requested period.
+  * @param fromEnd The dates in the schedule can be computed from the end date (true) or from the start date (false).
+  * @param convention The business day convention.
+  * @param calendar The calendar.
+  * @param eomRule Flag indicating if the end-of-month rule should be applied.  
+  * @return The adjusted dates schedule.
+   */
+  public static ZonedDateTime[] getAdjustedDateSchedule(final ZonedDateTime startDate, final ZonedDateTime endDate, final Frequency scheduleFrequency, final boolean stubShort, final boolean fromEnd,
+      final BusinessDayConvention convention, final Calendar calendar, final boolean eomRule) {
+    Validate.notNull(scheduleFrequency, "Schedule frequency");
+    final Period schedulePeriod = periodFromFrequency(scheduleFrequency);
+    return getAdjustedDateSchedule(startDate, endDate, schedulePeriod, stubShort, fromEnd, convention, calendar, eomRule);
   }
 
   /**
@@ -298,6 +317,23 @@ public final class ScheduleCalculator {
     ZonedDateTime[] unadjustedDateSchedule = getUnadjustedDateSchedule(startDate, startDate.plus(tenorTotal), tenorPeriod, stubShort, fromEnd);
     boolean eomApply = (eomRule && (getAdjustedDate(startDate, 1, calendar).getMonthOfYear() != startDate.getMonthOfYear()));
     return getAdjustedDateSchedule(unadjustedDateSchedule, convention, calendar, eomApply);
+  }
+
+  /**
+   * Convert a Frequency to a Period when possible.
+   * @param frequency The frequency.
+   * @return The converted period.
+   */
+  private static Period periodFromFrequency(final Frequency frequency) {
+    PeriodFrequency periodFrequency;
+    if (frequency instanceof PeriodFrequency) {
+      periodFrequency = (PeriodFrequency) frequency;
+    } else if (frequency instanceof SimpleFrequency) {
+      periodFrequency = ((SimpleFrequency) frequency).toPeriodFrequency();
+    } else {
+      throw new IllegalArgumentException("For the moment can only deal with PeriodFrequency and SimpleFrequency");
+    }
+    return periodFrequency.getPeriod();
   }
 
   // TODO: review the methods below.

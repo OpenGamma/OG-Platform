@@ -26,6 +26,8 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
@@ -213,14 +215,14 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           security = tenorSwapSecurity;
           break;
         case OIS_SWAP:
-          final Tenor tenor = strip.getMaturity();
-          if (tenor.getPeriod().getYears() != 0) {
-            security = getOISSwap(curveSpecification, strip, marketValues);
-          } else if ((tenor.getPeriod().getMonths() != 0 && tenor.getPeriod().getMonths() < 12) || tenor.getPeriod().getDays() != 0) {
-            security = getOISCash(curveSpecification, strip, marketValues);
-          } else {
-            throw new OpenGammaRuntimeException("Cannot handle OIS swaps of tenor " + tenor);
-          }
+          security = getOISSwap(curveSpecification, strip, marketValues);
+          //          if (tenor.getPeriod().getYears() != 0) {
+          //            security = getOISSwap(curveSpecification, strip, marketValues);
+          //          } else if ((tenor.getPeriod().getMonths() != 0 && tenor.getPeriod().getMonths() < 12) || tenor.getPeriod().getDays() != 0) {
+          //            security = getOISCash(curveSpecification, strip, marketValues);
+          //          } else {
+          //            throw new OpenGammaRuntimeException("Cannot handle OIS swaps of tenor " + tenor);
+          //          }
           maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
           break;
         default:
@@ -374,9 +376,23 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final ZonedDateTime tradeDate = curveDate.atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime effectiveDate = DateUtils.previousWeekDay(curveDate.plusDays(3)).atTime(11, 00).atZone(TimeZone.UTC);
     final ZonedDateTime maturityDate = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
-    final ConventionBundle convention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_OIS_SWAP"));
+    final Tenor tenor = strip.getMaturity();
+    ConventionBundle convention;
+    Frequency paymentFrequency;
+    convention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_OIS_SWAP"));
+    if (tenor.getPeriod().getYears() == 0) {
+      paymentFrequency = PeriodFrequency.of(tenor.getPeriod());
+    } else {
+      if (!convention.getSwapFloatingLegFrequency().equals(convention.getSwapFixedLegFrequency())) {
+        throw new OpenGammaRuntimeException("Payment frequencies for the fixed and floating legs did not match");
+      }
+      paymentFrequency = convention.getSwapFloatingLegFrequency();
+    }
     if (convention == null) {
       throw new OpenGammaRuntimeException("Could not get convention for id " + ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_OIS_SWAP"));
+    }
+    if (paymentFrequency == null) {
+      throw new OpenGammaRuntimeException("Could not get payment frequency for swap of tenor " + tenor);
     }
     final String counterparty = "";
     final ConventionBundle floatRateConvention = source.getConventionBundle(convention.getSwapFloatingLegInitialRate());
@@ -389,10 +405,9 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     }
     final double fixedRate = rate;
     // REVIEW: jim 25-Aug-2010 -- we need to change the swap to take settlement days.
-
     final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty, new FloatingInterestRateLeg(convention.getSwapFloatingLegDayCount(),
-        convention.getSwapFloatingLegFrequency(), convention.getSwapFloatingLegRegion(), convention.getSwapFloatingLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false,
-        floatRateBloombergTicker, FloatingRateType.IBOR), new FixedInterestRateLeg(convention.getSwapFixedLegDayCount(), convention.getSwapFixedLegFrequency(), convention.getSwapFixedLegRegion(),
+        paymentFrequency, convention.getSwapFloatingLegRegion(), convention.getSwapFloatingLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false,
+        floatRateBloombergTicker, FloatingRateType.OIS), new FixedInterestRateLeg(convention.getSwapFixedLegDayCount(), paymentFrequency, convention.getSwapFixedLegRegion(),
             convention.getSwapFixedLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, fixedRate));
     swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
 

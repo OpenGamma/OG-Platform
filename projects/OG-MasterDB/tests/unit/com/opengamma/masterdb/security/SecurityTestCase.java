@@ -28,6 +28,8 @@ import javax.time.calendar.TimeProvider;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
+import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
 import org.apache.commons.lang.RandomStringUtils;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
@@ -443,6 +445,8 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
         values.addAll(permuteTestObjects(FloatingGearingIRLeg.class));
         values.addAll(permuteTestObjects(FixedInterestRateLeg.class));
         values.addAll(permuteTestObjects(FloatingInterestRateLeg.class));
+        values.addAll(permuteTestObjects(FixedVarianceSwapLeg.class));
+        values.addAll(permuteTestObjects(FloatingVarianceSwapLeg.class));
       }
     });
     s_dataProviders.put(Region.class, new TestDataProvider<Region>() {

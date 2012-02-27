@@ -95,7 +95,7 @@ public abstract class InMemoryViewResultModel implements ViewResultModel, Serial
   }
 
   @Override
-  public Collection<ComputationTargetSpecification> getAllTargets() {
+  public Set<ComputationTargetSpecification> getAllTargets() {
     return Collections.unmodifiableSet(_resultsByTarget.keySet());
   }
 

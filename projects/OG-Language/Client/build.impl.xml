@@ -22,6 +22,7 @@
       <arg value="${src.dir}/com/opengamma/language/livedata/Available.proto" />
       <arg value="${src.dir}/com/opengamma/language/livedata/Connect.proto" />
       <arg value="${src.dir}/com/opengamma/language/livedata/Custom.proto" />
+      <arg value="${src.dir}/com/opengamma/language/livedata/Disconnect.proto" />
       <arg value="${src.dir}/com/opengamma/language/livedata/QueryAvailable.proto" />
       <arg value="${src.dir}/com/opengamma/language/livedata/QueryValue.proto" />
       <arg value="${src.dir}/com/opengamma/language/livedata/Result.proto" />

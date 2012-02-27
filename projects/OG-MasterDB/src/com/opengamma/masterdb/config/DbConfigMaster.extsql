@@ -66,7 +66,7 @@
   @INCLUDE(SearchWhere)
   ORDER BY
     @INCLUDE(:sort_order)
-  @OFFSETFETCH
+  @OFFSETFETCH(:paging_offset,:paging_fetch)
 
 
 -- ==========================================================================
@@ -121,7 +121,7 @@
   ORDER BY
     ver_from_instant DESC,
     corr_from_instant DESC
-  @OFFSETFETCH
+  @OFFSETFETCH(:paging_offset,:paging_fetch)
 
 
 -- ==========================================================================

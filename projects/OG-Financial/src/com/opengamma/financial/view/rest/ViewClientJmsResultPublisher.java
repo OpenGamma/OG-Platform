@@ -7,6 +7,13 @@ package com.opengamma.financial.view.rest;
 
 import javax.time.Instant;
 
+
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.CycleInfo;
+import com.opengamma.engine.view.ViewResultModel;
+import com.opengamma.engine.view.listener.CycleInitiatedCall;
+
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,6 +34,9 @@ import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.financial.rest.AbstractJmsResultPublisher;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.jms.JmsConnector;
+
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Publishes {@code ViewClient} results over JMS.
@@ -80,6 +90,11 @@ public class ViewClientJmsResultPublisher extends AbstractJmsResultPublisher imp
   @Override
   public void viewDefinitionCompilationFailed(Instant valuationTime, Exception exception) {
     send(new ViewDefinitionCompilationFailedCall(valuationTime, exception));
+  }
+
+  @Override
+  public void cycleInitiated(CycleInfo cycleInfo) {
+    send(new CycleInitiatedCall(cycleInfo));
   }
 
   @Override

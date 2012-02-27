@@ -3,7 +3,6 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.loader.timeseries;
 
 import java.util.HashMap;
@@ -25,50 +24,54 @@ import com.opengamma.util.timeseries.localdate.MapLocalDateDoubleTimeSeries;
 public class SingleSheetMultiTimeSeriesReader implements TimeSeriesReader {
 
   private static final Logger s_logger = LoggerFactory.getLogger(TimeSeriesLoaderTool.class);
-  private static final String ID_SCHEME = "TIME_SERIES_LOADER";
+//  private static final String ID_SCHEME = "TIME_SERIES_LOADER";
   private static final int BUFFER_SIZE = 32;
   
   // CSOFF
   /** Standard date-time formatter for the input */
   protected DateTimeFormatter CSV_DATE_FORMATTER;
 
-  public static final String ID = "id";
-  public static final String TRADE_DATE = "trade date";
-  public static final String CLOSE_PRICE = "universal close price";
+  private static final String ID = "id";
+  private static final String DATE = "date";
+  private static final String VALUE = "value";
 //  public static final String DATA_SOURCE = "data source";
 //  public static final String DATA_PROVIDER = "data provider";
 //  public static final String DATA_FIELD = "data field";
 //  public static final String OBSERVATION_TIME = "observation time";
   // CSON
-  
-  {
-    DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
-    builder.appendPattern("yyyyMMdd");
-    CSV_DATE_FORMATTER = builder.toFormatter();
-  }
-  
+   
   
   private SheetReader _sheet;         // The spreadsheet from which to import
 
-  private String _dataSource, _dataProvider, _dataField, _observationTime;
+  private String _dataSource, _dataProvider, _dataField, _observationTime, _idScheme;
 
-  public SingleSheetMultiTimeSeriesReader(SheetReader sheet, String dataSource, String dataProvider, String dataField, String observationTime) {
+  public SingleSheetMultiTimeSeriesReader(SheetReader sheet, String dataSource, String dataProvider, String dataField, String observationTime, String idScheme, String dateFormat) {
     _sheet = sheet;
 
     _dataSource = dataSource;
     _dataProvider = dataProvider;
     _dataField = dataField;
     _observationTime = observationTime;
+    _idScheme = idScheme;
+    
+    DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+    builder.appendPattern(dateFormat == null ? "yyyyMMdd" : dateFormat);
+    CSV_DATE_FORMATTER = builder.toFormatter();
   }
 
-  public SingleSheetMultiTimeSeriesReader(String filename, String dataSource, String dataProvider, String dataField, String observationTime) {
+  public SingleSheetMultiTimeSeriesReader(String filename, String dataSource, String dataProvider, String dataField, String observationTime, String idScheme, String dateFormat) {
     _sheet = SheetReader.newSheetReader(filename);
 
     _dataSource = dataSource;
     _dataProvider = dataProvider;
     _dataField = dataField;
     _observationTime = observationTime;
-}
+    _idScheme = idScheme;
+
+    DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
+    builder.appendPattern(dateFormat == null ? "yyyyMMdd" : dateFormat);
+    CSV_DATE_FORMATTER = builder.toFormatter();    
+  }
 
   @Override
   public void writeTo(TimeSeriesWriter timeSeriesWriter) {
@@ -79,31 +82,32 @@ public class SingleSheetMultiTimeSeriesReader implements TimeSeriesReader {
       int count = 0;
 
       // Get the next set of rows from the sheet up to the memory buffer limit
-      // TODO need to check whether the requested data is available (null checks)
       while (((rawRow = _sheet.loadNextRow()) != null) && (count < BUFFER_SIZE)) {
         try {
           String ric = getWithException(rawRow, ID);
           if (!tsData.containsKey(ric)) {
             tsData.put(ric, new MapLocalDateDoubleTimeSeries());
           }
-          tsData.get(ric).putDataPoint(getDateWithException(rawRow, TRADE_DATE), 
-              Double.valueOf(getWithException(rawRow, CLOSE_PRICE)));
+          tsData.get(ric).putDataPoint(getDateWithException(rawRow, DATE), 
+              Double.valueOf(getWithException(rawRow, VALUE)));
         } catch (Throwable e) {
-          s_logger.warn("Could not parse time series row: " + rawRow);
+          s_logger.warn("Could not parse time series row " + rawRow + "; " + e.toString());
         }
         count++;
       }
 
       // Write out the gathered time series points across all time series keys
       for (String key : tsData.keySet()) {
-        s_logger.info("Writing " + tsData.get(key).size() + " data points to time series " + key);
-        timeSeriesWriter.writeDataPoints(
-            ExternalId.of(ExternalScheme.of(ID_SCHEME), key), 
-            _dataSource,
-            _dataProvider,
-            _dataField,
-            _observationTime,
-            tsData.get(key));
+        if (tsData.get(key).size() > 0) {
+          s_logger.info("Writing " + tsData.get(key).size() + " data points to time series " + key);
+          timeSeriesWriter.writeDataPoints(
+              ExternalId.of(ExternalScheme.of(_idScheme), key), 
+              _dataSource,
+              _dataProvider,
+              _dataField,
+              _observationTime,
+              tsData.get(key));
+        }
       }
 
     } while (rawRow != null);

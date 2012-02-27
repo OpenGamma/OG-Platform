@@ -5,24 +5,24 @@
  */
 package com.opengamma.masterdb;
 
-import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-
-import javax.time.Instant;
-import javax.time.TimeSource;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.transaction.support.TransactionTemplate;
-
+import com.opengamma.extsql.ExtSqlBundle;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.DbDialect;
 import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.db.DbDialect;
+import org.hibernate.SessionFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import javax.time.Instant;
+import javax.time.TimeSource;
+import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 
 /**
  * An abstract master for rapid implementation of a database backed master.
@@ -51,6 +51,21 @@ public abstract class AbstractDbMaster {
   private String _uniqueIdScheme;
 
   /**
+   * The maximum number of retries.
+   */
+  private int _maxRetries = 10;
+
+  /**
+   * External SQL bundle.
+   */
+  private ExtSqlBundle _externalSqlBundle;
+  
+  /**
+   * The Hibernate template.
+   */
+  private HibernateTemplate _hibernateTemplate;
+
+  /**
    * Creates an instance.
    * 
    * @param dbConnector  the database connector, not null
@@ -62,6 +77,28 @@ public abstract class AbstractDbMaster {
     _dbConnector = dbConnector;
     _timeSource = dbConnector.timeSource();
     _uniqueIdScheme = defaultScheme;
+    _hibernateTemplate = dbConnector.getHibernateTemplate();
+  }
+
+  /**
+   * Gets the maximum number of retries.
+   * The default is ten.
+   *
+   * @return the maximum number of retries, not null
+   */
+  public int getMaxRetries() {
+    return _maxRetries;
+  }
+
+  /**
+   * Sets the maximum number of retries.
+   * The default is ten.
+   *
+   * @param maxRetries  the maximum number of retries, not negative
+   */
+  public void setMaxRetries(final int maxRetries) {
+    ArgumentChecker.notNegative(maxRetries, "maxRetries");
+    _maxRetries = maxRetries;
   }
 
   //-------------------------------------------------------------------------
@@ -72,6 +109,54 @@ public abstract class AbstractDbMaster {
    */
   public DbConnector getDbConnector() {
     return _dbConnector;
+  }
+  
+  /**
+   * Gets the Hibernate Session factory.
+   *
+   * @return the session factory, not null
+   */
+  public SessionFactory getSessionFactory() {
+    return getDbConnector().getHibernateSessionFactory();
+  }
+  
+  /**
+   * Gets the local Hibernate template.
+   *
+   * @return the template, not null
+   */
+  public HibernateTemplate getHibernateTemplate() {
+    return _hibernateTemplate;
+  }
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the external SQL bundle.
+   * 
+   * @return the external SQL bundle, not null
+   */
+  public ExtSqlBundle getExtSqlBundle() {
+    return _externalSqlBundle;
+  }
+
+  /**
+   * Sets the external SQL bundle.
+   * 
+   * @param bundle  the external SQL bundle, not null
+   */
+  public void setExtSqlBundle(ExtSqlBundle bundle) {
+    _externalSqlBundle = bundle;
+  }
+  
+  //-------------------------------------------------------------------------
+  /**
+   * Gets the next database id.
+   * 
+   * @param sequenceName  the name of the sequence to query, not null
+   * @return the next database id
+   */
+  protected long nextId(String sequenceName) {
+    return getJdbcTemplate().queryForLong(getDialect().sqlNextSequenceValueSelect(sequenceName));
   }
 
   //-------------------------------------------------------------------------
@@ -123,6 +208,35 @@ public abstract class AbstractDbMaster {
     return getDbConnector().getTransactionTemplate();
   }
 
+  /**
+   * Gets the retrying transaction template.
+   *
+   * @param retries number of retries of execution before considering the execution failed
+   * @return the transaction template, not null if correctly initialized
+   */
+  protected DbConnector.TransactionTemplateRetrying getTransactionTemplateRetrying(int retries) {
+    return getDbConnector().getTransactionTemplateRetrying(retries);
+  }
+  
+  /**
+   * Gets the hibernate template wrapped in new transaction.
+   *
+   * @return the hibernate template wrapped in new transaction, not null if correctly initialized
+   */
+  protected DbConnector.HibernateTransactionTemplate getHibernateTransactionTemplate() {
+    return getDbConnector().getHibernateTransactionTemplate();
+  }
+
+  /**
+   * Gets the retrying hibernate transaction template.
+   *
+   * @param retries number of retries of execution before considering the execution failed
+   * @return the hibernate transaction template, not null if correctly initialized
+   */
+  protected DbConnector.HibernateTransactionTemplateRetrying getHibernateTransactionTemplateRetrying(int retries) {
+    return getDbConnector().getHibernateTransactionTemplateRetrying(retries);
+  }
+  
   /**
    * Gets the database dialect.
    * 
@@ -234,24 +348,6 @@ public abstract class AbstractDbMaster {
       return stripped.setScale(0);
     }
     return stripped;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Improves the exception message.
-   * 
-   * @param ex  the exception to fix, not null
-   * @return the original exception, not null
-   */
-  protected DataAccessException fixSQLExceptionCause(DataAccessException ex) {
-    Throwable cause = ex.getCause();
-    if (cause instanceof SQLException && cause.getCause() == null) {
-      SQLException next = ((SQLException) cause).getNextException();
-      if (next != null) {
-        cause.initCause(next);
-      }
-    }
-    return ex;
   }
 
   //-------------------------------------------------------------------------

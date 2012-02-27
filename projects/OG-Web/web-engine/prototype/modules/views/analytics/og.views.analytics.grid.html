@@ -6,47 +6,55 @@
               {name: 'Fixed 2', width: 100}
           ],
           'columns_scroll': [
-              {name: 'Column 3', width: 100, set: 1},
-              {name: 'Column 4', width: 100, set: 1},
-              {name: 'Column 5', width: 100, set: 1},
-              {name: 'Column 6', width: 100, set: 1},
-              {name: 'Column 7', width: 100, set: 1},
-              {name: 'Column 8', width: 100, set: 1},
-              {name: 'Column 9', width: 100, set: 1},
-              {name: 'Column 10', width: 100, set: 2},
-              {name: 'Column 11', width: 100, set: 2},
-              {name: 'Column 12', width: 100, set: 2},
-              {name: 'Column 13', width: 100, set: 2},
-              {name: 'Column 14', width: 100, set: 2},
-              {name: 'Column 15', width: 100, set: 2}
+              {name: 'Column 3', width: 100},
+              {name: 'Column 4', width: 100},
+              {name: 'Column 5', width: 100},
+              {name: 'Column 6', width: 100},
+              {name: 'Column 7', width: 100},
+              {name: 'Column 8', width: 100},
+              {name: 'Column 9', width: 100},
+              {name: 'Column 10', width: 100},
+              {name: 'Column 11', width: 100},
+              {name: 'Column 12', width: 100},
+              {name: 'Column 13', width: 100},
+              {name: 'Column 14', width: 100},
+              {name: 'Column 15', width: 100},
+              {name: 'Column 16', width: 100},
+              {name: 'Column 17', width: 100},
+              {name: 'Column 18', width: 100},
+              {name: 'Column 19', width: 100}
           ]
       };
       gen_data = function (cols) {
-          var matrix = [], i, k, gen_num = function () {
-              return (Math.random() * 1000).toFixed(2);
+          var matrix = [], i = 60, k, gen_num = function () {
+              return (Math.random() * 1000);
           };
-          for (i = 0; i < 50; i++) matrix.push(function () {
-              var row = [];
-              for (k = 0; k < cols; k++) row.push(gen_num())
-              return row;
-          }());
+          while(i--) {
+            k = 17;
+            matrix.push(function () {
+                var row = [];
+                while(k--) row.push(gen_num());
+                return row;
+            }());
+          }
           return matrix;
       };
       gen_rows = function (num, start_at) {
-          var data = gen_data(num), html = [], scrollbar_height;
+          var data = gen_data(num), html = [], scrollbar_height, len = data.length * 20;
           scrollbar_height = start_at ? 0 : 19;
-          html.push('<div class="OG-g-rows" style="height: ' + ((data.length * 20) + scrollbar_height) + 'px">');
+          html.push('<div class="OG-g-rows" style="height: ' + (len + scrollbar_height) + 'px">');
           data.map(function (row, i) {
+              var value = data[i];
               html.push('<div class="OG-g-row r'+ i +'" style="top: ' + (i * 20) + 'px">');
               row.map(function (cell, k) {
-                  html.push('<div class="OG-g-cell c' + (k + (start_at || 0)) + '">' + data[i][k] + '</div>')
+                  html.push('<div class="OG-g-cell c' + (k + (start_at || 0)) + '">' + value[k] + '</div>')
               });
               html.push('</div>');
           });
           html.push('</div>');
           return html.join('');
       };
-      viewport = {width: '800', height: '500'}; // Stub
+      viewport = {width: '800', height: '600'}; // Stub
       header = {height: '51'}; // Stub
       width = (function (columns) { // width of fixed and scrollable column areas
           return {
@@ -105,76 +113,16 @@
       $('.OG-g-b-scroll').html(gen_rows(columns.columns_scroll.length, columns.columns_fixed.length));
       $('.OG-g-h-fixed').html(gen_head(columns.columns_fixed));
       $('.OG-g-h-scroll').html(gen_head(columns.columns_scroll, columns.columns_fixed.length));
+
+      var scroll_len = columns.columns_scroll.length;
+      var fixed_num = columns.columns_fixed.length;
       setInterval(function () {
-          $('.OG-g-b-scroll').html(gen_rows(columns.columns_scroll.length, columns.columns_fixed.length));
+        $('.OG-g-b-scroll').html(gen_rows(scroll_len, fixed_num));
       }, 1000);
   }());
 </script>
 
-<style type="text/css">
-
-  .OG-g-row {
-    position: absolute;
-    width: 100%;
-  }
-
-  .OG-g-b {
-    position: relative;
-  }
-
-  .OG-g-cell {
-    position: absolute;
-    overflow: hidden;
-    height: 18px;
-    border: 1px solid transparent;
-    border-bottom: 1px solid #dadcdd;
-    border-right: 1px solid #dadcdd;
-    text-overflow: ellipsis;
-  }
-
-  .OG-g-h-fixed, .OG-g-b-fixed,
-  .OG-g-h-scroll, .OG-g-b-scroll {
-    position: absolute;
-    background: #fff;
-  }
-
-  .OG-g-h-scroll,
-  .OG-g-b-fixed {
-    overflow: hidden;
-  }
-
-  .OG-g-b-scroll {
-    overflow: scroll;
-  }
-
-
-/* Header */
-  .OG-g-h-col {
-    position: absolute;
-    overflow: hidden;
-    height: 30px;
-    border: 1px solid transparent;
-    border-bottom: 1px solid #dadcdd;
-    border-right: 1px solid #dadcdd;
-    text-overflow: ellipsis;
-    background: #ecf5fa;
-  }
-
-  .OG-g-h-set-name {
-    background: #dadcdd;
-  }
-
-  .OG-g-h-cols {position: relative;}
-
-/* Fixed Cols */
-  .OG-g-h-fixed, .OG-g-b-fixed {
-    background: #ecf5fa;
-  }
-
-
-</style>
-
-<div class="grid-container" style="height: 500px; width: 600px">
+<div class="grid-container" style="height: 900px; width: 1000px">
   <div class="OG-g OG-js-g">
     <section class="OG-g-h">
       <section class="OG-g-h-fixed"></section>

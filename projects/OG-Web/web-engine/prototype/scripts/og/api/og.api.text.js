@@ -15,31 +15,43 @@ $.register_module({
                     .join('/').replace(/\s/g, '_');
             },
             html_path = path.partial(module.html_root, '.html'),
-            data_path = path.partial(module.data_root, '.json');
-        return api = function (config) {
-            if (typeof config === 'undefined') throw new TypeError('static: config is undefined');
-            if (typeof config.handler !== 'function') throw new TypeError('static: config.handler must be a function');
+            data_path = path.partial(module.data_root, '.json'),
+            STALL = 500 /* 500ms */, INSTANT = 0 /* 0ms */,
+            Promise = function () {
+                var deferred = new $.Deferred, promise = deferred.promise();
+                promise.deferred = deferred;
+                return promise;
+            };
+        return api = function (config, promise) {
+            if (typeof config === 'undefined') throw new TypeError('text: config is undefined');
             if (typeof config.url !== 'string' && typeof config.module !== 'string' && typeof config.data !== 'string')
-                throw new TypeError('static: config.data, config.url, or config.module must be a string');
+                throw new TypeError('text: config.data, config.url, or config.module must be a string');
+            promise = promise || new Promise;
             var do_not_cache = config.do_not_cache, clear_cache = config.clear_cache, is_data,
                 url = (config.url || html_path(config.module) || (is_data = data_path(config.data))),
                 success_handler = function (response) {
                     if (!do_not_cache) html_cache[url] = response;
                     end_loading();
-                    config.handler(response, false);
+                    if (config.handler) config.handler(response, false);
+                    promise.deferred.resolve(response);
                 },
                 error_handler = function (response) {
+                    var result = new String('Error (HTTP ' + response.status + ') retrieving: ' + url);
+                    result.error = true;
                     delete html_cache[url];
                     end_loading();
-                    config.handler('Error (HTTP ' + response.status + ') retrieving: ' + url, true);
+                    if (config.handler) config.handler(result);
+                    promise.deferred.resolve(result);
                 };
             start_loading(config.loading);
             if (clear_cache) delete html_cache[url];
-            if (html_cache[url]) return (do_not_cache = true), success_handler(html_cache[url]);
-            if (html_cache[url] === null) // if it's null, it means a request is outstanding
-                return setTimeout(api.partial(config), 500);
+            if (html_cache[url]) // if it's in the cache, return promise, break context, then fire success_handler
+                return (do_not_cache = true), setTimeout(success_handler.partial(html_cache[url]), INSTANT), promise;
+            if (html_cache[url] === null) // if it's null, it means a request is outstanding, stall and return promise
+                return setTimeout(api.partial(config, promise), STALL), promise;
             if (!do_not_cache) html_cache[url] = null; // set it to null before making the request
             $.ajax({url: url, dataType: is_data ? 'json' : 'html', success: success_handler, error: error_handler});
+            return promise;
         };
     }
 });

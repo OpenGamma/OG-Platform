@@ -105,7 +105,9 @@ public abstract class AbstractWebPortfolioResource extends AbstractPerRequestWeb
     for (ManageablePosition position : positions) {
       securityLinks.add(position.getSecurityLink());
     }
-    _securityLinkResolver.resolveSecurities(securityLinks);
+    if (!securityLinks.isEmpty()) {
+      _securityLinkResolver.resolveSecurities(securityLinks);
+    }
   }
 
   //-------------------------------------------------------------------------

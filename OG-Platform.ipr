@@ -25,7 +25,7 @@
         <entry key="active-configuration" value="file:$PROJECT_DIR$/common/checkstyle.xml:" />
         <entry key="check-test-classes" value="false" />
         <entry key="location-0" value="CLASSPATH:/sun_checks.xml:The default CheckStyle rules." />
-        <entry key="location-1" value="file:$PROJECT_DIR$/common/checkstyle.xml:" />
+        <entry key="location-1" value="FILE:$PROJECT_DIR$/common/checkstyle.xml:" />
         <entry key="thirdparty-classpath" value="" />
       </map>
     </option>
@@ -78,7 +78,11 @@
   </component>
   <component name="IvyIDEA.ProjectSettings">
     <option name="artifactTypeSettings">
-      <ArtifactTypeSettings />
+      <ArtifactTypeSettings>
+        <option name="classesTypes" value="jar, mar, sar, war, ear, ejb, bundle, test-jar" />
+        <option name="javadocTypes" value="javadoc, doc, docs, apidoc, apidocs, documentation, documents" />
+        <option name="sourcesTypes" value="source, src, sources, srcs" />
+      </ArtifactTypeSettings>
     </option>
     <option name="ivyLogLevelThreshold" value="Info" />
     <option name="ivySettingsFile" value="$PROJECT_DIR$/common/ivysettings.xml" />
@@ -231,6 +235,7 @@
       <module fileurl="file://$PROJECT_DIR$/projects/Fudge-Java/Fudge-Java.iml" filepath="$PROJECT_DIR$/projects/Fudge-Java/Fudge-Java.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/Fudge-Proto/Fudge-Proto.iml" filepath="$PROJECT_DIR$/projects/Fudge-Proto/Fudge-Proto.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Analytics/OG-Analytics.iml" filepath="$PROJECT_DIR$/projects/OG-Analytics/OG-Analytics.iml" />
+      <module fileurl="file://$PROJECT_DIR$/projects/OG-Component/OG-Component.iml" filepath="$PROJECT_DIR$/projects/OG-Component/OG-Component.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Core/OG-Core.iml" filepath="$PROJECT_DIR$/projects/OG-Core/OG-Core.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Engine/OG-Engine.iml" filepath="$PROJECT_DIR$/projects/OG-Engine/OG-Engine.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Examples/OG-Examples.iml" filepath="$PROJECT_DIR$/projects/OG-Examples/OG-Examples.iml" />

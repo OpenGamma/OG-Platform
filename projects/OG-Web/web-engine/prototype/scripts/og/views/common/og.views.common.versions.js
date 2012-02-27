@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.views.common.versions',
     dependencies: ['og.common.util.ui.message', 'og.views.common.layout'],
     obj: function () {
-        var PANEL = '.ui-layout-inner-south',
+        var PANEL = '.OG-layout-admin-details-south',
             HEADER = PANEL + ' .ui-layout-header',
             CONTENT = PANEL + ' .ui-layout-content',
             FOOTER = PANEL + ' .ui-layout-footer',
@@ -39,12 +39,12 @@ $.register_module({
                             routes.go($(e.target).parents('tr:first').find('td:first a').trigger('click').attr('href'));
                         });
                         $(CONTENT).html($list);
-                        ui.message({location: '.ui-layout-inner-south', destroy: true});
+                        ui.message({location: '.OG-layout-admin-details-south', destroy: true});
                         og.views.common.layout.main.resizeAll();
                     },
                     loading: function () {
                         ui.message({
-                            location: '.ui-layout-inner-south',
+                            location: '.OG-layout-admin-details-south',
                             css: {bottom: '1px'},
                             message: {0: 'loading...', 3000: 'still loading...'}
                         });
@@ -68,10 +68,7 @@ $.register_module({
                 if (!$(HEADER).length || (routes.current() && !routes.current().args.version)) $(PANEL).html( '\
                     <div class="ui-layout-header">' + header_html + '</div>\
                     <div class="ui-layout-content"></div>'
-                ).removeClass(function (i , classes) {
-                    var matches = classes.match(/OG-(?:.+)/g) || [];
-                    return matches.join(' ');
-                }).addClass('OG-versions');
+                ).removeClass('OG-sync').addClass('OG-versions');
                 og.views.common.layout.inner.initContent('south');
             }
         }

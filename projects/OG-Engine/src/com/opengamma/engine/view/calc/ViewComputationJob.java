@@ -5,36 +5,21 @@
  */
 package com.opengamma.engine.view.calc;
 
-import java.text.MessageFormat;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.TimeUnit;
-
-import javax.time.Duration;
-import javax.time.Instant;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeListener;
+import com.opengamma.engine.ComputationTarget;
+import com.opengamma.engine.depgraph.DependencyGraph;
 import com.opengamma.engine.marketdata.MarketDataListener;
 import com.opengamma.engine.marketdata.MarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.engine.view.ViewProcessContext;
-import com.opengamma.engine.view.ViewProcessImpl;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.*;
+import com.opengamma.engine.view.SimpleCycleInfo;
 import com.opengamma.engine.view.calc.trigger.CombinedViewCycleTrigger;
 import com.opengamma.engine.view.calc.trigger.FixedTimeTrigger;
 import com.opengamma.engine.view.calc.trigger.RecomputationPeriodTrigger;
@@ -56,6 +41,25 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.TerminatableJob;
 import com.opengamma.util.monitor.OperationTimer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.time.Duration;
+import javax.time.Instant;
+import java.text.MessageFormat;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
+
+import static com.opengamma.util.functional.Functional.reduce;
+
 
 /**
  * The job which schedules and executes computation cycles for a view process.
@@ -242,7 +246,7 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
 
     VersionCorrection versionCorrection = getResolvedVersionCorrection();
-    CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
+    final CompiledViewDefinitionWithGraphsImpl compiledViewDefinition;
     try {
       compiledViewDefinition = getCompiledViewDefinition(compilationValuationTime, versionCorrection);
       if (isTerminated()) {
@@ -280,6 +284,28 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
 
     if (_executeCycles) {
       try {
+        final SingleComputationCycle singleComputationCycle = cycleReference.get();
+        final Set<String> configurationNames = singleComputationCycle.getAllCalculationConfigurationNames();
+
+        cycleInitiated(new SimpleCycleInfo(
+            marketDataSnapshot.getUniqueId(),
+            compiledViewDefinition.getViewDefinition().getUniqueId(),
+            versionCorrection,
+            executionOptions.getValuationTime(),
+            configurationNames,
+            new HashMap<String, Collection<ComputationTarget>>(){{
+              for (String configName : configurationNames) {
+                DependencyGraph dependencyGraph = singleComputationCycle.getExecutableDependencyGraph(configName);
+                put(configName, dependencyGraph.getAllComputationTargets());
+              }
+            }},
+            new HashMap<String, Map< ValueSpecification, Set<ValueRequirement>>>(){{
+              for (String configName : configurationNames) {
+                DependencyGraph dependencyGraph = singleComputationCycle.getExecutableDependencyGraph(configName);
+                put(configName, dependencyGraph.getTerminalOutputs());
+              }
+            }}
+        ));
         executeViewCycle(cycleType, cycleReference, marketDataSnapshot, getViewProcess().getCalcJobResultExecutorService());
       } catch (InterruptedException e) {
         // Execution interrupted - don't propagate as failure
@@ -326,7 +352,16 @@ public class ViewComputationJob extends TerminatableJob implements MarketDataLis
     }
   }
 
+  private void cycleInitiated(CycleInfo cycleInfo) {
+    try {
+      getViewProcess().cycleInitiated(cycleInfo);
+    } catch (Exception e) {
+      s_logger.error("Error notifying view process " + getViewProcess() + " of view cycle initiation", e);
+    }
+  }
+
   private void cycleFragmentCompleted(ViewComputationResultModel result) {
+
     try {
       getViewProcess().cycleFragmentCompleted(result, getViewDefinition());
     } catch (Exception e) {

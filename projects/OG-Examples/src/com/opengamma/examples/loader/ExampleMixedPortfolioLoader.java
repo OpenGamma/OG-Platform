@@ -24,24 +24,35 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.bond.GovernmentBondSecurity;
+import com.opengamma.financial.security.capfloor.CapFloorSecurity;
+import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
+import com.opengamma.financial.security.future.BondFutureDeliverable;
+import com.opengamma.financial.security.future.BondFutureSecurity;
+import com.opengamma.financial.security.future.EquityFutureSecurity;
+import com.opengamma.financial.security.future.EquityIndexDividendFutureSecurity;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.MonitoringType;
+import com.opengamma.financial.security.option.OptionType;
 import com.opengamma.financial.security.option.SamplingFrequency;
+import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -60,10 +71,15 @@ import com.opengamma.util.time.Expiry;
  * 
  */
 public class ExampleMixedPortfolioLoader extends AbstractTool {
-  private static final String PORTFOLIO_NAME = "Example Mixed Portfolio";
+  
+  /**
+   * Example mixed portfolio name
+   */
+  public static final String PORTFOLIO_NAME = "Example Mixed Portfolio";
   private static final String ID_SCHEME = "MIXED_PORFOLIO_LOADER";
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
+  private static final ExternalId USDLIBOR3M = ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDLIBORP3M");
   
   public static void main(String[] args) { //CSIGNORE
     if (init()) {
@@ -74,90 +90,59 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
   
   private void persistToPortfolio() {
     PortfolioMaster portfolioMaster = getToolContext().getPortfolioMaster();
-    PositionMaster positionMaster = getToolContext().getPositionMaster();
-    SecurityMaster securityMaster = getToolContext().getSecurityMaster();
     ManageablePortfolioNode rootNode = new ManageablePortfolioNode(PORTFOLIO_NAME);
     ManageablePortfolio portfolio = new ManageablePortfolio(PORTFOLIO_NAME, rootNode);
     PortfolioDocument portfolioDoc = new PortfolioDocument();
     portfolioDoc.setPortfolio(portfolio);
     
-    final Collection<SwapSecurity> iborSwaps = getIborSwaps();
-    final ManageablePortfolioNode childPortfolio1 = new ManageablePortfolioNode("Ibor swaps");
-    for (final SwapSecurity swap : iborSwaps) {
-      SecurityDocument toAddDoc = new SecurityDocument();
-      toAddDoc.setSecurity(swap);
-      securityMaster.add(toAddDoc);
-      ManageablePosition position = new ManageablePosition(BigDecimal.ONE, swap.getExternalIdBundle());
-      PositionDocument addedDoc = positionMaster.add(new PositionDocument(position));
-      childPortfolio1.addPosition(addedDoc.getUniqueId());
-    }
-    rootNode.addChildNode(childPortfolio1);
-    
-    final Collection<SwapSecurity> cmSwaps = getCMSwaps();
-    final ManageablePortfolioNode childPortfolio2 = new ManageablePortfolioNode("CM swaps");
-    for (final SwapSecurity swap : cmSwaps) {
-      SecurityDocument toAddDoc = new SecurityDocument();
-      toAddDoc.setSecurity(swap);
-      securityMaster.add(toAddDoc);
-      ManageablePosition position = new ManageablePosition(BigDecimal.ONE, swap.getExternalIdBundle());
-      PositionDocument addedDoc = positionMaster.add(new PositionDocument(position));
-      childPortfolio2.addPosition(addedDoc.getUniqueId());
-    }
-    rootNode.addChildNode(childPortfolio2);
-    
-    final Collection<FinancialSecurity> simpleFI = getSimpleFixedIncome();
-    final ManageablePortfolioNode childPortfolio3 = new ManageablePortfolioNode("Fixed income");
-    for (final FinancialSecurity fi : simpleFI) {
-      SecurityDocument toAddDoc = new SecurityDocument();
-      toAddDoc.setSecurity(fi);
-      securityMaster.add(toAddDoc);
-      ManageablePosition position = new ManageablePosition(BigDecimal.ONE, fi.getExternalIdBundle());
-      PositionDocument addedDoc = positionMaster.add(new PositionDocument(position));
-      childPortfolio3.addPosition(addedDoc.getUniqueId());
-    }
-    rootNode.addChildNode(childPortfolio3);
-    
-    final Collection<FXForwardSecurity> simpleFX = getSimpleFX();
-    final ManageablePortfolioNode childPortfolio4 = new ManageablePortfolioNode("FX forward");
-    for (final FXForwardSecurity fxForward : simpleFX) {
-      SecurityDocument toAddDoc = new SecurityDocument();
-      toAddDoc.setSecurity(fxForward);
-      securityMaster.add(toAddDoc);
-      ManageablePosition position = new ManageablePosition(BigDecimal.ONE, fxForward.getExternalIdBundle());
-      PositionDocument addedDoc = positionMaster.add(new PositionDocument(position));
-      childPortfolio4.addPosition(addedDoc.getUniqueId());
-    }
-    rootNode.addChildNode(childPortfolio4);
-    
-    final Collection<FinancialSecurity> optionFX = getFXOptions();
-    final ManageablePortfolioNode childPortfolio5 = new ManageablePortfolioNode("FX options");
-    for (final FinancialSecurity f : optionFX) {
-      SecurityDocument toAddDoc = new SecurityDocument();
-      toAddDoc.setSecurity(f);
-      securityMaster.add(toAddDoc);
-      ManageablePosition position = new ManageablePosition(BigDecimal.ONE, f.getExternalIdBundle());
-      PositionDocument addedDoc = positionMaster.add(new PositionDocument(position));
-      childPortfolio5.addPosition(addedDoc.getUniqueId());
-    }
-    rootNode.addChildNode(childPortfolio5);
-    
-    final Collection<BondSecurity> bonds = getBonds();
-    final ManageablePortfolioNode bondPortfolio = new ManageablePortfolioNode("Bonds");
-    for (final BondSecurity f : bonds) {
-      SecurityDocument toAddDoc = new SecurityDocument();
-      toAddDoc.setSecurity(f);
-      securityMaster.add(toAddDoc);
-      ManageablePosition position = new ManageablePosition(BigDecimal.ONE, f.getExternalIdBundle());
-      PositionDocument addedDoc = positionMaster.add(new PositionDocument(position));
-      bondPortfolio.addPosition(addedDoc.getUniqueId());
-    }
-    rootNode.addChildNode(bondPortfolio);
+//    addPortfolioNode(rootNode, getIborSwaps(), "Ibor swaps", BigDecimal.ONE);
+    addPortfolioNode(rootNode, getCMSwaps(), "CM swaps", BigDecimal.ONE);
+    /*addPortfolioNode(rootNode, getSimpleFixedIncome(), "Fixed income", BigDecimal.ONE);
+    addPortfolioNode(rootNode, getSimpleFX(), "FX forward", BigDecimal.ONE);
+    addPortfolioNode(rootNode, getFXOptions(), "FX options", BigDecimal.ONE);
+    addBondNode(rootNode);
+    addPortfolioNode(rootNode, getSwaptions(), "Swaptions", BigDecimal.ONE);
+    addPortfolioNode(rootNode, getIborCapFloor(), "Ibor cap/floor", BigDecimal.ONE);
+    addPortfolioNode(rootNode, getCMCapFloor(), "CM cap/floor", BigDecimal.ONE);
+    addPortfolioNode(rootNode, getIRFutureOptions(), "IR future options", BigDecimal.valueOf(100));
+    addEquityNode(rootNode);*/
     
     portfolioMaster.add(portfolioDoc);
   }
-  
-  private Collection<BondSecurity> getBonds() {
-    final List<BondSecurity> securities = new ArrayList<BondSecurity>();
+
+  private void addEquityNode(ManageablePortfolioNode rootNode) {
+    final ManageablePortfolioNode portfolioNode = new ManageablePortfolioNode("Equity");
+    
+    EquityVarianceSwapSecurity equityVarianceSwap = new EquityVarianceSwapSecurity(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "DJX"), 
+        Currency.USD, 0.5, 1000000.0, true, 250.0, ZonedDateTime.of(LocalDateTime.of(2010, 11, 1, 16, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2012, 11, 1, 16, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2010, 11, 1, 16, 0), TimeZone.UTC), RegionUtils.currencyRegionId(Currency.USD), SimpleFrequency.DAILY);
+    equityVarianceSwap.setName("Equity Variance Swap, USD 1MM, strike=0.5, maturing 2012-11-01");
+    equityVarianceSwap.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    storeFinancialSecurity(equityVarianceSwap);
+    addPosition(portfolioNode, equityVarianceSwap, BigDecimal.ONE);
+    
+    EquityIndexDividendFutureSecurity dividendFuture = new EquityIndexDividendFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC)), 
+        "XEUR", "XEUR", Currency.USD, 1000.0, ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC), ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "HSBA"));
+    dividendFuture.setName("HSBC Holdings SSDF Dec11");
+    dividendFuture.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "H2SBZ1GR"));
+    storeFinancialSecurity(dividendFuture);
+    addPosition(portfolioNode, dividendFuture, BigDecimal.valueOf(100));
+    
+    EquityFutureSecurity equityFuture = new EquityFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2011, 12, 16, 17, 30), TimeZone.UTC)), 
+        "XCME", "XCME", Currency.USD, 250.0, ZonedDateTime.of(LocalDateTime.of(2012, 12, 20, 21, 15), TimeZone.UTC), ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "SPX"));
+    equityFuture.setName("S&P 500 FUTURE Dec12");
+    equityFuture.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "SPZ2"));
+    storeFinancialSecurity(equityFuture);
+    addPosition(portfolioNode, equityFuture, BigDecimal.ONE);
+    
+    rootNode.addChildNode(portfolioNode);
+  }
+
+  private void addBondNode(ManageablePortfolioNode rootNode) {
+    
+    final ManageablePortfolioNode portfolioNode = new ManageablePortfolioNode("Bonds");
+   
     final GovernmentBondSecurity bond1 = new GovernmentBondSecurity("US TREASURY N/B", "Sovereign", "US", "US GOVERNMENT", 
         Currency.USD, SimpleYieldConvention.US_STREET, 
         new Expiry(ZonedDateTime.of(LocalDateTime.of(2013, 12, 15, 16, 0), TimeZone.UTC)), "FIXED", 2.625, 
@@ -168,12 +153,142 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
         99.651404, 3.8075E10, 100.0, 100.0, 100.0, 100.0);
     bond1.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "US912828KY53"));
     bond1.setName("T 2 5/8 06/30/14");
-    securities.add(bond1);
+    storeFinancialSecurity(bond1);
+    addPosition(portfolioNode, bond1, BigDecimal.valueOf(2120));
+    
+    final GovernmentBondSecurity bond2 = new GovernmentBondSecurity("US TREASURY N/B", "Sovereign", "US", "US GOVERNMENT", 
+        Currency.USD, SimpleYieldConvention.US_STREET, 
+        new Expiry(ZonedDateTime.of(LocalDateTime.of(2015, 8, 31, 18, 0), TimeZone.UTC)), "FIXED", 1.25, 
+        SimpleFrequency.SEMI_ANNUAL, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ICMA"), 
+        ZonedDateTime.of(LocalDateTime.of(2010, 8, 31, 18, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2011, 2, 14, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2011, 2, 28, 11, 0), TimeZone.UTC), 
+        99.402797, 3.6881E10, 100.0, 100.0, 100.0, 100.0);
+    bond2.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "US912828NV87"));
+    bond2.setName("T 1 1/4 08/31/15");
+    storeFinancialSecurity(bond2);
+    addPosition(portfolioNode, bond2, BigDecimal.valueOf(3940));
+    
+    final GovernmentBondSecurity bond3 = new GovernmentBondSecurity("TSY 8% 2021", "Sovereign", "GB", "UK GILT STOCK", 
+        Currency.GBP, SimpleYieldConvention.UK_BUMP_DMO_METHOD, 
+        new Expiry(ZonedDateTime.of(LocalDateTime.of(2021, 6, 7, 18, 0), TimeZone.UTC)), "FIXED", 8.0, 
+        SimpleFrequency.SEMI_ANNUAL, DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA"), 
+        ZonedDateTime.of(LocalDateTime.of(1996, 2, 29, 18, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2011, 1, 28, 11, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(1996, 6, 7, 12, 0), TimeZone.UTC), 
+        99.0625, 2.2686E10, 0.01, 0.01, 100.0, 100.0);
+    bond3.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GB0009997999"));
+    bond3.setName("UKT 8 06/07/21");
+    bond3.setAnnouncementDate(ZonedDateTime.of(LocalDateTime.of(1996, 2, 20, 11, 0), TimeZone.UTC));
+    storeFinancialSecurity(bond3);
+    addPosition(portfolioNode, bond3, BigDecimal.valueOf(4690));
+    
+    final List<BondFutureDeliverable> bondFutureDelivarables = new ArrayList<BondFutureDeliverable>();
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FF0")), 0.9221));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FJ2")), 1.0132));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FA1")), 1.037));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FE3")), 0.9485));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FB9")), 1.0125));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FM5")), 1.0273));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FG8")), 0.9213));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810PT9")), 0.8398));
+    
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FP8")), 0.9301));
+    bondFutureDelivarables.add(new BondFutureDeliverable(ExternalIdBundle.of(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GV912810FT0")), 0.8113));
+    
+    final BondFutureSecurity bond4 = new BondFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 3, 21, 20, 0), TimeZone.UTC)), 
+        "XCBT", "XCBT", Currency.USD, 1000.0, bondFutureDelivarables, "Bond", ZonedDateTime.of(LocalDateTime.of(2012, 3, 1, 0, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2012, 3, 1, 0, 0), TimeZone.UTC));
+    bond4.setName("US LONG BOND(CBT) Mar12");
+    bond4.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USH12"));
+    storeFinancialSecurity(bond4);
+    addPosition(portfolioNode, bond4, BigDecimal.valueOf(10));
+    
+    rootNode.addChildNode(portfolioNode);
+  }
+
+  private void addPosition(final ManageablePortfolioNode portfolioNode, final FinancialSecurity security, final BigDecimal quantity) {
+    PositionMaster positionMaster = getToolContext().getPositionMaster();
+    ManageablePosition position = new ManageablePosition(quantity, security.getExternalIdBundle());
+    PositionDocument addedDoc = positionMaster.add(new PositionDocument(position));
+    portfolioNode.addPosition(addedDoc.getUniqueId());
+  }
+
+  private Collection<FinancialSecurity> getIRFutureOptions() {
+    List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
+    
+    InterestRateFutureSecurity edu12 = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 9, 17, 20, 0), TimeZone.UTC)), 
+        "XCME", "XCME", Currency.USD, 2500.0, USDLIBOR3M);
+    edu12.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "EDU12"));
+    edu12.setName("90DAY EURO$ FUTR Sep12");
+    storeFinancialSecurity(edu12);
+    
+    AmericanExerciseType exerciseType = new AmericanExerciseType();
+    IRFutureOptionSecurity optionSec1 = new IRFutureOptionSecurity("CME", new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 9, 17, 0, 0), TimeZone.UTC)), 
+        exerciseType, ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "EDU12"), 6.25, false, Currency.USD, 98.0, OptionType.PUT);
+    optionSec1.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "EDU2P98"));
+    optionSec1.setName("EDU2P 2012-09-17 P 98.0");
+    storeFinancialSecurity(optionSec1);
+    securities.add(optionSec1);
+    
+    InterestRateFutureSecurity edz12 = new InterestRateFutureSecurity(new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 12, 17, 20, 0), TimeZone.UTC)), 
+        "XCME", "XCME", Currency.USD, 2500.0, USDLIBOR3M);
+    edz12.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "EDZ12"));
+    edz12.setName("90DAY EURO$ FUTR Dec12");
+    storeFinancialSecurity(edz12);
+    
+    IRFutureOptionSecurity optionSec2 = new IRFutureOptionSecurity("CME", new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 12, 17, 0, 0), TimeZone.UTC)), 
+        exerciseType, ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "EDZ12"), 6.25, false, Currency.USD, 99.0, OptionType.CALL);
+    optionSec2.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "EDU2P98"));
+    optionSec2.setName("EDZ2C 2012-12-17 C 99.0");
+    storeFinancialSecurity(optionSec2);
+    securities.add(optionSec2);
+    
     return securities;
   }
 
-  private static Collection<SwapSecurity> getIborSwaps() {
-    final List<SwapSecurity> securities = new ArrayList<SwapSecurity>();
+  private void storeFinancialSecurity(final FinancialSecurity security) {
+    SecurityMaster securityMaster = getToolContext().getSecurityMaster();
+    SecurityDocument toAddDoc = new SecurityDocument();
+    toAddDoc.setSecurity(security);
+    securityMaster.add(toAddDoc);
+  }
+
+  private void addPortfolioNode(final ManageablePortfolioNode rootNode, final Collection<FinancialSecurity> finSecurities, final String portfolioNodeName, BigDecimal quantity) {
+    PositionMaster positionMaster = getToolContext().getPositionMaster();
+    final ManageablePortfolioNode portfolioNode = new ManageablePortfolioNode(portfolioNodeName);
+    for (final FinancialSecurity security : finSecurities) {
+      storeFinancialSecurity(security);
+      ManageablePosition position = new ManageablePosition(quantity, security.getExternalIdBundle());
+      PositionDocument addedDoc = positionMaster.add(new PositionDocument(position));
+      portfolioNode.addPosition(addedDoc.getUniqueId());
+    }
+    rootNode.addChildNode(portfolioNode);
+  }
+  
+  private List<FinancialSecurity> getCMCapFloor() {
+    final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
+    
+    final CapFloorSecurity sec1 = new CapFloorSecurity(ZonedDateTime.of(LocalDateTime.of(2011, 1, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2014, 1, 1, 1, 0), TimeZone.UTC), 1.5E7, 
+        ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDSWAPP20Y"), 0.01, SimpleFrequency.QUARTERLY, Currency.USD, 
+        DayCountFactory.INSTANCE.getDayCount("30U/360"), false, true, true);
+    sec1.setName("Ibor cap,  @ 0.01");
+    sec1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    securities.add(sec1);
+    
+    final CapFloorSecurity sec2 = new CapFloorSecurity(ZonedDateTime.of(LocalDateTime.of(2011, 1, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2014, 1, 1, 1, 0), TimeZone.UTC), 1.5E7, 
+        ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDSWAPP20Y"), 0.01, SimpleFrequency.QUARTERLY, Currency.USD, 
+        DayCountFactory.INSTANCE.getDayCount("30U/360"), false, false, true);
+    sec2.setName("Ibor floor,  @ 0.01");
+    sec2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    securities.add(sec2);
+    return securities;
+  }
+  
+  private List<FinancialSecurity> getIborSwaps() {
+    final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
     final SwapSecurity swap1 = new SwapSecurity(
         ZonedDateTime.of(LocalDateTime.of(2000, 5, 1, 11, 0), TimeZone.UTC), 
         ZonedDateTime.of(LocalDateTime.of(2000, 5, 1, 11, 0), TimeZone.UTC), 
@@ -192,7 +307,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.USD, 15000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDLIBORP3M"), 
+                                    USDLIBOR3M, 
                                     FloatingRateType.IBOR));
     swap1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap1.setName("Swap: pay 5% fixed vs 3m Libor, start=1/5/2000, maturity=1/5/2040, notional=USD 15MM");
@@ -214,7 +329,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.EUR, 20000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "EU0006M Index"), 
+                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDLIBORP6M"), 
                                     FloatingRateType.IBOR));
     swap2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap2.setName("Swap: pay 4% fixed vs 6m Euribor, start=1/5/2005, maturity=1/5/2030, notional=EUR 20MM");
@@ -236,7 +351,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.GBP, 15000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "BP0006M Index"), 
+                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "GBPLIBORP6M"), 
                                     FloatingRateType.IBOR));
     swap3.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap3.setName("Swap: pay 3% fixed vs 6m Libor, start=1/5/2007, maturity=1/5/2020, notional=GBP 15MM");
@@ -258,7 +373,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.JPY, 100000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "JY0006M Index"), 
+                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "JPYLIBORP6M"), 
                                     FloatingRateType.IBOR));
     swap4.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap4.setName("Swap: pay 2% fixed vs 6m Libor, start=1/5/2003, maturity=1/5/2028, notional=JPY 100MM");
@@ -280,7 +395,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.CHF, 5000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "SF0006M Index"), 
+                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "CHFLIBORP6M"), 
                                     FloatingRateType.IBOR));
     swap5.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap5.setName("Swap: pay 7% fixed vs 6m Libor, start=1/5/2004, maturity=1/5/2044, notional=CHF 50MM");
@@ -346,7 +461,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.NZD, 55000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "NZ0006M Index"), 
+                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "NZDLIBORP6M"), 
                                     FloatingRateType.IBOR));
     swap8.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap8.setName("Swap: pay 5% fixed vs 6m Libor, start=1/5/2010, maturity=1/5/2030, notional=NZD 55MM");
@@ -368,7 +483,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.DKK, 90000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "CIBO06M Index"), 
+                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "DKKLIBORP6M"), 
                                     FloatingRateType.IBOR));
     swap9.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap9.setName("Swap: pay 5% fixed vs 6m Cibor, start=1/5/2010, maturity=1/5/2030, notional=DKK 90MM");
@@ -384,8 +499,8 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
     return securities;
   }
   
-  private static Collection<SwapSecurity> getCMSwaps() {
-    final List<SwapSecurity> securities = new ArrayList<SwapSecurity>();
+  private Collection<FinancialSecurity> getCMSwaps() {
+    final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
     final SwapSecurity swap1 = new SwapSecurity(
         ZonedDateTime.of(LocalDateTime.of(2000, 5, 1, 11, 0), TimeZone.UTC), 
         ZonedDateTime.of(LocalDateTime.of(2000, 5, 1, 11, 0), TimeZone.UTC), 
@@ -404,7 +519,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.USD, 15000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USSW6 Curncy"), 
+                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDSWAPP6Y"), 
                                     FloatingRateType.CMS));
     swap1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap1.setName("Swap: pay 5% fixed vs USSW6, start=1/5/2000, maturity=1/5/2040, notional=USD 15MM");
@@ -419,7 +534,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.USD, 15000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDLIBORP3M"), 
+                                    USDLIBOR3M, 
                                     FloatingRateType.IBOR),
         new FloatingInterestRateLeg(DAY_COUNT, 
                                     SimpleFrequency.QUARTERLY, 
@@ -427,7 +542,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.USD, 15000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USSW6 Curncy"), 
+                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDSWAPP6Y"), 
                                     FloatingRateType.CMS));
     swap2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap2.setName("Swap: pay 6m Libor vs USSW6, start=1/5/2000, maturity=1/5/2040, notional=USD 15MM");
@@ -442,7 +557,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.USD, 15000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USSW10 Curncy"), 
+                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDSWAPP10Y"), 
                                     FloatingRateType.CMS),
         new FloatingInterestRateLeg(DAY_COUNT, 
                                     SimpleFrequency.QUARTERLY, 
@@ -450,13 +565,60 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                     BUSINESS_DAY, 
                                     new InterestRateNotional(Currency.USD, 15000000), 
                                     true, 
-                                    ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, "USSW6 Curncy"), 
+                                    ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDSWAPP6Y"), 
                                     FloatingRateType.CMS));
     swap3.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     swap3.setName("Swap: pay USSW10 vs USSW6, start=1/5/2000, maturity=1/5/2040, notional=USD 15MM");
     securities.add(swap1);
     securities.add(swap2);
     securities.add(swap3);
+    return securities;
+  }
+  
+  private Collection<FinancialSecurity> getSwaptions() {
+    final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
+    
+    List<FinancialSecurity> iborSwaps = getIborSwaps();
+    
+    final EuropeanExerciseType europeanExerciseType = new EuropeanExerciseType();
+    final SwaptionSecurity swaption1 = new SwaptionSecurity(false, iborSwaps.get(0).getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)),
+        true, new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 6, 1, 1, 0), TimeZone.UTC)), 
+        true, Currency.USD, null, europeanExerciseType, null);
+    swaption1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    securities.add(swaption1);
+    
+    final SwaptionSecurity swaption2 = new SwaptionSecurity(false, iborSwaps.get(1).getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)), 
+        false, new Expiry(ZonedDateTime.of(LocalDateTime.of(2013, 6, 1, 1, 0), TimeZone.UTC)), 
+        true, Currency.USD, null, europeanExerciseType, null);
+    swaption2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    securities.add(swaption2);
+    
+    final SwaptionSecurity swaption3 = new SwaptionSecurity(false, iborSwaps.get(2).getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)), 
+        false, new Expiry(ZonedDateTime.of(LocalDateTime.of(2016, 6, 1, 1, 0), TimeZone.UTC)), 
+        true, Currency.USD, null, europeanExerciseType, null);
+    swaption3.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    securities.add(swaption3);
+    return securities;
+  }
+  
+  private static Collection<FinancialSecurity> getIborCapFloor() {
+    final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
+    
+    final CapFloorSecurity sec1 = new CapFloorSecurity(ZonedDateTime.of(LocalDateTime.of(2011, 1, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2014, 1, 1, 1, 0), TimeZone.UTC), 1.5E7, 
+        USDLIBOR3M, 0.01, SimpleFrequency.QUARTERLY, Currency.USD, 
+        DayCountFactory.INSTANCE.getDayCount("30U/360"), false, true, true);
+    sec1.setName("Ibor cap,  @ 0.01");
+    sec1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    securities.add(sec1);
+    
+    final CapFloorSecurity sec2 = new CapFloorSecurity(ZonedDateTime.of(LocalDateTime.of(2011, 1, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2014, 1, 1, 1, 0), TimeZone.UTC), 1.5E7, 
+        USDLIBOR3M, 0.01, SimpleFrequency.QUARTERLY, Currency.USD, 
+        DayCountFactory.INSTANCE.getDayCount("30U/360"), false, false, true);
+    sec2.setName("Ibor floor,  @ 0.01");
+    sec2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    securities.add(sec2);
     return securities;
   }
   
@@ -468,7 +630,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                             ZonedDateTime.of(LocalDateTime.of(2012, 4, 14, 11, 0), TimeZone.UTC), 
                                             0.01, 
                                             15000000, 
-                                            ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDLIBORP3M"), 
+                                            USDLIBOR3M, 
                                             ZonedDateTime.of(LocalDateTime.of(2011, 1, 14, 11, 0), TimeZone.UTC));
     fra.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
     fra.setName("FRA: pay 1% vs 3m Libor, start=1/14/2012, maturity=4/14/2012, notional=USD 15MM");
@@ -477,7 +639,7 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
                                                                                "CME", 
                                                                                Currency.USD, 
                                                                                1000, 
-                                                                               ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDLIBORP3M"));
+                                                                               USDLIBOR3M);
     irFuture.addExternalId(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "EDZ13"));
     irFuture.setName("90DAY EURO$ FUTR Jun13");
     securities.add(fra);
@@ -485,8 +647,8 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
     return securities;
   }
   
-  private static Collection<FXForwardSecurity> getSimpleFX() {
-    final List<FXForwardSecurity> securities = new ArrayList<FXForwardSecurity>();
+  private static Collection<FinancialSecurity> getSimpleFX() {
+    final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
     final FXForwardSecurity fxForward1 = new FXForwardSecurity(Currency.USD, 1000000, Currency.EUR, 1000000,
                                                                ZonedDateTime.of(LocalDateTime.of(2013, 2, 1, 11, 0), TimeZone.UTC), 
                                                                RegionUtils.countryRegionId(Country.of("US")));

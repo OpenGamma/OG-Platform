@@ -56,8 +56,9 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
    * @param fixingPeriodEndDate The end date of the fixing period.
    * @param fixingPeriodAccrualFactor The accrual factor (or year fraction) associated to the fixing period in the Index day count convention.
    */
-  public CouponOISSimplifiedDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, double paymentYearFraction,
-      double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, double fixingPeriodAccrualFactor) {
+  public CouponOISSimplifiedDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
+      final double paymentYearFraction,
+      final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final double fixingPeriodAccrualFactor) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
     Validate.notNull(index, "Coupon OIS Simplified: index");
     Validate.notNull(fixingPeriodStartDate, "Coupon OIS Simplified: fixingPeriodStartDate");
@@ -82,7 +83,7 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
    */
   public static CouponOISSimplifiedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final Period tenor, final double notional, final int settlementDays,
       final BusinessDayConvention businessDayConvention, final boolean isEOM) {
-    ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, index.getCalendar(), isEOM);
+    final ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, index.getCalendar(), isEOM);
     return CouponOISSimplifiedDefinition.from(index, settlementDate, endFixingPeriodDate, notional, settlementDays);
   }
 
@@ -99,8 +100,8 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
   public static CouponOISSimplifiedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final int settlementDays) {
     ZonedDateTime lastFixingDate = ScheduleCalculator.getAdjustedDate(endFixingPeriodDate, -1, index.getCalendar()); // Overnight
     lastFixingDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, index.getPublicationLag(), index.getCalendar()); // Lag
-    ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, settlementDays, index.getCalendar());
-    double payementAccrualFactor = index.getDayCount().getDayCountFraction(settlementDate, endFixingPeriodDate);
+    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(lastFixingDate, settlementDays, index.getCalendar());
+    final double payementAccrualFactor = index.getDayCount().getDayCountFraction(settlementDate, endFixingPeriodDate);
     return new CouponOISSimplifiedDefinition(index.getCurrency(), paymentDate, settlementDate, endFixingPeriodDate, payementAccrualFactor, notional, index, settlementDate, endFixingPeriodDate,
         payementAccrualFactor);
   }
@@ -143,7 +144,7 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
     int result = super.hashCode();
     long temp;
     temp = Double.doubleToLongBits(_fixingPeriodAccrualFactor);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
+    result = prime * result + (int) (temp ^ temp >>> 32);
     result = prime * result + _fixingPeriodEndDate.hashCode();
     result = prime * result + _fixingPeriodStartDate.hashCode();
     result = prime * result + _index.hashCode();
@@ -151,7 +152,7 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -161,7 +162,7 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    CouponOISSimplifiedDefinition other = (CouponOISSimplifiedDefinition) obj;
+    final CouponOISSimplifiedDefinition other = (CouponOISSimplifiedDefinition) obj;
     if (!ObjectUtils.equals(_fixingPeriodEndDate, other._fixingPeriodEndDate)) {
       return false;
     }
@@ -178,25 +179,26 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
   }
 
   @Override
-  public CouponOIS toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public CouponOIS toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.notNull(date, "date");
-    Validate.isTrue(!date.isAfter(_fixingPeriodStartDate), "Simplified Coupon OIS only valid at dates where the fixing has not taken place yet.");
+    Validate.isTrue(!date.isAfter(_fixingPeriodStartDate) || date.toLocalDate().equals(_fixingPeriodStartDate.toLocalDate()),
+        "Simplified Coupon OIS only valid at dates where the fixing has not taken place yet.");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, _fixingPeriodStartDate);
-    double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, _fixingPeriodEndDate);
-    CouponOIS cpn = new CouponOIS(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime, fixingPeriodEndTime,
+    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, _fixingPeriodStartDate);
+    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, _fixingPeriodEndDate);
+    final CouponOIS cpn = new CouponOIS(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime, fixingPeriodEndTime,
         _fixingPeriodAccrualFactor, getNotional(), yieldCurveNames[1]);
     return cpn;
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitCouponOISSimplified(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitCouponOISSimplified(this);
   }
 

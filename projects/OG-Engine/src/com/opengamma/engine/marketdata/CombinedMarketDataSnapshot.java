@@ -14,6 +14,7 @@ import javax.time.Instant;
 
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.id.UniqueId;
 
 /**
  * 
@@ -28,6 +29,11 @@ public class CombinedMarketDataSnapshot extends AbstractMarketDataSnapshot {
     _preferredSnapshot = preferredSnapshot;
     _snapshotByProvider = snapshotByProvider;
     _combinedMarketDataProvider = combinedMarketDataProvider;
+  }
+  
+  @Override
+  public UniqueId getUniqueId() {
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "CombinedMarketDataSnapshot:"+getSnapshotTime());
   }
 
   @Override

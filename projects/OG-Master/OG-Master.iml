@@ -32,15 +32,6 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="OG-Core" exported="" />
-    <orderEntry type="module-library">
-      <library name="config">
-        <CLASSES>
-          <root url="file://$MODULE_DIR$/config" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-Master-default">
         <CLASSES>

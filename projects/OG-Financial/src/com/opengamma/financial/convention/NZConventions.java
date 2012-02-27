@@ -16,6 +16,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -24,6 +25,7 @@ import com.opengamma.id.ExternalIdBundle;
  * 
  */
 public class NZConventions {
+  private static final char[] MONTH_NAMES = new char[] {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K' };
 
   public static synchronized void addFixedIncomeInstrumentConventions(final ConventionBundleMaster conventionMaster) {
     Validate.notNull(conventionMaster, "convention master");
@@ -158,14 +160,41 @@ public class NZConventions {
         act365, following, Period.ofDays(1), 0, false, null);
 
     final ExternalId nz = RegionUtils.financialRegionId("NZ");
+    final DayCount swapFixedDayCount = act365;
+    final BusinessDayConvention swapFixedBusinessDay = modified;
+    final Frequency swapFixedPaymentFrequency = semiAnnual;
+    final DayCount swapFloatDayCount = act365;
+    final BusinessDayConvention swapFloatBusinessDay = modified;
+    final Frequency swapFloatPaymentFrequency = quarterly;
+    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }) {
+      final String bbgOISId = "NDSO" + MONTH_NAMES[i - 1] + " Curncy";
+      final String ogOISName = "NZD OIS " + i + "m";
+      final Frequency frequency = PeriodFrequency.of(Period.ofMonths(i));
+      conventionMaster.addConventionBundle(
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgOISId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogOISName)), ogOISName,
+          act365, swapFixedBusinessDay, frequency, 1, nz, act365, swapFloatBusinessDay, frequency,
+          1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBNZ CASH DAILY RATE"), nz, true);
+    }
+    for (int i = 1; i <= 30; i++) {
+      final String bbgSwapId = "NDSW" + i + " Curncy";
+      final String ogSwapName = "NZD SWAP " + i + "y";
+      final String bbgOISId = "NDSO" + i + " Curncy";
+      final String ogOISName = "NZD OIS " + i + "y";
+      conventionMaster.addConventionBundle(
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgSwapId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogSwapName)), ogSwapName,
+          swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 1, nz, swapFloatDayCount, swapFloatBusinessDay, swapFloatPaymentFrequency,
+          1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD LIBOR 3m"), nz, true);
+      conventionMaster.addConventionBundle(
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgOISId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogOISName)), ogOISName,
+          act365, swapFixedBusinessDay, annual, 1, nz, act365, swapFloatBusinessDay, annual,
+          1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBNZ CASH DAILY RATE"), nz, true);
+    }
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD_SWAP")), "NZD_SWAP", act365, modified, semiAnnual, 1, nz, act365,
         modified, quarterly, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD LIBOR 3m"), nz, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD_3M_SWAP")), "NZD_3M_SWAP", act365, modified, semiAnnual, 1, nz,
         act365, modified, quarterly, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD LIBOR 3m"), nz, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD_OIS_SWAP")), "NZD_OIS_SWAP", act365, modified, annual, 0, nz,
         act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBNZ CASH DAILY RATE"), nz);
-    conventionMaster
-        .addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD_OIS_CASH")), "NZD_OIS_CASH", act365, following, null, 1, false, null);
 
     //Identifiers for external data 
     conventionMaster.addConventionBundle(

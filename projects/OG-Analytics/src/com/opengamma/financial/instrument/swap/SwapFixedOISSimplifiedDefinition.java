@@ -11,9 +11,10 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponOISSimplifiedDefinition;
+import com.opengamma.financial.instrument.index.GeneratorOIS;
 import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -42,22 +43,23 @@ public class SwapFixedOISSimplifiedDefinition extends SwapDefinition {
    * There is a difference due to the settlement lag required on the OIS coupons.
    * @param settlementDate The settlement date.
    * @param tenorAnnuity The swap tenor.
-   * @param tenorCoupon The coupons tenor. The tenor is teh same on the fixed and OIS legs.
+   * @param tenorCoupon The coupons tenor. The tenor is the same on the fixed and OIS legs.
    * @param notional The notional.
    * @param index The OIS index.
    * @param fixedRate The fixed leg rate.
    * @param isPayer The flag indicating if the fixed leg is paying (true) or receiving (false).
    * @param settlementDays The number of days between last fixing of each coupon and the coupon payment (also called spot lag). 
    * @param businessDayConvention The business day convention to compute the end date of the coupon.
+   * @param dayCount The day count convention for the OIS
    * @param isEOM The end-of-month convention to compute the end date of the coupon.
    * @return The annuity.
    */
   public static SwapFixedOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final Period tenorAnnuity, final Period tenorCoupon, final double notional, final IndexON index,
-      final double fixedRate, final boolean isPayer, final int settlementDays, final BusinessDayConvention businessDayConvention, final boolean isEOM) {
-    AnnuityCouponOISSimplifiedDefinition oisLeg = AnnuityCouponOISSimplifiedDefinition.from(settlementDate, tenorAnnuity, tenorCoupon, notional, index, !isPayer, settlementDays,
-        businessDayConvention, isEOM);
+      final double fixedRate, final boolean isPayer, final int settlementDays, final BusinessDayConvention businessDayConvention, final DayCount dayCount, final boolean isEOM) {
+    final GeneratorOIS generator = new GeneratorOIS("OIS_Convention", index, tenorCoupon, dayCount, businessDayConvention, isEOM, settlementDays);
+    final AnnuityCouponOISSimplifiedDefinition oisLeg = AnnuityCouponOISSimplifiedDefinition.from(settlementDate, tenorAnnuity, notional, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
-    double notionalSigned = sign * notional;
+    final double notionalSigned = sign * notional;
     return from(oisLeg, notionalSigned, fixedRate);
   }
 
@@ -73,20 +75,21 @@ public class SwapFixedOISSimplifiedDefinition extends SwapDefinition {
    * @param isPayer The flag indicating if the fixed leg is paying (true) or receiving (false).
    * @param settlementDays The number of days between last fixing of each coupon and the coupon payment (also called spot lag). 
    * @param businessDayConvention The business day convention to compute the end date of the coupon.
+   * @param dayCount The day count convention for the OIS.
    * @param isEOM The end-of-month convention to compute the end date of the coupon.
    * @return The annuity.
    */
-  public static SwapFixedOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Frequency frequency, final double notional, final IndexON index,
-      final double fixedRate, final boolean isPayer, final int settlementDays, final BusinessDayConvention businessDayConvention, final boolean isEOM) {
-    AnnuityCouponOISSimplifiedDefinition oisLeg = AnnuityCouponOISSimplifiedDefinition.from(settlementDate, maturityDate, frequency, notional, index, !isPayer, settlementDays, businessDayConvention,
-        isEOM);
+  public static SwapFixedOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Period frequency, final double notional, final IndexON index,
+      final double fixedRate, final boolean isPayer, final int settlementDays, final BusinessDayConvention businessDayConvention, final DayCount dayCount, final boolean isEOM) {
+    final GeneratorOIS generator = new GeneratorOIS("OIS_Convention", index, frequency, dayCount, businessDayConvention, isEOM, settlementDays);
+    final AnnuityCouponOISSimplifiedDefinition oisLeg = AnnuityCouponOISSimplifiedDefinition.from(settlementDate, maturityDate, notional, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
-    double notionalSigned = sign * notional;
+    final double notionalSigned = sign * notional;
     return from(oisLeg, notionalSigned, fixedRate);
   }
 
   private static SwapFixedOISSimplifiedDefinition from(final AnnuityCouponOISSimplifiedDefinition oisLeg, final double notionalSigned, final double fixedRate) {
-    CouponFixedDefinition[] cpnFixed = new CouponFixedDefinition[oisLeg.getNumberOfPayments()];
+    final CouponFixedDefinition[] cpnFixed = new CouponFixedDefinition[oisLeg.getNumberOfPayments()];
     for (int loopcpn = 0; loopcpn < oisLeg.getNumberOfPayments(); loopcpn++) {
       cpnFixed[loopcpn] = new CouponFixedDefinition(oisLeg.getCurrency(), oisLeg.getNthPayment(loopcpn).getPaymentDate(), oisLeg.getNthPayment(loopcpn).getAccrualStartDate(), oisLeg.getNthPayment(
           loopcpn).getAccrualEndDate(), oisLeg.getNthPayment(loopcpn).getPaymentYearFraction(), notionalSigned, fixedRate);

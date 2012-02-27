@@ -59,5 +59,22 @@ public class InMemoryConventionBundleMasterTest {
     assertFalse(uidON.equals (uid3M));
     
   }
+  
+  @Test
+  public void test() {
+    final ConventionBundleMaster repo = new InMemoryConventionBundleMaster();
+    final ConventionBundleSource source = new DefaultConventionBundleSource(repo);
+    
+    ConventionBundle conventionBundle = source.getConventionBundle(ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDLIBORP6M"));
+    System.err.println(conventionBundle);
+    
+    conventionBundle = source.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF_IBOR_INDEX"));
+    System.err.println(conventionBundle);
+    
+    conventionBundle = source.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_SWAPTION"));
+    System.err.println(conventionBundle.getIdentifiers());
+    System.err.println(conventionBundle);
+    
+  }
 
 }

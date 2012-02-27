@@ -22,9 +22,9 @@ $.register_module({
                 batches: false, configs: true, exchanges: true, holidays: true, portfolios: true,
                 positions: true, regions: true, securities: true, timeseries: false
             },
-            request_id = 0,
+            request_id = 1,
             MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, STALL = 500 /* 500ms */,
-            INSTANT = 10 /* 10ms */, RESUBSCRIBE = 30000 /* 20s */,
+            INSTANT = 0 /* 0ms */, RESUBSCRIBE = 30000 /* 20s */,
             TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */,
             /** @ignore */
             register = function (req) {
@@ -62,78 +62,90 @@ $.register_module({
                     warn(module.name + ': del_cache failed\n', error);
                 }
             },
+            Promise = function () {
+                var deferred = new $.Deferred, promise = deferred.promise();
+                promise.deferred = deferred;
+                promise.id = ++request_id;
+                return promise;
+            },
             /** @ignore */
-            request = function (method, config) {
-                var id = request_id++, no_post_body = {GET: 0, DELETE: 0},
-                    is_get = config.meta.type === 'GET',
+            request = function (method, config, promise) {
+                var no_post_body = {GET: 0, DELETE: 0}, is_get = config.meta.type === 'GET',
                     // build GET/DELETE URLs instead of letting $.ajax do it
                     url = config.url || (config.meta.type in no_post_body ?
                         [live_data_root + method.map(encode).join('/'), $.param(config.data, true)]
                             .filter(Boolean).join('?')
                                 : live_data_root + method.map(encode).join('/')),
-                    current = routes.current(),
-                    /** @ignore */
-                    send = function () {
-                        // GETs are being POSTed with method=GET so they do not cache. TODO: change this
-                        outstanding_requests[id].ajax = $.ajax({
-                            url: url,
-                            type: is_get ? 'POST' : config.meta.type,
-                            data: is_get ? $.extend(config.data, {method: 'GET'}) : config.data,
-                            headers: {'Accept': 'application/json'},
-                            dataType: 'json',
-                            timeout: is_get ? TIMEOUTSOON : TIMEOUTFOREVER,
-                            beforeSend: function (xhr, req) {
-                                var aborted = !(id in outstanding_requests),
-                                    message = (aborted ? 'ABORTED: ' : '') + req.type + ' ' + req.url + ' HTTP/1.1' +
-                                        (!is_get ? '\n\n' + req.data : '');
-                                og.dev.log(message);
-                                if (aborted) return false;
-                            },
-                            error: function (xhr, status, error) {
-                                // re-send requests that have timed out only if the are GETs
-                                if (error === 'timeout' && is_get) return send();
-                                delete outstanding_requests[id];
-                                if (error === 'abort') return; // do not call handler if request was cancelled
-                                config.meta.handler({
-                                    error: true, data: null, meta: {},
-                                    message: status === 'parsererror' ? 'JSON parser failed'
-                                        : xhr.responseText || 'There was no response from the server.'
-                                });
-                            },
-                            success: function (data, status, xhr) {
-                                var meta = {content_length: xhr.responseText.length},
-                                    location = xhr.getResponseHeader('Location'), result, cache_for;
-                                delete outstanding_requests[id];
-                                if (location && ~!location.indexOf('?')) meta.id = location.split('/').pop();
-                                if (config.meta.type in no_post_body) meta.url = url;
-                                result = {error: false, message: status, data: data, meta: meta};
-                                if (cache_for = config.meta.cache_for)
-                                    set_cache(url, result), setTimeout(function () {del_cache(url);}, cache_for);
-                                config.meta.handler(result);
-                            },
-                            complete: end_loading
-                        });
-                        return id;
-                    };
-                if (is_get && !register({id: id, config: config, current: current, url: url, method: method}))
+                    current = routes.current(), send;
+                promise = promise || new Promise;
+                /** @ignore */
+                send = function () {
+                    // GETs are being POSTed with method=GET so they do not cache. TODO: change this
+                    outstanding_requests[promise.id].ajax = $.ajax({
+                        url: url,
+                        type: is_get ? 'POST' : config.meta.type,
+                        data: is_get ? $.extend(config.data, {method: 'GET'}) : config.data,
+                        headers: {'Accept': 'application/json'},
+                        dataType: 'json',
+                        timeout: is_get ? TIMEOUTSOON : TIMEOUTFOREVER,
+                        beforeSend: function (xhr, req) {
+                            var aborted = !(promise.id in outstanding_requests),
+                                message = (aborted ? 'ABORTED: ' : '') + req.type + ' ' + req.url + ' HTTP/1.1' +
+                                    (!is_get ? '\n\n' + req.data : '');
+                            og.dev.log(message);
+                            if (aborted) return false;
+                        },
+                        error: function (xhr, status, error) {
+                            // re-send requests that have timed out only if the are GETs
+                            if (error === 'timeout' && is_get) return send();
+                            var result = {
+                                error: true, data: null, meta: {},
+                                message: status === 'parsererror' ? 'JSON parser failed'
+                                    : xhr.responseText || 'There was no response from the server.'
+                            };
+                            delete outstanding_requests[promise.id];
+                            if (error === 'abort') return; // do not call handler if request was cancelled
+                            config.meta.handler(result);
+                            promise.deferred.resolve(result);
+                        },
+                        success: function (data, status, xhr) {
+                            var meta = {content_length: xhr.responseText.length},
+                                location = xhr.getResponseHeader('Location'), result, cache_for;
+                            delete outstanding_requests[promise.id];
+                            if (location && ~!location.indexOf('?')) meta.id = location.split('/').pop();
+                            if (config.meta.type in no_post_body) meta.url = url;
+                            result = {error: false, message: status, data: data, meta: meta};
+                            if (cache_for = config.meta.cache_for)
+                                set_cache(url, result), setTimeout(function () {del_cache(url);}, cache_for);
+                            config.meta.handler(result);
+                            promise.deferred.resolve(result);
+                        },
+                        complete: end_loading
+                    });
+                };
+                if (is_get && !register({id: promise.id, config: config, current: current, url: url, method: method}))
                     // if registration fails, it's because we don't have a client ID yet, so stall
-                    return (setTimeout(request.partial(method, config), STALL)), id;
-                else
-                    if (og.app.READ_ONLY) return setTimeout(config.meta.handler.partial({
-                        error: true, data: null, meta: {}, message: 'This application is in read-only mode.'
-                    }), INSTANT), id;
+                    return setTimeout(request.partial(method, config, promise), STALL), promise;
+                if (!is_get && og.app.READ_ONLY) return setTimeout(function () {
+                    var result = {error: true, data: null, meta: {}, message: 'The app is in read-only mode.'};
+                    config.meta.handler(result);
+                    promise.deferred.resolve(result);
+                }, INSTANT), promise;
                 if (config.meta.update && !is_get) warn(module.name + ': update functions are only for GETs');
                 if (config.meta.update && is_get) config.data['clientId'] = api.id;
                 if (config.meta.cache_for && !is_get)
                     warn(module.name + ': only GETs can be cached'), delete config.meta.cache_for;
                 start_loading(config.meta.loading);
                 if (is_get && get_cache(url) && typeof get_cache(url) === 'object')
-                    return (setTimeout(config.meta.handler.partial(get_cache(url)), INSTANT)), id;
+                    return setTimeout(function () {
+                        config.meta.handler(get_cache(url));
+                        promise.deferred.resolve(get_cache(url));
+                    }, INSTANT), promise;
                 if (is_get && get_cache(url)) // if get_cache returns true a request is already outstanding, so stall
-                    return (setTimeout(request.partial(method, config), STALL)), id;
+                    return setTimeout(request.partial(method, config, promise), STALL), promise;
                 if (is_get && config.meta.cache_for) set_cache(url, true);
-                outstanding_requests[id] = {current: current, dependencies: config.meta.dependencies};
-                return send();
+                outstanding_requests[promise.id] = {current: current, dependencies: config.meta.dependencies};
+                return send(), promise;
             },
             /** @ignore */
             request_expired = function (request, current) {
@@ -211,20 +223,15 @@ $.register_module({
             not_implemented = function (method) {
                 throw new Error(this.root + '#' + method + ' exists in the REST API, but does not have a JS version');
             };
-        (function () { // initialize cache so nothing leaks from other sessions (e.g. from a FF crash)
-            try { // if the cache is restricted, just bail
-                for (var key, lcv = 0; lcv < cache.length; lcv += 1) // do not cache length, since we remove items
-                    if (0 === (key = cache.key(lcv)).indexOf(module.name)) cache['removeItem'](key);
-            } catch (error) {
-                warn(module.name + ': cache initalize failed\n', error);
-            }
-        })();
+        // initialize cache so nothing leaks from other sessions (e.g. from a FF crash); if cache is restricted, bail
+        try {cache.clear();} catch (error) {warn(module.name + ': cache initalize failed\n', error);}
         api = {
-            abort: function (id) {
-                var xhr = outstanding_requests[id] && outstanding_requests[id].ajax;
-                api.deregister(id);
+            abort: function (promise) {
+                if (!promise) return;
+                var xhr = outstanding_requests[promise.id] && outstanding_requests[promise.id].ajax;
+                api.deregister(promise);
                 // if request is still outstanding remove it
-                if (!xhr) return; else delete outstanding_requests[id];
+                if (!xhr) return; else delete outstanding_requests[promise.id];
                 if (typeof xhr === 'object' && 'abort' in xhr) xhr.abort();
             },
             batches: { // all requests that begin with /batches
@@ -238,10 +245,12 @@ $.register_module({
                 var id, current = routes.current(), request;
                 for (id in outstanding_requests) { // clean up outstanding requests
                     if (!(request = outstanding_requests[id]).dependencies) continue;
-                    if (request_expired(request, current)) api.abort(id);
+                    if (request_expired(request, current)) api.abort({id: id});
                 }
                 // clean up registrations
-                registrations.filter(request_expired.partial(undefined, current)).pluck('id').forEach(api.abort);
+                registrations.filter(request_expired.partial(undefined, current)).pluck('id').forEach(function (id) {
+                    api.abort({id: id});
+                });
             },
             configs: { // all requests that begin with /configs
                 root: 'configs',
@@ -290,8 +299,8 @@ $.register_module({
                 },
                 del: default_del
             },
-            deregister: function (id) {
-                registrations = registrations.filter(function (val) {return val.id !== id;});
+            deregister: function (promise) {
+                registrations = registrations.filter(function (val) {return val.id !== promise.id;});
             },
             exchanges: { // all requests that begin with /exchanges
                 root: 'exchanges',
@@ -518,7 +527,7 @@ $.register_module({
                 del: not_implemented.partial('del')
             }
         };
-        subscribe = api.handshake.get.partial({handler: function (result) {
+        (subscribe = api.handshake.get.partial({handler: function (result) {
             var listen, fire_updates;
             if (result.error)
                 return warn(module.name + ': handshake failed\n', result.message), setTimeout(subscribe, RESUBSCRIBE);
@@ -547,8 +556,7 @@ $.register_module({
                     setTimeout(listen, INSTANT);
                 }});
             })();
-        }});
-        subscribe();
+        }}))();
         return api;
     }
 });

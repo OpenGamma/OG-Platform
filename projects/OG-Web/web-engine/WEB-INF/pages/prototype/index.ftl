@@ -13,14 +13,14 @@ ${ogStyle.print('og_all.css', 'all',false)}
 </head>
 <body>
 <div class="OG-js-loading" style="padding: 10px">Loading...</div>
-<div class="ui-layout-container" style="display: none">
+<div class="OG-layout-admin-container">
   <div class="ui-layout-center">
-    <div class="ui-layout-inner-center">
+    <div class="OG-layout-admin-details-center">
       <div class="ui-layout-header">&nbsp;</div>
       <div class="ui-layout-content">&nbsp;</div>
     </div>
-    <div class="ui-layout-inner-north">&nbsp;</div>
-    <div class="ui-layout-inner-south"></div>
+    <div class="OG-layout-admin-details-north">&nbsp;</div>
+    <div class="OG-layout-admin-details-south"></div>
   </div>
   <div class="ui-layout-north">
     <#include "modules/common/og.common.masthead.ftl">

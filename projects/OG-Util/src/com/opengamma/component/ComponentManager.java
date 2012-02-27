@@ -62,6 +62,10 @@ public class ComponentManager {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ComponentManager.class);
   /**
+   * The server name property.
+   */
+  private static final String OPENGAMMA_SERVER_NAME = "opengamma.server.name";
+  /**
    * The key identifying the next config file in a properties file.
    */
   private static final String MANAGER_NEXT_FILE = "MANAGER.NEXT.FILE";
@@ -101,19 +105,24 @@ public class ComponentManager {
   //-------------------------------------------------------------------------
   /**
    * Creates an instance.
+   * 
+   * @param serverName  the server name, not null
    */
-  public ComponentManager() {
-    _repo = new ComponentRepository();
+  public ComponentManager(String serverName) {
+    this(serverName, new ComponentRepository());
   }
 
   /**
    * Creates an instance.
    * 
+   * @param serverName  the server name, not null
    * @param repo  the repository to use, not null
    */
-  protected ComponentManager(ComponentRepository repo) {
+  protected ComponentManager(String serverName, ComponentRepository repo) {
+    ArgumentChecker.notNull(serverName, "serverName");
     ArgumentChecker.notNull(repo, "repo");
     _repo = repo;
+    getProperties().put(OPENGAMMA_SERVER_NAME, serverName);
   }
 
   //-------------------------------------------------------------------------
@@ -136,6 +145,29 @@ public class ComponentManager {
    */
   public ConcurrentMap<String, String> getProperties() {
     return _properties;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Sets the server name property.
+   * <p>
+   * This can be used as a general purpose name for the server.
+   * 
+   * @return the server name, null if name not set
+   */
+  public String getServerName() {
+    return getProperties().get(OPENGAMMA_SERVER_NAME);
+  }
+
+  /**
+   * Sets the server name property.
+   * <p>
+   * This can be used as a general purpose name for the server.
+   * 
+   * @param serverName  the server name, not null
+   */
+  public void setServerName(String serverName) {
+    getProperties().put(OPENGAMMA_SERVER_NAME, serverName);
   }
 
   //-------------------------------------------------------------------------

@@ -1,0 +1,59 @@
+.OG-g-row {
+    position: absolute;
+    width: 100%;
+}
+
+.OG-g-b {
+    position: relative;
+}
+
+.OG-g-cell {
+    position: absolute;
+    overflow: hidden;
+    height: 18px;
+    border: 1px solid transparent;
+    border-bottom: 1px solid #dadcdd;
+    border-right: 1px solid #dadcdd;
+    text-overflow: ellipsis;
+}
+
+.OG-g-h-fixed, .OG-g-b-fixed,
+.OG-g-h-scroll, .OG-g-b-scroll {
+    position: absolute;
+    background: #fff;
+}
+
+.OG-g-h-scroll,
+.OG-g-b-fixed {
+    overflow: hidden;
+}
+
+.OG-g-b-scroll {
+    overflow: scroll;
+}
+
+
+/* Header */
+.OG-g-h-col {
+    position: absolute;
+    overflow: hidden;
+    height: 30px;
+    border: 1px solid transparent;
+    border-bottom: 1px solid #dadcdd;
+    border-right: 1px solid #dadcdd;
+    text-overflow: ellipsis;
+    background: #ecf5fa;
+}
+
+.OG-g-h-set-name {
+    background: #dadcdd;
+}
+
+.OG-g-h-cols {
+    position: relative;
+}
+
+/* Fixed Cols */
+.OG-g-h-fixed, .OG-g-b-fixed {
+    background: #ecf5fa;
+}

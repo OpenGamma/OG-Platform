@@ -11,13 +11,12 @@ import java.util.List;
 
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Payment;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
@@ -44,16 +43,16 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
    * @param payments The payments. All of them should have the same currency.
    */
   public AnnuityDefinition(final P[] payments) {
-    Validate.noNullElements(payments);
-    Validate.isTrue(payments.length > 0, "Have no payments in annuity");
+    ArgumentChecker.noNulls(payments, "payments");
+    ArgumentChecker.isTrue(payments.length > 0, "Have no payments in annuity");
     double amount = payments[0].getReferenceAmount();
     final Currency currency0 = payments[0].getCurrency();
     for (int loopcpn = 1; loopcpn < payments.length; loopcpn++) {
-      Validate.isTrue(currency0.equals(payments[loopcpn].getCurrency()), "currency not the same for all payments");
-      amount = (amount == 0) ? payments[loopcpn].getReferenceAmount() : amount; // amount contains the first non-zero element if any and 0 if not.
+      ArgumentChecker.isTrue(currency0.equals(payments[loopcpn].getCurrency()), "currency not the same for all payments");
+      amount = amount == 0 ? payments[loopcpn].getReferenceAmount() : amount; // amount contains the first non-zero element if any and 0 if not.
     }
     _payments = payments;
-    _isPayer = (amount < 0);
+    _isPayer = amount < 0;
   }
 
   /**
@@ -102,9 +101,9 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
    * @param trimDate The date.
    * @return The trimmed annuity.
    */
-  public AnnuityDefinition<?> trimBefore(ZonedDateTime trimDate) {
-    List<PaymentDefinition> list = new ArrayList<PaymentDefinition>();
-    for (PaymentDefinition payment : getPayments()) {
+  public AnnuityDefinition<?> trimBefore(final ZonedDateTime trimDate) {
+    final List<PaymentDefinition> list = new ArrayList<PaymentDefinition>();
+    for (final PaymentDefinition payment : getPayments()) {
       if (payment.getPaymentDate().isAfter(trimDate)) {
         list.add(payment);
       }
@@ -153,7 +152,7 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
 
   @Override
   public GenericAnnuity<? extends Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
+    ArgumentChecker.notNull(date, "date");
     final List<Payment> resultList = new ArrayList<Payment>();
     for (int loopcoupon = 0; loopcoupon < _payments.length; loopcoupon++) {
       if (!date.isAfter(_payments[loopcoupon].getPaymentDate())) {
@@ -166,7 +165,9 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
   @SuppressWarnings("unchecked")
   @Override
   public GenericAnnuity<? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     final List<Payment> resultList = new ArrayList<Payment>();
     for (final P payment : _payments) {
       //TODO check this 
@@ -183,11 +184,13 @@ public class AnnuityDefinition<P extends PaymentDefinition> implements Instrumen
 
   @Override
   public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitAnnuityDefinition(this, data);
   }
 
   @Override
   public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
+    ArgumentChecker.notNull(visitor, "visitor");
     return visitor.visitAnnuityDefinition(this);
   }
 }

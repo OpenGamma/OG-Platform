@@ -25,7 +25,7 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class SABRVegaCapFloorCMSSpreadFunction extends SABRVegaFunction {
-
+  
   public SABRVegaCapFloorCMSSpreadFunction(final String currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
     this(Currency.of(currency), definitionName, forwardCurveName, fundingCurveName);
   }

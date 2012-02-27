@@ -1,0 +1,15 @@
+.OG-layout-analytics-container {
+    height: 100%;
+    background: #fff;
+}
+
+.OG-layout-analytics-footer {
+    background: #555;
+    color: #ccc;
+}
+
+.OG-layout-analytics-dock,
+.OG-layout-analytics-south,
+.OG-layout-analytics-center {
+    background: #f8f8f8;
+}
