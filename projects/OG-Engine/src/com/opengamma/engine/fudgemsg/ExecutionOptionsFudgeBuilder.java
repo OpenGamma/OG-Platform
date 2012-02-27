@@ -39,6 +39,7 @@ public class ExecutionOptionsFudgeBuilder implements FudgeBuilder<ExecutionOptio
   private static final String MAX_SUCCESSIVE_DELTA_CYCLES_FIELD = "maxSuccessiveDeltaCycles";
   private static final String DEFAULT_EXECUTION_OPTIONS_FIELD = "defaultExecutionOptions";
   private static final String VERSION_CORRECTION_FIELD = "versionCorrection";
+  private static final String BATCH_FIELD = "batch";
 
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, ExecutionOptions object) {
@@ -50,6 +51,7 @@ public class ExecutionOptionsFudgeBuilder implements FudgeBuilder<ExecutionOptio
     msg.add(RUN_AS_FAST_AS_POSSIBLE_FIELD, object.getFlags().contains(ViewExecutionFlags.RUN_AS_FAST_AS_POSSIBLE));
     msg.add(COMPILE_ONLY_FIELD, object.getFlags().contains(ViewExecutionFlags.COMPILE_ONLY));
     msg.add(WAIT_FOR_INITIAL_TRIGGER_FIELD, object.getFlags().contains(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER));
+    msg.add(BATCH_FIELD, object.getFlags().contains(ViewExecutionFlags.BATCH));
     if (object.getMaxSuccessiveDeltaCycles() != null) {
       msg.add(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD, object.getMaxSuccessiveDeltaCycles());
     }
@@ -79,6 +81,9 @@ public class ExecutionOptionsFudgeBuilder implements FudgeBuilder<ExecutionOptio
     }
     if (BooleanUtils.isTrue(message.getBoolean(WAIT_FOR_INITIAL_TRIGGER_FIELD))) {
       flags.add(ViewExecutionFlags.WAIT_FOR_INITIAL_TRIGGER);
+    }
+    if (BooleanUtils.isTrue(message.getBoolean(BATCH_FIELD))) {
+      flags.add(ViewExecutionFlags.BATCH);
     }
     Integer maxSuccessiveDeltaCycles = null;
     if (message.hasField(MAX_SUCCESSIVE_DELTA_CYCLES_FIELD)) {

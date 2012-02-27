@@ -7,6 +7,7 @@
       <artifact name="og-masterdb" type="sql" ext="zip" />
     </publications>
     <dependencies>
+        <dependency org="org.json" name="json" rev="20090211" />
         <dependency name="og-financial" rev="latest.integration" />
         
         <dependency org="org.springframework" name="spring" rev="3.0.4" conf="*->orm"/>

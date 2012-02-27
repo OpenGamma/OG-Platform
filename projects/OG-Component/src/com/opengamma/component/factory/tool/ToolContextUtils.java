@@ -32,7 +32,7 @@ public final class ToolContextUtils {
    * @return the context, not null
    */
   public static ToolContext getToolContext(String configResourceLocation) {
-    ComponentManager manager = new ComponentManager();
+    ComponentManager manager = new ComponentManager("toolcontext");
     manager.start(configResourceLocation);
     ComponentRepository repo = manager.getRepository();
     return repo.getInstance(ToolContext.class, "tool");

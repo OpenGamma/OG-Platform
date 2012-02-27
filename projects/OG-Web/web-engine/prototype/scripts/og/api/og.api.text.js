@@ -36,11 +36,12 @@ $.register_module({
                     promise.deferred.resolve(response);
                 },
                 error_handler = function (response) {
-                    var result = 'Error (HTTP ' + response.status + ') retrieving: ' + url;
+                    var result = new String('Error (HTTP ' + response.status + ') retrieving: ' + url);
+                    result.error = true;
                     delete html_cache[url];
                     end_loading();
-                    if (config.handler) config.handler(result, true);
-                    promise.deferred.reject(result);
+                    if (config.handler) config.handler(result);
+                    promise.deferred.resolve(result);
                 };
             start_loading(config.loading);
             if (clear_cache) delete html_cache[url];

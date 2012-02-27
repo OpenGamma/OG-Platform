@@ -8,6 +8,7 @@ package com.opengamma.engine.marketdata;
 import javax.time.Instant;
 
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.id.UniqueId;
 
 /**
  * Mock {@link MarketDataSnapshot}
@@ -19,6 +20,11 @@ public class MockMarketDataSnapshot extends AbstractMarketDataSnapshot {
   
   public MockMarketDataSnapshot(MockMarketDataProvider provider) {
     _provider = provider;
+  }
+
+  @Override
+  public UniqueId getUniqueId() {
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "MockMarketDataSnapshot:"+getSnapshotTime());
   }
   
   @Override

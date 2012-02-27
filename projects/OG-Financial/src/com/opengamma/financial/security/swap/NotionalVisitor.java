@@ -18,4 +18,5 @@ public interface NotionalVisitor<T> {
 
   T visitSecurityNotional(SecurityNotional notional);
 
+  T visitVarianceSwapNotional(VarianceSwapNotional notional);
 }

@@ -101,85 +101,84 @@ $.register_module({
                 }
             },
             details_page = function (args, config) {
-                var show_loading = !(config || {}).hide_loading;
+                var show_loading = !(config || {}).hide_loading, rest_options, render_page;
                 // load versions
                 if (args.version) {
                     view.layout.inner.open('south');
                     og.views.common.versions.load();
                 } else view.layout.inner.close('south');
-                api.rest.securities.get({
+                rest_options = {
                     dependencies: view.dependencies,
                     update: view.update,
-                    handler: function (result) {
-                        if (result.error) return view.notify(null), view.error(result.message);
-                        var json = result.data, text_handler,
-                            security_type = json.template_data['securityType'].toLowerCase(),
-                            template = module.name + '.' + security_type;
-                        json.template_data.name = json.template_data.name || json.template_data.name.lang();
-                        history.put({
-                            name: json.template_data.name,
-                            item: 'history.' + page_name + '.recent',
-                            value: routes.current().hash
-                        });
-                        api.text({module: template, handler: text_handler = function (template, error) {
-                            if (error) {
-                                og.dev.warn('using default security template for security type: ' + security_type);
-                                return api.text({module: module.name + '.default', handler: text_handler});
-                            }
-                            var error_html = '\
-                                    <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
-                                        This security has been deleted\
-                                    </section>\
-                                ',
-                                $html = $.tmpl(template, json.template_data), html = [], id, json_id = json.identifiers;
-                            $('.OG-layout-admin-details-center .ui-layout-header').html($html.find('> header'));
-                            $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
-                            if (!Object.keys(json_id)[0]) $('.OG-layout-admin-details-center .og-js-identifiers')
-                                .html('<tr><td><span>' + ''.lang() + '</span></td><td></td></tr>');
-                            else for (id in json_id) {
-                                if (json_id.hasOwnProperty(id)) html.push('<tr><td><span>', id.lang(),
-                                    '<span></td><td>', json_id[id].replace(id + '-', ''), '</td></tr>');
-                                $('.OG-layout-admin-details-center .og-js-identifiers').html(html.join(''));
-                            }
-                            (function () {
-                                if (json.template_data['underlyingOid']) {
-                                    var id = json.template_data['underlyingOid'],
-                                        rule = view.rules.load_item,
-                                        hash = routes.hash(rule, routes.current().args, {
-                                            add: {id: id},
-                                            del: ['version']
-                                        }),
-                                        text = json.template_data['underlyingName'] ||
-                                            json.template_data['underlyingExternalId'],
-                                        anchor = '<a class="og-js-live-anchor" href="' + routes.prefix() + hash + '">' +
-                                            text + '</a>';
-                                        $('.OG-layout-admin-details-center .OG-js-underlying-id').html(anchor);
-                                }
-                            }());
-                            ui.toolbar(view.options.toolbar.active);
-                            if (json.template_data && json.template_data.deleted) {
-                                $('.OG-layout-admin-details-north').html(error_html);
-                                view.layout.inner.sizePane('north', '0');
-                                view.layout.inner.open('north');
-                                $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
-                            } else {
-                                view.layout.inner.close('north');
-                                $('.OG-layout-admin-details-north').empty();
-                            }
-                            if (json.template_data.hts_id || args.timeseries) common.gadgets.timeseries({
-                                selector: '.OG-js-details-panel .og-js-timeseries',
-                                id: json.template_data.hts_id || args.timeseries
-                            });
-                            if (show_loading) view.notify(null);
-                            setTimeout(view.layout.inner.resizeAll);
-                        }});
-                    },
                     id: args.id,
                     version: args.version && args.version !== '*' ? args.version : void 0,
                     loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
+                };
+                api.rest.securities.get(rest_options).pipe(function (result) {
+                    if (result.error) return view.notify(null), view.error(result.message);
+                    var json = result.data, render,
+                        security_type = json.template_data['securityType'].toLowerCase(),
+                        template = module.name + '.' + security_type;
+                    json.template_data.name = json.template_data.name || json.template_data.name.lang();
+                    history.put({
+                        name: json.template_data.name,
+                        item: 'history.' + page_name + '.recent',
+                        value: routes.current().hash
+                    });
+                    render = function (template) {
+                        var error_html = '\
+                                <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
+                                    This security has been deleted\
+                                </section>\
+                            ',
+                            $html = $.tmpl(template, json.template_data), html = [], id, json_id = json.identifiers;
+                        $('.OG-layout-admin-details-center .ui-layout-header').html($html.find('> header'));
+                        $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
+                        if (!Object.keys(json_id)[0]) $('.OG-layout-admin-details-center .og-js-identifiers')
+                            .html('<tr><td><span>' + ''.lang() + '</span></td><td></td></tr>');
+                        else for (id in json_id) {
+                            if (json_id.hasOwnProperty(id)) html.push('<tr><td><span>', id.lang(),
+                                '<span></td><td>', json_id[id].replace(id + '-', ''), '</td></tr>');
+                            $('.OG-layout-admin-details-center .og-js-identifiers').html(html.join(''));
+                        }
+                        (function () {
+                            if (json.template_data['underlyingOid']) {
+                                var id = json.template_data['underlyingOid'],
+                                    rule = view.rules.load_item,
+                                    hash = routes.hash(rule, routes.current().args, {
+                                        add: {id: id},
+                                        del: ['version']
+                                    }),
+                                    text = json.template_data['underlyingName'] ||
+                                        json.template_data['underlyingExternalId'],
+                                    anchor = '<a class="og-js-live-anchor" href="' + routes.prefix() + hash + '">' +
+                                        text + '</a>';
+                                    $('.OG-layout-admin-details-center .OG-js-underlying-id').html(anchor);
+                            }
+                        }());
+                        ui.toolbar(view.options.toolbar.active);
+                        if (json.template_data && json.template_data.deleted) {
+                            $('.OG-layout-admin-details-north').html(error_html);
+                            view.layout.inner.sizePane('north', '0');
+                            view.layout.inner.open('north');
+                            $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
+                        } else {
+                            view.layout.inner.close('north');
+                            $('.OG-layout-admin-details-north').empty();
+                        }
+                        if (json.template_data.hts_id || args.timeseries) common.gadgets.timeseries({
+                            selector: '.OG-js-details-panel .og-js-timeseries',
+                            id: json.template_data.hts_id || args.timeseries
+                        });
+                        if (show_loading) view.notify(null);
+                        setTimeout(view.layout.inner.resizeAll);
+                    };
+                    api.text({module: template}).pipe(function (template) {
+                        return template.error ? (og.dev.warn('no template for: ' + security_type),
+                            api.text({module: module.name + '.default'})) : template;
+                    }).pipe(render);
                 });
-            },
-            state = {};
+            };
         return view = $.extend(view = new og.views.common.Core(page_name), {
             details: details_page,
             load_filter: function (args) {

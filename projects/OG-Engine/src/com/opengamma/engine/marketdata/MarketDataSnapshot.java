@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 import javax.time.Instant;
 
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
 
 /**
@@ -19,6 +20,15 @@ import com.opengamma.util.PublicSPI;
  */
 @PublicSPI
 public interface MarketDataSnapshot {
+
+  static final String MARKET_DATA_SNAPSHOT_ID_SCHEME = "Mds";
+
+  /**
+   * Gets unique id of the market data snapshot.
+   *
+   * @return an unique id of the market data snapshot.
+   */
+  UniqueId getUniqueId();
 
   /**
    * Gets an indication of the time which will be associated with the snapshot once it has been initialised. This might

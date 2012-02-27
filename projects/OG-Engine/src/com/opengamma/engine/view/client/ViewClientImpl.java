@@ -5,22 +5,15 @@
  */
 package com.opengamma.engine.view.client;
 
-import java.util.Timer;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.time.Instant;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewProcessorImpl;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.EngineResourceRetainer;
 import com.opengamma.engine.view.calc.ViewCycle;
@@ -34,6 +27,17 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import javax.time.Instant;
+import java.util.Map;
+import java.util.Set;
+import java.util.Timer;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Default implementation of {@link ViewClient}.
@@ -117,6 +121,17 @@ public class ViewClientImpl implements ViewClient {
       }
 
       @Override
+      public void cycleInitiated(CycleInfo cycleInfo) {
+        ViewResultListener listener = _userResultListener.get();
+        if (listener != null) {
+          ViewResultMode resultMode = getFragmentResultMode();
+          if (!resultMode.equals(ViewResultMode.NONE)) {
+            listener.cycleInitiated(cycleInfo);
+          }
+        }
+      }
+
+      @Override
       public void cycleCompleted(ViewComputationResultModel fullResult, ViewDeltaResultModel deltaResult) {
         boolean isFirstResult = updateLatestResult(fullResult);
         ViewResultListener listener = _userResultListener.get();
@@ -153,6 +168,7 @@ public class ViewClientImpl implements ViewClient {
           }
         }
       }
+
 
       @Override
       public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {

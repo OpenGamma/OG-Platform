@@ -11,6 +11,7 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.NotionalVisitor;
 import com.opengamma.financial.security.swap.SecurityNotional;
+import com.opengamma.financial.security.swap.VarianceSwapNotional;
 
 /**
  * 
@@ -27,7 +28,11 @@ public enum NotionalType {
   /**
    * 
    */
-  SECURITY;
+  SECURITY,
+  /**
+   *
+   */
+  VARIANCE;
 
   public static NotionalType identify(final Notional object) {
     return object.accept(new NotionalVisitor<NotionalType>() {
@@ -47,6 +52,11 @@ public enum NotionalType {
         return SECURITY;
       }
 
+      @Override
+      public NotionalType visitVarianceSwapNotional(VarianceSwapNotional notional) {
+        return VARIANCE;
+      }
+
     });
   }
 
@@ -58,6 +68,8 @@ public enum NotionalType {
         return visitor.visitInterestRateNotional(null);
       case SECURITY:
         return visitor.visitSecurityNotional(null);
+      case VARIANCE:
+        return visitor.visitVarianceSwapNotional(null);
       default:
         throw new OpenGammaRuntimeException("unexpected SwapLegType: " + this);
     }

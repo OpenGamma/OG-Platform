@@ -5,14 +5,15 @@
  */
 package com.opengamma.engine.value;
 
-import java.io.Serializable;
-
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.view.calcnode.InvocationResult;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.PublicAPI;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.PublicAPI;
+import java.io.Serializable;
+import java.util.Set;
 
 /**
  * A value computed by the engine.
@@ -43,17 +44,24 @@ public class ComputedValue implements Serializable {
    */
   private final Object _value;
 
+  private InvocationResult _result = null;
+  private String _exceptionClass = null;
+  private String _exceptionMsg = null;
+  private String _stackTrace = null;
+  private Set<ValueSpecification> _missingInputs = null;
+  private Set<ValueRequirement> _originalRequirements = null;
+  private String _nodeId;
+
   /**
    * Creates a computed value.
    * <p>
    * This combines the value and its specification.
-   * 
+   *
    * @param specification  the specification of the value, not null
-   * @param value  the value, not null
+   * @param value  the actual value
    */
   public ComputedValue(ValueSpecification specification, Object value) {
     ArgumentChecker.notNull(specification, "value specification");
-    ArgumentChecker.notNull(value, "value");
     if (value instanceof ComputedValue) {
       throw new IllegalArgumentException("Value must not be a ComputedValue instance");
     }
@@ -62,9 +70,10 @@ public class ComputedValue implements Serializable {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the value specification.
-   * 
+   *
    * @return the specification, not null
    */
   public ValueSpecification getSpecification() {
@@ -73,14 +82,71 @@ public class ComputedValue implements Serializable {
 
   /**
    * Gets the value.
-   * 
+   *
    * @return the value, not null
    */
   public Object getValue() {
     return _value;
   }
 
+  public InvocationResult getInvocationResult() {
+    return _result;
+  }
+
+  public void setInvocationResult(InvocationResult result) {
+    this._result = result;
+  }
+
+  public String getExceptionClass() {
+    return _exceptionClass;
+  }
+
+  public void setExceptionClass(String exceptionClass) {
+    this._exceptionClass = exceptionClass;
+  }
+
+  public String getExceptionMsg() {
+    return _exceptionMsg;
+  }
+
+  public void setExceptionMsg(String exceptionMsg) {
+    this._exceptionMsg = exceptionMsg;
+  }
+
+  public String getStackTrace() {
+    return _stackTrace;
+  }
+
+  public void setStackTrace(String stackTrace) {
+    this._stackTrace = stackTrace;
+  }
+
+  public Set<ValueSpecification> getMissingInputs() {
+    return _missingInputs;
+  }
+
+  public void setMissingInputs(Set<ValueSpecification> missingInputs) {
+    this._missingInputs = missingInputs;
+  }
+
+  public Set<ValueRequirement> getRequirements() {
+    return _originalRequirements;
+  }
+
+  public void setRequirements(Set<ValueRequirement> requirements) {
+    _originalRequirements = requirements;
+  }
+
+  public String getComputeNodeId() {
+    return _nodeId;
+  }
+
+  public void setComputeNodeId(String nodeId) {
+    _nodeId = nodeId;
+  }
+
   //-------------------------------------------------------------------------
+
   @Override
   public boolean equals(Object obj) {
     if (this == obj) {
@@ -89,17 +155,27 @@ public class ComputedValue implements Serializable {
     if (obj instanceof ComputedValue) {
       ComputedValue other = (ComputedValue) obj;
       return ObjectUtils.equals(_specification, other._specification) &&
-        ObjectUtils.equals(_value, other._value);
+          ObjectUtils.equals(_exceptionClass, other._exceptionClass) &&
+          ObjectUtils.equals(_missingInputs, other._missingInputs) &&
+          ObjectUtils.equals(_exceptionMsg, other._exceptionMsg) &&
+          ObjectUtils.equals(_originalRequirements, other._originalRequirements) &&
+          ObjectUtils.equals(_stackTrace, other._stackTrace) &&
+          ObjectUtils.equals(_result, other._result) &&
+          ObjectUtils.equals(_value, other._value);
     }
     return false;
   }
 
   @Override
   public int hashCode() {
-    int prime = 37;
-    int result = 1;
-    result = (result * prime) + getSpecification().hashCode();
-    result = (result * prime) + getValue().hashCode();
+    int result = _specification.hashCode();
+    result = 31 * result + (_value != null ? _value.hashCode() : 0);
+    result = 31 * result + (_result != null ? _result.hashCode() : 0);
+    result = 31 * result + (_exceptionClass != null ? _exceptionClass.hashCode() : 0);
+    result = 31 * result + (_exceptionMsg != null ? _exceptionMsg.hashCode() : 0);
+    result = 31 * result + (_stackTrace != null ? _stackTrace.hashCode() : 0);
+    result = 31 * result + (_missingInputs != null ? _missingInputs.hashCode() : 0);
+    result = 31 * result + (_originalRequirements != null? _originalRequirements.hashCode() : 0);
     return result;
   }
 
@@ -109,6 +185,7 @@ public class ComputedValue implements Serializable {
     ToStringStyle style = ToStringStyle.SHORT_PREFIX_STYLE;
     StringBuffer sb = new StringBuffer();
     style.appendStart(sb, this);
+    style.append(sb, "result", getInvocationResult(), null);
     ValueSpecification spec = getSpecification();
     if (spec != null) {
       style.append(sb, "name", spec.getValueName(), null);

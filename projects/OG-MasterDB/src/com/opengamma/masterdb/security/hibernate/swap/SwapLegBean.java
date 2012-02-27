@@ -8,6 +8,7 @@ package com.opengamma.masterdb.security.hibernate.swap;
 
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.SwapLeg;
+import com.opengamma.financial.security.swap.VarianceSwapType;
 import com.opengamma.masterdb.security.hibernate.BusinessDayConventionBean;
 import com.opengamma.masterdb.security.hibernate.DayCountBean;
 import com.opengamma.masterdb.security.hibernate.ExternalIdBean;
@@ -33,7 +34,12 @@ public class SwapLegBean {
   private Integer _settlementDays;
   private FrequencyBean _offsetFixing;
   private Double _gearing;
-  
+  private Double _strike;
+  private VarianceSwapType _varianceSwapType;
+  private ExternalIdBean _underlyingId;
+  private FrequencyBean _monitoringFrequency;
+  private Double _annualizationFactor;
+
   /**
    * Gets the swapLegType.
    * @return the swapLegType
@@ -230,5 +236,85 @@ public class SwapLegBean {
   public void setGearing(Double gearing) {
     _gearing = gearing;
   }
-  
+
+  /**
+   * Gets the strike.  For fixed variance swap legs.
+   * @return The strike
+   */
+  public Double getStrike() {
+    return _strike;
+  }
+
+  /**
+   * Sets the strike.  For fixed variance swap legs.
+   * @param strike The strike
+   */
+  public void setStrike(Double strike) {
+    _strike = strike;
+  }
+
+  /**
+   * Gets the variance swap type.  For fixed variance swap legs.
+   * @return The variance swap type
+   */
+  public VarianceSwapType getVarianceSwapType() {
+    return _varianceSwapType;
+  }
+
+  /**
+   * Sets the variance swap type.  For fixed variance swap legs.
+   * @param varianceSwapType The variance swap type
+   */
+  public void setVarianceSwapType(VarianceSwapType varianceSwapType) {
+    _varianceSwapType = varianceSwapType;
+  }
+
+  /**
+   * Gets the underlying ID.  For floating variance swap legs.
+   * @return The underlying ID
+   */
+  public ExternalIdBean getUnderlyingId() {
+    return _underlyingId;
+  }
+
+  /**
+   * Sets the underlying ID.  For floating variance swap legs.
+   * @param underlyingId The underlying ID
+   */
+  public void setUnderlyingId(ExternalIdBean underlyingId) {
+    _underlyingId = underlyingId;
+  }
+
+  /**
+   * Gets the monitoring frequency.  For floating variance swap legs.
+   * @return The monitoring frequency
+   */
+  public FrequencyBean getMonitoringFrequency() {
+    return _monitoringFrequency;
+  }
+
+  /**
+   * Gets the monitoring frequency.  For floating variance swap legs.
+   * @param monitoringFrequency The monitoring frequency
+   */
+  public void setMonitoringFrequency(FrequencyBean monitoringFrequency) {
+    _monitoringFrequency = monitoringFrequency;
+  }
+
+  /**
+   * Gets the annualization factor.  For floating variance swap legs.
+   * @return The annualization factor
+   */
+  public Double getAnnualizationFactor() {
+    return _annualizationFactor;
+  }
+
+  /**
+   * Sets the annualization factor.  For floating variance swap legs.
+   * @param annualizationFactor The annualization factor
+   */
+  public void setAnnualizationFactor(Double annualizationFactor) {
+    _annualizationFactor = annualizationFactor;
+  }
+
 }

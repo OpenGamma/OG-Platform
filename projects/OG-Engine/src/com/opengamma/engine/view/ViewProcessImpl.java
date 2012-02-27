@@ -5,21 +5,6 @@
  */
 package com.opengamma.engine.view;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicLong;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.locks.ReentrantLock;
-
-import javax.time.Instant;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.context.Lifecycle;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
@@ -39,6 +24,20 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.Lifecycle;
+
+import javax.time.Instant;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.locks.ReentrantLock;
+
 
 /**
  * Default implementation of {@link ViewProcess}.
@@ -249,6 +248,19 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
     }
   }
 
+
+  public void cycleInitiated(CycleInfo cycleInfo) {
+    // Caller MUST NOT hold the semaphore
+    s_logger.debug("View cycle {} initiated on view process {}", cycleInfo, getUniqueId());
+    lock();
+    try {
+      cycleInitiatedCore(cycleInfo);
+    } finally {
+      unlock();
+    }
+  }
+
+
   public void cycleFragmentCompleted(ViewComputationResultModel result, ViewDefinition viewDefinition) {
     // Caller MUST NOT hold the semaphore
     s_logger.debug("Result fragment from cycle {} received on view process {}", result.getViewCycleId(), getUniqueId());
@@ -306,6 +318,26 @@ public class ViewProcessImpl implements ViewProcessInternal, Lifecycle {
       }
     }
   }
+
+  private void cycleInitiatedCore(CycleInfo cycleInfo) {
+    // Caller MUST hold the semaphore
+
+    // [PLAT-1158]
+    // REVIEW kirk 2009-09-24 -- We need to consider this method for background execution
+    // of some kind. It holds the lock and blocks the recalc thread, so a slow
+    // callback implementation (or just the cost of computing the delta model) will
+    // be an unnecessary burden.
+
+    // We swap these first so that in the callback the process is consistent.
+    for (ViewResultListener listener : _listeners) {
+      try {
+        listener.cycleInitiated(cycleInfo);
+      } catch (Exception e) {
+        logListenerError(listener, e);
+      }
+    }
+  }
+
 
   public void cycleExecutionFailed(ViewCycleExecutionOptions executionOptions, Exception exception) {
     s_logger.error("Cycle execution failed for " + executionOptions + ": ", exception);

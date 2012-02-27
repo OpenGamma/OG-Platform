@@ -11,6 +11,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.opengamma.batch.BatchMaster;
+import com.opengamma.batch.rest.RemoteBatchMaster;
 import org.apache.commons.lang.ObjectUtils;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -32,8 +34,6 @@ import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
 import com.opengamma.engine.view.calcnode.stats.RemoteFunctionCostsMaster;
-import com.opengamma.financial.batch.AdHocBatchDbManager;
-import com.opengamma.financial.batch.RemoteAdHocBatchDbManager;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.RemoteConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
@@ -66,7 +66,7 @@ public class RemoteMastersComponentFactory extends AbstractComponentFactory {
    */
   private final Map<Class<?>, Class<?>> _remoteWrappers = new HashMap<Class<?>, Class<?>>();
   {
-    _remoteWrappers.put(AdHocBatchDbManager.class, RemoteAdHocBatchDbManager.class);
+    _remoteWrappers.put(BatchMaster.class, RemoteBatchMaster.class);
     _remoteWrappers.put(ConfigMaster.class, RemoteConfigMaster.class);
     _remoteWrappers.put(ExchangeMaster.class, RemoteExchangeMaster.class);
     _remoteWrappers.put(FunctionCostsMaster.class, RemoteFunctionCostsMaster.class);

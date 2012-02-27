@@ -74,7 +74,7 @@ public interface ViewResultModel {
    */
   // REVIEW kirk 2009-12-31 -- This is intended to cross network boundaries,
   // so has to be at the level of specifications.
-  Collection<ComputationTargetSpecification> getAllTargets();
+  Set<ComputationTargetSpecification> getAllTargets();
 
   /**
    * Returns all of the calculation configuration names.
