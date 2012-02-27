@@ -152,7 +152,7 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    _securityConverter = new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource);
+    _securityConverter = new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true);
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
 
@@ -269,6 +269,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
         }
       }
     }
+    assert forwardCurveName != null;
+    assert fundingCurveName != null;
     final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(4);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ValueProperties.Builder properties = createValueProperties().with(ValuePropertyNames.CURVE_CALCULATION_METHOD, getCalculationType())
@@ -352,10 +354,9 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     assert forwardMarketDataMap != null;
     if (forwardCurveName.equals(fundingCurveName)) {
       return execute(executionContext, target.toSpecification(), forwardCurveName, forwardCurveSpecificationWithSecurities, forwardMarketDataMap, createForward, createJacobian, createSensitivities);
-    } else {
-      return execute(executionContext, target.toSpecification(), forwardCurveName, forwardCurveSpecificationWithSecurities, forwardMarketDataMap, fundingCurveName,
-          fundingCurveSpecificationWithSecurities, fundingMarketDataMap, createForward, createFunding, createJacobian, createSensitivities);
     }
+    return execute(executionContext, target.toSpecification(), forwardCurveName, forwardCurveSpecificationWithSecurities, forwardMarketDataMap, fundingCurveName,
+          fundingCurveSpecificationWithSecurities, fundingMarketDataMap, createForward, createFunding, createJacobian, createSensitivities);
   }
 
   private static Interpolator1D getInterpolator(final InterpolatedYieldCurveSpecificationWithSecurities specification) {
@@ -441,8 +442,8 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
     if (createSensitivities) {
       final double[] couponSensitivities = new double[derivatives.size()];
       int ii = 0;
-      final String[] curveNames = new String[] {curveName, curveName};
-      final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {curve, curve};
+      final String[] curveNames = new String[] {curveName, curveName };
+      final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {curve, curve };
       final YieldCurveBundle curveBundle = new YieldCurveBundle(curveNames, curves);
       for (final InstrumentDerivative derivative : derivatives) {
         couponSensitivities[ii++] = getCouponSensitivityCalculator().visit(derivative, curveBundle);
@@ -572,13 +573,13 @@ public class MarketInstrumentImpliedYieldCurveFunction extends AbstractFunction.
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);
     if (createJacobian) {
       result
-      .add(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties.get()), jacobianCalculator.evaluate(new DoubleMatrix1D(yields)).getData()));
+          .add(new ComputedValue(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_JACOBIAN, targetSpec, properties.get()), jacobianCalculator.evaluate(new DoubleMatrix1D(yields)).getData()));
     }
     if (createSensitivities) {
       final double[] couponSensitivities = new double[derivatives.size()];
       int ii = 0;
-      final String[] curveNames = new String[] {forwardCurveName, fundingCurveName};
-      final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {forwardCurve, fundingCurve};
+      final String[] curveNames = new String[] {forwardCurveName, fundingCurveName };
+      final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {forwardCurve, fundingCurve };
       final YieldCurveBundle curveBundle = new YieldCurveBundle(curveNames, curves);
       for (final InstrumentDerivative derivative : derivatives) {
         couponSensitivities[ii++] = getCouponSensitivityCalculator().visit(derivative, curveBundle);
