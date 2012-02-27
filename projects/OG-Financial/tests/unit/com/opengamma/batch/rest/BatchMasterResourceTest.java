@@ -5,7 +5,6 @@
  */
 package com.opengamma.batch.rest;
 
-import com.google.common.collect.ImmutableList;
 import com.opengamma.DataNotFoundException;
 
 import com.opengamma.batch.BatchMaster;
@@ -17,22 +16,15 @@ import com.opengamma.batch.domain.RiskRunProperty;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.tuple.Pair;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeMsgEnvelope;
 import org.mockito.Mock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import javax.time.Instant;
-import javax.ws.rs.Consumes;
-import javax.ws.rs.POST;
-import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
 import java.util.Collections;
@@ -127,7 +119,7 @@ public class BatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
     
     when(batchMaster.getMarketDataById((ObjectId) any())).thenReturn(riskRun.getMarketData());
 
-    MarketDataResource marketDataResource = batchMasterResource.snapshots(snapshotId.toString());
+    MarketDataResource marketDataResource = batchMasterResource.getMarketData(snapshotId.toString());
     
     MarketData marketData = (MarketData) marketDataResource.get().getEntity();
 
@@ -148,7 +140,7 @@ public class BatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
       
     when(batchMaster.getMarketData((PagingRequest) any())).thenReturn(Pair.of(marketDataList, paging));
     
-    Pair<List<MarketData>, Paging> response = (Pair<List<MarketData>, Paging>) batchMasterResource.searchSnapshots(pagingRequest).getEntity();    
+    Pair<List<MarketData>, Paging> response = (Pair<List<MarketData>, Paging>) batchMasterResource.searchMarketData(pagingRequest).getEntity();    
 
     assertEquals(response.getFirst().size(), 1);   
     assertEquals(response.getSecond(), paging); 

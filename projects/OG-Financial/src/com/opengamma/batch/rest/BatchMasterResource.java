@@ -5,12 +5,10 @@
  */
 package com.opengamma.batch.rest;
 
-import com.opengamma.batch.BatchMaster;
 import com.opengamma.batch.BatchMasterWriter;
 import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.id.ObjectId;
-import com.opengamma.master.holiday.HolidayDocument;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.Paging;
@@ -19,9 +17,7 @@ import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.tuple.Pair;
 
 import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.ext.Providers;
 import java.util.List;
 
 /**
@@ -59,29 +55,24 @@ public class BatchMasterResource extends AbstractDataResource {
   }
 
   /*
-    Get snapshot by id
-   */
-  @Path("marketDataSnapshot/{id}")
-  public MarketDataResource snapshots(@PathParam("id") final String snapshotId) {
-    ObjectId id = ObjectId.parse(snapshotId);
-    return new MarketDataResource(id, getMaster());
-  }
-
-  /*
-   Search for snapshots
+   Search for market data snapshots
   */
   @POST
-  @Path("snapshot/search")
+  @Path("marketData/search")
   @Consumes(FudgeRest.MEDIA)
-  public Response searchSnapshots(PagingRequest pagingRequest) {
+  public Response searchMarketData(PagingRequest pagingRequest) {
     Pair<List<MarketData>, Paging> result = getMaster().getMarketData(pagingRequest);
     return Response.ok(result).build();
   }
 
-  @Path("run/{runId}")
-  public BatchRunResource batchRuns(@QueryParam("runId") final String runId) {
-    ObjectId id = ObjectId.parse(runId);
-    return new BatchRunResource(id, getMaster());
+  /*
+   Get market data snapshot by id
+  */
+  @GET
+  @Path("marketData/{id}")
+  public MarketDataResource getMarketData(@PathParam("id") final String snapshotId) {
+    ObjectId id = ObjectId.parse(snapshotId);
+    return new MarketDataResource(id, getMaster());
   }
 
   @POST
@@ -91,5 +82,12 @@ public class BatchMasterResource extends AbstractDataResource {
     Pair<List<RiskRun>, Paging> result = getMaster().searchRiskRun(request);
     return Response.ok(result).build();
   }  
+
+  @GET
+  @Path("run/{id}")
+  public BatchRunResource batchRuns(@QueryParam("id") final String runId) {
+    ObjectId id = ObjectId.parse(runId);
+    return new BatchRunResource(id, getMaster());
+  }
 
 }
