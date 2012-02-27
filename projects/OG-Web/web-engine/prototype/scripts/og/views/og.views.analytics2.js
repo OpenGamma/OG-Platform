@@ -14,7 +14,7 @@ $.register_module({
             load: function (args) {
                 og.api.text({
                     module: 'og.views.analytics.grid', handler: function (result) {
-                        $('#analytics').html(result);
+                        $('.OG-layout-analytics-center').html(result);
                     }
                 });
             },

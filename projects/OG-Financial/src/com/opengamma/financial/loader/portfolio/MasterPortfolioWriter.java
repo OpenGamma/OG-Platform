@@ -3,13 +3,12 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.loader.portfolio;
 
 import javax.time.Instant;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.loader.LoaderContext;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.master.portfolio.ManageablePortfolio;
@@ -40,10 +39,10 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   private PortfolioDocument _portfolioDocument;
   private ManageablePortfolioNode _currentNode;
   
-  public MasterPortfolioWriter(String portfolioName, LoaderContext loaderContext) {
-    _portfolioMaster = loaderContext.getPortfolioMaster();
-    _positionMaster = loaderContext.getPositionMaster();
-    _securityMaster = loaderContext.getSecurityMaster();
+  public MasterPortfolioWriter(String portfolioName, ToolContext toolContext) {
+    _portfolioMaster = toolContext.getPortfolioMaster();
+    _positionMaster = toolContext.getPositionMaster();
+    _securityMaster = toolContext.getSecurityMaster();
     
     _portfolioDocument = createOrOpenPortfolio(portfolioName);
   }

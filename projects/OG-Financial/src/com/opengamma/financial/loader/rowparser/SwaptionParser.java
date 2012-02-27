@@ -3,7 +3,6 @@
  * 
  * Please see distribution for license.
  */
-
 package com.opengamma.financial.loader.rowparser;
 
 import java.util.Map;
@@ -20,13 +19,13 @@ import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.DefaultConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.loader.LoaderContext;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
@@ -58,8 +57,8 @@ public class SwaptionParser extends RowParser {
   
   private static final ConventionBundleSource CONVENTIONS = new DefaultConventionBundleSource(new InMemoryConventionBundleMaster());
 
-  public SwaptionParser(LoaderContext loaderContext) {
-    super(loaderContext);
+  public SwaptionParser(ToolContext toolContext) {
+    super(toolContext);
   }
 
   @Override

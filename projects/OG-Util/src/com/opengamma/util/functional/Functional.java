@@ -83,7 +83,6 @@ public class Functional {
     return submap;
   }
 
-
   /**
    * Creates reversed map of type Map<V, Collection<K>> from map of type Map<K, V>.
    * 
@@ -226,6 +225,13 @@ public class Functional {
     return into;
   }
 
+  //-------------------------------------------------------------------------
+  /**
+   * Class for implementing a reducer.
+   * 
+   * @param <T>  the first type
+   * @param <S>  the second type
+   */
   public abstract static class Reduce<T, S> extends Function3<T, Iterable<? extends S>, Function2<T, S, T>, T> {
 
     public abstract T reduce(T acc, S v);
@@ -245,6 +251,11 @@ public class Functional {
     }
   }
 
+  /**
+   * Class for implementing a reducer on a single type.
+   * 
+   * @param <S>  the second type
+   */
   public abstract static class ReduceSame<S> extends Function2<Iterable<? extends S>, Function2<S, S, S>, S> {
 
     public abstract S reduce(S acc, S v);

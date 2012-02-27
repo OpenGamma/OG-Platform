@@ -43,6 +43,8 @@ public class Exporter implements Runnable {
   protected RepositoryExporter getExporter() {
     return _exporter;
   }
+  
+  // TODO: the filters should be applied from the global context as these may rename parameters or entities
 
   protected void exportFunctions() {
     final FunctionRepository repository = getSessionContext().getFunctionRepository();

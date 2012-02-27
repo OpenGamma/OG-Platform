@@ -5,16 +5,7 @@
  */
 package com.opengamma.util.fudgemsg;
 
-import com.opengamma.OpenGammaRuntimeException;
-import org.fudgemsg.FudgeField;
-import org.fudgemsg.FudgeMsg;
-import org.fudgemsg.FudgeRuntimeException;
-import org.fudgemsg.MutableFudgeMsg;
-import org.fudgemsg.mapping.FudgeBuilder;
-import org.fudgemsg.mapping.FudgeBuilderFactory;
-import org.fudgemsg.mapping.FudgeDeserializer;
-import org.fudgemsg.mapping.FudgeSerializer;
-import org.fudgemsg.wire.types.FudgeWireType;
+import static com.google.common.collect.Lists.newArrayList;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -24,12 +15,22 @@ import java.security.PrivilegedAction;
 import java.util.Arrays;
 import java.util.List;
 
-import static com.google.common.collect.Lists.newArrayList;
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeMsg;
+import org.fudgemsg.FudgeRuntimeException;
+import org.fudgemsg.MutableFudgeMsg;
+import org.fudgemsg.mapping.FudgeBuilder;
+import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeSerializer;
+import org.fudgemsg.wire.types.FudgeWireType;
+
+import com.opengamma.OpenGammaRuntimeException;
 
 /**
  * Builder to convert inner classes to and from Fudge.
  *
  * @param <T> the bean type
+ * @param <K> the type
  */
 public final class InnerClassFudgeBuilder<T extends AutoFudgable<K>, K> implements FudgeBuilder<T> {
 
@@ -38,7 +39,6 @@ public final class InnerClassFudgeBuilder<T extends AutoFudgable<K>, K> implemen
    */
   public InnerClassFudgeBuilder() {}
 
-  @SuppressWarnings("unchecked")
   @Override
   public MutableFudgeMsg buildMessage(FudgeSerializer serializer, final T auto) {
     MutableFudgeMsg outerMsg = serializer.newMessage();
@@ -55,13 +55,13 @@ public final class InnerClassFudgeBuilder<T extends AutoFudgable<K>, K> implemen
         @Override
         public List<Object> run() {
           try {
-            final Constructor[] ctors = inner.getClass().getDeclaredConstructors();
+            final Constructor<?>[] ctors = inner.getClass().getDeclaredConstructors();
             //We require that inner classes got only one ctor (anonymous inner classes will do)
             //in order to avoid disambiguity
             if (ctors.length == 1) {
-              final Constructor ctor = ctors[0];
+              final Constructor<?> ctor = ctors[0];
               // types of parameters of ctor
-              final Class[] parameterTypes = ctor.getParameterTypes();
+              final Class<?>[] parameterTypes = ctor.getParameterTypes();
               // all declared parameters of the inner class
               final Field[] fs = inner.getClass().getDeclaredFields();
               // extracting copiler synthetized fields of inner class
@@ -105,7 +105,7 @@ public final class InnerClassFudgeBuilder<T extends AutoFudgable<K>, K> implemen
     final String className = (String) classNameField.getValue();
     try {
       final List<Object> parameters = newArrayList();
-      parameters.add(null);//the omitted enclosing object
+      parameters.add(null);  //the omitted enclosing object
       for (FudgeField parameterField : msg.getAllByOrdinal(1)) {
         parameters.add(deserializer.fieldValueToObject(parameterField));
       }
@@ -115,14 +115,14 @@ public final class InnerClassFudgeBuilder<T extends AutoFudgable<K>, K> implemen
         public Object run() {
           try {
             final Class<?> innerClass = Class.forName(className);
-            final Constructor[] ctors = innerClass.getDeclaredConstructors();
-            //We require that inner classes got only one ctor (anonymous inner classes will do)
-            //in order to avoid disambiguity
+            final Constructor<?>[] ctors = innerClass.getDeclaredConstructors();
+            // We require that inner classes got only one ctor (anonymous inner classes will do)
+            // in order to avoid disambiguity
             if (ctors.length == 1) {
-              final Constructor ctor = ctors[0];
+              final Constructor<?> ctor = ctors[0];
               ctor.setAccessible(true);   // solution
               Object inner = ctor.newInstance(parameters.toArray());
-              return new AutoFudgable(inner);
+              return new AutoFudgable<Object>(inner);
             }
           } catch (IllegalAccessException e) {
             throw new RuntimeException(e);
@@ -142,7 +142,7 @@ public final class InnerClassFudgeBuilder<T extends AutoFudgable<K>, K> implemen
     }
   }
 
-  private void assertValid(final Class clazz) {
+  private void assertValid(final Class<?> clazz) {
     if (clazz.getEnclosingClass() == null) {
       throw new OpenGammaRuntimeException("AutoFudgable can be used only with inner classes");
     }
@@ -154,7 +154,7 @@ public final class InnerClassFudgeBuilder<T extends AutoFudgable<K>, K> implemen
     }
   }
 
-  private static boolean hasSingleZeroArgConstructor(final Class clazz) {
+  private static boolean hasSingleZeroArgConstructor(final Class<?> clazz) {
     return AccessController.doPrivileged(new PrivilegedAction<Boolean>() {
       @Override
       public Boolean run() {

@@ -16,6 +16,7 @@ import com.opengamma.financial.convention.businessday.BusinessDayConventionFacto
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.convention.frequency.SimpleFrequencyFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -24,6 +25,7 @@ import com.opengamma.id.ExternalIdBundle;
  * 
  */
 public class CHConventions {
+  private static final char[] MONTH_NAMES = new char[] {'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K' };
 
   public static synchronized void addFixedIncomeInstrumentConvnetions(final ConventionBundleMaster conventionMaster) {
     Validate.notNull(conventionMaster, "convention master");
@@ -170,6 +172,36 @@ public class CHConventions {
 
     //TODO holiday associated with CHF swaps is Zurich
     final ExternalId ch = RegionUtils.financialRegionId("CH");
+    final DayCount swapFixedDayCount = thirty360;
+    final BusinessDayConvention swapFixedBusinessDay = modified;
+    final Frequency swapFixedPaymentFrequency = annual;
+    final DayCount swapFloatDayCount = act360;
+    final BusinessDayConvention swapFloatBusinessDay = modified;
+    final Frequency swapFloatPaymentFrequency = semiAnnual;
+    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }) {
+      final String bbgOISId = "SFSWT" + MONTH_NAMES[i - 1] + " Curncy";
+      final String ogOISName = "CHF OIS " + i + "m";
+      final Frequency frequency = PeriodFrequency.of(Period.ofMonths(i));
+      conventionMaster.addConventionBundle(
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgOISId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogOISName)), ogOISName,
+          swapFixedDayCount, swapFixedBusinessDay, frequency, 2, ch, swapFloatDayCount, swapFloatBusinessDay, frequency,
+          2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF TOISTOIS"), ch, true);
+    }
+    for (int i = 1; i <= 30; i++) {
+      final String bbgSwapId = "SFSW" + i + " Curncy";
+      final String ogSwapName = "CHF SWAP " + i + "y";
+      final String bbgOISId = "SFSWT" + i + " Curncy";
+      final String ogOISName = "CHF OIS " + i + "y";
+      conventionMaster.addConventionBundle(
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgSwapId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogSwapName)), ogSwapName,
+          swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, ch, swapFloatDayCount, swapFloatBusinessDay, swapFloatPaymentFrequency,
+          2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF LIBOR 6m"), ch, true);
+      conventionMaster.addConventionBundle(
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgOISId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogOISName)), ogOISName,
+          swapFixedDayCount, swapFixedBusinessDay, annual, 2, ch, swapFloatDayCount, swapFloatBusinessDay, annual,
+          2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF TOISTOIS"), ch, true);
+    }
+
     //TODO check reference rate
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF_SWAP")), "CHF_SWAP", thirty360, modified, annual, 2, ch, act360,
         modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF LIBOR 6m"), ch, true);
@@ -178,8 +210,6 @@ public class CHConventions {
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF_6M_SWAP")), "CHF_6M_SWAP", thirty360, modified, annual, 2, ch,
         act360, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF LIBOR 6m"), ch, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF_OIS_SWAP")), "CHF_OIS_SWAP", act360, modified, annual, 2, ch,
-        act360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF TOISTOIS"), ch);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF_OIS_CASH")), "CHF_OIS_CASH", act360, modified, annual, 2, ch,
         act360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF TOISTOIS"), ch);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF_IBOR_INDEX")), "CHF_IBOR_INDEX", act360, following, 2, false);
 

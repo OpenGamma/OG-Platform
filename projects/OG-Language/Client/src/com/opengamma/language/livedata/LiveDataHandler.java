@@ -67,7 +67,7 @@ public class LiveDataHandler implements LiveDataVisitor<UserMessagePayload, Sess
       final Connection connection = liveData.getConnector().connect(context, (parameters != null) ? parameters : Collections.<Data>emptyList());
       if (message.getConnection() != null) {
         context.getConnections().add(message.getConnection(), connection);
-        return context.getGlobalContext().getLiveDataDispatcher().createResult(context, message.getIdentifier(), connection.getValue());
+        return context.getGlobalContext().getLiveDataDispatcher().createResult(context, message.getConnection(), connection.getValue());
       } else {
         return context.getGlobalContext().getLiveDataDispatcher().createResult(context, context.getConnections().add(connection), connection.getValue());
       }
@@ -85,6 +85,12 @@ public class LiveDataHandler implements LiveDataVisitor<UserMessagePayload, Sess
   @Override
   public UserMessagePayload visitCustom(final Custom message, final SessionContext context) {
     return _customVisitors.visit(message, context);
+  }
+
+  @Override
+  public UserMessagePayload visitDisconnect(final Disconnect message, final SessionContext context) {
+    context.getConnections().cancel(message.getConnection());
+    return UserMessagePayload.EMPTY_PAYLOAD;
   }
 
   @Override

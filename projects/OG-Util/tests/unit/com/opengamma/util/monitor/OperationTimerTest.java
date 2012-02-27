@@ -16,8 +16,9 @@ import org.testng.annotations.Test;
  */
 @Test
 public class OperationTimerTest {
+
   private static final Logger s_logger = LoggerFactory.getLogger(OperationTimerTest.class);
-  
+
   public void simpleTest() throws InterruptedException {
     OperationTimer timer = new OperationTimer(s_logger, "Testing");
     Thread.sleep(100);

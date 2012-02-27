@@ -95,7 +95,7 @@ $.register_module({
                         </header>',
                         section_width = $(form_id + ' .og-js-cell:first').outerWidth() * (field_names.length + 1);
                     section_width += 40; // padding + awesome list delete icon
-                    $('.ui-layout-inner-center .ui-layout-header').html(header);
+                    $('.OG-layout-admin-details-center .ui-layout-header').html(header);
                     $(form_id + ' .og-js-section').width(section_width);
                     load_handler(form);
                 }},
@@ -112,7 +112,7 @@ $.register_module({
                     update_cell();
                 }},
                 {type: 'keyup', selector: form_id + ' input[name=name]', handler: function (e) {
-                    $('.ui-layout-inner-center .og-js-name').text($(e.target).val());
+                    $('.OG-layout-admin-details-center .og-js-name').text($(e.target).val());
                 }},
                 {type: 'click', selector: form_id + ' .og-js-rem', handler: function (e) {
                     $(e.target).parent('li').remove();
