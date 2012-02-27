@@ -203,6 +203,7 @@ public abstract class BlackFormulaRepository {
    * @param lognormalVol The log-normal volatility
    * @return The forward vega
    */
+  @ExternalFunction
   public static double vega(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
     final double rootT = Math.sqrt(timeToExpiry);
     final double sigmaRootT = lognormalVol * rootT;
@@ -232,6 +233,7 @@ public abstract class BlackFormulaRepository {
    * @param lognormalVol The log-normal volatility
    * @return The forward vanna
    */
+  @ExternalFunction
   public static double vanna(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
     if (forward == 0.0 || strike == 0.0) {
       return 0.0;
@@ -256,6 +258,7 @@ public abstract class BlackFormulaRepository {
    * @param lognormalVol The log-normal volatility
    * @return The forward vomma
    */
+  @ExternalFunction
   public static double vomma(final double forward, final double strike, final double timeToExpiry, final double lognormalVol) {
     if (forward == 0.0 || strike == 0.0) {
       return 0.0;
@@ -281,6 +284,7 @@ public abstract class BlackFormulaRepository {
    * @param isCall  True for calls, false for puts
    * @return log-normal (Black) implied volatility
    */
+  @ExternalFunction
   public static double impliedVolatility(final double price, final double forward, final double strike, final double timeToExpiry, final boolean isCall) {
 
     final double intrinsicPrice = Math.max(0, (isCall ? 1 : -1) * (forward - strike));
@@ -455,6 +459,7 @@ public abstract class BlackFormulaRepository {
    * @param volatility The volatility.
    * @return The strike.
    */
+  @ExternalFunction
   public static double impliedStrike(final double delta, final boolean isCall, final double forward, final double time, final double volatility) {
     Validate.isTrue(delta > -1 && delta < 1, "Delta out of range");
     Validate.isTrue(isCall ^ (delta < 0), "Delta incompatible with call/put: " + isCall + ", " + delta);

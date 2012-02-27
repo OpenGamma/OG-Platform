@@ -268,7 +268,7 @@ public class NonLinearLeastSquare {
    * @param func The model as a function of its parameters only
    * @param jac The model sensitivity to its parameters (i.e. the Jacobian matrix) as a function of its parameters only
    * @param startPos  Initial value of the parameters
-   * @param constraints The constraints for the fit
+   * @param constraints A function that returns true if the trial point is outside the constraints of the model
    * @return value of the fitted parameters
    */
   public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
@@ -320,7 +320,7 @@ public class NonLinearLeastSquare {
       newError = getError(func, observedValues, sigma, trialTheta);
       newChiSqr = getChiSqr(newError);
       //non standard convergence
-      if (Math.abs(newChiSqr - oldChiSqr) / oldChiSqr < _eps) {
+      if (Math.abs(newChiSqr - oldChiSqr) / (1 + oldChiSqr) < _eps) {
         beta = getChiSqrGrad(error, jacobian);
         //System.err.println("finished because no improvment in chi^2 - gradient: " + _algebra.getNorm2(beta));
         return finish(newChiSqr, jacobian, trialTheta, sigma);

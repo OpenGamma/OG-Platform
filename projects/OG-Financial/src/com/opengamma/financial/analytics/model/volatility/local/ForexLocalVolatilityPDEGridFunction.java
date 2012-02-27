@@ -62,13 +62,13 @@ public abstract class ForexLocalVolatilityPDEGridFunction extends LocalVolatilit
     final Currency callCurrency = fxOption.getCallCurrency();
     double strike;
     if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
-      strike = fxOption.getPutAmount() / fxOption.getCallAmount(); //TODO check this
-    } else {
       strike = fxOption.getCallAmount() / fxOption.getPutAmount();
+    } else {
+      strike = fxOption.getPutAmount() / fxOption.getCallAmount(); //Review R White 27/02/12 I've swapped these around 
     }
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double t = actAct.getDayCountFraction(date, fxOption.getExpiry().getExpiry());
-    return new EuropeanVanillaOption(strike, t, true);
+    return new EuropeanVanillaOption(strike, t, true); //TODO this shouldn't be hard coded to a call
   }
 
   //TODO
