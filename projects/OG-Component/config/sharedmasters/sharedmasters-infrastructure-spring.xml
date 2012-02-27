@@ -107,18 +107,5 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <bean id="standardMBeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
     <property name="locateExistingServerIfPossible" value="true" />
   </bean>
-  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-    <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans"/>
-    <property name="arguments">
-      <list>
-        <ref bean="standardCacheManager" />
-        <ref bean="standardMBeanServer" />
-        <value>true</value>
-        <value>true</value>
-        <value>true</value>
-        <value>true</value>
-      </list>
-    </property>
-  </bean>
 
 </beans>
