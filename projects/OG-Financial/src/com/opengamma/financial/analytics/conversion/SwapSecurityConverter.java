@@ -340,20 +340,20 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefi
     // FIXME: convert frequency to period in a better way
     final Frequency freq = floatLeg.getFrequency();
     final Period tenor = getTenor(freq);
-    final ConventionBundle indexConvention = _conventionSource.getConventionBundle(ExternalIdBundle.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_SWAP"));
+    final ConventionBundle indexConvention = _conventionSource.getConventionBundle(ExternalIdBundle.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_IBOR_INDEX"));
     if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Could not get ibor index convention for " + currency);
     }
-    final ConventionBundle swapRateConvention = _conventionSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, currency.getCode() + "_SWAP"));
+    final ConventionBundle swapRateConvention = _conventionSource.getConventionBundle(floatLeg.getFloatingReferenceRateId());
     if (swapRateConvention == null) {
       throw new OpenGammaRuntimeException("Could not get swap rate convention for " + currency);
     }
-    final IborIndex iborIndex = new IborIndex(currency, tenor, indexConvention.getSwapFloatingLegSettlementDays(), calendar, indexConvention.getSwapFloatingLegDayCount(),
-        indexConvention.getSwapFloatingLegBusinessDayConvention(), indexConvention.isEOMConvention());
-    final DayCount fixedLegDayCount = swapRateConvention.getSwapFixedLegDayCount();
-    final Period fixedLegPeriod = getTenor(swapRateConvention.getSwapFixedLegFrequency());
-    final DayCount dayCount = swapRateConvention.getSwapFloatingLegDayCount();
-    final IndexSwap cmsIndex = new IndexSwap(fixedLegPeriod, fixedLegDayCount, iborIndex, getUnderlyingTenor(floatLeg.getFloatingReferenceRateId()));
+    final IborIndex iborIndex = new IborIndex(currency, tenor, indexConvention.getSettlementDays(), calendar, indexConvention.getDayCount(),
+        indexConvention.getBusinessDayConvention(), indexConvention.isEOMConvention());
+    final Period fixedLegPeriod = getTenor(swapRateConvention.getFrequency());
+    final DayCount dayCount = swapRateConvention.getDayCount();
+    final Period underlyingTenor = getTenor(swapRateConvention.getSwapFixedLegFrequency());
+    final IndexSwap cmsIndex = new IndexSwap(fixedLegPeriod, dayCount, iborIndex, underlyingTenor);
     return AnnuityCouponCMSDefinition.from(effectiveDate, maturityDate, notional, cmsIndex, tenor, dayCount, isPayer);
   }
 
@@ -364,17 +364,6 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefi
       return ((SimpleFrequency) freq).toPeriodFrequency().getPeriod();
     }
     throw new OpenGammaRuntimeException("Can only PeriodFrequency or SimpleFrequency; have " + freq.getClass());
-  }
-
-  //TODO this is horrible - we need to add fields to the security
-  // use the tenor from the convention
-  private Period getUnderlyingTenor(final ExternalId id) {
-    if (id.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER)) {
-      final String bbgCode = id.getValue();
-      final String[] noSuffix = bbgCode.split(" ");
-      return Period.ofYears(Integer.parseInt(noSuffix[0].split("SW")[1]));
-    }
-    throw new OpenGammaRuntimeException("Cannot handle id");
   }
 
 }

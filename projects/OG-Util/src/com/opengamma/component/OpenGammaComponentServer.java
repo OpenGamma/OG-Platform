@@ -17,9 +17,8 @@ import org.apache.commons.cli.OptionGroup;
 import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 /**
@@ -35,8 +34,10 @@ import org.springframework.core.io.Resource;
  */
 public class OpenGammaComponentServer {
 
-  /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(OpenGammaComponentServer.class);
+  /**
+   * The server name property.
+   */
+  private static final String OPENGAMMA_SERVER_NAME = "opengamma.server.name";
   /**
    * Help command line option.
    */
@@ -75,7 +76,6 @@ public class OpenGammaComponentServer {
       cmdLine = (new PosixParser()).parse(OPTIONS, args);
     } catch (ParseException ex) {
       System.out.println(ex.getMessage());
-      s_logger.warn(ex.getMessage());
       usage();
       return;
     }
@@ -123,17 +123,20 @@ public class OpenGammaComponentServer {
         System.out.println(" Config file: " + configFile);
       }
     }
-    ComponentManager manager;
-    if (verbosity == 2) {
-      manager = new VerboseManager(new VerboseRepository());
-    } else if (verbosity == 1) {
-      manager = new VerboseManager();
-    } else {
-      manager = new ComponentManager();
-    }
+    
+    // extract the server name from the file name
+    String serverName = extractServerName(configFile);
+    System.setProperty(OPENGAMMA_SERVER_NAME, serverName);
+    
+    // create the manager
+    ComponentManager manager = createManager(verbosity);
+    manager.getProperties().put(OPENGAMMA_SERVER_NAME, serverName);
+    
+    // start server
     try {
       OpenGammaComponentServerMonitor.create(manager.getRepository());
       manager.start(configFile);
+      
     } catch (Exception ex) {
       ex.printStackTrace(System.err);
       System.out.println("======== OPENGAMMA STARTUP FAILED ========");
@@ -144,6 +147,44 @@ public class OpenGammaComponentServer {
       long end = System.nanoTime();
       System.out.println("======== OPENGAMMA STARTED in " + ((end - start) / 1000000) + "ms ========");
     }
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Extracts the server name.
+   * 
+   * @param fileName  the name to extract from, not null
+   * @return the server name, not null
+   */
+  protected String extractServerName(String fileName) {
+    if (fileName.contains(":")) {
+      fileName = StringUtils.substringAfter(fileName, ":");
+    }
+    fileName = FilenameUtils.removeExtension(fileName);
+    fileName = FilenameUtils.getPathNoEndSeparator(fileName);
+    String name = FilenameUtils.getName(fileName);
+    if (name.length() == 0) {
+      name = StringUtils.substringBefore(fileName, "-");
+    }
+    return name;
+  }
+
+  /**
+   * Creates the component manager.
+   *
+   * @param verbosity  the verbosity level, 0 to 2
+   * @return the manager, not null
+   */
+  protected ComponentManager createManager(int verbosity) {
+    ComponentManager manager;
+    if (verbosity == 2) {
+      manager = new VerboseManager(new VerboseRepository());
+    } else if (verbosity == 1) {
+      manager = new VerboseManager();
+    } else {
+      manager = new ComponentManager();
+    }
+    return manager;
   }
 
   //-------------------------------------------------------------------------

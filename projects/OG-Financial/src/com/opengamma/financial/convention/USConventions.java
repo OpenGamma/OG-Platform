@@ -206,25 +206,23 @@ public class USConventions {
     for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }) {
       final String bbgOISId = "USSO" + MONTH_NAMES[i - 1] + " Curncy";
       final String ogOISName = "USD OIS " + i + "m";
-      final Frequency frequency = PeriodFrequency.of(Period.ofMonths(i));
+      final Period period = Period.ofMonths(i);
       conventionMaster.addConventionBundle(
-          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgOISId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogOISName)), ogOISName,
-          thirty360, swapFixedBusinessDay, frequency, 2, usgb, thirty360, swapFloatBusinessDay, frequency,
-          2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF EFFECTIVE"), usgb, true);
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgOISId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogOISName)), ogOISName, swapFixedDayCount,
+          swapFixedBusinessDay, period, 2, true, usgb);
     }
     for (int i = 1; i <= 30; i++) {
       final String bbgSwapId = "USSW" + i + " Curncy";
       final String ogSwapName = "USD SWAP " + i + "y";
       final String bbgOISId = "USSO" + i + " Curncy";
       final String ogOISName = "USD OIS " + i + "y";
+      final Period period = Period.ofYears(i);
       conventionMaster.addConventionBundle(
-          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgSwapId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogSwapName)), ogSwapName,
-          swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, usgb, swapFloatDayCount, swapFloatBusinessDay, swapFloatPaymentFrequency,
-          2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), usgb, true);
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgSwapId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogSwapName)), ogSwapName, swapFixedDayCount,
+          swapFixedBusinessDay, period, 2, true, usgb);
       conventionMaster.addConventionBundle(
-          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgOISId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogOISName)), ogOISName,
-          thirty360, swapFixedBusinessDay, annual, 2, usgb, thirty360, swapFloatBusinessDay, annual,
-          2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF EFFECTIVE"), usgb, true);
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgOISId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogOISName)), ogOISName, swapFixedDayCount,
+          swapFixedBusinessDay, period, 2, true, usgb);
     }
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_SWAP")), "USD_SWAP", swapFixedDayCount, swapFixedBusinessDay,
         swapFixedPaymentFrequency, 2, usgb, swapFloatDayCount, swapFloatBusinessDay, swapFloatPaymentFrequency,
