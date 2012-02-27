@@ -8,7 +8,6 @@ package com.opengamma.web.portfolio;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.ScheduledExecutorService;
 
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -105,9 +104,7 @@ public abstract class AbstractWebPortfolioResource extends AbstractPerRequestWeb
     for (ManageablePosition position : positions) {
       securityLinks.add(position.getSecurityLink());
     }
-    if (!securityLinks.isEmpty()) {
-      _securityLinkResolver.resolveSecurities(securityLinks);
-    }
+    _securityLinkResolver.resolveSecurities(securityLinks);
   }
 
   //-------------------------------------------------------------------------

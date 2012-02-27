@@ -75,7 +75,6 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
   private FinancialSecurityVisitor<InstrumentDefinition<?>> _securityVisitor;
   private SecuritySource _securitySource;
   private FixedIncomeConverterDataProvider _definitionConverter;
-  private final String _definitionName;
 
   public SABRFunction(final String currency, final String definitionName, final String useSABRExtrapolation, final String forwardCurveName, final String fundingCurveName) {
     this(Currency.of(currency), definitionName, Boolean.parseBoolean(useSABRExtrapolation), forwardCurveName, fundingCurveName);
@@ -90,7 +89,6 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     _useSABRExtrapolation = useSABRExtrapolation;
     _forwardCurveName = forwardCurveName;
     _fundingCurveName = fundingCurveName;
-    _definitionName = definitionName;
   }
 
   @Override
@@ -229,12 +227,5 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
       }
 
     };
-  }
-  
-  public int getPriority() {
-    if ("SYNTHETIC".equals(_definitionName)) {
-      return -1;
-    }
-    return 0;
   }
 }

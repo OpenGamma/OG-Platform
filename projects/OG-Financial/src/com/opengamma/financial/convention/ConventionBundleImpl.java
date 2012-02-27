@@ -8,8 +8,6 @@ package com.opengamma.financial.convention;
 import javax.time.calendar.Period;
 
 import org.apache.commons.lang.Validate;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -298,6 +296,10 @@ public class ConventionBundleImpl implements ConventionBundle {
     return _bundle;
   }
 
+  public void setIdentifiers(final ExternalIdBundle updatedBundle) {
+    _bundle = updatedBundle;
+  }
+
   @Override
   public UniqueId getUniqueId() {
     return _uniqueId;
@@ -532,92 +534,4 @@ public class ConventionBundleImpl implements ConventionBundle {
   public ExternalId getRegion() {
     return _region;
   }
-  
-//  /** 
-//   * Builder to construct ConventionBundle
-//   */
-//  public static class Builder {
-//    
-//    private final String _name;
-//    
-//    private UniqueId _uniqueId;
-//    private ExternalIdBundle _bundle;
-//    private DayCount _dayCount;
-//    private BusinessDayConvention _businessDayConvention;
-//    private Integer _settlementDays;
-//    private Frequency _frequency;
-//    private Period _period;
-//    private ExternalId _region;
-//
-//    private DayCount _swapFixedLegDayCount;
-//    private BusinessDayConvention _swapFixedLegBusinessDayConvention;
-//    private Frequency _swapFixedLegFrequency;
-//    private Integer _swapFixedLegSettlementDays;
-//    private DayCount _swapFloatingLegDayCount;
-//    private BusinessDayConvention _swapFloatingLegBusinessDayConvention;
-//    private Frequency _swapFloatingLegFrequency;
-//    private Integer _swapFloatingLegSettlementDays;
-//    private ExternalId _swapFloatingLegInitialRate;
-//    private Double _yearFraction;
-//
-//    //Equity models
-//    private ExternalIdBundle _capmRiskFreeRate;
-//    private ExternalIdBundle _capmMarket;
-//
-//    // basis swaps
-//    private DayCount _basisSwapPayFloatingLegDayCount;
-//    private BusinessDayConvention _basisSwapPayFloatingLegBusinessDayConvention;
-//    private Frequency _basisSwapPayFloatingLegFrequency;
-//    private Integer _basisSwapPayFloatingLegSettlementDays;
-//    private ExternalId _basisSwapPayFloatingLegInitialRate;
-//    private ExternalId _basisSwapPayFloatingLegRegion;
-//    private DayCount _basisSwapReceiveFloatingLegDayCount;
-//    private BusinessDayConvention _basisSwapReceiveFloatingLegBusinessDayConvention;
-//    private Frequency _basisSwapReceiveFloatingLegFrequency;
-//    private Integer _basisSwapReceiveFloatingLegSettlementDays;
-//    private ExternalId _basisSwapReceiveFloatingLegInitialRate;
-//    private ExternalId _basisSwapReceiveFloatingLegRegion;
-//    private ExternalId _swapFixedLegRegion;
-//    private ExternalId _swapFloatingLegRegion;
-//
-//    // bonds
-//    private Boolean _isEOMConvention;
-//    private Boolean _calculateScheduleFromMaturity;
-//    private int _exDividendDays;
-//    private YieldConvention _yieldConvention;
-//    private boolean _rollToSettlement;
-//
-//    //swaptions
-//    private boolean _isCashSettled;
-//
-//    
-//    public Builder(final String name) {
-//      _name = name;
-//    }
-//    
-//    public ConventionBundleImpl build() {
-//      return new ConventionBundleImpl(this);
-//    }
-//  }
-//  
-//  private ConventionBundleImpl(Builder builder) {
-//    _name = builder._name;
-//    _uniqueId = builder._uniqueId;
-//    _bundle = builder._bundle;
-//    _dayCount = builder._dayCount;
-//    _businessDayConvention = builder._businessDayConvention;
-//    _settlementDays = builder._settlementDays;
-//    _frequency = builder._frequency;
-//    _period = builder._period;
-//    _region = builder._region;
-//    
-//    _swapFixedLegDayCount = builder._swapFixedLegDayCount;
-//    _swapFixedLegBusinessDayConvention = builder._swapFixedLegBusinessDayConvention;
-//  }
-
-  @Override
-  public String toString() {
-    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-  }
-  
 }
