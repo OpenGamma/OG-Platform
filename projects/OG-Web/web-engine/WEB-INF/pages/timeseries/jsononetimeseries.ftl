@@ -5,6 +5,7 @@
             "version_id": "${info.uniqueId.version}",
             "data_field": "${info.dataField}",
             "data_source": "${info.dataSource}",
+            "name": "${info.name}",
             "data_provider": "${info.dataProvider}",
             "observation_time": "${info.observationTime}"<#if deleted>,
 	    "deleted": "${infoDoc.versionToInstant}"</#if>
