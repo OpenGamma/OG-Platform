@@ -106,7 +106,7 @@ $.register_module({
                             delete outstanding_requests[promise.id];
                             if (error === 'abort') return; // do not call handler if request was cancelled
                             config.meta.handler(result);
-                            promise.deferred.reject(result);
+                            promise.deferred.resolve(result);
                         },
                         success: function (data, status, xhr) {
                             var meta = {content_length: xhr.responseText.length},
@@ -129,7 +129,7 @@ $.register_module({
                 if (!is_get && og.app.READ_ONLY) return setTimeout(function () {
                     var result = {error: true, data: null, meta: {}, message: 'The app is in read-only mode.'};
                     config.meta.handler(result);
-                    promise.deferred.reject(result);
+                    promise.deferred.resolve(result);
                 }, INSTANT), promise;
                 if (config.meta.update && !is_get) warn(module.name + ': update functions are only for GETs');
                 if (config.meta.update && is_get) config.data['clientId'] = api.id;
