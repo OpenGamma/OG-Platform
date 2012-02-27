@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+	"-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+	"http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="com.opengamma.masterdb.batch">
+
+  <typedef class="com.opengamma.util.db.hibernate.types.PersistentInstant" name="instant" />
+
+  <class name="com.opengamma.masterdb.batch.HibernateVersionCorrection" table="rsk_version_correction">
+    <id name="id">
+      <generator class="org.hibernate.id.enhanced.SequenceStyleGenerator">
+      	<param name="optimizer">hilo</param>
+      	<param name="increment_size">100</param>
+      </generator>
+    </id>
+
+    <property name="asOf" column="as_of" not-null="false" type="instant"/>
+    <property name="correctedTo" column="corrected_to" not-null="false" type="instant"/>
+
+  </class>
+  
+  <query name="VersionCorrection.one.byTimestamps">
+    from HibernateVersionCorrection as a where
+    a.asOf = :asOf and
+    a.correctedTo = :correctedTo
+  </query>
+  
+</hibernate-mapping>

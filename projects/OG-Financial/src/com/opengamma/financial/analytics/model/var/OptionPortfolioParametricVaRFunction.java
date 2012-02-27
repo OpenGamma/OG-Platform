@@ -55,7 +55,7 @@ public class OptionPortfolioParametricVaRFunction { /* extends AbstractFunction.
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final HbComputationTargetSpecification target, final Set<ValueRequirement> desiredValues) {
     final PortfolioNode portfolio = target.getPortfolioNode();
     final Clock snapshotClock = executionContext.getValuationClock();
     final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
@@ -101,7 +101,7 @@ public class OptionPortfolioParametricVaRFunction { /* extends AbstractFunction.
   }
 
   @Override
-  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+  public boolean canApplyTo(final FunctionCompilationContext context, final HbComputationTargetSpecification target) {
     if (target.getType() == ComputationTargetType.PORTFOLIO_NODE) {
       final PortfolioNode node = target.getPortfolioNode();
       final List<Position> allPositions = getAllPositions(new ArrayList<Position>(), node);
@@ -127,7 +127,7 @@ public class OptionPortfolioParametricVaRFunction { /* extends AbstractFunction.
   }
 
   @Override
-  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final HbComputationTargetSpecification target, final ValueRequirement desiredValue) {
     if (canApplyTo(context, target)) {
       final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
       for (final String valueGreekRequirementName : _valueGreekRequirementNames) {
@@ -139,7 +139,7 @@ public class OptionPortfolioParametricVaRFunction { /* extends AbstractFunction.
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final HbComputationTargetSpecification target) {
     if (canApplyTo(context, target)) {
       return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PARAMETRIC_VAR, target.getPortfolioNode()), getUniqueId()));
     }

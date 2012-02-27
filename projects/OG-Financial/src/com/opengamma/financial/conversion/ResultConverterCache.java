@@ -22,6 +22,7 @@ public class ResultConverterCache {
     registerConverter(new DoubleMatrix2DConverter());
     registerConverter(new TimeSeriesConverter());
     registerConverter(new YieldAndDiscountCurveConverter());
+    registerConverter(new LabelledMatrix1DConverter());
   }
   
   public <T> void registerConverter(ResultConverter<?> converter) {

@@ -38,7 +38,7 @@ public class ExamplesTest {
 
   //-------------------------------------------------------------------------
   public void test() throws Exception {
-    ComponentManager manager = new ComponentManager();
+    ComponentManager manager = new ComponentManager("test");
     manager.start(CONFIG_RESOURCE_LOCATION);
     
     RemoteComponentServer remoteServer = new RemoteComponentServer(URI.create("http://localhost:" + getJettyPort() + "/jax"));

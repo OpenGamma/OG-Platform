@@ -36,6 +36,8 @@ public class OpenGammaComponentServer {
 
   /**
    * The server name property.
+   * DO NOT deduplicate with the same value in ComponentManager.
+   * This constant is used to set a system property before ComponentManager is class loaded.
    */
   private static final String OPENGAMMA_SERVER_NAME = "opengamma.server.name";
   /**
@@ -129,8 +131,7 @@ public class OpenGammaComponentServer {
     System.setProperty(OPENGAMMA_SERVER_NAME, serverName);
     
     // create the manager
-    ComponentManager manager = createManager(verbosity);
-    manager.getProperties().put(OPENGAMMA_SERVER_NAME, serverName);
+    ComponentManager manager = createManager(serverName, verbosity);
     
     // start server
     try {
@@ -172,17 +173,18 @@ public class OpenGammaComponentServer {
   /**
    * Creates the component manager.
    *
+   * @param serverName  the server name, not null
    * @param verbosity  the verbosity level, 0 to 2
    * @return the manager, not null
    */
-  protected ComponentManager createManager(int verbosity) {
+  protected ComponentManager createManager(String serverName, int verbosity) {
     ComponentManager manager;
     if (verbosity == 2) {
-      manager = new VerboseManager(new VerboseRepository());
+      manager = new VerboseManager(serverName, new VerboseRepository());
     } else if (verbosity == 1) {
-      manager = new VerboseManager();
+      manager = new VerboseManager(serverName);
     } else {
-      manager = new ComponentManager();
+      manager = new ComponentManager(serverName);
     }
     return manager;
   }
@@ -208,11 +210,11 @@ public class OpenGammaComponentServer {
    * Manager that can output more verbose messages.
    */
   private static class VerboseManager extends ComponentManager {
-    public VerboseManager() {
-      super();
+    public VerboseManager(String serverName) {
+      super(serverName);
     }
-    public VerboseManager(ComponentRepository repo) {
-      super(repo);
+    public VerboseManager(String serverName, ComponentRepository repo) {
+      super(serverName, repo);
     }
     @Override
     public ComponentRepository start(Resource resource) {
@@ -267,14 +269,14 @@ public class OpenGammaComponentServer {
       if (registeredKey instanceof ComponentInfo) {
         ComponentInfo info = (ComponentInfo) registeredKey;
         if (info.getAttributes().isEmpty()) {
-          System.out.println(" Registered: " + info.toComponentKey());
+          System.out.println(" Registered component: " + info.toComponentKey());
         } else {
-          System.out.println(" Registered: " + info.toComponentKey() + " " + info.getAttributes());
+          System.out.println(" Registered component: " + info.toComponentKey() + " " + info.getAttributes());
         }
       } else if (registeredKey instanceof ComponentKey) {
-        System.out.println(" Registered: " + registeredKey);
+        System.out.println(" Registered component: " + registeredKey);
       } else {
-        System.out.println(" Registered: " + registeredObject);
+        System.out.println(" Registered callback: " + registeredObject);
       }
       super.registered(registeredKey, registeredObject);
     }

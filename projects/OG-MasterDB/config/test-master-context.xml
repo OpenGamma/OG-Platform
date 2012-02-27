@@ -13,6 +13,7 @@
     <property name="hibernateMappingFiles">
       <list>
         <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles"/>
+        <bean class="com.opengamma.masterdb.batch.HibernateBatchDbFiles"/>
       </list>
     </property>
   </bean>
@@ -35,6 +36,8 @@
     <property name="name" value="FinancialTestsHSQL"/>
     <property name="dataSource" ref="hsqldbDataSource"/>
     <property name="dialectName" value="com.opengamma.util.db.HSQLDbDialect"/>
+    <property name="transactionIsolationLevelName" value="ISOLATION_READ_COMMITTED" />
+        <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
   </bean>
 
   <bean id="hsqldbDbConfigMaster" class="com.opengamma.masterdb.config.DbConfigMaster">
@@ -75,7 +78,13 @@
   <bean id="hsqldbDbFunctionCostsMaster" class="com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster">
     <constructor-arg ref="hsqldbDbConnector" />
   </bean>
-
+  
+  <bean id="hsqldbDbBatchMaster" class="com.opengamma.masterdb.batch.DbBatchMaster">
+    <constructor-arg ref="hsqldbDbConnector" />
+    <property name="uniqueIdScheme" value="DbBat" />
+  </bean>
+    
+   
   <!-- ============================================================================== -->
   <bean id="postgresDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
     <property name="driverClass" value="${postgres.jdbc.driver}"/>
@@ -133,6 +142,11 @@
   
   <bean id="postgresDbFunctionCostsMaster" class="com.opengamma.masterdb.engine.stats.DbFunctionCostsMaster">
     <constructor-arg ref="postgresDbConnector" />
+  </bean>
+  
+  <bean id="postgresDbBatchMaster" class="com.opengamma.masterdb.batch.DbBatchMaster">
+    <constructor-arg ref="postgresDbConnector" />
+    <property name="uniqueIdScheme" value="DbBat" />
   </bean>
 
 </beans>

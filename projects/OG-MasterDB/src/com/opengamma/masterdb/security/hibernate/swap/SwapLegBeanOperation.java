@@ -12,10 +12,13 @@ import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBea
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.frequencyBeanToFrequency;
 
+import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
+import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
+import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
 import com.opengamma.financial.security.swap.InterestRateLeg;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
@@ -50,8 +53,7 @@ public final class SwapLegBeanOperation {
       }
 
       private SwapLegBean createInterestRateLegBean(InterestRateLeg swapLeg) {
-        final SwapLegBean bean = createSwapLegBean(swapLeg);
-        return bean;
+        return createSwapLegBean(swapLeg);
       }
       
       private void setFloatingInterestRateProperties(FloatingInterestRateLeg swapLeg, final SwapLegBean bean) {
@@ -96,6 +98,27 @@ public final class SwapLegBeanOperation {
         final SwapLegBean bean = createInterestRateLegBean(swapLeg);
         setFloatingInterestRateProperties(swapLeg, bean);
         bean.setGearing(swapLeg.getGearing());
+        return bean;
+      }
+
+      @Override
+      public SwapLegBean visitFixedVarianceSwapLeg(FixedVarianceSwapLeg swapLeg) {
+        SwapLegBean bean = createSwapLegBean(swapLeg);
+        bean.setStrike(swapLeg.getStrike());
+        bean.setVarianceSwapType(swapLeg.getType());
+        return bean;
+      }
+
+      @Override
+      public SwapLegBean visitFloatingVarianceSwapLeg(FloatingVarianceSwapLeg swapLeg) {
+        SwapLegBean bean = createSwapLegBean(swapLeg);
+        bean.setUnderlyingId(externalIdToExternalIdBean(swapLeg.getUnderlyingId()));
+        Frequency monitoringFrequency = swapLeg.getMonitoringFrequency();
+        if (monitoringFrequency != null) {
+          Converters.validateFrequency(monitoringFrequency.getConventionName());
+          bean.setMonitoringFrequency(secMasterSession.getOrCreateFrequencyBean(monitoringFrequency.getConventionName()));
+        }
+        bean.setAnnualizationFactor(swapLeg.getAnnualizationFactor());
         return bean;
       }
     });
@@ -164,6 +187,33 @@ public final class SwapLegBeanOperation {
         floatingGearingIRLeg.setSettlementDays(bean.getSettlementDays());
         floatingGearingIRLeg.setOffsetFixing(frequencyBeanToFrequency(bean.getOffsetFixing()));
         return floatingGearingIRLeg;
+      }
+
+      @Override
+      public SwapLeg visitFixedVarianceSwapLeg(FixedVarianceSwapLeg ignore) {
+        return new FixedVarianceSwapLeg(
+            dayCountBeanToDayCount(bean.getDayCount()),
+            frequencyBeanToFrequency(bean.getFrequency()),
+            externalIdBeanToExternalId(bean.getRegion()),
+            businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
+            NotionalBeanOperation.createNotional(bean.getNotional()),
+            bean.isEom(),
+            bean.getStrike(),
+            bean.getVarianceSwapType());
+      }
+
+      @Override
+      public SwapLeg visitFloatingVarianceSwapLeg(FloatingVarianceSwapLeg ignore) {
+        return new FloatingVarianceSwapLeg(
+            dayCountBeanToDayCount(bean.getDayCount()),
+            frequencyBeanToFrequency(bean.getFrequency()),
+            externalIdBeanToExternalId(bean.getRegion()),
+            businessDayConventionBeanToBusinessDayConvention(bean.getBusinessDayConvention()),
+            NotionalBeanOperation.createNotional(bean.getNotional()),
+            bean.isEom(),
+            externalIdBeanToExternalId(bean.getUnderlyingId()),
+            frequencyBeanToFrequency(bean.getMonitoringFrequency()),
+            bean.getAnnualizationFactor());
       }
     });
   }
