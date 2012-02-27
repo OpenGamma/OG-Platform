@@ -89,7 +89,7 @@ public class SumToOneTest {
     };
     double[] temp = new double[n];
     Arrays.fill(temp, 1e-5);
-    DoubleMatrix1D start = new DoubleMatrix1D(new double[] {0.00, 0.00, 0.00 });
+    DoubleMatrix1D start = new DoubleMatrix1D(new double[] {0.02, 0.02, 0.02 });
     DoubleMatrix1D sigma = new DoubleMatrix1D(temp);
     LeastSquareResults res = SOLVER.solve(new DoubleMatrix1D(w), sigma, func, start);
     assertEquals("chi sqr", 0.0, res.getChiSq(), 1e-9);
