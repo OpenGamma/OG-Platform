@@ -14,6 +14,7 @@ import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.financial.analytics.volatility.surface.SurfaceInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.money.Currency;
@@ -37,9 +38,9 @@ public class VolatilitySurfaceSpecificationFudgeBuilder implements FudgeBuilder<
       message.add("currency", Currency.USD);
     }
     message.add("name", object.getName());
-    //    if (object.getSurfaceQuoteType() != null) {
-    //      message.add("quote", object.getSurfaceQuoteType());
-    //    }
+    if (object.getSurfaceQuoteType() != null) {
+      message.add("quote", object.getSurfaceQuoteType());
+    }
     serializer.addToMessageWithClassHeaders(message, "surfaceInstrumentProvider", null, object.getSurfaceInstrumentProvider());
     return message;
   }
@@ -52,16 +53,16 @@ public class VolatilitySurfaceSpecificationFudgeBuilder implements FudgeBuilder<
     } else {
       target = deserializer.fieldValueToObject(UniqueIdentifiable.class, message.getByName("target"));
     }
-    //    String quoteType;
-    //    if (message.hasField("quote") && message.getString("quote") != null) {
-    //      quoteType = message.getString("quote");
-    //    } else {
-    //      quoteType = SurfaceQuoteType.CALL_DELTA;
-    //    }
+    String quoteType;
+    if (message.hasField("quote") && message.getString("quote") != null) {
+      quoteType = message.getString("quote");
+    } else {
+      quoteType = SurfaceQuoteType.CALL_DELTA;
+    }
     final String name = message.getString("name");
     final FudgeField field = message.getByName("surfaceInstrumentProvider");
     final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider = (SurfaceInstrumentProvider<?, ?>) deserializer.fieldValueToObject(field);
-    return new VolatilitySurfaceSpecification(name, target, surfaceInstrumentProvider);
+    return new VolatilitySurfaceSpecification(name, target, quoteType, surfaceInstrumentProvider);
   }
 
 }

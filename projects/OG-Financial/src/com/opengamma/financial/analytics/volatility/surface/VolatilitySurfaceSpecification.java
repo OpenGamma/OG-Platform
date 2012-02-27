@@ -18,14 +18,14 @@ public class VolatilitySurfaceSpecification {
   private final String _surfaceQuoteType;
   private final UniqueIdentifiable _target;
 
-  public VolatilitySurfaceSpecification(final String name, final UniqueIdentifiable target, final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider) {
-    this(name, target, null, surfaceInstrumentProvider);
-  }
+  //  public VolatilitySurfaceSpecification(final String name, final UniqueIdentifiable target, final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider) {
+  //    this(name, target, null, surfaceInstrumentProvider);
+  //  }
 
   public VolatilitySurfaceSpecification(final String name, final UniqueIdentifiable target, final String surfaceQuoteType, final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(target, "target");
-    //ArgumentChecker.notNull(surfaceQuoteType, "surface quote type");
+    ArgumentChecker.notNull(surfaceQuoteType, "surface quote type");
     ArgumentChecker.notNull(surfaceInstrumentProvider, "surface instrument provider");
     _name = name;
     _surfaceQuoteType = surfaceQuoteType;
