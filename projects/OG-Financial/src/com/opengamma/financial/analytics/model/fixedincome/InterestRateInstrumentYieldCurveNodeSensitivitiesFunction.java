@@ -90,10 +90,9 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
 
   public InterestRateInstrumentYieldCurveNodeSensitivitiesFunction(final String curveCalculationType) {
     Validate.notNull(curveCalculationType, "curve calculation type");
-    Validate.isTrue(curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING) ||
-        curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING) ||
-        curveCalculationType.equals(InterpolatedYieldCurveFunction.CALCULATION_METHOD_NAME),
-        "Did not recognise curve calculation type " + curveCalculationType);
+    Validate.isTrue(
+        curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING) || curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)
+            || curveCalculationType.equals(InterpolatedYieldCurveFunction.CALCULATION_METHOD_NAME), "Did not recognise curve calculation type " + curveCalculationType);
     _curveCalculationType = curveCalculationType;
   }
 
@@ -101,22 +100,17 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
   public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext
-        .getConventionBundleSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final CashSecurityConverter cashConverter = new CashSecurityConverter();
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
-        regionSource, false);
+    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
-    _visitor =
-        FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-            .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
-            .futureSecurityVisitor(futureConverter)
-            .bondSecurityVisitor(bondConverter).create();
+    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>> builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
+        .futureSecurityVisitor(futureConverter).bondSecurityVisitor(bondConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
 
@@ -229,8 +223,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueProperties constraints = desiredValues.iterator().next().getConstraints();
     final String forwardCurveName = constraints.getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE).iterator().next();
     final String fundingCurveName = constraints.getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE).iterator().next();
@@ -267,8 +260,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
       throw new OpenGammaRuntimeException("Could not get " + ValueRequirementNames.YIELD_CURVE_JACOBIAN);
     }
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
-    final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve
-        : (YieldAndDiscountCurve) fundingCurveObject;
+    final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve : (YieldAndDiscountCurve) fundingCurveObject;
     final InterpolatedYieldCurveSpecificationWithSecurities forwardCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) forwardCurveSpecObject;
     final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpec = fundingCurveSpecObject == null ? forwardCurveSpec
         : (InterpolatedYieldCurveSpecificationWithSecurities) fundingCurveSpecObject;
@@ -277,8 +269,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
     final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now,
-        FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
-            fundingCurveName, forwardCurveName), dataSource);
+        FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName), dataSource);
     final double[][] array = FunctionUtils.decodeJacobian(jacobianObject);
     final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves = new LinkedHashMap<String, YieldAndDiscountCurve>();
     interpolatedCurves.put(fundingCurveName, fundingCurve);

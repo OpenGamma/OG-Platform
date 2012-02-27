@@ -106,11 +106,11 @@ public enum InterestRateInstrumentType {
 
     @Override
     public InterestRateInstrumentType visitFutureSecurity(final FutureSecurity security) {
-      if (security instanceof InterestRateFutureSecurity) {
-        return IR_FUTURE;
-      }
       if (security instanceof BondFutureSecurity) {
         return BOND_FUTURE;
+      }
+      if (security instanceof InterestRateFutureSecurity) {
+        return IR_FUTURE;
       }
       return null;
     }
@@ -161,8 +161,7 @@ public enum InterestRateInstrumentType {
     }
 
     @Override
-    public InterestRateInstrumentType visitEquityIndexDividendFutureOptionSecurity(
-        final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+    public InterestRateInstrumentType visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
       return null;
     }
 
@@ -205,5 +204,10 @@ public enum InterestRateInstrumentType {
     public InterestRateInstrumentType visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
       return null;
     }
+
+    //    @Override
+    //    public InterestRateInstrumentType visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
+    //      return IR_FUTURE;
+    //    }
   }
 }

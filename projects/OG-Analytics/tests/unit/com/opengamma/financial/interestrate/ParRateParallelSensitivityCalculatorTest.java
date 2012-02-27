@@ -111,8 +111,9 @@ public class ParRateParallelSensitivityCalculatorTest {
     final double fixingPeriodAccrualFactor = 0.267;
     final double paymentAccrualFactor = 0.25;
     final double referencePrice = 0.0; // TODO CASE - Future refactor - referencePrice = 0.0
+    final int quantity = 123;
     final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice, 1, paymentAccrualFactor,
-        "L", FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
+        quantity, "L", FUNDING_CURVE_NAME, LIBOR_CURVE_NAME);
     doTest(ir, CURVES);
   }
 

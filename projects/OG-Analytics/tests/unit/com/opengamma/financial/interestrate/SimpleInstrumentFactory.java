@@ -88,7 +88,7 @@ public abstract class SimpleInstrumentFactory {
 
   public static InstrumentDerivative makeFuture(final double time, final SimpleFrequency paymentFreq, final String fundCurveName, final String indexCurveName) {
     final double tau = 1. / paymentFreq.getPeriodsPerYear();
-    return new InterestRateFuture(time, DUMMY_INDEX, time, time + tau, tau, 0, 1, tau, "N", fundCurveName, indexCurveName);
+    return new InterestRateFuture(time, DUMMY_INDEX, time, time + tau, tau, 0, 1, tau, 1, "N", fundCurveName, indexCurveName);
   }
 
   public static OISSwap makeOISSwap(final double time, final String fundingCurveName, final String indexCurveName, final double rate, final double notional) {
@@ -125,8 +125,7 @@ public abstract class SimpleInstrumentFactory {
     return new OISSwap(fixedLeg, new GenericAnnuity<CouponOIS>(new CouponOIS[] {oisCoupon}));
   }
 
-  protected static FixedFloatSwap makeSwap(final double time, final SimpleFrequency floatLegFreq, final String fundingCurveName, final String liborCurveName,
-      final double rate, final double notional) {
+  protected static FixedFloatSwap makeSwap(final double time, final SimpleFrequency floatLegFreq, final String fundingCurveName, final String liborCurveName, final double rate, final double notional) {
 
     final int floatPayments = (int) (time * floatLegFreq.getPeriodsPerYear());
     Validate.isTrue(floatPayments % 2 == 0, "need even number of float payments as fixed payments at half frequency");
@@ -244,8 +243,8 @@ public abstract class SimpleInstrumentFactory {
    * @param spread The spread added to <b>foreign</b> floating payments
    * @return a CrossCurrencySwap
    */
-  protected static CrossCurrencySwap makeCrossCurrencySwap(final CurrencyAmount domesticNotional, final CurrencyAmount foreignNotional, final int swapLength, final SimpleFrequency domesticPaymentFreq,
-      final SimpleFrequency foreignPaymentFreq, final String domesticDiscountCurve, final String domesticIndexCurve, final String foreignDiscountCurve,
+  protected static CrossCurrencySwap makeCrossCurrencySwap(final CurrencyAmount domesticNotional, final CurrencyAmount foreignNotional, final int swapLength,
+      final SimpleFrequency domesticPaymentFreq, final SimpleFrequency foreignPaymentFreq, final String domesticDiscountCurve, final String domesticIndexCurve, final String foreignDiscountCurve,
       final String foreignIndexCurve, final double spread) {
 
     final FloatingRateNote domesticFRN = makeFRN(domesticNotional, swapLength, domesticPaymentFreq, domesticDiscountCurve, domesticIndexCurve, 0.0);
