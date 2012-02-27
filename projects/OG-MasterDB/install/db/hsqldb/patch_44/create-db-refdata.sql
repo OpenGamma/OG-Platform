@@ -11,7 +11,7 @@ CREATE TABLE hol_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO hol_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+INSERT INTO hol_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
   
 CREATE SEQUENCE hol_holiday_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -71,7 +71,7 @@ CREATE TABLE exg_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO exg_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+INSERT INTO exg_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
 
 CREATE SEQUENCE exg_exchange_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;

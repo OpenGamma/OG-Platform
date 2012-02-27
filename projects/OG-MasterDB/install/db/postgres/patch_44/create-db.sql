@@ -18,7 +18,7 @@ CREATE TABLE cfg_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO cfg_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+INSERT INTO cfg_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
 
 CREATE SEQUENCE cfg_config_seq
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -60,7 +60,7 @@ CREATE TABLE hol_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO hol_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+INSERT INTO hol_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
 
 CREATE SEQUENCE hol_holiday_seq
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -120,7 +120,7 @@ CREATE TABLE exg_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO exg_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+INSERT INTO exg_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
 
 CREATE SEQUENCE exg_exchange_seq
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -173,7 +173,7 @@ CREATE TABLE eng_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO eng_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+INSERT INTO eng_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
 
 create table eng_functioncosts (
     configuration varchar(255) NOT NULL,
@@ -197,7 +197,7 @@ CREATE TABLE sec_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
 
 CREATE SEQUENCE sec_security_seq
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -365,7 +365,7 @@ CREATE TABLE sec_equitybarrieroption (
     currency_id bigint NOT NULL,
     exchange_id bigint,
     pointValue double precision,
-	barrier_type varchar(32) NOT NULL,
+	  barrier_type varchar(32) NOT NULL,
     barrier_direction varchar(32) NOT NULL,
     barrier_level double precision NOT NULL,
     monitoring_type varchar(32) NOT NULL,
@@ -413,7 +413,7 @@ CREATE TABLE sec_nondeliverablefxoption (
     settlement_date timestamp without time zone NOT NULL,
     settlement_zone varchar(50) NOT NULL,
     is_long boolean NOT NULL,
-	is_delivery_in_call_currency boolean NOT NULL,
+	  is_delivery_in_call_currency boolean NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_nondeliverablefxoption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
     CONSTRAINT sec_fk_nondeliverablefxoption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
@@ -716,7 +716,8 @@ CREATE TABLE sec_cash (
     amount double precision NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_cash2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
-    CONSTRAINT sec_fk_cash2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id)
+    CONSTRAINT sec_fk_cash2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_cash2daycount FOREIGN KEY (daycount_id) REFERENCES sec_daycount (id)
 );
 
 CREATE TABLE sec_fra (
@@ -773,6 +774,12 @@ CREATE TABLE sec_swap (
     pay_settlement_days INTEGER,
     pay_gearing DOUBLE precision,
     pay_offset_fixing_id bigint,
+    pay_strike double precision,
+    pay_variance_swap_type varchar(32),
+    pay_underlying_identifier varchar(255),
+    pay_underlying_scheme varchar(255),
+    pay_monitoring_frequency_id bigint,
+    pay_annualization_factor double precision,
     receive_legtype varchar(32) NOT NULL,
     receive_daycount_id bigint NOT NULL,
     receive_frequency_id bigint NOT NULL,
@@ -793,12 +800,20 @@ CREATE TABLE sec_swap (
     receive_settlement_days INTEGER,
     receive_gearing DOUBLE precision,
     receive_offset_fixing_id bigint,
+    receive_strike double precision,
+    receive_variance_swap_type varchar(32),
+    receive_underlying_identifier varchar(255),
+    receive_underlying_scheme varchar(255),
+    receive_monitoring_frequency_id bigint,
+    receive_annualization_factor double precision,
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_swap2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
     CONSTRAINT sec_fk_payfreq2frequency FOREIGN KEY (pay_frequency_id) REFERENCES sec_frequency (id),
     CONSTRAINT sec_fk_receivefreq2frequency FOREIGN KEY (receive_frequency_id) REFERENCES sec_frequency (id),
     CONSTRAINT sec_fk_payoffset2frequency FOREIGN KEY (pay_offset_fixing_id) REFERENCES sec_frequency (id),
-    CONSTRAINT sec_fk_recvoffset2frequency FOREIGN KEY (receive_offset_fixing_id) REFERENCES sec_frequency (id)
+    CONSTRAINT sec_fk_recvoffset2frequency FOREIGN KEY (receive_offset_fixing_id) REFERENCES sec_frequency (id),
+    CONSTRAINT sec_fk_paymonitorfreq2frequency FOREIGN KEY (pay_monitoring_frequency_id) REFERENCES sec_frequency (id),
+    CONSTRAINT sec_fk_recvmonitorfreq2frequency FOREIGN KEY (receive_monitoring_frequency_id) REFERENCES sec_frequency (id)
 );
 CREATE INDEX ix_sec_swap_security_id ON sec_swap(security_id);
 
@@ -815,8 +830,8 @@ CREATE TABLE sec_fxforward (
   region_identifier varchar(255) NOT NULL,
   pay_currency_id bigint NOT NULL,
   receive_currency_id bigint NOT NULL,
-  pay_amount DOUBLE PRECISION,
-  receive_amount DOUBLE PRECISION,
+  pay_amount DOUBLE PRECISION NOT NULL,
+  receive_amount DOUBLE PRECISION NOT NULL,
   forward_date timestamp without time zone NOT NULL,
   forward_zone varchar(50) NOT NULL,
   PRIMARY KEY (id),
@@ -834,8 +849,8 @@ CREATE TABLE sec_nondeliverablefxforward (
   region_identifier varchar(255) NOT NULL,
   pay_currency_id bigint NOT NULL,
   receive_currency_id bigint NOT NULL,
-  pay_amount DOUBLE PRECISION,
-  receive_amount DOUBLE PRECISION,
+  pay_amount DOUBLE PRECISION NOT NULL,
+  receive_amount DOUBLE PRECISION NOT NULL,
   forward_date timestamp without time zone NOT NULL,
   forward_zone varchar(50) NOT NULL,
   is_delivery_in_receive_currency boolean NOT NULL,
@@ -949,7 +964,7 @@ CREATE TABLE prt_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO prt_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+INSERT INTO prt_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
 
 CREATE SEQUENCE prt_master_seq
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -1043,7 +1058,7 @@ CREATE TABLE pos_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO pos_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+INSERT INTO pos_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
 
 CREATE SEQUENCE pos_master_seq
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -1169,12 +1184,38 @@ CREATE TABLE rsk_schema_version (
 );
 INSERT INTO rsk_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
 
-CREATE SEQUENCE rsk_batch_seq
-    START WITH 1000 INCREMENT BY 1 NO CYCLE;
+-------------------------------------
+-- Static data
+-------------------------------------
 
+create table rsk_observation_time (
+    id int not null,
+    label varchar(255) not null,                -- LDN_CLOSE
+    
+    primary key (id),
+    
+    constraint rsk_chk_uq_obs_time unique (label)
+);
+
+create table rsk_observation_datetime (
+	id int not null,
+	date_part date not null,  
+	time_part time null,						-- null if time of LDN_CLOSE not fixed yet
+	observation_time_id int not null,    		  
+	
+	primary key (id),
+	
+	constraint rsk_fk_obs_datetime2obs_time
+	    foreign key (observation_time_id) references rsk_observation_time (id),
+	    
+	constraint rsk_chk_obs_datetime check 
+	    (time_part is not null or observation_time_id is not null), 
+	
+	constraint rsk_chk_uq_obs_datetime unique (date_part, observation_time_id)
+);
 
 create table rsk_compute_host (
-	id bigint not null,
+	id int not null,
 	host_name varchar(255) not null,
 	
 	primary key (id),
@@ -1183,8 +1224,8 @@ create table rsk_compute_host (
 );
 
 create table rsk_compute_node (
-	id bigint not null,
-	compute_host_id bigint not null,
+	id int not null,
+	compute_host_id int not null,
 	node_name varchar(255) not null,
 	
 	primary key (id),
@@ -1195,21 +1236,52 @@ create table rsk_compute_node (
 	constraint rsk_chk_uq_compute_node unique (node_name)
 );
 
+create table rsk_opengamma_version (
+	id int not null,
+	version varchar(255) not null, 
+	
+	primary key (id),
+	
+	constraint rsk_chk_uq_opengamma_version unique (version)
+);
+
+-- DBTOOLDONOTCLEAR
+create table rsk_computation_target_type (
+	id int not null,	 	            
+    name varchar(255) not null,
+    
+    primary key (id),
+    
+    constraint rsk_chk_cmpt_target_type check
+        ((id = 0 and name = 'PORTFOLIO_NODE') or
+         (id = 1 and name = 'POSITION') or 
+         (id = 2 and name = 'SECURITY') or
+         (id = 3 and name = 'PRIMITIVE'))
+);
+
+insert into rsk_computation_target_type (id, name) values (0, 'PORTFOLIO_NODE');
+insert into rsk_computation_target_type (id, name) values (1, 'POSITION');
+insert into rsk_computation_target_type (id, name) values (2, 'SECURITY');
+insert into rsk_computation_target_type (id, name) values (3, 'PRIMITIVE');
 
 create table rsk_computation_target (
-	id bigint not null,
-	type varchar(255) not null,	
-    
-    id_scheme varchar(255) not null,
-    id_value varchar(255) not null,
-    id_version varchar(255) null,
+	id int not null,
+	type_id int not null,
+	id_scheme varchar(255) not null,
+	id_value varchar(255) not null,
+	id_version varchar(255) null,
+	name varchar(255) null,
+	
 	primary key (id),
-		    
-	constraint rsk_chk_uq_computation_target unique (type, id_scheme, id_value, id_version)
+	
+	constraint rsk_fk_cmpt_target2tgt_type 
+	    foreign key (type_id) references rsk_computation_target_type (id),
+	    
+	constraint rsk_chk_uq_computation_target unique (type_id, id_scheme, id_value, id_version)
 );
 
 create table rsk_function_unique_id (
-	id bigint not null,
+	id int not null,
 	unique_id varchar(255) not null,
 	
 	primary key (id),
@@ -1221,84 +1293,84 @@ create table rsk_function_unique_id (
 -- LiveData inputs
 -------------------------------------
 
-create table rsk_live_data_snapshot (
-	id bigint not null,
-    base_uid_scheme  varchar(255) not null,
-    base_uid_value   varchar(255) not null,
-    base_uid_version varchar(255),
+create table rsk_live_data_field (
+	id int not null,
+	name varchar(255) not null,
+	
 	primary key (id),
+	
+	constraint rsk_chk_uq_live_data_field unique (name)
+);
 
-	constraint rsk_chk_uq_base_uid unique (base_uid_scheme, base_uid_value, base_uid_version)
+create table rsk_live_data_snapshot (
+	id int not null,
+	observation_datetime_id int not null,
+	
+	primary key (id),
+	
+	constraint rsk_fk_lv_data_snap2ob_dttime
+	    foreign key (observation_datetime_id) references rsk_observation_datetime (id),
+	    
+	constraint rsk_chk_uq_live_data_snapshot unique (observation_datetime_id)
 );
 
 create table rsk_live_data_snapshot_entry (
 	id bigint not null,
-	snapshot_id bigint not null,
-	computation_target_id bigint not null,
-    name  varchar(255) not null,
+	snapshot_id int not null,
+	computation_target_id int not null,
+	field_id int not null,
 	value double precision,
-
+	
 	primary key (id),
-
+	
 	constraint rsk_fk_snpsht_entry2snpsht
 		foreign key (snapshot_id) references rsk_live_data_snapshot (id),
 	constraint rsk_fk_spsht_entry2cmp_target
 	    foreign key (computation_target_id) references rsk_computation_target (id),
-
-	constraint rsk_chk_uq_snapshot_entry unique (snapshot_id, computation_target_id)
+	    
+	constraint rsk_chk_uq_snapshot_entry unique (snapshot_id, computation_target_id, field_id) 	
 );
-
-create table rsk_live_data_snapshot_entry_insertion (
-	id bigint not null,
-	snapshot_id bigint not null,
-	computation_target_id bigint not null,
-    name  varchar(255) not null,
-	value double precision,
-
-	primary key (id)
-);
-
 
 -------------------------------------
 -- Risk run
 -------------------------------------
 
-
 create table rsk_run (
-    id bigint not null,
-    
-    version_correction varchar(255) not null,
-    viewdef_scheme      VARCHAR(255) NOT NULL,
-    viewdef_value       VARCHAR(255) NOT NULL,
-    viewdef_version     VARCHAR(255),
-       
-    live_data_snapshot_id bigint not null,
-    
+    id int not null,
+    opengamma_version_id int not null,
+    master_process_host_id int not null,    -- machine where 'master' batch process was started
+    run_time_id int not null,
+    live_data_snapshot_id int not null,
     create_instant timestamp without time zone not null,
     start_instant timestamp without time zone not null,       -- can be different from create_instant if is run is restarted
     end_instant	timestamp without time zone,
-    valuation_time timestamp without time zone not null,
     num_restarts int not null,
     complete boolean not null,
-
+    
     primary key (id),
     
+    constraint rsk_fk_run2opengamma_version
+        foreign key (opengamma_version_id) references rsk_opengamma_version (id),
+    constraint rsk_fk_run2compute_host
+        foreign key (master_process_host_id) references rsk_compute_host (id),
+    constraint rsk_fk_run2obs_datetime
+        foreign key (run_time_id) references rsk_observation_datetime (id),
     constraint rsk_fk_run2live_data_snapshot
-            foreign key (live_data_snapshot_id) references rsk_live_data_snapshot (id),    
+        foreign key (live_data_snapshot_id) references rsk_live_data_snapshot (id),
 
-    constraint rsk_chk_uq_run unique (version_correction, viewdef_scheme, viewdef_value, viewdef_version, live_data_snapshot_id)
+    constraint rsk_chk_uq_run unique (run_time_id)
 );
 
 create table rsk_calculation_configuration (
-	id bigint not null,
-	run_id bigint not null,
+	id int not null,
+	run_id int not null,
 	name varchar(255) not null,
 	
 	primary key (id),
 	
 	constraint rsk_fk_calc_conf2run
-		    foreign key (run_id) references rsk_run (id),
-		    
+	    foreign key (run_id) references rsk_run (id),
+	
 	constraint rsk_chk_uq_calc_conf unique (run_id, name)
 );
 
@@ -1308,8 +1380,8 @@ create table rsk_calculation_configuration (
 -- 	- PositionMasterTime = 20100615170000
 --  - GlobalRandomSeed = 54321
 create table rsk_run_property (		
-	id bigint not null,
-	run_id bigint not null,
+	id int not null,
+	run_id int not null,
 	property_key varchar(255) not null,
 	property_value varchar(2000) not null,		    -- varchar(255) not enough
 	
@@ -1319,17 +1391,37 @@ create table rsk_run_property (
 	    foreign key (run_id) references rsk_run (id)
 );
 
+-- DBTOOLDONOTCLEAR
+create table rsk_run_status_code (
+    id int not null,	 	            
+    name varchar(255) not null,
+    
+    primary key (id),
+    
+    constraint rsk_chk_rsk_run_status_code check
+        ((id = 0 and name = 'SUCCESS') or
+         (id = 1 and name = 'FAILURE') or 
+         (id = 2 and name = 'RUNNING') or
+         (id = 3 and name = 'NOT_RUNNING'))
+);
+
+insert into rsk_run_status_code (id, name) values (0, 'SUCCESS');
+insert into rsk_run_status_code (id, name) values (1, 'FAILURE');
+insert into rsk_run_status_code (id, name) values (2, 'RUNNING');
+insert into rsk_run_status_code (id, name) values (3, 'NOT_RUNNING');
 
 create table rsk_run_status (
     id bigint not null, 
-    calculation_configuration_id bigint not null,
-    computation_target_id bigint not null,
-    status varchar(255) not null,
+    calculation_configuration_id int not null,
+    computation_target_id int not null,
+    status int not null,
 
     constraint rsk_fk_run_status2calc_conf
         foreign key (calculation_configuration_id) references rsk_calculation_configuration (id),
     constraint rsk_fk_run_status2comp_tgt
-        foreign key (computation_target_id) references rsk_computation_target (id),    
+        foreign key (computation_target_id) references rsk_computation_target (id),
+    constraint rsk_fk_run_status2code
+        foreign key (status) references rsk_run_status_code (id),
 
     constraint rsk_chk_uq_run_status unique (calculation_configuration_id, computation_target_id)
 );
@@ -1339,8 +1431,17 @@ create table rsk_run_status (
 -- Risk
 -------------------------------------
 
+create table rsk_value_name (
+    id int not null,
+    name varchar(255) not null,
+    
+    primary key (id),
+    
+    constraint rsk_chk_uq_value_name unique (name)
+);
+
 create table rsk_value_specification (
-    id bigint not null,
+    id int not null,
     synthetic_form varchar(1024) not null,
 
     primary key (id),
@@ -1349,26 +1450,26 @@ create table rsk_value_specification (
 );
 
 create table rsk_value_requirement (
-    id bigint not null,
+    id int not null,
     synthetic_form varchar(1024) not null,
-    specification_id bigint not null,
 
     primary key (id),
 
-    constraint rsk_chk_uq_value_requirement unique (specification_id, synthetic_form)
+    constraint rsk_chk_uq_value_requirement unique (synthetic_form)
 );
 
 create table rsk_value (
     id bigint not null,
-    calculation_configuration_id bigint not null,
-    value_specification_id bigint not null,
-    function_unique_id bigint not null,
-    computation_target_id bigint not null,        
-    run_id bigint not null,             	       -- shortcut
+    calculation_configuration_id int not null,
+    value_name_id int not null,
+    value_requirement_id int not null,
+    value_specification_id int not null,
+    function_unique_id int not null,
+    computation_target_id int not null,        
+    run_id int not null,             	       -- shortcut
     value double precision not null,
-    name varchar(255),
     eval_instant timestamp without time zone not null,
-    compute_node_id bigint not null,
+    compute_node_id int not null,
     
     primary key (id),
     
@@ -1376,7 +1477,11 @@ create table rsk_value (
     constraint rsk_fk_value2calc_conf
         foreign key (calculation_configuration_id) references rsk_calculation_configuration (id),
     constraint rsk_fk_value2run 
-        foreign key (run_id) references rsk_run (id), 
+        foreign key (run_id) references rsk_run (id),
+    constraint rsk_fk_value2value_name
+        foreign key (value_name_id) references rsk_value_name (id),
+    constraint rsk_fk_value2value_requirement
+        foreign key (value_requirement_id) references rsk_value_requirement (id),
     constraint rsk_fk_value2value_specification
         foreign key (value_specification_id) references rsk_value_specification (id),
     constraint rsk_fk_value2function_id
@@ -1386,7 +1491,7 @@ create table rsk_value (
     constraint rsk_fk_value2compute_node
         foreign key (compute_node_id) references rsk_compute_node (id),
         
-    constraint rsk_chk_uq_value unique (calculation_configuration_id, name, value_specification_id, computation_target_id)
+    constraint rsk_chk_uq_value unique (calculation_configuration_id, value_name_id, value_requirement_id, computation_target_id)
 );
 
 
@@ -1405,14 +1510,15 @@ create table rsk_compute_failure (
 -- how to aggregate risk failures?
 create table rsk_failure (			
     id bigint not null,
-    calculation_configuration_id bigint not null,
-    name varchar(255),
-    value_specification_id bigint not null,
-    function_unique_id bigint not null,
-    computation_target_id bigint not null,
-    run_id bigint not null,             	       -- shortcut
+    calculation_configuration_id int not null,
+    value_name_id int not null,
+    value_requirement_id int not null,
+    value_specification_id int not null,
+    function_unique_id int not null,
+    computation_target_id int not null,
+    run_id int not null,             	       -- shortcut
     eval_instant timestamp without time zone not null,
-    compute_node_id bigint not null,
+    compute_node_id int not null,
     
     primary key (id),
     
@@ -1420,6 +1526,10 @@ create table rsk_failure (
         foreign key (calculation_configuration_id) references rsk_calculation_configuration (id),
     constraint rsk_fk_failure2run 
         foreign key (run_id) references rsk_run (id),
+    constraint rsk_fk_failure2value_name
+        foreign key (value_name_id) references rsk_value_name (id),
+    constraint rsk_fk_failure2value_requirement
+        foreign key (value_requirement_id) references rsk_value_requirement (id),
     constraint rsk_fk_failure2value_specification
         foreign key (value_specification_id) references rsk_value_specification (id),
     constraint rsk_fk_failure2function_id
@@ -1429,7 +1539,7 @@ create table rsk_failure (
     constraint rsk_fk_failure2node
        foreign key (compute_node_id) references rsk_compute_node (id),
         
-    constraint rsk_chk_uq_failure unique (calculation_configuration_id, name, value_specification_id, computation_target_id)
+    constraint rsk_chk_uq_failure unique (calculation_configuration_id, value_name_id, value_requirement_id, computation_target_id)
 );    
 
 create table rsk_failure_reason (
@@ -1447,6 +1557,104 @@ create table rsk_failure_reason (
 
    constraint rsk_chk_uq_failure_reason unique (rsk_failure_id, compute_failure_id)
 );
+
+
+-------------------------------------
+-- Views
+-------------------------------------
+
+create view vw_rsk as
+select
+rsk_computation_target_type.name as comp_target_type,
+rsk_computation_target.id_scheme as comp_target_id_scheme,
+rsk_computation_target.id_value as comp_target_id_value,
+rsk_computation_target.id_version as comp_target_id_version,
+rsk_computation_target.name as comp_target_name,
+rsk_run.id as rsk_run_id,
+rsk_observation_datetime.date_part as run_date,
+rsk_observation_time.label as run_time,
+rsk_calculation_configuration.name as calc_conf_name,
+rsk_value_name.name,
+rsk_value_requirement.synthetic_form as requirement_synthetic_form,
+rsk_value_specification.synthetic_form as specification_synthetic_form,
+rsk_function_unique_id.unique_id as function_unique_id,
+rsk_value.value,
+rsk_value.eval_instant
+from 
+rsk_value, 
+rsk_calculation_configuration,
+rsk_value_name,
+rsk_value_requirement,
+rsk_value_specification,
+rsk_computation_target,
+rsk_computation_target_type,
+rsk_run,
+rsk_compute_node,
+rsk_observation_datetime,
+rsk_observation_time,
+rsk_function_unique_id
+where
+rsk_value.calculation_configuration_id = rsk_calculation_configuration.id and
+rsk_value.value_name_id = rsk_value_name.id and
+rsk_value.value_requirement_id = rsk_value_requirement.id and
+rsk_value.value_specification_id = rsk_value_specification.id and
+rsk_value.function_unique_id = rsk_function_unique_id.id and
+rsk_value.computation_target_id = rsk_computation_target.id and
+rsk_computation_target.type_id = rsk_computation_target_type.id and
+rsk_value.run_id = rsk_run.id and
+rsk_value.compute_node_id = rsk_compute_node.id and
+rsk_run.run_time_id = rsk_observation_datetime.id and
+rsk_observation_datetime.observation_time_id = rsk_observation_time.id;
+
+create view vw_rsk_failure as
+select
+rsk_computation_target_type.name as comp_target_type,
+rsk_computation_target.id_scheme as comp_target_id_scheme,
+rsk_computation_target.id_value as comp_target_id_value,
+rsk_computation_target.id_version as comp_target_id_version,
+rsk_computation_target.name as comp_target_name,
+rsk_run.id as rsk_run_id,
+rsk_observation_datetime.date_part as run_date,
+rsk_observation_time.label as run_time,
+rsk_calculation_configuration.name as calc_conf_name,
+rsk_value_name.name,
+rsk_value_requirement.synthetic_form as requirement_synthetic_form,
+rsk_value_specification.synthetic_form as specification_synthetic_form,
+rsk_function_unique_id.unique_id as function_unique_id,
+rsk_failure.eval_instant,
+rsk_compute_failure.function_id as failed_function,
+rsk_compute_failure.exception_class,
+rsk_compute_failure.exception_msg,
+rsk_compute_failure.stack_trace 
+from 
+rsk_failure, 
+rsk_calculation_configuration,
+rsk_value_name,
+rsk_value_requirement,
+rsk_value_specification,
+rsk_computation_target,
+rsk_computation_target_type,
+rsk_run,
+rsk_compute_node,
+rsk_observation_datetime,
+rsk_observation_time,
+rsk_function_unique_id,
+rsk_failure_reason,
+rsk_compute_failure
+where
+rsk_failure.calculation_configuration_id = rsk_calculation_configuration.id and
+rsk_failure.value_name_id = rsk_value_name.id and
+rsk_failure.value_requirement_id = rsk_value_requirement.id and
+rsk_failure.value_specification_id = rsk_value_specification.id and
+rsk_failure.function_unique_id = rsk_function_unique_id.id and
+rsk_failure.computation_target_id = rsk_computation_target.id and
+rsk_computation_target.type_id = rsk_computation_target_type.id and
+rsk_failure.run_id = rsk_run.id and
+rsk_failure.compute_node_id = rsk_compute_node.id and
+rsk_run.run_time_id = rsk_observation_datetime.id and
+rsk_observation_datetime.observation_time_id = rsk_observation_time.id and
+rsk_failure_reason.rsk_failure_id = rsk_failure.id and
+rsk_failure_reason.compute_failure_id = rsk_compute_failure.id;
 -- create-db-historicaltimeseries.sql: Historical time-series Master
 
 -- design has one main document with data points handled separately
@@ -1469,7 +1677,7 @@ CREATE TABLE hts_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO hts_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+INSERT INTO hts_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
 
 CREATE SEQUENCE hts_master_seq
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -1595,7 +1803,7 @@ CREATE TABLE snp_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO snp_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+INSERT INTO snp_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
 
 CREATE SEQUENCE snp_snapshot_seq
     START WITH 1000 INCREMENT BY 1 NO CYCLE;

@@ -20,7 +20,7 @@ CREATE TABLE hts_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO hts_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+INSERT INTO hts_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
 
 CREATE SEQUENCE hts_master_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;

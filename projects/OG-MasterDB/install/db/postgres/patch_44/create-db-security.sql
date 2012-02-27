@@ -11,7 +11,7 @@ CREATE TABLE sec_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '43');
+INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
 
 CREATE SEQUENCE sec_security_seq
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -179,7 +179,7 @@ CREATE TABLE sec_equitybarrieroption (
     currency_id bigint NOT NULL,
     exchange_id bigint,
     pointValue double precision,
-	barrier_type varchar(32) NOT NULL,
+	  barrier_type varchar(32) NOT NULL,
     barrier_direction varchar(32) NOT NULL,
     barrier_level double precision NOT NULL,
     monitoring_type varchar(32) NOT NULL,
@@ -227,7 +227,7 @@ CREATE TABLE sec_nondeliverablefxoption (
     settlement_date timestamp without time zone NOT NULL,
     settlement_zone varchar(50) NOT NULL,
     is_long boolean NOT NULL,
-	is_delivery_in_call_currency boolean NOT NULL,
+	  is_delivery_in_call_currency boolean NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_nondeliverablefxoption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
     CONSTRAINT sec_fk_nondeliverablefxoption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
@@ -530,7 +530,8 @@ CREATE TABLE sec_cash (
     amount double precision NOT NULL,
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_cash2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
-    CONSTRAINT sec_fk_cash2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id)
+    CONSTRAINT sec_fk_cash2currency FOREIGN KEY (currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_cash2daycount FOREIGN KEY (daycount_id) REFERENCES sec_daycount (id)
 );
 
 CREATE TABLE sec_fra (
@@ -587,6 +588,12 @@ CREATE TABLE sec_swap (
     pay_settlement_days INTEGER,
     pay_gearing DOUBLE precision,
     pay_offset_fixing_id bigint,
+    pay_strike double precision,
+    pay_variance_swap_type varchar(32),
+    pay_underlying_identifier varchar(255),
+    pay_underlying_scheme varchar(255),
+    pay_monitoring_frequency_id bigint,
+    pay_annualization_factor double precision,
     receive_legtype varchar(32) NOT NULL,
     receive_daycount_id bigint NOT NULL,
     receive_frequency_id bigint NOT NULL,
@@ -607,12 +614,20 @@ CREATE TABLE sec_swap (
     receive_settlement_days INTEGER,
     receive_gearing DOUBLE precision,
     receive_offset_fixing_id bigint,
+    receive_strike double precision,
+    receive_variance_swap_type varchar(32),
+    receive_underlying_identifier varchar(255),
+    receive_underlying_scheme varchar(255),
+    receive_monitoring_frequency_id bigint,
+    receive_annualization_factor double precision,
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_swap2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
     CONSTRAINT sec_fk_payfreq2frequency FOREIGN KEY (pay_frequency_id) REFERENCES sec_frequency (id),
     CONSTRAINT sec_fk_receivefreq2frequency FOREIGN KEY (receive_frequency_id) REFERENCES sec_frequency (id),
     CONSTRAINT sec_fk_payoffset2frequency FOREIGN KEY (pay_offset_fixing_id) REFERENCES sec_frequency (id),
-    CONSTRAINT sec_fk_recvoffset2frequency FOREIGN KEY (receive_offset_fixing_id) REFERENCES sec_frequency (id)
+    CONSTRAINT sec_fk_recvoffset2frequency FOREIGN KEY (receive_offset_fixing_id) REFERENCES sec_frequency (id),
+    CONSTRAINT sec_fk_paymonitorfreq2frequency FOREIGN KEY (pay_monitoring_frequency_id) REFERENCES sec_frequency (id),
+    CONSTRAINT sec_fk_recvmonitorfreq2frequency FOREIGN KEY (receive_monitoring_frequency_id) REFERENCES sec_frequency (id)
 );
 CREATE INDEX ix_sec_swap_security_id ON sec_swap(security_id);
 
@@ -629,8 +644,8 @@ CREATE TABLE sec_fxforward (
   region_identifier varchar(255) NOT NULL,
   pay_currency_id bigint NOT NULL,
   receive_currency_id bigint NOT NULL,
-  pay_amount DOUBLE PRECISION,
-  receive_amount DOUBLE PRECISION,
+  pay_amount DOUBLE PRECISION NOT NULL,
+  receive_amount DOUBLE PRECISION NOT NULL,
   forward_date timestamp without time zone NOT NULL,
   forward_zone varchar(50) NOT NULL,
   PRIMARY KEY (id),
@@ -648,8 +663,8 @@ CREATE TABLE sec_nondeliverablefxforward (
   region_identifier varchar(255) NOT NULL,
   pay_currency_id bigint NOT NULL,
   receive_currency_id bigint NOT NULL,
-  pay_amount DOUBLE PRECISION,
-  receive_amount DOUBLE PRECISION,
+  pay_amount DOUBLE PRECISION NOT NULL,
+  receive_amount DOUBLE PRECISION NOT NULL,
   forward_date timestamp without time zone NOT NULL,
   forward_zone varchar(50) NOT NULL,
   is_delivery_in_receive_currency boolean NOT NULL,
