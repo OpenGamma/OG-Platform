@@ -111,21 +111,21 @@ public class AnnuityCouponFixedDefinitionTest {
     ZonedDateTime[] expectedPaymentDate;
     // End date is modified
     fixedAnnuity = AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, ANNUITY_TENOR, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
-    expectedPaymentDate = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 19), DateUtils.getUTCDate(2012, 3, 19), DateUtils.getUTCDate(2012, 9, 17), DateUtils.getUTCDate(2013, 3, 18)};
+    expectedPaymentDate = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 19), DateUtils.getUTCDate(2012, 3, 19), DateUtils.getUTCDate(2012, 9, 17), DateUtils.getUTCDate(2013, 3, 18) };
     for (int loopcpn = 0; loopcpn < expectedPaymentDate.length; loopcpn++) {
       assertEquals(expectedPaymentDate[loopcpn], fixedAnnuity.getNthPayment(loopcpn).getPaymentDate());
     }
     // Check modified in modified following.
     final ZonedDateTime settlementDateModified = DateUtils.getUTCDate(2011, 3, 31);
     fixedAnnuity = AnnuityCouponFixedDefinition.from(CUR, settlementDateModified, ANNUITY_TENOR, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
-    expectedPaymentDate = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 30), DateUtils.getUTCDate(2012, 3, 30), DateUtils.getUTCDate(2012, 9, 28), DateUtils.getUTCDate(2013, 3, 29)};
+    expectedPaymentDate = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 30), DateUtils.getUTCDate(2012, 3, 30), DateUtils.getUTCDate(2012, 9, 28), DateUtils.getUTCDate(2013, 3, 29) };
     for (int loopcpn = 0; loopcpn < expectedPaymentDate.length; loopcpn++) {
       assertEquals(expectedPaymentDate[loopcpn], fixedAnnuity.getNthPayment(loopcpn).getPaymentDate());
     }
     // End-of-month
     final ZonedDateTime settlementDateEOM = DateUtils.getUTCDate(2011, 2, 28);
     fixedAnnuity = AnnuityCouponFixedDefinition.from(CUR, settlementDateEOM, ANNUITY_TENOR, PAYMENT_TENOR, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
-    expectedPaymentDate = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 8, 31), DateUtils.getUTCDate(2012, 2, 29), DateUtils.getUTCDate(2012, 8, 31), DateUtils.getUTCDate(2013, 2, 28)};
+    expectedPaymentDate = new ZonedDateTime[] {DateUtils.getUTCDate(2011, 8, 31), DateUtils.getUTCDate(2012, 2, 29), DateUtils.getUTCDate(2012, 8, 31), DateUtils.getUTCDate(2013, 2, 28) };
     for (int loopcpn = 0; loopcpn < expectedPaymentDate.length; loopcpn++) {
       assertEquals(expectedPaymentDate[loopcpn], fixedAnnuity.getNthPayment(loopcpn).getPaymentDate());
     }
@@ -203,7 +203,7 @@ public class AnnuityCouponFixedDefinitionTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testStaticConstructionNullMaturityDate() {
-    AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, null, PAYMENT_FREQUENCY, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
+    AnnuityCouponFixedDefinition.from(CUR, SETTLEMENT_DATE, (ZonedDateTime) null, PAYMENT_FREQUENCY, CALENDAR, DAY_COUNT, BUSINESS_DAY, IS_EOM, NOTIONAL, RATE, IS_PAYER);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

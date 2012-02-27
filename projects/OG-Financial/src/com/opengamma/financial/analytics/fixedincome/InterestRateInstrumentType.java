@@ -50,6 +50,8 @@ public enum InterestRateInstrumentType {
   SWAP_IBOR_CMS,
   /** A swap, two CMS legs */
   SWAP_CMS_CMS,
+  /** A swap, one fixed leg, one OIS leg */
+  SWAP_FIXED_OIS,
   /** Cash */
   CASH, //TODO do we need ibor, deposit, OIS?
   /** FRA */
@@ -68,9 +70,8 @@ public enum InterestRateInstrumentType {
     final InterestRateInstrumentType type = security.accept(TYPE_IDENTIFIER);
     if (type == null) {
       throw new OpenGammaRuntimeException("Can't handle " + security.getClass().getName());
-    } else {
-      return type;
     }
+    return type;
   }
 
   public static boolean isFixedIncomeInstrumentType(final FinancialSecurity security) {
