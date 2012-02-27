@@ -118,7 +118,7 @@ $.register_module({
                             }(val)) || title;
                         });
                         $html = $.tmpl(template, $.extend(json.template_data, {
-                            title: title || json.template_data.object_id
+                            title: title || json.template_data.name
                         }));
                         history.put({
                             name: title + ' (' + json.template_data.data_field + ')',
