@@ -64,6 +64,7 @@ public abstract class PaymentDefinition implements InstrumentDefinition<Payment>
 
   @Override
   public String toString() {
+    //    DateTimeFormatter fmt = DateTimeFormatters.
     return "\nPayment Currency = " + _currency + ", Date = " + _paymentDate.toString();
   }
 

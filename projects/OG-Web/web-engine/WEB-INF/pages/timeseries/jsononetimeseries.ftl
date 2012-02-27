@@ -11,8 +11,21 @@
 	    "deleted": "${infoDoc.versionToInstant}"</#if>
     },
     "identifiers": [
-    <#list info.externalIdBundle.externalIds as item>
-    	{"scheme": "${item.externalId.scheme}", "value": "${item.externalId.value}", "date":{"start":"${item.validFrom}", "end":"${item.validTo}"}}<#if item_has_next>,</#if>
+        <#list info.externalIdBundle.externalIds as item>
+            {   "scheme": "${item.externalId.scheme}", 
+                "value": "${item.externalId.value}", 
+                "date":{"start":"${item.validFrom}", "end":"${item.validTo}"}
+            }   <#if item_has_next>,</#if>
+   	</#list>
+    ],
+    "related": [
+        <#list related as item>
+            {   "object_id": "${item.uniqueId.objectId}", 
+                "data_field":"${item.dataField}", 
+                "data_source":"${item.dataSource}", 
+                "data_provider":"${item.dataProvider}", 
+                "observation_time":"${item.observationTime}"
+            }   <#if item_has_next>,</#if>
    	</#list>
     ],
     "timeseries": {

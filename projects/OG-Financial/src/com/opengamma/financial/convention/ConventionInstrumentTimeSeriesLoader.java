@@ -26,9 +26,9 @@ import com.opengamma.util.ArgumentChecker;
  * Populates an historical time-series master with missing time-series for each instrument referenced by the 
  * {@link InMemoryConventionBundleMaster}.
  */
-public class ConventionInstrumentTimeSeriesPopulator {
+public class ConventionInstrumentTimeSeriesLoader {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(ConventionInstrumentTimeSeriesPopulator.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ConventionInstrumentTimeSeriesLoader.class);
 
   private final InMemoryConventionBundleMaster _conventionMaster;
   
@@ -40,7 +40,7 @@ public class ConventionInstrumentTimeSeriesPopulator {
   private final ExternalScheme _identifierScheme;
   private final boolean _updateExisting;
   
-  public ConventionInstrumentTimeSeriesPopulator(HistoricalTimeSeriesSource htsSource,
+  public ConventionInstrumentTimeSeriesLoader(HistoricalTimeSeriesSource htsSource,
       HistoricalTimeSeriesLoader htsLoader, String dataSource, String dataProvider, String dataField,
       ExternalScheme identifierScheme, boolean updateExisting) {
     ArgumentChecker.notNull(htsSource, "htsSource");
@@ -92,12 +92,10 @@ public class ConventionInstrumentTimeSeriesPopulator {
   }
   
   //-------------------------------------------------------------------------
-  public void populate() {
+  public void run() {
     Collection<ConventionBundle> conventions = getConventionMaster().getAll();
     Set<ExternalId> externalIds = new HashSet<ExternalId>();
     for (ConventionBundle convention : conventions) {
-      addExternalId(convention.getBasisSwapPayFloatingLegInitialRate(), externalIds);
-      addExternalId(convention.getBasisSwapReceiveFloatingLegInitialRate(), externalIds);
       addExternalId(convention.getSwapFloatingLegInitialRate(), externalIds);
     }
     s_logger.info("Checking {} time-series: {}", externalIds.size(), externalIds);
