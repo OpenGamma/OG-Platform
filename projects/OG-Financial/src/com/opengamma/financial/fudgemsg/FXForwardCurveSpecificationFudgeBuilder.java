@@ -12,7 +12,6 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
-import com.opengamma.financial.analytics.fxforwardcurve.BloombergFXForwardCurveInstrumentProvider;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveInstrumentProvider;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -28,14 +27,7 @@ public class FXForwardCurveSpecificationFudgeBuilder implements FudgeBuilder<FXF
     final MutableFudgeMsg message = serializer.newMessage();
     message.add("target", FudgeSerializer.addClassHeader(serializer.objectToFudgeMsg(object.getTarget()), object.getTarget().getClass()));
     message.add("name", object.getName());
-    final BloombergFXForwardCurveInstrumentProvider temp = (BloombergFXForwardCurveInstrumentProvider) object.getCurveInstrumentProvider();
-    final String dataFieldName = temp.getDataFieldName();
-    final String prefix = temp.getPrefix();
-    final String postfix = temp.getPostfix();
-    message.add("dataFieldName", dataFieldName);
-    message.add("prefix", prefix);
-    message.add("postfix", postfix);
-    message.add("curveInstrumentProvider", object.getCurveInstrumentProvider());
+    serializer.addToMessageWithClassHeaders(message, "curveInstrumentProvider", null, object.getCurveInstrumentProvider());
     return message;
   }
 
