@@ -62,7 +62,7 @@ public class DataComponentServerResource extends AbstractDataResource {
   @HEAD
   public Response status() {
     // simple GET to quickly return as a ping
-    return Response.ok().build();
+    return responseOk();
   }
 
   @GET
@@ -73,7 +73,7 @@ public class DataComponentServerResource extends AbstractDataResource {
       server.getComponentInfos().add(component.getInfo());
     }
     server.setUri(URI.create("components"));
-    return response(server);
+    return responseOkFudge(server);
   }
 
   @Path("{type}/{classifier}")

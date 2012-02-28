@@ -67,21 +67,21 @@ public class DataHistoricalTimeSeriesMasterResource extends AbstractDataResource
   public Response metaData(@Context UriInfo uriInfo) {
     HistoricalTimeSeriesInfoMetaDataRequest request = RestUtils.decodeQueryParams(uriInfo, HistoricalTimeSeriesInfoMetaDataRequest.class);
     HistoricalTimeSeriesInfoMetaDataResult result = getHistoricalTimeSeriesMaster().metaData(request);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @HEAD
   @Path("infos")
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
-    return Response.ok().build();
+    return responseOk();
   }
 
   @POST
   @Path("infoSearches")
   public Response search(HistoricalTimeSeriesInfoSearchRequest request) {
     HistoricalTimeSeriesInfoSearchResult result = getHistoricalTimeSeriesMaster().search(request);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @POST
@@ -89,7 +89,7 @@ public class DataHistoricalTimeSeriesMasterResource extends AbstractDataResource
   public Response add(@Context UriInfo uriInfo, HistoricalTimeSeriesInfoDocument request) {
     HistoricalTimeSeriesInfoDocument result = getHistoricalTimeSeriesMaster().add(request);
     URI createdUri = DataHistoricalTimeSeriesResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return Response.created(createdUri).entity(result).build();
+    return responseCreatedFudge(createdUri, result);
   }
 
   //-------------------------------------------------------------------------
