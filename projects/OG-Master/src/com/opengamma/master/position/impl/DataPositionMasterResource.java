@@ -62,14 +62,14 @@ public class DataPositionMasterResource extends AbstractDataResource {
   @Path("positions")
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
-    return Response.ok().build();
+    return responseOk();
   }
 
   @POST
   @Path("positionSearches")
   public Response search(PositionSearchRequest request) {
     PositionSearchResult result = getPositionMaster().search(request);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @POST
@@ -77,7 +77,7 @@ public class DataPositionMasterResource extends AbstractDataResource {
   public Response add(@Context UriInfo uriInfo, PositionDocument request) {
     PositionDocument result = getPositionMaster().add(request);
     URI createdUri = DataPositionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return Response.created(createdUri).entity(result).build();
+    return responseCreatedFudge(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

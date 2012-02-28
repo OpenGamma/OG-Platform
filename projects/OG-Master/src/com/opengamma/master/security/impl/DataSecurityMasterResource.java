@@ -7,7 +7,6 @@ package com.opengamma.master.security.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
@@ -25,7 +24,6 @@ import com.opengamma.master.security.SecurityMetaDataRequest;
 import com.opengamma.master.security.SecurityMetaDataResult;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.rest.RestUtils;
@@ -69,21 +67,21 @@ public class DataSecurityMasterResource extends AbstractDataResource {
   public Response metaData(@Context UriInfo uriInfo) {
     SecurityMetaDataRequest request = RestUtils.decodeQueryParams(uriInfo, SecurityMetaDataRequest.class);
     SecurityMetaDataResult result = getSecurityMaster().metaData(request);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @HEAD
   @Path("securities")
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
-    return Response.ok().build();
+    return responseOk();
   }
 
   @POST
   @Path("securitySearches")
   public Response search(SecuritySearchRequest request) {
     SecuritySearchResult result = getSecurityMaster().search(request);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @POST
@@ -91,7 +89,7 @@ public class DataSecurityMasterResource extends AbstractDataResource {
   public Response add(@Context UriInfo uriInfo, SecurityDocument request) {
     SecurityDocument result = getSecurityMaster().add(request);
     URI createdUri = DataSecurityResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return Response.created(createdUri).entity(result).build();
+    return responseCreatedFudge(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

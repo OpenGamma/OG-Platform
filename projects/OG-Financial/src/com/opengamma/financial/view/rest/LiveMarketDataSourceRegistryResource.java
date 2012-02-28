@@ -5,16 +5,16 @@
  */
 package com.opengamma.financial.view.rest;
 
-import java.util.Collection;
-
 import javax.ws.rs.GET;
+import javax.ws.rs.core.Response;
 
 import com.opengamma.engine.marketdata.live.LiveMarketDataSourceRegistry;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for {@link LiveMarketDataSourceRegistry}
  */
-public class LiveMarketDataSourceRegistryResource {
+public class LiveMarketDataSourceRegistryResource extends AbstractDataResource {
 
   private final LiveMarketDataSourceRegistry _liveMarketDataSourceRegistry;
 
@@ -23,7 +23,8 @@ public class LiveMarketDataSourceRegistryResource {
   }
 
   @GET
-  public Collection<String> getDataSources() {
-    return _liveMarketDataSourceRegistry.getDataSources();
+  public Response getDataSources() {
+    return responseOkFudge(_liveMarketDataSourceRegistry.getDataSources());
   }
+
 }
