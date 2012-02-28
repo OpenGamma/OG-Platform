@@ -38,12 +38,12 @@ import static org.mockito.Mockito.when;
 import static org.mockito.MockitoAnnotations.initMocks;
 import static org.testng.Assert.*;
 
-public class BatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
+public class DataBatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
 
   @Mock
   private BatchMasterWriter batchMaster;
 
-  private BatchMasterResource batchMasterResource;
+  private DataBatchMasterResource batchMasterResource;
 
   //private BatchDocument batchDocument = mock(BatchDocument.class);
 
@@ -65,7 +65,7 @@ public class BatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
     Pair<List<RiskRun>, Paging> batchSearchResult = Pair.<List<RiskRun>, Paging>of(newArrayList(riskRun), Paging.ofAll(Collections.emptyList()));
 
     initMocks(this);
-    batchMasterResource = new BatchMasterResource(batchMaster);
+    batchMasterResource = new DataBatchMasterResource(batchMaster);
     when(batchMaster.searchRiskRun((BatchRunSearchRequest) any())).thenReturn(batchSearchResult);
     when(batchMaster.getRiskRun((ObjectId) any())).thenReturn(riskRun);
   }
@@ -86,7 +86,7 @@ public class BatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
 
     String batchUid = "Scheme~MockUniqueId";
 
-    BatchRunResource batchRunResource = batchMasterResource.batchRuns(batchUid);
+    DataBatchRunResource batchRunResource = batchMasterResource.batchRuns(batchUid);
 
     batchRunResource.deleteBatchRun();    
 
@@ -101,11 +101,11 @@ public class BatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
     BatchMasterWriter batchMaster = mock(BatchMasterWriter.class);
     when(batchMaster.getRiskRun((ObjectId) any())).thenThrow(DataNotFoundException.class);
     
-    BatchMasterResource batchMasterResource = new BatchMasterResource(batchMaster);    
+    DataBatchMasterResource batchMasterResource = new DataBatchMasterResource(batchMaster);    
 
     String batchUid = "Scheme~MockUniqueId";
 
-    BatchRunResource batchRunResource = batchMasterResource.batchRuns(batchUid);
+    DataBatchRunResource batchRunResource = batchMasterResource.batchRuns(batchUid);
 
     Response response = batchRunResource.get();
     
@@ -119,7 +119,7 @@ public class BatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
     
     when(batchMaster.getMarketDataById((ObjectId) any())).thenReturn(riskRun.getMarketData());
 
-    MarketDataResource marketDataResource = batchMasterResource.getMarketData(snapshotId.toString());
+    DataMarketDataResource marketDataResource = batchMasterResource.getMarketData(snapshotId.toString());
     
     MarketData marketData = (MarketData) marketDataResource.get().getEntity();
 

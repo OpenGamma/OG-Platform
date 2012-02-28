@@ -70,7 +70,7 @@ public class DataFunctionRepositoryResource extends AbstractDataResource {
       serializer.addToMessageWithClassHeaders(submsg, "defaultParameters", null, function.getDefaultParameters(), FunctionParameters.class);
       msg.add(function.getUniqueId(), submsg);
     }
-    return Response.ok(new FudgeMsgEnvelope(msg)).build();
+    return responseOk(new FudgeMsgEnvelope(msg));
   }
 
   @GET
@@ -85,7 +85,7 @@ public class DataFunctionRepositoryResource extends AbstractDataResource {
       serializer.addToMessageWithClassHeaders(submsg, "defaultParameters", null, function.getDefaultParameters(), FunctionParameters.class);
       msg.add(function.getShortName(), submsg);
     }
-    return Response.ok(new FudgeMsgEnvelope(msg)).build();
+    return responseOk(new FudgeMsgEnvelope(msg));
   }
 
   //-------------------------------------------------------------------------

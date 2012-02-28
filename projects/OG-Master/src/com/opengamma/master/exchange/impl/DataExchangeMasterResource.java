@@ -62,14 +62,14 @@ public class DataExchangeMasterResource extends AbstractDataResource {
   @Path("exchanges")
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
-    return Response.ok().build();
+    return responseOk();
   }
 
   @POST
   @Path("exchangeSearches")
   public Response search(ExchangeSearchRequest request) {
     ExchangeSearchResult result = getExchangeMaster().search(request);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @POST
@@ -77,7 +77,7 @@ public class DataExchangeMasterResource extends AbstractDataResource {
   public Response add(@Context UriInfo uriInfo, ExchangeDocument request) {
     ExchangeDocument result = getExchangeMaster().add(request);
     URI createdUri = DataExchangeResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return Response.created(createdUri).entity(result).build();
+    return responseCreatedFudge(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.core.change.ChangeManagerResource;
+import com.opengamma.core.change.DataChangeManagerResource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
@@ -63,14 +63,14 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
   @Path("snapshots")
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
-    return Response.ok().build();
+    return responseOk();
   }
 
   @POST
   @Path("snapshotSearches")
   public Response search(MarketDataSnapshotSearchRequest request) {
     MarketDataSnapshotSearchResult result = getMarketDataSnapshotMaster().search(request);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @POST
@@ -78,7 +78,7 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
   public Response add(@Context UriInfo uriInfo, MarketDataSnapshotDocument request) {
     MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().add(request);
     URI createdUri = DataMarketDataSnapshotResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return Response.created(createdUri).entity(result).build();
+    return responseCreatedFudge(createdUri, result);
   }
 
   //-------------------------------------------------------------------------
@@ -89,8 +89,8 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
   }
 
   @Path("snapshots/changeManager")
-  public ChangeManagerResource getChangeManager() {
-    return new ChangeManagerResource(getMarketDataSnapshotMaster().changeManager());
+  public DataChangeManagerResource getChangeManager() {
+    return new DataChangeManagerResource(getMarketDataSnapshotMaster().changeManager());
   }
   
   //-------------------------------------------------------------------------
