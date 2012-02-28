@@ -148,9 +148,15 @@ $.register_module({
                 }}
             ]);
             form.children = [
-                new form.Field({module: 'og.views.forms.currency', generator: function (handler, template) { // item_0
-                    handler(template);
-                }}),
+                new form.Field({
+                    module: 'og.views.forms.currency',
+                    generator: function (handler, template) {handler(template);}, // item_0
+                    handlers: [{type: 'change', selector: 'select[name=currency]', handler: function (e) {
+                        // this needs to happen immediately in case a user adds new rows,
+                        // it's not enough that it just happens on submit
+                        master.currency = $(e.target).val();
+                    }}]
+                }),
                 new forms.Dropdown({ // item_1
                     form: form, value: master.region.split(sep)[1],
                     resource: 'regions', placeholder: 'Please select...',
