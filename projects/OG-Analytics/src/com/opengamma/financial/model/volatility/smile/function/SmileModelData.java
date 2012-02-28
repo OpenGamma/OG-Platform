@@ -14,8 +14,10 @@ public interface SmileModelData {
 
   double getParameter(final int index);
 
+  boolean isAllowed(final int index, final double value);
+
   SmileModelData with(final int index, final double value);
-  
-  
-  
+
+
+
 }

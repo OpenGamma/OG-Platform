@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.view.rest;
 
+import java.net.URI;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
@@ -40,8 +42,8 @@ public class DataManageableViewDefinitionRepositoryResource extends DataViewDefi
   public Response addViewDefinition(@Context UriInfo uriInfo, AddViewDefinitionRequest addRequest) {
     addRequest.checkValid();
     UniqueId addedId = _repository.addViewDefinition(addRequest);
-    return Response.created(DataViewDefinitionRepositoryResource.uriDefinitionId(
-            uriInfo.getRequestUri(), addedId)).build();
+    URI createdUri = DataViewDefinitionRepositoryResource.uriDefinitionId(uriInfo.getRequestUri(), addedId);
+    return responseCreated(createdUri);
   }
 
   @Path(PATH_VIEWDEFINITION_NAME + "/{viewDefinitionName}")

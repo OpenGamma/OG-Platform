@@ -5,6 +5,16 @@
  */
 package com.opengamma.batch.rest;
 
+import java.util.List;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.GET;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.Response;
+
 import com.opengamma.batch.BatchMasterWriter;
 import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.RiskRun;
@@ -15,10 +25,6 @@ import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.tuple.Pair;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import java.util.List;
 
 /**
  * RESTful resource for batch.
@@ -44,7 +50,6 @@ public class BatchMasterResource extends AbstractDataResource {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the batch master.
    *
@@ -54,6 +59,7 @@ public class BatchMasterResource extends AbstractDataResource {
     return _batchMaster;
   }
 
+  //-------------------------------------------------------------------------
   /*
    Search for market data snapshots
   */
@@ -62,7 +68,7 @@ public class BatchMasterResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response searchMarketData(PagingRequest pagingRequest) {
     Pair<List<MarketData>, Paging> result = getMaster().getMarketData(pagingRequest);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   /*
@@ -80,7 +86,7 @@ public class BatchMasterResource extends AbstractDataResource {
   @Consumes(FudgeRest.MEDIA)
   public Response searchBatchRuns(BatchRunSearchRequest request) {
     Pair<List<RiskRun>, Paging> result = getMaster().searchRiskRun(request);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }  
 
   @GET

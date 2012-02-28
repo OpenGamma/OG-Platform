@@ -171,7 +171,8 @@ public class ViewProcessorTest {
   @Test
   public void testCycleManagement_processCompletes() throws InterruptedException {
     final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.init();
+    env.setViewResultListenerFactory(viewResultListenerFactoryStub);
+    env.init();    
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
     

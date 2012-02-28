@@ -63,14 +63,14 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
   @Path("snapshots")
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
-    return Response.ok().build();
+    return responseOk();
   }
 
   @POST
   @Path("snapshotSearches")
   public Response search(MarketDataSnapshotSearchRequest request) {
     MarketDataSnapshotSearchResult result = getMarketDataSnapshotMaster().search(request);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @POST
@@ -78,7 +78,7 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
   public Response add(@Context UriInfo uriInfo, MarketDataSnapshotDocument request) {
     MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().add(request);
     URI createdUri = DataMarketDataSnapshotResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return Response.created(createdUri).entity(result).build();
+    return responseCreatedFudge(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

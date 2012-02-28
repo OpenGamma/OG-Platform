@@ -25,6 +25,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * The complete set of components published in a RESTful way by JAX-RS.
@@ -163,7 +164,7 @@ public class RestComponents extends DirectBean {
    * @return the complete set of singletons, not null
    */
   public Set<Object> buildJaxRsSingletons() {
-    DataComponentServerResource dcr = new DataComponentServerResource(getLocalComponents(), getRemoteComponents());
+    AbstractDataResource dcr = new DataComponentServerResource(getLocalComponents(), getRemoteComponents());
     Set<Object> set = new LinkedHashSet<Object>();
     set.add(dcr);
     set.addAll(getHelpers());

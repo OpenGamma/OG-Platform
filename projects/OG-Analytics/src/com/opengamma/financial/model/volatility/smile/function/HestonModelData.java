@@ -33,6 +33,24 @@ public class HestonModelData implements SmileModelData {
     _parameters = parameters;
   }
 
+  @Override
+  public boolean isAllowed(int index, double value) {
+    switch (index) {
+      case 0:
+        return value >= 0;
+      case 1:
+        return value >= 0;
+      case 2:
+        return value >= 0;
+      case 3:
+        return value >= 0;
+      case 4:
+        return value >= -1 && value <= 1;
+      default:
+        throw new IllegalArgumentException("index " + index + " outside range");
+    }
+  }
+
   public double getKappa() {
     return _parameters[0];
   }

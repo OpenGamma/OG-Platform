@@ -1,14 +1,17 @@
+/**
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.financial.analytics.model.sensitivities;
 
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
@@ -26,12 +29,18 @@ import com.opengamma.financial.analytics.DoubleLabelledMatrix1D;
 import com.opengamma.financial.analytics.LabelledMatrix1D;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.sensitivities.SecurityEntryData;
 import com.opengamma.master.security.RawSecurity;
 import com.opengamma.util.money.Currency;
 
+/**
+ * 
+ */
 public class ExternallyProvidedSensitivitiesYieldCurveDV01Function extends AbstractFunction.NonCompiledInvoker {
-  private static final Logger s_logger = LoggerFactory.getLogger(ExternallyProvidedSensitivitiesYieldCurveDV01Function.class);
   /**
    * The value name calculated by this function.
    */
@@ -61,7 +70,11 @@ public class ExternallyProvidedSensitivitiesYieldCurveDV01Function extends Abstr
   }
 
   private ValueProperties.Builder createCurrencyValueProperties(final ComputationTarget target) {
-    Currency ccy = FinancialSecurityUtils.getCurrency(target.getPosition().getSecurity());
+    final Security security = target.getPosition().getSecurity();
+    if (security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity || security instanceof FXForwardSecurity) {
+      return createValueProperties(); //TODO what to do in this case?
+    }
+    final Currency ccy = FinancialSecurityUtils.getCurrency(security);
     final ValueProperties.Builder properties = createValueProperties();
     properties.with(ValuePropertyNames.CURRENCY, ccy.getCode());
     return properties;
@@ -69,21 +82,16 @@ public class ExternallyProvidedSensitivitiesYieldCurveDV01Function extends Abstr
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    Set<ValueRequirement> requirements = Sets.newHashSet();
-    Set<String> curveNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
+    final Set<ValueRequirement> requirements = Sets.newHashSet();
+    final Set<String> curveNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
     if (curveNames == null || curveNames.size() != 1) {
-      s_logger.warn("No curve name, returning null");
       return null;
     }
-    String curveName = curveNames.iterator().next();
-    s_logger.warn("Curve name is:" + curveName);
-    ValueProperties valueProperties = ValueProperties.builder()
+    final String curveName = curveNames.iterator().next();
+    final ValueProperties valueProperties = ValueProperties.builder()
         .withAny(ValuePropertyNames.CURRENCY)
         .with(ValuePropertyNames.CURVE, curveName).get();
-        //.withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
-        //.withAny(ValuePropertyNames.CURVE_CURRENCY).get();
     requirements.add(new ValueRequirement(YCNS_REQUIREMENT, target.toSpecification(), valueProperties));
-    //s_logger.warn("getRequirements() returned " + requirements);
     return requirements;
   }
 
@@ -91,8 +99,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveDV01Function extends Abstr
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties.Builder externalProperties = createCurrencyValueProperties(target);
     externalProperties.withAny(ValuePropertyNames.CURVE);
-    Set<ValueSpecification> results = Collections.singleton(new ValueSpecification(DV01_REQUIREMENT, target.toSpecification(), externalProperties.get()));
-    s_logger.warn("getResults(1) = " + results);
+    final Set<ValueSpecification> results = Collections.singleton(new ValueSpecification(DV01_REQUIREMENT, target.toSpecification(), externalProperties.get()));
     return results;
   }
 
@@ -100,42 +107,38 @@ public class ExternallyProvidedSensitivitiesYieldCurveDV01Function extends Abstr
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     String curveName = null;
-    for (Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+    for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
       if (entry.getKey().getValueName().equals(YCNS_REQUIREMENT)) {
         curveName = entry.getKey().getProperty(ValuePropertyNames.CURVE);
       }
     }
     assert curveName != null;
-    ValueProperties valueProperties = createCurrencyValueProperties(target).with(ValuePropertyNames.CURVE, curveName).get();
-    Set<ValueSpecification> results = Collections.singleton(new ValueSpecification(DV01_REQUIREMENT, targetSpec, valueProperties));
-    s_logger.warn("getResults(2) returning " + results);
+    final ValueProperties valueProperties = createCurrencyValueProperties(target).with(ValuePropertyNames.CURVE, curveName).get();
+    final Set<ValueSpecification> results = Collections.singleton(new ValueSpecification(DV01_REQUIREMENT, targetSpec, valueProperties));
     return results;
   }
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
       final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    ValueRequirement desiredValue = desiredValues.iterator().next();
-    String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    ComputationTargetSpecification specification = target.toSpecification();
-    Object value = inputs.getValue(new ValueRequirement(YCNS_REQUIREMENT, specification));
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+    final ComputationTargetSpecification specification = target.toSpecification();
+    final Object value = inputs.getValue(new ValueRequirement(YCNS_REQUIREMENT, specification));
     if (!(value instanceof LabelledMatrix1D)) {
-      s_logger.error("Yield Curve Node Sensitivities result was not of type LabelledMatrix1D");
       throw new OpenGammaRuntimeException("Yield Curve Node Sensitivities result was not of type LabelledMatrix1D");
     }
-    DoubleLabelledMatrix1D ycns = (DoubleLabelledMatrix1D) value;
-    double result = sum(ycns.getValues());
-    ValueProperties properties = createCurrencyValueProperties(target)
+    final DoubleLabelledMatrix1D ycns = (DoubleLabelledMatrix1D) value;
+    final double result = sum(ycns.getValues());
+    final ValueProperties properties = createCurrencyValueProperties(target)
         .with(ValuePropertyNames.CURVE, curveName).get();
-    ComputedValue computedValue = new ComputedValue(new ValueSpecification(DV01_REQUIREMENT, specification, properties), result);
-
-    //s_logger.warn("execute, returning " + results);
+    final ComputedValue computedValue = new ComputedValue(new ValueSpecification(DV01_REQUIREMENT, specification, properties), result);
     return Collections.singleton(computedValue);
   }
 
-  private double sum(double[] values) {
+  private double sum(final double[] values) {
     double total = 0d;
-    for (double value : values) {
+    for (final double value : values) {
       total += value;
     }
     return total;
