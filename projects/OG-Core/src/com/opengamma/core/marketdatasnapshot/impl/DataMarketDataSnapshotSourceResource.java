@@ -62,7 +62,7 @@ public class DataMarketDataSnapshotSourceResource extends AbstractDataResource {
       @QueryParam("version") String version) {
     final ObjectId objectId = ObjectId.parse(idStr);
     final StructuredMarketDataSnapshot result = getMarketDataSnapshotSource().getSnapshot(objectId.atVersion(version));
-    return response(result);
+    return responseOkFudge(result);
   }
 
   //-------------------------------------------------------------------------

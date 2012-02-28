@@ -5,39 +5,36 @@
  */
 package com.opengamma.batch.rest;
 
+import java.net.URI;
+import java.util.List;
+
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.batch.BatchMaster;
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.id.ObjectId;
-import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesInfoMetaDataRequest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.rest.AbstractDataResource;
-import com.opengamma.util.rest.RestUtils;
 import com.opengamma.util.tuple.Pair;
-
-import javax.ws.rs.*;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import javax.ws.rs.core.UriInfo;
-import java.net.URI;
-import java.util.List;
 
 /**
  * RESTful resource for batch.
  * <p>
  * The batch resource receives and processes RESTful calls to the batch master.
  */
-public class BatchRunResource extends AbstractDataResource {
+public class DataBatchRunResource extends AbstractDataResource {
 
   /**
    * The batch master.
    */
   private final BatchMaster _batchMaster;
-
   /**
    * The batch run unique id.
    */
@@ -45,16 +42,18 @@ public class BatchRunResource extends AbstractDataResource {
 
   /**
    * Creates the resource, exposing the underlying master over REST.
-   *
+   * 
+   * @param batchRunId  the run ID, not null
    * @param batchMaster  the underlying batch master, not null
    */
-  public BatchRunResource(final ObjectId batchRunId, final BatchMaster batchMaster) {    
+  public DataBatchRunResource(final ObjectId batchRunId, final BatchMaster batchMaster) {    
     ArgumentChecker.notNull(batchRunId, "batchRunId");
     ArgumentChecker.notNull(batchMaster, "batchMaster");
     _batchMaster = batchMaster;
     _batchRunId = batchRunId;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the batch master.
    *
@@ -64,7 +63,7 @@ public class BatchRunResource extends AbstractDataResource {
     return _batchMaster;
   }
 
-
+  //-------------------------------------------------------------------------
   @DELETE
   public void deleteBatchRun() {
     getMaster().deleteRiskRun(_batchRunId);
@@ -73,22 +72,21 @@ public class BatchRunResource extends AbstractDataResource {
   @GET
   public Response get() {
     RiskRun result = getMaster().getRiskRun(_batchRunId);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
-  
+
   @GET
   @Path("values")
   public Response getBatchValues(PagingRequest pagingRequest) {
     Pair<List<ViewResultEntry>, Paging> result = getMaster().getBatchValues(_batchRunId, pagingRequest);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
-
+  //-------------------------------------------------------------------------
   /**
    * Builds a URI for all batch runs.
    *
    * @param baseUri  the base URI, not null
-   * @param searchMsg  the search message, may be null
    * @return the URI, not null
    */
   public static URI uriSearch(URI baseUri) {
@@ -106,18 +104,16 @@ public class BatchRunResource extends AbstractDataResource {
   public static URI uri(URI baseUri, ObjectId batchRunId) {
     return UriBuilder.fromUri(baseUri).path("/batchRun/{uid}").build(batchRunId);
   }
-  
+
   /**
    * Builds a URI for getBatchValues.
    * 
    * @param baseUri  the base URI, not null
    * @param batchRunId the batch id which values we want to build the uri for                          
-   * @param request  the paging request, may be null           
    * @return the URI, not null
    */
   public static URI uriBatchValues(URI baseUri, ObjectId batchRunId) {
     return UriBuilder.fromUri(baseUri).path("/batchRun/{uid}/values").build(batchRunId);
   }
-
 
 }

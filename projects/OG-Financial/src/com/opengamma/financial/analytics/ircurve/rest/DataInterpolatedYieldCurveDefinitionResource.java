@@ -88,7 +88,7 @@ public class DataInterpolatedYieldCurveDefinitionResource extends AbstractDataRe
   public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
     VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     YieldCurveDefinitionDocument result = getInterpolatedYieldCurveDefinitionMaster().get(getUrlDefinitionId(), vc);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @POST
@@ -97,14 +97,13 @@ public class DataInterpolatedYieldCurveDefinitionResource extends AbstractDataRe
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     YieldCurveDefinitionDocument result = getInterpolatedYieldCurveDefinitionMaster().update(request);
-    URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return Response.created(uri).entity(result).build();
+    URI createdUri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    return responseCreatedFudge(createdUri, result);
   }
 
   @DELETE
-  public Response remove() {
+  public void remove() {
     getInterpolatedYieldCurveDefinitionMaster().remove(getUrlDefinitionId().atLatestVersion());
-    return Response.noContent().build();
   }
 
   //-------------------------------------------------------------------------
@@ -113,7 +112,7 @@ public class DataInterpolatedYieldCurveDefinitionResource extends AbstractDataRe
   public Response getVersioned(@PathParam("versionId") String versionId) {
     UniqueId uniqueId = getUrlDefinitionId().atVersion(versionId);
     YieldCurveDefinitionDocument result = getInterpolatedYieldCurveDefinitionMaster().get(uniqueId);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @POST
@@ -124,8 +123,8 @@ public class DataInterpolatedYieldCurveDefinitionResource extends AbstractDataRe
       throw new IllegalArgumentException("Document uniqueId does not match URI");
     }
     YieldCurveDefinitionDocument result = getInterpolatedYieldCurveDefinitionMaster().correct(request);
-    URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return Response.created(uri).entity(result).build();
+    URI createdUri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
+    return responseCreatedFudge(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

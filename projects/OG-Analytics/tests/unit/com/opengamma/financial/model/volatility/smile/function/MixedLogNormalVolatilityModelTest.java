@@ -29,7 +29,7 @@ public class MixedLogNormalVolatilityModelTest {
     PLATYKURTIC = new MixedLogNormalModelData(new double[] {0.5, 0.5 }, new double[] {0.2, 0.2 }, new double[] {0.5, 1.5 });
   }
 
-  @Test
+  @Test(enabled=false)
   public void printTest() {
     MixedLogNormalVolatilityFunction volFunc = new MixedLogNormalVolatilityFunction();
     for (int i = 0; i < 101; i++) {

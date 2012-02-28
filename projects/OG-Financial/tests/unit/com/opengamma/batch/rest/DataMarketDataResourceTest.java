@@ -31,19 +31,19 @@ import static org.testng.AssertJUnit.assertSame;
 /**
  * Tests BatchRunResource.
  */
-public class MarketDataResourceTest {
+public class DataMarketDataResourceTest {
 
   private UniqueId _baseMarketDataUid = UniqueId.of("Test", "BaseMarketData");
   private MarketData _marketData;
   private BatchMasterWriter _batchMaster;
-  private MarketDataResource _resource;
+  private DataMarketDataResource _resource;
 
   @BeforeMethod
   public void setUp() {
     _marketData = new MarketData(_baseMarketDataUid);
 
     _batchMaster = mock(BatchMasterWriter.class);
-    _resource = new MarketDataResource(_marketData.getObjectId(), _batchMaster);
+    _resource = new DataMarketDataResource(_marketData.getObjectId(), _batchMaster);
     when(_batchMaster.getMarketDataById(_marketData.getObjectId())).thenReturn(_marketData);
   }
 

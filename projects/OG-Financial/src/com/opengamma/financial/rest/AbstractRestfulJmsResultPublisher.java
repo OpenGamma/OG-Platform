@@ -19,13 +19,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.transport.jaxrs.FudgeRest;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * Base class for a RESTful resource which uses a REST+JMS pattern to publish streaming results.
  * <p>
  * Provides heartbeat listening and control of the JMS stream.
  */
-public abstract class AbstractRestfulJmsResultPublisher {
+public abstract class AbstractRestfulJmsResultPublisher extends AbstractDataResource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractRestfulJmsResultPublisher.class);
   
@@ -73,7 +74,7 @@ public abstract class AbstractRestfulJmsResultPublisher {
   @Path(PATH_HEARTBEAT)
   public Response heartbeat() {
     updateLastAccessed();
-    return Response.ok().build();
+    return responseOk();
   }
   
   public Instant getLastAccessed() {
@@ -103,7 +104,7 @@ public abstract class AbstractRestfulJmsResultPublisher {
       }
       
     });
-    return Response.ok(destination).build();
+    return responseOk(destination);
   }
   
   @POST
@@ -122,7 +123,7 @@ public abstract class AbstractRestfulJmsResultPublisher {
       }
       
     });
-    return Response.ok().build();
+    return responseOk();
   }
   
   //-------------------------------------------------------------------------

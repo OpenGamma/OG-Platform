@@ -61,7 +61,7 @@ public class DataInterpolatedYieldCurveSpecificationBuilderResource extends Abst
       YieldCurveDefinition definition) {
     final LocalDate curveDate = LocalDate.parse(curveDateStr);
     InterpolatedYieldCurveSpecification result = getInterpolatedYieldCurveSpecificationBuilder().buildCurve(curveDate, definition);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   /**
