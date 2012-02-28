@@ -15,6 +15,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 
+import com.opengamma.id.UniqueId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,6 +38,11 @@ public class LiveMarketDataSnapshot extends AbstractMarketDataSnapshot {
       LiveMarketDataProvider liveMarketDataProvider) {
     _underlyingSnapshot = underlyingSnapshot;
     _liveMarketDataProvider = liveMarketDataProvider;
+  }
+
+  @Override
+  public UniqueId getUniqueId() {
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "LiveMarketDataSnapshot:"+getSnapshotTime());
   }
 
   @Override

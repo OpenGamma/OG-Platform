@@ -25,6 +25,7 @@ public class SyntheticMarketDataNormalizer implements HistoricalTimeSeriesAdjust
   @Override
   public HistoricalTimeSeries adjust(final ExternalIdBundle securityIdBundle, final HistoricalTimeSeries timeSeries) {
     final String ticker = securityIdBundle.getValue(SecurityUtils.OG_SYNTHETIC_TICKER);
+    
     if (ticker == null) {
       s_logger.warn("Unable to classify security - no synthetic ticker found in {}", securityIdBundle);
       return timeSeries;
@@ -32,12 +33,13 @@ public class SyntheticMarketDataNormalizer implements HistoricalTimeSeriesAdjust
     int factor = 0;
     if (ticker.length() > 7) {
       final String type = ticker.substring(3, 7);
-      if ("CASH".equals(type) || "SWAP".equals(type)) {
+      if ("CASH".equals(type) || "SWAP".equals(type) || "LIBO".equals(type)) {
         factor = 100;
       }
     }
     if (factor == 0) {
       s_logger.warn("Unable to classify security - synthetic ticker {} unrecognised", ticker);
+      return timeSeries;
     }
     if (factor == 1) {
       s_logger.debug("Returning raw timeseries");

@@ -14,6 +14,8 @@ import java.util.TreeMap;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
+import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
+import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
@@ -470,6 +472,16 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
     @Override
     public String visitFloatingGearingIRLeg(FloatingGearingIRLeg swapLeg) {
       return "FloatingGearingInterestRateLeg";
+    }
+
+    @Override
+    public String visitFixedVarianceSwapLeg(FixedVarianceSwapLeg swapLeg) {
+      return "FixedVarianceLeg";
+    }
+
+    @Override
+    public String visitFloatingVarianceSwapLeg(FloatingVarianceSwapLeg swapLeg) {
+      return "FloatingVarianceLeg";
     }
   }
   

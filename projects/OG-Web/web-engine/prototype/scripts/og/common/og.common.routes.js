@@ -21,17 +21,17 @@ $.register_module({
                 // listen to all clicks that bubble up and capture their titles
                 // overwrite href with new filter values
                 $('a[href]').live('click', function (e) {
-                    var anchor = $(e.target), current, parsed, rule, view, href;
-                    title = anchor.attr('title');
-                    if (!anchor.is('.og-js-live-anchor')) return;
-                    view = og.views[(parsed = routes.parse(anchor.attr('href'))).page.slice(1)];
+                    var $anchor = $(this), current, parsed, rule, view, href;
+                    title = $anchor.attr('title');
+                    if (!$anchor.is('.og-js-live-anchor')) return;
+                    view = og.views[(parsed = routes.parse($anchor.attr('href'))).page.slice(1)];
                     if (!view.filter_params.length || (current = routes.current()).page !== parsed.page) return;
                     rule = parsed.args.id ? 'load_item' : 'load';
                     href = routes.prefix() + routes.hash(view.rules[rule], parsed.args, {
                         add: view.filter_params
                             .reduce(function (acc, val) {return (acc[val] = current.args[val]), acc;}, {})
                     });
-                    anchor.attr('href', href);
+                    $anchor.attr('href', href);
                 });
                 $(window).on('hashchange', function () {
                     routes.handler();

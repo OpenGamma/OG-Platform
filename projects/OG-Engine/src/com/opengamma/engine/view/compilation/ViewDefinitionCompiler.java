@@ -85,6 +85,7 @@ public final class ViewDefinitionCompiler {
     if (OUTPUT_FAILURE_REPORTS) {
       outputFailureReports(viewCompilationContext.getBuilders());
     }
+
     return new CompiledViewDefinitionWithGraphsImpl(viewDefinition, graphsByConfiguration, portfolio, compilationServices.getFunctionCompilationContext().getFunctionInitId());
   }
 

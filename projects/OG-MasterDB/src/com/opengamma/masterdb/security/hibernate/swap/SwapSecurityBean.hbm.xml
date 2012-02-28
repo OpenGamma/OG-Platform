@@ -51,6 +51,14 @@
       <property name="settlementDays" type="integer" column="pay_settlement_days" />
       <property name="gearing" type="double" column="pay_gearing" />
       <many-to-one name="offsetFixing" class="com.opengamma.masterdb.security.hibernate.FrequencyBean" column="pay_offset_fixing_id" />
+      <property name="strike" type="double" column="pay_strike" />
+      <property name="varianceSwapType" type="com.opengamma.masterdb.security.hibernate.swap.VarianceSwapTypeUserType" column="pay_variance_swap_type" />
+      <component name="underlyingId" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+        <property name="scheme" type="string" column="pay_underlying_scheme"/>
+        <property name="identifier" type="string" column="pay_underlying_identifier"/>
+      </component>
+      <many-to-one name="monitoringFrequency" class="com.opengamma.masterdb.security.hibernate.FrequencyBean" column="pay_monitoring_frequency_id" />
+      <property name="annualizationFactor" type="double" column="pay_annualization_factor" />
     </component>
     <component name="receiveLeg" class="SwapLegBean">
       <property name="swapLegType" type="com.opengamma.masterdb.security.hibernate.swap.SwapLegTypeUserType" column="receive_legtype" not-null="true" />
@@ -81,6 +89,14 @@
       <property name="settlementDays" type="integer" column="receive_settlement_days" />
       <property name="gearing" type="double" column="receive_gearing" />
       <many-to-one name="offsetFixing" class="com.opengamma.masterdb.security.hibernate.FrequencyBean" column="receive_offset_fixing_id" />
+      <property name="strike" type="double" column="receive_strike" />
+      <property name="varianceSwapType" type="com.opengamma.masterdb.security.hibernate.swap.VarianceSwapTypeUserType" column="receive_variance_swap_type" />
+      <component name="underlyingId" class="com.opengamma.masterdb.security.hibernate.ExternalIdBean">
+        <property name="scheme" type="string" column="receive_underlying_scheme" />
+        <property name="identifier" type="string" column="receive_underlying_identifier" />
+      </component>
+      <many-to-one name="monitoringFrequency" class="com.opengamma.masterdb.security.hibernate.FrequencyBean" column="receive_monitoring_frequency_id" />
+      <property name="annualizationFactor" type="double" column="receive_annualization_factor" />
     </component>
   </union-subclass>
 

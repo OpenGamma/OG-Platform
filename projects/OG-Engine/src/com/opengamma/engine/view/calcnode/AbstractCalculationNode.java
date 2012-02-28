@@ -223,6 +223,11 @@ public abstract class AbstractCalculationNode implements CalculationNode {
     // execute
     statistics.beginInvocation();
     final Set<ComputedValue> results = invoker.execute(getFunctionExecutionContext(), functionInputs, target, jobItem.getDesiredValues());
+    for (ComputedValue result : results) {
+      if(result.getValue() == null){
+        System.out.println("null");
+      }
+    }
     if (results == null) {
       throw new NullPointerException("No results returned by invoker " + invoker);
     }

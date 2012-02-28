@@ -75,7 +75,7 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
 
   public PDEFullResults1D solve(final SmileSurfaceDataBundle data, final LocalVolatilitySurface<?> localVolatility, final EuropeanVanillaOption option) {
     ArgumentChecker.notNull(data, "data");
-    ArgumentChecker.notNull(option, "option");
+    ArgumentChecker.notNull(option, "option"); //Review R White 22/02/2012 This is not used here
     final ForwardCurve forwardCurve = data.getForwardCurve();
     final double[] expiries = data.getExpiries();
     final double[][] strikes = data.getStrikes();

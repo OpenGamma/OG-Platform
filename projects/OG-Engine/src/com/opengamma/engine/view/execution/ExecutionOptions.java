@@ -204,8 +204,25 @@ public class ExecutionOptions implements ViewExecutionOptions {
    * @param defaultCycleOptions  the default view cycle execution options, may be null
    * @return the execution sequence, not null
    */
+  public static ViewExecutionOptions batch(InstantProvider valuationTimeProvider, MarketDataSpecification marketDataSpec, ViewCycleExecutionOptions defaultCycleOptions) {
+    ViewCycleExecutionOptions cycleOptions = new ViewCycleExecutionOptions(marketDataSpec);
+    if (valuationTimeProvider != null) {
+      cycleOptions.setValuationTime(valuationTimeProvider);
+    }
+    ViewCycleExecutionSequence sequence = new ArbitraryViewCycleExecutionSequence(Arrays.asList(cycleOptions));
+    return of(sequence, defaultCycleOptions, ExecutionFlags.none().batch().runAsFastAsPossible().awaitMarketData().get());
+  }
+
+  /**
+   * Creates an execution sequence designed for batch-mode operation. The typical next-cycle triggers are disabled; the
+   * sequence is instead configured to run as fast as possible.
+   *
+   * @param cycleExecutionSequence  the execution sequence, not null
+   * @param defaultCycleOptions  the default view cycle execution options, may be null
+   * @return the execution sequence, not null
+   */
   public static ViewExecutionOptions batch(ViewCycleExecutionSequence cycleExecutionSequence, ViewCycleExecutionOptions defaultCycleOptions) {
-    return of(cycleExecutionSequence, defaultCycleOptions, ExecutionFlags.none().runAsFastAsPossible().awaitMarketData().get());
+    return of(cycleExecutionSequence, defaultCycleOptions, ExecutionFlags.none().batch().runAsFastAsPossible().awaitMarketData().get());
   }
 
   /**

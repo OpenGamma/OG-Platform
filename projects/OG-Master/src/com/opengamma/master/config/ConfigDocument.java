@@ -7,6 +7,7 @@ package com.opengamma.master.config;
 
 import java.util.Map;
 
+import com.opengamma.master.AbstractDocument;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -18,7 +19,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.AbstractDocument;
 import com.opengamma.util.PublicSPI;
 
 /**
