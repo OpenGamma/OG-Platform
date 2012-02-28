@@ -26,7 +26,7 @@ import com.opengamma.util.rest.AbstractDataResource;
 /**
  * RESTful resource for a {@link MarketDataSnapshotter}.
  */
-public class MarketDataSnapshotterResource extends AbstractDataResource {
+public class DataMarketDataSnapshotterResource extends AbstractDataResource {
 
   //CSOFF: just constants
   public static final String PATH_CREATE_SNAPSHOT = "create";
@@ -36,7 +36,7 @@ public class MarketDataSnapshotterResource extends AbstractDataResource {
   private final ViewProcessor _viewProcessor;
   private final MarketDataSnapshotter _snapshotter;
 
-  public MarketDataSnapshotterResource(ViewProcessor viewProcessor, MarketDataSnapshotter snapshotter) {
+  public DataMarketDataSnapshotterResource(ViewProcessor viewProcessor, MarketDataSnapshotter snapshotter) {
     _viewProcessor = viewProcessor;
     _snapshotter = snapshotter;
   }

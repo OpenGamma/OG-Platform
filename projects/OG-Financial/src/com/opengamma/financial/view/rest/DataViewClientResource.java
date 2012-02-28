@@ -25,7 +25,7 @@ import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientState;
 import com.opengamma.engine.view.client.ViewResultMode;
-import com.opengamma.financial.livedata.rest.LiveDataInjectorResource;
+import com.opengamma.financial.livedata.rest.DataLiveDataInjectorResource;
 import com.opengamma.financial.rest.AbstractRestfulJmsResultPublisher;
 import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.FudgeRest;
@@ -155,9 +155,9 @@ public class DataViewClientResource extends AbstractRestfulJmsResultPublisher {
   }
   
   @Path(PATH_LIVE_DATA_OVERRIDE_INJECTOR)
-  public LiveDataInjectorResource getLiveDataOverrideInjector() {
+  public DataLiveDataInjectorResource getLiveDataOverrideInjector() {
     updateLastAccessed();
-    return new LiveDataInjectorResource(getViewClient().getLiveDataOverrideInjector());
+    return new DataLiveDataInjectorResource(getViewClient().getLiveDataOverrideInjector());
   }
   
   @GET

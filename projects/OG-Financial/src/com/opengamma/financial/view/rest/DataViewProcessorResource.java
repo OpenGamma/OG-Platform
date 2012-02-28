@@ -131,14 +131,14 @@ public class DataViewProcessorResource extends AbstractDataResource {
   }
   
   @Path(PATH_LIVE_DATA_SOURCE_REGISTRY)
-  public LiveMarketDataSourceRegistryResource getLiveMarketDataSourceRegistry() {
-    return new LiveMarketDataSourceRegistryResource(_viewProcessor.getLiveMarketDataSourceRegistry());
+  public DataLiveMarketDataSourceRegistryResource getLiveMarketDataSourceRegistry() {
+    return new DataLiveMarketDataSourceRegistryResource(_viewProcessor.getLiveMarketDataSourceRegistry());
   }
 
   @Path(PATH_SNAPSHOTTER)
-  public MarketDataSnapshotterResource getMarketDataSnapshotterImpl() {
+  public DataMarketDataSnapshotterResource getMarketDataSnapshotterImpl() {
     MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_volatilityCubeDefinitionSource);
-    return new MarketDataSnapshotterResource(_viewProcessor, snp);
+    return new DataMarketDataSnapshotterResource(_viewProcessor, snp);
   }
   
   //-------------------------------------------------------------------------
