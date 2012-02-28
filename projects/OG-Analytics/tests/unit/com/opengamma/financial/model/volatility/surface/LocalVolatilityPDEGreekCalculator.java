@@ -161,7 +161,7 @@ public class LocalVolatilityPDEGreekCalculator {
     final PDEFullResults1D pdeRes = runForwardPDESolver(/*_forwardCurve,*/_localVolatilityMoneyness, _isCall, _theta, maxT, maxMoneyness,
         _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, 1.0);
     //  PDEUtilityTools.printSurface("prices", pdeRes);
-    final BlackVolatilitySurfaceMoneyness pdeVolSurface = modifiedPriceToVolSurface(_forwardCurve, pdeRes, 0, maxT, 0.3, 3.0);
+    final BlackVolatilitySurfaceMoneyness pdeVolSurface = modifiedPriceToVolSurface(_forwardCurve, pdeRes, 0, maxT, 0.3, 3.0, _isCall);
     //  PDEUtilityTools.printSurface("vol surface", pdeVolSurface.getSurface(), 0, maxT, 0.3, 3.0);
     double chiSq = 0;
     for (int i = 0; i < _nExpiries; i++) {
@@ -260,7 +260,7 @@ public class LocalVolatilityPDEGreekCalculator {
 
     ps.println("Result of running Forward PDE solver - this gives you a grid of prices at expiries and strikes for a spot " +
         "and forward curve. Dual delta and gamma are calculated by finite difference on the PDE grid. Spot delta and " +
-        "gamma are calculated by ");
+    "gamma are calculated by ");
     ps.println("Strike\tVol\tBS Delta\tDelta\tBS Dual Delta\tDual Delta\tBS Gamma\tGamma\tBS Dual Gamma\tDual Gamma");
     for (int i = 0; i < n; i++) {
       final double m = pdeRes.getSpaceValue(i);
@@ -297,7 +297,7 @@ public class LocalVolatilityPDEGreekCalculator {
 
     //Now run the backwards solver and get delta and gamma off the grid
     ps.println("Result of running backwards PDE solver - this gives you a set of prices at different spot levels for a" +
-        " single expiry and strike. Delta and gamma are calculated by finite difference on the grid");
+    " single expiry and strike. Delta and gamma are calculated by finite difference on the grid");
     ps.println("Spot\tVol\tBS Delta\tDelta\tBS Gamma\tGamma");
 
     PDEResults1D res = runBackwardsPDESolver(strike, localVol, _isCall, _theta, expiry, maxForward,
@@ -329,7 +329,7 @@ public class LocalVolatilityPDEGreekCalculator {
     final double w = (f2 - forward) / (f2 - f1);
     ps.println("True forward: " + forward + ", grid forward: " + actForward);
     ps.println("Result of running 100 backwards PDE solvers all with different strikes. Delta and gamma for each strike" +
-        " is calculated from finite difference on the grid");
+    " is calculated from finite difference on the grid");
     ps.println("Strike\tVol\tDelta\tGamma");
     for (int i = 0; i < 100; i++) {
       final double k = forward * (0.3 + 2.7 * i / 99.0);
@@ -401,7 +401,7 @@ public class LocalVolatilityPDEGreekCalculator {
     final double w = (f2 - forward) / (f2 - f1);
 
     ps.println("Result of running 100 backwards PDE solvers all with different strikes. Delta and gamma for each strike" +
-        " is calculated from finite difference on the grid");
+    " is calculated from finite difference on the grid");
     ps.println("Strike\tVol\tDelta\tGamma");
     for (int i = 0; i < 100; i++) {
       final double k = forward * (0.3 + 2.7 * i / 99.0);
@@ -784,18 +784,19 @@ public class LocalVolatilityPDEGreekCalculator {
   /**
    * Convert the results of running the forward PDE, which are forward option prices divided by the relevant forward, to an implied volatility
    * surface parameterised by expiry and moneyness (=strike/forward)
-   * @param forwardCurve
-   * @param prices
-   * @param minT
-   * @param maxT
-   * @param minMoneyness
-   * @param maxMoneyness
-   * @return
+   * @param forwardCurve forward curve
+   * @param prices grid of (modified) prices
+   * @param minT min time
+   * @param maxT max time
+   * @param minMoneyness the minimum moneyness
+   * @param maxMoneyness the max moneyness
+   * @param isCall true for call
+   * @return BlackVolatilitySurfaceMoneyness
    */
-  private BlackVolatilitySurfaceMoneyness modifiedPriceToVolSurface(final ForwardCurve forwardCurve, final PDEFullResults1D prices,
-      final double minT, final double maxT, final double minMoneyness, final double maxMoneyness) {
+  public static BlackVolatilitySurfaceMoneyness modifiedPriceToVolSurface(final ForwardCurve forwardCurve, final PDEFullResults1D prices,
+      final double minT, final double maxT, final double minMoneyness, final double maxMoneyness, final boolean isCall) {
 
-    final Map<DoublesPair, Double> vol = PDEUtilityTools.modifiedPriceToImpliedVol(prices, minT, maxT, minMoneyness, maxMoneyness, _isCall);
+    final Map<DoublesPair, Double> vol = PDEUtilityTools.modifiedPriceToImpliedVol(prices, minT, maxT, minMoneyness, maxMoneyness, isCall);
     final Map<Double, Interpolator1DDataBundle> idb = GRID_INTERPOLATOR2D.getDataBundle(vol);
 
     final Function<Double, Double> func = new Function<Double, Double>() {
