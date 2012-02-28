@@ -16,7 +16,6 @@ import java.util.TreeSet;
 
 import javax.time.calendar.Period;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -40,11 +39,15 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
+import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
+import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.financial.model.option.definition.SmileDeltaParameter;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureParameter;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -57,22 +60,30 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
   public static final String INSTRUMENT_TYPE = "FX_VANILLA_OPTION";
   private static final Logger s_logger = LoggerFactory.getLogger(ForexVolatilitySurfaceFunction.class);
   private final String _definitionName;
+  private final String _specificationName;
   private VolatilitySurfaceDefinition<?, ?> _definition;
+  private VolatilitySurfaceSpecification _specification;
   private ValueRequirement _requirement;
 
   public ForexVolatilitySurfaceFunction(final String definitionName, final String specificationName) {
     Validate.notNull(definitionName, "definition name");
     Validate.notNull(specificationName, "specification name");
     _definitionName = definitionName;
+    _specificationName = specificationName;
   }
 
   @Override
   public void init(final FunctionCompilationContext context) {
     final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
     final ConfigDBVolatilitySurfaceDefinitionSource volSurfaceDefinitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
+    final ConfigDBVolatilitySurfaceSpecificationSource volSurfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
     _definition = volSurfaceDefinitionSource.getDefinition(_definitionName, INSTRUMENT_TYPE);
     if (_definition == null) {
       throw new OpenGammaRuntimeException("Couldn't find Volatility Surface Definition for " + INSTRUMENT_TYPE + " called " + _definitionName);
+    }
+    _specification = volSurfaceSpecificationSource.getSpecification(_specificationName, INSTRUMENT_TYPE);
+    if (_specification == null) {
+      throw new OpenGammaRuntimeException("Couldn't find Volatility Surface Specification for " + INSTRUMENT_TYPE + " called " + _specificationName);
     }
     _requirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, _definition.getTarget(),
         ValueProperties.with(ValuePropertyNames.SURFACE, _definitionName)
@@ -151,7 +162,16 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.PRIMITIVE && ObjectUtils.equals(target.getUniqueId(), _definition.getTarget().getUniqueId());
+    if (target.getType() != ComputationTargetType.PRIMITIVE) {
+      return false;
+    }
+    if (!UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme())) {
+      return false;
+    }
+    if (_specification.getSurfaceQuoteType().equals(SurfaceQuoteType.MARKET_STRANGLE_RISK_REVERSAL)) {
+      return true;
+    }
+    return false;
   }
 
   @Override

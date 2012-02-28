@@ -27,7 +27,7 @@ import com.opengamma.util.OpenGammaClock;
  * 
  */
 public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Number, Double> {
-  private static BiMap<MonthOfYear, Character> s_monthCode;
+  private static final BiMap<MonthOfYear, Character> s_monthCode;
   private static final DateAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster();
   private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
   private static final DecimalFormat FORMATTER = new DecimalFormat("##.###");
@@ -92,7 +92,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
       futureOptionExpiry = (futureOptionExpiry.plusDays(7)).with(NEXT_EXPIRY_ADJUSTER);
     }
     futureOptionCode.append(s_monthCode.get(futureOptionExpiry.getMonthOfYear()));
-    
+
     final LocalDate today = LocalDate.now(OpenGammaClock.getInstance());
     if (futureOptionExpiry.isBefore(today.minus(Period.ofMonths(3)))) {
       final int yearsNum = futureOptionExpiry.getYear() % 100;

@@ -12,6 +12,7 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.FunctionUtils;
 import com.opengamma.math.MathException;
 import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
+import com.opengamma.math.differentiation.VectorFieldSecondOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.function.ParameterizedFunction;
 import com.opengamma.math.linearalgebra.Decomposition;
@@ -26,7 +27,7 @@ import com.opengamma.math.matrix.MatrixAlgebraFactory;
 /**
  * 
  */
-public class NonLinearLeastSquare {
+public class NonLinearLeastSquareDebug {
   private static final int MAX_ATTEMPTS = 10000;
   private static final Function1D<DoubleMatrix1D, Boolean> UNCONSTAINED = new Function1D<DoubleMatrix1D, Boolean>() {
     @Override
@@ -39,11 +40,11 @@ public class NonLinearLeastSquare {
   private final Decomposition<?> _decomposition;
   private final MatrixAlgebra _algebra;
 
-  public NonLinearLeastSquare() {
+  public NonLinearLeastSquareDebug() {
     this(DecompositionFactory.SV_COMMONS, MatrixAlgebraFactory.OG_ALGEBRA, 1e-8);
   }
 
-  public NonLinearLeastSquare(final Decomposition<?> decomposition, final MatrixAlgebra algebra, final double eps) {
+  public NonLinearLeastSquareDebug(final Decomposition<?> decomposition, final MatrixAlgebra algebra, final double eps) {
     _decomposition = decomposition;
     _algebra = algebra;
     _eps = eps;
@@ -257,7 +258,17 @@ public class NonLinearLeastSquare {
    */
   public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D startPos) {
-    return solve(observedValues, sigma, func, jac, startPos, UNCONSTAINED);
+    final VectorFieldSecondOrderDifferentiator diff = new VectorFieldSecondOrderDifferentiator();
+    Function1D<DoubleMatrix1D, DoubleMatrix2D> secondOrder = diff.differentiate(func);
+    return solve(observedValues, sigma, func, jac, secondOrder, startPos, UNCONSTAINED);
+  }
+
+  public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
+      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D startPos,
+      final Function1D<DoubleMatrix1D, Boolean> constraints) {
+    final VectorFieldSecondOrderDifferentiator diff = new VectorFieldSecondOrderDifferentiator();
+    Function1D<DoubleMatrix1D, DoubleMatrix2D> secondOrder = diff.differentiate(func);
+    return solve(observedValues, sigma, func, jac, secondOrder, startPos, constraints);
   }
 
   /**
@@ -272,7 +283,8 @@ public class NonLinearLeastSquare {
    * @return value of the fitted parameters
    */
   public LeastSquareResults solve(final DoubleMatrix1D observedValues, final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
-      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D startPos, final Function1D<DoubleMatrix1D, Boolean> constraints) {
+      final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final Function1D<DoubleMatrix1D, DoubleMatrix2D> secondDiv, final DoubleMatrix1D startPos,
+      final Function1D<DoubleMatrix1D, Boolean> constraints) {
 
     Validate.notNull(observedValues, "observedValues");
     Validate.notNull(sigma, " sigma");
@@ -301,8 +313,9 @@ public class NonLinearLeastSquare {
 
     DoubleMatrix1D beta = getChiSqrGrad(error, jacobian);
     final double g0 = _algebra.getNorm2(beta);
+    DoubleMatrix2D d2 = secondDiv.evaluate(theta);
     for (int count = 0; count < MAX_ATTEMPTS; count++) {
-      alpha = getModifiedCurvatureMatrix(jacobian, lambda);
+      alpha = getModifiedCurvatureMatrix(jacobian, lambda, d2, error);
 
       final DoubleMatrix1D deltaTheta;
       try {
@@ -383,14 +396,14 @@ public class NonLinearLeastSquare {
   public DoubleMatrix2D calInverseJacobian(final DoubleMatrix1D sigma, final Function1D<DoubleMatrix1D, DoubleMatrix1D> func,
       final Function1D<DoubleMatrix1D, DoubleMatrix2D> jac, final DoubleMatrix1D originalSolution) {
     final DoubleMatrix2D jacobian = getJacobian(jac, sigma, originalSolution);
-    final DoubleMatrix2D a = getModifiedCurvatureMatrix(jacobian, 0.0);
+    final DoubleMatrix2D a = getModifiedCurvatureMatrix(jacobian, 0.0, null, null);
     final DoubleMatrix2D bT = getBTranspose(jacobian, sigma);
     final DecompositionResult decRes = _decomposition.evaluate(a);
     return decRes.solve(bT);
   }
 
   private LeastSquareResults finish(final double newChiSqr, final DoubleMatrix2D jacobian, final DoubleMatrix1D newTheta, final DoubleMatrix1D sigma) {
-    final DoubleMatrix2D alpha = getModifiedCurvatureMatrix(jacobian, 0.0);
+    final DoubleMatrix2D alpha = getModifiedCurvatureMatrix(jacobian, 0.0, null, null);
     final DecompositionResult decmp = _decomposition.evaluate(alpha);
     //
     final DoubleMatrix2D covariance = decmp.solve(DoubleMatrixUtils.getIdentityMatrix2D(alpha.getNumberOfRows()));
@@ -449,7 +462,7 @@ public class NonLinearLeastSquare {
     return (DoubleMatrix1D) _algebra.multiply(error, jacobian);
   }
 
-  private DoubleMatrix2D getModifiedCurvatureMatrix(final DoubleMatrix2D jacobian, final double lambda) {
+  private DoubleMatrix2D getModifiedCurvatureMatrix(final DoubleMatrix2D jacobian, final double lambda, final DoubleMatrix2D secondDiv, final DoubleMatrix1D errors) {
     final int n = jacobian.getNumberOfRows();
     final int m = jacobian.getNumberOfColumns();
 
@@ -460,6 +473,13 @@ public class NonLinearLeastSquare {
       for (int k = 0; k < n; k++) {
         sum += FunctionUtils.square(jacobian.getEntry(k, i));
       }
+      //debug - add the second derivative term, if the gradient is zero
+      if (sum == 0.0 && secondDiv != null) {
+        for (int k = 0; k < n; k++) {
+          sum -= errors.getEntry(k) * secondDiv.getEntry(k, i);
+        }
+      }
+
       alpha[i][i] = (1 + lambda) * sum;
 
       for (int j = i + 1; j < m; j++) {

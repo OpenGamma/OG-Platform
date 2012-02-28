@@ -15,7 +15,6 @@ import com.opengamma.financial.analytics.model.bond.BondPV01CountryCurveFunction
 import com.opengamma.financial.analytics.model.bond.BondPV01CurrencyCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPresentValueCountryCurveFunction;
 import com.opengamma.financial.analytics.model.bond.BondPresentValueCurrencyCurveFunction;
-import com.opengamma.financial.analytics.model.sabrcube.SABRFunction;
 import com.opengamma.financial.currency.CurrencyConversionFunction;
 import com.opengamma.financial.currency.CurrencyMatrixSourcingFunction;
 import com.opengamma.financial.currency.PnlSeriesCurrencyConversionFunction;
@@ -74,10 +73,6 @@ public class DemoFunctionResolverFactoryBean extends SingletonFactoryBean<Functi
         if (function instanceof CurrencyMatrixSourcingFunction) {
           CurrencyMatrixSourcingFunction currencyMatrixSourcingFunction = (CurrencyMatrixSourcingFunction) function;
           return currencyMatrixSourcingFunction.getPriority();
-        }
-        if (function instanceof SABRFunction) {
-          SABRFunction sabrFunction = (SABRFunction) function;
-          return sabrFunction.getPriority();
         }
         return 0;
       }
