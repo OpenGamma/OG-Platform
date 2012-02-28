@@ -35,11 +35,11 @@ import static org.testng.AssertJUnit.assertSame;
 /**
  * Tests BatchRunResource.
  */
-public class BatchRunResourceTest {
+public class DataBatchRunResourceTest {
 
   private RiskRun _riskRun;
   private BatchMaster _underlying;
-  private BatchRunResource _resource;
+  private DataBatchRunResource _resource;
   private static final ObjectId _riskRunId = ObjectId.of("Test", "RiskRun");
 
   @BeforeMethod
@@ -57,7 +57,7 @@ public class BatchRunResourceTest {
     );
 
     _underlying = mock(BatchMaster.class);
-    _resource = new BatchRunResource(_riskRunId, _underlying);
+    _resource = new DataBatchRunResource(_riskRunId, _underlying);
     when(_underlying.getRiskRun(_riskRunId)).thenReturn(_riskRun);
   }
 

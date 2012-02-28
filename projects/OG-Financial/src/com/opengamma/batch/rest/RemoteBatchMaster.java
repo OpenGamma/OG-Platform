@@ -44,21 +44,21 @@ public class RemoteBatchMaster extends AbstractRemoteMaster implements BatchMast
   @Override
   public Pair<List<RiskRun>, Paging> searchRiskRun(BatchRunSearchRequest batchRunSearchRequest) {
     ArgumentChecker.notNull(batchRunSearchRequest, "batchRunSearchRequest");
-    URI uri = BatchRunResource.uriSearch(getBaseUri());
+    URI uri = DataBatchRunResource.uriSearch(getBaseUri());
     return accessRemote(uri).post(Pair.class, batchRunSearchRequest);
   }
 
   @Override
   public RiskRun getRiskRun(ObjectId batchId) {
     ArgumentChecker.notNull(batchId, "batchId");        
-    URI uri = BatchRunResource.uri(getBaseUri(), batchId);
+    URI uri = DataBatchRunResource.uri(getBaseUri(), batchId);
     return accessRemote(uri).get(RiskRun.class);
   }
 
   @Override
   public void deleteRiskRun(ObjectId batchId) {
     ArgumentChecker.notNull(batchId, "batchId");        
-    URI uri = BatchRunResource.uri(getBaseUri(), batchId);
+    URI uri = DataBatchRunResource.uri(getBaseUri(), batchId);
     accessRemote(uri).delete();
   }
 
@@ -66,7 +66,7 @@ public class RemoteBatchMaster extends AbstractRemoteMaster implements BatchMast
   @Override
   public Pair<List<ViewResultEntry>, Paging> getBatchValues(ObjectId batchId, PagingRequest pagingRequest) {
     ArgumentChecker.notNull(batchId, "batchId");        
-    URI uri = BatchRunResource.uriBatchValues(getBaseUri(), batchId);
+    URI uri = DataBatchRunResource.uriBatchValues(getBaseUri(), batchId);
     return accessRemote(uri).post(Pair.class, pagingRequest);
   }
   
@@ -76,20 +76,20 @@ public class RemoteBatchMaster extends AbstractRemoteMaster implements BatchMast
   @SuppressWarnings("unchecked")
   @Override
   public Pair<List<MarketData>, Paging> getMarketData(PagingRequest pagingRequest) {
-    URI uri = MarketDataResource.uriMarketData(getBaseUri());
+    URI uri = DataMarketDataResource.uriMarketData(getBaseUri());
     return accessRemote(uri).post(Pair.class, pagingRequest);
   }
 
   @Override
   public MarketData getMarketDataById(ObjectId marketDataId) {
-    URI uri = MarketDataResource.uriMarketData(getBaseUri(), marketDataId);
+    URI uri = DataMarketDataResource.uriMarketData(getBaseUri(), marketDataId);
     return accessRemote(uri).get(MarketData.class);
   }
 
   @SuppressWarnings("unchecked")
   @Override
   public Pair<List<MarketDataValue>, Paging> getMarketDataValues(ObjectId marketDataId, PagingRequest pagingRequest) {
-    URI uri = MarketDataResource.uriMarketDataValues(getBaseUri(), marketDataId);
+    URI uri = DataMarketDataResource.uriMarketDataValues(getBaseUri(), marketDataId);
     return accessRemote(uri).post(Pair.class, pagingRequest);
   }
 }
