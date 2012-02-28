@@ -14,13 +14,14 @@ import javax.ws.rs.core.Response;
 
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for a {@link EngineResourceReference}
  * 
  * @param <T>  the type of resource
  */
-public abstract class DataEngineResourceReferenceResource<T extends UniqueIdentifiable> {
+public abstract class DataEngineResourceReferenceResource<T extends UniqueIdentifiable> extends AbstractDataResource {
 
   //CSOFF: just constants
   public static final String PATH_RESOURCE = "resource";
@@ -47,7 +48,7 @@ public abstract class DataEngineResourceReferenceResource<T extends UniqueIdenti
   @POST
   public Response heartbeat(@PathParam("referenceId") long referenceId) {
     updateHeartbeat();
-    return Response.ok().build();
+    return responseOk();
   }
   
   @Path(PATH_RESOURCE)
