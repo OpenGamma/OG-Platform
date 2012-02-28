@@ -63,6 +63,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -125,6 +126,11 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
       return false;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    //TODO remove this when we've checked that removing IR futures from the fixed income instrument types
+    // doesn't break curves
+    if (target.getSecurity() instanceof InterestRateFutureSecurity) {
+      return false;
+    }
     if (security instanceof SwapSecurity) {
       final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
       return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD || type == InterestRateInstrumentType.SWAP_IBOR_IBOR;

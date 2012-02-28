@@ -221,12 +221,12 @@ public class InterestRateFuture implements InstrumentDerivative {
   @Override
   public String toString() {
     String result = "IRFuture Security: " + _name;
-    result += " Last trading date: " + _lastTradingTime;
-    result += " Ibor Index: " + _iborIndex.getName();
-    result += " Start fixing date: " + _fixingPeriodStartTime;
-    result += " End fixing date: " + _fixingPeriodEndTime;
-    result += " Notional: " + _notional;
-    result += " Rate: " + _referencePrice;
+    result += " - Index: " + _iborIndex.getName();
+    result += " - Start fixing: " + _fixingPeriodStartTime;
+    result += " - End fixing: " + _fixingPeriodEndTime;
+    result += " - Notional: " + _notional;
+    result += " - Quantity: " + _quantity;
+    result += " - Ref price: " + _referencePrice;
     return result;
   }
 

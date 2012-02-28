@@ -109,8 +109,7 @@ public class FixedIncomeConverterDataProvider {
     if (length == 0) {
       throw new OpenGammaRuntimeException("Price time series for " + security.getUnderlyingId() + " was empty");
     }
-    final double lastMarginPrice = ts.getTimeSeries().getLatestValue() / 100; // The quoted price is in percent. Should it be normalized somewhere else?
-    // Construct the derivative as seen from now
+    final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
     return definition.toDerivative(now, lastMarginPrice, curveNames);
   }
 
@@ -138,7 +137,7 @@ public class FixedIncomeConverterDataProvider {
     if (length == 0) {
       throw new OpenGammaRuntimeException("Price time series for " + security.getUnderlyingId() + " was empty");
     }
-    final double lastMarginPrice = ts.getTimeSeries().getLatestValue() / 100; // The quoted price is in percent. Should it be normalized somewhere else?
+    final double lastMarginPrice = ts.getTimeSeries().getLatestValue();
     return definition.toDerivative(now, lastMarginPrice, curveNames);
   }
 

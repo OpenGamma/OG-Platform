@@ -53,6 +53,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -114,6 +115,11 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
     if (!(target.getSecurity() instanceof FinancialSecurity)) {
+      return false;
+    }
+    //TODO remove this when we've checked that removing IR futures from the fixed income instrument types
+    // doesn't break curves
+    if (target.getSecurity() instanceof InterestRateFutureSecurity) {
       return false;
     }
     return InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) target.getSecurity());
