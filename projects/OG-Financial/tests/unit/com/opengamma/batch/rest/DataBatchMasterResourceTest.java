@@ -77,7 +77,8 @@ public class DataBatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
   public void testSearch() throws Exception {
     BatchRunSearchRequest batchRunSearchRequest = new BatchRunSearchRequest();
     
-    Pair<List<RiskRun>, Paging> result = (Pair<List<RiskRun>, Paging>) batchMasterResource.searchBatchRuns(batchRunSearchRequest).getEntity();
+    FudgeResponse entity = (FudgeResponse) batchMasterResource.searchBatchRuns(batchRunSearchRequest).getEntity();
+    Pair<List<RiskRun>, Paging> result = (Pair<List<RiskRun>, Paging>) entity.getValue();
     
     assertTrue(result.getFirst().size() > 0);
     RiskRun run = result.getFirst().get(0);
@@ -124,17 +125,18 @@ public class DataBatchMasterResourceTest extends AbstractFudgeBuilderTestCase {
   @SuppressWarnings("unchecked")
   @Test
   public void testSearchSnapshots() throws Exception {
-    PagingRequest pagingRequest = PagingRequest.FIRST_PAGE; 
+    PagingRequest pagingRequest = PagingRequest.FIRST_PAGE;
     
     List<MarketData> marketDataList = newArrayList(riskRun.getMarketData());
     Paging paging = Paging.of(pagingRequest, marketDataList);
       
     when(batchMaster.getMarketData((PagingRequest) any())).thenReturn(Pair.of(marketDataList, paging));
     
-    Pair<List<MarketData>, Paging> response = (Pair<List<MarketData>, Paging>) batchMasterResource.searchMarketData(pagingRequest).getEntity();    
+    FudgeResponse entity = (FudgeResponse) batchMasterResource.searchMarketData(pagingRequest).getEntity();
+    Pair<List<MarketData>, Paging> response = (Pair<List<MarketData>, Paging>) entity.getValue();
 
-    assertEquals(response.getFirst().size(), 1);   
-    assertEquals(response.getSecond(), paging); 
+    assertEquals(response.getFirst().size(), 1);
+    assertEquals(response.getSecond(), paging);
   }
 
 }

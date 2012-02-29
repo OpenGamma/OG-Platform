@@ -95,7 +95,8 @@ public class DataBatchRunResourceTest {
     when(_underlying.getBatchValues(_riskRunId, pagingRequest)).thenReturn(Pair.of(viewResultEntries, paging));
     Response response = _resource.getBatchValues(pagingRequest);
     
-    Pair<List<ViewResultEntry>, Paging> result = (Pair<List<ViewResultEntry>, Paging>) response.getEntity();
+    FudgeResponse entity = (FudgeResponse) response.getEntity();
+    Pair<List<ViewResultEntry>, Paging> result = (Pair<List<ViewResultEntry>, Paging>) entity.getValue();
     
     assertEquals(Status.OK.getStatusCode(), response.getStatus());
     assertSame(result.getFirst().size(), 1);
