@@ -7,6 +7,14 @@ package com.opengamma.financial.interestrate.future.method;
 
 import static org.testng.AssertJUnit.assertEquals;
 
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.LocalDateTime;
+import javax.time.calendar.Period;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
+
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -23,14 +31,6 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
-
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.LocalDateTime;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.annotations.Test;
 
 /**
  * Tests for the methods related to interest rate securities pricing without convexity adjustment.
@@ -53,6 +53,7 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   private static final double FUTURE_FACTOR = 0.25;
   private static final double REFERENCE_PRICE = 0.0;
   private static final String NAME = "ERU2";
+  private static final int QUANTITY = 123;
   // Time version
   private static final LocalDate REFERENCE_DATE = LocalDate.of(2011, 5, 12);
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
@@ -64,8 +65,8 @@ public class InterestRateFutureSecurityDiscountingMethodTest {
   private static final String DISCOUNTING_CURVE_NAME = "Funding";
   private static final String FORWARD_CURVE_NAME = "Forward";
   //  private static final String[] CURVES = {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
-  private static final InterestRateFuture ERU2 = new InterestRateFuture(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL,
-      FUTURE_FACTOR, NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
+  private static final InterestRateFuture ERU2 = new InterestRateFuture(LAST_TRADING_TIME, IBOR_INDEX, FIXING_START_TIME, FIXING_END_TIME, FIXING_ACCRUAL, REFERENCE_PRICE, NOTIONAL, FUTURE_FACTOR,
+      QUANTITY, NAME, DISCOUNTING_CURVE_NAME, FORWARD_CURVE_NAME);
   private static final InterestRateFutureDiscountingMethod METHOD = InterestRateFutureDiscountingMethod.getInstance();
   private static final PriceFromCurvesDiscountingCalculator PRICE_CALCULATOR = PriceFromCurvesDiscountingCalculator.getInstance();
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();

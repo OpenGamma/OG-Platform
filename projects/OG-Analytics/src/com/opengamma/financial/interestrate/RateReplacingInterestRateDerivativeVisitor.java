@@ -55,7 +55,7 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
 
   @Override
   public CouponFixed visitFixedCouponPayment(final CouponFixed payment, final Double rate) {
-    return new CouponFixed(payment.getCurrency(), payment.getPaymentTime(), payment.getFundingCurveName(), payment.getPaymentYearFraction(), payment.getNotional(), rate, 
+    return new CouponFixed(payment.getCurrency(), payment.getPaymentTime(), payment.getFundingCurveName(), payment.getPaymentYearFraction(), payment.getNotional(), rate,
         payment.getAccrualStartDate(), payment.getAccrualEndDate());
   }
 
@@ -76,7 +76,7 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
     return new TenorSwap<CouponIbor>((AnnuityCouponIbor) swap.getFirstLeg(), visitForwardLiborAnnuity((AnnuityCouponIbor) swap.getSecondLeg(), rate));
   }
 
-  @SuppressWarnings({"rawtypes", "unchecked" })
+  @SuppressWarnings({"rawtypes", "unchecked"})
   @Override
   public FixedCouponSwap<?> visitFixedCouponSwap(final FixedCouponSwap<?> swap, final Double rate) {
     return new FixedCouponSwap(visitFixedCouponAnnuity(swap.getFixedLeg(), rate), swap.getSecondLeg());
@@ -118,18 +118,18 @@ public final class RateReplacingInterestRateDerivativeVisitor extends AbstractIn
 
   @Override
   public InterestRateFuture visitInterestRateFuture(final InterestRateFuture security, final Double rate) {
-    return new InterestRateFuture(security.getLastTradingTime(), security.getIborIndex(), security.getFixingPeriodStartTime(),
-        security.getFixingPeriodEndTime(), security.getFixingPeriodAccrualFactor(), 1 - rate, security.getNotional(), security.getPaymentAccrualFactor(), security.getName(),
-        security.getDiscountingCurveName(), security.getForwardCurveName());
+    return new InterestRateFuture(security.getLastTradingTime(), security.getIborIndex(), security.getFixingPeriodStartTime(), security.getFixingPeriodEndTime(),
+        security.getFixingPeriodAccrualFactor(), 1 - rate, security.getNotional(), security.getPaymentAccrualFactor(), security.getQuantity(), security.getName(), security.getDiscountingCurveName(),
+        security.getForwardCurveName());
   }
-  
+
   @Override
   public BondFixedSecurity visitBondFixedSecurity(final BondFixedSecurity bond, final Double rate) {
     final double originalRate = bond.getCoupon().getNthPayment(0).getFixedRate();
     final double accruedInterest = rate * bond.getAccruedInterest() / originalRate;
     final AnnuityCouponFixed originalCoupons = (AnnuityCouponFixed) bond.getCoupon();
     final AnnuityCouponFixed coupons = visitFixedCouponAnnuity(originalCoupons, rate);
-    return new BondFixedSecurity((AnnuityPaymentFixed) bond.getNominal(), coupons, bond.getSettlementTime(), accruedInterest, bond.getAccrualFactorToNextCoupon(), 
-        bond.getYieldConvention(), bond.getCouponPerYear(), bond.getRepoCurveName(), bond.getIssuer());
+    return new BondFixedSecurity((AnnuityPaymentFixed) bond.getNominal(), coupons, bond.getSettlementTime(), accruedInterest, bond.getAccrualFactorToNextCoupon(), bond.getYieldConvention(),
+        bond.getCouponPerYear(), bond.getRepoCurveName(), bond.getIssuer());
   }
 }

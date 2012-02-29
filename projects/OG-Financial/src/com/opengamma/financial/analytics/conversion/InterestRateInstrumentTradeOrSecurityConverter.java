@@ -40,19 +40,14 @@ public class InterestRateInstrumentTradeOrSecurityConverter {
     Validate.notNull(securitySource, "security source");
     final CashSecurityConverter cashConverter = new CashSecurityConverter();
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
-        regionSource, forCurves);
+    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, forCurves);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final InterestRateFutureOptionSecurityConverter irFutureOptionConverter = new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource);
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
-    _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-        .cashSecurityVisitor(cashConverter)
-        .fraSecurityVisitor(fraConverter)
-        .swapSecurityVisitor(swapConverter)
-        .futureSecurityVisitor(futureConverter)
-        .bondSecurityVisitor(bondConverter).create();
+    _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>> builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
+        .futureSecurityVisitor(futureConverter).bondSecurityVisitor(bondConverter).create();
     _bondTradeConverter = new BondTradeConverter(bondConverter);
     _bondFutureConverter = new BondFutureTradeConverter(bondFutureConverter);
     _interestRateFutureTradeConverter = new InterestRateFutureTradeConverter(irFutureConverter);

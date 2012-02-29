@@ -24,7 +24,7 @@ public abstract class InterestRateFutureMethod implements PricingMethod {
    * @return The present value.
    */
   public double presentValueFromPrice(final InterestRateFuture future, final double price) {
-    double pv = (price - future.getReferencePrice()) * future.getPaymentAccrualFactor() * future.getNotional();
+    double pv = (price - future.getReferencePrice()) * future.getPaymentAccrualFactor() * future.getNotional() * future.getQuantity();
     return pv;
   }
 
@@ -37,7 +37,7 @@ public abstract class InterestRateFutureMethod implements PricingMethod {
   public InterestRateCurveSensitivity presentValueCurveSensitivity(final InterestRateFuture future, final YieldCurveBundle curves) {
     Validate.notNull(future, "Future");
     InterestRateCurveSensitivity priceSensi = priceCurveSensitivity(future, curves);
-    InterestRateCurveSensitivity result = priceSensi.multiply(future.getPaymentAccrualFactor() * future.getNotional());
+    InterestRateCurveSensitivity result = priceSensi.multiply(future.getPaymentAccrualFactor() * future.getNotional() * future.getQuantity());
     return result;
   }
 

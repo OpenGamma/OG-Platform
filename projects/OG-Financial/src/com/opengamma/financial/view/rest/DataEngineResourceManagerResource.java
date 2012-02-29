@@ -31,13 +31,14 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for a {@link EngineResourceManager}
  * 
  * @param <T>  the type of resource
  */
-public abstract class DataEngineResourceManagerResource<T extends UniqueIdentifiable> {
+public abstract class DataEngineResourceManagerResource<T extends UniqueIdentifiable> extends AbstractDataResource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(DataEngineResourceManagerResource.class);
   
@@ -64,7 +65,7 @@ public abstract class DataEngineResourceManagerResource<T extends UniqueIdentifi
       throw new WebApplicationException(Response.Status.NOT_FOUND);
     }
     URI referenceUri = manageReference(reference);
-    return Response.created(referenceUri).build();
+    return responseCreated(referenceUri);
   }
   
   @Path("{referenceId}")

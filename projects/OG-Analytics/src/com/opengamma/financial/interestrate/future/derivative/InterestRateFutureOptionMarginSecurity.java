@@ -126,6 +126,16 @@ public class InterestRateFutureOptionMarginSecurity implements InstrumentDerivat
   }
 
   @Override
+  public String toString() {
+    String result = "Opt. IR future security: ";
+    result += "Expiry: " + _expirationTime;
+    result += " - Call: " + _isCall;
+    result += " - Strike: " + _strike;
+    result += " - Underlying: " + _underlyingFuture.toString();
+    return result;
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;

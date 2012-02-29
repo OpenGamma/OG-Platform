@@ -50,9 +50,8 @@ public class UnderlyingTimeSeriesProvider {
   private final HistoricalTimeSeriesSource _timeSeriesSource;
   private final String _resolutionKey;
   private final UnderlyingFinancialSecurityVisitor _securityVisitor;
-  
-  public UnderlyingTimeSeriesProvider(final HistoricalTimeSeriesSource timeSeriesSource, final String resolutionKey, 
-      final SecuritySource securitySource) {
+
+  public UnderlyingTimeSeriesProvider(final HistoricalTimeSeriesSource timeSeriesSource, final String resolutionKey, final SecuritySource securitySource) {
     ArgumentChecker.notNull(timeSeriesSource, "time series source");
     ArgumentChecker.notNull(resolutionKey, "resolution key");
     ArgumentChecker.notNull(securitySource, "security source");
@@ -60,11 +59,11 @@ public class UnderlyingTimeSeriesProvider {
     _resolutionKey = resolutionKey;
     _securityVisitor = new UnderlyingFinancialSecurityVisitor(securitySource);
   }
-  
+
   public LocalDateDoubleTimeSeries getSeries(final Greek greek, final FinancialSecurity security) {
     return getSeries(greek, security, null, null);
   }
-  
+
   public LocalDateDoubleTimeSeries getSeries(final Greek greek, final FinancialSecurity security, final LocalDate startDate, final LocalDate endDate) {
     final String fieldName = greek.accept(FIELD_VISITOR);
     final ExternalIdBundle underlyingId = security.accept(_securityVisitor);
@@ -74,13 +73,15 @@ public class UnderlyingTimeSeriesProvider {
     }
     return hts.getTimeSeries();
   }
-  
+
   private static class FieldGreekVisitor extends AbstractGreekVisitor<String> {
-    
+
+    @Override
     public String visitDelta() {
       return MarketDataRequirementNames.MARKET_VALUE;
     }
-    
+
+    @Override
     public String visitGamma() {
       return MarketDataRequirementNames.MARKET_VALUE;
     }
@@ -88,11 +89,11 @@ public class UnderlyingTimeSeriesProvider {
 
   private class UnderlyingFinancialSecurityVisitor implements FinancialSecurityVisitor<ExternalIdBundle> {
     private final SecuritySource _securitySource;
-    
+
     public UnderlyingFinancialSecurityVisitor(final SecuritySource securitySource) {
       _securitySource = securitySource;
     }
-    
+
     @Override
     public ExternalIdBundle visitBondSecurity(final BondSecurity security) {
       throw new UnsupportedOperationException("This visitor does not support BondSecurity");
@@ -147,7 +148,7 @@ public class UnderlyingTimeSeriesProvider {
     public ExternalIdBundle visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
       throw new UnsupportedOperationException("This visitor does not support NonDeliverableFXOptionSecurity");
     }
-    
+
     @Override
     public ExternalIdBundle visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
       throw new UnsupportedOperationException("This visitor does not support FXDigitalOptionSecurity");
@@ -157,6 +158,11 @@ public class UnderlyingTimeSeriesProvider {
     public ExternalIdBundle visitSwaptionSecurity(final SwaptionSecurity security) {
       throw new UnsupportedOperationException("This visitor does not support SwaptionSecurity");
     }
+
+    //    @Override
+    //    public ExternalIdBundle visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    //      throw new UnsupportedOperationException("This visitor does not support InterestRateFutureSecurity");
+    //    }
 
     @Override
     public ExternalIdBundle visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
@@ -202,6 +208,6 @@ public class UnderlyingTimeSeriesProvider {
     public ExternalIdBundle visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
       throw new UnsupportedOperationException("This visitor does not support NonDeliverableFXDigitalOptionSecurity");
     }
-    
+
   }
 }

@@ -9,12 +9,14 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for a {@link ChangeManager}.
- * Changes are published via JMS only at the moment
+ * <p>
+ * This class only handles JMS change managers.
  */
-public class ChangeManagerResource {
+public class DataChangeManagerResource extends AbstractDataResource {
 
   /**
    * The change manager.
@@ -26,7 +28,7 @@ public class ChangeManagerResource {
    * 
    * @param changeManager  the change manager, not null
    */
-  public ChangeManagerResource(ChangeManager changeManager) {
+  public DataChangeManagerResource(ChangeManager changeManager) {
     if (changeManager instanceof JmsChangeManager == false) {
       throw new UnsupportedOperationException("Only JmsChangeManager can be published over REST");
     }
@@ -37,13 +39,13 @@ public class ChangeManagerResource {
   @GET
   @Path("topicName")
   public Response getTopicName() {
-    return Response.ok(_changeManager.getJmsConnector().getTopicName()).build();
+    return responseOk(_changeManager.getJmsConnector().getTopicName());
   }
-  
+
   @GET
   @Path("brokerUri")
   public Response getBrokerUri() {
-    return Response.ok(_changeManager.getJmsConnector().getClientBrokerUri().toString()).build();
+    return responseOk(_changeManager.getJmsConnector().getClientBrokerUri().toString());
   }
 
 }

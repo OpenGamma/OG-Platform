@@ -23,7 +23,7 @@ import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform
  */
 public class PiecewiseSABRFitter {
   private static final SABRHaganVolatilityFunction MODEL = new SABRHaganVolatilityFunction();
-  private static final double DEFAULT_BETA = 0.5;
+  private static final double DEFAULT_BETA = 0.9;
   private static final Logger LOGGER = LoggerFactory.getLogger(PiecewiseSABRFitter.class);
 
   private final SABRFormulaData[] _modelParams;
@@ -45,13 +45,26 @@ public class PiecewiseSABRFitter {
     _strikes = strikes;
     _n = n;
 
-    double avVol = 0;
+    double averageVol = 0;
+    double averageVol2 = 0;
     for (int i = 0; i < n; i++) {
-      avVol += impliedVols[i];
+      double vol = impliedVols[i];
+      averageVol += vol;
+      averageVol2 += vol * vol;
     }
-    avVol /= n;
-    final double appoxAlpha = avVol * Math.pow(forward, 1 - DEFAULT_BETA);
-    DoubleMatrix1D start = new DoubleMatrix1D(appoxAlpha, DEFAULT_BETA, 0.0, 0.3);
+    averageVol2 = Math.sqrt((averageVol2 - averageVol / n) / (n - 1));
+    averageVol /= n;
+
+    DoubleMatrix1D start;
+
+    //almost flat surface
+    if (averageVol2 / averageVol < 0.01) {
+      start = new DoubleMatrix1D(averageVol, 1.0, 0.0, 0.0);
+    } else {
+      final double approxAlpha = averageVol * Math.pow(forward, 1 - DEFAULT_BETA);
+      start = new DoubleMatrix1D(approxAlpha, DEFAULT_BETA, 0.0, 0.3);
+    }
+
     _modelParams = new SABRFormulaData[n - 2];
 
     double[] errors = new double[n];
@@ -82,7 +95,7 @@ public class PiecewiseSABRFitter {
         tStrikes = Arrays.copyOfRange(strikes, i, i + 3);
         tVols = Arrays.copyOfRange(impliedVols, i, i + 3);
         final SmileModelFitter<SABRFormulaData> fitter =
-            new SABRModelFitter(forward, tStrikes, timeToExpiry, tVols, errors, MODEL);
+          new SABRModelFitter(forward, tStrikes, timeToExpiry, tVols, errors, MODEL);
         final LeastSquareResultsWithTransform lRes = fitter.solve(start, fixed);
         if (lRes.getChiSq() > 3.0) {
           LOGGER.warn("chi^2 on SABR fit " + i + " is " + lRes.getChiSq());
@@ -119,7 +132,7 @@ public class PiecewiseSABRFitter {
       return MODEL.getVolatility(_forward, strike, _expiry, p2.getAlpha(), p2.getBeta(), p2.getRho(), p2.getNu());
     } else {
       return w * MODEL.getVolatility(_forward, strike, _expiry, p1.getAlpha(), p1.getBeta(), p1.getRho(), p1.getNu()) +
-          (1 - w) * MODEL.getVolatility(_forward, strike, _expiry, p2.getAlpha(), p2.getBeta(), p2.getRho(), p2.getNu());
+      (1 - w) * MODEL.getVolatility(_forward, strike, _expiry, p2.getAlpha(), p2.getBeta(), p2.getRho(), p2.getNu());
     }
   }
 

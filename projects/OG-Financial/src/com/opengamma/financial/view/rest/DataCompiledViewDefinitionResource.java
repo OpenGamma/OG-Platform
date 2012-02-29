@@ -16,11 +16,12 @@ import javax.ws.rs.core.UriBuilder;
 import com.google.common.collect.Lists;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphs;
 import com.opengamma.engine.view.compilation.CompiledViewDefinitionWithGraphsImpl;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for {@link CompiledViewDefinitionWithGraphsImpl}.
  */
-public class DataCompiledViewDefinitionResource {
+public class DataCompiledViewDefinitionResource extends AbstractDataResource {
 
   //CSOFF: just constants
   public static final String PATH_VIEW_DEFINITION = "viewDefinition";
@@ -42,49 +43,49 @@ public class DataCompiledViewDefinitionResource {
   @GET
   @Path(PATH_VIEW_DEFINITION)
   public Response getViewDefinition() {
-    return Response.ok(_compiledViewDefinition.getViewDefinition()).build();
+    return responseOkFudge(_compiledViewDefinition.getViewDefinition());
   }
   
   @GET
   @Path(PATH_PORTFOLIO)
   public Response getPortfolio() {
-    return Response.ok(_compiledViewDefinition.getPortfolio()).build();
+    return responseOkFudge(_compiledViewDefinition.getPortfolio());
   }
   
   @GET
   @Path(PATH_COMPILED_CALCULATION_CONFIGURATIONS)
   public Response getCompiledCalculationConfigurations() {
-    return Response.ok(Lists.newArrayList(_compiledViewDefinition.getCompiledCalculationConfigurations())).build();
+    return responseOkFudge(Lists.newArrayList(_compiledViewDefinition.getCompiledCalculationConfigurations()));
   }
   
   @GET
   @Path(PATH_COMPILED_CALCULATION_CONFIGURATIONS + "/{calcConfigName}")
   public Response getCompiledViewCalculationConfiguration(@PathParam("calcConfigName") String calcConfigName) {
-    return Response.ok(_compiledViewDefinition.getCompiledCalculationConfiguration(calcConfigName)).build();
+    return responseOkFudge(_compiledViewDefinition.getCompiledCalculationConfiguration(calcConfigName));
   }
   
   @GET
   @Path(PATH_COMPUTATION_TARGETS)
   public Response getComputationTargets() {
-    return Response.ok(_compiledViewDefinition.getComputationTargets()).build();
+    return responseOkFudge(_compiledViewDefinition.getComputationTargets());
   }
 
   @GET
   @Path(PATH_MARKET_DATA_REQUIREMENTS)
   public Response getMarketDataRequirements() {
-    return Response.ok(_compiledViewDefinition.getMarketDataRequirements()).build();
+    return responseOkFudge(_compiledViewDefinition.getMarketDataRequirements());
   }
   
   @GET
   @Path(PATH_VALID_FROM)
   public Response getValidFrom() {
-    return Response.ok(_compiledViewDefinition.getValidFrom()).build();
+    return responseOkFudge(_compiledViewDefinition.getValidFrom());
   }
   
   @GET
   @Path(PATH_VALID_TO)
   public Response getValidTo() {
-    return Response.ok(_compiledViewDefinition.getValidTo()).build();
+    return responseOkFudge(_compiledViewDefinition.getValidTo());
   }
   
   @Path(PATH_GRAPHS + "/{calcConfigName}")
