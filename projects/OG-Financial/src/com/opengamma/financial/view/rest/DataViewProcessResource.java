@@ -11,7 +11,7 @@ import javax.ws.rs.Path;
 import javax.ws.rs.core.Response;
 
 import com.opengamma.engine.view.ViewProcess;
-import com.opengamma.financial.livedata.rest.LiveDataInjectorResource;
+import com.opengamma.financial.livedata.rest.DataLiveDataInjectorResource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -66,8 +66,8 @@ public class DataViewProcessResource extends AbstractDataResource {
   }
   
   @Path(PATH_LIVE_DATA_OVERRIDE_INJECTOR)
-  public LiveDataInjectorResource getLiveDataOverrideInjector() {
-    return new LiveDataInjectorResource(_viewProcess.getLiveDataOverrideInjector());
+  public DataLiveDataInjectorResource getLiveDataOverrideInjector() {
+    return new DataLiveDataInjectorResource(_viewProcess.getLiveDataOverrideInjector());
   }
   
   @DELETE

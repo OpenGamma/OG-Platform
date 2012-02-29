@@ -16,7 +16,7 @@ import com.opengamma.util.rest.AbstractDataResource;
 /**
  * Wrapper to provide RESTful access to a {@link MarketDataInjector}.
  */
-public class LiveDataInjectorResource extends AbstractDataResource {
+public class DataLiveDataInjectorResource extends AbstractDataResource {
   
   //CSOFF: just constants
   public static final String PATH_ADD = "add";
@@ -25,7 +25,7 @@ public class LiveDataInjectorResource extends AbstractDataResource {
   
   private final MarketDataInjector _injector;
   
-  public LiveDataInjectorResource(MarketDataInjector injector) {
+  public DataLiveDataInjectorResource(MarketDataInjector injector) {
     ArgumentChecker.notNull(injector, "injector");
     _injector = injector;
   }

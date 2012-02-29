@@ -28,9 +28,9 @@ import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * RESTful resource for a live data snapshot.
+ * RESTful resource for a live data snapshot within batch.
  */
-public class MarketDataResource extends AbstractDataResource {
+public class DataMarketDataResource extends AbstractDataResource {
 
   /**
    * The batch master.
@@ -47,7 +47,7 @@ public class MarketDataResource extends AbstractDataResource {
    * @param batchMaster  the underlying batch master, not null
    * @param marketDataId  the id of market data, not null
    */
-  public MarketDataResource(final ObjectId marketDataId, final BatchMasterWriter batchMaster) {
+  public DataMarketDataResource(final ObjectId marketDataId, final BatchMasterWriter batchMaster) {
     _batchMaster = batchMaster;
     _marketDataId = marketDataId;
   }

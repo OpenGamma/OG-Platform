@@ -32,7 +32,7 @@ import com.opengamma.util.tuple.Pair;
  * The batch resource receives and processes RESTful calls to the batch master.
  */
 @Path("/batch")
-public class BatchMasterResource extends AbstractDataResource {
+public class DataBatchMasterResource extends AbstractDataResource {
 
   /**
    * The batch master.
@@ -44,7 +44,7 @@ public class BatchMasterResource extends AbstractDataResource {
    *
    * @param batchMaster  the underlying batch master, not null
    */
-  public BatchMasterResource(final BatchMasterWriter batchMaster) {
+  public DataBatchMasterResource(final BatchMasterWriter batchMaster) {
     ArgumentChecker.notNull(batchMaster, "batchMaster");
     _batchMaster = batchMaster;
   }
@@ -76,9 +76,9 @@ public class BatchMasterResource extends AbstractDataResource {
   */
   @GET
   @Path("marketData/{id}")
-  public MarketDataResource getMarketData(@PathParam("id") final String snapshotId) {
+  public DataMarketDataResource getMarketData(@PathParam("id") final String snapshotId) {
     ObjectId id = ObjectId.parse(snapshotId);
-    return new MarketDataResource(id, getMaster());
+    return new DataMarketDataResource(id, getMaster());
   }
 
   @POST
@@ -91,9 +91,9 @@ public class BatchMasterResource extends AbstractDataResource {
 
   @GET
   @Path("run/{id}")
-  public BatchRunResource batchRuns(@QueryParam("id") final String runId) {
+  public DataBatchRunResource batchRuns(@QueryParam("id") final String runId) {
     ObjectId id = ObjectId.parse(runId);
-    return new BatchRunResource(id, getMaster());
+    return new DataBatchRunResource(id, getMaster());
   }
 
 }

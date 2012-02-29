@@ -117,12 +117,13 @@ public class PresentValueCouponSensitivityCalculatorTest {
     final double paymentAccrualFactor = 0.25;
     final double referencePrice = 0.0; // TODO CASE - Future refactor - referencePrice = 0.0
     //  final double rate = 0.0356;
+    final int quantity = 123;
     final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice, 1, paymentAccrualFactor,
-        "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+        quantity, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     final InterestRateFuture irUp = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice - DELTA, 1,
-        paymentAccrualFactor, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+        paymentAccrualFactor, quantity, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     final InterestRateFuture irDown = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice + DELTA, 1,
-        paymentAccrualFactor, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+        paymentAccrualFactor, quantity, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     final double pvUp = PVC.visit(irUp, CURVES);
     final double pvDown = PVC.visit(irDown, CURVES);
     final double temp = (pvUp - pvDown) / 2 / DELTA;

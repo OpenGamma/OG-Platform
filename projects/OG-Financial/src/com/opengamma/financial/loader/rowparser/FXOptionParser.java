@@ -30,7 +30,7 @@ import com.opengamma.util.time.ExpiryAccuracy;
 /**
  * This class reads standard OG import fields to generate an FX Option security
  */
-public class FXVanillaOptionParser extends RowParser {
+public class FXOptionParser extends RowParser {
 
   private static final String ID_SCHEME = "VANILLA_FX_OPTION_LOADER";
   
@@ -45,8 +45,12 @@ public class FXVanillaOptionParser extends RowParser {
   protected String IS_LONG = "is long";
   //CSON
   
-  public FXVanillaOptionParser(ToolContext toolContext) {
+  public FXOptionParser(ToolContext toolContext) {
     super(toolContext);
+  }
+
+  public String[] getColumns() {
+    return new String[] {PUT_CURRENCY, CALL_CURRENCY, PUT_AMOUNT, CALL_AMOUNT, EXPIRY, IS_LONG };
   }
 
   @Override

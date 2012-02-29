@@ -14,11 +14,11 @@ import com.opengamma.util.rest.AbstractDataResource;
 /**
  * RESTful resource for {@link LiveMarketDataSourceRegistry}
  */
-public class LiveMarketDataSourceRegistryResource extends AbstractDataResource {
+public class DataLiveMarketDataSourceRegistryResource extends AbstractDataResource {
 
   private final LiveMarketDataSourceRegistry _liveMarketDataSourceRegistry;
 
-  public LiveMarketDataSourceRegistryResource(LiveMarketDataSourceRegistry liveMarketDataSourceRegistry) {
+  public DataLiveMarketDataSourceRegistryResource(LiveMarketDataSourceRegistry liveMarketDataSourceRegistry) {
     _liveMarketDataSourceRegistry = liveMarketDataSourceRegistry;
   }
 

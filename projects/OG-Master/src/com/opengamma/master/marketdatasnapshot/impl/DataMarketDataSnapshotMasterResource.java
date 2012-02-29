@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.core.change.ChangeManagerResource;
+import com.opengamma.core.change.DataChangeManagerResource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
@@ -89,8 +89,8 @@ public class DataMarketDataSnapshotMasterResource extends AbstractDataResource {
   }
 
   @Path("snapshots/changeManager")
-  public ChangeManagerResource getChangeManager() {
-    return new ChangeManagerResource(getMarketDataSnapshotMaster().changeManager());
+  public DataChangeManagerResource getChangeManager() {
+    return new DataChangeManagerResource(getMarketDataSnapshotMaster().changeManager());
   }
   
   //-------------------------------------------------------------------------

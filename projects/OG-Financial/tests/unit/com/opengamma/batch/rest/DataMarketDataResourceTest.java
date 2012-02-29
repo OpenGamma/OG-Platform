@@ -6,7 +6,23 @@
 package com.opengamma.batch.rest;
 
 
-import com.opengamma.batch.BatchMaster;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertSame;
+
+import java.util.List;
+import java.util.Set;
+
+import javax.ws.rs.core.Response;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import com.opengamma.batch.BatchMasterWriter;
 import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.MarketDataValue;
@@ -15,35 +31,23 @@ import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.tuple.Pair;
 import com.sun.jersey.api.client.ClientResponse.Status;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
-import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.Set;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
-import static org.mockito.Mockito.*;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertSame;
 
 /**
  * Tests BatchRunResource.
  */
-public class MarketDataResourceTest {
+public class DataMarketDataResourceTest {
 
   private UniqueId _baseMarketDataUid = UniqueId.of("Test", "BaseMarketData");
   private MarketData _marketData;
   private BatchMasterWriter _batchMaster;
-  private MarketDataResource _resource;
+  private DataMarketDataResource _resource;
 
   @BeforeMethod
   public void setUp() {
     _marketData = new MarketData(_baseMarketDataUid);
 
     _batchMaster = mock(BatchMasterWriter.class);
-    _resource = new MarketDataResource(_marketData.getObjectId(), _batchMaster);
+    _resource = new DataMarketDataResource(_marketData.getObjectId(), _batchMaster);
     when(_batchMaster.getMarketDataById(_marketData.getObjectId())).thenReturn(_marketData);
   }
 
@@ -54,7 +58,7 @@ public class MarketDataResourceTest {
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
     assertSame(_marketData, test.getEntity());
   }
-  
+
   @Test
   public void testDelete() {
     doNothing().when(_batchMaster).deleteMarketData(_marketData.getObjectId());
@@ -76,8 +80,9 @@ public class MarketDataResourceTest {
     PagingRequest pagingRequest = PagingRequest.ofPage(2, 30);
     when(_batchMaster.getMarketDataValues(_marketData.getObjectId(), pagingRequest)).thenReturn(Pair.of(marketDataValues, Paging.ofAll(marketDataValues)));
     
-    Response response = _resource.getDataValues(pagingRequest);
-
+    _resource.getDataValues(pagingRequest);
+    
     verify(_batchMaster).getMarketDataValues(_marketData.getObjectId(), pagingRequest);
   }
+
 }

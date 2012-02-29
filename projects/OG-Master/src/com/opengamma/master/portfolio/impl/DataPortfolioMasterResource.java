@@ -16,7 +16,7 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.core.change.ChangeManagerResource;
+import com.opengamma.core.change.DataChangeManagerResource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.portfolio.PortfolioDocument;
@@ -98,8 +98,8 @@ public class DataPortfolioMasterResource extends AbstractDataResource {
   //-------------------------------------------------------------------------
   // REVIEW jonathan 2011-12-28 -- to be removed when the change topic name is exposed as part of the component config
   @Path("portfolios/changeManager")
-  public ChangeManagerResource getChangeManager() {
-    return new ChangeManagerResource(getPortfolioMaster().changeManager());
+  public DataChangeManagerResource getChangeManager() {
+    return new DataChangeManagerResource(getPortfolioMaster().changeManager());
   }
 
   //-------------------------------------------------------------------------

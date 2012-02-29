@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.loader.rowparser;
 
+import java.util.HashMap;
 import java.util.Map;
-
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.LocalTime;
@@ -59,6 +59,10 @@ public class SwaptionParser extends RowParser {
 
   public SwaptionParser(ToolContext toolContext) {
     super(toolContext);
+  }
+
+  public String[] getColumns() {
+    return new String[] {EXPIRY, IS_LONG, IS_PAYER, CURRENCY, TRADE_DATE, STRIKE, NOTIONAL, COUNTERPARTY, SWAP_LENGTH };
   }
 
   @Override
@@ -130,6 +134,26 @@ public class SwaptionParser extends RowParser {
     return years + "Y x " + swapLength + "Y";
   }
 
-  // TODO implement constructRow for portfolio export
+  // TODO implement constructRow properly, with underlying
+
+  @Override
+  public Map<String, String> constructRow(ManageableSecurity security) {
+    Map<String, String> result = new HashMap<String, String>();
+    SwaptionSecurity swaption = (SwaptionSecurity) security;
+
+    // Swaption fields
+    result.put(EXPIRY, swaption.getExpiry().getExpiry().toString(CSV_DATE_FORMATTER));
+    result.put(IS_LONG, Boolean.toString(swaption.isLong()));
+    result.put(IS_PAYER, Boolean.toString(swaption.isPayer()));
+    result.put(CURRENCY, swaption.getCurrency().getCode());
+    
+    // Swap fields
+//    result.put(STRIKE, );
+//    result.put(NOTIONAL, );
+//    result.put(COUNTERPARTY, );
+//    result.put(SWAP_LENGTH, );
+    
+    return result;
+  }
 
 }
