@@ -198,7 +198,7 @@ import com.opengamma.financial.expression.UserExpression;
       super(left, right);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
     protected Object evaluate(final Evaluator evaluator) {
       final Comparable leftValue = evaluate(Comparable.class, getLeft(), evaluator);
@@ -228,7 +228,7 @@ import com.opengamma.financial.expression.UserExpression;
       super(left, right);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
     protected Object evaluate(final Evaluator evaluator) {
       final Comparable leftValue = evaluate(Comparable.class, getLeft(), evaluator);
@@ -442,7 +442,7 @@ import com.opengamma.financial.expression.UserExpression;
       super(left, right);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
     protected Object evaluate(final Evaluator evaluator) {
       final Comparable leftValue = evaluate(Comparable.class, getLeft(), evaluator);
@@ -472,7 +472,7 @@ import com.opengamma.financial.expression.UserExpression;
       super(left, right);
     }
 
-    @SuppressWarnings("unchecked")
+    @SuppressWarnings({"unchecked", "rawtypes" })
     @Override
     protected Object evaluate(final Evaluator evaluator) {
       final Comparable leftValue = evaluate(Comparable.class, getLeft(), evaluator);

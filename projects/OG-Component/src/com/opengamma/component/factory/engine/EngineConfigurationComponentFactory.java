@@ -59,7 +59,7 @@ public class EngineConfigurationComponentFactory extends AbstractComponentFactor
         if (info == null) {
           throw new IllegalArgumentException("Component not found: " + valueStr);
         }
-        Object instance = repo.getInstance(info.getType(), info.getClassifier());
+        Object instance = repo.getInstance(info);
         if (instance instanceof CalcNodeSocketConfiguration) {
           targetValue = instance;
         } else {

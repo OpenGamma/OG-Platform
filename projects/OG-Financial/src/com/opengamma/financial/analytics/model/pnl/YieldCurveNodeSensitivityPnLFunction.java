@@ -49,6 +49,7 @@ import com.opengamma.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.financial.sensitivities.RawSecurityUtils;
 import com.opengamma.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -69,13 +70,13 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
     ArgumentChecker.notNull(resolutionKey, "resolution key");
     _resolutionKey = resolutionKey;
   }
-
+  private static final LocalDate MAGIC_DATE = LocalDate.of(2009, 06, 05);
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
+    final LocalDate now = MAGIC_DATE;//snapshotClock.zonedDateTime().toLocalDate();
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
     final String currencyString = currency.getCode();
     final ValueRequirement desiredValue = desiredValues.iterator().next();

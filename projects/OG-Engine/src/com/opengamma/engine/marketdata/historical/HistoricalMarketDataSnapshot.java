@@ -8,6 +8,7 @@ package com.opengamma.engine.marketdata.historical;
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.id.UniqueId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -46,6 +47,11 @@ public class HistoricalMarketDataSnapshot extends AbstractMarketDataSnapshot {
     _snapshotInstant = snapshotInstant;
     _snapshotDate = snapshotDate;
     _timeSeriesFieldResolverKey = timeSeriesFieldResolverKey;
+  }
+  
+  @Override
+  public UniqueId getUniqueId() {
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "HistoricalMarketDataSnapshot:"+getSnapshotTime());
   }
   
   @Override

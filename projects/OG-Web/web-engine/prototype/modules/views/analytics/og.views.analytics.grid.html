@@ -1,0 +1,136 @@
+<script type="text/javascript">
+  (function () {
+      var gen_rows, gen_head, gen_data, gen_css, viewport, header, width, columns = {
+          'columns_fixed': [
+              {name: 'Fixed 1', width: 250},
+              {name: 'Fixed 2', width: 100}
+          ],
+          'columns_scroll': [
+              {name: 'Column 3', width: 100},
+              {name: 'Column 4', width: 100},
+              {name: 'Column 5', width: 100},
+              {name: 'Column 6', width: 100},
+              {name: 'Column 7', width: 100},
+              {name: 'Column 8', width: 100},
+              {name: 'Column 9', width: 100},
+              {name: 'Column 10', width: 100},
+              {name: 'Column 11', width: 100},
+              {name: 'Column 12', width: 100},
+              {name: 'Column 13', width: 100},
+              {name: 'Column 14', width: 100},
+              {name: 'Column 15', width: 100},
+              {name: 'Column 16', width: 100},
+              {name: 'Column 17', width: 100},
+              {name: 'Column 18', width: 100},
+              {name: 'Column 19', width: 100}
+          ]
+      };
+      gen_data = function (cols) {
+          var matrix = [], i = 60, k, gen_num = function () {
+              return (Math.random() * 1000);
+          };
+          while(i--) {
+            k = 17;
+            matrix.push(function () {
+                var row = [];
+                while(k--) row.push(gen_num());
+                return row;
+            }());
+          }
+          return matrix;
+      };
+      gen_rows = function (num, start_at) {
+          var data = gen_data(num), html = [], scrollbar_height, len = data.length * 20;
+          scrollbar_height = start_at ? 0 : 19;
+          html.push('<div class="OG-g-rows" style="height: ' + (len + scrollbar_height) + 'px">');
+          data.map(function (row, i) {
+              var value = data[i];
+              html.push('<div class="OG-g-row r'+ i +'" style="top: ' + (i * 20) + 'px">');
+              row.map(function (cell, k) {
+                  html.push('<div class="OG-g-cell c' + (k + (start_at || 0)) + '">' + value[k] + '</div>')
+              });
+              html.push('</div>');
+          });
+          html.push('</div>');
+          return html.join('');
+      };
+      viewport = {width: '800', height: '600'}; // Stub
+      header = {height: '51'}; // Stub
+      width = (function (columns) { // width of fixed and scrollable column areas
+          return {
+              fixed: columns.columns_fixed.reduce(function (acc, val, i) {return acc + val.width}, 0),
+              scroll: columns.columns_scroll.reduce(function (acc, val, i) {return acc + val.width}, 0)
+          };
+      }(columns));
+      gen_head = function (columns, start_at) {
+          var scrollbar_height = start_at ? 19 : 0,
+              html = '\
+                  <div class="OG-g-h-sets" style="width: ' + (start_at ? width.scroll : width.fixed) + 'px; padding-right: '+ scrollbar_height +'px">\
+                    <div class="OG-g-h-set">\
+                      <div class="OG-g-h-set-name">Portfolio View</div>\
+                      <div class="OG-g-h-cols">{COLS}</div>\
+                    </div>\
+                  </div>\
+              ',
+              cols = columns.reduce(function (acc, val, i) {
+                  return acc + '<div class="OG-g-h-col c' + (i + (start_at || 0)) + '">' + val.name + '</div>';
+              }, '');
+          return html.replace('{COLS}', cols);
+      };
+      gen_css = function (columns) {
+          var $style = $('<style type="text/css" />').appendTo($('head')), css, gen_group;
+          gen_group = function (cols, start_at) {
+              var pwidth = 0, all_cols_width = cols.reduce(function (acc, val, i) {
+                  return acc + parseInt(val.width);
+              }, 0);
+              return cols.reduce(function (acc, val, i) {
+                  var str, width = val.width;
+                  str = acc + '.OG-g .c' + (i + (start_at || 0)) + ' \
+                      {left: ' + pwidth + 'px; right: ' + (all_cols_width - pwidth - width) + 'px;}';
+                  pwidth += width;
+                  return str;
+              }, '');
+          };
+          css = [
+              '.OG-g-b-scroll {width: ' + viewport.width + 'px; left: ' + width.fixed + 'px; height: '+ viewport.height +'px}',
+              '.OG-g-h-scroll {width: ' + viewport.width + 'px; height: ' + header.height + 'px; left: ' + width.fixed + 'px}',
+              '.OG-g-b-scroll .OG-g-row {width: ' + width.scroll + 'px}',
+              '.OG-g-b-fixed {width: ' + width.fixed + 'px; height: '+ viewport.height + 'px}',
+              '.OG-g-h-fixed {width: ' + width.fixed + 'px}',
+              '.OG-g-b {top: ' + header.height + 'px}',
+              gen_group(columns.columns_fixed, 0),
+              gen_group(columns.columns_scroll, columns.columns_fixed.length)
+          ].join('');
+          if ($style[0].styleSheet) $style[0].styleSheet.cssText = css; // IE
+          else $style[0].appendChild(document.createTextNode(css));
+      };
+      gen_css(columns);
+      $('.OG-g-b-scroll').scroll(function (e) { // sync scroll
+          $('.OG-g-b-fixed').scrollTop(e.target.scrollTop);
+          $('.OG-g-h-scroll').scrollLeft(e.target.scrollLeft);
+      });
+      $('.OG-g-b-fixed').html(gen_rows(columns.columns_fixed.length));
+      $('.OG-g-b-scroll').html(gen_rows(columns.columns_scroll.length, columns.columns_fixed.length));
+      $('.OG-g-h-fixed').html(gen_head(columns.columns_fixed));
+      $('.OG-g-h-scroll').html(gen_head(columns.columns_scroll, columns.columns_fixed.length));
+
+      var scroll_len = columns.columns_scroll.length;
+      var fixed_num = columns.columns_fixed.length;
+      setInterval(function () {
+        $('.OG-g-b-scroll').html(gen_rows(scroll_len, fixed_num));
+      }, 1000);
+  }());
+</script>
+
+<div class="grid-container" style="height: 900px; width: 1000px">
+  <div class="OG-g OG-js-g">
+    <section class="OG-g-h">
+      <section class="OG-g-h-fixed"></section>
+      <section class="OG-g-h-scroll"></section>
+    </section>
+    <section class="OG-g-b">
+      <section class="OG-g-b-fixed"></section>
+      <section class="OG-g-b-scroll"></section>
+    </section>
+  </div>
+</div>

@@ -50,6 +50,8 @@ public enum InterestRateInstrumentType {
   SWAP_IBOR_CMS,
   /** A swap, two CMS legs */
   SWAP_CMS_CMS,
+  /** A swap, one fixed leg, one OIS leg */
+  SWAP_FIXED_OIS,
   /** Cash */
   CASH, //TODO do we need ibor, deposit, OIS?
   /** FRA */
@@ -68,15 +70,14 @@ public enum InterestRateInstrumentType {
     final InterestRateInstrumentType type = security.accept(TYPE_IDENTIFIER);
     if (type == null) {
       throw new OpenGammaRuntimeException("Can't handle " + security.getClass().getName());
-    } else {
-      return type;
     }
+    return type;
   }
 
   public static boolean isFixedIncomeInstrumentType(final FinancialSecurity security) {
     try {
       return security.accept(TYPE_IDENTIFIER) != null;
-    } catch (OpenGammaRuntimeException e) {
+    } catch (final OpenGammaRuntimeException e) {
       return false;
     }
   }
@@ -105,11 +106,11 @@ public enum InterestRateInstrumentType {
 
     @Override
     public InterestRateInstrumentType visitFutureSecurity(final FutureSecurity security) {
-      if (security instanceof InterestRateFutureSecurity) {
-        return IR_FUTURE;
-      }
       if (security instanceof BondFutureSecurity) {
         return BOND_FUTURE;
+      }
+      if (security instanceof InterestRateFutureSecurity) {
+        return IR_FUTURE;
       }
       return null;
     }
@@ -133,9 +134,9 @@ public enum InterestRateInstrumentType {
     public InterestRateInstrumentType visitEquityOptionSecurity(final EquityOptionSecurity security) {
       return null;
     }
-    
+
     @Override
-    public InterestRateInstrumentType visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+    public InterestRateInstrumentType visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
       return null;
     }
 
@@ -150,7 +151,7 @@ public enum InterestRateInstrumentType {
     }
 
     @Override
-    public InterestRateInstrumentType visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+    public InterestRateInstrumentType visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
       return null;
     }
 
@@ -158,10 +159,9 @@ public enum InterestRateInstrumentType {
     public InterestRateInstrumentType visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
       return null;
     }
-    
+
     @Override
-    public InterestRateInstrumentType visitEquityIndexDividendFutureOptionSecurity(
-        EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+    public InterestRateInstrumentType visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
       return null;
     }
 
@@ -179,9 +179,9 @@ public enum InterestRateInstrumentType {
     public InterestRateInstrumentType visitFXForwardSecurity(final FXForwardSecurity security) {
       return null;
     }
-    
+
     @Override
-    public InterestRateInstrumentType visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+    public InterestRateInstrumentType visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
       return null;
     }
 
@@ -204,5 +204,10 @@ public enum InterestRateInstrumentType {
     public InterestRateInstrumentType visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
       return null;
     }
+
+    //    @Override
+    //    public InterestRateInstrumentType visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
+    //      return IR_FUTURE;
+    //    }
   }
 }

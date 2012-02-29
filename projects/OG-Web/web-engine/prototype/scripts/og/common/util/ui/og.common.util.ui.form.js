@@ -7,7 +7,7 @@ $.register_module({
     name: 'og.common.util.ui.Form',
     dependencies: ['og.api.text'],
     obj: function () {
-        var stall = 500, id_count = 0, dummy = '<p/>', api_text = og.api.text, numbers = {},
+        var STALL = 500 /* 500ms */, id_count = 0, dummy = '<p/>', api_text = og.api.text, numbers = {},
             form_template = '<form action="." id="${id}"><div class="OG-form">' +
                 '{{html html}}<input type="submit" style="display: none;"></div></form>',
             Form, Block, Field;
@@ -23,7 +23,7 @@ $.register_module({
                 };
             block.children = config.children || [];
             block.html = function (handler) {
-                if (template === null) return setTimeout(block.html.partial(handler), stall);
+                if (template === null) return setTimeout(block.html.partial(handler), STALL);
                 var self = 'html', total = block.children.length, done = 0, result = [],
                     internal_handler = function () {
                         handler(template ? $(dummy).append($.tmpl(template, $.extend(
@@ -50,12 +50,8 @@ $.register_module({
                 block.children.forEach(function (child) {if (child.process) child.process(data, errors);});
                 try {if (processor) processor(data);} catch (error) {errors.push(error);}
             };
-            if (url || module) {
-                if (url) api_text({handler: function (result) {template = result;}, url: url});
-                else if (module) api_text({handler: function (result) {template = result;}, module: module});
-            } else {
-                template = '';
-            }
+            $.when(url || module ? api_text(url ? {url: url} : {module: module}) : void 0)
+                .then(function (result) {template = result || '';});
             if (form) form.attach(handlers);
         };
         /**
@@ -66,7 +62,7 @@ $.register_module({
                 extras = config.extras, handlers = config.handlers || [], generator = config.generator,
                 processor = config.processor;
             field.html = function (handler) {
-                if (template === null) return setTimeout(field.html.partial(handler), stall);
+                if (template === null) return setTimeout(field.html.partial(handler), STALL);
                 if (extras && template) return handler($(dummy).append($.tmpl(template, extras)).html());
                 generator(handler, template);
             };
@@ -76,12 +72,8 @@ $.register_module({
             field.process = function (data, errors) {
                 try {if (processor) processor(data);} catch (error) {errors.push(error);}
             };
-            if (url || module) {
-                if (url) api_text({handler: function (result) {template = result;}, url: url});
-                else if (module) api_text({handler: function (result) {template = result;}, module: module});
-            } else {
-                template = '';
-            }
+            $.when(url || module ? api_text(url ? {url: url} : {module: module}) : void 0)
+                .then(function (result) {template = result || '';});
             form.attach(handlers);
         };
         /**
@@ -147,7 +139,7 @@ $.register_module({
                         if (!val.selector) throw new TypeError(klass + '#' + self + ': val.selector is not defined');
                         if (dom_events[type]) return dom_events[type].push(val);
                         dom_events[type] = [val];
-                        $root.bind(type, delegator);
+                        $root.on(type, delegator);
                     });
                 });
             };

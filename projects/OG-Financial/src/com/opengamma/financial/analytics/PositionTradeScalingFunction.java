@@ -32,7 +32,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fixedincome.YieldCurveNodeSensitivityDataBundle;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.bond.BondFunction;
 import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
+import com.opengamma.financial.analytics.model.forex.ForexOptionFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -59,7 +61,26 @@ public class PositionTradeScalingFunction extends PropertyPreservingFunction {
         ValuePropertyNames.RECEIVE_CURVE,
         ValuePropertyNames.SMILE_FITTING_METHOD,
         RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE,
-        EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD);
+        EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD,
+        ValuePropertyNames.SAMPLING_PERIOD,
+        ValuePropertyNames.RETURN_CALCULATOR,
+        ValuePropertyNames.SCHEDULE_CALCULATOR,
+        ValuePropertyNames.SAMPLING_FUNCTION,
+        ValuePropertyNames.MEAN_CALCULATOR,
+        ValuePropertyNames.STD_DEV_CALCULATOR,
+        ValuePropertyNames.CONFIDENCE_LEVEL,
+        ValuePropertyNames.HORIZON,
+        ValuePropertyNames.ORDER,
+        ValuePropertyNames.COVARIANCE_CALCULATOR,
+        ValuePropertyNames.VARIANCE_CALCULATOR,
+        ValuePropertyNames.EXCESS_RETURN_CALCULATOR,
+        BondFunction.PROPERTY_CREDIT_CURVE,
+        BondFunction.PROPERTY_RISK_FREE_CURVE,
+        ForexOptionFunction.PROPERTY_CALL_FORWARD_CURVE_NAME,
+        ForexOptionFunction.PROPERTY_CALL_FUNDING_CURVE_NAME,
+        ForexOptionFunction.PROPERTY_FX_VOLATILITY_SURFACE_NAME,
+        ForexOptionFunction.PROPERTY_PUT_FORWARD_CURVE_NAME,
+        ForexOptionFunction.PROPERTY_PUT_FUNDING_CURVE_NAME);
   }
 
   @Override
@@ -200,12 +221,12 @@ public class PositionTradeScalingFunction extends PropertyPreservingFunction {
       final double scale = target.getPosition().getQuantity().doubleValue();
       for (int i = 0; i < n; i++) {
         for (int j = 0; j < m; j++) {
-          for (int k = 0; k < l; j++) {
+          for (final int k = 0; k < l; j++) {
             scaledValues[i][j][k] = values[i][j][k] * scale;
           }
         }
       }
-      scaledValue = new ComputedValue(specification, new DoubleLabelledMatrix3D(xKeys, xLabels, yKeys, yLabels, zKeys, zLabels, scaledValues));    
+      scaledValue = new ComputedValue(specification, new DoubleLabelledMatrix3D(xKeys, xLabels, yKeys, yLabels, zKeys, zLabels, scaledValues));
     } else {
       //REVIEW emcleod 27-1-2011 aaaaaaaaaarrrrrrrrgggggghhhhhhhhh Why is nothing done here?
       scaledValue = new ComputedValue(specification, value);

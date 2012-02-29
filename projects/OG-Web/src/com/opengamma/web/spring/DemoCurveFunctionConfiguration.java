@@ -18,15 +18,17 @@ import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
+import com.opengamma.engine.function.config.StaticFunctionConfiguration;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction;
 import com.opengamma.financial.analytics.model.volatility.local.DummyFXForwardCurveFunction;
-import com.opengamma.financial.analytics.model.volatility.local.ForwardCurveFromFXForwardFunction;
+import com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveFromYieldCurveDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveFromYieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunction;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.cube.BloombergSwaptionVolatilityCubeInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeMarketDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.config.ConfigDocument;
@@ -101,7 +103,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     //These need to be replaced with meaningful cube defns
     addVolatilityCubeFunction(configs, "USD", "BLOOMBERG");
 
-    Set<Currency> volCubeCurrencies = VolatilityCubeInstrumentProvider.BLOOMBERG.getAllCurrencies();
+    Set<Currency> volCubeCurrencies = BloombergSwaptionVolatilityCubeInstrumentProvider.BLOOMBERG.getAllCurrencies();
     for (Currency currency : volCubeCurrencies) {
       addVolatilityCubeFunction(configs, currency.getCode(), BloombergVolatilityCubeDefinitionSource.DEFINITION_NAME);
     }
@@ -114,8 +116,9 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
   }
 
   private void addFXForwardCurveFunction(List<FunctionConfiguration> configs) {
-    configs.add(new ParameterizedFunctionConfiguration(DummyFXForwardCurveFunction.class.getName(), Arrays.asList("DEFAULT", "EUR", "USD")));
-    //configs.add(new ParameterizedFunctionConfiguration(ForwardCurveFromFXForwardFunction.class.getName(), Arrays.asList("DEFAULT", "DEFAULT", "DEFAULT")));
+    configs.add(new ParameterizedFunctionConfiguration(DummyFXForwardCurveFunction.class.getName(), Arrays.asList("DEFAULT", "EUR", "USD")));    
+    configs.add(new StaticFunctionConfiguration(FXForwardCurveFromYieldCurveFunction.class.getName()));
+    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurveDefaultPropertiesFunction.class.getName(), Arrays.asList("DEFAULT", "FUNDING", "FUNDING")));
   }
   
   private void addVolatilityCubeFunction(List<FunctionConfiguration> configs, String... parameters) {

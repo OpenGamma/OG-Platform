@@ -7,9 +7,11 @@ package com.opengamma.masterdb.security.hibernate.swap;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
+import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
+import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapLegVisitor;
 
@@ -32,7 +34,15 @@ public enum SwapLegType {
   /**
    * 
    */
-  FLOATING_GEARING_INTEREST;
+  FLOATING_GEARING_INTEREST,
+  /**
+   *
+   */
+  FIXED_VARIANCE,
+  /**
+   *
+   */
+  FLOATING_VARIANCE;
 
   public static SwapLegType identify(final SwapLeg object) {
     return object.accept(new SwapLegVisitor<SwapLegType>() {
@@ -57,6 +67,16 @@ public enum SwapLegType {
         return FLOATING_GEARING_INTEREST;
       }
 
+      @Override
+      public SwapLegType visitFixedVarianceSwapLeg(FixedVarianceSwapLeg swapLeg) {
+        return FIXED_VARIANCE;
+      }
+
+      @Override
+      public SwapLegType visitFloatingVarianceSwapLeg(FloatingVarianceSwapLeg swapLeg) {
+        return FLOATING_VARIANCE;
+      }
+
     });
   }
 
@@ -70,6 +90,10 @@ public enum SwapLegType {
         return visitor.visitFloatingSpreadIRLeg(null);
       case FLOATING_GEARING_INTEREST:
         return visitor.visitFloatingGearingIRLeg(null);
+      case FIXED_VARIANCE:
+        return visitor.visitFixedVarianceSwapLeg(null);
+      case FLOATING_VARIANCE:
+        return visitor.visitFloatingVarianceSwapLeg(null);
       default:
         throw new OpenGammaRuntimeException("unexpected SwapLegType: " + this);
     }

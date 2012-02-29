@@ -710,8 +710,8 @@
 			<dbtool 
     jdbcUrl="jdbc:hsqldb:file:@{path}" 
     catalog="@{catalog}" 
-    user="" 
-    password="" 
+    user="OpenGamma" 
+    password="OpenGamma" 
     drop="true" 
     create="true" 
     createTables="true" 

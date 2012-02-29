@@ -11,7 +11,6 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.analytics.model.forex.ForexUtils;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionDigitalDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
@@ -30,6 +29,7 @@ import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
@@ -59,9 +59,9 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
     Validate.notNull(securitySource, "security source");
     _securitySource = securitySource;
   }
-  
+
   @Override
-  public InstrumentDefinition<?> visitFXDigitalOptionSecurity(FXDigitalOptionSecurity fxDigitalOptionSecurity) {
+  public InstrumentDefinition<?> visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity fxDigitalOptionSecurity) {
     Validate.notNull(fxDigitalOptionSecurity, "fx digital option (ndf) security");
     final Currency putCurrency = fxDigitalOptionSecurity.getPutCurrency();
     final Currency callCurrency = fxDigitalOptionSecurity.getCallCurrency();
@@ -71,7 +71,7 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
     final ZonedDateTime settlementDate = fxDigitalOptionSecurity.getSettlementDate();
     final boolean isLong = fxDigitalOptionSecurity.isLong();
     final ForexDefinition underlying;
-    if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
+    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
       final double fxRate = callAmount / putAmount;
       underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate);
       // REVIEW: jim 6-Feb-2012 -- take account of NDF!
@@ -84,7 +84,7 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
   }
 
   @Override
-  public InstrumentDefinition<?> visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity fxNDFDigitalOptionSecurity) {
+  public InstrumentDefinition<?> visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity fxNDFDigitalOptionSecurity) {
     Validate.notNull(fxNDFDigitalOptionSecurity, "fx digital option (ndf) security");
     final Currency putCurrency = fxNDFDigitalOptionSecurity.getPutCurrency();
     final Currency callCurrency = fxNDFDigitalOptionSecurity.getCallCurrency();
@@ -94,7 +94,7 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
     final ZonedDateTime settlementDate = fxNDFDigitalOptionSecurity.getSettlementDate();
     final boolean isLong = fxNDFDigitalOptionSecurity.isLong();
     final ForexDefinition underlying;
-    if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
+    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
       final double fxRate = callAmount / putAmount;
       underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate);
       // REVIEW: jim 6-Feb-2012 -- take account of NDF!
@@ -117,7 +117,7 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
     final ZonedDateTime settlementDate = fxOptionSecurity.getSettlementDate();
     final boolean isLong = fxOptionSecurity.isLong();
     final ForexDefinition underlying;
-    if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
+    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
       final double fxRate = callAmount / putAmount;
       underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate);
       return new ForexOptionVanillaDefinition(underlying, expiry, false, isLong);
@@ -274,5 +274,11 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
   public InstrumentDefinition<?> visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
     return null;
   }
+
+  //  @Override
+  //  public InstrumentDefinition<?> visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
+  //    // TODO Auto-generated method stub
+  //    return null;
+  //  }
 
 }

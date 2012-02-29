@@ -65,6 +65,10 @@
     <orderEntry type="module" module-name="OG-Engine" />
     <orderEntry type="module" module-name="OG-Util" />
     <orderEntry type="module" module-name="OG-Analytics" />
+    <orderEntry type="module" module-name="OG-Master" />
+    <orderEntry type="module" module-name="OG-Core" />
+    <orderEntry type="module" module-name="OG-LiveData" />
+    <orderEntry type="module" module-name="OG-Security" />
     <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-Web-default">
         <CLASSES>
@@ -100,8 +104,8 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.cometd/cometd-java/jars/cometd-java-server-1.0.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.cometd/cometd-java/jars/cometd-java-client-1.0.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.cometd/cometd-java/jars/cometd-api-1.0.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.junit/junit/jars/junit-dep-4.8.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.junit/junit/jars/junit-4.8.2.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.junit/junit/jars/junit-dep-4.8.2.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.eclipse/jetty/javadocs/jetty-continuation-7.0.1.v20091125.zip!/" />

@@ -28,14 +28,14 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
  * 
  */
 public class InterestRateFutureOptionPresentValueFunction extends InterestRateFutureOptionFunction {
+
   private static final PresentValueSABRCalculator CALCULATOR = PresentValueSABRCalculator.getInstance();
 
   @Override
-  protected Set<ComputedValue> getResults(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data,
-      final ComputationTarget target, final FunctionInputs inputs, final String forwardCurveName,
-      final String fundingCurveName, final String surfaceName) {
+  protected Set<ComputedValue> getResults(final InstrumentDerivative irFutureOption, final SABRInterestRateDataBundle data, final ComputationTarget target, final FunctionInputs inputs,
+      final String forwardCurveName, final String fundingCurveName, final String surfaceName, final String curveCalculationMethod) {
     final double presentValue = CALCULATOR.visit(irFutureOption, data);
-    return Collections.singleton(new ComputedValue(getSpecification(target, forwardCurveName, fundingCurveName, surfaceName), presentValue));
+    return Collections.singleton(new ComputedValue(getSpecification(target, forwardCurveName, fundingCurveName, surfaceName, curveCalculationMethod), presentValue));
   }
 
   @Override
@@ -57,16 +57,21 @@ public class InterestRateFutureOptionPresentValueFunction extends InterestRateFu
     if (surfaceNames == null || surfaceNames.size() != 1) {
       return null;
     }
+    final Set<String> curveCalculationMethodNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    if (curveCalculationMethodNames == null || curveCalculationMethodNames.size() != 1) {
+      return null;
+    }
     final String forwardCurveName = forwardCurves.iterator().next();
     final String fundingCurveName = fundingCurves.iterator().next();
+    final String curveCalculationMethodName = curveCalculationMethodNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
     requirements.add(getSurfaceRequirement(target, surfaceNames.iterator().next()));
     if (forwardCurveName.equals(fundingCurveName)) {
-      requirements.add(getCurveRequirement(target, forwardCurveName, null, null));
+      requirements.add(getCurveRequirement(target, forwardCurveName, null, null, curveCalculationMethodName));
       return requirements;
     }
-    requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName));
-    requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName));
+    requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethodName));
+    requirements.add(getCurveRequirement(target, fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethodName));
     return requirements;
   }
 
@@ -77,17 +82,19 @@ public class InterestRateFutureOptionPresentValueFunction extends InterestRateFu
         .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .withAny(ValuePropertyNames.SURFACE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
         .with(ValuePropertyNames.SMILE_FITTING_METHOD, SURFACE_FITTING_NAME).get());
   }
 
-  private ValueSpecification getSpecification(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName,
-      final String surfaceName) {
+  private ValueSpecification getSpecification(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName, final String surfaceName,
+      final String curveCalculationMethod) {
     return new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(),
         createValueProperties()
         .with(ValuePropertyNames.CURRENCY, FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
         .with(ValuePropertyNames.SMILE_FITTING_METHOD, SURFACE_FITTING_NAME).get());
   }
 }

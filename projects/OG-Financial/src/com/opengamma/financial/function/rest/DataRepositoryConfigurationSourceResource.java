@@ -55,7 +55,7 @@ public class DataRepositoryConfigurationSourceResource extends AbstractDataResou
   @Path("repoConfigs/all")
   public Response getAll() {
     RepositoryConfiguration result = getRepositoryConfigurationSource().getRepositoryConfiguration();
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   //-------------------------------------------------------------------------

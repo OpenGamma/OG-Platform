@@ -5,22 +5,30 @@
  */
 package com.opengamma.util.db;
 
-import java.io.Closeable;
-import java.sql.Timestamp;
-
-import javax.sql.DataSource;
-import javax.time.Instant;
-import javax.time.TimeSource;
-
-import org.hibernate.SessionFactory;
-import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
-import org.springframework.orm.hibernate3.HibernateTemplate;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.support.TransactionTemplate;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ReflectionUtils;
 import com.opengamma.util.time.DateUtils;
+import org.hibernate.SessionFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.orm.hibernate3.HibernateTemplate;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionException;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+
+import javax.sql.DataSource;
+import javax.time.Instant;
+import javax.time.TimeSource;
+import java.io.Closeable;
+import java.sql.Timestamp;
+
+import static com.opengamma.util.db.DbUtil.fixSQLExceptionCause;
+
 
 /**
  * Connector used to access SQL databases.
@@ -89,6 +97,7 @@ public class DbConnector implements Closeable {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the display name of the connector.
    * 
@@ -126,6 +135,7 @@ public class DbConnector implements Closeable {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the Hibernate session factory.
    * <p>
@@ -152,6 +162,7 @@ public class DbConnector implements Closeable {
   }
 
   //-------------------------------------------------------------------------
+
   /**
    * Gets the transaction manager.
    * <p>
@@ -174,7 +185,18 @@ public class DbConnector implements Closeable {
     return _transactionTemplate;
   }
 
+
+  /**
+   * Gets the retrying transaction template.
+   * <p>
+   * @param retries how many maximum retires should be tried
+   * @return the retrying transaction template
+   */
+  public TransactionTemplateRetrying getTransactionTemplateRetrying(int retries) {
+    return new TransactionTemplateRetrying(retries);
+  }
   //-------------------------------------------------------------------------
+
   /**
    * Gets the current instant using the database clock.
    * 
@@ -207,6 +229,7 @@ public class DbConnector implements Closeable {
     ReflectionUtils.close(getDataSource());
     ReflectionUtils.close(getTransactionManager());
     ReflectionUtils.close(getHibernateSessionFactory());
+    getDialect().close();
   }
 
   //-------------------------------------------------------------------------
@@ -218,6 +241,101 @@ public class DbConnector implements Closeable {
   @Override
   public String toString() {
     return getClass().getSimpleName() + "[" + _name + "]";
+  }
+
+  /**
+   * Gets the retrying hibernate transaction template.
+   * <p>
+   * @param retries how many maximum retires should be tried
+   * @return the retrying hibernate transaction template
+   */
+  public HibernateTransactionTemplateRetrying getHibernateTransactionTemplateRetrying(int retries) {
+    return new HibernateTransactionTemplateRetrying(retries);
+  }
+
+  public class TransactionTemplateRetrying {
+    final private int _retries;
+    final private TransactionTemplate _tt;
+
+    TransactionTemplateRetrying(int retries) {
+      _retries = retries;
+      _tt = getTransactionTemplate();
+    }
+
+    public <T> T execute(TransactionCallback<T> action) throws TransactionException {
+      // retry to handle concurrent conflicting inserts into unique content tables
+      for (int retry = 0; true; retry++) {
+        try {
+          return _tt.execute(action);
+        } catch (DataIntegrityViolationException ex) {
+          if (retry == _retries) {
+            throw ex;
+          }
+        } catch (DataAccessException ex) {
+          throw fixSQLExceptionCause(ex);
+        }
+      }
+    }
+  }
+
+  public HibernateTransactionTemplate getHibernateTransactionTemplate() {
+    return new HibernateTransactionTemplate();
+  }
+
+  public class HibernateTransactionTemplate {
+    final private TransactionTemplate _tt;
+    final private HibernateTemplate _ht;
+
+    private HibernateTransactionTemplate() {
+      _tt = getTransactionTemplate();
+      _ht = getHibernateTemplate();
+    }
+
+    public <T> T execute(final HibernateCallback<T> action) throws TransactionException {
+      try {
+        return _tt.execute(new TransactionCallback<T>() {
+          @Override
+          public T doInTransaction(TransactionStatus status) {
+            return _ht.execute(action);
+          }
+        });
+      } catch (DataAccessException ex) {
+        throw fixSQLExceptionCause(ex);
+      }
+    }
+  }
+
+  public class HibernateTransactionTemplateRetrying {
+    final private int _retries;
+    final private TransactionTemplate _tt;
+    final private HibernateTemplate _ht;
+
+    private HibernateTransactionTemplateRetrying(int retries) {
+      _retries = retries;
+      _tt = getTransactionTemplate();
+      _ht = getHibernateTemplate();
+      _ht.setAllowCreate(false);
+    }
+
+    public <T> T execute(final HibernateCallback<T> action) throws TransactionException {
+      // retry to handle concurrent conflicting inserts into unique content tables
+      for (int retry = 0; true; retry++) {
+        try {
+          return _tt.execute(new TransactionCallback<T>() {
+            @Override
+            public T doInTransaction(TransactionStatus status) {
+              return _ht.execute(action);
+            }
+          });
+        } catch (DataIntegrityViolationException ex) {
+          if (retry == _retries) {
+            throw ex;
+          }
+        } catch (DataAccessException ex) {
+          throw fixSQLExceptionCause(ex);
+        }
+      }
+    }
   }
 
 }

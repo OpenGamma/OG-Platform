@@ -12,6 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 import javax.time.Instant;
 
+import com.opengamma.id.UniqueId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -30,6 +31,11 @@ public class InMemoryLKVMarketDataSnapshot extends AbstractMarketDataSnapshot {
   
   public InMemoryLKVMarketDataSnapshot(InMemoryLKVMarketDataProvider provider) {
     _provider = provider;
+  }
+
+  @Override
+  public UniqueId getUniqueId() {
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "InMemoryLKVMarketDataSnapshot:"+getSnapshotTime());
   }
   
   @Override

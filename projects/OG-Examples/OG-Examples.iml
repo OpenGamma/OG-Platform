@@ -27,6 +27,7 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tests/unit" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/config" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
@@ -34,17 +35,14 @@
     <orderEntry type="module" module-name="OG-MasterDB" exported="" />
     <orderEntry type="module" module-name="OG-Web" exported="" />
     <orderEntry type="module" module-name="OG-Master" />
-    <orderEntry type="module-library">
-      <library name="config">
-        <CLASSES>
-          <root url="file://$MODULE_DIR$/config" />
-        </CLASSES>
-        <JAVADOC />
-        <SOURCES />
-      </library>
-    </orderEntry>
     <orderEntry type="module" module-name="OG-Financial" />
     <orderEntry type="module" module-name="OG-Component" />
+    <orderEntry type="module" module-name="OG-Analytics" />
+    <orderEntry type="module" module-name="OG-Util" />
+    <orderEntry type="module" module-name="OG-Core" />
+    <orderEntry type="module" module-name="OG-Engine" />
+    <orderEntry type="module" module-name="OG-LiveData" />
+    <orderEntry type="module" module-name="OG-Security" />
   </component>
 </module>
 

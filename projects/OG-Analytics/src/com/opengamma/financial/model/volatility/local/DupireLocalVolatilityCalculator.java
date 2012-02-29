@@ -33,8 +33,8 @@ public class DupireLocalVolatilityCalculator {
     _eps = 1e-3;
   }
 
-  public DupireLocalVolatilityCalculator(final double tol) {
-    _eps = tol;
+  public DupireLocalVolatilityCalculator(final double h) {
+    _eps = h;
   }
 
   /**

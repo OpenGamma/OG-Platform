@@ -22,7 +22,6 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
@@ -45,6 +44,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.id.ExternalId;
+import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
@@ -52,17 +52,10 @@ import com.opengamma.util.tuple.Pair;
  * 
  */
 public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends AbstractFunction {
-  private VolatilitySurfaceDefinition<Object, Object> _volSurfaceDefinition;
-  private FuturePriceCurveDefinition<Object> _priceCurveDefinition;
-  private ValueSpecification _volSurfaceResult;
-  private ValueSpecification _futurePriceCurveResult;
-  private Set<ValueSpecification> _results;
   private final String _definitionName;
   private final String _specificationName;
   private final String _volSurfaceInstrumentType;
   private final String _priceCurveInstrumentType;
-  private VolatilitySurfaceSpecification _volSurfaceSpecification;
-  private FuturePriceCurveSpecification _priceCurveSpecification;
 
   public IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction(final String definitionName, final String specificationName, final String volSurfaceInstrumentType,
       final String priceCurveInstrumentType) {
@@ -84,34 +77,41 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
   }
 
   @SuppressWarnings("unchecked")
-  @Override
-  public void init(final FunctionCompilationContext context) {
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBVolatilitySurfaceDefinitionSource volSurfaceDefinitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
-    _volSurfaceDefinition = (VolatilitySurfaceDefinition<Object, Object>) volSurfaceDefinitionSource.getDefinition(_definitionName, _volSurfaceInstrumentType);
-    final ConfigDBVolatilitySurfaceSpecificationSource volatilitySurfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    _volSurfaceSpecification = volatilitySurfaceSpecificationSource.getSpecification(_specificationName, _volSurfaceInstrumentType);
-    final ConfigDBFuturePriceCurveDefinitionSource futurePriceCurveDefinitionSource = new ConfigDBFuturePriceCurveDefinitionSource(configSource);
-    _priceCurveDefinition = (FuturePriceCurveDefinition<Object>) futurePriceCurveDefinitionSource.getDefinition(_definitionName, _priceCurveInstrumentType);
-    final FuturePriceCurveSpecificationSource futurePriceCurveSpecificationSource = new ConfigDBFuturePriceCurveSpecificationSource(configSource);
-    _priceCurveSpecification = futurePriceCurveSpecificationSource.getSpecification(_specificationName, _priceCurveInstrumentType);
-    _volSurfaceResult = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA,
-                                               new ComputationTargetSpecification(_volSurfaceDefinition.getTarget()),
-                                               createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName)
-                                                                      .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _volSurfaceInstrumentType).get());
-    _futurePriceCurveResult = new ValueSpecification(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA,
-                                                     new ComputationTargetSpecification(_priceCurveSpecification.getTarget()),
-                                                     createValueProperties().with(ValuePropertyNames.CURVE, _definitionName)
-                                                                            .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _priceCurveInstrumentType).get());
-    _results = Sets.newHashSet(_volSurfaceResult, _futurePriceCurveResult);
+  private VolatilitySurfaceDefinition<Object, Object> getSurfaceDefinition(final ConfigDBVolatilitySurfaceDefinitionSource source, final ComputationTarget target) {
+    final String definitionName = _definitionName + "_" + target.getUniqueId().getValue();
+    final VolatilitySurfaceDefinition<Object, Object> definition = (VolatilitySurfaceDefinition<Object, Object>) source.getDefinition(definitionName, _volSurfaceInstrumentType);
+    if (definition == null) {
+      throw new OpenGammaRuntimeException("Could not get volatility surface definition with name " + definitionName);
+    }
+    return definition;
+  }
+
+  private VolatilitySurfaceSpecification getSurfaceSpecification(final ConfigDBVolatilitySurfaceSpecificationSource source, final ComputationTarget target) {
+    final String specificationName = _specificationName + "_" + target.getUniqueId().getValue();
+    final VolatilitySurfaceSpecification specification = source.getSpecification(specificationName, _volSurfaceInstrumentType);
+    if (specification == null) {
+      throw new OpenGammaRuntimeException("Could not get volatility surface specification with name " + specificationName);
+    }
+    return specification;
+  }
+
+  @SuppressWarnings("unchecked")
+  private FuturePriceCurveDefinition<Object> getCurveDefinition(final ConfigDBFuturePriceCurveDefinitionSource source, final ComputationTarget target) {
+    final String definitionName = _definitionName + "_" + target.getUniqueId().getValue();
+    return (FuturePriceCurveDefinition<Object>) source.getDefinition(definitionName, _priceCurveInstrumentType);
+  }
+
+  private FuturePriceCurveSpecification getCurveSpecification(final ConfigDBFuturePriceCurveSpecificationSource source, final ComputationTarget target) {
+    final String specificationName = _specificationName + "_" + target.getUniqueId().getValue();
+    return source.getSpecification(specificationName, _priceCurveInstrumentType);
   }
 
   @SuppressWarnings("unchecked")
   public static Set<ValueRequirement> buildRequirements(final VolatilitySurfaceSpecification volSurfaceSpecification,
-                                                        final VolatilitySurfaceDefinition<Object, Object> volSurfaceDefinition,
-                                                        final FuturePriceCurveSpecification futurePriceCurveSpecification,
-                                                        final FuturePriceCurveDefinition<Object> futurePriceCurveDefinition,                                                        
-                                                        final ZonedDateTime atInstant) {
+      final VolatilitySurfaceDefinition<Object, Object> volSurfaceDefinition,
+      final FuturePriceCurveSpecification futurePriceCurveSpecification,
+      final FuturePriceCurveDefinition<Object> futurePriceCurveDefinition,
+      final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     final SurfaceInstrumentProvider<Object, Double> volSurfaceProvider = (SurfaceInstrumentProvider<Object, Double>) volSurfaceSpecification.getSurfaceInstrumentProvider();
     final FuturePriceCurveInstrumentProvider<Object> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Object>) futurePriceCurveSpecification.getCurveInstrumentProvider();
@@ -135,8 +135,11 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
   @Override
   public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
     final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(_volSurfaceSpecification, _volSurfaceDefinition, _priceCurveSpecification, _priceCurveDefinition,
-        atInstant));
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+    final ConfigDBVolatilitySurfaceDefinitionSource surfaceDefinitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
+    final ConfigDBVolatilitySurfaceSpecificationSource surfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
+    final ConfigDBFuturePriceCurveDefinitionSource curveDefinitionSource = new ConfigDBFuturePriceCurveDefinitionSource(configSource);
+    final ConfigDBFuturePriceCurveSpecificationSource curveSpecificationSource = new ConfigDBFuturePriceCurveSpecificationSource(configSource);
     //TODO ENG-252 see MarketInstrumentImpliedYieldCurveFunction; need to work out the expiry more efficiently
     return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
       private final DateAdjuster _nextExpiryAdjuster = new NextExpiryAdjuster();
@@ -150,53 +153,71 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
       @SuppressWarnings("synthetic-access")
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext myContext, final ComputationTarget target) {
-        if (canApplyTo(myContext, target)) {
-          return _results;
-        }
-        return null;
-      }
-
-      @Override
-      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext myContext, final ComputationTarget target, final ValueRequirement desiredValue) {
-        if (canApplyTo(myContext, target)) {
-          return requirements;
-        }
-        return null;
+        final VolatilitySurfaceDefinition<Object, Object> volSurfaceDefinition = getSurfaceDefinition(surfaceDefinitionSource, target);
+        final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target);
+        final ValueSpecification volSurfaceResult = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA,
+            new ComputationTargetSpecification(volSurfaceDefinition.getTarget()),
+            createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName)
+                .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _volSurfaceInstrumentType).get());
+        final ValueSpecification futurePriceCurveResult = new ValueSpecification(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA,
+            new ComputationTargetSpecification(priceCurveSpecification.getTarget()),
+            createValueProperties().with(ValuePropertyNames.CURVE, _definitionName)
+                .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _priceCurveInstrumentType).get());
+        return Sets.newHashSet(volSurfaceResult, futurePriceCurveResult);
       }
 
       @SuppressWarnings("synthetic-access")
+      @Override
+      public Set<ValueRequirement> getRequirements(final FunctionCompilationContext myContext, final ComputationTarget target, final ValueRequirement desiredValue) {
+        final VolatilitySurfaceDefinition<Object, Object> volSurfaceDefinition = getSurfaceDefinition(surfaceDefinitionSource, target);
+        final VolatilitySurfaceSpecification volSurfaceSpecification = getSurfaceSpecification(surfaceSpecificationSource, target);
+        final FuturePriceCurveDefinition<Object> priceCurveDefinition = getCurveDefinition(curveDefinitionSource, target);
+        final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target);
+        final Set<ValueRequirement> requirements = Collections.unmodifiableSet(buildRequirements(volSurfaceSpecification, volSurfaceDefinition, priceCurveSpecification, priceCurveDefinition,
+            atInstant));
+        return requirements;
+      }
+
       @Override
       public boolean canApplyTo(final FunctionCompilationContext myContext, final ComputationTarget target) {
         if (target.getType() != ComputationTargetType.PRIMITIVE) {
           return false;
         }
-        // REVIEW: jim 23-July-2010 is this enough? Probably not, but I'm not entirely sure what the deal with the Ids is...
-        return ObjectUtils.equals(target.getUniqueId(), _volSurfaceDefinition.getTarget().getUniqueId());
+        try {
+          getResults(myContext, target);
+        } catch (final OpenGammaRuntimeException e) {
+          return false;
+        }
+        return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
       }
 
       @SuppressWarnings({"unchecked", "synthetic-access" })
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target,
           final Set<ValueRequirement> desiredValues) {
+        final VolatilitySurfaceDefinition<Object, Object> volSurfaceDefinition = getSurfaceDefinition(surfaceDefinitionSource, target);
+        final VolatilitySurfaceSpecification volSurfaceSpecification = getSurfaceSpecification(surfaceSpecificationSource, target);
+        final FuturePriceCurveDefinition<Object> priceCurveDefinition = getCurveDefinition(curveDefinitionSource, target);
+        final FuturePriceCurveSpecification priceCurveSpecification = getCurveSpecification(curveSpecificationSource, target);
         final Clock snapshotClock = executionContext.getValuationClock();
         final ZonedDateTime now = snapshotClock.zonedDateTime();
         final Map<Pair<Double, Double>, Double> volatilityValues = new HashMap<Pair<Double, Double>, Double>();
         final Map<Double, Double> futurePriceValues = new HashMap<Double, Double>();
         final List<Double> ts = new ArrayList<Double>();
         final List<Double> ks = new ArrayList<Double>();
-        for (final Object x : _volSurfaceDefinition.getXs()) {
+        for (final Object x : volSurfaceDefinition.getXs()) {
           final Number xNum = (Number) x;
           final double t = getTime(xNum, now);
-          final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) _priceCurveSpecification.getCurveInstrumentProvider();
+          final FuturePriceCurveInstrumentProvider<Number> futurePriceCurveProvider = (FuturePriceCurveInstrumentProvider<Number>) priceCurveSpecification.getCurveInstrumentProvider();
           ExternalId identifier = futurePriceCurveProvider.getInstrument(xNum, now.toLocalDate());
           ValueRequirement requirement = new ValueRequirement(futurePriceCurveProvider.getDataFieldName(), identifier);
           if (inputs.getValue(requirement) != null) {
             final Double futurePrice = (Double) inputs.getValue(requirement);
             futurePriceValues.put(t, futurePrice);
           }
-          for (final Object y : _volSurfaceDefinition.getYs()) {
+          for (final Object y : volSurfaceDefinition.getYs()) {
             final Double yNum = (Double) y;
-            final SurfaceInstrumentProvider<Number, Double> volSurfaceProvider = (SurfaceInstrumentProvider<Number, Double>) _volSurfaceSpecification.getSurfaceInstrumentProvider();
+            final SurfaceInstrumentProvider<Number, Double> volSurfaceProvider = (SurfaceInstrumentProvider<Number, Double>) volSurfaceSpecification.getSurfaceInstrumentProvider();
             identifier = volSurfaceProvider.getInstrument(xNum, yNum, now.toLocalDate());
             requirement = new ValueRequirement(volSurfaceProvider.getDataFieldName(), identifier);
             final double k = yNum;
@@ -210,13 +231,21 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
             }
           }
         }
-        final VolatilitySurfaceData<Double, Double> volSurfaceData = new VolatilitySurfaceData<Double, Double>(_volSurfaceDefinition.getName(), _volSurfaceSpecification.getName(),
-                                                                                                               _volSurfaceDefinition.getTarget(),
-                                                                                                               ts.toArray(new Double[0]), ks.toArray(new Double[0]), volatilityValues);
-        final ComputedValue volSurfaceResultValue = new ComputedValue(_volSurfaceResult, volSurfaceData);
-        final FuturePriceCurveData<Double> futurePriceCurveData = new FuturePriceCurveData<Double>(_priceCurveDefinition.getName(), _priceCurveSpecification.getName(),
-                                                                                                   _priceCurveDefinition.getTarget(), ts.toArray(new Double[0]), futurePriceValues);
-        final ComputedValue futurePriceCurveResultValue = new ComputedValue(_futurePriceCurveResult, futurePriceCurveData);
+        final VolatilitySurfaceData<Double, Double> volSurfaceData = new VolatilitySurfaceData<Double, Double>(volSurfaceDefinition.getName(), volSurfaceSpecification.getName(),
+            volSurfaceDefinition.getTarget(),
+            ts.toArray(new Double[0]), ks.toArray(new Double[0]), volatilityValues);
+        final ValueSpecification volSurfaceResult = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA,
+            new ComputationTargetSpecification(volSurfaceDefinition.getTarget()),
+            createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName)
+                .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _volSurfaceInstrumentType).get());
+        final ValueSpecification futurePriceCurveResult = new ValueSpecification(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA,
+            new ComputationTargetSpecification(priceCurveSpecification.getTarget()),
+            createValueProperties().with(ValuePropertyNames.CURVE, _definitionName)
+                .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _priceCurveInstrumentType).get());
+        final ComputedValue volSurfaceResultValue = new ComputedValue(volSurfaceResult, volSurfaceData);
+        final FuturePriceCurveData<Double> futurePriceCurveData = new FuturePriceCurveData<Double>(priceCurveDefinition.getName(), priceCurveSpecification.getName(),
+            priceCurveDefinition.getTarget(), ts.toArray(new Double[0]), futurePriceValues);
+        final ComputedValue futurePriceCurveResultValue = new ComputedValue(futurePriceCurveResult, futurePriceCurveData);
         return Sets.newHashSet(volSurfaceResultValue, futurePriceCurveResultValue);
       }
 
@@ -231,7 +260,7 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
         if (n == 1) {
           final LocalDate nextExpiry = today.with(_nextExpiryAdjuster);
           final LocalDate previousMonday = nextExpiry.minusDays(2); //TODO this should take a calendar and do two business days, and should use a convention for the number of days
-          return DateUtils.getDaysBetween(today, previousMonday) / 365.; //TODO or use daycount?          
+          return DateUtils.getDaysBetween(today, previousMonday) / 365.; //TODO or use daycount?
         }
         final LocalDate date = today.with(_firstOfMonthAdjuster);
         final LocalDate plusMonths = date.plusMonths(n * 3); //TODO this is hard-coding the futures to be quarterly

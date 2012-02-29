@@ -40,6 +40,10 @@
     <orderEntry type="module" module-name="OG-Master" exported="" />
     <orderEntry type="module" module-name="OG-Engine" exported="" />
     <orderEntry type="module" module-name="OG-Analytics" exported="" />
+    <orderEntry type="module" module-name="OG-Util" />
+    <orderEntry type="module" module-name="OG-LiveData" />
+    <orderEntry type="module" module-name="OG-Core" />
+    <orderEntry type="module" module-name="OG-Security" />
     <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-Financial-default">
         <CLASSES>
@@ -53,7 +57,9 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring/jars/spring-asm-3.0.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring/jars/spring-web-3.0.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring/jars/spring-jdbc-3.0.4.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/jars/commons-logging-api-1.1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/jars/commons-logging-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/jars/commons-logging-adapters-1.1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.aopalliance/aopalliance/jars/aopalliance-1.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring-security/jars/spring-security-core-2.0.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring-security/jars/spring-security-core-tiger-2.0.5.jar!/" />
@@ -72,8 +78,6 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.mail/javamail/jars/smtp-1.4.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.mail/javamail/jars/mailapi-1.4.3.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/javax.activation/jaf/jars/activation-1.1.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/jars/commons-logging-api-1.1.1.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/jars/commons-logging-adapters-1.1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.poi/poi/jars/poi-3.7.jar!/" />
         </CLASSES>
         <JAVADOC>

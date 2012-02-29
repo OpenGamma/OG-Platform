@@ -11,8 +11,8 @@ echo ### Creating empty database
   com.opengamma.util.test.DbTool ^
   -jdbcUrl jdbc:hsqldb:file:install/db/hsqldb/example-db ^
   -database og-financial ^
-  -user "" ^
-  -password "" ^
+  -user "OpenGamma" ^
+  -password "OpenGamma" ^
   -drop true ^
   -create true ^
   -createtables true ^
@@ -22,8 +22,8 @@ echo ### Creating empty database
   com.opengamma.util.test.DbTool ^
   -jdbcUrl jdbc:hsqldb:file:temp/hsqldb/og-fin-user ^
   -database og-financial ^
-  -user "" ^
-  -password "" ^
+  -user "OpenGamma" ^
+  -password "OpenGamma" ^
   -drop true ^
   -create true ^
   -createtables true ^
@@ -39,7 +39,7 @@ FOR /R lib %%a IN (*.zip) DO set CLASSPATH=!CLASSPATH!;%%a
   -Xms1024M ^
   -Xmx1024M ^
   -Dlogback.configurationFile=jetty-logback.xml ^
-  com.opengamma.examples.loader.DemoDatabasePopulater
+  com.opengamma.examples.tool.ExampleDatabasePopulater
 
 REM PLAT-1527
 popd

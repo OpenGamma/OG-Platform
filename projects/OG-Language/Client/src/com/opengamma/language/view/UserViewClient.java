@@ -5,19 +5,10 @@
  */
 package com.opengamma.language.view;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-
-import javax.time.Instant;
-
+import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
@@ -27,6 +18,16 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.language.config.ConfigurationItem;
 import com.opengamma.language.context.UserContext;
 import com.opengamma.livedata.UserPrincipal;
+
+import javax.time.Instant;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * Represents a {@link ViewClient} managed within a user's context. Language binding specific data can be associated with
@@ -66,6 +67,13 @@ public final class UserViewClient implements UniqueIdentifiable {
     public void cycleCompleted(final ViewComputationResultModel fullResult, final ViewDeltaResultModel deltaResult) {
       for (ViewResultListener listener : _listeners) {
         listener.cycleCompleted(fullResult, deltaResult);
+      }
+    }
+
+    @Override
+    public void cycleInitiated(CycleInfo cycleInfo) {
+      for (ViewResultListener listener : _listeners) {
+        listener.cycleInitiated(cycleInfo);
       }
     }
 

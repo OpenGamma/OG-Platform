@@ -23,6 +23,7 @@
     <fragment>/styles/common/og.common.OG-header-generic.css</fragment>
     <fragment>/styles/common/og.common.OG-footer.css</fragment>
     <fragment>/styles/common/og.common.OG-logo-light.css</fragment>
+    <fragment>/styles/common/og.common.OG-logo-light-small.css</fragment>
     <fragment>/styles/common/og.common.OG-box.css</fragment>
     <fragment>/styles/common/og.common.OG-box-history.css</fragment>
     <fragment>/styles/common/og.common.data.editable.css</fragment>
@@ -32,6 +33,7 @@
     <fragment>/styles/common/og.common.OG-tools.css</fragment>
     <fragment>/styles/common/og.common.OG-lang.css</fragment>
     <fragment>/styles/common/og.common.OG-dialog-form.css</fragment>
+    <fragment>/styles/common/og.common.OG-g.css</fragment>
   </bundle>
   <bundle id="common.util.css">
     <fragment>/styles/common/util/og.common.util.OG-clearFix.css</fragment>
@@ -77,7 +79,6 @@
     <fragment>/styles/common/details/og.common.OG-details-positions.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-timeseries.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-holiday.css</fragment>
-    <fragment>/styles/common/details/og.common.OG-details.OG-region.css</fragment>
     <fragment>/styles/common/details/og.common.OG-details.OG-config.css</fragment>
   </bundle>
   <bundle id="common.forms.css">
@@ -106,6 +107,8 @@
     <fragment>/styles/lib/jquery/ui/jquery.ui.resizable.css</fragment>
     <fragment>/styles/lib/jquery/ui/jquery.ui.sliders.css</fragment>
     <fragment>/styles/lib/jquery/jquery-layout-default.css</fragment>
+    <fragment>/styles/lib/jquery/jquery-layout-admin.css</fragment>
+    <fragment>/styles/lib/jquery/jquery-layout-analytics.css</fragment>
   </bundle>
   <bundle id="jquery.css">
     <fragment>/styles/common/jquery/ui/og.common.jquery.ui.core.css</fragment>
@@ -118,6 +121,9 @@
     <fragment>/styles/lib/jquery/slick_grid/slick.grid.css</fragment>
     <fragment>/styles/common/slickgrid/og.common.slickgrid.css</fragment>
   </bundle>
+  <bundle id="analytics.css">
+    <fragment>/styles/analytics/og.analytics.footer.OG-analytics-footer.css</fragment>
+  </bundle>
   <bundle id="og_all.css">
     <bundle idref="common.css" />
     <bundle idref="common.util.css" />
@@ -129,6 +135,7 @@
     <bundle idref="libs.css" />
     <bundle idref="jquery.css" />
     <bundle idref="slickgrid.css" />
+    <bundle idref="analytics.css" />
   </bundle>
   <!--                                -->
   <!--  JavaScript                    -->
@@ -261,9 +268,6 @@
     <fragment>/scripts/og/views/og.views.configs.js</fragment>
     <fragment>/scripts/og/views/og.views.batches.js</fragment>
   </bundle>
-  <bundle id="analytics.js">
-    <fragment>/scripts/og/views/og.views.analytics.js</fragment>
-  </bundle>
   <bundle id="ie.js">
     <fragment>/scripts/lib/excanvas.js</fragment>
   </bundle>
@@ -288,6 +292,16 @@
       <bundle idref="util_ui.js" />
       <bundle idref="common.js" />
       <bundle idref="views_common.js" />
-    <bundle idref="analytics.js" />
+      <fragment>/scripts/og/views/og.views.analytics.js</fragment>
   </bundle>
+  <bundle id="og_analytics2.js">
+      <bundle idref="lib.js" />
+      <bundle idref="core.js" />
+      <fragment>/scripts/og/api/og.api.text.js</fragment>
+      <bundle idref="util.js" />
+      <bundle idref="util_ui.js" />
+      <bundle idref="common.js" />
+      <bundle idref="views_common.js" />
+      <fragment>/scripts/og/views/og.views.analytics2.js</fragment>
+  </bundle>  
 </uiResourceConfig>

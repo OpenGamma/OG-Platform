@@ -17,6 +17,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalculator;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDataBundle;
+import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 
 /**
@@ -31,7 +32,7 @@ public class ForexOptionCurrencyExposureFunction extends ForexOptionFunction {
     final MultipleCurrencyAmount result = CALCULATOR.visit(fxOption, data);
     final ValueProperties.Builder properties = getResultProperties(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName, target);
     final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
-    return Collections.singleton(new ComputedValue(spec, ForexUtils.getMultipleCurrencyAmountAsMatrix(result)));
+    return Collections.singleton(new ComputedValue(spec, FXUtils.getMultipleCurrencyAmountAsMatrix(result)));
   }
 
   @Override

@@ -33,8 +33,7 @@ public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityV
   private final ConventionBundleSource _conventionSource;
   private final RegionSource _regionSource;
 
-  public InterestRateFutureSecurityConverter(final HolidaySource holidaySource,
-      final ConventionBundleSource conventionSource, final RegionSource regionSource) {
+  public InterestRateFutureSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource) {
     Validate.notNull(holidaySource, "holiday source");
     Validate.notNull(conventionSource, "convention source");
     Validate.notNull(regionSource, "region source");
@@ -44,7 +43,7 @@ public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityV
   }
 
   @Override
-  public InstrumentDefinition<?> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+  public InterestRateFutureDefinition visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
     Validate.notNull(security, "security");
     final ZonedDateTime lastTradeDate = security.getExpiry().getExpiry();
     final Currency currency = security.getCurrency();
@@ -52,15 +51,17 @@ public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityV
     if (iborConvention == null) {
       throw new OpenGammaRuntimeException("Could not get ibor convention for " + currency.getCode());
     }
-    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, RegionUtils.currencyRegionId(currency)); //TODO exchange region?
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, RegionUtils.currencyRegionId(currency));
     final double paymentAccrualFactor = getAccrualFactor(iborConvention.getPeriod());
-    final IborIndex iborIndex = new IborIndex(currency, iborConvention.getPeriod(), iborConvention.getSettlementDays(),
-        calendar, iborConvention.getDayCount(), iborConvention.getBusinessDayConvention(),
-        iborConvention.isEOMConvention());
-    final double notional = security.getUnitAmount();
-    final double referencePrice = 0.0; // TODO CASE - Future refactor - Confirm referencePrice
-    return new InterestRateFutureDefinition(lastTradeDate, iborIndex, referencePrice, notional, paymentAccrualFactor);
+    final IborIndex iborIndex = new IborIndex(currency, iborConvention.getPeriod(), iborConvention.getSettlementDays(), calendar, iborConvention.getDayCount(),
+        iborConvention.getBusinessDayConvention(), iborConvention.isEOMConvention());
+    final double referencePrice = 0.0; // Not used here!
+    final double notional = security.getUnitAmount() * 100.0 / paymentAccrualFactor; // Unit amount in percent
+    return new InterestRateFutureDefinition(lastTradeDate, 0.0, lastTradeDate, iborIndex, referencePrice, notional, paymentAccrualFactor, 1, security.getName());
   }
+
+  //  public InterestRateFutureDefinition convert(final InterestRateFutureSecurity security) {
+  //  }
 
   private double getAccrualFactor(final Period period) {
     if (period.equals(Period.ofMonths(3))) {
@@ -70,4 +71,5 @@ public class InterestRateFutureSecurityConverter extends AbstractFutureSecurityV
     }
     throw new OpenGammaRuntimeException("Can only handle 1M and 3M interest rate futures");
   }
+
 }

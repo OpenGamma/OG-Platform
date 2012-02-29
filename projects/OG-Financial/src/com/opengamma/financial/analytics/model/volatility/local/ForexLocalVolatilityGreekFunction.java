@@ -6,9 +6,9 @@
 package com.opengamma.financial.analytics.model.volatility.local;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
-import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_H;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_LAMBDA;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_MAX_MONEYNESS;
@@ -42,11 +42,11 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.forex.ForexUtils;
 import com.opengamma.financial.analytics.model.forex.ForexVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.PDEGreekResultCollection;
+import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
@@ -536,7 +536,7 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
   private double getStrike(final FXOptionSecurity fxOption) {
     final Currency putCurrency = fxOption.getPutCurrency();
     final Currency callCurrency = fxOption.getCallCurrency();
-    if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) {
+    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
       return fxOption.getPutAmount() / fxOption.getCallAmount(); //TODO check this
     }
     return fxOption.getCallAmount() / fxOption.getPutAmount();

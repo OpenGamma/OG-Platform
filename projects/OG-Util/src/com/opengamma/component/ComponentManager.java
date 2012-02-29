@@ -17,6 +17,7 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.time.calendar.TimeZone;
 
+import org.apache.commons.lang.StringUtils;
 import org.joda.beans.Bean;
 import org.joda.beans.MetaProperty;
 import org.slf4j.Logger;
@@ -61,6 +62,10 @@ public class ComponentManager {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ComponentManager.class);
   /**
+   * The server name property.
+   */
+  private static final String OPENGAMMA_SERVER_NAME = "opengamma.server.name";
+  /**
    * The key identifying the next config file in a properties file.
    */
   private static final String MANAGER_NEXT_FILE = "MANAGER.NEXT.FILE";
@@ -100,19 +105,24 @@ public class ComponentManager {
   //-------------------------------------------------------------------------
   /**
    * Creates an instance.
+   * 
+   * @param serverName  the server name, not null
    */
-  public ComponentManager() {
-    _repo = new ComponentRepository();
+  public ComponentManager(String serverName) {
+    this(serverName, new ComponentRepository());
   }
 
   /**
    * Creates an instance.
    * 
+   * @param serverName  the server name, not null
    * @param repo  the repository to use, not null
    */
-  protected ComponentManager(ComponentRepository repo) {
+  protected ComponentManager(String serverName, ComponentRepository repo) {
+    ArgumentChecker.notNull(serverName, "serverName");
     ArgumentChecker.notNull(repo, "repo");
     _repo = repo;
+    getProperties().put(OPENGAMMA_SERVER_NAME, serverName);
   }
 
   //-------------------------------------------------------------------------
@@ -135,6 +145,29 @@ public class ComponentManager {
    */
   public ConcurrentMap<String, String> getProperties() {
     return _properties;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Sets the server name property.
+   * <p>
+   * This can be used as a general purpose name for the server.
+   * 
+   * @return the server name, null if name not set
+   */
+  public String getServerName() {
+    return getProperties().get(OPENGAMMA_SERVER_NAME);
+  }
+
+  /**
+   * Sets the server name property.
+   * <p>
+   * This can be used as a general purpose name for the server.
+   * 
+   * @param serverName  the server name, not null
+   */
+  public void setServerName(String serverName) {
+    getProperties().put(OPENGAMMA_SERVER_NAME, serverName);
   }
 
   //-------------------------------------------------------------------------
@@ -213,7 +246,7 @@ public class ComponentManager {
   protected void loadIni(Resource resource) {
     ComponentConfigLoader loader = new ComponentConfigLoader();
     ComponentConfig config = loader.load(resource, getProperties());
-    _repo.pushThreadLocal();
+    getRepository().pushThreadLocal();
     initGlobal(config);
     init(config);
   }
@@ -256,7 +289,7 @@ public class ComponentManager {
    */
   protected void start() {
     s_logger.info("Starting repository");
-    _repo.start();
+    getRepository().start();
   }
 
   //-------------------------------------------------------------------------
@@ -325,20 +358,45 @@ public class ComponentManager {
       Bean bean = (Bean) factory;
       for (MetaProperty<Object> mp : bean.metaBean().metaPropertyIterable()) {
         String value = remainingConfig.remove(mp.name());
-        if (value == null) {
-          // set to ensure validated by factory
-          mp.set(bean, mp.get(bean));
-        } else if ("null".equals(value)) {
-          // forcibly set to null
-          mp.set(bean, null);
-        } else if (MANAGER_PROPERTIES.equals(value) && Resource.class.equals(mp.propertyType())) {
-          // set to the combined set of properties
-          setFactoryPropertyManagerProperties(bean, mp);
-        } else {
-          // set value
-          setFactoryProperty(bean, mp, value);
-        }
+        setProperty(bean, mp, value);
       }
+    }
+  }
+
+  /**
+   * Sets an individual property.
+   * <p>
+   * This method handles the main special case formats of the value.
+   * 
+   * @param bean  the bean, not null
+   * @param mp  the property, not null
+   * @param value  the configured value, not null
+   * @throws Exception allowing throwing of a checked exception
+   */
+  protected void setProperty(Bean bean, MetaProperty<Object> mp, String value) throws Exception {
+    if (ComponentRepository.class.equals(mp.propertyType())) {
+      // set the repo
+      mp.set(bean, getRepository());
+      
+    } else if (value == null) {
+      // set to ensure validated by factory
+      mp.set(bean, mp.get(bean));
+      
+    } else if ("null".equals(value)) {
+      // forcibly set to null
+      mp.set(bean, null);
+      
+    } else if (value.contains("::")) {
+      // double colon used for component references
+      setPropertyComponentRef(bean, mp, value);
+      
+    } else if (MANAGER_PROPERTIES.equals(value) && Resource.class.equals(mp.propertyType())) {
+      // set to the combined set of properties
+      setPropertyMergedProperties(bean, mp);
+      
+    } else {
+      // set value
+      setPropertyInferType(bean, mp, value);
     }
   }
 
@@ -353,7 +411,7 @@ public class ComponentManager {
    * @param mp  the property, not null
    * @throws Exception allowing throwing of a checked exception
    */
-  protected void setFactoryPropertyManagerProperties(Bean bean, MetaProperty<Object> mp) throws Exception {
+  protected void setPropertyMergedProperties(Bean bean, MetaProperty<Object> mp) throws Exception {
     final ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
     Properties props = new Properties();
     props.putAll(getProperties());
@@ -377,22 +435,51 @@ public class ComponentManager {
   }
 
   /**
+   * Intelligently sets the property which is a component reference.
+   * <p>
+   * The double colon is used in the format {@code Type::Classifier}.
+   * If the type is omitted, this method will try to infer it.
+   * 
+   * @param bean  the bean, not null
+   * @param mp  the property, not null
+   * @param value  the configured value containing double colon, not null
+   */
+  protected void setPropertyComponentRef(Bean bean, MetaProperty<Object> mp, String value) {
+    Class<?> propertyType = mp.propertyType();
+    String type = StringUtils.substringBefore(value, "::");
+    String classifier = StringUtils.substringAfter(value, "::");
+    if (type.length() == 0) {
+      try {
+        // infer type
+        mp.set(bean, getRepository().getInstance(propertyType, classifier));
+        return;
+      } catch (RuntimeException ex) {
+        throw new IllegalArgumentException("Unable to set property " + mp, ex);
+      }
+    }
+    ComponentInfo info = getRepository().findInfo(type, classifier);
+    if (info == null) {
+      throw new IllegalArgumentException("Unable to find component reference '" + value + "' while setting property " + mp);
+    }
+    if (ComponentInfo.class.isAssignableFrom(propertyType)) {
+      mp.set(bean, info);
+    } else {
+      mp.set(bean, getRepository().getInstance(info));
+    }
+  }
+
+  /**
    * Intelligently sets the property.
    * <p>
    * This uses the repository to link properties declared with classifiers to the instance.
    * 
    * @param bean  the bean, not null
    * @param mp  the property, not null
-   * @param value  the value, not null
-   * @throws Exception allowing throwing of a checked exception
+   * @param value  the configured value, not null
    */
-  protected void setFactoryProperty(Bean bean, MetaProperty<Object> mp, String value) throws Exception {
+  protected void setPropertyInferType(Bean bean, MetaProperty<Object> mp, String value) {
     Class<?> propertyType = mp.propertyType();
-    if (propertyType == ComponentRepository.class) {
-      // set the repo
-      mp.set(bean, _repo);
-      
-    } else if (propertyType == Resource.class) {
+    if (propertyType == Resource.class) {
       mp.set(bean, ComponentManager.createResource(value));
       
     } else {
@@ -401,11 +488,12 @@ public class ComponentManager {
         mp.setString(bean, value);
         
       } catch (RuntimeException ex) {
+        // TODO: remove this inference and force use of double colon
         // set property by repo lookup
         try {
-          mp.set(bean, _repo.getInstance(propertyType, value));
+          mp.set(bean, getRepository().getInstance(propertyType, value));
         } catch (RuntimeException ex2) {
-          throw new IllegalArgumentException("Unable to convert value for " + mp, ex2);
+          throw new IllegalArgumentException("Unable to set property " + mp, ex2);
         }
       }
     }
@@ -423,7 +511,7 @@ public class ComponentManager {
    * @throws Exception to allow components to throw checked exceptions
    */
   protected void initFactory(ComponentFactory factory, LinkedHashMap<String, String> remainingConfig) throws Exception {
-    factory.init(_repo, remainingConfig);
+    factory.init(getRepository(), remainingConfig);
     if (remainingConfig.size() > 0) {
       throw new IllegalStateException("Configuration was specified but not used: " + remainingConfig);
     }

@@ -16,21 +16,17 @@
   
   <!-- Base system components -->
   <bean id="engineFudgeContext" class="com.opengamma.util.fudgemsg.OpenGammaFudgeContext" factory-method="getInstance" />
+  <bean id="functionMessageHandler" class="com.opengamma.language.function.FunctionHandler" /> <!-- Extension point - CustomFunctionVisitorRegistry -->
+  <bean id="liveDataMessageHandler" class="com.opengamma.language.livedata.LiveDataHandler" /> <!-- Extension point - CustomLiveDataVisitorRegistry -->
+  <bean id="procedureMessageHandler" class="com.opengamma.language.procedure.ProcedureHandler" /> <!-- Extension point - CustomProcedureVisitorRegistry -->
+  <bean id="clientMessageHandler" class="com.opengamma.language.connector.UserMessagePayloadHandler"> <!-- Extension point - CustomMessageVisitorRegistry -->
+    <property name="functionHandler" ref="functionMessageHandler" />
+    <property name="liveDataHandler" ref="liveDataMessageHandler" />
+    <property name="procedureHandler" ref="procedureMessageHandler" />
+  </bean>
   <bean id="clientContextFactory" class="com.opengamma.language.connector.ClientContextFactoryBean"> <!-- Extension point - ClientContextFactoryBean -->
     <property name="fudgeContext" ref="engineFudgeContext" />
-    <property name="messageHandler">
-      <bean id="clientMessageHandler" class="com.opengamma.language.connector.UserMessagePayloadHandler"> <!-- Extension point - CustomMessageVisitorRegistry -->
-        <property name="functionHandler">
-          <bean id="clientFunctionMessageHandler" class="com.opengamma.language.function.FunctionHandler" /> <!-- Extension point - CustomFunctionVisitorRegistry -->
-        </property>
-        <property name="liveDataHandler">
-          <bean id="liveDataMessageHandler" class="com.opengamma.language.livedata.LiveDataHandler" /> <!-- Extension point - CustomLiveDataVisitorRegistry -->
-        </property>
-        <property name="procedureHandler">
-          <bean id="procedureMessageHandler" class="com.opengamma.language.procedure.ProcedureHandler" /> <!-- Extension point - CustomProcedureVisitorRegistry -->
-        </property>
-      </bean>
-    </property>
+    <property name="messageHandler" ref="clientMessageHandler" />
     <property name="maxThreadsPerClient" value="32" />
   </bean>
   <bean id="globalContextFactory" class="com.opengamma.language.context.GlobalContextFactoryBean"> <!-- Extension point - GlobalContextFactoryBean -->
@@ -219,7 +215,7 @@
     <property name="configuration" ref="defaultConfiguration" />
   </bean>
   
-  <!-- Market data snapshot -->
+  <!-- Market data values -->
   <bean id="snapshotLoader" class="com.opengamma.language.snapshot.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="configuration" ref="defaultConfiguration" />

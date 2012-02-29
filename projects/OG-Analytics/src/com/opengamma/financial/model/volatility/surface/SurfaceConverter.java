@@ -20,7 +20,7 @@ import com.opengamma.math.surface.Surface;
 /**
  * 
  */
-public class SurfaceConverter {
+public final class SurfaceConverter {
 
   private static final double EPS = 1e-6;
   private static final BracketRoot BRACKETER = new BracketRoot();
@@ -40,15 +40,15 @@ public class SurfaceConverter {
   Surface<Double, Double, Double> deltaToLogMoneyness(final Surface<Double, Double, Double> deltaSurf) {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... tx) {
+      public Double evaluate(final Double... tx) {
         final double t = tx[0];
         final double x = tx[1];
         Validate.isTrue(t >= 0, "Must have t >= 0.0");
         final double rootT = Math.sqrt(t);
 
-        Function1D<Double, Double> func = new Function1D<Double, Double>() {
+        final Function1D<Double, Double> func = new Function1D<Double, Double>() {
           @Override
-          public Double evaluate(Double delta) {
+          public Double evaluate(final Double delta) {
             final double sigma = deltaSurf.getZValue(t, delta);
             final double d1 = (-x + sigma * sigma * t / 2) / sigma / rootT;
             return NORMAL.getCDF(d1) - delta;
@@ -69,7 +69,7 @@ public class SurfaceConverter {
         }
 
         final double[] range = BRACKETER.getBracketedPoints(func, l, u, 0.0, 1.0);
-        double logMoneyness = ROOT_FINDER.getRoot(func, range[0], range[1]);
+        final double logMoneyness = ROOT_FINDER.getRoot(func, range[0], range[1]);
         return deltaSurf.getZValue(t, logMoneyness);
       }
     };
@@ -78,7 +78,7 @@ public class SurfaceConverter {
 
 
   Surface<Double, Double, Double> deltaToMoneyness(final Surface<Double, Double, Double> deltaSurf) {
-    Surface<Double, Double, Double> logMoneynessSurf = deltaToLogMoneyness(deltaSurf);
+    final Surface<Double, Double, Double> logMoneynessSurf = deltaToLogMoneyness(deltaSurf);
     return logMoneynessToMoneyness(logMoneynessSurf);
   }
 
@@ -95,17 +95,17 @@ public class SurfaceConverter {
   Surface<Double, Double, Double> logMoneynessToDelta(final Surface<Double, Double, Double> logMoneynessSurf) {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... td) {
+      public Double evaluate(final Double... td) {
         final double t = td[0];
-        double delta = td[1];
+        final double delta = td[1];
         Validate.isTrue(t >= 0, "Must have t >= 0.0");
         Validate.isTrue(delta > 0 && delta < 1.0, "Delta not in range (0,1)");
         final double rootT = Math.sqrt(t);
         final double inDelta = NORMAL.getInverseCDF(delta);
 
-        Function1D<Double, Double> func = new Function1D<Double, Double>() {
+        final Function1D<Double, Double> func = new Function1D<Double, Double>() {
           @Override
-          public Double evaluate(Double x) {
+          public Double evaluate(final Double x) {
             final double sigma = logMoneynessSurf.getZValue(t, x);
             return sigma * sigma * t / 2 - sigma * rootT * inDelta - x;
           }
@@ -123,7 +123,7 @@ public class SurfaceConverter {
         }
 
         final double[] range = BRACKETER.getBracketedPoints(func, l, u);
-        double logMoneyness = ROOT_FINDER.getRoot(func, range[0], range[1]);
+        final double logMoneyness = ROOT_FINDER.getRoot(func, range[0], range[1]);
         return logMoneynessSurf.getZValue(t, logMoneyness);
       }
     };
@@ -133,7 +133,7 @@ public class SurfaceConverter {
   Surface<Double, Double, Double> logMoneynessToMoneyness(final Surface<Double, Double, Double> logMoneynessSurf) {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... tx) {
+      public Double evaluate(final Double... tx) {
         final double t = tx[0];
         final double m = tx[1];
         Validate.isTrue(t >= 0, "Must have t >= 0.0");
@@ -148,7 +148,7 @@ public class SurfaceConverter {
   Surface<Double, Double, Double> logMoneynessToStrike(final Surface<Double, Double, Double> logMoneynessSurf, final ForwardCurve forwardCurve) {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... tk) {
+      public Double evaluate(final Double... tk) {
         final double t = tk[0];
         final double k = tk[1];
         Validate.isTrue(t >= 0, "Must have t >= 0.0");
@@ -162,14 +162,14 @@ public class SurfaceConverter {
   }
 
   Surface<Double, Double, Double> moneynessToDelta(final Surface<Double, Double, Double> moneynessSurf) {
-    Surface<Double, Double, Double> logMoneynessSurf = moneynessToLogMoneyness(moneynessSurf);
+    final Surface<Double, Double, Double> logMoneynessSurf = moneynessToLogMoneyness(moneynessSurf);
     return logMoneynessToDelta(logMoneynessSurf);
   }
 
   Surface<Double, Double, Double> moneynessToLogMoneyness(final Surface<Double, Double, Double> moneynessSurf) {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... tx) {
+      public Double evaluate(final Double... tx) {
         final double t = tx[0];
         final double lm = tx[1];
         Validate.isTrue(t >= 0, "Must have t >= 0.0");
@@ -189,7 +189,7 @@ public class SurfaceConverter {
   Surface<Double, Double, Double> moneynessToStrike(final Surface<Double, Double, Double> moneynessSurf, final ForwardCurve forwardCurve) {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... tk) {
+      public Double evaluate(final Double... tk) {
         final double t = tk[0];
         final double k = tk[1];
         Validate.isTrue(t >= 0, "Must have t >= 0.0");
@@ -215,7 +215,7 @@ public class SurfaceConverter {
   Surface<Double, Double, Double> strikeToLogMoneyness(final Surface<Double, Double, Double> strikeSurf, final ForwardCurve forwardCurve) {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... tx) {
+      public Double evaluate(final Double... tx) {
         final double t = tx[0];
         final double x = tx[1];
         Validate.isTrue(t >= 0, "Must have t >= 0.0");
@@ -235,7 +235,7 @@ public class SurfaceConverter {
   Surface<Double, Double, Double> strikeToMoneyness(final Surface<Double, Double, Double> strikeSurf, final ForwardCurve forwardCurve) {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
       @Override
-      public Double evaluate(Double... tm) {
+      public Double evaluate(final Double... tm) {
         final double t = tm[0];
         final double m = tm[1];
         Validate.isTrue(t >= 0, "Must have t >= 0.0");

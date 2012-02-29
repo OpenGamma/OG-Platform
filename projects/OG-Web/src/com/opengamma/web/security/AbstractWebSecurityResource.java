@@ -14,6 +14,8 @@ import java.util.TreeMap;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
+import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
+import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
@@ -195,6 +197,7 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
       SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class, msg.getMessage());
 
       out.put("securityEntryData", securityEntryData);
+      out.put("securityAttributes", security.getAttributes());
       RawSecurity underlyingRawSecurity = (RawSecurity) getSecurity(securityEntryData.getFactorSetId());
       if (underlyingRawSecurity != null) {
         FudgeMsgEnvelope factorIdMsg = OpenGammaFudgeContext.getInstance().deserialize(underlyingRawSecurity.getRawData());
@@ -303,10 +306,6 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
     }
   }
   
-  private void addExposureTimeSeriesIdMaps(FlexiBean out, Collection<FactorExposureData> factorExposureDataList) {
-
-  }
-
   private void addUnderlyingSecurity(FlexiBean out, ExternalId externalId) {
     Security underlyingSec = getSecurity(externalId);
     if (underlyingSec != null) {
@@ -473,6 +472,16 @@ public abstract class AbstractWebSecurityResource extends AbstractPerRequestWebR
     @Override
     public String visitFloatingGearingIRLeg(FloatingGearingIRLeg swapLeg) {
       return "FloatingGearingInterestRateLeg";
+    }
+
+    @Override
+    public String visitFixedVarianceSwapLeg(FixedVarianceSwapLeg swapLeg) {
+      return "FixedVarianceLeg";
+    }
+
+    @Override
+    public String visitFloatingVarianceSwapLeg(FloatingVarianceSwapLeg swapLeg) {
+      return "FloatingVarianceLeg";
     }
   }
   

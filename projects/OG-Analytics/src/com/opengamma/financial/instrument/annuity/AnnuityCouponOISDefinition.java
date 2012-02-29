@@ -11,14 +11,12 @@ import java.util.List;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.instrument.index.GeneratorOIS;
-import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.schedule.ScheduleCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -33,50 +31,63 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
    * Constructor from a list of OIS coupons.
    * @param payments The coupons.
    */
-  public AnnuityCouponOISDefinition(CouponOISDefinition[] payments) {
+  public AnnuityCouponOISDefinition(final CouponOISDefinition[] payments) {
     super(payments);
   }
 
   /**
    * Build a annuity of OIS coupons from financial details.
-   * @param settlementDate The annuity settlement or first fixing date.
-   * @param tenorAnnuity The total tenor of the annuity.
+   * @param settlementDate The annuity settlement or first fixing date, not null.
+   * @param tenorAnnuity The total tenor of the annuity, not null.
    * @param notional The annuity notional.
-   * @param generator The OIS generator.
+   * @param generator The OIS generator, not null.
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
    * @return The annuity.
    */
   public static AnnuityCouponOISDefinition from(final ZonedDateTime settlementDate, final Period tenorAnnuity, final double notional, final GeneratorOIS generator, final boolean isPayer) {
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(tenorAnnuity, "tenor annuity");
+    ArgumentChecker.notNull(generator, "generator");
     final ZonedDateTime[] endFixingPeriodDate = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, tenorAnnuity, generator.getLegsPeriod(), generator.isStubShort(), generator.isFromEnd(),
         generator.getBusinessDayConvention(), generator.getCalendar(), generator.isEndOfMonth());
-    return AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDate, notional, generator.getIndex(), isPayer, generator.getSpotLag());
+    return AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDate, notional, generator, isPayer);
   }
 
   /**
-   * Annuity builder from the financial details.
-   * @param settlementDate The settlement date.
-   * @param endFixingPeriodDate An array of date with the end fixing period date for each coupon.
-   * @param notional The notional.
-   * @param index The OIS index.
+   * Build a annuity of OIS coupons from financial details.
+   * @param settlementDate The annuity settlement or first fixing date, not null.
+   * @param maturityDate The maturity date of the annuity, not null.
+   * @param notional The annuity notional.
+   * @param generator The OIS generator, not null.
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
-   * @param settlementDays The number of days between last fixing of each coupon and the coupon payment (also called spot lag). 
-   * @return
+   * @return The annuity.
    */
-  private static AnnuityCouponOISDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final IndexON index, final boolean isPayer,
-      final int settlementDays) {
+  public static AnnuityCouponOISDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional, final GeneratorOIS generator, final boolean isPayer) {
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(maturityDate, "maturity date");
+    ArgumentChecker.notNull(generator, "generator");
+    final ZonedDateTime[] endFixingPeriodDate = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, generator.getLegsPeriod(), generator.isStubShort(), generator.isFromEnd(),
+        generator.getBusinessDayConvention(), generator.getCalendar(), generator.isEndOfMonth());
+    return AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDate, notional, generator, isPayer);
+  }
+
+  private static AnnuityCouponOISDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final GeneratorOIS generator,
+      final boolean isPayer) {
     final double sign = isPayer ? -1.0 : 1.0;
-    double notionalSigned = sign * notional;
+    final double notionalSigned = sign * notional;
     final CouponOISDefinition[] coupons = new CouponOISDefinition[endFixingPeriodDate.length];
-    coupons[0] = CouponOISDefinition.from(index, settlementDate, endFixingPeriodDate[0], notionalSigned, settlementDays);
+    coupons[0] = CouponOISDefinition.from(generator.getIndex(), settlementDate, endFixingPeriodDate[0], notionalSigned, generator.getSpotLag());
     for (int loopcpn = 1; loopcpn < endFixingPeriodDate.length; loopcpn++) {
-      coupons[loopcpn] = CouponOISDefinition.from(index, endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, settlementDays);
+      coupons[loopcpn] = CouponOISDefinition.from(generator.getIndex(), endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, generator.getSpotLag());
     }
     return new AnnuityCouponOISDefinition(coupons);
   }
 
   @Override
   public GenericAnnuity<? extends Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
+    ArgumentChecker.notNull(date, "date");
+    ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
+    ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     final List<Coupon> resultList = new ArrayList<Coupon>();
     final CouponOISDefinition[] payments = getPayments();
     for (int loopcoupon = 0; loopcoupon < payments.length; loopcoupon++) {

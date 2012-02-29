@@ -68,6 +68,16 @@ public final class ExecutionFlags {
   }
   
   /**
+   * Adds {@link ViewExecutionFlags#BATCH}.
+   * 
+   * @return this
+   */
+  public ExecutionFlags batch() {
+    _flags.add(ViewExecutionFlags.BATCH);
+    return this;
+  }
+  
+  /**
    * Adds {@link ViewExecutionFlags#COMPILE_ONLY}
    * 
    * @return this

@@ -77,9 +77,8 @@ public class DataMarketDataSnapshotResourceTest {
 
   @Test
   public void testDeleteMarketDataSnapshot() {
-    Response test = _resource.remove();
+    _resource.remove();
     verify(_underlying).remove(OID.atLatestVersion());
-    assertEquals(Status.NO_CONTENT.getStatusCode(), test.getStatus());
   }
 
 }

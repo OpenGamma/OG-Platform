@@ -63,10 +63,10 @@ public class NonLinearLeastSquaresSurfaceFittingFunction extends AbstractFunctio
         .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType).get();
     _surfaceRequirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, currencyTargetSpec, surfaceProperties);
     final ValueProperties resultProperties = createValueProperties()
-          .with(ValuePropertyNames.CURRENCY, _currency.getCode())
-          .with(ValuePropertyNames.SURFACE, _definitionName)
-          .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
-          .get();
+        .with(ValuePropertyNames.CURRENCY, _currency.getCode())
+        .with(ValuePropertyNames.SURFACE, _definitionName)
+        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
+        .get();
     _resultSpecification = new ValueSpecification(_resultName, currencyTargetSpec, resultProperties);
   }
 

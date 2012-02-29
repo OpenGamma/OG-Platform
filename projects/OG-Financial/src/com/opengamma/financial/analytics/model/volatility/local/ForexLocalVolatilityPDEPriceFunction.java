@@ -6,9 +6,9 @@
 package com.opengamma.financial.analytics.model.volatility.local;
 
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
-import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
+import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_H;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_LAMBDA;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_MAX_MONEYNESS;
@@ -31,6 +31,7 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
+import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
@@ -44,15 +45,18 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.forex.ForexUtils;
 import com.opengamma.financial.analytics.model.forex.ForexVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
+import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.volatility.smile.fitting.sabr.SurfaceArrayUtils;
+import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * 
@@ -96,11 +100,32 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
     }
     final PDEFullResults1D pdeGrid = (PDEFullResults1D) pdeGridObject;
     final double[] gridTimes = pdeGrid.getGrid().getTimeNodes();
-    final double[] gridStrikes = pdeGrid.getGrid().getSpaceNodes();
+    final double[] gridMoneyness = pdeGrid.getGrid().getSpaceNodes();
     //TODO interpolate
-    final int timeIndex = SurfaceArrayUtils.getLowerBoundIndex(gridTimes, getExpiry(fxOption, now));
-    final int spaceIndex = SurfaceArrayUtils.getLowerBoundIndex(gridStrikes, getStrike(fxOption));
-    final double value = pdeGrid.getFunctionValue(spaceIndex, timeIndex);
+    ///////////////////////////////
+    final double tau = getExpiry(fxOption, now);
+    final UnorderedCurrencyPair currencies = UnorderedCurrencyPair.of(fxOption.getCallCurrency(), fxOption.getPutCurrency());
+    final ValueRequirement forwardCurveRequirement = getForwardCurveRequirement(forwardCurveCalculationMethod, forwardCurveInterpolator,
+        forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator, currencies.getUniqueId());
+    final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
+    if (forwardCurveObject == null) {
+      throw new OpenGammaRuntimeException("Forward curve was null");
+    }
+    final ForwardCurve forwardCurve = (ForwardCurve) forwardCurveObject;
+    final double forward = forwardCurve.getForward(tau);
+    final double moneyness = getStrike(fxOption) / forward;
+    final int timeIndex = SurfaceArrayUtils.getLowerBoundIndex(gridTimes, tau);
+    final int spaceIndex = SurfaceArrayUtils.getLowerBoundIndex(gridMoneyness, moneyness);
+
+    //  BlackVolatilitySurfaceMoneyness volSur = LocalVolatilityPDEGreekCalculator.modifiedPriceToVolSurface(forwardCurve, pdeGrid, 0, 10, 0.5, 3.0, true);
+    //  final double value = volSur.getVolatility(tau, getStrike(fxOption));
+    final double value1 = forward * pdeGrid.getFunctionValue(spaceIndex, timeIndex);
+    final double value2 = forward * pdeGrid.getFunctionValue(spaceIndex + 1, timeIndex);
+    final double m1 = pdeGrid.getSpaceValue(spaceIndex);
+    final double m2 = pdeGrid.getSpaceValue(spaceIndex + 1);
+    final double value = ((m2 - moneyness) * value1 + (moneyness - m1) * value2) / (m2 - m1);
+
+    ///////////////////////////////
     final ValueSpecification resultSpec = getResultSpec(target, surfaceName, surfaceType, xAxis, yAxis, lambda, forwardCurveCalculationMethod, h, forwardCurveInterpolator,
         forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator, theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection,
         strikeInterpolatorName, timeInterpolatorName);
@@ -233,9 +258,13 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
     final String spaceGridBunching = spaceGridBunchingNames.iterator().next();
     final String maxMoneyness = maxMoneynessNames.iterator().next();
     final String pdeDirection = pdeDirectionNames.iterator().next();
-    final ValueRequirement pdeGridSpec = getPDEGridRequirement(target, surfaceName, surfaceType, xAxis, yAxis, lambda, forwardCurveCalculationMethod, h, forwardCurveInterpolator,
+    final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
+    final UniqueId pairUID = UnorderedCurrencyPair.of(fxOption.getCallCurrency(), fxOption.getPutCurrency()).getUniqueId(); //TODO down to subclass
+    final ValueRequirement pdeGridRequirement = getPDEGridRequirement(target, surfaceName, surfaceType, xAxis, yAxis, lambda, forwardCurveCalculationMethod, h, forwardCurveInterpolator,
         forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator, theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection);
-    return Collections.singleton(pdeGridSpec);
+    final ValueRequirement forwardCurveRequirement = getForwardCurveRequirement(forwardCurveCalculationMethod, forwardCurveInterpolator,
+        forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator, pairUID);
+    return Sets.newHashSet(pdeGridRequirement, forwardCurveRequirement);
   }
 
   @Override
@@ -512,6 +541,16 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
         .get();
   }
 
+  private ValueRequirement getForwardCurveRequirement(final String calculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
+      final String forwardCurveRightExtrapolator, final UniqueId uid) {
+    final ValueProperties properties = ValueProperties.builder()
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod)
+        .with(PROPERTY_FORWARD_CURVE_INTERPOLATOR, forwardCurveInterpolator)
+        .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, forwardCurveLeftExtrapolator)
+        .with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, forwardCurveRightExtrapolator).get();
+    return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, ComputationTargetType.PRIMITIVE, uid, properties);
+  }
+
   private double getExpiry(final FXOptionSecurity fxOption, final ZonedDateTime date) {
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     return actAct.getDayCountFraction(date, fxOption.getExpiry().getExpiry());
@@ -520,10 +559,10 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
   private double getStrike(final FXOptionSecurity fxOption) {
     final Currency putCurrency = fxOption.getPutCurrency();
     final Currency callCurrency = fxOption.getCallCurrency();
-    if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) {
-      return fxOption.getPutAmount() / fxOption.getCallAmount(); //TODO check this
+    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
+      return fxOption.getCallAmount() / fxOption.getPutAmount();
     }
-    return fxOption.getCallAmount() / fxOption.getPutAmount();
+    return fxOption.getPutAmount() / fxOption.getCallAmount(); //Review R White 27/02/12 I have swap these around - this logic is repeated in at least one other place 
   }
 
 }

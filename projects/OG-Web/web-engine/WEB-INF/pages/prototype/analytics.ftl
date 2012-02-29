@@ -11,16 +11,10 @@
 ${ogStyle.print('og_all.css', 'all',false)}
 </head>
 <body>
-<div class="ui-layout-container">
-  <div class="ui-layout-center">put analytics here</div>
-  <div class="ui-layout-north">
-    <#include "modules/common/og.common.masthead.ftl">
-  </div>
-  <div class="ui-layout-south">
-    <#include "modules/common/og.common.footer.ftl">
-  </div>
-  <div class="ui-layout-east">&nbsp;</div>
-  <div class="ui-layout-west">&nbsp;</div>
+<div class="OG-layout-admin-container">
+  <div class="ui-layout-center"></div>
+  <div class="ui-layout-north"><#include "modules/common/og.common.masthead.ftl"></div>
+  <div class="ui-layout-south"><#include "modules/common/og.common.footer.ftl"></div>
 </div>
 <!--[if IE]>${ogScript.print('ie.js',false)}<![endif]-->
 ${ogScript.print('og_analytics.js',false)}

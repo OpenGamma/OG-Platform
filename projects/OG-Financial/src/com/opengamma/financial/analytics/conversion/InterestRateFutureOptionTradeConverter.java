@@ -31,16 +31,15 @@ public class InterestRateFutureOptionTradeConverter {
 
   public InstrumentDefinition<?> convert(final Trade trade) {
     Validate.notNull(trade, "trade");
-    Validate.isTrue(trade.getSecurity() instanceof IRFutureOptionSecurity,
-        "Can only handle trades with security type IRFutureOptionSecurity");
+    Validate.isTrue(trade.getSecurity() instanceof IRFutureOptionSecurity, "Can only handle trades with security type IRFutureOptionSecurity");
     final Object securityDefinition = _securityConverter.convert((IRFutureOptionSecurity) trade.getSecurity());
     final int quantity = trade.getQuantity().intValue();
     //TODO trade time or premium time?
     //    final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getPremiumDate().atTime(trade.getPremiumTime()),
     //        TimeZone.UTC); //TODO get the real time zone
-    final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getTradeDate().atTime(trade.getTradeTime()),
-        TimeZone.UTC); //TODO get the real time zone
-    final double tradePrice = trade.getPremium() == null ? 1 : trade.getPremium() / 100; //TODO remove the default value and throw an exception
+    final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getTradeDate().atTime(trade.getTradeTime()), TimeZone.UTC); //TODO get the real time zone
+    final double tradePrice = trade.getPremium() == null ? 0 : trade.getPremium() / 100; //TODO remove the default value and throw an exception
+    // TODO: if the premium the right place to store the trade price?
     if (securityDefinition instanceof InterestRateFutureOptionMarginSecurityDefinition) {
       final InterestRateFutureOptionMarginSecurityDefinition underlyingOption = (InterestRateFutureOptionMarginSecurityDefinition) securityDefinition;
       return new InterestRateFutureOptionMarginTransactionDefinition(underlyingOption, quantity, tradeDate, tradePrice);

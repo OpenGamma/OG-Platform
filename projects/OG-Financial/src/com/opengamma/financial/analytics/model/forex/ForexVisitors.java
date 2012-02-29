@@ -16,6 +16,7 @@ import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.fx.NonDeliverableFXForwardSecurity;
 import com.opengamma.financial.security.option.EquityBarrierOptionSecurity;
 import com.opengamma.financial.security.option.EquityIndexDividendFutureOptionSecurity;
@@ -124,6 +125,11 @@ public class ForexVisitors {
       throw new UnsupportedOperationException();
     }
 
+    //    @Override
+    //    public Currency visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    //      throw new UnsupportedOperationException();
+    //    }
+
     @Override
     public Currency visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
       throw new UnsupportedOperationException();
@@ -160,12 +166,12 @@ public class ForexVisitors {
     }
 
     @Override
-    public Currency visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security) {
+    public Currency visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
       return security.getCallCurrency();
     }
 
     @Override
-    public Currency visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
+    public Currency visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
       return security.getCallCurrency();
     }
   }
@@ -232,6 +238,11 @@ public class ForexVisitors {
       throw new UnsupportedOperationException();
     }
 
+    //    @Override
+    //    public Currency visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    //      throw new UnsupportedOperationException();
+    //    }
+
     @Override
     public Currency visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
       throw new UnsupportedOperationException();
@@ -273,12 +284,12 @@ public class ForexVisitors {
     }
 
     @Override
-    public Currency visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security) {
+    public Currency visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
       return security.getPutCurrency();
     }
 
     @Override
-    public Currency visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
+    public Currency visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
       return security.getPutCurrency();
     }
   }
@@ -335,7 +346,7 @@ public class ForexVisitors {
       final Currency putCurrency = security.getPutCurrency();
       final Currency callCurrency = security.getCallCurrency();
       ExternalId bloomberg;
-      if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) {
+      if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
       } else {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
@@ -353,6 +364,11 @@ public class ForexVisitors {
       throw new UnsupportedOperationException();
     }
 
+    //    @Override
+    //    public ExternalId visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    //      throw new UnsupportedOperationException();
+    //    }
+
     @Override
     public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
       throw new UnsupportedOperationException();
@@ -368,7 +384,7 @@ public class ForexVisitors {
       final Currency putCurrency = security.getPutCurrency();
       final Currency callCurrency = security.getCallCurrency();
       ExternalId bloomberg;
-      if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) {
+      if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
       } else {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
@@ -402,11 +418,11 @@ public class ForexVisitors {
     }
 
     @Override
-    public ExternalId visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security) {
+    public ExternalId visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
       final Currency putCurrency = security.getPutCurrency();
       final Currency callCurrency = security.getCallCurrency();
       ExternalId bloomberg;
-      if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) {
+      if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
       } else {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
@@ -415,11 +431,11 @@ public class ForexVisitors {
     }
 
     @Override
-    public ExternalId visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
+    public ExternalId visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
       final Currency putCurrency = security.getPutCurrency();
       final Currency callCurrency = security.getCallCurrency();
       ExternalId bloomberg;
-      if (ForexUtils.isBaseCurrency(putCurrency, callCurrency)) {
+      if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
       } else {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
@@ -480,7 +496,7 @@ public class ForexVisitors {
       final Currency putCurrency = security.getPutCurrency();
       final Currency callCurrency = security.getCallCurrency();
       ExternalId bloomberg;
-      if (!ForexUtils.isBaseCurrency(putCurrency, callCurrency)) {
+      if (!FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
       } else {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
@@ -498,6 +514,11 @@ public class ForexVisitors {
       throw new UnsupportedOperationException();
     }
 
+    //    @Override
+    //    public ExternalId visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    //      throw new UnsupportedOperationException();
+    //    }
+
     @Override
     public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
       throw new UnsupportedOperationException();
@@ -513,14 +534,14 @@ public class ForexVisitors {
       final Currency putCurrency = security.getPutCurrency();
       final Currency callCurrency = security.getCallCurrency();
       ExternalId bloomberg;
-      if (!ForexUtils.isBaseCurrency(putCurrency, callCurrency)) {
+      if (!FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
       } else {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
       }
       return bloomberg;
     }
-    
+
     @Override
     public ExternalId visitFXForwardSecurity(final FXForwardSecurity security) {
       throw new UnsupportedOperationException();
@@ -547,11 +568,11 @@ public class ForexVisitors {
     }
 
     @Override
-    public ExternalId visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security) {
+    public ExternalId visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
       final Currency putCurrency = security.getPutCurrency();
       final Currency callCurrency = security.getCallCurrency();
       ExternalId bloomberg;
-      if (!ForexUtils.isBaseCurrency(putCurrency, callCurrency)) {
+      if (!FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
       } else {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");
@@ -560,11 +581,11 @@ public class ForexVisitors {
     }
 
     @Override
-    public ExternalId visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
+    public ExternalId visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
       final Currency putCurrency = security.getPutCurrency();
       final Currency callCurrency = security.getCallCurrency();
       ExternalId bloomberg;
-      if (!ForexUtils.isBaseCurrency(putCurrency, callCurrency)) {
+      if (!FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(putCurrency.getCode() + callCurrency.getCode() + " Curncy");
       } else {
         bloomberg = SecurityUtils.bloombergTickerSecurityId(callCurrency.getCode() + putCurrency.getCode() + " Curncy");

@@ -8,7 +8,6 @@ package com.opengamma.engine.view.calcnode.stats;
 import java.net.URI;
 
 import javax.time.Instant;
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
@@ -19,7 +18,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.time.DateUtils;
@@ -61,8 +59,8 @@ public class DataFunctionCostsMasterResource extends AbstractDataResource {
   @HEAD
   @Path("functioncosts")
   public Response status() {
-    // simple HEAD to quickly return, avoiding loading the whole database
-    return Response.ok().build();
+    // simple GET to quickly return as a ping
+    return responseOk();
   }
 
   @GET
@@ -70,14 +68,14 @@ public class DataFunctionCostsMasterResource extends AbstractDataResource {
   public Response search(@QueryParam("configurationName") String configurationName, @QueryParam("functionId") String functionId, @QueryParam("versionAsOf") String versionAsOfStr) {
     Instant versionAsOf = (versionAsOfStr != null ? DateUtils.parseInstant(versionAsOfStr) : null);
     FunctionCostsDocument result = getFunctionCostsMaster().load(configurationName, functionId, versionAsOf);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @POST
   @Path("functioncosts")
   public Response store(@Context UriInfo uriInfo, FunctionCostsDocument request) {
     FunctionCostsDocument result = getFunctionCostsMaster().store(request);
-    return Response.ok().entity(result).build();
+    return responseOkFudge(result);
   }
 
   //-------------------------------------------------------------------------

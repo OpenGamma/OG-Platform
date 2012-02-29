@@ -51,6 +51,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
+import com.opengamma.financial.analytics.model.ircurve.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.ircurve.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.InstrumentDefinition;
@@ -62,6 +63,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.FinancialSecurityVisitorAdapter;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
@@ -89,9 +91,9 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
 
   public InterestRateInstrumentYieldCurveNodeSensitivitiesFunction(final String curveCalculationType) {
     Validate.notNull(curveCalculationType, "curve calculation type");
-    Validate.isTrue(curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING) ||
-                    curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING),
-                    "Did not recognise curve calculation type " + curveCalculationType);
+    Validate.isTrue(
+        curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING) || curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)
+            || curveCalculationType.equals(InterpolatedYieldCurveFunction.CALCULATION_METHOD_NAME), "Did not recognise curve calculation type " + curveCalculationType);
     _curveCalculationType = curveCalculationType;
   }
 
@@ -99,22 +101,17 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
   public void init(final FunctionCompilationContext context) {
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext
-        .getConventionBundleSource(context);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    final CashSecurityConverter cashConverter = new CashSecurityConverter(holidaySource, conventionSource);
+    final CashSecurityConverter cashConverter = new CashSecurityConverter();
     final FRASecurityConverter fraConverter = new FRASecurityConverter(holidaySource, regionSource, conventionSource);
-    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource,
-        regionSource);
+    final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
     final BondSecurityConverter bondConverter = new BondSecurityConverter(holidaySource, conventionSource, regionSource);
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
-    _visitor =
-        FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder()
-            .cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
-            .futureSecurityVisitor(futureConverter)
-            .bondSecurityVisitor(bondConverter).create();
+    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>> builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
+        .futureSecurityVisitor(futureConverter).bondSecurityVisitor(bondConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
 
@@ -129,6 +126,11 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
       return false;
     }
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    //TODO remove this when we've checked that removing IR futures from the fixed income instrument types
+    // doesn't break curves
+    if (target.getSecurity() instanceof InterestRateFutureSecurity) {
+      return false;
+    }
     if (security instanceof SwapSecurity) {
       final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
       return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD || type == InterestRateInstrumentType.SWAP_IBOR_IBOR;
@@ -169,19 +171,23 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final String forwardCurve = forwardCurves.iterator().next();
     final String fundingCurve = fundingCurves.iterator().next();
     final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(6);
-    if (forwardCurve.equals(fundingCurve)) {
+    if (_curveCalculationType.equals(InterpolatedYieldCurveFunction.CALCULATION_METHOD_NAME)) {
       requirements.add(getCurveRequirement(target, forwardCurve, forwardCurve, forwardCurve));
-      requirements.add(getJacobianRequirement(target, forwardCurve, forwardCurve));
-      requirements.add(getCurveSpecRequirement(target, forwardCurve));
     } else {
-      requirements.add(getCurveRequirement(target, forwardCurve, forwardCurve, fundingCurve));
-      requirements.add(getCurveRequirement(target, fundingCurve, forwardCurve, fundingCurve));
-      requirements.add(getJacobianRequirement(target, forwardCurve, fundingCurve));
-      requirements.add(getCurveSpecRequirement(target, forwardCurve));
-      requirements.add(getCurveSpecRequirement(target, fundingCurve));
-    }
-    if (_curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)) {
-      requirements.add(getCouponSensitivityRequirement(target, forwardCurve, fundingCurve));
+      if (forwardCurve.equals(fundingCurve)) {
+        requirements.add(getCurveRequirement(target, forwardCurve, forwardCurve, forwardCurve));
+        requirements.add(getJacobianRequirement(target, forwardCurve, forwardCurve));
+        requirements.add(getCurveSpecRequirement(target, forwardCurve));
+      } else {
+        requirements.add(getCurveRequirement(target, forwardCurve, forwardCurve, fundingCurve));
+        requirements.add(getCurveRequirement(target, fundingCurve, forwardCurve, fundingCurve));
+        requirements.add(getJacobianRequirement(target, forwardCurve, fundingCurve));
+        requirements.add(getCurveSpecRequirement(target, forwardCurve));
+        requirements.add(getCurveSpecRequirement(target, fundingCurve));
+      }
+      if (_curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)) {
+        requirements.add(getCouponSensitivityRequirement(target, forwardCurve, fundingCurve));
+      }
     }
     return requirements;
   }
@@ -190,7 +196,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     String forwardCurveName = null;
     String fundingCurveName = null;
-    for (Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
+    for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
       if (ValueRequirementNames.YIELD_CURVE_JACOBIAN.equals(input.getKey().getValueName())) {
         assert forwardCurveName == null;
         assert fundingCurveName == null;
@@ -204,22 +210,26 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     properties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final Set<ValueSpecification> result;
-    if (forwardCurveName.equals(fundingCurveName)) {
+    if (_curveCalculationType.equals(InterpolatedYieldCurveFunction.CALCULATION_METHOD_NAME)) {
       properties.with(ValuePropertyNames.CURVE, forwardCurveName);
       result = Collections.singleton(new ValueSpecification(VALUE_REQUIREMENT, targetSpec, properties.get()));
     } else {
-      result = Sets.newHashSetWithExpectedSize(2);
-      properties.with(ValuePropertyNames.CURVE, forwardCurveName);
-      result.add(new ValueSpecification(VALUE_REQUIREMENT, targetSpec, properties.get()));
-      properties.withoutAny(ValuePropertyNames.CURVE).with(ValuePropertyNames.CURVE, fundingCurveName);
-      result.add(new ValueSpecification(VALUE_REQUIREMENT, targetSpec, properties.get()));
+      if (forwardCurveName.equals(fundingCurveName)) {
+        properties.with(ValuePropertyNames.CURVE, forwardCurveName);
+        result = Collections.singleton(new ValueSpecification(VALUE_REQUIREMENT, targetSpec, properties.get()));
+      } else {
+        result = Sets.newHashSetWithExpectedSize(2);
+        properties.with(ValuePropertyNames.CURVE, forwardCurveName);
+        result.add(new ValueSpecification(VALUE_REQUIREMENT, targetSpec, properties.get()));
+        properties.withoutAny(ValuePropertyNames.CURVE).with(ValuePropertyNames.CURVE, fundingCurveName);
+        result.add(new ValueSpecification(VALUE_REQUIREMENT, targetSpec, properties.get()));
+      }
     }
     return result;
   }
 
   @Override
-  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs,
-      final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final ValueProperties constraints = desiredValues.iterator().next().getConstraints();
     final String forwardCurveName = constraints.getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE).iterator().next();
     final String fundingCurveName = constraints.getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE).iterator().next();
@@ -256,8 +266,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
       throw new OpenGammaRuntimeException("Could not get " + ValueRequirementNames.YIELD_CURVE_JACOBIAN);
     }
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
-    final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve
-        : (YieldAndDiscountCurve) fundingCurveObject;
+    final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve : (YieldAndDiscountCurve) fundingCurveObject;
     final InterpolatedYieldCurveSpecificationWithSecurities forwardCurveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) forwardCurveSpecObject;
     final InterpolatedYieldCurveSpecificationWithSecurities fundingCurveSpec = fundingCurveSpecObject == null ? forwardCurveSpec
         : (InterpolatedYieldCurveSpecificationWithSecurities) fundingCurveSpecObject;
@@ -266,8 +275,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");
     }
     final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now,
-        FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security,
-            fundingCurveName, forwardCurveName), dataSource);
+        FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName), dataSource);
     final double[][] array = FunctionUtils.decodeJacobian(jacobianObject);
     final LinkedHashMap<String, YieldAndDiscountCurve> interpolatedCurves = new LinkedHashMap<String, YieldAndDiscountCurve>();
     interpolatedCurves.put(fundingCurveName, fundingCurve);
@@ -277,13 +285,15 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     DoubleMatrix1D sensitivitiesForCurves;
     if (_curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING)) {
       sensitivitiesForCurves = CALCULATOR.calculateFromParRate(derivative, null, bundle, jacobian, PresentValueNodeSensitivityCalculator.getDefaultInstance());
-    } else {
+    } else if (_curveCalculationType.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)) {
       final Object couponSensitivityObject = inputs.getValue(getCouponSensitivityRequirement(target, forwardCurveName, fundingCurveName));
       if (couponSensitivityObject == null) {
         throw new OpenGammaRuntimeException("Could not get " + ValueRequirementNames.PRESENT_VALUE_COUPON_SENSITIVITY);
       }
       final DoubleMatrix1D couponSensitivity = (DoubleMatrix1D) couponSensitivityObject;
       sensitivitiesForCurves = CALCULATOR.calculateFromPresentValue(derivative, null, bundle, couponSensitivity, jacobian, PresentValueNodeSensitivityCalculator.getDefaultInstance());
+    } else {
+      sensitivitiesForCurves = CALCULATOR.calculateFromSimpleInterpolatedCurve(derivative, bundle, PresentValueNodeSensitivityCalculator.getDefaultInstance());
     }
     final ValueProperties.Builder properties = createValueProperties(target);
     properties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);

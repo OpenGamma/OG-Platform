@@ -32,11 +32,29 @@ public class SABRFormulaData implements SmileModelData {
     _parameters = parameters;
   }
 
+  @Override
+  public boolean isAllowed(int index, double value) {
+    switch (index) {
+      case 0:
+        return value >= 0;
+      case 1:
+        return value >= 0;
+      case 2:
+        return value >= -1 && value <= 1;
+      case 3:
+        return value >= 0.0;
+      case 4:
+        return true;
+      default:
+        throw new IllegalArgumentException("index " + index + " outside range");
+    }
+  }
+
   /**
    * 
-   * @param alpha The initial value of the stochastic volatility 
-   * @param beta The CEV parameter 
-   * @param rho The correlation between the driver of the underlying and the driver of the stochastic volatility 
+   * @param alpha The initial value of the stochastic volatility
+   * @param beta The CEV parameter
+   * @param rho The correlation between the driver of the underlying and the driver of the stochastic volatility
    * @param nu The vol-of-vol
    */
   public SABRFormulaData(final double alpha, final double beta, final double rho, final double nu) {

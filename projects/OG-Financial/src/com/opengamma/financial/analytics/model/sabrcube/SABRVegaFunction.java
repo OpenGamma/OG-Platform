@@ -50,11 +50,11 @@ public class SABRVegaFunction extends SABRFunction {
   private static final GridInterpolator2D NODE_SENSITIVITY_CALCULATOR = new GridInterpolator2D(INTERPOLATOR, INTERPOLATOR);
   private VolatilityCubeDefinition _definition;
 
-  public SABRVegaFunction(final Currency currency, final String cubeName, final boolean useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
+  public SABRVegaFunction(final Currency currency, final String cubeName, final boolean useSABRExtrapolation, final String forwardCurveName, final String fundingCurveName) {
     super(currency, cubeName, useSABRExtrapolation, forwardCurveName, fundingCurveName);
   }
 
-  public SABRVegaFunction(final String currency, final String cubeName, final String useSABRExtrapolation, String forwardCurveName, String fundingCurveName) {
+  public SABRVegaFunction(final String currency, final String cubeName, final String useSABRExtrapolation, final String forwardCurveName, final String fundingCurveName) {
     super(currency, cubeName, useSABRExtrapolation, forwardCurveName, fundingCurveName);
   }
 
@@ -140,7 +140,7 @@ public class SABRVegaFunction extends SABRFunction {
     return Sets.newHashSet(getResultSpec(target));
   }
 
-  private ValueProperties getModelSensitivityProperties(String ccyCode) {
+  private ValueProperties getModelSensitivityProperties(final String ccyCode) {
     return ValueProperties.builder().with(ValuePropertyNames.CURRENCY, ccyCode).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurveName())
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurveName()).with(ValuePropertyNames.CUBE, getHelper().getDefinitionName())
         .with(ValuePropertyNames.CALCULATION_METHOD, isUseSABRExtrapolation() ? SABR_RIGHT_EXTRAPOLATION : SABR_NO_EXTRAPOLATION).get();

@@ -18,33 +18,31 @@ $.register_module({
             history = common.util.history, routes = common.routes, search,
             ui = common.util.ui, module = this, page_name = module.name.split('.').pop(), view,
             details_page = function (args, config) {
-                var show_loading = !(config || {}).hide_loading;
+                var show_loading = !(config || {}).hide_loading, rest_options;
                 view.layout.inner.options.south.onclose = null;
                 view.layout.inner.close('south');
-                api.rest.exchanges.get({
+                rest_options = {
                     dependencies: view.dependencies,
                     update: view.update,
-                    handler: function (result) {
+                    id: args.id,
+                    loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
+                };
+                $.when(api.rest.exchanges.get(rest_options), api.text({module: module.name}))
+                    .then(function (result, template) {
                         if (result.error) return view.notify(null), view.error(result.message);
-                        var json = result.data;
+                        var json = result.data, $html = $.tmpl(template, json);
                         history.put({
                             name: json.template_data.name,
                             item: 'history.' + page_name + '.recent',
                             value: routes.current().hash
                         });
-                        api.text({module: module.name, handler: function (template) {
-                            var $html = $.tmpl(template, json);
-                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
-                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
-                            view.layout.inner.close('north'), $('.ui-layout-inner-north').empty();
-                            ui.toolbar(view.options.toolbar.active);
-                            if (show_loading) view.notify(null);
-                            setTimeout(view.layout.inner.resizeAll);
-                        }});
-                    },
-                    id: args.id,
-                    loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
-                });
+                        $('.OG-layout-admin-details-center .ui-layout-header').html($html.find('> header'));
+                        $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
+                        view.layout.inner.close('north'), $('.OG-layout-admin-details-north').empty();
+                        ui.toolbar(view.options.toolbar.active);
+                        if (show_loading) view.notify(null);
+                        setTimeout(view.layout.inner.resizeAll);
+                    });
             };
         return view = $.extend(view = new og.views.common.Core(page_name), {
             details: details_page,

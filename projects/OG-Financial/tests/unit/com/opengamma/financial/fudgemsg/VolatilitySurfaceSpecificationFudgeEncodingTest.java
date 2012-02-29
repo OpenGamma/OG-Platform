@@ -12,6 +12,7 @@ import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.volatility.surface.BloombergEquityOptionVolatilitySurfaceInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.surface.BloombergSwaptionVolatilitySurfaceInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
@@ -22,31 +23,34 @@ import com.opengamma.util.money.Currency;
 public class VolatilitySurfaceSpecificationFudgeEncodingTest extends FinancialTestBase {
 
   @Test
-  public void testCycle() {
+  public void testSwaptionCycle() {
     BloombergSwaptionVolatilitySurfaceInstrumentProvider instrumentProvider = new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy");
-    VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, instrumentProvider);
+    VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, SurfaceQuoteType.PAY_RECEIVE_DELTA, instrumentProvider);
     AssertJUnit.assertEquals(spec, cycleObject(VolatilitySurfaceSpecification.class, spec));
     instrumentProvider = new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy", MarketDataRequirementNames.MARKET_VALUE);
-    spec = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, instrumentProvider);
+    spec = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, SurfaceQuoteType.PAY_RECEIVE_DELTA, instrumentProvider);
     AssertJUnit.assertEquals(spec, cycleObject(VolatilitySurfaceSpecification.class, spec));
     instrumentProvider = new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy", MarketDataRequirementNames.IMPLIED_VOLATILITY);
-    spec = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, instrumentProvider);
+    spec = new VolatilitySurfaceSpecification("DEFAULT", Currency.USD, SurfaceQuoteType.PAY_RECEIVE_DELTA, instrumentProvider);
     AssertJUnit.assertEquals(spec, cycleObject(VolatilitySurfaceSpecification.class, spec));
     AssertJUnit.assertFalse(spec.equals(
         cycleObject(VolatilitySurfaceSpecification.class,
-                    new VolatilitySurfaceSpecification("DEFAULT",
-                                                       Currency.USD,
-                                                       new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy")))));
+            new VolatilitySurfaceSpecification("DEFAULT",
+                Currency.USD,
+                SurfaceQuoteType.PAY_RECEIVE_DELTA,
+                new BloombergSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", true, false, " Curncy")))));
   }
-  
+
   @Test
   public void testEOCycle() {
-    BloombergEquityOptionVolatilitySurfaceInstrumentProvider instrumentProvider = new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.IMPLIED_VOLATILITY);
-    VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT", UniqueId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"), instrumentProvider);
+    final BloombergEquityOptionVolatilitySurfaceInstrumentProvider instrumentProvider = new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.IMPLIED_VOLATILITY);
+    final VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT", UniqueId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"),
+        SurfaceQuoteType.STRIKE_CALL_AND_PUT, instrumentProvider);
     AssertJUnit.assertEquals(spec, cycleObject(VolatilitySurfaceSpecification.class, spec));
     AssertJUnit.assertFalse(spec.equals(
         cycleObject(VolatilitySurfaceSpecification.class,
             new VolatilitySurfaceSpecification("DEFAULT", UniqueId.of(SecurityUtils.BLOOMBERG_TICKER.getName(), "DJX Index"),
+                SurfaceQuoteType.STRIKE_CALL_AND_PUT,
                 new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.MID_IMPLIED_VOLATILITY)))));
   }
 }

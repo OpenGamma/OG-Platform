@@ -82,7 +82,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   /**
    * Gets all the instances.
    * <p>
-   * This method will return infrastructure instances.
+   * This method will return all registered instances.
    * 
    * @return the instance map, not null
    */
@@ -91,14 +91,50 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   }
 
   /**
-   * Gets an instance of a component.
+   * Gets all the instances for the specified type.
    * <p>
-   * This finds an instance that matches the specified type.
-   * This may be used to find both component and infrastructure instances.
+   * This method will return all registered instances of the specified type.
    * 
    * @param <T>  the type
    * @param type  the type to get, not null
-   * @param classifier  the classifier that distinguishes the component, empty for default, not null
+   * @return the modifiable instances, not null
+   */
+  public <T> Collection<T> getInstances(Class<T> type) {
+    ArgumentChecker.notNull(type, "type");
+    List<T> result = new ArrayList<T>();
+    for (ComponentInfo info : getInfos(type)) {
+      result.add(type.cast(getInstance(info)));
+    }
+    return result;
+  }
+
+  /**
+   * Gets all the component information objects for the specified type.
+   * <p>
+   * This method will return all registered information objects for the specified type.
+   * 
+   * @param type  the type to get, not null
+   * @return the component informations, not null
+   */
+  public Collection<ComponentInfo> getInfos(Class<?> type) {
+    ArgumentChecker.notNull(type, "type");
+    ComponentTypeInfo info = findTypeInfo(type);
+    ArrayList<ComponentInfo> result = new ArrayList<ComponentInfo>();
+    if (info != null) {
+      result.addAll(info.getInfoMap().values());
+    }
+    return result;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Gets an instance of a component.
+   * <p>
+   * This finds an instance that matches the specified type.
+   * 
+   * @param <T>  the type
+   * @param type  the type to get, not null
+   * @param classifier  the classifier that distinguishes the component, not null
    * @return the component instance, not null
    * @throws IllegalArgumentException if no component is available
    */
@@ -112,11 +148,28 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     return type.cast(result);
   }
 
+  /**
+   * Gets an instance of a component.
+   * <p>
+   * This finds an instance that matches the specified information.
+   * 
+   * @param info  the component info, not null
+   * @return the component instance, not null
+   * @throws IllegalArgumentException if no component is available
+   */
+  public Object getInstance(ComponentInfo info) {
+    ArgumentChecker.notNull(info, "info");
+    ComponentKey key = info.toComponentKey();
+    Object result = _instanceMap.get(key);
+    if (result == null) {
+      throw new IllegalArgumentException("No component available: " + key);
+    }
+    return result;
+  }
+
   //-------------------------------------------------------------------------
   /**
-   * Gets all the type information for the component.
-   * <p>
-   * This method will not return infrastructure instances.
+   * Gets all the available type information.
    * 
    * @return the component type information, not null
    * @throws IllegalArgumentException if no component is available
@@ -126,9 +179,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   }
 
   /**
-   * Gets the type information for the component.
-   * <p>
-   * This method will not find infrastructure instances.
+   * Gets type information by type.
    * 
    * @param type  the type to get, not null
    * @return the component type information, not null
@@ -144,9 +195,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
 
   //-------------------------------------------------------------------------
   /**
-   * Gets the component information.
-   * <p>
-   * This method will not find infrastructure instances.
+   * Gets component information by type and classifier.
    * 
    * @param type  the type to get, not null
    * @param classifier  the classifier that distinguishes the component, not null
@@ -160,9 +209,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   }
 
   /**
-   * Gets the component information for an instance.
-   * <p>
-   * This method will not find infrastructure instances.
+   * Gets component information for an instance.
    * 
    * @param instance  the instance to find info for, not null
    * @return the component information, not null
@@ -182,7 +229,6 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * Finds the type information for the component.
    * <p>
    * This method is lenient, ignoring case and matching simple type names.
-   * This method will not find infrastructure instances.
    * 
    * @param typeName  the name of the type to get, case insensitive, not null
    * @return the component type information, null if not found
@@ -198,10 +244,23 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   }
 
   /**
+   * Finds the type information for the component.
+   * <p>
+   * This method is lenient, returning null if not found.
+   * 
+   * @param type  the type to get, not null
+   * @return the component information, null if not found
+   */
+  public ComponentTypeInfo findTypeInfo(Class<?> type) {
+    ArgumentChecker.notNull(type, "type");
+    return _infoMap.get(type);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Finds the component information.
    * <p>
    * This method is lenient, ignoring case and matching simple type names.
-   * This method will not find infrastructure instances.
    * 
    * @param typeName  the simple name of the type to get, case insensitive, not null
    * @param classifier  the classifier that distinguishes the component, case insensitive, not null
@@ -220,6 +279,52 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     return null;
   }
 
+  /**
+   * Finds the component information.
+   * <p>
+   * This method is lenient, ignoring case and matching simple type names.
+   * 
+   * @param type  the type to get, not null
+   * @param classifier  the classifier that distinguishes the component, case insensitive, not null
+   * @return the component information, null if not found
+   */
+  public ComponentInfo findInfo(Class<?> type, String classifier) {
+    ArgumentChecker.notNull(type, "type");
+    ComponentTypeInfo typeInfo = findTypeInfo(type);
+    if (typeInfo != null) {
+      for (String realClassifier : typeInfo.getInfoMap().keySet()) {
+        if (realClassifier.equalsIgnoreCase(classifier)) {
+          return typeInfo.getInfo(realClassifier);
+        }
+      }
+    }
+    return null;
+  }
+
+  //-------------------------------------------------------------------------
+  /**
+   * Finds a single instance of the specified component type.
+   * <p>
+   * This method searches for a single instance of the specified type.
+   * If there are no instances or multiple instances, then null is returned.
+   * 
+   * @param <T>  the type
+   * @param type  the type to get, not null
+   * @return the component information, null if not found
+   */
+  public <T> T findInstance(Class<T> type) {
+    ArgumentChecker.notNull(type, "type");
+    ComponentTypeInfo typeInfo = findTypeInfo(type);
+    if (typeInfo == null) {
+      return null;
+    }
+    if (typeInfo.getInfoMap().size() != 1) {
+      return null;
+    }
+    Object result = getInstance(typeInfo.getInfoMap().values().iterator().next());
+    return type.cast(result);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Gets the RESTful components.
@@ -236,7 +341,9 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   /**
    * Registers the component specifying the info that describes it.
    * <p>
-   * If the component implements {@code Lifecycle} or {@code ServletContextAware}, it will be registered.
+   * If the component implements {@code Lifecycle} or {@code ServletContextAware},
+   * it will be registered as though using {@link #registerLifecycle(Lifecycle)} or
+   * {@link #registerServletContextAware(ServletContextAware)}.
    * 
    * @param info  the component info to register, not null
    * @param instance  the component instance to register, not null
@@ -263,10 +370,11 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   }
 
   /**
-   * Registers a piece of infrastructure.
+   * Registers the component automatically creating the info that describes it.
    * <p>
-   * The infrastructure instance has no component information, but is otherwise equivalent
-   * to a component. If the instance implements {@code Lifecycle} or {@code ServletContextAware}, it will be registered.
+   * If the component implements {@code Lifecycle} or {@code ServletContextAware},
+   * it will be registered as though using {@link #registerLifecycle(Lifecycle)} or
+   * {@link #registerServletContextAware(ServletContextAware)}.
    * 
    * @param <T>  the type
    * @param type  the type to register under, not null
@@ -278,17 +386,8 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
     ArgumentChecker.notNull(type, "type");
     ArgumentChecker.notNull(classifier, "classifier");
     ArgumentChecker.notNull(instance, "instance");
-    checkStatus(Status.CREATING);
-    
-    ComponentKey key = ComponentKey.of(type, classifier);
-    try {
-      registerInstance0(key, instance);
-      registered(key, instance);
-      
-    } catch (RuntimeException ex) {
-      _status.set(Status.FAILED);
-      throw new RuntimeException("Failed during registration: " + key, ex);
-    }
+    ComponentInfo info = new ComponentInfo(type, classifier);
+    registerComponent(info, instance);
   }
 
   /**
@@ -346,6 +445,10 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    * @param methodName  the method name to call, not null
    */
   public void registerLifecycleStop(final Object obj, final String methodName) {
+    ArgumentChecker.notNull(obj, "object");
+    ArgumentChecker.notNull(methodName, "methodName");
+    checkStatus(Status.CREATING);
+    
     registerLifecycle0(new Lifecycle() {
       @Override
       public void stop() {
@@ -363,6 +466,7 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
         return obj.getClass().getSimpleName() + ":" + obj.toString();
       }
     });
+    registered(null, obj);
   }
 
   /**

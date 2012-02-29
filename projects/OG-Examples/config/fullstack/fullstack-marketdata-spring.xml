@@ -2,6 +2,8 @@
 <!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
 <beans>
 
+  <!-- This config file is called from fullstack.ini via SpringMarketDataComponentFactory -->
+
   <!-- ================================================================== -->
   <!-- Expose component infrastructure -->
   <bean class="com.opengamma.component.factory.ComponentRepositoryBeanPostProcessor" />

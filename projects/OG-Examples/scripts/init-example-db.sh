@@ -14,7 +14,7 @@ else
   fi
 fi
 
-if [ "`basename $0`" == "init-example-db.sh" ] ; then
+if [ "`basename $0`" = "init-example-db.sh" ] ; then
   cd `dirname $0`/.. #PLAT-1527
 fi
 
@@ -29,8 +29,8 @@ $JAVA  -cp "$CLASSPATH" \
   com.opengamma.util.test.DbTool \
   -jdbcUrl jdbc:hsqldb:file:install/db/hsqldb/example-db \
   -database og-financial \
-  -user "" \
-  -password "" \
+  -user "OpenGamma" \
+  -password "OpenGamma" \
   -drop true \
   -create true \
   -createtables true \
@@ -40,8 +40,8 @@ $JAVA  -cp "$CLASSPATH" \
   com.opengamma.util.test.DbTool \
   -jdbcUrl jdbc:hsqldb:file:temp/hsqldb/og-fin-user \
   -database og-financial \
-  -user "" \
-  -password "" \
+  -user "OpenGamma" \
+  -password "OpenGamma" \
   -drop true \
   -create true \
   -createtables true \
@@ -53,4 +53,4 @@ $JAVA  -cp "$CLASSPATH" \
   -Xms1024M \
   -Xmx4096M \
   -Dlogback.configurationFile=jetty-logback.xml \
-  com.opengamma.examples.loader.DemoDatabasePopulater
+  com.opengamma.examples.tool.ExampleDatabasePopulater

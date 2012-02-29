@@ -1,24 +1,28 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.util.test;
 
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
-
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.BuilderTestProxyFactory.BuilderTestProxy;
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
+import org.fudgemsg.mapping.FudgeObjectReader;
+import org.fudgemsg.mapping.FudgeObjectWriter;
 import org.fudgemsg.mapping.FudgeSerializer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
 
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.test.BuilderTestProxyFactory.BuilderTestProxy;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 /**
  * Base class for builder tests.
@@ -69,14 +73,14 @@ public abstract class AbstractFudgeBuilderTestCase {
 
   private <T> T cycleObjectProxy(final Class<T> clazz, final T object) {
     getLogger().debug("cycle object {} of class by proxy {}", object, clazz);
-    
+
     final MutableFudgeMsg msgOut = getFudgeSerializer().newMessage();
     getFudgeSerializer().addToMessage(msgOut, "test", null, object);
     getLogger().debug("message out by proxy {}", msgOut);
-    
+
     final FudgeMsg msgIn = _proxy.proxy(clazz, msgOut);
     getLogger().debug("message in by proxy {}", msgIn);
-    
+
     final T cycled = getFudgeDeserializer().fieldValueToObject(clazz, msgIn.getByName("test"));
     getLogger().debug("created object by proxy {}", cycled);
     assertTrue(clazz.isAssignableFrom(cycled.getClass()));
@@ -85,14 +89,14 @@ public abstract class AbstractFudgeBuilderTestCase {
 
   private <T> T cycleObjectBytes(final Class<T> clazz, final T object) {
     getLogger().debug("cycle object {} of class by bytes {}", object, clazz);
-    
+
     final MutableFudgeMsg msgOut = getFudgeSerializer().newMessage();
     getFudgeSerializer().addToMessage(msgOut, "test", null, object);
     getLogger().debug("message out by bytes {}", msgOut);
-    
+
     final FudgeMsg msgIn = cycleMessage(msgOut);
     getLogger().debug("message in by bytes {}", msgIn);
-    
+
     final T cycled = getFudgeDeserializer().fieldValueToObject(clazz, msgIn.getByName("test"));
     getLogger().debug("created object by bytes {}", cycled);
     assertTrue(clazz.isAssignableFrom(cycled.getClass()));
@@ -103,6 +107,26 @@ public abstract class AbstractFudgeBuilderTestCase {
     final byte[] data = getFudgeContext().toByteArray(message);
     s_logger.info("{} bytes", data.length);
     return getFudgeContext().deserialize(data).getMessage();
+  }
+
+  @SuppressWarnings("unchecked")
+  protected <T> T cycleObjectOverBytes(final T object) {
+    ByteArrayOutputStream _output = new ByteArrayOutputStream();
+    FudgeObjectWriter _fudgeObjectWriter = getFudgeContext().createObjectWriter(_output);
+
+    _fudgeObjectWriter.write(object);
+
+    ByteArrayInputStream input = new ByteArrayInputStream(_output.toByteArray());
+
+    FudgeObjectReader fudgeObjectReader = getFudgeContext().createObjectReader(input);
+
+    return (T) fudgeObjectReader.read();
+  }
+
+  public static void isInstanceOf(Object parameter, Class<?> clazz) {
+    if (!clazz.isInstance(parameter)) {
+      throw new AssertionError("Expected an object to be instance of <" + clazz.getName() + "> but it was instance of <" + parameter.getClass().getName() + "> actually.");
+    }
   }
 
 }

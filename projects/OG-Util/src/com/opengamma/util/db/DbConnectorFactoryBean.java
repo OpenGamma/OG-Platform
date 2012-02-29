@@ -304,6 +304,7 @@ public class DbConnectorFactoryBean extends SingletonFactoryBean<DbConnector> {
       Properties props = new Properties();
       props.setProperty("hibernate.dialect", dialect.getHibernateDialect().getClass().getName());
       props.setProperty("hibernate.show_sql", String.valueOf(isHibernateShowSql()));
+      props.setProperty("hibernate.connection.release_mode", "on_close");
       if (isAllowHibernateThreadBoundSession()) {
         props.setProperty(Environment.CURRENT_SESSION_CONTEXT_CLASS, "thread");
         props.setProperty(Environment.TRANSACTION_STRATEGY, "org.hibernate.transaction.JDBCTransactionFactory");
@@ -316,7 +317,7 @@ public class DbConnectorFactoryBean extends SingletonFactoryBean<DbConnector> {
     } catch (Exception ex) {
       throw new RuntimeException(ex);
     }
-    return (SessionFactory) factory.getObject();
+    return factory.getObject();
   }
 
   /**

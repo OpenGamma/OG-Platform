@@ -31,20 +31,21 @@ $.register_module({
                         buffer: 17
                     });
                     grid = new Slick.Grid(obj.selector, slick_manager.data, obj.columns, options);
-                    grid.setSelectionModel(new Slick.RowSelectionModel());
-                    window.onresize = function () {
+                    grid.setSelectionModel(new Slick.RowSelectionModel);
+                    $(window).on('resize', function () {
                         setTimeout(function () {
+                            var args = process_args();
+                            args.filter = false;
                             grid.resizeCanvas();
-                            filter($.extend(process_args(), {filter: false}));
+                            filter(args);
                         }, 300);
-                    };
+                    });
                     // Setup filter inputs
                     og.common.search.filter({location: obj.selector});
-
                     grid.onClick.subscribe(function (e, dd) {
                         var current = routes.current().args;
                         routes.go(routes.hash(og.views[obj.page_type].rules.load_item, current, {
-                            del: ['node', 'version', 'sync', 'position', 'timeseries'], add: {
+                            del: og.views[obj.page_type].extra_params, add: {
                                 id: slick_manager.data[dd.row].id,
                                 name: current.name || '',
                                 quantity: current.quantity || '',

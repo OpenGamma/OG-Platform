@@ -20,16 +20,8 @@
       </section>
       <section>
         <table class="OG-table">
-          <col style="width: 40%" />
-          <col style="width: 60%" />
           <thead>
-            <tr>
-              <th><span>${securityType}</span></th><th>&nbsp;</th>
-            </tr>
-          </thead>
-        </table>
-        <table class="OG-table">
-          <thead>
+            <tr><th colspan="6"><span>${securityType.lang()}</span></th></tr>
             <tr>
               <th>Factor Type</th>
               <th>Factor Name</th>
@@ -40,6 +32,7 @@
             </tr>
           </thead>
           <tbody>
+          {{if factors.length}}
             {{each(factor_index, factor) factors}}
             <tr>
               <td><span>${factor.factorType}</span></td>
@@ -80,9 +73,13 @@
               {{/if}}
             </tr>
             {{/each}}
+          {{else}}
+            <tr>
+              <td colspan="6"><span>(no values)</span></td>
+            </tr>
+          {{/if}}
           </tbody>
         </table>
-              
       </section>
       <section class="OG-timeseries og-js-timeseries"></section>
     </div>

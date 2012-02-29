@@ -308,7 +308,7 @@
       <#break>
       <#case "IRFUTURE_OPTION">
         "currency":"${security.currency}",
-        "exchange":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
+       	"exchange":"${security.exchange}",
         "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
         "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "isMargined":"${security.margined?string?upper_case}",
@@ -324,7 +324,7 @@
       <#break>
        <#case "EQUITY_INDEX_FUTURE_OPTION">
         "currency":"${security.currency}",
-        "exchange":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
+       	"exchange":"${security.exchange}",
         "exerciseType":"${customRenderer.printExerciseType(security.exerciseType)}",
         "expiry":"${security.expiry.expiry.toLocalDate()} - ${security.expiry.expiry.zone}",
         "isMargined":"${security.margined?string?upper_case}",
@@ -414,6 +414,15 @@
         "currency":"${securityEntryData.currency}",
         "maturityDate":"${securityEntryData.maturityDate}",
         "factorSetId":"${securityEntryData.factorSetId}",
+        <#if securityAttributes??>
+          "attributes":{
+            <#list securityAttributes?keys as key>
+              <#assign value = securityAttributes[key]>
+                "${key}" : "${value}"
+              <#if key_has_next>,</#if>
+            </#list>
+          },
+        </#if>
         <#if factorExposuresList??>
           "factors":[
             <#list factorExposuresList as factorExposure>

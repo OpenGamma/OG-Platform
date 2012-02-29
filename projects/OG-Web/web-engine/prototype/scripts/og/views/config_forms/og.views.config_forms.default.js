@@ -55,11 +55,11 @@ $.register_module({
                           <div class="OG-tools"></div>\
                           <h1 class="og-js-name">' + orig_name + '</h1>\
                         </header>';
-                    $('.ui-layout-inner-center .ui-layout-header').html(header);
+                    $('.OG-layout-admin-details-center .ui-layout-header').html(header);
                     load_handler(form);
                 }},
                 {type: 'keyup', selector: form_id + ' [name=name]', handler: function (e) {
-                    $('.ui-layout-inner-center .og-js-name').text($(e.target).val());
+                    $('.OG-layout-admin-details-center .og-js-name').text($(e.target).val());
                 }},
                 {type: 'form:submit', handler: save_resource}
             ]);

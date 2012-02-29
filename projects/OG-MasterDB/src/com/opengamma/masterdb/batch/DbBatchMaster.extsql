@@ -1,0 +1,41 @@
+-- ==========================================================================
+@NAME(GetBatchValues)
+  SELECT
+    main.id AS id            
+    main.function_unique_id AS function_unique_id 
+    main.computation_target_id AS computation_target_id
+    main.run_id AS run_id
+    main.value AS value
+    main.name AS name
+    
+    main.eval_instant AS eval_instant
+    main.compute_node_id AS compute_node_id     
+    
+    spec.synthetic_form AS synthetic_form   
+    config.name AS config_name
+    func.unique_id AS function_unique_id
+    target.type AS target_type
+    target.id_scheme AS target_type_id_scheme
+    target.id_value AS target_type_id_value
+    target.id_version AS target_type_id_version
+  FROM
+    rsk_value main
+    INNER JOIN rsk_value_specification spec ON main.value_specification_id = rsk_value_specification.id
+    INNER JOIN rsk_calculation_configuration config ON main.calculation_configuration_id = config.id
+    INNER JOIN rsk_function_unique_id func ON main.function_unique_id = func.id
+    INNER JOIN rsk_computation_target target ON main.computation_target_id = target.id
+    
+  WHERE
+    run_id = :run_id
+  ORDER BY
+    name,
+    id 
+  @OFFSETFETCH
+
+
+-- ==========================================================================
+@NAME(BatchValuesCount)
+  SELECT
+    COUNT(id)
+  FROM
+    rsk_value 

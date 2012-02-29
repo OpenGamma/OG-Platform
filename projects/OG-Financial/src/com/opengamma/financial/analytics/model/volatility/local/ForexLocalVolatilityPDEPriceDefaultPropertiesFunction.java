@@ -89,9 +89,9 @@ public class ForexLocalVolatilityPDEPriceDefaultPropertiesFunction extends Defau
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, ValuePropertyNames.CURVE_CALCULATION_METHOD);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
+    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR);
+    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
+    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
     defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_H);
     defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_LAMBDA);
     defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_MAX_MONEYNESS);
@@ -114,13 +114,13 @@ public class ForexLocalVolatilityPDEPriceDefaultPropertiesFunction extends Defau
     if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
       return Collections.singleton(_forwardCurveCalculationMethod);
     }
-    if (InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR.equals(propertyName)) {
+    if (FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR.equals(propertyName)) {
       return Collections.singleton(_forwardCurveInterpolator);
     }
-    if (InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR.equals(propertyName)) {
+    if (FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR.equals(propertyName)) {
       return Collections.singleton(_forwardCurveLeftExtrapolator);
     }
-    if (InterpolatedForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR.equals(propertyName)) {
+    if (FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR.equals(propertyName)) {
       return Collections.singleton(_forwardCurveRightExtrapolator);
     }
     if (LocalVolatilityPDEValuePropertyNames.PROPERTY_H.equals(propertyName)) {

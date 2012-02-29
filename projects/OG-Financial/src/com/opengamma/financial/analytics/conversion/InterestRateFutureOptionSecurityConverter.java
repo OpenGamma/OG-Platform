@@ -13,9 +13,9 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginSecurityDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
-import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.OptionType;
@@ -29,8 +29,7 @@ public class InterestRateFutureOptionSecurityConverter {
   private final SecuritySource _securitySource;
   private final InterestRateFutureSecurityConverter _underlyingConverter;
 
-  public InterestRateFutureOptionSecurityConverter(final HolidaySource holidaySource,
-      final ConventionBundleSource conventionSource, final RegionSource regionSource,
+  public InterestRateFutureOptionSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource,
       final SecuritySource securitySource) {
     Validate.notNull(securitySource, "security source");
     _underlyingConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
@@ -41,9 +40,10 @@ public class InterestRateFutureOptionSecurityConverter {
     Validate.notNull(security, "security");
     final ExternalId underlyingIdentifier = security.getUnderlyingId();
     final InterestRateFutureSecurity underlyingSecurity = ((InterestRateFutureSecurity) _securitySource.getSecurity(ExternalIdBundle.of(underlyingIdentifier)));
-    final InterestRateFutureDefinition underlyingFuture = (InterestRateFutureDefinition) _underlyingConverter.visitInterestRateFutureSecurity(underlyingSecurity);
+    final InterestRateFutureDefinition underlyingFuture = _underlyingConverter.visitInterestRateFutureSecurity(underlyingSecurity);
+    //    visitInterestRateFutureSecurity(underlyingSecurity);
     final ZonedDateTime expirationDate = security.getExpiry().getExpiry();
-    final double strike = security.getStrike() / 100;
+    final double strike = security.getStrike();
     final boolean isCall = security.getOptionType() == OptionType.CALL ? true : false;
     final boolean isMargined = security.isMargined();
     if (isMargined) {
@@ -51,4 +51,5 @@ public class InterestRateFutureOptionSecurityConverter {
     }
     return new InterestRateFutureOptionPremiumSecurityDefinition(underlyingFuture, expirationDate, strike, isCall);
   }
+
 }

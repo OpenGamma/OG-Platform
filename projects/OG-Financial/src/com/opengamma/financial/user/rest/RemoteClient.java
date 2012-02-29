@@ -7,8 +7,6 @@ package com.opengamma.financial.user.rest;
 
 import java.net.URI;
 
-import javax.ws.rs.core.UriBuilder;
-
 import org.fudgemsg.FudgeContext;
 
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
@@ -312,7 +310,7 @@ public class RemoteClient {
     return new Runnable() {
       @Override
       public void run() {
-        client.access(uri).post();
+        client.accessFudge(uri).post();
       }
     };
   }

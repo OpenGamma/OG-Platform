@@ -5,39 +5,31 @@
  */
 package com.opengamma.masterdb;
 
-import java.util.List;
-
-import javax.time.Instant;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeType;
-import com.opengamma.extsql.ExtSqlBundle;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.*;
 import com.opengamma.master.AbstractDocument;
-import com.opengamma.master.AbstractDocumentsResult;
-import com.opengamma.master.AbstractHistoryRequest;
-import com.opengamma.master.AbstractHistoryResult;
-import com.opengamma.master.AbstractMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+
+import javax.time.Instant;
+import java.util.List;
 
 /**
  * An abstract master for rapid implementation of a standard version-correction
@@ -53,15 +45,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(AbstractDocumentDbMaster.class);
-
-  /**
-   * External SQL bundle.
-   */
-  private ExtSqlBundle _externalSqlBundle;
-  /**
-   * The maximum number of retries.
-   */
-  private int _maxRetries = 10;
+  
   /**
    * The change manager.
    */
@@ -78,47 +62,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the external SQL bundle.
-   * 
-   * @return the external SQL bundle, not null
-   */
-  public ExtSqlBundle getExtSqlBundle() {
-    return _externalSqlBundle;
-  }
 
-  /**
-   * Sets the external SQL bundle.
-   * 
-   * @param bundle  the external SQL bundle, not null
-   */
-  public void setExtSqlBundle(ExtSqlBundle bundle) {
-    _externalSqlBundle = bundle;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
-   * Gets the maximum number of retries.
-   * The default is ten.
-   * 
-   * @return the maximum number of retries, not null
-   */
-  public int getMaxRetries() {
-    return _maxRetries;
-  }
-
-  /**
-   * Sets the maximum number of retries.
-   * The default is ten.
-   * 
-   * @param maxRetries  the maximum number of retries, not negative
-   */
-  public void setMaxRetries(final int maxRetries) {
-    ArgumentChecker.notNegative(maxRetries, "maxRetries");
-    _maxRetries = maxRetries;
-  }
-
-  //-------------------------------------------------------------------------
   /**
    * Gets the change manager.
    * 
@@ -333,41 +277,16 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Gets the next database id.
-   * 
-   * @param sequenceName  the name of the sequence to query, not null
-   * @return the next database id
-   */
-  protected long nextId(String sequenceName) {
-    return getJdbcTemplate().queryForLong(getDialect().sqlNextSequenceValueSelect(sequenceName));
-  }
-
-  //-------------------------------------------------------------------------
   @Override
   public D add(final D document) {
     ArgumentChecker.notNull(document, "document");
     s_logger.debug("add {}", document);
-    
-    // retry to handle concurrent conflicting inserts into unique content tables
-    for (int retry = 0; true; retry++) {
-      try {
-        D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
-          @Override
-          public D doInTransaction(final TransactionStatus status) {
-            return doAddInTransaction(document);
-          }
-        });
-        changeManager().entityChanged(ChangeType.ADDED, null, result.getUniqueId(), result.getVersionFromInstant());
-        return result;
-      } catch (DataIntegrityViolationException ex) {
-        if (retry == getMaxRetries()) {
-          throw ex;
-        }
-      } catch (DataAccessException ex) {
-        throw fixSQLExceptionCause(ex);
+    return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<D>() {
+      @Override
+      public D doInTransaction(final TransactionStatus status) {
+        return doAddInTransaction(document);
       }
-    }
+    });
   }
 
   /**
@@ -396,9 +315,9 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     checkScheme(document.getUniqueId());
     s_logger.debug("update {}", document);
     
-    // retry to handle concurrent conflicting inserts into unique content tables
-    for (int retry = 0; true; retry++) {
-      try {
+    return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<D>() {
+      @Override
+      public D doInTransaction(final TransactionStatus status) {
         final UniqueId beforeId = document.getUniqueId();
         ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueId must be versioned");
         D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
@@ -409,14 +328,8 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
         });
         changeManager().entityChanged(ChangeType.UPDATED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
         return result;
-      } catch (DataIntegrityViolationException ex) {
-        if (retry == getMaxRetries()) {
-          throw ex;
-        }
-      } catch (DataAccessException ex) {
-        throw fixSQLExceptionCause(ex);
       }
-    }
+    });
   }
 
   /**
@@ -449,31 +362,18 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     ArgumentChecker.notNull(uniqueId, "uniqueId");
     checkScheme(uniqueId);
     s_logger.debug("remove {}", uniqueId);
-    
-    // retry to handle concurrent conflicting inserts into unique content tables
-    for (int retry = 0; true; retry++) {
-      try {
-        D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
-          @Override
-          public D doInTransaction(final TransactionStatus status) {
-            return doRemoveInTransaction(uniqueId);
-          }
-        });
-        changeManager().entityChanged(ChangeType.REMOVED, result.getUniqueId(), null, result.getVersionToInstant());
-        return;
-      } catch (DataIntegrityViolationException ex) {
-        if (retry == getMaxRetries()) {
-          throw ex;
-        }
-      } catch (DataAccessException ex) {
-        throw fixSQLExceptionCause(ex);
+    D result = getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<D>() {
+      @Override
+      public D doInTransaction(final TransactionStatus status) {
+        return doRemoveInTransaction(uniqueId);
       }
-    }
+    });
+    changeManager().entityChanged(ChangeType.REMOVED, result.getUniqueId(), null, result.getVersionToInstant());
   }
 
   /**
    * Processes the document update, within a retrying transaction.
-   * 
+   *
    * @param uniqueId  the unique identifier to remove, not null
    * @return the updated document, not null
    */
@@ -493,28 +393,16 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     ArgumentChecker.notNull(document.getUniqueId(), "document.uniqueId");
     checkScheme(document.getUniqueId());
     s_logger.debug("correct {}", document);
-    
-    // retry to handle concurrent conflicting inserts into unique content tables
-    for (int retry = 0; true; retry++) {
-      try {
-        final UniqueId beforeId = document.getUniqueId();
-        ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueId must be versioned");
-        D result = getTransactionTemplate().execute(new TransactionCallback<D>() {
-          @Override
-          public D doInTransaction(final TransactionStatus status) {
-            return doCorrectInTransaction(document);
-          }
-        });
-        changeManager().entityChanged(ChangeType.CORRECTED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
-        return result;
-      } catch (DataIntegrityViolationException ex) {
-        if (retry == getMaxRetries()) {
-          throw ex;
-        }
-      } catch (DataAccessException ex) {
-        throw fixSQLExceptionCause(ex);
+    final UniqueId beforeId = document.getUniqueId();
+    ArgumentChecker.isTrue(beforeId.isVersioned(), "UniqueId must be versioned");
+    D result = getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<D>() {
+      @Override
+      public D doInTransaction(final TransactionStatus status) {
+        return doCorrectInTransaction(document);
       }
-    }
+    });
+    changeManager().entityChanged(ChangeType.CORRECTED, beforeId, result.getUniqueId(), result.getVersionFromInstant());
+    return result;
   }
 
   /**

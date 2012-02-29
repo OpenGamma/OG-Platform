@@ -17,11 +17,6 @@ import org.fudgemsg.FudgeContext;
 public final class OpenGammaFudgeContext {
 
   /**
-   * Singleton instance.
-   */
-  private static volatile FudgeContext s_instance;
-
-  /**
    * Restricted constructor.
    */
   private OpenGammaFudgeContext() {
@@ -32,28 +27,22 @@ public final class OpenGammaFudgeContext {
    * @return the singleton instance, not null
    */
   public static FudgeContext getInstance() {
-    if (s_instance == null) {
-      synchronized (OpenGammaFudgeContext.class) {
-        if (s_instance == null) {
-          s_instance = constructContext();
-        }
-      }
-    }
-    return s_instance;
+    return ContextHolder.INSTANCE;
   }
 
   /**
-   * Creates a new Fudge context, which is an operation that should be avoided.
-   * @return the new context, not null
-   * @deprecated a warning to indicate that calling this method is bad practice
+   * Avoid double-checked-locking using the Initialization-on-demand holder idiom.
    */
-  @Deprecated
-  public static FudgeContext constructContext() {
-    FudgeContext fudgeContext = new FudgeContext();
-    ExtendedFudgeBuilderFactory.init(fudgeContext.getObjectDictionary());
-    fudgeContext.getObjectDictionary().addAllAnnotatedBuilders();
-    fudgeContext.getTypeDictionary().addAllAnnotatedSecondaryTypes();
-    return fudgeContext;
+  static final class ContextHolder {
+    static final FudgeContext INSTANCE = constructContext();
+    private static FudgeContext constructContext() {
+      FudgeContext fudgeContext = new FudgeContext();
+      ExtendedFudgeBuilderFactory.init(fudgeContext.getObjectDictionary());
+      InnerClassFudgeBuilderFactory.init(fudgeContext.getObjectDictionary());
+      fudgeContext.getObjectDictionary().addAllAnnotatedBuilders();
+      fudgeContext.getTypeDictionary().addAllAnnotatedSecondaryTypes();
+      return fudgeContext;
+    }
   }
 
 }

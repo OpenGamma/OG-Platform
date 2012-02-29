@@ -29,7 +29,6 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.financial.instrument.Convention;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
@@ -77,7 +76,8 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final MondayToFridayCalendar CALENDAR = new MondayToFridayCalendar("A");
-  private static final Convention CONVENTION = new Convention(0, DAY_COUNT, BUSINESS_DAY, CALENDAR, "CONVENTION");
+  private static final int SPOT_LAG = 0;
+  //  private static final Convention CONVENTION = new Convention(SPOT_LAG, DAY_COUNT, BUSINESS_DAY, CALENDAR, "CONVENTION");
   private static final IborIndex IBOR = new IborIndex(CCY, Period.ofMonths(3), 2, CALENDAR, DAY_COUNT, BUSINESS_DAY, false);
   private static final double[] SINGLE_CURVE_MARKET_RATES = {0.02, 0.0366, 0.04705, 0.04285, 0.03953, 0.03986, 0.040965, 0.042035, 0.04314, 0.044, 0.046045, 0.048085, 0.048925, 0.049155, 0.049195};
   private static final String SINGLE_CURVE_NAME = "single";
@@ -416,8 +416,8 @@ public class InstrumentDefinitionYieldCurveSensitivitiesTest extends YieldCurveF
   }
 
   private static Cash makeCashDefinition(ZonedDateTime maturity, double rate, double notional, String curveName) {
-    ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(NOW, CONVENTION.getSettlementDays(), CONVENTION.getWorkingDayCalendar());
-    double accrualFactor = CONVENTION.getDayCount().getDayCountFraction(startDate, maturity);
+    ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(NOW, SPOT_LAG, CALENDAR);
+    double accrualFactor = DAY_COUNT.getDayCountFraction(startDate, maturity);
     return new CashDefinition(CCY, startDate, maturity, notional, rate, accrualFactor).toDerivative(NOW, curveName);
   }
 

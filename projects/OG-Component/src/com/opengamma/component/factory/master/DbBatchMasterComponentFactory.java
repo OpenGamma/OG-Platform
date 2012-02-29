@@ -8,6 +8,8 @@ package com.opengamma.component.factory.master;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import com.opengamma.batch.BatchMaster;
+import com.opengamma.batch.rest.DataBatchMasterResource;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -22,9 +24,6 @@ import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
-import com.opengamma.financial.batch.AdHocBatchDbManager;
-import com.opengamma.financial.batch.BatchMaster;
-import com.opengamma.financial.batch.DataAdHocBatchDbManagerResource;
 import com.opengamma.masterdb.batch.DbBatchMaster;
 import com.opengamma.util.db.DbConnector;
 
@@ -62,19 +61,16 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
     
     // master
     DbBatchMaster master = new DbBatchMaster(getDbConnector());
+    
     if (getIdScheme() != null) {
       master.setUniqueIdScheme(getIdScheme());
     }
     infoMaster.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, master.getUniqueIdScheme());
     repo.registerComponent(infoMaster, master);
     
-    // manager
-    ComponentInfo infoAdHoc = new ComponentInfo(AdHocBatchDbManager.class, getClassifier());
-    repo.registerComponent(infoAdHoc, master);
-    
     // publish
     if (isPublishRest()) {
-      repo.getRestComponents().publish(infoAdHoc, new DataAdHocBatchDbManagerResource(master));
+      repo.getRestComponents().publish(infoMaster, new DataBatchMasterResource(master));
     }
   }
 

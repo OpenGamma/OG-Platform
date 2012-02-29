@@ -31,6 +31,24 @@ public class SVIFormulaData implements SmileModelData {
     this(new double[] {a, b, rho, nu, m });
   }
 
+  @Override
+  public boolean isAllowed(int index, double value) {
+    switch (index) {
+      case 0:
+        return value >= 0;
+      case 1:
+        return value >= 0;
+      case 2:
+        return value >= -1 && value <= 1;
+      case 3:
+        return value >= 0.0;
+      case 4:
+        return true;
+      default:
+        throw new IllegalArgumentException("index " + index + " outside range");
+    }
+  }
+
   public double getA() {
     return _parameters[0];
   }
@@ -99,5 +117,6 @@ public class SVIFormulaData implements SmileModelData {
   public String toString() {
     return "SVIFormulaData [a=" + getA() + ", b=" + getB() + ", rho=" + getRho() + ", nu=" + getNu() + ", m=" + getM() + "]";
   }
+
 
 }

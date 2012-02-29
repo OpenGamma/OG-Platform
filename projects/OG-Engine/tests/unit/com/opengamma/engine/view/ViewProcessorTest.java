@@ -5,6 +5,8 @@
  */
 package com.opengamma.engine.view;
 
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -23,6 +25,9 @@ import java.util.concurrent.TimeUnit;
 import javax.time.Instant;
 import javax.time.InstantProvider;
 
+import com.opengamma.engine.view.calc.ViewResultListenerFactory;
+import org.mockito.Mock;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.marketdata.spec.MarketData;
@@ -48,6 +53,17 @@ import com.opengamma.util.test.Timeout;
  */
 @Test
 public class ViewProcessorTest {
+  
+  @Mock
+  private ViewResultListenerFactory viewResultListenerFactoryStub;
+  @Mock
+  private ViewResultListener viewResultListenerMock;
+
+  @BeforeMethod
+  public void setUp() throws Exception {
+    initMocks(this);
+    when(viewResultListenerFactoryStub.createViewResultListener()).thenReturn(viewResultListenerMock);
+  }
 
   public void testCreateViewProcessor() {
     ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
@@ -155,7 +171,8 @@ public class ViewProcessorTest {
   @Test
   public void testCycleManagement_processCompletes() throws InterruptedException {
     final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
-    env.init();
+    env.setViewResultListenerFactory(viewResultListenerFactoryStub);
+    env.init();    
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();
     
@@ -170,6 +187,8 @@ public class ViewProcessorTest {
   
   public void testCycleManagement_processCompletesWithReferences() throws InterruptedException {
     final ViewProcessorTestEnvironment env = new ViewProcessorTestEnvironment();
+    
+    env.setViewResultListenerFactory(viewResultListenerFactoryStub);
     env.init();
     ViewProcessorImpl vp = env.getViewProcessor();
     vp.start();

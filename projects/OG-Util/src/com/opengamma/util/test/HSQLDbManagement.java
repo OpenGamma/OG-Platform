@@ -6,7 +6,9 @@
 package com.opengamma.util.test;
 
 import java.io.File;
+import java.sql.SQLInvalidAuthorizationSpecException;
 
+import org.apache.commons.io.FileUtils;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.HSQLDialect;
 
@@ -133,17 +135,30 @@ public final class HSQLDbManagement extends AbstractDbManagement {
     return new HSQLCatalogCreationStrategy();
   }
 
+  @Override
+  public void dropSchema(String catalog, String schema) {
+    try {
+      super.dropSchema(catalog, schema);
+    } catch (RuntimeException ex) {
+      // try deleting database
+      if (ex.getCause() instanceof SQLInvalidAuthorizationSpecException) {
+        FileUtils.deleteQuietly(getFile());
+        super.dropSchema(catalog, schema);
+      }
+    }
+  }
+
+  private File getFile() {
+    String dbHost = getDbHost().trim();
+    String filePart = dbHost.substring("jdbc:hsqldb:file:".length());
+    return new File(filePart);
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Strategy for catalog creation.
    */
   private class HSQLCatalogCreationStrategy implements CatalogCreationStrategy {
-
-    private File getFile() {
-      String dbHost = getDbHost().trim();
-      String filePart = dbHost.substring("jdbc:hsqldb:file:".length());
-      return new File(filePart);
-    }
 
     @Override
     public boolean catalogExists(String catalog) {

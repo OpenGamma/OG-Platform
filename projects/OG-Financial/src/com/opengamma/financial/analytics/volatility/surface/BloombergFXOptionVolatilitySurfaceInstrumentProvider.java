@@ -7,13 +7,12 @@ package com.opengamma.financial.analytics.volatility.surface;
 
 import javax.time.calendar.LocalDate;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.Pair;
 
@@ -23,7 +22,6 @@ import com.opengamma.util.tuple.Pair;
 //TODO Pair<Number, FXVolQuoteType> needs to be replaced with a richer data structure that has methods getATM(), getDeltas(), getRiskReversal(int delta), getButterfly(int delta)
 public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Tenor, Pair<Number, FXVolQuoteType>> {
   private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
-
   /** Type of the volatility quote */
   public enum FXVolQuoteType {
     /** ATM */
@@ -39,9 +37,9 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements Sur
   private final String _dataFieldName; //expecting MarketDataRequirementNames.MARKET_VALUE
 
   public BloombergFXOptionVolatilitySurfaceInstrumentProvider(final String fxPrefix, final String postfix, final String dataFieldName) {
-    Validate.notNull(fxPrefix, "fx prefix");
-    Validate.notNull(postfix, "postfix");
-    Validate.notNull(dataFieldName, "data field name");
+    ArgumentChecker.notNull(fxPrefix, "fx prefix");
+    ArgumentChecker.notNull(postfix, "postfix");
+    ArgumentChecker.notNull(dataFieldName, "data field name");
     _fxPrefix = fxPrefix;
     _postfix = postfix;
     _dataFieldName = dataFieldName;
@@ -127,7 +125,7 @@ public class BloombergFXOptionVolatilitySurfaceInstrumentProvider implements Sur
     }
     final BloombergFXOptionVolatilitySurfaceInstrumentProvider other = (BloombergFXOptionVolatilitySurfaceInstrumentProvider) obj;
     return getFXPrefix().equals(other.getFXPrefix()) &&
-           getPostfix().equals(other.getPostfix()) &&
-           getDataFieldName().equals(other.getDataFieldName());
+        getPostfix().equals(other.getPostfix()) &&
+        getDataFieldName().equals(other.getDataFieldName());
   }
 }

@@ -1,4 +1,4 @@
--- SQL for snapshot master
+-- SQL for values master
 
 -- ==========================================================================
 @NAME(GetById)
@@ -63,7 +63,7 @@
   @INCLUDE(SearchWhere)
   ORDER BY
     snp_snapshot.id
-  @OFFSETFETCH
+  @OFFSETFETCH(:paging_offset,:paging_fetch)
 
 
 -- ==========================================================================
@@ -115,7 +115,7 @@
   ORDER BY
     ver_from_instant DESC,
     corr_from_instant DESC
-  @OFFSETFETCH
+  @OFFSETFETCH(:paging_offset,:paging_fetch)
 
 
 -- ==========================================================================

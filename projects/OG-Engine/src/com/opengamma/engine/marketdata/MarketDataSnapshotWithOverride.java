@@ -15,6 +15,7 @@ import javax.time.Instant;
 
 import com.google.common.collect.Maps;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.id.UniqueId;
 
 /**
  * Combines an underlying {@link MarketDataSnapshot} with one designed to provide overrides for certain requirements.
@@ -30,6 +31,11 @@ public class MarketDataSnapshotWithOverride extends AbstractMarketDataSnapshot {
   public MarketDataSnapshotWithOverride(MarketDataSnapshot underlying, MarketDataSnapshot override) {
     _underlying = underlying;
     _override = override;
+  }
+
+  @Override
+  public UniqueId getUniqueId() {
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "MarketDataSnapshotWithOverride:"+getSnapshotTime());
   }
   
   @Override

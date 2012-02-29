@@ -266,7 +266,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     }
   }
   
-  private void verifyConnectionOk() {
+  protected void verifyConnectionOk() {
     if (getConnectionStatus() == ConnectionStatus.NOT_CONNECTED) {
       throw new IllegalStateException("Connection to market data API down");
     }
@@ -537,9 +537,9 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
     Collection<String> snapshotsToActuallyDo = new ArrayList<String>();
     Map<String, LiveDataSpecification> securityUniqueId2LiveDataSpecificationFromClient = new HashMap<String, LiveDataSpecification>(); 
     
+    Map<LiveDataSpecification, DistributionSpecification> resolved = getDistributionSpecificationResolver().resolve(liveDataSpecificationsFromClient);
     for (LiveDataSpecification liveDataSpecificationFromClient : liveDataSpecificationsFromClient) {
-      DistributionSpecification distributionSpec = getDistributionSpecificationResolver()
-        .resolve(liveDataSpecificationFromClient);
+      DistributionSpecification distributionSpec = resolved.get(liveDataSpecificationFromClient);
       LiveDataSpecification fullyQualifiedSpec = distributionSpec.getFullyQualifiedLiveDataSpecification();
       
       MarketDataDistributor currentlyActiveDistributor = getMarketDataDistributor(distributionSpec);
@@ -583,8 +583,7 @@ public abstract class AbstractLiveDataServer implements Lifecycle {
       
       LiveDataSpecification liveDataSpecFromClient = securityUniqueId2LiveDataSpecificationFromClient.get(securityUniqueId);
       
-      DistributionSpecification distributionSpec = getDistributionSpecificationResolver()
-        .resolve(liveDataSpecFromClient);
+      DistributionSpecification distributionSpec = resolved.get(liveDataSpecFromClient);
       FudgeMsg normalizedMsg = distributionSpec.getNormalizedMessage(msg, securityUniqueId);
       if (normalizedMsg == null) {
         responses.add(getErrorResponse(

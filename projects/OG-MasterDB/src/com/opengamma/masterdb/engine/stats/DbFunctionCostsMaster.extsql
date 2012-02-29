@@ -16,7 +16,7 @@
     AND version_instant <= :version_instant
   ORDER BY
     version_instant DESC
-  @OFFSETFETCH
+  @OFFSETFETCH(:paging_offset,:paging_fetch)
 
 
 -- ==========================================================================

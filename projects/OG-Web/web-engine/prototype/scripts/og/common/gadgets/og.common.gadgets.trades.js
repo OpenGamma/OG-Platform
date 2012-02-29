@@ -7,7 +7,7 @@ $.register_module({
     dependencies: ['og.common.util.ui.dialog'],
     obj: function () {
         var ui = og.common.util.ui, api = og.api,
-            template_data, original_config_object,
+            template_data, orig_config,
             dependencies = ['id', 'node', 'version'],
             html = {}, action = {}, $add_trades,
             load, reload, attach_trades_link, format_trades,
@@ -29,20 +29,25 @@ $.register_module({
                 form.dom();
             };
         };
-        form_save = function (deal_attributes, trade_id) {
-            var obj = {}, user_attributes = {}, has_user_attr;
+        form_save = function (trade_id) {
+            var obj = {}, userAttributes = {}, dealAttributes = {}, has_user_attr, has_deal_attr;
             $(this).find('[name]').each(function (i, elm) {obj[$(elm).attr('name')] = $(elm).val();});
             delete obj.attr_key;
             delete obj.attr_val;
-            $(this).find('.og-awesome-list li').each(function (i, elm) {
+            $(this).find('.og-js-user-attributes .og-awesome-list li').each(function (i, elm) {
                 var arr = $(elm).text().split(' = ');
-                user_attributes[arr[0]] = arr[1];
+                userAttributes[arr[0]] = arr[1];
+            });
+            $(this).find('.og-js-deal-attributes .og-awesome-list li').each(function (i, elm) {
+                var arr = $(elm).text().split(' = ');
+                dealAttributes[arr[0]] = arr[1];
             });
             // add attributes
-            has_user_attr = Object.keys(user_attributes)[0];
-            if (has_user_attr || deal_attributes) obj.attributes = {};
-            if (has_user_attr) obj.attributes.userAttributes = user_attributes;
-            if (deal_attributes) obj.attributes.dealAttributes = deal_attributes;
+            has_user_attr = Object.keys(userAttributes)[0];
+            has_deal_attr = Object.keys(dealAttributes)[0];
+            if (has_user_attr || dealAttributes) obj.attributes = {};
+            if (has_user_attr) obj.attributes.userAttributes = userAttributes;
+            if (has_deal_attr) obj.attributes.dealAttributes = dealAttributes;
             if (!trade_id) action.add(obj);
             else action.replace(obj, trade_id);
             $(this).dialog('close');
@@ -53,20 +58,21 @@ $.register_module({
             }).unbind('click').bind('click', function (e) {
                 e.preventDefault();
                 ui.dialog({
-                    type: 'input', title: 'Add New Trade', width: 400, height: 560,
+                    type: 'input', title: 'Add New Trade', width: 650, height: 420,
                     form: generate_form_function(form_handler),
                     buttons: {
-                        'Create': form_save.partial(null),
+                        'Create': form_save,
                         'Cancel': function () {$(this).dialog('close');}
                     }
                 });
             });
         };
         form_handler = function (trade_obj) {
-            var populate_form_fields, attach_calendar, activate_user_attributes_link, activate_user_attributes_delete;
+            var populate_form_fields, attach_calendar, activate_attributes_link, activate_attributes_delete,
+                attr_type, has = 'hasOwnProperty';
             $add_trades = $('.OG-js-add-trades');
             populate_form_fields = function (trade_obj) {
-                var user_attributes_list = [], key, has = 'hasOwnProperty';
+                var attributes_list = {}, trd_attr = trade_obj.attributes, key, has = 'hasOwnProperty';
                 $add_trades.find('[name]').each(function (i, val) {
                     // special case 'premium' as there are two fields for the one value
                     var attribute = $(val).attr('name'), value = trade_obj.premium.split(' ');
@@ -74,18 +80,24 @@ $.register_module({
                     if (attribute === 'counterParty') trade_obj.counterParty = trade_obj.counterParty.split('~')[1];
                     $(val).val(trade_obj[attribute]);
                 });
-                // user attributes
-                if (trade_obj.attributes && trade_obj.attributes.userAttributes) {
-                    for (key in trade_obj.attributes.userAttributes) {
-                        if (trade_obj.attributes.userAttributes[has](key)) {
-                            user_attributes_list.push(html.user_attribute
-                                .replace('{KEY}', key)
-                                .replace('{VALUE}', trade_obj.attributes.userAttributes[key])
-                            );
+                if (!trd_attr) return;
+                for (attr_type in trd_attr) {
+                    if (trd_attr[has](attr_type)) {
+                        attributes_list[attr_type] = [];
+                        for (key in trd_attr[attr_type]) {
+                            if (trd_attr[attr_type][has](key)) {
+                                attributes_list[attr_type].push(html.attribute
+                                    .replace('{KEY}', key.replace(/Deal~/, ''))
+                                    .replace('{VALUE}', trd_attr[attr_type][key])
+                                );
+                            }
                         }
                     }
                 }
-                $add_trades.find('.og-awesome-list').html(user_attributes_list.join(''));
+                for (var t in trd_attr) {
+                    $add_trades.find('.og-js-' + t.replace('A', '-a') + ' .og-awesome-list')
+                            .html(attributes_list[t].join(''));
+                }
             };
             attach_calendar = function () {
                 $('.OG-js-datetimepicker').datetimepicker({
@@ -96,25 +108,24 @@ $.register_module({
                     $(this).prev().find('input').datetimepicker('setDate', new Date());
                 });
             };
-            activate_user_attributes_link = function () {
+            activate_attributes_link = function () {
                 $add_trades.find('.og-js-add-attribute').click(function (e) {
                     e.preventDefault();
-                    if (!$add_trades.find('[name=attr_key]').val() || !$add_trades.find('[name=attr_val]').val()) {
-                        return;
-                    }
-                    $add_trades.find('.og-awesome-list').prepend(html.user_attribute
-                        .replace('{KEY}', $add_trades.find('[name=attr_key]').val())
-                        .replace('{VALUE}', $add_trades.find('[name=attr_val]').val())
+                    var $group = $(e.target).parent();
+                    if (!$group.find('[name=attr_key]').val() || !$group.find('[name=attr_val]').val()) return;
+                    $group.find('.og-awesome-list').prepend(html.attribute
+                        .replace('{KEY}', $group.find('[name=attr_key]').val())
+                        .replace('{VALUE}', $group.find('[name=attr_val]').val())
                     );
-                    $add_trades.find('[name^=attr]').val('');
-                    activate_user_attributes_delete();
+                    $group.find('[name^=attr]').val('');
+                    activate_attributes_delete();
                 });
             };
-            activate_user_attributes_delete = function () {
+            activate_attributes_delete = function () {
                 $add_trades.find('.og-js-rem').unbind('click').click(function (e) {$(e.target).parent().remove();});
             };
             if (trade_obj) populate_form_fields(trade_obj);
-            attach_calendar(), activate_user_attributes_link(), activate_user_attributes_delete();
+            attach_calendar(), activate_attributes_link(), activate_attributes_delete();
         };
         /*
          * Formats arrays of trade objects for submission.
@@ -123,7 +134,7 @@ $.register_module({
          */
         format_trades = function (trades) {
             return (trades || []).map(function (trade) {
-                var premium, tradeDate;
+                var premium, tradeDate, deal;
                 if (trade.premium) {
                     premium = trade.premium.toString().split(' ');
                     trade.premium = premium[0].replace(/[,.]/g, '');
@@ -148,8 +159,16 @@ $.register_module({
                     trade.counterParty.split('~')[1] || trade.counterParty;
                 if (trade.quantity) trade.quantity = trade.quantity.replace(/[,.]/g, '');
                 if (trade.currency) trade.premiumCurrency = trade.currency, delete trade.currency;
-                delete trade.premium_date_time,
-                delete trade.trade_date_time,
+                if (trade.attributes && trade.attributes.dealAttributes) {
+                    for (deal in trade.attributes.dealAttributes) {
+                        if (!~deal.indexOf('Deal~')) {
+                            trade.attributes.dealAttributes['Deal~' + deal] = trade.attributes.dealAttributes[deal];
+                            delete trade.attributes.dealAttributes[deal];
+                        }
+                    }
+                }
+                delete trade.premium_date_time;
+                delete trade.trade_date_time;
                 delete trade.id;
                 return trade;
             });
@@ -178,8 +197,8 @@ $.register_module({
             </td>\
           </tr>\
         ';
-        html.sub_header = '<tbody><tr><td class="og-header" colspan="2">{ATTRIBUTES}</td></tr></tbody>',
-        html.user_attribute = '<li><div class="og-del og-js-rem"></div>{KEY} = {VALUE}</li>';
+        html.sub_header = '<tbody><tr><td class="og-header" colspan="2">{ATTRIBUTES}</td></tr></tbody>';
+        html.attribute = '<li><div class="og-del og-js-rem"></div>{KEY} = {VALUE}</li>';
         /*
          * CRUD operations
          */
@@ -242,20 +261,18 @@ $.register_module({
         };
         action.edit = function (trade_id) {
             var handler = function (result) {
-                var trade_obj, deal_attributes;
+                var trade_obj;
                 if (result.error) return alert(result.message);
                 // get the trade object that you want to edit
                 result.data.trades.forEach(function (trade) {
                     if (trade_id === trade.id.split('~')[1]) {trade_obj = trade}
                 });
-                deal_attributes = (trade_obj.attributes && trade_obj.attributes.dealAttributes)
-                    ? trade_obj.attributes.dealAttributes : null;
                 ui.dialog({
-                    type: 'input', title: 'Edit Trade: ' + trade_id, width: 400, height: 560,
+                    type: 'input', title: 'Edit Trade: ' + trade_id, width: 650, height: 420,
                     form: generate_form_function(form_handler.partial(trade_obj)),
                     buttons: {
-                        'Save': form_save.partial(deal_attributes, trade_id),
-                        'Save new': form_save.partial(deal_attributes),
+                        'Save': form_save.partial(trade_id),
+                        'Save new': form_save,
                         'Cancel': function () {$(this).dialog('close');}
                     }
                 });
@@ -271,9 +288,10 @@ $.register_module({
             });
         };
         load = function (config) {
-            var version = config.version !== '*' ? config.version : (void 0), handler = function (result) {
+            var handler, version = config.version !== '*' ? config.version : void 0;
+            handler = function (result) {
                 if (result.error) return alert(result.message);
-                original_config_object = config;
+                orig_config = config;
                 template_data = result.data.template_data;
                 var trades = result.data.trades, selector = config.selector, tbody, has_attributes = false,
                     fields = ['id', 'quantity', 'counterParty', 'trade_date_time', 'premium', 'premium_date_time'];
@@ -331,9 +349,7 @@ $.register_module({
                     if (version) return;
                     var swap_css = function (elm, css) {
                         $(elm).find('td').css(css);
-                        if ($(elm).next().hasClass('og-js-attribute')) {
-                            $(elm).next().find('> td').css(css);
-                        }
+                        if ($(elm).next().is('.og-js-attribute')) $(elm).next().find('> td').css(css);
                     };
                     $(selector + ' .og-row').hover(
                         function () {
@@ -346,8 +362,8 @@ $.register_module({
                         }
                     ).click(function (e) {
                         var trade_id = $(this).find('td:first-child').text();
-                        if ($(e.target).is('.og-del')) e.stopPropagation(), action.del(trade_id);
-                        else action.edit(trade_id);
+                        if ($(e.target).is('.og-del')) return e.stopPropagation(), action.del(trade_id);
+                        action.edit(trade_id);
                     })
                 }());
             };
@@ -355,7 +371,8 @@ $.register_module({
                 dependencies: dependencies, id: config.id, handler: handler, cache_for: 500, version: version
             });
         };
-        reload = function () {load(original_config_object);};
-        return {render: load, reload: reload, format: format_trades}
+        load.reload = load.partial(orig_config);
+        load.format = format_trades;
+        return load;
     }
 });

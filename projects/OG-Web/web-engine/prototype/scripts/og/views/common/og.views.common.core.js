@@ -41,8 +41,8 @@ $.register_module({
             };
             view.name = page_name[0].toUpperCase() + page_name.substring(1);
             view.notify = function (message, duration) {
-                if (!message) return ui.message({location: '.ui-layout-inner-center', destroy: true});
-                ui.message({location: '.ui-layout-inner-center', css: {left: 0}, message: message});
+                if (!message) return ui.message({location: '.OG-layout-admin-details-center', destroy: true});
+                ui.message({location: '.OG-layout-admin-details-center', css: {left: 0}, message: message});
                 if (duration) setTimeout(view.notify.partial(null), duration);
             };
             view.update = function (delivery) {
@@ -55,7 +55,8 @@ $.register_module({
                     filter = (filters || []).length ? filters.join(':?/') + ':?' : '',
                     (extras || []).length ? extras.join(':?/') + ':?' : ''
                 ].filter(Boolean).join('/');
-                view.filters = filters || [];
+                view.filter_params = filters || [];
+                view.extra_params = extras || [];
                 return {
                     load: {route: page + '/' + filter, method: prefix + '.load'},
                     load_filter: {route: page + '/filter:/:id?/' + optionals, method: prefix + '.load_filter'},

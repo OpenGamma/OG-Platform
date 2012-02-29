@@ -25,6 +25,14 @@ import com.opengamma.util.time.TimeCalculator;
 public class InterestRateFutureDefinition implements InstrumentDefinitionWithData<InstrumentDerivative, Double> {
 
   /**
+   * The date at which the transaction was done.
+   */
+  private final ZonedDateTime _transactionDate;
+  /**
+   * The price at which the transaction was done.
+   */
+  private final double _transactionPrice;
+  /**
    * Future last trading date. Usually the date for which the third Wednesday of the month is the spot date.
    */
   private final ZonedDateTime _lastTradingDate;
@@ -53,24 +61,33 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
    */
   private final double _paymentAccrualFactor;
   /**
+   * The quantity/number of contract.
+   */
+  private final int _quantity;
+  /**
    * Future name.
    */
   private final String _name;
 
   /**
    * Constructor of the interest rate future security.
+   * @param transactionDate The date at which the transaction was done.
+   * @param transactionPrice The price at which the transaction was done.
    * @param lastTradingDate Future last trading date.
    * @param iborIndex Ibor index associated to the future.
    * @param referencePrice TODO
    * @param notional Future notional.
    * @param paymentAccrualFactor Future payment accrual factor. 
+   * @param quantity The quantity/number of contract.
    * @param name Future name.
    */
-  public InterestRateFutureDefinition(final ZonedDateTime lastTradingDate, final IborIndex iborIndex, double referencePrice, final double notional, final double paymentAccrualFactor, 
-      final String name) {
+  public InterestRateFutureDefinition(final ZonedDateTime transactionDate, final double transactionPrice, final ZonedDateTime lastTradingDate, final IborIndex iborIndex, double referencePrice,
+      final double notional, final double paymentAccrualFactor, final int quantity, final String name) {
     Validate.notNull(lastTradingDate, "Last trading date");
     Validate.notNull(iborIndex, "Ibor index");
     Validate.notNull(name, "Name");
+    _transactionDate = transactionDate;
+    _transactionPrice = transactionPrice;
     this._lastTradingDate = lastTradingDate;
     this._iborIndex = iborIndex;
     _fixingPeriodStartDate = ScheduleCalculator.getAdjustedDate(_lastTradingDate, _iborIndex.getSpotLag(), _iborIndex.getCalendar());
@@ -79,19 +96,40 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
     _fixingPeriodAccrualFactor = _iborIndex.getDayCount().getDayCountFraction(_fixingPeriodStartDate, _fixingPeriodEndDate);
     this._notional = notional;
     this._paymentAccrualFactor = paymentAccrualFactor;
+    _quantity = quantity;
     _name = name;
   }
 
   /**
    * Constructor of the interest rate future security.
+   * @param transactionDate The date at which the transaction was done.
+   * @param transactionPrice The price at which the transaction was done.
    * @param lastTradingDate Future last trading date.
    * @param iborIndex Ibor index associated to the future.
    * @param referencePrice TODO
    * @param notional Future notional.
-   * @param paymentAccrualFactor Future payment accrual factor.
+   * @param paymentAccrualFactor Future payment accrual factor. 
+   * @param quantity The quantity/number of contract.
    */
-  public InterestRateFutureDefinition(final ZonedDateTime lastTradingDate, final IborIndex iborIndex, double referencePrice, final double notional, final double paymentAccrualFactor) {
-    this(lastTradingDate, iborIndex, referencePrice, notional, paymentAccrualFactor, "RateFuture " + iborIndex.getName());
+  public InterestRateFutureDefinition(final ZonedDateTime transactionDate, final double transactionPrice, final ZonedDateTime lastTradingDate, final IborIndex iborIndex, double referencePrice,
+      final double notional, final double paymentAccrualFactor, final int quantity) {
+    this(transactionDate, transactionPrice, lastTradingDate, iborIndex, referencePrice, notional, paymentAccrualFactor, quantity, "RateFuture " + iborIndex.getName());
+  }
+
+  /**
+   * Gets the date at which the transaction was done.
+   * @return The transaction date.
+   */
+  public ZonedDateTime getTransactionDate() {
+    return _transactionDate;
+  }
+
+  /**
+   * Gets the price at which the transaction was done.
+   * @return The transaction price.
+   */
+  public double getTransactionPrice() {
+    return _transactionPrice;
   }
 
   /**
@@ -166,20 +204,36 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
     return _iborIndex.getCurrency();
   }
 
+  /**
+   * Gets the quantity/number of contract.
+   * @return The quantity.
+   */
+  public int getQuantity() {
+    return _quantity;
+  }
+
   @Override
-  public InterestRateFuture toDerivative(ZonedDateTime date, Double referencePrice, String... yieldCurveNames) {
+  /**
+   * @param lastMarginPrice The price on which the last margining was done.
+   */
+  public InterestRateFuture toDerivative(ZonedDateTime date, Double lastMarginPrice, String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
     Validate.isTrue(!date.isAfter(getFixingPeriodStartDate()), "Date is after last payment date");
-    //    final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
+    double referencePrice;
+    if (_transactionDate.isBefore(date)) { // Transaction was before last margining.
+      referencePrice = lastMarginPrice;
+    } else { // Transaction is today
+      referencePrice = _transactionPrice;
+    }
     final String discountingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
     final double lastTradingTime = TimeCalculator.getTimeBetween(date, getLastTradingDate());
     final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, getFixingPeriodStartDate());
     final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDate());
     InterestRateFuture future = new InterestRateFuture(lastTradingTime, _iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, _fixingPeriodAccrualFactor, referencePrice, _notional,
-        _paymentAccrualFactor, _name, discountingCurveName, forwardCurveName);
+        _paymentAccrualFactor, _quantity, _name, discountingCurveName, forwardCurveName);
     return future;
   }
 

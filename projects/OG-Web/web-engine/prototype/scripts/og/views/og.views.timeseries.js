@@ -87,73 +87,70 @@ $.register_module({
                 }
             },
             details_page = function (args, config) {
-                var show_loading = !(config || {}).hide_loading;
+                var show_loading = !(config || {}).hide_loading, rest_options;
                 view.layout.inner.options.south.onclose = null;
                 view.layout.inner.close('south');
-                api.rest.timeseries.get({
+                rest_options = {
                     dependencies: view.dependencies,
                     update: view.update,
-                    handler: function (result) {
-                        if (result.error) return view.notify(null), view.error(result.message);
-                        var json = result.data;
-                        api.text({module: module.name, handler: function (template) {
-                            var $html, json_id = json.identifiers, title,
-                                error_html = '\
-                                    <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
-                                        This time series has been deleted\
-                                    </section>\
-                                ';
-                            // check if any of the following scheme types are in json.identifiers, in
-                            // reverse order of preference, delimiting if multiple, then assign to title
-                            ['ISIN', 'SEDOL1', 'CUSIP', 'BLOOMBERG_BUID', 'BLOOMBERG_TICKER'].forEach(function (val) {
-                                title = (function (type) {
-                                    return json.identifiers.reduce(function (acc, val) {
-                                        return val.scheme === type ?
-                                            acc ? acc + ', ' + val.value : type.lang() + ' - ' + val.value
-                                                : acc;
-                                    }, '')
-                                }(val)) || title;
-                            });
-                            $html = $.tmpl(template, $.extend(json.template_data, {
-                                title: title || json.template_data.object_id
-                            }));
-                            history.put({
-                                name: title + ' (' + json.template_data.data_field + ')',
-                                item: 'history.' + page_name + '.recent',
-                                value: routes.current().hash
-                            });
-                            $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
-                            $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
-                            ui.toolbar(view.options.toolbar.active);
-                            if (json.template_data && json.template_data.deleted) {
-                                $('.ui-layout-inner-north').html(error_html);
-                                view.layout.inner.sizePane('north', '0');
-                                view.layout.inner.open('north');
-                                $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
-                            } else {
-                                view.layout.inner.close('north');
-                                $('.ui-layout-inner-north').empty();
-                            }
-                            // Identifiers
-                            $('.ui-layout-inner-center .og-js-identifiers').html(
-                                json_id.reduce(function (acc, cur) {
-                                    return acc + '<tr><td><span>'+  cur.scheme +'<span></td><td>'+ cur.value +
-                                        '</td></tr>';
-                                }, '')
-                            );
-                            // Plot
-                            common.gadgets.timeseries({
-                                selector: '.OG-timeseries .og-plots',
-                                id: result.data.template_data.object_id
-                            });
-                            if (show_loading) view.notify(null);
-                            setTimeout(view.layout.inner.resizeAll);
-                        }});
-                    },
                     id: args.id,
                     cache_for: 10000,
                     loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
-                });
+                };
+                $.when(api.rest.timeseries.get(rest_options), api.text({module: module.name}))
+                    .then(function (result, template) {
+                        if (result.error) return view.notify(null), view.error(result.message);
+                        var json = result.data, $html, json_id = json.identifiers, title,
+                            error_html = '\
+                                <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
+                                    This time series has been deleted\
+                                </section>\
+                            ';
+                        // check if any of the following scheme types are in json.identifiers, in
+                        // reverse order of preference, delimiting if multiple, then assign to title
+                        ['ISIN', 'SEDOL1', 'CUSIP', 'BLOOMBERG_BUID', 'BLOOMBERG_TICKER'].forEach(function (val) {
+                            title = (function (type) {
+                                return json.identifiers.reduce(function (acc, val) {
+                                    return val.scheme === type ?
+                                        acc ? acc + ', ' + val.value : type.lang() + ' - ' + val.value
+                                            : acc;
+                                }, '')
+                            }(val)) || title;
+                        });
+                        json.template_data.title = title || json.template_data.name;
+                        $html = $.tmpl(template, json.template_data);
+                        history.put({
+                            name: title + ' (' + json.template_data.data_field + ')',
+                            item: 'history.' + page_name + '.recent',
+                            value: routes.current().hash
+                        });
+                        $('.OG-layout-admin-details-center .ui-layout-header').html($html.find('> header'));
+                        $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
+                        ui.toolbar(view.options.toolbar.active);
+                        if (json.template_data && json.template_data.deleted) {
+                            $('.OG-layout-admin-details-north').html(error_html);
+                            view.layout.inner.sizePane('north', '0');
+                            view.layout.inner.open('north');
+                            $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
+                        } else {
+                            view.layout.inner.close('north');
+                            $('.OG-layout-admin-details-north').empty();
+                        }
+                        // Identifiers
+                        $('.OG-layout-admin-details-center .og-js-identifiers').html(
+                            json_id.reduce(function (acc, cur) {
+                                return acc + '<tr><td><span>'+  cur.scheme +'<span></td><td>'+ cur.value +
+                                    '</td></tr>';
+                            }, '')
+                        );
+                        // Plot
+                        common.gadgets.timeseries({
+                            selector: '.OG-timeseries .og-plots',
+                            id: result.data.template_data.object_id
+                        });
+                        if (show_loading) view.notify(null);
+                        setTimeout(view.layout.inner.resizeAll);
+                    });
             };
         return view = $.extend(view = new og.views.common.Core(page_name), {
             details: details_page,

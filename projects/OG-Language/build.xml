@@ -55,9 +55,9 @@
 
   <target name="test-batch"/>
 
- <target name="windows-installer" depends="set-version" description="Builds the windows installation packages (assumes a dist has already been done and Advanced Installer is available)">
+  <target name="windows-installer" depends="set-version" description="Builds the windows installation packages (assumes a dist has already been done and Advanced Installer is available)">
     <exec executable="AdvancedInstaller.com" failifexecutionfails="true">
-      <arg line="/edit Installer\setup.aip /SetVersion ${module.version.msi}.${build.number}" />
+      <arg line="/edit Installer\setup.aip /SetVersion ${module.version.msi}.${module.build.number}" />
     </exec>
     <exec executable="AdvancedInstaller.com" failifexecutionfails="true">
       <arg line="/build Installer\setup.aip" />

@@ -4,6 +4,8 @@
        xsi:schemaLocation="
 http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
 
+  <!-- This config file is called from fullstack.ini via SpringInfrastructureComponentFactory -->
+
   <!-- ================================================================== -->
   <bean id="standardDataSource" class="com.jolbox.bonecp.BoneCPDataSource" destroy-method="close">
     <property name="driverClass" value="${db.standard.driver}" />
@@ -164,19 +166,6 @@ http://www.springframework.org/schema/beans http://www.springframework.org/schem
   <!-- ================================================================== -->
   <bean id="standardMBeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
     <property name="locateExistingServerIfPossible" value="true" />
-  </bean>
-  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
-    <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans"/>
-    <property name="arguments">
-      <list>
-        <ref bean="standardCacheManager" />
-        <ref bean="standardMBeanServer" />
-        <value>true</value>
-        <value>true</value>
-        <value>true</value>
-        <value>true</value>
-      </list>
-    </property>
   </bean>
 
 </beans>

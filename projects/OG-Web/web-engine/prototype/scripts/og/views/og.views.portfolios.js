@@ -84,7 +84,7 @@ $.register_module({
                 }
             };
         details_page = function (args, config) {
-            var show_loading = !(config || {}).hide_loading,
+            var show_loading = !(config || {}).hide_loading, rest_options,
                 render_portfolio_rows, render_position, render_position_rows, breadcrumb;
             render_portfolio_rows = function (selector, json) {
                 var display_columns = [], data_columns = [], format = common.slickgrid.formatters.portfolios,
@@ -185,7 +185,7 @@ $.register_module({
                 common.gadgets.positions({
                     id: position, selector: '.og-js-details-positions', editable: false, view: view
                 });
-                common.gadgets.trades.render({id: position, selector: '.og-js-trades-table'});
+                common.gadgets.trades({id: position, selector: '.og-js-trades-table'});
             };
             render_position_rows = function (selector, json) {
                 var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions,
@@ -324,62 +324,59 @@ $.register_module({
                 if (args.version) og.views.common.versions.load();
                 if (args.sync) og.views.extras.portfolios_sync.load(args);
             } else view.layout.inner.close('south');
-            api.rest.portfolios.get({
+            rest_options = {
                 dependencies: view.dependencies,
                 update: view.update,
-                handler: function (result) {
+                id: args.id,
+                node: args.node,
+                version: args.version && args.version !== '*' ? args.version : void 0,
+                loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
+            };
+            $.when(api.rest.portfolios.get(rest_options), og.api.text({module: module.name}))
+                .then(function (result, template) {
                     if (result.error) {
                         view.notify(null);
                         if (args.node) {
                             view.error('There is no sub-portfolio with the ID: ' + args.node +
                                 '. It may have been deleted.');
                             return routes.go(routes.hash(view.rules.load_item, args, {del: ['node']}));
-                        } else {
-                            return view.error(result.message);
                         }
+                        return view.error(result.message);
                     }
-                    json = result.data;
+                    var json = result.data, error_html = '\
+                            <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
+                                This portfolio has been deleted\
+                            </section>\
+                        ',
+                        $html = $.tmpl(template, json.template_data);
                     history.put({
                         name: portfolio_name = json.template_data.portfolio_name || json.template_data.name,
                         item: 'history.' + page_name + '.recent',
                         value: routes.current().hash
                     });
-                    og.api.text({module: module.name, handler: function (template) {
-                        var error_html = '\
-                                <section class="OG-box og-box-glass og-box-error OG-shadow-light">\
-                                    This portfolio has been deleted\
-                                </section>\
-                            ',
-                            $html = $.tmpl(template, json.template_data);
-                        $('.ui-layout-inner-center .ui-layout-header').html($html.find('> header'));
-                        $('.ui-layout-inner-center .ui-layout-content').html($html.find('> section'));
-                        ui.toolbar(view.options.toolbar.active);
-                        if (json.template_data && json.template_data.deleted) {
-                            $('.ui-layout-inner-north').html(error_html);
-                            view.layout.inner.sizePane('north', '0');
-                            view.layout.inner.open('north');
-                            $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
-                        } else {
-                            view.layout.inner.close('north');
-                            $('.ui-layout-inner-north').empty();
-                        }
-                        render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
-                        render_position_rows('.OG-js-details-panel .og-js-positions', json);
-                        render_position(json);
-                        if (json.template_data.path) breadcrumb({
-                            selector: '.OG-header-generic .OG-js-breadcrumb',
-                            data: json.template_data
-                        });
-                        ui.content_editable();
-                        if (show_loading) view.notify(null);
-                        setTimeout(view.layout.inner.resizeAll);
-                    }});
-                },
-                id: args.id,
-                node: args.node,
-                version: args.version && args.version !== '*' ? args.version : void 0,
-                loading: function () {if (show_loading) view.notify({0: 'loading...', 3000: 'still loading...'});}
-            });
+                    $('.OG-layout-admin-details-center .ui-layout-header').html($html.find('> header'));
+                    $('.OG-layout-admin-details-center .ui-layout-content').html($html.find('> section'));
+                    ui.toolbar(view.options.toolbar.active);
+                    if (json.template_data && json.template_data.deleted) {
+                        $('.OG-layout-admin-details-north').html(error_html);
+                        view.layout.inner.sizePane('north', '0');
+                        view.layout.inner.open('north');
+                        $('.OG-tools .og-js-delete').addClass('OG-disabled').unbind();
+                    } else {
+                        view.layout.inner.close('north');
+                        $('.OG-layout-admin-details-north').empty();
+                    }
+                    render_portfolio_rows('.OG-js-details-panel .og-js-portfolios', json);
+                    render_position_rows('.OG-js-details-panel .og-js-positions', json);
+                    render_position(json);
+                    if (json.template_data.path) breadcrumb({
+                        selector: '.OG-header-generic .OG-js-breadcrumb',
+                        data: json.template_data
+                    });
+                    ui.content_editable();
+                    if (show_loading) view.notify(null);
+                    setTimeout(view.layout.inner.resizeAll);
+                });
         };
         return view = $.extend(view = new og.views.common.Core(page_name), {
             dependencies: ['id', 'node', 'version'],

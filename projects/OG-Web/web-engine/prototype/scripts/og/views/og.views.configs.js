@@ -24,7 +24,6 @@ $.register_module({
             search, suppress_update = false, ui = common.util.ui,
             module = this, view,
             page_name = module.name.split('.').pop(),
-            check_state = og.views.common.state.check.partial('/' + page_name),
             config_types = [], // used to populate the dropdown in the new button
             toolbar_buttons = {
                 'new': function () {ui.dialog({
@@ -130,12 +129,12 @@ $.register_module({
                                         This configuration has been deleted\
                                     </section>';
                             if (json.deleted) {
-                                $('.ui-layout-inner-north').html(error_html);
+                                $('.OG-layout-admin-details-north').html(error_html);
                                 view.layout.inner.sizePane('north', '0');
                                 view.layout.inner.open('north');
                             } else {
                                 view.layout.inner.close('north');
-                                $('.ui-layout-inner-north').empty();
+                                $('.OG-layout-admin-details-north').empty();
                             }
                             if (is_new || json.deleted) toolbar({
                                 buttons: [
@@ -160,7 +159,7 @@ $.register_module({
                             view.notify(null);
                             setTimeout(view.layout.inner.resizeAll);
                         },
-                        selector: '.ui-layout-inner-center .ui-layout-content',
+                        selector: '.OG-layout-admin-details-center .ui-layout-content',
                         type: details_json.template_data.type
                     };
                     if (render_type !== config_type)
@@ -279,8 +278,7 @@ $.register_module({
                         'Continue Working': function () {
                             $(this).dialog('close');
                             og.api.rest.configs.get({
-                                id: routes.current().args.id, handler: $.noop,
-                                update: view.update, dependencies: view.dependencies
+                                id: routes.current().args.id, update: view.update, dependencies: view.dependencies
                             });
                         }
                     }
