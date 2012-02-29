@@ -158,7 +158,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     }
 
     // Set current node to the root node
-    _currentNode = portfolio.getRootNode();
+    _currentNode = portfolioDoc.getPortfolio().getRootNode();
     
     return portfolioDoc;
   }
