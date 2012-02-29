@@ -112,7 +112,7 @@ public abstract class AbstractRestfulJmsResultConsumer {
    */
   public void heartbeat() {
     URI uri = getUri(getBaseUri(), AbstractRestfulJmsResultPublisher.PATH_HEARTBEAT);
-    _client.access(uri).post();
+    _client.accessFudge(uri).post();
   }
 
   /**

@@ -50,7 +50,7 @@ public class RemoteManageableViewDefinitionRepository extends RemoteViewDefiniti
   @Override
   public void removeViewDefinition(UniqueId definitionId) {
     URI uri = DataViewDefinitionRepositoryResource.uriDefinitionId(getBaseUri(), definitionId);
-    getClient().access(uri).delete();
+    getClient().accessFudge(uri).delete();
   }
   
 }
