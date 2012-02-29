@@ -94,10 +94,10 @@ public class DataConfigResource extends AbstractDataResource {
     if (typeStr != null) {
       Class<?> type = ReflectionUtils.loadClass(typeStr);
       ConfigDocument<?> result = getConfigMaster().get(getUrlConfigId(), vc, type);
-      return Response.ok(result).build();
+      return responseOkFudge(result);
     } else {
       ConfigDocument<?> result = getConfigMaster().get(getUrlConfigId(), vc, null);
-      return Response.ok(result).build();
+      return responseOkFudge(result);
     }
   }
 
@@ -109,13 +109,12 @@ public class DataConfigResource extends AbstractDataResource {
     }
     ConfigDocument<?> result = getConfigMaster().update(request);
     URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId(), null);
-    return Response.created(uri).entity(result).build();
+    return responseCreatedFudge(uri, result);
   }
 
   @DELETE
-  public Response remove() {
+  public void remove() {
     getConfigMaster().remove(getUrlConfigId().atLatestVersion());
-    return Response.noContent().build();
   }
 
   //-------------------------------------------------------------------------
@@ -127,7 +126,7 @@ public class DataConfigResource extends AbstractDataResource {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     ConfigHistoryResult<?> result = getConfigMaster().history(request);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @GET
@@ -137,10 +136,10 @@ public class DataConfigResource extends AbstractDataResource {
     if (typeStr != null) {
       Class<?> type = ReflectionUtils.loadClass(typeStr);
       ConfigDocument<?> result = getConfigMaster().get(uniqueId, type);
-      return Response.ok(result).build();
+      return responseOkFudge(result);
     } else {
       ConfigDocument<?> result = getConfigMaster().get(uniqueId);
-      return Response.ok(result).build();
+      return responseOkFudge(result);
     }
   }
 
@@ -154,7 +153,7 @@ public class DataConfigResource extends AbstractDataResource {
     }
     ConfigDocument<?> result = getConfigMaster().correct(request);
     URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId(), null);
-    return Response.created(uri).entity(result).build();
+    return responseCreatedFudge(uri, result);
   }
 
   //-------------------------------------------------------------------------

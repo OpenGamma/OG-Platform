@@ -8,17 +8,17 @@ package com.opengamma.financial.view.rest;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
 import com.opengamma.engine.view.ViewProcess;
-import com.opengamma.financial.livedata.rest.LiveDataInjectorResource;
+import com.opengamma.financial.livedata.rest.DataLiveDataInjectorResource;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for a {@link ViewProcess}.
  */
-public class DataViewProcessResource {
+public class DataViewProcessResource extends AbstractDataResource {
 
   private final ViewProcess _viewProcess;
   
@@ -44,30 +44,30 @@ public class DataViewProcessResource {
   @GET
   @Path(PATH_UNIQUE_ID)
   public Response getUniqueId() {
-    return Response.ok(_viewProcess.getUniqueId()).build();
+    return responseOkFudge(_viewProcess.getUniqueId());
   }
   
   @GET
   @Path(PATH_DEFINITION_ID)
   public Response getDefinitionName() {
-    return Response.ok(_viewProcess.getDefinitionId()).type(MediaType.TEXT_PLAIN).build();
+    return responseOk(_viewProcess.getDefinitionId());
   }
   
   @GET
   @Path(PATH_DEFINITION)
   public Response getLatestViewDefinition() {
-    return Response.ok(_viewProcess.getLatestViewDefinition()).build();
+    return responseOkFudge(_viewProcess.getLatestViewDefinition());
   }
   
   @GET
   @Path(PATH_STATE)
   public Response getState() {
-    return Response.ok(_viewProcess.getState()).build();
+    return responseOkFudge(_viewProcess.getState());
   }
   
   @Path(PATH_LIVE_DATA_OVERRIDE_INJECTOR)
-  public LiveDataInjectorResource getLiveDataOverrideInjector() {
-    return new LiveDataInjectorResource(_viewProcess.getLiveDataOverrideInjector());
+  public DataLiveDataInjectorResource getLiveDataOverrideInjector() {
+    return new DataLiveDataInjectorResource(_viewProcess.getLiveDataOverrideInjector());
   }
   
   @DELETE

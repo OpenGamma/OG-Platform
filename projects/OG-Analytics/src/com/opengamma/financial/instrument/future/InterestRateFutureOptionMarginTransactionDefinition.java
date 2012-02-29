@@ -91,6 +91,9 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
   }
 
   @Override
+  /**
+   * The lastMarginPrice is the last closing price used for margining. It is usually the official closing price of the previous business day.
+   */
   public InterestRateFutureOptionMarginTransaction toDerivative(ZonedDateTime date, Double lastMarginPrice, String... yieldCurveNames) {
     Validate.notNull(date, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");

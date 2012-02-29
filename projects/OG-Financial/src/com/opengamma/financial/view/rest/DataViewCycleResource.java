@@ -39,25 +39,25 @@ public class DataViewCycleResource extends AbstractDataResource {
   @GET
   @Path(PATH_UNIQUE_ID)
   public Response getUniqueId() {
-    return Response.ok(_cycle.getUniqueId()).build();
+    return responseOkFudge(_cycle.getUniqueId());
   }
 
   @GET
   @Path(PATH_VIEW_PROCESS_ID)
   public Response getViewProcessId() {
-    return Response.ok(_cycle.getViewProcessId()).build();
+    return responseOkFudge(_cycle.getViewProcessId());
   }
 
   @GET
   @Path(PATH_STATE)
   public Response getState() {
-    return Response.ok(_cycle.getState()).build();
+    return responseOkFudge(_cycle.getState());
   }
 
   @GET
   @Path(PATH_DURATION)
   public Response getDuration() {
-    return Response.ok(_cycle.getDuration()).build();
+    return responseOkFudge(_cycle.getDuration());
   }
 
   @Path(PATH_COMPILED_VIEW_DEFINITION)
@@ -68,14 +68,14 @@ public class DataViewCycleResource extends AbstractDataResource {
   @GET
   @Path(PATH_RESULT)
   public Response getResult() {
-    return Response.ok(_cycle.getResultModel()).build();
+    return responseOkFudge(_cycle.getResultModel());
   }
 
   @POST
   @Path(PATH_QUERY_CACHES)
   public Response queryComputationCaches(ComputationCacheQuery query) {
     ComputationCacheResponse result = _cycle.queryComputationCaches(query);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
 }

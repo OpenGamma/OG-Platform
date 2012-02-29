@@ -44,6 +44,10 @@ public class FRAParser extends RowParser {
     super(toolContext);
   }
 
+  public String[] getColumns() {
+    return new String[] {CURRENCY, REGION, START_DATE, END_DATE, RATE, AMOUNT, BBG_ID };
+  }
+
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> fraDetails) {
     Currency ccy = Currency.of(getWithException(fraDetails, CURRENCY));
