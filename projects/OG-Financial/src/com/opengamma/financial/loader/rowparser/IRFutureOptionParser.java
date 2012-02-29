@@ -49,6 +49,10 @@ public class IRFutureOptionParser extends RowParser {
     super(toolContext);
   }
  
+  public String[] getColumns() {
+    return new String[] {EXCHANGE, EXPIRY, UNDERLYING_ID, POINT_VALUE, CURRENCY, STRIKE, IS_CALL };
+  }
+
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> irFutureOptionDetails) {
     final Currency currency = Currency.of(getWithException(irFutureOptionDetails, CURRENCY));
