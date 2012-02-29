@@ -5,8 +5,7 @@
  */
 package com.opengamma.financial.loader.portfolio;
 
-import java.util.Map;
-
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ObjectId;
@@ -19,9 +18,9 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
-import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityMaster;
 
 /**
@@ -66,9 +65,17 @@ public class MasterPortfolioReader implements PortfolioReader {
     for (ObjectId positionId : node.getPositionIds()) {
       ManageablePosition position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
       
-      // get securities here?
+      // Write the related security(ies)
+      ManageableSecurityLink sLink = position.getSecurityLink();
+      Security security = sLink.resolveQuiet(_securitySource);
+      if ((security != null) && (security instanceof ManageableSecurity)) {
+        portfolioWriter.writeSecurity((ManageableSecurity) security);
+      } else {
+        throw new OpenGammaRuntimeException("Could not resolve security relating to position " + position.getName());
+      }
       
-      portfolioWriter.writePosition(position);      
+      // write the current position (this will 'flush' the current row)
+      portfolioWriter.writePosition(position);
     }
     
     // Recursively traverse the child nodes
@@ -78,13 +85,13 @@ public class MasterPortfolioReader implements PortfolioReader {
       ManageablePortfolioNode writeNode = portfolioWriter.getCurrentNode();
       ManageablePortfolioNode newNode = null;
       for (ManageablePortfolioNode n : writeNode.getChildNodes()) {
-        if (n.getName() == node.getName()) {
+        if (n.getName().equals(child.getName())) {
           newNode = n;
           break;
         }
       }
       if (newNode == null) {
-        newNode = new ManageablePortfolioNode(node.getName());
+        newNode = new ManageablePortfolioNode(child.getName());
         writeNode.addChildNode(newNode);
       }
       portfolioWriter.setCurrentNode(newNode);
@@ -108,7 +115,7 @@ public class MasterPortfolioReader implements PortfolioReader {
 
     if (portfolio == null || portfolioDoc == null) {
       _currentNode = null;
-      return null;
+      throw new OpenGammaRuntimeException("Could not open existing portfolio named " + portfolioName);
     }
 
     // Set current node to the root node

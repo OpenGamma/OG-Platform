@@ -5,13 +5,16 @@
  */
 package com.opengamma.financial.loader.rowparser;
 
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
 
+import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -66,6 +69,13 @@ public class SwapParser extends RowParser {
   
   public SwapParser(ToolContext toolContext) {
     super(toolContext);
+  }
+
+  public String[] getColumns() {
+    return new String[] {TRADE_DATE, EFFECTIVE_DATE, TERMINATION_DATE, PAY_FIXED, 
+      FIXED_LEG_CURRENCY, FIXED_LEG_NOTIONAL, FIXED_LEG_DAYCOUNT, FIXED_LEG_BUS_DAY_CONVENTION, FIXED_LEG_FREQUENCY, FIXED_LEG_REGION, FIXED_LEG_RATE,
+      FLOATING_LEG_CURRENCY, FLOATING_LEG_NOTIONAL, FLOATING_LEG_DAYCOUNT, FLOATING_LEG_BUS_DAY_CONVENTION, FLOATING_LEG_FREQUENCY,
+      FLOATING_LEG_REGION, FLOATING_LEG_RATE, FLOATING_LEG_REFERENCE};
   }
 
   @Override
@@ -135,6 +145,60 @@ public class SwapParser extends RowParser {
     ManageableSecurity[] result = {swap};
     return result;
   }
+  
+  @Override
+  public Map<String, String> constructRow(ManageableSecurity security) {
+    Map<String, String> result = new HashMap<String, String>();
+    SwapSecurity swap = (SwapSecurity) security;
 
-  // TODO implement constructRow for portfolio export
+    // Populate common fields
+    result.put(TRADE_DATE, swap.getTradeDate().toString(CSV_DATE_FORMATTER));
+    result.put(EFFECTIVE_DATE, swap.getEffectiveDate().toString(CSV_DATE_FORMATTER));
+    result.put(TERMINATION_DATE, swap.getMaturityDate().toString(CSV_DATE_FORMATTER));
+    
+    // Populate floating fields
+    FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) 
+        (swap.getReceiveLeg() instanceof FloatingInterestRateLeg ? swap.getReceiveLeg() : swap.getPayLeg());
+    result.put(FLOATING_LEG_BUS_DAY_CONVENTION, floatingLeg.getBusinessDayConvention().getConventionName());
+    result.put(FLOATING_LEG_DAYCOUNT, floatingLeg.getDayCount().getConventionName());
+    result.put(FLOATING_LEG_FREQUENCY, floatingLeg.getFrequency().getConventionName());
+    result.put(FLOATING_LEG_REFERENCE, floatingLeg.getFloatingReferenceRateId().getValue());
+    if (floatingLeg.getInitialFloatingRate() != null) {
+      result.put(FLOATING_LEG_RATE, Double.toString(floatingLeg.getInitialFloatingRate()));
+    }
+    if (floatingLeg.getNotional() instanceof InterestRateNotional) {
+      InterestRateNotional notional = (InterestRateNotional) floatingLeg.getNotional();
+      result.put(FLOATING_LEG_CURRENCY, notional.getCurrency().getCode());
+      result.put(FLOATING_LEG_NOTIONAL, Double.toString(notional.getAmount()));
+    }
+    Set<Region> regions = RegionUtils.getRegions(getToolContext().getRegionSource(), floatingLeg.getRegionId());
+    if (!regions.isEmpty()) {
+      Region region = regions.iterator().next();
+      if (region != null) {
+        result.put(FLOATING_LEG_REGION, region.getFullName());
+      }
+    }
+    
+    // Populate fixed fields
+    FixedInterestRateLeg fixedLeg = (FixedInterestRateLeg) 
+        (swap.getReceiveLeg() instanceof FixedInterestRateLeg ? swap.getReceiveLeg() : swap.getPayLeg());
+    result.put(FIXED_LEG_BUS_DAY_CONVENTION, fixedLeg.getBusinessDayConvention().getConventionName());
+    result.put(FIXED_LEG_DAYCOUNT, fixedLeg.getDayCount().getConventionName());
+    result.put(FIXED_LEG_FREQUENCY, fixedLeg.getFrequency().getConventionName());
+    result.put(FIXED_LEG_RATE, Double.toString(fixedLeg.getRate()));
+    if (floatingLeg.getNotional() instanceof InterestRateNotional) {
+      InterestRateNotional notional = (InterestRateNotional) fixedLeg.getNotional();
+      result.put(FIXED_LEG_CURRENCY, notional.getCurrency().getCode());
+      result.put(FIXED_LEG_NOTIONAL, Double.toString(notional.getAmount()));
+    }
+    regions = RegionUtils.getRegions(getToolContext().getRegionSource(), fixedLeg.getRegionId());
+    if (!regions.isEmpty()) {
+      Region region = regions.iterator().next();
+      if (region != null) {
+        result.put(FIXED_LEG_REGION, region.getFullName());
+      }
+    }
+    
+    return result;
+  }
 }

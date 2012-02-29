@@ -59,4 +59,9 @@ public class DummyPortfolioWriter implements PortfolioWriter {
     s_logger.info("Flushed writer");
   }
 
+  @Override
+  public void close() {
+    s_logger.info("Closed writer");
+  }
+  
 }

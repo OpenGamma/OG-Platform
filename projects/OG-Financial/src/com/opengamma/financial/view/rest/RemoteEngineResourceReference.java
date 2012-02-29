@@ -79,7 +79,7 @@ public abstract class RemoteEngineResourceReference<T extends UniqueIdentifiable
     @Override
     public void run() {
       try {
-        _client.access(_baseUri).post();
+        _client.accessFudge(_baseUri).post();
       } catch (Exception e) {
         s_logger.warn("Failed to heartbeat view cycle reference", e);
       }

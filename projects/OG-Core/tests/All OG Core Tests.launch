@@ -17,7 +17,6 @@
 <listEntry value="com.opengamma.core.config.impl"/>
 <listEntry value="com.opengamma.core.exchange"/>
 <listEntry value="com.opengamma.core.exchange.impl"/>
-<listEntry value="com.opengamma.core.fudgemsg"/>
 <listEntry value="com.opengamma.core.historicaltimeseries"/>
 <listEntry value="com.opengamma.core.historicaltimeseries.impl"/>
 <listEntry value="com.opengamma.core.holiday"/>

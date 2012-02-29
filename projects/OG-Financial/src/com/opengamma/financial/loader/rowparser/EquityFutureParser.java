@@ -57,6 +57,11 @@ public class EquityFutureParser extends RowParser {
     super(toolContext);
   }
 
+  public String[] getColumns() {
+    return new String[] {EXPIRY, SETTLEMENT_DATE, TRADING_EXCHANGE, SETTLEMENT_EXCHANGE, CURRENCY, UNIT_AMOUNT,
+                         UNDERLYING_ID, NAME, BBG_CODE, NUMBER_OF_CONTRACTS, TRADE_DATE, REFERENCE_PRICE};
+  }
+
  /**
    * Creates a Trade from a security, a position and details provided from file
    * @param eqFutureDetails The parsed values of the input file
