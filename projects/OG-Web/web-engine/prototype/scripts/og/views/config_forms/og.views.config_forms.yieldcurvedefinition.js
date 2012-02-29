@@ -55,14 +55,12 @@ $.register_module({
                         form: form, classes: 'og-convention og-js-conv', value: row[CONV],
                         index: ['strip', idx, CONV].join('.'), placeholder: 'Please select...',
                         data_generator: function (handler) {
-                            api.configs.get({
-                                page: '*', name: '*_' + currency, type: CURV, cache_for: 30 * 1000,
-                                handler: function (result) {
-                                    handler(result.data.data.map(function (val) {
-                                        var value = val.split('|')[1].match(/^([^_]+)/)[1];
-                                        return {value: value, text: value};
-                                    }));
-                                }
+                            var rest_options = {page: '*', name: '*_' + currency, type: CURV, cache_for: 30 * 1000};
+                            api.configs.get(rest_options).pipe(function (result) {
+                                handler(result.data.data.map(function (val) {
+                                    var value = val.split('|')[1].match(/^([^_]+)/)[1];
+                                    return {value: value, text: value};
+                                }));
                             });
                         }
                     });
@@ -151,7 +149,7 @@ $.register_module({
                 new form.Field({
                     module: 'og.views.forms.currency',
                     generator: function (handler, template) {handler(template);}, // item_0
-                    handlers: [{type: 'change', selector: 'select[name=currency]', handler: function (e) {
+                    handlers: [{type: 'change', selector: form_id + ' select[name=currency]', handler: function (e) {
                         // this needs to happen immediately in case a user adds new rows,
                         // it's not enough that it just happens on submit
                         master.currency = $(e.target).val();
@@ -164,17 +162,13 @@ $.register_module({
                         data.region = master.region.split(sep)[0] + sep + $(selector).val();
                     },
                     data_generator: function (handler) {
-                        api.regions.get({
-                            page: '*',
-                            handler: function (result) {
-                                handler(result.data.data.map(function (region) {
-                                    var split = region.split('|');
-                                    if (!split[3]) return null;
-                                    return {value: split[3], text: split[3] + ' - ' + split[1]}
-                                }).filter(Boolean).sort(function (a, b) { // alphabetize
-                                    return a.text < b.text ? -1 : a === b ? 0 : 1;
-                                }));
-                            }
+                        api.regions.get({page: '*'}).pipe(function (result) {
+                            handler(result.data.data.map(function (region) {
+                                var split = region.split('|');
+                                return !split[3] ? null : {value: split[3], text: split[3] + ' - ' + split[1]}
+                            }).filter(Boolean).sort(function (a, b) { // alphabetize
+                                return a.text < b.text ? -1 : a === b ? 0 : 1;
+                            }));
                         });
                     }
                 }),

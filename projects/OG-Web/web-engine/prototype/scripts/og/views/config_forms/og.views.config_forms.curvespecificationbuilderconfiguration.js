@@ -135,9 +135,9 @@ $.register_module({
                     $(form_id + ' .og-js-cell').removeClass('og-active');
                     if (data_type) ({
                         'static': function () {
-                            var result = {type: 'Static'};
-                            result[INST] = $popup.find('.og-js-scheme').val() + '~' +
-                                $popup.find('.og-js-identifier').val();
+                            var result = {type: 'Static'}, scheme = $popup.find('.og-js-scheme').val();
+                            if (scheme === 'other') scheme = $popup.find('.og-js-scheme-other').val();
+                            result[INST] = scheme + '~' + $popup.find('.og-js-identifier').val();
                             $cell.replaceWith(format(result));
                         },
                         'future': function () {
@@ -176,6 +176,12 @@ $.register_module({
                                     $popup.find('.og-js-' + type)[data_type === type ? 'show' : 'hide']();
                                 });
                             }},
+                            {type: 'change', selector: form_id + ' .og-js-scheme', handler: function (e) {
+                                var $popup = $(form_id + ' .og-js-popup'), $other = $popup.find('.og-js-scheme-other'),
+                                    scheme = $(e.target).val().toLowerCase();
+                                if (scheme !== 'other') return $other.val('').attr('disabled', 'disabled');
+                                $other.removeAttr('disabled');
+                            }},
                             {type: 'form:load', handler: function () {
                                 var $popup = $(form_id + ' .og-js-popup'),
                                     last_offset = $row.find('.og-js-cell').index($cell) === 7 ?
@@ -192,7 +198,10 @@ $.register_module({
                                     'static': function () {
                                         if (!data.instrument) return;
                                         var scheme_id = data[INST].split('~');
-                                        $popup.find('.og-js-scheme').val(scheme_id[0]);
+                                        if (!$popup.find('.og-js-scheme').val(scheme_id[0]).val()) {
+                                            $popup.find('.og-js-scheme').val('other');
+                                            $popup.find('.og-js-scheme-other').removeAttr('disabled').val(scheme_id[0]);
+                                        };
                                         $popup.find('.og-js-identifier').val(scheme_id[1]).focus().select();
                                     },
                                     'future': function () {
