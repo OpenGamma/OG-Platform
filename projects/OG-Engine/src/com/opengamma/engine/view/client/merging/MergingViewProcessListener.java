@@ -7,12 +7,17 @@ package com.opengamma.engine.view.client.merging;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.time.Instant;
 
 import com.google.common.base.Function;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
@@ -22,6 +27,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.CycleCompletedCall;
 import com.opengamma.engine.view.listener.CycleExecutionFailedCall;
 import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
+import com.opengamma.engine.view.listener.CycleInitiatedCall;
 import com.opengamma.engine.view.listener.ProcessCompletedCall;
 import com.opengamma.engine.view.listener.ProcessTerminatedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
@@ -128,7 +134,22 @@ public class MergingViewProcessListener implements ViewResultListener {
   public UserPrincipal getUser() {
     return getUnderlying().getUser();
   }
-  
+
+
+  @Override
+  public void cycleInitiated(CycleInfo cycleInfo) {
+    _mergerLock.lock();
+    try {
+      if (isPassThrough()) {
+        getUnderlying().cycleInitiated(cycleInfo);
+      } else {
+        _callQueue.add(new CycleInitiatedCall(cycleInfo));
+      }
+    } finally {
+      _mergerLock.unlock();
+    }
+  }
+
   @Override
   public void viewDefinitionCompiled(CompiledViewDefinition compiledViewDefinition, boolean hasMarketDataPermissions) {
     _mergerLock.lock();

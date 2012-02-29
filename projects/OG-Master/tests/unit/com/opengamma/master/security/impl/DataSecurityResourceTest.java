@@ -75,9 +75,8 @@ public class DataSecurityResourceTest {
 
   @Test
   public void testDeleteSecurity() {
-    Response test = _resource.remove();
+    _resource.remove();
     verify(_underlying).remove(OID.atLatestVersion());
-    assertEquals(Status.NO_CONTENT.getStatusCode(), test.getStatus());
   }
 
 }

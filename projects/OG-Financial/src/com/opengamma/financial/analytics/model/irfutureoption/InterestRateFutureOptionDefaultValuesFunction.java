@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -23,6 +23,7 @@ import com.opengamma.financial.security.option.IRFutureOptionSecurity;
  * Dummy function for injecting default curve names into the dependency graph.
  */
 public class InterestRateFutureOptionDefaultValuesFunction extends DefaultPropertyFunction {
+  
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY,

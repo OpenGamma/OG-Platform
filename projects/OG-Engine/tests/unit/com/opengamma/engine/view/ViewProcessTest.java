@@ -17,6 +17,7 @@ import javax.time.InstantProvider;
 
 import com.opengamma.engine.view.client.ViewResultMode;
 import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
+import com.opengamma.engine.view.listener.CycleInitiatedCall;
 import org.testng.annotations.Test;
 
 import com.opengamma.engine.marketdata.spec.MarketData;
@@ -191,10 +192,12 @@ public class ViewProcessTest {
 
     CompiledViewDefinitionWithGraphsImpl compilationModel1 = (CompiledViewDefinitionWithGraphsImpl) resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
 
+    resultListener.expectNextCall(CycleInitiatedCall.class, 10 * Timeout.standardTimeoutMillis());
     resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
     assertEquals(time0, resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
 
     computationJob.marketDataChanged();
+    resultListener.expectNextCall(CycleInitiatedCall.class, 10 * Timeout.standardTimeoutMillis());
     resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
     resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
     assertEquals(time0.plusMillis(10), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
@@ -212,6 +215,7 @@ public class ViewProcessTest {
 
     // Running at time0 + 20 doesn't require a rebuild - should still use our dummy
     computationJob.marketDataChanged();
+    resultListener.expectNextCall(CycleInitiatedCall.class, 10 * Timeout.standardTimeoutMillis());
     resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
     resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
     assertEquals(time0.plusMillis(20), resultListener.getCycleCompleted(10 * Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
@@ -222,6 +226,7 @@ public class ViewProcessTest {
     CompiledViewDefinition compilationModel2 = resultListener.getViewDefinitionCompiled(Timeout.standardTimeoutMillis()).getCompiledViewDefinition();
     assertNotSame(compilationModel1, compilationModel2);
     assertNotSame(compiledViewDefinition, compilationModel2);
+    resultListener.expectNextCall(CycleInitiatedCall.class, 10 * Timeout.standardTimeoutMillis());
     resultListener.expectNextCall(CycleFragmentCompletedCall.class, 10 * Timeout.standardTimeoutMillis());
     assertEquals(time0.plusMillis(30), resultListener.getCycleCompleted(Timeout.standardTimeoutMillis()).getFullResult().getValuationTime());
     resultListener.assertProcessCompleted(Timeout.standardTimeoutMillis());

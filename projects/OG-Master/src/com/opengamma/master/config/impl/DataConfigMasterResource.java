@@ -67,14 +67,14 @@ public class DataConfigMasterResource extends AbstractDataResource {
   public Response metaData(@Context UriInfo uriInfo) {
     ConfigMetaDataRequest request = RestUtils.decodeQueryParams(uriInfo, ConfigMetaDataRequest.class);
     ConfigMetaDataResult result = getConfigMaster().metaData(request);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @HEAD
   @Path("configs")
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
-    return Response.ok().build();
+    return responseOk();
   }
 
   @SuppressWarnings({"rawtypes", "unchecked" })  // necessary to stop Jersey issuing warnings due to <?>
@@ -82,7 +82,7 @@ public class DataConfigMasterResource extends AbstractDataResource {
   @Path("configSearches")
   public Response search(ConfigSearchRequest request) {
     ConfigSearchResult<?> result = getConfigMaster().search(request);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @SuppressWarnings({"rawtypes", "unchecked" })  // necessary to stop Jersey issuing warnings due to <?>
@@ -91,7 +91,7 @@ public class DataConfigMasterResource extends AbstractDataResource {
   public Response add(@Context UriInfo uriInfo, ConfigDocument request) {
     ConfigDocument<?> result = getConfigMaster().add(request);
     URI createdUri = DataConfigResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId(), result.getType());
-    return Response.created(createdUri).entity(result).build();
+    return responseCreatedFudge(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

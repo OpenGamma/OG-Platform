@@ -6,24 +6,23 @@
 package com.opengamma.financial.view.rest;
 
 import java.net.URI;
-import java.util.Map;
-import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.engine.view.ViewDefinitionRepository;
-import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for {@link ViewDefinitionRepository}
  */
-public class DataViewDefinitionRepositoryResource {
+public class DataViewDefinitionRepositoryResource extends AbstractDataResource {
   
   private final ViewDefinitionRepository _repository;
   
@@ -41,14 +40,14 @@ public class DataViewDefinitionRepositoryResource {
   
   //-------------------------------------------------------------------------
   @GET
-  public Map<UniqueId, String> getDefinitionEntries() {
-    return _repository.getDefinitionEntries();
+  public Response getDefinitionEntries() {
+    return responseOkFudge(_repository.getDefinitionEntries());
   }
   
   @GET
   @Path(PATH_VIEWDEFINITION_GETIDS)
-  public Set<ObjectId> getDefinitionIds() {
-    return _repository.getDefinitionIds();
+  public Response getDefinitionIds() {
+    return responseOkFudge(_repository.getDefinitionIds());
   }
   
   @Path(PATH_VIEWDEFINITION_NAME + "/{viewDefinitionName}")

@@ -215,7 +215,7 @@
     <property name="configuration" ref="defaultConfiguration" />
   </bean>
   
-  <!-- Market data snapshot -->
+  <!-- Market data values -->
   <bean id="snapshotLoader" class="com.opengamma.language.snapshot.Loader">
     <property name="globalContextFactory" ref="globalContextFactory" />
     <property name="configuration" ref="defaultConfiguration" />

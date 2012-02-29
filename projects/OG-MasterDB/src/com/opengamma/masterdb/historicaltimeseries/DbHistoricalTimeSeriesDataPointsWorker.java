@@ -19,6 +19,7 @@ import javax.time.Duration;
 import javax.time.Instant;
 import javax.time.calendar.LocalDate;
 
+import com.opengamma.util.tuple.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataAccessException;
@@ -98,7 +99,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
    * 
    * @return the external SQL bundle, not null
    */
-  protected ExtSqlBundle getExtSqlBundle() {
+  public ExtSqlBundle getExtSqlBundle() {
     return getMaster().getExtSqlBundle();
   }
 
@@ -171,32 +172,21 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(series, "series");
     s_logger.debug("add time-series data points to {}", objectId);
-    
-    // retry to handle concurrent conflicts
-    for (int retry = 0; true; retry++) {
-      final UniqueId uniqueId = resolveObjectId(objectId, VersionCorrection.LATEST);
-      if (series.isEmpty()) {
-        return uniqueId;
-      }
-      try {
-        final Instant now = now();
-        UniqueId resultId = getTransactionTemplate().execute(new TransactionCallback<UniqueId>() {
-          @Override
-          public UniqueId doInTransaction(final TransactionStatus status) {
-            insertDataPointsCheckMaxDate(uniqueId, series);
-            return insertDataPoints(uniqueId, series, now);
-          }
-        });
-        getMaster().changeManager().entityChanged(ChangeType.UPDATED, uniqueId, resultId, now);
-        return resultId;
-      } catch (DataIntegrityViolationException ex) {
-        if (retry == getMaster().getMaxRetries()) {
-          throw ex;
-        }
-      } catch (DataAccessException ex) {
-        throw fixSQLExceptionCause(ex);
-      }
+
+    final UniqueId uniqueId = resolveObjectId(objectId, VersionCorrection.LATEST);
+    if (series.isEmpty()) {
+      return uniqueId;
     }
+    Pair<UniqueId, Instant> result = getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Pair<UniqueId, Instant>>() {
+      @Override
+      public Pair<UniqueId, Instant> doInTransaction(final TransactionStatus status) {
+        final Instant now = now();
+        insertDataPointsCheckMaxDate(uniqueId, series);
+            return Pair.of(insertDataPoints(uniqueId, series, now), now);
+      }
+    });
+    getMaster().changeManager().entityChanged(ChangeType.UPDATED, uniqueId, result.getFirst(), result.getSecond());
+    return result.getFirst();
   }
 
   /**
@@ -260,31 +250,19 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
     ArgumentChecker.notNull(objectId, "objectId");
     ArgumentChecker.notNull(series, "series");
     s_logger.debug("add time-series data points to {}", objectId);
-    
-    // retry to handle concurrent conflicts
-    for (int retry = 0; true; retry++) {
-      final UniqueId uniqueId = resolveObjectId(objectId, VersionCorrection.LATEST);
-      if (series.isEmpty()) {
-        return uniqueId;
-      }
-      try {
-        final Instant now = now();
-        UniqueId resultId = getTransactionTemplate().execute(new TransactionCallback<UniqueId>() {
-          @Override
-          public UniqueId doInTransaction(final TransactionStatus status) {
-            return correctDataPoints(uniqueId, series, now);
-          }
-        });
-        getMaster().changeManager().entityChanged(ChangeType.CORRECTED, uniqueId, resultId, now);
-        return resultId;
-      } catch (DataIntegrityViolationException ex) {
-        if (retry == getMaster().getMaxRetries()) {
-          throw ex;
-        }
-      } catch (DataAccessException ex) {
-        throw fixSQLExceptionCause(ex);
-      }
+    final UniqueId uniqueId = resolveObjectId(objectId, VersionCorrection.LATEST);
+    if (series.isEmpty()) {
+      return uniqueId;
     }
+    Pair<UniqueId, Instant> result = getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Pair<UniqueId, Instant>>() {
+      @Override
+      public Pair<UniqueId, Instant> doInTransaction(final TransactionStatus status) {
+        final Instant now = now();
+        return Pair.of(correctDataPoints(uniqueId, series, now), now);
+      }
+    });
+    getMaster().changeManager().entityChanged(ChangeType.CORRECTED, uniqueId, result.getFirst(), result.getSecond());
+    return result.getFirst();
   }
 
   /**
@@ -324,28 +302,17 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       ArgumentChecker.inOrderOrEqual(fromDateInclusive, toDateInclusive, "fromDateInclusive", "toDateInclusive");
     }
     s_logger.debug("removing time-series data points from {}", objectId);
-    
-    // retry to handle concurrent conflicts
-    for (int retry = 0; true; retry++) {
-      final UniqueId uniqueId = resolveObjectId(objectId, VersionCorrection.LATEST);
-      try {
+
+    final UniqueId uniqueId = resolveObjectId(objectId, VersionCorrection.LATEST);
+    Pair<UniqueId, Instant> result = getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Pair<UniqueId, Instant>>() {
+      @Override
+      public Pair<UniqueId, Instant> doInTransaction(final TransactionStatus status) {
         final Instant now = now();
-        UniqueId resultId = getTransactionTemplate().execute(new TransactionCallback<UniqueId>() {
-          @Override
-          public UniqueId doInTransaction(final TransactionStatus status) {
-            return removeDataPoints(uniqueId, fromDateInclusive, toDateInclusive, now);
-          }
-        });
-        getMaster().changeManager().entityChanged(ChangeType.UPDATED, uniqueId, resultId, now);
-        return resultId;
-      } catch (DataIntegrityViolationException ex) {
-        if (retry == getMaster().getMaxRetries()) {
-          throw ex;
-        }
-      } catch (DataAccessException ex) {
-        throw fixSQLExceptionCause(ex);
+        return Pair.of(removeDataPoints(uniqueId, fromDateInclusive, toDateInclusive, now), now);
       }
-    }
+    });
+    getMaster().changeManager().entityChanged(ChangeType.UPDATED, uniqueId, result.getFirst(), result.getSecond());
+    return result.getFirst();
   }
 
   /**

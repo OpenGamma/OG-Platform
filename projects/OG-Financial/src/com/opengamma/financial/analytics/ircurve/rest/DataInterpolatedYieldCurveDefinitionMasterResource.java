@@ -59,8 +59,8 @@ public class DataInterpolatedYieldCurveDefinitionMasterResource extends Abstract
   @HEAD
   @Path("definitions")
   public Response status() {
-    // simple HEAD to quickly return, avoiding loading the whole database
-    return Response.ok().build();
+    // simple GET to quickly return as a ping
+    return responseOk();
   }
 
   @POST
@@ -68,7 +68,7 @@ public class DataInterpolatedYieldCurveDefinitionMasterResource extends Abstract
   public Response add(@Context UriInfo uriInfo, YieldCurveDefinitionDocument document) {
     YieldCurveDefinitionDocument result = getInterpolatedYieldCurveDefinitionMaster().add(document);
     URI createdUri = DataInterpolatedYieldCurveDefinitionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return Response.created(createdUri).entity(result).build();
+    return responseCreatedFudge(createdUri, result);
   }
 
   @POST
@@ -76,7 +76,7 @@ public class DataInterpolatedYieldCurveDefinitionMasterResource extends Abstract
   public Response addOrUpdate(@Context UriInfo uriInfo, YieldCurveDefinitionDocument document) {
     YieldCurveDefinitionDocument result = getInterpolatedYieldCurveDefinitionMaster().addOrUpdate(document);
     URI createdUri = DataInterpolatedYieldCurveDefinitionResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return Response.created(createdUri).entity(result).build();
+    return responseCreatedFudge(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

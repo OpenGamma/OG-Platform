@@ -15,6 +15,7 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.MatrixAlgebra;
 import com.opengamma.math.matrix.OGMatrixAlgebra;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * 
@@ -259,34 +260,97 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
     return res;
   }
 
-  //TODO there is no guard against model parameter going outside allowed range
-  @SuppressWarnings("unchecked")
   private double[] paramBar(Function1D<T, Double> func, T data) {
     final int n = data.getNumberOfparameters();
     double[] res = new double[n];
     for (int i = 0; i < n; i++) {
-      T dUp = (T) data.with(i, data.getParameter(i) + EPS);
-      T dDown = (T) data.with(i, data.getParameter(i) - EPS);
-      res[i] = (func.evaluate(dUp) - func.evaluate(dDown)) / 2 / EPS;
+      res[i] = paramBar(func, data, i);
     }
     return res;
   }
 
+  /**
+   * Get the model's sensitivity to its parameters by finite-difference, taking care on the boundary of allowed regions
+   * @param func Function that gives the volatility for a set of model parameters
+   * @param data Model parameters
+   * @param index the index of the model parameter
+   * @return The first derivative of the volatility WRT the parameter given by index
+   */
   @SuppressWarnings("unchecked")
+  private double paramBar(final Function1D<T, Double> func, final T data, final int index) {
+    final double mid = data.getParameter(index);
+    final double up = mid + EPS;
+    final double down = mid - EPS;
+    if (data.isAllowed(index, down)) {
+      if (data.isAllowed(index, up)) {
+        T dUp = (T) data.with(index, up);
+        T dDown = (T) data.with(index, down);
+        return (func.evaluate(dUp) - func.evaluate(dDown)) / 2 / EPS;
+      } else {
+        T dDown = (T) data.with(index, down);
+        return (func.evaluate(data) - func.evaluate(dDown)) / EPS;
+      }
+    } else {
+      ArgumentChecker.isTrue(data.isAllowed(index, up), "No values and index {} = {} are allowed", index, mid);
+      T dUp = (T) data.with(index, up);
+      return (func.evaluate(dUp) - func.evaluate(data)) / EPS;
+    }
+  }
+
   private double[][] paramBarSet(Function1D<T, double[]> func, T data) {
     final int n = data.getNumberOfparameters();
     double[][] res = new double[n][];
     for (int i = 0; i < n; i++) {
-      T dUp = (T) data.with(i, data.getParameter(i) + EPS);
-      T dDown = (T) data.with(i, data.getParameter(i) - EPS);
-      double[] up = func.evaluate(dUp);
-      double[] down = func.evaluate(dDown);
-      final int m = up.length;
-      res[i] = new double[m];
-      for (int j = 0; j < m; j++) {
-        res[i][j] = (up[j] - down[j]) / 2 / EPS;
-      }
+      res[i] = paramBarSet(func, data, i);
     }
     return res;
   }
+
+  /**
+   * Get the model's sensitivity to its parameters by finite-difference, taking care on the boundary of allowed regions
+   * @param func Function that gives the volatility for a set of model parameters
+   * @param data Model parameters
+   * @param index the index of the model parameter
+   * @return The first derivative of the volatility WRT the parameter given by index
+   */
+  @SuppressWarnings("unchecked")
+  private double[] paramBarSet(final Function1D<T, double[]> func, final T data, final int index) {
+    final double mid = data.getParameter(index);
+    final double up = mid + EPS;
+    final double down = mid - EPS;
+    if (data.isAllowed(index, down)) {
+      if (data.isAllowed(index, up)) {
+        T dUp = (T) data.with(index, up);
+        T dDown = (T) data.with(index, down);
+        double[] rUp = func.evaluate(dUp);
+        double[] rDown = func.evaluate(dDown);
+        final int m = rUp.length;
+        double[] res = new double[m];
+        for (int i = 0; i < m; i++) {
+          res[i] = (rUp[i] - rDown[i]) / 2 / EPS;
+        }
+        return res;
+      } else {
+        double[] rMid = func.evaluate(data);
+        double[] rDown = func.evaluate((T) data.with(index, down));
+        final int m = rMid.length;
+        double[] res = new double[m];
+        for (int i = 0; i < m; i++) {
+          res[i] = (rMid[i] - rDown[i]) / 2 / EPS;
+        }
+        return res;
+      }
+    } else {
+      ArgumentChecker.isTrue(data.isAllowed(index, up), "No values and index {} = {} are allowed", index, mid);
+      double[] rMid = func.evaluate(data);
+      double[] rUp = func.evaluate((T) data.with(index, up));
+      final int m = rMid.length;
+      double[] res = new double[m];
+      for (int i = 0; i < m; i++) {
+        res[i] = (rUp[i] - rMid[i]) / 2 / EPS;
+      }
+      return res;
+    }
+  }
+
 }

@@ -397,6 +397,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
       s_logger.info("Initializing view '{}', aggregated by '{}' with execution options '{}' for client '{}'", new Object[] {baseViewDefinitionId, aggregatorName, executionOptions, remote});
       initializeClientView(remote, baseViewDefinitionId, aggregatorName, executionOptions, getUser(remote));
     } catch (Exception e) {
+      s_logger.error("Exception propagated to client while changing view", e);
       sendChangeViewError(remote, "Unexpected error with message: " + e.getMessage());
     }
   }

@@ -125,6 +125,11 @@ public class ForexVisitors {
       throw new UnsupportedOperationException();
     }
 
+    //    @Override
+    //    public Currency visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    //      throw new UnsupportedOperationException();
+    //    }
+
     @Override
     public Currency visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
       throw new UnsupportedOperationException();
@@ -232,6 +237,11 @@ public class ForexVisitors {
     public Currency visitSwaptionSecurity(final SwaptionSecurity security) {
       throw new UnsupportedOperationException();
     }
+
+    //    @Override
+    //    public Currency visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    //      throw new UnsupportedOperationException();
+    //    }
 
     @Override
     public Currency visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
@@ -353,6 +363,11 @@ public class ForexVisitors {
     public ExternalId visitSwaptionSecurity(final SwaptionSecurity security) {
       throw new UnsupportedOperationException();
     }
+
+    //    @Override
+    //    public ExternalId visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    //      throw new UnsupportedOperationException();
+    //    }
 
     @Override
     public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
@@ -498,6 +513,11 @@ public class ForexVisitors {
     public ExternalId visitSwaptionSecurity(final SwaptionSecurity security) {
       throw new UnsupportedOperationException();
     }
+
+    //    @Override
+    //    public ExternalId visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
+    //      throw new UnsupportedOperationException();
+    //    }
 
     @Override
     public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {

@@ -54,9 +54,9 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInstr
       unitCoupons[i] = coupons.getNthPayment(i).withUnitCoupon();
     }
     final GenericAnnuity<CouponFixed> unitCouponAnnuity = new GenericAnnuity<CouponFixed>(unitCoupons);
-    return PVC.visit(unitCouponAnnuity, curves);    
+    return PVC.visit(unitCouponAnnuity, curves);
   }
-  
+
   @Override
   public Double visitCash(final Cash cash, final YieldCurveBundle curves) {
     final YieldAndDiscountCurve curve = curves.getCurve(cash.getYieldCurveName());
@@ -71,7 +71,7 @@ public final class PresentValueCouponSensitivityCalculator extends AbstractInstr
 
   @Override
   public Double visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    return future.getPaymentAccrualFactor();
+    return future.getPaymentAccrualFactor() * future.getQuantity();
   }
 
   @Override

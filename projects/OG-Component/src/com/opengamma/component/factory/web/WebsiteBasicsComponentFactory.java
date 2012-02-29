@@ -24,7 +24,7 @@ import com.opengamma.component.JerseyRestResourceFactory;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.financial.batch.BatchMaster;
+import com.opengamma.batch.BatchMaster;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesLoader;
@@ -36,7 +36,6 @@ import com.opengamma.master.region.RegionMaster;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.web.WebHomeResource;
-import com.opengamma.web.batch.WebBatchesResource;
 import com.opengamma.web.config.WebConfigsResource;
 import com.opengamma.web.exchange.WebExchangesResource;
 import com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource;
@@ -164,8 +163,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
         getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesLoader());
     repo.getRestComponents().publishResource(hts);
     
-    JerseyRestResourceFactory bat = new JerseyRestResourceFactory(WebBatchesResource.class, getBatchMaster());
-    repo.getRestComponents().publishResource(bat);
   }
 
   protected void initValueRequirementNames(ComponentRepository repo) {

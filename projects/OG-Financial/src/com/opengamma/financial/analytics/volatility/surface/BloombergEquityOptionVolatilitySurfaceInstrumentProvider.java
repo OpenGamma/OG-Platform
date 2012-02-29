@@ -19,13 +19,11 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
 
 /**
- * Generates equity option Bloomberg ticker codes from ATM strike (set via ini
- * t()), tenor, double and date.
+ * Generates equity option Bloomberg ticker codes from ATM strike (set via init()), tenor, double and date).
  */
 public class BloombergEquityOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<LocalDate, Double> {
   private static final Logger s_logger = LoggerFactory.getLogger(BloombergEquityOptionVolatilitySurfaceInstrumentProvider.class);
   private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
-
   private final String _underlyingPrefix; //expecting something like DJX
   private final String _postfix; //expecting Index or Equity
   private final String _dataFieldName; //expecting MarketDataRequirementNames.MARKET_VALUE
@@ -41,8 +39,8 @@ public class BloombergEquityOptionVolatilitySurfaceInstrumentProvider implements
     _postfix = postfix;
     _dataFieldName = dataFieldName;
   }
-  
-  public void init(boolean generatePuts) {
+
+  public void init(final boolean generatePuts) {
     _generatePuts = generatePuts;
   }
 
@@ -76,7 +74,7 @@ public class BloombergEquityOptionVolatilitySurfaceInstrumentProvider implements
     final StringBuffer ticker = new StringBuffer();
     ticker.append(_underlyingPrefix);
     ticker.append(" ");
-    String formattedDate = s_dateFormatter.print(expiry);
+    final String formattedDate = s_dateFormatter.print(expiry);
     ticker.append(formattedDate);
     ticker.append(" ");
     // TODO: check this logic
@@ -106,7 +104,7 @@ public class BloombergEquityOptionVolatilitySurfaceInstrumentProvider implements
     }
     final BloombergEquityOptionVolatilitySurfaceInstrumentProvider other = (BloombergEquityOptionVolatilitySurfaceInstrumentProvider) obj;
     return getUnderlyingPrefix().equals(other.getUnderlyingPrefix()) &&
-           getPostfix().equals(other.getPostfix()) &&
-           getDataFieldName().equals(other.getDataFieldName());
+        getPostfix().equals(other.getPostfix()) &&
+        getDataFieldName().equals(other.getDataFieldName());
   }
 }
