@@ -45,16 +45,29 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   
   public ZippedPortfolioWriter(String filename) {
     
+    // Create zip file
     try {
       _zipFile = new ZipOutputStream(new FileOutputStream(filename));
     } catch (IOException ex) {
-      throw new OpenGammaRuntimeException("Could not create " + filename + " for writing");
+      throw new OpenGammaRuntimeException("Could not create zip archive " + filename + " for writing: " + ex.getMessage());
     }
 
   }
   
   @Override
   public ManageableSecurity writeSecurity(ManageableSecurity security) {
+    
+    // Identify the correct row parser
+    String className = security.getClass().toString();
+    className = className.substring(className.lastIndexOf('.') + 1).replace("Security", "");
+    PortfolioWriter writer = _writerMap.get(className);
+    
+//    if ((_currentParser = _writerMap.get(className)) != null) { //CSIGNORE
+//      _currentRow.putAll(_currentParser.constructRow(security)); // this should get relevant data from any underlyings too
+//    }
+
+    // create writer map entry if not there for this security type
+    
     return null;
   }
 
@@ -75,6 +88,11 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
 
   @Override
   public ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node) {
+    
+    // First, write the current set of CSVs to the zip file and clear the map of writers
+    
+    // Change to the new path in the zip file (might need to create)
+    
     _currentNode = node;
     return node;
   }
@@ -89,4 +107,16 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
     }
   }
 
+  @Override
+  public void close() {
+    
+    // write current set of CSVs to the zip file
+    
+    flush();
+    try {
+      _zipFile.close();
+    } catch (IOException ex) {
+      throw new OpenGammaRuntimeException("Could not close zip file");
+    }
+  }
 }

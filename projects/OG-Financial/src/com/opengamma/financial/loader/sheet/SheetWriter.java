@@ -36,6 +36,8 @@ public abstract class SheetWriter {
 
   public abstract void flush();
   
+  public abstract void close();
+  
   protected String[] getColumns() {
     return _columns;
   }

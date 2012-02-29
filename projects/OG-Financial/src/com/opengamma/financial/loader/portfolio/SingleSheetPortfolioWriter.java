@@ -130,4 +130,8 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
     _sheet.flush();
   }
 
+  public void close() {
+    flush();
+    _sheet.close();
+  }
 }

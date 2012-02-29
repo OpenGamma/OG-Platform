@@ -66,11 +66,21 @@ public class CsvSheetWriter extends SheetWriter {
     _csvWriter.writeNext(rawRow);
   }
   
+  @Override
   public void flush() {
     try {
       _csvWriter.flush();
     } catch (IOException ex) {
       throw new OpenGammaRuntimeException("Could not flush to CSV file");
+    }
+  }
+  
+  @Override
+  public void close() {
+    try {
+      _csvWriter.close();
+    } catch (IOException ex) {
+      throw new OpenGammaRuntimeException("Could not close CSV file");
     }
   }
   

@@ -90,8 +90,9 @@ public class PortfolioSaverTool {
     // Load in and write the securities, positions and trades
     portfolioReader.writeTo(portfolioWriter);
     
-    // Flush changes to portfolio master
+    // Flush changes to portfolio master & close
     portfolioWriter.flush();
+    portfolioWriter.close();
     
     s_logger.info(TOOL_NAME + " is finished.");
   }
