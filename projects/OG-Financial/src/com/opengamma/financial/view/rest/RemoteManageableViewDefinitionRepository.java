@@ -33,7 +33,7 @@ public class RemoteManageableViewDefinitionRepository extends RemoteViewDefiniti
 
   @Override
   public UniqueId addViewDefinition(AddViewDefinitionRequest request) {
-    ClientResponse response = getClient().access(getBaseUri()).post(ClientResponse.class, request);
+    ClientResponse response = getClient().accessFudge(getBaseUri()).post(ClientResponse.class, request);
     if (response.getStatus() != Status.CREATED.getStatusCode()) {
       throw new OpenGammaRuntimeException("Could not add view definition: " + response);
     }
