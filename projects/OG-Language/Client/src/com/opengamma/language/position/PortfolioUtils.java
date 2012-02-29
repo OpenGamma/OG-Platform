@@ -53,6 +53,8 @@ public final class PortfolioUtils {
       return positionSource.getPortfolio(identifier);
     } catch (DataNotFoundException ex) {
       return null;
+    } catch (IllegalArgumentException ex) {
+      return null;
     } finally {
       s_profilerGet.end();
     }
