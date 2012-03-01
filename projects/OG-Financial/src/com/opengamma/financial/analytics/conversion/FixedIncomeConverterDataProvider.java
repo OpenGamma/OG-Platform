@@ -276,7 +276,8 @@ public class FixedIncomeConverterDataProvider {
       final ExternalId indexId = floatingLeg.getFloatingReferenceRateId();
       ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
       if (indexConvention == null) {
-        throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId); // TODO Confirm this doesn't break many public or demo views
+        throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId);
+        // TODO Confirm this doesn't break many public or demo views
         // indexConvention = _conventionSource.getConventionBundle(ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, indexId.getValue()));
       }
       return indexConvention.getIdentifiers();
