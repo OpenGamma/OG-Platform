@@ -22,6 +22,7 @@
 
   <import file="${basedir}/build-suffix.xml" />
   <import file="${basedir}/delete-unused-jars.xml" />
+  <import file="${common.dir}/active-installer.xml" />
 
   <target name="deploy-jars" depends="build-suffix.deploy-jars,make-config,delete-unused-jars">
     <mkdir dir="${build.dir}/ext" />
@@ -55,13 +56,9 @@
 
   <target name="test-batch"/>
 
-  <target name="windows-installer" depends="set-version" description="Builds the windows installation packages (assumes a dist has already been done and Advanced Installer is available)">
-    <exec executable="AdvancedInstaller.com" failifexecutionfails="true">
-      <arg line="/edit Installer\setup.aip /SetVersion ${module.version.msi}.${module.build.number}" />
-    </exec>
-    <exec executable="AdvancedInstaller.com" failifexecutionfails="true">
-      <arg line="/build Installer\setup.aip" />
-    </exec>
+  <target name="windows-installer" depends="ai-present,module-build-number" if="ai.present" description="Builds the windows installation packages (assumes a dist has already been done and Advanced Installer is available)">
+    <ai-set-version version="${module.version.msi}.${module.build.number}" />
+    <ai-build />
   </target>
 
 </project>

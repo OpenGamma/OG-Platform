@@ -1,0 +1,33 @@
+<!--
+  Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+
+  Please see distribution for license.
+-->
+<project name="version">
+
+  <!--
+    Version management utility tasks and macros
+  -->
+
+  <!--
+    module-build-number:
+        Set the module.build.number property. This the build.number property
+        adjusted by the build.number.offset property if defined. This allows
+        a source of build numbers to be "reset" to an origin value. For
+        example reconfiguring a build servers so that generated build numbers
+        start again at 1, would require a constant positive adjustment to be
+        applied to maintain a continuous sequence of built artifacts. Moving
+        to a new major/minor version could require a constant negative
+        adjustment so that the artifact's effective build numbers start again
+        at 0 or 1.
+  -->
+  <target name="build-number-offset" if="build.number.offset">
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+    <math result="module.build.number" operand1="${build.number}" operation="+" operand2="${build.number.offset}" datatype="int" />
+  </target>
+  <target name="build-number-direct" unless="build.number.offset">
+    <property name="module.build.number" value="${build.number}" />
+  </target>
+  <target name="module-build-number" depends="build-number-offset,build-number-direct" />
+
+</project>
