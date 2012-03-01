@@ -3761,10 +3761,10 @@
     <ROW File="zip.dll_2" Component_="zip.dll_2" FileName="zip.dll" Attributes="0" SourcePath="C:\Program Files\Java\jre6\bin\zip.dll" SelfReg="false" NextFile="COPYRIGHT_2"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="JVM32" BuildName="JVM32" BuildOrder="2" BuildType="1" PackageFileName="[|ProductName]-[|ProductVersion]-32-bit" Languages="en" InstallationType="4" JREDir="jre_x86_Dir"/>
-    <ROW BuildKey="JVM64" BuildName="JVM64" BuildOrder="3" BuildType="1" PackageFileName="[|ProductName]-[|ProductVersion]-64-bit" Languages="en" InstallationType="4" MsiPackageType="x64" JRE64Dir="jre_x64_Dir"/>
+    <ROW BuildKey="JVM32" BuildName="JVM32" BuildOrder="2" BuildType="1" PackageFolder="." PackageFileName="[|ProductName]-[|ProductVersion]-32-bit" Languages="en" InstallationType="4" JREDir="jre_x86_Dir"/>
+    <ROW BuildKey="JVM64" BuildName="JVM64" BuildOrder="3" BuildType="1" PackageFolder="." PackageFileName="[|ProductName]-[|ProductVersion]-64-bit" Languages="en" InstallationType="4" MsiPackageType="x64" JRE64Dir="jre_x64_Dir"/>
     <ROW BuildKey="MsiBuild" BuildName="DummyProduction" BuildOrder="5" BuildType="1" PackageFileName="DummyProduction" Languages="en" InstallationType="4"/>
-    <ROW BuildKey="NoJVM32" BuildName="NoJVM32" BuildOrder="1" BuildType="1" PackageFileName="[|ProductName]-[|ProductVersion]-32-bit" Languages="en" InstallationType="4" CabsLocation="1"/>
+    <ROW BuildKey="NoJVM32" BuildName="NoJVM32" BuildOrder="1" BuildType="1" PackageFolder="." PackageFileName="[|ProductName]-[|ProductVersion]-32-bit" Languages="en" InstallationType="4"/>
     <ROW BuildKey="NoJVM64" BuildName="NoJVM64" BuildOrder="4" BuildType="1" PackageFileName="[|ProductName]-[|ProductVersion]-32-bit" Languages="en" InstallationType="4" MsiPackageType="x64"/>
     <ATTRIBUTE name="CurrentBuild" value="NoJVM32"/>
   </COMPONENT>
