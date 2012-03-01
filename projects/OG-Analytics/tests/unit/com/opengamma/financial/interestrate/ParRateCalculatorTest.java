@@ -104,15 +104,15 @@ public class ParRateCalculatorTest {
     final double fixingPeriodAccrualFactor = 0.267;
     final double notional = 1000000;
     final double paymentAccrualFactor = 0.25;
+    final int quantity = 123;
     final double referencePrice = 0.0; // TODO CASE - Future refactor - referencePrice = 0.0
     final String name = "name";
-
     final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice, notional,
-        paymentAccrualFactor, name, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+        paymentAccrualFactor, quantity, name, FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     final double rate = PRC.visit(ir, CURVES);
     final double price = 1 - rate;
     //final InterestRateFutureTransaction traded = new InterestRateFutureTransaction(ir, 1, price);
-    double pvExpected = price * notional * paymentAccrualFactor;
+    double pvExpected = price * notional * paymentAccrualFactor * quantity;
     double pv = PVC.visit(ir, CURVES);
     assertEquals(pvExpected, pv, 1e-12);
   }

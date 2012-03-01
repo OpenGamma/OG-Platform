@@ -307,7 +307,7 @@ public abstract class YieldCurveFittingSetup {
       final int contracts) {
     final double referencePrice = 0.0; // TODO CASE - Future refactor - Confirm referencePrice
     double tau = 1. / paymentFreq.getPeriodsPerYear();
-    final InterestRateFuture underlyingFuture = new InterestRateFuture(time, DUMMY_INDEX, time, time + tau, tau, referencePrice, 1, tau, "N", fundCurveName, indexCurveName);
+    final InterestRateFuture underlyingFuture = new InterestRateFuture(time, DUMMY_INDEX, time, time + tau, tau, referencePrice, 1, tau, contracts, "N", fundCurveName, indexCurveName);
 
     return underlyingFuture; // TODO CASE - Future Refactor - Check whether rate is required here. It may well be. *Shrug*
   }

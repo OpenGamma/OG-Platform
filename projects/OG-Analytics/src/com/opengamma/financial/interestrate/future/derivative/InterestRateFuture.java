@@ -47,6 +47,10 @@ public class InterestRateFuture implements InstrumentDerivative {
    */
   private final double _paymentAccrualFactor;
   /**
+   * The quantity/number of contract.
+   */
+  private final int _quantity;
+  /**
    * Future name.
    */
   private final String _name;
@@ -74,13 +78,14 @@ public class InterestRateFuture implements InstrumentDerivative {
    * @param fixingPeriodAccrualFactor Fixing period of the reference Ibor accrual factor.
    * @param referencePrice TODO
    * @param notional Future notional.
-   * @param paymentAccrualFactor Future payment accrual factor. 
+   * @param paymentAccrualFactor Future payment accrual factor.  
+   * @param quantity The quantity/number of contract.
    * @param name Future name.
    * @param discountingCurveName The discounting curve name.
    * @param forwardCurveName The forward curve name.
    */
   public InterestRateFuture(double lastTradingTime, IborIndex iborIndex, double fixingPeriodStartTime, double fixingPeriodEndTime, double fixingPeriodAccrualFactor, double referencePrice,
-      double notional, double paymentAccrualFactor, String name, String discountingCurveName, String forwardCurveName) {
+      double notional, double paymentAccrualFactor, int quantity, String name, String discountingCurveName, String forwardCurveName) {
     Validate.notNull(iborIndex, "Ibor index");
     Validate.notNull(name, "Name");
     Validate.notNull(discountingCurveName, "Discounting curve name");
@@ -93,6 +98,7 @@ public class InterestRateFuture implements InstrumentDerivative {
     _referencePrice = referencePrice;
     _notional = notional;
     _paymentAccrualFactor = paymentAccrualFactor;
+    _quantity = quantity;
     _discountingCurveName = discountingCurveName;
     _forwardCurveName = forwardCurveName;
     _name = name;
@@ -194,6 +200,14 @@ public class InterestRateFuture implements InstrumentDerivative {
     return _iborIndex.getCurrency();
   }
 
+  /**
+   * Gets the quantity/number of contract.
+   * @return The quantity.
+   */
+  public int getQuantity() {
+    return _quantity;
+  }
+
   @Override
   public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
     return visitor.visitInterestRateFuture(this, data);
@@ -207,12 +221,12 @@ public class InterestRateFuture implements InstrumentDerivative {
   @Override
   public String toString() {
     String result = "IRFuture Security: " + _name;
-    result += " Last trading date: " + _lastTradingTime;
-    result += " Ibor Index: " + _iborIndex.getName();
-    result += " Start fixing date: " + _fixingPeriodStartTime;
-    result += " End fixing date: " + _fixingPeriodEndTime;
-    result += " Notional: " + _notional;
-    result += " Rate: " + _referencePrice;
+    result += " - Index: " + _iborIndex.getName();
+    result += " - Start fixing: " + _fixingPeriodStartTime;
+    result += " - End fixing: " + _fixingPeriodEndTime;
+    result += " - Notional: " + _notional;
+    result += " - Quantity: " + _quantity;
+    result += " - Ref price: " + _referencePrice;
     return result;
   }
 

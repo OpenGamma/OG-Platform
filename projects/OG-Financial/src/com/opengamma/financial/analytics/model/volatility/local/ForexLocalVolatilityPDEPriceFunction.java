@@ -117,11 +117,14 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
     final int timeIndex = SurfaceArrayUtils.getLowerBoundIndex(gridTimes, tau);
     final int spaceIndex = SurfaceArrayUtils.getLowerBoundIndex(gridMoneyness, moneyness);
 
+    //  BlackVolatilitySurfaceMoneyness volSur = LocalVolatilityPDEGreekCalculator.modifiedPriceToVolSurface(forwardCurve, pdeGrid, 0, 10, 0.5, 3.0, true);
+    //  final double value = volSur.getVolatility(tau, getStrike(fxOption));
     final double value1 = forward * pdeGrid.getFunctionValue(spaceIndex, timeIndex);
     final double value2 = forward * pdeGrid.getFunctionValue(spaceIndex + 1, timeIndex);
     final double m1 = pdeGrid.getSpaceValue(spaceIndex);
     final double m2 = pdeGrid.getSpaceValue(spaceIndex + 1);
     final double value = ((m2 - moneyness) * value1 + (moneyness - m1) * value2) / (m2 - m1);
+
     ///////////////////////////////
     final ValueSpecification resultSpec = getResultSpec(target, surfaceName, surfaceType, xAxis, yAxis, lambda, forwardCurveCalculationMethod, h, forwardCurveInterpolator,
         forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator, theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection,

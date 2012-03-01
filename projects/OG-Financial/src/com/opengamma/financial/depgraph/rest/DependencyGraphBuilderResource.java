@@ -37,6 +37,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * Expose a simple dependency graph building service over the network for debugging/diagnostic purposes.
@@ -46,7 +47,7 @@ import com.opengamma.id.UniqueId;
  * For example to find out why a graph building configuration can't satisfy a requirement, a URL such
  * as "/value/Present Value/SECURITY/SecDb~1234" will return the failure trace (or the graph if successful).
  */
-public final class DependencyGraphBuilderResource {
+public final class DependencyGraphBuilderResource extends AbstractDataResource {
 
   private final DependencyGraphBuilderResourceContextBean _builderContext;
   private final FudgeContext _fudgeContext;

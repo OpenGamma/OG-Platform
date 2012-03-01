@@ -9,7 +9,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 
 import com.opengamma.batch.BatchMaster;
-import com.opengamma.batch.rest.BatchMasterResource;
+import com.opengamma.batch.rest.DataBatchMasterResource;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -70,7 +70,7 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
     
     // publish
     if (isPublishRest()) {
-      repo.getRestComponents().publish(infoMaster, new BatchMasterResource(master));
+      repo.getRestComponents().publish(infoMaster, new DataBatchMasterResource(master));
     }
   }
 

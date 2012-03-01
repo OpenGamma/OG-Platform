@@ -45,6 +45,10 @@ public class FXForwardParser extends RowParser {
     super(toolContext);
   }
 
+  public String[] getColumns() {
+    return new String[] {PAY_CURRENCY, RECEIVE_CURRENCY, PAY_AMOUNT, RECEIVE_AMOUNT, COUNTRY, FORWARD_DATE };
+  }
+
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> fxForwardDetails) {
     Currency payCurrency = Currency.of(getWithException(fxForwardDetails, PAY_CURRENCY));

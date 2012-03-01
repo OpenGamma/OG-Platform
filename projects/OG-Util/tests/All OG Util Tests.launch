@@ -13,6 +13,9 @@
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma"/>
+<listEntry value="com.opengamma.extsql"/>
+<listEntry value="com.opengamma.fudge.inner"/>
+<listEntry value="com.opengamma.id"/>
 <listEntry value="com.opengamma.transport"/>
 <listEntry value="com.opengamma.transport.jaxrs"/>
 <listEntry value="com.opengamma.transport.jms"/>
@@ -21,7 +24,6 @@
 <listEntry value="com.opengamma.util.component"/>
 <listEntry value="com.opengamma.util.db"/>
 <listEntry value="com.opengamma.util.fudgemsg"/>
-<listEntry value="com.opengamma.util.id"/>
 <listEntry value="com.opengamma.util.i18n"/>
 <listEntry value="com.opengamma.util.money"/>
 <listEntry value="com.opengamma.util.monitor"/>

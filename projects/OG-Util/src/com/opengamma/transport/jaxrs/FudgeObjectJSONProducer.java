@@ -22,6 +22,7 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgEnvelope;
 import org.fudgemsg.wire.FudgeMsgWriter;
 import org.fudgemsg.wire.json.FudgeJSONStreamWriter;
+import org.joda.beans.Bean;
 
 import com.google.common.base.Charsets;
 
@@ -45,8 +46,9 @@ public class FudgeObjectJSONProducer extends FudgeBase implements MessageBodyWri
   //-------------------------------------------------------------------------
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return type != String.class &&  // allow manually created JSON string to work
-        getFudgeContext().getObjectDictionary().getMessageBuilder(type) != null;
+    return FudgeRest.MEDIA_TYPE.equals(mediaType) ||
+        type == FudgeResponse.class || Bean.class.isAssignableFrom(type) ||
+        FudgeMsgEnvelope.class.isAssignableFrom(type) || FudgeMsg.class.isAssignableFrom(type);
   }
 
   @Override
@@ -65,7 +67,10 @@ public class FudgeObjectJSONProducer extends FudgeBase implements MessageBodyWri
       OutputStream entityStream) throws IOException, WebApplicationException {
     
     FudgeMsgEnvelope msg;
-    if (obj instanceof FudgeMsgEnvelope) {
+    if (obj instanceof FudgeResponse) {
+      FudgeResponse wrapper = (FudgeResponse) obj;
+      msg = getFudgeContext().toFudgeMsg(wrapper.getValue());
+    } else if (obj instanceof FudgeMsgEnvelope) {
       msg = (FudgeMsgEnvelope) obj;
     } else if (obj instanceof FudgeMsg) {
       msg = new FudgeMsgEnvelope((FudgeMsg) obj);

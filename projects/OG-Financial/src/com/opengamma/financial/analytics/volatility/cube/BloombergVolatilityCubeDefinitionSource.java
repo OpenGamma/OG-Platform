@@ -17,7 +17,7 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
 /**
- * Source of a single Volatility Cube Definition per currency: "BLOOMBERG" which includes all slices for which Bloomberg tickers exists
+ * Source of a single Volatility Cube Definition per currency: "BLOOMBERG" which includes all slices for which Bloomberg tickers exist
  */
 public class BloombergVolatilityCubeDefinitionSource implements VolatilityCubeDefinitionSource {
 
@@ -25,37 +25,37 @@ public class BloombergVolatilityCubeDefinitionSource implements VolatilityCubeDe
    * The name of the definition which this source provides for all currencies
    */
   public static final String DEFINITION_NAME = "BLOOMBERG";
-  
-  private final VolatilityCubeInstrumentProvider _instrumentProvider = VolatilityCubeInstrumentProvider.BLOOMBERG;
+
+  private final BloombergSwaptionVolatilityCubeInstrumentProvider _instrumentProvider = BloombergSwaptionVolatilityCubeInstrumentProvider.BLOOMBERG;
 
   @Override
-  public VolatilityCubeDefinition getDefinition(Currency currency, String name) {
+  public VolatilityCubeDefinition getDefinition(final Currency currency, final String name) {
     if (!DEFINITION_NAME.equals(name)) {
       return null;
     }
-    Set<Tenor> optionExpiries = new HashSet<Tenor>();
-    Set<Tenor> swapTenors = new HashSet<Tenor>();
-    Set<Double> relativeStrikes = new HashSet<Double>();
-    
-    Set<VolatilityPoint> allPoints = _instrumentProvider.getAllPoints(currency);
-    
-    for (VolatilityPoint volatilityPoint : allPoints) {
+    final Set<Tenor> optionExpiries = new HashSet<Tenor>();
+    final Set<Tenor> swapTenors = new HashSet<Tenor>();
+    final Set<Double> relativeStrikes = new HashSet<Double>();
+
+    final Set<VolatilityPoint> allPoints = _instrumentProvider.getAllPoints(currency);
+
+    for (final VolatilityPoint volatilityPoint : allPoints) {
       optionExpiries.add(volatilityPoint.getOptionExpiry());
       swapTenors.add(volatilityPoint.getSwapTenor());
       relativeStrikes.add(volatilityPoint.getRelativeStrike());
     }
-    
-    VolatilityCubeDefinition ret = new VolatilityCubeDefinition();
+
+    final VolatilityCubeDefinition ret = new VolatilityCubeDefinition();
     ret.setOptionExpiries(Lists.newArrayList(optionExpiries));
     ret.setSwapTenors(Lists.newArrayList(swapTenors));
     ret.setRelativeStrikes(Lists.newArrayList(relativeStrikes));
-    
+
     ret.setUniqueId(UniqueId.of("BLOOMBERG_VOLATILITY_CUBE_DEFINITION", currency.getCode()));
     return ret;
   }
 
   @Override
-  public VolatilityCubeDefinition getDefinition(Currency currency, String name, InstantProvider version) {
+  public VolatilityCubeDefinition getDefinition(final Currency currency, final String name, final InstantProvider version) {
     return getDefinition(currency, name);
   }
 

@@ -26,6 +26,7 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
+import com.opengamma.transport.jaxrs.FudgeResponse;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**
@@ -80,7 +81,7 @@ public class DataPositionSourceResourceTest {
     
     Response test = _resource.getNode(OID.toString(), UID.getVersion());
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
-    assertSame(target, test.getEntity());
+    assertSame(target, ((FudgeResponse) test.getEntity()).getValue());
   }
 
   @Test
