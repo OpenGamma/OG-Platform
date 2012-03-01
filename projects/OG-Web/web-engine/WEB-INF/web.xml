@@ -25,12 +25,12 @@
 
   <!--  LiveResultsServiceBean depends on the cometd servlet, so we have a dummy servlet
         here to trigger LiveResultsServiceBean initialization after the cometd
-        servlet has been initialized -->
+        servlet has been initialized - Not needed with OG-Component
   <servlet>
       <servlet-name>ConfigurationServlet</servlet-name>
       <servlet-class>com.opengamma.web.server.ConfigurationServlet</servlet-class>
       <load-on-startup>2</load-on-startup>
-  </servlet>
+  </servlet-->
 
   <!--filter>
     <filter-name>spring-request</filter-name>
