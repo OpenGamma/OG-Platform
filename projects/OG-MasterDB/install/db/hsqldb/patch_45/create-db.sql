@@ -18,7 +18,7 @@ CREATE TABLE cfg_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO cfg_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
+INSERT INTO cfg_schema_version (version_key, version_value) VALUES ('schema_patch', '45');
 
 CREATE SEQUENCE cfg_config_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -60,7 +60,7 @@ CREATE TABLE hol_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO hol_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
+INSERT INTO hol_schema_version (version_key, version_value) VALUES ('schema_patch', '45');
   
 CREATE SEQUENCE hol_holiday_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -120,7 +120,7 @@ CREATE TABLE exg_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO exg_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
+INSERT INTO exg_schema_version (version_key, version_value) VALUES ('schema_patch', '45');
 
 CREATE SEQUENCE exg_exchange_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -173,7 +173,7 @@ CREATE TABLE eng_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO eng_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
+INSERT INTO eng_schema_version (version_key, version_value) VALUES ('schema_patch', '45');
 
 create table eng_functioncosts (
     configuration varchar(255) NOT NULL,
@@ -197,7 +197,7 @@ CREATE TABLE sec_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
+INSERT INTO sec_schema_version (version_key, version_value) VALUES ('schema_patch', '45');
 
 CREATE SEQUENCE sec_security_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -962,7 +962,7 @@ CREATE TABLE prt_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO prt_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
+INSERT INTO prt_schema_version (version_key, version_value) VALUES ('schema_patch', '45');
 
 CREATE SEQUENCE prt_master_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -1056,7 +1056,7 @@ CREATE TABLE pos_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO pos_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
+INSERT INTO pos_schema_version (version_key, version_value) VALUES ('schema_patch', '45');
 
 CREATE SEQUENCE pos_master_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -1482,7 +1482,7 @@ CREATE TABLE hts_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO hts_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
+INSERT INTO hts_schema_version (version_key, version_value) VALUES ('schema_patch', '45');
 
 CREATE SEQUENCE hts_master_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;
@@ -1608,7 +1608,7 @@ CREATE TABLE snp_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO snp_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
+INSERT INTO snp_schema_version (version_key, version_value) VALUES ('schema_patch', '45');
 
 CREATE SEQUENCE snp_snapshot_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;

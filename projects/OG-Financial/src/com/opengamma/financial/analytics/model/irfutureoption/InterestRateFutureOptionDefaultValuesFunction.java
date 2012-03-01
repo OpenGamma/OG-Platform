@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  *
  * Please see distribution for license.
@@ -34,12 +34,15 @@ public class InterestRateFutureOptionDefaultValuesFunction extends DefaultProper
   private final String _forwardCurve;
   private final String _fundingCurve;
   private final String _surfaceName;
+  private final String _curveCalculationMethod;
 
-  public InterestRateFutureOptionDefaultValuesFunction(final String forwardCurve, final String fundingCurve, final String surfaceName, final String... applicableCurrencyNames) {
+  public InterestRateFutureOptionDefaultValuesFunction(final String forwardCurve, final String fundingCurve, final String surfaceName, final String curveCalculationMethod,
+      final String... applicableCurrencyNames) {
     super(ComputationTargetType.TRADE, true);
     _forwardCurve = forwardCurve;
     _fundingCurve = fundingCurve;
     _surfaceName = surfaceName;
+    _curveCalculationMethod = curveCalculationMethod;
     _applicableCurrencyNames = applicableCurrencyNames;
   }
 
@@ -65,6 +68,7 @@ public class InterestRateFutureOptionDefaultValuesFunction extends DefaultProper
       defaults.addValuePropertyName(valueName, YieldCurveFunction.PROPERTY_FORWARD_CURVE);
       defaults.addValuePropertyName(valueName, YieldCurveFunction.PROPERTY_FUNDING_CURVE);
       defaults.addValuePropertyName(valueName, ValuePropertyNames.SURFACE);
+      defaults.addValuePropertyName(valueName, ValuePropertyNames.CURVE_CALCULATION_METHOD);
     }
   }
 
@@ -76,6 +80,8 @@ public class InterestRateFutureOptionDefaultValuesFunction extends DefaultProper
       return Collections.singleton(_fundingCurve);
     } else if (ValuePropertyNames.SURFACE.equals(propertyName)) {
       return Collections.singleton(_surfaceName);
+    } else if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
+      return Collections.singleton(_curveCalculationMethod);
     }
     return null;
   }

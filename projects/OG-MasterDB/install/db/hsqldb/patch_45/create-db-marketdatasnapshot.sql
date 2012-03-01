@@ -11,7 +11,7 @@ CREATE TABLE snp_schema_version (
     version_key VARCHAR(32) NOT NULL,
     version_value VARCHAR(255) NOT NULL
 );
-INSERT INTO snp_schema_version (version_key, version_value) VALUES ('schema_patch', '44');
+INSERT INTO snp_schema_version (version_key, version_value) VALUES ('schema_patch', '45');
 
 CREATE SEQUENCE snp_snapshot_seq AS bigint
     START WITH 1000 INCREMENT BY 1 NO CYCLE;

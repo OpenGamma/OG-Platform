@@ -15,16 +15,16 @@ import com.opengamma.id.ExternalId;
  * @param <Y> The type of the y-axis values
  */
 public interface SurfaceInstrumentProvider<X, Y> {
-  
-  /** 
-   * Prefix field name. 
+
+  /**
+   * Prefix field name.
    */
   String PREFIX_FIELD_NAME = "PREFIX";
-  /** 
+  /**
    * Postfix field name.
    */
   String POSTFIX_FIELD_NAME = "POSTFIX";
-  /** 
+  /**
    * Data field name.
    */
   String DATA_FIELD_NAME = "DATA_FIELD_NAME";
@@ -36,4 +36,5 @@ public interface SurfaceInstrumentProvider<X, Y> {
   ExternalId getInstrument(X xAxis, Y yAxis, LocalDate surfaceDate);
 
   String getDataFieldName();
+
 }

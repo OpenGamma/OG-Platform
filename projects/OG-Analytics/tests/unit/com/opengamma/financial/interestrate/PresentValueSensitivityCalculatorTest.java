@@ -30,9 +30,9 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
+import com.opengamma.financial.instrument.index.GeneratorSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexSwap;
-import com.opengamma.financial.instrument.index.GeneratorSwap;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
@@ -150,7 +150,7 @@ public class PresentValueSensitivityCalculatorTest {
 
   @Test
   public void testFutures() {
-    double eps = 1e-9;
+    double eps = 1e-7;
     final IborIndex iborIndex = new IborIndex(CUR, Period.ofMonths(3), 2, new MondayToFridayCalendar("A"), DayCountFactory.INSTANCE.getDayCount("Actual/365"),
         BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following"), true);
     final double lastTradingTime = 1.473;
@@ -158,10 +158,11 @@ public class PresentValueSensitivityCalculatorTest {
     final double fixingPeriodEndTime = 1.75;
     final double fixingPeriodAccrualFactor = 0.267;
     final double paymentAccrualFactor = 0.25;
+    final int quantity = 123;
     final double[] nodeTimes = new double[] {fixingPeriodStartTime, fixingPeriodEndTime};
 
-    final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, 0.0, 1.0, paymentAccrualFactor, "K",
-        FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+    final InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, 0.0, 1.0, paymentAccrualFactor, quantity,
+        "K", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
 
     final Map<String, List<DoublesPair>> sense = PVSC.visit(ir, CURVES);
 

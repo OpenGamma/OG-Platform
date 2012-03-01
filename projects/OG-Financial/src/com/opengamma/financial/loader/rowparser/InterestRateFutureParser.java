@@ -27,7 +27,7 @@ import com.opengamma.util.time.ExpiryAccuracy;
 /**
  * This class uses the standard OG import fields to generate an IR Future security
  */
-public class IRFutureParser extends RowParser {
+public class InterestRateFutureParser extends RowParser {
 
   private static final String ID_SCHEME = "IR_FUTURE_LOADER";
 
@@ -42,8 +42,12 @@ public class IRFutureParser extends RowParser {
   protected String BBG_CODE = "bbg code";
   //CSON
   
-  public IRFutureParser(ToolContext toolContext) {
+  public InterestRateFutureParser(ToolContext toolContext) {
     super(toolContext);
+  }
+
+  public String[] getColumns() {
+    return new String[] {EXPIRY, TRADING_EXCHANGE, SETTLEMENT_EXCHANGE, CURRENCY, UNIT_AMOUNT, UNDERLYING_ID, NAME, BBG_CODE };
   }
 
   @Override

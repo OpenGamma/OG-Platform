@@ -34,7 +34,7 @@ public abstract class RowParser {
   /** Standard notional formatter. */
   protected DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("0,000");
   // CSON
-
+  
   private ToolContext _toolContext;
   
   {
@@ -151,4 +151,6 @@ public abstract class RowParser {
     _toolContext = toolContext;
   }
 
+  public abstract String[] getColumns();
+  
 }

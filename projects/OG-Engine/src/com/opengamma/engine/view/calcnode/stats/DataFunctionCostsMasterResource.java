@@ -59,8 +59,8 @@ public class DataFunctionCostsMasterResource extends AbstractDataResource {
   @HEAD
   @Path("functioncosts")
   public Response status() {
-    // simple HEAD to quickly return, avoiding loading the whole database
-    return Response.ok().build();
+    // simple GET to quickly return as a ping
+    return responseOk();
   }
 
   @GET
@@ -68,14 +68,14 @@ public class DataFunctionCostsMasterResource extends AbstractDataResource {
   public Response search(@QueryParam("configurationName") String configurationName, @QueryParam("functionId") String functionId, @QueryParam("versionAsOf") String versionAsOfStr) {
     Instant versionAsOf = (versionAsOfStr != null ? DateUtils.parseInstant(versionAsOfStr) : null);
     FunctionCostsDocument result = getFunctionCostsMaster().load(configurationName, functionId, versionAsOf);
-    return response(result);
+    return responseOkFudge(result);
   }
 
   @POST
   @Path("functioncosts")
   public Response store(@Context UriInfo uriInfo, FunctionCostsDocument request) {
     FunctionCostsDocument result = getFunctionCostsMaster().store(request);
-    return response(result);
+    return responseOkFudge(result);
   }
 
   //-------------------------------------------------------------------------

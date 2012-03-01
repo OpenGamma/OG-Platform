@@ -28,7 +28,7 @@ import com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveFr
 import com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveFromYieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunction;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeInstrumentProvider;
+import com.opengamma.financial.analytics.volatility.cube.BloombergSwaptionVolatilityCubeInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeMarketDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.config.ConfigDocument;
@@ -103,7 +103,7 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     //These need to be replaced with meaningful cube defns
     addVolatilityCubeFunction(configs, "USD", "BLOOMBERG");
 
-    Set<Currency> volCubeCurrencies = VolatilityCubeInstrumentProvider.BLOOMBERG.getAllCurrencies();
+    Set<Currency> volCubeCurrencies = BloombergSwaptionVolatilityCubeInstrumentProvider.BLOOMBERG.getAllCurrencies();
     for (Currency currency : volCubeCurrencies) {
       addVolatilityCubeFunction(configs, currency.getCode(), BloombergVolatilityCubeDefinitionSource.DEFINITION_NAME);
     }

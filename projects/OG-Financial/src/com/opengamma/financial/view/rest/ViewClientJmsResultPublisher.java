@@ -7,17 +7,11 @@ package com.opengamma.financial.view.rest;
 
 import javax.time.Instant;
 
-
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.CycleInfo;
-import com.opengamma.engine.view.ViewResultModel;
-import com.opengamma.engine.view.listener.CycleInitiatedCall;
-
 import org.fudgemsg.FudgeContext;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.client.ViewClient;
@@ -26,6 +20,7 @@ import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.CycleCompletedCall;
 import com.opengamma.engine.view.listener.CycleExecutionFailedCall;
 import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
+import com.opengamma.engine.view.listener.CycleInitiatedCall;
 import com.opengamma.engine.view.listener.ProcessCompletedCall;
 import com.opengamma.engine.view.listener.ProcessTerminatedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
@@ -34,9 +29,6 @@ import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.financial.rest.AbstractJmsResultPublisher;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.jms.JmsConnector;
-
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Publishes {@code ViewClient} results over JMS.

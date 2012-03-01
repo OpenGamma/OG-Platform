@@ -29,4 +29,5 @@ public interface PortfolioWriter {
   
   void flush();
   
+  void close();
 }

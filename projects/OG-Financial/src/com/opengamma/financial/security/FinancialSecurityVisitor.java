@@ -48,19 +48,21 @@ public interface FinancialSecurityVisitor<T> {
   T visitSwapSecurity(SwapSecurity security);
 
   T visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security);
-  
+
   T visitEquityOptionSecurity(EquityOptionSecurity security);
 
   T visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security);
-  
+
   T visitFXOptionSecurity(FXOptionSecurity security);
-  
+
   T visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security);
 
   T visitSwaptionSecurity(SwaptionSecurity security);
 
+  //  T visitInterestRateFutureSecurity(InterestRateFutureSecurity security);
+
   T visitIRFutureOptionSecurity(IRFutureOptionSecurity security);
-  
+
   T visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity security);
 
   T visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security);
@@ -68,9 +70,9 @@ public interface FinancialSecurityVisitor<T> {
   T visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security);
 
   T visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security);
-  
+
   T visitFXForwardSecurity(FXForwardSecurity security);
-  
+
   T visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security);
 
   T visitCapFloorSecurity(CapFloorSecurity security);

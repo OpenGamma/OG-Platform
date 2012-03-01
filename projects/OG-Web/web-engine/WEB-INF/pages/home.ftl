@@ -17,7 +17,6 @@
       <li><a href="${regionUris.regions()}">View and Manage regions</a></li>
       <li><a href="${timeseriesUris.allTimeSeries()}">View and Manage time series</a></li>
       <li><a href="${configUris.configs()}">View and Manage configuration</a></li>
-      <li><a href="${batchUris.batches()}">View and Manage batches</a></li>
     </ul>
   </p>
 </@section>

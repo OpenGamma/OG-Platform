@@ -59,5 +59,5 @@ public class InMemoryConventionBundleMasterTest {
     assertFalse(uidON.equals (uid3M));
     
   }
-
+  
 }
