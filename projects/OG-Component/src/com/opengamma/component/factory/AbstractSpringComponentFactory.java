@@ -28,6 +28,7 @@ import org.springframework.core.io.Resource;
 
 import com.opengamma.component.ComponentFactory;
 import com.opengamma.component.ComponentRepository;
+import com.opengamma.component.spring.ComponentRepositoryBeanPostProcessor;
 
 /**
  * Base factory for reading components from a Spring file.
