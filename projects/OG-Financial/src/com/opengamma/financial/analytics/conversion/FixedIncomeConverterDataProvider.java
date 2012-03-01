@@ -223,29 +223,32 @@ public class FixedIncomeConverterDataProvider {
     final SwapLeg payLeg = security.getPayLeg();
     final SwapLeg receiveLeg = security.getReceiveLeg();
     final ZonedDateTime swapStartDate = security.getEffectiveDate();
-    final DoubleTimeSeries<ZonedDateTime> payLegTS = getIndexTimeSeries(InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), payLeg, swapStartDate, now, dataSource);
-    final DoubleTimeSeries<ZonedDateTime> receiveLegTS = getIndexTimeSeries(InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), receiveLeg, swapStartDate, now, dataSource);
+    final boolean includeCurrentDatesFixing = true;
+    final DoubleTimeSeries<ZonedDateTime> payLegTS = getIndexTimeSeries(InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), payLeg,
+        swapStartDate, now, includeCurrentDatesFixing, dataSource);
+    final DoubleTimeSeries<ZonedDateTime> receiveLegTS = getIndexTimeSeries(InterestRateInstrumentType.getInstrumentTypeFromSecurity(security), receiveLeg, swapStartDate, now,
+        includeCurrentDatesFixing, dataSource);
     if (payLegTS != null) {
       if (receiveLegTS != null) {
         return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, receiveLegTS }, curveNames);
       }
       if (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS) {
-        return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, payLegTS}, curveNames);
+        return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS, payLegTS }, curveNames);
       }
-      return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS}, curveNames);
+      return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS }, curveNames);
     }
     if (receiveLegTS != null) {
 
       if (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS) {
-        return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS, receiveLegTS}, curveNames);
+        return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS, receiveLegTS }, curveNames);
       }
-      return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS}, curveNames);
+      return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS }, curveNames);
     }
     throw new OpenGammaRuntimeException("Could not get fixing series for either the pay or receive leg");
   }
 
-  private DoubleTimeSeries<ZonedDateTime> getIndexTimeSeries(final InterestRateInstrumentType type, final SwapLeg leg, final ZonedDateTime swapEffectiveDate, final ZonedDateTime now,
-      final HistoricalTimeSeriesSource dataSource) {
+  private DoubleTimeSeries<ZonedDateTime> getIndexTimeSeries(final InterestRateInstrumentType type, final SwapLeg leg,
+      final ZonedDateTime swapEffectiveDate, final ZonedDateTime now, boolean includeEndDate, final HistoricalTimeSeriesSource dataSource) {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
       final ExternalIdBundle id = getIndexIdForSwap(floatingLeg);
@@ -253,7 +256,7 @@ public class FixedIncomeConverterDataProvider {
       final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(7); // To catch first fixing. SwapSecurity does not have this date. 
 
       final HistoricalTimeSeries ts = dataSource
-          .getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, now.toLocalDate(), false);
+          .getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, now.toLocalDate(), includeEndDate);
       if (ts == null) {
         throw new OpenGammaRuntimeException("Could not get time series of underlying index " + id.getExternalIds().toString() + " bundle used was " + id);
       }
