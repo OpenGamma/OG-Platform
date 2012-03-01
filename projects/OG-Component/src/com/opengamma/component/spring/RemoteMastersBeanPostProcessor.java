@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.spring;
+package com.opengamma.component.spring;
 
 import java.lang.reflect.Constructor;
 import java.net.URI;
