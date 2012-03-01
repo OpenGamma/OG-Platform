@@ -44,7 +44,7 @@
     <orderEntry type="module" module-name="OG-LiveData" />
     <orderEntry type="module" module-name="OG-Core" />
     <orderEntry type="module" module-name="OG-Security" />
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library name="IvyIDEA-OG-Financial-default">
         <CLASSES>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring/jars/spring-transaction-3.0.4.jar!/" />
@@ -57,9 +57,9 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring/jars/spring-asm-3.0.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring/jars/spring-web-3.0.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring/jars/spring-jdbc-3.0.4.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/jars/commons-logging-api-1.1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/jars/commons-logging-1.1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/jars/commons-logging-adapters-1.1.1.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/jars/commons-logging-api-1.1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.aopalliance/aopalliance/jars/aopalliance-1.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring-security/jars/spring-security-core-2.0.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring-security/jars/spring-security-core-tiger-2.0.5.jar!/" />
