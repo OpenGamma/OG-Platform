@@ -43,7 +43,7 @@ public class ExampleDatabasePopulaterTest {
     for (int i = 0; i < 2; i++) {
       DBTestUtils.createHsqlDB(CONFIG_RESOURCE_LOCATION);
       
-      new ExampleDatabasePopulater().run();
+      new ExampleDatabasePopulater().run(AbstractExampleTool.TOOLCONTEXT_EXAMPLE_PROPERTIES);
       
       ToolContext toolContext = getToolContext();
       try {
