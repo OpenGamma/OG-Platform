@@ -119,7 +119,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool {
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-    YieldCurveConfigPopulator.populateCurveConfigMaster(getToolContext().getConfigMaster());
+//    YieldCurveConfigPopulator.populateCurveConfigMaster(getToolContext().getConfigMaster());
     Collection<SwapSecurity> swaps = createRandomSwaps();
     if (swaps.size() == 0) {
       throw new OpenGammaRuntimeException("No (valid) swaps were generated.");
