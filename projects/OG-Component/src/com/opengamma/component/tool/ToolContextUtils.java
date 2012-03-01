@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.component.factory.tool;
+package com.opengamma.component.tool;
 
 import com.opengamma.component.ComponentManager;
 import com.opengamma.component.ComponentRepository;

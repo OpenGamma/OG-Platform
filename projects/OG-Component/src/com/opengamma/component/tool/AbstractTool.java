@@ -21,7 +21,6 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
 import com.opengamma.component.ComponentManager;
-import com.opengamma.component.factory.tool.ToolContextUtils;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.ArgumentChecker;
 

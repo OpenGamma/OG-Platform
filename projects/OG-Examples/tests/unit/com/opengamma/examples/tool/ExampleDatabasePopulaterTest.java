@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.component.factory.tool.ToolContextUtils;
+import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.examples.DBTestUtils;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.loader.ExampleMixedPortfolioLoader;
