@@ -1,0 +1,150 @@
+<project name="installer" default="build">
+
+  <property file="build.properties" />
+
+  <!-- helper macros -->
+
+  <macrodef name="enable">
+    <attribute name="feature-id" />
+    <attribute name="build-id" default="${aip.build.all}" />
+    <sequential>
+      <echo message="Enabling @{feature-id} for build @{build-id}" />
+      <replaceregexp file="${aip.temp.file}" match="(&lt;row feature=&quot;@{feature-id}&quot;.*?builds=&quot;)" replace="\1@{build-id};" flags="mi" />
+    </sequential>
+  </macrodef>
+
+  <macrodef name="build">
+    <attribute name="build-id" />
+    <sequential>
+      <echo message="Building @{build-id}" />
+      <exec executable="${aip.command}">
+        <arg value="/build" />
+        <arg value="${aip.build.file}" />
+        <arg value="-buildslist" />
+        <arg value="@{build-id}" />
+      </exec>
+    </sequential>
+  </macrodef>
+
+  <!-- webapp resources -->
+
+  <!-- TODO: do we need these ? -->
+
+  <target name="enable-web-engine" if="enable.web.engine" unless="disable.web.engine">
+    <enable feature-id="web_engine" />
+  </target>
+  <target name="enable-web-marketdata" if="enable.web.marketdata" unless="disable.web.marketdata">
+    <enable feature-id="web_marketdata" />
+  </target>
+  <target name="enable-web-sharedmasters" if="enable.web.sharedmasters" unless="disable.web.sharedmasters">
+    <enable feature-id="web_sharedmasters" />
+  </target>
+  <target name="enable-web" depends="enable-web-engine,enable-web-marketdata,enable-web-sharedmasters" />
+
+  <!-- market data providers -->
+
+  <available property="enable.og.activ" file="${install.dir}/og-activ.jar" />
+  <condition property="disable.og.activ">
+    <isset property="disable.marketdata" />
+  </condition>
+  <target name="enable-og-activ" if="enable.og.activ" unless="disable.og.activ">
+    <enable feature-id="og_activ" />
+  </target>
+  <available property="enable.og.bloomberg" file="${install.dir}/og-bloomberg.jar" />
+  <condition property="disable.og.bloomerg">
+    <isset property="disable.marketdata" />
+  </condition>
+  <target name="enable-og-bloomberg" if="enable.og.bloomberg" unless="disable.og.bloomberg">
+    <enable feature-id="og_bloomberg" />
+  </target>
+  <available property="enable.og.reuters" file="${install.dir}/og-reuters.jar" />
+  <condition property="disable.og.reuters">
+    <isset property="disable.marketdata" />
+  </condition>
+  <target name="enable-og-reuters" if="enable.og.reuters" unless="disable.og.reuters">
+    <enable feature-id="og_reuters" />
+  </target>
+  <available property="enable.og.tullettprebon" file="${install.dir}/og-tullettprebon.jar" />
+  <condition property="disable.og.tullettprebon">
+    <isset property="disable.marketdata" />
+  </condition>
+  <target name="enable-og-tullettprebon" if="enable.og.tullettprebon" unless="disable.og.tullettprebon">
+    <enable feature-id="og_tullettprebon" />
+  </target>
+  <target name="enable-marketdata" depends="enable-og-activ,enable-og-bloomberg,enable-og-reuters,enable-og-tullettprebon" />
+
+  <!-- engine deployments -->
+
+  <available property="enable.og.examples" file="${install.dir}/og-examples.jar" />
+  <condition property="disable.og.examples">
+    <isset property="disable.engine" />
+  </condition>
+  <target name="enable-og-examples" if="enable.og.examples" unless="disable.og.examples">
+    <enable feature-id="og_examples" />
+  </target>
+  <available property="enable.og.integration" file="${install.dir}/og-integration.jar" />
+  <condition property="disable.og.integration">
+    <isset property="disable.engine" />
+  </condition>
+  <target name="enable-og-integration" if="enable.og.integration" unless="disable.og.integration">
+    <enable feature-id="og_integration" />
+  </target>
+  <target name="enable-engine" depends="enable-og-examples,enable-og-integration" />
+
+  <!-- general tasks -->
+
+  <target name="create-temp">
+    <copy file="${aip.input.file}" tofile="${aip.temp.file}" overwrite="true" />
+  </target>
+
+  <target name="enable-all" depends="enable-marketdata,enable-engine" />
+
+  <target name="create-enabled-file" depends="create-temp,enable-all" />
+
+  <!-- installer construction -->
+
+  <condition property="disable.build.jvm.i386">
+    <or>
+      <isset property="disable.build.jvm" />
+      <isset property="disable.build.i386" />
+    </or>
+  </condition>
+  <target name="build-jvm-i386" unless="disable.build.jvm.i386">
+    <build build-id="${aip.build.jvm.i386}" />
+  </target>
+
+  <condition property="disable.build.jvm.x64">
+    <or>
+      <isset property="disable.build.jvm" />
+      <isset property="disable.build.x64" />
+    </or>
+  </condition>
+  <target name="build-jvm-x64" unless="disable.build.jvm.x64">
+    <build build-id="${aip.build.jvm.x64}" />
+  </target>
+
+  <condition property="disable.build.nojvm.i386">
+    <or>
+      <isset property="disable.build.nojvm" />
+      <isset property="disable.build.i386" />
+    </or>
+  </condition>
+  <target name="build-nojvm-i386" unless="disable.build.nojvm.i386">
+    <build build-id="${aip.build.nojvm.i386}" />
+  </target>
+
+  <condition property="disable.build.nojvm.x64">
+    <or>
+      <isset property="disable.build.nojvm" />
+      <isset property="disable.build.x64" />
+    </or>
+  </condition>
+  <target name="build-nojvm-x64" unless="disable.build.nojvm.x64">
+    <build build-id="${aip.build.nojvm.x64}" />
+  </target>
+
+  <target name="build-all" depends="build-jvm-i386,build-jvm-x64,build-nojvm-i386,build-nojvm-x64" />
+
+  <target name="build" depends="create-enabled-file,build-all" />
+
+</project>
