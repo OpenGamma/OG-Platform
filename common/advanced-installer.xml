@@ -3,13 +3,13 @@
 
   Please see distribution for license.
 -->
-<project name="active-installer">
+<project name="advanced-installer">
 
   <!--
-    Utility tasks and macros for working with the Active Installer product.
+    Utility tasks and macros for working with the Advanced Installer product.
   -->
 
-  <property file="${common.dir}/active-installer.properties" />
+  <property file="${common.dir}/advanced-installer.properties" />
 
   <!--
     ai-enable:
@@ -78,7 +78,7 @@
 
   <!--
     ai-present:
-        Checks whether Active Installer is available. If it is, the ai.present
+        Checks whether Advanced Installer is available. If it is, the ai.present
         property is set. If it is not, the property is not set. If the AI tools
         are not available the build will only fail if ai.required is set
         otherwise a message is printed.
@@ -92,7 +92,7 @@
     </exec>
   </target>
   <target name="ai-present" depends="ai-present-check" unless="ai.present">
-    <echo>Active Installer is not available. No Windows or MAC installation artifacts will be produced.</echo>
+    <echo>Advanced Installer is not available. No Windows or MAC installation artifacts will be produced.</echo>
   </target>
 
 </project>

@@ -3,7 +3,7 @@
   <property file="build.properties" />
   <property file="${common.dir}/build.properties" />
   <import file="${common.dir}/version.xml" />
-  <import file="${common.dir}/active-installer.xml" />
+  <import file="${common.dir}/advanced-installer.xml" />
 
   <!-- webapp resources -->
 
