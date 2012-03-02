@@ -129,7 +129,7 @@
     updateViewDefinitions($backingViewList, initData.viewDefinitions);
     $backingViewList.combobox({
       change: function(item) {
-        populateSnapshots($backingSnapshotList, initData.liveSources, initData.snapshots, $(item).val());
+        populateSnapshots($backingSnapshotList, initData.specifications, initData.snapshots, $(item).val());
         sizeList($backingSnapshotList);
       }
     });
@@ -142,7 +142,7 @@
     $("<span class='viewlabel'>using</span>").appendTo($views);
     $backingSnapshotList.appendTo($views);
     $backingSnapshotList.combobox();
-    populateSnapshots($backingSnapshotList, initData.liveSources, initData.snapshots, null);
+    populateSnapshots($backingSnapshotList, initData.specifications, initData.snapshots, null);
     
     $views.find('.ui-autocomplete-input')
       .css('z-index', 10)
@@ -203,7 +203,7 @@
     $backingList.next().width(Math.min(250, $backingList.width() + 15));
   }
   
-  function populateSnapshots($snapshotSelect, liveSources, snapshots, selectedView) {
+  function populateSnapshots($snapshotSelect, specifications, snapshots, selectedView) {
     var $input = $snapshotSelect.next();
     var currentVal = $input.val();
     var currentValExists = false;
@@ -212,15 +212,14 @@
     $snapshotSelect.empty();
     $('<option value=""></option>').appendTo($snapshotSelect);
     
-    if (liveSources) {
-      var $liveMarketData;
-      $.each(liveSources, function(idx, liveSource) {
-        $liveMarketData = $('<option value="' + liveSource + '">Live market data (' + liveSource + ')</option>')
+    if (specifications) {
+      var $marketDataSpec;
+      $.each(specifications, function(idx, specificationName) {
+        $marketDataSpec = $('<option value="' + specificationName + '">' + specificationName + '</option>')
           .addClass("standard-entry");
-        $liveMarketData.appendTo($snapshotSelect);
+        $marketDataSpec.appendTo($snapshotSelect);
       });
-      $liveMarketData = $('<option value="bbgwithexternal">Live market data (Bloomberg + time-series)</option>').addClass("standard-entry");
-      $liveMarketData.appendTo($snapshotSelect);
+      $marketDataSpec.appendTo($snapshotSelect);
     }
 
     if (selectedView) {
@@ -233,8 +232,8 @@
         });
       }
       
-      if ($snapshotSelect.children().size() > 2 && $liveMarketData) {
-        $liveMarketData.addClass("autocomplete-divider");
+      if ($snapshotSelect.children().size() > 2 && $marketDataSpec) {
+        $marketDataSpec.addClass("autocomplete-divider");
       }
 
       var isFirst = true;

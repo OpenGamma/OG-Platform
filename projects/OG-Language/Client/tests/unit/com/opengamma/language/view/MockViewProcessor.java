@@ -7,7 +7,7 @@ package com.opengamma.language.view;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.opengamma.engine.marketdata.live.LiveMarketDataSourceRegistry;
+import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.ViewProcess;
 import com.opengamma.engine.view.ViewProcessor;
@@ -57,7 +57,8 @@ import com.opengamma.livedata.UserPrincipal;
   }
 
   @Override
-  public LiveMarketDataSourceRegistry getLiveMarketDataSourceRegistry() {
+  public NamedMarketDataSpecificationRepository getNamedMarketDataSpecificationRepository() {
     throw new UnsupportedOperationException();
   }
+  
 }
