@@ -12,7 +12,7 @@
     <property name="contextPath" value="/" />
     <property name="resourceBase" value="${jetty.resourceBase}" />
     <property name="descriptor" value="${jetty.resourceBase}/WEB-INF/web.xml" />
-    <property name="defaultsDescriptor" value="./config/webdefaults.xml" />
+    <property name="defaultsDescriptor" value="webdefaults.xml" />
     <property name="initParams">
       <map>
         <entry key="contextConfigLocation" value="${server.spring}" />
