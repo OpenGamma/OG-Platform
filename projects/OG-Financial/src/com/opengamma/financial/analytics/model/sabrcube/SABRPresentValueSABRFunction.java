@@ -91,8 +91,7 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
     final Security security = target.getSecurity();
     return security instanceof SwaptionSecurity
         || (security instanceof SwapSecurity && (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS
-            || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS || 
-            SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
+            || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
         || security instanceof CapFloorSecurity;
   }
 
@@ -207,6 +206,11 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
       return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Object[] {_formatter.format(swaptionExpiryYears)}, new Double[] {entry.getKey().second},
           new Object[] {_formatter.format(swapMaturityYears)}, new double[][] {new double[] {entry.getValue()}});
     }
+
+    //    @Override
+    //    public DoubleLabelledMatrix2D visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
+    //      return null;
+    //    }
 
     @Override
     public DoubleLabelledMatrix2D visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {

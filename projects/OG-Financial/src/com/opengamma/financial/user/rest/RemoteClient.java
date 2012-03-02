@@ -310,7 +310,7 @@ public class RemoteClient {
     return new Runnable() {
       @Override
       public void run() {
-        client.access(uri).post();
+        client.accessFudge(uri).post();
       }
     };
   }

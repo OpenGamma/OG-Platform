@@ -46,7 +46,8 @@ public class FudgeObjectJSONProducer extends FudgeBase implements MessageBodyWri
   //-------------------------------------------------------------------------
   @Override
   public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-    return type == FudgeResponse.class || Bean.class.isAssignableFrom(type) ||
+    return FudgeRest.MEDIA_TYPE.equals(mediaType) ||
+        type == FudgeResponse.class || Bean.class.isAssignableFrom(type) ||
         FudgeMsgEnvelope.class.isAssignableFrom(type) || FudgeMsg.class.isAssignableFrom(type);
   }
 
