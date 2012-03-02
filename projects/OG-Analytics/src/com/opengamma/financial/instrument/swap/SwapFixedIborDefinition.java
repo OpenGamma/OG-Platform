@@ -5,17 +5,12 @@
  */
 package com.opengamma.financial.instrument.swap;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
-import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.GeneratorSwap;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.instrument.payment.PaymentDefinition;
@@ -25,6 +20,11 @@ import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.Validate;
 
 /**
  * Class describing a fixed for ibor-like payments swap. Both legs are in the same currency.
@@ -81,7 +81,7 @@ public class SwapFixedIborDefinition extends SwapDefinition {
    * @param isPayer The payer flag of the fixed leg.
    * @return The vanilla swap.
    */
-  public static SwapFixedIborDefinition from(final ZonedDateTime settlementDate, final Period tenor, final GeneratorSwap generator, final double notional, final double fixedRate, 
+  public static SwapFixedIborDefinition from(final ZonedDateTime settlementDate, final Period tenor, final GeneratorSwap generator, final double notional, final double fixedRate,
       final boolean isPayer) {
     Validate.notNull(settlementDate, "settlement date");
     Validate.notNull(tenor, "Tenor");
@@ -140,7 +140,7 @@ public class SwapFixedIborDefinition extends SwapDefinition {
   @Override
   public FixedCouponSwap<Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] indexDataTS, final String... yieldCurveNames) {
     Validate.notNull(indexDataTS, "index data time series array");
-    Validate.isTrue(indexDataTS.length > 0, "index data time series must contain at least one element");
+    // Validate.isTrue(indexDataTS.length > 0, "index data time series must contain at least one element");
     final GenericAnnuity<CouponFixed> fixedLeg = this.getFixedLeg().toDerivative(date, yieldCurveNames);
     final GenericAnnuity<? extends Coupon> iborLeg = this.getIborLeg().toDerivative(date, indexDataTS[0], yieldCurveNames);
     return new FixedCouponSwap<Coupon>(fixedLeg, (GenericAnnuity<Coupon>) iborLeg);

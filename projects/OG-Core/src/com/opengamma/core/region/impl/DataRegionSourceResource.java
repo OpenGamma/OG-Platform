@@ -69,7 +69,7 @@ public class DataRegionSourceResource extends AbstractDataResource {
     final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
     Collection<? extends Region> result = getRegionSource().getRegions(bundle, vc);
-    return response(FudgeListWrapper.of(result));
+    return responseOkFudge(FudgeListWrapper.of(result));
   }
 
   @GET
@@ -82,11 +82,11 @@ public class DataRegionSourceResource extends AbstractDataResource {
     final ObjectId objectId = ObjectId.parse(idStr);
     if (version != null) {
       final Region result = getRegionSource().getRegion(objectId.atVersion(version));
-      return response(result);
+      return responseOkFudge(result);
     } else {
       final VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
       Region result = getRegionSource().getRegion(objectId, vc);
-      return response(result);
+      return responseOkFudge(result);
     }
   }
 
@@ -148,7 +148,7 @@ public class DataRegionSourceResource extends AbstractDataResource {
   public Response searchHighest(@QueryParam("id") List<String> externalIdStrs) {
     final ExternalIdBundle bundle = ExternalIdBundle.parse(externalIdStrs);
     Region result = getRegionSource().getHighestLevelRegion(bundle);
-    return response(result);
+    return responseOkFudge(result);
   }
 
   /**

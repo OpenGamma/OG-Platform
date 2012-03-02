@@ -39,6 +39,7 @@ public class InterestRateFutureOptionTradeConverter {
     //        TimeZone.UTC); //TODO get the real time zone
     final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getTradeDate().atTime(trade.getTradeTime()), TimeZone.UTC); //TODO get the real time zone
     final double tradePrice = trade.getPremium() == null ? 0 : trade.getPremium() / 100; //TODO remove the default value and throw an exception
+    // TODO: if the premium the right place to store the trade price?
     if (securityDefinition instanceof InterestRateFutureOptionMarginSecurityDefinition) {
       final InterestRateFutureOptionMarginSecurityDefinition underlyingOption = (InterestRateFutureOptionMarginSecurityDefinition) securityDefinition;
       return new InterestRateFutureOptionMarginTransactionDefinition(underlyingOption, quantity, tradeDate, tradePrice);

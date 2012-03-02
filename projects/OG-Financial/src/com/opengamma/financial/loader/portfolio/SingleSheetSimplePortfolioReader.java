@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.loader.portfolio;
 
-import java.lang.reflect.Constructor;
 import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
@@ -21,10 +20,6 @@ import com.opengamma.master.security.ManageableSecurity;
  * class for specific asset class loaders that follow this rule.
  */
 public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader {
-
-  /** Path strings for constructing a fully qualified parser class name **/
-  private static final String CLASS_PREFIX = "com.opengamma.financial.loader.rowparser.";
-  private static final String CLASS_POSTFIX = "Parser";
 
   /*
    * Load one or more parsers for different types of securities/trades/whatever here
@@ -50,13 +45,19 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
   public SingleSheetSimplePortfolioReader(String filename, String securityClass, ToolContext toolContext) {
     super(SheetReader.newSheetReader(filename));
     _columns = getSheet().getColumns();
-    _rowParser = identifyRowParser(securityClass, toolContext);
+    _rowParser = RowParser.newRowParser(securityClass, toolContext);
+    if (_rowParser == null) {
+      throw new OpenGammaRuntimeException("Could not identify an appropriate row parser for security class " + securityClass);
+    }
   }
 
   public SingleSheetSimplePortfolioReader(SheetReader sheet, String[] columns, String securityClass, ToolContext toolContext) {
     super(sheet);
     _columns = getSheet().getColumns();
-    _rowParser = identifyRowParser(securityClass, toolContext);
+    _rowParser = RowParser.newRowParser(securityClass, toolContext);
+    if (_rowParser == null) {
+      throw new OpenGammaRuntimeException("Could not identify an appropriate row parser for security class " + securityClass);
+    }
   }
 
   @Override
@@ -93,23 +94,6 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
 
   public String[] getColumns() {
     return _columns;
-  }
-
-  private RowParser identifyRowParser(String securityClass, ToolContext toolContext) {
-    try {
-      // Identify the appropriate parser class from the asset class command line option
-      String className = CLASS_PREFIX + securityClass + CLASS_POSTFIX;
-      Class<?> parserClass = Class.forName(className);
-      
-      // Find the constructor
-      Constructor<?> constructor = parserClass.getConstructor(ToolContext.class);
-      
-      // Create a generic simple portfolio loader for the current sheet, using the dynamically loaded row parser class
-      return (RowParser) constructor.newInstance(toolContext);
-      
-    } catch (Throwable ex) {
-      throw new OpenGammaRuntimeException("Could not identify an appropriate loader for security class " + securityClass);
-    }
   }
 
 }

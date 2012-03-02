@@ -91,7 +91,7 @@ public class DataExchangeResource extends AbstractDataResource {
   public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
     VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     ExchangeDocument result = getExchangeMaster().get(getUrlExchangeId(), vc);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @POST
@@ -101,13 +101,12 @@ public class DataExchangeResource extends AbstractDataResource {
     }
     ExchangeDocument result = getExchangeMaster().update(request);
     URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return Response.created(uri).entity(result).build();
+    return responseCreatedFudge(uri, result);
   }
 
   @DELETE
-  public Response remove() {
+  public void remove() {
     getExchangeMaster().remove(getUrlExchangeId().atLatestVersion());
-    return Response.noContent().build();
   }
 
   //-------------------------------------------------------------------------
@@ -119,7 +118,7 @@ public class DataExchangeResource extends AbstractDataResource {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     ExchangeHistoryResult result = getExchangeMaster().history(request);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @GET
@@ -127,7 +126,7 @@ public class DataExchangeResource extends AbstractDataResource {
   public Response getVersioned(@PathParam("versionId") String versionId) {
     UniqueId uniqueId = getUrlExchangeId().atVersion(versionId);
     ExchangeDocument result = getExchangeMaster().get(uniqueId);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @POST
@@ -139,7 +138,7 @@ public class DataExchangeResource extends AbstractDataResource {
     }
     ExchangeDocument result = getExchangeMaster().correct(request);
     URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return Response.created(uri).entity(result).build();
+    return responseCreatedFudge(uri, result);
   }
 
   //-------------------------------------------------------------------------

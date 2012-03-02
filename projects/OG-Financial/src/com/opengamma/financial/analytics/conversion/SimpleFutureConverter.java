@@ -57,7 +57,7 @@ public class SimpleFutureConverter extends AbstractFutureSecurityVisitor<SimpleI
   @Override
   public SimpleInstrumentDefinition<?> visitFXFutureSecurity(final FXFutureSecurity security) {
     Validate.notNull(security, "security");
-    final ZonedDateTime expiry = security.getExpiry().getExpiry();    
+    final ZonedDateTime expiry = security.getExpiry().getExpiry();
     final double referencePrice = 0;
     return new SimpleFXFutureDefinition(expiry, expiry, referencePrice, security.getNumerator(), security.getDenominator(), security.getUnitAmount());
   }
@@ -81,7 +81,7 @@ public class SimpleFutureConverter extends AbstractFutureSecurityVisitor<SimpleI
   public SimpleInstrumentDefinition<?> visitStockFutureSecurity(final StockFutureSecurity security) {
     return getDefinition(security);
   }
-  
+
   private SimpleInstrumentDefinition<?> getDefinition(final FutureSecurity security) {
     Validate.notNull(security, "security");
     final ZonedDateTime expiry = security.getExpiry().getExpiry();

@@ -40,8 +40,7 @@ public class InterestRateFutureSecurity extends FutureSecurity {
     super();
   }
 
-  public InterestRateFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount,
-      ExternalId underlyingIdentifier) {
+  public InterestRateFutureSecurity(Expiry expiry, String tradingExchange, String settlementExchange, Currency currency, double unitAmount, ExternalId underlyingIdentifier) {
     super(expiry, tradingExchange, settlementExchange, currency, unitAmount);
     setUnderlyingId(underlyingIdentifier);
   }
@@ -61,6 +60,7 @@ public class InterestRateFutureSecurity extends FutureSecurity {
   public static InterestRateFutureSecurity.Meta meta() {
     return InterestRateFutureSecurity.Meta.INSTANCE;
   }
+
   static {
     JodaBeanUtils.registerMetaBean(InterestRateFutureSecurity.Meta.INSTANCE);
   }
@@ -73,7 +73,7 @@ public class InterestRateFutureSecurity extends FutureSecurity {
   @Override
   protected Object propertyGet(String propertyName, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -771625640:  // underlyingId
+      case -771625640: // underlyingId
         return getUnderlyingId();
     }
     return super.propertyGet(propertyName, quiet);
@@ -82,7 +82,7 @@ public class InterestRateFutureSecurity extends FutureSecurity {
   @Override
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
-      case -771625640:  // underlyingId
+      case -771625640: // underlyingId
         setUnderlyingId((ExternalId) newValue);
         return;
     }
@@ -102,8 +102,7 @@ public class InterestRateFutureSecurity extends FutureSecurity {
     }
     if (obj != null && obj.getClass() == this.getClass()) {
       InterestRateFutureSecurity other = (InterestRateFutureSecurity) obj;
-      return JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) &&
-          super.equals(obj);
+      return JodaBeanUtils.equal(getUnderlyingId(), other.getUnderlyingId()) && super.equals(obj);
     }
     return false;
   }
@@ -154,14 +153,11 @@ public class InterestRateFutureSecurity extends FutureSecurity {
     /**
      * The meta-property for the {@code underlyingId} property.
      */
-    private final MetaProperty<ExternalId> _underlyingId = DirectMetaProperty.ofReadWrite(
-        this, "underlyingId", InterestRateFutureSecurity.class, ExternalId.class);
+    private final MetaProperty<ExternalId> _underlyingId = DirectMetaProperty.ofReadWrite(this, "underlyingId", InterestRateFutureSecurity.class, ExternalId.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
-      this, (DirectMetaPropertyMap) super.metaPropertyMap(),
-        "underlyingId");
+    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(this, (DirectMetaPropertyMap) super.metaPropertyMap(), "underlyingId");
 
     /**
      * Restricted constructor.
@@ -172,7 +168,7 @@ public class InterestRateFutureSecurity extends FutureSecurity {
     @Override
     protected MetaProperty<?> metaPropertyGet(String propertyName) {
       switch (propertyName.hashCode()) {
-        case -771625640:  // underlyingId
+        case -771625640: // underlyingId
           return _underlyingId;
       }
       return super.metaPropertyGet(propertyName);

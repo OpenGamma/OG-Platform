@@ -47,6 +47,10 @@ public class FXDigitalOptionParser extends RowParser {
     super(toolContext);
   }
   
+  public String[] getColumns() {
+    return new String[] {PUT_CURRENCY, CALL_CURRENCY, PUT_AMOUNT, CALL_AMOUNT, EXPIRY, IS_LONG };
+  }
+
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> fxOptionDetails) {
     

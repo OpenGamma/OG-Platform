@@ -5,25 +5,26 @@
  */
 package com.opengamma.financial.view.rest;
 
-import java.util.Collection;
-
 import javax.ws.rs.GET;
+import javax.ws.rs.core.Response;
 
 import com.opengamma.engine.marketdata.live.LiveMarketDataSourceRegistry;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for {@link LiveMarketDataSourceRegistry}
  */
-public class LiveMarketDataSourceRegistryResource {
+public class DataLiveMarketDataSourceRegistryResource extends AbstractDataResource {
 
   private final LiveMarketDataSourceRegistry _liveMarketDataSourceRegistry;
 
-  public LiveMarketDataSourceRegistryResource(LiveMarketDataSourceRegistry liveMarketDataSourceRegistry) {
+  public DataLiveMarketDataSourceRegistryResource(LiveMarketDataSourceRegistry liveMarketDataSourceRegistry) {
     _liveMarketDataSourceRegistry = liveMarketDataSourceRegistry;
   }
 
   @GET
-  public Collection<String> getDataSources() {
-    return _liveMarketDataSourceRegistry.getDataSources();
+  public Response getDataSources() {
+    return responseOkFudge(_liveMarketDataSourceRegistry.getDataSources());
   }
+
 }

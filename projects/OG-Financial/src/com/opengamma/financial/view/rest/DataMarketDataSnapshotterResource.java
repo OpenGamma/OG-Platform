@@ -5,22 +5,28 @@
  */
 package com.opengamma.financial.view.rest;
 
+import java.util.Map;
+
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
 
+import com.opengamma.core.marketdatasnapshot.StructuredMarketDataSnapshot;
+import com.opengamma.core.marketdatasnapshot.YieldCurveKey;
 import com.opengamma.engine.marketdata.snapshot.MarketDataSnapshotter;
+import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.engine.view.calc.EngineResourceReference;
 import com.opengamma.engine.view.calc.ViewCycle;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for a {@link MarketDataSnapshotter}.
  */
-public class MarketDataSnapshotterResource {
+public class DataMarketDataSnapshotterResource extends AbstractDataResource {
 
   //CSOFF: just constants
   public static final String PATH_CREATE_SNAPSHOT = "create";
@@ -30,7 +36,7 @@ public class MarketDataSnapshotterResource {
   private final ViewProcessor _viewProcessor;
   private final MarketDataSnapshotter _snapshotter;
 
-  public MarketDataSnapshotterResource(ViewProcessor viewProcessor, MarketDataSnapshotter snapshotter) {
+  public DataMarketDataSnapshotterResource(ViewProcessor viewProcessor, MarketDataSnapshotter snapshotter) {
     _viewProcessor = viewProcessor;
     _snapshotter = snapshotter;
   }
@@ -47,7 +53,8 @@ public class MarketDataSnapshotterResource {
       throw new IllegalArgumentException("Cycle is not available");
     }
     try {
-      return Response.ok(_snapshotter.createSnapshot(client, cycleReference.get())).build();
+      StructuredMarketDataSnapshot result = _snapshotter.createSnapshot(client, cycleReference.get());
+      return responseOkFudge(result);
     } finally {
       cycleReference.release();
     }
@@ -65,7 +72,8 @@ public class MarketDataSnapshotterResource {
       throw new IllegalArgumentException("Cycle is not available");
     }
     try {
-      return Response.ok(_snapshotter.getYieldCurveSpecifications(client, cycleReference.get())).build();
+      Map<YieldCurveKey, Map<String, ValueRequirement>> result = _snapshotter.getYieldCurveSpecifications(client, cycleReference.get());
+      return responseOkFudge(result);
     } finally {
       cycleReference.release();
     }
@@ -73,7 +81,7 @@ public class MarketDataSnapshotterResource {
 
   @GET
   public Response get() {
-    return Response.ok("Snapshotter").build();
+    return responseOk("Snapshotter");
   }
 
 }

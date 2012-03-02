@@ -5,6 +5,18 @@
  */
 package com.opengamma.batch.rest;
 
+import java.net.URI;
+import java.util.List;
+import java.util.Set;
+
+import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
+import javax.ws.rs.GET;
+import javax.ws.rs.PUT;
+import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
+import javax.ws.rs.core.UriBuilder;
+
 import com.opengamma.batch.BatchMasterWriter;
 import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.MarketDataValue;
@@ -15,24 +27,15 @@ import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.tuple.Pair;
 
-import javax.ws.rs.*;
-import javax.ws.rs.core.Response;
-import javax.ws.rs.core.UriBuilder;
-import java.net.URI;
-import java.util.List;
-import java.util.Set;
-
 /**
- * RESTful resource for a live data snapshot.
+ * RESTful resource for a live data snapshot within batch.
  */
-public class MarketDataResource extends AbstractDataResource {
+public class DataMarketDataResource extends AbstractDataResource {
 
   /**
    * The batch master.
    */
   private final BatchMasterWriter _batchMaster;
-
-
   /**
    * The id of the market data
    */
@@ -44,11 +47,12 @@ public class MarketDataResource extends AbstractDataResource {
    * @param batchMaster  the underlying batch master, not null
    * @param marketDataId  the id of market data, not null
    */
-  public MarketDataResource(final ObjectId marketDataId, final BatchMasterWriter batchMaster) {
+  public DataMarketDataResource(final ObjectId marketDataId, final BatchMasterWriter batchMaster) {
     _batchMaster = batchMaster;
     _marketDataId = marketDataId;
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the batch master.
    *
@@ -58,10 +62,11 @@ public class MarketDataResource extends AbstractDataResource {
     return _batchMaster;
   }
 
+  //-------------------------------------------------------------------------
   @GET
   public Response get() {
     MarketData result = getMaster().getMarketDataById(_marketDataId);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @DELETE
@@ -69,12 +74,11 @@ public class MarketDataResource extends AbstractDataResource {
     getMaster().deleteMarketData(_marketDataId);
   }
 
-
   @GET
   @Path("values")
   public Response getDataValues(PagingRequest paging) {
     Pair<List<MarketDataValue>, Paging> result = getMaster().getMarketDataValues(_marketDataId, paging);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @PUT
@@ -84,9 +88,9 @@ public class MarketDataResource extends AbstractDataResource {
     getMaster().addValuesToMarketData(_marketDataId, dataValues);
   }
 
-
+  //-------------------------------------------------------------------------
   /**
-   * Builds a URI for the values of a given marget data.
+   * Builds a URI for the values of a given market data.
    *
    * @param baseUri  the base URI, not null
    * @param marketDataId  the id of market data
