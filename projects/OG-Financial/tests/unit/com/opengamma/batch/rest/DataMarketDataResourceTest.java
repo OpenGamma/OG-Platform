@@ -6,7 +6,23 @@
 package com.opengamma.batch.rest;
 
 
-import com.opengamma.batch.BatchMaster;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.newHashSet;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertSame;
+
+import java.util.List;
+import java.util.Set;
+
+import javax.ws.rs.core.Response;
+
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import com.opengamma.batch.BatchMasterWriter;
 import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.MarketDataValue;
@@ -15,18 +31,6 @@ import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.tuple.Pair;
 import com.sun.jersey.api.client.ClientResponse.Status;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
-import javax.ws.rs.core.Response;
-import java.util.List;
-import java.util.Set;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Sets.newHashSet;
-import static org.mockito.Mockito.*;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertSame;
 
 /**
  * Tests BatchRunResource.
@@ -54,7 +58,7 @@ public class DataMarketDataResourceTest {
     assertEquals(Status.OK.getStatusCode(), test.getStatus());
     assertSame(_marketData, test.getEntity());
   }
-  
+
   @Test
   public void testDelete() {
     doNothing().when(_batchMaster).deleteMarketData(_marketData.getObjectId());
@@ -76,8 +80,9 @@ public class DataMarketDataResourceTest {
     PagingRequest pagingRequest = PagingRequest.ofPage(2, 30);
     when(_batchMaster.getMarketDataValues(_marketData.getObjectId(), pagingRequest)).thenReturn(Pair.of(marketDataValues, Paging.ofAll(marketDataValues)));
     
-    Response response = _resource.getDataValues(pagingRequest);
-
+    _resource.getDataValues(pagingRequest);
+    
     verify(_batchMaster).getMarketDataValues(_marketData.getObjectId(), pagingRequest);
   }
+
 }

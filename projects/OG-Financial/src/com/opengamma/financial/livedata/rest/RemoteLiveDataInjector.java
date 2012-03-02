@@ -50,7 +50,7 @@ public class RemoteLiveDataInjector implements MarketDataInjector {
   
   private void addValue(AddValueRequest request) {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataLiveDataInjectorResource.PATH_ADD).build();
-    _client.access(uri).post(request);    
+    _client.accessFudge(uri).post(request);    
   }
 
   @Override
@@ -73,7 +73,7 @@ public class RemoteLiveDataInjector implements MarketDataInjector {
   
   private void removeValue(RemoveValueRequest request) {
     URI uri = UriBuilder.fromUri(_baseUri).path(DataLiveDataInjectorResource.PATH_REMOVE).build();
-    _client.access(uri).post(request);    
+    _client.accessFudge(uri).post(request);    
   }
 
 }

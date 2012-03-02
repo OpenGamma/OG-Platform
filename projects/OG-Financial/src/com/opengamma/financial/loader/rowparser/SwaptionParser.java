@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.loader.rowparser;
 
+import java.util.HashMap;
 import java.util.Map;
-
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
 import javax.time.calendar.LocalTime;
@@ -14,6 +14,7 @@ import javax.time.calendar.Period;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -61,6 +62,10 @@ public class SwaptionParser extends RowParser {
     super(toolContext);
   }
 
+  public String[] getColumns() {
+    return new String[] {EXPIRY, IS_LONG, IS_PAYER, CURRENCY, TRADE_DATE, STRIKE, NOTIONAL, COUNTERPARTY, SWAP_LENGTH };
+  }
+
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> swaptionDetails) {
     
@@ -72,6 +77,10 @@ public class SwaptionParser extends RowParser {
     Expiry swaptionExpiry = new Expiry(
         ZonedDateTime.of(LocalDateTime.of(LocalDate.parse(getWithException(swaptionDetails, EXPIRY), CSV_DATE_FORMATTER), LocalTime.MIDNIGHT), TimeZone.UTC), 
         ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
+    
+    if (swapConvention == null || swaptionConvention == null || floatingRateConvention == null) {
+      throw new OpenGammaRuntimeException("Swaption parser failed to fetch one or more convention bundles required to populate a security");
+    }
     
     boolean isLong = Boolean.parseBoolean(getWithException(swaptionDetails, IS_LONG));
     boolean isCashSettled = swaptionConvention.isCashSettled();    
@@ -130,6 +139,26 @@ public class SwaptionParser extends RowParser {
     return years + "Y x " + swapLength + "Y";
   }
 
-  // TODO implement constructRow for portfolio export
+  // TODO implement constructRow properly, with underlying
+
+  @Override
+  public Map<String, String> constructRow(ManageableSecurity security) {
+    Map<String, String> result = new HashMap<String, String>();
+    SwaptionSecurity swaption = (SwaptionSecurity) security;
+
+    // Swaption fields
+    result.put(EXPIRY, swaption.getExpiry().getExpiry().toString(CSV_DATE_FORMATTER));
+    result.put(IS_LONG, Boolean.toString(swaption.isLong()));
+    result.put(IS_PAYER, Boolean.toString(swaption.isPayer()));
+    result.put(CURRENCY, swaption.getCurrency().getCode());
+    
+    // Swap fields
+//    result.put(STRIKE, );
+//    result.put(NOTIONAL, );
+//    result.put(COUNTERPARTY, );
+//    result.put(SWAP_LENGTH, );
+    
+    return result;
+  }
 
 }

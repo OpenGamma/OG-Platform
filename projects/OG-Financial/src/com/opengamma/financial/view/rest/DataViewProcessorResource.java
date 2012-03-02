@@ -194,7 +194,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
   }
 
   private URI getViewProcessorUri(UriInfo uriInfo) {
-    return UriBuilder.fromUri(uriInfo.getMatchedURIs().get(1)).build();
+    return uriInfo.getBaseUri().resolve(UriBuilder.fromUri(uriInfo.getMatchedURIs().get(1)).build());
   }
 
   private DataViewCycleManagerResource getOrCreateDataViewCycleManagerResource(URI viewProcessorUri) {

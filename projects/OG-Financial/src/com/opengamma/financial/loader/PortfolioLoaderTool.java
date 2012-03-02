@@ -72,8 +72,9 @@ public class PortfolioLoaderTool {
     // Load in and write the securities, positions and trades
     portfolioReader.writeTo(portfolioWriter);
     
-    // Flush changes to portfolio master
+    // Flush changes to portfolio master & close
     portfolioWriter.flush();
+    portfolioWriter.close();
     
     s_logger.info(TOOL_NAME + " is finished.");
   }
@@ -151,7 +152,7 @@ public class PortfolioLoaderTool {
       // Create zipped multi-asset class loader
       return new ZippedPortfolioReader(filename, toolContext);
     } else {
-      throw new OpenGammaRuntimeException("Input filename should end in .CSV or .ZIP");
+      throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
     }
   }
 

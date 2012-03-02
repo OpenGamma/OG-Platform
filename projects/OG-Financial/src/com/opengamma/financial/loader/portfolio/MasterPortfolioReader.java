@@ -5,23 +5,23 @@
  */
 package com.opengamma.financial.loader.portfolio;
 
-import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.financial.tool.ToolContext;
-import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
-import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityMaster;
 
 /**
@@ -29,20 +29,18 @@ import com.opengamma.master.security.SecurityMaster;
  */
 public class MasterPortfolioReader implements PortfolioReader {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioReader.class);
+
   private PortfolioMaster _portfolioMaster;
   private PositionMaster _positionMaster;
-  private SecurityMaster _securityMaster;
   private SecuritySource _securitySource;
   
   private PortfolioDocument _portfolioDocument;
-  private ManageablePortfolioNode _currentNode;
 
   public MasterPortfolioReader(String portfolioName, ToolContext toolContext) {
     _portfolioMaster = toolContext.getPortfolioMaster();
     _positionMaster = toolContext.getPositionMaster();
-    _securityMaster = toolContext.getSecurityMaster();
     _securitySource = toolContext.getSecuritySource();
-
     _portfolioDocument = openPortfolio(portfolioName);
   }
   
@@ -50,7 +48,6 @@ public class MasterPortfolioReader implements PortfolioReader {
       PositionMaster positionMaster, SecurityMaster securityMaster, SecuritySource securitySource) {
     _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;
-    _securityMaster = securityMaster;
     _securitySource = securitySource;   
     _portfolioDocument = openPortfolio(portfolioName);
   }
@@ -66,9 +63,19 @@ public class MasterPortfolioReader implements PortfolioReader {
     for (ObjectId positionId : node.getPositionIds()) {
       ManageablePosition position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
       
-      // get securities here?
+      // Write the related security(ies) TODO handle writing multiple, for underlying securities
+      ManageableSecurityLink sLink = position.getSecurityLink();
+      Security security = sLink.resolveQuiet(_securitySource);
+      if ((security != null) && (security instanceof ManageableSecurity)) {
+        portfolioWriter.writeSecurity((ManageableSecurity) security);
+        
+        // write the current position (this will 'flush' the current row)
+        portfolioWriter.writePosition(position);
+      } else {
+        //throw new OpenGammaRuntimeException("Could not resolve security relating to position " + position.getName());
+        s_logger.warn("Could not resolve security relating to position " + position.getName());
+      }
       
-      portfolioWriter.writePosition(position);      
     }
     
     // Recursively traverse the child nodes
@@ -78,13 +85,13 @@ public class MasterPortfolioReader implements PortfolioReader {
       ManageablePortfolioNode writeNode = portfolioWriter.getCurrentNode();
       ManageablePortfolioNode newNode = null;
       for (ManageablePortfolioNode n : writeNode.getChildNodes()) {
-        if (n.getName() == node.getName()) {
+        if (n.getName().equals(child.getName())) {
           newNode = n;
           break;
         }
       }
       if (newNode == null) {
-        newNode = new ManageablePortfolioNode(node.getName());
+        newNode = new ManageablePortfolioNode(child.getName());
         writeNode.addChildNode(newNode);
       }
       portfolioWriter.setCurrentNode(newNode);
@@ -95,6 +102,7 @@ public class MasterPortfolioReader implements PortfolioReader {
       // Change back up to parent node in destination portfolio
       portfolioWriter.setCurrentNode(writeNode);
     }
+    
   }
   
   private PortfolioDocument openPortfolio(String portfolioName) {
@@ -103,17 +111,8 @@ public class MasterPortfolioReader implements PortfolioReader {
     PortfolioSearchRequest portSearchRequest = new PortfolioSearchRequest();
     portSearchRequest.setName(portfolioName);
     PortfolioSearchResult portSearchResult = _portfolioMaster.search(portSearchRequest);
-    ManageablePortfolio portfolio = portSearchResult.getFirstPortfolio();
     PortfolioDocument portfolioDoc = portSearchResult.getFirstDocument();
-
-    if (portfolio == null || portfolioDoc == null) {
-      _currentNode = null;
-      return null;
-    }
-
-    // Set current node to the root node
-    _currentNode = portfolio.getRootNode();
-    
+   
     return portfolioDoc;
   }
 
