@@ -4,21 +4,6 @@
   <property name="ai.input.file" value="${servers.input.file}" />
   <import file="installer.xml" />
 
-  <!-- webapp resources -->
-
-  <!-- TODO: do we need these ? -->
-
-  <target name="enable-web-engine" if="enable.web.engine" unless="disable.web.engine">
-    <ai-enable feature-id="web_engine" />
-  </target>
-  <target name="enable-web-marketdata" if="enable.web.marketdata" unless="disable.web.marketdata">
-    <ai-enable feature-id="web_marketdata" />
-  </target>
-  <target name="enable-web-sharedmasters" if="enable.web.sharedmasters" unless="disable.web.sharedmasters">
-    <ai-enable feature-id="web_sharedmasters" />
-  </target>
-  <target name="enable-web" depends="enable-web-engine,enable-web-marketdata,enable-web-sharedmasters" />
-
   <!-- market data providers -->
 
   <available property="enable.og.activ" file="${install.dir}/og-activ.jar" />
@@ -67,7 +52,14 @@
   <target name="enable-og-integration" if="enable.og.integration" unless="disable.og.integration">
     <ai-enable feature-id="og_integration" />
   </target>
-  <target name="enable-engine" depends="enable-og-examples,enable-og-integration" />
+  <available property="enable.www" file="${install.dir}/www/facicon.ico" />
+  <condition property="disable.www">
+    <isset property="disable.engine" />
+  </condition>
+  <target name="enable-www" if="enable.www" unless="disable.www">
+    <ai-enable feature-id="www" />
+  </target>
+  <target name="enable-engine" depends="enable-og-examples,enable-og-integration,enable-www" />
 
   <!-- general tasks -->
 

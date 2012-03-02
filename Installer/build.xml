@@ -4,7 +4,9 @@
     <subant buildpath="." antfile="servers.xml" inheritall="true" target="build" />
   </target>
 
-  <!-- TODO: build the monolithic MSIs comprising the servers and client tools -->
+  <!-- TODO: build the R bundle that contains both OG-Language and OG-Rstats, with/without JVM -->
+
+  <!-- TODO: build a monolithic MSIs comprising all the above (and any other MSIs from the checkout) -->
   
   <target name="build" depends="build-servers" />
 
