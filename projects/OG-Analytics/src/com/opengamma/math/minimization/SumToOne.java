@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -28,33 +29,26 @@ public class SumToOne {
 
   public double[] transform(final double[] fitParms) {
     ArgumentChecker.isTrue(fitParms.length == _n - 1, "length of fitParms is {}, but must be {} ", fitParms.length, _n - 1);
-    double[] sin = new double[_n - 1];
-    double[] cos = new double[_n - 1];
+    double[] s2 = new double[_n - 1];
+    double[] c2 = new double[_n - 1];
     for (int j = 0; j < _n - 1; j++) {
-      for (int i = 0; i < _n; i++) {
-        if (_set[i][j] == 1) {
-          sin[j] = Math.sin(fitParms[j]);
-          break;
-        }
-      }
-      for (int i = 0; i < _n; i++) {
-        if (_set[i][j] == -1) {
-          cos[j] = Math.cos(fitParms[j]);
-          break;
-        }
-      }
+      double temp = Math.sin(fitParms[j]);
+      temp *= temp;
+      s2[j] = temp;
+      c2[j] = 1.0 - temp;
     }
+
     double[] res = new double[_n];
     for (int i = 0; i < _n; i++) {
       double prod = 1.0;
       for (int j = 0; j < _n - 1; j++) {
         if (_set[i][j] == 1) {
-          prod *= sin[j];
+          prod *= s2[j];
         } else if (_set[i][j] == -1) {
-          prod *= cos[j];
+          prod *= c2[j];
         }
       }
-      res[i] = prod * prod;
+      res[i] = prod;
     }
     return res;
   }
@@ -86,6 +80,45 @@ public class SumToOne {
 
   public DoubleMatrix1D inverseTransform(final DoubleMatrix1D modelParms) {
     return new DoubleMatrix1D(inverseTransform(modelParms.getData()));
+  }
+
+  public double[][] jacobian(final double[] fitParms) {
+    ArgumentChecker.isTrue(fitParms.length == _n - 1, "length of fitParms is {}, but must be {} ", fitParms.length, _n - 1);
+    double[] sin = new double[_n - 1];
+    double[] cos = new double[_n - 1];
+    for (int j = 0; j < _n - 1; j++) {
+      sin[j] = Math.sin(fitParms[j]);
+      cos[j] = Math.cos(fitParms[j]);
+    }
+
+    double[] a = new double[_n];
+    for (int i = 0; i < _n; i++) {
+      double prod = 1.0;
+      for (int j = 0; j < _n - 1; j++) {
+        if (_set[i][j] == 1) {
+          prod *= sin[j];
+        } else if (_set[i][j] == -1) {
+          prod *= cos[j];
+        }
+      }
+      a[i] = 2 * prod * prod;
+    }
+
+    double[][] res = new double[_n][_n - 1];
+    for (int i = 0; i < _n; i++) {
+      for (int j = 0; j < _n - 1; j++) {
+        if (_set[i][j] == 1 && a[i] != 0.0) {
+          res[i][j] = a[i] * cos[j] / sin[j];
+        } else if (_set[i][j] == -1 && a[i] != 0.0) {
+          res[i][j] = -a[i] * sin[j] / cos[j];
+        }
+      }
+    }
+    return res;
+  }
+
+  public DoubleMatrix2D jacobian(final DoubleMatrix1D fitParms) {
+    return new DoubleMatrix2D(jacobian(fitParms.getData()));
   }
 
   private void cal(final double[] cum, final double factor, final int d, final int n, final int p1, final double[] res) {

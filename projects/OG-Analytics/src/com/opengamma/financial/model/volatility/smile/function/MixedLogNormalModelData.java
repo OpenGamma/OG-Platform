@@ -188,6 +188,28 @@ public class MixedLogNormalModelData implements SmileModelData {
     return _f;
   }
 
+  /**
+   * The matrix of partial derivatives of weights with respect to the angles theta
+   * @return the n by n-1 Jacobian, where n is the number of normals
+   */
+  public double[][] getWeightsJacobian() {
+    double[] temp = Arrays.copyOfRange(_parameters, _nNorms, 2 * _nNorms - 1);
+    return _sto.jacobian(temp);
+  }
+
+  /**
+   * The matrix of partial derivatives of relative forwards  with respect to the angles phi
+   * <b>Note</b> The returned matrix has each row multiplied by the weight
+   * @return the n by n-1 Jacobian, where n is the number of normals
+   */
+  public double[][] getRelativeForwardsJacobian() {
+    if (!_shiftedMeans) {
+      throw new IllegalArgumentException("This model does not used shifted means, therefore no Jacobian exists");
+    }
+    double[] temp = Arrays.copyOfRange(_parameters, 2 * _nNorms - 1, 3 * _nNorms - 2);
+    return _sto.jacobian(temp);
+  }
+
   @Override
   public int getNumberOfparameters() {
     return _nParams;
