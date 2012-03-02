@@ -1,0 +1,80 @@
+<project name="installer-servers" default="build">
+
+  <property file="build.properties" />
+  <property name="ai.input.file" value="${servers.input.file}" />
+  <import file="installer.xml" />
+
+  <!-- webapp resources -->
+
+  <!-- TODO: do we need these ? -->
+
+  <target name="enable-web-engine" if="enable.web.engine" unless="disable.web.engine">
+    <ai-enable feature-id="web_engine" />
+  </target>
+  <target name="enable-web-marketdata" if="enable.web.marketdata" unless="disable.web.marketdata">
+    <ai-enable feature-id="web_marketdata" />
+  </target>
+  <target name="enable-web-sharedmasters" if="enable.web.sharedmasters" unless="disable.web.sharedmasters">
+    <ai-enable feature-id="web_sharedmasters" />
+  </target>
+  <target name="enable-web" depends="enable-web-engine,enable-web-marketdata,enable-web-sharedmasters" />
+
+  <!-- market data providers -->
+
+  <available property="enable.og.activ" file="${install.dir}/og-activ.jar" />
+  <condition property="disable.og.activ">
+    <isset property="disable.marketdata" />
+  </condition>
+  <target name="enable-og-activ" if="enable.og.activ" unless="disable.og.activ">
+    <ai-enable feature-id="og_activ" />
+  </target>
+  <available property="enable.og.bloomberg" file="${install.dir}/og-bloomberg.jar" />
+  <condition property="disable.og.bloomerg">
+    <isset property="disable.marketdata" />
+  </condition>
+  <target name="enable-og-bloomberg" if="enable.og.bloomberg" unless="disable.og.bloomberg">
+    <ai-enable feature-id="og_bloomberg" />
+  </target>
+  <available property="enable.og.reuters" file="${install.dir}/og-reuters.jar" />
+  <condition property="disable.og.reuters">
+    <isset property="disable.marketdata" />
+  </condition>
+  <target name="enable-og-reuters" if="enable.og.reuters" unless="disable.og.reuters">
+    <ai-enable feature-id="og_reuters" />
+  </target>
+  <available property="enable.og.tullettprebon" file="${install.dir}/og-tullettprebon.jar" />
+  <condition property="disable.og.tullettprebon">
+    <isset property="disable.marketdata" />
+  </condition>
+  <target name="enable-og-tullettprebon" if="enable.og.tullettprebon" unless="disable.og.tullettprebon">
+    <ai-enable feature-id="og_tullettprebon" />
+  </target>
+  <target name="enable-marketdata" depends="enable-og-activ,enable-og-bloomberg,enable-og-reuters,enable-og-tullettprebon" />
+
+  <!-- engine deployments -->
+
+  <available property="enable.og.examples" file="${install.dir}/og-examples.jar" />
+  <condition property="disable.og.examples">
+    <isset property="disable.engine" />
+  </condition>
+  <target name="enable-og-examples" if="enable.og.examples" unless="disable.og.examples">
+    <ai-enable feature-id="og_examples" />
+  </target>
+  <available property="enable.og.integration" file="${install.dir}/og-integration.jar" />
+  <condition property="disable.og.integration">
+    <isset property="disable.engine" />
+  </condition>
+  <target name="enable-og-integration" if="enable.og.integration" unless="disable.og.integration">
+    <ai-enable feature-id="og_integration" />
+  </target>
+  <target name="enable-engine" depends="enable-og-examples,enable-og-integration" />
+
+  <!-- general tasks -->
+
+  <target name="enable-all" depends="installer-core.enable-all,enable-marketdata,enable-engine" />
+
+  <target name="build-all" depends="ai-present,build-jvm-i386,build-jvm-x64,build-nojvm-i386,build-nojvm-x64" />
+
+  <target name="build" depends="create-build-file,set-build-number,build-all" />
+
+</project>
