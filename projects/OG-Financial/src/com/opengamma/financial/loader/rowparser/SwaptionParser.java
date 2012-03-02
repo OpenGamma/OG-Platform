@@ -14,6 +14,7 @@ import javax.time.calendar.Period;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -76,6 +77,10 @@ public class SwaptionParser extends RowParser {
     Expiry swaptionExpiry = new Expiry(
         ZonedDateTime.of(LocalDateTime.of(LocalDate.parse(getWithException(swaptionDetails, EXPIRY), CSV_DATE_FORMATTER), LocalTime.MIDNIGHT), TimeZone.UTC), 
         ExpiryAccuracy.MIN_HOUR_DAY_MONTH_YEAR);
+    
+    if (swapConvention == null || swaptionConvention == null || floatingRateConvention == null) {
+      throw new OpenGammaRuntimeException("Swaption parser failed to fetch one or more convention bundles required to populate a security");
+    }
     
     boolean isLong = Boolean.parseBoolean(getWithException(swaptionDetails, IS_LONG));
     boolean isCashSettled = swaptionConvention.isCashSettled();    

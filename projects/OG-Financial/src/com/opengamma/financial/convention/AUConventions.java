@@ -91,11 +91,11 @@ public class AUConventions {
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("BBSW3M Index"), SecurityUtils.ricSecurityId("AUBABSL3M=AFMA"),
             ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD Bank Bill 3m"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "AUDBBP3M")), "AUD Bank Bill 3m",
-        act365, following, Period.ofMonths(3), 1, false, null);
+        act365, following, Period.ofMonths(3), 0, false, null);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("BBSW6M Index"), SecurityUtils.ricSecurityId("AUBABSL6M=AFMA"),
             ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD Bank Bill 6m"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "AUDBBP6M")), "AUD Bank Bill 6m",
-        act365, following, Period.ofMonths(6), 1, false, null);
+        act365, following, Period.ofMonths(6), 0, false, null);
 
     //TODO need to check that these are right for deposit rates
     conventionMaster.addConventionBundle(

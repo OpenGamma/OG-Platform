@@ -383,16 +383,47 @@ public class CouponOISDiscountingMethodTest {
     long startTime, endTime;
     final int nbTest = 100;
 
-    startTime = System.currentTimeMillis();
     final ZonedDateTime referenceDate = TRADE_DATE;
     final Period tenor = Period.ofYears(50);
-    final SwapFixedOISDefinition oidUsd5YDefinition = SwapFixedOISDefinition.from(START_ACCRUAL_DATE, tenor, NOTIONAL, OIS_USD_GENERATOR, USD_FIXED_RATE, IS_PAYER);
-    final Swap<? extends Payment, ? extends Payment> ois = oidUsd5YDefinition.toDerivative(referenceDate, CURVES_NAMES_2[0], CURVES_NAMES_2[0]);
-    endTime = System.currentTimeMillis();
-    System.out.println("OIS swap " + tenor + " (construction): " + (endTime - startTime) + " ms");
+    SwapFixedOISDefinition oidUsd5YDefinition;
+    Swap<? extends Payment, ? extends Payment> ois;
 
     double[] pv = new double[nbTest];
     InterestRateCurveSensitivity[] pvcs = new InterestRateCurveSensitivity[nbTest];
+
+    double totalValue = 0.0;
+
+    startTime = System.currentTimeMillis();
+    oidUsd5YDefinition = SwapFixedOISDefinition.from(START_ACCRUAL_DATE, tenor, NOTIONAL, OIS_USD_GENERATOR, USD_FIXED_RATE, IS_PAYER);
+    ois = oidUsd5YDefinition.toDerivative(referenceDate, CURVES_NAMES_2[0], CURVES_NAMES_2[0]);
+    endTime = System.currentTimeMillis();
+    System.out.println("OIS swap " + tenor + " (construction): " + (endTime - startTime) + " ms");
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pv[looptest] = PVC.visit(ois, CURVES_2);
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " OIS swap " + tenor + " (price): " + (endTime - startTime) + " ms");
+
+    startTime = System.currentTimeMillis();
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      pvcs[looptest] = new InterestRateCurveSensitivity(PVCSC.visit(ois, CURVES_2));
+    }
+    endTime = System.currentTimeMillis();
+    System.out.println(nbTest + " OIS swap " + tenor + " (delta): " + (endTime - startTime) + " ms");
+
+    // Performance note: price: 28-Feb-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 15 ms for 100 OIS.
+    // Performance note: delta: 28-Feb-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: 115 ms for 100 OIS.
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      totalValue += pv[looptest];
+    }
+
+    startTime = System.currentTimeMillis();
+    oidUsd5YDefinition = SwapFixedOISDefinition.from(START_ACCRUAL_DATE, tenor, NOTIONAL, OIS_USD_GENERATOR, USD_FIXED_RATE, IS_PAYER);
+    ois = oidUsd5YDefinition.toDerivative(referenceDate, CURVES_NAMES_2[0], CURVES_NAMES_2[0]);
+    endTime = System.currentTimeMillis();
+    System.out.println("OIS swap " + tenor + " (construction): " + (endTime - startTime) + " ms");
 
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
@@ -410,6 +441,10 @@ public class CouponOISDiscountingMethodTest {
 
     // Performance note: price: 28-Feb-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xx ms for 100 OIS.
     // Performance note: delta: 28-Feb-12: On Mac Pro 3.2 GHz Quad-Core Intel Xeon: xx ms for 100 OIS.
+    for (int looptest = 0; looptest < nbTest; looptest++) {
+      totalValue += pv[looptest];
+    }
+
   }
 
 }
