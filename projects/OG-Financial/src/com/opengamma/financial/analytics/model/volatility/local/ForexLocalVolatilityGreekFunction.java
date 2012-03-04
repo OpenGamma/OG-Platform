@@ -42,8 +42,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.forex.ForexVolatilitySurfaceFunction;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.greeks.Greek;
 import com.opengamma.financial.greeks.PDEGreekResultCollection;
 import com.opengamma.financial.security.fx.FXUtils;
@@ -147,7 +146,7 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     final ValueProperties properties = createValueProperties()
-        .withAny(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE)
+        .withAny(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE) //TODO can be more specific?
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEValuePropertyNames.LOCAL_VOLATILITY_METHOD)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(PROPERTY_SURFACE_TYPE)
@@ -456,7 +455,7 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
       final String forwardCurveRightExtrapolator, final String theta, final String timeSteps, final String spaceSteps, final String timeGridBunching,
       final String spaceGridBunching, final String maxMoneyness, final String pdeDirection) {
     return ValueProperties.builder()
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
         .with(PROPERTY_X_AXIS, xAxis)
@@ -482,7 +481,7 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
       final String forwardCurveRightExtrapolator, final String theta, final String timeSteps, final String spaceSteps, final String timeGridBunching,
       final String spaceGridBunching, final String maxMoneyness, final String pdeDirection) {
     return createValueProperties()
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEValuePropertyNames.LOCAL_VOLATILITY_METHOD)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
@@ -510,7 +509,7 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
       final String forwardCurveRightExtrapolator, final String theta, final String timeSteps, final String spaceSteps, final String timeGridBunching,
       final String spaceGridBunching, final String maxMoneyness, final String pdeDirection, final String strikeInterpolatorName) {
     return createValueProperties()
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEValuePropertyNames.LOCAL_VOLATILITY_METHOD)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)

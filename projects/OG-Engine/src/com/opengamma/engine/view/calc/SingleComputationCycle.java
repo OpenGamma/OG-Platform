@@ -419,7 +419,7 @@ public class SingleComputationCycle implements ViewCycle, EngineResource {
       addToAllCaches(marketDataRequirement.getKey(), dataAsValue, cacheMarketDataOperation);
     }
     if (!missingMarketData.isEmpty()) {
-      s_logger.warn("Missing {} market data elements: {}", missingMarketData.size(), formatMissingLiveData(missingMarketData));
+      s_logger.info("Missing {} market data elements: {}", missingMarketData.size(), formatMissingLiveData(missingMarketData));
     }
     notifyFragmentCompleted(marketDataResultFragment);
   }

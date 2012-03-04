@@ -75,11 +75,11 @@ import com.opengamma.util.tuple.DoublesPair;
 public class SABRPresentValueSABRFunction extends SABRFunction {
   private static final PresentValueSABRSensitivitySABRCalculator CALCULATOR = PresentValueSABRSensitivitySABRCalculator.getInstance();
 
-  public SABRPresentValueSABRFunction(final String currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
+  public SABRPresentValueSABRFunction(final String currency, final String definitionName, final String forwardCurveName, final String fundingCurveName) {
     this(Currency.of(currency), definitionName, forwardCurveName, fundingCurveName);
   }
 
-  public SABRPresentValueSABRFunction(final Currency currency, final String definitionName, String forwardCurveName, String fundingCurveName) {
+  public SABRPresentValueSABRFunction(final Currency currency, final String definitionName, final String forwardCurveName, final String fundingCurveName) {
     super(currency, definitionName, false, forwardCurveName, fundingCurveName);
   }
 
@@ -91,7 +91,8 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
     final Security security = target.getSecurity();
     return security instanceof SwaptionSecurity
         || (security instanceof SwapSecurity && (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS
-            || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
+        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS
+        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
         || security instanceof CapFloorSecurity;
   }
 
@@ -150,53 +151,53 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitBondSecurity(BondSecurity security) {
+    public DoubleLabelledMatrix2D visitBondSecurity(final BondSecurity security) {
       return null;
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitCashSecurity(CashSecurity security) {
+    public DoubleLabelledMatrix2D visitCashSecurity(final CashSecurity security) {
       return null;
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitEquitySecurity(EquitySecurity security) {
+    public DoubleLabelledMatrix2D visitEquitySecurity(final EquitySecurity security) {
       return null;
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitFRASecurity(FRASecurity security) {
+    public DoubleLabelledMatrix2D visitFRASecurity(final FRASecurity security) {
       return null;
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitFutureSecurity(FutureSecurity security) {
+    public DoubleLabelledMatrix2D visitFutureSecurity(final FutureSecurity security) {
       return null;
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitSwapSecurity(SwapSecurity security) {
+    public DoubleLabelledMatrix2D visitSwapSecurity(final SwapSecurity security) {
       final Map.Entry<DoublesPair, Double> entry = _data.entrySet().iterator().next();
       return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Double[] {entry.getKey().second}, new double[][] {new double[] {entry.getValue()}});
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
+    public DoubleLabelledMatrix2D visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
       return null;
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitEquityOptionSecurity(EquityOptionSecurity security) {
+    public DoubleLabelledMatrix2D visitEquityOptionSecurity(final EquityOptionSecurity security) {
       return null;
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitFXOptionSecurity(FXOptionSecurity security) {
+    public DoubleLabelledMatrix2D visitFXOptionSecurity(final FXOptionSecurity security) {
       return null;
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitSwaptionSecurity(SwaptionSecurity security) {
+    public DoubleLabelledMatrix2D visitSwaptionSecurity(final SwaptionSecurity security) {
       final Map.Entry<DoublesPair, Double> entry = _data.entrySet().iterator().next();
       final ZonedDateTime swaptionExpiry = security.getExpiry().getExpiry();
       final SwapSecurity underlying = (SwapSecurity) getSecuritySource().getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
@@ -213,64 +214,64 @@ public class SABRPresentValueSABRFunction extends SABRFunction {
     //    }
 
     @Override
-    public DoubleLabelledMatrix2D visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+    public DoubleLabelledMatrix2D visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
       return null;
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+    public DoubleLabelledMatrix2D visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
       throw new NotImplementedException();
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
+    public DoubleLabelledMatrix2D visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
       return null;
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security) {
+    public DoubleLabelledMatrix2D visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
       return null;
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitFXForwardSecurity(FXForwardSecurity security) {
+    public DoubleLabelledMatrix2D visitFXForwardSecurity(final FXForwardSecurity security) {
       return null;
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitCapFloorSecurity(CapFloorSecurity security) {
+    public DoubleLabelledMatrix2D visitCapFloorSecurity(final CapFloorSecurity security) {
       final Map.Entry<DoublesPair, Double> entry = _data.entrySet().iterator().next();
       return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Double[] {entry.getKey().second}, new double[][] {new double[] {entry.getValue()}});
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitCapFloorCMSSpreadSecurity(CapFloorCMSSpreadSecurity security) {
+    public DoubleLabelledMatrix2D visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
       final Map.Entry<DoublesPair, Double> entry = _data.entrySet().iterator().next();
       return new DoubleLabelledMatrix2D(new Double[] {entry.getKey().first}, new Double[] {entry.getKey().second}, new double[][] {new double[] {entry.getValue()}});
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security) {
+    public DoubleLabelledMatrix2D visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
       return null;
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+    public DoubleLabelledMatrix2D visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
       return null;
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+    public DoubleLabelledMatrix2D visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
       return null;
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+    public DoubleLabelledMatrix2D visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
       return null;
     }
 
     @Override
-    public DoubleLabelledMatrix2D visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
+    public DoubleLabelledMatrix2D visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
       return null;
     }
 

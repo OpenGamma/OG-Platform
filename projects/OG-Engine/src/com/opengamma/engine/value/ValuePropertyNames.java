@@ -136,28 +136,64 @@ public final class ValuePropertyNames {
    */
   public static final String OUTPUT_RESERVED_PREFIX = ".";
 
+  /** 
+   * A general name for a property describing the sampling period for a time series (e.g. daily, weekly)
+   */
   public static final String SAMPLING_PERIOD = "SamplingPeriod";
   
+  /**
+   * A general name for a property describing how to calculate the returns of a given timeseries
+   */
   public static final String RETURN_CALCULATOR = "ReturnMethod";
   
+  /**
+   * A general name for a property describing how to generate a schedule (e.g. daily, weekly)
+   */
   public static final String SCHEDULE_CALCULATOR = "ScheduleMethod";
   
+  /**
+   * A general name for a property describing how to sample a series (e.g. pad missing data with that of the previous entry in the series)
+   */
   public static final String SAMPLING_FUNCTION = "SamplingMethod";
   
+  /**
+   * A general name for a property describing how to calculate the mean of a series
+   */
   public static final String MEAN_CALCULATOR = "MeanMethod";
   
+  /**
+   * A general name for a property describing how to calculate the standard deviation of a series
+   */
   public static final String STD_DEV_CALCULATOR = "StandardDeviationMethod";
   
+  /**
+   * A general name for a property describing the confidence level to use for VaR calculations 
+   */
   public static final String CONFIDENCE_LEVEL = "Percentile";
   
+  /**
+   * A general name for a property describing the horizon in sampling periods to use for VaR calculations
+   */
   public static final String HORIZON = "Horizon";
   
+  /**
+   * A general name for a property describing how to calculate the covariance of two time series
+   */
   public static final String COVARIANCE_CALCULATOR = "CovarianceMethod";
   
+  /**
+   * A general name for a property describing how to calculate the variance of a series
+   */
   public static final String VARIANCE_CALCULATOR = "VarianceMethod";
   
+  /**
+   * A general name for a property describing the maximum order of sensitivities to use when calculating VaR
+   */
   public static final String ORDER = "Order";
   
+  /**
+   * A general name for a property describing how the calculate the excess return of a series
+   */
   public static final String EXCESS_RETURN_CALCULATOR = "ExcessReturnMethod";
   
 }

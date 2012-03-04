@@ -24,7 +24,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.financial.analytics.model.forex.ForexVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
@@ -47,7 +47,7 @@ public abstract class ForexLocalVolatilityPDEGridFunction extends LocalVolatilit
   private static final Logger s_logger = LoggerFactory.getLogger(ForexLocalVolatilityPDEGridFunction.class);
 
   public ForexLocalVolatilityPDEGridFunction() {
-    super(ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE);
+    super(InstrumentTypeProperties.FOREX);
   }
 
   @Override
@@ -64,7 +64,7 @@ public abstract class ForexLocalVolatilityPDEGridFunction extends LocalVolatilit
     if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
       strike = fxOption.getCallAmount() / fxOption.getPutAmount();
     } else {
-      strike = fxOption.getPutAmount() / fxOption.getCallAmount(); //Review R White 27/02/12 I've swapped these around 
+      strike = fxOption.getPutAmount() / fxOption.getCallAmount(); //Review R White 27/02/12 I've swapped these around
     }
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double t = actAct.getDayCountFraction(date, fxOption.getExpiry().getExpiry());

@@ -17,8 +17,7 @@ import static com.opengamma.financial.analytics.model.volatility.local.LocalVola
 
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
-import com.opengamma.financial.analytics.model.forex.ForexVolatilitySurfaceFunction;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 
 /**
  * 
@@ -28,7 +27,7 @@ public class ForexLocalVolatilitySurfaceFunction extends LocalVolatilitySurfaceF
   @Override
   protected ValueProperties getResultProperties() {
     return createValueProperties()
-        .withAny(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE)
+        .withAny(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(PROPERTY_SURFACE_TYPE)
         .withAny(PROPERTY_X_AXIS)
@@ -46,7 +45,7 @@ public class ForexLocalVolatilitySurfaceFunction extends LocalVolatilitySurfaceF
       final String forwardCurveCalculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
       final String forwardCurveRightExtrapolator) {
     return createValueProperties()
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
         .with(ValuePropertyNames.SURFACE, definitionName)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
         .with(PROPERTY_X_AXIS, xAxis)
@@ -64,7 +63,7 @@ public class ForexLocalVolatilitySurfaceFunction extends LocalVolatilitySurfaceF
       final String forwardCurveCalculationMethod, final String h, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
       final String forwardCurveRightExtrapolator) {
     return createValueProperties()
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
         .with(PROPERTY_X_AXIS, xAxis)
@@ -81,7 +80,7 @@ public class ForexLocalVolatilitySurfaceFunction extends LocalVolatilitySurfaceF
   protected ValueProperties getSurfaceProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String lambda,
       final String forwardCurveCalculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator) {
     return ValueProperties.builder()
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
         .with(PROPERTY_X_AXIS, xAxis)

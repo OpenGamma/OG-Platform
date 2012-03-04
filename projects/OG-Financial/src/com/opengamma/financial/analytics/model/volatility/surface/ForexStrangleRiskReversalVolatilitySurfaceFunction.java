@@ -3,9 +3,8 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.forex;
+package com.opengamma.financial.analytics.model.volatility.surface;
 
-import static com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import java.lang.reflect.Array;
@@ -16,15 +15,12 @@ import java.util.TreeSet;
 
 import javax.time.calendar.Period;
 
-import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.marketdatasnapshot.VolatilitySurfaceData;
 import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -36,15 +32,11 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
-import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
-import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
-import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
-import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
 import com.opengamma.financial.model.option.definition.SmileDeltaParameter;
 import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureParameter;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -55,46 +47,16 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
-  /** Name of the instruments used to construct this surface */
-  public static final String INSTRUMENT_TYPE = "FX_VANILLA_OPTION";
-  private static final Logger s_logger = LoggerFactory.getLogger(ForexVolatilitySurfaceFunction.class);
-  private final String _definitionName;
-  private final String _specificationName;
-  private VolatilitySurfaceDefinition<?, ?> _definition;
-  private VolatilitySurfaceSpecification _specification;
-  private ValueRequirement _requirement;
-
-  public ForexVolatilitySurfaceFunction(final String definitionName, final String specificationName) {
-    Validate.notNull(definitionName, "definition name");
-    Validate.notNull(specificationName, "specification name");
-    _definitionName = definitionName;
-    _specificationName = specificationName;
-  }
-
-  @Override
-  public void init(final FunctionCompilationContext context) {
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
-    final ConfigDBVolatilitySurfaceDefinitionSource volSurfaceDefinitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
-    final ConfigDBVolatilitySurfaceSpecificationSource volSurfaceSpecificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
-    _definition = volSurfaceDefinitionSource.getDefinition(_definitionName, INSTRUMENT_TYPE);
-    if (_definition == null) {
-      throw new OpenGammaRuntimeException("Couldn't find Volatility Surface Definition for " + INSTRUMENT_TYPE + " called " + _definitionName);
-    }
-    _specification = volSurfaceSpecificationSource.getSpecification(_specificationName, INSTRUMENT_TYPE);
-    if (_specification == null) {
-      throw new OpenGammaRuntimeException("Couldn't find Volatility Surface Specification for " + INSTRUMENT_TYPE + " called " + _specificationName);
-    }
-    _requirement = new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, _definition.getTarget(),
-        ValueProperties.with(ValuePropertyNames.SURFACE, _definitionName)
-        .with(PROPERTY_SURFACE_INSTRUMENT_TYPE, INSTRUMENT_TYPE).get());
-  }
+public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends AbstractFunction.NonCompiledInvoker {
+  private static final Logger s_logger = LoggerFactory.getLogger(ForexStrangleRiskReversalVolatilitySurfaceFunction.class);
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
-    final Object volatilitySurfaceObject = inputs.getValue(_requirement);
+    final String surfaceName = desiredValues.iterator().next().getConstraint(ValuePropertyNames.SURFACE);
+    final ValueRequirement surfaceRequirement = getDataRequirement(surfaceName, target);
+    final Object volatilitySurfaceObject = inputs.getValue(getDataRequirement(surfaceName, target));
     if (volatilitySurfaceObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + _requirement);
+      throw new OpenGammaRuntimeException("Could not get " + surfaceRequirement);
     }
     @SuppressWarnings("unchecked")
     final VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>> fxVolatilitySurface = (VolatilitySurfaceData<Tenor, Pair<Number, FXVolQuoteType>>) volatilitySurfaceObject;
@@ -146,12 +108,13 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
       smile[i] = new SmileDeltaParameter(t, atm, deltas.toDoubleArray(), riskReversals.toDoubleArray(), butterflies.toDoubleArray());
     }
     final SmileDeltaTermStructureParameter smiles = new SmileDeltaTermStructureParameter(smile);
-    final ValueProperties.Builder resultProperties = createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, INSTRUMENT_TYPE);
+    final ValueProperties.Builder resultProperties = createValueProperties()
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX);
     if (shifts != null) {
       resultProperties.with(VolatilitySurfaceShiftFunction.SHIFT, shifts);
     }
-    return Collections.<ComputedValue>singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition
-        .getTarget()),
+    return Collections.<ComputedValue>singleton(new ComputedValue(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(),
         resultProperties.get()), smiles));
   }
 
@@ -165,10 +128,7 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    if (!UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme())) {
-      return false;
-    }
-    if (_specification.getSurfaceQuoteType().equals(SurfaceQuoteType.MARKET_STRANGLE_RISK_REVERSAL)) {
+    if (UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme())) {
       return true;
     }
     return false;
@@ -176,20 +136,26 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    return Collections.<ValueRequirement>singleton(_requirement);
+    final Set<String> surfaceNames = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE);
+    if (surfaceNames == null || surfaceNames.size() != 1) {
+      throw new OpenGammaRuntimeException("Need one surface name; have " + surfaceNames);
+    }
+    final String surfaceName = surfaceNames.iterator().next();
+    return Collections.<ValueRequirement>singleton(getDataRequirement(surfaceName, target));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties.Builder resultProperties = createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName).with(PROPERTY_SURFACE_INSTRUMENT_TYPE, INSTRUMENT_TYPE);
+    final ValueProperties.Builder resultProperties = createValueProperties()
+        .withAny(ValuePropertyNames.SURFACE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX);
     if (context.getViewCalculationConfiguration() != null) {
       final Set<String> shifts = context.getViewCalculationConfiguration().getDefaultProperties().getValues(DefaultVolatilitySurfaceShiftFunction.VOLATILITY_SURFACE_SHIFT);
       if ((shifts != null) && (shifts.size() == 1)) {
         resultProperties.with(VolatilitySurfaceShiftFunction.SHIFT, shifts.iterator().next());
       }
     }
-    return Collections.<ValueSpecification>singleton(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getTarget()),
-        resultProperties.get()));
+    return Collections.<ValueSpecification>singleton(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), resultProperties.get()));
   }
 
   private double getTime(final Tenor tenor) {
@@ -212,5 +178,13 @@ public class ForexVolatilitySurfaceFunction extends AbstractFunction.NonCompiled
       values.add(pair.getFirst());
     }
     return values.toArray((Number[]) Array.newInstance(Number.class, values.size()));
+  }
+
+  private ValueRequirement getDataRequirement(final String surfaceName, final ComputationTarget target) {
+    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, target.toSpecification(),
+        ValueProperties.builder()
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
+        .with(SurfaceQuoteType.PROPERTY_SURFACE_QUOTE_TYPE, SurfaceQuoteType.MARKET_STRANGLE_RISK_REVERSAL).get());
   }
 }

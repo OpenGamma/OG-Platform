@@ -45,8 +45,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.forex.ForexVolatilitySurfaceFunction;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
@@ -145,7 +144,7 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties properties = createValueProperties()
-        .withAny(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE)
+        .withAny(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE) //TODO
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEValuePropertyNames.LOCAL_VOLATILITY_METHOD)
         .withAny(ValuePropertyNames.SURFACE)
         .withAny(PROPERTY_SURFACE_TYPE)
@@ -444,7 +443,7 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
       final String forwardCurveRightExtrapolator, final String theta, final String timeSteps, final String spaceSteps, final String timeGridBunching,
       final String spaceGridBunching, final String maxMoneyness, final String pdeDirection) {
     return ValueProperties.builder()
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
         .with(PROPERTY_X_AXIS, xAxis)
@@ -488,7 +487,7 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
       final String forwardCurveRightExtrapolator, final String theta, final String timeSteps, final String spaceSteps, final String timeGridBunching,
       final String spaceGridBunching, final String maxMoneyness, final String pdeDirection) {
     return createValueProperties()
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEValuePropertyNames.LOCAL_VOLATILITY_METHOD)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
@@ -517,7 +516,7 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
       final String forwardCurveRightExtrapolator, final String theta, final String timeSteps, final String spaceSteps, final String timeGridBunching,
       final String spaceGridBunching, final String maxMoneyness, final String pdeDirection, final String strikeInterpolatorName, final String timeInterpolatorName) {
     return createValueProperties()
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEValuePropertyNames.LOCAL_VOLATILITY_METHOD)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
@@ -562,7 +561,7 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
     if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
       return fxOption.getCallAmount() / fxOption.getPutAmount();
     }
-    return fxOption.getPutAmount() / fxOption.getCallAmount(); //Review R White 27/02/12 I have swap these around - this logic is repeated in at least one other place 
+    return fxOption.getPutAmount() / fxOption.getCallAmount(); //Review R White 27/02/12 I have swap these around - this logic is repeated in at least one other place
   }
 
 }
