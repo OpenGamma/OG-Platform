@@ -4,10 +4,16 @@
     <subant buildpath="." antfile="servers.xml" inheritall="true" target="build" />
   </target>
 
-  <!-- TODO: build the R bundle that contains both OG-Language and OG-Rstats, with/without JVM -->
+  <target name="build-clients" unless="disable.clients">
+    <subant buildpath="." antfile="clients.xml" inheritall="true" target="build" />
+  </target>
 
-  <!-- TODO: build a monolithic MSIs comprising all the above (and any other MSIs from the checkout) -->
+  <!-- TODO: any other classes, e.g. administration tools -->
+
+  <target name="build-monolith" unless="disable.monolith">
+    <subant buildpath="." antfile="monolith.xml" inheritall="true" target="build" />
+  </target>
   
-  <target name="build" depends="build-servers" description="Builds the installer packages in the dist sub-directory" />
+  <target name="build" depends="build-servers,build-clients,build-monolith" description="Builds the installer packages in the dist sub-directory" />
 
 </project>

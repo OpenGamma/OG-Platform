@@ -48,14 +48,20 @@
   </condition>
   <target name="enable-og-examples" if="enable.og.examples" unless="disable.og.examples">
     <ai-enable feature-id="og_examples" />
+    <ai-enable feature-id="og_examples32" build-id="${ai.build.i386}" />
+    <ai-enable feature-id="og_examples64" build-id="${ai.build.x64}" />
     <property name="at.least.one.feature" value="true" />
   </target>
+  <!-- TODO: the OG-Example style stack with Open Source Bloomberg support -->
   <available property="enable.og.integration" file="${install.dir}/og-integration.jar" />
   <condition property="disable.og.integration">
     <isset property="disable.engine" />
   </condition>
   <target name="enable-og-integration" if="enable.og.integration" unless="disable.og.integration">
+    <mkdir dir="${install.dir}/install" /> <!-- OG-Integration doesn't produce an "install" folder -->
     <ai-enable feature-id="og_integration" />
+    <ai-enable feature-id="og_integration32" build-id="${ai.build.i386}" />
+    <ai-enable feature-id="og_integration64" build-id="${ai.build.x64}" />
     <property name="at.least.one.feature" value="true" />
   </target>
   <available property="enable.www" file="${install.dir}/web-engine/favicon.ico" />
