@@ -58,7 +58,7 @@
     <ai-enable feature-id="og_integration" />
     <property name="at.least.one.feature" value="true" />
   </target>
-  <available property="enable.www" file="${install.dir}/www/facicon.ico" />
+  <available property="enable.www" file="${install.dir}/web-engine/facicon.ico" />
   <condition property="disable.www">
     <isset property="disable.engine" />
   </condition>
