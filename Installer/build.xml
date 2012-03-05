@@ -8,6 +8,6 @@
 
   <!-- TODO: build a monolithic MSIs comprising all the above (and any other MSIs from the checkout) -->
   
-  <target name="build" depends="build-servers" />
+  <target name="build" depends="build-servers" description="Builds the installer packages in the dist sub-directory" />
 
 </project>

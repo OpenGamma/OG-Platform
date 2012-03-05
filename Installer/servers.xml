@@ -12,6 +12,7 @@
   </condition>
   <target name="enable-og-activ" if="enable.og.activ" unless="disable.og.activ">
     <ai-enable feature-id="og_activ" />
+    <property name="at.least.one.feature" value="true" />
   </target>
   <available property="enable.og.bloomberg" file="${install.dir}/og-bloomberg.jar" />
   <condition property="disable.og.bloomerg">
@@ -19,6 +20,7 @@
   </condition>
   <target name="enable-og-bloomberg" if="enable.og.bloomberg" unless="disable.og.bloomberg">
     <ai-enable feature-id="og_bloomberg" />
+    <property name="at.least.one.feature" value="true" />
   </target>
   <available property="enable.og.reuters" file="${install.dir}/og-reuters.jar" />
   <condition property="disable.og.reuters">
@@ -26,6 +28,7 @@
   </condition>
   <target name="enable-og-reuters" if="enable.og.reuters" unless="disable.og.reuters">
     <ai-enable feature-id="og_reuters" />
+    <property name="at.least.one.feature" value="true" />
   </target>
   <available property="enable.og.tullettprebon" file="${install.dir}/og-tullettprebon.jar" />
   <condition property="disable.og.tullettprebon">
@@ -33,6 +36,7 @@
   </condition>
   <target name="enable-og-tullettprebon" if="enable.og.tullettprebon" unless="disable.og.tullettprebon">
     <ai-enable feature-id="og_tullettprebon" />
+    <property name="at.least.one.feature" value="true" />
   </target>
   <target name="enable-marketdata" depends="enable-og-activ,enable-og-bloomberg,enable-og-reuters,enable-og-tullettprebon" />
 
@@ -44,6 +48,7 @@
   </condition>
   <target name="enable-og-examples" if="enable.og.examples" unless="disable.og.examples">
     <ai-enable feature-id="og_examples" />
+    <property name="at.least.one.feature" value="true" />
   </target>
   <available property="enable.og.integration" file="${install.dir}/og-integration.jar" />
   <condition property="disable.og.integration">
@@ -51,6 +56,7 @@
   </condition>
   <target name="enable-og-integration" if="enable.og.integration" unless="disable.og.integration">
     <ai-enable feature-id="og_integration" />
+    <property name="at.least.one.feature" value="true" />
   </target>
   <available property="enable.www" file="${install.dir}/www/facicon.ico" />
   <condition property="disable.www">
@@ -58,12 +64,16 @@
   </condition>
   <target name="enable-www" if="enable.www" unless="disable.www">
     <ai-enable feature-id="www" />
+    <property name="at.least.one.feature" value="true" />
   </target>
   <target name="enable-engine" depends="enable-og-examples,enable-og-integration,enable-www" />
 
   <!-- general tasks -->
 
-  <target name="enable-all" depends="installer-core.enable-all,enable-marketdata,enable-engine" />
+  <target name="enable-all-check" unless="at.least.one.feature">
+    <property name="disable.build.all" value="true" />
+  </target>
+  <target name="enable-all" depends="installer-core.enable-all,enable-marketdata,enable-engine,enable-all-check" />
 
   <target name="build-all" depends="ai-present,build-jvm-i386,build-jvm-x64,build-nojvm-i386,build-nojvm-x64" />
 
