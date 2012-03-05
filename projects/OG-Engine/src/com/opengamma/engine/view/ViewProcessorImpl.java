@@ -21,8 +21,6 @@ import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
-import com.opengamma.engine.view.calc.ViewResultListenerFactory;
-import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -34,20 +32,22 @@ import com.opengamma.engine.CachingComputationTargetResolver;
 import com.opengamma.engine.function.CompiledFunctionService;
 import com.opengamma.engine.function.resolver.FunctionResolver;
 import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.marketdata.NamedMarketDataSpecificationRepository;
 import com.opengamma.engine.marketdata.OverrideOperationCompiler;
-import com.opengamma.engine.marketdata.live.LiveMarketDataSourceRegistry;
 import com.opengamma.engine.marketdata.resolver.MarketDataProviderResolver;
 import com.opengamma.engine.view.cache.ViewComputationCacheSource;
 import com.opengamma.engine.view.calc.DependencyGraphExecutorFactory;
 import com.opengamma.engine.view.calc.EngineResourceManagerImpl;
 import com.opengamma.engine.view.calc.EngineResourceManagerInternal;
 import com.opengamma.engine.view.calc.SingleComputationCycle;
+import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import com.opengamma.engine.view.calc.stats.GraphExecutorStatisticsGathererProvider;
 import com.opengamma.engine.view.calcnode.JobDispatcher;
 import com.opengamma.engine.view.calcnode.ViewProcessorQueryReceiver;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewClientImpl;
 import com.opengamma.engine.view.event.ViewProcessorEventListenerRegistry;
+import com.opengamma.engine.view.execution.ViewExecutionFlags;
 import com.opengamma.engine.view.execution.ViewExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.engine.view.permission.ViewPermissionProvider;
@@ -82,7 +82,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   // Injected inputs
   private final String _name;
   private final ViewDefinitionRepository _viewDefinitionRepository;
-  private final LiveMarketDataSourceRegistry _liveMarketDataSourceRegistry;
+  private final NamedMarketDataSpecificationRepository _namedMarketDataSpecificationRepository;
   private final SecuritySource _securitySource;
   private final PositionSource _positionSource;
   private final CachingComputationTargetResolver _computationTargetResolver;
@@ -122,7 +122,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
   public ViewProcessorImpl(
       String name,
       ViewDefinitionRepository viewDefinitionRepository,
-      LiveMarketDataSourceRegistry liveMarketDataSourceRegistry,
+      NamedMarketDataSpecificationRepository namedMarketDataSpecificationRepository,
       SecuritySource securitySource,
       PositionSource positionSource,
       CachingComputationTargetResolver computationTargetResolver,
@@ -140,7 +140,7 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
 
     _name = name;
     _viewDefinitionRepository = viewDefinitionRepository;
-    _liveMarketDataSourceRegistry = liveMarketDataSourceRegistry;
+    _namedMarketDataSpecificationRepository = namedMarketDataSpecificationRepository;
     _securitySource = securitySource;
     _positionSource = positionSource;
     _computationTargetResolver = computationTargetResolver;
@@ -168,11 +168,11 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
     return _viewDefinitionRepository;
   }
 
-
   @Override
-  public LiveMarketDataSourceRegistry getLiveMarketDataSourceRegistry() {
-    return _liveMarketDataSourceRegistry;
+  public NamedMarketDataSpecificationRepository getNamedMarketDataSpecificationRepository() {
+    return _namedMarketDataSpecificationRepository;
   }
+  
   //-------------------------------------------------------------------------
   @Override
   public Collection<ViewProcessImpl> getViewProcesses() {
@@ -347,8 +347,8 @@ public class ViewProcessorImpl implements ViewProcessorInternal {
       ViewProcessContext viewProcessContext = createViewProcessContext();
       ViewProcessImpl viewProcess = new ViewProcessImpl(viewProcessId, definitionId, executionOptions, viewProcessContext, getViewCycleManager(), cycleObjectId);
 
-      // if we execute in batch mode attach special listener to dump coming results into db
-      if(executionOptions.getFlags().contains(ViewExecutionFlags.BATCH)){
+      // If executing in batch mode then attach a special listener to write incoming results into the batch db
+      if (executionOptions.getFlags().contains(ViewExecutionFlags.BATCH)) {
         viewProcess.attachListener(_viewResultListenerFactory.createViewResultListener());
       }
       

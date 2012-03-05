@@ -15,9 +15,9 @@ import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.SingletonFactoryBean;
 
 /**
- * Spring factory bean for {@link LiveMarketDataProvider}.
+ * Spring factory bean for a single {@link LiveMarketDataProvider}, wrapped into a {@link MarketDataProviderFactory}.
  */
-public class LiveMarketDataProviderFactoryFactoryBean extends SingletonFactoryBean<MarketDataProviderFactory> {
+public class SingleLiveMarketDataProviderFactoryFactoryBean extends SingletonFactoryBean<MarketDataProviderFactory> {
 
   private LiveDataClient _liveDataClient;
   private SecuritySource _securitySource;

@@ -49,7 +49,7 @@ public class DataViewProcessorResource extends AbstractDataResource {
 
   //CSOFF: just constants
   public static final String PATH_DEFINITION_REPOSITORY = "definitions";
-  public static final String PATH_LIVE_DATA_SOURCE_REGISTRY = "liveDataSourceRegistry";
+  public static final String PATH_NAMED_MARKET_DATA_SPEC_REPOSITORY = "namedMarketDataSpecRepository";
   public static final String PATH_NAME = "name";
   public static final String PATH_CLIENTS = "clients";
   public static final String PATH_PROCESSES = "processes";
@@ -130,9 +130,9 @@ public class DataViewProcessorResource extends AbstractDataResource {
     return new DataViewDefinitionRepositoryResource(_viewProcessor.getViewDefinitionRepository());
   }
   
-  @Path(PATH_LIVE_DATA_SOURCE_REGISTRY)
-  public DataLiveMarketDataSourceRegistryResource getLiveMarketDataSourceRegistry() {
-    return new DataLiveMarketDataSourceRegistryResource(_viewProcessor.getLiveMarketDataSourceRegistry());
+  @Path(PATH_NAMED_MARKET_DATA_SPEC_REPOSITORY)
+  public DataNamedMarketDataSpecificationRepositoryResource getLiveMarketDataSourceRegistry() {
+    return new DataNamedMarketDataSpecificationRepositoryResource(_viewProcessor.getNamedMarketDataSpecificationRepository());
   }
 
   @Path(PATH_SNAPSHOTTER)

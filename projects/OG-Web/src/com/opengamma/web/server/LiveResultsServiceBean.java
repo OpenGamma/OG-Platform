@@ -164,7 +164,7 @@ public class LiveResultsServiceBean {
   protected LiveResultsService createLiveResultsService() {
     return new LiveResultsService(getBayeux(), getViewProcessor(), getPositionSource(), getSecuritySource(),
         getUserPortfolioMaster(), getUserPositionMaster(), getUserViewDefinitionRepository(), getSnapshotMaster(),
-        getUser(), getExecutorService(), getFudgeContext(), getViewProcessor().getLiveMarketDataSourceRegistry(),
+        getUser(), getExecutorService(), getFudgeContext(), getViewProcessor().getNamedMarketDataSpecificationRepository(),
         getPortfolioAggregators());
   }
 
