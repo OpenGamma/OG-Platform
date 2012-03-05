@@ -19,8 +19,6 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 /**
@@ -36,8 +34,6 @@ import org.springframework.core.io.Resource;
  */
 public class OpenGammaComponentServer {
   
-  private static final Logger s_logger = LoggerFactory.getLogger(OpenGammaComponentServer.class);
-
   /**
    * The server name property.
    * DO NOT deduplicate with the same value in ComponentManager.
@@ -67,33 +63,35 @@ public class OpenGammaComponentServer {
    * @param args  the arguments
    */
   public static void main(String[] args) { // CSIGNORE
-    try {
-      s_logger.info("Starting OpenGamma component server");
-      new OpenGammaComponentServer().run(args);
-    } catch (RuntimeException e) {
-      s_logger.error("Couldn't start OpenGamma component server", e);
+    if (!new OpenGammaComponentServer().run(args)) {
+      System.exit(0);
     }
   }
-
+  
+  protected void log(final String msg) {
+    System.out.println(msg);
+  }
+  
   //-------------------------------------------------------------------------
   /**
    * Runs the server.
    * 
    * @param args  the arguments, not null
+   * @return true if the server is started, false if there was a problem
    */
-  public void run(String[] args) {
+  public boolean run(String[] args) {
     CommandLine cmdLine;
     try {
       cmdLine = (new PosixParser()).parse(OPTIONS, args);
     } catch (ParseException ex) {
-      System.out.println(ex.getMessage());
+      log(ex.getMessage());
       usage();
-      return;
+      return false;
     }
     
     if (cmdLine.hasOption(HELP_OPTION)) {
       usage();
-      return;
+      return false;
     }
     
     int verbosity = 1;
@@ -105,18 +103,18 @@ public class OpenGammaComponentServer {
     
     args = cmdLine.getArgs();
     if (args.length == 0) {
-      System.out.println("No config file specified");
+      log("No config file specified");
       usage();
-      return;
+      return false;
     }
     if (args.length > 1) {
-      System.out.println("Only one config file can be specified");
+      log("Only one config file can be specified");
       usage();
-      return;
+      return false;
     }
     String configFile = args[0];
     
-    run(verbosity, configFile);
+    return run(verbosity, configFile);
   }
 
   //-------------------------------------------------------------------------
@@ -136,13 +134,14 @@ public class OpenGammaComponentServer {
    * 
    * @param verbosity  the verbosity (0 quiet, 1 normal, 2 verbose)
    * @param configFile  the config file, not null
+   * @return true if the server was started, false if there was a problem
    */
-  protected void run(int verbosity, String configFile) {
+  protected boolean run(int verbosity, String configFile) {
     long start = System.nanoTime();
     if (verbosity > 0) {
-      System.out.println("======== STARTING OPENGAMMA ========");
+      log("======== STARTING OPENGAMMA ========");
       if (verbosity > 1) {
-        System.out.println(" Config file: " + configFile);
+        log(" Config file: " + configFile);
       }
     }
     
@@ -160,14 +159,15 @@ public class OpenGammaComponentServer {
       
     } catch (Exception ex) {
       ex.printStackTrace(System.err);
-      System.out.println("======== OPENGAMMA STARTUP FAILED ========");
-      System.exit(1);
+      log("======== OPENGAMMA STARTUP FAILED ========");
+      return false;
     }
     
     if (verbosity > 0) {
       long end = System.nanoTime();
-      System.out.println("======== OPENGAMMA STARTED in " + ((end - start) / 1000000) + "ms ========");
+      log("======== OPENGAMMA STARTED in " + ((end - start) / 1000000) + "ms ========");
     }
+    return true;
   }
 
   //-------------------------------------------------------------------------
@@ -229,7 +229,7 @@ public class OpenGammaComponentServer {
   /**
    * Manager that can output more verbose messages.
    */
-  private static class VerboseManager extends ComponentManager {
+  private class VerboseManager extends ComponentManager {
     public VerboseManager(String serverName) {
       super(serverName);
     }
@@ -239,25 +239,25 @@ public class OpenGammaComponentServer {
     @Override
     public ComponentRepository start(Resource resource) {
       try {
-        System.out.println("  Using file: " + resource.getURI());
+        log("  Using file: " + resource.getURI());
       } catch (IOException ex) {
         try {
-          System.out.println("  Using file: " + resource.getFile());
+          log("  Using file: " + resource.getFile());
         } catch (IOException ex2) {
-          System.out.println("  Using file: " + resource);
+          log("  Using file: " + resource);
         }
       }
       return super.start(resource);
     }
     @Override
     protected void loadIni(Resource resource) {
-      System.out.println("--- Using merged properties ---");
+      log("--- Using merged properties ---");
       Map<String, String> properties = new TreeMap<String, String>(getProperties());
       for (String key : properties.keySet()) {
         if (key.contains("password")) {
-          System.out.println(" " + key + " = " + StringUtils.repeat("*", properties.get(key).length()));
+          log(" " + key + " = " + StringUtils.repeat("*", properties.get(key).length()));
         } else {
-          System.out.println(" " + key + " = " + properties.get(key));
+          log(" " + key + " = " + properties.get(key));
         }
       }
       super.loadIni(resource);
@@ -265,38 +265,38 @@ public class OpenGammaComponentServer {
     @Override
     protected void initComponent(String groupName, LinkedHashMap<String, String> groupData) {
       long startInstant = System.nanoTime();
-      System.out.println("--- Initializing " + groupName + " ---");
+      log("--- Initializing " + groupName + " ---");
       
       super.initComponent(groupName, groupData);
       
       long endInstant = System.nanoTime();
-      System.out.println("--- Initialized " + groupName + " in " + ((endInstant - startInstant) / 1000000L) + "ms ---");
+      log("--- Initialized " + groupName + " in " + ((endInstant - startInstant) / 1000000L) + "ms ---");
     }
     @Override
     protected void start() {
-      System.out.println("--- Starting Lifecycle ---");
+      log("--- Starting Lifecycle ---");
       super.start();
-      System.out.println("--- Started Lifecycle ---");
+      log("--- Started Lifecycle ---");
     }
   }
 
   /**
    * Repository that can output more verbose messages.
    */
-  private static class VerboseRepository extends ComponentRepository {
+  private class VerboseRepository extends ComponentRepository {
     @Override
     protected void registered(Object registeredKey, Object registeredObject) {
       if (registeredKey instanceof ComponentInfo) {
         ComponentInfo info = (ComponentInfo) registeredKey;
         if (info.getAttributes().isEmpty()) {
-          System.out.println(" Registered component: " + info.toComponentKey());
+          log(" Registered component: " + info.toComponentKey());
         } else {
-          System.out.println(" Registered component: " + info.toComponentKey() + " " + info.getAttributes());
+          log(" Registered component: " + info.toComponentKey() + " " + info.getAttributes());
         }
       } else if (registeredKey instanceof ComponentKey) {
-        System.out.println(" Registered component: " + registeredKey);
+        log(" Registered component: " + registeredKey);
       } else {
-        System.out.println(" Registered callback: " + registeredObject);
+        log(" Registered callback: " + registeredObject);
       }
       super.registered(registeredKey, registeredObject);
     }

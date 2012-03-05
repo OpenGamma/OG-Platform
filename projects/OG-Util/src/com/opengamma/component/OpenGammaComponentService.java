@@ -11,8 +11,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.OpenGammaRuntimeException;
-
 /**
  * Sub-class of the standard {@link OpenGammaComponentServer} that works with the Advanced
  * Installer service wrappers when installed on Windows.
@@ -29,12 +27,16 @@ public class OpenGammaComponentService extends OpenGammaComponentServer {
   /**
    * Starts the service, blocking until the stop signal is received.
    * 
-   * @param args the command line arguments
+   * @param args the command line arguments, the last element is the service name
    */
   public static void main(final String[] args) { // CSIGNORE
-    s_logger.info("Starting service");
+    s_logger.info("Starting service {}", args[args.length - 1]);
+    final String[] runArgs = new String[args.length - 1];
+    System.arraycopy(args, 0, runArgs, 0, runArgs.length);
     try {
-      INSTANCE.run(args);
+      if (!INSTANCE.run(runArgs)) {
+        s_logger.error("One or more errors occurred starting the service");
+      }
     } catch (Throwable e) {
       s_logger.error("Couldn't start service", e);
     }
@@ -49,15 +51,23 @@ public class OpenGammaComponentService extends OpenGammaComponentServer {
   }
 
   @Override
-  public void run(final String[] args) {
-    super.run(args);
+  protected void log(final String msg) {
+    s_logger.info(msg);
+  }
+
+  @Override
+  public boolean run(final String[] args) {
+    if (!super.run(args)) {
+      return false;
+    }
     s_logger.info("Service started -- waiting for stop signal");
     try {
       _latch.await();
       s_logger.info("Service stopped");
+      return true;
     } catch (InterruptedException e) {
       s_logger.warn("Service interrupted");
-      throw new OpenGammaRuntimeException("Interrupted", e);
+      return false;
     }
   }
 
