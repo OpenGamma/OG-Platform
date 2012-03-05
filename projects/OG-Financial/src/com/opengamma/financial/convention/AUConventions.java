@@ -212,5 +212,15 @@ public class AUConventions {
         act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBA OVERNIGHT CASH RATE"), au, true);
 
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_SWAPTION")), "AUD_SWAPTION", false);
+
+    conventionMaster.addConventionBundle(
+        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("ADFR0CF Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD FRA 3x6")), "AUD FRA 3x9", act365,
+        following, Period.ofMonths(3), 0, false, null);
+    conventionMaster.addConventionBundle(
+        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("ADFR0FI Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD FRA 6x9")), "AUD FRA 6x12", act365,
+        following, Period.ofMonths(3), 0, false, null);
+    conventionMaster.addConventionBundle(
+        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("ADFR0F1C Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD FRA 9x12")), "AUD FRA 9x15", act365,
+        following, Period.ofMonths(3), 0, false, null);
   }
 }

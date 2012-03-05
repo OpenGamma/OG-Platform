@@ -256,7 +256,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefi
       final ConventionBundle conventions, final boolean isPayer) {
     final double notional = ((InterestRateNotional) fixedLeg.getNotional()).getAmount();
     final BusinessDayConvention businessDay = fixedLeg.getBusinessDayConvention();
-    final boolean isEOM = true; //conventions.isEOMConvention();
+    final boolean isEOM = fixedLeg.isEom();
     return AnnuityCouponFixedDefinition.from(((InterestRateNotional) fixedLeg.getNotional()).getCurrency(), effectiveDate, maturityDate, fixedLeg.getFrequency(), calendar, fixedLeg.getDayCount(),
         businessDay, isEOM, notional, fixedLeg.getRate(), isPayer);
   }
@@ -278,7 +278,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefi
     }
     final IborIndex index = new IborIndex(currency, tenor, indexConvention.getSettlementDays(), calendar, indexConvention.getDayCount(), indexConvention.getBusinessDayConvention(),
         indexConvention.isEOMConvention());
-    return AnnuityCouponIborDefinition.from(effectiveDate, maturityDate, notional, index, isPayer);
+    return AnnuityCouponIborDefinition.from(effectiveDate, maturityDate, notional, index, isPayer, floatLeg.getBusinessDayConvention(), floatLeg.isEom());
   }
 
   private AnnuityCouponOISDefinition getOISSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final FloatingInterestRateLeg floatLeg, final Calendar calendar,
