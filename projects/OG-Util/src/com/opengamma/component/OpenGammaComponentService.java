@@ -6,6 +6,7 @@
 package com.opengamma.component;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
@@ -21,7 +22,8 @@ public class OpenGammaComponentService extends OpenGammaComponentServer {
 
   private static final OpenGammaComponentService INSTANCE = new OpenGammaComponentService();
 
-  private final CountDownLatch _latch = new CountDownLatch(1);
+  private final CountDownLatch _stopNotify = new CountDownLatch(1);
+  private final CountDownLatch _stopConfirm = new CountDownLatch(1);
   private final AtomicReference<ComponentRepository> _repository = new AtomicReference<ComponentRepository>();
 
   /**
@@ -48,6 +50,7 @@ public class OpenGammaComponentService extends OpenGammaComponentServer {
   public static void stop() {
     s_logger.info("Stopping service");
     INSTANCE.serverStopping();
+    s_logger.info("Service stopped");
   }
 
   @Override
@@ -62,8 +65,9 @@ public class OpenGammaComponentService extends OpenGammaComponentServer {
     }
     s_logger.info("Service started -- waiting for stop signal");
     try {
-      _latch.await();
+      _stopNotify.await();
       s_logger.info("Service stopped");
+      _stopConfirm.countDown();
       return true;
     } catch (InterruptedException e) {
       s_logger.warn("Service interrupted");
@@ -88,7 +92,14 @@ public class OpenGammaComponentService extends OpenGammaComponentServer {
         s_logger.error("Couldn't stop components", e);
       }
       s_logger.debug("Releasing main thread");
-      _latch.countDown();
+      _stopNotify.countDown();
+      s_logger.info("Waiting for confirmation signal");
+      try {
+        _stopConfirm.await();
+      } catch (InterruptedException e) {
+        s_logger.warn("Service interrupted");
+        System.exit(0);
+      }
     } else {
       s_logger.warn("Stop signal received before service startup completed");
       System.exit(0);
