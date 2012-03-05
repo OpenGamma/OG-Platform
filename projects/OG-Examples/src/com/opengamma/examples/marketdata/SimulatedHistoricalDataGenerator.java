@@ -75,10 +75,10 @@ public class SimulatedHistoricalDataGenerator {
       int lineNum = 0;
       while ((line = reader.readNext()) != null) {
         lineNum++;
-        if (line.length == 0) {
+        if ((line.length == 0) || line[0].startsWith("#")) {
           s_logger.debug("Empty line on {}", lineNum);
         } else if (line.length != NUM_FIELDS) {
-          s_logger.error("Invalid number of fields ({}) in CSV on line {}", NUM_FIELDS, lineNum);
+          s_logger.error("Invalid number of fields ({}) in CSV on line {}", line.length, lineNum);
         } else {
           String scheme = line[0];
           String identifier = line[1];
