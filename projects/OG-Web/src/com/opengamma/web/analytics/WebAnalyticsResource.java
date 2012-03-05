@@ -15,8 +15,6 @@ import javax.ws.rs.core.Response;
 
 import org.springframework.web.context.ServletContextAware;
 
-import com.google.common.base.Supplier;
-import com.google.common.base.Suppliers;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.LiveResultsService;
 import com.opengamma.web.server.LiveResultsServiceBean;
@@ -30,24 +28,29 @@ import com.opengamma.web.server.WebView;
 public class WebAnalyticsResource implements ServletContextAware {
 
   /**
+   * Attribute name for the servlet context.
+   */
+  public static final String LIVE_RESULTS_SERVICE_ATTRIBUTE = WebAnalyticsResource.class.getName() + ".LiveResultsServiceBean";
+  /**
    * The binder.
    */
-  private final Binder _binder;
-  /**
-   * The supplier.
-   */
-  private final Supplier<LiveResultsService> _cachedBinder;
+  private final LiveResultsServiceBean _liveResultsServiceBean;
 
-  // TODO this shouldn't be necessary once Cometd has gone
+  /**
+   * Initializes the resource.
+   * 
+   * @param liveResultsServiceBean  the bean, not null
+   */
   public WebAnalyticsResource(LiveResultsServiceBean liveResultsServiceBean) {
+    // TODO this shouldn't be necessary once Cometd has gone
     // Have to inject the wrapper here as the actual service is not initialised until after the Bayeux service is available 
-    _binder = new Binder(liveResultsServiceBean);
-    _cachedBinder = Suppliers.memoize(_binder);
+    _liveResultsServiceBean = liveResultsServiceBean;
   }
 
   @Override
   public void setServletContext(ServletContext servletContext) {
-    _binder.setServletContext(servletContext);
+    // this is picked up by the WebAnalyticsBayeuxInitializer
+    servletContext.setAttribute(LIVE_RESULTS_SERVICE_ATTRIBUTE, _liveResultsServiceBean);
   }
 
   //-------------------------------------------------------------------------
@@ -55,7 +58,11 @@ public class WebAnalyticsResource implements ServletContextAware {
   @Path("{clientId}/{gridName}")
   @Produces("text/csv")
   public Response getGridCsv(@PathParam("clientId") String clientId, @PathParam("gridName") String gridName) {
-    WebView clientView = _cachedBinder.get().getClientView(clientId);
+    LiveResultsService liveResultsService = _liveResultsServiceBean.getLiveResultsService();
+    if (liveResultsService == null) {
+      throw new IllegalStateException("LiveResultsService not initialized");
+    }
+    WebView clientView = liveResultsService.getClientView(clientId);
     if (clientView == null) {
       return null;
     }
@@ -64,29 +71,6 @@ public class WebAnalyticsResource implements ServletContextAware {
     String csv = csvResult.getSecond();
     String filename = clientView.getViewDefinitionId() + " - " + gridName + " - " + valuationTime + ".csv";
     return Response.ok(csv).header("content-disposition", "attachment; filename=\"" + filename + "\"").build();
-  }
-
-  /**
-   * Binds the parts together, ensuring that the initialization is delayed until cometd starts.
-   * The binder is used via the caching memoized supplier.
-   */
-  private static final class Binder implements Supplier<LiveResultsService> {
-    private final LiveResultsServiceBean _liveResultsServiceBean;
-    private ServletContext _servletContext;
-
-    private Binder(LiveResultsServiceBean liveResultsServiceBean) {
-      _liveResultsServiceBean = liveResultsServiceBean;
-    }
-
-    void setServletContext(ServletContext servletContext) {
-      _servletContext = servletContext;  // cannot init here
-    }
-
-    @Override
-    public LiveResultsService get() {
-      _liveResultsServiceBean.init(_servletContext);
-      return _liveResultsServiceBean.getLiveResultsService();
-    }
   }
 
 }
