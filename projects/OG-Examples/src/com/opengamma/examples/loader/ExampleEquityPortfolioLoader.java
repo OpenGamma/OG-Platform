@@ -28,7 +28,7 @@ import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.examples.tool.AbstractTool;
+import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.GICSCode;
 import com.opengamma.id.ExternalId;
@@ -51,7 +51,7 @@ import com.opengamma.util.money.Currency;
  * more than once you will get multiple copies portfolios and securities with the same names.
  * It is designed to run against the HSQLDB example database.
  */
-public class ExampleEquityPortfolioLoader extends AbstractTool {
+public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleEquityPortfolioLoader.class);
@@ -83,9 +83,7 @@ public class ExampleEquityPortfolioLoader extends AbstractTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    if (init()) {
-      new ExampleEquityPortfolioLoader().run();
-    }
+    new ExampleEquityPortfolioLoader().initAndRun(args);
     System.exit(0);
   }
 
