@@ -5,8 +5,8 @@
  */
 package com.opengamma.component;
 
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.CyclicBarrier;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.slf4j.Logger;
@@ -38,9 +38,13 @@ public class OpenGammaComponentService extends OpenGammaComponentServer {
     try {
       if (!INSTANCE.run(runArgs)) {
         s_logger.error("One or more errors occurred starting the service");
+        System.exit(1);
+      } else {
+        System.exit(0);
       }
     } catch (Throwable e) {
       s_logger.error("Couldn't start service", e);
+      System.exit(1);
     }
   }
 
@@ -51,6 +55,29 @@ public class OpenGammaComponentService extends OpenGammaComponentServer {
     s_logger.info("Stopping service");
     INSTANCE.serverStopping();
     s_logger.info("Service stopped");
+    // This is bad. Not everything currently responds nicely to the "stop" and non-daemon threads
+    // keep the process alive. Remove this hack when there are no more non-daemon threads that can
+    // outlive their components and prevent process termination when running as a service.
+    int aliveCount = 0, nonDaemon = 0;
+    for (Map.Entry<Thread, StackTraceElement[]> active : Thread.getAllStackTraces().entrySet()) {
+      final Thread t = active.getKey();
+      if (t.isAlive()) {
+        if (!t.isDaemon()) {
+          s_logger.debug("Thread {} still active", t);
+          for (StackTraceElement stack : active.getValue()) {
+            s_logger.debug("Stack: {}", stack);
+          }
+          nonDaemon++;
+        }
+        aliveCount++;
+      }
+    }
+    if (nonDaemon > 0) {
+      s_logger.error("{} non-daemon thread(s) (of {}) still active at shutdown, calling system.exit", nonDaemon, aliveCount);
+      System.exit(1);
+    } else {
+      s_logger.info("No non-daemon threads (of {}) active at shutdown", aliveCount);
+    }
   }
 
   @Override
@@ -98,11 +125,11 @@ public class OpenGammaComponentService extends OpenGammaComponentServer {
         _stopConfirm.await();
       } catch (InterruptedException e) {
         s_logger.warn("Service interrupted");
-        System.exit(0);
+        System.exit(1);
       }
     } else {
       s_logger.warn("Stop signal received before service startup completed");
-      System.exit(0);
+      System.exit(1);
     }
   }
 
