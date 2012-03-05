@@ -4037,6 +4037,8 @@
   <COMPONENT cid="caphyon.advinst.msicomp.TxtUpdateComponent">
     <ROW Name="Append/Create" TxtUpdateSet="example_database_create" FindPattern="@echo off&#13;&#10;echo Creating example database&#13;&#10;example-db-create.[arch].exe&#13;&#10;echo Creating user database&#13;&#10;og-fin-user-create.[arch].exe&#13;&#10;echo Populating example database&#13;&#10;og-examples-populate.[arch].exe" Options="32" Order="0" FileEncoding="0"/>
     <ROW Name="Append/Create" TxtUpdateSet="YourFile.txt" FindPattern="MANAGER.NEXT.FILE = classpath:fullstack/fullstack-example.properties&#13;&#10;jetty.resourceBase = [web_engine_Dir]" Options="32" Order="0" FileEncoding="0"/>
+    <ROW Name="Slashes" TxtUpdateSet="YourFile.txt" FindPattern="\" ReplacePattern="/" Options="2" Order="1" FileEncoding="-1"/>
+    <ROW Name="Final Slash" TxtUpdateSet="YourFile.txt" FindPattern="/www/$" ReplacePattern="/www" Options="3" Order="2" FileEncoding="-1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.TxtUpdateSetComponent">
     <ROW Key="YourFile.txt" Component="fullstack_viewprocessor_spring.xml" FileName="fullstack-example-run.properties" Directory="fullstack_Dir" Options="25"/>
