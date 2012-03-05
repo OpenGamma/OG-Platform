@@ -44,7 +44,7 @@
   <!-- Jersey - JAXRS support -->
   <servlet>
     <servlet-name>jersey-spring</servlet-name>
-    <servlet-class>com.opengamma.component.OpenGammaServlet</servlet-class>
+    <servlet-class>com.opengamma.component.rest.OpenGammaServlet</servlet-class>
     <!--for creating subscriptions to entity updates-->
     <init-param>
       <param-name>com.sun.jersey.spi.container.ResourceFilters</param-name>

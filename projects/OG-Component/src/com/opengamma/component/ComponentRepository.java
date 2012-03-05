@@ -22,6 +22,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
 import org.springframework.web.context.ServletContextAware;
 
+import com.opengamma.component.rest.RestComponents;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.ReflectionUtils;
 

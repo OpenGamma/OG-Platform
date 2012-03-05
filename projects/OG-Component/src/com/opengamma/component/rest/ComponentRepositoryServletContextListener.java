@@ -3,11 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.component;
+package com.opengamma.component.rest;
 
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import com.opengamma.component.ComponentRepository;
 import com.opengamma.util.ArgumentChecker;
 
 /**

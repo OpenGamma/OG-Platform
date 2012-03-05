@@ -20,8 +20,8 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.JerseyRestResourceFactory;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.rest.JerseyRestResourceFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.batch.BatchMaster;

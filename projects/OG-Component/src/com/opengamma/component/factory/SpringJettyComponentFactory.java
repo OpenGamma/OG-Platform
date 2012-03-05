@@ -22,7 +22,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentFactory;
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.RestComponents;
+import com.opengamma.component.rest.RestComponents;
 import com.opengamma.transport.jaxrs.FudgeObjectBinaryConsumer;
 import com.opengamma.transport.jaxrs.FudgeObjectBinaryProducer;
 import com.opengamma.transport.jaxrs.FudgeObjectJSONConsumer;
