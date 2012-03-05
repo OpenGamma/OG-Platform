@@ -209,8 +209,11 @@ public class CHConventions {
         act360, modified, quarterly, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF LIBOR 3m"), ch, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF_6M_SWAP")), "CHF_6M_SWAP", thirty360, modified, annual, 2, ch,
         act360, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF LIBOR 6m"), ch, true);
+
+    // Overnight Index Swap Convention have additional flag, publicationLag
+    final Integer publicationLag = 0; // TODO CASE PublicationLag CHF - Confirm 0
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF_OIS_SWAP")), "CHF_OIS_SWAP", act360, modified, annual, 2, ch,
-        act360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF TOISTOIS"), ch);
+        act360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF TOISTOIS"), ch, true, publicationLag);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHF_IBOR_INDEX")), "CHF_IBOR_INDEX", act360, following, 2, false);
 
     //Identifiers for external data

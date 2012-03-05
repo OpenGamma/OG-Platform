@@ -102,7 +102,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
-    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>> builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
+    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
         .futureSecurityVisitor(futureConverter).bondSecurityVisitor(bondConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
@@ -221,7 +221,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     }
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve : (YieldAndDiscountCurve) fundingCurveObject;
-    final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
+    final YieldCurveBundle bundle = new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName }, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve });
     final InstrumentDefinition<?> definition = security.accept(_visitor);
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition for security " + security + " was null");

@@ -189,10 +189,6 @@ public class USConventions {
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("USFR0F1 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FRA 6x12")), "USD FRA 6x12", act360,
         following, Period.ofMonths(6), 2, false, null);
 
-    conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("FEDL01 Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF EFFECTIVE")), "USD FF EFFECTIVE", act360,
-        following, Period.ofDays(1), 2, false, null);
-
     //TODO with improvement in settlement days definition (i.e. including holiday and adjustment) change this
     // should be 2, LON, following
     // holiday for swap should be NY+LON
@@ -203,6 +199,7 @@ public class USConventions {
     final DayCount swapFloatDayCount = act360;
     final BusinessDayConvention swapFloatBusinessDay = modified;
     final Frequency swapFloatPaymentFrequency = quarterly;
+    final Integer publicationLag = 1; // Overnight Index Swap Convention have additional flag, publicationLag
     for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }) {
       final String bbgOISId = "USSO" + MONTH_NAMES[i - 1] + " Curncy";
       final String ogOISName = "USD OIS " + i + "m";
@@ -235,7 +232,12 @@ public class USConventions {
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_IR_FUTURE")), "USD_IR_FUTURE", act360, modified, Period.ofMonths(3), 2, false, null);
 
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_OIS_SWAP")), "USD_OIS_SWAP", thirty360, modified, annual, 2, usgb,
-        thirty360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF EFFECTIVE"), usgb, true);
+        thirty360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF EFFECTIVE"), usgb, true, publicationLag);
+
+    conventionMaster.addConventionBundle(
+        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("FEDL01 Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF EFFECTIVE")), "USD FF EFFECTIVE", act360,
+        following, Period.ofDays(1), 2, false, null, publicationLag);
+
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_FRA")), "USD_FRA", act360,
         following, Period.ofMonths(3), 2, false, null);

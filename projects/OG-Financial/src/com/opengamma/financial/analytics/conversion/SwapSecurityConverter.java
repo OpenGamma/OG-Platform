@@ -290,7 +290,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefi
       throw new OpenGammaRuntimeException("Could not get OIS index convention for " + currency + " using " + floatLeg.getFloatingReferenceRateId());
     }
     final ZonedDateTime maturity = maturityDate;
-    final int publicationLag = 0; //TODO
+    final Integer publicationLag = indexConvention.getOvernightIndexSwapPublicationLag();
     final Period paymentFrequency = getTenor(floatLeg.getFrequency());
     final IndexON index = new IndexON(floatLeg.getFloatingReferenceRateId().getValue(), currency, indexConvention.getDayCount(), publicationLag, calendar);
     final GeneratorOIS generator = new GeneratorOIS(currency.getCode() + "_OIS_Convention", index, paymentFrequency, swapConvention.getSwapFloatingLegDayCount(),

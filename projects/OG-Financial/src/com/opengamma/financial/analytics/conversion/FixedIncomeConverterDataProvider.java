@@ -263,6 +263,9 @@ public class FixedIncomeConverterDataProvider {
       if (ts.getTimeSeries().isEmpty()) {
         return ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;
       }
+
+      LocalDate latestDateInSeries = ts.getTimeSeries().getLatestTime();
+
       FastBackedDoubleTimeSeries<LocalDate> localDateTS = ts.getTimeSeries();
       final FastLongDoubleTimeSeries convertedTS = localDateTS.toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
       final LocalTime fixingTime = LocalTime.of(0, 0); // FIXME CASE Converting a daily historical time series to an arbitrary time. Bad idea

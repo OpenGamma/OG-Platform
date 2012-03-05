@@ -176,6 +176,7 @@ public class AUConventions {
     final DayCount swapFloatDayCount = act365;
     final BusinessDayConvention swapFloatBusinessDay = modified;
     final Frequency swapFloatPaymentFrequency = semiAnnual;
+    final Integer publicationLag = 0;
 
     for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }) {
       final String bbgOISId = "ADSO" + MONTH_NAMES[i - 1] + " Curncy";
@@ -209,7 +210,7 @@ public class AUConventions {
         act365, modified, semiAnnual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD Bank Bill 6m"), au, true);
     //TODO: Change the reference index to BBSW. Unfortunately we don't have the BBSW time series for the moment.
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_OIS_SWAP")), "AUD_OIS_SWAP", act365, modified, annual, 0, au,
-        act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBA OVERNIGHT CASH RATE"), au, true);
+        act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBA OVERNIGHT CASH RATE"), au, true, publicationLag);
 
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_SWAPTION")), "AUD_SWAPTION", false);
   }

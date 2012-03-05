@@ -68,16 +68,16 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
     Validate.notNull(fixingPeriodEndDate, "Coupon OIS Simplified: fixingPeriodEndDate");
     Validate.isTrue(currency.equals(index.getCurrency()), "Currency and index not compatible");
     _index = index;
-    ZonedDateTime date = fixingPeriodStartDate;
-    ZonedDateTime previousDate;
+    ZonedDateTime currentDate;
+    ZonedDateTime previousDate = fixingPeriodStartDate; // FIXME CASE - This loop had ended up with one extra period
     final List<ZonedDateTime> fixingDateList = new ArrayList<ZonedDateTime>();
     final List<Double> fixingAccrualFactorList = new ArrayList<Double>();
-    fixingDateList.add(date);
-    while (date.isBefore(fixingPeriodEndDate)) {
-      previousDate = date;
-      date = ScheduleCalculator.getAdjustedDate(date, 1, index.getCalendar());
-      fixingDateList.add(date);
-      fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(previousDate, date));
+    //    fixingDateList.add(currentDate);
+    while (previousDate.isBefore(fixingPeriodEndDate)) {
+      currentDate = ScheduleCalculator.getAdjustedDate(previousDate, 1, index.getCalendar());
+      fixingDateList.add(previousDate);
+      fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(previousDate, currentDate));
+      previousDate = currentDate;
     }
     _fixingPeriodDate = fixingDateList.toArray(new ZonedDateTime[0]);
     _fixingPeriodAccrualFactor = fixingAccrualFactorList.toArray(new Double[0]);
@@ -159,21 +159,21 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
   }
 
   @Override
-  public Coupon toDerivative(final ZonedDateTime timeNow, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    Validate.notNull(timeNow, "date");
-    Validate.isTrue(!timeNow.isAfter(getPaymentDate()), "date is after payment date");
+  public Coupon toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    if (timeNow.isBefore(_fixingPeriodDate[_index.getPublicationLag()])) {
-      return toDerivative(timeNow, yieldCurveNames);
+    Validate.notNull(valZdt, "valZdt - valuation date as ZonedDateTime");
+    final LocalDate valDate = valZdt.toLocalDate();
+    Validate.isTrue(!valDate.isAfter(getPaymentDate().toLocalDate()), "valuation date is after payment date");
+    LocalDate firstFixingDate = _fixingPeriodDate[_index.getPublicationLag()].toLocalDate(); // This is actually the first publication date
+    if (valDate.isBefore(firstFixingDate)) {
+      return toDerivative(valZdt, yieldCurveNames); // TODO CASE Confirm that this works when valDate==firstFixingDate under 2 cases: valZdt before and after fixing time
     }
-    final double paymentTime = TimeCalculator.getTimeBetween(timeNow, getPaymentDate());
-
-    int fixedPeriod = 0;
-    double accruedNotional = getNotional();
-    LocalDate dateNow = timeNow.toLocalDate();
+    final double paymentTime = TimeCalculator.getTimeBetween(valZdt, getPaymentDate());
 
     // Accrue notional for fixings before today; up to and including yesterday
-    while (dateNow.isAfter(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()].toLocalDate()) && fixedPeriod < _fixingPeriodDate.length - 1) {
+    int fixedPeriod = 0;
+    double accruedNotional = getNotional();
+    while (valDate.isAfter(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()].toLocalDate()) && fixedPeriod < _fixingPeriodDate.length - 1) {
 
       Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
 
@@ -193,8 +193,8 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
         fixedPeriod++;
       }
       if (fixedPeriod < _fixingPeriodDate.length - 1) { // More OIS period left
-        final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(timeNow, _fixingPeriodDate[fixedPeriod]);
-        final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(timeNow, _fixingPeriodDate[_fixingPeriodDate.length - 1]);
+        final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDate[fixedPeriod]);
+        final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(valZdt, _fixingPeriodDate[_fixingPeriodDate.length - 1]);
         double fixingAccrualFactorLeft = 0.0;
         for (int loopperiod = fixedPeriod; loopperiod < _fixingPeriodAccrualFactor.length; loopperiod++) {
           fixingAccrualFactorLeft += _fixingPeriodAccrualFactor[loopperiod];
