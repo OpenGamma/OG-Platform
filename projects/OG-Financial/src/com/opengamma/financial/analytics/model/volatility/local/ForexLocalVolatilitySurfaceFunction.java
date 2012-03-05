@@ -5,19 +5,20 @@
  */
 package com.opengamma.financial.analytics.model.volatility.local;
 
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
-import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
+import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_H;
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_LAMBDA;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS;
+import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE;
 
+import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * 
@@ -25,70 +26,65 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 public class ForexLocalVolatilitySurfaceFunction extends LocalVolatilitySurfaceFunction {
 
   @Override
+  protected boolean isCorrectIdType(final ComputationTarget target) {
+    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+  }
+
+  @Override
   protected ValueProperties getResultProperties() {
     return createValueProperties()
-        .withAny(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE)
-        .withAny(ValuePropertyNames.SURFACE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
+        .withAny(SURFACE)
         .withAny(PROPERTY_SURFACE_TYPE)
         .withAny(PROPERTY_X_AXIS)
         .withAny(PROPERTY_Y_AXIS)
-        .withAny(PROPERTY_LAMBDA)
+        .withAny(PROPERTY_Y_AXIS_TYPE)
         .withAny(CURVE_CALCULATION_METHOD)
-        .withAny(PROPERTY_FORWARD_CURVE_INTERPOLATOR)
-        .withAny(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR)
-        .withAny(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR)
+        .withAny(CURVE)
         .withAny(PROPERTY_H).get();
   }
 
   @Override
-  protected ValueProperties getResultProperties(final String definitionName, final String surfaceType, final String xAxis, final String yAxis, final String lambda,
-      final String forwardCurveCalculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
-      final String forwardCurveRightExtrapolator) {
+  protected ValueProperties getResultProperties(final String definitionName, final String surfaceType, final String xAxis, final String yAxis, final String yAxisType,
+      final String forwardCurveCalculationMethod, final String forwardCurveName) {
     return createValueProperties()
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-        .with(ValuePropertyNames.SURFACE, definitionName)
+        .with(SURFACE, definitionName)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
         .with(PROPERTY_X_AXIS, xAxis)
         .with(PROPERTY_Y_AXIS, yAxis)
-        .with(PROPERTY_LAMBDA, lambda)
+        .with(PROPERTY_Y_AXIS_TYPE, yAxisType)
         .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
-        .with(PROPERTY_FORWARD_CURVE_INTERPOLATOR, forwardCurveInterpolator)
-        .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, forwardCurveLeftExtrapolator)
-        .with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, forwardCurveRightExtrapolator)
+        .with(CURVE, forwardCurveName)
         .withAny(PROPERTY_H).get();
   }
 
   @Override
-  protected ValueProperties getResultProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String lambda,
-      final String forwardCurveCalculationMethod, final String h, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
-      final String forwardCurveRightExtrapolator) {
+  protected ValueProperties getResultProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String yAxisType,
+      final String forwardCurveCalculationMethod, final String forwardCurveName, final String h) {
     return createValueProperties()
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(SURFACE, surfaceName)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
         .with(PROPERTY_X_AXIS, xAxis)
         .with(PROPERTY_Y_AXIS, yAxis)
-        .with(PROPERTY_LAMBDA, lambda)
+        .with(PROPERTY_Y_AXIS_TYPE, yAxisType)
         .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
-        .with(PROPERTY_FORWARD_CURVE_INTERPOLATOR, forwardCurveInterpolator)
-        .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, forwardCurveLeftExtrapolator)
-        .with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, forwardCurveRightExtrapolator)
+        .with(CURVE, forwardCurveName)
         .with(PROPERTY_H, h).get();
   }
 
   @Override
-  protected ValueProperties getSurfaceProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String lambda,
-      final String forwardCurveCalculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator) {
+  protected ValueProperties getSurfaceProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String yAxisType,
+      final String forwardCurveCalculationMethod, final String forwardCurveName) {
     return ValueProperties.builder()
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
         .with(PROPERTY_X_AXIS, xAxis)
         .with(PROPERTY_Y_AXIS, yAxis)
-        .with(PROPERTY_LAMBDA, lambda)
-        .with(PROPERTY_FORWARD_CURVE_INTERPOLATOR, forwardCurveInterpolator)
-        .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, forwardCurveLeftExtrapolator)
-        .with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, forwardCurveRightExtrapolator)
+        .with(PROPERTY_Y_AXIS_TYPE, yAxisType)
+        .with(CURVE, forwardCurveName)
         .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod).get();
   }
 

@@ -20,7 +20,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class LocalVolatilitySurfaceDefaultPropertiesFunction extends DefaultPropertyFunction {
+public class BlackVolatilitySurfaceDefaultPropertiesFunction extends DefaultPropertyFunction {
   private final String _forwardCurveCalculationMethod;
   private final String _forwardCurveName;
   private final String _surfaceType;
@@ -28,10 +28,9 @@ public class LocalVolatilitySurfaceDefaultPropertiesFunction extends DefaultProp
   private final String _yAxis;
   private final String _yAxisType;
   private final String _surfaceName;
-  private final String _hName;
 
-  public LocalVolatilitySurfaceDefaultPropertiesFunction(final String forwardCurveCalculationMethod, final String forwardCurveName, final String surfaceType, final String xAxis, final String yAxis,
-      final String yAxisType, final String surfaceName, final String hName) {
+  public BlackVolatilitySurfaceDefaultPropertiesFunction(final String forwardCurveCalculationMethod, final String forwardCurveName, final String surfaceType, final String xAxis, final String yAxis,
+      final String yAxisType, final String surfaceName) {
     super(ComputationTargetType.PRIMITIVE, true);
     ArgumentChecker.notNull(forwardCurveCalculationMethod, "forward curve calculation method");
     ArgumentChecker.notNull(forwardCurveName, "forward curve name");
@@ -40,7 +39,6 @@ public class LocalVolatilitySurfaceDefaultPropertiesFunction extends DefaultProp
     ArgumentChecker.notNull(yAxis, "y axis");
     ArgumentChecker.notNull(yAxisType, "y axis type");
     ArgumentChecker.notNull(surfaceName, "surface name");
-    ArgumentChecker.notNull(hName, "h");
     _forwardCurveCalculationMethod = forwardCurveCalculationMethod;
     _forwardCurveName = forwardCurveName;
     _surfaceType = surfaceType;
@@ -48,19 +46,17 @@ public class LocalVolatilitySurfaceDefaultPropertiesFunction extends DefaultProp
     _yAxis = yAxis;
     _yAxisType = yAxisType;
     _surfaceName = surfaceName;
-    _hName = hName;
   }
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, ValuePropertyNames.CURVE_CALCULATION_METHOD);
-    defaults.addValuePropertyName(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, ValuePropertyNames.CURVE);
-    defaults.addValuePropertyName(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE);
-    defaults.addValuePropertyName(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS);
-    defaults.addValuePropertyName(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS);
-    defaults.addValuePropertyName(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE);
-    defaults.addValuePropertyName(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, ValuePropertyNames.SURFACE);
-    defaults.addValuePropertyName(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, LocalVolatilityPDEValuePropertyNames.PROPERTY_H);
+    defaults.addValuePropertyName(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE, ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    defaults.addValuePropertyName(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE, ValuePropertyNames.CURVE);
+    defaults.addValuePropertyName(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE, LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE);
+    defaults.addValuePropertyName(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE, LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS);
+    defaults.addValuePropertyName(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE, LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS);
+    defaults.addValuePropertyName(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE, LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE);
+    defaults.addValuePropertyName(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE, ValuePropertyNames.SURFACE);
   }
 
   @Override
@@ -85,9 +81,6 @@ public class LocalVolatilitySurfaceDefaultPropertiesFunction extends DefaultProp
     }
     if (ValuePropertyNames.SURFACE.equals(propertyName)) {
       return Collections.singleton(_surfaceName);
-    }
-    if (LocalVolatilityPDEValuePropertyNames.PROPERTY_H.equals(propertyName)) {
-      return Collections.singleton(_hName);
     }
     return null;
   }

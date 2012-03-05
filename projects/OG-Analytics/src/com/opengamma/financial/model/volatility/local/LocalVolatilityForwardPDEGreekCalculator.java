@@ -73,9 +73,9 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
     _maxMoneyness = maxMoneyness;
   }
 
-  public PDEFullResults1D solve(final SmileSurfaceDataBundle data, final LocalVolatilitySurface<?> localVolatility, final EuropeanVanillaOption option) {
+  public PDEFullResults1D solve(final SmileSurfaceDataBundle data, final LocalVolatilitySurface<?> localVolatility) {
     ArgumentChecker.notNull(data, "data");
-    ArgumentChecker.notNull(option, "option"); //Review R White 22/02/2012 This is not used here
+    ArgumentChecker.notNull(localVolatility, "local volatility surface");
     final ForwardCurve forwardCurve = data.getForwardCurve();
     final double[] expiries = data.getExpiries();
     final double[][] strikes = data.getStrikes();
@@ -84,8 +84,10 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
     return runPDESolver(forwardCurve, localVolatility, expiries, strikes, impliedVols, isCall);
   }
 
-  public PDEGreekResultCollection getGridGreeks(final SmileSurfaceDataBundle data, final LocalVolatilitySurface<?> localVolatility,
-      final EuropeanVanillaOption option) {
+  public PDEGreekResultCollection getGridGreeks(final SmileSurfaceDataBundle data, final LocalVolatilitySurface<?> localVolatility, final EuropeanVanillaOption option) {
+    ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.notNull(option, "option");
+    ArgumentChecker.notNull(localVolatility, "local volatility surface");
     final ForwardCurve forwardCurve = data.getForwardCurve();
     final boolean isCall = data.isCallData();
     LocalVolatilitySurfaceStrike strikeLocalVolatility;
@@ -99,6 +101,9 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
 
   public BucketedGreekResultCollection getBucketedVega(final SmileSurfaceDataBundle data, final LocalVolatilitySurface<?> localVolatility,
       final EuropeanVanillaOption option) {
+    ArgumentChecker.notNull(data, "data");
+    ArgumentChecker.notNull(option, "option");
+    ArgumentChecker.notNull(localVolatility, "local volatility surface");
     LocalVolatilitySurfaceStrike strikeLocalVolatility;
     if (localVolatility instanceof LocalVolatilitySurfaceStrike) {
       strikeLocalVolatility = (LocalVolatilitySurfaceStrike) localVolatility;

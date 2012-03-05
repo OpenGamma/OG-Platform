@@ -23,9 +23,13 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionInputs;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
+import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
@@ -35,7 +39,9 @@ import com.opengamma.financial.model.volatility.smile.fitting.sabr.SmileSurfaceD
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXOptionSecurity;
+import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.UnorderedCurrencyPair;
 import com.opengamma.util.time.Tenor;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -56,6 +62,12 @@ public abstract class ForexLocalVolatilityPDEGridFunction extends LocalVolatilit
   }
 
   @Override
+  protected UniqueId getUniqueIdForUnderlyings(final ComputationTarget target) {
+    final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
+    return UnorderedCurrencyPair.of(fxOption.getCallCurrency(), fxOption.getPutCurrency()).getUniqueId();
+  }
+
+  @Override
   protected EuropeanVanillaOption getOption(final FinancialSecurity security, final ZonedDateTime date) {
     final FXOptionSecurity fxOption = (FXOptionSecurity) security;
     final Currency putCurrency = fxOption.getPutCurrency();
@@ -64,13 +76,22 @@ public abstract class ForexLocalVolatilityPDEGridFunction extends LocalVolatilit
     if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
       strike = fxOption.getCallAmount() / fxOption.getPutAmount();
     } else {
-      strike = fxOption.getPutAmount() / fxOption.getCallAmount(); //Review R White 27/02/12 I've swapped these around
+      strike = fxOption.getPutAmount() / fxOption.getCallAmount();
     }
     final DayCount actAct = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
     final double t = actAct.getDayCountFraction(date, fxOption.getExpiry().getExpiry());
     return new EuropeanVanillaOption(strike, t, true); //TODO this shouldn't be hard coded to a call
   }
 
+  @Override
+  protected ValueRequirement getUnderlyingVolatilityDataRequirement(final String surfaceName, final UniqueId id) {
+    return new ValueRequirement(ValueRequirementNames.VOLATILITY_SURFACE_DATA, ComputationTargetType.PRIMITIVE,
+        id,
+        ValueProperties
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(SurfaceQuoteType.PROPERTY_SURFACE_QUOTE_TYPE, SurfaceQuoteType.MARKET_STRANGLE_RISK_REVERSAL)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX).get());
+  }
   //TODO
   @Override
   protected SmileSurfaceDataBundle getData(final FunctionInputs inputs, final ValueRequirement volDataRequirement, final ValueRequirement forwardCurveRequirement) {
