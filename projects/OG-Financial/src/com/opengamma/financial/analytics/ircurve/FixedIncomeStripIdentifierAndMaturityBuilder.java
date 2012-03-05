@@ -266,7 +266,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     final ZonedDateTime endDate = startDate.plus(Period.ofMonths(offset));
     // REVIEW: yomi 16-Nov-2011 -- fixing date is set to startDate minus 2 days ?
     final ZonedDateTime fixingDate = startDate.minusDays(2);
-    final ExternalId underlyingIdentifier = strip.getSecurity();
+    final ExternalId underlyingIdentifier = strip.getSecurity();  // the underlying ID!
     //TODO this normalization should not be done here
     return new FRASecurity(spec.getCurrency(), spec.getRegion(), startDate, endDate, marketValues.get(strip.getSecurity()), 1.0d, underlyingIdentifier, fixingDate);
   }
