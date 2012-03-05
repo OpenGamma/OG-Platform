@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.component;
+package com.opengamma.component.rest;
 
 import java.net.URI;
 import java.util.ArrayList;
@@ -24,6 +24,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.component.ComponentInfo;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 

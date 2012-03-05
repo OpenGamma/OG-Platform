@@ -5,15 +5,15 @@
  */
 package com.opengamma.web.server.push.grid;
 
+import java.util.EnumSet;
+import java.util.Map;
+
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.conversion.ResultConverterCache;
-
-import java.util.EnumSet;
-import java.util.Map;
 
 /**
  * Represents a primitives grid

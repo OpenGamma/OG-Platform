@@ -21,7 +21,6 @@ import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.joran.JoranConfigurator;
 
 import com.opengamma.component.ComponentManager;
-import com.opengamma.component.factory.tool.ToolContextUtils;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.util.ArgumentChecker;
 
@@ -30,9 +29,14 @@ import com.opengamma.util.ArgumentChecker;
  * <p>
  * The command line tools generally require access to key parts of the infrastructure.
  * These are provided via {@link ToolContext} which is setup and closed by this class
- * using {@link ComponentManager}. Normally the file is named {@code toolcontext.ini}
+ * using {@link ComponentManager}. Normally the file is named {@code toolcontext.ini}.
  */
 public abstract class AbstractTool {
+
+  /**
+   * Default logback file.
+   */
+  public static final String TOOL_LOGBACK_XML = "tool-logback.xml";
 
   /** Help command line option. */
   private static final String HELP_OPTION = "h";
@@ -86,7 +90,7 @@ public abstract class AbstractTool {
    * Initializes and runs the tool from standard command-line arguments.
    * <p>
    * The base class defined three options:<br />
-   * c/config - mandatory config file<br />
+   * c/config - the config file, mandatory<br />
    * l/logback - the logback configuration, default tool-logback.xml<br />
    * h/help - prints the help tool<br />
    * 
@@ -94,9 +98,26 @@ public abstract class AbstractTool {
    * @return true if successful, false otherwise
    */
   public boolean initAndRun(String[] args) {
+    return initAndRun(args, null, null);
+  }
+
+  /**
+   * Initializes and runs the tool from standard command-line arguments.
+   * <p>
+   * The base class defined three options:<br />
+   * c/config - the config file, mandatory unless default specified<br />
+   * l/logback - the logback configuration, default tool-logback.xml<br />
+   * h/help - prints the help tool<br />
+   * 
+   * @param args  the command-line arguments, not null
+   * @param defaultConfigResource  the default configuration resource location, null if mandatory on command line
+   * @param defaultLogbackResource  the default logback resource, null to use tool-logback.xml as the default
+   * @return true if successful, false otherwise
+   */
+  public boolean initAndRun(String[] args, String defaultConfigResource, String defaultLogbackResource) {
     ArgumentChecker.notNull(args, "args");
     
-    Options options = createOptions();
+    Options options = createOptions(defaultConfigResource == null);
     CommandLineParser parser = new PosixParser();
     CommandLine line;
     try {
@@ -111,8 +132,9 @@ public abstract class AbstractTool {
       return true;
     }
     String logbackResource = line.getOptionValue(LOGBACK_RESOURCE_OPTION);
-    logbackResource = StringUtils.defaultIfEmpty(logbackResource, "tool-logback.xml");
+    logbackResource = StringUtils.defaultIfEmpty(logbackResource, TOOL_LOGBACK_XML);
     String configResource = line.getOptionValue(CONFIG_RESOURCE_OPTION);
+    configResource = StringUtils.defaultString(configResource, defaultConfigResource);
     return init(logbackResource) && run(configResource);
   }
 
@@ -196,14 +218,14 @@ public abstract class AbstractTool {
    * <p>
    * Subclasses may override this and add their own parameters.
    * The base class defined the options h/help, c/config, l/logback.
-   * The c/config option is mandatory.
    * 
+   * @param mandatoryConfigResource  whether the config resource is mandatory
    * @return the set of command line options, not null
    */
-  protected Options createOptions() {
+  protected Options createOptions(boolean mandatoryConfigResource) {
     Options options = new Options();
     options.addOption(createHelpOption());
-    options.addOption(createConfigOption());
+    options.addOption(createConfigOption(mandatoryConfigResource));
     options.addOption(createLogbackOption());
     return options;
   }
@@ -212,10 +234,10 @@ public abstract class AbstractTool {
     return new Option(HELP_OPTION, "help", false, "prints this message");
   }
 
-  private static Option createConfigOption() {
+  private static Option createConfigOption(boolean mandatoryConfigResource) {
     Option option = new Option(CONFIG_RESOURCE_OPTION, "config", true, "the toolcontext configuration resource");
     option.setArgName("resource");
-    option.setRequired(true);
+    option.setRequired(mandatoryConfigResource);
     return option;
   }
 

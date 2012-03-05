@@ -12,7 +12,7 @@ import java.util.Set;
 import javax.time.calendar.LocalDate;
 
 import org.fudgemsg.FudgeMsg;
-import com.sun.jersey.api.client.UniformInterfaceException;
+
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
@@ -22,6 +22,7 @@ import com.opengamma.util.fudgemsg.FudgeMapWrapper;
 import com.opengamma.util.rest.AbstractRemoteClient;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
+import com.sun.jersey.api.client.UniformInterfaceException;
 
 /**
  * Provides remote access to an {@link HistoricalTimeSeriesSource}.
