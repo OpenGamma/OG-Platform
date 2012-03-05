@@ -50,7 +50,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   public InMemoryConventionBundleMaster() {
     AUConventions.addFixedIncomeInstrumentConventions(this);
     CAConventions.addFixedIncomeInstrumentConventions(this);
-    CHConventions.addFixedIncomeInstrumentConvnetions(this);
+    CHConventions.addFixedIncomeInstrumentConventions(this);
     CHConventions.addTreasuryBondConvention(this);
     CHConventions.addCorporateBondConvention(this);
     DKConventions.addFixedIncomeInstrumentConventions(this);
