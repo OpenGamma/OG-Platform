@@ -32,9 +32,9 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Generates instrument codes for volatilities given points.
+ * Generates Bloomberg instrument codes for volatilities given points.
  */
-public final class VolatilityCubeInstrumentProvider {
+public final class BloombergSwaptionVolatilityCubeInstrumentProvider {
 
   //TODO: other ATM surfaces
   private static final Currency ATM_INSTRUMENT_PROVIDER_CURRENCY = Currency.USD;
@@ -46,13 +46,13 @@ public final class VolatilityCubeInstrumentProvider {
   /**
    * Generates Bloomberg codes for volatilities given points.
    */
-  public static final VolatilityCubeInstrumentProvider BLOOMBERG = new VolatilityCubeInstrumentProvider();
+  public static final BloombergSwaptionVolatilityCubeInstrumentProvider BLOOMBERG = new BloombergSwaptionVolatilityCubeInstrumentProvider();
 
   private static final String TICKER_FILE = "VolatilityCubeIdentifierLookupTable.csv";
 
   private final HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<ExternalId>> _idsByPoint;
 
-  private VolatilityCubeInstrumentProvider() {
+  private BloombergSwaptionVolatilityCubeInstrumentProvider() {
     //TODO not here
     _idsByPoint = new HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<ExternalId>>();
 

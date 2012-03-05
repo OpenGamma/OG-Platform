@@ -7,7 +7,6 @@ package com.opengamma.master.holiday.impl;
 
 import java.net.URI;
 
-import javax.ws.rs.Consumes;
 import javax.ws.rs.GET;
 import javax.ws.rs.HEAD;
 import javax.ws.rs.POST;
@@ -25,7 +24,6 @@ import com.opengamma.master.holiday.HolidayMetaDataRequest;
 import com.opengamma.master.holiday.HolidayMetaDataResult;
 import com.opengamma.master.holiday.HolidaySearchRequest;
 import com.opengamma.master.holiday.HolidaySearchResult;
-import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.rest.RestUtils;
@@ -69,21 +67,21 @@ public class DataHolidayMasterResource extends AbstractDataResource {
   public Response metaData(@Context UriInfo uriInfo) {
     HolidayMetaDataRequest request = RestUtils.decodeQueryParams(uriInfo, HolidayMetaDataRequest.class);
     HolidayMetaDataResult result = getHolidayMaster().metaData(request);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @HEAD
   @Path("holidays")
   public Response status() {
     // simple HEAD to quickly return, avoiding loading the whole database
-    return Response.ok().build();
+    return responseOk();
   }
 
   @POST
   @Path("holidaySearches")
   public Response search(HolidaySearchRequest request) {
     HolidaySearchResult result = getHolidayMaster().search(request);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @POST
@@ -91,7 +89,7 @@ public class DataHolidayMasterResource extends AbstractDataResource {
   public Response add(@Context UriInfo uriInfo, HolidayDocument request) {
     HolidayDocument result = getHolidayMaster().add(request);
     URI createdUri = DataHolidayResource.uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return Response.created(createdUri).entity(result).build();
+    return responseCreatedFudge(createdUri, result);
   }
 
   //-------------------------------------------------------------------------

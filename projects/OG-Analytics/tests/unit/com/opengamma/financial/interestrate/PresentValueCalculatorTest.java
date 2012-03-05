@@ -145,15 +145,16 @@ public class PresentValueCalculatorTest {
     final double rate = (curve.getDiscountFactor(fixingPeriodStartTime) / curve.getDiscountFactor(fixingPeriodEndTime) - 1.0) / fixingPeriodAccrualFactor;
     final double price = 1 - rate;
     final double notional = 1;
+    final int quantity = 123;
     InterestRateFuture ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, referencePrice, notional, paymentAccrualFactor,
-        "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
+        quantity, "A", FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     double pv = PVC.visit(ir, CURVES);
-    assertEquals(price * notional * paymentAccrualFactor, pv, 1e-12);
+    assertEquals(price * notional * paymentAccrualFactor * quantity, pv, 1e-12);
     final double deltaPrice = 0.01;
-    ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, deltaPrice, notional, paymentAccrualFactor, "A", FIVE_PC_CURVE_NAME,
-        FIVE_PC_CURVE_NAME);
+    ir = new InterestRateFuture(lastTradingTime, iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, fixingPeriodAccrualFactor, deltaPrice, notional, paymentAccrualFactor, quantity, "A",
+        FIVE_PC_CURVE_NAME, FIVE_PC_CURVE_NAME);
     pv = PVC.visit(ir, CURVES);
-    assertEquals((price - deltaPrice) * notional * paymentAccrualFactor, pv, 1e-12);
+    assertEquals((price - deltaPrice) * notional * paymentAccrualFactor * quantity, pv, 1e-12);
   }
 
   @Test

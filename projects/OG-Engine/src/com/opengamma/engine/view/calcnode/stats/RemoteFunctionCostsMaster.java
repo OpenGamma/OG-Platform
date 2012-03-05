@@ -11,6 +11,7 @@ import javax.time.Instant;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractRemoteClient;
+import com.sun.jersey.api.client.UniformInterfaceException;
 
 /**
  * Provides access to a remote {@link FunctionCostsMaster}.
@@ -33,7 +34,14 @@ public class RemoteFunctionCostsMaster extends AbstractRemoteClient implements F
     ArgumentChecker.notNull(functionId, "functionId");
     
     URI uri = DataFunctionCostsMasterResource.uriLoad(getBaseUri(), configurationName, functionId, versionAsOf);
-    return accessRemote(uri).get(FunctionCostsDocument.class);
+    try {
+      return accessRemote(uri).get(FunctionCostsDocument.class);
+    } catch (UniformInterfaceException ex) {
+      if (ex.getResponse().getStatus() == 404) {
+        return null;
+      }
+      throw ex;
+    }
   }
 
   @Override

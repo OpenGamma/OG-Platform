@@ -44,7 +44,7 @@ import com.opengamma.util.tuple.Triple;
  */
 public class VolatilityCubeMarketDataFunction extends AbstractFunction {
 
-  private static final VolatilityCubeInstrumentProvider INSTRUMENT_PROVIDER = VolatilityCubeInstrumentProvider.BLOOMBERG;
+  private static final BloombergSwaptionVolatilityCubeInstrumentProvider INSTRUMENT_PROVIDER = BloombergSwaptionVolatilityCubeInstrumentProvider.BLOOMBERG;
 
   private ValueSpecification _marketDataResult;
   private Set<ValueSpecification> _results;

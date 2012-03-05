@@ -13,7 +13,10 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecurityLink;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.compilation.SecurityLinkResolver;
@@ -34,6 +37,8 @@ import com.opengamma.web.security.WebSecuritiesUris;
  */
 public abstract class AbstractWebPortfolioResource extends AbstractPerRequestWebResource {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractWebPortfolioResource.class);
+  
   /**
    * The backing bean.
    */
@@ -104,7 +109,13 @@ public abstract class AbstractWebPortfolioResource extends AbstractPerRequestWeb
     for (ManageablePosition position : positions) {
       securityLinks.add(position.getSecurityLink());
     }
-    _securityLinkResolver.resolveSecurities(securityLinks);
+    if (!securityLinks.isEmpty()) {
+      try {
+        _securityLinkResolver.resolveSecurities(securityLinks);
+      } catch (OpenGammaRuntimeException ex) {
+        s_logger.warn("Problem resolving securities in a position", ex);
+      }
+    }
   }
 
   //-------------------------------------------------------------------------

@@ -23,20 +23,18 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 @BeanDefinition
 public class VarianceSwapNotional extends Notional {
 
+  /** The currency */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _currency;
+
+  /** The amount */
+  @PropertyDefinition
+  private double _amount;
+
   @Override
   public <T> T accept(NotionalVisitor<T> visitor) {
     return visitor.visitVarianceSwapNotional(this);
   }
-  /**
-   * The currency.
-   */
-  @PropertyDefinition(validate = "notNull")
-  private Currency _currency;
-  /**
-   * The amount.
-   */
-  @PropertyDefinition
-  private double _amount;
 
   /**
    * @param currency The notional curency, not null

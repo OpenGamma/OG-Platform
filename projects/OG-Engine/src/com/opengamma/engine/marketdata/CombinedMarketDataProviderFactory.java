@@ -20,6 +20,10 @@ public class CombinedMarketDataProviderFactory implements MarketDataProviderFact
   public CombinedMarketDataProviderFactory() {
   }
   
+  public CombinedMarketDataProviderFactory(MarketDataProviderResolver underlyingResolver) {
+    setUnderlying(underlyingResolver);
+  }
+  
   @Override
   public MarketDataProvider create(MarketDataSpecification marketDataSpec) {
     ArgumentChecker.notNullInjected(_underlying, "underlying");
@@ -38,5 +42,4 @@ public class CombinedMarketDataProviderFactory implements MarketDataProviderFact
     _underlying = underlying;
   }
   
-
 }

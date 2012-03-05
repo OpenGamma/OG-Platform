@@ -39,13 +39,13 @@ public class DataManageableViewDefinitionResource extends DataViewDefinitionReso
     request.setName(viewDefinition.getName());
     request.setViewDefinition(viewDefinition);
     _repository.updateViewDefinition(request);
-    return Response.ok().build();
+    return responseOk();
   }
   
   @DELETE
   public Response removeViewDefinition() {
     _repository.removeViewDefinition(getViewDefinitionId());
-    return Response.ok().build();
+    return responseOk();
   }
   
 }

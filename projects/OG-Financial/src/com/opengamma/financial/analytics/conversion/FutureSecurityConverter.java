@@ -15,12 +15,13 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
  * 
  */
 public class FutureSecurityConverter extends AbstractFutureSecurityVisitor<InstrumentDefinition<?>> {
+
   private final BondFutureSecurityConverter _bondFutureConverter;
+
   private final InterestRateFutureSecurityConverter _irFutureConverter;
 
   public FutureSecurityConverter(final BondFutureSecurityConverter bondFutureConverter, final InterestRateFutureSecurityConverter irFutureConverter) {
     Validate.notNull(bondFutureConverter, "bond future converter");
-    Validate.notNull(irFutureConverter, "interest rate future converter");
     _bondFutureConverter = bondFutureConverter;
     _irFutureConverter = irFutureConverter;
   }

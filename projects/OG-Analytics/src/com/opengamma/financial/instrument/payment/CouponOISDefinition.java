@@ -5,16 +5,6 @@
  */
 package com.opengamma.financial.instrument.payment;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
@@ -28,6 +18,17 @@ import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.TimeCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 /**
  * Class describing a OIS-like floating coupon.
@@ -158,43 +159,54 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
   }
 
   @Override
-  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+  public Coupon toDerivative(final ZonedDateTime timeNow, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
+    Validate.notNull(timeNow, "date");
+    Validate.isTrue(!timeNow.isAfter(getPaymentDate()), "date is after payment date");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    if (date.isBefore(_fixingPeriodDate[_index.getPublicationLag()])) {
-      return toDerivative(date, yieldCurveNames);
+    if (timeNow.isBefore(_fixingPeriodDate[_index.getPublicationLag()])) {
+      return toDerivative(timeNow, yieldCurveNames);
     }
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
+    final double paymentTime = TimeCalculator.getTimeBetween(timeNow, getPaymentDate());
+
     int fixedPeriod = 0;
     double accruedNotional = getNotional();
-    while (date.isAfter(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]) && fixedPeriod < _fixingPeriodDate.length - 1) {
-      final Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
+    LocalDate dateNow = timeNow.toLocalDate();
+
+    // Accrue notional for fixings before today; up to and including yesterday
+    while (dateNow.isAfter(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()].toLocalDate()) && fixedPeriod < _fixingPeriodDate.length - 1) {
+
+      Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
+
       if (fixedRate == null) {
         throw new OpenGammaRuntimeException("Could not get fixing value for date " + _fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
       }
+
       accruedNotional *= 1 + _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
       fixedPeriod++;
     }
+
     if (fixedPeriod < _fixingPeriodDate.length - 1) { // Some OIS period left
+      // Check to see if a fixing is available on current date
       final Double fixedRate = indexFixingTimeSeries.getValue(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()]);
-      if (fixedRate != null) { // Fixed already
+      if (fixedRate != null) { // There is!
         accruedNotional *= 1 + _fixingPeriodAccrualFactor[fixedPeriod] * fixedRate;
         fixedPeriod++;
       }
-      if (fixedPeriod < _fixingPeriodDate.length - 1) { // Some OIS period left
-        final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[fixedPeriod]);
-        final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, _fixingPeriodDate[_fixingPeriodDate.length - 1]);
+      if (fixedPeriod < _fixingPeriodDate.length - 1) { // More OIS period left
+        final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(timeNow, _fixingPeriodDate[fixedPeriod]);
+        final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(timeNow, _fixingPeriodDate[_fixingPeriodDate.length - 1]);
         double fixingAccrualFactorLeft = 0.0;
         for (int loopperiod = fixedPeriod; loopperiod < _fixingPeriodAccrualFactor.length; loopperiod++) {
           fixingAccrualFactorLeft += _fixingPeriodAccrualFactor[loopperiod];
         }
         final CouponOIS cpn = new CouponOIS(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime, fixingPeriodEndTime,
-            fixingAccrualFactorLeft, accruedNotional, yieldCurveNames[1]);
+              fixingAccrualFactorLeft, accruedNotional, yieldCurveNames[1]);
         return cpn;
       }
       return new CouponFixed(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), (accruedNotional / getNotional() - 1.0) / getPaymentYearFraction());
+
     }
+
     // All fixed already
     return new CouponFixed(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), (accruedNotional / getNotional() - 1.0) / getPaymentYearFraction());
   }

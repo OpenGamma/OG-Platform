@@ -35,11 +35,12 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.transport.jaxrs.FudgeRest;
 import com.opengamma.util.jms.JmsConnector;
+import com.opengamma.util.rest.AbstractDataResource;
 
 /**
  * RESTful resource for a {@link ViewProcessor}.
  */
-public class DataViewProcessorResource {
+public class DataViewProcessorResource extends AbstractDataResource {
 
   /**
    * The period after which, if a view client has not been accessed, it may be shut down.
@@ -48,7 +49,7 @@ public class DataViewProcessorResource {
 
   //CSOFF: just constants
   public static final String PATH_DEFINITION_REPOSITORY = "definitions";
-  public static final String PATH_LIVE_DATA_SOURCE_REGISTRY = "liveDataSourceRegistry";
+  public static final String PATH_NAMED_MARKET_DATA_SPEC_REPOSITORY = "namedMarketDataSpecRepository";
   public static final String PATH_NAME = "name";
   public static final String PATH_CLIENTS = "clients";
   public static final String PATH_PROCESSES = "processes";
@@ -121,7 +122,7 @@ public class DataViewProcessorResource {
   @GET
   @Path(PATH_NAME)
   public Response getName() {
-    return Response.ok(_viewProcessor.getName()).build();
+    return responseOk(_viewProcessor.getName());
   }
 
   @Path(PATH_DEFINITION_REPOSITORY)
@@ -129,15 +130,15 @@ public class DataViewProcessorResource {
     return new DataViewDefinitionRepositoryResource(_viewProcessor.getViewDefinitionRepository());
   }
   
-  @Path(PATH_LIVE_DATA_SOURCE_REGISTRY)
-  public LiveMarketDataSourceRegistryResource getLiveMarketDataSourceRegistry() {
-    return new LiveMarketDataSourceRegistryResource(_viewProcessor.getLiveMarketDataSourceRegistry());
+  @Path(PATH_NAMED_MARKET_DATA_SPEC_REPOSITORY)
+  public DataNamedMarketDataSpecificationRepositoryResource getLiveMarketDataSourceRegistry() {
+    return new DataNamedMarketDataSpecificationRepositoryResource(_viewProcessor.getNamedMarketDataSpecificationRepository());
   }
 
   @Path(PATH_SNAPSHOTTER)
-  public MarketDataSnapshotterResource getMarketDataSnapshotterImpl() {
+  public DataMarketDataSnapshotterResource getMarketDataSnapshotterImpl() {
     MarketDataSnapshotter snp = new MarketDataSnapshotterImpl(_volatilityCubeDefinitionSource);
-    return new MarketDataSnapshotterResource(_viewProcessor, snp);
+    return new DataMarketDataSnapshotterResource(_viewProcessor, snp);
   }
   
   //-------------------------------------------------------------------------
@@ -170,7 +171,8 @@ public class DataViewProcessorResource {
     // through the REST API should be accessed again through the same API, potentially many times.  
     DataViewClientResource viewClientResource = createViewClientResource(client, viewProcessorUri);
     _createdViewClients.put(client.getUniqueId(), viewClientResource);
-    return Response.created(uriClient(uriInfo.getRequestUri(), client.getUniqueId())).build();
+    URI createdUri = uriClient(uriInfo.getRequestUri(), client.getUniqueId());
+    return responseCreated(createdUri);
   }
 
   //-------------------------------------------------------------------------
@@ -192,7 +194,7 @@ public class DataViewProcessorResource {
   }
 
   private URI getViewProcessorUri(UriInfo uriInfo) {
-    return UriBuilder.fromUri(uriInfo.getMatchedURIs().get(1)).build();
+    return uriInfo.getBaseUri().resolve(UriBuilder.fromUri(uriInfo.getMatchedURIs().get(1)).build());
   }
 
   private DataViewCycleManagerResource getOrCreateDataViewCycleManagerResource(URI viewProcessorUri) {

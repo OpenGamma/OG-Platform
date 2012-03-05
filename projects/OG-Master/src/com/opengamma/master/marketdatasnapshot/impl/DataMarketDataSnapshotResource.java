@@ -91,7 +91,7 @@ public class DataMarketDataSnapshotResource extends AbstractDataResource {
   public Response get(@QueryParam("versionAsOf") String versionAsOf, @QueryParam("correctedTo") String correctedTo) {
     VersionCorrection vc = VersionCorrection.parse(versionAsOf, correctedTo);
     MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().get(getUrlMarketDataSnapshotId(), vc);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @POST
@@ -101,13 +101,12 @@ public class DataMarketDataSnapshotResource extends AbstractDataResource {
     }
     MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().update(request);
     URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return Response.created(uri).entity(result).build();
+    return responseCreatedFudge(uri, result);
   }
 
   @DELETE
-  public Response remove() {
+  public void remove() {
     getMarketDataSnapshotMaster().remove(getUrlMarketDataSnapshotId().atLatestVersion());
-    return Response.noContent().build();
   }
 
   //-------------------------------------------------------------------------
@@ -119,7 +118,7 @@ public class DataMarketDataSnapshotResource extends AbstractDataResource {
       throw new IllegalArgumentException("Document objectId does not match URI");
     }
     MarketDataSnapshotHistoryResult result = getMarketDataSnapshotMaster().history(request);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @GET
@@ -127,7 +126,7 @@ public class DataMarketDataSnapshotResource extends AbstractDataResource {
   public Response getVersioned(@PathParam("versionId") String versionId) {
     UniqueId uniqueId = getUrlMarketDataSnapshotId().atVersion(versionId);
     MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().get(uniqueId);
-    return Response.ok(result).build();
+    return responseOkFudge(result);
   }
 
   @POST
@@ -139,7 +138,7 @@ public class DataMarketDataSnapshotResource extends AbstractDataResource {
     }
     MarketDataSnapshotDocument result = getMarketDataSnapshotMaster().correct(request);
     URI uri = uriVersion(uriInfo.getBaseUri(), result.getUniqueId());
-    return Response.created(uri).entity(result).build();
+    return responseCreatedFudge(uri, result);
   }
 
   //-------------------------------------------------------------------------

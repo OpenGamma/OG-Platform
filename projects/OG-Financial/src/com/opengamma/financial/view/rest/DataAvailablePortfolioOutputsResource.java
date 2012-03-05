@@ -29,12 +29,13 @@ import com.opengamma.engine.view.helper.AvailableOutputsProvider;
 import com.opengamma.id.UniqueId;
 import com.opengamma.transport.jaxrs.FudgeFieldContainerBrowser;
 import com.opengamma.transport.jaxrs.FudgeRest;
+import com.opengamma.util.rest.AbstractDataResource;
 import com.opengamma.util.time.DateUtils;
 
 /**
  * RESTful resource for accessing available outputs from a portfolio
  */
-public class DataAvailablePortfolioOutputsResource {
+public class DataAvailablePortfolioOutputsResource extends AbstractDataResource {
 
   /**
    * The provider.
@@ -49,7 +50,7 @@ public class DataAvailablePortfolioOutputsResource {
   /**
    * Builder-style RESTful resource for accessing available outputs from a portfolio
    */
-  public static final class Instance {
+  public static final class Instance extends AbstractDataResource {
 
     private final AvailableOutputsProvider _provider;
     private final FudgeContext _fudgeContext;

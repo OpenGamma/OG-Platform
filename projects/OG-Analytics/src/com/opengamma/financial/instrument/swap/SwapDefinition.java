@@ -5,11 +5,6 @@
  */
 package com.opengamma.financial.instrument.swap;
 
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.financial.instrument.annuity.AnnuityDefinition;
@@ -18,6 +13,11 @@ import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.swap.definition.Swap;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 /**
  * Class describing a generic swap with two legs. One should be payer and the other receiver.
@@ -114,7 +114,7 @@ public class SwapDefinition implements InstrumentDefinitionWithData<Swap<? exten
   @Override
   public Swap<? extends Payment, ? extends Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] data, final String... yieldCurveNames) {
     Validate.notNull(data, "index data time series array");
-    Validate.isTrue(data.length > 1, "index data time series must contain at least two elements");
+    //Validate.isTrue(data.length > 1, "index data time series must contain at least two elements");
     final GenericAnnuity<? extends Payment> firstLeg = getFirstLeg().toDerivative(date, data[0], yieldCurveNames);
     final GenericAnnuity<? extends Payment> secondLeg = getSecondLeg().toDerivative(date, data[1], yieldCurveNames);
     return new Swap(firstLeg, secondLeg);

@@ -1,6 +1,6 @@
 /**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.financial.analytics.model.future;
@@ -31,9 +31,9 @@ import com.opengamma.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.financial.security.future.BondFutureSecurity;
 
 /**
- * 
- * @param <T> The type of data that the calculator needs
- */
+*
+* @param <T> The type of data that the calculator needs
+*/
 public abstract class BondFutureFunction<T> extends AbstractFunction.NonCompiledInvoker {
   private final String _creditCurveName;
   private final String _riskFreeCurveName;

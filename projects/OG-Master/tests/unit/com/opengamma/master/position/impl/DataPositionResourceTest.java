@@ -77,9 +77,8 @@ public class DataPositionResourceTest {
 
   @Test
   public void testDeletePosition() {
-    Response test = _resource.remove();
+    _resource.remove();
     verify(_underlying).remove(OID.atLatestVersion());
-    assertEquals(Status.NO_CONTENT.getStatusCode(), test.getStatus());
   }
 
 }

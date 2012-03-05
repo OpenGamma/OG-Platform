@@ -132,7 +132,7 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   @Override
   public boolean isAttached() {
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_IS_ATTACHED);
-    return getClient().access(uri).get(Boolean.class);
+    return getClient().accessFudge(uri).get(Boolean.class);
   }
 
   @Override
@@ -255,19 +255,19 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   @Override
   public void pause() {
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_PAUSE);
-    getClient().access(uri).post();
+    getClient().accessFudge(uri).post();
   }
 
   @Override
   public void resume() {
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_RESUME);
-    getClient().access(uri).post();
+    getClient().accessFudge(uri).post();
   }
 
   @Override
   public void triggerCycle() {
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_TRIGGER_CYCLE);
-    getClient().access(uri).post();
+    getClient().accessFudge(uri).post();
   }
 
   @Override
@@ -296,13 +296,13 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   @Override
   public boolean isResultAvailable() {
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_RESULT_AVAILABLE);
-    return getClient().access(uri).get(Boolean.class);
+    return getClient().accessFudge(uri).get(Boolean.class);
   }
 
   @Override
   public boolean isCompleted() {
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_COMPLETED);
-    return getClient().access(uri).get(Boolean.class);
+    return getClient().accessFudge(uri).get(Boolean.class);
   }
 
   @Override
@@ -327,7 +327,7 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   @Override
   public boolean isViewCycleAccessSupported() {
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_VIEW_CYCLE_ACCESS_SUPPORTED);
-    return getClient().access(uri).get(Boolean.class);
+    return getClient().accessFudge(uri).get(Boolean.class);
   }
 
   @Override
@@ -341,7 +341,7 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   @Override
   public EngineResourceReference<? extends ViewCycle> createCycleReference(UniqueId cycleId) {
     URI createReferenceUri = getUri(getBaseUri(), DataViewClientResource.PATH_CREATE_CYCLE_REFERENCE);
-    ClientResponse response = getClient().access(createReferenceUri).post(ClientResponse.class, cycleId);
+    ClientResponse response = getClient().accessFudge(createReferenceUri).post(ClientResponse.class, cycleId);
     if (response.getStatus() == Status.NO_CONTENT.getStatusCode()) {
       return null;
     }
@@ -352,7 +352,7 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   @Override
   public RemoteEngineResourceReference<? extends ViewCycle> createLatestCycleReference() {
     URI createReferenceUri = getUri(getBaseUri(), DataViewClientResource.PATH_CREATE_LATEST_CYCLE_REFERENCE);
-    ClientResponse response = getClient().access(createReferenceUri).post(ClientResponse.class);
+    ClientResponse response = getClient().accessFudge(createReferenceUri).post(ClientResponse.class);
     if (response.getStatus() == Status.NO_CONTENT.getStatusCode()) {
       return null;
     }
@@ -364,7 +364,7 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   @Override
   public void shutdown() {
     stopHeartbeating();
-    getClient().access(getBaseUri()).delete();
+    getClient().accessFudge(getBaseUri()).delete();
   }
 
   //-------------------------------------------------------------------------

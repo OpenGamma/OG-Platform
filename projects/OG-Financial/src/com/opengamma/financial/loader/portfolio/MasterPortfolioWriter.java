@@ -56,24 +56,6 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
   }
 
-  
-  // This contains a name-based security comparison :(
-//  public ManageableSecurity writeSecurity(ManageableSecurity security) {
-//    
-//    // If security already exists don't write the new one, but return the original instead
-//    SecuritySearchRequest nameRequest = new SecuritySearchRequest();
-//    nameRequest.setName(security.getName());
-//    SecuritySearchResult searchResult = _securityMaster.search(nameRequest);
-//    ManageableSecurity origSecurity = searchResult.getFirstSecurity();
-//    if (origSecurity != null) { 
-//      security = origSecurity;
-//    } else {
-//      _securityMaster.add(new SecurityDocument(security));
-//    }
-//
-//    return security;
-//  }
-
   // Alternative implementation for adding a security, with alternative comparison method and updating/adding
   // Not tested, might not work as external IDs probably won't be populated in the new security
   @Override
@@ -151,6 +133,11 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   public void flush() {
     _portfolioMaster.update(_portfolioDocument);
   }
+  
+  @Override
+  public void close() {
+    flush();
+  }
     
   private PortfolioDocument createOrOpenPortfolio(String portfolioName) {
         
@@ -167,11 +154,11 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       portfolio = new ManageablePortfolio(portfolioName, rootNode);
       portfolioDoc = new PortfolioDocument();
       portfolioDoc.setPortfolio(portfolio);
-      _portfolioMaster.add(portfolioDoc);
+      portfolioDoc = _portfolioMaster.add(portfolioDoc);
     }
 
     // Set current node to the root node
-    _currentNode = portfolio.getRootNode();
+    _currentNode = portfolioDoc.getPortfolio().getRootNode();
     
     return portfolioDoc;
   }

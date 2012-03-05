@@ -63,7 +63,7 @@ public class RemoteViewProcess implements ViewProcess {
   
   @Override
   public void shutdown() {
-    _client.access(_baseUri).delete();
+    _client.accessFudge(_baseUri).delete();
   }
 
 }
