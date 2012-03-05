@@ -19,6 +19,8 @@ import org.apache.commons.cli.ParseException;
 import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
 
 /**
@@ -33,6 +35,8 @@ import org.springframework.core.io.Resource;
  * The INI file is described in {@link ComponentConfigLoader}.
  */
 public class OpenGammaComponentServer {
+  
+  private static final Logger s_logger = LoggerFactory.getLogger(OpenGammaComponentServer.class);
 
   /**
    * The server name property.
@@ -63,7 +67,12 @@ public class OpenGammaComponentServer {
    * @param args  the arguments
    */
   public static void main(String[] args) { // CSIGNORE
-    new OpenGammaComponentServer().run(args);
+    try {
+      s_logger.info("Starting OpenGamma component server");
+      new OpenGammaComponentServer().run(args);
+    } catch (RuntimeException e) {
+      s_logger.error("Couldn't start OpenGamma component server", e);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -111,6 +120,17 @@ public class OpenGammaComponentServer {
   }
 
   //-------------------------------------------------------------------------
+  
+  /**
+   * Called just before the server is started. The default implementation here
+   * creates a monitor thread that allows the server to be stopped remotely.
+   * 
+   * @param manager the component manager
+   */
+  protected void serverStarting(final ComponentManager manager) {
+    OpenGammaComponentServerMonitor.create(manager.getRepository());
+  }
+  
   /**
    * Runs the server with config file.
    * 
@@ -135,7 +155,7 @@ public class OpenGammaComponentServer {
     
     // start server
     try {
-      OpenGammaComponentServerMonitor.create(manager.getRepository());
+      serverStarting(manager);
       manager.start(configFile);
       
     } catch (Exception ex) {
