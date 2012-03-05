@@ -5,17 +5,6 @@
  */
 package com.opengamma.web.server.push.grid;
 
-import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.web.server.WebGridCell;
-import com.opengamma.web.server.conversion.ConversionMode;
-import com.opengamma.web.server.conversion.ResultConverter;
-import com.opengamma.web.server.conversion.ResultConverterCache;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +13,18 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicReference;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.web.server.WebGridCell;
+import com.opengamma.web.server.conversion.ConversionMode;
+import com.opengamma.web.server.conversion.ResultConverter;
+import com.opengamma.web.server.conversion.ResultConverterCache;
 
 /**
  * Stores state relating to an individual grid in a web client instance.
