@@ -72,6 +72,10 @@ public class OpenGammaComponentServer {
     System.out.println(msg);
   }
   
+  protected void log(final Throwable t) {
+    t.printStackTrace(System.err);
+  }
+  
   //-------------------------------------------------------------------------
   /**
    * Runs the server.
@@ -158,7 +162,7 @@ public class OpenGammaComponentServer {
       manager.start(configFile);
       
     } catch (Exception ex) {
-      ex.printStackTrace(System.err);
+      log(ex);
       log("======== OPENGAMMA STARTUP FAILED ========");
       return false;
     }

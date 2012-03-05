@@ -84,6 +84,11 @@ public class OpenGammaComponentService extends OpenGammaComponentServer {
   protected void log(final String msg) {
     s_logger.info(msg);
   }
+  
+  @Override
+  protected void log(final Throwable t) {
+    s_logger.error("Caught exception", t);
+  }
 
   @Override
   public boolean run(final String[] args) {
