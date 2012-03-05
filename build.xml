@@ -361,6 +361,10 @@
     <og-subant target="clean-lib" buildpathref="build-path" />
   </target>
 
+  <target name="clean-install">
+    <delete dir="${install.dir}" failonerror="false" />
+  </target>
+
   <!-- 
       ===================================================================================== 
         Clean all projects, delete repository, reload ivy and clean the ivy cache                   
@@ -368,11 +372,10 @@
   -->
   <target name="clean-all" depends="clean, clean-ivy-cache" description="clean all projects, delete repository, reload ivy &amp; clean the ivy cache" />
 
-  <target name="clean" depends="clean-projects, clean-lib, load-ivy"
+  <target name="clean" depends="clean-install, clean-projects, clean-lib, load-ivy"
     description="clean all projects, delete repository &amp; reload ivy">
     <delete dir="${repository.dir}" />
     <delete dir="${docs.dir}" quiet="true" failonerror="false"/>
-    <delete dir="${install.dir}" failonerror="false" />
   </target>
 
   <!-- ================================================================== -->
@@ -616,7 +619,7 @@
     </antcall>
   </target>
 
-  <target name="install-impl" depends="clean-projects, clone-or-pull, publish-all-local">
+  <target name="install-impl" depends="clean-install, clean-projects, clone-or-pull, publish-all-local">
     <mkdir dir="${install.dir}" />
     <property file="${common.dir}/deploy.properties"/>
     <subant target="install" buildpath="${project.deploy}" antfile="build.xml">
