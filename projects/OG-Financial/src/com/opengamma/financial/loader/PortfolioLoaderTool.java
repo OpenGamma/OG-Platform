@@ -152,7 +152,7 @@ public class PortfolioLoaderTool {
       // Create zipped multi-asset class loader
       return new ZippedPortfolioReader(filename, toolContext);
     } else {
-      throw new OpenGammaRuntimeException("Input filename should end in .CSV or .ZIP");
+      throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
     }
   }
 

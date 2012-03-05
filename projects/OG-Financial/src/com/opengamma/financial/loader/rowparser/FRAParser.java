@@ -7,6 +7,7 @@ package com.opengamma.financial.loader.rowparser;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.LocalDateTime;
@@ -14,6 +15,7 @@ import javax.time.calendar.LocalTime;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
+import com.opengamma.core.region.Region;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -85,13 +87,22 @@ public class FRAParser extends RowParser {
     FRASecurity fra = (FRASecurity) security;
     
     result.put(CURRENCY, fra.getCurrency().getCode());
-    result.put(REGION, RegionUtils.getRegions(getToolContext().getRegionSource(), fra.getRegionId()).iterator().next().getFullName());
+    Set<Region> regions = RegionUtils.getRegions(getToolContext().getRegionSource(), fra.getRegionId());
+    if (!regions.isEmpty()) {
+      Region region = regions.iterator().next();
+      if (region != null) {
+        result.put(REGION, region.getFullName());
+      }
+    }
     result.put(START_DATE, fra.getStartDate().toString(CSV_DATE_FORMATTER));
     result.put(END_DATE, fra.getEndDate().toString(CSV_DATE_FORMATTER));
     result.put(RATE, Double.toString(fra.getRate()));
     result.put(AMOUNT, Double.toString(fra.getAmount()));
-    result.put(BBG_ID, fra.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER).getValue());
-
+    
+    ExternalId bbgId = fra.getExternalIdBundle().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
+    if (bbgId != null) {
+      result.put(BBG_ID, bbgId.getValue());
+    }
     return result;
   }
 

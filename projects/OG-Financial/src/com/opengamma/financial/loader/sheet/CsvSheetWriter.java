@@ -11,8 +11,10 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.util.Map;
 
-import com.opengamma.OpenGammaRuntimeException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import com.opengamma.OpenGammaRuntimeException;
 import au.com.bytecode.opencsv.CSVWriter;
 
 /**
@@ -20,6 +22,8 @@ import au.com.bytecode.opencsv.CSVWriter;
  * in the constructor. Subsequently, rows to be written can be supplied as a map from column headings to the actual data. 
  */
 public class CsvSheetWriter extends SheetWriter {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(CsvSheetWriter.class);
 
   private CSVWriter _csvWriter;
   
@@ -58,7 +62,7 @@ public class CsvSheetWriter extends SheetWriter {
     
     for (int i = 0; i < getColumns().length; i++) {
       if ((rawRow[i] = row.get(getColumns()[i])) == null) { //CSIGNORE
-        //throw new OpenGammaRuntimeException("Missing column " + getColumns()[i] + " when writing a row to CSV file");
+        s_logger.warn("Missing data for column '" + getColumns()[i] + "' when writing row to CSV file");
         rawRow[i] = "";
       }
     }

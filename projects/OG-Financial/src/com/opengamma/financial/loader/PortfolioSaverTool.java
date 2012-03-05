@@ -20,10 +20,18 @@ import com.opengamma.financial.loader.portfolio.MasterPortfolioReader;
 import com.opengamma.financial.loader.portfolio.PortfolioReader;
 import com.opengamma.financial.loader.portfolio.PortfolioWriter;
 import com.opengamma.financial.loader.portfolio.SingleSheetPortfolioWriter;
+import com.opengamma.financial.loader.portfolio.ZippedPortfolioWriter;
+import com.opengamma.financial.loader.rowparser.CashParser;
 import com.opengamma.financial.loader.rowparser.EquityFutureParser;
+import com.opengamma.financial.loader.rowparser.FRAParser;
+import com.opengamma.financial.loader.rowparser.FXDigitalOptionParser;
+import com.opengamma.financial.loader.rowparser.FXForwardParser;
+import com.opengamma.financial.loader.rowparser.FXOptionParser;
+import com.opengamma.financial.loader.rowparser.IRFutureOptionParser;
 import com.opengamma.financial.loader.rowparser.InterestRateFutureParser;
 import com.opengamma.financial.loader.rowparser.RowParser;
 import com.opengamma.financial.loader.rowparser.SwapParser;
+import com.opengamma.financial.loader.rowparser.SwaptionParser;
 import com.opengamma.financial.tool.ToolContext;
 
 /**
@@ -64,16 +72,16 @@ public class PortfolioSaverTool {
     
     // Set up list of available parsers
     s_rowParsers = new RowParser[] {
-//      new CashParser(toolContext)
+      new CashParser(toolContext),
       new EquityFutureParser(toolContext),
-//      new FRAParser(toolContext),
-//      new FXDigitalOptionParser(toolContext),
-//      new FXForwardParser(toolContext),
-//      new FXVanillaOptionParser(toolContext),
-//      new IRFutureOptionParser(toolContext),
+      new FRAParser(toolContext),
+      new FXDigitalOptionParser(toolContext),
+      new FXForwardParser(toolContext),
+      new FXOptionParser(toolContext),
+      new IRFutureOptionParser(toolContext),
       new InterestRateFutureParser(toolContext),
-      new SwapParser(toolContext)
-//      new SwaptionParser(toolContext)
+      new SwapParser(toolContext),
+      new SwaptionParser(toolContext)
     };
     
     // Set up writer
@@ -136,17 +144,27 @@ public class PortfolioSaverTool {
       }
       
       s_logger.info("Write option specified, will persist to file '" + filename + "'");
-      
-      // Create a portfolio writer to persist imported positions, trades and securities to the OG masters
-      return new SingleSheetPortfolioWriter(filename, s_rowParsers);
-      
+ 
+      String extension = filename.substring(filename.lastIndexOf('.'));
+
+      if (extension.equalsIgnoreCase(".csv") || extension.equalsIgnoreCase(".xls")) {
+        // Check that the asset class was specified on the command line
+        return new SingleSheetPortfolioWriter(filename, s_rowParsers);
+        
+      // Multi-asset ZIP file extension
+      } else if (extension.equalsIgnoreCase(".zip")) {
+        // Create zipped multi-asset class loader
+        return new ZippedPortfolioWriter(filename, toolContext);
+      } else {
+        throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
+      }
+
     } else {
       s_logger.info("Write option omitted, will pretty-print instead of persisting to file");
       
       // Create a dummy portfolio writer to pretty-print instead of persisting
       return new DummyPortfolioWriter();
     }
-
   }
 
   private static PortfolioReader constructPortfolioReader(String portfolioName, ToolContext toolContext) {
