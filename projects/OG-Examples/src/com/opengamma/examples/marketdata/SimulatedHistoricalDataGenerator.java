@@ -72,11 +72,13 @@ public class SimulatedHistoricalDataGenerator {
       @SuppressWarnings("unused")
       String[] headers = reader.readNext();
       String[] line;
-      int lineNum = 1;
+      int lineNum = 0;
       while ((line = reader.readNext()) != null) {
         lineNum++;
-        if (line.length != NUM_FIELDS) {
-          s_logger.error("Not enough fields in CSV on line " + lineNum);
+        if (line.length == 0) {
+          s_logger.debug("Empty line on {}", lineNum);
+        } else if (line.length != NUM_FIELDS) {
+          s_logger.error("Invalid number of fields ({}) in CSV on line {}", NUM_FIELDS, lineNum);
         } else {
           String scheme = line[0];
           String identifier = line[1];
