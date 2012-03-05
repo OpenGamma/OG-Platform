@@ -28,12 +28,16 @@ import org.springframework.core.io.Resource;
 
 import com.opengamma.component.ComponentFactory;
 import com.opengamma.component.ComponentRepository;
+import com.opengamma.component.spring.ComponentRepositoryBeanPostProcessor;
 
 /**
  * Base factory for reading components from a Spring file.
  * <p>
  * The component is configured with a Spring XML file and a single properties file.
  * This class contains the tools to read the file, parse it and extract components.
+ * <p>
+ * The Spring file may use {@link ComponentRepositoryBeanPostProcessor} to pull the
+ * components into the Spring context.
  */
 @BeanDefinition
 public abstract class AbstractSpringComponentFactory extends DirectBean implements ComponentFactory {

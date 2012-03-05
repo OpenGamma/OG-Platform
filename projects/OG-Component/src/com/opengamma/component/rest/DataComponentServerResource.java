@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.component;
+package com.opengamma.component.rest;
 
 import java.net.URI;
 import java.util.List;
@@ -16,6 +16,8 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 
 import com.google.common.collect.ImmutableList;
+import com.opengamma.component.ComponentInfo;
+import com.opengamma.component.ComponentServer;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractDataResource;
 
@@ -67,12 +69,11 @@ public class DataComponentServerResource extends AbstractDataResource {
 
   @GET
   public Response getComponentInfos() {
-    ComponentServer server = new ComponentServer();
+    ComponentServer server = new ComponentServer(URI.create("components"));
     server.getComponentInfos().addAll(_remoteComponents);
     for (RestComponent component : _localComponents) {
       server.getComponentInfos().add(component.getInfo());
     }
-    server.setUri(URI.create("components"));
     return responseOkFudge(server);
   }
 

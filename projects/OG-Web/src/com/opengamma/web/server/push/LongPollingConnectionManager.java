@@ -5,11 +5,12 @@
  */
 package com.opengamma.web.server.push;
 
-import com.google.common.base.Objects;
-import org.eclipse.jetty.continuation.Continuation;
-
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+
+import org.eclipse.jetty.continuation.Continuation;
+
+import com.google.common.base.Objects;
 
 /**
  * Maps client IDs to Jetty continuations associated with a client connection.

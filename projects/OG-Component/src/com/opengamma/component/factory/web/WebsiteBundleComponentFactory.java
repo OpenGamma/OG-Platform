@@ -22,8 +22,8 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.core.io.Resource;
 
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.JerseyRestResourceFactory;
 import com.opengamma.component.factory.AbstractComponentFactory;
+import com.opengamma.component.rest.JerseyRestResourceFactory;
 import com.opengamma.web.bundle.BundleCompressor;
 import com.opengamma.web.bundle.BundleManagerFactory;
 import com.opengamma.web.bundle.DeployMode;

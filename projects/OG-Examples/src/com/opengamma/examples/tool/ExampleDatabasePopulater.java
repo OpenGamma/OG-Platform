@@ -23,7 +23,7 @@ import com.opengamma.util.money.Currency;
  * <p>
  * It is designed to run against the HSQLDB example database.  
  */
-public class ExampleDatabasePopulater extends AbstractTool {
+public class ExampleDatabasePopulater extends AbstractExampleTool {
 
   /**
    * The currencies.
@@ -38,9 +38,7 @@ public class ExampleDatabasePopulater extends AbstractTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    if (init()) {
-      new ExampleDatabasePopulater().run();
-    }
+    new ExampleDatabasePopulater().initAndRun(args);
     System.exit(0);
   }
 

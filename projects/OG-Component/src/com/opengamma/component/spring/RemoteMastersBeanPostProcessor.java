@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.financial.spring;
+package com.opengamma.component.spring;
 
 import java.lang.reflect.Constructor;
 import java.net.URI;
@@ -27,8 +27,8 @@ import org.springframework.beans.factory.config.ConfigurableListableBeanFactory;
 
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentServer;
-import com.opengamma.component.DataComponentServerResource;
-import com.opengamma.component.RemoteComponentServer;
+import com.opengamma.component.rest.DataComponentServerResource;
+import com.opengamma.component.rest.RemoteComponentServer;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
 import com.opengamma.engine.view.calcnode.stats.RemoteFunctionCostsMaster;
 import com.opengamma.master.config.ConfigMaster;

@@ -5,8 +5,12 @@
  */
 package com.opengamma.util.test;
 
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
-import com.opengamma.util.test.BuilderTestProxyFactory.BuilderTestProxy;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
@@ -18,11 +22,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertTrue;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.test.BuilderTestProxyFactory.BuilderTestProxy;
 
 /**
  * Base class for builder tests.

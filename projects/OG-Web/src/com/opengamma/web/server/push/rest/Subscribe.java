@@ -5,12 +5,12 @@
  */
 package com.opengamma.web.server.push.rest;
 
-import com.opengamma.id.UniqueId;
-
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
+
+import com.opengamma.id.UniqueId;
 
 
 /**

@@ -6,7 +6,7 @@
 
   <!-- ================================================================== -->
   <!-- Expose component infrastructure -->
-  <bean class="com.opengamma.component.factory.ComponentRepositoryBeanPostProcessor" />
+  <bean class="com.opengamma.component.spring.ComponentRepositoryBeanPostProcessor" />
 
   <!-- ================================================================== -->
   <bean id="mainUserPrincipal" class="com.opengamma.examples.server.MockUserFactoryBean" />

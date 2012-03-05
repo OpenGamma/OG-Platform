@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.component;
+package com.opengamma.component.spring;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +17,8 @@ import javax.ws.rs.core.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.component.ComponentManager;
+import com.opengamma.component.ComponentRepository;
 import com.opengamma.util.rest.HttpMethodFilter;
 import com.opengamma.util.rest.NoCachingFilter;
 import com.opengamma.util.rest.UrlSuffixFilter;
@@ -29,6 +31,9 @@ import com.sun.jersey.spi.spring.container.servlet.SpringServlet;
 
 /**
  * The OpenGamma servlet that integrates Jetty, Spring and OpenGamma components.
+ * <p>
+ * This servlet is only needed to start Spring such that a context is loaded directly
+ * by the servlet and that context can directly contain Jax-RS resources.
  */
 public class OpenGammaSpringServlet extends SpringServlet {
 

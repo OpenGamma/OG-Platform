@@ -5,7 +5,11 @@
  */
 package com.opengamma.util.db.hibernate.types;
 
-import com.opengamma.id.UniqueId;
+import java.io.Serializable;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
 import org.hibernate.Hibernate;
 import org.hibernate.HibernateException;
 import org.hibernate.engine.SessionImplementor;
@@ -14,10 +18,7 @@ import org.hibernate.usertype.CompositeUserType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import com.opengamma.id.UniqueId;
 
 
 /**

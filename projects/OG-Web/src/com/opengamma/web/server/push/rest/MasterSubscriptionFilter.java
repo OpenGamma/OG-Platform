@@ -5,20 +5,18 @@
  */
 package com.opengamma.web.server.push.rest;
 
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+
 import com.opengamma.web.server.push.ConnectionManager;
 import com.opengamma.web.server.push.LongPollingServlet;
-import com.sun.jersey.api.core.ExtendedUriInfo;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.spi.container.ContainerRequest;
 import com.sun.jersey.spi.container.ContainerRequestFilter;
 import com.sun.jersey.spi.container.ContainerResponse;
 import com.sun.jersey.spi.container.ContainerResponseFilter;
 import com.sun.jersey.spi.container.ResourceFilter;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.core.MultivaluedMap;
-import java.security.Principal;
-import java.util.List;
 
 /**
  * Jersey filter that sets up subscriptions for masters that are queried via the REST interface.  When any data changes
