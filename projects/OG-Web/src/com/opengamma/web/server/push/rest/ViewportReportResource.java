@@ -5,14 +5,14 @@
  */
 package com.opengamma.web.server.push.rest;
 
-import com.opengamma.web.server.push.Viewport;
-import com.opengamma.web.server.push.reports.Report;
-import com.opengamma.web.server.push.reports.ReportFactory;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.core.Response;
+
+import com.opengamma.web.server.push.Viewport;
+import com.opengamma.web.server.push.reports.Report;
+import com.opengamma.web.server.push.reports.ReportFactory;
 
 /**
  * REST resource for generating {@link Report}s from {@link Viewport}s.  Support for different report formats is

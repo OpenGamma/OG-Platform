@@ -5,14 +5,7 @@
  */
 package com.opengamma.web.server.push.rest;
 
-import com.opengamma.DataNotFoundException;
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.web.server.push.ConnectionManager;
-import com.opengamma.web.server.push.Viewport;
-import com.opengamma.web.server.push.ViewportDefinition;
-import com.opengamma.web.server.push.reports.ReportFactory;
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.ws.rs.Consumes;
@@ -24,7 +17,16 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.UriBuilder;
-import java.util.concurrent.atomic.AtomicLong;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import com.opengamma.DataNotFoundException;
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.web.server.push.ConnectionManager;
+import com.opengamma.web.server.push.Viewport;
+import com.opengamma.web.server.push.ViewportDefinition;
+import com.opengamma.web.server.push.reports.ReportFactory;
 
 /**
  * REST resource for creating and retrieving {@link Viewport} instances.

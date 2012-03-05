@@ -13,8 +13,10 @@ import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
+import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import org.springframework.context.Lifecycle;
 import org.springframework.context.support.GenericApplicationContext;
@@ -22,7 +24,7 @@ import org.springframework.context.support.GenericApplicationContext;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.component.ComponentFactory;
 import com.opengamma.component.ComponentRepository;
-import com.opengamma.component.RestComponents;
+import com.opengamma.component.rest.RestComponents;
 import com.opengamma.transport.jaxrs.FudgeObjectBinaryConsumer;
 import com.opengamma.transport.jaxrs.FudgeObjectBinaryProducer;
 import com.opengamma.transport.jaxrs.FudgeObjectJSONConsumer;
@@ -35,8 +37,6 @@ import com.opengamma.util.rest.IllegalArgumentExceptionMapper;
 import com.opengamma.util.rest.ThrowableExceptionMapper;
 import com.opengamma.util.rest.UnsupportedOperationExceptionMapper;
 import com.opengamma.util.rest.WebApplicationExceptionMapper;
-import org.joda.beans.Property;
-import org.joda.beans.impl.direct.DirectMetaProperty;
 
 /**
  * Component definition for the Jetty server defined in Spring.

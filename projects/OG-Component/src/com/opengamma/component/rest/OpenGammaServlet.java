@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.component;
+package com.opengamma.component.rest;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +17,8 @@ import javax.ws.rs.core.Application;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.component.ComponentManager;
+import com.opengamma.component.ComponentRepository;
 import com.opengamma.util.rest.HttpMethodFilter;
 import com.opengamma.util.rest.NoCachingFilter;
 import com.opengamma.util.rest.UrlSuffixFilter;

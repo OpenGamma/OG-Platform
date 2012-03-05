@@ -21,7 +21,7 @@
     <property name="eventListeners">
       <list>
         <bean class="org.springframework.web.context.ContextLoaderListener" />
-        <bean class="com.opengamma.component.ComponentRepositoryServletContextListener">
+        <bean class="com.opengamma.component.rest.ComponentRepositoryServletContextListener">
           <constructor-arg ref="componentRepository" />
         </bean>
       </list>

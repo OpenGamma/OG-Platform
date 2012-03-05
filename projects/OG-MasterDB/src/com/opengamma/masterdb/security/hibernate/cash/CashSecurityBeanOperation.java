@@ -8,10 +8,10 @@ package com.opengamma.masterdb.security.hibernate.cash;
 
 import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
 import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
+import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanToDayCount;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
-import static com.opengamma.masterdb.security.hibernate.Converters.dayCountBeanToDayCount;
 
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;

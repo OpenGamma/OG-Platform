@@ -5,7 +5,18 @@
  */
 package com.opengamma.masterdb.batch;
 
-import com.opengamma.batch.domain.*;
+import com.opengamma.batch.domain.CalculationConfiguration;
+import com.opengamma.batch.domain.ComputeHost;
+import com.opengamma.batch.domain.ComputeNode;
+import com.opengamma.batch.domain.FunctionUniqueId;
+import com.opengamma.batch.domain.HbComputationTargetSpecification;
+import com.opengamma.batch.domain.LiveDataField;
+import com.opengamma.batch.domain.MarketData;
+import com.opengamma.batch.domain.MarketDataValue;
+import com.opengamma.batch.domain.RiskRun;
+import com.opengamma.batch.domain.RiskRunProperty;
+import com.opengamma.batch.domain.RiskValueRequirement;
+import com.opengamma.batch.domain.RiskValueSpecification;
 import com.opengamma.util.db.HibernateMappingFiles;
 
 /**
