@@ -145,9 +145,30 @@ public class LiveResultsServiceBean {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Initialises the service.
+   * 
+   * @param servletContext  the servlet context, not null
+   */
   public void init(ServletContext servletContext) {
     setBayeux((Bayeux) servletContext.getAttribute(Bayeux.ATTRIBUTE));
-    
+    init();
+  }
+
+  /**
+   * Initializes the service.
+   * 
+   * @param bayeux  the bayeux instance, not null
+   */
+  public void init(Bayeux bayeux) {
+    setBayeux(bayeux);
+    init();
+  }
+
+  /**
+   * Initializes the service, where the Bayeux instance must be set.
+   */
+  protected void init() {
     if (getViewProcessor() == null) {
       throw new IllegalStateException("View processor not set");
     }

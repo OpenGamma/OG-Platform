@@ -5,11 +5,11 @@
  */
 package com.opengamma.web.server.push;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicLong;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /* TODO there is a potential problem with the timeout mechanism
 a client's timeout timer is reset whenever the server hears from the client.  this includes requests for data.

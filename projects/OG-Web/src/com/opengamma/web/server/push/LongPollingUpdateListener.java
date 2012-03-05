@@ -5,16 +5,17 @@
  */
 package com.opengamma.web.server.push;
 
-import com.opengamma.util.ArgumentChecker;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Set;
+
 import org.eclipse.jetty.continuation.Continuation;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * {@link RestUpdateListener} that pushes updates over a long-polling HTTP connection using Jetty's continuations.

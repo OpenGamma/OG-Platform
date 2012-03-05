@@ -14,12 +14,12 @@ $.register_module({
             outstanding_requests = {}, registrations = [], subscribe,
             meta_data = {configs: null, holidays: null, securities: null, viewrequirementnames: null},
             singular = {
-                batches: 'batch', configs: 'config', exchanges: 'exchange', holidays: 'holiday',
+                configs: 'config', exchanges: 'exchange', holidays: 'holiday',
                 portfolios: 'portfolio', positions: 'position', regions: 'region', securities: 'security',
                 timeseries: 'timeseries'
             },
             has_id_search = {
-                batches: false, configs: true, exchanges: true, holidays: true, portfolios: true,
+                configs: true, exchanges: true, holidays: true, portfolios: true,
                 positions: true, regions: true, securities: true, timeseries: false
             },
             request_id = 1,
@@ -233,13 +233,6 @@ $.register_module({
                 // if request is still outstanding remove it
                 if (!xhr) return; else delete outstanding_requests[promise.id];
                 if (typeof xhr === 'object' && 'abort' in xhr) xhr.abort();
-            },
-            batches: { // all requests that begin with /batches
-                root: 'batches',
-                get: default_get.partial(['observation_date', 'observation_time'],
-                        ['observationDate', 'observationTime']),
-                put: not_available.partial('put'),
-                del: not_available.partial('del')
             },
             clean: function () {
                 var id, current = routes.current(), request;

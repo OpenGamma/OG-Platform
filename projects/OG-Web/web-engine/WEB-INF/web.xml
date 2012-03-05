@@ -23,28 +23,10 @@
       <url-pattern>/cometd/*</url-pattern>
   </filter-mapping>
 
-  <!--  LiveResultsServiceBean depends on the cometd servlet, so we have a dummy servlet
-        here to trigger LiveResultsServiceBean initialization after the cometd
-        servlet has been initialized -->
-  <servlet>
-      <servlet-name>ConfigurationServlet</servlet-name>
-      <servlet-class>com.opengamma.web.server.ConfigurationServlet</servlet-class>
-      <load-on-startup>2</load-on-startup>
-  </servlet>
-
-  <!--filter>
-    <filter-name>spring-request</filter-name>
-    <filter-class>org.springframework.web.filter.RequestContextFilter</filter-class>
-  </filter>
-  <filter-mapping>
-    <filter-name>spring-request</filter-name>
-    <url-pattern>/jax/*</url-pattern>
-  </filter-mapping-->
-
   <!-- Jersey - JAXRS support -->
   <servlet>
     <servlet-name>jersey-spring</servlet-name>
-    <servlet-class>com.opengamma.component.OpenGammaServlet</servlet-class>
+    <servlet-class>com.opengamma.component.rest.OpenGammaServlet</servlet-class>
     <!--for creating subscriptions to entity updates-->
     <init-param>
       <param-name>com.sun.jersey.spi.container.ResourceFilters</param-name>
@@ -80,6 +62,10 @@
   <!-- Ehcache shutdown hook -->
   <listener>
     <listener-class>net.sf.ehcache.constructs.web.ShutdownListener</listener-class>
+  </listener>
+  <!-- Bind CometD/Bayeux to Web analytics -->
+  <listener>
+    <listener-class>com.opengamma.web.analytics.WebAnalyticsBayeuxInitializer</listener-class>
   </listener>
 
   <!-- Disable Jetty's locking of static files -->

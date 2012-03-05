@@ -6,9 +6,15 @@
 package com.opengamma.util.db;
 
 
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.ReflectionUtils;
-import com.opengamma.util.time.DateUtils;
+import static com.opengamma.util.db.DbUtil.fixSQLExceptionCause;
+
+import java.io.Closeable;
+import java.sql.Timestamp;
+
+import javax.sql.DataSource;
+import javax.time.Instant;
+import javax.time.TimeSource;
+
 import org.hibernate.SessionFactory;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -21,13 +27,9 @@ import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.sql.DataSource;
-import javax.time.Instant;
-import javax.time.TimeSource;
-import java.io.Closeable;
-import java.sql.Timestamp;
-
-import static com.opengamma.util.db.DbUtil.fixSQLExceptionCause;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.ReflectionUtils;
+import com.opengamma.util.time.DateUtils;
 
 
 /**

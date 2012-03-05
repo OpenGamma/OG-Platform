@@ -5,12 +5,13 @@
  */
 package com.opengamma.masterdb;
 
-import com.opengamma.extsql.ExtSqlBundle;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.DbConnector;
-import com.opengamma.util.db.DbDialect;
+import java.math.BigDecimal;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+
+import javax.time.Instant;
+import javax.time.TimeSource;
+
 import org.hibernate.SessionFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +19,12 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import javax.time.Instant;
-import javax.time.TimeSource;
-import java.math.BigDecimal;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.UniqueId;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.db.DbDialect;
 
 /**
  * An abstract master for rapid implementation of a database backed master.
