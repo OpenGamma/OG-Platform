@@ -5,13 +5,14 @@
  */
 package com.opengamma.web.server.push.rest;
 
-import com.opengamma.web.server.AggregatedViewDefinitionManager;
-import org.json.JSONArray;
-
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+
+import org.json.JSONArray;
+
+import com.opengamma.web.server.AggregatedViewDefinitionManager;
 
 /**
  * REST interface that produces a JSON list of aggregator names for populating the web client.

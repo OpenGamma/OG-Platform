@@ -9,8 +9,6 @@ import java.io.Serializable;
 import java.util.Collections;
 import java.util.Map;
 
-import com.google.common.collect.Maps;
-import com.opengamma.util.ArgumentChecker;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -23,11 +21,13 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Maps;
 import com.opengamma.core.security.Security;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Simple implementation of {@code Security}.

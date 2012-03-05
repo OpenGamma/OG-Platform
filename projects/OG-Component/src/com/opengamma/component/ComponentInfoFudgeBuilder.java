@@ -20,6 +20,8 @@ import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 
 /**
  * A Fudge builder for {@code ComponentInfo}.
+ * <p>
+ * This converts the data to and from the Fudge message protocol format.
  */
 @FudgeBuilderFor(ComponentInfo.class)
 public class ComponentInfoFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<ComponentInfo> {

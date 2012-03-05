@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.component;
+package com.opengamma.component.rest;
 
 import java.lang.reflect.Constructor;
 

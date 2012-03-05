@@ -15,7 +15,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.opengamma.component.ComponentManager;
-import com.opengamma.component.RemoteComponentServer;
+import com.opengamma.component.rest.RemoteComponentServer;
 
 /**
  * Test.

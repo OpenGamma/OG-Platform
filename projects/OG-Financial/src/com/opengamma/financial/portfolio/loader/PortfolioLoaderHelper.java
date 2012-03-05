@@ -75,6 +75,16 @@ public class PortfolioLoaderHelper {
 
   public static Options getOptions() {
     Options options = new Options();
+    buildOptions(options);
+    return options;
+  }
+
+  /**
+   * Builds the set of options.
+   * 
+   * @param options  the options to add to, not null
+   */
+  public static void buildOptions(Options options) {
     Option filenameOption = new Option(FILE_NAME_OPT, "filename", true, "The path to the CSV file of cash details");
     filenameOption.setRequired(true);
     options.addOption(filenameOption);
@@ -89,8 +99,6 @@ public class PortfolioLoaderHelper {
 
     Option writeOption = new Option(WRITE_OPT, "write", false, "Actually persists the portfolio to the database");
     options.addOption(writeOption);
-
-    return options;
   }
 
   public static void usage(String loaderName) {
