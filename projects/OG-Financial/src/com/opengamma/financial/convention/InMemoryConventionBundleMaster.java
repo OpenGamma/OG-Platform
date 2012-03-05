@@ -48,6 +48,10 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
    * Creates an instance.
    */
   public InMemoryConventionBundleMaster() {
+    init();
+  }
+
+  protected void init() {
     AUConventions.addFixedIncomeInstrumentConventions(this);
     CAConventions.addFixedIncomeInstrumentConventions(this);
     CHConventions.addFixedIncomeInstrumentConventions(this);
