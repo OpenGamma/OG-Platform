@@ -6,7 +6,6 @@
 package com.opengamma.financial.view.rest;
 
 import javax.ws.rs.GET;
-import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import com.opengamma.engine.view.ViewDefinition;
@@ -34,9 +33,6 @@ public class DataViewDefinitionResource extends AbstractDataResource {
   @GET
   public Response getViewDefinition() {
     ViewDefinition definition = _repository.getDefinition(_definitionId);
-    if (definition == null) {
-      throw new WebApplicationException(Response.Status.NOT_FOUND);
-    }
     return responseOkFudge(definition);
   }
   

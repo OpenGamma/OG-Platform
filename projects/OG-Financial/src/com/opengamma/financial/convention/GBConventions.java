@@ -207,8 +207,10 @@ public class GBConventions {
         act365, modified, semiAnnual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP LIBOR 6m"), gb, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP_1Y_SWAP")), "GBP_1Y_SWAP", act365, modified, quarterly, 0, gb,
         act365, modified, quarterly, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP LIBOR 3m"), gb, true);
+    // Overnight Index Swap Convention have additional flag, publicationLag
+    final Integer publicationLag = 0;
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP_OIS_SWAP")), "GBP_OIS_SWAP", act365, modified, annual, 2, gb,
-        act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP SONIO/N"), gb);
+        act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP SONIO/N"), gb, true, publicationLag);
     conventionMaster
         .addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP_OIS_CASH")), "GBP_OIS_CASH", act365, following, null, 0, false, null);
     //TODO sort out the swap names so that they are consistent

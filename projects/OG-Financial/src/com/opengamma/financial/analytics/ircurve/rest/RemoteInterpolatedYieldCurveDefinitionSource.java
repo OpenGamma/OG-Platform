@@ -15,7 +15,7 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.rest.AbstractRemoteClient;
-import com.sun.jersey.api.client.UniformInterfaceException;
+import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 
 /**
  * Provides access to a remote {@link InterpolatedYieldCurveDefinitionSource}.
@@ -42,11 +42,8 @@ public class RemoteInterpolatedYieldCurveDefinitionSource extends AbstractRemote
       return accessRemote(uri).get(YieldCurveDefinition.class);
     } catch (DataNotFoundException ex) {
       return null;
-    } catch (UniformInterfaceException ex) {
-      if (ex.getResponse().getStatus() == 404) {
-        return null;
-      }
-      throw ex;
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
     }
   }
 
@@ -60,11 +57,8 @@ public class RemoteInterpolatedYieldCurveDefinitionSource extends AbstractRemote
       return accessRemote(uri).get(YieldCurveDefinition.class);
     } catch (DataNotFoundException ex) {
       return null;
-    } catch (UniformInterfaceException ex) {
-      if (ex.getResponse().getStatus() == 404) {
-        return null;
-      }
-      throw ex;
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
     }
   }
 

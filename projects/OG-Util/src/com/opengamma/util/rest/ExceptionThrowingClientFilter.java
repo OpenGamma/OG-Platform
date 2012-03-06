@@ -55,7 +55,14 @@ public class ExceptionThrowingClientFilter extends ClientFilter {
     if (exMsg == null) {
       exMsg = headers.getFirst(EXCEPTION_POINT);
     }
-    UniformInterfaceException uiex = new UniformInterfaceException(response, true);
+    UniformInterfaceException uiex;
+    if (response.getStatus() == 404) {
+      uiex = new UniformInterfaceException404NotFound(response, true);
+    } else if (response.getStatus() == 204) {
+      uiex = new UniformInterfaceException204NoContent(response, true);
+    } else {
+      uiex = new UniformInterfaceException(response, true);
+    }
     if (exType == null) {
       throw uiex;  // standard UniformInterfaceException as we have nothing to add
     }

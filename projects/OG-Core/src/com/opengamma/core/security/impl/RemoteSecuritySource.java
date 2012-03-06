@@ -23,7 +23,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.FudgeListWrapper;
 import com.opengamma.util.rest.AbstractRemoteClient;
-import com.sun.jersey.api.client.UniformInterfaceException;
+import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 
 /**
  * Provides remote access to an {@link SecuritySource}.
@@ -122,11 +122,8 @@ public class RemoteSecuritySource extends AbstractRemoteClient implements Securi
       return accessRemote(uri).get(Security.class);
     } catch (DataNotFoundException ex) {
       return null;
-    } catch (UniformInterfaceException ex) {
-      if (ex.getResponse().getStatus() == 404) {
-        return null;
-      }
-      throw ex;
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
     }
   }
 
@@ -140,11 +137,8 @@ public class RemoteSecuritySource extends AbstractRemoteClient implements Securi
       return accessRemote(uri).get(Security.class);
     } catch (DataNotFoundException ex) {
       return null;
-    } catch (UniformInterfaceException ex) {
-      if (ex.getResponse().getStatus() == 404) {
-        return null;
-      }
-      throw ex;
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
     }
   }
 
