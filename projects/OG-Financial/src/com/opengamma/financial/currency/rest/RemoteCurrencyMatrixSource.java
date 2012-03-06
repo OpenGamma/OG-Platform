@@ -12,7 +12,7 @@ import com.opengamma.financial.currency.CurrencyMatrix;
 import com.opengamma.financial.currency.CurrencyMatrixSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractRemoteClient;
-import com.sun.jersey.api.client.UniformInterfaceException;
+import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 
 /**
  * Provides remote access to a {@link CurrencyMatrixSource}.
@@ -38,11 +38,8 @@ public class RemoteCurrencyMatrixSource extends AbstractRemoteClient implements 
       return accessRemote(uri).get(CurrencyMatrix.class);
     } catch (DataNotFoundException ex) {
       return null;
-    } catch (UniformInterfaceException ex) {
-      if (ex.getResponse().getStatus() == 404) {
-        return null;
-      }
-      throw ex;
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
     }
   }
 

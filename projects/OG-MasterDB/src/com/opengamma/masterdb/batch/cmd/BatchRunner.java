@@ -5,27 +5,36 @@
  */
 package com.opengamma.masterdb.batch.cmd;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification;
-import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
-import com.opengamma.engine.view.ViewProcessor;
-import com.opengamma.engine.view.client.ViewClient;
-import com.opengamma.engine.view.execution.*;
-import com.opengamma.batch.RunCreationMode;
-import com.opengamma.batch.SnapshotMode;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.livedata.UserPrincipal;
-import org.apache.commons.cli.*;
+import javax.time.Instant;
+import javax.time.calendar.DateTimeProvider;
+import javax.time.calendar.OffsetDateTime;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.support.AbstractApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
-import javax.time.Instant;
-import javax.time.calendar.DateTimeProvider;
-import javax.time.calendar.OffsetDateTime;
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.batch.RunCreationMode;
+import com.opengamma.batch.SnapshotMode;
+import com.opengamma.engine.marketdata.spec.FixedHistoricalMarketDataSpecification;
+import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
+import com.opengamma.engine.view.ViewProcessor;
+import com.opengamma.engine.view.client.ViewClient;
+import com.opengamma.engine.view.execution.ArbitraryViewCycleExecutionSequence;
+import com.opengamma.engine.view.execution.ExecutionFlags;
+import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
+import com.opengamma.engine.view.execution.ViewCycleExecutionSequence;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.livedata.UserPrincipal;
 
 /**
  * The entry point for running OpenGamma batches. 

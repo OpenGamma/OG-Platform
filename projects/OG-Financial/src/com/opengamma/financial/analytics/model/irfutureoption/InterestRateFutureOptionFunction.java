@@ -33,8 +33,8 @@ import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProv
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecurityConverter;
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.instrument.InstrumentDefinition;
@@ -119,7 +119,7 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();
     return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);
   }
 

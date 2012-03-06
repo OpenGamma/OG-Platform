@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertNotNull;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.component.factory.tool.ToolContextUtils;
+import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.examples.DBTestUtils;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.loader.ExampleMixedPortfolioLoader;
@@ -43,7 +43,7 @@ public class ExampleDatabasePopulaterTest {
     for (int i = 0; i < 2; i++) {
       DBTestUtils.createHsqlDB(CONFIG_RESOURCE_LOCATION);
       
-      new ExampleDatabasePopulater().run();
+      new ExampleDatabasePopulater().run(AbstractExampleTool.TOOLCONTEXT_EXAMPLE_PROPERTIES);
       
       ToolContext toolContext = getToolContext();
       try {

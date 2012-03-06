@@ -16,7 +16,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
-import com.opengamma.examples.tool.AbstractTool;
+import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -41,7 +41,7 @@ import com.opengamma.util.money.Currency;
  * <p>
  * It is designed to run against the HSQLDB example database.  
  */
-public class ExampleViewsPopulater extends AbstractTool {
+public class ExampleViewsPopulater extends AbstractExampleTool {
 
   private static final String FORWARD_3M = "FORWARD_3M";
   private static final String FORWARD_6M = "FORWARD_6M";
@@ -58,9 +58,7 @@ public class ExampleViewsPopulater extends AbstractTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) { // CSIGNORE
-    if (init()) {
-      new ExampleViewsPopulater().run();
-    }
+    new ExampleViewsPopulater().initAndRun(args);
     System.exit(0);
   }
 

@@ -27,8 +27,8 @@ import com.opengamma.financial.analytics.FilteringSummingFunction;
 import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.forex.ForexOptionFunction;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
@@ -73,8 +73,7 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Default implementation of {@link RiskFactorsGatherer}.
  */
-public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer,
-FinancialSecurityVisitor<Set<Pair<String, ValueProperties>>>, FutureSecurityVisitor<Set<Pair<String, ValueProperties>>> {
+public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, FinancialSecurityVisitor<Set<Pair<String, ValueProperties>>>, FutureSecurityVisitor<Set<Pair<String, ValueProperties>>> {
 
   private final SecuritySource _securities;
   private final RiskFactorsConfigurationProvider _configProvider;
@@ -275,7 +274,7 @@ FinancialSecurityVisitor<Set<Pair<String, ValueProperties>>>, FutureSecurityVisi
                     .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
                     .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
                     .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
-                    .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION")))
+                    .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
                     .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
                     .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
                     .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
@@ -292,7 +291,7 @@ FinancialSecurityVisitor<Set<Pair<String, ValueProperties>>>, FutureSecurityVisi
             .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
             .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
             .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
-            .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION")))
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
             .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
             .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
             .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
@@ -309,7 +308,7 @@ FinancialSecurityVisitor<Set<Pair<String, ValueProperties>>>, FutureSecurityVisi
             .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
             .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
             .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
-            .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION")))
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
             .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
             .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
             .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
@@ -338,7 +337,7 @@ FinancialSecurityVisitor<Set<Pair<String, ValueProperties>>>, FutureSecurityVisi
             .with(ValuePropertyNames.SURFACE, "DEFAULT")
             .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, getFundingCurve())
             .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, getForwardCurve(ccy))
-            .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION"))).build();
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION))).build();
   }
 
   @Override
@@ -376,7 +375,7 @@ FinancialSecurityVisitor<Set<Pair<String, ValueProperties>>>, FutureSecurityVisi
             .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
             .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
             .with(ValuePropertyNames.RECEIVE_CURVE, getFundingCurve())
-            .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "FX_VANILLA_OPTION")))
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)))
             .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
             .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
             .add(getYieldCurveNodeSensitivities(getForwardCurve(security.getCallCurrency()), security.getCallCurrency()))
@@ -436,7 +435,7 @@ FinancialSecurityVisitor<Set<Pair<String, ValueProperties>>>, FutureSecurityVisi
         .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCurrency()))
         .add(getVegaMatrix(ValueProperties
             .with(ValuePropertyNames.SURFACE, "DEFAULT")
-            .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION"))).build();
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION"))).build();
   }
 
   //-------------------------------------------------------------------------

@@ -5,6 +5,8 @@
  */
 package com.opengamma.masterdb.batch;
 
+import javax.time.Instant;
+
 import com.google.common.collect.Maps;
 import com.opengamma.batch.BatchRunWriter;
 import com.opengamma.batch.RunCreationMode;
@@ -17,8 +19,6 @@ import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.livedata.UserPrincipal;
-
-import javax.time.Instant;
 
 public class BatchDbViewResultListener implements ViewResultListener {
 

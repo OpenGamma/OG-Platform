@@ -102,7 +102,7 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
-    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>> builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
+    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
         .futureSecurityVisitor(futureConverter).bondSecurityVisitor(bondConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }

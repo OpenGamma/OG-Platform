@@ -39,6 +39,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.jms.JmsConnector;
+import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 import com.sun.jersey.api.client.ClientResponse;
 
 /**
@@ -308,13 +309,21 @@ public class RemoteViewClient extends AbstractRestfulJmsResultConsumer implement
   @Override
   public ViewComputationResultModel getLatestResult() {
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_LATEST_RESULT);
-    return getClient().accessFudge(uri).get(ViewComputationResultModel.class);
+    try {
+      return getClient().accessFudge(uri).get(ViewComputationResultModel.class);
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
+    }
   }
 
   @Override
   public CompiledViewDefinition getLatestCompiledViewDefinition() {
     URI uri = getUri(getBaseUri(), DataViewClientResource.PATH_LATEST_COMPILED_VIEW_DEFINITION);
-    return getClient().accessFudge(uri).get(CompiledViewDefinition.class);
+    try {
+      return getClient().accessFudge(uri).get(CompiledViewDefinition.class);
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
+    }
   }
   
   @Override

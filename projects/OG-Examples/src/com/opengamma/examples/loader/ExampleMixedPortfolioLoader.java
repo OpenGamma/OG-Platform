@@ -16,7 +16,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.examples.tool.AbstractTool;
+import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -68,9 +68,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * Example code to load a mixed portfolio.
  */
-public class ExampleMixedPortfolioLoader extends AbstractTool {
+public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
   
   /**
    * Example mixed portfolio name
@@ -80,14 +80,12 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final ExternalId USDLIBOR3M = ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDLIBORP3M");
-  
+
   public static void main(String[] args) { //CSIGNORE
-    if (init()) {
-      new ExampleMixedPortfolioLoader().run();
-    }
+    new ExampleMixedPortfolioLoader().initAndRun(args);
     System.exit(0);
   }
-  
+
   private void persistToPortfolio() {
     PortfolioMaster portfolioMaster = getToolContext().getPortfolioMaster();
     ManageablePortfolioNode rootNode = new ManageablePortfolioNode(PORTFOLIO_NAME);

@@ -25,7 +25,7 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.examples.tool.AbstractTool;
+import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.convention.ConventionBundle;
@@ -63,7 +63,7 @@ import com.opengamma.util.time.Tenor;
  * more than once you will get multiple copies portfolios and securities with the same names.
  * It is designed to run against the HSQLDB example database.
  */
-public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool {
+public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool {
 
   /**
    * Logger.
@@ -109,10 +109,8 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    if (init()) {
-      new ExampleTimeSeriesRatingLoader().run();
-      new ExampleMultiCurrencySwapPortfolioLoader().run();
-    }
+    new ExampleTimeSeriesRatingLoader().initAndRun(args);
+    new ExampleMultiCurrencySwapPortfolioLoader().initAndRun(args);
     System.exit(0);
   }
 

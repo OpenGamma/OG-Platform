@@ -11,7 +11,7 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.greeks.BucketedGreekResultCollection;
-import com.opengamma.financial.greeks.PDEGreekResultCollection;
+import com.opengamma.financial.greeks.PDEResultCollection;
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 
@@ -38,27 +38,27 @@ public class PDEResultsFudgeBuilderTest extends AnalyticsTestBase {
   private static final double[] VE = new double[] {0.154, 0.164, 0.174, 0.184};
   private static final double[] VA = new double[] {0.155, 0.165, 0.175, 0.185};
   private static final double[] VO = new double[] {0.156, 0.166, 0.176, 0.186};
-  private static final PDEGreekResultCollection PDE_GREEKS = new PDEGreekResultCollection(STRIKES);
+  private static final PDEResultCollection PDE_GREEKS = new PDEResultCollection(STRIKES);
   private static final double[] EXPIRIES = new double[] {1, 5, 10};
   private static final double[][] STRIKE_GRID = new double[][] {new double[] {1, 2, 3}, new double[] {4, 5, 6}, new double[] {7, 8, 9}};
   private static final double[][] BUCKETED_VEGA = new double[][] {new double[] {11, 12, 13}, new double[] {14, 15, 16}, new double[] {17, 18, 19}};
   private static final BucketedGreekResultCollection BUCKETED_GREEKS = new BucketedGreekResultCollection(EXPIRIES, STRIKE_GRID);
 
   static {
-    PDE_GREEKS.put(PDEGreekResultCollection.GRID_BLACK_DELTA, BD);
-    PDE_GREEKS.put(PDEGreekResultCollection.GRID_BLACK_DUAL_DELTA, BDD);
-    PDE_GREEKS.put(PDEGreekResultCollection.GRID_BLACK_GAMMA, BG);
-    PDE_GREEKS.put(PDEGreekResultCollection.GRID_BLACK_DUAL_GAMMA, BDG);
-    PDE_GREEKS.put(PDEGreekResultCollection.GRID_BLACK_VEGA, BVE);
-    PDE_GREEKS.put(PDEGreekResultCollection.GRID_BLACK_VANNA, BVA);
-    PDE_GREEKS.put(PDEGreekResultCollection.GRID_BLACK_VOMMA, BVO);
-    PDE_GREEKS.put(PDEGreekResultCollection.GRID_DELTA, D);
-    PDE_GREEKS.put(PDEGreekResultCollection.GRID_DUAL_DELTA, DD);
-    PDE_GREEKS.put(PDEGreekResultCollection.GRID_GAMMA, G);
-    PDE_GREEKS.put(PDEGreekResultCollection.GRID_DUAL_GAMMA, DG);
-    PDE_GREEKS.put(PDEGreekResultCollection.GRID_VEGA, VE);
-    PDE_GREEKS.put(PDEGreekResultCollection.GRID_VANNA, VA);
-    PDE_GREEKS.put(PDEGreekResultCollection.GRID_VOMMA, VO);
+    PDE_GREEKS.put(PDEResultCollection.GRID_BLACK_DELTA, BD);
+    PDE_GREEKS.put(PDEResultCollection.GRID_BLACK_DUAL_DELTA, BDD);
+    PDE_GREEKS.put(PDEResultCollection.GRID_BLACK_GAMMA, BG);
+    PDE_GREEKS.put(PDEResultCollection.GRID_BLACK_DUAL_GAMMA, BDG);
+    PDE_GREEKS.put(PDEResultCollection.GRID_BLACK_VEGA, BVE);
+    PDE_GREEKS.put(PDEResultCollection.GRID_BLACK_VANNA, BVA);
+    PDE_GREEKS.put(PDEResultCollection.GRID_BLACK_VOMMA, BVO);
+    PDE_GREEKS.put(PDEResultCollection.GRID_DELTA, D);
+    PDE_GREEKS.put(PDEResultCollection.GRID_DUAL_DELTA, DD);
+    PDE_GREEKS.put(PDEResultCollection.GRID_GAMMA, G);
+    PDE_GREEKS.put(PDEResultCollection.GRID_DUAL_GAMMA, DG);
+    PDE_GREEKS.put(PDEResultCollection.GRID_VEGA, VE);
+    PDE_GREEKS.put(PDEResultCollection.GRID_VANNA, VA);
+    PDE_GREEKS.put(PDEResultCollection.GRID_VOMMA, VO);
     BUCKETED_GREEKS.put(BucketedGreekResultCollection.BUCKETED_VEGA, BUCKETED_VEGA);
   }
 
@@ -85,21 +85,21 @@ public class PDEResultsFudgeBuilderTest extends AnalyticsTestBase {
 
   @Test
   public void testPDEGreeks() {
-    final PDEGreekResultCollection pdeGreeks = cycleObject(PDEGreekResultCollection.class, PDE_GREEKS);
-    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_DELTA), pdeGreeks.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_DELTA), 1e-9);
-    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_DUAL_DELTA), pdeGreeks.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_DUAL_DELTA), 1e-9);
-    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_GAMMA), pdeGreeks.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_GAMMA), 1e-9);
-    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_DUAL_GAMMA), pdeGreeks.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_DUAL_GAMMA), 1e-9);
-    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_VEGA), pdeGreeks.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_VEGA), 1e-9);
-    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_VANNA), pdeGreeks.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_VANNA), 1e-9);
-    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_VOMMA), pdeGreeks.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_VOMMA), 1e-9);
-    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEGreekResultCollection.GRID_DELTA), pdeGreeks.getGridGreeks(PDEGreekResultCollection.GRID_DELTA), 1e-9);
-    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEGreekResultCollection.GRID_DUAL_DELTA), pdeGreeks.getGridGreeks(PDEGreekResultCollection.GRID_DUAL_DELTA), 1e-9);
-    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEGreekResultCollection.GRID_GAMMA), pdeGreeks.getGridGreeks(PDEGreekResultCollection.GRID_GAMMA), 1e-9);
-    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEGreekResultCollection.GRID_DUAL_GAMMA), pdeGreeks.getGridGreeks(PDEGreekResultCollection.GRID_DUAL_GAMMA), 1e-9);
-    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEGreekResultCollection.GRID_VEGA), pdeGreeks.getGridGreeks(PDEGreekResultCollection.GRID_VEGA), 1e-9);
-    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEGreekResultCollection.GRID_VANNA), pdeGreeks.getGridGreeks(PDEGreekResultCollection.GRID_VANNA), 1e-9);
-    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEGreekResultCollection.GRID_VOMMA), pdeGreeks.getGridGreeks(PDEGreekResultCollection.GRID_VOMMA), 1e-9);
+    final PDEResultCollection pdeGreeks = cycleObject(PDEResultCollection.class, PDE_GREEKS);
+    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEResultCollection.GRID_BLACK_DELTA), pdeGreeks.getGridGreeks(PDEResultCollection.GRID_BLACK_DELTA), 1e-9);
+    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEResultCollection.GRID_BLACK_DUAL_DELTA), pdeGreeks.getGridGreeks(PDEResultCollection.GRID_BLACK_DUAL_DELTA), 1e-9);
+    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEResultCollection.GRID_BLACK_GAMMA), pdeGreeks.getGridGreeks(PDEResultCollection.GRID_BLACK_GAMMA), 1e-9);
+    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEResultCollection.GRID_BLACK_DUAL_GAMMA), pdeGreeks.getGridGreeks(PDEResultCollection.GRID_BLACK_DUAL_GAMMA), 1e-9);
+    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEResultCollection.GRID_BLACK_VEGA), pdeGreeks.getGridGreeks(PDEResultCollection.GRID_BLACK_VEGA), 1e-9);
+    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEResultCollection.GRID_BLACK_VANNA), pdeGreeks.getGridGreeks(PDEResultCollection.GRID_BLACK_VANNA), 1e-9);
+    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEResultCollection.GRID_BLACK_VOMMA), pdeGreeks.getGridGreeks(PDEResultCollection.GRID_BLACK_VOMMA), 1e-9);
+    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEResultCollection.GRID_DELTA), pdeGreeks.getGridGreeks(PDEResultCollection.GRID_DELTA), 1e-9);
+    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEResultCollection.GRID_DUAL_DELTA), pdeGreeks.getGridGreeks(PDEResultCollection.GRID_DUAL_DELTA), 1e-9);
+    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEResultCollection.GRID_GAMMA), pdeGreeks.getGridGreeks(PDEResultCollection.GRID_GAMMA), 1e-9);
+    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEResultCollection.GRID_DUAL_GAMMA), pdeGreeks.getGridGreeks(PDEResultCollection.GRID_DUAL_GAMMA), 1e-9);
+    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEResultCollection.GRID_VEGA), pdeGreeks.getGridGreeks(PDEResultCollection.GRID_VEGA), 1e-9);
+    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEResultCollection.GRID_VANNA), pdeGreeks.getGridGreeks(PDEResultCollection.GRID_VANNA), 1e-9);
+    assertArrayEquals(PDE_GREEKS.getGridGreeks(PDEResultCollection.GRID_VOMMA), pdeGreeks.getGridGreeks(PDEResultCollection.GRID_VOMMA), 1e-9);
   }
 
   @Test
