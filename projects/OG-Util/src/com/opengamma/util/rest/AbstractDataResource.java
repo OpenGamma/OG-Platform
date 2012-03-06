@@ -52,6 +52,7 @@ public abstract class AbstractDataResource {
     return Response.created(uri).build();
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Creates the RESTful "ok" response object, converting null to a 404.
    * <p>
@@ -68,6 +69,7 @@ public abstract class AbstractDataResource {
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Creates the RESTful "ok" response object using Fudge, converting null to a 404.
    * <p>
@@ -84,6 +86,7 @@ public abstract class AbstractDataResource {
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Creates the RESTful "created" response object using Fudge, converting null to a 404.
    * <p>
@@ -101,6 +104,7 @@ public abstract class AbstractDataResource {
     }
   }
 
+  //-------------------------------------------------------------------------
   private Object encode(Object value) {
     if (value instanceof FudgeMsgEnvelope || value instanceof FudgeMsg || value instanceof Bean) {
       return value;
