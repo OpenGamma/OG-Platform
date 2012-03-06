@@ -16,5 +16,4 @@ public interface PiecewiseSABRSurfaceFitter1<T extends StrikeType> {
 
   BlackVolatilitySurface<T> getVolatilitySurface(SmileSurfaceDataBundle data);
 
-
 }

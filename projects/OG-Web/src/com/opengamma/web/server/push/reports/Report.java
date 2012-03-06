@@ -5,8 +5,9 @@
  */
 package com.opengamma.web.server.push.reports;
 
-import javax.ws.rs.core.MediaType;
 import java.io.InputStream;
+
+import javax.ws.rs.core.MediaType;
 
 /**
  * Wraps a report that is downloaded from the web interface, e.g. a CSV file, Excel workbook or PDF.  The report

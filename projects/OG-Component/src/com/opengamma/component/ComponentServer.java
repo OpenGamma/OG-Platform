@@ -22,6 +22,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.component.rest.RemoteComponentServer;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -100,10 +101,11 @@ public class ComponentServer extends DirectBean {
    * Applies the URI for the server.
    * <p>
    * This recursively sets the URI onto any component informations that have a relative URI.
+   * This is normally called after the information is retrieved from a remote server.
    *
    * @param baseUri  the base URI of the server, not null
    */
-  protected void applyBaseUri(URI baseUri) {
+  public void applyBaseUri(URI baseUri) {
     ArgumentChecker.notNull(baseUri, "baseUri");
     setUri(baseUri);
     for (ComponentInfo info : getComponentInfos()) {

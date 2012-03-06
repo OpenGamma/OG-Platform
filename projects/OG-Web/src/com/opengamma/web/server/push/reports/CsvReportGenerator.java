@@ -5,12 +5,14 @@
  */
 package com.opengamma.web.server.push.reports;
 
-import au.com.bytecode.opencsv.CSVWriter;
-import com.opengamma.web.server.WebGridCell;
-
-import javax.ws.rs.core.MediaType;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
+
+import javax.ws.rs.core.MediaType;
+
+import au.com.bytecode.opencsv.CSVWriter;
+
+import com.opengamma.web.server.WebGridCell;
 
 /**
  * Generates CSV files containing a single snapshot of a viewport's data.

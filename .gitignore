@@ -39,3 +39,5 @@ test-output/
 /install/
 /build/
 LOCAL_STASH
+*.iws
+*.ids

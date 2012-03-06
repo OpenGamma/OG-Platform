@@ -46,7 +46,7 @@ public class FittedVolatilitySurfaceBuilderTest extends AnalyticsTestBase {
       InterpolatedDoublesCurve.from(EXPIRIES, FORWARDS, CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR)));
   private static final StandardSmileSurfaceDataBundle STANDARD_DATA = new StandardSmileSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, VOLS, true);
   private static final ForexSmileDeltaSurfaceDataBundle FOREX_DATA = new ForexSmileDeltaSurfaceDataBundle(FORWARD_CURVE, EXPIRIES, STRIKES, VOLS, true);
-  private static final MoneynessPiecewiseSABRSurfaceFitter MONEYNESS_SURFACE_FITTER = new MoneynessPiecewiseSABRSurfaceFitter(true, false, 100);
+  private static final MoneynessPiecewiseSABRSurfaceFitter MONEYNESS_SURFACE_FITTER = new MoneynessPiecewiseSABRSurfaceFitter(true, true, true);
 
   @Test
   public void testStandardData() {

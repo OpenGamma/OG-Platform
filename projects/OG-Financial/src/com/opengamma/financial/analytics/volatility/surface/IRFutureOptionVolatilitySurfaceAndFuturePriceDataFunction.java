@@ -43,6 +43,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
@@ -158,11 +159,11 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
         final ValueSpecification volSurfaceResult = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA,
             new ComputationTargetSpecification(volSurfaceDefinition.getTarget()),
             createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName)
-                .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _volSurfaceInstrumentType).get());
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _volSurfaceInstrumentType).get());
         final ValueSpecification futurePriceCurveResult = new ValueSpecification(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA,
             new ComputationTargetSpecification(priceCurveSpecification.getTarget()),
             createValueProperties().with(ValuePropertyNames.CURVE, _definitionName)
-                .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _priceCurveInstrumentType).get());
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _priceCurveInstrumentType).get());
         return Sets.newHashSet(volSurfaceResult, futurePriceCurveResult);
       }
 
@@ -237,11 +238,11 @@ public class IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction extends A
         final ValueSpecification volSurfaceResult = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA,
             new ComputationTargetSpecification(volSurfaceDefinition.getTarget()),
             createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName)
-                .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _volSurfaceInstrumentType).get());
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _volSurfaceInstrumentType).get());
         final ValueSpecification futurePriceCurveResult = new ValueSpecification(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA,
             new ComputationTargetSpecification(priceCurveSpecification.getTarget()),
             createValueProperties().with(ValuePropertyNames.CURVE, _definitionName)
-                .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _priceCurveInstrumentType).get());
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _priceCurveInstrumentType).get());
         final ComputedValue volSurfaceResultValue = new ComputedValue(volSurfaceResult, volSurfaceData);
         final FuturePriceCurveData<Double> futurePriceCurveData = new FuturePriceCurveData<Double>(priceCurveDefinition.getName(), priceCurveSpecification.getName(),
             priceCurveDefinition.getTarget(), ts.toArray(new Double[0]), futurePriceValues);

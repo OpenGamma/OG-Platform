@@ -3,10 +3,11 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.component;
+package com.opengamma.component.rest;
 
 import java.net.URI;
 
+import com.opengamma.component.ComponentServer;
 import com.opengamma.util.rest.AbstractRemoteClient;
 
 /**

@@ -5,6 +5,47 @@
  */
 package com.opengamma.masterdb.batch;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newConcurrentMap;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
+import static com.opengamma.util.db.DbUtil.eqOrIsNull;
+import static com.opengamma.util.functional.Functional.any;
+import static com.opengamma.util.functional.Functional.map;
+import static com.opengamma.util.functional.Functional.newArray;
+
+import java.io.PrintWriter;
+import java.io.Serializable;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+
+import javax.time.Instant;
+
+import org.apache.commons.io.output.StringBuilderWriter;
+import org.apache.commons.lang.StringUtils;
+import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
+import org.hibernate.Query;
+import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+
 import com.google.common.base.Function;
 import com.google.common.collect.MapMaker;
 import com.google.common.collect.Maps;
@@ -12,7 +53,20 @@ import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.batch.RunCreationMode;
 import com.opengamma.batch.SnapshotMode;
-import com.opengamma.batch.domain.*;
+import com.opengamma.batch.domain.CalculationConfiguration;
+import com.opengamma.batch.domain.ComputeFailure;
+import com.opengamma.batch.domain.ComputeFailureKey;
+import com.opengamma.batch.domain.ComputeHost;
+import com.opengamma.batch.domain.ComputeNode;
+import com.opengamma.batch.domain.FunctionUniqueId;
+import com.opengamma.batch.domain.HbComputationTargetSpecification;
+import com.opengamma.batch.domain.LiveDataField;
+import com.opengamma.batch.domain.MarketData;
+import com.opengamma.batch.domain.MarketDataValue;
+import com.opengamma.batch.domain.RiskRun;
+import com.opengamma.batch.domain.RiskValueRequirement;
+import com.opengamma.batch.domain.RiskValueSpecification;
+import com.opengamma.batch.domain.StatusEntry;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -36,37 +90,6 @@ import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.functional.Function1;
 import com.opengamma.util.tuple.Pair;
-import org.apache.commons.io.output.StringBuilderWriter;
-import org.apache.commons.lang.StringUtils;
-import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
-import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Restrictions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.dao.IncorrectResultSizeDataAccessException;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-
-import javax.time.Instant;
-import java.io.PrintWriter;
-import java.io.Serializable;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newConcurrentMap;
-import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
-import static com.opengamma.util.db.DbUtil.eqOrIsNull;
-import static com.opengamma.util.functional.Functional.*;
 
 /**
  * A batch master implementation using a database for persistence.

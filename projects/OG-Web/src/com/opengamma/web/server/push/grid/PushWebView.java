@@ -5,6 +5,16 @@
  */
 package com.opengamma.web.server.push.grid;
 
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -21,15 +31,6 @@ import com.opengamma.web.server.push.ViewportDefinition;
 import com.opengamma.web.server.push.reports.DependencyGraphGridData;
 import com.opengamma.web.server.push.reports.GridData;
 import com.opengamma.web.server.push.reports.ViewportData;
-import org.apache.commons.lang.ObjectUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 /**
  * TODO return new viewport instance rather than implementing it?

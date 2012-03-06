@@ -19,6 +19,8 @@ import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 
 /**
  * A Fudge builder for {@code ComponentServer}.
+ * <p>
+ * This converts the data to and from the Fudge message protocol format.
  */
 @FudgeBuilderFor(ComponentServer.class)
 public class ComponentServerFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<ComponentServer> {

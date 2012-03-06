@@ -113,6 +113,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
     bean.setExecutorService(execBean.getObjectCreating());
     
     WebAnalyticsResource resource = new WebAnalyticsResource(bean);
+    repo.registerServletContextAware(resource);
     repo.getRestComponents().publishResource(resource);
   }
 

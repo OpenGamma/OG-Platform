@@ -22,13 +22,11 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ForexLocalVolatilityPDEPriceDefaultPropertiesFunction extends DefaultPropertyFunction {
   private final String _forwardCurveCalculationMethod;
-  private final String _forwardCurveInterpolator;
-  private final String _forwardCurveLeftExtrapolator;
-  private final String _forwardCurveRightExtrapolator;
+  private final String _forwardCurveName;
   private final String _surfaceType;
   private final String _xAxis;
   private final String _yAxis;
-  private final String _lambda;
+  private final String _yAxisType;
   private final String _surfaceName;
   private final String _h;
   private final String _pdeDirection;
@@ -41,19 +39,16 @@ public class ForexLocalVolatilityPDEPriceDefaultPropertiesFunction extends Defau
   private final String _strikeInterpolatorName;
   private final String _timeInterpolatorName;
 
-  public ForexLocalVolatilityPDEPriceDefaultPropertiesFunction(final String forwardCurveCalculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
-      final String forwardCurveRightExtrapolator, final String surfaceType, final String xAxis, final String yAxis, final String lambda, final String surfaceName,
-      final String h, final String pdeDirection, final String theta, final String timeSteps, final String spaceSteps,
+  public ForexLocalVolatilityPDEPriceDefaultPropertiesFunction(final String forwardCurveCalculationMethod, final String forwardCurveName, final String surfaceType, final String xAxis,
+      final String yAxis, final String yAxisType, final String surfaceName, final String h, final String pdeDirection, final String theta, final String timeSteps, final String spaceSteps,
       final String timeGridBunching, final String spaceGridBunching, final String maxMoneyness, final String strikeInterpolatorName, final String timeInterpolatorName) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(forwardCurveCalculationMethod, "forward curve calculation method");
-    ArgumentChecker.notNull(forwardCurveInterpolator, "forward curve interpolator");
-    ArgumentChecker.notNull(forwardCurveLeftExtrapolator, "forward curve left extrapolator");
-    ArgumentChecker.notNull(forwardCurveRightExtrapolator, "forward curve right extrapolator");
+    ArgumentChecker.notNull(forwardCurveName, "forward curve name");
     ArgumentChecker.notNull(surfaceType, "surface type");
     ArgumentChecker.notNull(xAxis, "x axis");
     ArgumentChecker.notNull(yAxis, "y axis");
-    ArgumentChecker.notNull(lambda, "lambda");
+    ArgumentChecker.notNull(yAxisType, "y axis type");
     ArgumentChecker.notNull(surfaceName, "surface name");
     ArgumentChecker.notNull(h, "h");
     ArgumentChecker.notNull(pdeDirection, "PDE direction");
@@ -66,13 +61,11 @@ public class ForexLocalVolatilityPDEPriceDefaultPropertiesFunction extends Defau
     ArgumentChecker.notNull(strikeInterpolatorName, "strike interpolator name");
     ArgumentChecker.notNull(timeInterpolatorName, "time interpolator name");
     _forwardCurveCalculationMethod = forwardCurveCalculationMethod;
-    _forwardCurveInterpolator = forwardCurveInterpolator;
-    _forwardCurveLeftExtrapolator = forwardCurveLeftExtrapolator;
-    _forwardCurveRightExtrapolator = forwardCurveRightExtrapolator;
+    _forwardCurveName = forwardCurveName;
     _surfaceType = surfaceType;
     _xAxis = xAxis;
     _yAxis = yAxis;
-    _lambda = lambda;
+    _yAxisType = yAxisType;
     _surfaceName = surfaceName;
     _h = h;
     _pdeDirection = pdeDirection;
@@ -89,11 +82,8 @@ public class ForexLocalVolatilityPDEPriceDefaultPropertiesFunction extends Defau
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, ValuePropertyNames.CURVE_CALCULATION_METHOD);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
+    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, ValuePropertyNames.CURVE);
     defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_H);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_LAMBDA);
     defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_MAX_MONEYNESS);
     defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_PDE_DIRECTION);
     defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_SPACE_GRID_BUNCHING);
@@ -105,6 +95,7 @@ public class ForexLocalVolatilityPDEPriceDefaultPropertiesFunction extends Defau
     defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_TIME_STEPS);
     defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS);
     defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS);
+    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE);
     defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_RESULT_STRIKE_INTERPOLATOR);
     defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_RESULT_TIME_INTERPOLATOR);
   }
@@ -114,20 +105,11 @@ public class ForexLocalVolatilityPDEPriceDefaultPropertiesFunction extends Defau
     if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
       return Collections.singleton(_forwardCurveCalculationMethod);
     }
-    if (FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveInterpolator);
-    }
-    if (FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveLeftExtrapolator);
-    }
-    if (FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveRightExtrapolator);
+    if (ValuePropertyNames.CURVE.equals(propertyName)) {
+      return Collections.singleton(_forwardCurveName);
     }
     if (LocalVolatilityPDEValuePropertyNames.PROPERTY_H.equals(propertyName)) {
       return Collections.singleton(_h);
-    }
-    if (LocalVolatilityPDEValuePropertyNames.PROPERTY_LAMBDA.equals(propertyName)) {
-      return Collections.singleton(_lambda);
     }
     if (LocalVolatilityPDEValuePropertyNames.PROPERTY_MAX_MONEYNESS.equals(propertyName)) {
       return Collections.singleton(_maxMoneyness);
@@ -164,6 +146,9 @@ public class ForexLocalVolatilityPDEPriceDefaultPropertiesFunction extends Defau
     }
     if (LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS.equals(propertyName)) {
       return Collections.singleton(_yAxis);
+    }
+    if (LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE.equals(propertyName)) {
+      return Collections.singleton(_yAxisType);
     }
     if (LocalVolatilityPDEValuePropertyNames.PROPERTY_RESULT_TIME_INTERPOLATOR.equals(propertyName)) {
       return Collections.singleton(_timeInterpolatorName);

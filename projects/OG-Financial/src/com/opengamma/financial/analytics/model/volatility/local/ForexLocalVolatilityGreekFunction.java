@@ -5,12 +5,10 @@
  */
 package com.opengamma.financial.analytics.model.volatility.local;
 
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
-import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
+import static com.opengamma.engine.value.ValuePropertyNames.SURFACE;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_H;
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_LAMBDA;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_MAX_MONEYNESS;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_PDE_DIRECTION;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_RESULT_STRIKE_INTERPOLATOR;
@@ -22,6 +20,7 @@ import static com.opengamma.financial.analytics.model.volatility.local.LocalVola
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_TIME_STEPS;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS;
+import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -42,10 +41,9 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.model.forex.ForexVolatilitySurfaceFunction;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.PDEGreekResultCollection;
+import com.opengamma.financial.greeks.PDEResultCollection;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -63,29 +61,33 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
     ValueRequirementNames.LOCAL_VOLATILITY_GAMMA,
     ValueRequirementNames.LOCAL_VOLATILITY_VANNA,
     ValueRequirementNames.LOCAL_VOLATILITY_VEGA,
-    ValueRequirementNames.LOCAL_VOLATILITY_VOMMA};
+    ValueRequirementNames.LOCAL_VOLATILITY_VOMMA,
+    ValueRequirementNames.LOCAL_VOLATILITY_GRID_PRICE,
+    ValueRequirementNames.BLACK_VOLATILITY_GRID_PRICE,
+    ValueRequirementNames.LOCAL_VOLATILITY_GRID_IMPLIED_VOL};
   private static final Greek[] GREEKS = new Greek[] {
-    PDEGreekResultCollection.GRID_DELTA,
-    PDEGreekResultCollection.GRID_DUAL_DELTA,
-    PDEGreekResultCollection.GRID_DUAL_GAMMA,
-    PDEGreekResultCollection.GRID_GAMMA,
-    PDEGreekResultCollection.GRID_VANNA,
-    PDEGreekResultCollection.GRID_VEGA,
-    PDEGreekResultCollection.GRID_VOMMA};
+    PDEResultCollection.GRID_DELTA,
+    PDEResultCollection.GRID_DUAL_DELTA,
+    PDEResultCollection.GRID_DUAL_GAMMA,
+    PDEResultCollection.GRID_GAMMA,
+    PDEResultCollection.GRID_VANNA,
+    PDEResultCollection.GRID_VEGA,
+    PDEResultCollection.GRID_VOMMA,
+    PDEResultCollection.GRID_PRICE,
+    PDEResultCollection.GRID_BLACK_PRICE,
+    PDEResultCollection.GRID_IMPLIED_VOL};
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
-    final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
+    final String surfaceName = desiredValue.getConstraint(SURFACE);
     final String surfaceType = desiredValue.getConstraint(PROPERTY_SURFACE_TYPE);
     final String xAxis = desiredValue.getConstraint(PROPERTY_X_AXIS);
     final String yAxis = desiredValue.getConstraint(PROPERTY_Y_AXIS);
-    final String lambda = desiredValue.getConstraint(PROPERTY_LAMBDA);
+    final String yAxisType = desiredValue.getConstraint(PROPERTY_Y_AXIS_TYPE);
     final String forwardCurveCalculationMethod = desiredValue.getConstraint(CURVE_CALCULATION_METHOD);
-    final String forwardCurveInterpolator = desiredValue.getConstraint(PROPERTY_FORWARD_CURVE_INTERPOLATOR);
-    final String forwardCurveLeftExtrapolator = desiredValue.getConstraint(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
-    final String forwardCurveRightExtrapolator = desiredValue.getConstraint(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
+    final String forwardCurveName = desiredValue.getConstraint(CURVE);
     final String h = desiredValue.getConstraint(PROPERTY_H);
     final String theta = desiredValue.getConstraint(PROPERTY_THETA);
     final String timeSteps = desiredValue.getConstraint(PROPERTY_TIME_STEPS);
@@ -108,18 +110,16 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
       throw new OpenGammaRuntimeException("Could not get strike intepolator name; should never happen");
     }
     final Interpolator1D strikeInterpolator = Interpolator1DFactory.getInterpolator(strikeInterpolatorName);
-    final ValueRequirement gridGreekRequirement = getGridGreeksRequirement(target, surfaceName, surfaceType, xAxis, yAxis, lambda,
-        forwardCurveCalculationMethod, h, forwardCurveInterpolator, forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator,
-        theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection);
+    final ValueRequirement gridGreekRequirement = getGridGreeksRequirement(target, surfaceName, surfaceType, xAxis, yAxis, yAxisType,
+        forwardCurveCalculationMethod, h, forwardCurveName, theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection);
     final Object gridGreeksObject = inputs.getValue(gridGreekRequirement);
     if (gridGreeksObject == null) {
       throw new OpenGammaRuntimeException("Grid greeks were null");
     }
     final double strike = getStrike(fxOption);
-    final PDEGreekResultCollection gridGreeks = (PDEGreekResultCollection) gridGreeksObject;
-    final ValueProperties properties = getResultProperties(surfaceName, surfaceType, xAxis, yAxis, lambda, forwardCurveCalculationMethod, h,
-        forwardCurveInterpolator, forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator, theta, timeSteps, spaceSteps, timeGridBunching,
-        spaceGridBunching, maxMoneyness, pdeDirection, strikeInterpolatorName);
+    final PDEResultCollection gridGreeks = (PDEResultCollection) gridGreeksObject;
+    final ValueProperties properties = getResultProperties(surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod, h,
+        forwardCurveName, theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection, strikeInterpolatorName);
     final ComputationTargetSpecification spec = target.toSpecification();
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
     for (int i = 0; i < GREEKS.length; i++) {
@@ -147,17 +147,15 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     final ValueProperties properties = createValueProperties()
-        .withAny(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE)
+        .withAny(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE) //TODO can be more specific?
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEValuePropertyNames.LOCAL_VOLATILITY_METHOD)
-        .withAny(ValuePropertyNames.SURFACE)
+        .withAny(SURFACE)
         .withAny(PROPERTY_SURFACE_TYPE)
         .withAny(PROPERTY_X_AXIS)
         .withAny(PROPERTY_Y_AXIS)
-        .withAny(PROPERTY_LAMBDA)
+        .withAny(PROPERTY_Y_AXIS_TYPE)
         .withAny(CURVE_CALCULATION_METHOD)
-        .withAny(PROPERTY_FORWARD_CURVE_INTERPOLATOR)
-        .withAny(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR)
-        .withAny(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR)
+        .withAny(CURVE)
         .withAny(PROPERTY_THETA)
         .withAny(PROPERTY_TIME_STEPS)
         .withAny(PROPERTY_SPACE_STEPS)
@@ -178,7 +176,7 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final ValueProperties constraints = desiredValue.getConstraints();
-    final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
+    final Set<String> surfaceNames = constraints.getValues(SURFACE);
     if (surfaceNames == null || surfaceNames.size() != 1) {
       return null;
     }
@@ -194,8 +192,8 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
     if (yAxisNames == null || yAxisNames.size() != 1) {
       return null;
     }
-    final Set<String> lambdaNames = constraints.getValues(PROPERTY_LAMBDA);
-    if (lambdaNames == null || lambdaNames.size() != 1) {
+    final Set<String> yAxisTypeNames = constraints.getValues(PROPERTY_Y_AXIS_TYPE);
+    if (yAxisTypeNames == null || yAxisTypeNames.size() != 1) {
       return null;
     }
     final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(CURVE_CALCULATION_METHOD);
@@ -206,16 +204,8 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
     if (hNames == null || hNames.size() != 1) {
       return null;
     }
-    final Set<String> forwardCurveInterpolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_INTERPOLATOR);
-    if (forwardCurveInterpolatorNames == null || forwardCurveInterpolatorNames.size() != 1) {
-      return null;
-    }
-    final Set<String> forwardCurveLeftExtrapolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
-    if (forwardCurveLeftExtrapolatorNames == null || forwardCurveLeftExtrapolatorNames.size() != 1) {
-      return null;
-    }
-    final Set<String> forwardCurveRightExtrapolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
-    if (forwardCurveRightExtrapolatorNames == null || forwardCurveRightExtrapolatorNames.size() != 1) {
+    final Set<String> forwardCurveNames = constraints.getValues(CURVE);
+    if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
       return null;
     }
     final Set<String> thetaNames = constraints.getValues(PROPERTY_THETA);
@@ -253,12 +243,10 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
     final String surfaceType = surfaceTypeNames.iterator().next();
     final String xAxis = xAxisNames.iterator().next();
     final String yAxis = yAxisNames.iterator().next();
-    final String lambda = lambdaNames.iterator().next();
+    final String yAxisType = yAxisTypeNames.iterator().next();
     final String forwardCurveCalculationMethod = forwardCurveCalculationMethodNames.iterator().next();
     final String h = hNames.iterator().next();
-    final String forwardCurveInterpolator = forwardCurveInterpolatorNames.iterator().next();
-    final String forwardCurveLeftExtrapolator = forwardCurveLeftExtrapolatorNames.iterator().next();
-    final String forwardCurveRightExtrapolator = forwardCurveRightExtrapolatorNames.iterator().next();
+    final String forwardCurveName = forwardCurveNames.iterator().next();
     final String theta = thetaNames.iterator().next();
     final String timeSteps = timeStepsNames.iterator().next();
     final String spaceSteps = spaceStepsNames.iterator().next();
@@ -267,8 +255,8 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
     final String maxMoneyness = maxMoneynessNames.iterator().next();
     final String pdeDirection = pdeDirectionNames.iterator().next();
     final String surfaceName = surfaceNames.iterator().next();
-    final ValueRequirement greeksSpec = getGridGreeksRequirement(target, surfaceName, surfaceType, xAxis, yAxis, lambda, forwardCurveCalculationMethod, h, forwardCurveInterpolator,
-        forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator, theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection);
+    final ValueRequirement greeksSpec = getGridGreeksRequirement(target, surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod, h, forwardCurveName,
+        theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection);
     return Collections.singleton(greeksSpec);
   }
 
@@ -278,11 +266,9 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
     String surfaceType = null;
     String xAxis = null;
     String yAxis = null;
-    String lambda = null;
+    String yAxisType = null;
     String forwardCurveCalculationMethod = null;
-    String forwardCurveInterpolator = null;
-    String forwardCurveLeftExtrapolator = null;
-    String forwardCurveRightExtrapolator = null;
+    String forwardCurveName = null;
     String h = null;
     String theta = null;
     String timeSteps = null;
@@ -293,8 +279,8 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
     String pdeDirection = null;
     for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
       final ValueProperties constraints = input.getValue().getConstraints();
-      if (constraints.getValues(ValuePropertyNames.SURFACE) != null) {
-        final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
+      if (constraints.getValues(SURFACE) != null) {
+        final Set<String> surfaceNames = constraints.getValues(SURFACE);
         if (surfaceNames == null || surfaceNames.size() != 1) {
           throw new OpenGammaRuntimeException("Missing or non-unique surface name");
         }
@@ -321,12 +307,12 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
         }
         yAxis = yAxisNames.iterator().next();
       }
-      if (constraints.getValues(PROPERTY_LAMBDA) != null) {
-        final Set<String> lambdaNames = constraints.getValues(PROPERTY_LAMBDA);
-        if (lambdaNames == null || lambdaNames.size() != 1) {
-          throw new OpenGammaRuntimeException("Missing or non-unique lambda property name");
+      if (constraints.getValues(PROPERTY_Y_AXIS_TYPE) != null) {
+        final Set<String> yAxisTypeNames = constraints.getValues(PROPERTY_Y_AXIS_TYPE);
+        if (yAxisTypeNames == null || yAxisTypeNames.size() != 1) {
+          throw new OpenGammaRuntimeException("Missing or non-unique y axis type property name");
         }
-        lambda = lambdaNames.iterator().next();
+        yAxisType = yAxisTypeNames.iterator().next();
       }
       if (constraints.getValues(CURVE_CALCULATION_METHOD) != null) {
         final Set<String> forwardCurveCalculationMethodNames = constraints.getValues(CURVE_CALCULATION_METHOD);
@@ -335,26 +321,12 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
         }
         forwardCurveCalculationMethod = forwardCurveCalculationMethodNames.iterator().next();
       }
-      if (constraints.getValues(PROPERTY_FORWARD_CURVE_INTERPOLATOR) != null) {
-        final Set<String> forwardCurveInterpolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_INTERPOLATOR);
-        if (forwardCurveInterpolatorNames == null || forwardCurveInterpolatorNames.size() != 1) {
-          throw new OpenGammaRuntimeException("Missing or non-unique forward curve interpolator name");
+      if (constraints.getValues(CURVE) != null) {
+        final Set<String> forwardCurveNames = constraints.getValues(CURVE);
+        if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
+          throw new OpenGammaRuntimeException("Missing or non-unique forward curve name");
         }
-        forwardCurveInterpolator = forwardCurveInterpolatorNames.iterator().next();
-      }
-      if (constraints.getValues(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR) != null) {
-        final Set<String> forwardCurveLeftExtrapolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
-        if (forwardCurveLeftExtrapolatorNames == null || forwardCurveLeftExtrapolatorNames.size() != 1) {
-          throw new OpenGammaRuntimeException("Missing or non-unique forward curve left extrapolator name");
-        }
-        forwardCurveLeftExtrapolator = forwardCurveLeftExtrapolatorNames.iterator().next();
-      }
-      if (constraints.getValues(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR) != null) {
-        final Set<String> forwardCurveRightExtrapolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
-        if (forwardCurveRightExtrapolatorNames == null || forwardCurveRightExtrapolatorNames.size() != 1) {
-          throw new OpenGammaRuntimeException("Missing or non-unique forward curve right extrapolator name");
-        }
-        forwardCurveRightExtrapolator = forwardCurveRightExtrapolatorNames.iterator().next();
+        forwardCurveName = forwardCurveNames.iterator().next();
       }
       if (constraints.getValues(PROPERTY_H) != null) {
         final Set<String> hNames = constraints.getValues(PROPERTY_H);
@@ -417,12 +389,10 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
     assert surfaceType != null;
     assert xAxis != null;
     assert yAxis != null;
-    assert lambda != null;
+    assert yAxisType != null;
     assert forwardCurveCalculationMethod != null;
     assert h != null;
-    assert forwardCurveInterpolator != null;
-    assert forwardCurveLeftExtrapolator != null;
-    assert forwardCurveRightExtrapolator != null;
+    assert forwardCurveName != null;
     assert theta != null;
     assert timeSteps != null;
     assert spaceSteps != null;
@@ -431,9 +401,8 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
     assert maxMoneyness != null;
     assert pdeDirection != null;
     final ComputationTargetSpecification specification = target.toSpecification();
-    final ValueProperties properties = getResultProperties(surfaceName, surfaceType, xAxis, yAxis, lambda, forwardCurveCalculationMethod, h,
-        forwardCurveInterpolator, forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator, theta, timeSteps, spaceSteps,
-        timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection);
+    final ValueProperties properties = getResultProperties(surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod, h,
+        forwardCurveName, theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection);
     final Set<ValueSpecification> results = new HashSet<ValueSpecification>();
     for (final String requirement : GREEK_NAMES) {
       results.add(new ValueSpecification(requirement, specification, properties));
@@ -443,29 +412,25 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
   }
 
   private ValueRequirement getGridGreeksRequirement(final ComputationTarget target, final String surfaceName, final String surfaceType, final String xAxis, final String yAxis,
-      final String lambda, final String forwardCurveCalculationMethod, final String h, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
-      final String forwardCurveRightExtrapolator, final String theta, final String timeSteps, final String spaceSteps, final String timeGridBunching,
-      final String spaceGridBunching, final String maxMoneyness, final String pdeDirection) {
-    final ValueProperties properties = getGridGreekProperties(surfaceName, surfaceType, xAxis, yAxis, lambda, forwardCurveCalculationMethod, h, forwardCurveInterpolator,
-        forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator, theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection);
+      final String yAxisType, final String forwardCurveCalculationMethod, final String h, final String forwardCurveName, final String theta, final String timeSteps, final String spaceSteps,
+      final String timeGridBunching, final String spaceGridBunching, final String maxMoneyness, final String pdeDirection) {
+    final ValueProperties properties = getGridGreekProperties(surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod, h, forwardCurveName, theta, timeSteps,
+        spaceSteps, timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection);
     return new ValueRequirement(ValueRequirementNames.LOCAL_VOLATILITY_PDE_GREEKS, target.toSpecification(), properties);
   }
 
-  private ValueProperties getGridGreekProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String lambda,
-      final String forwardCurveCalculationMethod, final String h, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
-      final String forwardCurveRightExtrapolator, final String theta, final String timeSteps, final String spaceSteps, final String timeGridBunching,
+  private ValueProperties getGridGreekProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String yAxisType,
+      final String forwardCurveCalculationMethod, final String h, final String forwardCurveName, final String theta, final String timeSteps, final String spaceSteps, final String timeGridBunching,
       final String spaceGridBunching, final String maxMoneyness, final String pdeDirection) {
     return ValueProperties.builder()
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
         .with(PROPERTY_X_AXIS, xAxis)
         .with(PROPERTY_Y_AXIS, yAxis)
-        .with(PROPERTY_LAMBDA, lambda)
+        .with(PROPERTY_Y_AXIS_TYPE, yAxisType)
         .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
-        .with(PROPERTY_FORWARD_CURVE_INTERPOLATOR, forwardCurveInterpolator)
-        .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, forwardCurveLeftExtrapolator)
-        .with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, forwardCurveRightExtrapolator)
+        .with(CURVE, forwardCurveName)
         .with(PROPERTY_THETA, theta)
         .with(PROPERTY_TIME_STEPS, timeSteps)
         .with(PROPERTY_SPACE_STEPS, spaceSteps)
@@ -477,22 +442,19 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
         .get();
   }
 
-  private ValueProperties getResultProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String lambda,
-      final String forwardCurveCalculationMethod, final String h, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
-      final String forwardCurveRightExtrapolator, final String theta, final String timeSteps, final String spaceSteps, final String timeGridBunching,
+  private ValueProperties getResultProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String yAxisType,
+      final String forwardCurveCalculationMethod, final String h, final String forwardCurveName, final String theta, final String timeSteps, final String spaceSteps, final String timeGridBunching,
       final String spaceGridBunching, final String maxMoneyness, final String pdeDirection) {
     return createValueProperties()
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEValuePropertyNames.LOCAL_VOLATILITY_METHOD)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
         .with(PROPERTY_X_AXIS, xAxis)
         .with(PROPERTY_Y_AXIS, yAxis)
-        .with(PROPERTY_LAMBDA, lambda)
+        .with(PROPERTY_Y_AXIS_TYPE, yAxisType)
         .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
-        .with(PROPERTY_FORWARD_CURVE_INTERPOLATOR, forwardCurveInterpolator)
-        .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, forwardCurveLeftExtrapolator)
-        .with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, forwardCurveRightExtrapolator)
+        .with(CURVE, forwardCurveName)
         .with(PROPERTY_THETA, theta)
         .with(PROPERTY_TIME_STEPS, timeSteps)
         .with(PROPERTY_SPACE_STEPS, spaceSteps)
@@ -505,22 +467,19 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
         .get();
   }
 
-  private ValueProperties getResultProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String lambda,
-      final String forwardCurveCalculationMethod, final String h, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
-      final String forwardCurveRightExtrapolator, final String theta, final String timeSteps, final String spaceSteps, final String timeGridBunching,
+  private ValueProperties getResultProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String yAxisType,
+      final String forwardCurveCalculationMethod, final String h, final String forwardCurveName, final String theta, final String timeSteps, final String spaceSteps, final String timeGridBunching,
       final String spaceGridBunching, final String maxMoneyness, final String pdeDirection, final String strikeInterpolatorName) {
     return createValueProperties()
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEValuePropertyNames.LOCAL_VOLATILITY_METHOD)
         .with(PROPERTY_SURFACE_TYPE, surfaceType)
         .with(PROPERTY_X_AXIS, xAxis)
         .with(PROPERTY_Y_AXIS, yAxis)
-        .with(PROPERTY_LAMBDA, lambda)
+        .with(PROPERTY_Y_AXIS_TYPE, yAxisType)
         .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
-        .with(PROPERTY_FORWARD_CURVE_INTERPOLATOR, forwardCurveInterpolator)
-        .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, forwardCurveLeftExtrapolator)
-        .with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, forwardCurveRightExtrapolator)
+        .with(CURVE, forwardCurveName)
         .with(PROPERTY_THETA, theta)
         .with(PROPERTY_TIME_STEPS, timeSteps)
         .with(PROPERTY_SPACE_STEPS, spaceSteps)

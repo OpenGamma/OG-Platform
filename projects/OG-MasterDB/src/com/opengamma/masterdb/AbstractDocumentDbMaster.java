@@ -5,21 +5,10 @@
  */
 package com.opengamma.masterdb;
 
-import com.opengamma.DataNotFoundException;
-import com.opengamma.core.change.BasicChangeManager;
-import com.opengamma.core.change.ChangeManager;
-import com.opengamma.core.change.ChangeType;
-import com.opengamma.id.ObjectIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.master.*;
-import com.opengamma.master.AbstractDocument;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.db.DbConnector;
-import com.opengamma.util.db.DbDateUtils;
-import com.opengamma.util.db.DbMapSqlParameterSource;
-import com.opengamma.util.paging.Paging;
-import com.opengamma.util.paging.PagingRequest;
+import java.util.List;
+
+import javax.time.Instant;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.IncorrectUpdateSemanticsDataAccessException;
@@ -28,8 +17,24 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 
-import javax.time.Instant;
-import java.util.List;
+import com.opengamma.DataNotFoundException;
+import com.opengamma.core.change.BasicChangeManager;
+import com.opengamma.core.change.ChangeManager;
+import com.opengamma.core.change.ChangeType;
+import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.master.AbstractDocument;
+import com.opengamma.master.AbstractDocumentsResult;
+import com.opengamma.master.AbstractHistoryRequest;
+import com.opengamma.master.AbstractHistoryResult;
+import com.opengamma.master.AbstractMaster;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.db.DbConnector;
+import com.opengamma.util.db.DbDateUtils;
+import com.opengamma.util.db.DbMapSqlParameterSource;
+import com.opengamma.util.paging.Paging;
+import com.opengamma.util.paging.PagingRequest;
 
 /**
  * An abstract master for rapid implementation of a standard version-correction
