@@ -1,0 +1,119 @@
+<!--
+  Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+
+  Please see distribution for license.
+-->
+<project name="cpp-ant">
+
+  <!--
+    CPPTasks support for C/C++ projects. Do not import directly; use cpp.xml
+  -->
+
+  <property file="${common.dir}/cpp-ant.properties" />
+
+  <target name="cpp-present-ant" unless="cpp.present">
+    <taskdef resource="cpptasks.tasks" />
+    <available classname="net.sf.antcontrib.cpptasks.CCTask" property="cpp.present" />
+    <condition property="cpp.present.ant">
+      <isset property="cpp.present" />
+    </condition>
+  </target>
+
+  <target name="cpp-headers-present-ant" unless="cpp.headers.present" if="cpp.present.ant">
+    <cc objdir="${cpp.obj.dir}"
+        outfile="${cpp.out.dir}/stdafx"
+        outtype="static"
+        outputfileproperty="cpp.headers.present.ant"
+        failonerror="false">
+      <defineset id="cpp.define.core">
+        <define name="HAVE_PTHREAD" if="cc.library.have_pthread" />
+      </defineset>
+      <defineset refid="cpp.define.extra" />
+      <includepath id="cpp.include.core">
+        <pathelement path="${cc.solution.dir}" />
+        <pathelement path="${cc.include.dir}" />
+      </includepath>
+      <includepath refid="cpp.include.extra" />
+      <fileset dir="${cpp.src.dir}">
+        <include name="stdafx.cpp" />
+      </fileset>
+    </cc>
+    <condition property="cpp.headers.present">
+      <isset property="cpp.headers.present.ant" />
+    </condition>
+  </target>
+
+  <target name="cpp-compile-debug-ant" unless="cpp.disable.debug">
+    <antcall target="cpp-compile">
+      <param name="cpp.configuration" value="${cc.debug.configuration}" />
+      <param name="cc.debug" value="true" />
+      <param name="cc.multithreaded" value="${cc.multithreaded.debug}" />
+      <param name="cc.optimization" value="${cc.optimization.debug}" />
+      <param name="cc.warnings" value="${cc.warnings.debug}" />
+      <param name="cc.runtime" value="${cc.runtime.debug}" />
+      <param name="cc.subsystem" value="${cc.subsystem.debug}" />
+      <param name="cc.lib.dir" value="${cc.lib.dir.debug}" />
+    </antcall>
+  </target>
+  <target name="cpp-compile-release-ant" unless="cpp.disable.release">
+    <antcall target="cpp-compile">
+      <param name="cpp.configuration" value="${cc.release.configuration}" />
+      <param name="cc.debug" value="false" />
+      <param name="cc.multithreaded" value="${cc.multithreaded.release}" />
+      <param name="cc.optimization" value="${cc.optimization.release}" />
+      <param name="cc.warnings" value="${cc.warnings.release}" />
+      <param name="cc.runtime" value="${cc.runtime.release}" />
+      <param name="cc.subsystem" value="${cc.subsystem.release}" />
+      <param name="cc.lib.dir" value="${cc.lib.dir.release}" />
+    </antcall>
+  </target>
+
+  <target name="cpp-compile-check" />
+  
+  <target name="cpp-compile" depends="cpp-compile-check" unless="cpp.disable.current">
+    <property name="cpp.output" value="${cpp.configuration}" />
+    <property name="cpp.output.dir" value="${cpp.out.dir}/${cpp.output}" />
+    <property name="cpp.object.dir" value="${cpp.obj.dir}/${cpp.output}" />
+    <condition property="cc.debug.true">
+      <equals arg1="${cc.debug}" arg2="true" />
+    </condition>
+    <condition property="cc.debug.false">
+      <equals arg1="${cc.debug}" arg2="false" />
+    </condition>
+    <mkdir dir="${cpp.output.dir}" />
+    <cc debug="${cc.debug}"
+        multithreaded="${cc.multithreaded}"
+        objdir="${cpp.object.dir}"
+        optimize="${cc.optimization}"
+        outtype="${cc.outtype}"
+        warnings="${cc.warnings}"
+        runtime="${cc.runtime}"
+        subsystem="${cc.subsystem}"
+        outfile="${cpp.output.dir}/${ant.project.name}">
+      <compilerarg value="${cc.cflags}" if="cc.cflags" />
+      <defineset>
+        <define name="_DEBUG" if="cc.debug.true" />
+        <define name="NDEBUG" if="cc.debug.false" />
+      </defineset>
+      <defineset refid="cpp.define.core" />
+      <defineset refid="cpp.define.extra" />
+      <includepath refid="cpp.include.core" />
+      <includepath refid="cpp.include.extra" />
+      <fileset dir="${cpp.src.dir}">
+        <include name="*.c" />
+        <include name="*.cpp" />
+      </fileset>
+      <libset dir="${cpp.output.dir}" libs="${cc.lib.internal}" if="cc.lib.internal" />
+      <libset dir="${cc.lib.dir}" libs="${cc.lib.external}" if="cc.lib.external" />
+      <libset libs="${cc.lib.default}" if="cc.lib.default" />
+    </cc>
+    <antcall target="compile-after" />
+  </target>
+
+  <target name="cpp-compile-after" />
+
+  <target name="unpack-resolve-ant" />
+
+  <!-- TODO: tests -->
+
+</project>

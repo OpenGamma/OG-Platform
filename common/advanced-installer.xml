@@ -83,7 +83,7 @@
         are not available the build will only fail if ai.required is set
         otherwise a message is printed.
   -->
-  <target name="ai-present-check">
+  <target name="ai-present-check" unless="ai.present">
     <condition property="ai.command.failifexecutionfails" value="true" else="false">
       <isset property="ai.required" />
     </condition>
