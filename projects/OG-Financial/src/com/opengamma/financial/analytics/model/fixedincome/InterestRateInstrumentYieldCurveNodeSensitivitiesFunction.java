@@ -110,7 +110,7 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     final InterestRateFutureSecurityConverter irFutureConverter = new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource);
     final BondFutureSecurityConverter bondFutureConverter = new BondFutureSecurityConverter(securitySource, bondConverter);
     final FutureSecurityConverter futureConverter = new FutureSecurityConverter(bondFutureConverter, irFutureConverter);
-    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>> builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
+    _visitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().cashSecurityVisitor(cashConverter).fraSecurityVisitor(fraConverter).swapSecurityVisitor(swapConverter)
         .futureSecurityVisitor(futureConverter).bondSecurityVisitor(bondConverter).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
@@ -133,7 +133,8 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     }
     if (security instanceof SwapSecurity) {
       final InterestRateInstrumentType type = InterestRateInstrumentType.getInstrumentTypeFromSecurity(security);
-      return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD || type == InterestRateInstrumentType.SWAP_IBOR_IBOR;
+      return type == InterestRateInstrumentType.SWAP_FIXED_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_IBOR_WITH_SPREAD
+          || type == InterestRateInstrumentType.SWAP_IBOR_IBOR || type == InterestRateInstrumentType.SWAP_FIXED_OIS;
     }
     return InterestRateInstrumentType.isFixedIncomeInstrumentType(security);
   }
@@ -198,14 +199,19 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     String fundingCurveName = null;
     for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
       if (ValueRequirementNames.YIELD_CURVE_JACOBIAN.equals(input.getKey().getValueName())) {
-        assert forwardCurveName == null;
-        assert fundingCurveName == null;
+        if (forwardCurveName != null || fundingCurveName != null) {
+          throw new IllegalStateException("ValueRequirementNames.YIELD_CURVE_JACOBIAN forwardCurveName/fundingCurveName must not be defined twice: " + inputs);
+        }
         forwardCurveName = input.getKey().getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
         fundingCurveName = input.getKey().getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
       }
     }
-    assert forwardCurveName != null;
-    assert fundingCurveName != null;
+    if (forwardCurveName == null) {
+      throw new IllegalStateException("ValueRequirementNames.YIELD_CURVE_JACOBIAN forwardCurveName must not be null: " + inputs);
+    }
+    if (fundingCurveName == null) {
+      throw new IllegalStateException("ValueRequirementNames.YIELD_CURVE_JACOBIAN fundingCurveName must not be null: " + inputs);
+    }
     final ValueProperties.Builder properties = createValueProperties(target);
     properties.with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName).with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);
     final ComputationTargetSpecification targetSpec = target.toSpecification();

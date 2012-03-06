@@ -32,4 +32,8 @@ public abstract class AbstractBusinessDayConvention implements BusinessDayConven
     return new BusinessDayConventionWithCalendar(this, workingDayCalendar);
   }
 
+  @Override
+  public String toString() {
+    return "BusinessDayConvention [" + getConventionName() + "]";
+  }
 }

@@ -19,7 +19,7 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.FudgeListWrapper;
 import com.opengamma.util.rest.AbstractRemoteClient;
-import com.sun.jersey.api.client.UniformInterfaceException;
+import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 
 /**
  * Provides remote access to an {@link ExchangeSource}.
@@ -70,11 +70,8 @@ public class RemoteExchangeSource extends AbstractRemoteClient implements Exchan
       return getSingleExchange(ExternalIdBundle.of(identifier));
     } catch (DataNotFoundException ex) {
       return null;
-    } catch (UniformInterfaceException ex) {
-      if (ex.getResponse().getStatus() == 404) {
-        return null;
-      }
-      throw ex;
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
     }
   }
 
@@ -87,11 +84,8 @@ public class RemoteExchangeSource extends AbstractRemoteClient implements Exchan
       return accessRemote(uri).get(Exchange.class);
     } catch (DataNotFoundException ex) {
       return null;
-    } catch (UniformInterfaceException ex) {
-      if (ex.getResponse().getStatus() == 404) {
-        return null;
-      }
-      throw ex;
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
     }
   }
 

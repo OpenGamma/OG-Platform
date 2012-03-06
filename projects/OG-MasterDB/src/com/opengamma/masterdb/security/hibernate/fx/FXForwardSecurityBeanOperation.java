@@ -6,11 +6,12 @@
 
 package com.opengamma.masterdb.security.hibernate.fx;
 
+import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
 import static com.opengamma.masterdb.security.hibernate.Converters.dateTimeWithZoneToZonedDateTimeBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdBeanToExternalId;
 import static com.opengamma.masterdb.security.hibernate.Converters.externalIdToExternalIdBean;
 import static com.opengamma.masterdb.security.hibernate.Converters.zonedDateTimeBeanToDateTimeWithZone;
-import static com.opengamma.masterdb.security.hibernate.Converters.currencyBeanToCurrency;
+
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.security.fx.FXForwardSecurity;

@@ -5,15 +5,16 @@
  */
 package com.opengamma.web.server.push.rest;
 
+import java.security.Principal;
+import java.util.List;
+
+import javax.ws.rs.core.MultivaluedMap;
+
 import com.opengamma.util.rest.HttpMethodFilter;
 import com.opengamma.web.server.push.LongPollingServlet;
 import com.sun.jersey.api.core.ExtendedUriInfo;
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.spi.container.ContainerRequest;
-
-import javax.ws.rs.core.MultivaluedMap;
-import java.security.Principal;
-import java.util.List;
 
 /**
  * Helper methods for the subscription filters.

@@ -15,7 +15,6 @@ import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
 import com.opengamma.math.MathException;
 import com.opengamma.math.surface.FunctionalDoublesSurface;

@@ -18,6 +18,7 @@
     <facet type="hibernate" name="Hibernate">
       <configuration>
         <datasource-map>
+          <unit-entry name="&lt;anonymous&gt;hibernate.cfg.xml@233" />
           <unit-entry name="hibernate.cfg.xml" />
         </datasource-map>
         <deploymentDescriptor name="hibernate.cfg.xml" url="file://$MODULE_DIR$/hibernate.cfg.xml" />
@@ -36,7 +37,7 @@
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
     <orderEntry type="module" module-name="OG-Util" exported="" />
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library name="IvyIDEA-OG-Security-default">
         <CLASSES>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring/jars/spring-transaction-3.0.4.jar!/" />

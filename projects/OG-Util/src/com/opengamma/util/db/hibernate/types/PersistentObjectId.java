@@ -5,18 +5,19 @@
  */
 package com.opengamma.util.db.hibernate.types;
 
-import com.opengamma.id.ObjectId;
+import java.io.Serializable;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Types;
+
 import org.hibernate.HibernateException;
 import org.hibernate.type.StringType;
 import org.hibernate.usertype.EnhancedUserType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.Serializable;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Types;
+import com.opengamma.id.ObjectId;
 
 
 /**

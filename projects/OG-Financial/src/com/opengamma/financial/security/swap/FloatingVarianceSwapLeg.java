@@ -5,10 +5,8 @@
  */
 package com.opengamma.financial.security.swap;
 
-import com.opengamma.financial.convention.businessday.BusinessDayConvention;
-import com.opengamma.financial.convention.daycount.DayCount;
-import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.id.ExternalId;
+import java.util.Map;
+
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -19,7 +17,10 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import java.util.Map;
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
+import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.id.ExternalId;
 
 /**
  * Floating leg for variance swaps.
@@ -30,19 +31,25 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
   /** Serialization version. */
   private static final long serialVersionUID = 1L;
 
-  /** The ID of the underlying */
+  /**
+   * The ID of the underlying.
+   */
   @PropertyDefinition(validate = "notNull")
   private ExternalId _underlyingId;
-
-  /** The monitoring frequency */
+  /**
+   * The monitoring frequency.
+   */
   @PropertyDefinition
   private Frequency _monitoringFrequency;
-
-  /** The annualization factor */
+  /**
+   * The annualization factor.
+    */
   @PropertyDefinition
   private Double _annualizationFactor;
 
   /**
+   * Creates an instance.
+   * 
    * @param dayCount The day count convention, not null
    * @param frequency The frequency, not null
    * @param regionId The region ID, not null
@@ -68,8 +75,10 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
     setAnnualizationFactor(annualizationFactor);
   }
 
-  /** For the builder */
-  FloatingVarianceSwapLeg() {
+  /**
+   * Creates an empty instance.
+   */
+  protected FloatingVarianceSwapLeg() {
   }
 
   @Override
@@ -156,7 +165,7 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the underlyingId.
+   * Gets the ID of the underlying.
    * @return the value of the property, not null
    */
   public ExternalId getUnderlyingId() {
@@ -164,7 +173,7 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
   }
 
   /**
-   * Sets the underlyingId.
+   * Sets the ID of the underlying.
    * @param underlyingId  the new value of the property, not null
    */
   public void setUnderlyingId(ExternalId underlyingId) {
@@ -182,7 +191,7 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the monitoringFrequency.
+   * Gets the monitoring frequency.
    * @return the value of the property
    */
   public Frequency getMonitoringFrequency() {
@@ -190,7 +199,7 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
   }
 
   /**
-   * Sets the monitoringFrequency.
+   * Sets the monitoring frequency.
    * @param monitoringFrequency  the new value of the property
    */
   public void setMonitoringFrequency(Frequency monitoringFrequency) {
@@ -207,7 +216,7 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the annualizationFactor.
+   * Gets the annualization factor.
    * @return the value of the property
    */
   public Double getAnnualizationFactor() {
@@ -215,7 +224,7 @@ public class FloatingVarianceSwapLeg extends VarianceSwapLeg {
   }
 
   /**
-   * Sets the annualizationFactor.
+   * Sets the annualization factor.
    * @param annualizationFactor  the new value of the property
    */
   public void setAnnualizationFactor(Double annualizationFactor) {

@@ -23,7 +23,8 @@ import com.opengamma.util.timeseries.fast.longint.FastLongDoubleTimeSeries;
 public class ArrayZonedDateTimeDoubleTimeSeries extends ZonedDateTimeDoubleTimeSeries.Long {
   private static final FastListLongDoubleTimeSeries DEFAULT_SERIES_TEMPLATE = new FastListLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
   private static final ZonedDateTimeEpochMillisConverter s_converter = new ZonedDateTimeEpochMillisConverter();
-
+  public static final ArrayZonedDateTimeDoubleTimeSeries EMPTY_SERIES = new ArrayZonedDateTimeDoubleTimeSeries();
+  
   public ArrayZonedDateTimeDoubleTimeSeries() {
     super(new ZonedDateTimeEpochMillisConverter(), FastArrayLongDoubleTimeSeries.EMPTY_SERIES);
   }

@@ -30,15 +30,15 @@
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="inheritedJdk" />
-    <orderEntry type="module" module-name="OG-Financial" exported="" />
+    <orderEntry type="module" module-name="OG-Financial" />
     <orderEntry type="module" module-name="OG-Analytics" />
-    <orderEntry type="module" module-name="OG-Util" />
+    <orderEntry type="module" module-name="OG-Util" exported="" />
     <orderEntry type="module" module-name="OG-Master" />
     <orderEntry type="module" module-name="OG-Core" />
     <orderEntry type="module" module-name="OG-Engine" />
     <orderEntry type="module" module-name="OG-LiveData" />
     <orderEntry type="module" module-name="OG-Security" />
-    <orderEntry type="module-library" exported="">
+    <orderEntry type="module-library">
       <library name="IvyIDEA-OG-Language-default">
         <CLASSES>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.thoughtworks.paranamer/paranamer/jars/paranamer-2.3.jar!/" />

@@ -18,7 +18,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.loader.PortfolioLoaderTool;
 import com.opengamma.financial.loader.sheet.CsvSheetReader;
 import com.opengamma.financial.loader.sheet.SheetReader;
 import com.opengamma.financial.tool.ToolContext;
@@ -31,7 +30,7 @@ import com.opengamma.master.portfolio.ManageablePortfolioNode;
  */
 public class ZippedPortfolioReader implements PortfolioReader {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderTool.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ZippedPortfolioReader.class);
 
   private static final String SHEET_EXTENSION = ".csv";
   private static final String CONFIG_FILE = "METADATA.INI";
@@ -135,7 +134,7 @@ public class ZippedPortfolioReader implements PortfolioReader {
 
         } catch (Throwable ex) {
           //throw new OpenGammaRuntimeException("Could not identify an appropriate loader for ZIP entry " + entry.getName());
-          s_logger.warn("Could not identify an appropriate loader for " + entry.getName() + ", skipping file (exception is " + ex + ")");
+          s_logger.warn("Could not import from " + entry.getName() + ", skipping file (exception is " + ex + ")");
         }
       }
     }

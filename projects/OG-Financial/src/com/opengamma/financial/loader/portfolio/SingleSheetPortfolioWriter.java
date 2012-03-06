@@ -35,7 +35,6 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
   private ManageablePortfolioNode _currentNode;
   private ManageablePortfolio _portfolio;
 
-  
   public SingleSheetPortfolioWriter(String filename, RowParser[] rowParsers) {
     
     Set<String> columns = initParsers(rowParsers);
@@ -58,25 +57,6 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
     _currentNode.setPortfolioId(_portfolio.getUniqueId());
     
     _sheet = sheet;
-  }
-  
-  private Set<String> initParsers(RowParser[] rowParsers) {
-    
-    Set<String> columns = new HashSet<String>();
-    for (RowParser rowParser : rowParsers) {
-            
-      // Add row parsers to map, indexed by name of security
-      String className = rowParser.getClass().toString();
-      className = className.substring(className.lastIndexOf('.') + 1);
-      className = className.replace("Parser", "");
-      _parserMap.put(className, rowParser);
-      
-      // Combine columns from supplied row parsers
-      for (String column : rowParser.getColumns()) {
-        columns.add(column);
-      }
-    }
-    return columns;
   }
   
   @Override
@@ -134,4 +114,24 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
     flush();
     _sheet.close();
   }
+
+  private Set<String> initParsers(RowParser[] rowParsers) {
+    
+    Set<String> columns = new HashSet<String>();
+    for (RowParser rowParser : rowParsers) {
+            
+      // Add row parsers to map, indexed by name of security
+      String className = rowParser.getClass().toString();
+      className = className.substring(className.lastIndexOf('.') + 1);
+      className = className.replace("Parser", "");
+      _parserMap.put(className, rowParser);
+      
+      // Combine columns from supplied row parsers
+      for (String column : rowParser.getColumns()) {
+        columns.add(column);
+      }
+    }
+    return columns;
+  }
+
 }

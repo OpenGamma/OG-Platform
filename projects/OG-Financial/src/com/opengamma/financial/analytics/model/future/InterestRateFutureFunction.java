@@ -22,6 +22,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
@@ -41,7 +42,6 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
  *
  */
 public abstract class InterestRateFutureFunction extends AbstractFunction.NonCompiledInvoker {
-
   private InterestRateFutureTradeConverter _converter;
   private FixedIncomeConverterDataProvider _dataConverter;
 
@@ -63,14 +63,15 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final String forwardCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     final String fundingCurveName = desiredValue.getConstraint(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    final YieldCurveBundle data = getYieldCurves(target, inputs, forwardCurveName, fundingCurveName);
+    final String curveCalculationMethod = desiredValue.getConstraint(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    final YieldCurveBundle data = getYieldCurves(target, inputs, forwardCurveName, fundingCurveName, curveCalculationMethod);
     final InstrumentDefinition<InstrumentDerivative> irFutureDefinition = _converter.convert(trade);
     final InstrumentDerivative irFuture = _dataConverter.convert(trade.getSecurity(), irFutureDefinition, now, new String[] {fundingCurveName, forwardCurveName}, dataSource);
-    return getResults(irFuture, data, target, inputs, forwardCurveName, fundingCurveName);
+    return getResults(irFuture, data, target, inputs, forwardCurveName, fundingCurveName, curveCalculationMethod);
   }
 
   protected abstract Set<ComputedValue> getResults(final InstrumentDerivative irFuture, final YieldCurveBundle data, final ComputationTarget target, final FunctionInputs inputs,
-      final String forwardCurveName, final String fundingCurveName);
+      final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod);
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -85,19 +86,22 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
     return target.getTrade().getSecurity() instanceof InterestRateFutureSecurity;
   }
 
-  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForward, final String advisoryFunding) {
-    return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), curveName, advisoryForward, advisoryFunding);
+  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForward, final String advisoryFunding,
+      final String curveCalculationMethod) {
+    return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), curveName, advisoryForward, advisoryFunding,
+        curveCalculationMethod);
   }
 
-  protected YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs, final String forwardCurveName, final String fundingCurveName) {
-    final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, forwardCurveName, null, null);
+  protected YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs, final String forwardCurveName, final String fundingCurveName,
+      final String curveCalculationMethod) {
+    final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, forwardCurveName, null, null, curveCalculationMethod);
     final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);
     if (forwardCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get " + forwardCurveRequirement);
     }
     Object fundingCurveObject = null;
     if (!forwardCurveName.equals(fundingCurveName)) {
-      final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, fundingCurveName, null, null);
+      final ValueRequirement fundingCurveRequirement = getCurveRequirement(target, fundingCurveName, null, null, curveCalculationMethod);
       fundingCurveObject = inputs.getValue(fundingCurveRequirement);
       if (fundingCurveObject == null) {
         throw new OpenGammaRuntimeException("Could not get " + fundingCurveRequirement);

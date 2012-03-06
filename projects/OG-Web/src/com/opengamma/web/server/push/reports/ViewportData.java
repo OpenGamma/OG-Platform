@@ -5,11 +5,12 @@
  */
 package com.opengamma.web.server.push.reports;
 
-import com.opengamma.id.UniqueId;
-
-import javax.time.Instant;
 import java.util.Collections;
 import java.util.List;
+
+import javax.time.Instant;
+
+import com.opengamma.id.UniqueId;
 
 /**
  * Contains a snapshot of raw data from a view client.

@@ -5,13 +5,13 @@
  */
 package com.opengamma.examples.tool.timeseries;
 
-import com.opengamma.examples.tool.AbstractTool;
+import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.loader.TimeSeriesLoaderTool;
 
 /**
  * Wrapper to expose the Examples classpath to the standard portfolio loader tool
  */
-public class ExampleTimeSeriesLoaderTool extends AbstractTool {
+public class ExampleTimeSeriesLoaderTool extends AbstractExampleTool {
 
   private static String[] s_args;
 
@@ -23,9 +23,9 @@ public class ExampleTimeSeriesLoaderTool extends AbstractTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    if (init()) {
+    if (init(TOOL_LOGBACK_XML)) {
       s_args = args;
-      new ExampleTimeSeriesLoaderTool().run();
+      new ExampleTimeSeriesLoaderTool().run(TOOLCONTEXT_EXAMPLE_PROPERTIES);
     }
     System.exit(0);
   }
