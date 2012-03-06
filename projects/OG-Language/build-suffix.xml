@@ -109,39 +109,6 @@
     <ivy:retrieve pattern="${build.dir}/jar/[organization]-[module]-[artifact].[ext]" type="jar" />
   </target>
 
-  <target name="set-version" depends="module-build-number">
-    <echo file="${basedir}/.version">module.version=${module.version.target}</echo>
-    <replaceregexp file="${basedir}/.version" match="(=\d+\.\d+\.\d+)\w*$" replace="\1" />
-    <property file="${basedir}/.version" />
-    <delete file="${basedir}/.version" />
-    <echo file="${basedir}/version.h">// Automatically generated file -- do not modify
-
-#ifndef __inc_og_language_version_h
-#define __inc_og_language_version_h
-
-#define VERSION_MAJOR  vermajor${module.version}
-#define VERSION_MINOR  verminor${module.version}
-#define REVISION  revision${module.version}
-#ifndef BUILD_NUMBER
-#define BUILD_NUMBER  ${module.build.number}
-#endif /* ifndef BUILD_NUMBER */
-#ifndef VERSION_SUFFIX
-#ifdef _DEBUG
-#define VERSION_SUFFIX  "-Debug"
-#else /* ifdef _DEBUG */
-#define VERSION_SUFFIX  ""
-#endif /* ifdef _DEBUG */
-#endif /* ifndef VERSION_SUFFIX */
-#include &lt;Util/Quote.h&gt;
-#define VERSION    TEXT(QUOTE(VERSION_MAJOR)) TEXT(".") TEXT(QUOTE(VERSION_MINOR)) TEXT(".") TEXT(QUOTE(REVISION)) TEXT(".") TEXT(QUOTE(BUILD_NUMBER)) TEXT(VERSION_SUFFIX)
-
-#endif /* ifndef __inc_og_language_version_h */
-    </echo>
-    <replaceregexp file="${basedir}/version.h" match="vermajor(\d+)\.\d+\.\d+" replace="\1" flags="m" />
-    <replaceregexp file="${basedir}/version.h" match="verminor\d+\.(\d+)\.\d+" replace="\1" flags="m" />
-    <replaceregexp file="${basedir}/version.h" match="revision\d+\.\d+\.(\d+)" replace="\1" flags="m" />
-  </target>
-
   <target name="make-config">
     <property file="${common.dir}/tests.properties" />
     <property name="opengamma.configuration.url" value="http://${opengamma.engine.host}:${opengamma.engine.port}${opengamma.engine.path}jax/configuration/0/" />
@@ -155,7 +122,7 @@ opengamma.configuration.failOnMissing=${opengamma.configuration.failOnMissing}
     </echo>
   </target>
 
-  <target name="compile" depends="unpack-resolve,deploy-jars,set-version" description="Compiles all components">
+  <target name="compile" depends="unpack-resolve,deploy-jars,version-cpp-header" description="Compiles all components">
     <subant target="deploy" buildpathref="java.build.path" antfile="build.parent-invoked.xml">
       <property name="wkspace.dir" value="${wkspace.dir}" />
     </subant>
@@ -173,7 +140,7 @@ opengamma.configuration.failOnMissing=${opengamma.configuration.failOnMissing}
     </subant>
   </target>
 
-  <target name="tests" depends="unpack-resolve,deploy-jars,clean-tests,set-version" description="Compiles and runs unit tests">
+  <target name="tests" depends="unpack-resolve,deploy-jars,clean-tests,version-cpp-header" description="Compiles and runs unit tests">
     <subant target="deploy" buildpathref="java.build.path" antfile="build.parent-invoked.xml">
       <property name="wkspace.dir" value="${wkspace.dir}" />
     </subant>

@@ -20,5 +20,4 @@ build.number
 .settings/
 tests/classes/
 tests/output/
-/version.h
 /_ReSharper*

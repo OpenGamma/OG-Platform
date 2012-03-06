@@ -30,4 +30,49 @@
   </target>
   <target name="module-build-number" depends="build-number-offset,build-number-direct" />
 
+  <!--
+    version-header:
+        Creates the version.h file in the root folder containing the version
+        numbers.
+  -->
+  <target name="version-cpp-header" depends="module-build-number">
+    <property name="version.cpp.header.file" value="${build.dir}/version.h" />
+    <property name="version.cpp.temp.file" value="${build.dir}/.version" />
+    <echo file="${version.cpp.temp.file}">
+module.version=${module.version.target}
+module.version.major=${module.version.target}
+module.version.minor=${module.version.target}
+module.version.revision=${module.version.target}
+</echo>
+    <replaceregexp file="${version.cpp.temp.file}" match="version=(\d+\.\d+\.\d+)\w*$" replace="version=\1" />
+    <replaceregexp file="${version.cpp.temp.file}" match="major=(\d+)\.\d+\.\d+\w*$" replace="major=\1" />
+    <replaceregexp file="${version.cpp.temp.file}" match="minor=\d+\.(\d+)\.\d+\w*$" replace="minor=\1" />
+    <replaceregexp file="${version.cpp.temp.file}" match="revision=\d+\.\d+\.(\d+)\w*$" replace="revision=\1" />
+    <property file="${version.cpp.temp.file}" />
+    <delete file="${version.cpp.temp.file}" />
+    <echo file="${version.cpp.header.file}">// Automatically generated file -- do not modify
+
+#ifndef _VERSION_H_
+#define _VERSION_H_
+
+#define VERSION_MAJOR   ${module.version.major}
+#define VERSION_MINOR   ${module.version.minor}
+#define REVISION        ${module.version.revision}
+
+#ifndef BUILD_NUMBER
+#define BUILD_NUMBER    ${module.build.number}
+#endif /* ifndef BUILD_NUMBER */
+
+#ifndef VERSION_SUFFIX
+#ifdef _DEBUG
+#define VERSION_SUFFIX  "-Debug"
+#else /* ifdef _DEBUG */
+#define VERSION_SUFFIX  ""
+#endif /* ifdef _DEBUG */
+#endif /* ifndef VERSION_SUFFIX */
+
+#endif /* ifndef _VERSION_H_ */
+</echo>
+  </target>
+
 </project>
