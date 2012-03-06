@@ -11,7 +11,6 @@ import java.util.Set;
 
 import javax.ws.rs.core.UriBuilder;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.BasicChangeManager;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.engine.view.ViewDefinition;
@@ -19,8 +18,7 @@ import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.rest.FudgeRestClient;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.UniformInterfaceException;
+import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 
 /**
  * Remote implementation of {@link ViewDefinitionRepository}.
@@ -55,13 +53,8 @@ public class RemoteViewDefinitionRepository implements ViewDefinitionRepository 
     final URI uri = DataViewDefinitionRepositoryResource.uriDefinitionId(_baseUri, definitionId);
     try {
       return _client.accessFudge(uri).get(ViewDefinition.class);
-    } catch (UniformInterfaceException e) {
-      // Translate 404s to a null return. Otherwise rethrow the underlying exception.
-      if (e.getResponse().getClientResponseStatus() == ClientResponse.Status.NOT_FOUND) {
-        return null;
-      } else {
-        throw new OpenGammaRuntimeException("Underlying transport exception", e);
-      }
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
     }
   }
   
@@ -70,13 +63,8 @@ public class RemoteViewDefinitionRepository implements ViewDefinitionRepository 
     URI uri = DataViewDefinitionRepositoryResource.uriDefinitionName(_baseUri, definitionName);
     try {      
       return _client.accessFudge(uri).get(ViewDefinition.class);
-    } catch (UniformInterfaceException e) {
-      // Translate 404s to a null return. Otherwise rethrow the underlying exception.
-      if (e.getResponse().getClientResponseStatus() == ClientResponse.Status.NOT_FOUND) {
-        return null;
-      } else {
-        throw new OpenGammaRuntimeException("Underlying transport exception", e);
-      }
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
     }
 
   }

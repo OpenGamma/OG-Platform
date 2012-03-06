@@ -7,6 +7,7 @@ package com.opengamma.util.rest;
 
 import java.net.URI;
 
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.Response;
 
 import org.fudgemsg.FudgeMsg;
@@ -52,7 +53,6 @@ public abstract class AbstractDataResource {
     return Response.created(uri).build();
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Creates the RESTful "ok" response object, converting null to a 404.
    * <p>
@@ -62,11 +62,8 @@ public abstract class AbstractDataResource {
    * @return the response, not null
    */
   protected Response responseOk(final Object value) {
-    if (value != null) {
-      return Response.ok(value).build();
-    } else {
-      return Response.status(Response.Status.NOT_FOUND).build();
-    }
+    responseNullTo404(value);
+    return Response.ok(value).build();
   }
 
   //-------------------------------------------------------------------------
@@ -79,14 +76,10 @@ public abstract class AbstractDataResource {
    * @return the response, not null
    */
   protected Response responseOkFudge(final Object value) {
-    if (value != null) {
-      return Response.ok(encode(value)).build();
-    } else {
-      return Response.status(Response.Status.NOT_FOUND).build();
-    }
+    responseNullTo404(value);
+    return Response.ok(encode(value)).build();
   }
 
-  //-------------------------------------------------------------------------
   /**
    * Creates the RESTful "created" response object using Fudge, converting null to a 404.
    * <p>
@@ -97,14 +90,23 @@ public abstract class AbstractDataResource {
    * @return the response, not null
    */
   protected Response responseCreatedFudge(final URI uri, final Object value) {
-    if (value != null) {
-      return Response.created(uri).entity(encode(value)).build();
-    } else {
-      return Response.status(Response.Status.NOT_FOUND).build();
-    }
+    responseNullTo404(value);
+    return Response.created(uri).entity(encode(value)).build();
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Checks if the value is null and throws a 404 exception.
+   * 
+   * @param value  the value to check
+   * @throws WebApplicationException if the value is null
+   */
+  protected void responseNullTo404(final Object value) {
+    if (value == null) {
+      throw new WebApplicationException(Response.Status.NOT_FOUND);
+    }
+  }
+
   private Object encode(Object value) {
     if (value instanceof FudgeMsgEnvelope || value instanceof FudgeMsg || value instanceof Bean) {
       return value;
