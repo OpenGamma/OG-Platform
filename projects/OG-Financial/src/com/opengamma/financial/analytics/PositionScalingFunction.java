@@ -30,10 +30,10 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.fixedincome.YieldCurveNodeSensitivityDataBundle;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.bond.BondFunction;
 import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
 import com.opengamma.financial.analytics.model.forex.ForexOptionFunction;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -58,7 +58,7 @@ public class PositionScalingFunction extends PropertyPreservingFunction {
         ValuePropertyNames.PAY_CURVE,
         ValuePropertyNames.RECEIVE_CURVE,
         ValuePropertyNames.SMILE_FITTING_METHOD,
-        RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE,
+        InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE,
         EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD,
         ValuePropertyNames.SAMPLING_PERIOD,
         ValuePropertyNames.RETURN_CALCULATOR,

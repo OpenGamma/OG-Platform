@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.volatility.surface;
 
 import com.opengamma.core.value.MarketDataRequirementNames;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.BloombergFXOptionVolatilitySurfaceInstrumentProvider.FXVolQuoteType;
 import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.master.config.ConfigDocument;
@@ -40,7 +41,7 @@ public class FXOptionVolatilitySurfaceConfigPopulator {
       Pair.of(15, FXVolQuoteType.BUTTERFLY), Pair.of(15, FXVolQuoteType.RISK_REVERSAL),
       Pair.of(0, FXVolQuoteType.ATM)};
     final VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>> volSurfaceDefinition =
-        new VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>>("DEFAULT_EURUSD_FX_VANILLA_OPTION", target, expiryTenors, deltaAndTypes);
+        new VolatilitySurfaceDefinition<Tenor, Pair<Number, FXVolQuoteType>>("DEFAULT_EURUSD_" + InstrumentTypeProperties.FOREX, target, expiryTenors, deltaAndTypes);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(volSurfaceDefinition));
   }
 
@@ -63,7 +64,7 @@ public class FXOptionVolatilitySurfaceConfigPopulator {
   private static void populateVolatilitySurfaceSpecifications(final ConfigMaster configMaster, final UniqueIdentifiable target, final String currencyCrossString) {
     final SurfaceInstrumentProvider<Tenor, Pair<Number, FXVolQuoteType>> surfaceInstrumentProvider = new BloombergFXOptionVolatilitySurfaceInstrumentProvider(currencyCrossString, "Curncy",
         MarketDataRequirementNames.MARKET_VALUE);
-    final VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT_EURUSD_FX_VANILLA_OPTION", target,
+    final VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT_EURUSD_" + InstrumentTypeProperties.FOREX, target,
         SurfaceQuoteType.MARKET_STRANGLE_RISK_REVERSAL,
         surfaceInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(spec));

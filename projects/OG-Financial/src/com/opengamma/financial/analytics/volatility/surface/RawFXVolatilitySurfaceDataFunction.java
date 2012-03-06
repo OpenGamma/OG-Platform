@@ -6,6 +6,7 @@
 package com.opengamma.financial.analytics.volatility.surface;
 
 import com.opengamma.engine.ComputationTarget;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
@@ -13,8 +14,8 @@ import com.opengamma.util.money.UnorderedCurrencyPair;
  */
 public class RawFXVolatilitySurfaceDataFunction extends RawVolatilitySurfaceDataFunction {
 
-  public RawFXVolatilitySurfaceDataFunction(final String definitionName, final String specificationName) {
-    super(definitionName, specificationName, "FX_VANILLA_OPTION");
+  public RawFXVolatilitySurfaceDataFunction() {
+    super(InstrumentTypeProperties.FOREX);
   }
 
   @Override

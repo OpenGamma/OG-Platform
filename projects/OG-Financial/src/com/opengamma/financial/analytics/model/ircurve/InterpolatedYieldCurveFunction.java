@@ -60,8 +60,11 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class InterpolatedYieldCurveFunction extends AbstractFunction {
+  /** String representing the calculation method  */
   public static final String CALCULATION_METHOD_NAME = "Interpolated";
+  /** String labelling the left extrapolator for the curve */
   public static final String LEFT_EXTRAPOLATOR_NAME = "LeftExtrapolator";
+  /** String labelling the right extrapolator for the curve */
   public static final String RIGHT_EXTRAPOLATOR_NAME = "RightExtrapolator";
   private static final LastTimeCalculator LAST_DATE_CALCULATOR = LastTimeCalculator.getInstance();
 
@@ -156,7 +159,7 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
       public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
         final Set<String> curveNames = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
         if (curveNames == null || curveNames.size() != 1) {
-          return null;
+          throw new OpenGammaRuntimeException("Can only get a single curve; asked for " + curveNames);
         }
         final Set<String> leftInterpolatorNames = desiredValue.getConstraints().getValues(LEFT_EXTRAPOLATOR_NAME);
         if (leftInterpolatorNames == null || leftInterpolatorNames.size() != 1) {

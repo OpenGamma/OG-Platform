@@ -309,7 +309,11 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefi
     final ZonedDateTime maturity = maturityDate;
     final int publicationLag = 0; //TODO
     final Period paymentFrequency = getTenor(floatLeg.getFrequency());
-    final IndexON index = new IndexON(floatLeg.getFloatingReferenceRateId().getValue(), currency, indexConvention.getDayCount(), publicationLag, calendar);
+    DayCount dayCount =  indexConvention.getDayCount();
+    if (dayCount == null) {
+      dayCount = swapConvention.getSwapFloatingLegDayCount();
+    }
+    final IndexON index = new IndexON(floatLeg.getFloatingReferenceRateId().getValue(), currency, dayCount, publicationLag, calendar);
     final GeneratorOIS generator = new GeneratorOIS(currency.getCode() + "_OIS_Convention", index, paymentFrequency, swapConvention.getSwapFloatingLegDayCount(),
         swapConvention.getSwapFloatingLegBusinessDayConvention(),
         true, swapConvention.getSwapFloatingLegSettlementDays());
