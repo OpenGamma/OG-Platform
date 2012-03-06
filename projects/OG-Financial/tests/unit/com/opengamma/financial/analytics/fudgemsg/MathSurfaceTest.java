@@ -88,7 +88,7 @@ public class MathSurfaceTest extends AnalyticsTestBase {
         new double[][] {new double[] {1, 2, 3, 4}, new double[] {1, 2, 3, 4}, new double[] {1, 2, 3, 4}, new double[] {1, 2, 3, 4}},
         new double[][] {new double[] {0.1, 0.1, 0.1, 0.1}, new double[] {0.1, 0.1, 0.1, 0.1}, new double[] {0.1, 0.1, 0.1, 0.1}, new double[] {0.1, 0.1, 0.1, 0.1}}, true,
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.LINEAR, Interpolator1DFactory.FLAT_EXTRAPOLATOR));
-    final BlackVolatilitySurfaceMoneyness s1 = new MoneynessPiecewiseSABRSurfaceFitter(true, false, 100).getVolatilitySurface(data);
+    final BlackVolatilitySurfaceMoneyness s1 = new MoneynessPiecewiseSABRSurfaceFitter(true, true, true).getVolatilitySurface(data);
     @SuppressWarnings("unchecked")
     final Surface<Double, Double, Double> s2 = cycleObject(Surface.class, s1.getSurface());
     assertSurfaceEquals(s1.getSurface(), s2);

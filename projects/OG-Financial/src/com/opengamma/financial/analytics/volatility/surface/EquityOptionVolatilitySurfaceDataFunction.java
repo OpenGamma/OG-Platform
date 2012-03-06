@@ -41,6 +41,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.tuple.Pair;
@@ -99,7 +100,7 @@ public class EquityOptionVolatilitySurfaceDataFunction extends AbstractFunction 
     }
     _result = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, new ComputationTargetSpecification(_definition.getTarget().getUniqueId()),
         createValueProperties().with(ValuePropertyNames.SURFACE, _definitionName)
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, _instrumentType)
         .withAny(EquityVarianceSwapFunction.STRIKE_PARAMETERIZATION_METHOD/*, VarianceSwapStaticReplication.StrikeParameterization.STRIKE.toString()*/).get());
     _results = Collections.singleton(_result);
   }

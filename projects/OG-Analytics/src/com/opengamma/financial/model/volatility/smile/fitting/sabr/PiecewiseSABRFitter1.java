@@ -30,7 +30,7 @@ public class PiecewiseSABRFitter1 {
   private final WeightingFunction _weightingFunction;
 
   public PiecewiseSABRFitter1() {
-    this(0.5, LinearWeightingFunction.getInstance());
+    this(0.9, LinearWeightingFunction.getInstance());
   }
 
   public PiecewiseSABRFitter1(final double defaultBeta, final WeightingFunction weightingFunction) {
@@ -51,7 +51,7 @@ public class PiecewiseSABRFitter1 {
     double averageVol = 0;
     double averageVol2 = 0;
     for (int i = 0; i < n; i++) {
-      double vol = impliedVols[i];
+      final double vol = impliedVols[i];
       averageVol += vol;
       averageVol2 += vol * vol;
     }
@@ -130,7 +130,7 @@ public class PiecewiseSABRFitter1 {
           final SABRFormulaData p1 = modelParams[index - 1];
           final SABRFormulaData p2 = modelParams[index];
           return w * MODEL.getVolatility(forward, strike, expiry, p1.getAlpha(), p1.getBeta(), p1.getRho(), p1.getNu()) +
-          (1 - w) * MODEL.getVolatility(forward, strike, expiry, p2.getAlpha(), p2.getBeta(), p2.getRho(), p2.getNu());
+              (1 - w) * MODEL.getVolatility(forward, strike, expiry, p2.getAlpha(), p2.getBeta(), p2.getRho(), p2.getNu());
         }
       }
     };

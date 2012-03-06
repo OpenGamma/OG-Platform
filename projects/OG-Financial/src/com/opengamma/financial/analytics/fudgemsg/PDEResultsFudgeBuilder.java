@@ -5,14 +5,18 @@
  */
 package com.opengamma.financial.analytics.fudgemsg;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityPDEPresentValueResultCollection;
 import com.opengamma.financial.greeks.BucketedGreekResultCollection;
-import com.opengamma.financial.greeks.PDEGreekResultCollection;
+import com.opengamma.financial.greeks.PDEResultCollection;
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 
@@ -63,9 +67,12 @@ import com.opengamma.financial.model.finitedifference.PDEGrid1D;
     }
   }
 
-  @FudgeBuilderFor(PDEGreekResultCollection.class)
-  public static final class PDEGreekResultCollectionFudgeBuilder extends AbstractFudgeBuilder<PDEGreekResultCollection> {
+  @FudgeBuilderFor(PDEResultCollection.class)
+  public static final class PDEResultCollectionFudgeBuilder extends AbstractFudgeBuilder<PDEResultCollection> {
     private static final String STRIKES_FIELD = "strikesField";
+    private static final String GRID_IMPLIED_VOLS_FIELD = "impliedVolatilityField";
+    private static final String GRID_PRICE_FIELD = "gridPriceField";
+    private static final String GRID_BLACK_PRICE_FIELD = "gridBlackPriceField";
     private static final String GRID_BLACK_DELTA_FIELD = "gridBlackDeltaField";
     private static final String GRID_BLACK_DUAL_DELTA_FIELD = "gridBlackDualDeltaField";
     private static final String GRID_BLACK_GAMMA_FIELD = "gridBlackGammaField";
@@ -82,112 +89,133 @@ import com.opengamma.financial.model.finitedifference.PDEGrid1D;
     private static final String GRID_VOMMA_FIELD = "gridVommaField";
 
     @Override
-    public PDEGreekResultCollection buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+    public PDEResultCollection buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final double[] strikes = deserializer.fieldValueToObject(double[].class, message.getByName(STRIKES_FIELD));
-      final PDEGreekResultCollection result = new PDEGreekResultCollection(strikes);
+      final PDEResultCollection result = new PDEResultCollection(strikes);
+      if (message.getByName(GRID_IMPLIED_VOLS_FIELD) != null) {
+        final double[] impliedVol = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_IMPLIED_VOLS_FIELD));
+        result.put(PDEResultCollection.GRID_IMPLIED_VOL, impliedVol);
+      }
+      if (message.getByName(GRID_PRICE_FIELD) != null) {
+        final double[] price = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_PRICE_FIELD));
+        result.put(PDEResultCollection.GRID_PRICE, price);
+      }
+      if (message.getByName(GRID_BLACK_PRICE_FIELD) != null) {
+        final double[] price = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_BLACK_PRICE_FIELD));
+        result.put(PDEResultCollection.GRID_BLACK_PRICE, price);
+      }
       if (message.getByName(GRID_BLACK_DELTA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_BLACK_DELTA_FIELD));
-        result.put(PDEGreekResultCollection.GRID_BLACK_DELTA, greek);
+        result.put(PDEResultCollection.GRID_BLACK_DELTA, greek);
       }
       if (message.getByName(GRID_BLACK_DUAL_DELTA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_BLACK_DUAL_DELTA_FIELD));
-        result.put(PDEGreekResultCollection.GRID_BLACK_DUAL_DELTA, greek);
+        result.put(PDEResultCollection.GRID_BLACK_DUAL_DELTA, greek);
       }
       if (message.getByName(GRID_BLACK_GAMMA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_BLACK_GAMMA_FIELD));
-        result.put(PDEGreekResultCollection.GRID_BLACK_GAMMA, greek);
+        result.put(PDEResultCollection.GRID_BLACK_GAMMA, greek);
       }
       if (message.getByName(GRID_BLACK_DUAL_GAMMA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_BLACK_DUAL_GAMMA_FIELD));
-        result.put(PDEGreekResultCollection.GRID_BLACK_DUAL_GAMMA, greek);
+        result.put(PDEResultCollection.GRID_BLACK_DUAL_GAMMA, greek);
       }
       if (message.getByName(GRID_BLACK_VEGA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_BLACK_VEGA_FIELD));
-        result.put(PDEGreekResultCollection.GRID_BLACK_VEGA, greek);
+        result.put(PDEResultCollection.GRID_BLACK_VEGA, greek);
       }
       if (message.getByName(GRID_BLACK_VANNA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_BLACK_VANNA_FIELD));
-        result.put(PDEGreekResultCollection.GRID_BLACK_VANNA, greek);
+        result.put(PDEResultCollection.GRID_BLACK_VANNA, greek);
       }
       if (message.getByName(GRID_BLACK_VOMMA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_BLACK_VOMMA_FIELD));
-        result.put(PDEGreekResultCollection.GRID_BLACK_VOMMA, greek);
+        result.put(PDEResultCollection.GRID_BLACK_VOMMA, greek);
       }
       if (message.getByName(GRID_DELTA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_DELTA_FIELD));
-        result.put(PDEGreekResultCollection.GRID_DELTA, greek);
+        result.put(PDEResultCollection.GRID_DELTA, greek);
       }
       if (message.getByName(GRID_DUAL_DELTA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_DUAL_DELTA_FIELD));
-        result.put(PDEGreekResultCollection.GRID_DUAL_DELTA, greek);
+        result.put(PDEResultCollection.GRID_DUAL_DELTA, greek);
       }
       if (message.getByName(GRID_GAMMA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_GAMMA_FIELD));
-        result.put(PDEGreekResultCollection.GRID_GAMMA, greek);
+        result.put(PDEResultCollection.GRID_GAMMA, greek);
       }
       if (message.getByName(GRID_DUAL_GAMMA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_DUAL_GAMMA_FIELD));
-        result.put(PDEGreekResultCollection.GRID_DUAL_GAMMA, greek);
+        result.put(PDEResultCollection.GRID_DUAL_GAMMA, greek);
       }
       if (message.getByName(GRID_VEGA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_VEGA_FIELD));
-        result.put(PDEGreekResultCollection.GRID_VEGA, greek);
+        result.put(PDEResultCollection.GRID_VEGA, greek);
       }
       if (message.getByName(GRID_VANNA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_VANNA_FIELD));
-        result.put(PDEGreekResultCollection.GRID_VANNA, greek);
+        result.put(PDEResultCollection.GRID_VANNA, greek);
       }
       if (message.getByName(GRID_VOMMA_FIELD) != null) {
         final double[] greek = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_VOMMA_FIELD));
-        result.put(PDEGreekResultCollection.GRID_VOMMA, greek);
+        result.put(PDEResultCollection.GRID_VOMMA, greek);
       }
       return result;
     }
 
     @Override
-    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final PDEGreekResultCollection object) {
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final PDEResultCollection object) {
       serializer.addToMessage(message, STRIKES_FIELD, null, object.getStrikes());
-      if (object.contains(PDEGreekResultCollection.GRID_BLACK_DELTA)) {
-        serializer.addToMessage(message, GRID_BLACK_DELTA_FIELD, null, object.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_DELTA));
+      if (object.contains(PDEResultCollection.GRID_IMPLIED_VOL)) {
+        serializer.addToMessage(message, GRID_IMPLIED_VOLS_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_IMPLIED_VOL));
       }
-      if (object.contains(PDEGreekResultCollection.GRID_BLACK_DUAL_DELTA)) {
-        serializer.addToMessage(message, GRID_BLACK_DUAL_DELTA_FIELD, null, object.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_DUAL_DELTA));
+      if (object.contains(PDEResultCollection.GRID_PRICE)) {
+        serializer.addToMessage(message, GRID_PRICE_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_PRICE));
       }
-      if (object.contains(PDEGreekResultCollection.GRID_BLACK_GAMMA)) {
-        serializer.addToMessage(message, GRID_BLACK_GAMMA_FIELD, null, object.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_GAMMA));
+      if (object.contains(PDEResultCollection.GRID_BLACK_PRICE)) {
+        serializer.addToMessage(message, GRID_BLACK_PRICE_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_BLACK_PRICE));
       }
-      if (object.contains(PDEGreekResultCollection.GRID_BLACK_DUAL_GAMMA)) {
-        serializer.addToMessage(message, GRID_BLACK_DUAL_GAMMA_FIELD, null, object.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_DUAL_GAMMA));
+      if (object.contains(PDEResultCollection.GRID_BLACK_DELTA)) {
+        serializer.addToMessage(message, GRID_BLACK_DELTA_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_BLACK_DELTA));
       }
-      if (object.contains(PDEGreekResultCollection.GRID_BLACK_VEGA)) {
-        serializer.addToMessage(message, GRID_BLACK_VEGA_FIELD, null, object.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_VEGA));
+      if (object.contains(PDEResultCollection.GRID_BLACK_DUAL_DELTA)) {
+        serializer.addToMessage(message, GRID_BLACK_DUAL_DELTA_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_BLACK_DUAL_DELTA));
       }
-      if (object.contains(PDEGreekResultCollection.GRID_BLACK_VANNA)) {
-        serializer.addToMessage(message, GRID_BLACK_VANNA_FIELD, null, object.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_VANNA));
+      if (object.contains(PDEResultCollection.GRID_BLACK_GAMMA)) {
+        serializer.addToMessage(message, GRID_BLACK_GAMMA_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_BLACK_GAMMA));
       }
-      if (object.contains(PDEGreekResultCollection.GRID_BLACK_VOMMA)) {
-        serializer.addToMessage(message, GRID_BLACK_VOMMA_FIELD, null, object.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_VOMMA));
+      if (object.contains(PDEResultCollection.GRID_BLACK_DUAL_GAMMA)) {
+        serializer.addToMessage(message, GRID_BLACK_DUAL_GAMMA_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_BLACK_DUAL_GAMMA));
       }
-      if (object.contains(PDEGreekResultCollection.GRID_DELTA)) {
-        serializer.addToMessage(message, GRID_DELTA_FIELD, null, object.getGridGreeks(PDEGreekResultCollection.GRID_DELTA));
+      if (object.contains(PDEResultCollection.GRID_BLACK_VEGA)) {
+        serializer.addToMessage(message, GRID_BLACK_VEGA_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_BLACK_VEGA));
       }
-      if (object.contains(PDEGreekResultCollection.GRID_DUAL_DELTA)) {
-        serializer.addToMessage(message, GRID_DUAL_DELTA_FIELD, null, object.getGridGreeks(PDEGreekResultCollection.GRID_DUAL_DELTA));
+      if (object.contains(PDEResultCollection.GRID_BLACK_VANNA)) {
+        serializer.addToMessage(message, GRID_BLACK_VANNA_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_BLACK_VANNA));
       }
-      if (object.contains(PDEGreekResultCollection.GRID_GAMMA)) {
-        serializer.addToMessage(message, GRID_GAMMA_FIELD, null, object.getGridGreeks(PDEGreekResultCollection.GRID_GAMMA));
+      if (object.contains(PDEResultCollection.GRID_BLACK_VOMMA)) {
+        serializer.addToMessage(message, GRID_BLACK_VOMMA_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_BLACK_VOMMA));
       }
-      if (object.contains(PDEGreekResultCollection.GRID_DUAL_GAMMA)) {
-        serializer.addToMessage(message, GRID_DUAL_GAMMA_FIELD, null, object.getGridGreeks(PDEGreekResultCollection.GRID_DUAL_GAMMA));
+      if (object.contains(PDEResultCollection.GRID_DELTA)) {
+        serializer.addToMessage(message, GRID_DELTA_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_DELTA));
       }
-      if (object.contains(PDEGreekResultCollection.GRID_VEGA)) {
-        serializer.addToMessage(message, GRID_VEGA_FIELD, null, object.getGridGreeks(PDEGreekResultCollection.GRID_VEGA));
+      if (object.contains(PDEResultCollection.GRID_DUAL_DELTA)) {
+        serializer.addToMessage(message, GRID_DUAL_DELTA_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_DUAL_DELTA));
       }
-      if (object.contains(PDEGreekResultCollection.GRID_VANNA)) {
-        serializer.addToMessage(message, GRID_VANNA_FIELD, null, object.getGridGreeks(PDEGreekResultCollection.GRID_VANNA));
+      if (object.contains(PDEResultCollection.GRID_GAMMA)) {
+        serializer.addToMessage(message, GRID_GAMMA_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_GAMMA));
       }
-      if (object.contains(PDEGreekResultCollection.GRID_VOMMA)) {
-        serializer.addToMessage(message, GRID_VOMMA_FIELD, null, object.getGridGreeks(PDEGreekResultCollection.GRID_VOMMA));
+      if (object.contains(PDEResultCollection.GRID_DUAL_GAMMA)) {
+        serializer.addToMessage(message, GRID_DUAL_GAMMA_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_DUAL_GAMMA));
+      }
+      if (object.contains(PDEResultCollection.GRID_VEGA)) {
+        serializer.addToMessage(message, GRID_VEGA_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_VEGA));
+      }
+      if (object.contains(PDEResultCollection.GRID_VANNA)) {
+        serializer.addToMessage(message, GRID_VANNA_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_VANNA));
+      }
+      if (object.contains(PDEResultCollection.GRID_VOMMA)) {
+        serializer.addToMessage(message, GRID_VOMMA_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_VOMMA));
       }
     }
   }
@@ -219,5 +247,51 @@ import com.opengamma.financial.model.finitedifference.PDEGrid1D;
       }
     }
 
+  }
+
+  @FudgeBuilderFor(ForexLocalVolatilityPDEPresentValueResultCollection.class)
+  public static final class ForexLocalVolatilityPDEPresentValueResultCollectionBuilder extends AbstractFudgeBuilder<ForexLocalVolatilityPDEPresentValueResultCollection> {
+    private static final String STRIKES_FIELD = "strikes";
+    @Override
+    public ForexLocalVolatilityPDEPresentValueResultCollection buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
+      final double[] strikes = deserializer.fieldValueToObject(double[].class, message.getByName(STRIKES_FIELD));
+      final Map<String, double[]> pvDataMap = new HashMap<String, double[]>();
+      if (message.getByName(ForexLocalVolatilityPDEPresentValueResultCollection.LV_PIPS) != null) {
+        final double[] array = deserializer.fieldValueToObject(double[].class, message.getByName(ForexLocalVolatilityPDEPresentValueResultCollection.LV_PIPS));
+        pvDataMap.put(ForexLocalVolatilityPDEPresentValueResultCollection.LV_PIPS, array);
+      }
+      if (message.getByName(ForexLocalVolatilityPDEPresentValueResultCollection.LV_PUT_PV) != null) {
+        final double[] array = deserializer.fieldValueToObject(double[].class, message.getByName(ForexLocalVolatilityPDEPresentValueResultCollection.LV_PUT_PV));
+        pvDataMap.put(ForexLocalVolatilityPDEPresentValueResultCollection.LV_PUT_PV, array);
+      }
+      if (message.getByName(ForexLocalVolatilityPDEPresentValueResultCollection.LV_CALL_PV) != null) {
+        final double[] array = deserializer.fieldValueToObject(double[].class, message.getByName(ForexLocalVolatilityPDEPresentValueResultCollection.LV_CALL_PV));
+        pvDataMap.put(ForexLocalVolatilityPDEPresentValueResultCollection.LV_CALL_PV, array);
+      }
+      if (message.getByName(ForexLocalVolatilityPDEPresentValueResultCollection.BLACK_PIPS) != null) {
+        final double[] array = deserializer.fieldValueToObject(double[].class, message.getByName(ForexLocalVolatilityPDEPresentValueResultCollection.BLACK_PIPS));
+        pvDataMap.put(ForexLocalVolatilityPDEPresentValueResultCollection.BLACK_PIPS, array);
+      }
+      if (message.getByName(ForexLocalVolatilityPDEPresentValueResultCollection.BLACK_PUT_PV) != null) {
+        final double[] array = deserializer.fieldValueToObject(double[].class, message.getByName(ForexLocalVolatilityPDEPresentValueResultCollection.BLACK_PUT_PV));
+        pvDataMap.put(ForexLocalVolatilityPDEPresentValueResultCollection.BLACK_PUT_PV, array);
+      }
+      if (message.getByName(ForexLocalVolatilityPDEPresentValueResultCollection.BLACK_CALL_PV) != null) {
+        final double[] array = deserializer.fieldValueToObject(double[].class, message.getByName(ForexLocalVolatilityPDEPresentValueResultCollection.BLACK_CALL_PV));
+        pvDataMap.put(ForexLocalVolatilityPDEPresentValueResultCollection.BLACK_CALL_PV, array);
+      }
+      return new ForexLocalVolatilityPDEPresentValueResultCollection(strikes, pvDataMap);
+    }
+
+    @Override
+    protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final ForexLocalVolatilityPDEPresentValueResultCollection object) {
+      serializer.addToMessage(message, STRIKES_FIELD, null, object.getStrikes());
+      serializer.addToMessage(message, ForexLocalVolatilityPDEPresentValueResultCollection.LV_PIPS, null, object.getPV(ForexLocalVolatilityPDEPresentValueResultCollection.LV_PIPS));
+      serializer.addToMessage(message, ForexLocalVolatilityPDEPresentValueResultCollection.LV_PUT_PV, null, object.getPV(ForexLocalVolatilityPDEPresentValueResultCollection.LV_PUT_PV));
+      serializer.addToMessage(message, ForexLocalVolatilityPDEPresentValueResultCollection.LV_CALL_PV, null, object.getPV(ForexLocalVolatilityPDEPresentValueResultCollection.LV_CALL_PV));
+      serializer.addToMessage(message, ForexLocalVolatilityPDEPresentValueResultCollection.BLACK_PIPS, null, object.getPV(ForexLocalVolatilityPDEPresentValueResultCollection.BLACK_PIPS));
+      serializer.addToMessage(message, ForexLocalVolatilityPDEPresentValueResultCollection.BLACK_PUT_PV, null, object.getPV(ForexLocalVolatilityPDEPresentValueResultCollection.BLACK_PUT_PV));
+      serializer.addToMessage(message, ForexLocalVolatilityPDEPresentValueResultCollection.BLACK_CALL_PV, null, object.getPV(ForexLocalVolatilityPDEPresentValueResultCollection.BLACK_CALL_PV));
+    }
   }
 }
