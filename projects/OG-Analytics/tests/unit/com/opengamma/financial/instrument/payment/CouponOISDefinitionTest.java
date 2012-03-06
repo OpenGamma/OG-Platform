@@ -7,11 +7,6 @@ package com.opengamma.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.annotations.Test;
-
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -32,6 +27,11 @@ import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.TimeCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 /**
  * Tests related to the OIS coupon definition.
@@ -92,6 +92,7 @@ public class CouponOISDefinitionTest {
   @Test
   public void getter() {
     assertEquals("CouponOISSimplified definition: getter", EUR_OIS, EONIA_COUPON_DEFINITION.getIndex());
+    ZonedDateTime[] FixingDateArray = EONIA_COUPON_DEFINITION.getFixingPeriodDate();
     assertEquals("CouponOISSimplified definition: getter", START_ACCRUAL_DATE, EONIA_COUPON_DEFINITION.getFixingPeriodDate()[0]);
     assertEquals("CouponOISSimplified definition: getter", EUR_END_ACCRUAL_DATE, EONIA_COUPON_DEFINITION.getFixingPeriodDate()[EONIA_COUPON_DEFINITION.getFixingPeriodDate().length - 1]);
     double aftot = 0.0;
@@ -130,7 +131,7 @@ public class CouponOISDefinitionTest {
    */
   public void toDerivativeFixingBeforeStart() {
     ZonedDateTime referenceDate = ScheduleCalculator.getAdjustedDate(TRADE_DATE, 1, EUR_CALENDAR);
-    DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7)}, new double[] {0.01});
+    DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7) }, new double[] {0.01 });
     Payment cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(referenceDate, fixingTS, CURVES_NAMES);
     double paymentTime = TimeCalculator.getTimeBetween(referenceDate, EUR_PAYMENT_DATE);
     double fixingStartTime = TimeCalculator.getTimeBetween(referenceDate, START_ACCRUAL_DATE);
@@ -146,8 +147,8 @@ public class CouponOISDefinitionTest {
    */
   public void toDerivativeFixingOnStartNotYetFixed() {
     ZonedDateTime referenceDate = SPOT_DATE;
-    DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7), DateUtils.getUTCDate(2011, 9, 8)}, new double[] {0.01,
-        0.01});
+    DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7), DateUtils.getUTCDate(2011, 9, 8) }, new double[] {0.01,
+        0.01 });
     Payment cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(referenceDate, fixingTS, CURVES_NAMES);
     double paymentTime = TimeCalculator.getTimeBetween(referenceDate, EUR_PAYMENT_DATE);
     double fixingStartTime = TimeCalculator.getTimeBetween(referenceDate, START_ACCRUAL_DATE);
@@ -165,7 +166,7 @@ public class CouponOISDefinitionTest {
     ZonedDateTime referenceDate = SPOT_DATE;
     double fixingRate = 0.01;
     DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7), DateUtils.getUTCDate(2011, 9, 8),
-        DateUtils.getUTCDate(2011, 9, 9)}, new double[] {fixingRate, fixingRate, fixingRate});
+        DateUtils.getUTCDate(2011, 9, 9) }, new double[] {fixingRate, fixingRate, fixingRate });
     Payment cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(referenceDate, fixingTS, CURVES_NAMES);
     ZonedDateTime startFixingLeft = ScheduleCalculator.getAdjustedDate(referenceDate, 1, EUR_CALENDAR);
     double paymentTime = TimeCalculator.getTimeBetween(referenceDate, EUR_PAYMENT_DATE);
@@ -189,7 +190,7 @@ public class CouponOISDefinitionTest {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 9, 13);
     double fixingRate = 0.01;
     DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7), DateUtils.getUTCDate(2011, 9, 8),
-        DateUtils.getUTCDate(2011, 9, 9), DateUtils.getUTCDate(2011, 9, 12)}, new double[] {fixingRate, fixingRate, fixingRate, fixingRate});
+        DateUtils.getUTCDate(2011, 9, 9), DateUtils.getUTCDate(2011, 9, 12) }, new double[] {fixingRate, fixingRate, fixingRate, fixingRate });
     Payment cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(referenceDate, fixingTS, CURVES_NAMES);
     ZonedDateTime startFixingLeft = referenceDate;
     double paymentTime = TimeCalculator.getTimeBetween(referenceDate, EUR_PAYMENT_DATE);
@@ -213,7 +214,7 @@ public class CouponOISDefinitionTest {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 9, 13);
     double fixingRate = 0.01;
     DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7), DateUtils.getUTCDate(2011, 9, 8),
-        DateUtils.getUTCDate(2011, 9, 9), DateUtils.getUTCDate(2011, 9, 12), DateUtils.getUTCDate(2011, 9, 13)}, new double[] {fixingRate, fixingRate, fixingRate, fixingRate, fixingRate});
+        DateUtils.getUTCDate(2011, 9, 9), DateUtils.getUTCDate(2011, 9, 12), DateUtils.getUTCDate(2011, 9, 13) }, new double[] {fixingRate, fixingRate, fixingRate, fixingRate, fixingRate });
     Payment cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(referenceDate, fixingTS, CURVES_NAMES);
     ZonedDateTime startFixingLeft = ScheduleCalculator.getAdjustedDate(referenceDate, 1, EUR_CALENDAR);
     double paymentTime = TimeCalculator.getTimeBetween(referenceDate, EUR_PAYMENT_DATE);
@@ -238,8 +239,8 @@ public class CouponOISDefinitionTest {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 9, 15);
     double fixingRate = 0.01;
     DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7), DateUtils.getUTCDate(2011, 9, 8),
-        DateUtils.getUTCDate(2011, 9, 9), DateUtils.getUTCDate(2011, 9, 12), DateUtils.getUTCDate(2011, 9, 13), DateUtils.getUTCDate(2011, 9, 14), DateUtils.getUTCDate(2011, 9, 15)}, new double[] {
-        fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate});
+        DateUtils.getUTCDate(2011, 9, 9), DateUtils.getUTCDate(2011, 9, 12), DateUtils.getUTCDate(2011, 9, 13), DateUtils.getUTCDate(2011, 9, 14), DateUtils.getUTCDate(2011, 9, 15) }, new double[] {
+        fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate });
     Payment cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(referenceDate, fixingTS, CURVES_NAMES);
     double paymentTime = TimeCalculator.getTimeBetween(referenceDate, EUR_PAYMENT_DATE);
     double notionalIncreased = NOTIONAL * (1 + fixingRate * EONIA_COUPON_DEFINITION.getFixingPeriodAccrualFactor()[0]) * (1 + fixingRate * EONIA_COUPON_DEFINITION.getFixingPeriodAccrualFactor()[1])
@@ -257,8 +258,8 @@ public class CouponOISDefinitionTest {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 9, 16);
     double fixingRate = 0.01;
     DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7), DateUtils.getUTCDate(2011, 9, 8),
-        DateUtils.getUTCDate(2011, 9, 9), DateUtils.getUTCDate(2011, 9, 12), DateUtils.getUTCDate(2011, 9, 13), DateUtils.getUTCDate(2011, 9, 14), DateUtils.getUTCDate(2011, 9, 15)}, new double[] {
-        fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate});
+        DateUtils.getUTCDate(2011, 9, 9), DateUtils.getUTCDate(2011, 9, 12), DateUtils.getUTCDate(2011, 9, 13), DateUtils.getUTCDate(2011, 9, 14), DateUtils.getUTCDate(2011, 9, 15) }, new double[] {
+        fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate });
     Payment cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(referenceDate, fixingTS, CURVES_NAMES);
     double paymentTime = TimeCalculator.getTimeBetween(referenceDate, EUR_PAYMENT_DATE);
     double notionalIncreased = NOTIONAL * (1 + fixingRate * EONIA_COUPON_DEFINITION.getFixingPeriodAccrualFactor()[0]) * (1 + fixingRate * EONIA_COUPON_DEFINITION.getFixingPeriodAccrualFactor()[1])
@@ -276,8 +277,8 @@ public class CouponOISDefinitionTest {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 9, 19);
     double fixingRate = 0.01;
     DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7), DateUtils.getUTCDate(2011, 9, 8),
-        DateUtils.getUTCDate(2011, 9, 9), DateUtils.getUTCDate(2011, 9, 12), DateUtils.getUTCDate(2011, 9, 13), DateUtils.getUTCDate(2011, 9, 14), DateUtils.getUTCDate(2011, 9, 15)}, new double[] {
-        fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate});
+        DateUtils.getUTCDate(2011, 9, 9), DateUtils.getUTCDate(2011, 9, 12), DateUtils.getUTCDate(2011, 9, 13), DateUtils.getUTCDate(2011, 9, 14), DateUtils.getUTCDate(2011, 9, 15) }, new double[] {
+        fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate });
     Payment cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(referenceDate, fixingTS, CURVES_NAMES);
     double paymentTime = TimeCalculator.getTimeBetween(referenceDate, EUR_PAYMENT_DATE);
     double notionalIncreased = NOTIONAL * (1 + fixingRate * EONIA_COUPON_DEFINITION.getFixingPeriodAccrualFactor()[0]) * (1 + fixingRate * EONIA_COUPON_DEFINITION.getFixingPeriodAccrualFactor()[1])
@@ -295,8 +296,8 @@ public class CouponOISDefinitionTest {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 9, 20);
     double fixingRate = 0.01;
     DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7), DateUtils.getUTCDate(2011, 9, 8),
-        DateUtils.getUTCDate(2011, 9, 9), DateUtils.getUTCDate(2011, 9, 12), DateUtils.getUTCDate(2011, 9, 13), DateUtils.getUTCDate(2011, 9, 14), DateUtils.getUTCDate(2011, 9, 15)}, new double[] {
-        fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate});
+        DateUtils.getUTCDate(2011, 9, 9), DateUtils.getUTCDate(2011, 9, 12), DateUtils.getUTCDate(2011, 9, 13), DateUtils.getUTCDate(2011, 9, 14), DateUtils.getUTCDate(2011, 9, 15) }, new double[] {
+        fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate });
     EONIA_COUPON_DEFINITION.toDerivative(referenceDate, fixingTS, CURVES_NAMES);
   }
 
@@ -325,7 +326,7 @@ public class CouponOISDefinitionTest {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 9, 12);
     double fixingRate = 0.01;
     DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7), DateUtils.getUTCDate(2011, 9, 8),
-        DateUtils.getUTCDate(2011, 9, 9)}, new double[] {fixingRate, fixingRate, fixingRate});
+        DateUtils.getUTCDate(2011, 9, 9) }, new double[] {fixingRate, fixingRate, fixingRate });
     Payment cpnConverted = OIS_COUPON_DEFINITION.toDerivative(referenceDate, fixingTS, CURVES_NAMES);
     ZonedDateTime startFixingLeft = DateUtils.getUTCDate(2011, 9, 9);
     double paymentTime = TimeCalculator.getTimeBetween(referenceDate, USD_PAYMENT_DATE);
@@ -346,7 +347,7 @@ public class CouponOISDefinitionTest {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 9, 12);
     double fixingRate = 0.01;
     DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7), DateUtils.getUTCDate(2011, 9, 8),
-        DateUtils.getUTCDate(2011, 9, 9), DateUtils.getUTCDate(2011, 9, 12)}, new double[] {fixingRate, fixingRate, fixingRate, fixingRate});
+        DateUtils.getUTCDate(2011, 9, 9), DateUtils.getUTCDate(2011, 9, 12) }, new double[] {fixingRate, fixingRate, fixingRate, fixingRate });
     Payment cpnConverted = OIS_COUPON_DEFINITION.toDerivative(referenceDate, fixingTS, CURVES_NAMES);
     ZonedDateTime startFixingLeft = DateUtils.getUTCDate(2011, 9, 12);
     double paymentTime = TimeCalculator.getTimeBetween(referenceDate, USD_PAYMENT_DATE);
