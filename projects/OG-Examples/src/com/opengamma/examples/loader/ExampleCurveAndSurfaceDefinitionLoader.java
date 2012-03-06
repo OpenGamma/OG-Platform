@@ -5,7 +5,7 @@
  */
 package com.opengamma.examples.loader;
 
-import com.opengamma.examples.tool.AbstractTool;
+import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveConfigPopulator;
 import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeConfigPopulator;
@@ -19,7 +19,7 @@ import com.opengamma.master.config.ConfigMaster;
 /**
  * 
  */
-public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractTool {
+public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractExampleTool {
 
   @Override
   protected void doRun() throws Exception {
@@ -42,9 +42,7 @@ public class ExampleCurveAndSurfaceDefinitionLoader extends AbstractTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    if (init()) {
-      new ExampleCurveAndSurfaceDefinitionLoader().run();
-    }
+    new ExampleCurveAndSurfaceDefinitionLoader().initAndRun(args);
     System.exit(0);
   }
 

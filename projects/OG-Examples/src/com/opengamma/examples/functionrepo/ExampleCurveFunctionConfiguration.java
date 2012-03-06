@@ -23,12 +23,11 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction;
-import com.opengamma.financial.analytics.model.volatility.local.DummyFXForwardCurveFunction;
 import com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveFromYieldCurveDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveFromYieldCurveFunction;
+import com.opengamma.financial.analytics.volatility.cube.BloombergSwaptionVolatilityCubeInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunction;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeMarketDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.config.ConfigDocument;
@@ -93,7 +92,7 @@ public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<Repo
   private void addSwaptionVolCubeFunction(final List<FunctionConfiguration> configs) {
     addVolatilityCubeFunction(configs, "USD", "SECONDARY");
 
-    Set<Currency> volCubeCurrencies = VolatilityCubeInstrumentProvider.BLOOMBERG.getAllCurrencies();
+    Set<Currency> volCubeCurrencies = BloombergSwaptionVolatilityCubeInstrumentProvider.BLOOMBERG.getAllCurrencies();
     for (Currency currency : volCubeCurrencies) {
       addVolatilityCubeFunction(configs, currency.getCode(), BloombergVolatilityCubeDefinitionSource.DEFINITION_NAME);
     }
@@ -106,7 +105,6 @@ public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<Repo
   }
 
   private void addFXForwardCurveFunction(List<FunctionConfiguration> configs) {
-    configs.add(new ParameterizedFunctionConfiguration(DummyFXForwardCurveFunction.class.getName(), Arrays.asList("DEFAULT", "EUR", "USD")));    
     configs.add(new StaticFunctionConfiguration(FXForwardCurveFromYieldCurveFunction.class.getName()));
     configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurveDefaultPropertiesFunction.class.getName(), Arrays.asList("DEFAULT", "SECONDARY", "SECONDARY")));
   }
