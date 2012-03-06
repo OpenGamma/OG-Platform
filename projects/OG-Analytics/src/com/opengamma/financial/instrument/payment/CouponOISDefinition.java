@@ -42,7 +42,7 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
    */
   private final IndexON _index;
   /**
-   * The dates of the fixing periods. The length is equal to the number of periods. Fixings may not be published until sometime during following business day 
+   * The dates of the fixing periods. The length is one greater than the number of periods, as it includes accrual start and end. 
    */
   private final ZonedDateTime[] _fixingPeriodDate;
   /**
@@ -65,21 +65,23 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
   public CouponOISDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate, final double paymentYearFraction,
       final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
-    Validate.notNull(index, "Coupon OIS Simplified: index");
-    Validate.notNull(fixingPeriodStartDate, "Coupon OIS Simplified: fixingPeriodStartDate");
-    Validate.notNull(fixingPeriodEndDate, "Coupon OIS Simplified: fixingPeriodEndDate");
-    Validate.isTrue(currency.equals(index.getCurrency()), "Currency and index not compatible");
+    Validate.notNull(index, "CouponOISDefinition: index");
+    Validate.notNull(fixingPeriodStartDate, "CouponOISDefinition: fixingPeriodStartDate");
+    Validate.notNull(fixingPeriodEndDate, "CouponOISDefinition: fixingPeriodEndDate");
+    Validate.isTrue(currency.equals(index.getCurrency()), "Coupon and index currencies are not compatible. Expected to be the same");
     _index = index;
-    ZonedDateTime currentDate;
-    ZonedDateTime previousDate = fixingPeriodStartDate;
+
     final List<ZonedDateTime> fixingDateList = new ArrayList<ZonedDateTime>();
     final List<Double> fixingAccrualFactorList = new ArrayList<Double>();
 
-    while (previousDate.isBefore(fixingPeriodEndDate)) {
-      currentDate = ScheduleCalculator.getAdjustedDate(previousDate, 1, index.getCalendar());
-      fixingDateList.add(previousDate);
-      fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(previousDate, currentDate));
-      previousDate = currentDate;
+    ZonedDateTime currentDate = fixingPeriodStartDate;
+    fixingDateList.add(currentDate);
+    ZonedDateTime nextDate;
+    while (currentDate.isBefore(fixingPeriodEndDate)) {
+      nextDate = ScheduleCalculator.getAdjustedDate(currentDate, 1, index.getCalendar());
+      fixingDateList.add(nextDate);
+      fixingAccrualFactorList.add(index.getDayCount().getDayCountFraction(currentDate, nextDate));
+      currentDate = nextDate;
     }
     _fixingPeriodDate = fixingDateList.toArray(new ZonedDateTime[0]);
     _fixingPeriodAccrualFactor = fixingAccrualFactorList.toArray(new Double[0]);
@@ -99,8 +101,8 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
    */
   public static CouponOISDefinition from(final IndexON index, final ZonedDateTime settlementDate, final Period tenor, final double notional, final int settlementDays,
       final BusinessDayConvention businessDayConvention, final boolean isEOM) {
-    final ZonedDateTime endFixingPeriodDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, index.getCalendar(), isEOM);
-    return from(index, settlementDate, endFixingPeriodDate, notional, settlementDays);
+    final ZonedDateTime fixingPeriodEndDate = ScheduleCalculator.getAdjustedDate(settlementDate, tenor, businessDayConvention, index.getCalendar(), isEOM);
+    return from(index, settlementDate, fixingPeriodEndDate, notional, settlementDays);
   }
 
   /**
@@ -108,15 +110,15 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
    * The payment date is adjusted by the publication lag and the settlement days.
    * @param index The OIS index.
    * @param settlementDate The coupon settlement date.
-   * @param endFixingPeriodDate The last date of the fixing period.
+   * @param fixingPeriodEndDate The last date of the fixing period. Interest accrues up to this date. If publicationLag==0, 1 day following publication. If lag==1, the publication date.
    * @param notional The notional.
    * @param settlementDays The number of days between last fixing and the payment (also called spot lag). 
    * @return The OIS coupon.
    */
-  public static CouponOISDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final int settlementDays) {
-    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(endFixingPeriodDate, index.getPublicationLag() + settlementDays, index.getCalendar());
-    final double paymentYearFraction = index.getDayCount().getDayCountFraction(settlementDate, endFixingPeriodDate);
-    return new CouponOISDefinition(index.getCurrency(), paymentDate, settlementDate, endFixingPeriodDate, paymentYearFraction, notional, index, settlementDate, endFixingPeriodDate);
+  public static CouponOISDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime fixingPeriodEndDate, final double notional, final int settlementDays) {
+    final ZonedDateTime paymentDate = ScheduleCalculator.getAdjustedDate(fixingPeriodEndDate, -1 + index.getPublicationLag() + settlementDays, index.getCalendar());
+    final double paymentYearFraction = index.getDayCount().getDayCountFraction(settlementDate, fixingPeriodEndDate);
+    return new CouponOISDefinition(index.getCurrency(), paymentDate, settlementDate, fixingPeriodEndDate, paymentYearFraction, notional, index, settlementDate, fixingPeriodEndDate);
   }
 
   /**
@@ -168,16 +170,17 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
     Validate.isTrue(!valDate.isAfter(getPaymentDate().toLocalDate()), "valuation date is after payment date");
     LocalDate firstPublicationDate = _fixingPeriodDate[_index.getPublicationLag()].toLocalDate(); // This is often one business day following the first fixing date
     if (valDate.isBefore(firstPublicationDate)) {
-      return toDerivative(valZdt, yieldCurveNames); // TODO CASE Confirm that this works when valDate==firstFixingDate under 2 cases: valZdt before and after fixing time
+      return toDerivative(valZdt, yieldCurveNames);
     }
 
-    // FIXME Historical time series do not have time information to begin with. Remove this in FixedIncomeConverterDataProvider.getIndexTimeSeries st indexFixingTimeSeries contains dates when it gets here
+    // FIXME Historical time series do not have time information to begin with. 
+    // Remove this in FixedIncomeConverterDataProvider.getIndexTimeSeries st indexFixingTimeSeries contains dates when it gets here
     LocalDateDoubleTimeSeries indexFixingDateSeries = indexFixingTimeSeries.toDateDoubleTimeSeries().toLocalDateDoubleTimeSeries(TimeZone.UTC);
 
     // Accrue notional for fixings before today; up to and including yesterday
     int fixedPeriod = 0;
     double accruedNotional = getNotional();
-    while (valDate.isAfter(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()].toLocalDate()) && fixedPeriod < _fixingPeriodDate.length - 1) {
+    while (valDate.isAfter(_fixingPeriodDate[fixedPeriod + _index.getPublicationLag()].toLocalDate()) && (fixedPeriod < _fixingPeriodDate.length - 1)) {
 
       Double fixedRate = indexFixingDateSeries.getValue(_fixingPeriodDate[fixedPeriod].toLocalDate());
 
