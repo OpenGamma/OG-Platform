@@ -12,6 +12,7 @@ import java.util.Set;
 import com.google.common.collect.Sets;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -25,6 +26,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MoneyCalculationUtils;
 
@@ -83,6 +85,10 @@ public abstract class AbstractPositionPnLFunction extends AbstractFunction.NonCo
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
     if (canApplyTo(context, target)) {
+      final Security security = target.getPosition().getSecurity();
+      if (FXUtils.isFXSecurity(security)) {
+        return null;
+      }
       final Currency ccy = FinancialSecurityUtils.getCurrency(target.getPosition().getSecurity());
       if (ccy == null) {
         return Sets.newHashSet(new ValueSpecification(new ValueRequirement(ValueRequirementNames.PNL, target.getPosition()), getUniqueId()));
