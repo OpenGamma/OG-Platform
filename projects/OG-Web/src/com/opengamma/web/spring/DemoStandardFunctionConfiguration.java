@@ -119,7 +119,10 @@ import com.opengamma.financial.analytics.model.forex.ForexOptionYieldCurveNodeSe
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaultValuesFunction;
+import com.opengamma.financial.analytics.model.future.InterestRateFutureInterpolatedYieldCurveNodeSensitivitiesDefaultValuesFunction;
+import com.opengamma.financial.analytics.model.future.InterestRateFutureInterpolatedYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.future.InterestRateFuturePresentValueFunction;
+import com.opengamma.financial.analytics.model.future.InterestRateFutureYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.ircurve.InterpolatedYieldCurveDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.ircurve.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.ircurve.MarketInstrumentImpliedYieldCurveFunction;
@@ -697,8 +700,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   private static void addInterestRateFutureCalculators(List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateFuturePresentValueFunction.class));
-//    functionConfigs.add(functionConfiguration(InterestRateFutureYieldCurveNodeSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureYieldCurveNodeSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureInterpolatedYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureDefaultValuesFunction.class, "FORWARD_3M", "FUNDING", "USD", "EUR"));
+    functionConfigs.add(functionConfiguration(InterestRateFutureInterpolatedYieldCurveNodeSensitivitiesDefaultValuesFunction.class, "FORWARD_3M", "FUNDING", "USD", "EUR"));
   }
 
   private static void addInterestRateFutureOptionCalculators(List<FunctionConfiguration> functionConfigs) {
@@ -710,7 +715,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionDefaultValuesFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT", "PresentValue", "USD", "EUR"));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesDefaultValuesFunction.class, "DEFAULT"));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesDefaultValuesFunction.class, 
+        "FORWARD_3M", "FUNDING", "DEFAULT", "USD", "EUR"));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction.class));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction.class, "DEFAULT"));
     //functionConfigs.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class, "USD", "DEFAULT"));

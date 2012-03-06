@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.irfutureoption;
+package com.opengamma.financial.analytics.model.future;
 
 import java.util.HashSet;
 import java.util.Map;
@@ -18,7 +18,6 @@ import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.Trade;
 import com.opengamma.core.region.RegionSource;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -34,16 +33,13 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.FixedIncomeConverterDataProvider;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecurityConverter;
-import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureSecurityConverter;
+import com.opengamma.financial.analytics.conversion.InterestRateFutureTradeConverter;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.ircurve.InterpolatedYieldCurveFunction;
-import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.ConventionBundleSource;
-import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InstrumentSensitivityCalculator;
@@ -51,30 +47,21 @@ import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalc
 import com.opengamma.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
-import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
-import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
-import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionFactory;
-import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.option.IRFutureOptionSecurity;
+import com.opengamma.financial.security.future.InterestRateFutureSecurity;
 import com.opengamma.math.matrix.DoubleMatrix1D;
-import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
-public class InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesFunction extends AbstractFunction.NonCompiledInvoker {
-  @SuppressWarnings("unchecked")
-  private static final VolatilityFunctionProvider<SABRFormulaData> SABR_FUNCTION = (VolatilityFunctionProvider<SABRFormulaData>) VolatilityFunctionFactory
-  .getCalculator(VolatilityFunctionFactory.HAGAN);
+public class InterestRateFutureInterpolatedYieldCurveNodeSensitivitiesFunction extends AbstractFunction.NonCompiledInvoker {
   private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRCalculator.getInstance());
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
   private static final String VALUE_REQUIREMENT = ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
   private static final String CALCULATION_METHOD = InterpolatedYieldCurveFunction.CALCULATION_METHOD_NAME;
-  private InterestRateFutureOptionTradeConverter _converter;
+  private InterestRateFutureTradeConverter _converter;
   private FixedIncomeConverterDataProvider _dataConverter;
 
   @Override
@@ -82,8 +69,7 @@ public class InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesFunc
     final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    _converter = new InterestRateFutureOptionTradeConverter(new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
+    _converter = new InterestRateFutureTradeConverter(new InterestRateFutureSecurityConverter(holidaySource, conventionSource, regionSource));
     _dataConverter = new FixedIncomeConverterDataProvider(conventionSource);
   }
 
@@ -96,7 +82,6 @@ public class InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesFunc
     final String curveName = constraints.getValues(ValuePropertyNames.CURVE).iterator().next();
     final String forwardCurveName = constraints.getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE).iterator().next();
     final String fundingCurveName = constraints.getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE).iterator().next();
-    final String surfaceName = constraints.getValues(ValuePropertyNames.SURFACE).iterator().next();
     final String calculationMethod = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD).iterator().next();
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final ValueRequirement curveSpecRequirement = getCurveSpecRequirement(target, curveName);
@@ -112,11 +97,10 @@ public class InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesFunc
     final InstrumentDerivative derivative = _dataConverter.convert(security, definition, now, new String[] {curveName, curveName}, dataSource);
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-    final SABRInterestRateDataBundle bundle = new SABRInterestRateDataBundle(getModelParameters(target, inputs, surfaceName),
-        getYieldCurves(target, inputs, curveName, calculationMethod));
+    final YieldCurveBundle bundle = getYieldCurves(target, inputs, curveName, calculationMethod);
     final DoubleMatrix1D sensitivities = CALCULATOR.calculateFromSimpleInterpolatedCurve(derivative, bundle, NSC);
     return YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(curveName, bundle, sensitivities, curveSpec,
-        getResultSpec(target, currency, curveName, surfaceName, forwardCurveName, fundingCurveName));
+        getResultSpec(target, currency, curveName, forwardCurveName, fundingCurveName));
   }
 
   @Override
@@ -129,7 +113,7 @@ public class InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesFunc
     if (target.getType() != ComputationTargetType.TRADE) {
       return false;
     }
-    return target.getTrade().getSecurity() instanceof IRFutureOptionSecurity;
+    return target.getTrade().getSecurity() instanceof InterestRateFutureSecurity;
   }
 
   @Override
@@ -140,17 +124,19 @@ public class InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesFunc
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final Set<String> surfaceNames = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE);
-    if (surfaceNames == null || surfaceNames.size() != 1) {
+    final Set<String> forwardCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+    if (forwardCurves == null || forwardCurves.size() != 1) {
+      return null;
+    }
+    final Set<String> fundingCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    if (fundingCurves == null || fundingCurves.size() != 1) {
       return null;
     }
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     if (curveName == null) {
       throw new OpenGammaRuntimeException("Must specify a curve against which to calculate the node sensitivities");
     }
-    final String surfaceName = surfaceNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
-    requirements.add(getSurfaceRequirement(target, surfaceName));
     requirements.add(getCurveRequirement(target, curveName));
     requirements.add(getCurveSpecRequirement(target, curveName));
     return requirements;
@@ -159,39 +145,20 @@ public class InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesFunc
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
     String curveName = null;
-    String surfaceName = null;
     for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
       final ValueProperties properties = input.getKey().getProperties();
       if (ValueRequirementNames.YIELD_CURVE.equals(input.getKey().getValueName())) {
         curveName = properties.getValues(ValuePropertyNames.CURVE).iterator().next();
-        if (surfaceName != null) {
-          break;
-        }
-      }
-      if (ValueRequirementNames.SABR_SURFACES.equals(input.getKey().getValueName())) {
-        surfaceName = properties.getValues(ValuePropertyNames.SURFACE).iterator().next();
-        if (curveName != null) {
-          break;
-        }
+        break;
       }
     }
     assert curveName != null;
-    assert surfaceName != null;
     final Currency ccy = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-    return Sets.newHashSet(getResultSpec(target, ccy, curveName, surfaceName));
+    return Sets.newHashSet(getResultSpec(target, ccy, curveName));
   }
 
   private ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName) {
     return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), curveName, null, null, CALCULATION_METHOD);
-  }
-
-  protected ValueRequirement getSurfaceRequirement(final ComputationTarget target, final String surfaceName) {
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-    final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.CURRENCY, currency.getCode())
-        .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();
-    return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);
   }
 
   protected YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs, final String curveName, final String calculationMethod) {
@@ -204,62 +171,37 @@ public class InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesFunc
     return new YieldCurveBundle(new String[] {curveName}, new YieldAndDiscountCurve[] {curve});
   }
 
-  private SABRInterestRateParameters getModelParameters(final ComputationTarget target, final FunctionInputs inputs, final String surfaceName) {
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
-    final ValueRequirement surfacesRequirement = getSurfaceRequirement(target, surfaceName);
-    final Object surfacesObject = inputs.getValue(surfacesRequirement);
-    if (surfacesObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + surfacesRequirement);
-    }
-    final SABRFittedSurfaces surfaces = (SABRFittedSurfaces) surfacesObject;
-    if (!surfaces.getCurrency().equals(currency)) {
-      throw new OpenGammaRuntimeException("Don't know how this happened");
-    }
-    final InterpolatedDoublesSurface alphaSurface = surfaces.getAlphaSurface();
-    final InterpolatedDoublesSurface betaSurface = surfaces.getBetaSurface();
-    final InterpolatedDoublesSurface nuSurface = surfaces.getNuSurface();
-    final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
-    final DayCount dayCount = surfaces.getDayCount();
-    return new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
-  }
-
   private ValueSpecification getResultSpec(final ComputationTarget target, final Currency ccy) {
     final ValueProperties result = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
         .withAny(ValuePropertyNames.CURVE)
-        .withAny(ValuePropertyNames.SURFACE)
         .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-        .with(ValuePropertyNames.SMILE_FITTING_METHOD, InterestRateFutureOptionFunction.SURFACE_FITTING_NAME).get();
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).get();
     return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
   }
 
-  private ValueSpecification getResultSpec(final ComputationTarget target, final Currency ccy, final String curveName, final String surfaceName) {
+  private ValueSpecification getResultSpec(final ComputationTarget target, final Currency ccy, final String curveName) {
     final ValueProperties result = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
         .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.SURFACE, surfaceName)
         .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-        .with(ValuePropertyNames.SMILE_FITTING_METHOD, InterestRateFutureOptionFunction.SURFACE_FITTING_NAME).get();
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).get();
     return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
   }
 
-  private ValueSpecification getResultSpec(final ComputationTarget target, final Currency ccy, final String curveName, final String surfaceName,
+  private ValueSpecification getResultSpec(final ComputationTarget target, final Currency ccy, final String curveName,
       final String forwardCurveName, final String fundingCurveName) {
     final ValueProperties result = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
         .with(ValuePropertyNames.CURVE, curveName)
-        .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
-        .with(ValuePropertyNames.SMILE_FITTING_METHOD, InterestRateFutureOptionFunction.SURFACE_FITTING_NAME).get();
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get();
     return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
   }
 

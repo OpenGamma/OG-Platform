@@ -17,24 +17,25 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Dummy function for injecting default curve names into the dependency graph.
  */
-public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunction {
-
+public class InterestRateFutureInterpolatedYieldCurveNodeSensitivitiesDefaultValuesFunction extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES};
-
+  private final String _forwardCurveName;
+  private final String _fundingCurveName;
   private final String[] _applicableCurrencyNames;
-  private final String _forwardCurve;
-  private final String _fundingCurve;
 
-  public InterestRateFutureDefaultValuesFunction(final String forwardCurve, final String fundingCurve, final String... applicableCurrencyNames) {
+  public InterestRateFutureInterpolatedYieldCurveNodeSensitivitiesDefaultValuesFunction(final String forwardCurveName, final String fundingCurveName, final String... applicableCurrencyNames) {
     super(ComputationTargetType.TRADE, true);
-    _forwardCurve = forwardCurve;
-    _fundingCurve = fundingCurve;
+    ArgumentChecker.notNull(forwardCurveName, "forward curve name");
+    ArgumentChecker.notNull(fundingCurveName, "funding curve name");
+    ArgumentChecker.notNull(applicableCurrencyNames, "applicable currency names");
+    _forwardCurveName = forwardCurveName;
+    _fundingCurveName = fundingCurveName;
     _applicableCurrencyNames = applicableCurrencyNames;
   }
 
@@ -65,10 +66,10 @@ public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunc
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     if (YieldCurveFunction.PROPERTY_FORWARD_CURVE.equals(propertyName)) {
-      return Collections.singleton(_forwardCurve);
+      return Collections.singleton(_forwardCurveName);
     }
     if (YieldCurveFunction.PROPERTY_FUNDING_CURVE.equals(propertyName)) {
-      return Collections.singleton(_fundingCurve);
+      return Collections.singleton(_fundingCurveName);
     }
     return null;
   }
