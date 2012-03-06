@@ -12,7 +12,7 @@ import java.util.Set;
 import javax.time.calendar.LocalDate;
 
 import org.fudgemsg.FudgeMsg;
-import com.sun.jersey.api.client.UniformInterfaceException;
+
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalIdBundle;
@@ -20,6 +20,7 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.fudgemsg.FudgeMapWrapper;
 import com.opengamma.util.rest.AbstractRemoteClient;
+import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;
 
@@ -44,7 +45,7 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
     try {
       URI uri = DataHistoricalTimeSeriesSourceResource.uriGet(getBaseUri(), uniqueId);
       return accessRemote(uri).get(HistoricalTimeSeries.class);
-    } catch (UniformInterfaceException e) {
+    } catch (UniformInterfaceException404NotFound ex) {
       return null;
     }
   }
@@ -55,7 +56,7 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
     try {
       URI uri = DataHistoricalTimeSeriesSourceResource.uriGet(getBaseUri(), uniqueId, start, includeStart, end, includeEnd, null);
       return accessRemote(uri).get(HistoricalTimeSeries.class);
-    } catch (UniformInterfaceException e) {
+    } catch (UniformInterfaceException404NotFound ex) {
       return null;
     }
   }
@@ -66,7 +67,7 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
     try {
       URI uri = DataHistoricalTimeSeriesSourceResource.uriGet(getBaseUri(), uniqueId, start, includeStart, end, includeEnd, maxPoints);
       return accessRemote(uri).get(HistoricalTimeSeries.class);
-    } catch (UniformInterfaceException e) {
+    } catch (UniformInterfaceException404NotFound ex) {
       return null;
     }
   }
@@ -96,7 +97,7 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
       URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchSingle(
           getBaseUri(), identifierBundle, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, null);
       return accessRemote(uri).get(HistoricalTimeSeries.class);
-    } catch (UniformInterfaceException e) {
+    } catch (UniformInterfaceException404NotFound ex) {
       return null;
     }
   }
@@ -109,7 +110,7 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
       URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchSingle(
           getBaseUri(), identifierBundle, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, maxPoints);
       return accessRemote(uri).get(HistoricalTimeSeries.class);
-    } catch (UniformInterfaceException e) {
+    } catch (UniformInterfaceException404NotFound ex) {
       return null;
     }
   }
@@ -127,7 +128,7 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
       URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchSingle(
           getBaseUri(), identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, null);
       return accessRemote(uri).get(HistoricalTimeSeries.class);
-    } catch (UniformInterfaceException e) {
+    } catch (UniformInterfaceException404NotFound ex) {
       return null;
     }
   }
@@ -140,7 +141,7 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
       URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchSingle(
           getBaseUri(), identifierBundle, identifierValidityDate, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd, maxPoints);
       return accessRemote(uri).get(HistoricalTimeSeries.class);
-    } catch (UniformInterfaceException e) {
+    } catch (UniformInterfaceException404NotFound ex) {
       return null;
     }
   }
@@ -182,7 +183,7 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
       URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchResolve(
           getBaseUri(), identifierBundle, dataField, resolutionKey, start, includeStart, end, includeEnd, null);
       return accessRemote(uri).get(HistoricalTimeSeries.class);
-    } catch (UniformInterfaceException e) {
+    } catch (UniformInterfaceException404NotFound ex) {
       return null;
     }
   }
@@ -195,7 +196,7 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
       URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchResolve(
           getBaseUri(), identifierBundle, dataField, resolutionKey, start, includeStart, end, includeEnd, maxPoints);
       return accessRemote(uri).get(HistoricalTimeSeries.class);
-    } catch (UniformInterfaceException e) {
+    } catch (UniformInterfaceException404NotFound ex) {
       return null;
     }
   }
@@ -213,7 +214,7 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
       URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchResolve(
           getBaseUri(), identifierBundle, identifierValidityDate, dataField, resolutionKey, start, includeStart, end, includeEnd, null);
       return accessRemote(uri).get(HistoricalTimeSeries.class);
-    } catch (UniformInterfaceException e) {
+    } catch (UniformInterfaceException404NotFound ex) {
       return null;
     }
   }
@@ -226,7 +227,7 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
       URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchResolve(
           getBaseUri(), identifierBundle, identifierValidityDate, dataField, resolutionKey, start, includeStart, end, includeEnd, maxPoints);
       return accessRemote(uri).get(HistoricalTimeSeries.class);
-    } catch (UniformInterfaceException e) {
+    } catch (UniformInterfaceException404NotFound ex) {
       return null;
     }
   }
@@ -264,7 +265,7 @@ public class RemoteHistoricalTimeSeriesSource extends AbstractRemoteClient imple
       URI uri = DataHistoricalTimeSeriesSourceResource.uriSearchBulk(getBaseUri());
       FudgeMsg msg = DataHistoricalTimeSeriesSourceResource.uriSearchBulkData(identifierSet, dataSource, dataProvider, dataField, start, includeStart, end, includeEnd);
       return accessRemote(uri).post(FudgeMapWrapper.class, msg).getMap();
-    } catch (UniformInterfaceException e) {
+    } catch (UniformInterfaceException404NotFound ex) {
       return null;
     }
   }

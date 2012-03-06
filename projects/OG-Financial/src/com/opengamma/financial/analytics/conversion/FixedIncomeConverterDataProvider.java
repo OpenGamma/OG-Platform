@@ -254,7 +254,9 @@ public class FixedIncomeConverterDataProvider {
       final ExternalIdBundle id = getIndexIdForSwap(floatingLeg);
 
       final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(7); // To catch first fixing. SwapSecurity does not have this date. 
-
+      if (startDate.isAfter(now.toLocalDate())) {
+        return ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;
+      }
       final HistoricalTimeSeries ts = dataSource
           .getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, now.toLocalDate(), includeEndDate);
       if (ts == null) {

@@ -133,7 +133,7 @@ public final class PeriodFrequency implements Frequency, Serializable {
 
   public static PeriodFrequency of(final Period period) {
     for (final Map.Entry<PeriodFrequency, PeriodFrequency> entry : s_cache.entrySet()) {
-      if (entry.getKey().getPeriod().equals(period)) {
+      if (entry.getKey().getPeriod().normalized().equals(period.normalized())) {
         return entry.getValue();
       }
     }

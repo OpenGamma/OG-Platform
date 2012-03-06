@@ -11,6 +11,7 @@ import javax.time.Instant;
 
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.rest.AbstractRemoteClient;
+import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 
 /**
  * Provides access to a remote {@link FunctionCostsMaster}.
@@ -33,7 +34,11 @@ public class RemoteFunctionCostsMaster extends AbstractRemoteClient implements F
     ArgumentChecker.notNull(functionId, "functionId");
     
     URI uri = DataFunctionCostsMasterResource.uriLoad(getBaseUri(), configurationName, functionId, versionAsOf);
-    return accessRemote(uri).get(FunctionCostsDocument.class);
+    try {
+      return accessRemote(uri).get(FunctionCostsDocument.class);
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
+    }
   }
 
   @Override

@@ -11,7 +11,6 @@ import static com.opengamma.masterdb.security.hibernate.Converters.expiryToExpir
 
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.NonDeliverableFXDigitalOptionSecurity;
 import com.opengamma.masterdb.security.hibernate.AbstractSecurityBeanOperation;
 import com.opengamma.masterdb.security.hibernate.Converters;

@@ -31,7 +31,7 @@ public abstract class RowParser {
   private static final Logger s_logger = LoggerFactory.getLogger(RowParser.class);
 
   /** Path strings for constructing a fully qualified parser class name **/
-  private static final String CLASS_PREFIX = "com.opengamma.financial.loader.rowparser.";
+  private static final String CLASS_PREFIX = RowParser.class.getPackage().getName() + ".";
   private static final String CLASS_POSTFIX = "Parser";
 
   // CSOFF
@@ -70,6 +70,7 @@ public abstract class RowParser {
     try {
       // Identify the appropriate parser class from the asset class command line option
       String className = CLASS_PREFIX + securityName + CLASS_POSTFIX;
+      s_logger.info("Looking for row parser class '" + className + "' to parse a '" + securityName + "' row");
       Class<?> parserClass = Class.forName(className);
       
       // Find the constructor

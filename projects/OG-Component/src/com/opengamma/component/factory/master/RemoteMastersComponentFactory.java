@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import com.opengamma.batch.BatchMaster;
-import com.opengamma.batch.rest.RemoteBatchMaster;
 import org.apache.commons.lang.ObjectUtils;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -24,12 +22,14 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.opengamma.batch.BatchMaster;
+import com.opengamma.batch.rest.RemoteBatchMaster;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.ComponentServer;
-import com.opengamma.component.RemoteComponentServer;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.component.factory.ComponentInfoAttributes;
+import com.opengamma.component.rest.RemoteComponentServer;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.JmsChangeManager;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;

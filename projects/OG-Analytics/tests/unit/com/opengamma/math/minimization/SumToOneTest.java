@@ -7,24 +7,30 @@ package com.opengamma.math.minimization;
 
 import static org.testng.AssertJUnit.assertEquals;
 
-import java.util.Arrays;
-
 import org.testng.annotations.Test;
 
+import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
+import com.opengamma.math.differentiation.VectorFieldFirstOrderDifferentiator;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.linearalgebra.DecompositionFactory;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.matrix.DoubleMatrix2D;
 import com.opengamma.math.matrix.MatrixAlgebra;
 import com.opengamma.math.matrix.OGMatrixAlgebra;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
-import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquareDebug;
+import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
 /**
  * 
  */
 public class SumToOneTest {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
-  private static final NonLinearLeastSquareDebug SOLVER = new NonLinearLeastSquareDebug(DecompositionFactory.SV_COLT, MA, 1e-9);
+  private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare(DecompositionFactory.SV_COLT, MA, 1e-9);
+  private static final VectorFieldFirstOrderDifferentiator DIFFER = new VectorFieldFirstOrderDifferentiator();
+  static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
 
   @Test
   public void setTest() {
@@ -45,7 +51,7 @@ public class SumToOneTest {
     for (int n = 2; n < 13; n++) {
       double[] from = new double[n - 1];
       for (int j = 0; j < n - 1; j++) {
-        from[j] = Math.random() * Math.PI / 2;
+        from[j] = RANDOM.nextDouble() * Math.PI / 2;
       }
       SumToOne trans = new SumToOne(n);
       DoubleMatrix1D to = trans.transform(new DoubleMatrix1D(from));
@@ -63,7 +69,7 @@ public class SumToOneTest {
     for (int n = 2; n < 13; n++) {
       double[] theta = new double[n - 1];
       for (int j = 0; j < n - 1; j++) {
-        theta[j] = Math.random() * Math.PI / 2;
+        theta[j] = RANDOM.nextDouble() * Math.PI / 2;
       }
       SumToOne trans = new SumToOne(n);
       DoubleMatrix1D w = trans.transform(new DoubleMatrix1D(theta));
@@ -87,27 +93,26 @@ public class SumToOneTest {
         return trans.transform(theta);
       }
     };
-    double[] temp = new double[n];
-    Arrays.fill(temp, 1e-5);
-    DoubleMatrix1D start = new DoubleMatrix1D(new double[] {0.02, 0.02, 0.02 });
-    DoubleMatrix1D sigma = new DoubleMatrix1D(temp);
-    LeastSquareResults res = SOLVER.solve(new DoubleMatrix1D(w), sigma, func, start);
+
+    DoubleMatrix1D sigma = new DoubleMatrix1D(n, 1e-4);
+    DoubleMatrix1D start = new DoubleMatrix1D(n - 1, 0.8);
+    //  DoubleMatrix1D maxJump = new DoubleMatrix1D(n - 1, Math.PI / 20);
+
+    LeastSquareResults res = SOLVER.solve(new DoubleMatrix1D(w), sigma, func, start/*, maxJump*/);
     assertEquals("chi sqr", 0.0, res.getChiSq(), 1e-9);
     double[] fit = res.getFitParameters().getData();
     double[] expected = trans.inverseTransform(w);
     for (int i = 0; i < n - 1; i++) {
       //put the fit result back in the range 0 - pi/2
       double x = fit[i];
-      if (x > Math.PI / 2) {
-        int p = (int) (x / Math.PI) + 1;
-        x -= p * Math.PI;
+      if (x < 0) {
+        x = -x;
       }
-      if (x < 0.0) {
-        if (x > -Math.PI / 2) {
-          x = -x;
-        } else {
-          int p = (int) (-x / Math.PI) + 1;
-          x += p * Math.PI;
+      if (x > Math.PI / 2) {
+        int p = (int) (x / Math.PI);
+        x -= p * Math.PI;
+        if (x > Math.PI / 2) {
+          x = -x + Math.PI;
         }
       }
 
@@ -116,4 +121,74 @@ public class SumToOneTest {
 
   }
 
+  @Test
+  public void solverTest2() {
+    double[] w = new double[] {3.0, 4.0 };
+    final int n = w.length;
+    Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+
+      @Override
+      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
+        double a = x.getEntry(0);
+        double theta = x.getEntry(1);
+        double[] temp = new double[2];
+        double c1 = Math.cos(theta);
+        temp[0] = a * c1 * c1;
+        temp[1] = a * (1 - c1 * c1);
+        return new DoubleMatrix1D(temp);
+      }
+    };
+
+    DoubleMatrix1D sigma = new DoubleMatrix1D(n, 1e-4);
+    DoubleMatrix1D start = new DoubleMatrix1D(0.0, 0.8);
+    //  DoubleMatrix1D maxJump = new DoubleMatrix1D(1.0, Math.PI / 20);
+
+    LeastSquareResults res = SOLVER.solve(new DoubleMatrix1D(w), sigma, func, start/*, maxJump*/);
+    assertEquals("chi sqr", 0.0, res.getChiSq(), 1e-9);
+    double[] fit = res.getFitParameters().getData();
+    assertEquals(7.0, fit[0], 1e-9);
+    assertEquals(Math.atan(Math.sqrt(4 / 3.)), fit[1], 1e-9);
+  }
+
+  @Test
+  public void jacobianTest() {
+    final int n = 5;
+
+    final SumToOne trans = new SumToOne(n);
+    Function1D<DoubleMatrix1D, DoubleMatrix1D> func = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+      @Override
+      public DoubleMatrix1D evaluate(DoubleMatrix1D theta) {
+        return trans.transform(theta);
+      }
+    };
+
+    Function1D<DoubleMatrix1D, DoubleMatrix2D> jacFunc = new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+      @Override
+      public DoubleMatrix2D evaluate(DoubleMatrix1D theta) {
+        return trans.jacobian(theta);
+      }
+    };
+
+    Function1D<DoubleMatrix1D, DoubleMatrix2D> fdJacFunc = DIFFER.differentiate(func);
+
+    double[] theta = new double[n - 1];
+    for (int tries = 0; tries < 10; tries++) {
+
+      for (int i = 0; i < n - 1; i++) {
+        theta[i] = RANDOM.nextDouble();
+      }
+      DoubleMatrix1D vTheta = new DoubleMatrix1D(theta);
+      DoubleMatrix2D jac = jacFunc.evaluate(vTheta);
+      DoubleMatrix2D fdJac = fdJacFunc.evaluate(vTheta);
+      for (int j = 0; j < n - 1; j++) {
+        double sum = 0.0;
+        for (int i = 0; i < n; i++) {
+          sum += jac.getEntry(i, j);
+          assertEquals("element " + i + " " + j, fdJac.getEntry(i, j), jac.getEntry(i, j), 1e-6);
+        }
+        assertEquals("wrong sum of sensitivities", 0.0, sum, 1e-15);
+      }
+
+    }
+  }
 }

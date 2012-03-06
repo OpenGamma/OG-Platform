@@ -19,7 +19,9 @@ import com.opengamma.engine.function.config.ParameterizedFunctionConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
-import com.opengamma.financial.analytics.model.forex.ForexVolatilitySurfaceFunction;
+import com.opengamma.engine.function.config.StaticFunctionConfiguration;
+import com.opengamma.financial.analytics.model.volatility.surface.ForexCallDeltaVolatilitySurfaceFunction;
+import com.opengamma.financial.analytics.model.volatility.surface.ForexStrangleRiskReversalVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBFuturePriceCurveSpecificationSource;
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
@@ -30,9 +32,9 @@ import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveSpec
 import com.opengamma.financial.analytics.volatility.surface.Grid2DInterpolatedVolatilitySurfaceFunction;
 import com.opengamma.financial.analytics.volatility.surface.IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.RawFXVolatilitySurfaceDataFunction;
+import com.opengamma.financial.analytics.volatility.surface.RawIRFutureOptionVolatilitySurfaceDataFunction;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceSpecification;
-import com.opengamma.financial.analytics.volatility.surface.fitting.RawIRFutureOptionVolatilitySurfaceDataFunction;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.impl.MasterConfigSource;
 import com.opengamma.util.SingletonFactoryBean;
@@ -64,13 +66,18 @@ public class DemoSurfaceFunctionConfiguration extends SingletonFactoryBean<Repos
   public RepositoryConfiguration constructRepositoryConfiguration() {
     final List<FunctionConfiguration> configs = new ArrayList<FunctionConfiguration>();
     addConfigFor(configs, IRFutureOptionVolatilitySurfaceAndFuturePriceDataFunction.class.getName(), new String[] {"DEFAULT", "DEFAULT", "IR_FUTURE_OPTION", "IR_FUTURE_PRICE"});
-    addConfigFor(configs, RawIRFutureOptionVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "DEFAULT"});
-    addConfigFor(configs, RawFXVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "DEFAULT"});
+    addConfigFor(configs, RawIRFutureOptionVolatilitySurfaceDataFunction.class.getName());
+    addConfigFor(configs, RawFXVolatilitySurfaceDataFunction.class.getName());
     addConfigFor(configs, EquityOptionVolatilitySurfaceDataFunction.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DEFAULT"});
     addConfigFor(configs, Grid2DInterpolatedVolatilitySurfaceFunction.class.getName(), new String[] {"DEFAULT", "EQUITY_OPTION", "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator", 
       "DoubleQuadratic", "FlatExtrapolator", "FlatExtrapolator"});
-    configs.add(new ParameterizedFunctionConfiguration(ForexVolatilitySurfaceFunction.class.getName(), Arrays.asList("DEFAULT", "DEFAULT")));
+    configs.add(new StaticFunctionConfiguration(ForexStrangleRiskReversalVolatilitySurfaceFunction.class.getName()));
+    configs.add(new StaticFunctionConfiguration(ForexCallDeltaVolatilitySurfaceFunction.class.getName()));
     return new RepositoryConfiguration(configs);
+  }
+  
+  private void addConfigFor(final List<FunctionConfiguration> configurations, final String className) {
+    configurations.add(new StaticFunctionConfiguration(className));
   }
   
   private void addConfigFor(List<FunctionConfiguration> configurations, String className, String[] params) {

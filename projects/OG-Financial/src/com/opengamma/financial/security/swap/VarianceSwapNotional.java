@@ -5,17 +5,19 @@
  */
 package com.opengamma.financial.security.swap;
 
-import com.opengamma.util.money.Currency;
-import org.joda.beans.BeanDefinition;
 import java.util.Map;
+
 import org.joda.beans.BeanBuilder;
+import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.Property;
 import org.joda.beans.PropertyDefinition;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
-import org.joda.beans.impl.direct.DirectMetaPropertyMap;
-import org.joda.beans.Property;
 import org.joda.beans.impl.direct.DirectMetaProperty;
+import org.joda.beans.impl.direct.DirectMetaPropertyMap;
+
+import com.opengamma.util.money.Currency;
 
 /**
  * Notional for variance swaps.
@@ -23,11 +25,17 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 @BeanDefinition
 public class VarianceSwapNotional extends Notional {
 
-  /** The currency */
+  /** Serialization version. */
+  private static final long serialVersionUID = 1L;
+
+  /**
+   * The currency.
+   */
   @PropertyDefinition(validate = "notNull")
   private Currency _currency;
-
-  /** The amount */
+  /**
+   * The amount.
+   */
   @PropertyDefinition
   private double _amount;
 
@@ -37,6 +45,8 @@ public class VarianceSwapNotional extends Notional {
   }
 
   /**
+   * Creates an instance.
+   * 
    * @param currency The notional curency, not null
    * @param amount The notional amount
    */
@@ -47,7 +57,9 @@ public class VarianceSwapNotional extends Notional {
     setAmount(amount);
   }
 
-  /** For the builder */
+  /**
+   * Creates an empty instance.
+   */
   private VarianceSwapNotional() {
   }
 

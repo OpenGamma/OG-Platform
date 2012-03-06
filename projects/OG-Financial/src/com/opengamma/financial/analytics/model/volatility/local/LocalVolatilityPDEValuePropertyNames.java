@@ -18,19 +18,23 @@ public class LocalVolatilityPDEValuePropertyNames {
   /** Name of the moneyness surface parameterization */
   public static final String MONEYNESS = "Moneyness";
   /** Property name for the time axis type */
-  public static final String PROPERTY_X_AXIS = "XAxis";
+  public static final String PROPERTY_X_AXIS = "TimeAxis";
   /** Name of the log time axis type */
   public static final String LOG_TIME = "LogTime";
-  /** Name of the linear time axis type */
+  /** Name of the linear time axis */
   public static final String LINEAR_TIME = "LinearTime";
-  /** Property name for the strike axis type */
+  /** Property name for the strike axis */
   public static final String PROPERTY_Y_AXIS = "YAxis";
-  /** Name of the integrated variance axis */
+  /** Name of the integrated variance y axis */
   public static final String INTEGRATED_VARIANCE = "IntegratedVariance";
-  /** Name of the volatility axis */
+  /** Name of the volatility y axis */
   public static final String VOLATILITY = "Volatility";
-  /** Property name for the lambda */
-  public static final String PROPERTY_LAMBDA = "Lambda"; //TODO rename this
+  /** Property name for the y axis type */
+  public static final String PROPERTY_Y_AXIS_TYPE = "YAxisType";
+  /** Property name for log y axis */
+  public static final String LOG_Y = "LogY";
+  /** Property name for linear strike axis */
+  public static final String LINEAR_Y = "LinearY";
   /** Property name for the eps for local volatility surface bumping */
   public static final String PROPERTY_H = "h";
   /** Property name for the PDE direction */

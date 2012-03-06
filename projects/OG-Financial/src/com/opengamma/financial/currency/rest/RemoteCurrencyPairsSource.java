@@ -14,7 +14,7 @@ import com.opengamma.financial.currency.CurrencyPairsSource;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.rest.AbstractRemoteClient;
-import com.sun.jersey.api.client.UniformInterfaceException;
+import com.opengamma.util.rest.UniformInterfaceException404NotFound;
 
 /**
  * Provides remote access to a {@link CurrencyPairsSource}.
@@ -42,11 +42,8 @@ public class RemoteCurrencyPairsSource extends AbstractRemoteClient implements C
       return accessRemote(uri).get(CurrencyPairs.class);
     } catch (DataNotFoundException ex) {
       return null;
-    } catch (UniformInterfaceException ex) {
-      if (ex.getResponse().getStatus() == 404) {
-        return null;
-      }
-      throw ex;
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
     }
   }
 
@@ -63,11 +60,8 @@ public class RemoteCurrencyPairsSource extends AbstractRemoteClient implements C
       return accessRemote(uri).get(CurrencyPair.class);
     } catch (DataNotFoundException ex) {
       return null;
-    } catch (UniformInterfaceException ex) {
-      if (ex.getResponse().getStatus() == 404) {
-        return null;
-      }
-      throw ex;
+    } catch (UniformInterfaceException404NotFound ex) {
+      return null;
     }
   }
 

@@ -16,7 +16,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.examples.tool.AbstractTool;
+import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.daycount.DayCount;
@@ -68,9 +68,9 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
- * 
+ * Example code to load a mixed portfolio.
  */
-public class ExampleMixedPortfolioLoader extends AbstractTool {
+public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
   
   /**
    * Example mixed portfolio name
@@ -80,14 +80,12 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final ExternalId USDLIBOR3M = ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDLIBORP3M");
-  
+
   public static void main(String[] args) { //CSIGNORE
-    if (init()) {
-      new ExampleMixedPortfolioLoader().run();
-    }
+    new ExampleMixedPortfolioLoader().initAndRun(args);
     System.exit(0);
   }
-  
+
   private void persistToPortfolio() {
     PortfolioMaster portfolioMaster = getToolContext().getPortfolioMaster();
     ManageablePortfolioNode rootNode = new ManageablePortfolioNode(PORTFOLIO_NAME);
@@ -578,25 +576,92 @@ public class ExampleMixedPortfolioLoader extends AbstractTool {
   private Collection<FinancialSecurity> getSwaptions() {
     final List<FinancialSecurity> securities = new ArrayList<FinancialSecurity>();
     
-    List<FinancialSecurity> iborSwaps = getIborSwaps();
-    
     final EuropeanExerciseType europeanExerciseType = new EuropeanExerciseType();
-    final SwaptionSecurity swaption1 = new SwaptionSecurity(false, iborSwaps.get(0).getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)),
+    final SwapSecurity swap1 = new SwapSecurity(
+        ZonedDateTime.of(LocalDateTime.of(2012, 6, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2012, 6, 1, 1, 0), TimeZone.UTC),
+        ZonedDateTime.of(LocalDateTime.of(2022, 6, 1, 1, 0), TimeZone.UTC), 
+        "Cpty",
+        new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY, 
+            RegionUtils.financialRegionId("US+GB"),
+            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), 
+            new InterestRateNotional(Currency.USD, 1.0E7), 
+            false, 
+            USDLIBOR3M, 
+            FloatingRateType.IBOR),
+        new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("30U/360"), 
+            SimpleFrequency.SEMI_ANNUAL, 
+            RegionUtils.financialRegionId("US+GB"),
+            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), 
+            new InterestRateNotional(Currency.USD, 1.0E7), 
+            false, 
+            0.04));
+    swap1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    swap1.setName("Swap: pay 3m Libor vs 4% fixed, start=1/6/2012, maturity=1/6/2022, notional=USD 10MM");
+    storeFinancialSecurity(swap1);
+    final SwaptionSecurity swaption1 = new SwaptionSecurity(false, swap1.getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)),
         true, new Expiry(ZonedDateTime.of(LocalDateTime.of(2012, 6, 1, 1, 0), TimeZone.UTC)), 
         true, Currency.USD, null, europeanExerciseType, null);
     swaption1.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    swaption1.setName("Vanilla swaption, 1Y x 10Y, USD 10,000,000 @ 4%");
     securities.add(swaption1);
     
-    final SwaptionSecurity swaption2 = new SwaptionSecurity(false, iborSwaps.get(1).getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)), 
+    final SwapSecurity swap2 = new SwapSecurity(
+        ZonedDateTime.of(LocalDateTime.of(2013, 6, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2013, 6, 1, 1, 0), TimeZone.UTC),
+        ZonedDateTime.of(LocalDateTime.of(2015, 6, 1, 1, 0), TimeZone.UTC), 
+        "Cpty",
+        new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY, 
+            RegionUtils.financialRegionId("US+GB"),
+            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), 
+            new InterestRateNotional(Currency.USD, 3000000.0), 
+            false, 
+            USDLIBOR3M, 
+            FloatingRateType.IBOR),
+        new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("30U/360"), 
+            SimpleFrequency.SEMI_ANNUAL, 
+            RegionUtils.financialRegionId("US+GB"),
+            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), 
+            new InterestRateNotional(Currency.USD, 3000000.0), 
+            false, 
+            0.01));
+    swap2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    swap2.setName("Swap: pay 3m Libor vs 1% fixed, start=1/6/2013, maturity=1/6/2015, notional=USD 3MM");
+    storeFinancialSecurity(swap2);
+    final SwaptionSecurity swaption2 = new SwaptionSecurity(false, swap2.getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)), 
         false, new Expiry(ZonedDateTime.of(LocalDateTime.of(2013, 6, 1, 1, 0), TimeZone.UTC)), 
         true, Currency.USD, null, europeanExerciseType, null);
     swaption2.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    swaption2.setName("Vanilla swaption, 2Y x 2Y, USD 3,000,000 @ 1%");
     securities.add(swaption2);
-    
-    final SwaptionSecurity swaption3 = new SwaptionSecurity(false, iborSwaps.get(2).getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)), 
+
+    final SwapSecurity swap3 = new SwapSecurity(
+        ZonedDateTime.of(LocalDateTime.of(2016, 6, 1, 1, 0), TimeZone.UTC), 
+        ZonedDateTime.of(LocalDateTime.of(2016, 6, 1, 1, 0), TimeZone.UTC),
+        ZonedDateTime.of(LocalDateTime.of(2031, 6, 1, 1, 0), TimeZone.UTC), 
+        "Cpty",
+        new FloatingInterestRateLeg(DAY_COUNT, SimpleFrequency.QUARTERLY, 
+            RegionUtils.financialRegionId("US+GB"),
+            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), 
+            new InterestRateNotional(Currency.USD, 6000000.0), 
+            false, 
+            USDLIBOR3M, 
+            FloatingRateType.IBOR),
+        new FixedInterestRateLeg(DayCountFactory.INSTANCE.getDayCount("30U/360"), 
+            SimpleFrequency.SEMI_ANNUAL, 
+            RegionUtils.financialRegionId("US+GB"),
+            BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Modified Following"), 
+            new InterestRateNotional(Currency.USD, 6000000.0), 
+            false, 
+            0.035));
+    swap3.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    swap3.setName("Swap: pay 3m Libor vs 3.5% fixed, start=1/6/2016, maturity=1/6/2031, notional=USD 6MM");
+    storeFinancialSecurity(swap3);
+    final SwaptionSecurity swaption3 = new SwaptionSecurity(false, swap3.getExternalIdBundle().getExternalId(ExternalScheme.of(ID_SCHEME)), 
         false, new Expiry(ZonedDateTime.of(LocalDateTime.of(2016, 6, 1, 1, 0), TimeZone.UTC)), 
         true, Currency.USD, null, europeanExerciseType, null);
     swaption3.addExternalId(ExternalId.of(ID_SCHEME, GUIDGenerator.generate().toString()));
+    swaption3.setName("Vanilla swaption, 5Y x 15Y, USD 6,000,000 @ 3.5%");
     securities.add(swaption3);
     return securities;
   }

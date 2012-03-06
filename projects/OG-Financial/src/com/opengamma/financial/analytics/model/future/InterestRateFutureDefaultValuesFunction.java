@@ -22,16 +22,16 @@ import com.opengamma.financial.security.future.InterestRateFutureSecurity;
  * Dummy function for injecting default curve names into the dependency graph.
  */
 public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunction {
-  
+
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES};
-  
+
   private final String[] _applicableCurrencyNames;
   private final String _forwardCurve;
   private final String _fundingCurve;
 
-  public InterestRateFutureDefaultValuesFunction(final String forwardCurve, final String fundingCurve,  final String... applicableCurrencyNames) {
+  public InterestRateFutureDefaultValuesFunction(final String forwardCurve, final String fundingCurve, final String... applicableCurrencyNames) {
     super(ComputationTargetType.TRADE, true);
     _forwardCurve = forwardCurve;
     _fundingCurve = fundingCurve;
@@ -66,7 +66,8 @@ public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunc
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     if (YieldCurveFunction.PROPERTY_FORWARD_CURVE.equals(propertyName)) {
       return Collections.singleton(_forwardCurve);
-    } else if (YieldCurveFunction.PROPERTY_FUNDING_CURVE.equals(propertyName)) {
+    }
+    if (YieldCurveFunction.PROPERTY_FUNDING_CURVE.equals(propertyName)) {
       return Collections.singleton(_fundingCurve);
     }
     return null;

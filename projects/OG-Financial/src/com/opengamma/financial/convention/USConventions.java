@@ -250,7 +250,7 @@ public class USConventions {
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_GENERIC_CASH")), "USD_GENERIC_CASH", act360, following,
         Period.ofDays(7), 2, true, null);
 
-    //Identifiers for external data 
+    //Identifiers for external data
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USDCASHP1D"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "USDCASHP1D")),
         "USDCASHP1D", act360, following, Period.ofDays(1), 0, false, null);

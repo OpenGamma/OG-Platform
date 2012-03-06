@@ -102,7 +102,7 @@ public class ToolContext extends DirectBean implements Closeable {
    * The snapshot master.
    */
   @PropertyDefinition
-  private MarketDataSnapshotMaster _marketDataSnapshotmaster;
+  private MarketDataSnapshotMaster _marketDataSnapshotMaster;
 
   /**
    * The config source.
@@ -233,8 +233,8 @@ public class ToolContext extends DirectBean implements Closeable {
         return getPortfolioMaster();
       case 173967376:  // historicalTimeSeriesMaster
         return getHistoricalTimeSeriesMaster();
-      case -1288183604:  // marketDataSnapshotmaster
-        return getMarketDataSnapshotmaster();
+      case 2090650860:  // marketDataSnapshotMaster
+        return getMarketDataSnapshotMaster();
       case 195157501:  // configSource
         return getConfigSource();
       case -467239906:  // exchangeSource
@@ -291,8 +291,8 @@ public class ToolContext extends DirectBean implements Closeable {
       case 173967376:  // historicalTimeSeriesMaster
         setHistoricalTimeSeriesMaster((HistoricalTimeSeriesMaster) newValue);
         return;
-      case -1288183604:  // marketDataSnapshotmaster
-        setMarketDataSnapshotmaster((MarketDataSnapshotMaster) newValue);
+      case 2090650860:  // marketDataSnapshotMaster
+        setMarketDataSnapshotMaster((MarketDataSnapshotMaster) newValue);
         return;
       case 195157501:  // configSource
         setConfigSource((ConfigSource) newValue);
@@ -347,7 +347,7 @@ public class ToolContext extends DirectBean implements Closeable {
           JodaBeanUtils.equal(getPositionMaster(), other.getPositionMaster()) &&
           JodaBeanUtils.equal(getPortfolioMaster(), other.getPortfolioMaster()) &&
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
-          JodaBeanUtils.equal(getMarketDataSnapshotmaster(), other.getMarketDataSnapshotmaster()) &&
+          JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
           JodaBeanUtils.equal(getConfigSource(), other.getConfigSource()) &&
           JodaBeanUtils.equal(getExchangeSource(), other.getExchangeSource()) &&
           JodaBeanUtils.equal(getHolidaySource(), other.getHolidaySource()) &&
@@ -375,7 +375,7 @@ public class ToolContext extends DirectBean implements Closeable {
     hash += hash * 31 + JodaBeanUtils.hashCode(getPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotmaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getConfigSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExchangeSource());
     hash += hash * 31 + JodaBeanUtils.hashCode(getHolidaySource());
@@ -614,24 +614,24 @@ public class ToolContext extends DirectBean implements Closeable {
    * Gets the snapshot master.
    * @return the value of the property
    */
-  public MarketDataSnapshotMaster getMarketDataSnapshotmaster() {
-    return _marketDataSnapshotmaster;
+  public MarketDataSnapshotMaster getMarketDataSnapshotMaster() {
+    return _marketDataSnapshotMaster;
   }
 
   /**
    * Sets the snapshot master.
-   * @param marketDataSnapshotmaster  the new value of the property
+   * @param marketDataSnapshotMaster  the new value of the property
    */
-  public void setMarketDataSnapshotmaster(MarketDataSnapshotMaster marketDataSnapshotmaster) {
-    this._marketDataSnapshotmaster = marketDataSnapshotmaster;
+  public void setMarketDataSnapshotMaster(MarketDataSnapshotMaster marketDataSnapshotMaster) {
+    this._marketDataSnapshotMaster = marketDataSnapshotMaster;
   }
 
   /**
-   * Gets the the {@code marketDataSnapshotmaster} property.
+   * Gets the the {@code marketDataSnapshotMaster} property.
    * @return the property, not null
    */
-  public final Property<MarketDataSnapshotMaster> marketDataSnapshotmaster() {
-    return metaBean().marketDataSnapshotmaster().createProperty(this);
+  public final Property<MarketDataSnapshotMaster> marketDataSnapshotMaster() {
+    return metaBean().marketDataSnapshotMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -965,10 +965,10 @@ public class ToolContext extends DirectBean implements Closeable {
     private final MetaProperty<HistoricalTimeSeriesMaster> _historicalTimeSeriesMaster = DirectMetaProperty.ofReadWrite(
         this, "historicalTimeSeriesMaster", ToolContext.class, HistoricalTimeSeriesMaster.class);
     /**
-     * The meta-property for the {@code marketDataSnapshotmaster} property.
+     * The meta-property for the {@code marketDataSnapshotMaster} property.
      */
-    private final MetaProperty<MarketDataSnapshotMaster> _marketDataSnapshotmaster = DirectMetaProperty.ofReadWrite(
-        this, "marketDataSnapshotmaster", ToolContext.class, MarketDataSnapshotMaster.class);
+    private final MetaProperty<MarketDataSnapshotMaster> _marketDataSnapshotMaster = DirectMetaProperty.ofReadWrite(
+        this, "marketDataSnapshotMaster", ToolContext.class, MarketDataSnapshotMaster.class);
     /**
      * The meta-property for the {@code configSource} property.
      */
@@ -1038,7 +1038,7 @@ public class ToolContext extends DirectBean implements Closeable {
         "positionMaster",
         "portfolioMaster",
         "historicalTimeSeriesMaster",
-        "marketDataSnapshotmaster",
+        "marketDataSnapshotMaster",
         "configSource",
         "exchangeSource",
         "holidaySource",
@@ -1078,8 +1078,8 @@ public class ToolContext extends DirectBean implements Closeable {
           return _portfolioMaster;
         case 173967376:  // historicalTimeSeriesMaster
           return _historicalTimeSeriesMaster;
-        case -1288183604:  // marketDataSnapshotmaster
-          return _marketDataSnapshotmaster;
+        case 2090650860:  // marketDataSnapshotMaster
+          return _marketDataSnapshotMaster;
         case 195157501:  // configSource
           return _configSource;
         case -467239906:  // exchangeSource
@@ -1195,11 +1195,11 @@ public class ToolContext extends DirectBean implements Closeable {
     }
 
     /**
-     * The meta-property for the {@code marketDataSnapshotmaster} property.
+     * The meta-property for the {@code marketDataSnapshotMaster} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<MarketDataSnapshotMaster> marketDataSnapshotmaster() {
-      return _marketDataSnapshotmaster;
+    public final MetaProperty<MarketDataSnapshotMaster> marketDataSnapshotMaster() {
+      return _marketDataSnapshotMaster;
     }
 
     /**

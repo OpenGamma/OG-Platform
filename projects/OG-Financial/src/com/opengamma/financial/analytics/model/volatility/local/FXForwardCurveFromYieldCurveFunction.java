@@ -5,10 +5,6 @@
  */
 package com.opengamma.financial.analytics.model.volatility.local;
 
-import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
-
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
@@ -53,9 +49,6 @@ public class FXForwardCurveFromYieldCurveFunction extends AbstractFunction.NonCo
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FXForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
         .withAny(ValuePropertyNames.PAY_CURVE)
         .withAny(ValuePropertyNames.RECEIVE_CURVE)
-        .withAny(FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR)
-        .withAny(FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR)
-        .withAny(FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR)
         .get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
     return Collections.singleton(spec);
@@ -76,18 +69,6 @@ public class FXForwardCurveFromYieldCurveFunction extends AbstractFunction.NonCo
     if (receiveCurveNames == null || receiveCurveNames.size() != 1) {
       return null;
     }
-    //    final Set<String> forwardCurveInterpolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_INTERPOLATOR);
-    //    if (forwardCurveInterpolatorNames == null || forwardCurveInterpolatorNames.size() != 1) {
-    //      return null;
-    //    }
-    //    final Set<String> forwardCurveLeftExtrapolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
-    //    if (forwardCurveLeftExtrapolatorNames == null || forwardCurveLeftExtrapolatorNames.size() != 1) {
-    //      return null;
-    //    }
-    //    final Set<String> forwardCurveRightExtrapolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
-    //    if (forwardCurveRightExtrapolatorNames == null || forwardCurveRightExtrapolatorNames.size() != 1) {
-    //      return null;
-    //    }
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     final ValueProperties payCurveProperties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, payCurveNames.iterator().next())
@@ -107,10 +88,6 @@ public class FXForwardCurveFromYieldCurveFunction extends AbstractFunction.NonCo
       payCurrency = ccyPair.getSecondCurrency();
       receiveCurrency = ccyPair.getFirstCurrency();
     }
-    //    final ValueProperties spotProperties = ValueProperties.builder()
-    //        .with(PROPERTY_FORWARD_CURVE_INTERPOLATOR, forwardCurveInterpolatorNames.iterator().next())
-    //        .with(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, forwardCurveLeftExtrapolatorNames.iterator().next())
-    //        .with(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, forwardCurveRightExtrapolatorNames.iterator().next()).get();
     final ExternalId spotIdentifier = SecurityUtils.bloombergTickerSecurityId(payCurrency.getCode() + receiveCurrency.getCode() + " Curncy");
     result.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, payCurrency.getUniqueId(), payCurveProperties));
     result.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, receiveCurrency.getUniqueId(), receiveCurveProperties));
@@ -153,10 +130,6 @@ public class FXForwardCurveFromYieldCurveFunction extends AbstractFunction.NonCo
         receiveCurveNames = properties.getValues(ValuePropertyNames.CURVE);
       }
     }
-    final ValueProperties constraints = desiredValues.iterator().next().getConstraints();
-    final String forwardCurveInterpolatorName = constraints.getValues(PROPERTY_FORWARD_CURVE_INTERPOLATOR).iterator().next();
-    final String forwardCurveLeftExtrapolatorName = constraints.getValues(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR).iterator().next();
-    final String forwardCurveRightExtrapolatorName = constraints.getValues(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR).iterator().next();
     if (payCurveObject == null) {
       throw new OpenGammaRuntimeException("Could not get pay curve");
     }
@@ -189,9 +162,6 @@ public class FXForwardCurveFromYieldCurveFunction extends AbstractFunction.NonCo
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, FXForwardCurveValuePropertyNames.PROPERTY_YIELD_CURVE_IMPLIED_METHOD)
         .with(ValuePropertyNames.PAY_CURVE, payCurveNames.iterator().next())
         .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveNames.iterator().next())
-        .with(FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, forwardCurveLeftExtrapolatorName)
-        .with(FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, forwardCurveRightExtrapolatorName)
-        .with(FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR, forwardCurveInterpolatorName)
         .get();
     final ValueSpecification resultSpec = new ValueSpecification(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(resultSpec, fxForwardCurve));

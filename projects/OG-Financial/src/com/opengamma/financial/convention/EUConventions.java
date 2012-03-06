@@ -221,11 +221,11 @@ public class EUConventions {
     final DayCount swapFloatDayCount = act360;
     final BusinessDayConvention swapFloatBusinessDay = modified;
     final Frequency swapFloatPaymentFrequency = semiAnnual;
-    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 }) {
-      final String bbgOISId = "EUSWE" + MONTH_NAMES[i - 1] + " Curncy";
-      final String ogOISName = "EUR OIS " + i + "m";
+    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}) {
       final String bbgSwapId = "EUSA" + MONTH_NAMES[i - 1] + " Curncy";
       final String ogSwapName = "EUR SWAP " + i + "m";
+      final String bbgOISId = "EUSWE" + MONTH_NAMES[i - 1] + " Curncy";
+      final String ogOISName = "EUR OIS " + i + "m";
       final Frequency frequency = PeriodFrequency.of(Period.ofMonths(i));
       conventionMaster.addConventionBundle(
           ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgOISId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogOISName)), ogOISName,
@@ -236,19 +236,19 @@ public class EUConventions {
           swapFixedDayCount, swapFixedBusinessDay, frequency, 2, eu, swapFloatDayCount, swapFloatBusinessDay, frequency,
           2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu, true);
     }
-    for (int i = 1; i <= 30; i++) {
+    for (int i = 1; i <= 50; i++) {
       final String bbgSwapId = "EUSA" + i + " Curncy";
       final String ogSwapName = "EUR SWAP " + i + "y";
-      final String bbgOISId = "EUSA" + i + " Curncy";
-      final String ogOISName = "EUSWE OIS " + i + "y";
-      conventionMaster.addConventionBundle(
-          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgSwapId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogSwapName)), ogSwapName,
-          swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, swapFloatDayCount, swapFloatBusinessDay, swapFloatPaymentFrequency,
-          2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu, true);
+      final String bbgOISId = "EUSWE" + i + " Curncy";
+      final String ogOISName = "EUR OIS " + i + "y";
       conventionMaster.addConventionBundle(
           ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgOISId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogOISName)), ogOISName,
           act360, swapFixedBusinessDay, annual, 2, eu, swapFloatDayCount, swapFloatBusinessDay, annual,
           2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR EONIA"), eu, true);
+      conventionMaster.addConventionBundle(
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgSwapId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogSwapName)), ogSwapName,
+          swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, swapFloatDayCount, swapFloatBusinessDay, swapFloatPaymentFrequency,
+          2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu, true);
     }
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_SWAP")), "EUR_SWAP", thirty360, modified, annual, 2, eu, act360,
         modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu, true);
@@ -266,7 +266,7 @@ public class EUConventions {
     //TODO Check this, it's just copied from the US one.
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_IBOR_INDEX")), "EUR_IBOR_INDEX", act360, following, 2, false);
 
-    //Identifiers for external data 
+    //Identifiers for external data
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURCASHP1D"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURCASHP1D")),
         "EURCASHP1D", act360, following, Period.ofDays(1), 0, false, null);
