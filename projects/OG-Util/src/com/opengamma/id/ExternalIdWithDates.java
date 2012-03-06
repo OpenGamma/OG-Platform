@@ -105,7 +105,7 @@ public final class ExternalIdWithDates
   private ExternalIdWithDates(ExternalId identifier, LocalDate validFrom, LocalDate validTo) {
     ArgumentChecker.notNull(identifier, "identifier");
     if (validFrom != null && validTo != null) {
-      ArgumentChecker.isTrue(validTo.isAfter(validFrom) || validTo.equals(validFrom), "ValidTo must be after or eqauls to ValidFrom");
+      ArgumentChecker.isTrue(validTo.isAfter(validFrom) || validTo.equals(validFrom), "validTo (" + validTo + ") is before validFrom (" + validFrom + ")");
     }
     _identifier = identifier;
     _validFrom = validFrom;
