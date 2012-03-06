@@ -21,7 +21,7 @@ import com.opengamma.math.minimization.NonLinearParameterTransforms;
 import com.opengamma.math.minimization.NonLinearTransformFunction;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
-import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
+import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquareDebug;
 
 /**
  * 
@@ -29,7 +29,7 @@ import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
  */
 public abstract class SmileModelFitter<T extends SmileModelData> {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
-  private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare(DecompositionFactory.SV_COLT, MA, 1e-12);
+  private static final NonLinearLeastSquareDebug SOLVER = new NonLinearLeastSquareDebug(DecompositionFactory.SV_COLT, MA, 1e-12);
   private static final Function1D<DoubleMatrix1D, Boolean> UNCONSTRAINED = new Function1D<DoubleMatrix1D, Boolean>() {
     @Override
     public Boolean evaluate(final DoubleMatrix1D x) {
@@ -99,11 +99,8 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   public LeastSquareResultsWithTransform solve(final DoubleMatrix1D start, final NonLinearParameterTransforms transform) {
     final NonLinearTransformFunction transFunc = new NonLinearTransformFunction(getModelValueFunction(), getModelJacobianFunction(), transform);
 
-    //debug
-    //    final int n = start.getNumberOfElements();
-    //    final DoubleMatrix1D maxJumps = new DoubleMatrix1D(n, 0.1);
     final LeastSquareResults solRes = SOLVER.solve(_marketValues, _errors, transFunc.getFittingFunction(), transFunc.getFittingJacobian(),
-        transform.transform(start), getConstraintFunction(transform)/*, maxJumps*/);
+        transform.transform(start), getConstraintFunction(transform), getMaximumStep());
     return new LeastSquareResultsWithTransform(solRes, transform);
   }
 
@@ -130,6 +127,10 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
         return new DoubleMatrix2D(volAdjoint);
       }
     };
+  }
+
+  protected DoubleMatrix1D getMaximumStep() {
+    return  null;
   }
 
   protected abstract NonLinearParameterTransforms getTransform(final DoubleMatrix1D start);

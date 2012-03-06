@@ -146,7 +146,7 @@ public class MixedLogNormalVolatilityFunction extends VolatilityFunctionProvider
       deltas[i] = BlackFormulaRepository.delta(forward * rFwds[i], strike, expiry, sigmas[i], isCall);
     }
 
-    final double impVol = getVolatility(new EuropeanVanillaOption(strike, expiry, true), forward, data);
+    final double impVol = getVolatility(new EuropeanVanillaOption(strike, expiry, isCall), forward, data);
     final double vega = BlackFormulaRepository.vega(forward, strike, expiry, impVol);
 
     return getModelAjoint(forward, strike, expiry, data, deltas, vega);
@@ -164,19 +164,26 @@ public class MixedLogNormalVolatilityFunction extends VolatilityFunctionProvider
     for (int i = 0; i < n; i++) {
       final double f = forward * rFwds[i];
       prices[i] = BlackFormulaRepository.price(f, strike, expiry, sigmas[i], isCall);
-      deltas[i] = BlackFormulaRepository.delta(f, strike, expiry, sigmas[i], isCall);
       vegas[i] = BlackFormulaRepository.vega(f, strike, expiry, sigmas[i]);
     }
 
     double[] res = new double[nParms];
-    res[0] = (w[0] * vegas[0] + w[1] * vegas[1]) / vega;
+    double sum = 0.0;
+    for (int i = 0; i < n; i++) {
+      sum += w[i] * vegas[i];
+    }
+    res[0] = sum / vega;
     for (int i = 1; i < n; i++) {
-      res[i] = w[i] * vegas[i] / vega;
+      sum = 0.0;
+      for (int j = i; j < n; j++) {
+        sum += w[j] * vegas[j];
+      }
+      res[i] = sum / vega;
     }
 
     double[][] wJac = data.getWeightsJacobian();
     for (int i = 0; i < n - 1; i++) {
-      double sum = 0.0;
+      sum = 0.0;
       for (int j = 0; j < n; j++) {
         sum += prices[j] * wJac[j][i];
       }
@@ -186,7 +193,7 @@ public class MixedLogNormalVolatilityFunction extends VolatilityFunctionProvider
     if (nParms > 2 * n - 1) {
       double[][] fJac = data.getRelativeForwardsJacobian();
       for (int i = 0; i < n - 1; i++) {
-        double sum = 0.0;
+        sum = 0.0;
         for (int j = 0; j < n; j++) {
           sum -= rFwds[j] * deltas[j] * wJac[j][i];
         }
