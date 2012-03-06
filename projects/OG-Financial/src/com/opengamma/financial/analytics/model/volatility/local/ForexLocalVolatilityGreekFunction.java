@@ -43,7 +43,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.PDEGreekResultCollection;
+import com.opengamma.financial.greeks.PDEResultCollection;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.math.interpolation.Interpolator1D;
@@ -61,15 +61,21 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
     ValueRequirementNames.LOCAL_VOLATILITY_GAMMA,
     ValueRequirementNames.LOCAL_VOLATILITY_VANNA,
     ValueRequirementNames.LOCAL_VOLATILITY_VEGA,
-    ValueRequirementNames.LOCAL_VOLATILITY_VOMMA};
+    ValueRequirementNames.LOCAL_VOLATILITY_VOMMA,
+    ValueRequirementNames.LOCAL_VOLATILITY_GRID_PRICE,
+    ValueRequirementNames.BLACK_VOLATILITY_GRID_PRICE,
+    ValueRequirementNames.LOCAL_VOLATILITY_GRID_IMPLIED_VOL};
   private static final Greek[] GREEKS = new Greek[] {
-    PDEGreekResultCollection.GRID_DELTA,
-    PDEGreekResultCollection.GRID_DUAL_DELTA,
-    PDEGreekResultCollection.GRID_DUAL_GAMMA,
-    PDEGreekResultCollection.GRID_GAMMA,
-    PDEGreekResultCollection.GRID_VANNA,
-    PDEGreekResultCollection.GRID_VEGA,
-    PDEGreekResultCollection.GRID_VOMMA};
+    PDEResultCollection.GRID_DELTA,
+    PDEResultCollection.GRID_DUAL_DELTA,
+    PDEResultCollection.GRID_DUAL_GAMMA,
+    PDEResultCollection.GRID_GAMMA,
+    PDEResultCollection.GRID_VANNA,
+    PDEResultCollection.GRID_VEGA,
+    PDEResultCollection.GRID_VOMMA,
+    PDEResultCollection.GRID_PRICE,
+    PDEResultCollection.GRID_BLACK_PRICE,
+    PDEResultCollection.GRID_IMPLIED_VOL};
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
@@ -111,7 +117,7 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
       throw new OpenGammaRuntimeException("Grid greeks were null");
     }
     final double strike = getStrike(fxOption);
-    final PDEGreekResultCollection gridGreeks = (PDEGreekResultCollection) gridGreeksObject;
+    final PDEResultCollection gridGreeks = (PDEResultCollection) gridGreeksObject;
     final ValueProperties properties = getResultProperties(surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod, h,
         forwardCurveName, theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection, strikeInterpolatorName);
     final ComputationTargetSpecification spec = target.toSpecification();

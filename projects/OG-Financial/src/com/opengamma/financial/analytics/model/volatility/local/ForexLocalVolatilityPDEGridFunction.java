@@ -92,6 +92,7 @@ public abstract class ForexLocalVolatilityPDEGridFunction extends LocalVolatilit
         .with(SurfaceQuoteType.PROPERTY_SURFACE_QUOTE_TYPE, SurfaceQuoteType.MARKET_STRANGLE_RISK_REVERSAL)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX).get());
   }
+
   //TODO
   @Override
   protected SmileSurfaceDataBundle getData(final FunctionInputs inputs, final ValueRequirement volDataRequirement, final ValueRequirement forwardCurveRequirement) {

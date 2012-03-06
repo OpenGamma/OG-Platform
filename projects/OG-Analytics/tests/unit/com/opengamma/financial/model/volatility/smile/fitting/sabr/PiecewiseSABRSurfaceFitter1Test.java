@@ -11,7 +11,7 @@ import java.util.Map;
 import org.testng.annotations.Test;
 
 import com.opengamma.financial.greeks.BucketedGreekResultCollection;
-import com.opengamma.financial.greeks.PDEGreekResultCollection;
+import com.opengamma.financial.greeks.PDEResultCollection;
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.finitedifference.applications.PDEUtilityTools;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
@@ -329,16 +329,16 @@ public class PiecewiseSABRSurfaceFitter1Test {
         new LocalVolatilityForwardPDEGreekCalculator<Moneyness>(THETA, TIME_STEPS, SPACE_STEPS, TIME_GRID_BUNCHING, SPACE_GRID_BUNCHING, surfaceFitter, DUPIRE, MAX_MONEYNESS);
     final BlackVolatilitySurface<?> impVolSurface = surfaceFitter.getVolatilitySurface(forexDeltaData);
     final LocalVolatilitySurface<?> localVolatility = DUPIRE.getLocalVolatilitySurface(impVolSurface, forwardCurve);
-    final PDEGreekResultCollection greeks = pdeCalculator.getGridGreeks(forexDeltaData1, localVolatility, new EuropeanVanillaOption(EXAMPLE_STRIKE, EXAMPLE_EXPIRY, true));
+    final PDEResultCollection greeks = pdeCalculator.getGridGreeks(forexDeltaData1, localVolatility, new EuropeanVanillaOption(EXAMPLE_STRIKE, EXAMPLE_EXPIRY, true));
     final double[] strikes = greeks.getStrikes();
-    final double[] bsDelta = greeks.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_DELTA);
-    final double[] modelDelta = greeks.getGridGreeks(PDEGreekResultCollection.GRID_DELTA);
-    final double[] bsDualDelta = greeks.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_DUAL_DELTA);
-    final double[] modelDD = greeks.getGridGreeks(PDEGreekResultCollection.GRID_DUAL_DELTA);
-    final double[] bsGamma = greeks.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_GAMMA);
-    final double[] modelGamma = greeks.getGridGreeks(PDEGreekResultCollection.GRID_GAMMA);
-    final double[] bsDualGamma = greeks.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_DUAL_GAMMA);
-    final double[] modelDG = greeks.getGridGreeks(PDEGreekResultCollection.GRID_DUAL_GAMMA);
+    final double[] bsDelta = greeks.getGridGreeks(PDEResultCollection.GRID_BLACK_DELTA);
+    final double[] modelDelta = greeks.getGridGreeks(PDEResultCollection.GRID_DELTA);
+    final double[] bsDualDelta = greeks.getGridGreeks(PDEResultCollection.GRID_BLACK_DUAL_DELTA);
+    final double[] modelDD = greeks.getGridGreeks(PDEResultCollection.GRID_DUAL_DELTA);
+    final double[] bsGamma = greeks.getGridGreeks(PDEResultCollection.GRID_BLACK_GAMMA);
+    final double[] modelGamma = greeks.getGridGreeks(PDEResultCollection.GRID_GAMMA);
+    final double[] bsDualGamma = greeks.getGridGreeks(PDEResultCollection.GRID_BLACK_DUAL_GAMMA);
+    final double[] modelDG = greeks.getGridGreeks(PDEResultCollection.GRID_DUAL_GAMMA);
     for (int i = 0; i < strikes.length; i++) {
       ps.println(strikes[i] + "\t 0" + "\t" + bsDelta[i] + "\t" + modelDelta[i] + "\t" + bsDualDelta[i] + "\t" + modelDD[i]
           + "\t" + bsGamma[i] + "\t" + modelGamma[i] + "\t" + bsDualGamma[i] + "\t" + modelDG[i]);
@@ -363,14 +363,14 @@ public class PiecewiseSABRSurfaceFitter1Test {
         new LocalVolatilityForwardPDEGreekCalculator<Moneyness>(THETA, TIME_STEPS, SPACE_STEPS, TIME_GRID_BUNCHING, SPACE_GRID_BUNCHING, surfaceFitter, DUPIRE, MAX_MONEYNESS);
     final BlackVolatilitySurface<?> impVolSurface = surfaceFitter.getVolatilitySurface(forexDeltaData);
     final LocalVolatilitySurface<?> localVolatility = DUPIRE.getLocalVolatilitySurface(impVolSurface, forwardCurve);
-    final PDEGreekResultCollection greeks = pdeCalculator.getGridGreeks(forexDeltaData1, localVolatility, new EuropeanVanillaOption(EXAMPLE_STRIKE, EXAMPLE_EXPIRY, true));
+    final PDEResultCollection greeks = pdeCalculator.getGridGreeks(forexDeltaData1, localVolatility, new EuropeanVanillaOption(EXAMPLE_STRIKE, EXAMPLE_EXPIRY, true));
     final double[] strikes = greeks.getStrikes();
-    final double[] bsVega = greeks.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_VEGA);
-    final double[] bsVanna = greeks.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_VANNA);
-    final double[] bsVomma = greeks.getGridGreeks(PDEGreekResultCollection.GRID_BLACK_VOMMA);
-    final double[] modelVega = greeks.getGridGreeks(PDEGreekResultCollection.GRID_VEGA);
-    final double[] modelVanna = greeks.getGridGreeks(PDEGreekResultCollection.GRID_VANNA);
-    final double[] modelVomma = greeks.getGridGreeks(PDEGreekResultCollection.GRID_VOMMA);
+    final double[] bsVega = greeks.getGridGreeks(PDEResultCollection.GRID_BLACK_VEGA);
+    final double[] bsVanna = greeks.getGridGreeks(PDEResultCollection.GRID_BLACK_VANNA);
+    final double[] bsVomma = greeks.getGridGreeks(PDEResultCollection.GRID_BLACK_VOMMA);
+    final double[] modelVega = greeks.getGridGreeks(PDEResultCollection.GRID_VEGA);
+    final double[] modelVanna = greeks.getGridGreeks(PDEResultCollection.GRID_VANNA);
+    final double[] modelVomma = greeks.getGridGreeks(PDEResultCollection.GRID_VOMMA);
     for (int i = 0; i < strikes.length; i++) {
       ps.println(strikes[i] + "\t" + bsVega[i] + "\t" + modelVega[i] + "\t" + bsVanna[i] + "\t" + modelVanna[i] + "\t" + bsVomma[i] + "\t" + modelVomma[i]);
     }

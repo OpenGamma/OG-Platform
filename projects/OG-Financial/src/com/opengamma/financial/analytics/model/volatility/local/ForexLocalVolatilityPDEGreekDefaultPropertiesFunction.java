@@ -28,7 +28,10 @@ public class ForexLocalVolatilityPDEGreekDefaultPropertiesFunction extends Defau
     ValueRequirementNames.LOCAL_VOLATILITY_GAMMA,
     ValueRequirementNames.LOCAL_VOLATILITY_VANNA,
     ValueRequirementNames.LOCAL_VOLATILITY_VEGA,
-    ValueRequirementNames.LOCAL_VOLATILITY_VOMMA};
+    ValueRequirementNames.LOCAL_VOLATILITY_VOMMA,
+    ValueRequirementNames.LOCAL_VOLATILITY_GRID_PRICE,
+    ValueRequirementNames.BLACK_VOLATILITY_GRID_PRICE,
+    ValueRequirementNames.LOCAL_VOLATILITY_GRID_IMPLIED_VOL};
   private final String _forwardCurveCalculationMethod;
   private final String _forwardCurveName;
   private final String _surfaceType;

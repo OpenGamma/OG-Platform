@@ -8,7 +8,7 @@ package com.opengamma.financial.model.volatility.local;
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
 
 import com.opengamma.financial.greeks.BucketedGreekResultCollection;
-import com.opengamma.financial.greeks.PDEGreekResultCollection;
+import com.opengamma.financial.greeks.PDEResultCollection;
 import com.opengamma.financial.model.finitedifference.BoundaryCondition;
 import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
 import com.opengamma.financial.model.finitedifference.ConvectionDiffusionPDESolver;
@@ -84,7 +84,7 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
     return runPDESolver(forwardCurve, localVolatility, expiries, strikes, impliedVols, isCall);
   }
 
-  public PDEGreekResultCollection getGridGreeks(final SmileSurfaceDataBundle data, final LocalVolatilitySurface<?> localVolatility, final EuropeanVanillaOption option) {
+  public PDEResultCollection getGridGreeks(final SmileSurfaceDataBundle data, final LocalVolatilitySurface<?> localVolatility, final EuropeanVanillaOption option) {
     ArgumentChecker.notNull(data, "data");
     ArgumentChecker.notNull(option, "option");
     ArgumentChecker.notNull(localVolatility, "local volatility surface");
@@ -128,12 +128,7 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
     return pdeRes;
   }
 
-  /**
-   * Runs both forward and backwards PDE solvers, and produces delta and gamma (plus the dual - i.e. with respect to strike)
-   * values again strike and spot, for the given expiry and strike using the provided local volatility (i.e. override
-   * that calculated from the fitted implied volatility surface).
-   */
-  private PDEGreekResultCollection gridGreeks(final ForwardCurve forwardCurve, final LocalVolatilitySurfaceStrike localVolatility, final boolean isCall, final EuropeanVanillaOption option) {
+  private PDEResultCollection gridGreeks(final ForwardCurve forwardCurve, final LocalVolatilitySurfaceStrike localVolatility, final boolean isCall, final EuropeanVanillaOption option) {
     final double expiry = option.getTimeToExpiry();
     final double forward = forwardCurve.getForward(expiry);
 
@@ -162,9 +157,13 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
     final PDEFullResults1D pdeResForwardDownVolDown = runForwardPDESolver(forwardCurve.withFractionalShift(-forwardShift), localVolatilityDown, isCall, _theta, expiry, _maxMoneyness,
         _timeSteps, _spaceSteps, _timeGridBunching, _spaceGridBunching, 1.0);
 
+    final double[] timeNodes = pdeRes.getGrid().getTimeNodes();
+    final double[] spaceNodes = pdeRes.getGrid().getSpaceNodes();
     final int n = pdeRes.getNumberSpaceNodes();
     final DoubleArrayList strikes = new DoubleArrayList();
     final DoubleArrayList impliedVolatilities = new DoubleArrayList();
+    final DoubleArrayList prices = new DoubleArrayList();
+    final DoubleArrayList blackPrices = new DoubleArrayList();
     final DoubleArrayList bsDelta = new DoubleArrayList();
     final DoubleArrayList bsDualDelta = new DoubleArrayList();
     final DoubleArrayList bsGamma = new DoubleArrayList();
@@ -179,7 +178,7 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
     final DoubleArrayList modelVega = new DoubleArrayList();
     final DoubleArrayList modelVanna = new DoubleArrayList();
     final DoubleArrayList modelVomma = new DoubleArrayList();
-    for (int i = 0; i < n; i++) {
+    for (int i = 0; i < n - 1; i++) {
       final double m = pdeRes.getSpaceValue(i);
       final double k = m * forward;
       final double mPrice = pdeRes.getFunctionValue(i);
@@ -189,8 +188,19 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
       } catch (final Exception e) {
         continue;
       }
+      final double moneyness = k / forward;
+      final int timeIndex = SurfaceArrayUtils.getLowerBoundIndex(timeNodes, expiry);
+      final int spaceIndex = SurfaceArrayUtils.getLowerBoundIndex(spaceNodes, moneyness);
+      final double value1 = forward * pdeRes.getFunctionValue(spaceIndex, timeIndex);
+      final double value2 = forward * pdeRes.getFunctionValue(spaceIndex + 1, timeIndex);
+      final double m1 = pdeRes.getSpaceValue(spaceIndex);
+      final double m2 = pdeRes.getSpaceValue(spaceIndex + 1);
+      final double price = ((m2 - moneyness) * value1 + (moneyness - m1) * value2) / (m2 - m1);
+      final double blackPrice = BlackFormulaRepository.price(forward, k, expiry, impVol, isCall); //TODO not correct
       strikes.add(k);
       impliedVolatilities.add(impVol);
+      prices.add(price);
+      blackPrices.add(blackPrice);
       bsDelta.add(getBSDelta(forward, k, expiry, impVol, isCall));
       bsDualDelta.add(getBSDualDelta(forward, k, expiry, impVol, isCall));
       bsGamma.add(getBSGamma(forward, k, expiry, impVol));
@@ -219,21 +229,24 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
       modelVanna.add(getModelVanna(xVanna, surfaceVanna));
       modelVomma.add(getModelVomma(pdeRes, pdeResVolUp, pdeResVolDown, volShift, i));
     }
-    final PDEGreekResultCollection result = new PDEGreekResultCollection(strikes.toDoubleArray());
-    result.put(PDEGreekResultCollection.GRID_BLACK_DELTA, bsDelta.toDoubleArray());
-    result.put(PDEGreekResultCollection.GRID_BLACK_DUAL_DELTA, bsDualDelta.toDoubleArray());
-    result.put(PDEGreekResultCollection.GRID_BLACK_GAMMA, bsGamma.toDoubleArray());
-    result.put(PDEGreekResultCollection.GRID_BLACK_DUAL_GAMMA, bsDualGamma.toDoubleArray());
-    result.put(PDEGreekResultCollection.GRID_BLACK_VEGA, bsVega.toDoubleArray());
-    result.put(PDEGreekResultCollection.GRID_BLACK_VANNA, bsVanna.toDoubleArray());
-    result.put(PDEGreekResultCollection.GRID_BLACK_VOMMA, bsVomma.toDoubleArray());
-    result.put(PDEGreekResultCollection.GRID_DELTA, modelDelta.toDoubleArray());
-    result.put(PDEGreekResultCollection.GRID_DUAL_DELTA, modelDualDelta.toDoubleArray());
-    result.put(PDEGreekResultCollection.GRID_GAMMA, modelGamma.toDoubleArray());
-    result.put(PDEGreekResultCollection.GRID_DUAL_GAMMA, modelDualGamma.toDoubleArray());
-    result.put(PDEGreekResultCollection.GRID_VEGA, modelVega.toDoubleArray());
-    result.put(PDEGreekResultCollection.GRID_VANNA, modelVanna.toDoubleArray());
-    result.put(PDEGreekResultCollection.GRID_VOMMA, modelVomma.toDoubleArray());
+    final PDEResultCollection result = new PDEResultCollection(strikes.toDoubleArray());
+    result.put(PDEResultCollection.GRID_PRICE, prices.toDoubleArray());
+    result.put(PDEResultCollection.GRID_BLACK_PRICE, blackPrices.toDoubleArray());
+    result.put(PDEResultCollection.GRID_IMPLIED_VOL, impliedVolatilities.toDoubleArray());
+    result.put(PDEResultCollection.GRID_BLACK_DELTA, bsDelta.toDoubleArray());
+    result.put(PDEResultCollection.GRID_BLACK_DUAL_DELTA, bsDualDelta.toDoubleArray());
+    result.put(PDEResultCollection.GRID_BLACK_GAMMA, bsGamma.toDoubleArray());
+    result.put(PDEResultCollection.GRID_BLACK_DUAL_GAMMA, bsDualGamma.toDoubleArray());
+    result.put(PDEResultCollection.GRID_BLACK_VEGA, bsVega.toDoubleArray());
+    result.put(PDEResultCollection.GRID_BLACK_VANNA, bsVanna.toDoubleArray());
+    result.put(PDEResultCollection.GRID_BLACK_VOMMA, bsVomma.toDoubleArray());
+    result.put(PDEResultCollection.GRID_DELTA, modelDelta.toDoubleArray());
+    result.put(PDEResultCollection.GRID_DUAL_DELTA, modelDualDelta.toDoubleArray());
+    result.put(PDEResultCollection.GRID_GAMMA, modelGamma.toDoubleArray());
+    result.put(PDEResultCollection.GRID_DUAL_GAMMA, modelDualGamma.toDoubleArray());
+    result.put(PDEResultCollection.GRID_VEGA, modelVega.toDoubleArray());
+    result.put(PDEResultCollection.GRID_VANNA, modelVanna.toDoubleArray());
+    result.put(PDEResultCollection.GRID_VOMMA, modelVomma.toDoubleArray());
     return result;
   }
 
