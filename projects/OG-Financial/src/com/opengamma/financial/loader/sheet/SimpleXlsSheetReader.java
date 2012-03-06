@@ -42,11 +42,7 @@ public class SimpleXlsSheetReader extends SheetReader {
     Row rawRow = _sheet.getRow(_currentRowNumber++);
     
     // Normalise read-in headers (to lower case) and set as columns
-    String[] columns = new String[rawRow.getPhysicalNumberOfCells()];
-    for (int i = 0; i < rawRow.getPhysicalNumberOfCells(); i++) {
-      columns[i] = getCell(rawRow, i).toLowerCase();
-    }
-    setColumns(columns);
+    setColumns(getColumnNames(rawRow));
   }
   
   public SimpleXlsSheetReader(String filename, String sheetName) {
@@ -59,12 +55,10 @@ public class SimpleXlsSheetReader extends SheetReader {
     Row rawRow = _sheet.getRow(_currentRowNumber++);
 
     // Normalise read-in headers (to lower case) and set as columns
-    String[] columns = new String[rawRow.getPhysicalNumberOfCells()];
-    for (int i = 0; i < rawRow.getPhysicalNumberOfCells(); i++) {
-      columns[i] = getCell(rawRow, i).trim().toLowerCase();
-    }
-    setColumns(columns); 
+    setColumns(getColumnNames(rawRow)); 
   }
+
+  
   
   public SimpleXlsSheetReader(String filename, int sheetIndex, String[] columns) {
     InputStream fileInputStream = openFile(filename);
@@ -92,11 +86,7 @@ public class SimpleXlsSheetReader extends SheetReader {
     Row rawRow = _sheet.getRow(_currentRowNumber++);
     
     // Normalise read-in headers (to lower case) and set as columns
-    String[] columns = new String[rawRow.getPhysicalNumberOfCells()];
-    for (int i = 0; i < rawRow.getPhysicalNumberOfCells(); i++) {
-      columns[i] = getCell(rawRow, i).toLowerCase();
-    }
-    setColumns(columns);
+    setColumns(getColumnNames(rawRow));
   }
   
   public SimpleXlsSheetReader(InputStream inputStream, String sheetName) {
@@ -107,11 +97,7 @@ public class SimpleXlsSheetReader extends SheetReader {
     // Read in the header row
     Row rawRow = _sheet.getRow(_currentRowNumber++);
 
-    // Normalise read-in headers (to lower case) and set as columns
-    String[] columns = new String[rawRow.getPhysicalNumberOfCells()];
-    for (int i = 0; i < rawRow.getPhysicalNumberOfCells(); i++) {
-      columns[i] = getCell(rawRow, i).trim().toLowerCase();
-    }
+    String[] columns = getColumnNames(rawRow);
     setColumns(columns); 
   }
   
@@ -158,10 +144,33 @@ public class SimpleXlsSheetReader extends SheetReader {
 
     return result;
   }
+  
+  
+  /**
+   * @param rawRow
+   * @return
+   */
+  private String[] getColumnNames(Row rawRow) {
+    String[] columns = new String[rawRow.getPhysicalNumberOfCells()];
+    for (int i = 0; i < rawRow.getPhysicalNumberOfCells(); i++) {
+      columns[i] = getCell(rawRow, i).trim().toLowerCase();
+    }
+    return columns;
+  }
+  
+  public static Cell getCellSafe(Row rawRow, int column) {
+     return rawRow.getCell(column, Row.CREATE_NULL_AS_BLANK);
+  }
+  
+  public static String getCell(Row rawRow, int column) {
+      return getCellAsString(getCellSafe(rawRow, column));
+  }
+  
+  public static String getCellAsString(Cell cell) {
 
-  private String getCell(Row rawRow, int column) {
-    Cell cell = rawRow.getCell(column, Row.CREATE_NULL_AS_BLANK);
-    
+    if (cell == null) {
+      return "";
+    }
     switch (cell.getCellType()) {
       case Cell.CELL_TYPE_NUMERIC:
         return Double.toString(cell.getNumericCellValue());
