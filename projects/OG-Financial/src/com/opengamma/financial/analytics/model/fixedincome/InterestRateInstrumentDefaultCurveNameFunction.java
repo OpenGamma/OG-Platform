@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
@@ -16,21 +16,29 @@ import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Dummy function for injecting default curve names into the dependency graph.
  */
 public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPropertyFunction {
-
-  private final String[] _valueNames;
+  private static final String[] s_valueNames = new String[] {
+    InterestRateInstrumentParRateFunction.VALUE_REQUIREMENT,
+    InterestRateInstrumentPresentValueFunction.VALUE_REQUIREMENT, InterestRateInstrumentParRateParallelCurveSensitivityFunction.VALUE_REQUIREMENT,
+    InterestRateInstrumentPV01Function.VALUE_REQUIREMENT, InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.VALUE_REQUIREMENT};
   private final String _forwardCurve;
   private final String _fundingCurve;
+  private final String[] _applicableCurrencyNames;
 
-  public InterestRateInstrumentDefaultCurveNameFunction(final String forwardCurve, final String fundingCurve, final String... valueNames) {
+  public InterestRateInstrumentDefaultCurveNameFunction(final String forwardCurve, final String fundingCurve, final String... applicableCurrencyNames) {
     super(ComputationTargetType.SECURITY, true);
+    ArgumentChecker.notNull(forwardCurve, "forward curve name");
+    ArgumentChecker.notNull(fundingCurve, "funding curve name");
+    ArgumentChecker.notNull(applicableCurrencyNames, "applicable currency names list");
+    ArgumentChecker.notEmpty(applicableCurrencyNames, "applicable currency names list");
     _forwardCurve = forwardCurve;
     _fundingCurve = fundingCurve;
-    _valueNames = valueNames;
+    _applicableCurrencyNames = applicableCurrencyNames;
   }
 
   @Override
@@ -38,12 +46,17 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
     if (!(target.getSecurity() instanceof FinancialSecurity)) {
       return false;
     }
-    return InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) target.getSecurity());
+    for (final String applicableCurrencyName : _applicableCurrencyNames) {
+      if (applicableCurrencyName.equals(target.getUniqueId().getValue())) {
+        return InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) target.getSecurity());
+      }
+    }
+    return false;
   }
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    for (String valueName : _valueNames) {
+    for (final String valueName : s_valueNames) {
       defaults.addValuePropertyName(valueName, YieldCurveFunction.PROPERTY_FORWARD_CURVE);
       defaults.addValuePropertyName(valueName, YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     }

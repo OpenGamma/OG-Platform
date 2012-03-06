@@ -11,7 +11,6 @@ import java.util.Set;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
-import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.property.DefaultPropertyFunction;
@@ -21,19 +20,16 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class InterpolatedYieldCurveDefaultPropertiesFunction extends DefaultPropertyFunction {
-  private final String _curveName;
   private final String _leftExtrapolatorName;
   private final String _rightExtrapolatorName;
   private final String[] _applicableCurrencyNames;
 
-  public InterpolatedYieldCurveDefaultPropertiesFunction(final String curveName, final String leftExtrapolatorName, final String rightExtrapolatorName,
+  public InterpolatedYieldCurveDefaultPropertiesFunction(final String leftExtrapolatorName, final String rightExtrapolatorName,
       final String... applicableCurrencyNames) {
     super(ComputationTargetType.PRIMITIVE, true);
-    ArgumentChecker.notNull(curveName, "curve name");
     ArgumentChecker.notNull(leftExtrapolatorName, "left extrapolator name");
     ArgumentChecker.notNull(rightExtrapolatorName, "right extrapolator name");
     ArgumentChecker.notNull(applicableCurrencyNames, "applicable currency names");
-    _curveName = curveName;
     _leftExtrapolatorName = leftExtrapolatorName;
     _rightExtrapolatorName = rightExtrapolatorName;
     _applicableCurrencyNames = applicableCurrencyNames;
@@ -54,16 +50,12 @@ public class InterpolatedYieldCurveDefaultPropertiesFunction extends DefaultProp
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.YIELD_CURVE, ValuePropertyNames.CURVE);
     defaults.addValuePropertyName(ValueRequirementNames.YIELD_CURVE, InterpolatedYieldCurveFunction.LEFT_EXTRAPOLATOR_NAME);
     defaults.addValuePropertyName(ValueRequirementNames.YIELD_CURVE, InterpolatedYieldCurveFunction.RIGHT_EXTRAPOLATOR_NAME);
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (ValuePropertyNames.CURVE.equals(propertyName)) {
-      return Collections.singleton(_curveName);
-    }
     if (InterpolatedYieldCurveFunction.LEFT_EXTRAPOLATOR_NAME.equals(propertyName)) {
       return Collections.singleton(_leftExtrapolatorName);
     }

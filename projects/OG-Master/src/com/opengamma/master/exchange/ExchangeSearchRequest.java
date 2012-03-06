@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.master.AbstractDocument;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
 import org.joda.beans.JodaBeanUtils;
@@ -27,6 +26,7 @@ import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
+import com.opengamma.master.AbstractDocument;
 import com.opengamma.master.AbstractSearchRequest;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PublicSPI;

@@ -5,9 +5,9 @@
  */
 package com.opengamma.core.change;
 
-import com.opengamma.util.ArgumentChecker;
-
 import java.util.List;
+
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Manager for aggregating entity change events from multiple underlying change managers.

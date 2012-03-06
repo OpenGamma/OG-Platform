@@ -5,15 +5,13 @@
  */
 package com.opengamma.financial.analytics.model.volatility.local;
 
+import static com.opengamma.engine.value.ValuePropertyNames.CURVE;
 import static com.opengamma.engine.value.ValuePropertyNames.CURVE_CALCULATION_METHOD;
-import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR;
-import static com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_H;
-import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_LAMBDA;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS;
+import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE;
 
 import java.util.Collections;
 import java.util.Map;
@@ -37,7 +35,6 @@ import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.volatility.local.DupireLocalVolatilityCalculator;
 import com.opengamma.financial.model.volatility.local.LocalVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
-import com.opengamma.util.money.UnorderedCurrencyPair;
 
 /**
  * 
@@ -51,27 +48,23 @@ public abstract class LocalVolatilitySurfaceFunction extends AbstractFunction.No
     final String surfaceType = desiredValue.getConstraint(PROPERTY_SURFACE_TYPE);
     final String xAxis = desiredValue.getConstraint(PROPERTY_X_AXIS);
     final String yAxis = desiredValue.getConstraint(PROPERTY_Y_AXIS);
-    final String lambdaName = desiredValue.getConstraint(PROPERTY_LAMBDA);
+    final String yAxisType = desiredValue.getConstraint(PROPERTY_Y_AXIS_TYPE);
     final String forwardCurveCalculationMethod = desiredValue.getConstraint(CURVE_CALCULATION_METHOD);
-    final String forwardCurveInterpolator = desiredValue.getConstraint(PROPERTY_FORWARD_CURVE_INTERPOLATOR);
-    final String forwardCurveLeftExtrapolator = desiredValue.getConstraint(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
-    final String forwardCurveRightExtrapolator = desiredValue.getConstraint(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
+    final String forwardCurveName = desiredValue.getConstraint(CURVE);
     final String hName = desiredValue.getConstraint(PROPERTY_H);
     final double h = Double.parseDouble(hName);
-    final Object impliedVolatilitySurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(target, surfaceName, surfaceType, xAxis, yAxis, lambdaName, forwardCurveCalculationMethod,
-        forwardCurveInterpolator, forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator));
+    final Object impliedVolatilitySurfaceObject = inputs.getValue(getVolatilitySurfaceRequirement(target, surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod,
+        forwardCurveName));
     if (impliedVolatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Volatility surface was null");
     }
-    final Object forwardCurveObject = inputs.getValue(getForwardCurveRequirement(target, forwardCurveCalculationMethod, forwardCurveInterpolator, forwardCurveLeftExtrapolator,
-        forwardCurveRightExtrapolator));
+    final Object forwardCurveObject = inputs.getValue(getForwardCurveRequirement(target, forwardCurveCalculationMethod, forwardCurveName));
     if (forwardCurveObject == null) {
       throw new OpenGammaRuntimeException("Forward curve was null");
     }
     final ForwardCurve forwardCurve = (ForwardCurve) forwardCurveObject;
     final BlackVolatilitySurface<?> impliedVolatilitySurface = (BlackVolatilitySurface<?>) impliedVolatilitySurfaceObject;
-    final ValueProperties properties = getResultProperties(surfaceName, surfaceType, xAxis, yAxis, lambdaName, forwardCurveCalculationMethod, hName,
-        forwardCurveInterpolator, forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator);
+    final ValueProperties properties = getResultProperties(surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod, forwardCurveName, hName);
     final DupireLocalVolatilityCalculator calculator = new DupireLocalVolatilityCalculator(h);
     final LocalVolatilitySurface<?> localVolatilitySurface = calculator.getLocalVolatilitySurface(impliedVolatilitySurface, forwardCurve);
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, target.toSpecification(), properties);
@@ -85,7 +78,7 @@ public abstract class LocalVolatilitySurfaceFunction extends AbstractFunction.No
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    return target.getType() == ComputationTargetType.PRIMITIVE && UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    return target.getType() == ComputationTargetType.PRIMITIVE && isCorrectIdType(target);
   }
 
   @Override
@@ -113,8 +106,8 @@ public abstract class LocalVolatilitySurfaceFunction extends AbstractFunction.No
     if (yAxisNames == null || yAxisNames.size() != 1) {
       return null;
     }
-    final Set<String> lambdaNames = constraints.getValues(PROPERTY_LAMBDA);
-    if (lambdaNames == null || lambdaNames.size() != 1) {
+    final Set<String> yAxisTypeNames = constraints.getValues(PROPERTY_Y_AXIS_TYPE);
+    if (yAxisTypeNames == null || yAxisTypeNames.size() != 1) {
       return null;
     }
     final Set<String> hNames = constraints.getValues(PROPERTY_H);
@@ -125,30 +118,20 @@ public abstract class LocalVolatilitySurfaceFunction extends AbstractFunction.No
     if (forwardCurveCalculationMethodNames == null || forwardCurveCalculationMethodNames.size() != 1) {
       return null;
     }
-    final Set<String> forwardCurveInterpolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_INTERPOLATOR);
-    if (forwardCurveInterpolatorNames == null || forwardCurveInterpolatorNames.size() != 1) {
-      return null;
-    }
-    final Set<String> forwardCurveLeftExtrapolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
-    if (forwardCurveLeftExtrapolatorNames == null || forwardCurveLeftExtrapolatorNames.size() != 1) {
-      return null;
-    }
-    final Set<String> forwardCurveRightExtrapolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
-    if (forwardCurveRightExtrapolatorNames == null || forwardCurveRightExtrapolatorNames.size() != 1) {
+    final Set<String> forwardCurveNames = constraints.getValues(CURVE);
+    if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
       return null;
     }
     final String surfaceName = surfaceNames.iterator().next();
     final String surfaceType = surfaceTypeNames.iterator().next();
     final String xAxis = xAxisNames.iterator().next();
     final String yAxis = yAxisNames.iterator().next();
-    final String lambda = lambdaNames.iterator().next();
+    final String yAxisType = yAxisTypeNames.iterator().next();
     final String forwardCurveCalculationMethod = forwardCurveCalculationMethodNames.iterator().next();
-    final String forwardCurveInterpolator = forwardCurveInterpolatorNames.iterator().next();
-    final String forwardCurveLeftExtrapolator = forwardCurveLeftExtrapolatorNames.iterator().next();
-    final String forwardCurveRightExtrapolator = forwardCurveRightExtrapolatorNames.iterator().next();
-    return Sets.newHashSet(getVolatilitySurfaceRequirement(target, surfaceName, surfaceType, xAxis, yAxis, lambda, forwardCurveCalculationMethod,
-        forwardCurveInterpolator, forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator),
-        getForwardCurveRequirement(target, forwardCurveCalculationMethod, forwardCurveInterpolator, forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator));
+    final String forwardCurveName = forwardCurveNames.iterator().next();
+    return Sets.newHashSet(getVolatilitySurfaceRequirement(target, surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod,
+        forwardCurveName),
+        getForwardCurveRequirement(target, forwardCurveCalculationMethod, forwardCurveName));
   }
 
   @Override
@@ -157,11 +140,9 @@ public abstract class LocalVolatilitySurfaceFunction extends AbstractFunction.No
     String surfaceType = null;
     String xAxis = null;
     String yAxis = null;
-    String lambda = null;
+    String yAxisType = null;
     String forwardCurveCalculationMethod = null;
-    String forwardCurveInterpolator = null;
-    String forwardCurveLeftExtrapolator = null;
-    String forwardCurveRightExtrapolator = null;
+    String forwardCurveName = null;
     for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
       final ValueProperties constraints = input.getValue().getConstraints();
       if (input.getValue().getValueName().equals(ValueRequirementNames.FORWARD_CURVE)) {
@@ -172,26 +153,12 @@ public abstract class LocalVolatilitySurfaceFunction extends AbstractFunction.No
           }
           forwardCurveCalculationMethod = forwardCurveCalculationMethodNames.iterator().next();
         }
-        if (constraints.getValues(PROPERTY_FORWARD_CURVE_INTERPOLATOR) != null) {
-          final Set<String> forwardCurveInterpolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_INTERPOLATOR);
-          if (forwardCurveInterpolatorNames == null || forwardCurveInterpolatorNames.size() != 1) {
-            throw new OpenGammaRuntimeException("Missing or non-unique forward curve interpolator name");
+        if (constraints.getValues(CURVE) != null) {
+          final Set<String> forwardCurveNames = constraints.getValues(CURVE);
+          if (forwardCurveNames == null || forwardCurveNames.size() != 1) {
+            throw new OpenGammaRuntimeException("Missing or non-unique forward curve name");
           }
-          forwardCurveInterpolator = forwardCurveInterpolatorNames.iterator().next();
-        }
-        if (constraints.getValues(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR) != null) {
-          final Set<String> forwardCurveLeftExtrapolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
-          if (forwardCurveLeftExtrapolatorNames == null || forwardCurveLeftExtrapolatorNames.size() != 1) {
-            throw new OpenGammaRuntimeException("Missing or non-unique forward curve left extrapolator name");
-          }
-          forwardCurveLeftExtrapolator = forwardCurveLeftExtrapolatorNames.iterator().next();
-        }
-        if (constraints.getValues(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR) != null) {
-          final Set<String> forwardCurveRightExtrapolatorNames = constraints.getValues(PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
-          if (forwardCurveRightExtrapolatorNames == null || forwardCurveRightExtrapolatorNames.size() != 1) {
-            throw new OpenGammaRuntimeException("Missing or non-unique forward curve right extrapolator name");
-          }
-          forwardCurveRightExtrapolator = forwardCurveRightExtrapolatorNames.iterator().next();
+          forwardCurveName = forwardCurveNames.iterator().next();
         }
       } else if (input.getValue().getValueName().equals(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE)) {
         if (constraints.getValues(ValuePropertyNames.SURFACE) != null) {
@@ -222,12 +189,12 @@ public abstract class LocalVolatilitySurfaceFunction extends AbstractFunction.No
           }
           yAxis = yAxisNames.iterator().next();
         }
-        if (constraints.getValues(PROPERTY_LAMBDA) != null) {
-          final Set<String> lambdaNames = constraints.getValues(PROPERTY_LAMBDA);
-          if (lambdaNames == null || lambdaNames.size() != 1) {
-            throw new OpenGammaRuntimeException("Missing or non-unique lambda property name");
+        if (constraints.getValues(PROPERTY_Y_AXIS_TYPE) != null) {
+          final Set<String> yAxisTypeNames = constraints.getValues(PROPERTY_Y_AXIS_TYPE);
+          if (yAxisTypeNames == null || yAxisTypeNames.size() != 1) {
+            throw new OpenGammaRuntimeException("Missing or non-unique y-axis property name");
           }
-          lambda = lambdaNames.iterator().next();
+          yAxisType = yAxisTypeNames.iterator().next();
         }
       }
     }
@@ -235,42 +202,36 @@ public abstract class LocalVolatilitySurfaceFunction extends AbstractFunction.No
     assert surfaceType != null;
     assert xAxis != null;
     assert yAxis != null;
-    assert lambda != null;
+    assert yAxisType != null;
     assert forwardCurveCalculationMethod != null;
-    assert forwardCurveInterpolator != null;
-    assert forwardCurveLeftExtrapolator != null;
-    assert forwardCurveRightExtrapolator != null;
-    final ValueProperties properties = getResultProperties(surfaceName, surfaceType, xAxis, yAxis, lambda, forwardCurveCalculationMethod, forwardCurveInterpolator,
-        forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator);
+    assert forwardCurveName != null;
+    final ValueProperties properties = getResultProperties(surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod, forwardCurveName);
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.LOCAL_VOLATILITY_SURFACE, target.toSpecification(), properties));
   }
 
+  protected abstract boolean isCorrectIdType(final ComputationTarget target);
+
   protected abstract ValueProperties getResultProperties();
 
-  protected abstract ValueProperties getResultProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String lambda,
-      final String forwardCurveCalculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator);
+  protected abstract ValueProperties getResultProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis,
+      final String yAxisType, final String forwardCurveCalculationMethod, final String forwardCurveName);
 
-  protected abstract ValueProperties getResultProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String lambda,
-      final String forwardCurveCalculationMethod, final String h, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator);
+  protected abstract ValueProperties getResultProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis,
+      final String yAxisType, final String forwardCurveCalculationMethod, final String forwardCurveName, final String h);
 
-  protected abstract ValueProperties getSurfaceProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String lambda,
-      final String forwardCurveCalculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator, final String forwardCurveRightExtrapolator);
+  protected abstract ValueProperties getSurfaceProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis,
+      final String yAxisType, final String forwardCurveCalculationMethod, final String forwardCurveName);
 
-  private ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final String calculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
-      final String forwardCurveRightExtrapolator) {
+  private ValueRequirement getForwardCurveRequirement(final ComputationTarget target, final String calculationMethod, final String curveName) {
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod)
-        .with(FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR, forwardCurveInterpolator)
-        .with(FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR, forwardCurveLeftExtrapolator)
-        .with(FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR, forwardCurveRightExtrapolator).get();
+        .with(ValuePropertyNames.CURVE, curveName).get();
     return new ValueRequirement(ValueRequirementNames.FORWARD_CURVE, target.toSpecification(), properties);
   }
 
   private ValueRequirement getVolatilitySurfaceRequirement(final ComputationTarget target, final String definitionName, final String surfaceType, final String xAxis, final String yAxis,
-      final String lambda, final String forwardCurveCalculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
-      final String forwardCurveRightExtrapolator) {
-    final ValueProperties properties = getSurfaceProperties(definitionName, surfaceType, xAxis, yAxis, lambda, forwardCurveCalculationMethod, forwardCurveInterpolator,
-        forwardCurveLeftExtrapolator, forwardCurveRightExtrapolator);
+      final String yAxisType, final String forwardCurveCalculationMethod, final String forwardCurveName) {
+    final ValueProperties properties = getSurfaceProperties(definitionName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod, forwardCurveName);
     return new ValueRequirement(ValueRequirementNames.PIECEWISE_SABR_VOL_SURFACE, target.toSpecification(), properties);
   }
 }

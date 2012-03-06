@@ -54,7 +54,7 @@
 			the call to resolve is not mandatory, retrieve makes an implicit call
 			if we don't
 		-->
-		<ivy:resolve file="${ivy.file}" />
+		<ivy:resolve file="${ivy.file}" log="quiet" />
 		<ivy:retrieve
 			pattern="${lib.dir}/[type]/[organization]/[module]/[artifact]-[revision].[ext]" />
 		<manifestclasspath property="lib.path.mf" jarfile="${lib.path.jar.file}">

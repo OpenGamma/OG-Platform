@@ -11,14 +11,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Types;
 
-import com.opengamma.util.db.DbDateUtils;
+import javax.time.Instant;
+
 import org.hibernate.HibernateException;
 import org.hibernate.type.TimestampType;
 import org.hibernate.usertype.EnhancedUserType;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.time.Instant;
+import com.opengamma.util.db.DbDateUtils;
 
 
 /**

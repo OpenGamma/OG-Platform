@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting.sabr;
 
-import java.util.Arrays;
+import static com.opengamma.math.FunctionUtils.square;
 
-import org.apache.commons.lang.Validate;
+import java.util.Arrays;
 
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
@@ -29,18 +29,18 @@ public class MoneynessPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurface
   private static final PiecewiseSABRFitter1 FITTER = new PiecewiseSABRFitter1();
   private static final Interpolator1D EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
   private final boolean _useLogTime;
-  private final boolean _useIntegratedVar;
-  private final double _lambda;
+  private final boolean _useIntegratedVariance;
+  private final boolean _useLogValue;
 
   /**
    * @param useLogTime The x-axis is the log of time
-   * @param useIntegratedVar the y-points are integrated variance (rather than volatility)
-   * @param lambda zero the strikes are (almost) the same across fitted smiles, large lambda they scale as root-time
+   * @param useIntegratedVariance the y-points are integrated variance (rather than volatility)
+   * @param useLogValue The y-axis values (whether they be variance or integrated variance) are logged
    */
-  public MoneynessPiecewiseSABRSurfaceFitter(final boolean useLogTime, final boolean useIntegratedVar, final double lambda) {
+  public MoneynessPiecewiseSABRSurfaceFitter(final boolean useLogTime, final boolean useIntegratedVariance, final boolean useLogValue) {
     _useLogTime = useLogTime;
-    _useIntegratedVar = useIntegratedVar;
-    _lambda = lambda;
+    _useIntegratedVariance = useIntegratedVariance;
+    _useLogValue = useLogValue;
   }
 
   /**
@@ -55,6 +55,7 @@ public class MoneynessPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurface
    */
   @Override
   public BlackVolatilitySurfaceMoneyness getVolatilitySurface(final SmileSurfaceDataBundle data) {
+    ArgumentChecker.notNull(data, "data");
     ArgumentChecker.isTrue(data.getExpiries().length >= 4, "Need at least four expiries; have {}", data.getExpiries().length);
     final double[] expiries = data.getExpiries();
     final double[] forwards = data.getForwards();
@@ -65,8 +66,10 @@ public class MoneynessPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurface
     //TODO move this out of here - need a way to bump a point on the surface without having to re-fit unaffected slices
     @SuppressWarnings("unchecked")
     final Function1D<Double, Double>[] fitters = new Function1D[nExpiries];
+    final double[] logExpiries = new double[nExpiries];
     for (int i = 0; i < nExpiries; i++) {
       fitters[i] = FITTER.getVolatilityFunction(forwards[i], strikes[i], expiries[i], impliedVols[i]);
+      logExpiries[i] = Math.log(expiries[i]);
     }
 
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
@@ -75,15 +78,24 @@ public class MoneynessPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurface
       public Double evaluate(final Double... tm) {
         final double t = tm[0];
         final double m = tm[1];
-        final double d = -Math.log(m) / Math.sqrt(1 + _lambda * t);
+
+        //For time less than the first expiry, linearly extrapolate the variance
         if (t <= expiries[0]) {
-          final double k1 = forwards[0] * Math.exp(-d * Math.sqrt(1 + _lambda * expiries[0]));
-          return fitters[0].evaluate(k1);
+          final double k1 = forwards[0] * m;
+          final double k2 = forwards[1] * m;
+          final double var1 = square(fitters[0].evaluate(k1));
+          final double var2 = square(fitters[1].evaluate(k2));
+          final double dt = expiries[1] - expiries[0];
+          final double var = ((expiries[1] - t) * var1 + (t - expiries[0]) * var2) / dt;
+          if (var >= 0.0) {
+            return Math.sqrt(var);
+          } else {
+            return Math.sqrt(var1);
+          }
         }
 
         final int index = SurfaceArrayUtils.getLowerBoundIndex(expiries, t);
 
-        //TODO this logic doesn't always work
         int lower;
         if (index == 0) {
           lower = 0;
@@ -94,48 +106,107 @@ public class MoneynessPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurface
         } else {
           lower = index - 1;
         }
-        final double[] times = Arrays.copyOfRange(expiries, lower, lower + 4);
-        double[] xs = new double[4];
-        double x = 0;
+        double[] xData;
+        double x;
         if (_useLogTime) {
-          for (int i = 0; i < 4; i++) {
-            xs[i] = Math.log(times[i]);
-            x = Math.log(t);
-          }
+          xData = Arrays.copyOfRange(logExpiries, lower, lower + 4);
+          x = Math.log(t);
         } else {
-          xs = times;
+          xData = Arrays.copyOfRange(expiries, lower, lower + 4);
           x = t;
         }
 
-        final double[] strikes = new double[4];
-        final double[] vols = new double[4];
-        final double[] intVar = new double[4];
-        double[] y = null;
+        final double[] yData = new double[4];
 
         for (int i = 0; i < 4; i++) {
-          strikes[i] = forwards[lower + i] * Math.exp(-d * Math.sqrt(1 + _lambda * times[i]));
-          vols[i] = fitters[lower + i].evaluate(strikes[i]);
+          final double time = expiries[lower + i];
+          final double k = forwards[lower + i] * Math.pow(m, Math.sqrt(time / t));
+          double temp = square(fitters[lower + i].evaluate(k));
 
-          intVar[i] = vols[i] * vols[i] * times[i];
-          if (_useIntegratedVar) {
-            y = intVar;
-          } else {
-            y = vols;
+          if (_useIntegratedVariance) {
+            temp *= time;
           }
+          if (_useLogValue) {
+            temp = Math.log(temp);
+          }
+          yData[i] = temp;
         }
 
-        final Interpolator1DDataBundle db = EXTRAPOLATOR.getDataBundle(xs, y);
-        double sigma;
+        final Interpolator1DDataBundle db = EXTRAPOLATOR.getDataBundle(xData, yData);
 
-        final double res = EXTRAPOLATOR.interpolate(db, x);
-        if (_useIntegratedVar) {
-          Validate.isTrue(res >= 0.0, "Negative integrated variance");
-          sigma = Math.sqrt(res / t);
-        } else {
-          sigma = res;
+        double tRes = EXTRAPOLATOR.interpolate(db, x);
+        if (_useLogValue) {
+          tRes = Math.exp(tRes);
         }
-        return sigma;
+        if (_useIntegratedVariance) {
+          tRes /= t;
+        }
+
+        return Math.sqrt(tRes);
       }
+      //        final double t = tm[0];
+      //        final double m = tm[1];
+      //        final double d = -Math.log(m) / Math.sqrt(1 + _lambda * t);
+      //        if (t <= expiries[0]) {
+      //          final double k1 = forwards[0] * Math.exp(-d * Math.sqrt(1 + _lambda * expiries[0]));
+      //          return fitters[0].evaluate(k1);
+      //        }
+      //
+      //        final int index = SurfaceArrayUtils.getLowerBoundIndex(expiries, t);
+      //
+      //        //TODO this logic doesn't always work
+      //        int lower;
+      //        if (index == 0) {
+      //          lower = 0;
+      //        } else if (index == nExpiries - 2) {
+      //          lower = index - 2;
+      //        } else if (index == nExpiries - 1) {
+      //          lower = index - 3;
+      //        } else {
+      //          lower = index - 1;
+      //        }
+      //        final double[] times = Arrays.copyOfRange(expiries, lower, lower + 4);
+      //        double[] xs = new double[4];
+      //        double x = 0;
+      //        if (_useLogTime) {
+      //          for (int i = 0; i < 4; i++) {
+      //            xs[i] = Math.log(times[i]);
+      //            x = Math.log(t);
+      //          }
+      //        } else {
+      //          xs = times;
+      //          x = t;
+      //        }
+      //
+      //        final double[] strikes = new double[4];
+      //        final double[] vols = new double[4];
+      //        final double[] intVar = new double[4];
+      //        double[] y = null;
+      //
+      //        for (int i = 0; i < 4; i++) {
+      //          strikes[i] = forwards[lower + i] * Math.exp(-d * Math.sqrt(1 + _lambda * times[i]));
+      //          vols[i] = fitters[lower + i].evaluate(strikes[i]);
+      //
+      //          intVar[i] = vols[i] * vols[i] * times[i];
+      //          if (_useIntegratedVar) {
+      //            y = intVar;
+      //          } else {
+      //            y = vols;
+      //          }
+      //        }
+      //
+      //        final Interpolator1DDataBundle db = EXTRAPOLATOR.getDataBundle(xs, y);
+      //        double sigma;
+      //
+      //        final double res = EXTRAPOLATOR.interpolate(db, x);
+      //        if (_useIntegratedVar) {
+      //          Validate.isTrue(res >= 0.0, "Negative integrated variance");
+      //          sigma = Math.sqrt(res / t);
+      //        } else {
+      //          sigma = res;
+      //        }
+      //        return sigma;
+      //        }
 
       public Object writeReplace() {
         return new InvokedSerializedForm(MoneynessPiecewiseSABRSurfaceFitter.this, "getVolatilitySurface", data);
@@ -150,22 +221,20 @@ public class MoneynessPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurface
   }
 
   public boolean useIntegratedVariance() {
-    return _useIntegratedVar;
+    return _useIntegratedVariance;
   }
 
-  public double getLambda() {
-    return _lambda;
+  public boolean useLogValue() {
+    return _useLogValue;
   }
 
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    long temp;
-    temp = Double.doubleToLongBits(_lambda);
-    result = prime * result + (int) (temp ^ (temp >>> 32));
-    result = prime * result + (_useIntegratedVar ? 1231 : 1237);
+    result = prime * result + (_useIntegratedVariance ? 1231 : 1237);
     result = prime * result + (_useLogTime ? 1231 : 1237);
+    result = prime * result + (_useLogValue ? 1231 : 1237);
     return result;
   }
 
@@ -181,13 +250,13 @@ public class MoneynessPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurface
       return false;
     }
     final MoneynessPiecewiseSABRSurfaceFitter other = (MoneynessPiecewiseSABRSurfaceFitter) obj;
-    if (Double.doubleToLongBits(_lambda) != Double.doubleToLongBits(other._lambda)) {
-      return false;
-    }
-    if (_useIntegratedVar != other._useIntegratedVar) {
+    if (_useIntegratedVariance != other._useIntegratedVariance) {
       return false;
     }
     if (_useLogTime != other._useLogTime) {
+      return false;
+    }
+    if (_useLogValue != other._useLogValue) {
       return false;
     }
     return true;

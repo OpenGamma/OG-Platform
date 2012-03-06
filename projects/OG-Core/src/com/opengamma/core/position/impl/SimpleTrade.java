@@ -5,17 +5,14 @@
  */
 package com.opengamma.core.position.impl;
 
-import com.google.common.collect.Maps;
-import com.opengamma.core.LinkUtils;
-import com.opengamma.core.position.Counterparty;
-import com.opengamma.core.position.Trade;
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.SecurityLink;
-import com.opengamma.core.security.impl.SimpleSecurityLink;
-import com.opengamma.id.MutableUniqueIdentifiable;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.ArgumentChecker;
-import com.opengamma.util.money.Currency;
+import java.io.Serializable;
+import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.Map;
+
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.OffsetTime;
+
 import org.apache.commons.lang.text.StrBuilder;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.BeanDefinition;
@@ -29,12 +26,17 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.OffsetTime;
-import java.io.Serializable;
-import java.math.BigDecimal;
-import java.util.Collections;
-import java.util.Map;
+import com.google.common.collect.Maps;
+import com.opengamma.core.LinkUtils;
+import com.opengamma.core.position.Counterparty;
+import com.opengamma.core.position.Trade;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.SecurityLink;
+import com.opengamma.core.security.impl.SimpleSecurityLink;
+import com.opengamma.id.MutableUniqueIdentifiable;
+import com.opengamma.id.UniqueId;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * A simple mutable implementation of {@code Trade}.

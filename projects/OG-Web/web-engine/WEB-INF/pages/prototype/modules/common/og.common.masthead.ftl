@@ -10,6 +10,5 @@
     <li><a href="index.ftl#/holidays" class="og-holidays">holidays</a></li>
     <li><a href="index.ftl#/regions/" class="og-regions">regions</a></li>
     <li><a href="index.ftl#/configs/" class="og-configs">configurations</a></li>
-    <li><a href="index.ftl#/batches/" class="og-batches">batches</a></li>
   </ul>
 </section>

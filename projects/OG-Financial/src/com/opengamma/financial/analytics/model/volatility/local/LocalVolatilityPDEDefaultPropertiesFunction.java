@@ -22,15 +22,13 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultPropertyFunction {
   private static final String[] REQUIREMENTS = new String[] {ValueRequirementNames.LOCAL_VOLATILITY_FULL_PDE_GRID, ValueRequirementNames.LOCAL_VOLATILITY_PDE_GREEKS,
-    ValueRequirementNames.LOCAL_VOLATILITY_PDE_BUCKETED_VEGA};
+    ValueRequirementNames.LOCAL_VOLATILITY_PDE_BUCKETED_VEGA, ValueRequirementNames.LOCAL_VOLATILITY_FOREX_PV_QUOTES};
   private final String _forwardCurveCalculationMethod;
-  private final String _forwardCurveInterpolator;
-  private final String _forwardCurveLeftExtrapolator;
-  private final String _forwardCurveRightExtrapolator;
+  private final String _forwardCurveName;
   private final String _surfaceType;
   private final String _xAxis;
   private final String _yAxis;
-  private final String _lambda;
+  private final String _yAxisType;
   private final String _surfaceName;
   private final String _h;
   private final String _pdeDirection;
@@ -41,19 +39,16 @@ public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultProperty
   private final String _spaceGridBunching;
   private final String _maxMoneyness;
 
-  public LocalVolatilityPDEDefaultPropertiesFunction(final String forwardCurveCalculationMethod, final String forwardCurveInterpolator, final String forwardCurveLeftExtrapolator,
-      final String forwardCurveRightExtrapolator, final String surfaceType, final String xAxis, final String yAxis, final String lambda, final String surfaceName,
-      final String h, final String pdeDirection, final String theta, final String timeSteps, final String spaceSteps,
+  public LocalVolatilityPDEDefaultPropertiesFunction(final String forwardCurveCalculationMethod, final String forwardCurveName, final String surfaceType, final String xAxis,
+      final String yAxis, final String yAxisType, final String surfaceName, final String h, final String pdeDirection, final String theta, final String timeSteps, final String spaceSteps,
       final String timeGridBunching, final String spaceGridBunching, final String maxMoneyness) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(forwardCurveCalculationMethod, "forward curve calculation method");
-    ArgumentChecker.notNull(forwardCurveInterpolator, "forward curve interpolator");
-    ArgumentChecker.notNull(forwardCurveLeftExtrapolator, "forward curve left extrapolator");
-    ArgumentChecker.notNull(forwardCurveRightExtrapolator, "forward curve right extrapolator");
+    ArgumentChecker.notNull(forwardCurveName, "forward curve name");
     ArgumentChecker.notNull(surfaceType, "surface type");
     ArgumentChecker.notNull(xAxis, "x axis");
     ArgumentChecker.notNull(yAxis, "y axis");
-    ArgumentChecker.notNull(lambda, "lambda");
+    ArgumentChecker.notNull(yAxisType, "y axis type");
     ArgumentChecker.notNull(surfaceName, "surface name");
     ArgumentChecker.notNull(h, "h");
     ArgumentChecker.notNull(pdeDirection, "PDE direction");
@@ -64,13 +59,11 @@ public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultProperty
     ArgumentChecker.notNull(spaceGridBunching, "space grid bunching");
     ArgumentChecker.notNull(maxMoneyness, "maximum moneyness");
     _forwardCurveCalculationMethod = forwardCurveCalculationMethod;
-    _forwardCurveInterpolator = forwardCurveInterpolator;
-    _forwardCurveLeftExtrapolator = forwardCurveLeftExtrapolator;
-    _forwardCurveRightExtrapolator = forwardCurveRightExtrapolator;
+    _forwardCurveName = forwardCurveName;
     _surfaceType = surfaceType;
     _xAxis = xAxis;
     _yAxis = yAxis;
-    _lambda = lambda;
+    _yAxisType = yAxisType;
     _surfaceName = surfaceName;
     _h = h;
     _pdeDirection = pdeDirection;
@@ -85,12 +78,9 @@ public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultProperty
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String requirement : REQUIREMENTS) {
+      defaults.addValuePropertyName(requirement, ValuePropertyNames.CURVE);
       defaults.addValuePropertyName(requirement, ValuePropertyNames.CURVE_CALCULATION_METHOD);
-      defaults.addValuePropertyName(requirement, FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR);
-      defaults.addValuePropertyName(requirement, FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR);
-      defaults.addValuePropertyName(requirement, FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR);
       defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_H);
-      defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_LAMBDA);
       defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_MAX_MONEYNESS);
       defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_PDE_DIRECTION);
       defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_SPACE_GRID_BUNCHING);
@@ -102,6 +92,7 @@ public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultProperty
       defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_TIME_STEPS);
       defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS);
       defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS);
+      defaults.addValuePropertyName(requirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE);
     }
   }
 
@@ -110,20 +101,14 @@ public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultProperty
     if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
       return Collections.singleton(_forwardCurveCalculationMethod);
     }
-    if (FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_INTERPOLATOR.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveInterpolator);
-    }
-    if (FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_LEFT_EXTRAPOLATOR.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveLeftExtrapolator);
-    }
-    if (FXForwardCurveValuePropertyNames.PROPERTY_FORWARD_CURVE_RIGHT_EXTRAPOLATOR.equals(propertyName)) {
-      return Collections.singleton(_forwardCurveRightExtrapolator);
+    if (ValuePropertyNames.CURVE.equals(propertyName)) {
+      return Collections.singleton(_forwardCurveName);
     }
     if (LocalVolatilityPDEValuePropertyNames.PROPERTY_H.equals(propertyName)) {
       return Collections.singleton(_h);
     }
-    if (LocalVolatilityPDEValuePropertyNames.PROPERTY_LAMBDA.equals(propertyName)) {
-      return Collections.singleton(_lambda);
+    if (LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE.equals(propertyName)) {
+      return Collections.singleton(_yAxisType);
     }
     if (LocalVolatilityPDEValuePropertyNames.PROPERTY_MAX_MONEYNESS.equals(propertyName)) {
       return Collections.singleton(_maxMoneyness);
@@ -157,6 +142,9 @@ public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultProperty
     }
     if (LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS.equals(propertyName)) {
       return Collections.singleton(_yAxis);
+    }
+    if (LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE.equals(propertyName)) {
+      return Collections.singleton(_yAxisType);
     }
     return null;
   }

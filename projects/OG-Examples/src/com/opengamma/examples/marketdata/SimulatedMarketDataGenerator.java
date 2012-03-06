@@ -15,6 +15,7 @@ import java.util.Random;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.Lifecycle;
 import org.springframework.core.io.Resource;
 
 import au.com.bytecode.opencsv.CSVReader;
@@ -29,7 +30,7 @@ import com.opengamma.util.tuple.Pair;
  * <identification-scheme>, <identifier-value>, <requirement-name>, <value>
  * typically, for last price, you'd use "Market_Value" @see MarketDataRequirementNames
  */
-public class SimulatedMarketDataGenerator implements Runnable {
+public class SimulatedMarketDataGenerator implements Runnable, Lifecycle {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SimulatedMarketDataGenerator.class);
   private static final int NUM_FIELDS = 4;
@@ -41,7 +42,7 @@ public class SimulatedMarketDataGenerator implements Runnable {
   @SuppressWarnings("unchecked")
   private Pair<ExternalId, String>[] _identifiers = new Pair[0];
   private Thread _backgroundUpdateThread;
-  private volatile boolean _running = true;
+  private volatile boolean _running;
 
   public SimulatedMarketDataGenerator(MarketDataInjector marketDataInjector, Resource initialValuesFile) {
     _marketDataInjector = marketDataInjector;
@@ -83,7 +84,9 @@ public class SimulatedMarketDataGenerator implements Runnable {
     }    
   }
   
+  @Override
   public void start() {
+    _running = true;
     _backgroundUpdateThread = new Thread(this);
     _backgroundUpdateThread.start();
   }
@@ -119,8 +122,14 @@ public class SimulatedMarketDataGenerator implements Runnable {
   /**
    * Stops the generator.
    */
-  public void close() {
+  @Override
+  public void stop() {
     _running = false;
+  }
+
+  @Override
+  public boolean isRunning() {
+    return _running;
   }
 
 }

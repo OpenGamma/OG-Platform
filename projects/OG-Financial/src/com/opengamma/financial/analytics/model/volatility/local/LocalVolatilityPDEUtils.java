@@ -7,7 +7,9 @@ package com.opengamma.financial.analytics.model.volatility.local;
 
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.INTEGRATED_VARIANCE;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.LINEAR_TIME;
+import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.LINEAR_Y;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.LOG_TIME;
+import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.LOG_Y;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.MONEYNESS;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.STRIKE;
 import static com.opengamma.financial.analytics.model.volatility.local.LocalVolatilityPDEValuePropertyNames.VOLATILITY;
@@ -47,5 +49,15 @@ public class LocalVolatilityPDEUtils {
       return false;
     }
     throw new OpenGammaRuntimeException("Could not recognise y-axis property " + property);
+  }
+
+  static boolean useLogValue(final String property) {
+    if (property.equals(LOG_Y)) {
+      return true;
+    }
+    if (property.equals(LINEAR_Y)) {
+      return true;
+    }
+    throw new OpenGammaRuntimeException("Could not recognise y-axis property type " + property);
   }
 }
