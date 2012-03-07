@@ -256,7 +256,7 @@ public abstract class DbTest implements TableCreationCallback {
    * Override this if you wish to do something with the database while it is in its "upgrading" state - e.g. populate with test data
    * at a particular version to test the data transformations on the next version upgrades.
    */
-  public void tablesCreatedOrUpgraded(final String version) {
+  public void tablesCreatedOrUpgraded(final String version, final String prefix) {
     // No action 
   }
 
