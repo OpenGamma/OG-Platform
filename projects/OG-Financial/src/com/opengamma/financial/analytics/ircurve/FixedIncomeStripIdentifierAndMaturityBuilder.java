@@ -220,13 +220,6 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           break;
         case OIS_SWAP:
           security = getOISSwap(curveSpecification, strip, marketValues);
-          //          if (tenor.getPeriod().getYears() != 0) {
-          //            security = getOISSwap(curveSpecification, strip, marketValues);
-          //          } else if ((tenor.getPeriod().getMonths() != 0 && tenor.getPeriod().getMonths() < 12) || tenor.getPeriod().getDays() != 0) {
-          //            security = getOISCash(curveSpecification, strip, marketValues);
-          //          } else {
-          //            throw new OpenGammaRuntimeException("Cannot handle OIS swaps of tenor " + tenor);
-          //          }
           maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
           break;
         default:

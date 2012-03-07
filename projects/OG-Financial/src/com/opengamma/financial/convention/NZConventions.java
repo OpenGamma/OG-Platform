@@ -193,8 +193,10 @@ public class NZConventions {
         modified, quarterly, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD LIBOR 3m"), nz, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD_3M_SWAP")), "NZD_3M_SWAP", act365, modified, semiAnnual, 1, nz,
         act365, modified, quarterly, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD LIBOR 3m"), nz, true);
+    // Overnight Index Swap Convention have additional flag, publicationLag
+    final Integer publicationLag = 0;
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "NZD_OIS_SWAP")), "NZD_OIS_SWAP", act365, modified, annual, 0, nz,
-        act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBNZ CASH DAILY RATE"), nz);
+        act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBNZ CASH DAILY RATE"), nz, true, publicationLag);
 
     //Identifiers for external data 
     conventionMaster.addConventionBundle(

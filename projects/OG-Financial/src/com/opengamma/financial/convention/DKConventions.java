@@ -140,38 +140,17 @@ public class DKConventions {
     conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DETNT/N Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK T/N")),
         "DKK T/N", act360, following, Period.ofDays(1), 1, false, dk);
 
-    //    final DayCount swapFixedDayCount = thirty360;
-    final BusinessDayConvention swapFixedBusinessDay = modified;
-    //    final Frequency swapFixedPaymentFrequency = annual;
-    //    final DayCount swapFloatDayCount = act360;
-    final BusinessDayConvention swapFloatBusinessDay = modified;
-    //    final Frequency swapFloatPaymentFrequency = semiAnnual;
-    //    for (final int i : new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11}) {
-    //      final String bbgOISId = "DKSWT" + MONTH_NAMES[i - 1] + " Curncy";
-    //      final String ogOISName = "DKK OIS " + i + "m";
-    //      final Frequency frequency = PeriodFrequency.of(Period.ofMonths(i));
-    //      conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgOISId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogOISName)),
-    //          ogOISName, act360, swapFixedBusinessDay, frequency, 1, dk, act360, swapFloatBusinessDay, frequency, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK T/N"), dk, true);
-    //    }
-    //    for (int i = 1; i <= 30; i++) {
-    //      final String bbgSwapId = "DKSW" + i + " Curncy";
-    //      final String ogSwapName = "DKK SWAP " + i + "y";
-    //      final String bbgOISId = "DKSWT" + i + " Curncy";
-    //      final String ogOISName = "DKK OIS " + i + "y";
-    //      conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgSwapId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogSwapName)),
-    //          ogSwapName, swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 1, dk, swapFloatDayCount, swapFloatBusinessDay, swapFloatPaymentFrequency, 1,
-    //          ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 6m"), dk, true);
-    //      conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgOISId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogOISName)),
-    //          ogOISName, act360, swapFixedBusinessDay, annual, 1, dk, act360, swapFloatBusinessDay, annual, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK T/N"), dk, true);
-    //    }
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK_SWAP")), "DKK_SWAP", thirty360, modified, annual, 1, dk, act360,
         modified, semiAnnual, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 6m"), dk, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK_3M_SWAP")), "DKK_3M_SWAP", thirty360, modified, annual, 2, dk,
         act360, modified, quarterly, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 3m"), dk, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK_6M_SWAP")), "DKK_6M_SWAP", thirty360, modified, annual, 2, dk,
         act360, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 6m"), dk, true);
+
+    // Overnight Index Swap Convention have additional flag, publicationLag
+    final Integer publicationLag = 0;
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK_OIS_SWAP")), "DKK_OIS_SWAP", act360, modified, annual, 1, dk,
-        act360, modified, annual, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK T/N"), dk, true);
+        act360, modified, annual, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK T/N"), dk, true, publicationLag);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK_IBOR_INDEX")), "DKK_IBOR_INDEX", act360, following, 1, false);
 
     // FRA conventions stored as IRS
@@ -207,34 +186,6 @@ public class DKConventions {
         false, null);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP12M")), "DKKCASHP12M", act360, modified, Period.ofMonths(12), 2,
         false, null);
-    //    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKSWAPP2Y")), "DKKSWAPP2Y", act360, modified, Period.ofYears(2), 2,
-    //        false, null);
-    //    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKSWAPP3Y")), "DKKSWAPP3Y", act360, modified, Period.ofYears(3), 2,
-    //        false, null);
-    //    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKSWAPP4Y")), "DKKSWAPP4Y", act360, modified, Period.ofYears(4), 2,
-    //        false, null);
-    //    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKSWAPP5Y")), "DKKSWAPP5Y", act360, modified, Period.ofYears(5), 2,
-    //        false, null);
-    //    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKSWAPP6Y")), "DKKSWAPP6Y", act360, modified, Period.ofYears(6), 2,
-    //        false, null);
-    //    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKSWAPP7Y")), "DKKSWAPP7Y", act360, modified, Period.ofYears(7), 2,
-    //        false, null);
-    //    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKSWAPP8Y")), "DKKSWAPP8Y", act360, modified, Period.ofYears(8), 2,
-    //        false, null);
-    //    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKSWAPP9Y")), "DKKSWAPP9Y", act360, modified, Period.ofYears(9), 2,
-    //        false, null);
-    //    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKSWAPP10Y")), "DKKSWAPP10Y", act360, modified, Period.ofYears(10), 2,
-    //        false, null);
-    //    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKSWAPP12Y")), "DKKSWAPP12Y", act360, modified, Period.ofYears(12), 2,
-    //        false, null);
-    //    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKSWAPP15Y")), "DKKSWAPP15Y", act360, modified, Period.ofYears(15), 2,
-    //        false, null);
-    //    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKSWAPP20Y")), "DKKSWAPP20Y", act360, modified, Period.ofYears(20), 2,
-    //        false, null);
-    //    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKSWAPP25Y")), "DKKSWAPP25Y", act360, modified, Period.ofYears(25), 2,
-    //        false, null);
-    //    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKSWAPP30Y")), "DKKSWAPP30Y", act360, modified, Period.ofYears(30), 2,
-    //        false, null);
   }
 
   //TODO all of the conventions named treasury need to be changed
