@@ -239,7 +239,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   private static final boolean OUTPUT_REPO_CONFIGURATION = false;
 
-  protected static <F extends FunctionDefinition> FunctionConfiguration functionConfiguration(final Class<F> clazz, String... args) {
+  public static <F extends FunctionDefinition> FunctionConfiguration functionConfiguration(final Class<F> clazz, String... args) {
     if (Modifier.isAbstract(clazz.getModifiers())) {
       throw new IllegalStateException("Attempting to register an abstract class - " + clazz);
     }
@@ -256,12 +256,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SecurityValueFunction.class));
   }
 
-  protected static void addScalingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
+  public static void addScalingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     functionConfigs.add(functionConfiguration(PositionScalingFunction.class, requirementName));
     functionConfigs.add(functionConfiguration(PositionTradeScalingFunction.class, requirementName));
   }
 
-  protected static void addUnitScalingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
+  public static void addUnitScalingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     functionConfigs.add(functionConfiguration(UnitPositionScalingFunction.class, requirementName));
     functionConfigs.add(functionConfiguration(UnitPositionTradeScalingFunction.class, requirementName));
   }
@@ -270,14 +270,14 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(DummyPortfolioNodeMultipleCurrencyAmountFunction.class, requirementName));
   }
 
-  protected static void addSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
+  public static void addSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     functionConfigs.add(functionConfiguration(SummingFunction.class, requirementName));
     functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, requirementName, SummingFunction.AGGREGATION_STYLE_FULL));
   }
 
   // TODO: Is there a reason why we can't just include both the normal and filtered summing functions all the time? Filtering is a lower priority.
 
-  protected static void addFilteredSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
+  public static void addFilteredSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     functionConfigs.add(functionConfiguration(FilteringSummingFunction.class, requirementName));
     functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, requirementName, FilteringSummingFunction.AGGREGATION_STYLE_FILTERED));
   }
