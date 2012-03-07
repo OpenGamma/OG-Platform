@@ -18,15 +18,20 @@ import com.opengamma.engine.marketdata.spec.MarketDataSpecification;
  */
 public class LiveMarketDataProviderFactory implements MarketDataProviderFactory {
 
+  private final MarketDataProvider _defaultProvider;
   private final Map<String, MarketDataProvider> _sourceToProviderMap;
   
-  public LiveMarketDataProviderFactory(Map<String, MarketDataProvider> sourceToProviderMap) {
+  public LiveMarketDataProviderFactory(MarketDataProvider defaultProvider, Map<String, MarketDataProvider> sourceToProviderMap) {
+    _defaultProvider = defaultProvider;
     _sourceToProviderMap = ImmutableMap.copyOf(sourceToProviderMap);
   }
   
   @Override
   public MarketDataProvider create(MarketDataSpecification marketDataSpec) {
     LiveMarketDataSpecification liveSpec = (LiveMarketDataSpecification) marketDataSpec;
+    if (liveSpec.getDataSource() == null) {
+      return _defaultProvider;
+    }
     MarketDataProvider provider = _sourceToProviderMap.get(liveSpec.getDataSource());
     if (provider == null) {
       throw new IllegalArgumentException("No provider found for data source name '" + liveSpec.getDataSource() + "'");
