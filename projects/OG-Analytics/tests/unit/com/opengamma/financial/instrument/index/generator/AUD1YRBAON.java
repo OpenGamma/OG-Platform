@@ -14,17 +14,18 @@ import com.opengamma.financial.instrument.index.GeneratorOIS;
 import com.opengamma.financial.instrument.index.indexon.EONIA;
 
 /**
- * OIS generator for EUR annual payments with EONIA rates.
+ * OIS generator for AUD annual payments with RBA rates.
  */
-public class EUR1YEONIA extends GeneratorOIS {
+public class AUD1YRBAON extends GeneratorOIS {
 
   /**
-   * Constructor of the OIS generator EUR annual payment for Eonia.
-   * @param calendar A EUR calendar.
+   * Constructor of the OIS generator AUD annual payment for RBA ON rates.
+   * @param calendar A AUD calendar.
    */
-  public EUR1YEONIA(final Calendar calendar) {
-    super("EUR1YEONIA", new EONIA(calendar), Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
-        .getBusinessDayConvention("Modified Following"), true, 2, 2);
+  public AUD1YRBAON(final Calendar calendar) {
+    super("AUD1YRBAON", new EONIA(calendar), Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("Actual/365"), BusinessDayConventionFactory.INSTANCE
+        .getBusinessDayConvention("Modified Following"), true, 2, 1);
+    // TODO: Check the spot lag.
   }
 
 }
