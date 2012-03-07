@@ -32,7 +32,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.ircurve.FixedIncomeStripWithSecurity;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
@@ -83,18 +82,11 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
 
   private ValueProperties.Builder createValueProperties(final ComputationTarget target) {
     final Security security = target.getPosition().getSecurity();
+    final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
     final ValueProperties.Builder properties = createValueProperties();
-    FixedIncomeInstrumentCurveExposureHelper.valuePropertiesForSecurity(security, properties);
+    properties.with(ValuePropertyNames.CURRENCY, currency);
+    properties.with(ValuePropertyNames.CURVE_CURRENCY, currency);
     properties.with(ValuePropertyNames.CURVE_CALCULATION_METHOD, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING);
-    return properties;
-  }
-
-  private ValueProperties.Builder createCurrencyValueProperties(final ComputationTarget target) {
-    final RawSecurity security = (RawSecurity) target.getPosition().getSecurity();
-    final SecurityEntryData securityEntryData = RawSecurityUtils.decodeSecurityEntryData(security);
-    final Currency ccy = securityEntryData.getCurrency();
-    final ValueProperties.Builder properties = createValueProperties(target);
-    properties.with(ValuePropertyNames.CURRENCY, ccy.getCode());
     return properties;
   }
 
@@ -102,7 +94,6 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties.Builder properties = createValueProperties(target);
     properties.withAny(ValuePropertyNames.CURVE);
-    properties.withAny(ValuePropertyNames.CURRENCY);
     final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(2);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     results.add(new ValueSpecification(YCNS_REQUIREMENT, targetSpec, properties.get()));
@@ -112,7 +103,6 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-
     final Set<String> curves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
     if ((curves == null) || (curves.size() != 1)) {
       s_logger.warn("no curve specified, just returning requirements for external sensitivities");
@@ -140,8 +130,8 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
         assert curveName == null;
         curveName = input.getKey().getProperty(ValuePropertyNames.CURVE);
         assert curveName != null;
-        final ValueProperties.Builder properties = createCurrencyValueProperties(target);
-        properties.with(ValuePropertyNames.CURVE, curveName);       
+        final ValueProperties.Builder properties = createValueProperties(target);
+        properties.with(ValuePropertyNames.CURVE, curveName);
         results.add(new ValueSpecification(YCNS_REQUIREMENT, targetSpec, properties.get()));
       }
     }
@@ -179,7 +169,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     interpolatedCurves.put(curveName, curve);
     final YieldCurveBundle bundle = new YieldCurveBundle(interpolatedCurves);
     final DoubleMatrix1D sensitivitiesForCurves = getSensitivities(executionContext.getSecuritySource(), inputs, security, curveSpec, curve);
-    final ValueProperties.Builder properties = createCurrencyValueProperties(target);
+    final ValueProperties.Builder properties = createValueProperties(target);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ValueSpecification resultSpec = new ValueSpecification(YCNS_REQUIREMENT, targetSpec, properties.with(ValuePropertyNames.CURVE, curveName).get());
     final Set<ComputedValue> results = YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(curveName, bundle, sensitivitiesForCurves, curveSpec, resultSpec);
