@@ -254,24 +254,24 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
   private FRASecurity getFRA(final InterpolatedYieldCurveSpecification spec, final FixedIncomeStripWithIdentifier strip, final Map<ExternalId, Double> marketValues, final Tenor tenor) {
     final ExternalId fraIdentifier = strip.getSecurity();
     final int months = tenor.getPeriod().getMonths();
-    final ConventionBundle convention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_" + months
+    final ConventionBundle fraConvention = _conventionBundleSource.getConventionBundle(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_" + months
         + "M_FRA"));
-    if (convention == null) {
+    if (fraConvention == null) {
       throw new OpenGammaRuntimeException("Could not get convention for " + fraIdentifier + ": tried "
           + ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, spec.getCurrency().getCode() + "_" + months + "M_FRA"));
     }
-    final ExternalId underlyingIdentifier = convention.getSwapFloatingLegInitialRate();
+    final ExternalId underlyingIdentifier = fraConvention.getSwapFloatingLegInitialRate();
     final ConventionBundle iborConvention = _conventionBundleSource.getConventionBundle(underlyingIdentifier);
     final Period fraPeriod = iborConvention.getPeriod();
     final Currency ccy = spec.getCurrency();
     final BusinessDayConvention businessDayConvention = iborConvention.getBusinessDayConvention();
     final boolean eom = iborConvention.isEOMConvention();
-    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, convention.getSwapFloatingLegRegion());
-    final ZonedDateTime curveDate = spec.getCurveDate().atStartOfDayInZone(TimeZone.UTC);
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, fraConvention.getSwapFloatingLegRegion());
+    final ZonedDateTime curveDate = spec.getCurveDate().atStartOfDayInZone(TimeZone.UTC); // TODO: review?
     final ZonedDateTime spotDate = ScheduleCalculator.getAdjustedDate(curveDate, iborConvention.getSettlementDays(), calendar);
     final Period endPeriod = strip.getMaturity().getPeriod();
     final ZonedDateTime endDate = ScheduleCalculator.getAdjustedDate(spotDate, endPeriod, businessDayConvention, calendar, eom);
-    final Period startPeriod = endPeriod.minus(fraPeriod).normalized();
+    final Period startPeriod = endPeriod.minus(fraPeriod).normalized(); // TODO: check period >0?
     final ZonedDateTime startDate = ScheduleCalculator.getAdjustedDate(spotDate, startPeriod, businessDayConvention, calendar, eom);
     final ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(startDate, -iborConvention.getSettlementDays(), calendar);
     return new FRASecurity(ccy, spec.getRegion(), startDate, endDate, marketValues.get(strip.getSecurity()), 1.0d, underlyingIdentifier, fixingDate);
@@ -308,12 +308,12 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
       throw new OpenGammaRuntimeException("rate was null on " + strip + " from " + spec);
     }
     final double fixedRate = rate;
-    final FloatingInterestRateLeg oisLeg = new FloatingInterestRateLeg(swapConvention.getSwapFloatingLegDayCount(), swapConvention.getSwapFloatingLegFrequency(),
+    final FloatingInterestRateLeg iborLeg = new FloatingInterestRateLeg(swapConvention.getSwapFloatingLegDayCount(), swapConvention.getSwapFloatingLegFrequency(),
         swapConvention.getSwapFloatingLegRegion(), swapConvention.getSwapFloatingLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, floatingRateId,
         FloatingRateType.IBOR);
     final FixedInterestRateLeg fixedLeg = new FixedInterestRateLeg(swapConvention.getSwapFixedLegDayCount(), swapConvention.getSwapFixedLegFrequency(), swapConvention.getSwapFixedLegRegion(),
         swapConvention.getSwapFixedLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, fixedRate);
-    final SwapSecurity swap = new SwapSecurity(curveDate, spotDate, maturityDate, counterparty, oisLeg, fixedLeg);
+    final SwapSecurity swap = new SwapSecurity(curveDate, spotDate, maturityDate, counterparty, iborLeg, fixedLeg);
     swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
   }

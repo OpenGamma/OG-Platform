@@ -266,11 +266,10 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefi
     // FIXME: convert frequency to period in a better way
     final Frequency freq = floatLeg.getFrequency();
     final Period tenor = getTenor(freq);
-    final ConventionBundle floatingLegConvention = _conventionSource.getConventionBundle(floatLeg.getFloatingReferenceRateId());
-    if (floatingLegConvention == null) {
+    final ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatLeg.getFloatingReferenceRateId());
+    if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Could not get convention for " + floatLeg.getFloatingReferenceRateId());
     }
-    final ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatingLegConvention.getSwapFloatingLegInitialRate());
     final IborIndex index = new IborIndex(currency, tenor, indexConvention.getSettlementDays(), calendar, indexConvention.getDayCount(), indexConvention.getBusinessDayConvention(),
         indexConvention.isEOMConvention());
     return AnnuityCouponIborDefinition.from(effectiveDate, maturityDate, notional, index, isPayer, floatLeg.getBusinessDayConvention(), floatLeg.isEom());

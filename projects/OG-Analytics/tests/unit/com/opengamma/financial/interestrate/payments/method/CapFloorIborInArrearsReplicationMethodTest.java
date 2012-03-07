@@ -103,8 +103,9 @@ public class CapFloorIborInArrearsReplicationMethodTest {
     final CapFloorIbor capStandard = new CapFloorIbor(CUR, CAP_LONG.getFixingPeriodEndTime(), FUNDING_CURVE_NAME, CAP_LONG.getPaymentYearFraction(), NOTIONAL, CAP_LONG.getFixingTime(), INDEX,
         CAP_LONG.getFixingPeriodStartTime(), CAP_LONG.getFixingPeriodEndTime(), CAP_LONG.getFixingYearFraction(), FORWARD_CURVE_NAME, STRIKE, IS_CAP);
     final double priceStandard = PVC.visit(capStandard, SABR_BUNDLE);
-    final double beta = CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodStartTime()) / CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodEndTime())
-        * CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodEndTime()) / CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodStartTime());
+    final double beta = CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodStartTime())
+        / CURVES.getCurve(FORWARD_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodEndTime()) * CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodEndTime())
+        / CURVES.getCurve(FUNDING_CURVE_NAME).getDiscountFactor(CAP_LONG.getFixingPeriodStartTime());
     final double strikePart = (1.0 + CAP_LONG.getFixingYearFraction() * STRIKE) * priceStandard;
     final RungeKuttaIntegrator1D integrator = new RungeKuttaIntegrator1D(1.0, 1E-8, 10);
     final InArrearsIntegrant integrant = new InArrearsIntegrant(METHOD_SABREXTRA_STD, capStandard, SABR_BUNDLE);
@@ -160,7 +161,6 @@ public class CapFloorIborInArrearsReplicationMethodTest {
     long startTime, endTime;
     final int nbTest = 100;
     final double[] prices = new double[nbTest];
-    @SuppressWarnings("unused")
     double sum = 0.0;
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {

@@ -60,7 +60,8 @@ public class FixedIncomeConverterDataProvider {
     _conventionSource = conventionSource;
   }
 
-  public InstrumentDerivative convert(final Security security, final InstrumentDefinition<?> definition, final ZonedDateTime now, final String[] curveNames, final HistoricalTimeSeriesSource dataSource) {
+  public InstrumentDerivative convert(final Security security, final InstrumentDefinition<?> definition, final ZonedDateTime now, final String[] curveNames, 
+      final HistoricalTimeSeriesSource dataSource) {
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition to convert was null for security " + security);
     }
