@@ -89,12 +89,12 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
   public String getInstrumentType() {
     return _instrumentType;
   }
-  
+
   /**
    * Gets the quote type field.
    * @return the quote type
    */
-  public String getQuoteType () {
+  public String getQuoteType() {
     return _quoteType;
   }
 
@@ -152,7 +152,7 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
    */
   @Override
   public int hashCode() {
-    return _target.hashCode () ^ _name.hashCode () ^ _instrumentType.hashCode () ^ _quoteType.hashCode ();
+    return _target.hashCode() ^ _name.hashCode() ^ _instrumentType.hashCode() ^ _quoteType.hashCode();
   }
 
   //-------------------------------------------------------------------------
