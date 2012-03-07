@@ -207,8 +207,10 @@ public class JPConventions {
         act360, modified, quarterly, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "JPY LIBOR 3m"), jp, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "JPY_6M_SWAP")), "JPY_6M_SWAP", act365, modified, semiAnnual, 2, jp,
         act360, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "JPY LIBOR 6m"), jp, true);
+    // Overnight Index Swap Convention have additional flag, publicationLag
+    final Integer publicationLag = 0; // TODO CASE PublicationLag JPY - Confirm 0
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "JPY_OIS_SWAP")), "JPY_OIS_SWAP", act365, modified, annual, 2, jp,
-        act365, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "JPY TONAR"), jp);
+        act365, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "JPY TONAR"), jp, true, publicationLag);
     conventionMaster
         .addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "JPY_OIS_CASH")), "JPY_OIS_CASH", act365, following, null, 2, false, null);
 

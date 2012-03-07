@@ -211,13 +211,6 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
           break;
         case OIS_SWAP:
           security = getOISSwap(curveSpecification, strip, marketValues);
-          //          if (tenor.getPeriod().getYears() != 0) {
-          //            security = getOISSwap(curveSpecification, strip, marketValues);
-          //          } else if ((tenor.getPeriod().getMonths() != 0 && tenor.getPeriod().getMonths() < 12) || tenor.getPeriod().getDays() != 0) {
-          //            security = getOISCash(curveSpecification, strip, marketValues);
-          //          } else {
-          //            throw new OpenGammaRuntimeException("Cannot handle OIS swaps of tenor " + tenor);
-          //          }
           maturity = curveDate.plus(strip.getMaturity().getPeriod()).atTime(11, 00).atZone(TimeZone.UTC);
           break;
         default:
@@ -292,8 +285,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     if (floatingRateId == null) {
       throw new OpenGammaRuntimeException("Could not get + " + floatingRateId + " from convention");
     }
-    final ConventionBundle floatRateConvention = _conventionBundleSource.getConventionBundle(floatingRateId);
-    final ExternalId floatRateBloombergTicker = floatRateConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
+    final ExternalId floatRateTicker = strip.getSecurity();
     if (rate == null) {
       throw new OpenGammaRuntimeException("rate was null on " + strip + " from " + spec);
     }
@@ -301,7 +293,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     // REVIEW: jim 25-Aug-2010 -- we need to change the swap to take settlement days.
     final SwapSecurity swap = new SwapSecurity(tradeDate, effectiveDate, maturityDate, counterparty, new FloatingInterestRateLeg(convention.getSwapFloatingLegDayCount(),
         convention.getSwapFloatingLegFrequency(), convention.getSwapFloatingLegRegion(), convention.getSwapFloatingLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false,
-        floatRateBloombergTicker, FloatingRateType.IBOR), new FixedInterestRateLeg(convention.getSwapFixedLegDayCount(), convention.getSwapFixedLegFrequency(), convention.getSwapFixedLegRegion(),
+        floatRateTicker, FloatingRateType.IBOR), new FixedInterestRateLeg(convention.getSwapFixedLegDayCount(), convention.getSwapFixedLegFrequency(), convention.getSwapFixedLegRegion(),
             convention.getSwapFixedLegBusinessDayConvention(), new InterestRateNotional(spec.getCurrency(), 1), false, fixedRate));
     swap.setExternalIdBundle(ExternalIdBundle.of(swapIdentifier));
     return swap;
@@ -366,8 +358,7 @@ public class FixedIncomeStripIdentifierAndMaturityBuilder {
     if (floatRateConvention == null) {
       throw new OpenGammaRuntimeException("Could not get convention for id " + convention.getSwapFloatingLegInitialRate());
     }
-    final ExternalId floatRateTicker = strip.getSecurity();
-//    final ExternalId floatRateBloombergTicker = floatRateConvention.getIdentifiers().getExternalId(SecurityUtils.BLOOMBERG_TICKER);
+    final ExternalId floatRateTicker = convention.getSwapFloatingLegInitialRate();
     if (rate == null) {
       throw new OpenGammaRuntimeException("rate was null on " + strip + " from " + spec);
     }

@@ -237,8 +237,10 @@ public class EUConventions {
           2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu, true);
     }
     for (int i = 1; i <= 50; i++) {
-      final String bbgSwapId = "EUSA" + i + " Curncy";
-      final String ogSwapName = "EUR SWAP " + i + "y";
+      final String bbg6MSwapId = "EUSA" + i + " Curncy";
+      final String og6MSwapName = "EUR SWAP " + i + "y";
+      final String bbg3MSwapId = "EUSW" + i + "V3 Curncy";
+      final String og3MSwapName = "EUR SWAP 3m " + i + "y";
       final String bbgOISId = "EUSWE" + i + " Curncy";
       final String ogOISName = "EUR OIS " + i + "y";
       conventionMaster.addConventionBundle(
@@ -246,9 +248,13 @@ public class EUConventions {
           act360, swapFixedBusinessDay, annual, 2, eu, swapFloatDayCount, swapFloatBusinessDay, annual,
           2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR EONIA"), eu, true);
       conventionMaster.addConventionBundle(
-          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbgSwapId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, ogSwapName)), ogSwapName,
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbg6MSwapId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, og6MSwapName)), og6MSwapName,
           swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, swapFloatDayCount, swapFloatBusinessDay, swapFloatPaymentFrequency,
           2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu, true);
+      conventionMaster.addConventionBundle(
+          ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId(bbg3MSwapId), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, og3MSwapName)), og3MSwapName,
+          swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, swapFloatDayCount, swapFloatBusinessDay, quarterly,
+          2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"), eu, true);
     }
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_SWAP")), "EUR_SWAP", thirty360, modified, annual, 2, eu, act360,
         modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu, true);
@@ -256,8 +262,11 @@ public class EUConventions {
         act360, modified, quarterly, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"), eu, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_6M_SWAP")), "EUR_6M_SWAP", thirty360, modified, annual, 2, eu,
         act360, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu, true);
+
+    // Overnight Index Swap Convention have additional flag, publicationLag
+    final Integer publicationLag = 0;
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_OIS_SWAP")), "EUR_OIS_SWAP", act360, modified, annual, 2, eu,
-        act360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR EONIA"), eu);
+        act360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR EONIA"), eu, true, publicationLag);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_IR_FUTURE")), "EUR_IR_FUTURE", act360, modified, Period.ofMonths(3),
         2, true, null);
     //TODO Check this, it's just copied from the US one.
