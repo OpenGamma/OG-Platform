@@ -31,21 +31,28 @@ public final class ConfigurationFactoryBean extends SingletonFactoryBean<Configu
   private boolean _failOnInvalidURI;
   private boolean _failOnMissingConfiguration;
 
+  //-------------------------------------------------------------------------
+  public String getConfigurationURI() {
+    return getConfigurationTarget().getURI().toString();
+  }
+
   public void setConfigurationURI(final String configurationURI) {
     ArgumentChecker.notNull(configurationURI, "configurationURI");
     setConfigurationTarget(new RestTarget(configurationURI));
   }
 
-  public String getConfigurationURI() {
-    return getConfigurationTarget().getURI().toString();
+  //-------------------------------------------------------------------------
+  public int getConfigurationTaxonomy() {
+    return getConfigurationTarget().getTaxonomyId();
   }
 
   public void setConfigurationTaxonomy(final int taxonomyId) {
     setConfigurationTarget(getConfigurationTarget().withTaxonomyId(taxonomyId));
   }
 
-  public int getConfigurationTaxonomy() {
-    return getConfigurationTarget().getTaxonomyId();
+  //-------------------------------------------------------------------------
+  public RestTarget getConfigurationTarget() {
+    return _configurationTarget;
   }
 
   public void setConfigurationTarget(final RestTarget configurationTarget) {
@@ -53,8 +60,9 @@ public final class ConfigurationFactoryBean extends SingletonFactoryBean<Configu
     _configurationTarget = configurationTarget;
   }
 
-  public RestTarget getConfigurationTarget() {
-    return _configurationTarget;
+  //-------------------------------------------------------------------------
+  public FudgeContext getFudgeContext() {
+    return _fudgeContext;
   }
 
   public void setFudgeContext(final FudgeContext fudgeContext) {
@@ -62,28 +70,26 @@ public final class ConfigurationFactoryBean extends SingletonFactoryBean<Configu
     _fudgeContext = fudgeContext;
   }
 
-  public FudgeContext getFudgeContext() {
-    return _fudgeContext;
+  //-------------------------------------------------------------------------
+  public boolean isFailOnInvalidURI() {
+    return _failOnInvalidURI;
   }
 
   public void setFailOnInvalidURI(final boolean failOnInvalidURI) {
     _failOnInvalidURI = failOnInvalidURI;
   }
 
-  public boolean isFailOnInvalidURI() {
-    return _failOnInvalidURI;
+  //-------------------------------------------------------------------------
+  public boolean isFailOnMissingConfiguration() {
+    return _failOnMissingConfiguration;
   }
 
   public void setFailOnMissingConfiguration(final boolean failOnMissingConfiguration) {
     _failOnMissingConfiguration = failOnMissingConfiguration;
   }
 
-  public boolean isFailOnMissingConfiguration() {
-    return _failOnMissingConfiguration;
-  }
-
+  //-------------------------------------------------------------------------
   // SingletonFactoryBean
-
   @Override
   protected Configuration createObject() {
     ArgumentChecker.notNull(getConfigurationTarget(), "configurationTarget");
