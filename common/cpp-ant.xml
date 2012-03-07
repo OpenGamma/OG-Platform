@@ -41,10 +41,12 @@
     <condition property="cpp.headers.present">
       <isset property="cpp.headers.present.ant" />
     </condition>
+    <delete file="${cpp.headers.present.ant}" failonerror="false" />
+    <delete file="${cpp.obj.dir}/dependencies.xml" failonerror="false" />
   </target>
 
-  <target name="cpp-compile-debug-ant" unless="cpp.disable.debug">
-    <antcall target="cpp-compile">
+  <target name="cpp-compile-debug-ant" if="cpp.headers.present.ant" unless="cpp.disable.debug">
+    <antcall target="cpp-compile-ant" inheritrefs="true">
       <param name="cpp.configuration" value="${cc.debug.configuration}" />
       <param name="cc.debug" value="true" />
       <param name="cc.multithreaded" value="${cc.multithreaded.debug}" />
@@ -55,8 +57,8 @@
       <param name="cc.lib.dir" value="${cc.lib.dir.debug}" />
     </antcall>
   </target>
-  <target name="cpp-compile-release-ant" unless="cpp.disable.release">
-    <antcall target="cpp-compile">
+  <target name="cpp-compile-release-ant" if="cpp.headers.present.ant" unless="cpp.disable.release">
+    <antcall target="cpp-compile-ant" inheritrefs="true">
       <param name="cpp.configuration" value="${cc.release.configuration}" />
       <param name="cc.debug" value="false" />
       <param name="cc.multithreaded" value="${cc.multithreaded.release}" />
@@ -68,12 +70,15 @@
     </antcall>
   </target>
 
-  <target name="cpp-compile-check" />
-  
-  <target name="cpp-compile" depends="cpp-compile-check" unless="cpp.disable.current">
+  <target name="cpp-compile-ant-before">
     <property name="cpp.output" value="${cpp.configuration}" />
     <property name="cpp.output.dir" value="${cpp.out.dir}/${cpp.output}" />
     <property name="cpp.object.dir" value="${cpp.obj.dir}/${cpp.output}" />
+  </target>
+  <target name="cpp-compile-check" /> 
+  <target name="cpp-compile-ant" depends="cpp-compile-ant-before,cpp-compile-check" unless="cpp.disable.current">
+    <mkdir dir="${cpp.output.dir}" />
+    <mkdir dir="${cpp.object.dir}" />
     <condition property="cc.debug.true">
       <equals arg1="${cc.debug}" arg2="true" />
     </condition>
@@ -107,10 +112,31 @@
       <libset dir="${cc.lib.dir}" libs="${cc.lib.external}" if="cc.lib.external" />
       <libset libs="${cc.lib.default}" if="cc.lib.default" />
     </cc>
-    <antcall target="compile-after" />
+    <antcall target="cpp-compile-after" />
+  </target>
+  <target name="cpp-compile-after" />
+
+  <target name="cpp-publish-debug-ant" if="cpp.present.ant">
+    <antcall target="cpp-publish">
+      <param name="cpp.output" value="${cc.debug.configuration}" />
+    </antcall>
+  </target>
+  <target name="cpp-publish-release-ant" if="cpp.present.ant">
+    <antcall target="cpp-publish">
+      <param name="cpp.output" value="${cc.release.configuration}" />
+    </antcall>
   </target>
 
-  <target name="cpp-compile-after" />
+  <target name="cpp-clean-debug-ant">
+    <antcall target="cpp-clean">
+      <param name="cpp.output" value="${cc.debug.configuration}" />
+    </antcall>
+  </target>
+  <target name="cpp-clean-release-ant">
+    <antcall target="cpp-clean">
+      <param name="cpp.output" value="${cc.release.configuration}" />
+    </antcall>
+  </target>
 
   <target name="unpack-resolve-ant" />
 

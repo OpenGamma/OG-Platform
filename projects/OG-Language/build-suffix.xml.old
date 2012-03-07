@@ -1,6 +1,7 @@
 <project name="build-suffix" xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <import file="${common.dir}/version.xml" />
+  <import file="${common.dir}/cpp.xml" />
 
   <path id="build.path">
     <path refid="java.build.path" />
@@ -9,100 +10,11 @@
     <path refid="javatest.build.path" />
   </path>
 
-  <macrodef name="unpack-zip">
-    <attribute name="org" />
-    <attribute name="name" />
-    <attribute name="type" />
-    <sequential>
-      <unzip dest="${lib.dir}/@{type}" overwrite="false">
-        <fileset dir="${lib.dir}/@{type}/@{org}/@{name}">
-          <include name="*.zip" />
-        </fileset>
-      </unzip>
-    </sequential>
-  </macrodef>
-  <macrodef name="unpack-dll">
-    <attribute name="org" />
-    <attribute name="name" />
-    <attribute name="file" />
-    <attribute name="debug" default="" />
-    <attribute name="release" default="" />
-    <attribute name="win32" default="" />
-    <attribute name="x64" default="" />
-    <sequential>
-      <copy tofile="${lib.dir}/dll/DebugWin32/@{file}@{win32}@{debug}.dll" overwrite="false">
-        <fileset dir="${lib.dir}/dll/@{org}/@{name}">
-          <include name="@{name}-DebugWin32-*.dll" />
-        </fileset>
-      </copy>
-      <copy tofile="${lib.dir}/dll/ReleaseWin32/@{file}@{win32}@{release}.dll" overwrite="false">
-        <fileset dir="${lib.dir}/dll/@{org}/@{name}">
-          <include name="@{name}-ReleaseWin32-*.dll" />
-        </fileset>
-      </copy>
-      <copy tofile="${lib.dir}/dll/Debugx64/@{file}@{x64}@{debug}.dll" overwrite="false">
-        <fileset dir="${lib.dir}/dll/@{org}/@{name}">
-          <include name="@{name}-Debugx64-*.dll" />
-        </fileset>
-      </copy>
-      <copy tofile="${lib.dir}/dll/Releasex64/@{file}@{x64}@{release}.dll" overwrite="false">
-        <fileset dir="${lib.dir}/dll/@{org}/@{name}">
-          <include name="@{name}-Releasex64-*.dll" />
-        </fileset>
-      </copy>
-    </sequential>
-  </macrodef>
-  <macrodef name="unpack-lib">
-    <attribute name="org" />
-    <attribute name="name" />
-    <attribute name="file" />
-    <sequential>
-      <copy tofile="${lib.dir}/lib/DebugWin32/@{file}.lib" overwrite="false">
-        <fileset dir="${lib.dir}/lib/@{org}/@{name}">
-          <include name="@{name}-DebugWin32-*.lib" />
-        </fileset>
-      </copy>
-      <copy tofile="${lib.dir}/lib/ReleaseWin32/@{file}.lib" overwrite="false">
-        <fileset dir="${lib.dir}/lib/@{org}/@{name}">
-          <include name="@{name}-ReleaseWin32-*.lib" />
-        </fileset>
-      </copy>
-      <copy tofile="${lib.dir}/lib/Debugx64/@{file}.lib" overwrite="false">
-        <fileset dir="${lib.dir}/lib/@{org}/@{name}">
-          <include name="@{name}-Debugx64-*.lib" />
-        </fileset>
-      </copy>
-      <copy tofile="${lib.dir}/lib/Releasex64/@{file}.lib" overwrite="false">
-        <fileset dir="${lib.dir}/lib/@{org}/@{name}">
-          <include name="@{name}-Releasex64-*.lib" />
-        </fileset>
-      </copy>
-    </sequential>
-  </macrodef>
-  <condition property="is.windows" value="true"><os family="windows" /></condition>
-  <target name="unpack-resolve-impl-posix" unless="is.windows">
-    <mkdir dir="${lib.dir}/lib/Debug" />
-    <mkdir dir="${lib.dir}/lib/Release" />
-  </target>
-  <target name="unpack-resolve-impl-windows" if="is.windows">
-    <ivy:artifactproperty name="[organization].[module].[type]" value="[revision]" />
-    <antcall target="unpack-resolve-impl-windows2" />
-  </target>
-  <target name="unpack-resolve-impl-windows2" if="org.fudgemsg.fudge-c.lib">
-    <unpack-dll org="org.fudgemsg" name="fudge-c" file="libfudgec" debug="d" x64="X64" />
-    <unpack-zip org="org.fudgemsg" name="fudge-c" type="include" />
-    <unpack-lib org="org.fudgemsg" name="fudge-c" file="libfudgec" />
-    <unpack-dll org="org.apache" name="log4cxx" file="log4cxx" />
-    <unpack-zip org="org.apache" name="log4cxx" type="include" />
-    <unpack-lib org="org.apache" name="log4cxx" file="log4cxx" />
-    <unpack-dll org="org.apache" name="apr" file="apr" />
-    <unpack-dll org="org.apache" name="apr-util" file="aprutil" />
-  </target>
-  <target name="unpack-resolve" depends="resolve,unpack-resolve-impl-posix,unpack-resolve-impl-windows" description="Unpacks include files and Windows binaries" />
-
   <condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}"><os family="windows" /></condition>
   <condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}"><not><isset property="env.IVY_SHARED_DEFAULT_ROOT" /></not></condition>
   <import file="${common.dir}/common-ivy.xml" />
+
+  <target name="unpack-resolve" depends="resolve,cpp.unpack-resolve" />
 
   <target name="deploy-jars">
     <mkdir dir="${build.dir}/jar" />
@@ -189,22 +101,6 @@ opengamma.configuration.failOnMissing=${opengamma.configuration.failOnMissing}
         pubdate="${now}"
         status="integration"
         forcedeliver="true" />
-  </target>
-
-  <target name="dist" depends="compile">
-    <mkdir dir="${dist.dir}" />
-    <mkdir dir="${dist.dir}/bin" />
-    <mkdir dir="${dist.dir}/include" />
-    <mkdir dir="${dist.dir}/lib" />
-    <subant target="dist" buildpathref="java.build.path" antfile="build.parent-invoked.xml">
-      <property name="wkspace.dir" value="${wkspace.dir}" />
-    </subant>
-    <subant target="dist" buildpathref="cc.build.path">
-      <property name="wkspace.dir" value="${wkspace.dir}" />
-    </subant>
-    <zip destfile="${dist.dir}/${ant.project.name}-bin.zip" basedir="${dist.dir}/bin" whenempty="create" />
-    <zip destfile="${dist.dir}/${ant.project.name}-include.zip" basedir="${dist.dir}/include" whenempty="create" />
-    <zip destfile="${dist.dir}/${ant.project.name}-lib.zip" basedir="${dist.dir}/lib" whenempty="create" />
   </target>
 
   <target name="tarball" depends="dist">

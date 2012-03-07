@@ -1,0 +1,23 @@
+<project name="core-cpp" xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks">
+
+  <property file="${basedir}/build.properties" />
+  <property file="${solution.dir}/build.properties" />
+  <import file="${common.dir}/cpp.xml" />
+
+  <target name="cpp-define-extra">
+    <cpptasks:defineset id="cpp.define.extra" />
+  </target>
+  <target name="cpp-include-extra">
+    <cpptasks:cc>
+      <includepath id="cpp.include.extra" />
+    </cpptasks:cc>
+  </target>
+  <target name="cpp-present" depends="cpp.cpp-present,cpp-define-extra,cpp-include-extra" />
+
+  <target name="compile" depends="cpp-compile-all" />
+
+  <target name="dist-publish" depends="cpp-publish-all" />
+
+  <target name="clean" depends="cpp-clean-all" />
+
+</project>

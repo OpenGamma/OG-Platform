@@ -1,7 +1,0 @@
-<project name="client">
-	<import file="build.impl.xml" />
-	<!-- Suppress the default targets -->
-	<target name="clean-lib" />
-	<target name="load-ivy" />
-	<target name="resolve" />
-</project>

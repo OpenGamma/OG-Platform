@@ -1,0 +1,34 @@
+<project name="core" default="compile">
+
+  <!-- Caller must define cc.build.path -->
+
+  <property file="${basedir}/build.properties" />
+
+  <import file="${common.dir}/common.xml" />
+  <import file="${common.dir}/advanced-installer.xml" />
+  <import file="${common.dir}/version.xml" />
+
+  <target name="clean" depends="common.clean,clean-installer" />
+
+  <target name="clean-installer">
+    <delete dir="${solution.dir}/Installer/setup-cache" />
+  </target>
+
+  <target name="fudge-proto" depends="common.fudge-proto">
+    <subant buildpath="${java.dir}" target="fudge-proto" inheritall="true" />
+  </target>
+
+  <target name="compile-src" depends="common.compile-src,version-cpp-header">
+    <subant buildpathref="cc.build.path" target="compile" inheritall="true" />
+  </target>
+
+  <target name="clean-build" depends="common.clean-build">
+    <subant buildpathref="cc.build.path" target="clean" inheritall="true" />
+  </target>
+
+  <target name="installer" depends="ai-present,module-build-number" if="ai.present" description="Builds the windows installation packages (assumes a dist-publish has already been done and Advanced Installer is available)">
+    <ai-set-version version="${module.version.msi}.${module.build.number}" />
+    <ai-build />
+  </target>
+
+</project>

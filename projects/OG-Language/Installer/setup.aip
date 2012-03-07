@@ -298,8 +298,8 @@
     <ROW BootstrOptKey="GlobalOptions" GeneralOptions="o" EulaPathLocId="*" IntroTextPathLocId="*"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BuildComponent">
-    <ROW BuildKey="MSI_32" BuildName="MSI_32" BuildOrder="1" BuildType="1" PackageFolder="." PackageFileName="OG-Language-[|ProductVersion]-32-bit" Languages="en" InstallationType="4"/>
-    <ROW BuildKey="MSI_64" BuildName="MSI_64" BuildOrder="2" BuildType="1" PackageFolder="." PackageFileName="OG-Language-[|ProductVersion]-64-bit" Languages="en" InstallationType="4" MsiPackageType="x64"/>
+    <ROW BuildKey="MSI_32" BuildName="MSI_32" BuildOrder="1" BuildType="1" PackageFolder="..\dist\og-language\install" PackageFileName="OG-Language-[|ProductVersion]-32-bit" Languages="en" InstallationType="4"/>
+    <ROW BuildKey="MSI_64" BuildName="MSI_64" BuildOrder="2" BuildType="1" PackageFolder="..\dist\og-language\install" PackageFileName="OG-Language-[|ProductVersion]-64-bit" Languages="en" InstallationType="4" MsiPackageType="x64"/>
     <ATTRIBUTE name="CurrentBuild" value="MSI_32"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.DictionaryComponent">
