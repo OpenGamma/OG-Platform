@@ -49,8 +49,9 @@ public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunc
     if (!(target.getTrade().getSecurity() instanceof InterestRateFutureSecurity)) {
       return false;
     }
+    final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
     for (final String applicableCurrencyName : _applicableCurrencyNames) {
-      if (applicableCurrencyName.equals(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())) {
+      if (applicableCurrencyName.equals(currency)) {
         return true;
       }
     }
