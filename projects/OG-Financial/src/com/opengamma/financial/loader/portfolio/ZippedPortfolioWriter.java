@@ -53,7 +53,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
 
     _toolContext = toolContext;
 
-    // TODO confirm file doesn't already exist
+    // Confirm file doesn't already exist
     File file = new File(filename);
     if (file.exists()) {
       throw new OpenGammaRuntimeException("File " + filename + " already exists");
@@ -228,15 +228,16 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
       s_logger.info("Creating a new row parser for " + className + " securities");
 
       parser = RowParser.newRowParser(className, _toolContext);
-
       if (parser == null) {
         return null;
       }
+      Map<String, RowParser> parserMap = new HashMap<String, RowParser>();
+      parserMap.put(className, parser);
 
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       SheetWriter sheet = new CsvSheetWriter(out, parser.getColumns());
 
-      _currentWriter = new SingleSheetPortfolioWriter(sheet, new RowParser[] {parser });
+      _currentWriter = new SingleSheetPortfolioWriter(sheet, parserMap);
 
       _writerMap.put(className, _currentWriter);
       _bufferMap.put(className, out);
