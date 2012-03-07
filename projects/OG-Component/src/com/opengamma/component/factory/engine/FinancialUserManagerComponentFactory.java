@@ -25,7 +25,6 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
-import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveDefinitionMaster;
 import com.opengamma.financial.user.DefaultFinancialUsersTracker;
 import com.opengamma.financial.user.FinancialUserManager;
@@ -85,7 +84,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
    * The view definition master.
    */
   @PropertyDefinition(validate = "notNull")
-  private ViewDefinitionRepository _viewDefinitionMaster;
+  private ManageableViewDefinitionRepository _viewDefinitionMaster;
   /**
    * The yield curve definition master.
    */
@@ -111,7 +110,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
     services.setUserPositionMaster(getPositionMaster());
     services.setUserPortfolioMaster(getPortfolioMaster());
     services.setUserSnapshotMaster(getSnapshotMaster());
-    services.setUserViewDefinitionRepository((ManageableViewDefinitionRepository) getViewDefinitionMaster());
+    services.setUserViewDefinitionRepository(getViewDefinitionMaster());
     services.setUserInterpolatedYieldCurveDefinitionMaster(getYieldCurveDefinitionMaster());
     DefaultFinancialUsersTracker tracker = new DefaultFinancialUsersTracker(services);
     FinancialUserManager manager = new FinancialUserManager(services, tracker, tracker);
@@ -198,7 +197,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
         setSnapshotMaster((MarketDataSnapshotMaster) newValue);
         return;
       case -1939319206:  // viewDefinitionMaster
-        setViewDefinitionMaster((ViewDefinitionRepository) newValue);
+        setViewDefinitionMaster((ManageableViewDefinitionRepository) newValue);
         return;
       case -354852073:  // yieldCurveDefinitionMaster
         setYieldCurveDefinitionMaster((InterpolatedYieldCurveDefinitionMaster) newValue);
@@ -452,7 +451,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
    * Gets the view definition master.
    * @return the value of the property, not null
    */
-  public ViewDefinitionRepository getViewDefinitionMaster() {
+  public ManageableViewDefinitionRepository getViewDefinitionMaster() {
     return _viewDefinitionMaster;
   }
 
@@ -460,7 +459,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
    * Sets the view definition master.
    * @param viewDefinitionMaster  the new value of the property, not null
    */
-  public void setViewDefinitionMaster(ViewDefinitionRepository viewDefinitionMaster) {
+  public void setViewDefinitionMaster(ManageableViewDefinitionRepository viewDefinitionMaster) {
     JodaBeanUtils.notNull(viewDefinitionMaster, "viewDefinitionMaster");
     this._viewDefinitionMaster = viewDefinitionMaster;
   }
@@ -469,7 +468,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
    * Gets the the {@code viewDefinitionMaster} property.
    * @return the property, not null
    */
-  public final Property<ViewDefinitionRepository> viewDefinitionMaster() {
+  public final Property<ManageableViewDefinitionRepository> viewDefinitionMaster() {
     return metaBean().viewDefinitionMaster().createProperty(this);
   }
 
@@ -597,8 +596,8 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
     /**
      * The meta-property for the {@code viewDefinitionMaster} property.
      */
-    private final MetaProperty<ViewDefinitionRepository> _viewDefinitionMaster = DirectMetaProperty.ofReadWrite(
-        this, "viewDefinitionMaster", FinancialUserManagerComponentFactory.class, ViewDefinitionRepository.class);
+    private final MetaProperty<ManageableViewDefinitionRepository> _viewDefinitionMaster = DirectMetaProperty.ofReadWrite(
+        this, "viewDefinitionMaster", FinancialUserManagerComponentFactory.class, ManageableViewDefinitionRepository.class);
     /**
      * The meta-property for the {@code yieldCurveDefinitionMaster} property.
      */
@@ -742,7 +741,7 @@ public class FinancialUserManagerComponentFactory extends AbstractComponentFacto
      * The meta-property for the {@code viewDefinitionMaster} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ViewDefinitionRepository> viewDefinitionMaster() {
+    public final MetaProperty<ManageableViewDefinitionRepository> viewDefinitionMaster() {
       return _viewDefinitionMaster;
     }
 
