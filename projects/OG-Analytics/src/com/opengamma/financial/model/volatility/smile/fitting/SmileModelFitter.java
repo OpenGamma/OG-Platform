@@ -99,8 +99,11 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   public LeastSquareResultsWithTransform solve(final DoubleMatrix1D start, final NonLinearParameterTransforms transform) {
     final NonLinearTransformFunction transFunc = new NonLinearTransformFunction(getModelValueFunction(), getModelJacobianFunction(), transform);
 
+    //debug
+    //    final int n = start.getNumberOfElements();
+    //    final DoubleMatrix1D maxJumps = new DoubleMatrix1D(n, 0.1);
     final LeastSquareResults solRes = SOLVER.solve(_marketValues, _errors, transFunc.getFittingFunction(), transFunc.getFittingJacobian(),
-        transform.transform(start), getConstraintFunction(transform));
+        transform.transform(start), getConstraintFunction(transform)/*, maxJumps*/);
     return new LeastSquareResultsWithTransform(solRes, transform);
   }
 
@@ -135,7 +138,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
 
   protected abstract T toSmileModelData(final DoubleMatrix1D modelParameters);
 
-  protected Function1D<DoubleMatrix1D, Boolean> getConstraintFunction(final  NonLinearParameterTransforms t) {
+  protected Function1D<DoubleMatrix1D, Boolean> getConstraintFunction(@SuppressWarnings("unused") final NonLinearParameterTransforms t) {
     return UNCONSTRAINED;
   }
 

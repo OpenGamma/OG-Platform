@@ -56,4 +56,5 @@ public class FRASecurityConverter implements FRASecurityVisitor<InstrumentDefini
         fraConvention.isEOMConvention());
     return ForwardRateAgreementDefinition.from(accrualStartDate, accrualEndDate, notional, iborIndex, security.getRate());
   }
+  
 }

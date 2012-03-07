@@ -31,9 +31,6 @@ import javax.ws.rs.core.Response;
 import javax.ws.rs.core.UriBuilder;
 import javax.ws.rs.core.UriInfo;
 
-import com.opengamma.web.server.push.rest.MasterType;
-import com.opengamma.web.server.push.rest.Subscribe;
-import com.opengamma.web.server.push.rest.SubscribeMaster;
 import org.apache.commons.lang.StringUtils;
 import org.joda.beans.impl.flexi.FlexiBean;
 import org.slf4j.Logger;
@@ -56,6 +53,9 @@ import com.opengamma.master.historicaltimeseries.ManageableHistoricalTimeSeries;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.web.WebPaging;
+import com.opengamma.web.server.push.rest.MasterType;
+import com.opengamma.web.server.push.rest.Subscribe;
+import com.opengamma.web.server.push.rest.SubscribeMaster;
 import com.sun.jersey.api.client.ClientResponse.Status;
 
 /**

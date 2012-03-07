@@ -29,7 +29,8 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
+import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.forex.method.FXMatrix;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
@@ -165,7 +166,7 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     }
     final ValueProperties surfaceProperties = ValueProperties
         .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE).get();
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX).get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(putCurrency, callCurrency);
     final ValueRequirement fxVolatilitySurfaceRequirement = new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
     final Object volatilitySurfaceObject = inputs.getValue(fxVolatilitySurfaceRequirement);
@@ -188,9 +189,9 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    return target.getSecurity() instanceof FXOptionSecurity || 
-      target.getSecurity() instanceof FXBarrierOptionSecurity ||
-      target.getSecurity() instanceof FXDigitalOptionSecurity;
+    return target.getSecurity() instanceof FXOptionSecurity ||
+        target.getSecurity() instanceof FXBarrierOptionSecurity ||
+        target.getSecurity() instanceof FXDigitalOptionSecurity;
   }
 
   @Override
@@ -243,7 +244,34 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-    final ValueProperties.Builder properties = getResultProperties(target);
+    String putFundingCurveName = null;
+    String putForwardCurveName = null;
+    String callFundingCurveName = null;
+    String callForwardCurveName = null;
+    String surfaceName = null;
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+      final ValueSpecification spec = entry.getKey();
+      if (spec.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
+        if (spec.getTargetSpecification().getUniqueId().equals(putCurrency.getUniqueId())) {
+          putFundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+          putForwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+        } else if (spec.getTargetSpecification().getUniqueId().equals(callCurrency.getUniqueId())) {
+          callFundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+          callForwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+        }
+      } else if (spec.getValueName().equals(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA)) {
+        surfaceName = spec.getProperty(ValuePropertyNames.SURFACE);
+      }
+    }
+    assert putFundingCurveName != null;
+    assert putForwardCurveName != null;
+    assert callFundingCurveName != null;
+    assert callForwardCurveName != null;
+    assert surfaceName != null;
+    final ValueProperties.Builder properties = getResultProperties(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName, target);
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));
   }
 
@@ -294,9 +322,9 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
   }
 
   protected ValueRequirement getSurfaceRequirement(final String surfaceName, final Currency putCurrency, final Currency callCurrency) {
-    final ValueProperties surfaceProperties = ValueProperties
+    final ValueProperties surfaceProperties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE).get();
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX).get();
     final UnorderedCurrencyPair currenciesTarget = UnorderedCurrencyPair.of(putCurrency, callCurrency);
     return new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
   }

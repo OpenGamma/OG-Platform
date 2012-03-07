@@ -35,13 +35,14 @@ public class InterestRateInstrumentPresentValueFunction extends InterestRateInst
 
   @Override
   public Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle,
-      final FinancialSecurity security, final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {
+      final FinancialSecurity security, final ComputationTarget target, final String forwardCurveName, final String fundingCurveName,
+      final String curveCalculationMethod, final String currency) {
     Double presentValue = CALCULATOR.visit(derivative, bundle);
     if (security instanceof BondSecurity) {
-      BondSecurity bondSec = (BondSecurity) security;
+      final BondSecurity bondSec = (BondSecurity) security;
       presentValue = presentValue * bondSec.getParAmount();
     }
-    return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName), presentValue));
+    return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency), presentValue));
   }
 
 }

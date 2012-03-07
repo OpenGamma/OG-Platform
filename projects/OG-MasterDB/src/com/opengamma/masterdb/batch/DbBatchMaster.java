@@ -5,8 +5,37 @@
  */
 package com.opengamma.masterdb.batch;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.opengamma.util.db.DbUtil.eqOrIsNull;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
+import org.hibernate.criterion.Restrictions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.ResultSetExtractor;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
+import org.springframework.orm.hibernate3.HibernateCallback;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.TransactionCallback;
+
 import com.opengamma.DataNotFoundException;
-import com.opengamma.batch.*;
+import com.opengamma.batch.BatchMasterWriter;
+import com.opengamma.batch.RunCreationMode;
+import com.opengamma.batch.SnapshotMode;
 import com.opengamma.batch.domain.MarketData;
 import com.opengamma.batch.domain.MarketDataValue;
 import com.opengamma.batch.domain.RiskRun;
@@ -28,32 +57,6 @@ import com.opengamma.util.db.DbMapSqlParameterSource;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.tuple.Pair;
-import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
-import org.hibernate.Session;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Projections;
-import org.hibernate.criterion.Restrictions;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.dao.DataAccessException;
-import org.springframework.jdbc.core.ResultSetExtractor;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
-import org.springframework.orm.hibernate3.HibernateCallback;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.TransactionCallback;
-
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.opengamma.util.db.DbUtil.eqOrIsNull;
 
 public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter {
 

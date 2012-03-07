@@ -5,11 +5,11 @@
  */
 package com.opengamma.util.db;
 
+import java.sql.SQLException;
+
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
-
-import java.sql.SQLException;
 
 public class DbUtil {
   /**

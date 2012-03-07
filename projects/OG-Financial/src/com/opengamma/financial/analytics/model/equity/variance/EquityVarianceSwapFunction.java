@@ -35,7 +35,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.equity.EquityVarianceSwapConverter;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.equity.variance.VarianceSwapDataBundle;
 import com.opengamma.financial.equity.variance.definition.VarianceSwapDefinition;
 import com.opengamma.financial.equity.variance.derivative.VarianceSwap;
@@ -165,7 +165,7 @@ public abstract class EquityVarianceSwapFunction extends AbstractFunction.NonCom
 
   private ValueRequirement getVolatilitySurfaceRequirement(final EquityVarianceSwapSecurity security) {
     final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, _surfaceDefinitionName)
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION")
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, "EQUITY_OPTION")
         .withAny(STRIKE_PARAMETERIZATION_METHOD)//, _strikeParameterizationMethodName)
         .get();
     final ExternalId id = security.getSpotUnderlyingId();

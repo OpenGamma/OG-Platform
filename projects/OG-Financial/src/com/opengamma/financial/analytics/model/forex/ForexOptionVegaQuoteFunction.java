@@ -14,8 +14,8 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.VegaMatrixHelper;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.forex.calculator.PresentValueForexVegaQuoteSensitivityCalculator;
 import com.opengamma.financial.forex.method.PresentValueVolatilityQuoteSensitivityDataBundle;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
@@ -49,7 +49,7 @@ public class ForexOptionVegaQuoteFunction extends ForexOptionFunction {
         .withAny(PROPERTY_CALL_FUNDING_CURVE_NAME)
         .withAny(PROPERTY_CALL_FORWARD_CURVE_NAME)
         .withAny(PROPERTY_FX_VOLATILITY_SURFACE_NAME)
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE);
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX);
   }
 
   @Override
@@ -61,6 +61,6 @@ public class ForexOptionVegaQuoteFunction extends ForexOptionFunction {
         .with(PROPERTY_CALL_FUNDING_CURVE_NAME, callFundingCurveName)
         .with(PROPERTY_CALL_FORWARD_CURVE_NAME, callForwardCurveName)
         .with(PROPERTY_FX_VOLATILITY_SURFACE_NAME, surfaceName)
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, ForexVolatilitySurfaceFunction.INSTRUMENT_TYPE);
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX);
   }
 }

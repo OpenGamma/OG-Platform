@@ -12,7 +12,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.examples.tool.AbstractTool;
+import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -34,7 +34,7 @@ import com.opengamma.master.security.SecuritySearchResult;
  * some bond securities, so you typically need some static market data lookup 
  * service.
  */
-public class ExampleBondPortfolioLoader extends AbstractTool {
+public class ExampleBondPortfolioLoader extends AbstractExampleTool {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(ExampleBondPortfolioLoader.class);
@@ -52,9 +52,7 @@ public class ExampleBondPortfolioLoader extends AbstractTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    if (init()) {
-      new ExampleBondPortfolioLoader().run();
-    }
+    new ExampleBondPortfolioLoader().initAndRun(args);
     System.exit(0);
   }
 

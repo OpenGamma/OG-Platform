@@ -20,7 +20,7 @@ public class ForexLocalVolatilityFullPDEFunction extends ForexLocalVolatilityPDE
   @Override
   protected Object getResult(final LocalVolatilityForwardPDEGreekCalculator<?> calculator, final LocalVolatilitySurface<?> localVolatilitySurface,
       final ForwardCurve forwardCurve, final SmileSurfaceDataBundle data, final EuropeanVanillaOption option) {
-    return calculator.solve(data, localVolatilitySurface, option);
+    return calculator.solve(data, localVolatilitySurface);
   }
 
   @Override

@@ -228,6 +228,14 @@ public interface ConventionBundle extends UniqueIdentifiable {
   ExternalId getBasisSwapReceiveFloatingLegRegion();
 
   /**
+   * Gets the PublicationLag for an OvernightIndexSwap Rate. 
+   * 0 if rate is published on the day corresponding to that day's interest accrual
+   * 1 if rate is published on the day *following* its corresponding interest accrual period
+   * @return the OvernightIndexSwapPublicationLag
+   */
+  Integer getOvernightIndexSwapPublicationLag();
+
+  /**
    * Whether or not the convention for payments is end-of-month or not.
    * In other words, if the maturity is on the last day of a month, are all other payments.
    * @return if the convention is EOM

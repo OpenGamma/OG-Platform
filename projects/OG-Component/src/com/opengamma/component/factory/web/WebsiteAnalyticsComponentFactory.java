@@ -23,7 +23,6 @@ import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.ViewProcessor;
 import com.opengamma.financial.aggregation.PortfolioAggregationFunctions;
 import com.opengamma.financial.view.ManageableViewDefinitionRepository;
@@ -67,7 +66,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
    * The user master.
    */
   @PropertyDefinition(validate = "notNull")
-  private ViewDefinitionRepository _userViewDefinitionRepository;
+  private ManageableViewDefinitionRepository _userViewDefinitionRepository;
   /**
    * The underlying master.
    */
@@ -103,7 +102,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
     bean.setSecuritySource(getSecuritySource());
     bean.setUserPortfolioMaster(getUserPortfolioMaster());
     bean.setUserPositionMaster(getUserPositionMaster());
-    bean.setUserViewDefinitionRepository((ManageableViewDefinitionRepository) getUserViewDefinitionRepository());
+    bean.setUserViewDefinitionRepository(getUserViewDefinitionRepository());
     bean.setSnapshotMaster(getSnapshotMaster());
     bean.setPortfolioAggregators(getPortfolioAggregationFunctions());
     bean.setUser(getUser());
@@ -113,6 +112,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
     bean.setExecutorService(execBean.getObjectCreating());
     
     WebAnalyticsResource resource = new WebAnalyticsResource(bean);
+    repo.registerServletContextAware(resource);
     repo.getRestComponents().publishResource(resource);
   }
 
@@ -177,7 +177,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
         setUserPortfolioMaster((PortfolioMaster) newValue);
         return;
       case -1371772371:  // userViewDefinitionRepository
-        setUserViewDefinitionRepository((ViewDefinitionRepository) newValue);
+        setUserViewDefinitionRepository((ManageableViewDefinitionRepository) newValue);
         return;
       case -2046916282:  // snapshotMaster
         setSnapshotMaster((MarketDataSnapshotMaster) newValue);
@@ -360,7 +360,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
    * Gets the user master.
    * @return the value of the property, not null
    */
-  public ViewDefinitionRepository getUserViewDefinitionRepository() {
+  public ManageableViewDefinitionRepository getUserViewDefinitionRepository() {
     return _userViewDefinitionRepository;
   }
 
@@ -368,7 +368,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
    * Sets the user master.
    * @param userViewDefinitionRepository  the new value of the property, not null
    */
-  public void setUserViewDefinitionRepository(ViewDefinitionRepository userViewDefinitionRepository) {
+  public void setUserViewDefinitionRepository(ManageableViewDefinitionRepository userViewDefinitionRepository) {
     JodaBeanUtils.notNull(userViewDefinitionRepository, "userViewDefinitionRepository");
     this._userViewDefinitionRepository = userViewDefinitionRepository;
   }
@@ -377,7 +377,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
    * Gets the the {@code userViewDefinitionRepository} property.
    * @return the property, not null
    */
-  public final Property<ViewDefinitionRepository> userViewDefinitionRepository() {
+  public final Property<ManageableViewDefinitionRepository> userViewDefinitionRepository() {
     return metaBean().userViewDefinitionRepository().createProperty(this);
   }
 
@@ -544,8 +544,8 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
     /**
      * The meta-property for the {@code userViewDefinitionRepository} property.
      */
-    private final MetaProperty<ViewDefinitionRepository> _userViewDefinitionRepository = DirectMetaProperty.ofReadWrite(
-        this, "userViewDefinitionRepository", WebsiteAnalyticsComponentFactory.class, ViewDefinitionRepository.class);
+    private final MetaProperty<ManageableViewDefinitionRepository> _userViewDefinitionRepository = DirectMetaProperty.ofReadWrite(
+        this, "userViewDefinitionRepository", WebsiteAnalyticsComponentFactory.class, ManageableViewDefinitionRepository.class);
     /**
      * The meta-property for the {@code snapshotMaster} property.
      */
@@ -672,7 +672,7 @@ public class WebsiteAnalyticsComponentFactory extends AbstractComponentFactory {
      * The meta-property for the {@code userViewDefinitionRepository} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ViewDefinitionRepository> userViewDefinitionRepository() {
+    public final MetaProperty<ManageableViewDefinitionRepository> userViewDefinitionRepository() {
       return _userViewDefinitionRepository;
     }
 

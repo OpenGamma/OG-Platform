@@ -54,4 +54,153 @@ public class MixedLogNormalVolatilityFunction extends VolatilityFunctionProvider
     return forward * sum;
   }
 
+  @Override
+  public Function1D<MixedLogNormalModelData, double[]> getVolatilityAdjointFunction(final EuropeanVanillaOption option, final double forward) {
+    Validate.notNull(option, "option");
+    final double strike = option.getStrike();
+    final double expiry = option.getTimeToExpiry();
+
+    return new Function1D<MixedLogNormalModelData, double[]>() {
+      @Override
+      public double[] evaluate(final MixedLogNormalModelData data) {
+        return getVolatilityAjoint(forward, strike, expiry, data);
+      }
+    };
+  }
+
+  @Override
+  public Function1D<MixedLogNormalModelData, double[][]> getVolatilityAdjointFunction(final double forward, final double[] strikes, final double timeToExpiry) {
+    return getVolatilityAdjointFunctionByCallingSingleStrikes(forward, strikes, timeToExpiry);
+  }
+
+  @Override
+  public Function1D<MixedLogNormalModelData, double[]> getModelAdjointFunction(final EuropeanVanillaOption option, final double forward) {
+    Validate.notNull(option, "option");
+    final double strike = option.getStrike();
+    final double expiry = option.getTimeToExpiry();
+
+    return new Function1D<MixedLogNormalModelData, double[]>() {
+      @Override
+      public double[] evaluate(final MixedLogNormalModelData data) {
+        return getModelAjoint(forward, strike, expiry, data);
+      }
+    };
+  }
+
+  @Override
+  public Function1D<MixedLogNormalModelData, double[][]> getModelAdjointFunction(final double forward, final double[] strikes, final double timeToExpiry) {
+    return getModelAdjointFunctionByCallingSingleStrikes(forward, strikes, timeToExpiry);
+  }
+
+  private double[] getVolatilityAjoint(final double forward, final double strike, final double expiry, final MixedLogNormalModelData data) {
+
+    final int nParms = data.getNumberOfparameters();
+    final boolean isCall = strike >= forward;
+
+    final double[] sigmas = data.getVolatilities();
+    final double[] rFwds = data.getRelativeForwards();
+    final double[] w = data.getWeights();
+    final int n = sigmas.length;
+    final double[] deltas = new double[n];
+    final double[] dualDeltas = new double[n];
+    for (int i = 0; i < n; i++) {
+      final double f = forward * rFwds[i];
+      deltas[i] = BlackFormulaRepository.delta(f, strike, expiry, sigmas[i], isCall);
+      dualDeltas[i] = BlackFormulaRepository.dualDelta(f, strike, expiry, sigmas[i], isCall);
+    }
+
+    final double impVol = getVolatility(new EuropeanVanillaOption(strike, expiry, isCall), forward, data);
+    final double vega = BlackFormulaRepository.vega(forward, strike, expiry, impVol);
+    final double delta = BlackFormulaRepository.delta(forward, strike, expiry, impVol, isCall);
+    final double dualDelta = BlackFormulaRepository.dualDelta(forward, strike, expiry, impVol, isCall);
+
+    double[] res = new double[nParms + 3];
+    res[0] = impVol;
+    double sum = 0;
+    for (int i = 0; i < n; i++) {
+      sum += w[i] * rFwds[i] * deltas[i];
+    }
+    res[1] = (sum - delta) / vega; //fBar
+    sum = 0.0;
+    for (int i = 0; i < n; i++) {
+      sum += w[i] * dualDeltas[i];
+    }
+    res[2] = (sum - dualDelta) / vega; //strikeBar
+
+    //calculate the sensitivity to model parameters
+    double[] modelAjoint = getModelAjoint(forward, strike, expiry, data, deltas, vega);
+    System.arraycopy(modelAjoint, 0, res, 3, nParms);
+
+    return res;
+  }
+
+  public double[] getModelAjoint(final double forward, final double strike, final double expiry, final MixedLogNormalModelData data) {
+
+    final boolean isCall = strike >= forward;
+    final double[] sigmas = data.getVolatilities();
+    final double[] rFwds = data.getRelativeForwards();
+    final int n = sigmas.length;
+    final double[] deltas = new double[n];
+
+    for (int i = 0; i < n; i++) {
+      deltas[i] = BlackFormulaRepository.delta(forward * rFwds[i], strike, expiry, sigmas[i], isCall);
+    }
+
+    final double impVol = getVolatility(new EuropeanVanillaOption(strike, expiry, true), forward, data);
+    final double vega = BlackFormulaRepository.vega(forward, strike, expiry, impVol);
+
+    return getModelAjoint(forward, strike, expiry, data, deltas, vega);
+  }
+
+  private double[] getModelAjoint(final double forward, final double strike, final double expiry, final MixedLogNormalModelData data, final double[] deltas, final double vega) {
+    final boolean isCall = strike >= forward;
+    final int nParms = data.getNumberOfparameters();
+    final double[] sigmas = data.getVolatilities();
+    final double[] rFwds = data.getRelativeForwards();
+    final double[] w = data.getWeights();
+    final int n = sigmas.length;
+    final double[] prices = new double[n];
+    final double[] vegas = new double[n];
+    for (int i = 0; i < n; i++) {
+      final double f = forward * rFwds[i];
+      prices[i] = BlackFormulaRepository.price(f, strike, expiry, sigmas[i], isCall);
+      deltas[i] = BlackFormulaRepository.delta(f, strike, expiry, sigmas[i], isCall);
+      vegas[i] = BlackFormulaRepository.vega(f, strike, expiry, sigmas[i]);
+    }
+
+    double[] res = new double[nParms];
+    res[0] = (w[0] * vegas[0] + w[1] * vegas[1]) / vega;
+    for (int i = 1; i < n; i++) {
+      res[i] = w[i] * vegas[i] / vega;
+    }
+
+    double[][] wJac = data.getWeightsJacobian();
+    for (int i = 0; i < n - 1; i++) {
+      double sum = 0.0;
+      for (int j = 0; j < n; j++) {
+        sum += prices[j] * wJac[j][i];
+      }
+      res[n + i] = sum / vega;
+    }
+
+    if (nParms > 2 * n - 1) {
+      double[][] fJac = data.getRelativeForwardsJacobian();
+      for (int i = 0; i < n - 1; i++) {
+        double sum = 0.0;
+        for (int j = 0; j < n; j++) {
+          sum -= rFwds[j] * deltas[j] * wJac[j][i];
+        }
+        res[n + i] += sum * forward / vega;
+
+        sum = 0.0;
+        for (int j = 0; j < n; j++) {
+          sum += deltas[j] * fJac[j][i];
+        }
+        res[2 * n - 1 + i] = sum * forward / vega;
+      }
+    }
+
+    return res;
+  }
+
 }

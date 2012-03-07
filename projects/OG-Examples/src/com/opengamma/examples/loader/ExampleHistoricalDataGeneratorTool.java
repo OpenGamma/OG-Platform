@@ -6,12 +6,12 @@
 package com.opengamma.examples.loader;
 
 import com.opengamma.examples.marketdata.SimulatedHistoricalDataGenerator;
-import com.opengamma.examples.tool.AbstractTool;
+import com.opengamma.examples.tool.AbstractExampleTool;
 
 /**
  * Example tool to initialize historical data.
  */
-public class ExampleHistoricalDataGeneratorTool extends AbstractTool {
+public class ExampleHistoricalDataGeneratorTool extends AbstractExampleTool {
 
   //-------------------------------------------------------------------------
   /**
@@ -21,9 +21,7 @@ public class ExampleHistoricalDataGeneratorTool extends AbstractTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    if (init()) {
-      new ExampleHistoricalDataGeneratorTool().run();
-    }
+    new ExampleHistoricalDataGeneratorTool().initAndRun(args);
     System.exit(0);
   }
 

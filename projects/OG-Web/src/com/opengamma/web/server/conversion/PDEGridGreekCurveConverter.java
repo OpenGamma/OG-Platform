@@ -6,25 +6,25 @@
 package com.opengamma.web.server.conversion;
 
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.greeks.PDEGreekResultCollection;
+import com.opengamma.financial.greeks.PDEResultCollection;
 
 /**
  * 
  */
-public class PDEGridGreekCurveConverter implements ResultConverter<PDEGreekResultCollection> {
+public class PDEGridGreekCurveConverter implements ResultConverter<PDEResultCollection> {
 
   @Override
-  public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, PDEGreekResultCollection value, ConversionMode mode) {
+  public Object convertForDisplay(ResultConverterCache context, ValueSpecification valueSpec, PDEResultCollection value, ConversionMode mode) {
     return null;
   }
 
   @Override
-  public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, PDEGreekResultCollection value) {
+  public Object convertForHistory(ResultConverterCache context, ValueSpecification valueSpec, PDEResultCollection value) {
     return null;
   }
 
   @Override
-  public String convertToText(ResultConverterCache context, ValueSpecification valueSpec, PDEGreekResultCollection value) {
+  public String convertToText(ResultConverterCache context, ValueSpecification valueSpec, PDEResultCollection value) {
     
     valueSpec.getValueName();
     return null;

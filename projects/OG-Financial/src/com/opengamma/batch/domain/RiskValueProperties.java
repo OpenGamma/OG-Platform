@@ -222,7 +222,7 @@ public class RiskValueProperties extends DirectBean {
     if (obj != null && obj.getClass() == this.getClass()) {
       RiskValueProperties other = (RiskValueProperties) obj;
       return JodaBeanUtils.equal(getId(), other.getId()) &&
-        JodaBeanUtils.equal(getSyntheticForm(), other.getSyntheticForm());
+          JodaBeanUtils.equal(getSyntheticForm(), other.getSyntheticForm());
     }
     return false;
   }
@@ -299,19 +299,19 @@ public class RiskValueProperties extends DirectBean {
      * The meta-property for the {@code id} property.
      */
     private final MetaProperty<Integer> _id = DirectMetaProperty.ofReadWrite(
-      this, "id", RiskValueProperties.class, Integer.TYPE);
+        this, "id", RiskValueProperties.class, Integer.TYPE);
     /**
      * The meta-property for the {@code syntheticForm} property.
      */
     private final MetaProperty<String> _syntheticForm = DirectMetaProperty.ofReadWrite(
-      this, "syntheticForm", RiskValueProperties.class, String.class);
+        this, "syntheticForm", RiskValueProperties.class, String.class);
     /**
      * The meta-properties.
      */
     private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
-      this, null,
-      "id",
-      "syntheticForm");
+        this, null,
+        "id",
+        "syntheticForm");
 
     /**
      * Restricted constructor.

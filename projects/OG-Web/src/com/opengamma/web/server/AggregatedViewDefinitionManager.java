@@ -17,6 +17,7 @@ import com.opengamma.core.position.Portfolio;
 import com.opengamma.core.position.PositionSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.view.ViewDefinition;
+import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.engine.view.compilation.PortfolioCompiler;
 import com.opengamma.financial.aggregation.AggregationFunction;
 import com.opengamma.financial.aggregation.PortfolioAggregator;
@@ -28,7 +29,6 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.Pair;
-import com.opengamma.engine.view.ViewDefinitionRepository;
 
 /**
  * Manages the lifecycle of aggregated view definitions. There is really no such thing as an aggregated view

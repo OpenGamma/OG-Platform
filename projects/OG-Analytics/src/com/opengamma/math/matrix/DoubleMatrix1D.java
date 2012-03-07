@@ -40,6 +40,17 @@ public class DoubleMatrix1D implements Matrix<Double> {
   }
 
   /**
+   * Create an vector of length n with all entries equal to value
+   * @param n number of elements
+   * @param value value of elements
+   */
+  public DoubleMatrix1D(final int n, double value) {
+    _elements = n;
+    _data = new double[_elements];
+    Arrays.fill(_data, value);
+  }
+
+  /**
    * Returns the underlying vector data. If this is changed so is the vector.
    * @see #toArray to get a copy of data
    * @return An array containing the vector elements

@@ -9,6 +9,7 @@ package com.opengamma.financial.analytics.volatility.surface;
  * 
  */
 public class SurfaceQuoteType {
+  public static final String PROPERTY_SURFACE_QUOTE_TYPE = "SurfaceQuoteType";
   public static final String CALL_DELTA = "CallDelta";
   public static final String PUT_DELTA = "PutDelta";
   public static final String CALL_STRIKE = "CallStrike";

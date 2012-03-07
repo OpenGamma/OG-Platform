@@ -21,6 +21,10 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.bond.BondSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.ExternalIdBundle;
 
 /**
@@ -42,6 +46,9 @@ public class PositionExchangeTradedDailyPnLFunction extends AbstractTradeOrDaily
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
     Security security = target.getPositionOrTrade().getSecurity();
+    if (security instanceof FXForwardSecurity || security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity) {
+      return false;
+    }
     return (target.getType() == ComputationTargetType.POSITION && (FinancialSecurityUtils.isExchangedTraded(security)) || security instanceof BondSecurity);
   }
 

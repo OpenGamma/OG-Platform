@@ -5,24 +5,28 @@
  */
 package com.opengamma.web.server.push.rest;
 
-import com.opengamma.web.server.AggregatedViewDefinitionManager;
-import org.json.JSONArray;
+import java.util.Set;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
 
+import org.json.JSONArray;
+
+import com.opengamma.util.ArgumentChecker;
+
 /**
  * REST interface that produces a JSON list of aggregator names for populating the web client.
  */
-@Path("aggregatornames")
+@Path("aggregators")
 public class AggregatorNamesResource {
 
-  private final AggregatedViewDefinitionManager _aggregatedViewDefinitionManager;
+  private final Set<String> _aggregatorNames;
 
-  public AggregatorNamesResource(AggregatedViewDefinitionManager aggregatedViewDefinitionManager) {
-    _aggregatedViewDefinitionManager = aggregatedViewDefinitionManager;
+  public AggregatorNamesResource(Set<String> aggregatorNames) {
+    ArgumentChecker.notNull(aggregatorNames, "aggregatorNames");
+    _aggregatorNames = aggregatorNames;
   }
 
   /**
@@ -31,6 +35,6 @@ public class AggregatorNamesResource {
   @GET
   @Produces(MediaType.APPLICATION_JSON)
   public String getAggregatorNamesJson() {
-    return new JSONArray(_aggregatedViewDefinitionManager.getAggregatorNames()).toString();
+    return new JSONArray(_aggregatorNames).toString();
   }
 }

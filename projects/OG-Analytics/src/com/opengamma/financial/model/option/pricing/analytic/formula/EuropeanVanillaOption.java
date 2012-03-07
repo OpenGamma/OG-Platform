@@ -20,7 +20,6 @@ public class EuropeanVanillaOption {
   private final double _k;
 
   public EuropeanVanillaOption(final double k, final double t, final boolean isCall) {
-    //    Validate.isTrue(k > 0.0, "k must be > 0.0");
     Validate.isTrue(t >= 0.0, "t must be >= 0.0");
     _k = k;
     _t = t;

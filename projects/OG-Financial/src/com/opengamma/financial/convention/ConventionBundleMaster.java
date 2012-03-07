@@ -30,8 +30,12 @@ public interface ConventionBundleMaster {
 
   UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, int settlementDays);
 
-  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Period period, int settlementDays, boolean isEOM, 
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Period period, int settlementDays, boolean isEOM,
       ExternalId region);
+
+  // Added for Overnight Indices (Case)
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Period period, int settlementDays, boolean isEOM,
+      ExternalId region, Integer publicationLag);
 
   UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount dayCount, BusinessDayConvention businessDayConvention, Frequency frequency, int settlementDays, double pointValue);
 
@@ -44,6 +48,11 @@ public interface ConventionBundleMaster {
   UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount swapFixedLegDayCount, BusinessDayConvention swapFixedLegBusinessDayConvention, Frequency swapFixedLegFrequency,
       Integer swapFixedLegSettlementDays, ExternalId swapFixedLegRegion, DayCount swapFloatingLegDayCount, BusinessDayConvention swapFloatingLegBusinessDayConvention,
       Frequency swapFloatingLegFrequency, Integer swapFloatingLegSettlementDays, ExternalId swapFloatingLegInitialRate, ExternalId swapFloatingLegRegion, Boolean isEOM);
+
+  // OIS Overnight Index Swaps
+  UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount swapFixedLegDayCount, BusinessDayConvention swapFixedLegBusinessDayConvention, Frequency swapFixedLegFrequency,
+      Integer swapFixedLegSettlementDays, ExternalId swapFixedLegRegion, DayCount swapFloatingLegDayCount, BusinessDayConvention swapFloatingLegBusinessDayConvention,
+      Frequency swapFloatingLegFrequency, Integer swapFloatingLegSettlementDays, ExternalId swapFloatingLegInitialRate, ExternalId swapFloatingLegRegion, Boolean isEOM, Integer publicationLag);
 
   UniqueId addConventionBundle(ExternalIdBundle bundle, String name, DayCount basisSwapPayFloatingLegDayCount, BusinessDayConvention basisSwapPayFloatingLegBusinessDayConvention,
       Frequency basisSwapPayFloatingLegFrequency, Integer basisSwapPayFloatingLegSettlementDays, ExternalId basisSwapPayFloatingLegInitialRate, ExternalId basisSwapPayFloatingLegRegion,

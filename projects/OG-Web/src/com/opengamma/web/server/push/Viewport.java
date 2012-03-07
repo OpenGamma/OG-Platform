@@ -5,9 +5,9 @@
  */
 package com.opengamma.web.server.push;
 
-import com.opengamma.web.server.push.reports.ViewportData;
-
 import java.util.Map;
+
+import com.opengamma.web.server.push.reports.ViewportData;
 
 /**
  * A view onto a subset of the analytics data from a view client.

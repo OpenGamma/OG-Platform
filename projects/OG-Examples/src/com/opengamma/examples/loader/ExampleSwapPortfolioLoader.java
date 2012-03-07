@@ -33,7 +33,7 @@ import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.region.RegionUtils;
-import com.opengamma.examples.tool.AbstractTool;
+import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -70,7 +70,7 @@ import com.opengamma.util.money.Currency;
  * more than once you will get multiple copies portfolios and securities with the same names.
  * It is designed to run against the HSQLDB example database.
  */
-public class ExampleSwapPortfolioLoader extends AbstractTool {
+public class ExampleSwapPortfolioLoader extends AbstractExampleTool {
   /**
    * Logger.
    */
@@ -136,9 +136,7 @@ public class ExampleSwapPortfolioLoader extends AbstractTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    if (init()) {
-      new ExampleSwapPortfolioLoader().run();
-    }
+    new ExampleSwapPortfolioLoader().initAndRun(args);
     System.exit(0);
   }
 

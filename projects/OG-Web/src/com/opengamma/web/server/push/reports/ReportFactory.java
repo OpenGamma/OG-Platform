@@ -5,10 +5,10 @@
  */
 package com.opengamma.web.server.push.reports;
 
-import com.opengamma.DataNotFoundException;
-
 import java.util.HashMap;
 import java.util.Map;
+
+import com.opengamma.DataNotFoundException;
 
 /**
  * Creates {@link Report}s for different report formats.

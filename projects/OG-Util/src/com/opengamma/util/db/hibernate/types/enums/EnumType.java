@@ -5,9 +5,7 @@
  */
 package com.opengamma.util.db.hibernate.types.enums;
 
-import org.hibernate.HibernateException;
-import org.hibernate.usertype.EnhancedUserType;
-import org.hibernate.usertype.ParameterizedType;
+import static com.opengamma.util.db.hibernate.types.enums.EnumReflect.getNameFromValue;
 
 import java.io.Serializable;
 import java.sql.PreparedStatement;
@@ -16,7 +14,9 @@ import java.sql.SQLException;
 import java.sql.Types;
 import java.util.Properties;
 
-import static com.opengamma.util.db.hibernate.types.enums.EnumReflect.getNameFromValue;
+import org.hibernate.HibernateException;
+import org.hibernate.usertype.EnhancedUserType;
+import org.hibernate.usertype.ParameterizedType;
 
 
 //Please notice the calls to getNameFromValue *************************

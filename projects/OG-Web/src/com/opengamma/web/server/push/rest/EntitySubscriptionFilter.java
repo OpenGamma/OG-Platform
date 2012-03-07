@@ -5,6 +5,15 @@
  */
 package com.opengamma.web.server.push.rest;
 
+import java.util.List;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.PathParam;
+import javax.ws.rs.core.MultivaluedMap;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.push.ConnectionManager;
@@ -15,13 +24,6 @@ import com.sun.jersey.spi.container.ContainerRequestFilter;
 import com.sun.jersey.spi.container.ContainerResponse;
 import com.sun.jersey.spi.container.ContainerResponseFilter;
 import com.sun.jersey.spi.container.ResourceFilter;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.ws.rs.PathParam;
-import javax.ws.rs.core.MultivaluedMap;
-import java.util.List;
 
 /**
  * Jersey filter that sets up subscriptions for entities returned from REST methods.  When the entity changes
