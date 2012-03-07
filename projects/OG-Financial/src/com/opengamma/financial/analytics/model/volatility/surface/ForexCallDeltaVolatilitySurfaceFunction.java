@@ -54,9 +54,9 @@ public class ForexCallDeltaVolatilitySurfaceFunction extends AbstractFunction.No
       throw new OpenGammaRuntimeException("Could not get " + surfaceRequirement);
     }
     @SuppressWarnings("unchecked")
-    final VolatilitySurfaceData<Tenor, Integer> fxVolatilitySurface = (VolatilitySurfaceData<Tenor, Integer>) volatilitySurfaceObject;
+    final VolatilitySurfaceData<Tenor, Double> fxVolatilitySurface = (VolatilitySurfaceData<Tenor, Double>) volatilitySurfaceObject;
     final Tenor[] tenors = fxVolatilitySurface.getXs();
-    final Integer[] deltaValues = fxVolatilitySurface.getYs();
+    final Double[] deltaValues = fxVolatilitySurface.getYs();
     Arrays.sort(tenors);
     Arrays.sort(deltaValues);
     final int nPoints = tenors.length;
@@ -76,12 +76,14 @@ public class ForexCallDeltaVolatilitySurfaceFunction extends AbstractFunction.No
       final DoubleArrayList deltas = new DoubleArrayList();
       final DoubleArrayList volatilities = new DoubleArrayList();
       for (int j = 0; j < nSmileValues; j++) {
-        final Integer delta = deltaValues[j];
+        final Double delta = deltaValues[j];
         if (delta != null) {
           Double volatility = fxVolatilitySurface.getVolatility(tenor, delta);
           if (volatility != null) {
             volatility *= shiftMultiplier;
-            deltas.add(delta / 100);
+            if (delta < 50) {
+              deltas.add(delta / 100);
+            }
             volatilities.add(volatility);
           }
         } else {

@@ -119,7 +119,10 @@ import com.opengamma.financial.analytics.model.forex.ForexOptionYieldCurveNodeSe
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaultValuesFunction;
+import com.opengamma.financial.analytics.model.future.InterestRateFutureInterpolatedYieldCurveNodeSensitivitiesDefaultValuesFunction;
+import com.opengamma.financial.analytics.model.future.InterestRateFutureInterpolatedYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.future.InterestRateFuturePresentValueFunction;
+import com.opengamma.financial.analytics.model.future.InterestRateFutureYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.ircurve.InterpolatedYieldCurveDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.ircurve.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.ircurve.MarketInstrumentImpliedYieldCurveFunction;
@@ -236,7 +239,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   private static final boolean OUTPUT_REPO_CONFIGURATION = false;
 
-  protected static <F extends FunctionDefinition> FunctionConfiguration functionConfiguration(final Class<F> clazz, String... args) {
+  public static <F extends FunctionDefinition> FunctionConfiguration functionConfiguration(final Class<F> clazz, String... args) {
     if (Modifier.isAbstract(clazz.getModifiers())) {
       throw new IllegalStateException("Attempting to register an abstract class - " + clazz);
     }
@@ -253,12 +256,12 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(SecurityValueFunction.class));
   }
 
-  protected static void addScalingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
+  public static void addScalingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     functionConfigs.add(functionConfiguration(PositionScalingFunction.class, requirementName));
     functionConfigs.add(functionConfiguration(PositionTradeScalingFunction.class, requirementName));
   }
 
-  protected static void addUnitScalingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
+  public static void addUnitScalingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     functionConfigs.add(functionConfiguration(UnitPositionScalingFunction.class, requirementName));
     functionConfigs.add(functionConfiguration(UnitPositionTradeScalingFunction.class, requirementName));
   }
@@ -267,14 +270,14 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(DummyPortfolioNodeMultipleCurrencyAmountFunction.class, requirementName));
   }
 
-  protected static void addSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
+  public static void addSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     functionConfigs.add(functionConfiguration(SummingFunction.class, requirementName));
     functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, requirementName, SummingFunction.AGGREGATION_STYLE_FULL));
   }
 
   // TODO: Is there a reason why we can't just include both the normal and filtered summing functions all the time? Filtering is a lower priority.
 
-  protected static void addFilteredSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
+  public static void addFilteredSummingFunction(List<FunctionConfiguration> functionConfigs, String requirementName) {
     functionConfigs.add(functionConfiguration(FilteringSummingFunction.class, requirementName));
     functionConfigs.add(functionConfiguration(AggregationDefaultPropertyFunction.class, requirementName, FilteringSummingFunction.AGGREGATION_STYLE_FILTERED));
   }
@@ -697,8 +700,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
 
   private static void addInterestRateFutureCalculators(List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateFuturePresentValueFunction.class));
-//    functionConfigs.add(functionConfiguration(InterestRateFutureYieldCurveNodeSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureYieldCurveNodeSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(InterestRateFutureInterpolatedYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureDefaultValuesFunction.class, "FORWARD_3M", "FUNDING", "USD", "EUR"));
+    functionConfigs.add(functionConfiguration(InterestRateFutureInterpolatedYieldCurveNodeSensitivitiesDefaultValuesFunction.class, "FORWARD_3M", "FUNDING", "USD", "EUR"));
   }
 
   private static void addInterestRateFutureOptionCalculators(List<FunctionConfiguration> functionConfigs) {
@@ -710,7 +715,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionDefaultValuesFunction.class, "FORWARD_3M", "FUNDING", "DEFAULT", "PresentValue", "USD", "EUR"));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesDefaultValuesFunction.class, "DEFAULT"));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesDefaultValuesFunction.class, 
+        "FORWARD_3M", "FUNDING", "DEFAULT", "USD", "EUR"));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceFittingFunction.class));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction.class, "DEFAULT"));
     //functionConfigs.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class, "USD", "DEFAULT"));
@@ -799,12 +805,13 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterpolatedYieldCurveFunction.class));
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
-    functionConfigs.add(functionConfiguration(InterpolatedYieldCurveDefaultPropertiesFunction.class, leftExtrapolatorName, rightExtrapolatorName, "USD", "EUR"));
+    functionConfigs.add(functionConfiguration(InterpolatedYieldCurveDefaultPropertiesFunction.class, leftExtrapolatorName, rightExtrapolatorName, "USD", "EUR", "AUD", "MYR"));
     functionConfigs.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING));
     functionConfigs.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "FORWARD_3M", "FUNDING", "USD", "AUD"));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "FORWARD_6M", "FUNDING", "EUR", "GBP", "JPY", "NZD", "DKK"));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "SECONDARY", "SECONDARY", "AUD", "CAD", "CHF", "DKK", "EUR", "GBP", "JPY", "NZD", "USD"));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "PresentValue", "FORWARD_3M", "FUNDING", "USD", "AUD"));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "PresentValue", "FORWARD_6M", "FUNDING", "EUR", "GBP", "JPY", "NZD", "DKK"));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "PresentValue", "SECONDARY", "SECONDARY", "AUD", "CAD", "CHF", "DKK", "EUR", 
+        "GBP", "JPY", "NZD", "USD"));
   }
 
   private static void addPortfolioAnalysisCalculators(final List<FunctionConfiguration> functionConfigs) {

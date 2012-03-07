@@ -42,18 +42,24 @@ public class InterestRateInstrumentParRateParallelCurveSensitivityFunction exten
 
   @Override
   public Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle,
-      final FinancialSecurity security, final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {
+      final FinancialSecurity security, final ComputationTarget target, final String forwardCurveName, final String fundingCurveName,
+      final String curveCalculationMethod) {
     final Map<String, Double> sensitivities = CALCULATOR.visit(derivative, bundle);
     Set<ComputedValue> result = new HashSet<ComputedValue>();
-    result.add(new ComputedValue(getResultSpec(target, fundingCurveName, forwardCurveName, fundingCurveName), sensitivities.containsKey(fundingCurveName) ? sensitivities.get(fundingCurveName) : 0));
-    result.add(new ComputedValue(getResultSpec(target, forwardCurveName, forwardCurveName, fundingCurveName), sensitivities.containsKey(forwardCurveName) ? sensitivities.get(forwardCurveName) : 0));
+    result.add(new ComputedValue(getResultSpec(target, fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod), 
+        sensitivities.containsKey(fundingCurveName) ? sensitivities.get(fundingCurveName) : 0));
+    result.add(new ComputedValue(getResultSpec(target, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod), 
+        sensitivities.containsKey(forwardCurveName) ? sensitivities.get(forwardCurveName) : 0));
     return result;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final ValueProperties.Builder properties = createValueProperties(target);
-    properties.withAny(ValuePropertyNames.CURVE).withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE).withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    properties.withAny(ValuePropertyNames.CURVE)
+      .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+      .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+      .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(2);
     properties.with(RESULT_PROPERTY_TYPE, TYPE_FORWARD);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
@@ -64,13 +70,17 @@ public class InterestRateInstrumentParRateParallelCurveSensitivityFunction exten
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {
-    return Sets.newHashSet(getResultSpec(target, forwardCurveName, forwardCurveName, fundingCurveName), getResultSpec(target, fundingCurveName, forwardCurveName, fundingCurveName));
+  public Set<ValueSpecification> getResults(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod) {
+    return Sets.newHashSet(getResultSpec(target, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod), 
+        getResultSpec(target, fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
   }
 
-  private ValueSpecification getResultSpec(final ComputationTarget target, final String curveName, final String forwardCurveName, final String fundingCurveName) {
-    final ValueProperties.Builder properties = createValueProperties(target).with(ValuePropertyNames.CURVE, curveName).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);
+  private ValueSpecification getResultSpec(final ComputationTarget target, final String curveName, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod) {
+    final ValueProperties.Builder properties = createValueProperties(target)
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod);
     return new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
   }
 

@@ -38,6 +38,7 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.FutureSecurity;
+import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -164,6 +165,9 @@ public abstract class AbstractTradeOrDailyPositionPnLFunction extends AbstractFu
 
   @Override
   public Set<ValueSpecification> getResults(FunctionCompilationContext context, ComputationTarget target) {
+    if (FXUtils.isFXSecurity(target.getPositionOrTrade().getSecurity())) {
+      return null;
+    }
     Currency ccy = FinancialSecurityUtils.getCurrency(target.getPositionOrTrade().getSecurity());
     final String valueRequirementName = getResultValueRequirementName();
     if (ccy == null) {

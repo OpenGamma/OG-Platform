@@ -35,6 +35,7 @@ public class AUConventions {
     final Frequency semiAnnual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.SEMI_ANNUAL_NAME);
     final Frequency quarterly = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.QUARTERLY_NAME);
     final Frequency annual = SimpleFrequencyFactory.INSTANCE.getFrequency(Frequency.ANNUAL_NAME);
+    final Integer overnightPublicationLag = 0;
 
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("AU00O/N Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD LIBOR O/N")), "AUD LIBOR O/N", act365,
@@ -164,9 +165,10 @@ public class AUConventions {
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("ADDR5 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD DEPOSIT 5y")), "AUD DEPOSIT 5y", act365,
         following, Period.ofYears(5), 2, false, null);
+
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("RBACOR Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBA OVERNIGHT CASH RATE")),
-        "RBA OVERNIGHT CASH RATE", act365, following, Period.ofDays(1), 0, false, null);
+        "RBA OVERNIGHT CASH RATE", act365, following, Period.ofDays(1), 0, false, null, overnightPublicationLag);
 
     //TODO holiday associated with AUD swaps is Sydney
     final ExternalId au = RegionUtils.financialRegionId("AU");
@@ -209,7 +211,7 @@ public class AUConventions {
         act365, modified, semiAnnual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD Bank Bill 6m"), au, true);
     //TODO: Change the reference index to BBSW. Unfortunately we don't have the BBSW time series for the moment.
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_OIS_SWAP")), "AUD_OIS_SWAP", act365, modified, annual, 0, au,
-        act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBA OVERNIGHT CASH RATE"), au, true);
+        act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "RBA OVERNIGHT CASH RATE"), au, true, overnightPublicationLag);
 
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "AUD_SWAPTION")), "AUD_SWAPTION", false);
   }
