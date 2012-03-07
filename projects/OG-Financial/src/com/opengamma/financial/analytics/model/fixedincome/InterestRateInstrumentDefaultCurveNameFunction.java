@@ -17,6 +17,7 @@ import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -25,8 +26,10 @@ import com.opengamma.util.ArgumentChecker;
 public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
     InterestRateInstrumentParRateFunction.VALUE_REQUIREMENT,
-    InterestRateInstrumentPresentValueFunction.VALUE_REQUIREMENT, InterestRateInstrumentParRateParallelCurveSensitivityFunction.VALUE_REQUIREMENT,
-    InterestRateInstrumentPV01Function.VALUE_REQUIREMENT, InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.VALUE_REQUIREMENT};
+    InterestRateInstrumentPresentValueFunction.VALUE_REQUIREMENT,
+    InterestRateInstrumentParRateParallelCurveSensitivityFunction.VALUE_REQUIREMENT,
+    InterestRateInstrumentPV01Function.VALUE_REQUIREMENT,
+    InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.VALUE_REQUIREMENT};
   private final String _curveCalculationMethod;
   private final String _forwardCurve;
   private final String _fundingCurve;
@@ -50,8 +53,9 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
     if (!(target.getSecurity() instanceof FinancialSecurity)) {
       return false;
     }
+    final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
     for (final String applicableCurrencyName : _applicableCurrencyNames) {
-      if (applicableCurrencyName.equals(target.getUniqueId().getValue())) {
+      if (applicableCurrencyName.equals(currency)) {
         return InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) target.getSecurity());
       }
     }
@@ -71,7 +75,7 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     if (YieldCurveFunction.PROPERTY_FORWARD_CURVE.equals(propertyName)) {
       return Collections.singleton(_forwardCurve);
-    } 
+    }
     if (YieldCurveFunction.PROPERTY_FUNDING_CURVE.equals(propertyName)) {
       return Collections.singleton(_fundingCurve);
     }
