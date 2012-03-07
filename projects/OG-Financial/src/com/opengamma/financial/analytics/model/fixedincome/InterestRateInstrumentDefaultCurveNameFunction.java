@@ -53,10 +53,10 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
     if (!(target.getSecurity() instanceof FinancialSecurity)) {
       return false;
     }
-    final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     for (final String applicableCurrencyName : _applicableCurrencyNames) {
-      if (applicableCurrencyName.equals(currency)) {
-        return InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) target.getSecurity());
+      if (InterestRateInstrumentType.isFixedIncomeInstrumentType(security)) {
+        return applicableCurrencyName.equals(FinancialSecurityUtils.getCurrency(security).getCode());
       }
     }
     return false;
