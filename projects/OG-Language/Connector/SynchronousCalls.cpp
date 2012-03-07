@@ -333,7 +333,8 @@ CSynchronousCallSlot *CSynchronousCalls::Acquire () {
 			delete m_ppoSlots;
 			// There will be at least SLOT_INCREMENT slots in the free list
 			for (int i = 0; i < SLOT_INCREMENT; i++) {
-				m_ppoFreeSlots[m_nFreeSlots++] = ppoSlots[m_nAllocatedSlots++] = new CSynchronousCallSlot (this, m_nAllocatedSlots);
+				m_ppoFreeSlots[m_nFreeSlots++] = ppoSlots[m_nAllocatedSlots] = new CSynchronousCallSlot (this, m_nAllocatedSlots);
+				m_nAllocatedSlots++;
 			}
 			m_ppoSlots = ppoSlots;
 		} else {
