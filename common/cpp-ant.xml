@@ -113,9 +113,38 @@
       <libset dir="${cc.lib.dir}" libs="${cc.lib.external}" if="cc.lib.external" />
       <libset libs="${cc.lib.default}" if="cc.lib.default" />
     </cc>
-    <antcall target="cpp-compile-after" />
+    <antcall target="cpp-compile-after" inheritrefs="true" />
   </target>
   <target name="cpp-compile-after" />
+
+  <target name="cpp-test-debug-ant" if="cpp.headers.present.ant" unless="cpp.disable.debug">
+    <antcall target="cpp-test-ant" inheritrefs="true">
+      <param name="cpp.configuration" value="${cc.debug.configuration}" />
+    </antcall>
+  </target>
+  <target name="cpp-test-release-ant" if="cpp.headers.present.ant" unless="cpp.disable.release">
+    <antcall target="cpp-test-ant" inheritrefs="true">
+      <param name="cpp.configuration" value="${cc.release.configuration}" />
+    </antcall>
+  </target>
+
+  <target name="cpp-test-ant-before">
+    <property name="cpp.test" value="${cpp.configuration}" />
+  </target>
+  <target name="cpp-test-check" />
+  <target name="cpp-test-ant" depends="cpp-test-ant-before,cpp-test-check" unless="cpp.disable.current">
+    <mkdir dir="${cpp.test.dir}/xml" />
+    <exec executable="./${ant.project.name}"
+          dir="${build.dir}/${cpp.test}"
+          failonerror="false"
+          output="${cpp.test.dir}/${ant.project.name}-${cpp.test}.log" />
+    <java classname="com.opengamma.util.test.CPPLogToJUnit" classpathref="lib.path.id" fork="true">
+      <arg value="${cpp.test.dir}/${ant.project.name}-${cpp.test}.log" />
+      <arg value="${cpp.test.dir}/xml" />
+    </java>
+    <antcall target="cpp-test-after" inheritrefs="true" />
+  </target>
+  <target name="cpp-test-after" />
 
   <target name="cpp-publish-debug-ant" if="cpp.present.ant">
     <antcall target="cpp-publish">

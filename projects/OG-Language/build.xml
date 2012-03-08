@@ -15,6 +15,12 @@
     <pathelement path="${solution.dir}/ServiceRunner" />
   </path>
 
+  <path id="cctest.build.path">
+    <pathelement path="${solution.dir}/UtilTest" />
+    <pathelement path="${solution.dir}/ServiceTest" />
+    <pathelement path="${solution.dir}/ConnectorTest" />
+  </path>
+
   <target name="dist-publish" depends="common.dist-publish">
     <mkdir dir="${dist.dir}" />
     <mkdir dir="${dist.dir}/bin" />
@@ -37,7 +43,7 @@
     <copy todir="${build.dir}/ext" file="${solution.dir}/config/0${ant.project.name}.xml" />
   </target>
 
-  <target name="compile-tests" depends="common.compile-tests">
+  <target name="compile-tests" depends="core.compile-tests">
     <property file="${common.dir}/tests.properties" />
     <echo file="${test.properties.dir}/${test.properties}">language.ext.path=${build.dir}/ext
 opengamma.engine.host=${opengamma.engine.host}
@@ -45,5 +51,7 @@ opengamma.engine.port=${opengamma.engine.port}
 opengamma.engine.path=${opengamma.engine.path}
 </echo>
   </target>
+
+  <target name="test-batch-cpp" depends="jar,core.test-batch-cpp" />
 
 </project>

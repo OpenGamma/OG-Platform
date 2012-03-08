@@ -4,6 +4,12 @@
   <property file="${solution.dir}/build.properties" />
   <import file="${common.dir}/cpp.xml" />
 
+  <path id="lib.path.id">
+    <fileset dir="${solution.dir}/lib/jar">
+      <exclude name="org.apache.ant/ant/*.jar" />
+    </fileset>
+  </path>
+
   <target name="cpp-define-extra">
     <cpptasks:defineset id="cpp.define.extra" />
   </target>
@@ -19,5 +25,7 @@
   <target name="dist-publish" depends="cpp-publish-all" />
 
   <target name="clean" depends="cpp-clean-all" />
+
+  <target name="tests" depends="cpp-test-all" />
 
 </project>

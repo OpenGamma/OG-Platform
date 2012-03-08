@@ -2,12 +2,6 @@
 
 	<import file="${basedir}/../build-core-cpp.xml" />
 
-	<path id="lib.path.id">
-		<fileset dir="${solution.dir}/lib/jar">
-			<exclude name="org.apache.ant/ant/*.jar" />
-		</fileset>
-	</path>
-
 	<target name="fudge-proto" unless="proto.c.disabled">
 		<java classname="org.fudgemsg.proto.CommandLine" classpathref="lib.path.id" fork="true">
 			<arg value="-d${basedir}" />

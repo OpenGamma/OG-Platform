@@ -52,8 +52,10 @@
   <target name="cpp-compile-debug" depends="cpp-compile-debug-msvc,cpp-compile-debug-ant" />
   <target name="cpp-compile-release" depends="cpp-compile-release-msvc,cpp-compile-release-ant" />
   <target name="cpp-compile-all" depends="cpp-headers-present" if="cpp.headers.present" unless="cpp.disable.all">
-    <antcall target="cpp-compile-debug" inheritrefs="true" />
-    <antcall target="cpp-compile-release" inheritrefs="true" />
+    <parallel>
+      <antcall target="cpp-compile-debug" inheritrefs="true" />
+      <antcall target="cpp-compile-release" inheritrefs="true" />
+    </parallel>
   </target>
 
   <!--
@@ -66,7 +68,9 @@
         cpp.output      base artifact name based on the configuration
         cpp.output.dir  artifact output path
   -->
-  <target name="cpp-compile-check" />
+  <target name="cpp-compile-check">
+    <echo>Compiling ${ant.project.name} (${cpp.output})</echo>
+  </target>
 
   <!--
     cpp-compile-after:
@@ -76,6 +80,44 @@
         cpp.output.dir  artifact output path
   -->
   <target name="cpp-compile-after" />
+
+  <!--
+    cpp-test-all:
+    cpp-test-release:
+    cpp-test-debug:
+        Runs the tests with one or more configurations of the project. The
+        configurations can be controlled with cpp.disable.<configuration>
+        properties
+  -->
+  <target name="cpp-test-debug" depends="cpp-test-debug-msvc,cpp-test-debug-ant" />
+  <target name="cpp-test-release" depends="cpp-test-release-msvc,cpp-test-release-ant" />
+  <target name="cpp-test-all" depends="cpp-headers-present" if="cpp.headers.present" unless="cpp.disable.all">
+    <parallel>
+      <antcall target="cpp-test-debug" inheritrefs="true" />
+      <antcall target="cpp-test-release" inheritrefs="true" />
+    </parallel>
+  </target>
+
+  <!--
+    cpp-test-check:
+        Dependent target for testing a configuration of the project. This will
+        be called before the configuration is tested and can set properties
+        that are recognised by the test. E.g. cpp.disable.current will prevent
+        any further actions.
+
+        cpp.test  base artifact name bsed on the configuration
+  -->
+  <target name="cpp-test-check">
+    <echo>Testing ${ant.project.name} (${cpp.test})</echo>
+  </target>
+
+  <!--
+    cpp-test-after
+        Called after a configuration of the project has been tested.
+
+        cpp.test  base artifact name based on the configuration
+  -->
+  <target name="cpp-test-after" />
 
   <!--
     cpp-publish-all:

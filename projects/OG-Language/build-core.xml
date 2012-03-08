@@ -1,6 +1,6 @@
 <project name="core" default="compile">
 
-  <!-- Caller must define cc.build.path -->
+  <!-- Caller must define cc.build.path & cctest.build.path -->
 
   <property file="${basedir}/build.properties" />
 
@@ -25,6 +25,15 @@
   <target name="compile-src" depends="common.compile-src,version-cpp-header,config">
     <subant buildpathref="cc.build.path" target="compile" inheritall="true" />
   </target>
+
+  <target name="compile-tests" depends="common.compile-tests">
+    <subant buildpathref="cctest.build.path" target="compile" inheritall="true" />
+  </target>
+
+  <target name="test-batch-cpp">
+    <subant buildpathref="cctest.build.path" target="tests" inheritall="true" />
+  </target>
+  <target name="test-batch" depends="test-batch-cpp,common.test-batch" />
 
   <target name="config">
     <copy todir="${build.dir}" file="${solution.dir}/config/logback.xml" />

@@ -38,13 +38,26 @@
   </target>
   
   <target name="cpp-compile-debug-msvc" if="cpp.headers.present.msvc">
-    <antcall target="cpp-compile-DebugWin32" />
-    <antcall target="cpp-compile-Debugx64" />
+    <parallel>
+      <antcall target="cpp-compile-DebugWin32" inheritrefs="true" />
+      <antcall target="cpp-compile-Debugx64" inheritrefs="true" />
+    </parallel>
   </target>
 
   <target name="cpp-compile-release-msvc" if="cpp.headers.present.msvc">
-    <antcall target="cpp-compile-ReleaseWin32" />
-    <antcall target="cpp-compile-Releasex64" />
+    <parallel>
+      <antcall target="cpp-compile-ReleaseWin32" inheritrefs="true" />
+      <antcall target="cpp-compile-Releasex64" inheritrefs="true" />
+    </parallel>
+  </target>
+
+  <target name="cpp-test-debug-msvc" if="cpp.headers.present.msvc">
+    <antcall target="cpp-test-DebugWin32" inheritrefs="true" />
+    <!-- TODO: test the 64-bit assemblies -->
+  </target>
+  <target name="cpp-test-release-msvc" if="cpp.headers.present.msvc">
+    <antcall target="cpp-test-ReleaseWin32" inheritrefs="true" />
+    <!-- TODO: test the 64-bit assemblies -->
   </target>
 
   <condition property="cpp.disable.DebugWin32">
@@ -54,11 +67,18 @@
     </or>
   </condition>
   <target name="cpp-compile-DebugWin32" unless="cpp.disable.DebugWin32">
-    <antcall target="cpp-compile-msvc">
+    <antcall target="cpp-compile-msvc" inheritrefs="true">
       <param name="cpp.configuration" value="${msvc.debug.configuration}" />
       <param name="cpp.platform" value="${msvc.win32.platform}" />
     </antcall>
   </target>
+  <target name="cpp-test-DebugWin32" unless="cpp.disable.DebugWin32">
+    <antcall target="cpp-test-msvc" inheritrefs="true">
+      <param name="cpp.configuration" value="${msvc.debug.configuration}" />
+      <param name="cpp.platform" value="${msvc.win32.platform}" />
+    </antcall>
+  </target>
+
   <condition property="cpp.disable.ReleaseWin32">
     <or>
       <isset property="cpp.disable.release" />
@@ -66,11 +86,18 @@
     </or>
   </condition>
   <target name="cpp-compile-ReleaseWin32" unless="cpp.disable.ReleaseWin32">
-    <antcall target="cpp-compile-msvc">
+    <antcall target="cpp-compile-msvc" inheritrefs="true">
       <param name="cpp.configuration" value="${msvc.release.configuration}" />
       <param name="cpp.platform" value="${msvc.win32.platform}" />
     </antcall>
   </target>
+  <target name="cpp-test-ReleaseWin32" unless="cpp.disable.ReleaseWin32">
+    <antcall target="cpp-test-msvc" inheritrefs="true">
+      <param name="cpp.configuration" value="${msvc.release.configuration}" />
+      <param name="cpp.platform" value="${msvc.win32.platform}" />
+    </antcall>
+  </target>
+
   <condition property="cpp.disable.DebugX64">
     <or>
       <isset property="cpp.disable.debug" />
@@ -78,11 +105,12 @@
     </or>
   </condition>
   <target name="cpp-compile-Debugx64" unless="cpp.disable.DebugX64">
-    <antcall target="cpp-compile-msvc">
+    <antcall target="cpp-compile-msvc" inheritrefs="true">
       <param name="cpp.configuration" value="${msvc.debug.configuration}" />
       <param name="cpp.platform" value="${msvc.x64.platform}" />
     </antcall>
   </target>
+
   <condition property="cpp.disable.ReleaseX64">
     <or>
       <isset property="cpp.disable.release" />
@@ -90,7 +118,7 @@
     </or>
   </condition>
   <target name="cpp-compile-Releasex64" unless="cpp.disable.ReleaseX64">
-    <antcall target="cpp-compile-msvc">
+    <antcall target="cpp-compile-msvc" inheritrefs="true">
       <param name="cpp.configuration" value="${msvc.release.configuration}" />
       <param name="cpp.platform" value="${msvc.x64.platform}" />
     </antcall>
@@ -110,42 +138,80 @@
       <arg value="/p:Configuration=${cpp.configuration}" />
       <arg value="/p:Platform=${cpp.platform}" />
     </exec>
-    <antcall target="cpp-compile-after" />
+    <antcall target="cpp-compile-after" inheritrefs="true" />
   </target>
   <target name="cpp-compile-after" />
 
+  <target name="cpp-test-msvc-before">
+    <property name="cpp.test" value="${cpp.configuration}${cpp.platform}" />
+  </target>
+  <target name="cpp-test-check" />
+  <target name="cpp-test-msvc" depends="cpp-test-msvc-before,cpp-test-check" unless="cpp.disable.current">
+    <mkdir dir="${cpp.test.dir}/xml" />
+    <property environment="env" />
+    <property name="log4cxx.configuration" value="${env.LOG4CXX_CONFIGURATION}" />
+    <property name="log4cxx.logfile" value="${log4cxx.configuration}.log" />
+    <delete file="${cpp.test.dir}\${ant.project.name}-${cpp.test}.trx" failonerror="false" />
+    <exec executable="${mstest.command}" failonerror="false">
+      <arg value="/testcontainer:${build.dir}\${cpp.test}\${ant.project.name}.dll" />
+      <arg value="/resultsfile:${cpp.test.dir}\${ant.project.name}-${cpp.test}.trx" />
+      <arg value="/detail:stdout" />
+      <arg value="/detail:stderr" />
+      <arg value="/runconfig:${msvc.test.settings}" />
+      <env key="LOG4CXX_CONFIGURATION" value="${log4cxx.configuration}" />
+      <env key="WORKING_DIRECTORY" value="${build.dir}\${cpp.test}" />
+      <env key="Path" value="${env.Path};${mstest.path}" />
+    </exec>
+    <copy file="${log4cxx.logfile}" tofile="${cpp.test.dir}\${ant.project.name}-${cpp.test}.log" failonerror="false" />
+    <delete file="${log4cxx.logfile}" failonerror="false" />
+    <java classname="com.opengamma.util.test.MSTestToJUnit" classpathref="lib.path.id" fork="true">
+      <arg value="${cpp.test.dir}\${ant.project.name}-${cpp.test}.trx" />
+      <arg value="${cpp.test.dir}\xml" />
+    </java>
+    <antcall target="cpp-test-after" inheritrefs="true" />
+  </target>
+  <target name="cpp-test-after" />
+
   <target name="cpp-publish-debug-msvc" if="cpp.present.msvc">
-    <antcall target="cpp-publish">
-      <param name="cpp.output" value="${msvc.debug.configuration}${msvc.win32.platform}" />
-    </antcall>
-    <antcall target="cpp-publish">
-      <param name="cpp.output" value="${msvc.debug.configuration}${msvc.x64.platform}" />
-    </antcall>
+    <parallel>
+      <antcall target="cpp-publish" inheritrefs="true">
+        <param name="cpp.output" value="${msvc.debug.configuration}${msvc.win32.platform}" />
+      </antcall>
+      <antcall target="cpp-publish" inheritrefs="true">
+        <param name="cpp.output" value="${msvc.debug.configuration}${msvc.x64.platform}" />
+      </antcall>
+    </parallel>
   </target>
   <target name="cpp-publish-release-msvc" if="cpp.present.msvc">
-    <antcall target="cpp-publish">
-      <param name="cpp.output" value="${msvc.release.configuration}${msvc.win32.platform}" />
-    </antcall>
-    <antcall target="cpp-publish">
-      <param name="cpp.output" value="${msvc.release.configuration}${msvc.x64.platform}" />
-    </antcall>
+    <parallel>
+      <antcall target="cpp-publish" inheritrefs="true">
+        <param name="cpp.output" value="${msvc.release.configuration}${msvc.win32.platform}" />
+      </antcall>
+      <antcall target="cpp-publish" inheritrefs="true">
+        <param name="cpp.output" value="${msvc.release.configuration}${msvc.x64.platform}" />
+      </antcall>
+    </parallel>
   </target>
 
   <target name="cpp-clean-debug-msvc">
-    <antcall target="cpp-clean">
-      <param name="cpp.output" value="${msvc.debug.configuration}${msvc.win32.platform}" />
-    </antcall>
-    <antcall target="cpp-clean">
-      <param name="cpp.output" value="${msvc.debug.configuration}${msvc.x64.platform}" />
-    </antcall>
+    <parallel>
+      <antcall target="cpp-clean" inheritrefs="true">
+        <param name="cpp.output" value="${msvc.debug.configuration}${msvc.win32.platform}" />
+      </antcall>
+      <antcall target="cpp-clean" inheritrefs="true">
+        <param name="cpp.output" value="${msvc.debug.configuration}${msvc.x64.platform}" />
+      </antcall>
+    </parallel>
   </target>
   <target name="cpp-clean-release-msvc">
-    <antcall target="cpp-clean">
-      <param name="cpp.output" value="${msvc.release.configuration}${msvc.win32.platform}" />
-    </antcall>
-    <antcall target="cpp-clean">
-      <param name="cpp.output" value="${msvc.release.configuration}${msvc.x64.platform}" />
-    </antcall>
+    <parallel>
+      <antcall target="cpp-clean" inheritrefs="true">
+        <param name="cpp.output" value="${msvc.release.configuration}${msvc.win32.platform}" />
+      </antcall>
+      <antcall target="cpp-clean" inheritrefs="true">
+        <param name="cpp.output" value="${msvc.release.configuration}${msvc.x64.platform}" />
+      </antcall>
+    </parallel>
   </target>
 
   <macrodef name="unpack-dll">
