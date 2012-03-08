@@ -85,6 +85,10 @@ public final class PeriodFrequency implements Frequency, Serializable {
    * A frequency with a period of eleven months
    */
   public static final PeriodFrequency ELEVEN_MONTHS = new PeriodFrequency(ELEVEN_MONTH_NAME, Period.ofMonths(11));
+  /**
+   * A frequency with a period of eighteen months
+   */
+  public static final PeriodFrequency EIGHTEEN_MONTHS = new PeriodFrequency(EIGHTEEN_MONTH_NAME, Period.ofMonths(18));
 
   /** A map containing all of the frequency */
   public static final Map<PeriodFrequency, PeriodFrequency> s_cache =

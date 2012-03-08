@@ -86,6 +86,10 @@ public final class SimpleFrequency implements Frequency, Serializable {
    * A frequency with a period of eleven months
    */
   public static final SimpleFrequency ELEVEN_MONTHS = new SimpleFrequency(ELEVEN_MONTH_NAME, 12. / 11);
+  /**
+   * A frequency with a period of eighteen months
+   */
+  public static final SimpleFrequency EIGHTEEN_MONTHS = new SimpleFrequency(EIGHTEEN_MONTH_NAME, 12. / 18);
 
   /**
    * The name of the convention.
