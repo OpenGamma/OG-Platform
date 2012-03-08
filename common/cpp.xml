@@ -148,6 +148,7 @@
     <copy todir="${dist.dir}/include/${ant.project.name}">
       <fileset dir="${cpp.src.dir}">
         <include name="*.h" />
+        <exclude name="stdafx.h" />
       </fileset>
     </copy>
   </target>

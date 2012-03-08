@@ -38,9 +38,9 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCompsComponent">
     <ROW Component="A36DC7A_AF70_4CF0_B489_B30E0828F882" ComponentId="{C3EEB04D-EB4A-42B5-BADF-976896792170}" Directory_="APPDIR" Attributes="4" KeyPath="A36DC7A_AF70_4CF0_B489_B30E0828F882" Options="2"/>
-    <ROW Component="Connector" ComponentId="{0E995452-78B5-414D-B4B1-DB9B3BA6DD7F}" Directory_="Connector_Dir" Attributes="0" KeyPath="stdafx.h" Type="0"/>
+    <ROW Component="Connector" ComponentId="{0E995452-78B5-414D-B4B1-DB9B3BA6DD7F}" Directory_="Connector_Dir" Attributes="0" KeyPath="Client.h" Type="0"/>
     <ROW Component="D47E8ACA_EC67_4483_872C_C8478728E5E9" ComponentId="{3CF23DCC-5066-4104-BFA7-3708DF5FF133}" Directory_="APPDIR" Attributes="4" KeyPath="D47E8ACA_EC67_4483_872C_C8478728E5E9" Options="2"/>
-    <ROW Component="Service" ComponentId="{8CACED3E-2484-4704-B456-C84D2A072E38}" Directory_="Service_Dir" Attributes="0" KeyPath="stdafx.h_1" Type="0"/>
+    <ROW Component="Service" ComponentId="{8CACED3E-2484-4704-B456-C84D2A072E38}" Directory_="Service_Dir" Attributes="0" KeyPath="ConnectionPipe.h" Type="0"/>
     <ROW Component="ServiceRunner.exe_32" ComponentId="{D4D07BB2-AF73-4D33-A3E7-B9B38831227C}" Directory_="bin32_Dir" Attributes="0" KeyPath="ServiceRunner32.exe"/>
     <ROW Component="ServiceRunner.exe_64" ComponentId="{C173072E-35F5-41F3-9F9B-16B43333FAE8}" Directory_="bin64_Dir" Attributes="256" Condition="VersionNT64" KeyPath="ServiceRunner64.exe"/>
     <ROW Component="Settings" ComponentId="{B84C8F66-FCCC-4DF2-A081-741E2EB354F6}" Directory_="APPDIR" Attributes="4" KeyPath="ProductName"/>
@@ -104,14 +104,14 @@
     <ROW File="Public.h" Component_="Service" FileName="Public.h" Attributes="0" SourcePath="..\Service\Public.h" SelfReg="false" NextFile="Service.h"/>
     <ROW File="Quote.h" Component_="Util" FileName="Quote.h" Attributes="0" SourcePath="..\Util\Quote.h" SelfReg="false" NextFile="Semaphore.h"/>
     <ROW File="RequestBuilder.h" Component_="Connector" FileName="Reques~1.h|RequestBuilder.h" Attributes="0" SourcePath="..\Connector\RequestBuilder.h" SelfReg="false" NextFile="Settings.h"/>
-    <ROW File="Semaphore.h" Component_="Util" FileName="Semaph~1.h|Semaphore.h" Attributes="0" SourcePath="..\Util\Semaphore.h" SelfReg="false" NextFile="stdafx.h_2"/>
+    <ROW File="Semaphore.h" Component_="Util" FileName="Semaph~1.h|Semaphore.h" Attributes="0" SourcePath="..\Util\Semaphore.h" SelfReg="false" NextFile="String.h"/>
     <ROW File="Service.h" Component_="Service" FileName="Service.h" Attributes="0" SourcePath="..\Service\Service.h" SelfReg="false" NextFile="Settings.h_1"/>
     <ROW File="Service.lib" Component_="lib_32" FileName="Service.lib" Attributes="0" SourcePath="..\build\ReleaseWin32\Service.lib" SelfReg="false" NextFile="ServiceRunner32.exe"/>
     <ROW File="Service.lib_1" Component_="lib_64" FileName="Service.lib" Attributes="0" SourcePath="..\build\Releasex64\Service.lib" SelfReg="false" NextFile="Util.lib_1"/>
     <ROW File="ServiceRunner32.exe" Component_="ServiceRunner.exe_32" FileName="Servic~1.exe|ServiceRunner.exe" Attributes="0" SourcePath="..\build\ReleaseWin32\ServiceRunner.exe" SelfReg="false" NextFile="Util.lib"/>
     <ROW File="ServiceRunner64.exe" Component_="ServiceRunner.exe_64" FileName="Servic~1.exe|ServiceRunner.exe" Attributes="0" SourcePath="..\build\Releasex64\ServiceRunner.exe" SelfReg="false" NextFile="og_language.xml"/>
-    <ROW File="Settings.h" Component_="Connector" FileName="Settings.h" Attributes="0" SourcePath="..\Connector\Settings.h" SelfReg="false" NextFile="stdafx.h"/>
-    <ROW File="Settings.h_1" Component_="Service" FileName="Settings.h" Attributes="0" SourcePath="..\Service\Settings.h" SelfReg="false" NextFile="stdafx.h_1"/>
+    <ROW File="Settings.h" Component_="Connector" FileName="Settings.h" Attributes="0" SourcePath="..\Connector\Settings.h" SelfReg="false" NextFile="SynchronousCalls.h"/>
+    <ROW File="Settings.h_1" Component_="Service" FileName="Settings.h" Attributes="0" SourcePath="..\Service\Settings.h" SelfReg="false" NextFile="AbstractSettings.h"/>
     <ROW File="String.h" Component_="Util" FileName="String.h" Attributes="0" SourcePath="..\Util\String.h" SelfReg="false" NextFile="Thread.h"/>
     <ROW File="SynchronousCalls.h" Component_="Connector" FileName="Synchr~1.h|SynchronousCalls.h" Attributes="0" SourcePath="..\Connector\SynchronousCalls.h" SelfReg="false" NextFile="ClientConnect.h"/>
     <ROW File="Thread.h" Component_="Util" FileName="Thread.h" Attributes="0" SourcePath="..\Util\Thread.h" SelfReg="false" NextFile="TimeoutIO.h"/>
@@ -119,6 +119,7 @@
     <ROW File="Unicode.h" Component_="Util" FileName="Unicode.h" Attributes="0" SourcePath="..\Util\Unicode.h" SelfReg="false" NextFile="javax.el_juel_juel_api.jar"/>
     <ROW File="Util.lib" Component_="lib_32" FileName="Util.lib" Attributes="0" SourcePath="..\build\ReleaseWin32\Util.lib" SelfReg="false" NextFile="Connector.lib_1"/>
     <ROW File="Util.lib_1" Component_="lib_64" FileName="Util.lib" Attributes="0" SourcePath="..\build\Releasex64\Util.lib" SelfReg="false" NextFile="ServiceRunner64.exe"/>
+    <ROW File="Version.h" Component_="Util" FileName="Version.h" Attributes="0" SourcePath="..\Util\Version.h" SelfReg="false"/>
     <ROW File="apr.dll" Component_="dll_32" FileName="apr.dll" Attributes="0" SourcePath="..\build\ReleaseWin32\apr.dll" SelfReg="false" NextFile="aprutil.dll"/>
     <ROW File="apr.dll_1" Component_="dll_64" FileName="apr.dll" Attributes="0" SourcePath="..\build\Releasex64\apr.dll" SelfReg="false" NextFile="aprutil.dll_1"/>
     <ROW File="aprutil.dll" Component_="dll_32" FileName="aprutil.dll" Attributes="0" SourcePath="..\build\ReleaseWin32\aprutil.dll" SelfReg="false" NextFile="libfudgec.dll"/>
@@ -168,9 +169,13 @@
     <ROW File="com_opengamma_language_function_Result.h" Component_="Connector" FileName="com_o~18.h|com_opengamma_language_function_Result.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_function_Result.h" SelfReg="false" NextFile="com_opengamma_language_livedata_Available.h"/>
     <ROW File="com_opengamma_language_livedata_Available.h" Component_="Connector" FileName="com_o~19.h|com_opengamma_language_livedata_Available.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_livedata_Available.h" SelfReg="false" NextFile="com_opengamma_language_livedata_Available_Entry.h"/>
     <ROW File="com_opengamma_language_livedata_Available_Entry.h" Component_="Connector" FileName="com_o~20.h|com_opengamma_language_livedata_Available_Entry.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_livedata_Available_Entry.h" SelfReg="false" NextFile="com_opengamma_language_livedata_Custom.h"/>
+    <ROW File="com_opengamma_language_livedata_Connect.h" Component_="Connector" FileName="com_o~33.h|com_opengamma_language_livedata_Connect.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_livedata_Connect.h" SelfReg="false" NextFile="com_opengamma_language_livedata_Result.h"/>
     <ROW File="com_opengamma_language_livedata_Custom.h" Component_="Connector" FileName="com_o~21.h|com_opengamma_language_livedata_Custom.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_livedata_Custom.h" SelfReg="false" NextFile="com_opengamma_language_livedata_Definition.h"/>
     <ROW File="com_opengamma_language_livedata_Definition.h" Component_="Connector" FileName="com_o~22.h|com_opengamma_language_livedata_Definition.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_livedata_Definition.h" SelfReg="false" NextFile="com_opengamma_language_livedata_QueryAvailable.h"/>
+    <ROW File="com_opengamma_language_livedata_Disconnect.h" Component_="Connector" FileName="com_o~32.h|com_opengamma_language_livedata_Disconnect.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_livedata_Disconnect.h" SelfReg="false" NextFile="com_opengamma_language_livedata_Connect.h"/>
     <ROW File="com_opengamma_language_livedata_QueryAvailable.h" Component_="Connector" FileName="com_o~23.h|com_opengamma_language_livedata_QueryAvailable.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_livedata_QueryAvailable.h" SelfReg="false" NextFile="com_opengamma_language_procedure_Available.h"/>
+    <ROW File="com_opengamma_language_livedata_QueryValue.h" Component_="Connector" FileName="com_o~35.h|com_opengamma_language_livedata_QueryValue.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_livedata_QueryValue.h" SelfReg="false" NextFile="Version.h"/>
+    <ROW File="com_opengamma_language_livedata_Result.h" Component_="Connector" FileName="com_o~34.h|com_opengamma_language_livedata_Result.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_livedata_Result.h" SelfReg="false" NextFile="com_opengamma_language_livedata_QueryValue.h"/>
     <ROW File="com_opengamma_language_procedure_Available.h" Component_="Connector" FileName="com_o~24.h|com_opengamma_language_procedure_Available.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_procedure_Available.h" SelfReg="false" NextFile="com_opengamma_language_procedure_Available_Entry.h"/>
     <ROW File="com_opengamma_language_procedure_Available_Entry.h" Component_="Connector" FileName="com_o~25.h|com_opengamma_language_procedure_Available_Entry.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_procedure_Available_Entry.h" SelfReg="false" NextFile="com_opengamma_language_procedure_Custom.h"/>
     <ROW File="com_opengamma_language_procedure_Custom.h" Component_="Connector" FileName="com_o~26.h|com_opengamma_language_procedure_Custom.h" Attributes="0" SourcePath="..\Connector\com_opengamma_language_procedure_Custom.h" SelfReg="false" NextFile="com_opengamma_language_procedure_Definition.h"/>
@@ -243,7 +248,7 @@
     <ROW File="org.apache.derby_derby_derbytools.jar" Component_="jar" FileName="orgap~24.jar|org.apache.derby-derby-derbytools.jar" Attributes="0" SourcePath="..\build\jar\org.apache.derby-derby-derbytools.jar" SelfReg="false" NextFile="javax.mail_javamail_mail.jar"/>
     <ROW File="org.apache.httpcomponents_httpclient_httpclient.jar" Component_="jar" FileName="orgapa~3.jar|org.apache.httpcomponents-httpclient-httpclient.jar" Attributes="0" SourcePath="..\build\jar\org.apache.httpcomponents-httpclient-httpclient.jar" SelfReg="false" NextFile="org.dom4j_dom4j_dom4j.jar"/>
     <ROW File="org.apache.httpcomponents_httpcore_httpcore.jar" Component_="jar" FileName="orgap~10.jar|org.apache.httpcomponents-httpcore-httpcore.jar" Attributes="0" SourcePath="..\build\jar\org.apache.httpcomponents-httpcore-httpcore.jar" SelfReg="false" NextFile="javax.time_jsr_310_ri_jsr_310_TZDB_all.jar"/>
-    <ROW File="org.apache.poi_poi_poi.jar" Component_="jar" FileName="orgapa~4.jar|org.apache.poi-poi-poi.jar" Attributes="0" SourcePath="..\build\jar\org.apache.poi-poi-poi.jar" SelfReg="false"/>
+    <ROW File="org.apache.poi_poi_poi.jar" Component_="jar" FileName="orgapa~4.jar|org.apache.poi-poi-poi.jar" Attributes="0" SourcePath="..\build\jar\org.apache.poi-poi-poi.jar" SelfReg="false" NextFile="com_opengamma_language_livedata_Disconnect.h"/>
     <ROW File="org.apache.xbean_xbean_spring_xbean_spring.jar" Component_="jar" FileName="orgap~12.jar|org.apache.xbean-xbean-spring-xbean-spring.jar" Attributes="0" SourcePath="..\build\jar\org.apache.xbean-xbean-spring-xbean-spring.jar" SelfReg="false" NextFile="com.yahoo.platform.yui_yuicompressor_yuicompressor.jar"/>
     <ROW File="org.aspectj_aspectj_aspectj_rt.jar" Component_="jar" FileName="orgasp~1.jar|org.aspectj-aspectj-aspectj-rt.jar" Attributes="0" SourcePath="..\build\jar\org.aspectj-aspectj-aspectj-rt.jar" SelfReg="false" NextFile="com.opengamma_region_og_regions.jar"/>
     <ROW File="org.beanshell_bsh_bsh.jar" Component_="jar" FileName="orgbea~1.jar|org.beanshell-bsh-bsh.jar" Attributes="0" SourcePath="..\build\jar\org.beanshell-bsh-bsh.jar" SelfReg="false" NextFile="javax.activation_jaf_activation.jar"/>
@@ -284,9 +289,6 @@
     <ROW File="org.springframework_spring_spring_web.jar" Component_="jar" FileName="orgspr~4.jar|org.springframework-spring-spring-web.jar" Attributes="0" SourcePath="..\build\jar\org.springframework-spring-spring-web.jar" SelfReg="false" NextFile="org.netlib_netlib_java_netlib_java.jar"/>
     <ROW File="org.testng_testng_testng.jar" Component_="jar" FileName="orgtes~1.jar|org.testng-testng-testng.jar" Attributes="0" SourcePath="..\build\jar\org.testng-testng-testng.jar" SelfReg="false" NextFile="org.apache.derby_derby_derbyLocale_fr.jar"/>
     <ROW File="rhino_js_js.jar" Component_="jar" FileName="rhino-~1.jar|rhino-js-js.jar" Attributes="0" SourcePath="..\build\jar\rhino-js-js.jar" SelfReg="false" NextFile="javax.mail_javamail_pop3.jar"/>
-    <ROW File="stdafx.h" Component_="Connector" FileName="stdafx.h" Attributes="0" SourcePath="..\Connector\stdafx.h" SelfReg="false" NextFile="SynchronousCalls.h"/>
-    <ROW File="stdafx.h_1" Component_="Service" FileName="stdafx.h" Attributes="0" SourcePath="..\Service\stdafx.h" SelfReg="false" NextFile="AbstractSettings.h"/>
-    <ROW File="stdafx.h_2" Component_="Util" FileName="stdafx.h" Attributes="0" SourcePath="..\Util\stdafx.h" SelfReg="false" NextFile="String.h"/>
     <ROW File="us.fed.fs_optimization_optimization.jar" Component_="jar" FileName="usfedf~1.jar|us.fed.fs-optimization-optimization.jar" Attributes="0" SourcePath="..\build\jar\us.fed.fs-optimization-optimization.jar" SelfReg="false" NextFile="edu.oswego.cs_concurrent_concurrent.jar"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.AiRemoveFileComponent">
@@ -440,6 +442,8 @@
     <ROW Action="AI_XmlRemove" Type="11265" Source="xmlCfg.dll" Target="OnXmlRemove" WithoutSeq="true"/>
     <ROW Action="AI_XmlRollback" Type="11521" Source="xmlCfg.dll" Target="OnXmlRollback" WithoutSeq="true"/>
     <ROW Action="AI_XmlUninstall" Type="1" Source="xmlCfg.dll" Target="OnXmlUninstall"/>
+    <ROW Action="ExistingConfigurationURL" Type="51" Source="configuration.url" Target="[OPENGAMMA.CONFIGURATION.URL]"/>
+    <ROW Action="ExistingConfigurationURL_UI" Type="51" Source="configuration.url" Target="[OPENGAMMA.CONFIGURATION.URL]"/>
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="MSI_64:[ProgramFiles64Folder][Manufacturer]\[ProductName]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
@@ -462,7 +466,7 @@
     <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
     <ROW Action="AI_SETPROGRAMFILES64" Condition="VersionNT64" Sequence="746"/>
     <ROW Action="AI_SETPROGRAMFILES" Condition="NOT VersionNT64" Sequence="747"/>
-    <ROW Action="AI_AppSearchEx" Sequence="101"/>
+    <ROW Action="AI_AppSearchEx" Sequence="102"/>
     <ROW Action="AI_TxtUpdaterInstall" Sequence="5102"/>
     <ROW Action="AI_XmlInstall" Condition="(REMOVE &lt;&gt; &quot;ALL&quot;)" Sequence="5101"/>
     <ROW Action="AI_XmlUninstall" Condition="(REMOVE)" Sequence="3101"/>
@@ -472,18 +476,20 @@
     <ROW Action="AI_DetectJRE" Condition="1" Sequence="399" Builds="MSI_32;MSI_64"/>
     <ROW Action="AI_AiRemoveFilesRollback" Sequence="3099"/>
     <ROW Action="AI_AiRemoveFilesImmediate" Sequence="3499"/>
+    <ROW Action="ExistingConfigurationURL" Condition="OPENGAMMA.CONFIGURATION.URL" Sequence="101"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiInstallUISequenceComponent">
     <ROW Action="AI_RESTORE_LOCATION" Condition="APPDIR=&quot;&quot;" Sequence="745"/>
     <ROW Action="AI_ResolveKnownFolders" Sequence="51"/>
     <ROW Action="AI_SETPROGRAMFILES64" Condition="VersionNT64" Sequence="746"/>
     <ROW Action="AI_SETPROGRAMFILES" Condition="NOT VersionNT64" Sequence="747"/>
-    <ROW Action="AI_AppSearchEx" Sequence="101"/>
+    <ROW Action="AI_AppSearchEx" Sequence="102"/>
     <ROW Action="AI_InstallPrerequisite" Sequence="1283"/>
     <ROW Action="AI_InstallPostPrerequisite" Sequence="1301"/>
     <ROW Action="AI_ExtractPrereq" Sequence="1282"/>
     <ROW Action="AI_DownloadPrereq" Sequence="1281"/>
     <ROW Action="AI_DetectJRE" Condition="1" Sequence="399" Builds="MSI_32;MSI_64"/>
+    <ROW Action="ExistingConfigurationURL_UI" Condition="OPENGAMMA.CONFIGURATION.URL" Sequence="101"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiLaunchConditionsComponent">
     <ROW Condition="AI_JREVERFOUND = 1" Description="[ProductName] cannot be installed on systems with JRE version lower than [AI_MINJREVERSION]" DescriptionLocId="AI.LaunchCondition.Jre" IsPredefined="true" Builds="MSI_32;MSI_64"/>
@@ -547,10 +553,13 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.PreReqSearchComponent">
     <ROW SearchKey="A36DC7A_AF70_4CF0_B489_B30E0828F882_VC_2010_SEARCH_1" Prereq="A36DC7A_AF70_4CF0_B489_B30E0828F882" SearchType="9" SearchString="HKLM\SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86\Installed" RefContent="M1" Order="1" Property="AI_VC_2010_PREREQSEARCH_1_PROP_1"/>
-    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_2" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Installed" RefContent="M1" Order="1" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP_1" Platform="1"/>
+    <ROW SearchKey="D47E8ACA_EC67_4483_872C_C8478728E5E9_VC_2010_X64_SEARCH_2" Prereq="D47E8ACA_EC67_4483_872C_C8478728E5E9" SearchType="9" SearchString="HKLM\SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x64\Installed" RefContent="M1" Order="1" Property="AI_VC_2010_X64_PREREQSEARCH_1_PROP_1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.SynchronizedFolderComponent">
     <ROW Directory_="jar_Dir" SourcePath="..\build\jar" Feature="Java" ExcludePattern="*~|#*#|%*%|._|CVS|.cvsignore|SCCS|vssver.scc|mssccprj.scc|vssver2.scc|.svn|.DS_Store" ExcludeFlags="6"/>
+    <ROW Directory_="Connector_Dir" SourcePath="..\Connector" Feature="headers" IncludePattern="*.h" ExcludePattern="/stdafx.h" ExcludeFlags="6" ExcludeSubFolders="true"/>
+    <ROW Directory_="Service_Dir" SourcePath="..\Service" Feature="headers" IncludePattern="*.h" ExcludePattern="/stdafx.h" ExcludeFlags="6" ExcludeSubFolders="true"/>
+    <ROW Directory_="Util_Dir" SourcePath="..\Util" Feature="headers" IncludePattern="*.h" ExcludePattern="/stdafx.h" ExcludeFlags="6" ExcludeSubFolders="true"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.TxtUpdateComponent">
     <ROW Name="Append/Create" TxtUpdateSet="OpenGamma.properties" FindPattern="# Global properties&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
