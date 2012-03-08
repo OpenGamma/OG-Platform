@@ -5,13 +5,13 @@
  */
 package com.opengamma.examples.tool.portfolio;
 
-import com.opengamma.examples.tool.AbstractTool;
+import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.loader.PortfolioSaverTool;
 
 /**
  * Wrapper to expose the Examples classpath to the standard portfolio loader tool
  */
-public class ExamplePortfolioSaverTool extends AbstractTool {
+public class ExamplePortfolioSaverTool extends AbstractExampleTool {
 
   private static String[] s_args;
 
@@ -23,10 +23,7 @@ public class ExamplePortfolioSaverTool extends AbstractTool {
    * @param args  the arguments, unused
    */
   public static void main(String[] args) {  // CSIGNORE
-    if (init()) {
-      s_args = args;
-      new ExamplePortfolioSaverTool().run();
-    }
+    new ExamplePortfolioSaverTool().initAndRun(args);
     System.exit(0);
   }
 
