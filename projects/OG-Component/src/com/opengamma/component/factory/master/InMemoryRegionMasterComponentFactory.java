@@ -63,7 +63,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
    * The scheme used by the {@code UniqueId}.
    */
   @PropertyDefinition
-  private String _idScheme;
+  private String _uniqueIdScheme;
 
   //-------------------------------------------------------------------------
   @Override
@@ -71,7 +71,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
     ComponentInfo info = new ComponentInfo(RegionMaster.class, getClassifier());
     
     // create
-    String scheme = (getIdScheme() != null ? getIdScheme() : InMemoryRegionMaster.DEFAULT_OID_SCHEME);
+    String scheme = (getUniqueIdScheme() != null ? getUniqueIdScheme() : InMemoryRegionMaster.DEFAULT_OID_SCHEME);
     ChangeManager cm = new BasicChangeManager();
     if (getJmsChangeManagerTopic() != null) {
       cm = new JmsChangeManager(getJmsConnector(), getJmsChangeManagerTopic());
@@ -123,8 +123,8 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
         return getJmsConnector();
       case -758086398:  // jmsChangeManagerTopic
         return getJmsChangeManagerTopic();
-      case -661606752:  // idScheme
-        return getIdScheme();
+      case -1737146991:  // uniqueIdScheme
+        return getUniqueIdScheme();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -144,8 +144,8 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
       case -758086398:  // jmsChangeManagerTopic
         setJmsChangeManagerTopic((String) newValue);
         return;
-      case -661606752:  // idScheme
-        setIdScheme((String) newValue);
+      case -1737146991:  // uniqueIdScheme
+        setUniqueIdScheme((String) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -168,7 +168,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           JodaBeanUtils.equal(getJmsChangeManagerTopic(), other.getJmsChangeManagerTopic()) &&
-          JodaBeanUtils.equal(getIdScheme(), other.getIdScheme()) &&
+          JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
           super.equals(obj);
     }
     return false;
@@ -181,7 +181,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdScheme());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
     return hash ^ super.hashCode();
   }
 
@@ -291,24 +291,24 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
    * Gets the scheme used by the {@code UniqueId}.
    * @return the value of the property
    */
-  public String getIdScheme() {
-    return _idScheme;
+  public String getUniqueIdScheme() {
+    return _uniqueIdScheme;
   }
 
   /**
    * Sets the scheme used by the {@code UniqueId}.
-   * @param idScheme  the new value of the property
+   * @param uniqueIdScheme  the new value of the property
    */
-  public void setIdScheme(String idScheme) {
-    this._idScheme = idScheme;
+  public void setUniqueIdScheme(String uniqueIdScheme) {
+    this._uniqueIdScheme = uniqueIdScheme;
   }
 
   /**
-   * Gets the the {@code idScheme} property.
+   * Gets the the {@code uniqueIdScheme} property.
    * @return the property, not null
    */
-  public final Property<String> idScheme() {
-    return metaBean().idScheme().createProperty(this);
+  public final Property<String> uniqueIdScheme() {
+    return metaBean().uniqueIdScheme().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -342,10 +342,10 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
     private final MetaProperty<String> _jmsChangeManagerTopic = DirectMetaProperty.ofReadWrite(
         this, "jmsChangeManagerTopic", InMemoryRegionMasterComponentFactory.class, String.class);
     /**
-     * The meta-property for the {@code idScheme} property.
+     * The meta-property for the {@code uniqueIdScheme} property.
      */
-    private final MetaProperty<String> _idScheme = DirectMetaProperty.ofReadWrite(
-        this, "idScheme", InMemoryRegionMasterComponentFactory.class, String.class);
+    private final MetaProperty<String> _uniqueIdScheme = DirectMetaProperty.ofReadWrite(
+        this, "uniqueIdScheme", InMemoryRegionMasterComponentFactory.class, String.class);
     /**
      * The meta-properties.
      */
@@ -355,7 +355,7 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
         "publishRest",
         "jmsConnector",
         "jmsChangeManagerTopic",
-        "idScheme");
+        "uniqueIdScheme");
 
     /**
      * Restricted constructor.
@@ -374,8 +374,8 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
           return _jmsConnector;
         case -758086398:  // jmsChangeManagerTopic
           return _jmsChangeManagerTopic;
-        case -661606752:  // idScheme
-          return _idScheme;
+        case -1737146991:  // uniqueIdScheme
+          return _uniqueIdScheme;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -429,11 +429,11 @@ public class InMemoryRegionMasterComponentFactory extends AbstractComponentFacto
     }
 
     /**
-     * The meta-property for the {@code idScheme} property.
+     * The meta-property for the {@code uniqueIdScheme} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> idScheme() {
-      return _idScheme;
+    public final MetaProperty<String> uniqueIdScheme() {
+      return _uniqueIdScheme;
     }
 
   }

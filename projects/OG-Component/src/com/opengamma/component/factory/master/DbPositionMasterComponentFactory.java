@@ -64,7 +64,7 @@ public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
    * The scheme used by the {@code UniqueId}.
    */
   @PropertyDefinition
-  private String _idScheme;
+  private String _uniqueIdScheme;
   /**
    * The maximum number of retries when updating.
    */
@@ -78,8 +78,8 @@ public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
     
     // create
     DbPositionMaster master = new DbPositionMaster(getDbConnector());
-    if (getIdScheme() != null) {
-      master.setUniqueIdScheme(getIdScheme());
+    if (getUniqueIdScheme() != null) {
+      master.setUniqueIdScheme(getUniqueIdScheme());
     }
     if (getMaxRetries() != null) {
       master.setMaxRetries(getMaxRetries());
@@ -135,8 +135,8 @@ public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
         return getJmsConnector();
       case -758086398:  // jmsChangeManagerTopic
         return getJmsChangeManagerTopic();
-      case -661606752:  // idScheme
-        return getIdScheme();
+      case -1737146991:  // uniqueIdScheme
+        return getUniqueIdScheme();
       case -2022653118:  // maxRetries
         return getMaxRetries();
     }
@@ -161,8 +161,8 @@ public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
       case -758086398:  // jmsChangeManagerTopic
         setJmsChangeManagerTopic((String) newValue);
         return;
-      case -661606752:  // idScheme
-        setIdScheme((String) newValue);
+      case -1737146991:  // uniqueIdScheme
+        setUniqueIdScheme((String) newValue);
         return;
       case -2022653118:  // maxRetries
         setMaxRetries((Integer) newValue);
@@ -183,7 +183,7 @@ public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
           JodaBeanUtils.equal(getJmsConnector(), other.getJmsConnector()) &&
           JodaBeanUtils.equal(getJmsChangeManagerTopic(), other.getJmsChangeManagerTopic()) &&
-          JodaBeanUtils.equal(getIdScheme(), other.getIdScheme()) &&
+          JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
           JodaBeanUtils.equal(getMaxRetries(), other.getMaxRetries()) &&
           super.equals(obj);
     }
@@ -198,7 +198,7 @@ public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsConnector());
     hash += hash * 31 + JodaBeanUtils.hashCode(getJmsChangeManagerTopic());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdScheme());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
     hash += hash * 31 + JodaBeanUtils.hashCode(getMaxRetries());
     return hash ^ super.hashCode();
   }
@@ -333,24 +333,24 @@ public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
    * Gets the scheme used by the {@code UniqueId}.
    * @return the value of the property
    */
-  public String getIdScheme() {
-    return _idScheme;
+  public String getUniqueIdScheme() {
+    return _uniqueIdScheme;
   }
 
   /**
    * Sets the scheme used by the {@code UniqueId}.
-   * @param idScheme  the new value of the property
+   * @param uniqueIdScheme  the new value of the property
    */
-  public void setIdScheme(String idScheme) {
-    this._idScheme = idScheme;
+  public void setUniqueIdScheme(String uniqueIdScheme) {
+    this._uniqueIdScheme = uniqueIdScheme;
   }
 
   /**
-   * Gets the the {@code idScheme} property.
+   * Gets the the {@code uniqueIdScheme} property.
    * @return the property, not null
    */
-  public final Property<String> idScheme() {
-    return metaBean().idScheme().createProperty(this);
+  public final Property<String> uniqueIdScheme() {
+    return metaBean().uniqueIdScheme().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -414,10 +414,10 @@ public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<String> _jmsChangeManagerTopic = DirectMetaProperty.ofReadWrite(
         this, "jmsChangeManagerTopic", DbPositionMasterComponentFactory.class, String.class);
     /**
-     * The meta-property for the {@code idScheme} property.
+     * The meta-property for the {@code uniqueIdScheme} property.
      */
-    private final MetaProperty<String> _idScheme = DirectMetaProperty.ofReadWrite(
-        this, "idScheme", DbPositionMasterComponentFactory.class, String.class);
+    private final MetaProperty<String> _uniqueIdScheme = DirectMetaProperty.ofReadWrite(
+        this, "uniqueIdScheme", DbPositionMasterComponentFactory.class, String.class);
     /**
      * The meta-property for the {@code maxRetries} property.
      */
@@ -433,7 +433,7 @@ public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
         "dbConnector",
         "jmsConnector",
         "jmsChangeManagerTopic",
-        "idScheme",
+        "uniqueIdScheme",
         "maxRetries");
 
     /**
@@ -455,8 +455,8 @@ public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
           return _jmsConnector;
         case -758086398:  // jmsChangeManagerTopic
           return _jmsChangeManagerTopic;
-        case -661606752:  // idScheme
-          return _idScheme;
+        case -1737146991:  // uniqueIdScheme
+          return _uniqueIdScheme;
         case -2022653118:  // maxRetries
           return _maxRetries;
       }
@@ -520,11 +520,11 @@ public class DbPositionMasterComponentFactory extends AbstractComponentFactory {
     }
 
     /**
-     * The meta-property for the {@code idScheme} property.
+     * The meta-property for the {@code uniqueIdScheme} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> idScheme() {
-      return _idScheme;
+    public final MetaProperty<String> uniqueIdScheme() {
+      return _uniqueIdScheme;
     }
 
     /**
