@@ -18,6 +18,4 @@
 MANIFEST.MF
 build.number
 .settings/
-tests/classes/
-tests/output/
 /_ReSharper*
