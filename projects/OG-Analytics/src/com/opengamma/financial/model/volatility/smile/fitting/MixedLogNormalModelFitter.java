@@ -66,11 +66,11 @@ public class MixedLogNormalModelFitter extends SmileModelFitter<MixedLogNormalMo
       @Override
       public Boolean evaluate(DoubleMatrix1D x) {
         if (x.getEntry(0) <= 1e-4) {
-          return true;
+          return false;
         }
         for (int i = 1; i < _nNormals; i++) {
           if (x.getEntry(i) < 0.0) {
-            return true;
+            return false;
           }
         }
         //Don't constrain angles
@@ -86,7 +86,7 @@ public class MixedLogNormalModelFitter extends SmileModelFitter<MixedLogNormalMo
         //            }
         //          }
         //        }
-        return false;
+        return true;
       }
     };
   }

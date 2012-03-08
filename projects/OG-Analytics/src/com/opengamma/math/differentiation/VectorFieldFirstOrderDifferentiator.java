@@ -57,6 +57,15 @@ public class VectorFieldFirstOrderDifferentiator implements Differentiator<Doubl
     _twoEps = 2 * _eps;
   }
 
+  /**
+   * Approximates the derivative of a vector function by finite difference. If the size of the domain is very small or very large, consider re-scaling first.
+   * @param eps The step size used to approximate the derivative. If this value is too small, the result will most likely be dominated by noise.
+   * Use around 10<sup>-5</sup> times the domain size.
+   */
+  public VectorFieldFirstOrderDifferentiator(final double eps) {
+    this(DIFF_TYPE, eps);
+  }
+
   @Override
   public Function1D<DoubleMatrix1D, DoubleMatrix2D> differentiate(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function) {
     Validate.notNull(function);

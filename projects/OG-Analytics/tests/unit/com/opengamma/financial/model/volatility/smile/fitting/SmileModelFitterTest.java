@@ -85,7 +85,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
   }
 
   @Test
-  (enabled = false)
+  //(enabled = false)
   public void testExactFit() {
 
     final double[][] start = getStartValues();
@@ -121,7 +121,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
   }
 
   @Test
-  (enabled = false)
+  //(enabled = false)
   public void testNoisyFit() {
 
     final double[][] start = getStartValues();
@@ -203,7 +203,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
   }
 
   @Test
-  (enabled = false)
+  //(enabled = false)
   public void testJacobian() {
 
     T data = getModelData();
@@ -219,7 +219,7 @@ public abstract class SmileModelFitterTest<T extends SmileModelData> {
   }
 
   @Test
-  (enabled = false)
+  //(enabled = false)
   public void testRandomJacobian() {
     for (int i = 0; i < 10; i++) {
       double[] temp = getRandomStartValues();

@@ -141,6 +141,12 @@ public class VectorFieldFirstOrderDifferentiatorTest {
     }
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void outsideDomainTest() {
+    Function1D<DoubleMatrix1D, DoubleMatrix2D> fdJacFunc = CENTRAL.differentiate(F2, DOMAIN);
+    fdJacFunc.evaluate(new DoubleMatrix1D(2.3, 3.2));
+  }
+
   @Test
   public void testDomain() {
     final DoubleMatrix1D[] x = new DoubleMatrix1D[7];

@@ -33,7 +33,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   private static final Function1D<DoubleMatrix1D, Boolean> UNCONSTRAINED = new Function1D<DoubleMatrix1D, Boolean>() {
     @Override
     public Boolean evaluate(final DoubleMatrix1D x) {
-      return false;
+      return true;
     }
   };
 
@@ -130,7 +130,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   }
 
   protected DoubleMatrix1D getMaximumStep() {
-    return  null;
+    return null;
   }
 
   protected abstract NonLinearParameterTransforms getTransform(final DoubleMatrix1D start);
