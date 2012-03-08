@@ -34,9 +34,11 @@ public class InterestRateInstrumentParRateFunction extends InterestRateInstrumen
 
   @Override
   public Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle,
-      final FinancialSecurity security, final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {
+      final FinancialSecurity security, final ComputationTarget target, final String forwardCurveName, final String fundingCurveName,
+      final String curveCalculationMethod, final String currency) {
     final Double parRate = CALCULATOR.visit(derivative, bundle);
-    return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName), parRate));
+    return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod,
+        currency), parRate));
   }
 
   @Override

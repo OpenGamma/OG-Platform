@@ -55,18 +55,18 @@ import com.opengamma.util.tuple.Pair;
 public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   private static final String INSTRUMENT_TYPE_PROPERTY = "InstrumentType";
+  private static final String SURFACE_QUOTE_TYPE_PROPERTY = "SurfaceQuoteType";
   private static final Map<String, StructuredMarketDataKeyFactory> s_structuredKeyFactories = new HashMap<String, StructuredMarketDataKeyFactory>();
-  
+
   private final MarketDataSnapshotSource _snapshotSource;
   private final UniqueId _snapshotId;
   private StructuredMarketDataSnapshot _snapshot;
-  
+
   /**
    * Factory for {@link StructuredMarketDataKey} instances.
    */
   private abstract static class StructuredMarketDataKeyFactory {
 
-    
     /**
      * Gets the {@link StructuredMarketDataKey} corresponding to a value requirement.
      * 
@@ -74,7 +74,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
      * @return the structured market data key, null if the value requirement does not correspond to a key
      */
     public abstract StructuredMarketDataKey fromRequirement(ValueRequirement valueRequirement);
-    
+
     protected Currency getCurrency(ValueRequirement valueRequirement) {
       UniqueId targetId = getTarget(valueRequirement);
       if (targetId == null) {
@@ -86,14 +86,14 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       Currency currency = Currency.of(targetId.getValue());
       return currency;
     }
-    
+
     protected UniqueId getTarget(ValueRequirement valueRequirement) {
       if (valueRequirement.getTargetSpecification().getType() != ComputationTargetType.PRIMITIVE) {
         return null;
       }
       return valueRequirement.getTargetSpecification().getUniqueId();
     }
-    
+
   }
 
   static {
@@ -105,23 +105,22 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
         if (currency == null) {
           return null;
         }
-        
         ValueProperties.Builder effectiveProperties = ValueProperties.builder();
-        
+
         String curveName = valueRequirement.getConstraint(ValuePropertyNames.CURVE);
         if (curveName != null) {
           effectiveProperties.with(ValuePropertyNames.CURVE, curveName);
         }
-        
+
         if (!valueRequirement.getConstraints().isSatisfiedBy(effectiveProperties.get())) {
           // [PLAT-1776] Ensure that constraints not encoded in the key are not ignored
           return null;
         }
         return new YieldCurveKey(currency, curveName);
       }
-      
+
     });
-    
+
     registerStructuredKeyFactory(ValueRequirementNames.VOLATILITY_CUBE_MARKET_DATA, new StructuredMarketDataKeyFactory() {
 
       @Override
@@ -130,23 +129,23 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
         if (currency == null) {
           return null;
         }
-        
+
         ValueProperties.Builder effectiveProperties = ValueProperties.builder();
-        
+
         String cubeName = valueRequirement.getConstraint(ValuePropertyNames.CUBE);
         if (cubeName != null) {
           effectiveProperties.with(ValuePropertyNames.CUBE, cubeName);
         }
-        
+
         if (!valueRequirement.getConstraints().isSatisfiedBy(effectiveProperties.get())) {
           // [PLAT-1776] Ensure that constraints not encoded in the key are not ignored
           return null;
         }
         return new VolatilityCubeKey(currency, cubeName);
       }
-      
+
     });
-    
+
     registerStructuredKeyFactory(ValueRequirementNames.VOLATILITY_SURFACE_DATA, new StructuredMarketDataKeyFactory() {
 
       @Override
@@ -155,39 +154,38 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
         if (target == null) {
           return null;
         }
-        
-        ValueProperties.Builder effectiveProperties = ValueProperties.builder();
-        
-        String name = valueRequirement.getConstraint(ValuePropertyNames.SURFACE);
-        if (name != null) {
-          effectiveProperties.with(ValuePropertyNames.SURFACE, name);
-        }
-        
-        String instrumentType = valueRequirement.getConstraint(INSTRUMENT_TYPE_PROPERTY);
-        if (instrumentType != null) {
-          effectiveProperties.with(INSTRUMENT_TYPE_PROPERTY, instrumentType);
-        }
-        
-        if (!valueRequirement.getConstraints().isSatisfiedBy(effectiveProperties.get())) {
-          // [PLAT-1776] Ensure that constraints not encoded in the key are not ignored
+        final ValueProperties constraints = valueRequirement.getConstraints();
+        if (constraints.getProperties().size() != 3) {
           return null;
         }
-        return new VolatilitySurfaceKey(target, name, instrumentType);
+        final Set<String> names = constraints.getValues(ValuePropertyNames.SURFACE);
+        if ((names == null) || (names.size() != 1)) {
+          return null;
+        }
+        final Set<String> instrumentTypes = constraints.getValues(INSTRUMENT_TYPE_PROPERTY);
+        if ((instrumentTypes == null) || (instrumentTypes.size() != 1)) {
+          return null;
+        }
+        final Set<String> quoteTypes = constraints.getValues(SURFACE_QUOTE_TYPE_PROPERTY);
+        if ((quoteTypes == null) || (quoteTypes.size() != 1)) {
+          return null;
+        }
+        return new VolatilitySurfaceKey(target, names.iterator().next(), instrumentTypes.iterator().next(), quoteTypes.iterator().next());
       }
-      
+
     });
   }
-  
+
   public UserMarketDataSnapshot(MarketDataSnapshotSource snapshotSource, UniqueId snapshotId) {
     _snapshotSource = snapshotSource;
     _snapshotId = snapshotId;
   }
-  
+
   //-------------------------------------------------------------------------
 
   @Override
   public UniqueId getUniqueId() {
-    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "UserMarketDataSnapshot:"+getSnapshotTime());
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "UserMarketDataSnapshot:" + getSnapshotTime());
   }
 
   @Override
@@ -204,7 +202,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       _snapshot = null;
     }
   }
-  
+
   @Override
   public void init(Set<ValueRequirement> valuesRequired, long timeout, TimeUnit unit) {
     init();
@@ -243,7 +241,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
   private static void registerStructuredKeyFactory(String valueRequirementName, StructuredMarketDataKeyFactory factory) {
     s_structuredKeyFactories.put(valueRequirementName, factory);
   }
-  
+
   public static StructuredMarketDataKey getStructuredKey(ValueRequirement valueRequirement) {
     StructuredMarketDataKeyFactory factory = s_structuredKeyFactories.get(valueRequirement.getValueName());
     if (factory == null) {
@@ -259,7 +257,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     }
     MarketDataValueSpecification marketDataValueSpecification = new MarketDataValueSpecification(
         getTargetType(requirement), requirement.getTargetSpecification().getUniqueId());
-    
+
     Map<String, ValueSnapshot> map = globalValues.getValues().get(marketDataValueSpecification);
     if (map == null) {
       return null;
@@ -327,7 +325,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
       return volCubeSnapshot;
     }
   }
-  
+
   private VolatilitySurfaceData<Object, Object> getVolSurfaceSnapshot(VolatilitySurfaceKey volSurfaceKey) {
     if (getSnapshot().getVolatilitySurfaces() == null) {
       return null;
@@ -352,22 +350,22 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     return null;
 
   }
-  
+
   private StructuredMarketDataSnapshot getSnapshot() {
     if (_snapshot == null) {
       throw new IllegalStateException("Snapshot has not been initialised");
     }
     return _snapshot;
   }
-  
+
   private MarketDataSnapshotSource getSnapshotSource() {
     return _snapshotSource;
   }
-  
+
   private UniqueId getSnapshotId() {
     return _snapshotId;
   }
-  
+
   private Double query(ValueSnapshot valueSnapshot) {
     if (valueSnapshot == null) {
       return null;
@@ -378,7 +376,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     }
     return valueSnapshot.getMarketValue();
   }
-  
+
   private SnapshotDataBundle buildSnapshot(YieldCurveSnapshot yieldCurveSnapshot) {
     UnstructuredMarketDataSnapshot values = yieldCurveSnapshot.getValues();
     return buildBundle(values);
@@ -394,18 +392,18 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
     ret.setDataPoints(points);
     return ret;
   }
-  
+
   private VolatilityCubeData buildVolatilityCubeData(VolatilityCubeSnapshot volCubeSnapshot) {
     Map<VolatilityPoint, ValueSnapshot> values = volCubeSnapshot.getValues();
     HashMap<VolatilityPoint, Double> dataPoints = buildVolValues(values);
     HashMap<Pair<Tenor, Tenor>, Double> strikes = buildVolStrikes(volCubeSnapshot.getStrikes());
     SnapshotDataBundle otherData = buildBundle(volCubeSnapshot.getOtherValues());
-    
+
     VolatilityCubeData ret = new VolatilityCubeData();
     ret.setDataPoints(dataPoints);
     ret.setOtherData(otherData);
     ret.setATMStrikes(strikes);
-    
+
     return ret;
   }
 

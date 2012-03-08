@@ -32,9 +32,11 @@ public class InterestRateInstrumentParRateCurveSensitivityFunction extends Inter
 
   @Override
   public Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle,
-      final FinancialSecurity security, final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {
+      final FinancialSecurity security, final ComputationTarget target, final String forwardCurveName, final String fundingCurveName,
+      final String curveCalculationMethod, final String currency) {
     final Map<String, List<DoublesPair>> sensitivities = CALCULATOR.visit(derivative, bundle);
-    return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName), sensitivities));
+    return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod,
+        currency), sensitivities));
 
   }
 

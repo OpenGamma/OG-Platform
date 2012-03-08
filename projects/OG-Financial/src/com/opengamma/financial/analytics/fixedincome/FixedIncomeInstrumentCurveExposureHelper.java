@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.fixedincome;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.Security;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueProperties.Builder;
 import com.opengamma.engine.value.ValuePropertyNames;
@@ -120,13 +119,6 @@ public final class FixedIncomeInstrumentCurveExposureHelper {
       default:
         throw new OpenGammaRuntimeException("Could not find " + type + " in security instrument list");
     }
-  }
-
-  public static ValueProperties.Builder valuePropertiesForSecurity(final Security security, final ValueProperties.Builder properties) {
-    final Currency ccy = FinancialSecurityUtils.getCurrency(security);
-    // REVIEW 2011-11-25 andrew -- Curve currency makes sense, but is adding the currency wise here? Are we always generating monetary values?
-    properties.with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).with(ValuePropertyNames.CURRENCY, ccy.getCode());
-    return properties;
   }
 
   /**

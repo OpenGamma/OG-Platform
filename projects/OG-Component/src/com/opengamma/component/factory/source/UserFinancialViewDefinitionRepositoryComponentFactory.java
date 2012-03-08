@@ -26,6 +26,7 @@ import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.engine.view.AggregatingViewDefinitionRepository;
 import com.opengamma.engine.view.ViewDefinitionRepository;
 import com.opengamma.financial.view.ConfigDbViewDefinitionRepository;
+import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.financial.view.memory.InMemoryViewDefinitionRepository;
 import com.opengamma.master.config.ConfigMaster;
 
@@ -88,8 +89,8 @@ public class UserFinancialViewDefinitionRepositoryComponentFactory extends Abstr
     if (getUserClassifier() == null) {
       return null;
     }
-    ViewDefinitionRepository source = new InMemoryViewDefinitionRepository();
-    ComponentInfo info = new ComponentInfo(ViewDefinitionRepository.class, getUserClassifier());
+    ManageableViewDefinitionRepository source = new InMemoryViewDefinitionRepository();
+    ComponentInfo info = new ComponentInfo(ManageableViewDefinitionRepository.class, getUserClassifier());
     repo.registerComponent(info, source);
     return source;
   }
