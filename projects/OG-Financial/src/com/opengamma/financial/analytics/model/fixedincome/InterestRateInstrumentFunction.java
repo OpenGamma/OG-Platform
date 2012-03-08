@@ -194,8 +194,6 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final String fundingCurve = fundingCurves.iterator().next();
     final String curveCalculationMethod = curveCalculationMethodNames.iterator().next();
     if (curveCalculationMethod.equals(InterpolatedYieldCurveFunction.CALCULATION_METHOD_NAME)) {
-      final Object temp1 = getInterpolatedCurveRequirement(target, forwardCurve, true, curveCalculationMethod);
-      final Object temp2 = getInterpolatedCurveRequirement(target, fundingCurve, false, curveCalculationMethod);
       return Sets.newHashSet(getInterpolatedCurveRequirement(target, forwardCurve, true, curveCalculationMethod),
           getInterpolatedCurveRequirement(target, fundingCurve, false, curveCalculationMethod));
     }
