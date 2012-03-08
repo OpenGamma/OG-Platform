@@ -105,10 +105,10 @@ import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumen
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentPresentValueFunction;
 import com.opengamma.financial.analytics.model.fixedincome.InterestRateInstrumentYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardCurrencyExposureFunction;
-import com.opengamma.financial.analytics.model.forex.ForexForwardDefaultCurveNamesFunction;
+import com.opengamma.financial.analytics.model.forex.ForexForwardDefaultPayCurveNamesFunction;
+import com.opengamma.financial.analytics.model.forex.ForexForwardDefaultReceiveCurveNamesFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardPresentValueCurveSensitivityFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardPresentValueFunction;
-import com.opengamma.financial.analytics.model.forex.ForexForwardYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.forex.ForexOptionCurrencyExposureFunction;
 import com.opengamma.financial.analytics.model.forex.ForexOptionDefaultCurveNamesFunction;
 import com.opengamma.financial.analytics.model.forex.ForexOptionPresentValueCurveSensitivityFunction;
@@ -684,7 +684,8 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(ForexForwardPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(ForexForwardCurrencyExposureFunction.class));
     functionConfigs.add(functionConfiguration(ForexForwardPresentValueCurveSensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultCurveNamesFunction.class, "FUNDING", "USD", "EUR", "GBP", "JPY", "CHF"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPayCurveNamesFunction.class, "FUNDING", "USD", "EUR", "GBP", "JPY", "CHF"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultReceiveCurveNamesFunction.class, "FUNDING", "USD", "EUR", "GBP", "JPY", "CHF"));
 //    functionConfigs.add(functionConfiguration(ForexForwardYieldCurveNodeSensitivitiesFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_3M"));
 //    functionConfigs.add(functionConfiguration(ForexForwardYieldCurveNodeSensitivitiesFunction.class, "FUNDING", "FORWARD_3M", "FUNDING", "FORWARD_6M"));
 //    functionConfigs.add(functionConfiguration(ForexForwardYieldCurveNodeSensitivitiesFunction.class, "FUNDING", "FORWARD_6M", "FUNDING", "FORWARD_3M"));
