@@ -3,10 +3,10 @@
  *
  * Please see distribution for license.
  */
-
 package com.opengamma.language.install;
 
-import java.util.Set;
+import java.net.URI;
+import java.util.Collection;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeField;
@@ -15,9 +15,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
-import com.opengamma.transport.jaxrs.RestClient;
-import com.opengamma.transport.jaxrs.RestTarget;
+import com.opengamma.language.config.RemoteConfiguration;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * {@link ConfigurationScanner} that produces the configurations available from a given host.
@@ -30,7 +30,6 @@ public class HostConfigurationScanner extends AbstractConfigurationScanner imple
    * Default host name.
    */
   public static final String DEFAULT_HOST = "localhost";
-
   /**
    * Default port.
    */
@@ -46,8 +45,7 @@ public class HostConfigurationScanner extends AbstractConfigurationScanner imple
   private final String _host;
   private final int _port;
   private final String _base;
-  private RestClient _restClient;
-  private FudgeContext _fudgeContext = FudgeContext.GLOBAL_DEFAULT;
+  private FudgeContext _fudgeContext = OpenGammaFudgeContext.getInstance();
 
   public HostConfigurationScanner(final String host) {
     this(host, DEFAULT_PORT, DEFAULT_BASE);
@@ -70,6 +68,7 @@ public class HostConfigurationScanner extends AbstractConfigurationScanner imple
     _base = base;
   }
 
+  //-------------------------------------------------------------------------
   public String getHost() {
     return _host;
   }
@@ -82,51 +81,40 @@ public class HostConfigurationScanner extends AbstractConfigurationScanner imple
     return _base;
   }
 
+  public FudgeContext getFudgeContext() {
+    return _fudgeContext;
+  }
+
   public void setFudgeContext(final FudgeContext fudgeContext) {
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
     _fudgeContext = fudgeContext;
   }
 
-  public FudgeContext getFudgeContext() {
-    return _fudgeContext;
-  }
-
-  public void setRestClient(final RestClient client) {
-    _restClient = client;
-  }
-
-  public RestClient getRestClient() {
-    return _restClient;
-  }
-
+  //-------------------------------------------------------------------------
   @Override
   public void run() {
-    final RestTarget target = new RestTarget("http://" + getHost() + ":" + getPort() + getBase());
+    final URI uri = URI.create("http://" + getHost() + ":" + getPort() + getBase());
     try {
-      RestClient client = getRestClient();
-      if (client == null) {
-        client = RestClient.getInstance(getFudgeContext(), null);
-      }
-      s_logger.debug("Fetching {}", target);
-      FudgeMsg configurations = client.getMsg(target);
+      FudgeMsg configurations = new RemoteConfiguration(uri).getConfigurationMsg();
       if (configurations == null) {
-        s_logger.info("No configuration document at {}", target);
+        s_logger.info("No configuration document at {}", uri);
         return;
       }
-      final Set<Configuration> found = Sets.newHashSetWithExpectedSize(configurations.getNumFields());
+      final Collection<Configuration> found = Sets.newHashSetWithExpectedSize(configurations.getNumFields());
       for (FudgeField field : configurations) {
         final FudgeMsg configuration = configurations.getFieldValue(FudgeMsg.class, field);
         final String description = configuration.getString(DESCRIPTION_FIELD);
         if (description != null) {
           s_logger.debug("Found {}/{}", field.getName(), description);
-          found.add(new Configuration(target.resolveBase(field.getName()).getURI(), description));
+          found.add(new Configuration(uri.resolve(field.getName()), description));
         } else {
           s_logger.debug("Ignoring {} - no description", field.getName());
         }
       }
       addConfigurations(found);
+      
     } catch (RuntimeException e) {
-      s_logger.info("Couldn't fetch configuration from {}", target);
+      s_logger.info("Couldn't fetch configuration from {}", uri);
       s_logger.debug("Caught exception", e);
     } finally {
       complete();

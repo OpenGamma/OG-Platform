@@ -39,6 +39,7 @@ import com.opengamma.financial.view.ManageableViewDefinitionRepository;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.SecurityMaster;
@@ -52,8 +53,11 @@ import com.opengamma.web.server.push.grid.PushLiveResultsService;
 import com.opengamma.web.server.push.reports.CsvReportGenerator;
 import com.opengamma.web.server.push.reports.ReportFactory;
 import com.opengamma.web.server.push.reports.ReportGenerator;
+import com.opengamma.web.server.push.rest.AggregatorNamesResource;
+import com.opengamma.web.server.push.rest.MarketDataSnapshotListResource;
 import com.opengamma.web.server.push.rest.MasterType;
 import com.opengamma.web.server.push.rest.ReportMessageBodyWriter;
+import com.opengamma.web.server.push.rest.ViewDefinitionEntriesResource;
 import com.opengamma.web.server.push.rest.ViewportDefinitionMessageBodyReader;
 import com.opengamma.web.server.push.rest.ViewportsResource;
 
@@ -109,10 +113,15 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   @PropertyDefinition(validate = "notNull")
   private PortfolioMaster _userPortfolioMaster;
   /**
-   * The user master.
+   * The combined view definition repository.
    */
   @PropertyDefinition(validate = "notNull")
-  private ViewDefinitionRepository _userViewDefinitionRepository;
+  private ViewDefinitionRepository _viewDefinitionRepository;
+  /**
+   * The user view definition repository.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private ManageableViewDefinitionRepository _userViewDefinitionRepository;
   /**
    * The view processor.
    */
@@ -123,6 +132,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    */
   @PropertyDefinition(validate = "notNull")
   private PortfolioAggregationFunctions _portfolioAggregationFunctions;
+  /**
+   * The market data snapshot master.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private MarketDataSnapshotMaster _marketDataSnapshotMaster;
   /**
    * The user.
    */
@@ -137,16 +151,23 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
   //-------------------------------------------------------------------------
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
-    final PushLiveResultsService liveResults = buildLiveResults();
+    PushLiveResultsService liveResults = buildLiveResults();
     final LongPollingConnectionManager longPolling = buildLongPolling();
-    final ReportFactory reportFactory = buildReportFactory();
-    final ChangeManager changeMgr = buildChangeManager();
-    final MasterChangeManager masterChangeMgr = buildMasterChangeManager();
+    ReportFactory reportFactory = buildReportFactory();
+    ChangeManager changeMgr = buildChangeManager();
+    MasterChangeManager masterChangeMgr = buildMasterChangeManager();
     
     final ConnectionManager connectionMgr = new ConnectionManagerImpl(changeMgr, masterChangeMgr, liveResults, longPolling);
-    final ViewportsResource resource = new ViewportsResource(connectionMgr, reportFactory);
-    repo.getRestComponents().publishResource(resource);
-    
+    ViewportsResource viewportsResource = new ViewportsResource(connectionMgr, reportFactory);
+    ViewDefinitionEntriesResource viewDefinitionResource = new ViewDefinitionEntriesResource(getViewDefinitionRepository());
+    AggregatorNamesResource aggregatorsResource = new AggregatorNamesResource(getPortfolioAggregationFunctions().getMappedFunctions().keySet());
+    MarketDataSnapshotListResource snapshotResource = new MarketDataSnapshotListResource(getMarketDataSnapshotMaster());
+
+    repo.getRestComponents().publishResource(viewportsResource);
+    repo.getRestComponents().publishResource(viewDefinitionResource);
+    repo.getRestComponents().publishResource(aggregatorsResource);
+    repo.getRestComponents().publishResource(snapshotResource);
+
     repo.getRestComponents().publishHelper(new ViewportDefinitionMessageBodyReader());
     repo.getRestComponents().publishHelper(new ReportMessageBodyWriter());
     
@@ -167,7 +188,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         getSecuritySource(),
         getUserPortfolioMaster(),
         getUserPositionMaster(),
-        (ManageableViewDefinitionRepository) getUserViewDefinitionRepository(),
+        getUserViewDefinitionRepository(),
         getUser(),
         getFudgeContext(),
         getPortfolioAggregationFunctions());
@@ -243,12 +264,16 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         return getUserPositionMaster();
       case 686514815:  // userPortfolioMaster
         return getUserPortfolioMaster();
+      case -952415422:  // viewDefinitionRepository
+        return getViewDefinitionRepository();
       case -1371772371:  // userViewDefinitionRepository
         return getUserViewDefinitionRepository();
       case -1697555603:  // viewProcessor
         return getViewProcessor();
       case 940303425:  // portfolioAggregationFunctions
         return getPortfolioAggregationFunctions();
+      case 2090650860:  // marketDataSnapshotMaster
+        return getMarketDataSnapshotMaster();
       case 3599307:  // user
         return getUser();
       case -917704420:  // fudgeContext
@@ -287,14 +312,20 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
       case 686514815:  // userPortfolioMaster
         setUserPortfolioMaster((PortfolioMaster) newValue);
         return;
+      case -952415422:  // viewDefinitionRepository
+        setViewDefinitionRepository((ViewDefinitionRepository) newValue);
+        return;
       case -1371772371:  // userViewDefinitionRepository
-        setUserViewDefinitionRepository((ViewDefinitionRepository) newValue);
+        setUserViewDefinitionRepository((ManageableViewDefinitionRepository) newValue);
         return;
       case -1697555603:  // viewProcessor
         setViewProcessor((ViewProcessor) newValue);
         return;
       case 940303425:  // portfolioAggregationFunctions
         setPortfolioAggregationFunctions((PortfolioAggregationFunctions) newValue);
+        return;
+      case 2090650860:  // marketDataSnapshotMaster
+        setMarketDataSnapshotMaster((MarketDataSnapshotMaster) newValue);
         return;
       case 3599307:  // user
         setUser((UserPrincipal) newValue);
@@ -317,9 +348,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     JodaBeanUtils.notNull(_historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
     JodaBeanUtils.notNull(_userPositionMaster, "userPositionMaster");
     JodaBeanUtils.notNull(_userPortfolioMaster, "userPortfolioMaster");
+    JodaBeanUtils.notNull(_viewDefinitionRepository, "viewDefinitionRepository");
     JodaBeanUtils.notNull(_userViewDefinitionRepository, "userViewDefinitionRepository");
     JodaBeanUtils.notNull(_viewProcessor, "viewProcessor");
     JodaBeanUtils.notNull(_portfolioAggregationFunctions, "portfolioAggregationFunctions");
+    JodaBeanUtils.notNull(_marketDataSnapshotMaster, "marketDataSnapshotMaster");
     JodaBeanUtils.notNull(_user, "user");
     JodaBeanUtils.notNull(_fudgeContext, "fudgeContext");
     super.validate();
@@ -341,9 +374,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           JodaBeanUtils.equal(getHistoricalTimeSeriesMaster(), other.getHistoricalTimeSeriesMaster()) &&
           JodaBeanUtils.equal(getUserPositionMaster(), other.getUserPositionMaster()) &&
           JodaBeanUtils.equal(getUserPortfolioMaster(), other.getUserPortfolioMaster()) &&
+          JodaBeanUtils.equal(getViewDefinitionRepository(), other.getViewDefinitionRepository()) &&
           JodaBeanUtils.equal(getUserViewDefinitionRepository(), other.getUserViewDefinitionRepository()) &&
           JodaBeanUtils.equal(getViewProcessor(), other.getViewProcessor()) &&
           JodaBeanUtils.equal(getPortfolioAggregationFunctions(), other.getPortfolioAggregationFunctions()) &&
+          JodaBeanUtils.equal(getMarketDataSnapshotMaster(), other.getMarketDataSnapshotMaster()) &&
           JodaBeanUtils.equal(getUser(), other.getUser()) &&
           JodaBeanUtils.equal(getFudgeContext(), other.getFudgeContext()) &&
           super.equals(obj);
@@ -363,9 +398,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getHistoricalTimeSeriesMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserPositionMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserPortfolioMaster());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getViewDefinitionRepository());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUserViewDefinitionRepository());
     hash += hash * 31 + JodaBeanUtils.hashCode(getViewProcessor());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPortfolioAggregationFunctions());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getMarketDataSnapshotMaster());
     hash += hash * 31 + JodaBeanUtils.hashCode(getUser());
     hash += hash * 31 + JodaBeanUtils.hashCode(getFudgeContext());
     return hash ^ super.hashCode();
@@ -607,18 +644,44 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the user master.
+   * Gets the combined view definition repository.
    * @return the value of the property, not null
    */
-  public ViewDefinitionRepository getUserViewDefinitionRepository() {
+  public ViewDefinitionRepository getViewDefinitionRepository() {
+    return _viewDefinitionRepository;
+  }
+
+  /**
+   * Sets the combined view definition repository.
+   * @param viewDefinitionRepository  the new value of the property, not null
+   */
+  public void setViewDefinitionRepository(ViewDefinitionRepository viewDefinitionRepository) {
+    JodaBeanUtils.notNull(viewDefinitionRepository, "viewDefinitionRepository");
+    this._viewDefinitionRepository = viewDefinitionRepository;
+  }
+
+  /**
+   * Gets the the {@code viewDefinitionRepository} property.
+   * @return the property, not null
+   */
+  public final Property<ViewDefinitionRepository> viewDefinitionRepository() {
+    return metaBean().viewDefinitionRepository().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the user view definition repository.
+   * @return the value of the property, not null
+   */
+  public ManageableViewDefinitionRepository getUserViewDefinitionRepository() {
     return _userViewDefinitionRepository;
   }
 
   /**
-   * Sets the user master.
+   * Sets the user view definition repository.
    * @param userViewDefinitionRepository  the new value of the property, not null
    */
-  public void setUserViewDefinitionRepository(ViewDefinitionRepository userViewDefinitionRepository) {
+  public void setUserViewDefinitionRepository(ManageableViewDefinitionRepository userViewDefinitionRepository) {
     JodaBeanUtils.notNull(userViewDefinitionRepository, "userViewDefinitionRepository");
     this._userViewDefinitionRepository = userViewDefinitionRepository;
   }
@@ -627,7 +690,7 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    * Gets the the {@code userViewDefinitionRepository} property.
    * @return the property, not null
    */
-  public final Property<ViewDefinitionRepository> userViewDefinitionRepository() {
+  public final Property<ManageableViewDefinitionRepository> userViewDefinitionRepository() {
     return metaBean().userViewDefinitionRepository().createProperty(this);
   }
 
@@ -681,6 +744,32 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
    */
   public final Property<PortfolioAggregationFunctions> portfolioAggregationFunctions() {
     return metaBean().portfolioAggregationFunctions().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the market data snapshot master.
+   * @return the value of the property, not null
+   */
+  public MarketDataSnapshotMaster getMarketDataSnapshotMaster() {
+    return _marketDataSnapshotMaster;
+  }
+
+  /**
+   * Sets the market data snapshot master.
+   * @param marketDataSnapshotMaster  the new value of the property, not null
+   */
+  public void setMarketDataSnapshotMaster(MarketDataSnapshotMaster marketDataSnapshotMaster) {
+    JodaBeanUtils.notNull(marketDataSnapshotMaster, "marketDataSnapshotMaster");
+    this._marketDataSnapshotMaster = marketDataSnapshotMaster;
+  }
+
+  /**
+   * Gets the the {@code marketDataSnapshotMaster} property.
+   * @return the property, not null
+   */
+  public final Property<MarketDataSnapshotMaster> marketDataSnapshotMaster() {
+    return metaBean().marketDataSnapshotMaster().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -791,10 +880,15 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<PortfolioMaster> _userPortfolioMaster = DirectMetaProperty.ofReadWrite(
         this, "userPortfolioMaster", WebsiteViewportsComponentFactory.class, PortfolioMaster.class);
     /**
+     * The meta-property for the {@code viewDefinitionRepository} property.
+     */
+    private final MetaProperty<ViewDefinitionRepository> _viewDefinitionRepository = DirectMetaProperty.ofReadWrite(
+        this, "viewDefinitionRepository", WebsiteViewportsComponentFactory.class, ViewDefinitionRepository.class);
+    /**
      * The meta-property for the {@code userViewDefinitionRepository} property.
      */
-    private final MetaProperty<ViewDefinitionRepository> _userViewDefinitionRepository = DirectMetaProperty.ofReadWrite(
-        this, "userViewDefinitionRepository", WebsiteViewportsComponentFactory.class, ViewDefinitionRepository.class);
+    private final MetaProperty<ManageableViewDefinitionRepository> _userViewDefinitionRepository = DirectMetaProperty.ofReadWrite(
+        this, "userViewDefinitionRepository", WebsiteViewportsComponentFactory.class, ManageableViewDefinitionRepository.class);
     /**
      * The meta-property for the {@code viewProcessor} property.
      */
@@ -805,6 +899,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
      */
     private final MetaProperty<PortfolioAggregationFunctions> _portfolioAggregationFunctions = DirectMetaProperty.ofReadWrite(
         this, "portfolioAggregationFunctions", WebsiteViewportsComponentFactory.class, PortfolioAggregationFunctions.class);
+    /**
+     * The meta-property for the {@code marketDataSnapshotMaster} property.
+     */
+    private final MetaProperty<MarketDataSnapshotMaster> _marketDataSnapshotMaster = DirectMetaProperty.ofReadWrite(
+        this, "marketDataSnapshotMaster", WebsiteViewportsComponentFactory.class, MarketDataSnapshotMaster.class);
     /**
      * The meta-property for the {@code user} property.
      */
@@ -829,9 +928,11 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
         "historicalTimeSeriesMaster",
         "userPositionMaster",
         "userPortfolioMaster",
+        "viewDefinitionRepository",
         "userViewDefinitionRepository",
         "viewProcessor",
         "portfolioAggregationFunctions",
+        "marketDataSnapshotMaster",
         "user",
         "fudgeContext");
 
@@ -862,12 +963,16 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
           return _userPositionMaster;
         case 686514815:  // userPortfolioMaster
           return _userPortfolioMaster;
+        case -952415422:  // viewDefinitionRepository
+          return _viewDefinitionRepository;
         case -1371772371:  // userViewDefinitionRepository
           return _userViewDefinitionRepository;
         case -1697555603:  // viewProcessor
           return _viewProcessor;
         case 940303425:  // portfolioAggregationFunctions
           return _portfolioAggregationFunctions;
+        case 2090650860:  // marketDataSnapshotMaster
+          return _marketDataSnapshotMaster;
         case 3599307:  // user
           return _user;
         case -917704420:  // fudgeContext
@@ -965,10 +1070,18 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
     }
 
     /**
+     * The meta-property for the {@code viewDefinitionRepository} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<ViewDefinitionRepository> viewDefinitionRepository() {
+      return _viewDefinitionRepository;
+    }
+
+    /**
      * The meta-property for the {@code userViewDefinitionRepository} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<ViewDefinitionRepository> userViewDefinitionRepository() {
+    public final MetaProperty<ManageableViewDefinitionRepository> userViewDefinitionRepository() {
       return _userViewDefinitionRepository;
     }
 
@@ -986,6 +1099,14 @@ public class WebsiteViewportsComponentFactory extends AbstractComponentFactory {
      */
     public final MetaProperty<PortfolioAggregationFunctions> portfolioAggregationFunctions() {
       return _portfolioAggregationFunctions;
+    }
+
+    /**
+     * The meta-property for the {@code marketDataSnapshotMaster} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<MarketDataSnapshotMaster> marketDataSnapshotMaster() {
+      return _marketDataSnapshotMaster;
     }
 
     /**

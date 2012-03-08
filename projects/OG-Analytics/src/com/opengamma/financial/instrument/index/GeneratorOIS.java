@@ -48,6 +48,10 @@ public class GeneratorOIS {
    */
   private final int _spotLag;
   /**
+   * The lag in days between the last ON fixing date and the coupon payment. Usually is the same as the _spotLag.
+   */
+  private final int _paymentLag;
+  /**
    * In case the the periods do not fit exactly between start and end date, is the remaining interval shorter (true) or longer (false) than the requested period.
    */
   private final boolean _stubShort;
@@ -80,6 +84,37 @@ public class GeneratorOIS {
     this._businessDayConvention = businessDayConvention;
     this._endOfMonth = endOfMonth;
     _spotLag = spotLag;
+    _paymentLag = spotLag;
+    _stubShort = true;
+    _fromEnd = true;
+  }
+
+  /**
+   * Constructor from all details. The stub is short and date constructed from the end.
+   * @param name The generator name.
+   * @param index The ON index of the floating leg.
+   * @param legsPeriod The legs period of payments (both fixed and ON legs have the same payment frequency).
+   * @param fixedLegDayCount The fixed leg day count.
+   * @param businessDayConvention The business day convention for the payments (used for both legs).
+   * @param endOfMonth The flag indicating if the end-of-month rule is used (used for both legs).
+   * @param spotLag The index spot lag in days between trade and settlement date (usually 2 or 0).
+   * @param paymentLag The lag in days between the last ON fixing date and the coupon payment.
+   */
+  public GeneratorOIS(final String name, final IndexON index, final Period legsPeriod, final DayCount fixedLegDayCount, final BusinessDayConvention businessDayConvention, final boolean endOfMonth,
+      final int spotLag, final int paymentLag) {
+    Validate.notNull(name, "Name");
+    Validate.notNull(legsPeriod, "Period");
+    Validate.notNull(fixedLegDayCount, "Fixed leg day count");
+    Validate.notNull(businessDayConvention, "Business day convention");
+    Validate.notNull(index, "Index ON");
+    _name = name;
+    _index = index;
+    this._legsPeriod = legsPeriod;
+    this._fixedLegDayCount = fixedLegDayCount;
+    this._businessDayConvention = businessDayConvention;
+    this._endOfMonth = endOfMonth;
+    _spotLag = spotLag;
+    _paymentLag = paymentLag;
     _stubShort = true;
     _fromEnd = true;
   }
@@ -154,6 +189,14 @@ public class GeneratorOIS {
    */
   public int getSpotLag() {
     return _spotLag;
+  }
+
+  /**
+   * Gets the lag in days between the last ON fixing date and the coupon payment.
+   * @return The payment lag.
+   */
+  public int getPaymentLag() {
+    return _paymentLag;
   }
 
   /**

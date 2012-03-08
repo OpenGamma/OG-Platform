@@ -3,16 +3,11 @@
  *
  * Please see distribution for license.
  */
-
 package com.opengamma.language.install;
 
 import java.util.concurrent.ExecutorService;
 
-import org.fudgemsg.FudgeContext;
-
-import com.opengamma.transport.jaxrs.RestClient;
 import com.opengamma.util.ArgumentChecker;
-
 
 /**
  * A {@link ConfigurationScanner} that scans a set of hosts.
@@ -20,12 +15,10 @@ import com.opengamma.util.ArgumentChecker;
 public class MultipleHostConfigurationScanner extends CombiningConfigurationScanner {
 
   private final ExecutorService _executor;
-  private final RestClient _client;
 
   public MultipleHostConfigurationScanner(final ExecutorService executor) {
     ArgumentChecker.notNull(executor, "executor");
     _executor = executor;
-    _client = RestClient.getInstance(FudgeContext.GLOBAL_DEFAULT, null);
   }
 
   /**
@@ -72,15 +65,9 @@ public class MultipleHostConfigurationScanner extends CombiningConfigurationScan
     return _executor;
   }
 
-  protected RestClient getClient() {
-    return _client;
-  }
-
   protected void addHostConfigurationScanner(final HostConfigurationScanner scanner) {
     addConfigurationScanner(scanner);
-    scanner.setRestClient(getClient());
     getExecutor().submit(scanner);
-
   }
 
 }
