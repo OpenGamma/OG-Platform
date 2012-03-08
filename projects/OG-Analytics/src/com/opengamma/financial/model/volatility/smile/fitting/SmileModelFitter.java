@@ -21,7 +21,7 @@ import com.opengamma.math.minimization.NonLinearParameterTransforms;
 import com.opengamma.math.minimization.NonLinearTransformFunction;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
-import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquareDebug;
+import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquare;
 
 /**
  * 
@@ -29,7 +29,7 @@ import com.opengamma.math.statistics.leastsquare.NonLinearLeastSquareDebug;
  */
 public abstract class SmileModelFitter<T extends SmileModelData> {
   private static final MatrixAlgebra MA = new OGMatrixAlgebra();
-  private static final NonLinearLeastSquareDebug SOLVER = new NonLinearLeastSquareDebug(DecompositionFactory.SV_COLT, MA, 1e-12);
+  private static final NonLinearLeastSquare SOLVER = new NonLinearLeastSquare(DecompositionFactory.SV_COLT, MA, 1e-12);
   private static final Function1D<DoubleMatrix1D, Boolean> UNCONSTRAINED = new Function1D<DoubleMatrix1D, Boolean>() {
     @Override
     public Boolean evaluate(final DoubleMatrix1D x) {
