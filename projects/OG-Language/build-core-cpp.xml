@@ -10,10 +10,10 @@
     </fileset>
   </path>
 
-  <target name="cpp-define-extra">
+  <target name="cpp-define-extra" if="cpp.present.ant">
     <cpptasks:defineset id="cpp.define.extra" />
   </target>
-  <target name="cpp-include-extra">
+  <target name="cpp-include-extra" if="cpp.present.ant">
     <cpptasks:cc objdir="${build.dir}">
       <includepath id="cpp.include.extra" />
     </cpptasks:cc>

@@ -30,7 +30,7 @@
     </exec>
     <delete file="${cpp.obj.dir}\stdafx.obj" failonerror="false" />
     <condition property="cpp.headers.present.msvc">
-      <equals arg1="${cpp.headers.present.msvc.result}" args2="0" />
+      <equals arg1="${cpp.headers.present.msvc.result}" arg2="0" />
     </condition>
     <condition property="cpp.headers.present">
       <isset property="cpp.headers.present.msvc" />
@@ -134,7 +134,7 @@
     <exec executable="${msbuild.command}" failonerror="true">
       <arg value="${cpp.src.dir}/${ant.project.name}.vcxproj" />
       <arg value="/maxcpucount" />
-      <arg value="/p:SolutionDir=${msvc.solution.dir}" />
+      <arg value="/p:SolutionDir=${msvc.solution.dir}\" />
       <arg value="/p:Configuration=${cpp.configuration}" />
       <arg value="/p:Platform=${cpp.platform}" />
     </exec>
@@ -293,7 +293,7 @@
     <antcall target="unpack-fudge" />
     <antcall target="unpack-log4cxx" />
     <antcall target="unpack-apr" />
-    <antcall target="unpack-aprutil" />
+    <antcall target="unpack-apr-util" />
   </target>
 
   <!-- TODO: tests -->

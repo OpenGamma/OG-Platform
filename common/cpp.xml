@@ -213,7 +213,6 @@
   <target name="unpack-resolve-og-language" if="com.opengamma.og-language.lib">
     <unpack-zip org="com.opengamma" name="og-language" type="include" />
     <unpack-zip org="com.opengamma" name="og-language" type="lib" />
-    <unpack-zip org="com.opengamma" name="og-language" type="bin" />
   </target>
   <target name="unpack-resolve-check" depends="cpp-present" if="cpp.present">
     <ivy:artifactproperty name="[organization].[module].[type]" value="[revision]" />

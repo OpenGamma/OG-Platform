@@ -142,7 +142,7 @@ private:
 			// Try the published default
 			if (RegGetValue (hkeyJRE, NULL, TEXT ("CurrentVersion"), RRF_RT_REG_SZ, NULL, szVersion, &cbVersion) == ERROR_SUCCESS) {
 				LOGDEBUG (TEXT ("Found JRE v") << szVersion);
-				pszPath = SearchJavaVersion (szVersion);	
+				pszPath = SearchJavaVersion (hkeyJRE, szVersion);
 				if (pszPath) {
 					LOGINFO (TEXT ("Found default JVM ") << pszPath << TEXT (" in registry"));
 					break;
@@ -153,13 +153,13 @@ private:
 				LOGDEBUG (TEXT ("No default JVM installed"));
 			}
 			// Try the version bundled with OG-Language
-			pszPath = SearchJavaVersion (TEXT ("OG-Language"));
+			pszPath = SearchJavaVersion (hkeyJRE, TEXT ("OG-Language"));
 			if (pszPath) {
 				LOGINFO (TEXT ("Using JVM ") << pszPath << TEXT (" bundled with OG-Language distribution"));
 				break;
 			}
 			// Try the version bundled with OG-Platform
-			pszPath = SearchJavaVersion (TEXT ("OG-Platform"));
+			pszPath = SearchJavaVersion (hkeyJRE, TEXT ("OG-Platform"));
 			if (pszPath) {
 				LOGINFO (TEXT ("Using JVM ") << pszPath << TEXT (" bundled with OG-Platform distribution"));
 				break;
