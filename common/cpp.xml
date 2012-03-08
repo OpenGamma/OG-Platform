@@ -92,10 +92,8 @@
   <target name="cpp-test-debug" depends="cpp-test-debug-msvc,cpp-test-debug-ant" />
   <target name="cpp-test-release" depends="cpp-test-release-msvc,cpp-test-release-ant" />
   <target name="cpp-test-all" depends="cpp-headers-present" if="cpp.headers.present" unless="cpp.disable.all">
-    <parallel>
-      <antcall target="cpp-test-debug" inheritrefs="true" />
-      <antcall target="cpp-test-release" inheritrefs="true" />
-    </parallel>
+    <antcall target="cpp-test-debug" inheritrefs="true" />
+    <antcall target="cpp-test-release" inheritrefs="true" />
   </target>
 
   <!--
