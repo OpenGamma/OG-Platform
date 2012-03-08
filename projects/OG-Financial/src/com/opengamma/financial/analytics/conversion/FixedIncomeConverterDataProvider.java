@@ -60,7 +60,7 @@ public class FixedIncomeConverterDataProvider {
     _conventionSource = conventionSource;
   }
 
-  public InstrumentDerivative convert(final Security security, final InstrumentDefinition<?> definition, final ZonedDateTime now, final String[] curveNames, 
+  public InstrumentDerivative convert(final Security security, final InstrumentDefinition<?> definition, final ZonedDateTime now, final String[] curveNames,
       final HistoricalTimeSeriesSource dataSource) {
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition to convert was null for security " + security);
@@ -145,7 +145,7 @@ public class FixedIncomeConverterDataProvider {
   public InstrumentDerivative convert(final FRASecurity security, final ForwardRateAgreementDefinition definition, final ZonedDateTime now, final String[] curveNames,
       final HistoricalTimeSeriesSource dataSource) {
     final ExternalId indexId = security.getUnderlyingId();
-    ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
+    final ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
     if (indexConvention == null) {
       throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId);
     }
@@ -254,13 +254,13 @@ public class FixedIncomeConverterDataProvider {
   }
 
   private DoubleTimeSeries<ZonedDateTime> getIndexTimeSeries(final InterestRateInstrumentType type, final SwapLeg leg, final ZonedDateTime swapEffectiveDate, final ZonedDateTime now,
-      boolean includeEndDate, final HistoricalTimeSeriesSource dataSource) {
+      final boolean includeEndDate, final HistoricalTimeSeriesSource dataSource) {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
       final ExternalIdBundle id = getIndexIdForSwap(floatingLeg);
 
-      final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(7); // To catch first fixing. SwapSecurity does not have this date. 
-      if (startDate.isAfter(now.toLocalDate())) {
+      final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(7); // To catch first fixing. SwapSecurity does not have this date.
+      if (startDate.isAfter(now.toLocalDate()) || now.isBefore(swapEffectiveDate) || now.equals(swapEffectiveDate)) {
         return ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;
       }
       final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, now.toLocalDate(), includeEndDate);
@@ -271,7 +271,7 @@ public class FixedIncomeConverterDataProvider {
         return ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;
       }
 
-      FastBackedDoubleTimeSeries<LocalDate> localDateTS = ts.getTimeSeries();
+      final FastBackedDoubleTimeSeries<LocalDate> localDateTS = ts.getTimeSeries();
       final FastLongDoubleTimeSeries convertedTS = localDateTS.toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
       final LocalTime fixingTime = LocalTime.of(0, 0); // FIXME CASE Converting a daily historical time series to an arbitrary time. Bad idea
       return new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTimeEpochMillisConverter(now.getZone(), fixingTime), convertedTS);
@@ -282,7 +282,7 @@ public class FixedIncomeConverterDataProvider {
   private ExternalIdBundle getIndexIdForSwap(final FloatingInterestRateLeg floatingLeg) {
     if (floatingLeg.getFloatingRateType().isIbor()) {
       final ExternalId indexId = floatingLeg.getFloatingReferenceRateId();
-      ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
+      final ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
       if (indexConvention == null) {
         throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId);
         // TODO Confirm this doesn't break many public or demo views
@@ -291,7 +291,7 @@ public class FixedIncomeConverterDataProvider {
       return indexConvention.getIdentifiers();
     } else if (floatingLeg.getFloatingRateType().equals(FloatingRateType.OIS)) {
       final ExternalId indexId = floatingLeg.getFloatingReferenceRateId();
-      ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
+      final ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
       return indexConvention.getIdentifiers();
     } else {
       return ExternalIdBundle.of(floatingLeg.getFloatingReferenceRateId());

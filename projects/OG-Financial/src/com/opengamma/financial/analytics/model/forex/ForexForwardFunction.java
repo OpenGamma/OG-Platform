@@ -10,13 +10,9 @@ import java.util.Set;
 import javax.time.calendar.Clock;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecuritySource;
-import com.opengamma.core.security.SecurityUtils;
-import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -24,6 +20,7 @@ import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.function.FunctionExecutionContext;
 import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
@@ -33,31 +30,14 @@ import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
-import com.opengamma.financial.security.fx.FXUtils;
-import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 
 /**
  * 
  */
 public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledInvoker {
-  private final String _payFundingCurveName;
-  private final String _payForwardCurveName;
-  private final String _receiveFundingCurveName;
-  private final String _receiveForwardCurveName;
   private ForexSecurityConverter _visitor;
   private SecuritySource _securitySource;
-
-  public ForexForwardFunction(final String payFundingCurveName, final String payForwardCurveName, final String receiveFundingCurveName, String receiveForwardCurveName) {
-    Validate.notNull(payFundingCurveName, "pay funding curve name");
-    Validate.notNull(receiveFundingCurveName, "pay forward curve name");
-    Validate.notNull(payFundingCurveName, "receive funding curve name");
-    Validate.notNull(receiveFundingCurveName, "receive forward curve name");
-    _payFundingCurveName = payFundingCurveName;
-    _payForwardCurveName = payForwardCurveName;
-    _receiveFundingCurveName = receiveFundingCurveName;
-    _receiveForwardCurveName = receiveForwardCurveName;
-  }
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -69,42 +49,34 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final ValueRequirement desiredValue = desiredValues.iterator().next();
+    final String payCurveName = desiredValue.getConstraint(ValuePropertyNames.PAY_CURVE);
+    final String receiveCurveName = desiredValue.getConstraint(ValuePropertyNames.RECEIVE_CURVE);
     final FXForwardSecurity security = (FXForwardSecurity) target.getSecurity();
     final InstrumentDefinition<?> definition = _visitor.visitFXForwardSecurity(security);
     final Currency payCurrency = security.getPayCurrency();
     final Currency receiveCurrency = security.getReceiveCurrency();
-    final String payFundingCurveName = _payFundingCurveName + "_" + payCurrency.getCode();
-    final String payForwardCurveName = _payForwardCurveName + "_" + payCurrency.getCode();
-    final String receiveFundingCurveName = _receiveFundingCurveName + "_" + receiveCurrency.getCode();
-    final String receiveForwardCurveName = _receiveForwardCurveName + "_" + receiveCurrency.getCode();
-    final String[] curveNames = new String[] {payFundingCurveName, receiveFundingCurveName};
-    final Object payFundingCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(payCurrency, _payFundingCurveName, _payForwardCurveName, _payFundingCurveName));
-    if (payFundingCurveObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + payFundingCurveName + " curve");
+    final String fullPayCurveName = payCurveName + "_" + payCurrency.getCode();
+    final String fullReceiveCurveName = receiveCurveName + "_" + receiveCurrency.getCode();
+    final Object payCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(payCurrency, payCurveName, null, null));
+    if (payCurveObject == null) {
+      throw new OpenGammaRuntimeException("Could not get " + payCurveName + " curve");
     }
-    final YieldAndDiscountCurve payFundingCurve = (YieldAndDiscountCurve) payFundingCurveObject;
-    final Object payForwardCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(payCurrency, _payForwardCurveName, _payForwardCurveName, _payFundingCurveName));
-    if (payForwardCurveObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + payForwardCurveName + " curve");
+    final YieldAndDiscountCurve payCurve = (YieldAndDiscountCurve) payCurveObject;
+    final Object receiveCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(receiveCurrency, receiveCurveName, null, null));
+    if (receiveCurveObject == null) {
+      throw new OpenGammaRuntimeException("Could not get " + receiveCurveName + " curve");
     }
-    final YieldAndDiscountCurve payForwardCurve = (YieldAndDiscountCurve) payForwardCurveObject;
-    final Object receiveFundingCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(receiveCurrency, _receiveFundingCurveName, _receiveForwardCurveName, _receiveFundingCurveName));
-    if (receiveFundingCurveObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + receiveFundingCurveName + " curve");
-    }
-    final YieldAndDiscountCurve receiveFundingCurve = (YieldAndDiscountCurve) receiveFundingCurveObject;
-    final Object receiveForwardCurveObject = inputs.getValue(YieldCurveFunction.getCurveRequirement(receiveCurrency, _receiveForwardCurveName, _receiveForwardCurveName, _receiveFundingCurveName));
-    if (receiveForwardCurveObject == null) {
-      throw new OpenGammaRuntimeException("Could not get " + receiveForwardCurveName + " curve");
-    }
-    final YieldAndDiscountCurve receiveForwardCurve = (YieldAndDiscountCurve) receiveForwardCurveObject;
-    final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {payFundingCurve, payForwardCurve, receiveFundingCurve, receiveForwardCurve};
+    final YieldAndDiscountCurve receiveCurve = (YieldAndDiscountCurve) receiveCurveObject;
+    final String[] curveNames = new String[] {fullPayCurveName, fullReceiveCurveName};
+    final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {payCurve, receiveCurve};
     final Forex fxForward = (Forex) definition.toDerivative(now, curveNames);
-    final YieldCurveBundle yieldCurves = new YieldCurveBundle(new String[] {payFundingCurveName, payForwardCurveName, receiveFundingCurveName, receiveForwardCurveName}, curves);
-    return getResult(fxForward, yieldCurves, inputs, target);
+    final YieldCurveBundle yieldCurves = new YieldCurveBundle(curveNames, curves);
+    return getResult(fxForward, yieldCurves, inputs, target, payCurveName, receiveCurveName);
   }
 
-  protected abstract Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final FunctionInputs inputs, final ComputationTarget target);
+  protected abstract Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final FunctionInputs inputs, final ComputationTarget target,
+      final String payCurveName, final String receiveCurveName);
 
   @Override
   public ComputationTargetType getTargetType() {
@@ -121,35 +93,23 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+    final Set<String> payCurveNames = desiredValue.getConstraints().getValues(ValuePropertyNames.PAY_CURVE);
+    if (payCurveNames == null || payCurveNames.size() != 1) {
+      return null;
+    }
+    final String payCurveName = payCurveNames.iterator().next();
+    final Set<String> receiveCurveNames = desiredValue.getConstraints().getValues(ValuePropertyNames.RECEIVE_CURVE);
+    if (receiveCurveNames == null || receiveCurveNames.size() != 1) {
+      return null;
+    }
+    final String receiveCurveName = receiveCurveNames.iterator().next();
     final FXForwardSecurity fxForward = (FXForwardSecurity) target.getSecurity();
-    final ValueRequirement payFundingCurve = YieldCurveFunction.getCurveRequirement(fxForward.getPayCurrency(), _payFundingCurveName, _payForwardCurveName, _payFundingCurveName);
-    final ValueRequirement payForwardCurve = YieldCurveFunction.getCurveRequirement(fxForward.getPayCurrency(), _payForwardCurveName, _payForwardCurveName, _payFundingCurveName);
-    final ValueRequirement receiveFundingCurve = YieldCurveFunction.getCurveRequirement(fxForward.getReceiveCurrency(), _receiveFundingCurveName, _receiveForwardCurveName, _receiveFundingCurveName);
-    final ValueRequirement receiveForwardCurve = YieldCurveFunction.getCurveRequirement(fxForward.getReceiveCurrency(), _receiveForwardCurveName, _receiveForwardCurveName, _receiveFundingCurveName);
-    // This really needs fixing so it doesn't depend on the bloomberg ticker.
-    final ExternalId spotIdentifier = FXUtils.getSpotIdentifiers(fxForward, true).getExternalId(SecurityUtils.BLOOMBERG_TICKER);
-    final ValueRequirement spotRequirement = new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier);
-    return Sets.newHashSet(payFundingCurve, payForwardCurve, receiveFundingCurve, receiveForwardCurve, spotRequirement);
+    final ValueRequirement payCurve = YieldCurveFunction.getCurveRequirement(fxForward.getPayCurrency(), payCurveName, null, null);
+    final ValueRequirement receiveCurve = YieldCurveFunction.getCurveRequirement(fxForward.getReceiveCurrency(), receiveCurveName, null, null);
+    return Sets.newHashSet(payCurve, receiveCurve);
   }
 
   protected SecuritySource getSecuritySource() {
     return _securitySource;
   }
-
-  protected String getPayFundingCurveName() {
-    return _payFundingCurveName;
-  }
-
-  protected String getPayForwardCurveName() {
-    return _payForwardCurveName;
-  }
-
-  protected String getReceiveFundingCurveName() {
-    return _receiveFundingCurveName;
-  }
-
-  protected String getReceiveForwardCurveName() {
-    return _receiveForwardCurveName;
-  }
-
 }
