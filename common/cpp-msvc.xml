@@ -160,7 +160,7 @@
       <arg value="/runconfig:${msvc.test.settings}" />
       <env key="LOG4CXX_CONFIGURATION" value="${log4cxx.configuration}" />
       <env key="WORKING_DIRECTORY" value="${build.dir}\${cpp.test}" />
-      <env key="Path" value="${env.Path};${mstest.path}" />
+      <env key="Path" value="${env.Path};${msvc.test.path}" />
     </exec>
     <copy file="${log4cxx.logfile}" tofile="${cpp.test.dir}\${ant.project.name}-${cpp.test}.log" failonerror="false" />
     <delete file="${log4cxx.logfile}" failonerror="false" />
@@ -283,10 +283,10 @@
     <unpack-zip org="org.apache" name="log4cxx" type="include" />
     <unpack-lib org="org.apache" name="log4cxx" file="log4cxx" />
   </target>
-  <target name="unpack-apr" if="org.apache.apr.lib">
+  <target name="unpack-apr" if="org.apache.apr.dll">
     <unpack-dll org="org.apache" name="apr" file="apr" />
   </target>
-  <target name="unpack-apr-util" if="org.apache.apr-util.lib">
+  <target name="unpack-apr-util" if="org.apache.apr-util.dll">
     <unpack-dll org="org.apache" name="apr-util" file="aprutil" />
   </target>
   <target name="unpack-resolve-msvc" if="cpp.present.msvc">

@@ -45,7 +45,11 @@
 
   <target name="compile-tests" depends="core.compile-tests">
     <property file="${common.dir}/tests.properties" />
-    <echo file="${test.properties.dir}/${test.properties}">language.ext.path=${build.dir}/ext
+    <path id="language.ext.path.system">
+      <pathelement path="${build.dir}/ext" />
+    </path>
+    <pathconvert targetos="unix" property="language.ext.path.unix" refid="language.ext.path.system" />
+    <echo file="${test.properties.dir}/${test.properties}">language.ext.path=${language.ext.path.unix}
 opengamma.engine.host=${opengamma.engine.host}
 opengamma.engine.port=${opengamma.engine.port}
 opengamma.engine.path=${opengamma.engine.path}
