@@ -161,7 +161,7 @@ public class HestonFitterTest {
         if (testParms) {
           assertEquals(KAPPA, params.getEntry(0), 1e-1); //kappa hard to pin down
           assertEquals(THETA, params.getEntry(1), 1e-3);
-          assertEquals(OMEGA, params.getEntry(2), 5e-3);
+          assertEquals(OMEGA, params.getEntry(2), 6e-3);
           assertEquals(RHO, params.getEntry(3), 5e-3);
         }
 

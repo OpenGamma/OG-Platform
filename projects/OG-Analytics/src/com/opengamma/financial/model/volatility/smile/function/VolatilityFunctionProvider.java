@@ -49,7 +49,8 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
     final int n = strikes.length;
     final List<Function1D<T, Double>> funcs = new ArrayList<Function1D<T, Double>>(n);
     for (int i = 0; i < n; i++) {
-      funcs.add(getVolatilityFunction(new EuropeanVanillaOption(strikes[i], timeToExpiry, true), forward));
+      boolean isCall = strikes[i] >= forward;
+      funcs.add(getVolatilityFunction(new EuropeanVanillaOption(strikes[i], timeToExpiry, isCall), forward));
     }
 
     return new Function1D<T, double[]>() {
@@ -150,7 +151,8 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
     final int n = strikes.length;
     final List<Function1D<T, double[]>> funcs = new ArrayList<Function1D<T, double[]>>(n);
     for (int i = 0; i < n; i++) {
-      funcs.add(getVolatilityAdjointFunction(new EuropeanVanillaOption(strikes[i], timeToExpiry, true), forward));
+      boolean isCall = strikes[i] >= forward;
+      funcs.add(getVolatilityAdjointFunction(new EuropeanVanillaOption(strikes[i], timeToExpiry, isCall), forward));
     }
 
     return new Function1D<T, double[][]>() {
@@ -197,7 +199,8 @@ public abstract class VolatilityFunctionProvider<T extends SmileModelData> {
     final int n = strikes.length;
     final List<Function1D<T, double[]>> funcs = new ArrayList<Function1D<T, double[]>>(n);
     for (int i = 0; i < n; i++) {
-      funcs.add(getModelAdjointFunction(new EuropeanVanillaOption(strikes[i], timeToExpiry, true), forward));
+      boolean isCall = strikes[i] >= forward;
+      funcs.add(getModelAdjointFunction(new EuropeanVanillaOption(strikes[i], timeToExpiry, isCall), forward));
     }
 
     return new Function1D<T, double[][]>() {

@@ -10,6 +10,10 @@ import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
+import com.opengamma.financial.security.option.FXOptionSecurity;
 
 /**
  * 
@@ -19,7 +23,9 @@ public class PositionExchangeTradedPnLFunction extends AbstractPositionPnLFuncti
   @Override
   public boolean canApplyTo(FunctionCompilationContext context, ComputationTarget target) {
     Security security = target.getPositionOrTrade().getSecurity();
-     
+    if (security instanceof FXForwardSecurity || security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity) {
+      return false;
+    }
     boolean value = (target.getType() == ComputationTargetType.POSITION && FinancialSecurityUtils.isExchangedTraded(security));
     return value;
   }

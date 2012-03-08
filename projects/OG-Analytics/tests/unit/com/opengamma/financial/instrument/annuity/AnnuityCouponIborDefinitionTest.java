@@ -95,7 +95,6 @@ public class AnnuityCouponIborDefinitionTest {
     }
     final AnnuityCouponIborDefinition iborAnnuity2 = AnnuityCouponIborDefinition.from(SETTLEMENT_DATE, ANNUITY_TENOR, NOTIONAL, INDEX, IS_PAYER);
     assertEquals(iborAnnuity, iborAnnuity2);
-
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

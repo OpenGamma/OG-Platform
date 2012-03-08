@@ -13,12 +13,14 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.schedule.ScheduleCalculator;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
@@ -46,17 +48,16 @@ public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponI
    * @return The Ibor annuity.
    */
   public static AnnuityCouponIborDefinition from(final ZonedDateTime settlementDate, final Period tenor, final double notional, final IborIndex index, final boolean isPayer) {
-    Validate.notNull(settlementDate, "settlement date");
-    Validate.notNull(index, "index");
-    Validate.notNull(tenor, "tenor");
-    Validate.isTrue(notional > 0, "notional <= 0");
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.notNull(tenor, "tenor");
+    ArgumentChecker.isTrue(notional > 0, "notional <= 0");
     final ZonedDateTime maturityDate = settlementDate.plus(tenor); // Maturity is unadjusted.
-    // ScheduleCalculator.getAdjustedDate(settlementDate, tenor, index.getBusinessDayConvention(), index.getCalendar(), index.isEndOfMonth());
     return from(settlementDate, maturityDate, notional, index, isPayer);
   }
 
   /**
-   * Annuity builder from the conventions and common characteristics.
+   * Annuity builder from the conventions and common characteristics. The business day convention and the EOM rule are the one of the index.
    * @param settlementDate The settlement date.
    * @param maturityDate The annuity maturity date.
    * @param notional The notional.
@@ -65,13 +66,31 @@ public class AnnuityCouponIborDefinition extends AnnuityCouponDefinition<CouponI
    * @return The Ibor annuity.
    */
   public static AnnuityCouponIborDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional, final IborIndex index, final boolean isPayer) {
-    Validate.notNull(settlementDate, "settlement date");
-    Validate.notNull(maturityDate, "maturity date");
-    Validate.notNull(index, "index");
-    Validate.isTrue(notional > 0, "notional <= 0");
-    final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, index.getTenor(), true, false);
-    final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, index.getBusinessDayConvention(), index.getCalendar(), false);
+    ArgumentChecker.notNull(index, "index");
+    return from(settlementDate, maturityDate, notional, index, isPayer, index.getBusinessDayConvention(), index.isEndOfMonth());
+  }
+
+  /**
+   * Annuity builder from the conventions and common characteristics. 
+   * @param settlementDate The settlement date.
+   * @param maturityDate The annuity maturity date.
+   * @param notional The notional.
+   * @param index The Ibor index.
+   * @param isPayer The payer flag.
+   * @param businessDayConvention The leg business day convention.
+   * @param endOfMonth The leg end-of-month convention.
+   * @return The Ibor annuity.
+   */
+  public static AnnuityCouponIborDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional, final IborIndex index, final boolean isPayer,
+      final BusinessDayConvention businessDayConvention, final boolean endOfMonth) {
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(maturityDate, "maturity date");
+    ArgumentChecker.notNull(index, "index");
+    ArgumentChecker.notNull(businessDayConvention, "Business day convention");
+    ArgumentChecker.isTrue(notional > 0, "notional <= 0");
     final double sign = isPayer ? -1.0 : 1.0;
+    final ZonedDateTime[] paymentDates = ScheduleCalculator
+        .getAdjustedDateSchedule(settlementDate, maturityDate, index.getTenor(), true, false, businessDayConvention, index.getCalendar(), endOfMonth);
     final CouponIborDefinition[] coupons = new CouponIborDefinition[paymentDates.length];
     //First coupon uses settlement date
     CouponFixedDefinition coupon = new CouponFixedDefinition(index.getCurrency(), paymentDates[0], settlementDate, paymentDates[0], index.getDayCount().getDayCountFraction(settlementDate,
