@@ -1,6 +1,7 @@
 <project name="og-language" default="compile">
 
   <import file="${basedir}/build-core.xml" />
+  <import file="${basedir}/build-core-deploy.xml" />
   <import file="${basedir}/delete-unused-jars.xml" />
 
   <target name="fudge-proto" depends="core.fudge-proto">
@@ -32,9 +33,17 @@
 
   <target name="resolve" depends="core.resolve,deploy-jars,delete-unused-jars" />
 
-  <target name="config" depends="core.config">
-    <mkdir dir="${build.dir}/ext" />
+  <target name="config" depends="core.config,deploy-config">
     <copy todir="${build.dir}/ext" file="${solution.dir}/config/0${ant.project.name}.xml" />
+  </target>
+
+  <target name="compile-tests" depends="common.compile-tests">
+    <property file="${common.dir}/tests.properties" />
+    <echo file="${test.properties.dir}/${test.properties}">language.ext.path=${build.dir}/ext
+opengamma.engine.host=${opengamma.engine.host}
+opengamma.engine.port=${opengamma.engine.port}
+opengamma.engine.path=${opengamma.engine.path}
+</echo>
   </target>
 
 </project>
