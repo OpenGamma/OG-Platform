@@ -243,7 +243,7 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefi
     final Frequency frequency = fixedLeg.getFrequency();
     final ZonedDateTime frequencyEndDate = effectiveDate.plus(getTenor(frequency));
     if (frequencyEndDate.isAfter(maturityDate)) {
-      return AnnuityCouponFixedDefinition.from(((InterestRateNotional) fixedLeg.getNotional()).getCurrency(), effectiveDate, new ZonedDateTime[] {maturityDate}, fixedLeg.getFrequency(), calendar,
+      return AnnuityCouponFixedDefinition.from(((InterestRateNotional) fixedLeg.getNotional()).getCurrency(), effectiveDate, new ZonedDateTime[] {maturityDate }, fixedLeg.getFrequency(), calendar,
           fixedLeg.getDayCount(), businessDay, isEOM, notional, fixedLeg.getRate(), isPayer);
     }
     return AnnuityCouponFixedDefinition.from(((InterestRateNotional) fixedLeg.getNotional()).getCurrency(), effectiveDate, maturityDate, fixedLeg.getFrequency(), calendar, fixedLeg.getDayCount(),
@@ -321,14 +321,13 @@ public class SwapSecurityConverter implements SwapSecurityVisitor<InstrumentDefi
     // FIXME: convert frequency to period in a better way
     final Frequency freq = floatLeg.getFrequency();
     final Period tenor = getTenor(freq);
-    final ConventionBundle floatingLegConvention = _conventionSource.getConventionBundle(floatLeg.getFloatingReferenceRateId());
-    if (floatingLegConvention == null) {
+    final ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatLeg.getFloatingReferenceRateId());
+    if (indexConvention == null) {
       throw new OpenGammaRuntimeException("Could not get convention for " + floatLeg.getFloatingReferenceRateId());
     }
-    final ConventionBundle indexConvention = _conventionSource.getConventionBundle(floatingLegConvention.getSwapFloatingLegInitialRate());
     final IborIndex index = new IborIndex(currency, tenor, indexConvention.getSettlementDays(), calendar, indexConvention.getDayCount(), indexConvention.getBusinessDayConvention(),
         indexConvention.isEOMConvention());
-    return AnnuityCouponIborSpreadDefinition.from(effectiveDate, maturityDate, notional, index, spread, isPayer);
+    return AnnuityCouponIborSpreadDefinition.from(effectiveDate, maturityDate, notional, index, spread, isPayer); // //FIXME CASE floatLeg here for EOM rule? eom comes in index but does that sort out payment dates?
   }
 
   private AnnuityCouponCMSDefinition getCMSwapLegDefinition(final ZonedDateTime effectiveDate, final ZonedDateTime maturityDate, final FloatingInterestRateLeg floatLeg, final Calendar calendar,
