@@ -109,6 +109,7 @@ public final class PeriodFrequency implements Frequency, Serializable {
           .put(NINE_MONTHS, NINE_MONTHS)
           .put(TEN_MONTHS, TEN_MONTHS)
           .put(ELEVEN_MONTHS, ELEVEN_MONTHS)
+          .put(EIGHTEEN_MONTHS, EIGHTEEN_MONTHS)
           .build();
 
   /**
@@ -248,6 +249,9 @@ public final class PeriodFrequency implements Frequency, Serializable {
     }
     if (_name.equals(ELEVEN_MONTH_NAME)) {
       return SimpleFrequency.ELEVEN_MONTHS;
+    }
+    if (_name.equals(EIGHT_MONTH_NAME)) {
+      return SimpleFrequency.EIGHTEEN_MONTHS;
     }
     throw new IllegalArgumentException("Cannot get a simple frequency for " + toString());
   }

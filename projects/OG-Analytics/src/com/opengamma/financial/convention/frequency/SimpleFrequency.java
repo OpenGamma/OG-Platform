@@ -210,6 +210,9 @@ public final class SimpleFrequency implements Frequency, Serializable {
     if (_name.equals(ELEVEN_MONTH_NAME)) {
       return PeriodFrequency.ELEVEN_MONTHS;
     }
+    if (_name.equals(EIGHTEEN_MONTH_NAME)) {
+      return PeriodFrequency.EIGHTEEN_MONTHS;
+    }
     throw new IllegalArgumentException("Cannot get a period frequency for " + toString());
   }
 
