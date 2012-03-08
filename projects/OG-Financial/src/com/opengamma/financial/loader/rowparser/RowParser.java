@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.loader.rowparser;
 
-import java.lang.reflect.Constructor;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -14,9 +13,6 @@ import java.util.Map;
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatterBuilder;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.position.ManageablePosition;
@@ -27,12 +23,6 @@ import com.opengamma.master.security.ManageableSecurity;
  * An abstract row parser class, to be specialised for parsing a specific security/trade/position type from a row's data
  */
 public abstract class RowParser {
-
-  private static final Logger s_logger = LoggerFactory.getLogger(RowParser.class);
-
-  /** Path strings for constructing a fully qualified parser class name **/
-  private static final String CLASS_PREFIX = RowParser.class.getPackage().getName() + ".";
-  private static final String CLASS_POSTFIX = "Parser";
 
   // CSOFF
   /** Standard date-time formatter for the input. */
@@ -67,22 +57,8 @@ public abstract class RowParser {
    * @return              the RowParser class for the specified security type, or null if unable to identify a suitable parser
    */
   public static RowParser newRowParser(String securityName, ToolContext toolContext) {
-    try {
-      // Identify the appropriate parser class from the asset class command line option
-      String className = CLASS_PREFIX + securityName + CLASS_POSTFIX;
-      s_logger.info("Looking for row parser class '" + className + "' to parse a '" + securityName + "' row");
-      Class<?> parserClass = Class.forName(className);
-      
-      // Find the constructor
-      Constructor<?> constructor = parserClass.getConstructor(ToolContext.class);
-      
-      // Create a generic simple portfolio loader for the current sheet, using the dynamically loaded row parser class
-      return (RowParser) constructor.newInstance(toolContext);
-      
-    } catch (Throwable ex) {
-      s_logger.error("Could not identify an appropriate row parser for security class " + securityName);
-      return null;
-    }
+    // Now using the experimental JodaBean parser
+    return new JodaBeanParser(securityName, toolContext);
   }
 
   /**

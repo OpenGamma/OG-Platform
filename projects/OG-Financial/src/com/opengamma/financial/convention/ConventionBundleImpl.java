@@ -75,6 +75,8 @@ public class ConventionBundleImpl implements ConventionBundle {
 
   //swaptions
   private boolean _isCashSettled;
+  
+  // FRA: add _fraUnderlyingIndex
 
   // cash/general
   public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Frequency frequency,
