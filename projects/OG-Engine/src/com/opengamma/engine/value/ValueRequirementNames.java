@@ -340,5 +340,10 @@ public final class ValueRequirementNames {
   public static final String LOCAL_VOLATILITY_VEGA = "Forward Vega (LV)";
   public static final String LOCAL_VOLATILITY_VANNA = "Forward Vanna (LV)";
   public static final String LOCAL_VOLATILITY_VOMMA = "Forward Vomma (LV)";
+  public static final String LOCAL_VOLATILITY_GRID_PRICE = "Price (LV)";
+  public static final String BLACK_VOLATILITY_GRID_PRICE = "Black Price";
+  public static final String LOCAL_VOLATILITY_GRID_IMPLIED_VOL = "Implied Vol (LV Black Equivalent)";
+  
+  public static final String LOCAL_VOLATILITY_FOREX_PV_QUOTES = "Forex PV Quotes";
   //CSON
 }

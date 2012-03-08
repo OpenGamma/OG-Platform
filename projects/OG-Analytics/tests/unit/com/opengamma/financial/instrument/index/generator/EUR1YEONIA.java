@@ -24,7 +24,7 @@ public class EUR1YEONIA extends GeneratorOIS {
    */
   public EUR1YEONIA(final Calendar calendar) {
     super("EUR1YEONIA", new EONIA(calendar), Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("Actual/360"), BusinessDayConventionFactory.INSTANCE
-        .getBusinessDayConvention("Modified Following"), true, 2);
+        .getBusinessDayConvention("Modified Following"), true, 2, 2);
   }
 
 }

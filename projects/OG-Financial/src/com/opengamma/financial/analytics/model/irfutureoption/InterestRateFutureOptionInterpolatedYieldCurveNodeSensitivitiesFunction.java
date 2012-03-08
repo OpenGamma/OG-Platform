@@ -38,10 +38,10 @@ import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionSecu
 import com.opengamma.financial.analytics.conversion.InterestRateFutureOptionTradeConverter;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.analytics.model.ircurve.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
-import com.opengamma.financial.analytics.volatility.surface.RawVolatilitySurfaceDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.instrument.InstrumentDefinition;
@@ -94,6 +94,8 @@ public class InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesFunc
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final ValueProperties constraints = desiredValues.iterator().next().getConstraints();
     final String curveName = constraints.getValues(ValuePropertyNames.CURVE).iterator().next();
+    final String forwardCurveName = constraints.getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE).iterator().next();
+    final String fundingCurveName = constraints.getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE).iterator().next();
     final String surfaceName = constraints.getValues(ValuePropertyNames.SURFACE).iterator().next();
     final String calculationMethod = constraints.getValues(ValuePropertyNames.CURVE_CALCULATION_METHOD).iterator().next();
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
@@ -114,7 +116,7 @@ public class InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesFunc
         getYieldCurves(target, inputs, curveName, calculationMethod));
     final DoubleMatrix1D sensitivities = CALCULATOR.calculateFromSimpleInterpolatedCurve(derivative, bundle, NSC);
     return YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(curveName, bundle, sensitivities, curveSpec,
-        getResultSpec(target, currency, curveName, surfaceName));
+        getResultSpec(target, currency, curveName, surfaceName, forwardCurveName, fundingCurveName));
   }
 
   @Override
@@ -162,9 +164,9 @@ public class InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesFunc
       final ValueProperties properties = input.getKey().getProperties();
       if (ValueRequirementNames.YIELD_CURVE.equals(input.getKey().getValueName())) {
         curveName = properties.getValues(ValuePropertyNames.CURVE).iterator().next();
-      }
-      if (surfaceName != null) {
-        break;
+        if (surfaceName != null) {
+          break;
+        }
       }
       if (ValueRequirementNames.SABR_SURFACES.equals(input.getKey().getValueName())) {
         surfaceName = properties.getValues(ValuePropertyNames.SURFACE).iterator().next();
@@ -188,7 +190,7 @@ public class InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesFunc
     final ValueProperties properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURRENCY, currency.getCode())
         .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(RawVolatilitySurfaceDataFunction.PROPERTY_SURFACE_INSTRUMENT_TYPE, "IR_FUTURE_OPTION").get();
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();
     return new ValueRequirement(ValueRequirementNames.SABR_SURFACES, currency, properties);
   }
 
@@ -225,9 +227,11 @@ public class InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesFunc
     final ValueProperties result = createValueProperties()
         .with(ValuePropertyNames.CURRENCY, ccy.getCode())
         .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.SURFACE)
+        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .with(ValuePropertyNames.SMILE_FITTING_METHOD, InterestRateFutureOptionFunction.SURFACE_FITTING_NAME).get();
     return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
   }
@@ -239,6 +243,22 @@ public class InterestRateFutureOptionInterpolatedYieldCurveNodeSensitivitiesFunc
         .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.SURFACE, surfaceName)
+        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .with(ValuePropertyNames.SMILE_FITTING_METHOD, InterestRateFutureOptionFunction.SURFACE_FITTING_NAME).get();
+    return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
+  }
+
+  private ValueSpecification getResultSpec(final ComputationTarget target, final Currency ccy, final String curveName, final String surfaceName,
+      final String forwardCurveName, final String fundingCurveName) {
+    final ValueProperties result = createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, ccy.getCode())
+        .with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode())
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, CALCULATION_METHOD)
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
         .with(ValuePropertyNames.SMILE_FITTING_METHOD, InterestRateFutureOptionFunction.SURFACE_FITTING_NAME).get();
     return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
   }

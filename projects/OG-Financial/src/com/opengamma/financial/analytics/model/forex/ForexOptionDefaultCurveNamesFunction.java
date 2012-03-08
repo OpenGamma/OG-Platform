@@ -15,6 +15,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
@@ -51,7 +52,7 @@ public class ForexOptionDefaultCurveNamesFunction extends DefaultPropertyFunctio
     if (!(target.getSecurity() instanceof FinancialSecurity)) {
       return false;
     }
-    return target.getSecurity() instanceof FXOptionSecurity || target.getSecurity() instanceof FXBarrierOptionSecurity;
+    return target.getSecurity() instanceof FXOptionSecurity || target.getSecurity() instanceof FXBarrierOptionSecurity || target.getSecurity() instanceof FXDigitalOptionSecurity;
   }
 
   @Override

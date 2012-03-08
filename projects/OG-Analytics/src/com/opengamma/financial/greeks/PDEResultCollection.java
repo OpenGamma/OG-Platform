@@ -24,7 +24,35 @@ import com.opengamma.util.tuple.Pair;
 /**
  * 
  */
-public class PDEGreekResultCollection implements Iterable<Pair<Greek, double[]>> {
+//TODO GRID_PV and GRID_IMPLIED_VOL don't belong in here
+public class PDEResultCollection implements Iterable<Pair<Greek, double[]>> {
+  /** The present value for each strike value on the space grid at expiry */
+  public static final Greek GRID_PRICE = new Greek(new NthOrderUnderlying(0, UnderlyingType.FORWARD), "Local Volatility PV") {
+
+    @Override
+    public <T> T accept(final GreekVisitor<T> visitor) {
+      throw new UnsupportedOperationException();
+    }
+  };
+
+  /** The Black present value for each strike value on the space grid at expiry */
+  public static final Greek GRID_BLACK_PRICE = new Greek(new NthOrderUnderlying(0, UnderlyingType.FORWARD), "Black PV") {
+
+    @Override
+    public <T> T accept(final GreekVisitor<T> visitor) {
+      throw new UnsupportedOperationException();
+    }
+  };
+
+  /** The Black implied volatility for each strike value of the space grid at expiry */
+  public static final Greek GRID_IMPLIED_VOL = new Greek(new NthOrderUnderlying(0, UnderlyingType.IMPLIED_VOLATILITY), "Black Implied Volatility") {
+
+    @Override
+    public <T> T accept(final GreekVisitor<T> visitor) {
+      throw new UnsupportedOperationException();
+    }
+  };
+
   /** The Black delta for each strike value on the space grid at expiry */
   public static final Greek GRID_BLACK_DELTA = new Greek(new NthOrderUnderlying(1, UnderlyingType.FORWARD), "Forward Black delta") {
 
@@ -146,7 +174,7 @@ public class PDEGreekResultCollection implements Iterable<Pair<Greek, double[]>>
   private final double[] _strikes;
   private final int _n;
 
-  public PDEGreekResultCollection(final double[] strikes) {
+  public PDEResultCollection(final double[] strikes) {
     ArgumentChecker.notNull(strikes, "strikes");
     _strikes = strikes;
     _n = strikes.length;
@@ -158,6 +186,7 @@ public class PDEGreekResultCollection implements Iterable<Pair<Greek, double[]>>
   }
 
   public Double getPointGreek(final Greek greek, final double strike, final Interpolator1D interpolator) {
+    ArgumentChecker.notNull(greek, "greek");
     ArgumentChecker.notNull(interpolator, "interpolator");
     if (!(_gridDataMap.containsKey(greek)) || _gridDataMap.get(greek) == null) {
       return null;
@@ -219,10 +248,10 @@ public class PDEGreekResultCollection implements Iterable<Pair<Greek, double[]>>
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof PDEGreekResultCollection)) {
+    if (!(obj instanceof PDEResultCollection)) {
       return false;
     }
-    final PDEGreekResultCollection other = (PDEGreekResultCollection) obj;
+    final PDEResultCollection other = (PDEResultCollection) obj;
     if (!ObjectUtils.equals(_strikes, other._strikes)) {
       return false;
     }

@@ -48,7 +48,7 @@ public abstract class CouponDefinition extends PaymentDefinition {
     Validate.notNull(accrualStartDate, "accrual start date");
     this._accrualStartDate = accrualStartDate;
     Validate.notNull(accrualEndDate, "accrual end date");
-    Validate.isTrue(accrualEndDate.isAfter(accrualStartDate), "end before start");
+    Validate.isTrue(!accrualEndDate.isBefore(accrualStartDate), "end before start"); // REview
     this._accrualEndDate = accrualEndDate;
     Validate.isTrue(paymentYearFraction >= 0.0, "year fraction < 0");
     this._paymentYearFraction = paymentYearFraction;

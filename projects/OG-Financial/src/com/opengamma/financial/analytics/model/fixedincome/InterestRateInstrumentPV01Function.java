@@ -23,6 +23,7 @@ import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.PV01Calculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.FinancialSecurityUtils;
 
 /**
  * 
@@ -42,18 +43,27 @@ public class InterestRateInstrumentPV01Function extends InterestRateInstrumentFu
 
   @Override
   public Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle,
-      final FinancialSecurity security, final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {
+      final FinancialSecurity security, final ComputationTarget target, final String forwardCurveName, final String fundingCurveName,
+      final String curveCalculationMethod, final String currency) {
     final Map<String, Double> pv01 = CALCULATOR.visit(derivative, bundle);
-    Set<ComputedValue> result = new HashSet<ComputedValue>();
-    result.add(new ComputedValue(getResultSpec(target, fundingCurveName, forwardCurveName, fundingCurveName), pv01.containsKey(fundingCurveName) ? pv01.get(fundingCurveName) : 0));
-    result.add(new ComputedValue(getResultSpec(target, forwardCurveName, forwardCurveName, fundingCurveName), pv01.containsKey(forwardCurveName) ? pv01.get(forwardCurveName) : 0));
+    final Set<ComputedValue> result = new HashSet<ComputedValue>();
+    result.add(new ComputedValue(getResultSpec(target, fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod),
+        pv01.containsKey(fundingCurveName) ? pv01.get(fundingCurveName) : 0));
+    result.add(new ComputedValue(getResultSpec(target, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod),
+        pv01.containsKey(forwardCurveName) ? pv01.get(forwardCurveName) : 0));
     return result;
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties.Builder properties = createValueProperties(target);
-    properties.withAny(ValuePropertyNames.CURVE).withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE).withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+    final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
+    final ValueProperties.Builder properties = createValueProperties()
+        .withAny(ValuePropertyNames.CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
+        .with(ValuePropertyNames.CURRENCY, currency)
+        .with(ValuePropertyNames.CURVE_CURRENCY, currency);
     final Set<ValueSpecification> results = Sets.newHashSetWithExpectedSize(2);
     properties.with(RESULT_PROPERTY_TYPE, TYPE_FORWARD);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
@@ -64,13 +74,21 @@ public class InterestRateInstrumentPV01Function extends InterestRateInstrumentFu
   }
 
   @Override
-  public Set<ValueSpecification> getResults(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {
-    return Sets.newHashSet(getResultSpec(target, forwardCurveName, forwardCurveName, fundingCurveName), getResultSpec(target, fundingCurveName, forwardCurveName, fundingCurveName));
+  public Set<ValueSpecification> getResults(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod,
+      final String currency) {
+    return Sets.newHashSet(getResultSpec(target, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency),
+        getResultSpec(target, fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency));
   }
 
-  private ValueSpecification getResultSpec(final ComputationTarget target, final String curveName, final String forwardCurveName, final String fundingCurveName) {
-    final ValueProperties.Builder properties = createValueProperties(target).with(ValuePropertyNames.CURVE, curveName).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName);
+  private ValueSpecification getResultSpec(final ComputationTarget target, final String curveName, final String forwardCurveName, final String fundingCurveName,
+      final String curveCalculationMethod, final String currency) {
+    final ValueProperties.Builder properties = createValueProperties()
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
+        .with(ValuePropertyNames.CURRENCY, currency)
+        .with(ValuePropertyNames.CURVE_CURRENCY, currency);
     return new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
   }
 

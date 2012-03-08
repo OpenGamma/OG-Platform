@@ -27,7 +27,6 @@ public class VolatilitySurfaceTest {
       4, 5, 6, 4, 5, 6}, INTERPOLATOR, "S");
   private static final VolatilitySurface VOL = new VolatilitySurface(SURFACE);
 
-  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNull() {
     new VolatilitySurface(null);
