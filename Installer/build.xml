@@ -14,6 +14,12 @@
     <subant buildpath="." antfile="monolith.xml" inheritall="true" target="build" />
   </target>
   
-  <target name="build" depends="build-servers,build-clients,build-monolith" description="Builds the installer packages in the dist sub-directory" />
+  <target name="build" description="Builds the installer packages in the dist sub-directory">
+    <parallel>
+      <antcall target="build-servers" inheritrefs="true" />
+      <antcall target="build-clients" inheritrefs="true" />
+    </parallel>
+    <antcall target="build-monolith" inheritrefs="true" />
+  </target>
 
 </project>

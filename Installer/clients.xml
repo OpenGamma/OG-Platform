@@ -101,8 +101,4 @@
   </target>
   <target name="enable-all" depends="installer-core.enable-all,enable-language,enable-all-check" />
 
-  <target name="build-all" depends="ai-present,build-jvm-i386,build-jvm-x64,build-nojvm-i386,build-nojvm-x64" />
-
-  <target name="build" depends="create-build-file,set-build-number,build-all" />
-
 </project>
