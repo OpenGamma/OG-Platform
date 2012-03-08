@@ -154,7 +154,7 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
     final Currency receiveCurrency = fxForwardSecurity.getReceiveCurrency();
     final double payAmount = fxForwardSecurity.getPayAmount();
     final double receiveAmount = fxForwardSecurity.getReceiveAmount();
-    final double fxRate = receiveAmount / payAmount;
+    final double fxRate = Math.abs(receiveAmount / payAmount); //TODO remove the abs when trades are formed correctly
     final ZonedDateTime forwardDate = fxForwardSecurity.getForwardDate();
     return new ForexDefinition(payCurrency, receiveCurrency, forwardDate, payAmount, fxRate);
   }
