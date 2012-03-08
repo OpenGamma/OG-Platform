@@ -1,4 +1,4 @@
-<project name="core" default="compile">
+<project name="core" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
 
   <!-- Caller must define cc.build.path -->
 
@@ -14,21 +14,46 @@
     <delete dir="${solution.dir}/Installer/setup-cache" />
   </target>
 
+  <target name="resolve" depends="common-ivy.resolve">
+    <subant genericantfile="${common.dir}/cpp.xml" target="unpack-resolve" buildpath="${basedir}" inheritall="true" />
+  </target>
+
   <target name="fudge-proto" depends="common.fudge-proto">
     <subant buildpath="${java.dir}" target="fudge-proto" inheritall="true" />
   </target>
 
-  <target name="compile-src" depends="common.compile-src,version-cpp-header">
+  <target name="compile-src" depends="common.compile-src,version-cpp-header,config">
     <subant buildpathref="cc.build.path" target="compile" inheritall="true" />
+  </target>
+
+  <target name="config">
+    <copy todir="${build.dir}" file="${solution.dir}/config/logback.xml" />
   </target>
 
   <target name="clean-build" depends="common.clean-build">
     <subant buildpathref="cc.build.path" target="clean" inheritall="true" />
   </target>
 
+  <target name="deploy-jars">
+    <mkdir dir="${build.dir}/jar" />
+    <ivy:retrieve pattern="${build.dir}/jar/[organization]-[module]-[artifact].[ext]" type="jar" />
+  </target>
+
   <target name="installer" depends="ai-present,module-build-number" if="ai.present" description="Builds the windows installation packages (assumes a dist-publish has already been done and Advanced Installer is available)">
     <ai-set-version version="${module.version.msi}.${module.build.number}" />
     <ai-build />
+  </target>
+
+  <!-- Clone the common build files (like this one) from OG-Language. Earlier
+       attempts to fetch them as IVY artifacts were problematic. Far easier to
+       copy them and check them into the git repository -->
+  <available property="og.language.dir" value="${basedir}/../OG-Language" file="${basedir}/../OG-Language/build-core.xml" />
+  <target name="copy-core" if="og.language.dir" description="Copies the core build file from OG-Language if available">
+    <copy todir="${basedir}">
+      <fileset dir="${og.language.dir}">
+        <include name="build-core*.xml" />
+      </fileset>
+    </copy>
   </target>
 
 </project>

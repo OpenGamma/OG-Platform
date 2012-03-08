@@ -20,7 +20,8 @@
   </target>
 
   <target name="cpp-headers-present-ant" unless="cpp.headers.present" if="cpp.present.ant">
-    <cc objdir="${cpp.obj.dir}"
+    <mkdir dir="${cpp.obj.dir}/check" />
+    <cc objdir="${cpp.obj.dir}/check"
         outfile="${cpp.out.dir}/stdafx"
         outtype="static"
         outputfileproperty="cpp.headers.present.ant"
@@ -42,7 +43,7 @@
       <isset property="cpp.headers.present.ant" />
     </condition>
     <delete file="${cpp.headers.present.ant}" failonerror="false" />
-    <delete file="${cpp.obj.dir}/dependencies.xml" failonerror="false" />
+    <delete dir="${cpp.obj.dir}/check" failonerror="false" />
   </target>
 
   <target name="cpp-compile-debug-ant" if="cpp.headers.present.ant" unless="cpp.disable.debug">

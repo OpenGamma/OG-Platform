@@ -8,7 +8,7 @@
     <cpptasks:defineset id="cpp.define.extra" />
   </target>
   <target name="cpp-include-extra">
-    <cpptasks:cc>
+    <cpptasks:cc objdir="${build.dir}">
       <includepath id="cpp.include.extra" />
     </cpptasks:cc>
   </target>

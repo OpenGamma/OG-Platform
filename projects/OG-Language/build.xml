@@ -1,8 +1,9 @@
 <project name="og-language" default="compile">
 
   <import file="${basedir}/build-core.xml" />
+  <import file="${basedir}/delete-unused-jars.xml" />
 
-  <target name="fudge-proto" depends="common.fudge-proto">
+  <target name="fudge-proto" depends="core.fudge-proto">
     <subant buildpath="${solution.dir}/Service" target="fudge-proto" inheritall="true" />
   </target>
 
@@ -20,7 +21,7 @@
     <mkdir dir="${dist.dir}/lib" />
     <subant buildpathref="cc.build.path" target="dist-publish" inheritall="true" />
     <mkdir dir="${dist.dir}/bin/ext" />
-    <copy file="${solution.dir}/config/0${ant.project.name}/xml" todir="${dist.dir}/bin/ext" />
+    <copy file="${solution.dir}/config/0${ant.project.name}.xml" todir="${dist.dir}/bin/ext" />
     <zip destfile="${dist.dir}/${ant.project.name}-bin.zip" basedir="${dist.dir}/bin" whenempty="create" />
     <zip destfile="${dist.dir}/${ant.project.name}-include.zip" basedir="${dist.dir}/include" whenempty="create" />
     <zip destfile="${dist.dir}/${ant.project.name}-lib.zip" basedir="${dist.dir}/lib" whenempty="create" />
@@ -29,29 +30,11 @@
     <delete dir="${dist.dir}/lib" />
   </target>
 
-<!--
-  <path id="java.build.path">
-    <pathelement path="${basedir}/Client" />
-  </path>
-  <path id="javatest.build.path">
-    <path refid="java.build.path" />
-  </path>
-  <path id="cctest.build.path">
-    <pathelement path="${basedir}/UtilTest" />
-    <pathelement path="${basedir}/ServiceTest" />
-    <pathelement path="${basedir}/ConnectorTest" />
-  </path>
+  <target name="resolve" depends="core.resolve,deploy-jars,delete-unused-jars" />
 
-  <import file="${basedir}/build-suffix.xml" />
-  <import file="${basedir}/delete-unused-jars.xml" />
-  <import file="${common.dir}/advanced-installer.xml" />
-
-  <target name="deploy-jars" depends="build-suffix.deploy-jars,make-config,delete-unused-jars">
+  <target name="config" depends="core.config">
     <mkdir dir="${build.dir}/ext" />
-    <copy file="${basedir}/config/0${ant.project.name}.xml" todir="${build.dir}/ext" failonerror="true" />
-    <copy file="${basedir}/config/logback.xml" todir="${build.dir}" failonerror="false" />
+    <copy todir="${build.dir}/ext" file="${solution.dir}/config/0${ant.project.name}.xml" />
   </target>
-
--->
 
 </project>
