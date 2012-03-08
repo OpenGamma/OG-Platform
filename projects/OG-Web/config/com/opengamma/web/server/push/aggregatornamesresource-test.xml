@@ -8,10 +8,13 @@
        xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
   <bean id="aggregatorNamesResource" class="com.opengamma.web.server.push.rest.AggregatorNamesResource">
-    <constructor-arg ref="viewDefinitionManager"/>
+    <constructor-arg>
+      <set>
+        <value>aggregator1</value>
+        <value>aggregator2</value>
+      </set>
+    </constructor-arg>
   </bean>
-
-  <bean id="viewDefinitionManager" class="com.opengamma.web.server.push.AggregatorNamesResourceTest$AggregatedViewDefinitionManagerFactoryBean"/>
 
   <bean id="updateManager" class="com.opengamma.web.server.push.TestConnectionManager"/>
 

@@ -7,7 +7,6 @@
 package com.opengamma.language.config;
 
 import java.net.URI;
-import java.util.concurrent.Executors;
 
 import org.fudgemsg.FudgeContext;
 import org.fudgemsg.FudgeMsg;
@@ -15,7 +14,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.transport.jaxrs.RestTarget;
 import com.opengamma.transport.jaxrs.UriEndPointDescriptionProvider;
 import com.opengamma.util.ArgumentChecker;
 
@@ -122,21 +120,6 @@ public final class Configuration {
       return invalidUrl(entry);
     }
     return uri;
-  }
-
-  /**
-   * Returns a REST end point as a {@link RestTarget}
-   * 
-   * @param entry configuration item name
-   * @return the RestTarget, or null if there is none or it is inaccessible (and passive failure is allowed)
-   */
-  public RestTarget getRestTargetConfiguration(final String entry) {
-    final URI uri = getURIConfiguration(entry);
-    if (uri == null) {
-      return null;
-    }
-    // TODO: fetch the recommended taxonomy id to use if one is published
-    return new RestTarget(uri);
   }
 
   // TODO: JMS configuration
