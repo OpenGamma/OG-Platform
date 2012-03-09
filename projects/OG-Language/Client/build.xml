@@ -1,7 +1,5 @@
 <project name="client">
 
-  <property file="${basedir}/build.properties" />
-
   <target name="fudge-proto" unless="proto.c.disabled">
     <java classname="org.fudgemsg.proto.CommandLine" classpathref="lib.path.id" fork="true">
       <arg value="-d${solution.dir}/Connector" />

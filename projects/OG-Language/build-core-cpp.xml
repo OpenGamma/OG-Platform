@@ -1,14 +1,7 @@
 <project name="core-cpp" xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks">
 
   <property file="${basedir}/build.properties" />
-  <property file="${solution.dir}/build.properties" />
   <import file="${common.dir}/cpp.xml" />
-
-  <path id="lib.path.id">
-    <fileset dir="${solution.dir}/lib/jar">
-      <exclude name="org.apache.ant/ant/*.jar" />
-    </fileset>
-  </path>
 
   <target name="cpp-define-extra" if="cpp.present.ant">
     <cpptasks:defineset id="cpp.define.extra" />
