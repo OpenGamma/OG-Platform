@@ -57,19 +57,20 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
   /**
    * Build a annuity of OIS coupons from financial details.
    * @param settlementDate The annuity settlement or first fixing date, not null.
-   * @param maturityDate The maturity date of the annuity, not null.
+   * @param endFixingPeriodDate The end date of the OIS accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
    * @param notional The annuity notional.
    * @param generator The OIS generator, not null.
    * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
    * @return The annuity.
    */
-  public static AnnuityCouponOISDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final double notional, final GeneratorOIS generator, final boolean isPayer) {
+  public static AnnuityCouponOISDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final GeneratorOIS generator, 
+      final boolean isPayer) {
     ArgumentChecker.notNull(settlementDate, "settlement date");
-    ArgumentChecker.notNull(maturityDate, "maturity date");
+    ArgumentChecker.notNull(endFixingPeriodDate, "End fixing period date");
     ArgumentChecker.notNull(generator, "generator");
-    final ZonedDateTime[] endFixingPeriodDate = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, maturityDate, generator.getLegsPeriod(), generator.isStubShort(), generator.isFromEnd(),
-        generator.getBusinessDayConvention(), generator.getCalendar(), generator.isEndOfMonth());
-    return AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDate, notional, generator, isPayer);
+    final ZonedDateTime[] endFixingPeriodDates = ScheduleCalculator.getAdjustedDateSchedule(settlementDate, endFixingPeriodDate, generator.getLegsPeriod(), generator.isStubShort(),
+        generator.isFromEnd(), generator.getBusinessDayConvention(), generator.getCalendar(), generator.isEndOfMonth());
+    return AnnuityCouponOISDefinition.from(settlementDate, endFixingPeriodDates, notional, generator, isPayer);
   }
 
   private static AnnuityCouponOISDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime[] endFixingPeriodDate, final double notional, final GeneratorOIS generator,

@@ -193,7 +193,7 @@ public class Functional {
     };
   }
   
-  public static <T> Collection<T> filter(Iterable<? extends T> c, final Function1<T, Boolean> predicate) {
+  public static <T> List<T> filter(Iterable<? extends T> c, final Function1<T, Boolean> predicate) {
     return reduce(new LinkedList<T>(), c, new Function2<LinkedList<T>, T, LinkedList<T>>() {
       @Override
       public LinkedList<T> execute(LinkedList<T> acc, T e) {

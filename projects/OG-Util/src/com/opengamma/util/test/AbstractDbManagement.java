@@ -16,6 +16,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.hibernate.id.enhanced.SequenceStructure;
@@ -23,8 +24,13 @@ import org.hibernate.mapping.ForeignKey;
 import org.hibernate.mapping.Table;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.functional.Function1;
+import com.opengamma.util.functional.Functional;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 import com.opengamma.util.tuple.Pair;
+
+import static com.google.common.collect.Lists.newArrayList;
+import static com.opengamma.util.RegexUtils.matches;
 
 /**
  * Abstract implementation of database management.
@@ -244,7 +250,7 @@ public abstract class AbstractDbManagement implements DbManagement {
       script.addAll(clearTablesCommands);
       for (String name : tablesToClear) {
         Table table = new Table(name);
-        if (table.getName().toLowerCase().indexOf("hibernate_sequence") != -1) { // if it's a sequence table, reset it 
+        if (matches(table.getName().toLowerCase(), Pattern.compile(".*?hibernate_sequence"))) { // if it's a sequence table, reset it 
           script.add("INSERT INTO " + table.getQualifiedName(getHibernateDialect(), null, schema) + " values ( 1 )");
         }
       }
@@ -521,6 +527,11 @@ public abstract class AbstractDbManagement implements DbManagement {
 
   @Override
   public String describeDatabase(final String catalog) {
+    return describeDatabase(catalog, null); 
+  }
+  
+  @Override
+  public String describeDatabase(final String catalog, final String prefix) {
     final StringBuilder description = new StringBuilder();
     Connection conn = null;
     try {
@@ -533,7 +544,12 @@ public abstract class AbstractDbManagement implements DbManagement {
       }
       for (String schema : schemas) {
         description.append("schema: ").append(schema).append("\r\n");
-        final List<String> tables = getAllTables(catalog, schema, stmt);
+        final List<String> tables = Functional.filter(getAllTables(catalog, schema, stmt), new Function1<String, Boolean>() {
+          @Override
+          public Boolean execute(String s) {
+            return prefix != null && s.startsWith(prefix);
+          }
+        });
         Collections.sort(tables);
         for (String table : tables) {
           description.append("table: ").append(table).append("\r\n");
@@ -543,12 +559,23 @@ public abstract class AbstractDbManagement implements DbManagement {
             description.append("column: ").append(column).append("\r\n");
           }
         }
-        final List<String> sequences = getAllSequences(catalog, schema, stmt);
+        final List<String> sequences = Functional.filter(getAllSequences(catalog, schema, stmt), new Function1<String, Boolean>() {
+          @Override
+          public Boolean execute(String s) {
+            return prefix != null && s.startsWith(prefix);
+          }
+        });
+
         Collections.sort(sequences);
         for (String sequence : sequences) {
           description.append("sequence: ").append(sequence).append("\r\n");
         }
-        final List<Pair<String, String>> foreignKeys = getAllForeignKeyConstraints(catalog, schema, stmt);
+        final List<Pair<String, String>> foreignKeys = Functional.filter(getAllForeignKeyConstraints(catalog, schema, stmt), new Function1<Pair<String, String>, Boolean>() {
+          @Override
+          public Boolean execute(Pair<String, String> s) {
+            return prefix != null && s.getFirst().startsWith(prefix);
+          }
+        });                              
         Collections.sort(foreignKeys, FirstThenSecondPairComparator.INSTANCE);
         for (Pair<String, String> foreignKey : foreignKeys) {
           description.append("foreign key: ").append(foreignKey.getFirst()).append('.').append(foreignKey.getSecond()).append("\r\n");

@@ -5,27 +5,20 @@
  */
 package com.opengamma.util.test;
 
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.difference;
+import static com.google.common.collect.Sets.newHashSet;
+import static com.google.common.collect.Sets.newTreeSet;
+import static com.opengamma.util.RegexUtils.extract;
+import static com.opengamma.util.RegexUtils.matches;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-
+import java.util.regex.Pattern;
 import javax.sql.DataSource;
-
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Options;
-import org.apache.commons.cli.ParseException;
-import org.apache.commons.cli.PosixParser;
+import org.apache.commons.cli.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -34,9 +27,10 @@ import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import com.jolbox.bonecp.BoneCPDataSource;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Command-line interface to create or clear databases.
@@ -47,9 +41,15 @@ public class DbTool extends Task {
   private static final Logger s_logger = LoggerFactory.getLogger(DbTool.class);
 
   private static final String DATABASE_INSTALL_FOLDER = "install/db";
-  private static final String DATABASE_SCRIPT_FOLDER_PREFIX = "patch_";
-  private static final String DATABASE_UPGRADE_SCRIPT = "upgrade-db.sql";
-  private static final String DATABASE_CREATE_SCRIPT = "create-db.sql";
+  private static final Pattern DATABASE_SCRIPT_FOLDER_PATTERN = Pattern.compile("(.+)_db");
+
+  private static final String DATABASE_CREATE_FOLDER = DATABASE_INSTALL_FOLDER + File.separatorChar + "create";
+  private static final String DATABASE_MIGRATE_FOLDER = DATABASE_INSTALL_FOLDER + File.separatorChar + "migrate";
+  private static final String DATABASE_CRAETE_SCRIPT_PREFIX = "V_";
+  private static final String DATABASE_MIGRATE_SCRIPT_PREFIX = "V_";
+
+  private static final Pattern CREATE_SCRIPT_PATTERN = Pattern.compile("^" + DATABASE_CRAETE_SCRIPT_PREFIX + "([0-9]+)__create_(.+?)\\.sql");
+  private static final Pattern MIGRATE_SCRIPT_PATTERN = Pattern.compile("^" + DATABASE_MIGRATE_SCRIPT_PREFIX + "([0-9]+)__(.+?)\\.sql");
 
   private static final Map<String, DbManagement> s_url2Management = new ConcurrentHashMap<String, DbManagement>();
 
@@ -66,7 +66,7 @@ public class DbTool extends Task {
   /**
    */
   public interface TableCreationCallback {
-    void tablesCreatedOrUpgraded(final String version);
+    void tablesCreatedOrUpgraded(final String version, final String prefix);
   }
 
   // What to do - should be set once
@@ -371,6 +371,10 @@ public class DbTool extends Task {
     return _dialect.describeDatabase(getTestCatalog());
   }
 
+  public String describeDatabase(String prefix) {
+    return _dialect.describeDatabase(getTestCatalog(), prefix);
+  }
+  
   public String getTestCatalog() {
     return _dialect.getTestCatalog();    
   }
@@ -462,78 +466,228 @@ public class DbTool extends Task {
     }
   }
 
-  private void createTables(String catalog, String schema, File[] scriptDirs, int index, TableCreationCallback callback) {
-    if (index < 0) {
-      throw new IllegalArgumentException("Invalid creation or target version (" + getCreateVersion() + "/" + getTargetVersion() + ")");
-    }
-    final int version = Integer.parseInt(scriptDirs[index].getName().substring(DATABASE_SCRIPT_FOLDER_PREFIX.length()));
-    if (getTargetVersion() >= version) {
-      if (getCreateVersion() >= version) {
-        final File createFile = new File(scriptDirs[index], DATABASE_CREATE_SCRIPT);
-        if (createFile.exists()) {
-          s_logger.info("Creating DB version " + version);
-          executeCreateScript(catalog, schema, createFile);
-          if (callback != null) {
-            callback.tablesCreatedOrUpgraded(Integer.toString(version));
-          }
-          return;
-        }
-      }
-      createTables(catalog, schema, scriptDirs, index - 1, callback);
-      final File upgradeFile = new File(scriptDirs[index], DATABASE_UPGRADE_SCRIPT);
-      if (upgradeFile.exists()) {
-        s_logger.info("Upgrading to DB version " + version);
-        executeCreateScript(catalog, schema, upgradeFile);
-        if (callback != null) {
-          callback.tablesCreatedOrUpgraded(Integer.toString(version));
-        }
-        return;
-      }
-    } else {
-      createTables(catalog, schema, scriptDirs, index - 1, callback);
-    }
+  private int getScriptVersion(File script, Pattern scriptVersionPattern) {
+    return Integer.parseInt(extract(script.getName(), scriptVersionPattern, 1));
   }
 
-  private File[] getScriptDirs() {
-    final List<File> scriptDirs = new ArrayList<File>();
-    for (String scriptDir : _dbScriptDirs) {
-      final File file = new File(scriptDir, DATABASE_INSTALL_FOLDER + File.separatorChar + _dialect.getDatabaseName());
-      if (!file.exists()) {
-        throw new OpenGammaRuntimeException("Directory " + file.getAbsolutePath() + " does not exist");
-      }
-      final File[] scriptSubDirs = file.listFiles(new FileFilter() {
-        @Override
-        public boolean accept(File pathname) {
-          return pathname.getName().startsWith(DATABASE_SCRIPT_FOLDER_PREFIX);
-        }
-      });
-      scriptDirs.addAll(Arrays.asList(scriptSubDirs));
-    }
-    Collections.sort(scriptDirs, new Comparator<File>() {
+  /**
+   * Creates map from versions to sql scripts
+   * @param dbCreateSuperDir the directory holding versioned scripts
+   * @return the map
+   */
+  private Map<File, Map<Integer, File>> getScripts(File dbCreateSuperDir, final Pattern scriptPattern) {
+    ArgumentChecker.isTrue(dbCreateSuperDir.exists(), "Directory " + dbCreateSuperDir.getAbsolutePath() + " does not exist");
+    ArgumentChecker.isTrue(dbCreateSuperDir.isDirectory(), "dbCreateSuperDir must be directory not a regular file");
+    final File[] dbCreateScriptDirs = dbCreateSuperDir.listFiles(new FileFilter() {
       @Override
-      public int compare(File o1, File o2) {
-        String patchNo1 = o1.getName().substring(DATABASE_SCRIPT_FOLDER_PREFIX.length());
-        Integer patchNo1Int = Integer.parseInt(patchNo1);
-        String patchNo2 = o2.getName().substring(DATABASE_SCRIPT_FOLDER_PREFIX.length());
-        Integer patchNo2Int = Integer.parseInt(patchNo2);
-        return patchNo1Int.compareTo(patchNo2Int);
+      public boolean accept(File pathname) {
+        return matches(pathname.getName(), DATABASE_SCRIPT_FOLDER_PATTERN);
       }
     });
-    if (scriptDirs.isEmpty()) {
+    //
+    Map<File, Map<Integer, File>> dbFolder2versionedScripts = newHashMap();
+    //
+    for (File dbCreateScriptDir : dbCreateScriptDirs) {
+      final File[] scripts = dbCreateScriptDir.listFiles(new FileFilter() {
+        @Override
+        public boolean accept(File pathname) {
+          return pathname.isFile()
+            && matches(pathname.getName(), scriptPattern);
+        }
+      });
+      //
+
+      Map<Integer, File> versionedScripts = newHashMap();
+      for (File script : scripts) {
+        Integer version = getScriptVersion(script, scriptPattern);
+        versionedScripts.put(version, script);
+      }
+
+      dbFolder2versionedScripts.put(dbCreateScriptDir, versionedScripts);
+
+    }
+    return dbFolder2versionedScripts;
+  }
+
+
+  /**
+   *
+   * @return db_name => version_number => (create_script, migrate_script)
+   */
+  private Map<String, Map<Integer, Pair<File, File>>> getScriptDirs() {
+
+    Map<String, ConcurrentHashMap<Integer, File>> createScripts = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, File>>() {
+      @Override
+      public ConcurrentHashMap<Integer, File> get(Object key) {
+        super.putIfAbsent((String) key, new ConcurrentHashMap<Integer, File>());
+        return super.get(key);
+      }
+    };
+
+    Map<String, ConcurrentHashMap<Integer, File>> migrateScripts = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, File>>() {
+      @Override
+      public ConcurrentHashMap<Integer, File> get(Object key) {
+        super.putIfAbsent((String) key, new ConcurrentHashMap<Integer, File>());
+        return super.get(key);
+      }
+    };
+
+    for (String scriptDir : _dbScriptDirs) {
+
+      for (Map.Entry<File, Map<Integer, File>> dbFolder2versionedScripts : getScripts(new File(scriptDir, DATABASE_CREATE_FOLDER + File.separatorChar + _dialect.getDatabaseName()), CREATE_SCRIPT_PATTERN).entrySet()) {
+        File dbFolder = dbFolder2versionedScripts.getKey();
+        createScripts.get(dbFolder.getName()); // creates empty slot for dbFolder.getName() 
+        Map<Integer, File> versionedScripts = dbFolder2versionedScripts.getValue();
+        for (Map.Entry<Integer, File> version2script : versionedScripts.entrySet()) {
+          Integer version = version2script.getKey();
+          File script = version2script.getValue();
+
+          ConcurrentHashMap<Integer, File> createDbScripts = createScripts.get(dbFolder.getName());
+
+          File prev = createDbScripts.putIfAbsent(version, script);
+          if (prev != null) {
+            throw new OpenGammaRuntimeException("Can't add " + script.getAbsolutePath() + " script. Version " + version + " already added by " + prev.getAbsolutePath() + " script.");
+          }
+        }
+      }
+
+      for (Map.Entry<File, Map<Integer, File>> dbFolder2versionedScripts : getScripts(new File(scriptDir, DATABASE_MIGRATE_FOLDER + File.separatorChar + _dialect.getDatabaseName()), MIGRATE_SCRIPT_PATTERN).entrySet()) {
+        File dbFolder = dbFolder2versionedScripts.getKey();
+        migrateScripts.get(dbFolder.getName()); // creates empty slot for dbFolder.getName()
+        Map<Integer, File> versionedScripts = dbFolder2versionedScripts.getValue();
+        for (Map.Entry<Integer, File> version2script : versionedScripts.entrySet()) {
+          Integer version = version2script.getKey();
+          File script = version2script.getValue();
+
+          ConcurrentHashMap<Integer, File> migrateDbScripts = migrateScripts.get(dbFolder.getName());
+
+          File prev = migrateDbScripts.putIfAbsent(version, script);
+          if (prev != null) {
+            throw new OpenGammaRuntimeException("Can't add " + script.getAbsolutePath() + " script. Version " + version + " already added by " + prev.getAbsolutePath() + " script.");
+          }
+        }
+      }
+
+    }
+
+    Set<String> migrateDbDirs = migrateScripts.keySet();
+
+    Set<String> createDbDirs = createScripts.keySet();      
+
+    Set<String> unmatchedCreateDbDirs = difference(migrateDbDirs, createDbDirs);
+    if (unmatchedCreateDbDirs.size() > 0) {
+      StringBuilder errorMessage = new StringBuilder();
+      for (String unmatchedCreateDbDir : unmatchedCreateDbDirs) {
+        errorMessage.append("There is no corresponding create db directory for migrate one: " + unmatchedCreateDbDir + "\n");
+      }
+      throw new OpenGammaRuntimeException(errorMessage.toString());
+    }
+
+    Set<String> unmatchedMigrateDbDirs = difference(createDbDirs, migrateDbDirs);
+    if (unmatchedMigrateDbDirs.size() > 0) {
+      StringBuilder errorMessage = new StringBuilder();
+      for (String unmatchedMigrateDbDir : unmatchedMigrateDbDirs) {
+        errorMessage.append("There is no corresponding migrate db directory for create one: " + unmatchedMigrateDbDir + "\n");
+      }
+      throw new OpenGammaRuntimeException(errorMessage.toString());
+    }
+
+    final Map<String, Map<Integer, Pair<File, File>>> scripts = new ConcurrentHashMap<String, Map<Integer, Pair<File, File>>>() {
+      @Override
+      public Map<Integer, Pair<File, File>> get(Object key) {
+        super.putIfAbsent((String) key, new ConcurrentHashMap<Integer, Pair<File, File>>());
+        return super.get(key);
+      }
+    };
+
+    for (String dir : migrateDbDirs) {
+      
+      ConcurrentHashMap<Integer, File> versionedCreateScripts = createScripts.get(dir);
+      ConcurrentHashMap<Integer, File> versionedMigrateScripts = migrateScripts.get(dir);
+
+      Set<Integer> migrateVersions = versionedCreateScripts.keySet();
+      Set<Integer> createVersions = versionedMigrateScripts.keySet();
+
+      /*Set<Integer> unmatchedCreateVersions = difference(migrateVersions, createVersions);
+      if (unmatchedCreateVersions.size() > 0) {
+        StringBuilder errorMessage = new StringBuilder();
+        for (Integer unmatchedCreateVersion : unmatchedCreateVersions) {
+          errorMessage.append("There is no corresponding version of create script for the migrate one: " + DATABASE_CRAETE_SCRIPT_PREFIX + unmatchedCreateVersion + "\n");
+        }
+        throw new OpenGammaRuntimeException(errorMessage.toString());
+      }
+
+      Set<Integer> unmatchedMigrateVersions = difference(createVersions, migrateVersions);
+      if (unmatchedMigrateVersions.size() > 0) {
+        StringBuilder errorMessage = new StringBuilder();
+        for (Integer unmatchedMigrateVersion : unmatchedMigrateVersions) {
+          errorMessage.append("There is no corresponding version of migrate script for the create one: " + DATABASE_MIGRATE_SCRIPT_PREFIX + unmatchedMigrateVersion + "\n");
+        }
+        throw new OpenGammaRuntimeException(errorMessage.toString());
+      }*/
+
+      for (Integer version : migrateVersions) {
+        File createScript = versionedCreateScripts.get(version);
+        File migrateScript = versionedMigrateScripts.get(version);
+        scripts.get(dir).put(version, Pair.of(createScript, migrateScript));        
+      }
+    }
+
+    if (scripts.isEmpty()) {
       throw new OpenGammaRuntimeException("No script directories found: " + _dbScriptDirs);
     }
-    return scriptDirs.toArray(new File[0]);
+    return scripts;
   }
 
   public void createTables(String catalog, String schema, final TableCreationCallback callback) {
-    final File[] scriptDirs = getScriptDirs();
-    if (getTargetVersion() == null) {
-      setTargetVersion(scriptDirs[scriptDirs.length - 1].getName().substring(DATABASE_SCRIPT_FOLDER_PREFIX.length()));
+    final Map<String, Map<Integer, Pair<File, File>>> scriptDirs = getScriptDirs();
+    for (String dbDir : scriptDirs.keySet()) {
+      String db = extract(dbDir, DATABASE_SCRIPT_FOLDER_PATTERN, 1);
+      createTables(db, scriptDirs.get(dbDir), catalog, schema, callback);
+    }
+  }
+
+  public void createTables(String database, Map<Integer, Pair<File, File>> dbScripts, String catalog, String schema, final TableCreationCallback callback) {
+    int highestVersion = Collections.max(dbScripts.keySet());
+    if (getTargetVersion() == null) {      
+      setTargetVersion(highestVersion);
     }
     if (getCreateVersion() == null) {
       setCreateVersion(getTargetVersion());
     }
-    createTables(catalog, schema, scriptDirs, scriptDirs.length - 1, callback);
+    createTables(database, dbScripts, highestVersion, catalog, schema, callback);
+  }
+
+  public void createTables(String database, Map<Integer, Pair<File, File>> dbScripts, int version, String catalog, String schema, final TableCreationCallback callback) {
+    if (version < 1) {
+      throw new IllegalArgumentException("Invalid creation or target version (" + getCreateVersion() + "/" + getTargetVersion() + ")");
+    }
+
+    if (getTargetVersion() >= version) {
+      final File createScript = dbScripts.get(version).getFirst();
+      if (getCreateVersion() >= version && createScript.exists()) {
+        s_logger.info("Creating DB version " + version);
+        s_logger.info("Executing create script " + createScript);
+        executeCreateScript(catalog, schema, createScript);
+        if (callback != null) {
+          callback.tablesCreatedOrUpgraded(Integer.toString(version), database);
+        }
+      } else {
+        createTables(database, dbScripts, version - 1, catalog, schema, callback);
+        final File migrateScript = dbScripts.get(version).getSecond();
+        if (migrateScript.exists()) {
+          s_logger.info("Upgrading to DB version " + version);
+          s_logger.info("Executing upgrade script " + migrateScript);
+          executeCreateScript(catalog, schema, migrateScript);
+          if (callback != null) {
+            callback.tablesCreatedOrUpgraded(Integer.toString(version), database);
+          }
+        }
+      }
+    } else {
+      createTables(database, dbScripts, version - 1, catalog, schema, callback);
+    }
+
   }
 
   /**
@@ -541,19 +695,28 @@ public class DbTool extends Task {
    * @return FIXME
    */
   public String[] getDatabaseCreatableVersions() {
-    final File[] scriptDirs = getScriptDirs();
-    final ArrayList<String> versions = new ArrayList<String>();
-    for (int i = scriptDirs.length - 1; i >= 0; i--) {
-      if (versions.size() == 0) {
-        versions.add(scriptDirs[i].getName().substring(DATABASE_SCRIPT_FOLDER_PREFIX.length()));
-      } else {
-        final File createScript = new File(scriptDirs[i], DATABASE_CREATE_SCRIPT);
-        if (createScript.exists()) {
-          versions.add(scriptDirs[i].getName().substring(DATABASE_SCRIPT_FOLDER_PREFIX.length()));
-        }
+    Map<String, Map<Integer, Pair<File, File>>> scriptDirs = getScriptDirs();
+
+    SortedSet<Integer> allVersions = newTreeSet(new Comparator<Integer>() {
+      @Override
+      public int compare(Integer o1, Integer o2) {
+        return o2.compareTo(o1);
       }
+    });
+
+    for (Map<Integer, Pair<File, File>> versionedScripts : scriptDirs.values()) {
+      allVersions.addAll(versionedScripts.keySet());
     }
-    return versions.toArray(new String[versions.size()]);
+
+    String[] versionsStrings = new String[allVersions.size()];
+
+    int i = 0;
+    for (Integer version : allVersions) {
+      versionsStrings[i] = version.toString();
+      i += 1;
+    }
+
+    return versionsStrings;
   }
 
   public void executeSql(String catalog, String schema, String sql) {
@@ -567,17 +730,17 @@ public class DbTool extends Task {
         throw new BuildException("No database on the DB server specified.");
       }
     }
-    
+
     if (!_create && !_drop && !_clear && !_createTestDb && !_createTables) {
       throw new BuildException("Nothing to do.");
     }
-    
+
     if (_clear) {
       System.out.println("Clearing tables...");
       initialize();
       clearTables(_catalog, _schema);
     }
-    
+
     if (_drop) {
       System.out.println("Dropping schema...");
       initialize();
@@ -587,30 +750,30 @@ public class DbTool extends Task {
     if (_create) {
       System.out.println("Creating schema...");
       initialize();
-      createSchema(_catalog, _schema);      
+      createSchema(_catalog, _schema);
     }
-    
+
     if (_createTables) {
       System.out.println("Creating tables...");
       initialize();
       createTables(_catalog, null, null);
       shutdown(_catalog);
     }
-    
+
     if (_createTestDb) {
       TestProperties.setBaseDir(_testPropertiesDir);
-      
+
       for (String dbType : TestProperties.getDatabaseTypes(_testDbType)) {
         System.out.println("Creating " + dbType + " test database...");
-        
+
         String dbUrl = TestProperties.getDbHost(dbType);
         String user = TestProperties.getDbUsername(dbType);
         String password = TestProperties.getDbPassword(dbType);
-        
+
         setDbServerHost(dbUrl);
         setUser(user);
         setPassword(password);
-        
+
         initialize();
         dropTestSchema(); // make sure it's empty if it already existed
         createTestSchema();
@@ -618,7 +781,7 @@ public class DbTool extends Task {
         shutdown(getTestCatalog());
       }
     }
-    
+
     System.out.println("All tasks succeeded.");
   }
 
@@ -630,7 +793,7 @@ public class DbTool extends Task {
   public static void main(String[] args) { // CSIGNORE
     Options options = new Options();
     options.addOption("jdbcUrl", "jdbcUrl", true, "DB server URL + database - for example, jdbc:postgresql://localhost:1234/OpenGammaTests. You can use" +
-        " either this option or specify server and database separately.");
+      " either this option or specify server and database separately.");
     options.addOption("server", "server", true, "DB server URL (no database at the end) - for example, jdbc:postgresql://localhost:1234");
     options.addOption("database", "database", true, "Name of database on the DB server - for example, OpenGammaTests");
     options.addOption("user", "user", true, "User name to the DB");
@@ -640,8 +803,8 @@ public class DbTool extends Task {
     options.addOption("drop", "drop", false, "Drops all tables and sequences within the given database/schema");
     options.addOption("clear", "clear", false, "Clears all tables within the given database/schema");
     options.addOption("createtestdb", "createtestdb", true, "Drops schema in database test_<user.name> and recreates it (including tables). " +
-        "{dbtype} should be one of derby, postgres, all. Connection parameters are read from test.properties so you do not need " +
-        "to specify server, user, or password.");
+      "{dbtype} should be one of derby, postgres, all. Connection parameters are read from test.properties so you do not need " +
+      "to specify server, user, or password.");
     options.addOption("createtables", "createtables", true, "Runs {dbscriptbasedir}/db/{dbtype}/scripts_<latest version>/create-db.sql.");
     options.addOption("dbscriptbasedir", "dbscriptbasedir", true, "Directory for reading db create scripts. " +
       "Optional. If not specified, the working directory is used.");
@@ -649,7 +812,7 @@ public class DbTool extends Task {
     options.addOption("createversion", "createversion", true, "Version number to run the creation script from. Optional. If not specified, defaults to {targetversion}.");
     options.addOption("testpropertiesdir", "testpropertiesdir", true, "Directory for reading test.properties. Only used with the --createstdb option. " +
       "Optional. If not specified, the working directory is used.");
-    
+
     CommandLineParser parser = new PosixParser();
     CommandLine line = null;
     try {
@@ -659,7 +822,7 @@ public class DbTool extends Task {
       usage(options);
       System.exit(-1);
     }
-    
+
     DbTool tool = new DbTool();
     tool.setJdbcUrl(line.getOptionValue("jdbcUrl"));
     tool.setDbServerHost(line.getOptionValue("server"));
@@ -676,7 +839,7 @@ public class DbTool extends Task {
     tool.addDbScriptDirectory(line.getOptionValue("dbscriptbasedir"));
     tool.setTargetVersion(line.getOptionValue("targetversion"));
     tool.setCreateVersion(line.getOptionValue("createversion"));
-    
+
     try {
       tool.execute();
     } catch (BuildException e) {

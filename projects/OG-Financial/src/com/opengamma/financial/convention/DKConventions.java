@@ -137,8 +137,6 @@ public class DKConventions {
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DKDR5 Curncy"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK DEPOSIT 5y")), "DKK DEPOSIT 5y", act360,
         following, Period.ofYears(5), 2, false, dk);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DETNT/N Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK T/N")),
-        "DKK T/N", act360, following, Period.ofDays(1), 1, false, dk);
 
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK_SWAP")), "DKK_SWAP", thirty360, modified, annual, 1, dk, act360,
         modified, semiAnnual, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 6m"), dk, true);
@@ -148,9 +146,14 @@ public class DKConventions {
         act360, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 6m"), dk, true);
 
     // Overnight Index Swap Convention have additional flag, publicationLag
-    final Integer publicationLag = 0;
+    final Integer publicationLagON = 0;
+    // Overnight-like rate
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("DETNT/N Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK T/N")),
+        "DKK T/N", act360, following, Period.ofDays(1), 1, false, dk, publicationLagON);
+    // OIS-like swap
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK_OIS_SWAP")), "DKK_OIS_SWAP", act360, modified, annual, 1, dk,
-        act360, modified, annual, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK T/N"), dk, true, publicationLag);
+        act360, modified, annual, 1, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK T/N"), dk, true, publicationLagON);
+
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK_IBOR_INDEX")), "DKK_IBOR_INDEX", act360, following, 1, false);
 
     // FRA conventions stored as IRS
