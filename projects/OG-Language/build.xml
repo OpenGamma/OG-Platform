@@ -5,7 +5,7 @@
   <import file="${basedir}/delete-unused-jars.xml" />
 
   <target name="fudge-proto" depends="core.fudge-proto">
-    <subant buildpath="${solution.dir}/Service" target="fudge-proto" inheritall="true" />
+    <subant buildpath="${solution.dir}/Service" target="fudge-proto" inheritall="true" inheritrefs="true" />
   </target>
 
   <path id="cc.build.path">

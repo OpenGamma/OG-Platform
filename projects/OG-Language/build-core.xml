@@ -19,7 +19,7 @@
   </target>
 
   <target name="fudge-proto" depends="common.fudge-proto">
-    <subant buildpath="${java.dir}" target="fudge-proto" inheritall="true" />
+    <subant buildpath="${java.dir}" target="fudge-proto" inheritall="true" inheritrefs="true" />
   </target>
 
   <target name="compile-src" depends="common.compile-src,version-cpp-header,config">
@@ -53,11 +53,16 @@
        copy them and check them into the git repository -->
   <available property="og.language.dir" value="${basedir}/../OG-Language" file="${basedir}/../OG-Language/build-core.xml" />
   <target name="copy-core" if="og.language.dir" description="Copies the core build file from OG-Language if available">
-    <copy todir="${basedir}">
+    <copy todir="${basedir}" overwrite="true">
       <fileset dir="${og.language.dir}">
         <include name="build-core*.xml" />
       </fileset>
     </copy>
+    <replaceregexp match="(&lt;project[^&gt;]*&gt;)" replace="\1${line.separator}${line.separator}  &lt;!-- THIS IS A COPY OF THE FILE FROM OG-LANGUAGE; CHANGE THE ORIGINAL, NOT THIS ONE --&gt;" flags="s">
+      <fileset dir="${basedir}">
+        <include name="build-core*.xml" />
+      </fileset>
+    </replaceregexp>
   </target>
 
 </project>
