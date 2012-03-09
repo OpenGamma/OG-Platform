@@ -295,7 +295,7 @@ $.register_module({
                 template_data = result.data.template_data;
                 var trades, selector = config.selector, tbody, has_attributes = false,
                     fields = ['id', 'quantity', 'counterParty', 'trade_date_time', 'premium', 'premium_date_time'];
-                trades = result.data.trades.sort(function (a, b) {
+                trades = (result.data.trades || []).sort(function (a, b) {
                     return a['trade_date_time'] > b['trade_date_time'] ? -1
                         : a['trade_date_time'] < b['trade_date_time'] ? 1
                             : 0;
