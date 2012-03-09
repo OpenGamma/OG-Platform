@@ -1,5 +1,5 @@
 <ivy-module version="2.0">
-    <info organisation="com.opengamma" module="og-integration" status="integration"/>
+    <info organisation="com.opengamma" module="og-platform" status="integration"/>
     <dependencies>
         <dependency name="og-security" rev="latest.integration" />
         <dependency name="og-analytics" rev="latest.integration" />
