@@ -300,7 +300,7 @@ $.register_module({
                         : a['trade_date_time'] < b['trade_date_time'] ? 1
                             : 0;
                 });
-                if (!trades) return $(selector).html(html.og_table.replace('{TBODY}',
+                if (!trades.length) return $(selector).html(html.og_table.replace('{TBODY}',
                     '<tr><td colspan="6">No Trades</td></tr>')), attach_trades_link(selector);
                 tbody = trades.reduce(function (acc, trade) {
                     acc.push('<tr class="og-row"><td>', fields.map(function (field, i) {
