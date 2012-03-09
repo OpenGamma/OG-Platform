@@ -57,8 +57,8 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
    * @param fixingPeriodAccrualFactor The accrual factor (or year fraction) associated to the fixing period in the Index day count convention.
    */
   public CouponOISSimplifiedDefinition(final Currency currency, final ZonedDateTime paymentDate, final ZonedDateTime accrualStartDate, final ZonedDateTime accrualEndDate,
-      final double paymentYearFraction,
-      final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate, final double fixingPeriodAccrualFactor) {
+      final double paymentYearFraction, final double notional, final IndexON index, final ZonedDateTime fixingPeriodStartDate, final ZonedDateTime fixingPeriodEndDate,
+      final double fixingPeriodAccrualFactor) {
     super(currency, paymentDate, accrualStartDate, accrualEndDate, paymentYearFraction, notional);
     Validate.notNull(index, "Coupon OIS Simplified: index");
     Validate.notNull(fixingPeriodStartDate, "Coupon OIS Simplified: fixingPeriodStartDate");
@@ -94,7 +94,7 @@ public class CouponOISSimplifiedDefinition extends CouponDefinition {
    * @param settlementDate The coupon settlement date.
    * @param endFixingPeriodDate The end date of the fixing period (also used for the end accrual date).
    * @param notional The notional.
-   * @param settlementDays The number of days between last fixing and the payment (also called spot lag). 
+   * @param settlementDays The number of days between last fixing date and the payment date (also called payment lag). 
    * @return The OIS coupon.
    */
   public static CouponOISSimplifiedDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final int settlementDays) {

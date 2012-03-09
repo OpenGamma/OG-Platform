@@ -22,17 +22,21 @@
             if ($self.height() - $self.find('thead').height() <= options.height) return;
             $self.css('margin-top', '-1px'); // compensate for thead height being 1px
             $self.wrap('<div />').parent().css({height: options.height + 'px', overflow: 'auto'})
-                .wrap('<div class="js-awesometable"></div>');
+                .wrap('<div class="js-awesometable"></div>').css({width: $self.width() + scrollbar_width + 'px'});
             ($dup = $self.clone()).find('tbody').remove();
             $self.parentsUntil('.js-awesometable').parent().prepend($dup);
             table_resizers.push(function () {$.fn.awesometable.call($self, options);});
+        } else {
+            $self.parentsUntil('.js-awesometable').css({
+                width: $self.parentsUntil('.js-awesometable').parent().find(' > table thead').width() + 'px'
+            });
         }
         // resize the new header to mimic original
         (function () {
             var len = $self.find('th').length, $dup = $('.js-awesometable > table th'),
                 reset_css = {
-                    'height': '0', 'line-height': '0', 'padding': '0', 'margin': '0',
-                    'overflow': 'hidden', 'visibility': 'hidden'
+                    'padding-top': '0', 'padding-bottom': '0', 'margin-top': '0', 'margin-bottom': '0',
+                    'height': '0', 'line-height': '0', 'overflow': 'hidden', 'visibility': 'hidden'
                 };
             $self.find('thead').css(reset_css).find('*').css(reset_css);
             $self.find('th').each(function (idx, elm) {
