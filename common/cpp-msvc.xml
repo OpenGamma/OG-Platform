@@ -137,6 +137,7 @@
       <arg value="/p:SolutionDir=${msvc.solution.dir}\" />
       <arg value="/p:Configuration=${cpp.configuration}" />
       <arg value="/p:Platform=${cpp.platform}" />
+      <arg value="/p:BuildProjectReferences=false" />
     </exec>
     <antcall target="cpp-compile-after" inheritrefs="true" />
   </target>
