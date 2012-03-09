@@ -44,10 +44,10 @@ module.version.major=${module.version.target}
 module.version.minor=${module.version.target}
 module.version.revision=${module.version.target}
 </echo>
-    <replaceregexp file="${version.cpp.temp.file}" match="version=(\d+\.\d+\.\d+)\w*$" replace="version=\1" />
-    <replaceregexp file="${version.cpp.temp.file}" match="major=(\d+)\.\d+\.\d+\w*$" replace="major=\1" />
-    <replaceregexp file="${version.cpp.temp.file}" match="minor=\d+\.(\d+)\.\d+\w*$" replace="minor=\1" />
-    <replaceregexp file="${version.cpp.temp.file}" match="revision=\d+\.\d+\.(\d+)\w*$" replace="revision=\1" />
+    <replaceregexp file="${version.cpp.temp.file}" match="version=(\d+\.\d+\.\d+)\w*$" replace="version=\1" flags="m" />
+    <replaceregexp file="${version.cpp.temp.file}" match="major=(\d+)\.\d+\.\d+\w*$" replace="major=\1" flags="m" />
+    <replaceregexp file="${version.cpp.temp.file}" match="minor=\d+\.(\d+)\.\d+\w*$" replace="minor=\1" flags="m" />
+    <replaceregexp file="${version.cpp.temp.file}" match="revision=\d+\.\d+\.(\d+)\w*$" replace="revision=\1" flags="m" />
     <property file="${version.cpp.temp.file}" />
     <delete file="${version.cpp.temp.file}" />
     <echo file="${version.cpp.header.file}">// Automatically generated file -- do not modify
