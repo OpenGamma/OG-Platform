@@ -26,23 +26,21 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 public class ForexForwardPresentValueCurveSensitivityFunction extends ForexForwardFunction {
   private static final PresentValueCurveSensitivityForexCalculator CALCULATOR = PresentValueCurveSensitivityForexCalculator.getInstance();
 
-  public ForexForwardPresentValueCurveSensitivityFunction(final String payFundingCurveName, final String payForwardCurveName, final String receiveFundingCurveName, 
-      final String receiveForwardCurveName) {
-    super(payFundingCurveName, payForwardCurveName, receiveFundingCurveName, receiveForwardCurveName);
-  }
-
   @Override
-  protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final FunctionInputs inputs, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPayFundingCurveName(), getPayForwardCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getReceiveFundingCurveName(), getReceiveForwardCurveName()).get();
+  protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final FunctionInputs inputs, final ComputationTarget target,
+      final String payCurveName, final String receiveCurveName) {
+    final ValueProperties properties = createValueProperties()
+        .with(ValuePropertyNames.PAY_CURVE, payCurveName)
+        .with(ValuePropertyNames.RECEIVE_CURVE, receiveCurveName).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(), properties);
     return Collections.singleton(new ComputedValue(spec, CALCULATOR.visit(fxForward, data)));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties properties = createValueProperties().with(ValuePropertyNames.PAY_CURVE, getPayFundingCurveName(), getPayForwardCurveName())
-        .with(ValuePropertyNames.RECEIVE_CURVE, getReceiveFundingCurveName(), getReceiveForwardCurveName()).get();
+    final ValueProperties properties = createValueProperties()
+        .withAny(ValuePropertyNames.PAY_CURVE)
+        .withAny(ValuePropertyNames.RECEIVE_CURVE).get();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.FX_CURVE_SENSITIVITIES, target.toSpecification(), properties));
   }
 

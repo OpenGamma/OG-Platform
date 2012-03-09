@@ -9,6 +9,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.marketdata.MarketDataSnapshot;
 import com.opengamma.engine.marketdata.snapshot.UserMarketDataSnapshot;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.util.ArgumentChecker;
 
 /**
@@ -18,7 +19,7 @@ import com.opengamma.util.ArgumentChecker;
 public class MarketDataSnapshotAvailabilityProvider implements MarketDataAvailabilityProvider {
 
   private final MarketDataSnapshot _snapshot;
-  
+
   /**
    * Constructs an instance.
    * 
@@ -28,13 +29,16 @@ public class MarketDataSnapshotAvailabilityProvider implements MarketDataAvailab
     ArgumentChecker.notNull(snapshot, "snapshot");
     _snapshot = snapshot;
   }
-  
+
   @Override
   public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
     if (requirement.getTargetSpecification().getType() == ComputationTargetType.PORTFOLIO_NODE ||
         requirement.getTargetSpecification().getType() == ComputationTargetType.POSITION ||
         requirement.getTargetSpecification().getType() == ComputationTargetType.TRADE) {
       return MarketDataAvailability.NOT_AVAILABLE;
+    }
+    if (ValueRequirementNames.VOLATILITY_SURFACE_DATA.equals(requirement.getValueName())) {
+      System.out.println();
     }
     if (getSnapshot().query(requirement) != null) {
       return MarketDataAvailability.AVAILABLE;
@@ -44,7 +48,7 @@ public class MarketDataSnapshotAvailabilityProvider implements MarketDataAvailab
     }
     return MarketDataAvailability.NOT_AVAILABLE;
   }
-  
+
   //-------------------------------------------------------------------------
   private MarketDataSnapshot getSnapshot() {
     return _snapshot;

@@ -30,6 +30,7 @@ public class ForexOptionDefaultCurveNamesFunction extends DefaultPropertyFunctio
   private final String _callForwardCurve;
   private final String _surface;
 
+  //TODO this still needs to be declared twice per currency pair depending on whether it's a put or call for a currency - need to change this
   public ForexOptionDefaultCurveNamesFunction(final String putFundingCurve, final String putForwardCurve, final String callFundingCurve,
       final String callForwardCurve, final String surface, final String... valueNames) {
     super(ComputationTargetType.SECURITY, true);

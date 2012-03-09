@@ -61,29 +61,6 @@ public final class PlatformConfigUtils {
 
   //-------------------------------------------------------------------------
   /**
-   * Enumerates the valid database types
-   */
-  public static enum RunMode {
-    /**
-     * Standalone mode.
-     */
-    STANDALONE,
-    /**
-     * Shared development mode.
-     */
-    SHAREDDEV,
-    /**
-     * Example mode.
-     */
-    EXAMPLE,
-    /**
-     * Test mode.
-     */
-    TEST;
-  }
-
-  //-------------------------------------------------------------------------
-  /**
    * Enumerates the valid market data sources.
    */
   public static enum MarketDataSource {
@@ -114,63 +91,33 @@ public final class PlatformConfigUtils {
    * @throws OpenGammaRuntimeException if any property is missing or invalid and cannot be set automatically
    */
   public static void configureSystemProperties() {
-    configureSystemProperties((String) null, (String) null);
-  }
-
-  /**
-   * Sets and/or validates the system properties generally necessary for the platform to run.
-   * Argument values are only used if the corresponding system properties have not been set directly. 
-   * 
-   * @param runMode  the run mode, not null
-   * @throws OpenGammaRuntimeException if any property is missing or invalid and cannot be set automatically
-   */
-  public static void configureSystemProperties(RunMode runMode) {
-    configureSystemProperties(toPropertyValue(runMode));
+    configureSystemProperties(MarketDataSource.OPENGAMMA.name());
   }
 
   /**
    * Sets and/or validates the system properties generally necessary for the platform to run. Argument values are only
    * used if the corresponding system properties have not been set directly.
    * 
-   * @param runMode  the run mode, not null
    * @param marketDataSource  the source of market data, not null
    * @throws OpenGammaRuntimeException if any property is missing or invalid and cannot be set automatically
    */
-  public static void configureSystemProperties(RunMode runMode, MarketDataSource marketDataSource) {
-    configureSystemProperties(toPropertyValue(runMode), toPropertyValue(marketDataSource));
+  public static void configureSystemProperties(MarketDataSource marketDataSource) {
+    configureSystemProperties(toPropertyValue(marketDataSource));
   }
 
   /**
    * Sets and/or validates the system properties generally necessary for the platform to run. Argument values are only
    * used if the corresponding system properties have not been set directly.
    * 
-   * @param runMode  the run mode, not null
-   * @throws OpenGammaRuntimeException if any property is missing or invalid and cannot be set automatically
-   */
-  public static void configureSystemProperties(String runMode) {
-    configureSystemProperties(runMode, toPropertyValue(MarketDataSource.DIRECT));
-  }
-
-  /**
-   * Sets and/or validates the system properties generally necessary for the platform to run. Argument values are only
-   * used if the corresponding system properties have not been set directly.
-   * 
-   * @param runMode  the run mode, not null
    * @param marketDataSource  the market data source, not null
    * @throws OpenGammaRuntimeException  if any property is missing or invalid and cannot be set automatically
    */
-  public static void configureSystemProperties(String runMode, String marketDataSource) {
+  public static void configureSystemProperties(String marketDataSource) {
     if (System.getProperty(OS_TYPE_PROPERTY_NAME) == null) {
       String os = System.getProperty("os.name").toLowerCase();
       System.setProperty(OS_TYPE_PROPERTY_NAME, toPropertyValue(os.startsWith("win") ? OsType.WIN : OsType.POSIX));
     } else {
       validateProperty(OsType.class, OS_TYPE_PROPERTY_NAME);
-    }
-    
-    if (System.getProperty(RUN_MODE_PROPERTY_NAME) == null && runMode != null) {
-      setFromEnumValue(RunMode.class, RUN_MODE_PROPERTY_NAME, runMode);
-    } else {
-      validateProperty(RunMode.class, RUN_MODE_PROPERTY_NAME);
     }
     
     if (System.getProperty(MARKET_DATA_PROPERTY_NAME) == null && marketDataSource != null) {

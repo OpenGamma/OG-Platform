@@ -7,7 +7,6 @@ package com.opengamma.core.marketdatasnapshot;
 
 import java.io.Serializable;
 
-import org.apache.commons.lang.ObjectUtils;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.MutableFudgeMsg;
 import org.fudgemsg.mapping.FudgeDeserializer;
@@ -15,6 +14,7 @@ import org.fudgemsg.mapping.FudgeSerializer;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -39,6 +39,10 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
    * The instrument type.
    */
   private final String _instrumentType;
+  /**
+   * The quote type.
+   */
+  private final String _quoteType;
 
   /**
    * Creates an instance.
@@ -46,12 +50,17 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
    * @param target  the target
    * @param name  the name
    * @param instrumentType  the instrument type
+   * @param quoteType the quote type
    */
-  public VolatilitySurfaceKey(UniqueIdentifiable target, String name, String instrumentType) {
-    super();
+  public VolatilitySurfaceKey(final UniqueIdentifiable target, final String name, final String instrumentType, final String quoteType) {
+    ArgumentChecker.notNull(target, "target");
+    ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(instrumentType, "instrumentType");
+    ArgumentChecker.notNull(quoteType, "quoteType");
     _target = target.getUniqueId();
     _name = name;
     _instrumentType = instrumentType;
+    _quoteType = quoteType;
   }
 
   //-------------------------------------------------------------------------
@@ -81,6 +90,14 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
     return _instrumentType;
   }
 
+  /**
+   * Gets the quote type field.
+   * @return the quote type
+   */
+  public String getQuoteType() {
+    return _quoteType;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Compares this key to another, by currency then name.
@@ -90,15 +107,19 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
    */
   @Override
   public int compareTo(VolatilitySurfaceKey other) {
-    int targCompare = _target.compareTo(other.getTarget());
-    if (targCompare != 0) {
-      return targCompare;
+    int i = _target.compareTo(other.getTarget());
+    if (i != 0) {
+      return i;
     }
-    int nameCompare = _name.compareTo(other.getName());
-    if (nameCompare != 0) {
-      return nameCompare;
+    i = _name.compareTo(other.getName());
+    if (i != 0) {
+      return i;
     }
-    return _instrumentType.compareTo(other._instrumentType);
+    i = _instrumentType.compareTo(other._instrumentType);
+    if (i != 0) {
+      return i;
+    }
+    return _quoteType.compareTo(other._quoteType);
   }
 
   /**
@@ -115,10 +136,11 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
       return true;
     }
     if (object instanceof VolatilitySurfaceKey) {
-      VolatilitySurfaceKey other = (VolatilitySurfaceKey) object;
-      return ObjectUtils.equals(getTarget(), other.getTarget()) &&
-              ObjectUtils.equals(getName(), other.getName())
-              && ObjectUtils.equals(getInstrumentType(), other.getInstrumentType());
+      final VolatilitySurfaceKey other = (VolatilitySurfaceKey) object;
+      return _target.equals(other._target)
+          && _name.equals(other._name)
+          && _instrumentType.equals(other._instrumentType)
+          && _quoteType.equals(other._quoteType);
     }
     return false;
   }
@@ -130,7 +152,7 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
    */
   @Override
   public int hashCode() {
-    return ObjectUtils.hashCode(getTarget()) ^ ObjectUtils.hashCode(getName()) ^ ObjectUtils.hashCode(getInstrumentType());
+    return _target.hashCode() ^ _name.hashCode() ^ _instrumentType.hashCode() ^ _quoteType.hashCode();
   }
 
   //-------------------------------------------------------------------------
@@ -139,11 +161,12 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
     msg.add("target", _target.toString());
     msg.add("name", _name);
     msg.add("instrumentType", _instrumentType);
+    msg.add("quoteType", _quoteType);
     return msg;
   }
 
   public static VolatilitySurfaceKey fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg msg) {
-    UniqueId targetUid;
+    final UniqueId targetUid;
     String target = msg.getString("target");
     if (target == null) {
       //Handle old form of snapshot
@@ -152,7 +175,7 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
     } else {
       targetUid = UniqueId.parse(target);
     }
-    return new VolatilitySurfaceKey(targetUid, msg.getString("name"), msg.getString("instrumentType"));
+    return new VolatilitySurfaceKey(targetUid, msg.getString("name"), msg.getString("instrumentType"), msg.getString("quoteType"));
   }
 
 }

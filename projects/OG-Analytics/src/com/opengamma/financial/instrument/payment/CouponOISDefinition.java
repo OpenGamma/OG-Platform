@@ -5,6 +5,18 @@
  */
 package com.opengamma.financial.instrument.payment;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.Period;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
@@ -19,18 +31,6 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.TimeCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-
-import javax.time.calendar.LocalDate;
-import javax.time.calendar.Period;
-import javax.time.calendar.TimeZone;
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
 
 /**
  * Class describing a OIS-like floating coupon.
@@ -112,7 +112,7 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
    * @param settlementDate The coupon settlement date.
    * @param fixingPeriodEndDate The last date of the fixing period. Interest accrues up to this date. If publicationLag==0, 1 day following publication. If lag==1, the publication date.
    * @param notional The notional.
-   * @param settlementDays The number of days between last fixing and the payment (also called spot lag). 
+   * @param settlementDays The number of days between last fixing date and the payment fate (also called payment lag). 
    * @return The OIS coupon.
    */
   public static CouponOISDefinition from(final IndexON index, final ZonedDateTime settlementDate, final ZonedDateTime fixingPeriodEndDate, final double notional, final int settlementDays) {
@@ -208,7 +208,7 @@ public class CouponOISDefinition extends CouponDefinition implements InstrumentD
           fixingAccrualFactorLeft += _fixingPeriodAccrualFactor[loopperiod];
         }
         final CouponOIS cpn = new CouponOIS(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), _index, fixingPeriodStartTime, fixingPeriodEndTime,
-              fixingAccrualFactorLeft, accruedNotional, yieldCurveNames[1]);
+            fixingAccrualFactorLeft, accruedNotional, yieldCurveNames[1]);
         return cpn;
       }
       return new CouponFixed(getCurrency(), paymentTime, yieldCurveNames[0], getPaymentYearFraction(), getNotional(), (accruedNotional / getNotional() - 1.0) / getPaymentYearFraction());
