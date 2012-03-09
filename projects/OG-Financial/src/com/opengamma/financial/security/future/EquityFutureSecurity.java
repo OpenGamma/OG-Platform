@@ -48,6 +48,7 @@ public class EquityFutureSecurity extends FutureSecurity {
    * <p>
    * The security details should be set before use.
    */
+  // TODO non-public
   public EquityFutureSecurity() {
     super();
   }
