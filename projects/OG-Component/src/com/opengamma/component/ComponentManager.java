@@ -255,12 +255,9 @@ public class ComponentManager {
   protected void initGlobal(ComponentConfig config) {
     LinkedHashMap<String, String> global = config.getGroup("global");
     if (global != null) {
-      String runMode = global.get("run.mode");
       String mds = global.get("market.data.source");
-      if (runMode != null && mds != null) {
-        PlatformConfigUtils.configureSystemProperties(runMode, mds);
-      } else if (runMode != null && mds == null) {
-        PlatformConfigUtils.configureSystemProperties(runMode);
+      if (mds != null) {
+        PlatformConfigUtils.configureSystemProperties(mds);
       }
       String zoneId = global.get("time.zone");
       if (zoneId != null) {
