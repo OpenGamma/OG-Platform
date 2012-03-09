@@ -68,9 +68,9 @@ public class AnnuityCouponOISSimplifiedDefinition extends AnnuityDefinition<Coup
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
     final CouponOISSimplifiedDefinition[] coupons = new CouponOISSimplifiedDefinition[endFixingPeriodDate.length];
-    coupons[0] = CouponOISSimplifiedDefinition.from(generator.getIndex(), settlementDate, endFixingPeriodDate[0], notionalSigned, generator.getSpotLag());
+    coupons[0] = CouponOISSimplifiedDefinition.from(generator.getIndex(), settlementDate, endFixingPeriodDate[0], notionalSigned, generator.getPaymentLag());
     for (int loopcpn = 1; loopcpn < endFixingPeriodDate.length; loopcpn++) {
-      coupons[loopcpn] = CouponOISSimplifiedDefinition.from(generator.getIndex(), endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, generator.getSpotLag());
+      coupons[loopcpn] = CouponOISSimplifiedDefinition.from(generator.getIndex(), endFixingPeriodDate[loopcpn - 1], endFixingPeriodDate[loopcpn], notionalSigned, generator.getPaymentLag());
     }
     return new AnnuityCouponOISSimplifiedDefinition(coupons);
   }

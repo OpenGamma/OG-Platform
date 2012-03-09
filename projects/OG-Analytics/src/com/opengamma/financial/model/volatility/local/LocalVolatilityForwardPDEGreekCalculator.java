@@ -179,16 +179,16 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
     final DoubleArrayList modelVanna = new DoubleArrayList();
     final DoubleArrayList modelVomma = new DoubleArrayList();
     for (int i = 0; i < n - 1; i++) {
-      final double m = pdeRes.getSpaceValue(i);
-      final double k = m * forward;
+      final double moneyness = pdeRes.getSpaceValue(i);
+      final double k = moneyness * forward;
       final double mPrice = pdeRes.getFunctionValue(i);
       double impVol = 0;
       try {
-        impVol = getBSImpliedVol(mPrice, m, expiry, isCall);
+        impVol = getBSImpliedVol(mPrice, moneyness, expiry, isCall);
       } catch (final Exception e) {
         continue;
       }
-      final double moneyness = k / forward;
+
       final int timeIndex = SurfaceArrayUtils.getLowerBoundIndex(timeNodes, expiry);
       final int spaceIndex = SurfaceArrayUtils.getLowerBoundIndex(spaceNodes, moneyness);
       final double value1 = forward * pdeRes.getFunctionValue(spaceIndex, timeIndex);
@@ -211,20 +211,20 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
 
       final double modelDD = getModelDualDelta(pdeRes, i);
       modelDualDelta.add(modelDD);
-      final double fixedSurfaceDelta = getFixedSurfaceDelta(mPrice, m, modelDD);
+      final double fixedSurfaceDelta = getFixedSurfaceDelta(mPrice, moneyness, modelDD);
       final double surfaceDelta = getSurfaceDelta(pdeResForwardUp, pdeResForwardDown, forward, forwardShift, i);
       final double modelD = getModelDelta(fixedSurfaceDelta, forward, surfaceDelta);
       modelDelta.add(modelD);
 
       final double modelDG = getModelDualGamma(pdeRes, i, forward);
       modelDualGamma.add(modelDG);
-      final double fixedSurfaceGamma = getFixedSurfaceGamma(m, modelDG);
+      final double fixedSurfaceGamma = getFixedSurfaceGamma(moneyness, modelDG);
       final double dSurfaceDMoneyness = getDSurfaceDMoneyness(pdeResForwardUp, pdeResForwardDown, forward, forwardShift, i);
       final double surfaceGamma = getSurfaceGamma(pdeResForwardUp, pdeResForwardDown, pdeRes, forward, forwardShift, i);
-      modelGamma.add(getModelGamma(fixedSurfaceGamma, surfaceDelta, m, dSurfaceDMoneyness, surfaceGamma));
+      modelGamma.add(getModelGamma(fixedSurfaceGamma, surfaceDelta, moneyness, dSurfaceDMoneyness, surfaceGamma));
 
       modelVega.add(getModelVega(pdeResVolUp, pdeResVolDown, volShift, i));
-      final double xVanna = getXVanna(volShift, pdeResVolUp, pdeResVolDown, i, m);
+      final double xVanna = getXVanna(volShift, pdeResVolUp, pdeResVolDown, i, moneyness);
       final double surfaceVanna = getSurfaceVanna(pdeResForwardUpVolUp, pdeResForwardUpVolDown, pdeResForwardDownVolUp, pdeResForwardDownVolDown, volShift, forwardShift, i);
       modelVanna.add(getModelVanna(xVanna, surfaceVanna));
       modelVomma.add(getModelVomma(pdeRes, pdeResVolUp, pdeResVolDown, volShift, i));

@@ -15,6 +15,7 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
 
@@ -29,6 +30,7 @@ public class ForexOptionDefaultCurveNamesFunction extends DefaultPropertyFunctio
   private final String _callForwardCurve;
   private final String _surface;
 
+  //TODO this still needs to be declared twice per currency pair depending on whether it's a put or call for a currency - need to change this
   public ForexOptionDefaultCurveNamesFunction(final String putFundingCurve, final String putForwardCurve, final String callFundingCurve,
       final String callForwardCurve, final String surface, final String... valueNames) {
     super(ComputationTargetType.SECURITY, true);
@@ -51,7 +53,7 @@ public class ForexOptionDefaultCurveNamesFunction extends DefaultPropertyFunctio
     if (!(target.getSecurity() instanceof FinancialSecurity)) {
       return false;
     }
-    return target.getSecurity() instanceof FXOptionSecurity || target.getSecurity() instanceof FXBarrierOptionSecurity;
+    return target.getSecurity() instanceof FXOptionSecurity || target.getSecurity() instanceof FXBarrierOptionSecurity || target.getSecurity() instanceof FXDigitalOptionSecurity;
   }
 
   @Override

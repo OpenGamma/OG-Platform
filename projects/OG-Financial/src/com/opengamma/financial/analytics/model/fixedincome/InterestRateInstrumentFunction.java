@@ -45,6 +45,7 @@ import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.fixedincome.FixedIncomeInstrumentCurveExposureHelper;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.ircurve.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
@@ -125,24 +126,31 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     return InterestRateInstrumentType.isFixedIncomeInstrumentType((FinancialSecurity) target.getSecurity());
   }
 
-  protected ValueProperties.Builder createValueProperties(final ComputationTarget target) {
-    final ValueProperties.Builder properties = createValueProperties();
-    FixedIncomeInstrumentCurveExposureHelper.valuePropertiesForSecurity(target.getSecurity(), properties);
-    return properties;
-  }
-
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final ValueProperties.Builder properties = createValueProperties(target);
-    properties.withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-      .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-      .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+    final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
+    final ValueProperties.Builder properties = createValueProperties()
+        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
+        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
+        .with(ValuePropertyNames.CURRENCY, currency)
+        .with(ValuePropertyNames.CURVE_CURRENCY, currency);
+    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));
+  }
+
+  protected Set<ValueSpecification> getResults(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod,
+      final String currency) {
+    final ValueProperties.Builder properties = createValueProperties()
+        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
+        .with(ValuePropertyNames.CURRENCY, currency)
+        .with(ValuePropertyNames.CURVE_CURRENCY, currency);
     return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));
   }
 
   // REVIEW 2011-11-25 andrew -- The property for the curve name should really be NAME when applied to the curve object;
   // it should only become CURVE when applied to something using it (like this).
-
   protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForwardCurveName, final String advisoryFundingCurveName,
       final String curveCalculationMethod) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
@@ -152,6 +160,19 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     }
     if (advisoryFundingCurveName != null) {
       properties.with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, advisoryFundingCurveName);
+    }
+    properties.with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod);
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
+  }
+
+  protected ValueRequirement getInterpolatedCurveRequirement(final ComputationTarget target, final String curveName, final boolean isForward,
+      final String curveCalculationMethod) {
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    final ValueProperties.Builder properties = ValueProperties.with(ValuePropertyNames.CURVE, curveName);
+    if (isForward) {
+      properties.withOptional(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+    } else {
+      properties.withOptional(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
     }
     properties.with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod);
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
@@ -172,54 +193,68 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     final String forwardCurve = forwardCurves.iterator().next();
     final String fundingCurve = fundingCurves.iterator().next();
     final String curveCalculationMethod = curveCalculationMethodNames.iterator().next();
+    if (curveCalculationMethod.equals(InterpolatedYieldCurveFunction.CALCULATION_METHOD_NAME)) {
+      return Sets.newHashSet(getInterpolatedCurveRequirement(target, forwardCurve, true, curveCalculationMethod),
+          getInterpolatedCurveRequirement(target, fundingCurve, false, curveCalculationMethod));
+    }
     if (forwardCurve.equals(fundingCurve)) {
       return Collections.singleton(getCurveRequirement(target, forwardCurve, null, null, curveCalculationMethod));
     }
-    return Sets.newHashSet(getCurveRequirement(target, forwardCurve, forwardCurve, fundingCurve, curveCalculationMethod), 
+    return Sets.newHashSet(getCurveRequirement(target, forwardCurve, forwardCurve, fundingCurve, curveCalculationMethod),
         getCurveRequirement(target, fundingCurve, forwardCurve, fundingCurve, curveCalculationMethod));
-  }
-
-  protected Set<ValueSpecification> getResults(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod) {
-    final ValueProperties.Builder properties = createValueProperties(target)
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod);
-    return Collections.singleton(new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get()));
   }
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
+    String forwardCurveName = null;
+    String fundingCurveName = null;
+    String curveCalculationMethod = null;
+    final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
     if (inputs.size() == 1) {
       final ValueSpecification spec = inputs.keySet().iterator().next();
-      final String curveName = spec.getProperty(ValuePropertyNames.CURVE);
-      final String curveCalculationMethod = spec.getProperty(ValuePropertyNames.CURVE_CALCULATION_METHOD);
-      return getResults(target, curveName, curveName, curveCalculationMethod);
+      forwardCurveName = spec.getProperty(ValuePropertyNames.CURVE);
+      fundingCurveName = forwardCurveName;
+      curveCalculationMethod = spec.getProperty(ValuePropertyNames.CURVE_CALCULATION_METHOD);
     }
     assert inputs.size() == 2;
     // Only need to check one; the advisory forward/funding will be correct on either
-    final ValueSpecification spec = inputs.keySet().iterator().next();
-    String curveCalculationMethod = null;
-    for (Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
-      if (curveCalculationMethod == null) {
-        curveCalculationMethod = entry.getKey().getProperty(ValuePropertyNames.CURVE_CALCULATION_METHOD);
-      } else {
-        if (!curveCalculationMethod.equals(entry.getKey().getProperty(ValuePropertyNames.CURVE_CALCULATION_METHOD))) {
-          throw new OpenGammaRuntimeException("Need to have the same curve calculation method");
+    for (final Map.Entry<ValueSpecification, ValueRequirement> entry : inputs.entrySet()) {
+      final ValueSpecification key = entry.getKey();
+      final ValueRequirement value = entry.getValue();
+      if (!key.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
+        throw new OpenGammaRuntimeException("Expecting only yield curves as inputs");
+      }
+      final Set<String> forwardCurveProperties = value.getConstraints().getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+      if (forwardCurveProperties != null) {
+        if (forwardCurveProperties.size() == 1) {
+          forwardCurveName = forwardCurveProperties.iterator().next();
+        } else if (forwardCurveProperties.isEmpty()) {
+          forwardCurveName = value.getConstraint(ValuePropertyNames.CURVE);
+        }
+        if (curveCalculationMethod == null) {
+          curveCalculationMethod = key.getProperty(ValuePropertyNames.CURVE_CALCULATION_METHOD);
+        }
+      }
+      final Set<String> fundingCurveProperties = value.getConstraints().getValues(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+      if (fundingCurveProperties != null) {
+        if (fundingCurveProperties.size() == 1) {
+          fundingCurveName = fundingCurveProperties.iterator().next();
+        } else if (fundingCurveProperties.isEmpty()) {
+          fundingCurveName = value.getConstraint(ValuePropertyNames.CURVE);
+        }
+        if (curveCalculationMethod == null) {
+          curveCalculationMethod = key.getProperty(ValuePropertyNames.CURVE_CALCULATION_METHOD);
         }
       }
     }
-    final String forwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
-    final String fundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    return getResults(target, forwardCurveName, fundingCurveName, curveCalculationMethod);
-  }
-
-  @Override
-  public String getShortName() {
-    return "InterestRateInstrumentFunction";
+    assert forwardCurveName != null;
+    assert fundingCurveName != null;
+    assert curveCalculationMethod != null;
+    return getResults(target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
   }
 
   public abstract Set<ComputedValue> getComputedValues(InstrumentDerivative derivative, YieldCurveBundle bundle, FinancialSecurity security, ComputationTarget target, String forwardCurveName,
-      String fundingCurveName, String curveCalculationMethod);
+      String fundingCurveName, String curveCalculationMethod, String currency);
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
@@ -253,14 +288,18 @@ public abstract class InterestRateInstrumentFunction extends AbstractFunction.No
     }
     final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now,
         FixedIncomeInstrumentCurveExposureHelper.getCurveNamesForSecurity(security, fundingCurveName, forwardCurveName), dataSource);
-    return getComputedValues(derivative, bundle, security, target, forwardCurveName, fundingCurveName, curveCalculationMethod);
+    final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
+    return getComputedValues(derivative, bundle, security, target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency);
   }
 
-  protected ValueSpecification getResultSpec(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod) {
-    return new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties(target)
+  protected ValueSpecification getResultSpec(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod,
+      final String currency) {
+    return new ValueSpecification(getValueRequirementName(), target.toSpecification(), createValueProperties()
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod).get());
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
+        .with(ValuePropertyNames.CURRENCY, currency)
+        .with(ValuePropertyNames.CURVE_CURRENCY, currency).get());
   }
 
 }

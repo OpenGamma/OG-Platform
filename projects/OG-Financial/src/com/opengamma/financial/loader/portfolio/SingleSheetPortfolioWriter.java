@@ -14,6 +14,7 @@ import java.util.Set;
 
 import com.opengamma.financial.loader.rowparser.RowParser;
 import com.opengamma.financial.loader.sheet.SheetWriter;
+import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
@@ -35,7 +36,24 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
   private ManageablePortfolioNode _currentNode;
   private ManageablePortfolio _portfolio;
 
-  public SingleSheetPortfolioWriter(String filename, RowParser[] rowParsers) {
+  
+  public SingleSheetPortfolioWriter(String filename, String[] securityTypes, ToolContext toolContext) {
+    
+    Map<String, RowParser> rowParsers = new HashMap<String, RowParser>();
+    for (String s : securityTypes) {
+      rowParsers.put(s, RowParser.newRowParser(s, toolContext));
+    }
+    Set<String> columns = initParsers(rowParsers);
+    
+    // create virtual manageable portfolio
+    _currentNode = new ManageablePortfolioNode("Root");
+    _portfolio = new ManageablePortfolio(filename, _currentNode);
+    _currentNode.setPortfolioId(_portfolio.getUniqueId());
+    
+    _sheet = SheetWriter.newSheetWriter(filename, columns.toArray(new String[columns.size()]));    
+  }
+  
+  public SingleSheetPortfolioWriter(String filename, Map<String, RowParser> rowParsers) {
     
     Set<String> columns = initParsers(rowParsers);
     
@@ -47,7 +65,7 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
     _sheet = SheetWriter.newSheetWriter(filename, columns.toArray(new String[columns.size()]));
   }
   
-  public SingleSheetPortfolioWriter(SheetWriter sheet, RowParser[] rowParsers) {
+  public SingleSheetPortfolioWriter(SheetWriter sheet, Map<String, RowParser> rowParsers) {
     
     initParsers(rowParsers);
     
@@ -65,7 +83,7 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
     String className = security.getClass().toString();
     className = className.substring(className.lastIndexOf('.') + 1).replace("Security", "");
     if ((_currentParser = _parserMap.get(className)) != null) { //CSIGNORE
-      _currentRow.putAll(_currentParser.constructRow(security)); // this should get relevant data from any underlyings too
+      _currentRow.putAll(_currentParser.constructRow(security));
     }
     
     return security;
@@ -79,8 +97,6 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
     }
     
     // Flush out the current row and prepare a new one
-    // or one row for each trade??? 
-    // also, might want to output current path in the virtual portfolio we're writing to
     if (!_currentRow.isEmpty()) {
       _sheet.writeNextRow(_currentRow);
       _currentRow = new HashMap<String, String>();
@@ -115,17 +131,12 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
     _sheet.close();
   }
 
-  private Set<String> initParsers(RowParser[] rowParsers) {
+  private Set<String> initParsers(Map<String, RowParser> rowParsers) {
+    
+    _parserMap = rowParsers;
     
     Set<String> columns = new HashSet<String>();
-    for (RowParser rowParser : rowParsers) {
-            
-      // Add row parsers to map, indexed by name of security
-      String className = rowParser.getClass().toString();
-      className = className.substring(className.lastIndexOf('.') + 1);
-      className = className.replace("Parser", "");
-      _parserMap.put(className, rowParser);
-      
+    for (RowParser rowParser : rowParsers.values()) {      
       // Combine columns from supplied row parsers
       for (String column : rowParser.getColumns()) {
         columns.add(column);
