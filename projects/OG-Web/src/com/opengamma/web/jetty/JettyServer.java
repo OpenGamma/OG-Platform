@@ -17,17 +17,12 @@ import org.springframework.context.support.FileSystemXmlApplicationContext;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.PlatformConfigUtils;
 import com.opengamma.util.PlatformConfigUtils.MarketDataSource;
-import com.opengamma.util.PlatformConfigUtils.RunMode;
 
 /**
  * Starts a jetty server configured from spring.
  */
 public class JettyServer {
 
-  /**
-   * The run mode.
-   */
-  private final RunMode _runMode;
   /**
    * The market data source.
    */
@@ -36,13 +31,10 @@ public class JettyServer {
   /**
    * Creates an instance.
    * 
-   * @param runMode  the run mode, not null
    * @param marketDataSource  the market data source, not null
    */
-  public JettyServer(RunMode runMode, MarketDataSource marketDataSource) {
-    ArgumentChecker.notNull(runMode, "runMode");
+  public JettyServer(MarketDataSource marketDataSource) {
     ArgumentChecker.notNull(marketDataSource, "marketDataSource");
-    _runMode = runMode;
     _marketDataSource = marketDataSource;
   }
 
@@ -60,7 +52,7 @@ public class JettyServer {
       System.setProperty("logback.configurationFile", "jetty-logback.xml");
     }
     
-    PlatformConfigUtils.configureSystemProperties(_runMode, _marketDataSource);
+    PlatformConfigUtils.configureSystemProperties(_marketDataSource);
     
     // server
     try {
