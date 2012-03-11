@@ -62,7 +62,7 @@ public class EquityOptionSurfaceConfigPopulator {
     final SurfaceInstrumentProvider<LocalDate, Double> surfaceInstrumentProvider =
         new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.IMPLIED_VOLATILITY);
     final VolatilitySurfaceSpecification usVolSurfaceDefinition = new VolatilitySurfaceSpecification("DEFAULT_DJX_EQUITY_OPTION",
-        UniqueId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"), SurfaceQuoteType.STRIKE_CALL_AND_PUT,
+        UniqueId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"), SurfaceQuoteType.CALL_AND_PUT_STRIKE,
         surfaceInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
   }
