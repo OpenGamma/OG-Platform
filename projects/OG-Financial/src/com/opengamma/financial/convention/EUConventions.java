@@ -194,12 +194,10 @@ public class EUConventions {
     final BusinessDayConvention swapFixedBusinessDay = modified;
     final Frequency swapFixedPaymentFrequency = annual;
     final DayCount euriborDayCount = act360;
+    final int publicationLagON = 0;
 
     // EURIBOR
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_IBOR_INDEX")), "EUR_IBOR_INDEX", euriborDayCount, modified, 2, true);
-    // EONIA
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EONIA Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR EONIA")),
-        "EUR EONIA", act360, modified, Period.ofDays(1), 0, false, eu);
     // FRA
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_3M_FRA")), "EUR_3M_FRA", thirty360, modified, quarterly, 2, eu,
         act360, modified, quarterly, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 3m"), eu, true);
@@ -209,15 +207,45 @@ public class EUConventions {
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_SWAP")), "EUR_SWAP", swapFixedDayCount, swapFixedBusinessDay,
         swapFixedPaymentFrequency, 2, eu, euriborDayCount, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_3M_SWAP")), "EUR_3M_SWAP", swapFixedDayCount, swapFixedBusinessDay,
-        swapFixedPaymentFrequency, 2, eu, act360, modified, quarterly, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"), eu, true);
+        swapFixedPaymentFrequency, 2, eu, act360, modified, quarterly, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 3m"), eu, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_6M_SWAP")), "EUR_6M_SWAP", swapFixedDayCount, swapFixedBusinessDay,
-        swapFixedPaymentFrequency, 2, eu, act360, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu, true);
+        swapFixedPaymentFrequency, 2, eu, act360, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 6m"), eu, true);
     // IR FUTURES
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_IR_FUTURE")), "EUR_IR_FUTURE", euriborDayCount, modified,
         Period.ofMonths(3), 2, true, null);
+    // EONIA
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("EONIA Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR EONIA")),
+        "EUR EONIA", act360, modified, Period.ofDays(1), 0, false, eu, publicationLagON);
     // OIS - EONIA
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_OIS_SWAP")), "EUR_OIS_SWAP", act360, modified, annual, 2, eu,
-        act360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR EONIA"), eu);
+        act360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR EONIA"), eu, true, publicationLagON);
+
+    // TODO: Add fixing swap (ISDA fixing)
+    final int[] isdaFixTenor = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30};
+    // ISDA fixing Euribor 10.00 Frankfurt
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EURIBOR10_1Y"), SecurityUtils.ricSecurityId("EURSFIXA1Y=")),
+        "EUR_ISDAFIX_EURIBOR10_1Y", swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, act360, modified, quarterly, 2,
+        ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 3m"), eu, true);
+    for (int looptenor = 0; looptenor < isdaFixTenor.length; looptenor++) {
+      final String tenorString = isdaFixTenor[looptenor] + "Y";
+      conventionMaster.addConventionBundle(
+          ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EURIBOR10_" + tenorString), SecurityUtils.ricSecurityId("EURSFIXA" + tenorString + "=")),
+          "EUR_ISDAFIX_EURIBOR10_" + tenorString, swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, act360, modified, semiAnnual, 2,
+          ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 6m"), eu, true);
+    }
+    // ISDA fixing Euro Libor 10.00 London
+    conventionMaster.addConventionBundle(
+        ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EUROLIBOR10_1Y"), SecurityUtils.ricSecurityId("EURSFIXB1Y=")), "EUR_ISDAFIX_EUROLIBOR10_1Y",
+        swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, act360, modified, quarterly, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 3m"),
+        eu, true);
+    for (int looptenor = 0; looptenor < isdaFixTenor.length; looptenor++) {
+      final String tenorString = isdaFixTenor[looptenor] + "Y";
+      conventionMaster.addConventionBundle(
+          ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EUROLIBOR10_" + tenorString), SecurityUtils.ricSecurityId("EURSFIXB" + tenorString + "=")),
+          "EUR_ISDAFIX_EUROLIBOR10_" + tenorString, swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, act360, modified, semiAnnual, 2,
+          ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu, true);
+    }
+    // EURSFIXB1Y= // 11.00 am Frank
 
     //Identifiers for external data // TODO where is this used?
     conventionMaster.addConventionBundle(
