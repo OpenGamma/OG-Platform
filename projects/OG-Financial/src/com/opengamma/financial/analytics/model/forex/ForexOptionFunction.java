@@ -256,11 +256,23 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
       final ValueSpecification spec = entry.getKey();
       if (spec.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
         if (spec.getTargetSpecification().getUniqueId().equals(putCurrency.getUniqueId())) {
-          putFundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-          putForwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+          final Set<String> putCurveProperties = spec.getProperties().getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+          if (putCurveProperties != null && !putCurveProperties.isEmpty()) {
+            putFundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+            putForwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+          } else {
+            putFundingCurveName = spec.getProperty(ValuePropertyNames.CURVE);
+            putForwardCurveName = putFundingCurveName;
+          }
         } else if (spec.getTargetSpecification().getUniqueId().equals(callCurrency.getUniqueId())) {
-          callFundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-          callForwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+          final Set<String> callCurveProperties = spec.getProperties().getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+          if (callCurveProperties != null && !callCurveProperties.isEmpty()) {
+            callFundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+            callForwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+          } else {
+            callFundingCurveName = spec.getProperty(ValuePropertyNames.CURVE);
+            callForwardCurveName = callFundingCurveName;
+          }
         }
       } else if (spec.getValueName().equals(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA)) {
         surfaceName = spec.getProperty(ValuePropertyNames.SURFACE);

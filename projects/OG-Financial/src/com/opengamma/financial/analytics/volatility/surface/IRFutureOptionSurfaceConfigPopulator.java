@@ -82,7 +82,7 @@ public class IRFutureOptionSurfaceConfigPopulator {
         MarketDataRequirementNames.IMPLIED_VOLATILITY, 97.775);
     final FuturePriceCurveInstrumentProvider<Number> usCurveInstrumentProvider = new BloombergIRFuturePriceCurveInstrumentProvider("ED", "Comdty", MarketDataRequirementNames.MARKET_VALUE);
     final VolatilitySurfaceSpecification usVolSurfaceDefinition = new VolatilitySurfaceSpecification("DEFAULT_USD_IR_FUTURE_OPTION", Currency.USD,
-        SurfaceQuoteType.STRIKE_CALL_AND_PUT,
+        SurfaceQuoteType.CALL_AND_PUT_STRIKE,
         usSurfaceInstrumentProvider);
     final FuturePriceCurveSpecification usFutureCurveDefinition = new FuturePriceCurveSpecification("DEFAULT_USD_IR_FUTURE_PRICE", Currency.USD, usCurveInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(usVolSurfaceDefinition));
@@ -91,7 +91,7 @@ public class IRFutureOptionSurfaceConfigPopulator {
         MarketDataRequirementNames.IMPLIED_VOLATILITY, 97.775);
     final FuturePriceCurveInstrumentProvider<Number> euCurveInstrumentProvider = new BloombergIRFuturePriceCurveInstrumentProvider("ER", "Comdty", MarketDataRequirementNames.MARKET_VALUE);
     final VolatilitySurfaceSpecification euVolSurfaceDefinition = new VolatilitySurfaceSpecification("DEFAULT_EUR_IR_FUTURE_OPTION", Currency.EUR,
-        SurfaceQuoteType.STRIKE_CALL_AND_PUT,
+        SurfaceQuoteType.CALL_AND_PUT_STRIKE,
         euSurfaceInstrumentProvider);
     final FuturePriceCurveSpecification euFutureCurveDefinition = new FuturePriceCurveSpecification("DEFAULT_EUR_IR_FUTURE_PRICE", Currency.EUR, euCurveInstrumentProvider);
     ConfigMasterUtils.storeByName(configMaster, makeConfigDocument(euVolSurfaceDefinition));

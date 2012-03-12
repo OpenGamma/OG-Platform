@@ -33,7 +33,7 @@ public class ForwardCurveConverter implements ResultConverter<ForwardCurve> {
       }
       result.put("summary", data);
       if (mode == ConversionMode.FULL) {
-        List<Double[]> detailedData = getData((InterpolatedDoublesCurve) value.getForwardCurve());
+        List<Double[]> detailedData = getData(interpolatedCurve);
         result.put("detailed", detailedData);
       }
       return result;
@@ -47,7 +47,7 @@ public class ForwardCurveConverter implements ResultConverter<ForwardCurve> {
       }
       result.put("summary", data);
       if (mode == ConversionMode.FULL) {
-        List<Double[]> detailedData = getData((FunctionalDoublesCurve) value.getForwardCurve());
+        List<Double[]> detailedData = getData(functionalCurve);
         result.put("detailed", detailedData);
       }
       return result;

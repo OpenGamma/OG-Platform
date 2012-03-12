@@ -34,9 +34,9 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.fittedresults.HestonFittedSurfaces;
-import com.opengamma.financial.analytics.volatility.surface.FuturePriceCurveData;
 import com.opengamma.financial.model.volatility.smile.fitting.HestonModelFitter;
 import com.opengamma.financial.model.volatility.smile.function.HestonVolatilityFunction;
+import com.opengamma.math.curve.NodalDoublesCurve;
 import com.opengamma.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
@@ -96,13 +96,11 @@ public class HestonFourierIRFutureSurfaceFittingFunction extends AbstractFunctio
     }
     @SuppressWarnings("unchecked")
     final VolatilitySurfaceData<Double, Double> volatilitySurfaceData = (VolatilitySurfaceData<Double, Double>) objectSurfaceData;
-    //TODO transform data to Map<Double, Map<Double, Double>> here
     final Object objectFuturePriceData = inputs.getValue(_futurePriceRequirement);
     if (objectFuturePriceData == null) {
       throw new OpenGammaRuntimeException("Could not get futures price data");
     }
-    @SuppressWarnings("unchecked")
-    final FuturePriceCurveData<Double> futurePriceData = (FuturePriceCurveData<Double>) objectFuturePriceData;
+    final NodalDoublesCurve futurePriceData = (NodalDoublesCurve) objectFuturePriceData;
     //assumes that the sorting is first x, then y
     if (volatilitySurfaceData.size() == 0) {
       throw new OpenGammaRuntimeException("Interest rate future option volatility surface definition name=" + _definitionName + " contains no data");
@@ -123,7 +121,7 @@ public class HestonFourierIRFutureSurfaceFittingFunction extends AbstractFunctio
       final DoubleArrayList strikesList = new DoubleArrayList(n);
       final DoubleArrayList sigmaList = new DoubleArrayList(n);
       final DoubleArrayList errorsList = new DoubleArrayList(n);
-      final Double futurePrice = futurePriceData.getFuturePrice(t);
+      final Double futurePrice = futurePriceData.getYValue(t);
       if (strip.size() > 4 && futurePrice != null) {
         final double forward = 1 - futurePrice;
         for (final ObjectsPair<Double, Double> value : strip) {

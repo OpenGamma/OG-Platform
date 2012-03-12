@@ -102,6 +102,19 @@ public interface DbManagement {
    * @param sql  the SQL to execute, not null.
    */
   void executeSql(String catalog, String schema, String sql);
+  
+  /**
+   * Describes the structure of the database limited to objects which names have given prefix.
+   * <p>
+   * The returned string is implementation dependent.
+   * It may be a set of statements to construct the database or some other representation.
+   * Comparison of the string must be the same as structural and content equality.
+   * 
+   * @param catalog  the catalog (database) name, not null
+   * @param prefix the prefix of objects' names                
+   * @return a dialect specific string describing the database, not null
+   */
+  public String describeDatabase(final String catalog, final String prefix);
 
   /**
    * Describes the structure of the database.

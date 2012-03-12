@@ -85,6 +85,10 @@ public final class PeriodFrequency implements Frequency, Serializable {
    * A frequency with a period of eleven months
    */
   public static final PeriodFrequency ELEVEN_MONTHS = new PeriodFrequency(ELEVEN_MONTH_NAME, Period.ofMonths(11));
+  /**
+   * A frequency with a period of eighteen months
+   */
+  public static final PeriodFrequency EIGHTEEN_MONTHS = new PeriodFrequency(EIGHTEEN_MONTH_NAME, Period.ofMonths(18));
 
   /** A map containing all of the frequency */
   public static final Map<PeriodFrequency, PeriodFrequency> s_cache =
@@ -105,6 +109,7 @@ public final class PeriodFrequency implements Frequency, Serializable {
           .put(NINE_MONTHS, NINE_MONTHS)
           .put(TEN_MONTHS, TEN_MONTHS)
           .put(ELEVEN_MONTHS, ELEVEN_MONTHS)
+          .put(EIGHTEEN_MONTHS, EIGHTEEN_MONTHS)
           .build();
 
   /**
@@ -244,6 +249,9 @@ public final class PeriodFrequency implements Frequency, Serializable {
     }
     if (_name.equals(ELEVEN_MONTH_NAME)) {
       return SimpleFrequency.ELEVEN_MONTHS;
+    }
+    if (_name.equals(EIGHT_MONTH_NAME)) {
+      return SimpleFrequency.EIGHTEEN_MONTHS;
     }
     throw new IllegalArgumentException("Cannot get a simple frequency for " + toString());
   }

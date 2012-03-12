@@ -70,13 +70,13 @@ public class YieldCurveNodeSensitivityPnLFunction extends AbstractFunction.NonCo
     ArgumentChecker.notNull(resolutionKey, "resolution key");
     _resolutionKey = resolutionKey;
   }
-  private static final LocalDate MAGIC_DATE = LocalDate.of(2009, 06, 05);
+  //private static final LocalDate MAGIC_DATE = LocalDate.of(2009, 06, 05);
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Position position = target.getPosition();
     final HistoricalTimeSeriesSource historicalSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final Clock snapshotClock = executionContext.getValuationClock();
-    final LocalDate now = MAGIC_DATE;//snapshotClock.zonedDateTime().toLocalDate();
+    final LocalDate now = snapshotClock.zonedDateTime().toLocalDate();
     final Currency currency = FinancialSecurityUtils.getCurrency(position.getSecurity());
     final String currencyString = currency.getCode();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
