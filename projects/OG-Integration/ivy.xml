@@ -19,7 +19,6 @@
         <dependency name="og-web" rev="latest.integration" />
         <dependency name="og-component" rev="latest.integration" />
         
-        <dependency org="com.opengamma" name="copp-clark" rev="20110125"/>
         <dependency org="com.opengamma" name="region" rev="20110127"/>
         
         <dependency org="org.apache.poi" name="poi" rev="3.7"/>
@@ -28,7 +27,6 @@
         <dependency org="org.jdesktop" name="appframework" rev="1.0.3"/>
         <dependency org="org.jdesktop" name="swingx" rev="1.0"/>
         <dependency org="net.sourceforge.ehcache" name="ehcache" rev="[1.6.0,2.0["/>
-        <dependency org="com.vertica" name="vertica" rev="4.0.19"/>
         <dependency org="com.bloomberglp" name="blpapi" rev="3.1.0"/>
 
         <exclude org="org.apache.log4j" module="log4j" />
