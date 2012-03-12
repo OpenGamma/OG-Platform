@@ -7,14 +7,16 @@ package com.opengamma.math.differentiation;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * Differentiates a scalar field (i.e. there is a scalar value for every point in some vector space) with respect to the vector space using finite difference. 
+ * Differentiates a scalar field (i.e. there is a scalar value for every point in some vector space) with respect to the vector space using finite difference.
  * <p>
  * For a function <i>y = f(<b>x</b>)</i> where <i><b>x</b></i> is a n-dimensional vector and <i>y</i> is a scalar, this class produces a gradient function
- * <i><b>g</b>(<b>x</b>)</i>, i.e. a function that returns the gradient for each point <i><b>x</b></i>, where <i><b>g</b></i> is the n-dimensional vector 
+ * <i><b>g</b>(<b>x</b>)</i>, i.e. a function that returns the gradient for each point <i><b>x</b></i>, where <i><b>g</b></i> is the n-dimensional vector
  * {@latex.inline $\\frac{dy}{dx_i}$}.
  */
 public class ScalarFieldFirstOrderDifferentiator implements Differentiator<DoubleMatrix1D, Double, DoubleMatrix1D> {
@@ -35,10 +37,10 @@ public class ScalarFieldFirstOrderDifferentiator implements Differentiator<Doubl
 
   /**
    * Approximates the derivative of a scalar function by finite difference. If the size of the domain is very small or very large, consider re-scaling first.
-   * @param differenceType {@link FiniteDifferenceType#FORWARD}, {@link FiniteDifferenceType#BACKWARD}, or {@link FiniteDifferenceType#CENTRAL}. In most situations, 
+   * @param differenceType {@link FiniteDifferenceType#FORWARD}, {@link FiniteDifferenceType#BACKWARD}, or {@link FiniteDifferenceType#CENTRAL}. In most situations,
    * {@link FiniteDifferenceType#CENTRAL} is preferable. Not null
-   * @param eps The step size used to approximate the derivative. If this value is too small, the result will most likely be dominated by noise. 
-   * Use around 10<sup>-5</sup> times the domain size. 
+   * @param eps The step size used to approximate the derivative. If this value is too small, the result will most likely be dominated by noise.
+   * Use around 10<sup>-5</sup> times the domain size.
    */
   public ScalarFieldFirstOrderDifferentiator(final FiniteDifferenceType differenceType, final double eps) {
     Validate.notNull(differenceType);
@@ -69,7 +71,7 @@ public class ScalarFieldFirstOrderDifferentiator implements Differentiator<Doubl
             for (int i = 0; i < n; i++) {
               oldValue = xData[i];
               xData[i] += _eps;
-              res[i] = (function.evaluate(x) - y) / _eps; 
+              res[i] = (function.evaluate(x) - y) / _eps;
               xData[i] = oldValue;
             }
             return new DoubleMatrix1D(res);
@@ -90,7 +92,7 @@ public class ScalarFieldFirstOrderDifferentiator implements Differentiator<Doubl
             for (int i = 0; i < n; i++) {
               oldValue = xData[i];
               xData[i] += _eps;
-              up = function.evaluate(x); 
+              up = function.evaluate(x);
               xData[i] -= _twoEps;
               down = function.evaluate(x);
               res[i] = (up - down) / _twoEps;
@@ -114,7 +116,7 @@ public class ScalarFieldFirstOrderDifferentiator implements Differentiator<Doubl
             for (int i = 0; i < n; i++) {
               oldValue = xData[i];
               xData[i] -= _eps;
-              res[i] = (y - function.evaluate(x)) / _eps; 
+              res[i] = (y - function.evaluate(x)) / _eps;
               xData[i] = oldValue;
             }
             return new DoubleMatrix1D(res);
@@ -122,6 +124,73 @@ public class ScalarFieldFirstOrderDifferentiator implements Differentiator<Doubl
         };
     }
     throw new IllegalArgumentException("Can only handle forward, backward and central differencing");
+  }
+
+  @Override
+  public Function1D<DoubleMatrix1D, DoubleMatrix1D> differentiate(final Function1D<DoubleMatrix1D, Double> function, final Function1D<DoubleMatrix1D, Boolean> domain) {
+    Validate.notNull(function);
+    Validate.notNull(domain);
+
+    final double[] wFwd = new double[] {-3. / _twoEps, 4. / _twoEps, -1. / _twoEps };
+    final double[] wCent = new double[] {-1. / _twoEps, 0., 1. / _twoEps };
+    final double[] wBack = new double[] {1. / _twoEps, -4. / _twoEps, 3. / _twoEps };
+
+    return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+        Validate.notNull(x, "x");
+        ArgumentChecker.isTrue(domain.evaluate(x), "point {} is not in the function domain", x.toString());
+
+        final int n = x.getNumberOfElements();
+        final double[] xData = x.getData();
+        double oldValue;
+        double[] y = new double[3];
+        double[] res = new double[n];
+        double[] w;
+        for (int i = 0; i < n; i++) {
+          oldValue = xData[i];
+          xData[i] += _eps;
+          if (!domain.evaluate(x)) {
+            xData[i] = oldValue - _twoEps;
+            if (!domain.evaluate(x)) {
+              throw new MathException("cannot get derivative at point " + x.toString() + " in direction " + i);
+            } else {
+              y[0] = function.evaluate(x);
+              xData[i] = oldValue;
+              y[2] = function.evaluate(x);
+              xData[i] = oldValue - _eps;
+              y[1] = function.evaluate(x);
+              w = wBack;
+            }
+          } else {
+            double temp = function.evaluate(x);
+            xData[i] = oldValue - _eps;
+            if (!domain.evaluate(x)) {
+              y[1] = temp;
+              xData[i] = oldValue;
+              y[0] = function.evaluate(x);
+              xData[i] = oldValue + _twoEps;
+              y[2] = function.evaluate(x);
+              w = wFwd;
+            } else {
+              y[2] = temp;
+              xData[i] = oldValue - _eps;
+              y[0] = function.evaluate(x);
+              w = wCent;
+            }
+          }
+          res[i] = y[0] * w[0] + y[2] * w[2];
+          if (w[1] != 0) {
+            res[i] += y[1] * w[1];
+          }
+          xData[i] = oldValue;
+        }
+        return new DoubleMatrix1D(res);
+      }
+    };
+
   }
 
 }

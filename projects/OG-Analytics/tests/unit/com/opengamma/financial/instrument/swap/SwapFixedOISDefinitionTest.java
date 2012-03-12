@@ -73,6 +73,9 @@ public class SwapFixedOISDefinitionTest {
           EONIA_SWAP_3Y_DEFINITION.getFixedLeg().getNthPayment(loopcpn).getPaymentDate().equals(EONIA_SWAP_3Y_DEFINITION.getFixedLeg().getNthPayment(loopcpn).getAccrualEndDate()));
       // In EUR the payment date and the end accrual date are one day apart.
     }
+    final ZonedDateTime eurMaturity3Y = SPOT_DATE.plus(EUR_SWAP_3Y_TENOR);
+    SwapFixedOISDefinition eoniaSwap3YDefinitionFromMaturity = SwapFixedOISDefinition.from(SPOT_DATE, eurMaturity3Y, NOTIONAL, EONIA_GENERATOR, FIXED_RATE, IS_PAYER);
+    assertEquals("Swap OIS definition: constructor", EONIA_SWAP_3Y_DEFINITION, eoniaSwap3YDefinitionFromMaturity);
   }
 
   // EONIA tests

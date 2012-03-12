@@ -21,6 +21,7 @@ import com.opengamma.math.minimization.UncoupledParameterTransforms;
  */
 public class MixedLogNormalModelFitter extends SmileModelFitter<MixedLogNormalModelData> {
 
+  //private static final double PI_BY_2 = Math.PI / 2.0;
   private final ParameterLimitsTransform[] _transforms;
   private final boolean _useShiftedMean;
   private final int _nNormals;
@@ -64,14 +65,35 @@ public class MixedLogNormalModelFitter extends SmileModelFitter<MixedLogNormalMo
     return new Function1D<DoubleMatrix1D, Boolean>() {
       @Override
       public Boolean evaluate(DoubleMatrix1D x) {
-        for (int i = 0; i < _nNormals; i++) {
+        if (x.getEntry(0) <= 1e-4) {
+          return false;
+        }
+        for (int i = 1; i < _nNormals; i++) {
           if (x.getEntry(i) < 0.0) {
-            return true;
+            return false;
           }
         }
-        return false;
+        //Don't constrain angles
+        //        for (int i = 0; i < _nNormals - 1; i++) {
+        //          double temp = x.getEntry(i + _nNormals);
+        //          if (temp < 0.0 || temp > PI_BY_2) {
+        //            return true;
+        //          }
+        //          if (_useShiftedMean) {
+        //            temp = x.getEntry(i + 2 * _nNormals - 1);
+        //            if (temp < 0.0 || temp > PI_BY_2) {
+        //              return true;
+        //            }
+        //          }
+        //        }
+        return true;
       }
     };
   }
 
+  @Override
+  protected DoubleMatrix1D getMaximumStep() {
+    final int n = _useShiftedMean ? 3 * _nNormals - 2 : 2 * _nNormals - 1;
+    return new DoubleMatrix1D(n, 0.1);
+  }
 }

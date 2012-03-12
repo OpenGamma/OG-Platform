@@ -87,9 +87,6 @@ public class GBConventions {
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("BP0012M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP LIBOR 12m"),
             ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "GBPLIBORP12M")), "GBP LIBOR 12m", act365, modified, Period.ofMonths(12), 0, false, gb);
-    conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("SONIO/N Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP SONIO/N")), "GBP SONIO/N", act365,
-        following, Period.ofDays(1), 0, false, gb);
 
     //TODO need to check that these are right for deposit rates
     conventionMaster.addConventionBundle(
@@ -176,11 +173,18 @@ public class GBConventions {
     //        act365, modified, quarterly, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP LIBOR 3m"), gb, true);
 
     // Overnight Index Swap Convention have additional flag, publicationLag
-    final Integer publicationLag = 0;
+    final Integer publicationLagON = 0;
+    // SONIA
+    conventionMaster.addConventionBundle(
+        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("SONIO/N Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP SONIO/N")), "GBP SONIO/N", act365,
+        following, Period.ofDays(1), 0, false, gb, publicationLagON);
+    // OIS - SONIA
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP_OIS_SWAP")), "GBP_OIS_SWAP", act365, modified, annual, 2, gb,
-        act365, modified, annual, 0, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP SONIO/N"), gb, true, publicationLag); // TODO: review name
-    conventionMaster
-        .addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP_OIS_CASH")), "GBP_OIS_CASH", act365, following, null, 0, false, null);
+        act365, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP SONIO/N"), gb, true, publicationLagON);
+
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP_OIS_CASH")), "GBP_OIS_CASH", act365, following, null, 0, false, gb,
+        publicationLagON);
+
     //TODO sort out the swap names so that they are consistent
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBP_IBOR_INDEX")), "GBP_IBOR_INDEX", act365, modified, 0, false);
 

@@ -83,6 +83,10 @@ public interface Frequency {
    * Eleven month convention name
    */
   String ELEVEN_MONTH_NAME = "Eleven Month";
+  /**
+   * Eighteen month convention name
+   */
+  String EIGHTEEN_MONTH_NAME = "Eighteen Month";
 
   /**
    * Gets the name of the convention.
