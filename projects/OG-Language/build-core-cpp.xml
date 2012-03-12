@@ -13,7 +13,9 @@
   </target>
   <target name="cpp-present" depends="cpp.cpp-present,cpp-define-extra,cpp-include-extra" />
 
-  <target name="compile" depends="cpp-compile-all" />
+  <target name="compile" depends="cpp-compile-all" if="cpp.headers.present">
+    <touch file="${build.dir}/.cpp.compile" />
+  </target>
 
   <target name="dist-publish" depends="cpp-publish-all" />
 

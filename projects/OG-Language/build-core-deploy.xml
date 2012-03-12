@@ -26,6 +26,9 @@ opengamma.configuration.failOnMissing=${opengamma.configuration.failOnMissing}
         <include name="og-language-*.zip" />
       </fileset>
     </unzip>
+    <chmod perm="+x">
+      <fileset dir="${build.dir}" includes="*/ServiceRunner" />
+    </chmod>
   </target>
 
 </project>
