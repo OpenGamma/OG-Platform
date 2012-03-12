@@ -622,7 +622,10 @@
   <target name="install-impl" depends="clean-install, clean-projects, clone-or-pull, publish-all-local">
     <mkdir dir="${install.dir}" />
     <property file="${common.dir}/deploy.properties"/>
-    <subant target="install" buildpath="${project.deploy}" antfile="build.xml">
+    <subant target="install" antfile="build.xml">
+      <path>
+        <pathelement path="${project.deploy}" />
+      </path>
       <property name="og.build.invoked" value="true" />
       <property name="ivy.new.revision" value="${module.version.target}" />
       <property name="install.dir" value="${install.dir}" />

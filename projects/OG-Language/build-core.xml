@@ -48,6 +48,16 @@
     <ai-build />
   </target>
 
+  <target name="install" depends="installer" if="install.dir">
+    <mkdir dir="${install.dir}/install" />
+    <copy todir="${install.dir}/install">
+      <fileset dir="${dist.dir}">
+        <include name="*.msi" />
+        <include name="*.exe" />
+      </fileset>
+    </copy>
+  </target>
+
   <!-- Clone the common build files (like this one) from OG-Language. Earlier
        attempts to fetch them as IVY artifacts were problematic. Far easier to
        copy them and check them into the git repository -->
