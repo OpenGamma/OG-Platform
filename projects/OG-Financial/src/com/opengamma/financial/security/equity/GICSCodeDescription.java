@@ -44,7 +44,7 @@ final class GICSCodeDescription {
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(GICSCodeDescription.class);
 
-  private static final String GICS_FILE_NAME= "gics_map.xls";
+  private static final String GICS_FILE_NAME = "gics_map.xls";
 
   /**
    * The descriptions.
@@ -63,10 +63,10 @@ final class GICSCodeDescription {
   static void processGICSExcelWorkbook(InputStream inputStream, Map<String, String> gicsMap) {
     Workbook workbook;
     try {
-      workbook = new HSSFWorkbook(new BufferedInputStream( inputStream));
+      workbook = new HSSFWorkbook(new BufferedInputStream(inputStream));
     } catch (IOException e) {
-      s_logger.warn("Unable to find S&P GCIS Code Mapping file '" + GICS_FILE_NAME
-          +"' in classpath; unable to use GICS Codes", e);
+      s_logger.warn("Unable to find S&P GCIS Code Mapping file '" + GICS_FILE_NAME +
+                    "' in classpath; unable to use GICS Codes", e);
       return;
     }
     processGICSExcelWorkbook(workbook, gicsMap);
@@ -84,17 +84,17 @@ final class GICSCodeDescription {
     if (sheet == null) {
       return;
     }
-    for (int rowNum=sheet.getFirstRowNum(); rowNum<=sheet.getLastRowNum(); rowNum++) {
+    for (int rowNum = sheet.getFirstRowNum(); rowNum <= sheet.getLastRowNum(); rowNum++) {
       Row row = sheet.getRow(rowNum);
       if (row == null) {
         continue;
       }
-      for (int cellNum=0; cellNum<row.getPhysicalNumberOfCells(); cellNum++) {
+      for (int cellNum = 0; cellNum < row.getPhysicalNumberOfCells(); cellNum++) {
         Cell cell = SimpleXlsSheetReader.getCellSafe(row, cellNum);
         if (isNumeric(cell)) {
           //worst case if the Excel file is in an  incorrect (or updated) format
           // is that number -> random or empty string mappings will be created
-          gicsMap.put(getGICSCellValue(cell), getGICSCellValue(row, cellNum+1));
+          gicsMap.put(getGICSCellValue(cell), getGICSCellValue(row, cellNum + 1));
         } 
       }
     }
@@ -114,7 +114,7 @@ final class GICSCodeDescription {
       return "";
     } 
     if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-      return Integer.valueOf((int)cell.getNumericCellValue()).toString();
+      return Integer.valueOf((int) cell.getNumericCellValue()).toString();
     } else {
       return SimpleXlsSheetReader.getCellAsString(cell);
     }
@@ -224,7 +224,7 @@ final class GICSCodeDescription {
    * Output the current contents of the GICS map to the log
    * @param gicsMap Map of GICS code -> description
    */
-  static void dumpGICSMap(Map <String, String> gicsMap) {
+  static void dumpGICSMap(Map<String, String> gicsMap) {
     for (Map.Entry<String, String> entry : gicsMap.entrySet()) {
       s_logger.info(" {}  -> {} ", entry.getKey(), entry.getValue());
     }
