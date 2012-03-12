@@ -6,7 +6,7 @@
 		<element name="args" optional="true" />
 		<sequential>
 			<echo message="git @{command}" />
-			<exec executable="git" dir="@{dir}" osfamily="unix">
+			<exec executable="git" dir="@{dir}" osfamily="unix" failonerror="true">
 				<arg value="@{command}" />
 				<args />
 			</exec>

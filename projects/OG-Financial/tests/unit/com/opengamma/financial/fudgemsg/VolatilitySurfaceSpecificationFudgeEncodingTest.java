@@ -45,12 +45,12 @@ public class VolatilitySurfaceSpecificationFudgeEncodingTest extends FinancialTe
   public void testEOCycle() {
     final BloombergEquityOptionVolatilitySurfaceInstrumentProvider instrumentProvider = new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.IMPLIED_VOLATILITY);
     final VolatilitySurfaceSpecification spec = new VolatilitySurfaceSpecification("DEFAULT", UniqueId.of(SecurityUtils.BLOOMBERG_TICKER_WEAK.getName(), "DJX Index"),
-        SurfaceQuoteType.STRIKE_CALL_AND_PUT, instrumentProvider);
+        SurfaceQuoteType.CALL_AND_PUT_STRIKE, instrumentProvider);
     AssertJUnit.assertEquals(spec, cycleObject(VolatilitySurfaceSpecification.class, spec));
     AssertJUnit.assertFalse(spec.equals(
         cycleObject(VolatilitySurfaceSpecification.class,
             new VolatilitySurfaceSpecification("DEFAULT", UniqueId.of(SecurityUtils.BLOOMBERG_TICKER.getName(), "DJX Index"),
-                SurfaceQuoteType.STRIKE_CALL_AND_PUT,
+                SurfaceQuoteType.CALL_AND_PUT_STRIKE,
                 new BloombergEquityOptionVolatilitySurfaceInstrumentProvider("DJX", "Index", MarketDataRequirementNames.MID_IMPLIED_VOLATILITY)))));
   }
 }

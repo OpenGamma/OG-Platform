@@ -29,6 +29,10 @@ import freemarker.template.Template;
 public class FreemarkerOutputter {
 
   /**
+   *
+   */
+  public static final String FREEMARKER_CONFIGURATION = "FREEMARKER_CONFIGURATION";
+  /**
    * The Freemarker configuration.
    */
   private final Configuration _configuration;
@@ -37,7 +41,7 @@ public class FreemarkerOutputter {
    * Creates the resource.
    */
   FreemarkerOutputter(final ServletContext servletContext) {
-    _configuration = FreemarkerConfigurationFactory.instance(servletContext);
+    _configuration = (Configuration) servletContext.getAttribute(FREEMARKER_CONFIGURATION);
   }
 
   //-------------------------------------------------------------------------

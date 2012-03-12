@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.volatility.surface;
+package com.opengamma.financial.analytics.model.volatility.surface;
 
 import java.util.Collections;
 import java.util.Set;

@@ -76,7 +76,7 @@ public class BracketRoot {
         x2 = Math.min(maxX, x2);
       }
     }
-    throw new MathException("Failed to bracket root: max interations");
+    throw new MathException("Failed to bracket root: max iterations");
   }
 
 }
