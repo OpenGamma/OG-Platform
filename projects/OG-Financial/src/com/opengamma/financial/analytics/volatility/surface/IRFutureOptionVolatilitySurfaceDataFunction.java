@@ -15,9 +15,6 @@ import java.util.Map;
 import java.util.Set;
 
 import javax.time.calendar.Clock;
-import javax.time.calendar.DateAdjuster;
-import javax.time.calendar.DateAdjusters;
-import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.slf4j.Logger;
@@ -40,13 +37,12 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.OpenGammaExecutionContext;
-import com.opengamma.financial.analytics.ircurve.NextExpiryAdjuster;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
+import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionUtils;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.math.MathException;
 import com.opengamma.math.curve.NodalDoublesCurve;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -54,8 +50,6 @@ import com.opengamma.util.tuple.Pair;
  */
 public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(IRFutureOptionVolatilitySurfaceDataFunction.class);
-  private static final DateAdjuster s_nextExpiryAdjuster = new NextExpiryAdjuster();
-  private static final DateAdjuster s_firstOfMonthAdjuster = DateAdjusters.firstDayOfMonth();
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
@@ -105,7 +99,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();
     final ValueSpecification spec = new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), properties);
     if (surfaceQuoteUnits.equals(SurfacePropertyNames.VOLATILITY_QUOTE)) {
-      return Collections.singleton(new ComputedValue(spec, data));
+      return Collections.singleton(new ComputedValue(spec, getSurfaceFromVolatilityQuote(data)));
     }
     if (curveName == null) {
       throw new OpenGammaRuntimeException("Could not get curve name");
@@ -119,7 +113,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
       throw new OpenGammaRuntimeException("Could not get futures price data");
     }
     final NodalDoublesCurve futurePrices = (NodalDoublesCurve) futurePricesObject;
-    return Collections.singleton(new ComputedValue(spec, getSurfaceFromPriceQuote(inputs, specification, data, futurePrices, now, surfaceQuoteType)));
+    return Collections.singleton(new ComputedValue(spec, getSurfaceFromPriceQuote(specification, data, futurePrices, now, surfaceQuoteType)));
   }
 
   @Override
@@ -181,7 +175,25 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     return requirements;
   }
 
-  private VolatilitySurfaceData<Number, Double> getSurfaceFromPriceQuote(final FunctionInputs inputs, final VolatilitySurfaceSpecification specification,
+  private static VolatilitySurfaceData<Number, Double> getSurfaceFromVolatilityQuote(final VolatilitySurfaceData<Number, Double> optionVolatilities) {
+    final Map<Pair<Number, Double>, Double> volatilityValues = new HashMap<Pair<Number, Double>, Double>();
+    final ObjectArrayList<Number> xList = new ObjectArrayList<Number>();
+    final DoubleArrayList yList = new DoubleArrayList();
+    for (final Number x : optionVolatilities.getXs()) {
+      for (final Double y : optionVolatilities.getYs()) {
+        final Double volatility = optionVolatilities.getVolatility(x, y);
+        if (volatility != null) {
+          xList.add(x);
+          yList.add(y);
+          volatilityValues.put(Pair.of(x, y), volatility / 100);
+        }
+      }
+    }
+    return new VolatilitySurfaceData<Number, Double>(optionVolatilities.getDefinitionName(), optionVolatilities.getSpecificationName(),
+        optionVolatilities.getTarget(), xList.toArray(new Number[0]), yList.toArray(new Double[0]), volatilityValues);
+  }
+
+  private static VolatilitySurfaceData<Number, Double> getSurfaceFromPriceQuote(final VolatilitySurfaceSpecification specification,
       final VolatilitySurfaceData<Number, Double> optionPrices, final NodalDoublesCurve futurePrices, final ZonedDateTime now, final String surfaceQuoteType) {
     double callAboveStrike = 0;
     if (specification.getSurfaceInstrumentProvider() instanceof BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider) {
@@ -191,18 +203,20 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final ObjectArrayList<Number> xList = new ObjectArrayList<Number>();
     final DoubleArrayList yList = new DoubleArrayList();
     for (final Number x : optionPrices.getXs()) {
-      final double t = getTime(x.doubleValue(), now);
-      final double forward = futurePrices.getYValue(x.doubleValue()) / 100;
+      final Number t = IRFutureOptionUtils.getTime(x.doubleValue(), now);
+      final double forward = futurePrices.getYValue(x.doubleValue());
       for (final Double y : optionPrices.getYs()) {
         final Double price = optionPrices.getVolatility(x, y);
         if (price != null) {
           try {
-            final double volatility = getVolatility(surfaceQuoteType, y, price, forward, t, callAboveStrike);
+            final double volatility = getVolatility(surfaceQuoteType, y / 100, price, forward, t.doubleValue(), callAboveStrike);
             xList.add(x);
             yList.add(y);
             volatilityValues.put(Pair.of(x, y), volatility);
           } catch (final MathException e) {
-            s_logger.error("Could not imply volatility for (" + x + ", " + y + "); error was " + e.getMessage());
+            s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage()});
+          } catch (final IllegalArgumentException e) {
+            s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage()});
           }
         }
       }
@@ -211,7 +225,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
         optionPrices.getTarget(), xList.toArray(new Number[0]), yList.toArray(new Double[0]), volatilityValues);
   }
 
-  private double getVolatility(final String surfaceQuoteType, final double strike, final double price, final double forward, final double t, final Double callAboveStrike) {
+  private static double getVolatility(final String surfaceQuoteType, final double strike, final double price, final double forward, final double t, final Double callAboveStrike) {
     if (surfaceQuoteType.equals(SurfaceQuoteType.CALL_STRIKE)) {
       return BlackFormulaRepository.impliedVolatility(price, forward, strike, t, true);
     }
@@ -230,18 +244,4 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     throw new OpenGammaRuntimeException("Cannot handle surface quote type " + surfaceQuoteType);
   }
 
-  private double getTime(final Number x, final ZonedDateTime now) {
-    final LocalDate today = now.toLocalDate();
-    final int n = x.intValue();
-    if (n == 1) {
-      final LocalDate nextExpiry = today.with(s_nextExpiryAdjuster);
-      final LocalDate previousMonday = nextExpiry.minusDays(2); //TODO this should take a calendar and do two business days, and should use a convention for the number of days
-      return DateUtils.getDaysBetween(today, previousMonday) / 365.; //TODO or use daycount?
-    }
-    final LocalDate date = today.with(s_firstOfMonthAdjuster);
-    final LocalDate plusMonths = date.plusMonths(n * 3); //TODO this is hard-coding the futures to be quarterly
-    final LocalDate thirdWednesday = plusMonths.with(s_nextExpiryAdjuster);
-    final LocalDate previousMonday = thirdWednesday.minusDays(2); //TODO this should take a calendar and do two business days and also use a convention for the number of days
-    return DateUtils.getDaysBetween(today, previousMonday) / 365.; //TODO or use daycount?
-  }
 }

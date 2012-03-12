@@ -77,8 +77,8 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
   }
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
-    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(context);
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext myContext, final InstantProvider atInstantProvider) {
+    final ConfigSource configSource = OpenGammaCompilationContext.getConfigSource(myContext);
     final ConfigDBVolatilitySurfaceDefinitionSource definitionSource = new ConfigDBVolatilitySurfaceDefinitionSource(configSource);
     final ConfigDBVolatilitySurfaceSpecificationSource specificationSource = new ConfigDBVolatilitySurfaceSpecificationSource(configSource);
     final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
@@ -100,6 +100,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
             .withAny(SurfacePropertyNames.PROPERTY_SURFACE_UNITS).get()));
       }
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
         final Set<String> surfaceNames = desiredValue.getConstraints().getValues(ValuePropertyNames.SURFACE);
@@ -162,7 +163,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
         return true;
       }
 
-      @SuppressWarnings({"unchecked", "synthetic-access" })
+      @SuppressWarnings({"unchecked" })
       protected VolatilitySurfaceDefinition<Object, Object> getSurfaceDefinition(final ConfigDBVolatilitySurfaceDefinitionSource source, final ComputationTarget target,
           final String definitionName, final String instrumentType) {
         final String fullDefinitionName = definitionName + "_" + target.getUniqueId().getValue();
@@ -173,7 +174,6 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
         return definition;
       }
 
-      @SuppressWarnings("synthetic-access")
       protected VolatilitySurfaceSpecification getSurfaceSpecification(final ConfigDBVolatilitySurfaceSpecificationSource source, final ComputationTarget target,
           final String specificationName, final String instrumentType) {
         final String fullSpecificationName = specificationName + "_" + target.getUniqueId().getValue();
