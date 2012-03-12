@@ -54,6 +54,7 @@
       <fileset dir="${dist.dir}">
         <include name="*.msi" />
         <include name="*.exe" />
+        <exclude name="*-with-jvm-*" />
       </fileset>
     </copy>
   </target>
