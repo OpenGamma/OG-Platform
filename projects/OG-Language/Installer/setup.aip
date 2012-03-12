@@ -7,6 +7,7 @@
     <ROW Property="ARPPRODUCTICON" Value="OpenGamma.exe" Type="8"/>
     <ROW Property="ARPURLINFOABOUT" Value="http://github.com/OpenGamma/OG-Platform/tree/master/projects/OG-Language"/>
     <ROW Property="BannerBitmap" Value="banner" MultiBuildValue="NoJVM32:opengamma_banner.bmp#NoJVM64:opengamma_banner.bmp#JVM32:opengamma_banner.bmp#JVM64:opengamma_banner.bmp" Type="1" MsiKey="BannerBitmap"/>
+    <ROW Property="CONFIGURATION.URL" Value="http://localhost:8080/jax/configuration/0/"/>
     <ROW Property="DialogBitmap" Value="dialog" MultiBuildValue="NoJVM32:opengamma_dialog.bmp#NoJVM64:opengamma_dialog.bmp#JVM32:opengamma_dialog.bmp#JVM64:opengamma_dialog.bmp" Type="1" MsiKey="DialogBitmap"/>
     <ROW Property="Manufacturer" Value="OpenGamma Ltd" ValueLocId="*"/>
     <ROW Property="ProductCode" Value="1033:{0FE3D4EA-B175-4F6A-98D4-E1AF3011ACF3} " Type="16"/>
@@ -19,7 +20,6 @@
     <ROW Property="UpgradeCode" Value="{98DEC07C-8C4F-4775-B835-8AF302783200}"/>
     <ROW Property="WindowsType9X" MultiBuildValue="NoJVM32:Windows 9x/ME#NoJVM64:Windows 9x/ME#JVM32:Windows 9x/ME#JVM64:Windows 9x/ME" ValueLocId="-"/>
     <ROW Property="WindowsType9XDisplay" MultiBuildValue="NoJVM32:Windows 9x/ME#NoJVM64:Windows 9x/ME#JVM32:Windows 9x/ME#JVM64:Windows 9x/ME" ValueLocId="-"/>
-    <ROW Property="configuration.url" Value="http://localhost:8080/jax/configuration/0/"/>
     <ROW Property="jre.id32" Value="OG-Language"/>
     <ROW Property="jre.id64" Value="OG-Language"/>
   </COMPONENT>
@@ -1923,7 +1923,7 @@
     <ROW Dialog_="ConfigurationUrl" Control="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Attributes="196611" Text="Select OpenGamma Engine Host" TextStyle="[DlgTitleFont]" Control_Next="UrlLabel"/>
     <ROW Dialog_="ConfigurationUrl" Control="UrlLabel" Type="Text" X="25" Y="114" Width="343" Height="12" Attributes="3" Text="&amp;Url:" Control_Next="Text" Help="|" TextLocId="Control.Text.FolderDlg#FolderLabel" HelpLocId="Control.Help.FolderDlg#FolderLabel"/>
     <ROW Dialog_="ConfigurationUrl" Control="Text" Type="Text" X="25" Y="70" Width="320" Height="40" Attributes="3" Text="Enter the configuration address of your OpenGamma installation and press next. Please contact the administrator of your OpenGamma system if you are unsure what to enter here." Control_Next="Url" TextLocId="Control.Text.FolderDlg#Text"/>
-    <ROW Dialog_="ConfigurationUrl" Control="Url" Type="Edit" X="25" Y="126" Width="320" Height="18" Attributes="3" Property="configuration.url" Text="{260}" Control_Next="Next"/>
+    <ROW Dialog_="ConfigurationUrl" Control="Url" Type="Edit" X="25" Y="126" Width="320" Height="18" Attributes="3" Property="CONFIGURATION.URL" Text="{260}" Control_Next="Next"/>
     <ATTRIBUTE name="FixedSizeBitmaps" value="0"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
@@ -1997,8 +1997,8 @@
     <ROW Action="AI_XmlRemove" Type="11265" Source="xmlCfg.dll" Target="OnXmlRemove" WithoutSeq="true"/>
     <ROW Action="AI_XmlRollback" Type="11521" Source="xmlCfg.dll" Target="OnXmlRollback" WithoutSeq="true"/>
     <ROW Action="AI_XmlUninstall" Type="1" Source="xmlCfg.dll" Target="OnXmlUninstall"/>
-    <ROW Action="ExistingConfigurationURL" Type="51" Source="configuration.url" Target="[OPENGAMMA.CONFIGURATION.URL]"/>
-    <ROW Action="ExistingConfigurationURL_UI" Type="51" Source="configuration.url" Target="[OPENGAMMA.CONFIGURATION.URL]"/>
+    <ROW Action="ExistingConfigurationURL" Type="51" Source="CONFIGURATION.URL" Target="[OPENGAMMA.CONFIGURATION.URL]"/>
+    <ROW Action="ExistingConfigurationURL_UI" Type="51" Source="CONFIGURATION.URL" Target="[OPENGAMMA.CONFIGURATION.URL]"/>
     <ROW Action="SET_APPDIR" Type="307" Source="APPDIR" Target="[ProgramFilesFolder][Manufacturer]\[ProductName]" MultiBuildTarget="NoJVM64:[ProgramFiles64Folder][Manufacturer]\[ProductName]#JVM64:[ProgramFiles64Folder][Manufacturer]\[ProductName]"/>
     <ROW Action="SET_SHORTCUTDIR" Type="307" Source="SHORTCUTDIR" Target="[ProgramMenuFolder][ProductName]"/>
     <ROW Action="SET_TARGETDIR_TO_APPDIR" Type="51" Source="TARGETDIR" Target="[APPDIR]"/>
@@ -2073,8 +2073,8 @@
     <ROW Registry="jvmProperty.opengamma.configuration.failOnInvalid64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jvmProperty.opengamma.configuration.failOnInvalid" Value="TRUE" Component_="Settings64"/>
     <ROW Registry="jvmProperty.opengamma.configuration.failOnMissing" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jvmProperty.opengamma.configuration.failOnMissing" Value="FALSE" Component_="Settings"/>
     <ROW Registry="jvmProperty.opengamma.configuration.failOnMissing64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jvmProperty.opengamma.configuration.failOnMissing" Value="FALSE" Component_="Settings64"/>
-    <ROW Registry="jvmProperty.opengamma.configuration.url" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jvmProperty.opengamma.configuration.url" Value="[configuration.url]" Component_="Settings"/>
-    <ROW Registry="jvmProperty.opengamma.configuration.url64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jvmProperty.opengamma.configuration.url" Value="[configuration.url]" Component_="Settings64"/>
+    <ROW Registry="jvmProperty.opengamma.configuration.url" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jvmProperty.opengamma.configuration.url" Value="[CONFIGURATION.URL]" Component_="Settings"/>
+    <ROW Registry="jvmProperty.opengamma.configuration.url64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jvmProperty.opengamma.configuration.url" Value="[CONFIGURATION.URL]" Component_="Settings64"/>
     <ROW Registry="serviceLogConfiguration" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="serviceLogConfiguration" Value="[APPDIR]log4cxx.service.properties" Component_="Settings"/>
     <ROW Registry="serviceLogConfiguration64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="serviceLogConfiguration" Value="[APPDIR]log4cxx.service.properties" Component_="Settings64"/>
     <ROW Registry="serviceSDDL" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="serviceSDDL" Value="D:(A;;GA;;;WD)" Component_="Settings"/>
