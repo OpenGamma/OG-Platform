@@ -45,7 +45,8 @@ public class Functional {
 
   /**
    * Creates an array of type V out of provided objects (of type V as well)
-   *
+   * 
+   * @param <V>  the object type
    * @param array objects out of which the array is created
    * @return an array of type V out of provided objects
    */
@@ -137,8 +138,9 @@ public class Functional {
    * @param <T> type if elements in unsorted collection (must implement Comparable interface)
    * @return list sorted using internal entries' {@link Comparable#compareTo(Object)} compareTo} method.
    */
-  public static <T extends Comparable> List<T> sort(final Collection<T> c) {
-    List<T> list = new ArrayList<T>(c);
+  @SuppressWarnings({"rawtypes", "unchecked" })
+  public static <T extends Comparable> List<T> sort(final Collection<T> coll) {
+    List<T> list = new ArrayList<T>(coll);
     Collections.sort(list);
     return list;
   }
@@ -158,34 +160,34 @@ public class Functional {
 
   public static <T> T reduce(final Iterable<? extends T> c, final Function2<T, T, T> reducer) {
     final Iterator<? extends T> iter = c.iterator();
-    if(iter.hasNext()){
+    if (iter.hasNext()) {
       T acc = iter.next();
       return reduce(acc, iter, reducer);
-    }else{
+    } else {
       return null;
     }
   }
 
   public static <T> boolean any(final Iterable<? extends T> c, final Function1<T, Boolean> predicate) {
     final Iterator<? extends T> iter = c.iterator();
-    boolean _any = false;
-    while (!_any && iter.hasNext()) {
-      _any = predicate.execute(iter.next());
+    boolean any = false;
+    while (!any && iter.hasNext()) {
+      any = predicate.execute(iter.next());
     }
-    return _any;
+    return any;
   }
   
   public static <T> boolean all(final Iterable<? extends T> c, final Function1<T, Boolean> predicate) {
     final Iterator<? extends T> iter = c.iterator();
-    boolean _all = true;
-    while (_all && iter.hasNext()) {
-      _all = predicate.execute(iter.next());
+    boolean all = true;
+    while (all && iter.hasNext()) {
+      all = predicate.execute(iter.next());
     }
-    return _all;
+    return all;
   }
 
   public static <T> Function1<T, Boolean> complement(final Function1<T, Boolean> predicate) {
-    return new Function1<T, Boolean>(){
+    return new Function1<T, Boolean>() {
       @Override
       public Boolean execute(T t) {
         return !predicate.execute(t);

@@ -19,24 +19,25 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.ObjectId;
 
-
 /**
  * Persist {@link com.opengamma.id.ObjectId} via hibernate as a String.
- *
  */
 public class PersistentObjectId implements EnhancedUserType {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PersistentObjectId.class);
-
+  /**
+   * Singleton instance.
+   */
   public static final PersistentObjectId INSTANCE = new PersistentObjectId();
 
-  private static final int[] SQL_TYPES = new int[]{Types.VARCHAR};
+  private static final Logger s_logger = LoggerFactory.getLogger(PersistentObjectId.class);
+
+  private static final int[] SQL_TYPES = new int[] {Types.VARCHAR };
 
   public int[] sqlTypes() {
     return SQL_TYPES;
   }
 
-  public Class returnedClass() {
+  public Class<?> returnedClass() {
     return ObjectId.class;
   }
 
@@ -60,6 +61,7 @@ public class PersistentObjectId implements EnhancedUserType {
     return nullSafeGet(resultSet, names[0]);
   }
 
+  @SuppressWarnings("deprecation")
   public Object nullSafeGet(ResultSet resultSet, String name) throws SQLException {
     String value = (String) (new StringType()).nullSafeGet(resultSet, name);
     if (value == null) {
@@ -68,8 +70,8 @@ public class PersistentObjectId implements EnhancedUserType {
     return ObjectId.parse(value);
   }
 
+  @SuppressWarnings("deprecation")
   public void nullSafeSet(PreparedStatement preparedStatement, Object value, int index) throws HibernateException, SQLException {
-
     if (value == null) {
       s_logger.debug("ObjectId -> String : NULL -> NULL");
       (new StringType()).nullSafeSet(preparedStatement, null, index);

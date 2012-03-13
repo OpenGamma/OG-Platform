@@ -7,18 +7,33 @@ package com.opengamma.util.test;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.difference;
-import static com.google.common.collect.Sets.newHashSet;
 import static com.google.common.collect.Sets.newTreeSet;
 import static com.opengamma.util.RegexUtils.extract;
 import static com.opengamma.util.RegexUtils.matches;
+
 import java.io.File;
 import java.io.FileFilter;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.SortedSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Pattern;
+
 import javax.sql.DataSource;
-import org.apache.commons.cli.*;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+import org.apache.commons.cli.PosixParser;
 import org.apache.commons.io.FileUtils;
 import org.apache.tools.ant.BuildException;
 import org.apache.tools.ant.Task;
@@ -27,6 +42,7 @@ import org.hibernate.cfg.Environment;
 import org.hibernate.dialect.Dialect;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import com.jolbox.bonecp.BoneCPDataSource;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.ArgumentChecker;
@@ -517,6 +533,7 @@ public class DbTool extends Task {
   private Map<String, Map<Integer, Pair<File, File>>> getScriptDirs() {
 
     Map<String, ConcurrentHashMap<Integer, File>> createScripts = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, File>>() {
+      private static final long serialVersionUID = 1L;
       @Override
       public ConcurrentHashMap<Integer, File> get(Object key) {
         super.putIfAbsent((String) key, new ConcurrentHashMap<Integer, File>());
@@ -525,6 +542,7 @@ public class DbTool extends Task {
     };
 
     Map<String, ConcurrentHashMap<Integer, File>> migrateScripts = new ConcurrentHashMap<String, ConcurrentHashMap<Integer, File>>() {
+      private static final long serialVersionUID = 1L;
       @Override
       public ConcurrentHashMap<Integer, File> get(Object key) {
         super.putIfAbsent((String) key, new ConcurrentHashMap<Integer, File>());
@@ -534,7 +552,8 @@ public class DbTool extends Task {
 
     for (String scriptDir : _dbScriptDirs) {
 
-      for (Map.Entry<File, Map<Integer, File>> dbFolder2versionedScripts : getScripts(new File(scriptDir, DATABASE_CREATE_FOLDER + File.separatorChar + _dialect.getDatabaseName()), CREATE_SCRIPT_PATTERN).entrySet()) {
+      Map<File, Map<Integer, File>> scripts1 = getScripts(new File(scriptDir, DATABASE_CREATE_FOLDER + File.separatorChar + _dialect.getDatabaseName()), CREATE_SCRIPT_PATTERN);
+      for (Map.Entry<File, Map<Integer, File>> dbFolder2versionedScripts : scripts1.entrySet()) {
         File dbFolder = dbFolder2versionedScripts.getKey();
         createScripts.get(dbFolder.getName()); // creates empty slot for dbFolder.getName() 
         Map<Integer, File> versionedScripts = dbFolder2versionedScripts.getValue();
@@ -551,7 +570,8 @@ public class DbTool extends Task {
         }
       }
 
-      for (Map.Entry<File, Map<Integer, File>> dbFolder2versionedScripts : getScripts(new File(scriptDir, DATABASE_MIGRATE_FOLDER + File.separatorChar + _dialect.getDatabaseName()), MIGRATE_SCRIPT_PATTERN).entrySet()) {
+      Map<File, Map<Integer, File>> scripts2 = getScripts(new File(scriptDir, DATABASE_MIGRATE_FOLDER + File.separatorChar + _dialect.getDatabaseName()), MIGRATE_SCRIPT_PATTERN);
+      for (Map.Entry<File, Map<Integer, File>> dbFolder2versionedScripts : scripts2.entrySet()) {
         File dbFolder = dbFolder2versionedScripts.getKey();
         migrateScripts.get(dbFolder.getName()); // creates empty slot for dbFolder.getName()
         Map<Integer, File> versionedScripts = dbFolder2versionedScripts.getValue();
@@ -593,6 +613,7 @@ public class DbTool extends Task {
     }
 
     final Map<String, Map<Integer, Pair<File, File>>> scripts = new ConcurrentHashMap<String, Map<Integer, Pair<File, File>>>() {
+      private static final long serialVersionUID = 1L;
       @Override
       public Map<Integer, Pair<File, File>> get(Object key) {
         super.putIfAbsent((String) key, new ConcurrentHashMap<Integer, Pair<File, File>>());
@@ -606,25 +627,25 @@ public class DbTool extends Task {
       ConcurrentHashMap<Integer, File> versionedMigrateScripts = migrateScripts.get(dir);
 
       Set<Integer> migrateVersions = versionedCreateScripts.keySet();
-      Set<Integer> createVersions = versionedMigrateScripts.keySet();
-
-      /*Set<Integer> unmatchedCreateVersions = difference(migrateVersions, createVersions);
-      if (unmatchedCreateVersions.size() > 0) {
-        StringBuilder errorMessage = new StringBuilder();
-        for (Integer unmatchedCreateVersion : unmatchedCreateVersions) {
-          errorMessage.append("There is no corresponding version of create script for the migrate one: " + DATABASE_CRAETE_SCRIPT_PREFIX + unmatchedCreateVersion + "\n");
-        }
-        throw new OpenGammaRuntimeException(errorMessage.toString());
-      }
-
-      Set<Integer> unmatchedMigrateVersions = difference(createVersions, migrateVersions);
-      if (unmatchedMigrateVersions.size() > 0) {
-        StringBuilder errorMessage = new StringBuilder();
-        for (Integer unmatchedMigrateVersion : unmatchedMigrateVersions) {
-          errorMessage.append("There is no corresponding version of migrate script for the create one: " + DATABASE_MIGRATE_SCRIPT_PREFIX + unmatchedMigrateVersion + "\n");
-        }
-        throw new OpenGammaRuntimeException(errorMessage.toString());
-      }*/
+//      Set<Integer> createVersions = versionedMigrateScripts.keySet();
+//
+//      Set<Integer> unmatchedCreateVersions = difference(migrateVersions, createVersions);
+//      if (unmatchedCreateVersions.size() > 0) {
+//        StringBuilder errorMessage = new StringBuilder();
+//        for (Integer unmatchedCreateVersion : unmatchedCreateVersions) {
+//          errorMessage.append("There is no corresponding version of create script for the migrate one: " + DATABASE_CRAETE_SCRIPT_PREFIX + unmatchedCreateVersion + "\n");
+//        }
+//        throw new OpenGammaRuntimeException(errorMessage.toString());
+//      }
+//
+//      Set<Integer> unmatchedMigrateVersions = difference(createVersions, migrateVersions);
+//      if (unmatchedMigrateVersions.size() > 0) {
+//        StringBuilder errorMessage = new StringBuilder();
+//        for (Integer unmatchedMigrateVersion : unmatchedMigrateVersions) {
+//          errorMessage.append("There is no corresponding version of migrate script for the create one: " + DATABASE_MIGRATE_SCRIPT_PREFIX + unmatchedMigrateVersion + "\n");
+//        }
+//        throw new OpenGammaRuntimeException(errorMessage.toString());
+//      }
 
       for (Integer version : migrateVersions) {
         File createScript = versionedCreateScripts.get(version);
