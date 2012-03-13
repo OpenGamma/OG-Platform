@@ -51,16 +51,16 @@
     <ROW Directory="Indiana_Dir" Directory_Parent="America_Dir" DefaultDir="Indiana"/>
     <ROW Directory="Kentucky_1_Dir" Directory_Parent="America_1_Dir" DefaultDir="Kentucky"/>
     <ROW Directory="Kentucky_Dir" Directory_Parent="America_Dir" DefaultDir="Kentucky"/>
-    <ROW Directory="Manufacturer__1_Dir" Directory_Parent="ProgramFiles64Folder" DefaultDir="_Manuf~1|[Manufacturer]"/>
-    <ROW Directory="Manufacturer__Dir" Directory_Parent="ProgramFilesFolder" DefaultDir="_Manuf~1|[Manufacturer]"/>
+    <ROW Directory="Manufacturer__1_Dir" Directory_Parent="ProgramFiles64Folder" DefaultDir="OpenGa~1|[|Manufacturer]"/>
+    <ROW Directory="Manufacturer__Dir" Directory_Parent="ProgramFilesFolder" DefaultDir="OpenGa~1|[|Manufacturer]"/>
     <ROW Directory="North_Dakota_1_Dir" Directory_Parent="America_1_Dir" DefaultDir="North_~1|North_Dakota"/>
     <ROW Directory="North_Dakota_Dir" Directory_Parent="America_Dir" DefaultDir="North_~1|North_Dakota"/>
     <ROW Directory="OpenGamma_Dir" Directory_Parent="ProgramMenuFolder" DefaultDir="OpenGa~1|OpenGamma"/>
     <ROW Directory="Pacific_1_Dir" Directory_Parent="zi_1_Dir" DefaultDir="Pacific"/>
     <ROW Directory="Pacific_Dir" Directory_Parent="zi_Dir" DefaultDir="Pacific"/>
-    <ROW Directory="ProductName__1_Dir" Directory_Parent="Manufacturer__Dir" DefaultDir="_Produ~1|[ProductName]"/>
-    <ROW Directory="ProductName__2_Dir" Directory_Parent="Manufacturer__1_Dir" DefaultDir="_Produ~1|[ProductName]"/>
-    <ROW Directory="ProductName__Dir" Directory_Parent="__Dir" DefaultDir="_Produ~1|[ProductName]"/>
+    <ROW Directory="ProductName__1_Dir" Directory_Parent="Manufacturer__Dir" DefaultDir="Langua~1|[|ProductName]"/>
+    <ROW Directory="ProductName__2_Dir" Directory_Parent="Manufacturer__1_Dir" DefaultDir="Langua~1|[|ProductName]"/>
+    <ROW Directory="ProductName__Dir" Directory_Parent="__Dir" DefaultDir="Langua~1|[|ProductName]"/>
     <ROW Directory="ProgramFiles64Folder" Directory_Parent="TARGETDIR" DefaultDir="Progra~3|ProgramFiles64Folder" IsPseudoRoot="1"/>
     <ROW Directory="ProgramFilesFolder" Directory_Parent="TARGETDIR" DefaultDir="Progra~2|ProgramFilesFolder" IsPseudoRoot="1"/>
     <ROW Directory="ProgramMenuFolder" Directory_Parent="TARGETDIR" DefaultDir="Progra~1|ProgramMenuFolder" IsPseudoRoot="1"/>
@@ -69,7 +69,7 @@
     <ROW Directory="SystemV_Dir" Directory_Parent="zi_Dir" DefaultDir="SystemV"/>
     <ROW Directory="TARGETDIR" DefaultDir="SourceDir"/>
     <ROW Directory="Util_Dir" Directory_Parent="include_Dir" DefaultDir="Util"/>
-    <ROW Directory="__Dir" Directory_Parent="CommonAppDataFolder" DefaultDir="_Manuf~1|[Manufacturer]"/>
+    <ROW Directory="__Dir" Directory_Parent="CommonAppDataFolder" DefaultDir="OpenGa~1|[|Manufacturer]:_Manuf~1|[Manufacturer]"/>
     <ROW Directory="amd64_Dir" Directory_Parent="lib_1_Dir" DefaultDir="amd64"/>
     <ROW Directory="audio_1_Dir" Directory_Parent="lib_1_Dir" DefaultDir="audio"/>
     <ROW Directory="audio_Dir" Directory_Parent="lib_Dir" DefaultDir="audio"/>
@@ -90,6 +90,7 @@
     <ROW Directory="ff_Dir" Directory_Parent="jqs_Dir" DefaultDir="ff"/>
     <ROW Directory="fonts_1_Dir" Directory_Parent="lib_1_Dir" DefaultDir="fonts"/>
     <ROW Directory="fonts_Dir" Directory_Parent="lib_Dir" DefaultDir="fonts"/>
+    <ROW Directory="i386_1_Dir" Directory_Parent="ProductName__1_Dir" DefaultDir="i386"/>
     <ROW Directory="i386_Dir" Directory_Parent="lib_Dir" DefaultDir="i386"/>
     <ROW Directory="ie_Dir" Directory_Parent="jqs_Dir" DefaultDir="ie"/>
     <ROW Directory="im_1_Dir" Directory_Parent="lib_1_Dir" DefaultDir="im"/>
@@ -113,6 +114,7 @@
     <ROW Directory="server_Dir" Directory_Parent="bin_1_Dir" DefaultDir="server"/>
     <ROW Directory="servicetag_1_Dir" Directory_Parent="lib_1_Dir" DefaultDir="servic~1|servicetag"/>
     <ROW Directory="servicetag_Dir" Directory_Parent="lib_Dir" DefaultDir="servic~1|servicetag"/>
+    <ROW Directory="x64_Dir" Directory_Parent="ProductName__2_Dir" DefaultDir="x64"/>
     <ROW Directory="zi_1_Dir" Directory_Parent="lib_1_Dir" DefaultDir="zi"/>
     <ROW Directory="zi_Dir" Directory_Parent="lib_Dir" DefaultDir="zi"/>
   </COMPONENT>
@@ -149,8 +151,8 @@
     <ROW Component="Casey" ComponentId="{91C9A157-C868-4978-B5EE-7AF701295DFF}" Directory_="Antarctica_Dir" Attributes="0" KeyPath="Casey" Type="0"/>
     <ROW Component="Casey_1" ComponentId="{8E01CE21-CFD7-4835-B4D3-22F2EE039861}" Directory_="Antarctica_1_Dir" Attributes="0" KeyPath="Casey_1" Type="0"/>
     <ROW Component="Connector" ComponentId="{0E995452-78B5-414D-B4B1-DB9B3BA6DD7F}" Directory_="Connector_Dir" Attributes="0" KeyPath="Client.h" Type="0"/>
-    <ROW Component="Connector.lib" ComponentId="{41DEC3AB-3565-42B2-A5F6-52D2DA5401A9}" Directory_="ProductName__1_Dir" Attributes="0" KeyPath="Connector.lib"/>
-    <ROW Component="Connector.lib_1" ComponentId="{894089BB-6C90-4CA4-973C-3E0647100796}" Directory_="ProductName__2_Dir" Attributes="0" KeyPath="Connector.lib_1"/>
+    <ROW Component="Connector.lib" ComponentId="{41DEC3AB-3565-42B2-A5F6-52D2DA5401A9}" Directory_="i386_1_Dir" Attributes="0" KeyPath="Connector.lib"/>
+    <ROW Component="Connector.lib_1" ComponentId="{894089BB-6C90-4CA4-973C-3E0647100796}" Directory_="x64_Dir" Attributes="256" Condition="VersionNT64" KeyPath="Connector.lib_1"/>
     <ROW Component="D47E8ACA_EC67_4483_872C_C8478728E5E9" ComponentId="{3CF23DCC-5066-4104-BFA7-3708DF5FF133}" Directory_="APPDIR" Attributes="4" KeyPath="D47E8ACA_EC67_4483_872C_C8478728E5E9" Options="2"/>
     <ROW Component="GMT" ComponentId="{C3F67290-5F50-47A7-92D0-2C09A30D735D}" Directory_="Etc_Dir" Attributes="0" KeyPath="GMT" Type="0"/>
     <ROW Component="GMT_1" ComponentId="{2A46D322-30D3-4E7B-862B-92A520576A82}" Directory_="Etc_1_Dir" Attributes="0" KeyPath="GMT_16" Type="0"/>
@@ -166,19 +168,19 @@
     <ROW Component="RuntimeLib" ComponentId="{52363E63-7AE7-45CC-B029-02EEC6689F79}" Directory_="APPDIR" Attributes="4" KeyPath="RuntimeLib"/>
     <ROW Component="RuntimeLib_1" ComponentId="{BAA9FE0D-BCC9-4D32-8E69-59B18B8ACB80}" Directory_="APPDIR" Attributes="260" KeyPath="RuntimeLib_1"/>
     <ROW Component="Service" ComponentId="{8CACED3E-2484-4704-B456-C84D2A072E38}" Directory_="Service_Dir" Attributes="0" KeyPath="ConnectionPipe.h" Type="0"/>
-    <ROW Component="Service.lib" ComponentId="{7C606794-D77E-41F8-8C99-04BD269C54D8}" Directory_="ProductName__1_Dir" Attributes="0" KeyPath="Service.lib"/>
-    <ROW Component="Service.lib_1" ComponentId="{EA10066D-5DD0-422A-A35C-8C189E9CAE0C}" Directory_="ProductName__2_Dir" Attributes="0" KeyPath="Service.lib_1"/>
-    <ROW Component="ServiceRunner.exe_32" ComponentId="{D4D07BB2-AF73-4D33-A3E7-B9B38831227C}" Directory_="ProductName__1_Dir" Attributes="0" KeyPath="ServiceRunner32.exe"/>
-    <ROW Component="ServiceRunner.exe_64" ComponentId="{C173072E-35F5-41F3-9F9B-16B43333FAE8}" Directory_="ProductName__2_Dir" Attributes="256" Condition="VersionNT64" KeyPath="ServiceRunner64.exe"/>
+    <ROW Component="Service.lib" ComponentId="{7C606794-D77E-41F8-8C99-04BD269C54D8}" Directory_="i386_1_Dir" Attributes="0" KeyPath="Service.lib"/>
+    <ROW Component="Service.lib_1" ComponentId="{EA10066D-5DD0-422A-A35C-8C189E9CAE0C}" Directory_="x64_Dir" Attributes="256" Condition="VersionNT64" KeyPath="Service.lib_1"/>
+    <ROW Component="ServiceRunner.exe_32" ComponentId="{D4D07BB2-AF73-4D33-A3E7-B9B38831227C}" Directory_="i386_1_Dir" Attributes="0" KeyPath="ServiceRunner32.exe"/>
+    <ROW Component="ServiceRunner.exe_64" ComponentId="{C173072E-35F5-41F3-9F9B-16B43333FAE8}" Directory_="x64_Dir" Attributes="256" Condition="VersionNT64" KeyPath="ServiceRunner64.exe"/>
     <ROW Component="Settings" ComponentId="{B84C8F66-FCCC-4DF2-A081-741E2EB354F6}" Directory_="APPDIR" Attributes="4" KeyPath="ProductName"/>
     <ROW Component="Settings64" ComponentId="{C3337D29-E1C9-4C71-B34F-2936B4BF7BB4}" Directory_="APPDIR" Attributes="260" Condition="VersionNT64" KeyPath="Version64"/>
     <ROW Component="StartMenu" ComponentId="{9E799DFA-FFEA-49F3-ABE1-DFA5CD53FF72}" Directory_="OpenGamma_Dir" Attributes="0"/>
     <ROW Component="Util" ComponentId="{9402417B-708A-4700-AEEA-F76B9EB7C135}" Directory_="Util_Dir" Attributes="0" KeyPath="AbstractSettings.h" Type="0"/>
     <ROW Component="alt_rt.jar" ComponentId="{69F3A66F-8485-4508-BF98-FE5E01A36E25}" Directory_="lib_1_Dir" Attributes="0" KeyPath="alt_rt.jar" Type="0"/>
-    <ROW Component="apr.dll" ComponentId="{5E414AAC-F948-4A65-B28D-E58A9282B459}" Directory_="ProductName__1_Dir" Attributes="0" KeyPath="apr.dll"/>
-    <ROW Component="apr.dll_1" ComponentId="{C07D09F3-AEA7-4DCB-B56A-E10913F3B55E}" Directory_="ProductName__2_Dir" Attributes="256" KeyPath="apr.dll_1"/>
-    <ROW Component="aprutil.dll" ComponentId="{BA1E9654-11CF-4662-A48A-7BB92425D756}" Directory_="ProductName__1_Dir" Attributes="0" KeyPath="aprutil.dll"/>
-    <ROW Component="aprutil.dll_1" ComponentId="{378A7983-7A01-4E6F-A55D-9AE59E5E87AC}" Directory_="ProductName__2_Dir" Attributes="256" KeyPath="aprutil.dll_1"/>
+    <ROW Component="apr.dll" ComponentId="{5E414AAC-F948-4A65-B28D-E58A9282B459}" Directory_="i386_1_Dir" Attributes="0" KeyPath="apr.dll"/>
+    <ROW Component="apr.dll_1" ComponentId="{C07D09F3-AEA7-4DCB-B56A-E10913F3B55E}" Directory_="x64_Dir" Attributes="256" Condition="VersionNT64" KeyPath="apr.dll_1"/>
+    <ROW Component="aprutil.dll" ComponentId="{BA1E9654-11CF-4662-A48A-7BB92425D756}" Directory_="i386_1_Dir" Attributes="0" KeyPath="aprutil.dll"/>
+    <ROW Component="aprutil.dll_1" ComponentId="{378A7983-7A01-4E6F-A55D-9AE59E5E87AC}" Directory_="x64_Dir" Attributes="256" Condition="VersionNT64" KeyPath="aprutil.dll_1"/>
     <ROW Component="awt.dll" ComponentId="{7B0716C4-CB7D-4425-8902-AA57A644F67B}" Directory_="bin_Dir" Attributes="0" KeyPath="awt.dll"/>
     <ROW Component="awt.dll_1" ComponentId="{754EE825-BD53-4AB6-AC04-2EE67BB6563E}" Directory_="bin_1_Dir" Attributes="256" KeyPath="awt.dll_1"/>
     <ROW Component="axbridge.dll" ComponentId="{1079CAEC-2E33-4A76-BD5E-C1DF5AC89691}" Directory_="bin_Dir" Attributes="0" KeyPath="axbridge.dll"/>
@@ -199,8 +201,8 @@
     <ROW Component="deploy.dll_1" ComponentId="{A218B1B8-C59D-4598-8F65-33900AA32C54}" Directory_="bin_1_Dir" Attributes="256" KeyPath="deploy.dll_1"/>
     <ROW Component="deployJava1.dll" ComponentId="{1243B2B1-F762-4A5C-A6E3-3AC2569656CB}" Directory_="bin_Dir" Attributes="0" KeyPath="deployJava1.dll"/>
     <ROW Component="deployJava1.dll_1" ComponentId="{F957C5B0-8EC0-4D4C-9AA8-6DB2CADE5A32}" Directory_="bin_1_Dir" Attributes="256" KeyPath="deployJava1.dll_1"/>
-    <ROW Component="dll_32" ComponentId="{B684DCA0-388C-472C-A05C-DC4073638C88}" Directory_="ProductName__1_Dir" Attributes="0" KeyPath="log4cxx.dll"/>
-    <ROW Component="dll_64" ComponentId="{50CF50B3-9870-4945-83AB-EBEE28CC6051}" Directory_="ProductName__2_Dir" Attributes="256" Condition="VersionNT64" KeyPath="log4cxx.dll_1"/>
+    <ROW Component="dll_32" ComponentId="{B684DCA0-388C-472C-A05C-DC4073638C88}" Directory_="i386_1_Dir" Attributes="0" KeyPath="log4cxx.dll"/>
+    <ROW Component="dll_64" ComponentId="{50CF50B3-9870-4945-83AB-EBEE28CC6051}" Directory_="x64_Dir" Attributes="256" Condition="VersionNT64" KeyPath="log4cxx.dll_1"/>
     <ROW Component="dnsns.jar" ComponentId="{DED6D831-CACE-4234-81BD-9C4AAC9F45A0}" Directory_="ext_1_Dir" Attributes="0" KeyPath="dnsns.jar" Type="0"/>
     <ROW Component="dnsns.jar_1" ComponentId="{03F83893-A820-4505-8F64-533026671D39}" Directory_="ext_2_Dir" Attributes="0" KeyPath="dnsns.jar_1" Type="0"/>
     <ROW Component="dt_shmem.dll" ComponentId="{751D25A0-A15E-4C5A-9916-16DDF31008A5}" Directory_="bin_Dir" Attributes="0" KeyPath="dt_shmem.dll"/>
@@ -209,7 +211,6 @@
     <ROW Component="dt_socket.dll_1" ComponentId="{37499FE3-BF14-464C-9810-651A98246CF3}" Directory_="bin_1_Dir" Attributes="256" KeyPath="dt_socket.dll_1"/>
     <ROW Component="eula.dll" ComponentId="{F564C3AC-2156-4FBB-A874-963088846B4B}" Directory_="bin_Dir" Attributes="0" KeyPath="eula.dll"/>
     <ROW Component="eula.dll_1" ComponentId="{FAE6CC42-7BDE-472B-81DF-6E961D5101F1}" Directory_="bin_1_Dir" Attributes="256" KeyPath="eula.dll_1"/>
-    <ROW Component="exts" ComponentId="{57619317-F68A-49A0-928F-6271A9392E5C}" Directory_="APPDIR" Attributes="4" KeyPath="exts_1"/>
     <ROW Component="ffjcext.zip" ComponentId="{B6B3CA36-59FB-49DE-9870-4D4EB3414281}" Directory_="deploy_Dir" Attributes="0" KeyPath="ffjcext.zip" Type="0"/>
     <ROW Component="ffjcext.zip_1" ComponentId="{A224A571-1511-40A3-940B-D3686B75C9E0}" Directory_="deploy_1_Dir" Attributes="0" KeyPath="ffjcext.zip_1" Type="0"/>
     <ROW Component="fontmanager.dll" ComponentId="{9DAE1134-E609-4AEA-816C-4757F75F6C72}" Directory_="bin_Dir" Attributes="0" KeyPath="fontmanager.dll"/>
@@ -218,8 +219,8 @@
     <ROW Component="hpi.dll_1" ComponentId="{8A7001B2-7C27-4C92-A840-3F6B921A99BE}" Directory_="bin_1_Dir" Attributes="256" KeyPath="hpi.dll_1"/>
     <ROW Component="hprof.dll" ComponentId="{DC7965DA-A610-4EFF-A42C-6AEC94540E9B}" Directory_="bin_Dir" Attributes="0" KeyPath="hprof.dll"/>
     <ROW Component="hprof.dll_1" ComponentId="{D599C574-9378-45F2-A9A2-A7F703C973A2}" Directory_="bin_1_Dir" Attributes="256" KeyPath="hprof.dll_1"/>
-    <ROW Component="include" ComponentId="{BD7224F3-21EC-4226-B41A-0AEDA3674293}" Directory_="APPDIR" Attributes="4" KeyPath="include"/>
-    <ROW Component="include_1" ComponentId="{E7834B8B-DE06-4D3F-9CC8-7F2469E4ED40}" Directory_="APPDIR" Attributes="4" KeyPath="include_1"/>
+    <ROW Component="include32" ComponentId="{BD7224F3-21EC-4226-B41A-0AEDA3674293}" Directory_="APPDIR" Attributes="4" KeyPath="include"/>
+    <ROW Component="include64" ComponentId="{8E62AE94-02F9-4AA9-9CC0-17169179F5B3}" Directory_="APPDIR" Attributes="260" KeyPath="include_1"/>
     <ROW Component="indicim.jar" ComponentId="{05DBA576-C95C-4189-8ED0-2A70905EDF71}" Directory_="im_Dir" Attributes="0" KeyPath="indicim.jar" Type="0"/>
     <ROW Component="indicim.jar_1" ComponentId="{81BC9133-7580-4B1E-8FE8-DDD9A627E8C9}" Directory_="im_1_Dir" Attributes="0" KeyPath="indicim.jar_1" Type="0"/>
     <ROW Component="instrument.dll" ComponentId="{09F7EEA5-9045-4FE9-BAFE-F71179F9AD0F}" Directory_="bin_Dir" Attributes="0" KeyPath="instrument.dll"/>
@@ -232,7 +233,6 @@
     <ROW Component="jaas_nt.dll" ComponentId="{41A64A2C-1B45-4D27-9DA9-BD0050659B17}" Directory_="bin_Dir" Attributes="0" KeyPath="jaas_nt.dll"/>
     <ROW Component="jaas_nt.dll_1" ComponentId="{3399F14B-9F6A-4370-A3D3-BDB8CBFD7F2C}" Directory_="bin_1_Dir" Attributes="256" KeyPath="jaas_nt.dll_1"/>
     <ROW Component="jar" ComponentId="{F36E9077-2EEF-4D29-AB2F-04FDEC921FEA}" Directory_="jar_Dir" Attributes="0" KeyPath="javax.el_juel_juel_api.jar" Type="0"/>
-    <ROW Component="jars" ComponentId="{E74D290F-6B47-4D19-9E53-2F4C05184A40}" Directory_="APPDIR" Attributes="4" KeyPath="jars_1"/>
     <ROW Component="java.dll" ComponentId="{E1E283A8-6E67-426C-9B9F-EC04BBDCB3B0}" Directory_="bin_Dir" Attributes="0" KeyPath="java.dll"/>
     <ROW Component="java.dll_1" ComponentId="{466DF4D3-2CA6-4458-BCD2-1040381B70D8}" Directory_="bin_1_Dir" Attributes="256" KeyPath="java.dll_1"/>
     <ROW Component="java.exe" ComponentId="{EB1BAC9E-17A0-4D25-AA90-D7E034962F85}" Directory_="bin_Dir" Attributes="0" KeyPath="java.exe"/>
@@ -296,11 +296,12 @@
     <ROW Component="ktab.exe" ComponentId="{25DF483A-3516-4F2B-8F15-7BE065DF8EAB}" Directory_="bin_Dir" Attributes="0" KeyPath="ktab.exe"/>
     <ROW Component="ktab.exe_1" ComponentId="{2D317CE9-35D4-4A96-AA12-C9320A6CB386}" Directory_="bin_1_Dir" Attributes="256" KeyPath="ktab.exe_1"/>
     <ROW Component="lib" ComponentId="{61F30895-27B3-43E7-9853-7771FD5A1007}" Directory_="APPDIR" Attributes="4" KeyPath="lib"/>
-    <ROW Component="lib_32" ComponentId="{021AA5D2-3C12-488B-9EFB-88B0E54E7414}" Directory_="ProductName__1_Dir" Attributes="0" KeyPath="Util.lib"/>
-    <ROW Component="lib_64" ComponentId="{920E683F-B17B-45D3-8365-59390F4EB333}" Directory_="ProductName__2_Dir" Attributes="256" Condition="VersionNT64" KeyPath="Util.lib_1"/>
-    <ROW Component="libfudgec.dll" ComponentId="{7554219D-F8D5-4876-8C31-F2A033E9C9FA}" Directory_="ProductName__1_Dir" Attributes="0" KeyPath="libfudgec.dll"/>
-    <ROW Component="libfudgecX64.dll" ComponentId="{6C627DFD-39F9-4867-AEB4-7CA5097038A1}" Directory_="ProductName__2_Dir" Attributes="256" KeyPath="libfudgecX64.dll"/>
-    <ROW Component="log" ComponentId="{603EFEFE-7704-4740-9726-2A4319010EE5}" Directory_="log_Dir" Attributes="0"/>
+    <ROW Component="lib_1" ComponentId="{F235E570-147A-437D-8D68-9532F8FB8650}" Directory_="APPDIR" Attributes="260" Condition="VersionNT64" KeyPath="lib_1"/>
+    <ROW Component="lib_32" ComponentId="{021AA5D2-3C12-488B-9EFB-88B0E54E7414}" Directory_="i386_1_Dir" Attributes="0" KeyPath="Util.lib"/>
+    <ROW Component="lib_64" ComponentId="{920E683F-B17B-45D3-8365-59390F4EB333}" Directory_="x64_Dir" Attributes="256" Condition="VersionNT64" KeyPath="Util.lib_1"/>
+    <ROW Component="libfudgec.dll" ComponentId="{7554219D-F8D5-4876-8C31-F2A033E9C9FA}" Directory_="i386_1_Dir" Attributes="0" KeyPath="libfudgec.dll"/>
+    <ROW Component="libfudgecX64.dll" ComponentId="{6C627DFD-39F9-4867-AEB4-7CA5097038A1}" Directory_="x64_Dir" Attributes="256" Condition="VersionNT64" KeyPath="libfudgecX64.dll"/>
+    <ROW Component="log" ComponentId="{80461F29-4712-400C-B3CA-E681AEB478F2}" Directory_="log_Dir" Attributes="0"/>
     <ROW Component="lzma.dll" ComponentId="{E810CFAF-8E59-4CAB-A068-B6CBE3D319CE}" Directory_="deploy_Dir" Attributes="0" KeyPath="lzma.dll"/>
     <ROW Component="management.dll" ComponentId="{E08D8FFC-88C1-48F8-8C45-A49A489C453B}" Directory_="bin_Dir" Attributes="0" KeyPath="management.dll"/>
     <ROW Component="management.dll_1" ComponentId="{06D353F8-CCD1-4F31-8F3B-6E274C4D0227}" Directory_="bin_1_Dir" Attributes="256" KeyPath="management.dll_1"/>
@@ -370,19 +371,19 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFeatsComponent">
     <ROW Feature="A36DC7A_AF70_4CF0_B489_B30E0828F882" Title="Visual C++ Runtime" Description="Visual C++ 2010 Redistributable x86" Display="0" Level="1" Attributes="16" Components="A36DC7A_AF70_4CF0_B489_B30E0828F882"/>
-    <ROW Feature="Config" Title="Default Configuration" Description="Default system configuration" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="Settings Settings64 StartMenu exts jars"/>
+    <ROW Feature="Config" Title="Default Configuration" Description="Default system configuration" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="Settings Settings64 StartMenu log"/>
     <ROW Feature="D47E8ACA_EC67_4483_872C_C8478728E5E9" Title="Visual C++ Runtime" Description="Visual C++ 2010 Redistributable x64" Display="0" Level="4" Attributes="16" Options="32" Components="D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
     <ROW Feature="JRE32" Title="JRE Bundle" Description="This feature contains the JRE bundle." Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="AST4 Abidjan Adak Adelaide Aden Amsterdam Antananarivo Apia Azores Beulah Buenos_Aires CET CIEXYZ.pf COPYRIGHT Casey GMT Indianapolis JdbcOdbc.dll Louisville LucidaBrightDemiBold.ttf New_Value RuntimeLib awt.dll axbridge.dll blacklist calendars.properties chrome.manifest classes.jsa cmm.dll cursors.properties dcpr.dll deploy.dll deployJava1.dll dnsns.jar dt_shmem.dll dt_socket.dll eula.dll ffjcext.zip fontmanager.dll hpi.dll hprof.dll indicim.jar instrument.dll ioser12.dll j2pcsc.dll j2pkcs11.dll jaas_nt.dll java.dll java.exe java_crw_demo.dll java_rmi.exe javacpl.exe javaw.exe javaws.exe jawt.dll jbroker.exe jdk_header.png jdwp.dll jkernel.dll jli.dll jmxremote.access jp2iexp.dll jp2launcher.exe jp2native.dll jp2ssv.dll jpeg.dll jpicom.dll jpiexp.dll jpinscp.dll jpioji.dll jpishare.dll jqs.conf jqs.exe jqs_plugin.dll jqsnotify.exe jsound.dll jsoundds.dll jvm.cfg jvm.dll keytool.exe kinit.exe klist.exe ktab.exe lzma.dll management.dll mlib_image.dll msvcr71.dll msvcr71.dll_1 msvcrt.dll net.dll nio.dll npdeployJava1.dll npdeployJava1.dll_1 npjp2.dll npjpi160_31.dll npoji610.dll npt.dll orbd.exe overlay.js pack200.exe policytool.exe regutils.dll rmi.dll rmid.exe rmiregistry.exe servertool.exe soundbank.gm splashscreen.dll ssv.dll ssvagent.exe sunmscapi.dll tnameserv.exe unicows.dll unpack.dll unpack200.exe verify.dll w2k_lsa_auth.dll wsdetect.dll zip.dll" Builds="JVM32"/>
     <ROW Feature="JRE64" Title="JRE Bundle" Description="This feature contains the 64-bit JRE bundle." Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="AST4_1 Abidjan_1 Adak_1 Adelaide_1 Aden_1 Amsterdam_1 Antananarivo_1 Apia_1 Azores_1 Beulah_1 Buenos_Aires_1 CET_1 CIEXYZ.pf_1 COPYRIGHT_1 Casey_1 GMT_1 Indianapolis_1 JdbcOdbc.dll_1 Louisville_1 LucidaBrightDemiBold.ttf_1 RuntimeLib_1 alt_rt.jar awt.dll_1 blacklist_1 classes.jsa_1 cmm.dll_1 cursors.properties_1 dcpr.dll_1 deploy.dll_1 deployJava1.dll_1 dnsns.jar_1 dt_shmem.dll_1 dt_socket.dll_1 eula.dll_1 ffjcext.zip_1 fontmanager.dll_1 hpi.dll_1 hprof.dll_1 indicim.jar_1 instrument.dll_1 ioser12.dll_1 j2pcsc.dll_1 jaas_nt.dll_1 java.dll_1 java.exe_1 java_crw_demo.dll_1 java_rmi.exe_1 javacpl.exe_1 javaw.exe_1 javaws.exe_1 jawt.dll_1 jbroker.exe_1 jdk_header.png_1 jdwp.dll_1 jli.dll_1 jmxremote.access_1 jp2iexp.dll_1 jp2launcher.exe_1 jp2native.dll_1 jp2ssv.dll_1 jpeg.dll_1 jsound.dll_1 jvm.cfg_1 jvm.dll_1 jvmDLL keytool.exe_1 kinit.exe_1 klist.exe_1 ktab.exe_1 management.dll_1 mlib_image.dll_1 msvcrt.dll_1 msvcrt.dll_2 net.dll_1 nio.dll_1 npdeployJava1.dll_2 npdeployJava1.dll_3 npjp2.dll_1 npt.dll_1 orbd.exe_1 pack200.exe_1 policytool.exe_1 regutils.dll_1 rmi.dll_1 rmid.exe_1 rmiregistry.exe_1 servertool.exe_1 soundbank.gm_1 splashscreen.dll_1 ssv.dll_1 ssvagent.exe_1 tnameserv.exe_1 unpack.dll_1 unpack200.exe_1 verify.dll_1 w2k_lsa_auth.dll_1 wsdetect.dll_1 zip.dll_1" Builds="JVM64"/>
-    <ROW Feature="Java" Title="Core Components" Description="Java libraries and components" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="client.jar jar log og_language.xml"/>
+    <ROW Feature="Java" Title="Core Components" Description="Java libraries and components" Display="0" Level="1" Directory_="APPDIR" Attributes="0" Components="client.jar jar og_language.xml"/>
     <ROW Feature="client_32" Feature_Parent="core_32" Title="32-bit Client SDK" Description="Support for 32 bit API clients" Display="3" Level="4" Directory_="APPDIR" Attributes="0" Components="Connector.lib Service.lib lib lib_32"/>
-    <ROW Feature="client_64" Feature_Parent="core_64" Title="64-bit Client SDK" Description="Support for 64 bit API clients" Display="3" Level="4" Directory_="APPDIR" Attributes="0" Components="Connector.lib_1 Service.lib_1 lib_64"/>
+    <ROW Feature="client_64" Feature_Parent="core_64" Title="64-bit Client SDK" Description="Support for 64 bit API clients" Display="3" Level="4" Directory_="APPDIR" Attributes="0" Components="Connector.lib_1 Service.lib_1 lib_1 lib_64"/>
     <ROW Feature="core_32" Title="32-bit" Description="Support for 32-bit components" Display="5" Level="1" Directory_="APPDIR" Attributes="0" Components="apr.dll aprutil.dll dll_32 libfudgec.dll"/>
     <ROW Feature="core_64" Title="64-bit" Description="Support for 64-bit components" Display="3" Level="4" Directory_="APPDIR" Attributes="0" Options="32" Components="apr.dll_1 aprutil.dll_1 dll_64 libfudgecX64.dll"/>
-    <ROW Feature="headers" Title="Client SDK" Description="Header files for API clients" Display="7" Level="4" Directory_="APPDIR" Attributes="0" Components="Connector Service Util include include_1"/>
+    <ROW Feature="headers" Title="Client SDK" Description="Header files for API clients" Display="7" Level="4" Directory_="APPDIR" Attributes="0" Components="Connector Service Util include32 include64"/>
     <ROW Feature="service_32" Feature_Parent="core_32" Title="32-bit Server" Description="32 bit Java service" Display="5" Level="1" Directory_="APPDIR" Attributes="0" Components="ServiceRunner.exe_32" Builds="NoJVM32;JVM32"/>
     <ROW Feature="service_64" Feature_Parent="core_64" Title="64-bit Server" Description="64 bit Java service" Display="5" Level="1" Directory_="APPDIR" Attributes="0" Components="ServiceRunner.exe_64" Builds="NoJVM64;JVM64"/>
-    <ATTRIBUTE name="CurrentFeature" value="Config"/>
+    <ATTRIBUTE name="CurrentFeature" value="core_32"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiFilesComponent">
     <ROW File="AST4" Component_="AST4" FileName="AST4" Attributes="0" SourcePath="C:\Program Files (x86)\Java\jre6\lib\zi\SystemV\AST4" SelfReg="false" NextFile="AST4ADT"/>
@@ -1855,6 +1856,7 @@
     <ROW RemoveFile="log4cxx.connector.properties" Options="1"/>
     <ROW RemoveFile="log4cxx.service.properties" Options="1"/>
     <ROW RemoveFile="OpenGamma.properties" Options="1"/>
+    <ROW RemoveFile="_" Options="3"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.BootstrOptComponent">
     <ROW BootstrOptKey="GlobalOptions" GeneralOptions="o" EulaPathLocId="*" IntroTextPathLocId="*"/>
@@ -1948,7 +1950,12 @@
     <ROW Dialog_="ConfigurationUrl" Control="UrlLabel" Type="Text" X="25" Y="114" Width="343" Height="12" Attributes="3" Text="&amp;Url:" Control_Next="Text" Help="|" TextLocId="Control.Text.FolderDlg#FolderLabel" HelpLocId="Control.Help.FolderDlg#FolderLabel"/>
     <ROW Dialog_="ConfigurationUrl" Control="Text" Type="Text" X="25" Y="70" Width="320" Height="40" Attributes="3" Text="Enter the configuration address of your OpenGamma installation and press next. Please contact the administrator of your OpenGamma system if you are unsure what to enter here." Control_Next="Url" TextLocId="Control.Text.FolderDlg#Text"/>
     <ROW Dialog_="ConfigurationUrl" Control="Url" Type="Edit" X="25" Y="126" Width="320" Height="18" Attributes="3" Property="CONFIGURATION.URL" Text="{260}" Control_Next="Next"/>
+    <ROW Dialog_="CustomizeDlg" Control="Tree" Type="SelectionTree" X="25" Y="85" Width="175" Height="95" Attributes="7" Property="_BrowseProperty" Text="Tree of selections" Control_Next="Reset" TextLocId="Control.Text.CustomizeDlg#Tree" MsiKey="CustomizeDlg#Tree"/>
+    <ATTRIBUTE name="DeletedRows" value="CustomizeDlg#Browse"/>
     <ATTRIBUTE name="FixedSizeBitmaps" value="0"/>
+  </COMPONENT>
+  <COMPONENT cid="caphyon.advinst.msicomp.MsiControlConditionComponent">
+    <ATTRIBUTE name="DeletedRows" value="CustomizeDlg#Browse#Hide#Installed"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiControlEventComponent">
     <ROW Dialog_="WelcomeDlg" Control_="Next" Event="NewDialog" Argument="SetupTypeDlg" Condition="AI_INSTALL" Ordering="1"/>
@@ -1981,6 +1988,7 @@
     <ROW Dialog_="ConfigurationUrl" Control_="Back" Event="NewDialog" Argument="CustomizeDlg" Condition="AI_INSTALL AND InstallMode=InstallModeCustom" Ordering="3"/>
     <ROW Dialog_="SetupTypeDlg" Control_="CompleteButton" Event="NewDialog" Argument="ConfigurationUrl" Condition="AI_INSTALL AND InstallMode=InstallModeComplete" Ordering="201"/>
     <ROW Dialog_="ConfigurationUrl" Control_="Back" Event="NewDialog" Argument="SetupTypeDlg" Condition="AI_INSTALL AND InstallMode=InstallModeComplete" Ordering="2"/>
+    <ATTRIBUTE name="DeletedRows" value="CustomizeDlg#Browse#SelectionBrowse#BrowseDlg#1"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiCreateFolderComponent">
     <ROW Directory_="OpenGamma_Dir" Component_="StartMenu"/>
@@ -2085,8 +2093,8 @@
     <ROW Registry="A36DC7A_AF70_4CF0_B489_B30E0828F882" Root="-1" Key="Software\Caphyon\Advanced Installer\Prereqs\[ProductCode]\[ProductVersion]" Name="A36DC7A_AF70_4CF0_B489_B30E0828F882" Value="1" Component_="A36DC7A_AF70_4CF0_B489_B30E0828F882"/>
     <ROW Registry="D47E8ACA_EC67_4483_872C_C8478728E5E9" Root="-1" Key="Software\Caphyon\Advanced Installer\Prereqs\[ProductCode]\[ProductVersion]" Name="D47E8ACA_EC67_4483_872C_C8478728E5E9" Value="1" Component_="D47E8ACA_EC67_4483_872C_C8478728E5E9"/>
     <ROW Registry="New_Value" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jvmDLL" Value="[#jvm.dll]" Component_="New_Value"/>
-    <ROW Registry="Path" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="Path" Value="[APPDIR]" Component_="Settings"/>
-    <ROW Registry="Path64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="Path" Value="[APPDIR]" Component_="Settings64"/>
+    <ROW Registry="Path" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="Path" Value="[i386_1_Dir]" Component_="Settings"/>
+    <ROW Registry="Path64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="Path" Value="[x64_Dir]" Component_="Settings64"/>
     <ROW Registry="ProductName" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="+" Component_="Settings"/>
     <ROW Registry="ProductName64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="+" Component_="Settings64"/>
     <ROW Registry="RuntimeLib" Root="2" Key="Software\JavaSoft\Java Runtime Environment\[jre.id32]" Name="RuntimeLib" Value="[#jvm.dll]" Component_="RuntimeLib"/>
@@ -2094,11 +2102,11 @@
     <ROW Registry="Version" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="Version" Value="[ProductVersion]" Component_="Settings"/>
     <ROW Registry="Version64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="Version" Value="[ProductVersion]" Component_="Settings64"/>
     <ROW Registry="exts" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="exts" Value="[ext_Dir]" Component_="Settings"/>
-    <ROW Registry="exts_1" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="exts" Value="[ext_Dir]" Component_="exts"/>
-    <ROW Registry="include" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="include" Value="[include_Dir]" Component_="include"/>
-    <ROW Registry="include_1" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="include" Value="[include_Dir]" Component_="include_1"/>
+    <ROW Registry="exts_1" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="exts" Value="[ext_Dir]" Component_="Settings64"/>
+    <ROW Registry="include" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="include" Value="[include_Dir]" Component_="include32"/>
+    <ROW Registry="include_1" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="include" Value="[include_Dir]" Component_="include64"/>
     <ROW Registry="jars" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jars" Value="[ProductName__Dir]" Component_="Settings"/>
-    <ROW Registry="jars_1" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jars" Value="[ProductName__Dir]" Component_="jars"/>
+    <ROW Registry="jars_1" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jars" Value="[ProductName__Dir]" Component_="Settings64"/>
     <ROW Registry="jvmDLL" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jvmDLL" Value="[#jvm.dll_1]" Component_="jvmDLL"/>
     <ROW Registry="jvmProperty.opengamma.configuration.failOnInvalid" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jvmProperty.opengamma.configuration.failOnInvalid" Value="TRUE" Component_="Settings"/>
     <ROW Registry="jvmProperty.opengamma.configuration.failOnInvalid64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jvmProperty.opengamma.configuration.failOnInvalid" Value="TRUE" Component_="Settings64"/>
@@ -2106,9 +2114,10 @@
     <ROW Registry="jvmProperty.opengamma.configuration.failOnMissing64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jvmProperty.opengamma.configuration.failOnMissing" Value="FALSE" Component_="Settings64"/>
     <ROW Registry="jvmProperty.opengamma.configuration.url" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="jvmProperty.opengamma.configuration.url" Value="[CONFIGURATION.URL]" Component_="Settings"/>
     <ROW Registry="jvmProperty.opengamma.configuration.url64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="jvmProperty.opengamma.configuration.url" Value="[CONFIGURATION.URL]" Component_="Settings64"/>
-    <ROW Registry="lib" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="lib" Value="[ProductName__1_Dir]" Component_="lib"/>
-    <ROW Registry="serviceLogConfiguration" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="serviceLogConfiguration" Value="[APPDIR]log4cxx.service.properties" Component_="Settings"/>
-    <ROW Registry="serviceLogConfiguration64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="serviceLogConfiguration" Value="[APPDIR]log4cxx.service.properties" Component_="Settings64"/>
+    <ROW Registry="lib" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="lib" Value="[i386_1_Dir]" Component_="lib"/>
+    <ROW Registry="lib_1" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="lib" Value="[x64_Dir]" Component_="lib_1"/>
+    <ROW Registry="serviceLogConfiguration" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="serviceLogConfiguration" Value="[ProductName__Dir]log4cxx.service.properties" Component_="Settings"/>
+    <ROW Registry="serviceLogConfiguration64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="serviceLogConfiguration" Value="[ProductName__Dir]log4cxx.service.properties" Component_="Settings64"/>
     <ROW Registry="serviceSDDL" Root="-1" Key="Software\OpenGammaLtd\[ProductKey32]" Name="serviceSDDL" Value="D:(A;;GA;;;WD)" Component_="Settings"/>
     <ROW Registry="serviceSDDL64" Root="-1" Key="Software\OpenGammaLtd\[ProductKey64]" Name="serviceSDDL" Value="D:(A;;GA;;;WD)" Component_="Settings64"/>
   </COMPONENT>
@@ -2118,6 +2127,7 @@
     <ROW FileKey="FudgeSecondaryType" Component_="client.jar" FileName=".FudgeSecondaryType" DirProperty="ProductName__Dir" InstallMode="3"/>
     <ROW FileKey="GenericFudgeBuilderFor" Component_="client.jar" FileName=".GenericFudgeBuilderFor" DirProperty="ProductName__Dir" InstallMode="3"/>
     <ROW FileKey="OpenGamma.properties" Component_="Settings" FileName="OpenGamma.properties" DirProperty="ProductName__Dir" InstallMode="2"/>
+    <ROW FileKey="_" Component_="log" DirProperty="log_Dir" InstallMode="2"/>
     <ROW FileKey="log4cxx.connector.properties" Component_="Settings" FileName="log4cxx.connector.properties" DirProperty="ProductName__Dir" InstallMode="2"/>
     <ROW FileKey="log4cxx.service.properties" Component_="Settings" FileName="log4cxx.service.properties" DirProperty="ProductName__Dir" InstallMode="2"/>
     <ROW FileKey="stdafx.h" Component_="Connector" FileName="stdafx.h" DirProperty="Connector_Dir" InstallMode="2"/>
@@ -2133,7 +2143,7 @@
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiShortsComponent">
     <ROW Shortcut="Configure32" Directory_="OpenGamma_Dir" Name="Config~1|Configure OpenGamma integration service" Component_="ServiceRunner.exe_32" Target="[#ServiceRunner32.exe]" Arguments="configure" Description="Choose which back-end server (or local installation) to use for view processing and data management" Hotkey="0" Icon_="OpenGamma.exe" IconIndex="0" ShowCmd="1" WkDir="ProductName__1_Dir"/>
-    <ROW Shortcut="Configure64" Directory_="OpenGamma_Dir" Name="Config~1.|Configure OpenGamma integration service." Component_="ServiceRunner.exe_64" Target="[#ServiceRunner64.exe]" Arguments="configure" Description="Choose which back-end server (or local installation) to use for view processing and data management" Hotkey="0" Icon_="OpenGamma.exe" IconIndex="0" ShowCmd="1" WkDir="ProductName__2_Dir"/>
+    <ROW Shortcut="Configure64" Directory_="OpenGamma_Dir" Name="Config~2|Configure OpenGamma integration service" Component_="ServiceRunner.exe_64" Target="[#ServiceRunner64.exe]" Arguments="configure" Description="Choose which back-end server (or local installation) to use for view processing and data management" Hotkey="0" Icon_="OpenGamma.exe" IconIndex="0" ShowCmd="1" WkDir="ProductName__2_Dir"/>
   </COMPONENT>
   <COMPONENT cid="caphyon.advinst.msicomp.MsiThemeComponent">
     <ATTRIBUTE name="UsedTheme" value="classic"/>
@@ -2160,7 +2170,7 @@
   <COMPONENT cid="caphyon.advinst.msicomp.TxtUpdateComponent">
     <ROW Name="Append/Create" TxtUpdateSet="OpenGamma.properties" FindPattern="# Global properties&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
     <ROW Name="Append/Create" TxtUpdateSet="log4cxx.properties" FindPattern="log4j.rootLogger=INFO, A1&#13;&#10;log4j.appender.A1=org.apache.log4j.RollingFileAppender&#13;&#10;log4j.appender.A1.maxFileSize=1MB&#13;&#10;log4j.appender.A1.maxBackupIndex=3&#13;&#10;log4j.appender.A1.layout=org.apache.log4j.PatternLayout&#13;&#10;log4j.appender.A1.file=[log_Dir]OG-Language-Service.log&#13;&#10;log4j.appender.A1.layout.ConversionPattern=%d [\[]%t[\]] %-5p %c:%L - %m%n&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
-    <ROW Name="Append/Create" TxtUpdateSet="log4cxx.service__1_.properties" FindPattern="log4j.rootLogger=INFO, A1&#13;&#10;log4j.appender.A1=org.apache.log4j.RollingFileAppender&#13;&#10;log4j.appender.A1.maxFileSize=1MB&#13;&#10;log4j.appender.A1.maxBackupIndex=3&#13;&#10;log4j.appender.A1.layout=org.apache.log4j.PatternLayout&#13;&#10;log4j.appender.A1.file=[log_Dir]OG-Language-Connector&#13;&#10;log4j.appender.A1.layout.ConversionPattern=%d [\[]%t[\]] %-5p %c:%L - %m%n&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
+    <ROW Name="Append/Create" TxtUpdateSet="log4cxx.service__1_.properties" FindPattern="log4j.rootLogger=INFO, A1&#13;&#10;log4j.appender.A1=org.apache.log4j.RollingFileAppender&#13;&#10;log4j.appender.A1.maxFileSize=1MB&#13;&#10;log4j.appender.A1.maxBackupIndex=3&#13;&#10;log4j.appender.A1.layout=org.apache.log4j.PatternLayout&#13;&#10;log4j.appender.A1.file=${TEMP}OG-Language-Connector&#13;&#10;log4j.appender.A1.layout.ConversionPattern=%d [\[]%t[\]] %-5p %c:%L - %m%n&#13;&#10;" Options="32" Order="0" FileEncoding="0"/>
     <ROW Name="esacpe" TxtUpdateSet="log4cxx.service__1_.properties" FindPattern="\" ReplacePattern="\\" Options="2" Order="2" FileEncoding="7"/>
     <ROW Name="escape" TxtUpdateSet="log4cxx.properties" FindPattern="\" ReplacePattern="\\" Options="2" Order="2" FileEncoding="0"/>
     <ROW Name="unescape" TxtUpdateSet="log4cxx.service__1_.properties" FindPattern="\\" ReplacePattern="\" Options="2" Order="1" FileEncoding="-1"/>
@@ -2191,7 +2201,7 @@
     <ROW XmlElement="1" ParentElement="0" Name="appender" Order="0" Flags="14"/>
     <ROW XmlElement="2" ParentElement="0" Name="root" Order="1" Flags="14"/>
     <ROW XmlElement="3" ParentElement="0" Name="logger" Order="2" Flags="14"/>
-    <ROW XmlElement="4" ParentElement="1" Name="File" Order="0" Flags="14" Text="[WindowsFolder]Temp\OG-Language-Server.log"/>
+    <ROW XmlElement="4" ParentElement="1" Name="File" Order="0" Flags="14" Text="[ProductName__Dir]log\OG-Language-Server.log"/>
     <ROW XmlElement="5" ParentElement="1" Name="rollingPolicy" Order="1" Flags="14"/>
     <ROW XmlElement="6" ParentElement="5" Name="fileNamePattern" Order="0" Flags="14" Text="[WindowsFolder]Temp\OG-Language-Server.log.%i"/>
     <ROW XmlElement="7" ParentElement="5" Name="minIndex" Order="1" Flags="14" Text="1"/>
