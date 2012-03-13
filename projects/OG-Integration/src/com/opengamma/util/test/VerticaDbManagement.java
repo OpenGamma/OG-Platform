@@ -60,7 +60,11 @@ public final class VerticaDbManagement extends AbstractDbManagement {
 
   @Override
   public Class<?> getJDBCDriverClass() {
-    return com.vertica.Driver.class;
+    try {
+      return Class.forName("com.vertica.Driver");
+    } catch( ClassNotFoundException e) {
+      return null;
+    }
   }
 
   @Override
