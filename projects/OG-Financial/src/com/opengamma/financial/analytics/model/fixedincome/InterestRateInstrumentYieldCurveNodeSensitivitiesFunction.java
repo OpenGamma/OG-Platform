@@ -222,19 +222,6 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     return requirements;
   }
 
-  //  @Override
-  //  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target, final Map<ValueSpecification, ValueRequirement> inputs) {
-  //    String calculationMethod = null;
-  //    for (final Map.Entry<ValueSpecification, ValueRequirement> input : inputs.entrySet()) {
-  //      if (input.getKey().getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
-  //        calculationMethod = input.getKey().getProperty(ValuePropertyNames.CURVE_CALCULATION_METHOD);
-  //      }
-  //    }
-  //    assert calculationMethod != null;
-  //    final ValueProperties resultProperties = createValueProperties(target, calculationMethod);
-  //    return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), resultProperties));
-  //  }
-
   private static ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForward, final String advisoryFunding,
       final String calculationMethod) {
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
@@ -292,19 +279,6 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.CURVE_CURRENCY, currency)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
-        .withAny(ValuePropertyNames.CURVE)
-        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-    return properties.get();
-  }
-
-  private ValueProperties createValueProperties(final ComputationTarget target, final String calculationMethod) {
-    final Security security = target.getSecurity();
-    final String currency = FinancialSecurityUtils.getCurrency(security).getCode();
-    final ValueProperties.Builder properties = createValueProperties()
-        .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod)
         .withAny(ValuePropertyNames.CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
