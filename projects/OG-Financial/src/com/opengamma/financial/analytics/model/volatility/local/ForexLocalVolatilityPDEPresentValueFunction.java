@@ -438,14 +438,6 @@ public class ForexLocalVolatilityPDEPresentValueFunction extends AbstractFunctio
         .with(PROPERTY_RESULT_TIME_INTERPOLATOR, timeInterpolatorName)
         .get();
   }
-  //
-  //  private ValueSpecification getResultSpec(final ComputationTarget target, final String surfaceName, final String surfaceType, final String xAxis, final String yAxis,
-  //      final String yAxisType, final String forwardCurveCalculationMethod, final String h, final String forwardCurveName, final String theta, final String timeSteps,
-  //      final String spaceSteps, final String timeGridBunching, final String spaceGridBunching, final String maxMoneyness, final String pdeDirection) {
-  //    final ValueProperties properties = getResultProperties(surfaceName, surfaceType, xAxis, yAxis, yAxisType, forwardCurveCalculationMethod, h, forwardCurveName,
-  //        theta, timeSteps, spaceSteps, timeGridBunching, spaceGridBunching, maxMoneyness, pdeDirection);
-  //    return new ValueSpecification(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), properties);
-  //  }
 
   private ValueSpecification getResultSpec(final ComputationTarget target, final String surfaceName, final String surfaceType, final String xAxis, final String yAxis,
       final String yAxisType, final String forwardCurveCalculationMethod, final String h, final String forwardCurveName, final String theta, final String timeSteps,
@@ -456,32 +448,6 @@ public class ForexLocalVolatilityPDEPresentValueFunction extends AbstractFunctio
         strikeInterpolatorName, timeInterpolatorName);
     return new ValueSpecification(ValueRequirementNames.FX_PRESENT_VALUE, target.toSpecification(), properties);
   }
-
-  //  private ValueProperties getResultProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String yAxisType,
-  //      final String forwardCurveCalculationMethod, final String h, final String forwardCurveName, final String theta, final String timeSteps, final String spaceSteps, final String timeGridBunching,
-  //      final String spaceGridBunching, final String maxMoneyness, final String pdeDirection) {
-  //    return createValueProperties()
-  //        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-  //        .with(ValuePropertyNames.SURFACE, surfaceName)
-  //        .with(ValuePropertyNames.CALCULATION_METHOD, LocalVolatilityPDEValuePropertyNames.LOCAL_VOLATILITY_METHOD)
-  //        .with(PROPERTY_SURFACE_TYPE, surfaceType)
-  //        .with(PROPERTY_X_AXIS, xAxis)
-  //        .with(PROPERTY_Y_AXIS, yAxis)
-  //        .with(PROPERTY_Y_AXIS_TYPE, yAxisType)
-  //        .with(CURVE_CALCULATION_METHOD, forwardCurveCalculationMethod)
-  //        .with(CURVE, forwardCurveName)
-  //        .with(PROPERTY_THETA, theta)
-  //        .with(PROPERTY_TIME_STEPS, timeSteps)
-  //        .with(PROPERTY_SPACE_STEPS, spaceSteps)
-  //        .with(PROPERTY_TIME_GRID_BUNCHING, timeGridBunching)
-  //        .with(PROPERTY_SPACE_GRID_BUNCHING, spaceGridBunching)
-  //        .with(PROPERTY_MAX_MONEYNESS, maxMoneyness)
-  //        .with(PROPERTY_H, h)
-  //        .with(PROPERTY_PDE_DIRECTION, pdeDirection)
-  //        .withAny(PROPERTY_RESULT_STRIKE_INTERPOLATOR)
-  //        .withAny(PROPERTY_RESULT_TIME_INTERPOLATOR)
-  //        .get();
-  //  }
 
   private ValueProperties getResultProperties(final String surfaceName, final String surfaceType, final String xAxis, final String yAxis, final String yAxisType,
       final String forwardCurveCalculationMethod, final String h, final String forwardCurveName, final String theta, final String timeSteps, final String spaceSteps, final String timeGridBunching,
