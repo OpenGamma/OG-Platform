@@ -728,7 +728,7 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "holidayObjectIds",
         "name",
@@ -782,8 +782,8 @@ public class HolidaySearchRequest extends AbstractSearchRequest implements Seria
     }
 
     @Override
-    public Map<String, MetaProperty<Object>> metaPropertyMap() {
-      return _map;
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return _metaPropertyMap$;
     }
 
     //-----------------------------------------------------------------------
