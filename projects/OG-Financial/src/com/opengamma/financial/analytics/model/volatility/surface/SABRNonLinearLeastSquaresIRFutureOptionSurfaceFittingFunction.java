@@ -167,7 +167,9 @@ public class SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction exten
     final InterpolatedDoublesSurface rhoSurface = InterpolatedDoublesSurface.from(fittedOptionExpiry, futureDelay, rho, INTERPOLATOR, "SABR rho surface");
     final Currency currency = Currency.of(((UniqueId) target.getValue()).getValue());
     final SABRFittedSurfaces fittedSurfaces = new SABRFittedSurfaces(alphaSurface, betaSurface, nuSurface, rhoSurface, inverseJacobians, currency, DAY_COUNT);
-    final ValueProperties resultProperties = createValueProperties().with(ValuePropertyNames.CURRENCY, currency.getCode()).with(ValuePropertyNames.SURFACE, surfaceName)
+    final ValueProperties resultProperties = createValueProperties()
+        .with(ValuePropertyNames.CURRENCY, currency.getCode())
+        .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get();
     final ValueSpecification resultSpecification = new ValueSpecification(ValueRequirementNames.SABR_SURFACES, target.toSpecification(), resultProperties);
     final ValueSpecification fittedPointsSpecification = new ValueSpecification(ValueRequirementNames.VOLATILITY_SURFACE_FITTED_POINTS, target.toSpecification(), resultProperties);

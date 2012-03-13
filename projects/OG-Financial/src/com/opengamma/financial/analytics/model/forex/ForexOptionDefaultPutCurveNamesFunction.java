@@ -22,16 +22,13 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-//TODO don't like the split between pay and receive
-public class ForexForwardDefaultReceiveCurveNamesFunction extends DefaultPropertyFunction {
+public class ForexOptionDefaultPutCurveNamesFunction extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
-    ValueRequirementNames.FX_PRESENT_VALUE,
-    ValueRequirementNames.FX_CURRENCY_EXPOSURE,
-    ValueRequirementNames.FX_CURVE_SENSITIVITIES};
+    ValueRequirementNames.FX_PRESENT_VALUE};
   private final String _curveName;
   private final String[] _applicableCurrencyNames;
 
-  public ForexForwardDefaultReceiveCurveNamesFunction(final String curveName, final String... applicableCurrencyNames) {
+  public ForexOptionDefaultPutCurveNamesFunction(final String curveName, final String... applicableCurrencyNames) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(curveName, "curve name");
     ArgumentChecker.notNull(applicableCurrencyNames, "currency names");
@@ -47,7 +44,7 @@ public class ForexForwardDefaultReceiveCurveNamesFunction extends DefaultPropert
     }
     final FXForwardSecurity fxForward = (FXForwardSecurity) security;
     for (final String currencyName : _applicableCurrencyNames) {
-      if (currencyName.equals(fxForward.getReceiveCurrency().getCode())) {
+      if (currencyName.equals(fxForward.getPayCurrency().getCode())) {
         return true;
       }
     }
@@ -57,13 +54,13 @@ public class ForexForwardDefaultReceiveCurveNamesFunction extends DefaultPropert
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueName : s_valueNames) {
-      defaults.addValuePropertyName(valueName, ValuePropertyNames.RECEIVE_CURVE);
+      defaults.addValuePropertyName(valueName, ValuePropertyNames.PAY_CURVE);
     }
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (ValuePropertyNames.RECEIVE_CURVE.equals(propertyName)) {
+    if (ValuePropertyNames.PAY_CURVE.equals(propertyName)) {
       return Collections.singleton(_curveName);
     }
     return null;

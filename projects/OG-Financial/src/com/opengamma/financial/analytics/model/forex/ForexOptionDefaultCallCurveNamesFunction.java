@@ -23,15 +23,13 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 //TODO don't like the split between pay and receive
-public class ForexForwardDefaultReceiveCurveNamesFunction extends DefaultPropertyFunction {
+public class ForexOptionDefaultCallCurveNamesFunction extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
-    ValueRequirementNames.FX_PRESENT_VALUE,
-    ValueRequirementNames.FX_CURRENCY_EXPOSURE,
-    ValueRequirementNames.FX_CURVE_SENSITIVITIES};
+    ValueRequirementNames.FX_PRESENT_VALUE};
   private final String _curveName;
   private final String[] _applicableCurrencyNames;
 
-  public ForexForwardDefaultReceiveCurveNamesFunction(final String curveName, final String... applicableCurrencyNames) {
+  public ForexOptionDefaultCallCurveNamesFunction(final String curveName, final String... applicableCurrencyNames) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(curveName, "curve name");
     ArgumentChecker.notNull(applicableCurrencyNames, "currency names");

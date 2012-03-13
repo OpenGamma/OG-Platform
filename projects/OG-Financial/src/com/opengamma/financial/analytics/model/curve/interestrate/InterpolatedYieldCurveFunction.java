@@ -69,16 +69,17 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
   private static final LastTimeCalculator LAST_DATE_CALCULATOR = LastTimeCalculator.getInstance();
 
   @Override
-  public CompiledFunctionDefinition compile(final FunctionCompilationContext context, final InstantProvider atInstantProvider) {
+  public CompiledFunctionDefinition compile(final FunctionCompilationContext compilationContext, final InstantProvider atInstantProvider) {
     final ZonedDateTime atInstant = ZonedDateTime.ofInstant(atInstantProvider, TimeZone.UTC);
-    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(context);
-    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
-    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
-    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+    final HolidaySource holidaySource = OpenGammaCompilationContext.getHolidaySource(compilationContext);
+    final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(compilationContext);
+    final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(compilationContext);
+    final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(compilationContext);
     final InterestRateInstrumentTradeOrSecurityConverter securityConverter = new InterestRateInstrumentTradeOrSecurityConverter(holidaySource, conventionSource, regionSource, securitySource, true);
     final FixedIncomeConverterDataProvider definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
     return new AbstractInvokingCompiledFunction(atInstant.withTime(0, 0), atInstant.plusDays(1).withTime(0, 0).minusNanos(1000000)) {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
         final Clock snapshotClock = executionContext.getValuationClock();
@@ -147,11 +148,12 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
 
       @Override
       public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+        @SuppressWarnings("synthetic-access")
         final ValueProperties properties = createValueProperties()
-            .withAny(ValuePropertyNames.CURVE)
-            .withAny(LEFT_EXTRAPOLATOR_NAME)
-            .withAny(RIGHT_EXTRAPOLATOR_NAME)
-            .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, CALCULATION_METHOD_NAME).get();
+        .withAny(ValuePropertyNames.CURVE)
+        .withAny(LEFT_EXTRAPOLATOR_NAME)
+        .withAny(RIGHT_EXTRAPOLATOR_NAME)
+        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, CALCULATION_METHOD_NAME).get();
         return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE, target.toSpecification(), properties));
       }
 

@@ -24,7 +24,9 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class ForexForwardDefaultPayCurveNamesFunction extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
-    ValueRequirementNames.FX_PRESENT_VALUE};
+    ValueRequirementNames.FX_PRESENT_VALUE,
+    ValueRequirementNames.FX_CURRENCY_EXPOSURE,
+    ValueRequirementNames.FX_CURVE_SENSITIVITIES};
   private final String _curveName;
   private final String[] _applicableCurrencyNames;
 
