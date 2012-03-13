@@ -6,7 +6,7 @@
 package com.opengamma.util.db;
 
 
-import static com.opengamma.util.db.DbUtil.fixSQLExceptionCause;
+import static com.opengamma.util.db.HibernateDbUtils.fixSQLExceptionCause;
 
 import java.io.Closeable;
 import java.sql.Timestamp;

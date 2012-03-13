@@ -14,7 +14,7 @@ import org.springframework.dao.DataAccessException;
 /**
  * Utilities for working woth the database.
  */
-public class DbUtil {
+public class HibernateDbUtils {
 
   /**
    * Improves the exception message.

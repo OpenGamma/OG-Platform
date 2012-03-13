@@ -6,7 +6,7 @@
 package com.opengamma.masterdb.batch;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.opengamma.util.db.DbUtil.eqOrIsNull;
+import static com.opengamma.util.db.HibernateDbUtils.eqOrIsNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

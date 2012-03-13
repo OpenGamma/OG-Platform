@@ -9,7 +9,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newConcurrentMap;
 import static com.google.common.collect.Maps.newHashMap;
 import static com.google.common.collect.Sets.newHashSet;
-import static com.opengamma.util.db.DbUtil.eqOrIsNull;
+import static com.opengamma.util.db.HibernateDbUtils.eqOrIsNull;
 import static com.opengamma.util.functional.Functional.any;
 import static com.opengamma.util.functional.Functional.map;
 import static com.opengamma.util.functional.Functional.newArray;
