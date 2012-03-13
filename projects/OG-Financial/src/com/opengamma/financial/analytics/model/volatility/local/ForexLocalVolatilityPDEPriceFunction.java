@@ -508,7 +508,7 @@ public class ForexLocalVolatilityPDEPriceFunction extends AbstractFunction.NonCo
     if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
       return fxOption.getCallAmount() / fxOption.getPutAmount();
     }
-    return fxOption.getPutAmount() / fxOption.getCallAmount(); 
+    return fxOption.getPutAmount() / fxOption.getCallAmount();
   }
 
 }
