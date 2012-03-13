@@ -19,53 +19,58 @@ import org.hibernate.usertype.EnhancedUserType;
 import org.hibernate.usertype.ParameterizedType;
 
 //Please notice the calls to getNameFromValue *************************
-public class StringValuedEnumType<T extends Enum<T> & StringValuedEnum>
-  implements EnhancedUserType, ParameterizedType {
+/**
+ * An enum type for Hibernate.
+ * 
+ * @param <T> the enum type
+ */
+public class StringValuedEnumType<T extends Enum<T> & StringValuedEnum>  // CSIGNORE
+    implements EnhancedUserType, ParameterizedType {
 
   /**
    * Enum class for this particular user type.
    */
-  private Class<T> enumClass;
+  private Class<T> _enumClass;
 
   /**
    * Value to use if null.
    */
-  private String defaultValue;
+  private String _defaultValue;
 
   /** Creates a new instance of ActiveStateEnumType */
   public StringValuedEnumType() {
   }
 
+  @SuppressWarnings("unchecked")
   public void setParameterValues(Properties parameters) {
     String enumClassName = parameters.getProperty("enum");
     try {
-      enumClass = (Class<T>) Class.forName(enumClassName).asSubclass(Enum.class).
-        asSubclass(StringValuedEnum.class); //Validates the class but does not eliminate the cast
+      _enumClass = (Class<T>) Class.forName(enumClassName).asSubclass(Enum.class).
+          asSubclass(StringValuedEnum.class); //Validates the class but does not eliminate the cast
     } catch (ClassNotFoundException cnfe) {
       throw new HibernateException("Enum class not found", cnfe);
     }
-
     setDefaultValue(parameters.getProperty("defaultValue"));
   }
 
   public String getDefaultValue() {
-    return defaultValue;
+    return _defaultValue;
   }
 
   public void setDefaultValue(String defaultValue) {
-    this.defaultValue = defaultValue;
+    this._defaultValue = defaultValue;
   }
 
   /**
    * The class returned by <tt>nullSafeGet()</tt>.
    * @return Class
    */
-  public Class returnedClass() {
-    return enumClass;
+  public Class<?> returnedClass() {
+    return _enumClass;
   }
 
   public int[] sqlTypes() {
-    return new int[]{Types.VARCHAR};
+    return new int[] {Types.VARCHAR };
   }
 
   public boolean isMutable() {
@@ -83,8 +88,7 @@ public class StringValuedEnumType<T extends Enum<T> & StringValuedEnum>
    * @throws HibernateException
    * @throws SQLException
    */
-  public Object nullSafeGet(ResultSet rs, String[] names, Object owner)
-    throws HibernateException, SQLException {
+  public Object nullSafeGet(ResultSet rs, String[] names, Object owner) throws HibernateException, SQLException {
     String value = rs.getString(names[0]);
     if (value == null) {
       value = getDefaultValue();
@@ -92,8 +96,8 @@ public class StringValuedEnumType<T extends Enum<T> & StringValuedEnum>
         return null;
       }
     }
-    String name = getNameFromValue(enumClass, value);
-    Object res = rs.wasNull() ? null : Enum.valueOf(enumClass, name);
+    String name = getNameFromValue(_enumClass, value);
+    Object res = rs.wasNull() ? null : Enum.valueOf(_enumClass, name);
 
     return res;
   }
@@ -109,8 +113,8 @@ public class StringValuedEnumType<T extends Enum<T> & StringValuedEnum>
    * @throws HibernateException
    * @throws SQLException
    */
-  public void nullSafeSet(PreparedStatement st, Object value, int index)
-    throws HibernateException, SQLException {
+  @SuppressWarnings("unchecked")
+  public void nullSafeSet(PreparedStatement st, Object value, int index) throws HibernateException, SQLException {
     if (value == null) {
       st.setNull(index, Types.VARCHAR);
     } else {
@@ -118,11 +122,11 @@ public class StringValuedEnumType<T extends Enum<T> & StringValuedEnum>
     }
   }
 
-  public Object assemble(Serializable cached, Object owner)
-    throws HibernateException {
+  public Object assemble(Serializable cached, Object owner) throws HibernateException {
     return cached;
   }
 
+  @SuppressWarnings("rawtypes")
   public Serializable disassemble(Object value) throws HibernateException {
     return (Enum) value;
   }
@@ -139,22 +143,23 @@ public class StringValuedEnumType<T extends Enum<T> & StringValuedEnum>
     return x.hashCode();
   }
 
-  public Object replace(Object original, Object target, Object owner)
-    throws HibernateException {
+  public Object replace(Object original, Object target, Object owner) throws HibernateException {
     return original;
   }
 
+  @SuppressWarnings("unchecked")
   public String objectToSQLString(Object value) {
     return '\'' + ((T) value).getValue() + '\'';
   }
 
+  @SuppressWarnings("unchecked")
   public String toXMLString(Object value) {
     return ((T) value).getValue();
   }
 
   public Object fromXMLString(String xmlValue) {
-    String name = getNameFromValue(enumClass, xmlValue);
-    return Enum.valueOf(enumClass, name);
+    String name = getNameFromValue(_enumClass, xmlValue);
+    return Enum.valueOf(_enumClass, name);
   }
 
 }

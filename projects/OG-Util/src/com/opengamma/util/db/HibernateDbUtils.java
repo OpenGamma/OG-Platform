@@ -11,14 +11,18 @@ import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.springframework.dao.DataAccessException;
 
-public class DbUtil {
+/**
+ * Utilities for working woth the database.
+ */
+public class HibernateDbUtils {
+
   /**
    * Improves the exception message.
    *
    * @param ex  the exception to fix, not null
    * @return the original exception, not null
    */
-  static protected DataAccessException fixSQLExceptionCause(DataAccessException ex) {
+  protected static DataAccessException fixSQLExceptionCause(DataAccessException ex) {
     Throwable cause = ex.getCause();
     if (cause instanceof SQLException && cause.getCause() == null) {
       SQLException next = ((SQLException) cause).getNextException();
@@ -28,12 +32,20 @@ public class DbUtil {
     }
     return ex;
   }
-  
-  static public Criterion eqOrIsNull(String propertyName, Object value) {
+
+  /**
+   * Builds a Hibernate query.
+   * 
+   * @param propertyName  the property name
+   * @param value  the value
+   * @return the criterion, not null
+   */
+  public static Criterion eqOrIsNull(String propertyName, Object value) {
     if (value == null) {
       return Restrictions.isNull(propertyName);
     } else {
       return Restrictions.eq(propertyName, value);
     }
   }
+
 }

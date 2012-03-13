@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!-- Property file configuration -->
+  <bean id="bbgDataRemoteProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="ignoreUnresolvablePlaceholders" value="true" />
+    <property name="location">
+      <value>classpath:bbgData-opengamma.properties</value>
+    </property>
+  </bean>
+
+  <bean id="bbgHistoricalTimeSeriesSource" class="com.opengamma.core.historicaltimeseries.impl.RemoteHistoricalTimeSeriesSource">
+    <constructor-arg>
+      <bean class="com.opengamma.transport.jaxrs.UriEndPointUriFactoryBean">
+        <property name="uri" value="${opengamma.bloomberg.configurationURL}/historicalTimeSeriesSource" />
+      </bean>
+    </constructor-arg>
+  </bean>
+
+  <bean id="bbgReferenceDataProvider" class="com.opengamma.bbg.RemoteReferenceDataProviderFactoryBean">
+    <property name="jmsConnector" ref="standardJmsConnector" />
+    <property name="requestTopic" value="${opengamma.bloomberg.referenceDataRequestTopic}" />
+    <property name="fudgeContext" ref="standardFudgeContext" />
+  </bean>
+
+</beans>

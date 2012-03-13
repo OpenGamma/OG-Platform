@@ -1,0 +1,185 @@
+<project name="og-integration" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
+	<property file="build.properties"/>
+	<import file="${common.dir}/common.xml"/>
+	
+	<!-- Override common.xml compile to make sure the user-financial database has been generated -->
+	<target name="compile" depends="common.compile,new-user-financial-db" />
+
+	<!-- Overrides common.xml zipfile -->
+	<property name="webapp.dir" value="${lib.dir}/webapp/com.opengamma/og-web" />
+	<target name="dist-fixup">
+		<unzip dest="${dist.dir}/${dist.name}" overwrite="false">
+			<fileset dir="${webapp.dir}">
+				<include name="*.zip" />
+			</fileset>
+		</unzip>
+		<delete dir="${dist.dir}/${dist.name}/lib/webapp" failonerror="false" />
+
+		<replace file="${dist.dir}/${dist.name}/config/${engine.overridefile.name}" token="webAppContext.resourceBase=../OG-Web/web-engine" value="webAppContext.resourceBase=web-engine"/>
+		<replace file="${dist.dir}/${dist.name}/config/${engine.overridefile.name}" token="webAppContext.descriptor=../OG-Web/web-engine/WEB-INF/web.xml" value="webAppContext.descriptor=web-engine/WEB-INF/web.xml"/>
+
+		<replace file="${dist.dir}/${dist.name}/config/${marketdata.overridefile.name}" token="webAppContext.resourceBase=../OG-Web/web-marketdata" value="webAppContext.resourceBase=web-marketdata"/>
+		<replace file="${dist.dir}/${dist.name}/config/${marketdata.overridefile.name}" token="webAppContext.descriptor=../OG-Web/web-marketdata/WEB-INF/web.xml" value="webAppContext.descriptor=web-marketdata/WEB-INF/web.xml"/>
+
+		<copy todir="${dist.dir}/${dist.name}/temp/hsqldb" failonerror="true">
+			<fileset dir="${basedir}/temp/hsqldb">
+				<include name="og-fin-user*" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="dist" depends="common.dist,dist-fixup" />
+	<target name="dist-nodep" depends="common.dist-nodep,dist-fixup" />
+	<target name="dist-src" depends="common.dist-src,dist-fixup" />
+	<target name="dist-src-nodep" depends="common.dist-src-nodep,dist-fixup" />
+
+	<target name="dist-standalone" depends="dist" description="Includes HSQLDB databases which allow the distribution to be run in a standalone configuration">
+		<copy todir="${dist.dir}/${dist.name}/temp/hsqldb" failonerror="true">
+			<fileset dir="${basedir}/temp/hsqldb">
+				<include name="og-financial*" />
+			</fileset>
+		</copy>
+		<copy todir="${dist.dir}/${dist.name}/temp/hsqldb" failonerror="true">
+			<fileset dir="${basedir}/temp/hsqldb">
+				<include name="og-tss*" />
+			</fileset>
+		</copy>
+	</target>
+
+	<target name="zipfile-standalone" depends="dist-standalone,zipfile" />
+
+	<!-- Targets used to locate script directories. These will be unnecessary once scripts are included in jars. -->
+
+	<import file="${common.dir}/../git-macros.xml" />
+
+	<macrodef name="check-dev-dir">
+		<attribute name="project" />
+		<attribute name="property" />
+		<sequential>
+			<available type="dir" file="${projects.dir}/@{project}" property="@{property}.dir" value="${projects.dir}/@{project}" />
+		</sequential>
+	</macrodef>
+
+	<target name="check-og-masterdb-dev" unless="og-masterdb.dir">
+		<check-dev-dir project="OG-MasterDB" property="og-masterdb" />
+	</target>
+
+	<target name="check-og-masterdb-artifact" unless="og-masterdb.dir">
+		<property name="sql.dir" value="${lib.dir}/sql/com.opengamma/og-masterdb" />
+		<property name="og-masterdb.dir" value="${basedir}/temp" />
+		<unzip dest="${og-masterdb.dir}" overwrite="true">
+			<fileset dir="${sql.dir}">
+				<include name="*.zip" />
+			</fileset>
+		</unzip>
+	</target>
+
+	<target name="find-og-masterdb-dir" depends="check-og-masterdb-dev,check-og-masterdb-artifact">
+		<echo message="OG-MasterDB directory located at ${og-masterdb.dir}" />
+	</target>
+
+	<!-- End of targets used to locate script directories -->
+
+	<target name="new-user-financial-db" depends="find-og-masterdb-dir,jetty-stop">
+		<new-hsqldb-db path="${basedir}/temp/hsqldb/og-fin-user" scriptdir="${og-masterdb.dir}" catalog="og-financial" />
+	</target>
+	
+	<target name="stop-dev">
+    <sshexec
+    	host="${dev.server.host}"
+    	username="${dev.server.user}"
+    	keyfile="${ssh.private.key}"
+    	command="${dev.server.dir}/${dist.name}/scripts/stop-devsvr.sh"
+    	trust="true" />
+	</target>
+	
+	<target name="start-dev">
+		<sshexec
+    	host="${dev.server.host}"
+    	username="${dev.server.user}"
+    	keyfile="${ssh.private.key}"
+    	command="${dev.server.dir}/${dist.name}/scripts/start-devsvr.sh"
+    	trust="true" />
+	</target>
+
+	<target name="upload-dev" depends="common.upload-dev,stop-dev,common.extract-dev,start-dev" />
+
+	<target name="restart-dev" depends="stop-dev,start-dev" />
+
+	<!-- NOTE jonathan 2011-02-04 - Note that that the following Jetty targets operate only on web-engine, not web-marketdata -->
+
+	<target name="jetty-resolve" depends="load-ivy">
+		<ivy:resolve inline="true" organisation="org.eclipse" module="jetty" revision="7.0.1+" conf="start" />
+		<ivy:retrieve pattern="${lib.dir}/[type]/[organization]/[module]/[artifact]-[revision].[ext]" />
+	</target>
+	<target name="jetty-properties" depends="jetty-resolve">
+		<property name="jetty.spawn" value="true" />
+		<property name="jetty.stopport" value="8079" />
+		<property name="jetty.stopkey" value="OpenGamma" />
+		<property name="jetty.config" value="standalone" />
+		<property name="jvm.xms" value="1024m" />
+		<property name="jvm.xmx" value="4096m" />
+		<path id="jetty.start.path">
+			<fileset dir="${lib.dir}/jar/org.eclipse/jetty">
+				<include name="jetty-start-*.jar" />
+			</fileset>
+		</path>
+		<property name="jetty.start" value="${toString:jetty.start.path}" />
+	</target>
+
+	<path id="jetty.run.path">
+		<pathelement path="${basedir}/config" />
+		<path refid="run.path.id" />
+		<path refid="resource.path.id" />
+	</path>
+
+	<target name="jetty-debug" depends="compile-src,jetty-stop" description="--> start the project's web-engine/ folder with Jetty and block waiting for output">
+		<java jar="${jetty.start}" fork="true" spawn="false">
+			<jvmarg value="-Dlogback.configurationFile=${junit.logback}" />
+			<jvmarg value="-DSTOP.PORT=${jetty.stopport}" />
+			<jvmarg value="-DSTOP.KEY=${jetty.stopkey}" />
+			<jvmarg value="-Dopengamma.platform.runmode=shareddev" />
+			<jvmarg value="-Dopengamma.platform.marketdatasource=direct" />
+			<jvmarg value="-Dopengamma.platform.os=posix" />
+			<jvmarg value="-Xms${jvm.xms}" />
+			<jvmarg value="-Xmx${jvm.xmx}" />
+			<arg value="start.class=com.opengamma.production.startup.EngineServer" />
+			<arg value="${basedir}${file.separator}config${file.separator}engine-spring.xml" />
+			<arg value="path=${toString:jetty.run.path}" />
+		</java>
+	</target>
+	<target name="jetty" depends="compile-src,jetty-stop" description="--> start the project's web-engine/ folder with Jetty">
+		<java jar="${jetty.start}" fork="true" spawn="${jetty.spawn}">
+			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
+			<jvmarg value="-DSTOP.PORT=${jetty.stopport}" />
+			<jvmarg value="-DSTOP.KEY=${jetty.stopkey}" />
+			<jvmarg value="-Dopengamma.platform.runmode=shareddev" />
+			<jvmarg value="-Dopengamma.platform.marketdatasource=direct" />
+			<jvmarg value="-Dopengamma.platform.os=posix" />
+			<jvmarg value="-Xms${jvm.xms}" />
+			<jvmarg value="-Xmx${jvm.xmx}" />
+			<arg value="start.class=com.opengamma.production.startup.EngineServer" />
+			<arg value="${basedir}${file.separator}config${file.separator}engine-spring.xml" />
+			<arg value="path=${toString:jetty.run.path}" />
+		</java>
+	</target>
+	<target name="jetty-stop" depends="jetty-properties" description="--> stop the current Jetty runner">
+		<java jar="${jetty.start}" fork="true" outputproperty="jetty.stop.output">
+			<jvmarg value="-DSTOP.KEY=${jetty.stopkey}" />
+			<jvmarg value="-DSTOP.PORT=${jetty.stopport}" />
+			<arg value="--stop" />
+			<arg value="${basedir}${file.separator}config${file.separator}jetty-${jetty.config}.xml" />
+			<arg value="path=${toString:run.path.id}" />
+		</java>
+		<condition property="jetty.stop.status" value="Stopping Jetty server (stop port ${jetty.stopport})" else="">
+			<not>
+				<contains string="${jetty.stop.output}" substring="ERROR" />
+			</not>
+		</condition>
+		<echo>${jetty.stop.status}</echo>
+	</target>
+
+	<target name="ivy-report" description="generate ivy dependency report" depends="publish-local">
+		<ivy:report organisation="com.opengamma" module="og-integration" />
+	</target>
+</project>

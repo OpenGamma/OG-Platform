@@ -162,9 +162,9 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
   @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) {
     ToolContext context = createToolContext();
-    Map<String, MetaProperty<Object>> mapTarget = new HashMap<String, MetaProperty<Object>>(context.metaBean().metaPropertyMap());
+    Map<String, MetaProperty<?>> mapTarget = new HashMap<String, MetaProperty<?>>(context.metaBean().metaPropertyMap());
     mapTarget.keySet().retainAll(this.metaBean().metaPropertyMap().keySet());
-    for (MetaProperty<Object> mp : mapTarget.values()) {
+    for (MetaProperty<?> mp : mapTarget.values()) {
       mp.set(context, property(mp.name()).get());
     }
     context.setContextManager(repo);
@@ -1020,7 +1020,7 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "configMaster",
@@ -1110,8 +1110,8 @@ public class ToolContextComponentFactory extends AbstractComponentFactory {
     }
 
     @Override
-    public Map<String, MetaProperty<Object>> metaPropertyMap() {
-      return _map;
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return _metaPropertyMap$;
     }
 
     //-----------------------------------------------------------------------

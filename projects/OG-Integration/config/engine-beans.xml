@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="
+    http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans.xsd">
+    
+  <!-- Override properties configuration -->
+  <bean class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
+    <property name="ignoreInvalidKeys" value="true" />
+    <property name="location">
+      <value>classpath:engine-${opengamma.platform.runmode}-override.properties</value>
+    </property>
+  </bean>  
+  
+  <import resource="classpath:com/opengamma/web/web-beans.xml" />
+  
+  <import resource="classpath:com/opengamma/financial/demoViewProcessor.xml" />
+    
+  <import resource="classpath:dataLoader.xml" />
+  
+</beans>

@@ -28,6 +28,10 @@ public class ExtSqlConfig {
    * A constant for the config needed for MySQL.
    */
   public static final ExtSqlConfig MYSQL = new MySqlExtSqlConfig();
+  /**
+   * A constant for the config needed for Vertica.
+   */
+  public static final ExtSqlConfig VERTICA = new ExtSqlConfig("Vertica");
 
   /**
    * The descriptive name.
