@@ -15,7 +15,11 @@
     <isset property="disable.servers" />
   </condition>
   <target name="enable-servers-i386" if="enable.servers.i386" unless="disable.servers.i386">
+    <copy tofile="${install.dir}/install/OpenGamma Server.i386.msi">
+      <fileset refid="servers.i386" />
+    </copy>
     <ai-enable feature-id="servers32" build-id="${ai.build.i386}" />
+    <ai-enable-chain chain-id="OpenGamma_Server.i386.msi" build-id="${ai.build.i386}" />
     <property name="at.least.one.feature" value="true" />
   </target>
   <fileset dir="${dist.dir}" id="servers.x64" includes="OpenGamma?Server-*-64-bit.msi" />
@@ -28,7 +32,11 @@
     <isset property="disable.servers" />
   </condition>
   <target name="enable-servers-x64" if="enable.servers.x64" unless="disable.servers.x64">
+    <copy tofile="${install.dir}/install/OpenGamma Server.x64.msi">
+      <fileset refid="servers.x64" />
+    </copy>
     <ai-enable feature-id="servers64" build-id="${ai.build.x64}" />
+    <ai-enable-chain chain-id="OpenGamma_Server.x64.msi" build-id="${ai.build.x64}" />
     <property name="at.least.one.feature" value="true" />
   </target>
   <target name="enable-servers" depends="enable-servers-i386,enable-servers-x64" />
@@ -44,7 +52,11 @@
     <isset property="disable.clients" />
   </condition>
   <target name="enable-clients-i386" if="enable.clients.i386" unless="disable.clients.i386">
+    <copy tofile="${install.dir}/install/OpenGamma Tools.i386.msi">
+      <fileset refid="clients.i386" />
+    </copy>
     <ai-enable feature-id="clients32" build-id="${ai.build.i386}" />
+    <ai-enable-chain chain-id="OpenGamma_Tools.i386.msi" build-id="${ai.build.i386}" />
     <property name="at.least.one.feature" value="true" />
   </target>
   <fileset dir="${dist.dir}" id="clients.x64" includes="OpenGamma?Tools-*-64-bit.msi" />
@@ -57,7 +69,11 @@
     <isset property="disable.clients" />
   </condition>
   <target name="enable-clients-x64" if="enable.clients.x64" unless="disable.clients.x64">
+    <copy tofile="${install.dir}/install/OpenGamma Tools.x64.msi">
+      <fileset refid="clients.x64" />
+    </copy>
     <ai-enable feature-id="clients64" build-id="${ai.build.x64}" />
+    <ai-enable-chain chain-id="OpenGamma_Tools.x64.msi" build-id="${ai.build.x64}" />
     <property name="at.least.one.feature" value="true" />
   </target>
   <target name="enable-clients" depends="enable-clients-i386,enable-clients-x64" />

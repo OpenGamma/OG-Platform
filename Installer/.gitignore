@@ -1,3 +1,4 @@
-/temp*
+/*-cache/
 /*.back.aip
 /dist/
+/temp.aip
