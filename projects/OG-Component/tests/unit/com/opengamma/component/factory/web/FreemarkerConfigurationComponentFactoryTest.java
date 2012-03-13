@@ -19,18 +19,18 @@ import freemarker.cache.TemplateLoader;
 import freemarker.cache.WebappTemplateLoader;
 
 /**
- *
+ * Test.
  */
 public class FreemarkerConfigurationComponentFactoryTest {
 
   @Test
   public void createLoaders() {
-    FreemarkerConfigurationComponentFactory factory = new FreemarkerConfigurationComponentFactory();
-    factory.setTemplateLocations("servlet-context:WEB-INF/pages, file:" + System.getProperty("java.io.tmpdir"));
-    TemplateLoader[] loaders = factory.createLoaders(mock(ServletContext.class));
+    String[] locations = {"servlet-context:WEB-INF/pages", "file:" + System.getProperty("java.io.tmpdir")};
+    TemplateLoader[] loaders = FreemarkerConfigurationComponentFactory.createLoaders(locations, mock(ServletContext.class));
     assertNotNull(loaders);
     assertEquals(2, loaders.length);
     assertTrue(loaders[0] instanceof WebappTemplateLoader);
     assertTrue(loaders[1] instanceof FileTemplateLoader);
   }
+
 }

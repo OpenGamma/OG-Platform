@@ -55,8 +55,11 @@ import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
 import com.opengamma.util.money.Currency;
+import com.opengamma.web.FreemarkerOutputter;
 import com.opengamma.web.MockUriInfo;
 import com.opengamma.web.WebResourceTestUtils;
+
+import freemarker.template.Configuration;
 
 /**
  * Test base class for WebPositionResource tests
@@ -105,7 +108,11 @@ public abstract class AbstractWebPositionResourceTestCase {
     };
     populateSecMaster();
     _webPositionsResource = new WebPositionsResource(_positionMaster, _secLoader,  _securitySource, _htsSource);
-    _webPositionsResource.setServletContext(new MockServletContext("/web-engine", new FileSystemResourceLoader()));
+    MockServletContext sc = new MockServletContext("/web-engine", new FileSystemResourceLoader());
+    Configuration cfg = FreemarkerOutputter.createConfiguration();
+    cfg.setServletContextForTemplateLoading(sc, "WEB-INF/pages");
+    FreemarkerOutputter.init(sc, cfg);
+    _webPositionsResource.setServletContext(sc);
     _webPositionsResource.setUriInfo(_uriInfo);
   }
 
