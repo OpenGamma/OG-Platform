@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>classpath:bbgtickwriter.properties</value>
+		</property>
+	</bean>
+
+	<!-- Bloomberg Reference Data Provider -->
+	<bean id="refDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider">
+		<constructor-arg>
+			<bean class="com.bloomberglp.blpapi.SessionOptions">
+				<property name="serverHost" value="${opengamma.bloomberg.host}" />
+				<property name="serverPort" value="${opengamma.bloomberg.port}" />
+			</bean>
+		</constructor-arg>
+	</bean>
+	
+	<!-- Caching Reference Data Provider -->
+  <bean id="mongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
+    <property name="name" value="BloombergReferenceData" />
+    <property name="host" value="${opengamma.mongo.host}" />
+    <property name="port" value="${opengamma.mongo.port}" /> 	
+    <property name="databaseName" value="${opengamma.bloomberg.reference.database}" />
+  </bean>
+
+  <bean id="cachingReferenceDataProvider" class="com.opengamma.bbg.MongoDBCachingReferenceDataProvider">
+    <constructor-arg ref="refDataProvider" />
+    <constructor-arg ref="mongoConnector"/>
+  </bean>
+
+  	<bean id="refDataOutFile" class="com.opengamma.util.FileFactoryBean">
+    	<property name="filename" value="${opengamma.demo.refdata.file}" />
+  	</bean>
+  	
+  	<bean id="watchListFile" class="com.opengamma.util.FileFactoryBean">
+    	<property name="filename" value="${bbgTickCollector.watchList}" />
+  	</bean>
+  	
+  	<bean id="fieldListFile" class="com.opengamma.util.FileFactoryBean">
+    	<property name="filename" value="${bbgRefDataCollector.fieldList}" />
+  	</bean>
+  	
+  	<bean id="sessionOptions" class="com.bloomberglp.blpapi.SessionOptions">
+    	<property name="serverHost" value="${opengamma.bloomberg.host}" />
+    	<property name="serverPort" value="${opengamma.bloomberg.port}" />
+  	</bean>
+  
+  	<bean id="bbgRefDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider" init-method="start" destroy-method="stop">
+    	<constructor-arg ref="sessionOptions" />
+  	</bean>
+  
+  	<!-- Bloomberg ref Data Collector -->
+  	<bean id="bbgRefDataCollector" class="com.opengamma.bbg.replay.BloombergRefDataCollector">
+  		<constructor-arg ref="watchListFile" /> 
+  		<constructor-arg ref="bbgRefDataProvider" />
+  		<constructor-arg ref="fieldListFile" />
+    	<constructor-arg ref="refDataOutFile" /> 
+  	</bean>
+	
+	<!-- Bloomberg Ticks Data Collector -->
+	<bean id="bbgTicksCollector" class="com.opengamma.bbg.replay.BloombergTicksCollector">
+		<constructor-arg ref="sessionOptions" />
+		<constructor-arg ref="cachingReferenceDataProvider" />
+		<constructor-arg value="${bbgTickCollector.rootDir}" />
+		<constructor-arg value="${bbgTickCollector.watchList}" />
+		<constructor-arg value="${bbgTickCollector.sessions}" />
+		<constructor-arg value="${bbgTickCollector.storageMode}" />
+	</bean>
+	
+</beans>

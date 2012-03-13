@@ -1,0 +1,4 @@
+AAPL US Equity
+T US Equity
+EDU0 Comdty
+SPX Index

@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <!-- an embedded broker -->
+  <!--
+  <bean id="broker" class="org.apache.activemq.xbean.BrokerFactoryBean">
+    <property name="config"
+      value="classpath:com/opengamma/bbg/xbean-activemq.xml" />
+  </bean>
+  -->
+
+  <bean id="propertyConfigurer"
+    class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="location">
+      <value>classpath:tests.properties</value>
+    </property>
+  </bean>
+
+  <!-- Bloomberg Reference Data Provider -->
+  <bean id="refDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider">
+    <constructor-arg>
+      <bean class="com.bloomberglp.blpapi.SessionOptions">
+        <property name="serverHost" value="${bbgServer.host}" />
+        <property name="serverPort" value="${bbgServer.port}" />
+      </bean>
+    </constructor-arg>
+  </bean>
+  
+  <!-- Caching Reference Data Provider -->
+  <bean id="mongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
+    <property name="name" value="BloombergReferenceData" />
+    <property name="host" value="${mongoServer.host}" />
+    <property name="port" value="${mongoServer.port}" /> 	
+    <property name="databaseName" value="testReferenceData" />
+    <property name="collectionSuffix" value="test-inMemory-remoteRefDataProvider-context" />
+  </bean>
+
+  <bean id="cachingRefDataProvider" class="com.opengamma.bbg.MongoDBCachingReferenceDataProvider">
+    <constructor-arg ref="refDataProvider" />
+    <constructor-arg ref="mongoConnector"/>
+  </bean>
+
+  <bean id="requestReceiver"
+    class="com.opengamma.bbg.server.ReferenceDataProviderRequestReceiver">
+    <constructor-arg ref="cachingRefDataProvider" />
+  </bean>
+
+  <bean id="requestDispatcher" class="com.opengamma.transport.FudgeRequestDispatcher">
+    <constructor-arg ref="requestReceiver" />
+  </bean>
+
+  <bean id="jmsByteArrayRequestDispatcher"
+    class="com.opengamma.transport.jms.JmsByteArrayRequestDispatcher">
+    <constructor-arg ref="requestDispatcher" />
+  </bean>
+
+  <!-- JMS ConnectionFactory to use -->
+  <!--
+    <bean id="jmsConnectionFactory"
+    class="org.apache.activemq.ActiveMQConnectionFactory"> <property
+    name="brokerURL" value="${activeMQ.brokerURL}" /> </bean>
+  -->
+  <!-- Use InMemory connection -->
+  <bean id="jmsConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+    <constructor-arg value="${activeMQ.inMemoryURL}"/>
+  </bean>
+
+  <!-- and this is the message listener container -->
+  <bean id="jmsContainer"
+    class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+    <property name="connectionFactory" ref="jmsConnectionFactory" />
+    <property name="destinationName" value="${activeMQ.destinationName}" />
+    <property name="messageListener" ref="jmsByteArrayRequestDispatcher" />
+    <property name="pubSubDomain" value="false" />
+  </bean>
+
+  <!-- Spring JMS Template -->
+  <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+    <property name="connectionFactory">
+      <!-- lets wrap in a pool to avoid creating a connection per send -->
+      <!--
+        <bean
+        class="org.springframework.jms.connection.SingleConnectionFactory">
+        <property name="targetConnectionFactory" ref="jmsConnectionFactory"
+        /> </bean>
+      -->
+      <bean class="org.apache.activemq.pool.PooledConnectionFactory"
+        destroy-method="stop">
+        <property name="connectionFactory" ref="jmsConnectionFactory" />
+      </bean>
+    </property>
+    <property name="pubSubDomain" value="false" />
+    <property name="receiveTimeout" value="${activeMQ.receiveTimeout}" />
+  </bean>
+
+  <!-- JmsByteArrayRequestSender -->
+  <bean id="jmsByteArrayRequestSender" class="com.opengamma.transport.jms.JmsByteArrayRequestSender">
+    <constructor-arg value="${activeMQ.destinationName}" />
+    <constructor-arg ref="jmsTemplate" />
+  </bean>
+
+  <!-- ByteArrayFudgeRequestSender -->
+  <bean id="byteArrayFudgeRequestSender" class="com.opengamma.transport.ByteArrayFudgeRequestSender">
+    <constructor-arg ref="jmsByteArrayRequestSender" />
+  </bean>
+
+  <!-- RemoteReferenceDataProvider -->
+  <bean id="remoteReferenceDataProvider" class="com.opengamma.bbg.RemoteReferenceDataProvider">
+    <constructor-arg ref="byteArrayFudgeRequestSender" />
+  </bean>
+
+</beans>

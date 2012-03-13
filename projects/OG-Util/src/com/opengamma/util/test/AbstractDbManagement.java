@@ -5,6 +5,8 @@
  */
 package com.opengamma.util.test;
 
+import static com.opengamma.util.RegexUtils.matches;
+
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -28,9 +30,6 @@ import com.opengamma.util.functional.Function1;
 import com.opengamma.util.functional.Functional;
 import com.opengamma.util.tuple.FirstThenSecondPairComparator;
 import com.opengamma.util.tuple.Pair;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.opengamma.util.RegexUtils.matches;
 
 /**
  * Abstract implementation of database management.

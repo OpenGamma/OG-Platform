@@ -1,0 +1,7 @@
+Exchange,Expiry,"Underlying identifier","Point value",Margined,Currency,Strike,Call
+CME,17/09/2012,"EDU2 Comdty",25,false,USD,98,false
+CME,17/09/2012,"EDU2 Comdty",25,true,USD,98,false
+CME,17/09/2012,"EDU2 Comdty",25,false,USD,98,true
+CME,17/09/2012,"EDU2 Comdty",25,true,USD,98,true
+CME,19/09/2011,"EDU1 Comdty",25,true,USD,99,true
+CME,19/12/2011,"EDZ1 Comdty",25,true,USD,99,true

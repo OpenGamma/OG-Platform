@@ -353,7 +353,7 @@ public class ComponentManager {
   protected void setFactoryProperties(ComponentFactory factory, LinkedHashMap<String, String> remainingConfig) throws Exception {
     if (factory instanceof Bean) {
       Bean bean = (Bean) factory;
-      for (MetaProperty<Object> mp : bean.metaBean().metaPropertyIterable()) {
+      for (MetaProperty<?> mp : bean.metaBean().metaPropertyIterable()) {
         String value = remainingConfig.remove(mp.name());
         setProperty(bean, mp, value);
       }
@@ -370,7 +370,7 @@ public class ComponentManager {
    * @param value  the configured value, not null
    * @throws Exception allowing throwing of a checked exception
    */
-  protected void setProperty(Bean bean, MetaProperty<Object> mp, String value) throws Exception {
+  protected void setProperty(Bean bean, MetaProperty<?> mp, String value) throws Exception {
     if (ComponentRepository.class.equals(mp.propertyType())) {
       // set the repo
       mp.set(bean, getRepository());
@@ -408,7 +408,7 @@ public class ComponentManager {
    * @param mp  the property, not null
    * @throws Exception allowing throwing of a checked exception
    */
-  protected void setPropertyMergedProperties(Bean bean, MetaProperty<Object> mp) throws Exception {
+  protected void setPropertyMergedProperties(Bean bean, MetaProperty<?> mp) throws Exception {
     final ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
     Properties props = new Properties();
     props.putAll(getProperties());
@@ -441,7 +441,7 @@ public class ComponentManager {
    * @param mp  the property, not null
    * @param value  the configured value containing double colon, not null
    */
-  protected void setPropertyComponentRef(Bean bean, MetaProperty<Object> mp, String value) {
+  protected void setPropertyComponentRef(Bean bean, MetaProperty<?> mp, String value) {
     Class<?> propertyType = mp.propertyType();
     String type = StringUtils.substringBefore(value, "::");
     String classifier = StringUtils.substringAfter(value, "::");
@@ -474,7 +474,7 @@ public class ComponentManager {
    * @param mp  the property, not null
    * @param value  the configured value, not null
    */
-  protected void setPropertyInferType(Bean bean, MetaProperty<Object> mp, String value) {
+  protected void setPropertyInferType(Bean bean, MetaProperty<?> mp, String value) {
     Class<?> propertyType = mp.propertyType();
     if (propertyType == Resource.class) {
       mp.set(bean, ComponentManager.createResource(value));
