@@ -169,7 +169,6 @@ public class USConventions {
     final DayCount swapFloatDayCount = act360;
     final BusinessDayConvention swapFloatBusinessDay = modified;
     final Frequency swapFloatPaymentFrequency = quarterly;
-    final int publicationLag = 0;
 
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_SWAP")), "USD_SWAP", swapFixedDayCount, swapFixedBusinessDay,
         swapFixedPaymentFrequency, 2, usgb, swapFloatDayCount, swapFloatBusinessDay, swapFloatPaymentFrequency, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR 3m"),
@@ -182,18 +181,20 @@ public class USConventions {
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_IR_FUTURE")), "USD_IR_FUTURE", act360, modified, Period.ofMonths(3),
         2, false, null);
 
+    final int publicationLag = 1;
+    // Fed Fund effective
+    conventionMaster.addConventionBundle(
+        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("FEDL01 Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF EFFECTIVE")), "USD FF EFFECTIVE", act360,
+        following, Period.ofDays(1), 2, false, us, publicationLag);
+    // OIS swap
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_OIS_SWAP")), "USD_OIS_SWAP", thirty360, modified, annual, 2, usgb,
-        thirty360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF EFFECTIVE"), usgb, true);
+        thirty360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF EFFECTIVE"), usgb, true, publicationLag);
 
     // FRA conventions are stored as IRS
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_3M_FRA")), "USD_3M_FRA", thirty360, modified, quarterly, 2, usgb,
         act360, modified, quarterly, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), usgb, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_6M_FRA")), "USD_6M_FRA", thirty360, modified, semiAnnual, 2, usgb,
         act360, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR 6m"), usgb, true);
-
-    conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("FEDL01 Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF EFFECTIVE")), "USD FF EFFECTIVE", act360,
-        following, Period.ofDays(1), 2, false, null, publicationLag);
 
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_TENOR_SWAP")), "USD_TENOR_SWAP", act360, modified, quarterly, 2,
         ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF 3m"), usgb, act360, modified, quarterly, 2,

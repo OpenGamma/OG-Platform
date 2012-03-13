@@ -6,6 +6,7 @@
 package com.opengamma.util;
 
 import java.util.StringTokenizer;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -74,6 +75,53 @@ public final class RegexUtils {
       return false;
     }
     return wildcardsToPattern(searchCriteriaWithWildcard).matcher(textToMatchAgainst).matches();
+  }
+
+  /**
+   * Extracts first group from matched regex
+   * @param string input string
+   * @param regex regex string
+   * @return extracted text
+   */
+  public static String extract(String string, String regex) {
+    return extract(string, Pattern.compile(regex), 1);
+  }
+  
+  /**
+   * Extracts given group from matched regex
+   * @param string input string
+   * @param regex regex string
+   * @param group group index
+   * @return extracted text
+   */
+  public static String extract(String string, String regex, int group) {
+    return extract(string, Pattern.compile(regex), group);
+  }
+
+  /**
+   * Extracts given group from matched regex
+   * @param string input string
+   * @param pattern pattern object
+   * @param group group index
+   * @return extracted text
+   */
+  public static String extract(String string, Pattern pattern, int group) {
+    Matcher m = pattern.matcher(string);
+    if (m.find()) {
+      return m.group(group);
+    }
+    return null;
+  }
+
+  /**
+   * Returns true if given input string matches given pattern
+   * @param input the input
+   * @param pattern the pattern
+   * @return true if given input string matches given pattern
+   */
+  public static boolean matches(String input, Pattern pattern) {    
+    Matcher m = pattern.matcher(input);
+    return m.matches();    
   }
 
 }

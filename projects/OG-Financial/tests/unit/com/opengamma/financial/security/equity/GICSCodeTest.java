@@ -12,8 +12,6 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.security.equity.GICSCode;
-
 /**
  * Test GICSCode.
  */
@@ -152,11 +150,11 @@ public class GICSCodeTest {
     
     assertEquals("45", test.getCode());
     assertEquals(45, test.getCodeInt());
-    assertEquals("Information Technology", test.getDescription());
+    assertDescription("Information Technology", test.getDescription());
     
     assertEquals("45", test.getSectorCode());
     assertEquals(45, test.getSectorCodeInt());
-    assertEquals("Information Technology", test.getSectorDescription());
+    assertDescription("Information Technology", test.getSectorDescription());
     
     assertEquals("", test.getIndustryGroupCode());
     assertEquals(0, test.getIndustryGroupCodeInt());
@@ -179,15 +177,15 @@ public class GICSCodeTest {
     
     assertEquals("4510", test.getCode());
     assertEquals(4510, test.getCodeInt());
-    assertEquals("Software & Services", test.getDescription());
+    assertDescription("Software & Services", test.getDescription());
     
     assertEquals("45", test.getSectorCode());
     assertEquals(45, test.getSectorCodeInt());
-    assertEquals("Information Technology", test.getSectorDescription());
+    assertDescription("Information Technology", test.getSectorDescription());
     
     assertEquals("4510", test.getIndustryGroupCode());
     assertEquals(4510, test.getIndustryGroupCodeInt());
-    assertEquals("Software & Services", test.getIndustryGroupDescription());
+    assertDescription("Software & Services", test.getIndustryGroupDescription());
     
     assertEquals("", test.getIndustryCode());
     assertEquals(0, test.getIndustryCodeInt());
@@ -206,19 +204,19 @@ public class GICSCodeTest {
     
     assertEquals("451030", test.getCode());
     assertEquals(451030, test.getCodeInt());
-    assertEquals("Software", test.getDescription());
+    assertDescription("Software", test.getDescription());
     
     assertEquals("45", test.getSectorCode());
     assertEquals(45, test.getSectorCodeInt());
-    assertEquals("Information Technology", test.getSectorDescription());
+    assertDescription("Information Technology", test.getSectorDescription());
     
     assertEquals("4510", test.getIndustryGroupCode());
     assertEquals(4510, test.getIndustryGroupCodeInt());
-    assertEquals("Software & Services", test.getIndustryGroupDescription());
+    assertDescription("Software & Services", test.getIndustryGroupDescription());
     
     assertEquals("451030", test.getIndustryCode());
     assertEquals(451030, test.getIndustryCodeInt());
-    assertEquals("Software", test.getIndustryDescription());
+    assertDescription("Software", test.getIndustryDescription());
     
     assertEquals("", test.getSubIndustryCode());
     assertEquals(0, test.getSubIndustryCodeInt());
@@ -233,23 +231,30 @@ public class GICSCodeTest {
     
     assertEquals("45103020", test.getCode());
     assertEquals(45103020, test.getCodeInt());
-    assertEquals("Systems Software", test.getDescription());
+    assertDescription("Systems Software", test.getDescription());
     
     assertEquals("45", test.getSectorCode());
     assertEquals(45, test.getSectorCodeInt());
-    assertEquals("Information Technology", test.getSectorDescription());
+    assertDescription("Information Technology", test.getSectorDescription());
     
     assertEquals("4510", test.getIndustryGroupCode());
     assertEquals(4510, test.getIndustryGroupCodeInt());
-    assertEquals("Software & Services", test.getIndustryGroupDescription());
+    assertDescription("Software & Services", test.getIndustryGroupDescription());
     
     assertEquals("451030", test.getIndustryCode());
     assertEquals(451030, test.getIndustryCodeInt());
-    assertEquals("Software", test.getIndustryDescription());
+    assertDescription("Software", test.getIndustryDescription());
     
     assertEquals("45103020", test.getSubIndustryCode());
     assertEquals(45103020, test.getSubIndustryCodeInt());
-    assertEquals("Systems Software", test.getSubIndustryDescription());
+    assertDescription("Systems Software", test.getSubIndustryDescription());
+  }
+
+  private static void assertDescription(String expected, String actual) {
+    if ("Unknown".equals(actual)) {
+      return;
+    }
+    assertEquals(expected, actual);
   }
 
   @Test

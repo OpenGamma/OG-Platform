@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>classpath:tests.properties</value>
+		</property>
+	</bean>
+
+	<!-- JMS ConnectionFactory to use -->
+	<bean id="jmsConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+		<property name="brokerURL" value="${activeMQ.brokerURL}" />
+	</bean>
+
+	<!-- Spring JMS Template -->
+	<bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+		<property name="connectionFactory">
+			<!-- lets wrap in a pool to avoid creating a connection per send -->
+			<!--
+				<bean
+				class="org.springframework.jms.connection.SingleConnectionFactory">
+				<property name="targetConnectionFactory" ref="jmsConnectionFactory"
+				/> </bean>
+			-->
+			<bean class="org.apache.activemq.pool.PooledConnectionFactory"
+				destroy-method="stop">
+				<property name="connectionFactory" ref="jmsConnectionFactory" />
+			</bean>
+		</property>
+		<property name="pubSubDomain" value="false" />
+		<property name="receiveTimeout" value="${activeMQ.receiveTimeout}" />
+	</bean>
+
+	<!-- JmsByteArrayRequestSender -->
+	<bean id="jmsByteArrayRequestSender" class="com.opengamma.transport.jms.JmsByteArrayRequestSender">
+		<constructor-arg value="${activeMQ.destinationName}" />
+		<constructor-arg ref="jmsTemplate" />
+	</bean>
+
+	<!-- RemoteSecurityMaster -->
+	<bean id="remoteBloombergSecuritySource" class="com.opengamma.bbg.RemoteBloombergSecuritySource">
+		<constructor-arg ref="jmsByteArrayRequestSender" />
+	</bean>
+
+</beans>
