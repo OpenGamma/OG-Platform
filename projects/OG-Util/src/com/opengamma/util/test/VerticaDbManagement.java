@@ -14,13 +14,14 @@ import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.PostgreSQLDialect;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ReflectionUtils;
 
 /**
  * Database management for Vertica databases.
  * <p>
  * Because Vertica does not support running multiple databases on the same host,
  * database and schema are combined into one string, catalog___schema,
- * which is then used as the schema name.  
+ * which is then used as the schema name.
  */
 public final class VerticaDbManagement extends AbstractDbManagement {
 
@@ -60,11 +61,7 @@ public final class VerticaDbManagement extends AbstractDbManagement {
 
   @Override
   public Class<?> getJDBCDriverClass() {
-    try {
-      return Class.forName("com.vertica.Driver");
-    } catch( ClassNotFoundException e) {
-      return null;
-    }
+    return ReflectionUtils.loadClass("com.vertica.Driver");
   }
 
   @Override
