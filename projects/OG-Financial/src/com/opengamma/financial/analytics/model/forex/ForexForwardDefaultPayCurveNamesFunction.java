@@ -28,13 +28,16 @@ public class ForexForwardDefaultPayCurveNamesFunction extends DefaultPropertyFun
     ValueRequirementNames.FX_CURRENCY_EXPOSURE,
     ValueRequirementNames.FX_CURVE_SENSITIVITIES};
   private final String _curveName;
+  private final String _curveCalculationMethod;
   private final String[] _applicableCurrencyNames;
 
-  public ForexForwardDefaultPayCurveNamesFunction(final String curveName, final String... applicableCurrencyNames) {
+  public ForexForwardDefaultPayCurveNamesFunction(final String curveName, final String curveCalculationMethod, final String... applicableCurrencyNames) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(curveName, "curve name");
+    ArgumentChecker.notNull(curveCalculationMethod, "curve calculation method");
     ArgumentChecker.notNull(applicableCurrencyNames, "currency names");
     _curveName = curveName;
+    _curveCalculationMethod = curveCalculationMethod;
     _applicableCurrencyNames = applicableCurrencyNames;
   }
 
@@ -57,6 +60,7 @@ public class ForexForwardDefaultPayCurveNamesFunction extends DefaultPropertyFun
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueName : s_valueNames) {
       defaults.addValuePropertyName(valueName, ValuePropertyNames.PAY_CURVE);
+      defaults.addValuePropertyName(valueName, ForexForwardFunction.PROPERTY_PAY_CURVE_CALCULATION_METHOD);
     }
   }
 
@@ -64,6 +68,9 @@ public class ForexForwardDefaultPayCurveNamesFunction extends DefaultPropertyFun
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     if (ValuePropertyNames.PAY_CURVE.equals(propertyName)) {
       return Collections.singleton(_curveName);
+    }
+    if (ForexForwardFunction.PROPERTY_PAY_CURVE_CALCULATION_METHOD.equals(propertyName)) {
+      return Collections.singleton(_curveCalculationMethod);
     }
     return null;
   }
