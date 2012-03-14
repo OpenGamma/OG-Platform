@@ -88,6 +88,7 @@ public class FXForwardCurveFromYieldCurveFunction extends AbstractFunction.NonCo
       payCurrency = ccyPair.getSecondCurrency();
       receiveCurrency = ccyPair.getFirstCurrency();
     }
+    //TODO should not rely on Bloomberg here
     final ExternalId spotIdentifier = SecurityUtils.bloombergTickerSecurityId(payCurrency.getCode() + receiveCurrency.getCode() + " Curncy");
     result.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, payCurrency.getUniqueId(), payCurveProperties));
     result.add(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, receiveCurrency.getUniqueId(), receiveCurveProperties));

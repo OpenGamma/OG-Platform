@@ -185,6 +185,7 @@ import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolati
 import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityGreekFunction;
 import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityGridGreeksFunction;
 import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityPDEGreekDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityPDEGridPresentValueFunction;
 import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityPDEPresentValueFunction;
 import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityPDEPriceDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.volatility.local.ForexLocalVolatilityPDEPriceFunction;
@@ -739,9 +740,10 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new StaticFunctionConfiguration(ForexLocalVolatilityFullPDEFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(ForexLocalVolatilityGridGreeksFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(ForexLocalVolatilityBucketedVegaFunction.class.getName()));
-    functionConfigs.add(new StaticFunctionConfiguration(ForexLocalVolatilityPDEPresentValueFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(ForexLocalVolatilityPDEGridPresentValueFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(ForexLocalVolatilityPDEPriceFunction.class.getName()));
     functionConfigs.add(new StaticFunctionConfiguration(ForexLocalVolatilityGreekFunction.class.getName()));
+    functionConfigs.add(new StaticFunctionConfiguration(ForexLocalVolatilityPDEPresentValueFunction.class.getName()));
     functionConfigs.add(new ParameterizedFunctionConfiguration(BlackVolatilitySurfaceDefaultPropertiesFunction.class.getName(), blackVolSurfaceProperties));
     functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilitySurfaceDefaultPropertiesFunction.class.getName(), localVolSurfaceProperties));
     functionConfigs.add(new ParameterizedFunctionConfiguration(LocalVolatilityPDEDefaultPropertiesFunction.class.getName(), pdeProperties));
