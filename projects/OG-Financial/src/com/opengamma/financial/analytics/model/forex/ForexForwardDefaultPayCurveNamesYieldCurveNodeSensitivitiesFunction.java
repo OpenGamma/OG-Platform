@@ -1,13 +1,14 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- *
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.future;
+package com.opengamma.financial.analytics.model.forex;
 
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
@@ -15,25 +16,24 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.security.FinancialSecurityUtils;
-import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Dummy function for injecting default curve names into the dependency graph.
+ * 
  */
-public class InterestRateFutureInterpolatedYieldCurveNodeSensitivitiesDefaultValuesFunction extends DefaultPropertyFunction {
+public class ForexForwardDefaultPayCurveNamesYieldCurveNodeSensitivitiesFunction extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES};
   private final String _forwardCurveName;
   private final String _fundingCurveName;
   private final String[] _applicableCurrencyNames;
 
-  public InterestRateFutureInterpolatedYieldCurveNodeSensitivitiesDefaultValuesFunction(final String forwardCurveName, final String fundingCurveName, final String... applicableCurrencyNames) {
-    super(ComputationTargetType.TRADE, true);
+  public ForexForwardDefaultPayCurveNamesYieldCurveNodeSensitivitiesFunction(final String forwardCurveName, final String fundingCurveName, final String... applicableCurrencyNames) {
+    super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(forwardCurveName, "forward curve name");
     ArgumentChecker.notNull(fundingCurveName, "funding curve name");
-    ArgumentChecker.notNull(applicableCurrencyNames, "applicable currency names");
+    ArgumentChecker.notNull(applicableCurrencyNames, "currency names");
     _forwardCurveName = forwardCurveName;
     _fundingCurveName = fundingCurveName;
     _applicableCurrencyNames = applicableCurrencyNames;
@@ -41,14 +41,13 @@ public class InterestRateFutureInterpolatedYieldCurveNodeSensitivitiesDefaultVal
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (target.getType() != ComputationTargetType.TRADE) {
+    final Security security = target.getSecurity();
+    if (!(security instanceof FXForwardSecurity)) {
       return false;
     }
-    if (!(target.getTrade().getSecurity() instanceof InterestRateFutureSecurity)) {
-      return false;
-    }
-    for (final String applicableCurrencyName : _applicableCurrencyNames) {
-      if (applicableCurrencyName.equals(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())) {
+    final FXForwardSecurity fxForward = (FXForwardSecurity) security;
+    for (final String currencyName : _applicableCurrencyNames) {
+      if (currencyName.equals(fxForward.getPayCurrency().getCode())) {
         return true;
       }
     }
@@ -73,5 +72,4 @@ public class InterestRateFutureInterpolatedYieldCurveNodeSensitivitiesDefaultVal
     }
     return null;
   }
-
 }

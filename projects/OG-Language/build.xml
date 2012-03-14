@@ -1,67 +1,59 @@
 <project name="og-language" default="compile">
 
-  <import file="${basedir}/build-prefix.xml" />
-
-  <path id="java.build.path">
-    <pathelement path="${basedir}/Client" />
-  </path>
-  <path id="javatest.build.path">
-    <path refid="java.build.path" />
-  </path>
-  <path id="cc.build.path">
-    <pathelement path="${basedir}/Util" />
-    <pathelement path="${basedir}/Service" />
-    <pathelement path="${basedir}/Connector" />
-    <pathelement path="${basedir}/ServiceRunner" />
-  </path>
-  <path id="cctest.build.path">
-    <pathelement path="${basedir}/UtilTest" />
-    <pathelement path="${basedir}/ServiceTest" />
-    <pathelement path="${basedir}/ConnectorTest" />
-  </path>
-
-  <import file="${basedir}/build-suffix.xml" />
+  <import file="${basedir}/build-core.xml" />
+  <import file="${basedir}/build-core-deploy.xml" />
   <import file="${basedir}/delete-unused-jars.xml" />
 
-  <target name="deploy-jars" depends="build-suffix.deploy-jars,make-config,delete-unused-jars">
-    <mkdir dir="${build.dir}/ext" />
-    <copy file="${basedir}/config/0${ant.project.name}.xml" todir="${build.dir}/ext" failonerror="true" />
-    <copy file="${basedir}/config/logback.xml" todir="${build.dir}" failonerror="false" />
+  <target name="fudge-proto" depends="core.fudge-proto">
+    <subant buildpath="${solution.dir}/Service" target="fudge-proto" inheritall="true" inheritrefs="true" />
   </target>
 
-  <target name="fudge-proto" depends="build-suffix.fudge-proto">
-    <subant target="proto-c" buildpath="${basedir}/Service">
-      <property name="wkspace.dir" value="${wkspace.dir}" />
-    </subant>
-  </target>
-  
-  <target name="dist-build">
-    <mkdir dir="${dist.dir}/build" />
-    <copy todir="${dist.dir}/build">
-      <fileset dir="${basedir}">
-        <include name="build-*.xml" />
-      </fileset>
-    </copy>
-    <mkdir dir="${dist.dir}/build/config" />
-    <copy todir="${dist.dir}/build/config">
-      <fileset dir="${basedir}/config">
-        <include name="0${ant.project.name}.xml" />
-      </fileset>
-    </copy>
-  </target>
-  <target name="dist" depends="dist-build,build-suffix.dist">
-    <zip destfile="${dist.dir}/${ant.project.name}-build.zip" basedir="${dist.dir}/build" whenempty="create" />
+  <path id="cc.build.path">
+    <pathelement path="${solution.dir}/Util" />
+    <pathelement path="${solution.dir}/Service" />
+    <pathelement path="${solution.dir}/Connector" />
+    <pathelement path="${solution.dir}/ServiceRunner" />
+  </path>
+
+  <path id="cctest.build.path">
+    <pathelement path="${solution.dir}/UtilTest" />
+    <pathelement path="${solution.dir}/ServiceTest" />
+    <pathelement path="${solution.dir}/ConnectorTest" />
+  </path>
+
+  <target name="dist-publish" depends="common.dist-publish">
+    <mkdir dir="${dist.dir}" />
+    <mkdir dir="${dist.dir}/bin" />
+    <mkdir dir="${dist.dir}/include" />
+    <mkdir dir="${dist.dir}/lib" />
+    <subant buildpathref="cc.build.path" target="dist-publish" inheritall="true" />
+    <mkdir dir="${dist.dir}/bin/ext" />
+    <copy file="${solution.dir}/config/0${ant.project.name}.xml" todir="${dist.dir}/bin/ext" />
+    <zip destfile="${dist.dir}/${ant.project.name}-bin.zip" basedir="${dist.dir}/bin" whenempty="create" />
+    <zip destfile="${dist.dir}/${ant.project.name}-include.zip" basedir="${dist.dir}/include" whenempty="create" />
+    <zip destfile="${dist.dir}/${ant.project.name}-lib.zip" basedir="${dist.dir}/lib" whenempty="create" />
+    <delete dir="${dist.dir}/bin" />
+    <delete dir="${dist.dir}/include" />
+    <delete dir="${dist.dir}/lib" />
   </target>
 
-  <target name="test-batch"/>
+  <target name="resolve" depends="core.resolve,deploy-jars,delete-unused-jars" />
 
-  <target name="windows-installer" depends="set-version" description="Builds the windows installation packages (assumes a dist has already been done and Advanced Installer is available)">
-    <exec executable="AdvancedInstaller.com" failifexecutionfails="true">
-      <arg line="/edit Installer\setup.aip /SetVersion ${module.version.msi}.${module.build.number}" />
-    </exec>
-    <exec executable="AdvancedInstaller.com" failifexecutionfails="true">
-      <arg line="/build Installer\setup.aip" />
-    </exec>
+  <target name="config" depends="core.config,deploy-config">
+    <copy todir="${build.dir}/ext" file="${solution.dir}/config/0${ant.project.name}.xml" />
   </target>
+
+  <target name="compile-tests" depends="core.compile-tests">
+    <property file="${common.dir}/tests.properties" />
+    <path id="language.ext.path.system">
+      <pathelement path="${build.dir}/ext" />
+    </path>
+    <pathconvert targetos="unix" property="language.ext.path.unix" refid="language.ext.path.system" />
+    <echo file="${test.properties.dir}/${test.properties}">language.ext.path=${language.ext.path.unix}
+opengamma.engine.host=${opengamma.engine.host}
+</echo>
+  </target>
+
+  <target name="test-batch-cpp" depends="jar,core.test-batch-cpp" />
 
 </project>

@@ -5,25 +5,25 @@
  */
 package com.opengamma.financial.analytics.model.fixedincome;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import com.opengamma.engine.ComputationTarget;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
+import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
  */
-public class InterestRateInstrumentParRateCurveSensitivityFunction extends InterestRateInstrumentFunction {
-
+public class InterestRateInstrumentParRateCurveSensitivityFunction extends InterestRateInstrumentCurveSpecificFunction {
   private static final ParRateCurveSensitivityCalculator CALCULATOR = ParRateCurveSensitivityCalculator.getInstance();
 
   public InterestRateInstrumentParRateCurveSensitivityFunction() {
@@ -31,13 +31,14 @@ public class InterestRateInstrumentParRateCurveSensitivityFunction extends Inter
   }
 
   @Override
-  public Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle,
-      final FinancialSecurity security, final ComputationTarget target, final String forwardCurveName, final String fundingCurveName,
-      final String curveCalculationMethod, final String currency) {
-    final Map<String, List<DoublesPair>> sensitivities = CALCULATOR.visit(derivative, bundle);
-    return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod,
-        currency), sensitivities));
-
+  public Set<ComputedValue> getResults(final InstrumentDerivative derivative, final String curveName, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec, final YieldCurveBundle curves,
+      final ValueSpecification resultSpec) {
+    final Map<String, List<DoublesPair>> sensitivities = CALCULATOR.visit(derivative, curves);
+    if (!sensitivities.containsKey(curveName)) {
+      throw new OpenGammaRuntimeException("Could not get par rate curve sensitivities for curve named " + curveName + "; should never happen");
+    }
+    final List<DoublesPair> resultList = sensitivities.get(curveName);
+    return YieldCurveNodeSensitivitiesHelper.getTimeLabelledSensitivitiesForCurve(resultList, resultSpec);
   }
 
 }
