@@ -6,7 +6,7 @@
 package com.opengamma.util.db;
 
 
-import static com.opengamma.util.db.DbUtil.fixSQLExceptionCause;
+import static com.opengamma.util.db.HibernateDbUtils.fixSQLExceptionCause;
 
 import java.io.Closeable;
 import java.sql.Timestamp;
@@ -99,7 +99,6 @@ public class DbConnector implements Closeable {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the display name of the connector.
    * 
@@ -137,7 +136,6 @@ public class DbConnector implements Closeable {
   }
 
   //-------------------------------------------------------------------------
-
   /**
    * Gets the Hibernate session factory.
    * <p>
@@ -163,8 +161,26 @@ public class DbConnector implements Closeable {
     return _hibernateTemplate;
   }
 
-  //-------------------------------------------------------------------------
+  /**
+   * Gets the simple Hibernate transaction template.
+   * 
+   * @return the Hibernate transaction template, not null
+   */
+  public HibernateTransactionTemplate getHibernateTransactionTemplate() {
+    return new HibernateTransactionTemplate();
+  }
 
+  /**
+   * Gets the retrying Hibernate transaction template.
+   * 
+   * @param retries how many maximum retires should be tried
+   * @return the retrying Hibernate transaction template, not null
+   */
+  public HibernateTransactionTemplateRetrying getHibernateTransactionTemplateRetrying(int retries) {
+    return new HibernateTransactionTemplateRetrying(retries);
+  }
+
+  //-------------------------------------------------------------------------
   /**
    * Gets the transaction manager.
    * <p>
@@ -197,8 +213,8 @@ public class DbConnector implements Closeable {
   public TransactionTemplateRetrying getTransactionTemplateRetrying(int retries) {
     return new TransactionTemplateRetrying(retries);
   }
-  //-------------------------------------------------------------------------
 
+  //-------------------------------------------------------------------------
   /**
    * Gets the current instant using the database clock.
    * 
@@ -245,30 +261,24 @@ public class DbConnector implements Closeable {
     return getClass().getSimpleName() + "[" + _name + "]";
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * Gets the retrying hibernate transaction template.
-   * <p>
-   * @param retries how many maximum retires should be tried
-   * @return the retrying hibernate transaction template
+   * The retrying template.
    */
-  public HibernateTransactionTemplateRetrying getHibernateTransactionTemplateRetrying(int retries) {
-    return new HibernateTransactionTemplateRetrying(retries);
-  }
-
   public class TransactionTemplateRetrying {
-    final private int _retries;
-    final private TransactionTemplate _tt;
+    private final int _retries;
+    private final TransactionTemplate _transactionTemplate;
 
     TransactionTemplateRetrying(int retries) {
       _retries = retries;
-      _tt = getTransactionTemplate();
+      _transactionTemplate = getTransactionTemplate();
     }
 
     public <T> T execute(TransactionCallback<T> action) throws TransactionException {
       // retry to handle concurrent conflicting inserts into unique content tables
       for (int retry = 0; true; retry++) {
         try {
-          return _tt.execute(action);
+          return _transactionTemplate.execute(action);
         } catch (DataIntegrityViolationException ex) {
           if (retry == _retries) {
             throw ex;
@@ -280,25 +290,24 @@ public class DbConnector implements Closeable {
     }
   }
 
-  public HibernateTransactionTemplate getHibernateTransactionTemplate() {
-    return new HibernateTransactionTemplate();
-  }
-
+  /**
+   * The standard template.
+   */
   public class HibernateTransactionTemplate {
-    final private TransactionTemplate _tt;
-    final private HibernateTemplate _ht;
+    private final TransactionTemplate _transactionTemplate;
+    private final HibernateTemplate _hibernateTemplate;
 
-    private HibernateTransactionTemplate() {
-      _tt = getTransactionTemplate();
-      _ht = getHibernateTemplate();
+    HibernateTransactionTemplate() {
+      _transactionTemplate = getTransactionTemplate();
+      _hibernateTemplate = getHibernateTemplate();
     }
 
     public <T> T execute(final HibernateCallback<T> action) throws TransactionException {
       try {
-        return _tt.execute(new TransactionCallback<T>() {
+        return _transactionTemplate.execute(new TransactionCallback<T>() {
           @Override
           public T doInTransaction(TransactionStatus status) {
-            return _ht.execute(action);
+            return _hibernateTemplate.execute(action);
           }
         });
       } catch (DataAccessException ex) {
@@ -307,26 +316,29 @@ public class DbConnector implements Closeable {
     }
   }
 
+  /**
+   * The retrying template.
+   */
   public class HibernateTransactionTemplateRetrying {
-    final private int _retries;
-    final private TransactionTemplate _tt;
-    final private HibernateTemplate _ht;
+    private final int _retries;
+    private final TransactionTemplate _transactionTemplate;
+    private final HibernateTemplate _hibernateTemplate;
 
-    private HibernateTransactionTemplateRetrying(int retries) {
+    HibernateTransactionTemplateRetrying(int retries) {
       _retries = retries;
-      _tt = getTransactionTemplate();
-      _ht = getHibernateTemplate();
-      _ht.setAllowCreate(false);
+      _transactionTemplate = getTransactionTemplate();
+      _hibernateTemplate = getHibernateTemplate();
+      _hibernateTemplate.setAllowCreate(false);
     }
 
     public <T> T execute(final HibernateCallback<T> action) throws TransactionException {
       // retry to handle concurrent conflicting inserts into unique content tables
       for (int retry = 0; true; retry++) {
         try {
-          return _tt.execute(new TransactionCallback<T>() {
+          return _transactionTemplate.execute(new TransactionCallback<T>() {
             @Override
             public T doInTransaction(TransactionStatus status) {
-              return _ht.execute(action);
+              return _hibernateTemplate.execute(action);
             }
           });
         } catch (DataIntegrityViolationException ex) {

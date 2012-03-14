@@ -35,8 +35,11 @@ import com.opengamma.master.security.SecurityDocument;
 import com.opengamma.master.security.SecurityLoader;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.InMemorySecurityMaster;
+import com.opengamma.web.FreemarkerOutputter;
 import com.opengamma.web.MockUriInfo;
 import com.opengamma.web.WebResourceTestUtils;
+
+import freemarker.template.Configuration;
 
 /**
  * 
@@ -76,7 +79,11 @@ public abstract class AbstractWebSecurityResourceTestCase {
     addSecurity(WebResourceTestUtils.getBondFutureSecurity());
         
     _webSecuritiesResource = new WebSecuritiesResource(_secMaster, _secLoader, _htsSource);
-    _webSecuritiesResource.setServletContext(new MockServletContext("/web-engine", new FileSystemResourceLoader()));
+    MockServletContext sc = new MockServletContext("/web-engine", new FileSystemResourceLoader());
+    Configuration cfg = FreemarkerOutputter.createConfiguration();
+    cfg.setServletContextForTemplateLoading(sc, "WEB-INF/pages");
+    FreemarkerOutputter.init(sc, cfg);
+    _webSecuritiesResource.setServletContext(sc);
     _webSecuritiesResource.setUriInfo(_uriInfo);
     
   }

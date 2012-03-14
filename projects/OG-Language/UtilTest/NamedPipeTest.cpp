@@ -12,7 +12,7 @@
 
 LOGGING (com.opengamma.language.util.NamedPipeTest);
 
-#define TIMEOUT_PIPE			1500
+#define TIMEOUT_PIPE			2000
 #define TIMEOUT_HANG			(TIMEOUT_PIPE * 2)
 #define TIMEOUT_JOIN			(TIMEOUT_PIPE * 4)
 #define TIMEOUT_READWRITE		(TIMEOUT_PIPE / 3)

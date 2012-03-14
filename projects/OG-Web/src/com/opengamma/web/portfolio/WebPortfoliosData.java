@@ -597,7 +597,7 @@ public class WebPortfoliosData extends DirectBean {
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
         this, null,
         "portfolioMaster",
         "positionMaster",
@@ -657,8 +657,8 @@ public class WebPortfoliosData extends DirectBean {
     }
 
     @Override
-    public Map<String, MetaProperty<Object>> metaPropertyMap() {
-      return _map;
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return _metaPropertyMap$;
     }
 
     //-----------------------------------------------------------------------

@@ -114,7 +114,7 @@ public interface DbManagement {
    * @param prefix the prefix of objects' names                
    * @return a dialect specific string describing the database, not null
    */
-  public String describeDatabase(final String catalog, final String prefix);
+  String describeDatabase(final String catalog, final String prefix);
 
   /**
    * Describes the structure of the database.

@@ -15,30 +15,28 @@ import org.hibernate.HibernateException;
 import org.hibernate.engine.SessionImplementor;
 import org.hibernate.type.Type;
 import org.hibernate.usertype.CompositeUserType;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.UniqueId;
 
-
 /**
  * Persist {@link com.opengamma.id.UniqueId} via hibernate as a 3 Strings.
- *
  */
 public class PersistentCompositeUniqueId implements CompositeUserType {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PersistentCompositeUniqueId.class);
-
+  /**
+   * Singleton instance.
+   */
   public static final PersistentCompositeUniqueId INSTANCE = new PersistentCompositeUniqueId();
 
   @Override
   public String[] getPropertyNames() {
-    return new String[]{"scheme", "value", "version"};
+    return new String[] {"scheme", "value", "version" };
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public Type[] getPropertyTypes() {
-    return new Type[]{Hibernate.STRING, Hibernate.STRING, Hibernate.STRING};
+    return new Type[] {Hibernate.STRING, Hibernate.STRING, Hibernate.STRING };
   }
 
   @Override
@@ -51,7 +49,7 @@ public class PersistentCompositeUniqueId implements CompositeUserType {
     } else {
       return uid.getVersion();
     }
-    }
+  }
 
   @Override
   public void setPropertyValue(Object component, int property, Object value) throws HibernateException {
@@ -59,7 +57,7 @@ public class PersistentCompositeUniqueId implements CompositeUserType {
   }
 
   @Override
-  public Class returnedClass() {
+  public Class<?> returnedClass() {
     return UniqueId.class;
   }
 
@@ -84,6 +82,7 @@ public class PersistentCompositeUniqueId implements CompositeUserType {
     return UniqueId.of(scheme, value, version);
   }
 
+  @SuppressWarnings("deprecation")
   @Override
   public void nullSafeSet(PreparedStatement statement, Object value, int index, SessionImplementor session) throws HibernateException, SQLException {
     if (value == null) {
@@ -96,7 +95,7 @@ public class PersistentCompositeUniqueId implements CompositeUserType {
       statement.setString(index + 1, uid.getValue());
       if (uid.getVersion() != null) {
         statement.setString(index + 2, uid.getVersion());
-    } else {
+      } else {
         statement.setNull(index + 2, Hibernate.STRING.sqlType());
       }
     }

@@ -1,0 +1,78 @@
+<!--
+  Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+
+  Please see distribution for license.
+-->
+<project name="version">
+
+  <!--
+    Version management utility tasks and macros
+  -->
+
+  <!--
+    module-build-number:
+        Set the module.build.number property. This the build.number property
+        adjusted by the build.number.offset property if defined. This allows
+        a source of build numbers to be "reset" to an origin value. For
+        example reconfiguring a build servers so that generated build numbers
+        start again at 1, would require a constant positive adjustment to be
+        applied to maintain a continuous sequence of built artifacts. Moving
+        to a new major/minor version could require a constant negative
+        adjustment so that the artifact's effective build numbers start again
+        at 0 or 1.
+  -->
+  <target name="build-number-offset" if="build.number.offset">
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+    <math result="module.build.number" operand1="${build.number}" operation="+" operand2="${build.number.offset}" datatype="int" />
+  </target>
+  <target name="build-number-direct" unless="build.number.offset">
+    <property name="module.build.number" value="${build.number}" />
+  </target>
+  <target name="module-build-number" depends="build-number-offset,build-number-direct" />
+
+  <!--
+    version-header:
+        Creates the version.h file in the root folder containing the version
+        numbers.
+  -->
+  <target name="version-cpp-header" depends="module-build-number">
+    <property name="version.cpp.header.file" value="${build.dir}/version.h" />
+    <property name="version.cpp.temp.file" value="${build.dir}/.version" />
+    <echo file="${version.cpp.temp.file}">
+module.version=${module.version.target}
+module.version.major=${module.version.target}
+module.version.minor=${module.version.target}
+module.version.revision=${module.version.target}
+</echo>
+    <replaceregexp file="${version.cpp.temp.file}" match="version=(\d+\.\d+\.\d+)\w*$" replace="version=\1" flags="m" />
+    <replaceregexp file="${version.cpp.temp.file}" match="major=(\d+)\.\d+\.\d+\w*$" replace="major=\1" flags="m" />
+    <replaceregexp file="${version.cpp.temp.file}" match="minor=\d+\.(\d+)\.\d+\w*$" replace="minor=\1" flags="m" />
+    <replaceregexp file="${version.cpp.temp.file}" match="revision=\d+\.\d+\.(\d+)\w*$" replace="revision=\1" flags="m" />
+    <property file="${version.cpp.temp.file}" />
+    <delete file="${version.cpp.temp.file}" />
+    <echo file="${version.cpp.header.file}">// Automatically generated file -- do not modify
+
+#ifndef _VERSION_H_
+#define _VERSION_H_
+
+#define VERSION_MAJOR   ${module.version.major}
+#define VERSION_MINOR   ${module.version.minor}
+#define REVISION        ${module.version.revision}
+
+#ifndef BUILD_NUMBER
+#define BUILD_NUMBER    ${module.build.number}
+#endif /* ifndef BUILD_NUMBER */
+
+#ifndef VERSION_SUFFIX
+#ifdef _DEBUG
+#define VERSION_SUFFIX  "-Debug"
+#else /* ifdef _DEBUG */
+#define VERSION_SUFFIX  ""
+#endif /* ifdef _DEBUG */
+#endif /* ifndef VERSION_SUFFIX */
+
+#endif /* ifndef _VERSION_H_ */
+</echo>
+  </target>
+
+</project>

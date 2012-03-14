@@ -1,0 +1,88 @@
+<project name="installer-core">
+
+  <property file="${common.dir}/build.properties" />
+  <import file="${common.dir}/version.xml" />
+  <import file="${common.dir}/advanced-installer.xml" />
+
+  <!-- localised configuration -->
+
+  <target name="create-temp">
+    <copy file="${ai.input.file}" tofile="${ai.build.file}" overwrite="true" />
+  </target>
+
+  <target name="enable-all" />
+
+  <target name="create-build-file" depends="create-temp,enable-all" />
+
+  <target name="set-build-number" if="ai.present" unless="disable.build.all" depends="module-build-number">
+    <ai-set-version version="${module.version.msi}.${module.build.number}" />
+  </target>
+
+  <!-- installer construction -->
+
+  <target name="build-jvm-i386-check">
+    <condition property="disable.build.jvm.i386">
+      <or>
+        <isset property="disable.build.jvm" />
+        <isset property="disable.build.i386" />
+        <isset property="disable.build.all" />
+      </or>
+    </condition>
+  </target>
+  <target name="build-jvm-i386" depends="build-jvm-i386-check" unless="disable.build.jvm.i386">
+    <ai-build build-id="${aip.build.jvm.i386}" />
+  </target>
+
+  <target name="build-jvm-x64-check">
+    <condition property="disable.build.jvm.x64">
+      <or>
+        <isset property="disable.build.jvm" />
+        <isset property="disable.build.x64" />
+        <isset property="disable.build.all" />
+      </or>
+    </condition>
+  </target>
+  <target name="build-jvm-x64" depends="build-jvm-x64-check" unless="disable.build.jvm.x64">
+    <ai-build build-id="${aip.build.jvm.x64}" />
+  </target>
+
+  <target name="build-nojvm-i386-check">
+    <condition property="disable.build.nojvm.i386">
+      <or>
+        <isset property="disable.build.nojvm" />
+        <isset property="disable.build.i386" />
+        <isset property="disable.build.all" />
+      </or>
+    </condition>
+  </target>
+  <target name="build-nojvm-i386" depends="build-nojvm-i386-check" unless="disable.build.nojvm.i386">
+    <ai-build build-id="${aip.build.nojvm.i386}" />
+  </target>
+
+  <target name="build-nojvm-x64-check">
+    <condition property="disable.build.nojvm.x64">
+      <or>
+        <isset property="disable.build.nojvm" />
+        <isset property="disable.build.x64" />
+        <isset property="disable.build.all" />
+      </or>
+    </condition>
+  </target>
+  <target name="build-nojvm-x64" depends="build-nojvm-x64-check" unless="disable.build.nojvm.x64">
+    <ai-build build-id="${aip.build.nojvm.x64}" />
+  </target>
+
+  <!-- execution hooks -->
+
+  <target name="build-all" depends="ai-present" if="ai.present">
+    <parallel>
+      <antcall target="build-jvm-i386" inheritrefs="true" />
+      <antcall target="build-jvm-x64" inheritrefs="true" />
+      <antcall target="build-nojvm-i386" inheritrefs="true" />
+      <antcall target="build-nojvm-x64" inheritrefs="true" />
+    </parallel>
+  </target>
+
+  <target name="build" depends="create-build-file,set-build-number,build-all" />
+
+</project>

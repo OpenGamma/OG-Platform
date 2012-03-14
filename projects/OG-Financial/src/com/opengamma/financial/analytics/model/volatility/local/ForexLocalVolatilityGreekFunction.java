@@ -55,6 +55,7 @@ import com.opengamma.util.money.Currency;
  */
 public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompiledInvoker {
   private static final String[] GREEK_NAMES = new String[] {
+
       ValueRequirementNames.LOCAL_VOLATILITY_DELTA,
       ValueRequirementNames.LOCAL_VOLATILITY_DUAL_DELTA,
       ValueRequirementNames.LOCAL_VOLATILITY_DUAL_GAMMA,
@@ -501,7 +502,7 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
     final Currency putCurrency = fxOption.getPutCurrency();
     final Currency callCurrency = fxOption.getCallCurrency();
     if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
-      return fxOption.getCallAmount() / fxOption.getPutAmount(); //Review R White 8/3/2012 this was done wrongly in 3 different places 
+      return fxOption.getCallAmount() / fxOption.getPutAmount(); //Review R White 8/3/2012 this was done wrongly in 3 different places
     }
     return fxOption.getPutAmount() / fxOption.getCallAmount();
 

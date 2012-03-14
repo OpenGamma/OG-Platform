@@ -1,0 +1,31 @@
+<project name="installer" default="build">
+
+  <target name="build-servers" unless="disable.servers">
+    <subant buildpath="." antfile="servers.xml" inheritall="true" target="build" />
+  </target>
+
+  <target name="build-clients" unless="disable.clients">
+    <subant buildpath="." antfile="clients.xml" inheritall="true" target="build" />
+  </target>
+
+  <!-- TODO: any other classes, e.g. administration tools -->
+
+  <target name="build-monolith" unless="disable.monolith">
+    <subant buildpath="." antfile="monolith.xml" inheritall="true" target="build" />
+  </target>
+  
+  <target name="build" description="Builds the installer packages in the dist sub-directory">
+    <parallel>
+      <antcall target="build-servers" inheritrefs="true" />
+      <antcall target="build-clients" inheritrefs="true" />
+    </parallel>
+    <antcall target="build-monolith" inheritrefs="true" />
+  </target>
+
+  <target name="clean" description="Removes the generated installer artifacts">
+    <delete dir="dist" failonerror="false" />
+    <delete file="temp.aip" failonerror="false" />
+    <delete dir="temp-cache" failonerror="false" />
+  </target>
+
+</project>
