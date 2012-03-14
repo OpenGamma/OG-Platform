@@ -1,10 +1,34 @@
-<project name="client" default="compile">
-	<import file="build.impl.xml" />
+<project name="client">
 
-	<!-- Suppress default targets (the clean wrecks the C++ header area)-->
-	<target name="clean-lib" />
-	<target name="clean-build" />
-	<target name="clean-dist" />
-	<target name="ivy-new-version" />
+  <target name="fudge-proto" unless="proto.c.disabled">
+    <java classname="org.fudgemsg.proto.CommandLine" classpathref="lib.path.id" fork="true">
+      <arg value="-d${solution.dir}/Connector" />
+      <arg value="-lC" />
+      <arg value="-Xinclude=stdafx.h" />
+      <arg value="-s${src.dir}" />
+      <arg value="${src.dir}/com/opengamma/language/Data.proto" />
+      <arg value="${src.dir}/com/opengamma/language/connector/Custom.proto" />
+      <arg value="${src.dir}/com/opengamma/language/connector/ConnectorMessage.proto" />
+      <arg value="${src.dir}/com/opengamma/language/connector/UserMessage.proto" />
+      <arg value="${src.dir}/com/opengamma/language/connector/Test.proto" />
+      <arg value="${src.dir}/com/opengamma/language/function/Available.proto" />
+      <arg value="${src.dir}/com/opengamma/language/function/Custom.proto" />
+      <arg value="${src.dir}/com/opengamma/language/function/Invoke.proto" />
+      <arg value="${src.dir}/com/opengamma/language/function/QueryAvailable.proto" />
+      <arg value="${src.dir}/com/opengamma/language/function/Result.proto" />
+      <arg value="${src.dir}/com/opengamma/language/livedata/Available.proto" />
+      <arg value="${src.dir}/com/opengamma/language/livedata/Connect.proto" />
+      <arg value="${src.dir}/com/opengamma/language/livedata/Custom.proto" />
+      <arg value="${src.dir}/com/opengamma/language/livedata/Disconnect.proto" />
+      <arg value="${src.dir}/com/opengamma/language/livedata/QueryAvailable.proto" />
+      <arg value="${src.dir}/com/opengamma/language/livedata/QueryValue.proto" />
+      <arg value="${src.dir}/com/opengamma/language/livedata/Result.proto" />
+      <arg value="${src.dir}/com/opengamma/language/procedure/Available.proto" />
+      <arg value="${src.dir}/com/opengamma/language/procedure/Custom.proto" />
+      <arg value="${src.dir}/com/opengamma/language/procedure/Invoke.proto" />
+      <arg value="${src.dir}/com/opengamma/language/procedure/QueryAvailable.proto" />
+      <arg value="${src.dir}/com/opengamma/language/procedure/Result.proto" />
+    </java>
+  </target>
 
 </project>

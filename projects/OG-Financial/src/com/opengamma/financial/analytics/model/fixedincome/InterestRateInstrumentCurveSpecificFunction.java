@@ -152,7 +152,7 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
     if (curveName == null) {
-      throw new OpenGammaRuntimeException("Must specify a curve against which to calculate the node sensitivities");
+      throw new OpenGammaRuntimeException("Must specify a curve against which to calculate the desired value " + _valueRequirement);
     }
     final Set<String> forwardCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     if (forwardCurves == null || forwardCurves.size() != 1) {
@@ -169,8 +169,9 @@ public abstract class InterestRateInstrumentCurveSpecificFunction extends Abstra
     final String forwardCurveName = forwardCurves.iterator().next();
     final String fundingCurveName = fundingCurves.iterator().next();
     if (!curveName.equals(forwardCurveName) && !curveName.equals(fundingCurveName)) {
-      throw new OpenGammaRuntimeException("Asked for sensitivities to a curve (" + curveName + ") to which this interest rate future is not sensitive " +
-          "(allowed " + forwardCurveName + " and " + fundingCurveName + ")");
+      //      throw new OpenGammaRuntimeException("Asked for sensitivities to a curve (" + curveName + ") to which this interest rate future is not sensitive " +
+      //          "(allowed " + forwardCurveName + " and " + fundingCurveName + ")");
+      return null;
     }
     final String calculationMethod = calculationMethodNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();

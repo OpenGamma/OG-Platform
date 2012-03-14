@@ -24,9 +24,9 @@ import com.opengamma.util.ArgumentChecker;
  * Dummy function for injecting default curve names into the dependency graph.
  */
 public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunction {
-
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES};
 
   private final String[] _applicableCurrencyNames;
