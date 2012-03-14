@@ -49,7 +49,9 @@
       <pathelement path="${build.dir}/ext" />
     </path>
     <pathconvert targetos="unix" property="language.ext.path.unix" refid="language.ext.path.system" />
-    <echo file="${test.properties.dir}/${test.properties}">language.ext.path=${language.ext.path.unix}</echo>
+    <echo file="${test.properties.dir}/${test.properties}">language.ext.path=${language.ext.path.unix}
+opengamma.engine.host=${opengamma.engine.host}
+</echo>
   </target>
 
   <target name="test-batch-cpp" depends="jar,core.test-batch-cpp" />
