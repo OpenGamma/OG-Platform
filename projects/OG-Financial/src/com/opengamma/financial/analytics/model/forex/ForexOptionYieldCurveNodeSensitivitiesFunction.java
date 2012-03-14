@@ -27,7 +27,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
-import com.opengamma.financial.analytics.model.ircurve.MarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.forex.calculator.PresentValueYieldCurveNodeSensitivityForexCalculator;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
@@ -117,13 +117,13 @@ public class ForexOptionYieldCurveNodeSensitivitiesFunction extends ForexOptionF
     putArrayResult = CALCULATOR.calculate(curveSensitivities, putCurveBundle, putCouponSensitivity, putJacobian);
     callArrayResult = CALCULATOR.calculate(curveSensitivities, callCurveBundle, callCouponSensitivity, callJacobian);
     final Set<ComputedValue> result = new HashSet<ComputedValue>();
-    result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(fullPutFundingCurveName, data, putArrayResult.get(fullPutFundingCurveName), putFundingCurveSpec,
+    result.addAll(YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullPutFundingCurveName, data, putArrayResult.get(fullPutFundingCurveName), putFundingCurveSpec,
         getResultSpecForCurve(target, putCurrencyString, putFundingCurveName, putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName)));
-    result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(fullPutForwardCurveName, data, putArrayResult.get(fullPutForwardCurveName), putForwardCurveSpec,
+    result.addAll(YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullPutForwardCurveName, data, putArrayResult.get(fullPutForwardCurveName), putForwardCurveSpec,
         getResultSpecForCurve(target, putCurrencyString, putForwardCurveName, putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName)));
-    result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(fullCallFundingCurveName, data, callArrayResult.get(fullCallFundingCurveName), callFundingCurveSpec,
+    result.addAll(YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCallFundingCurveName, data, callArrayResult.get(fullCallFundingCurveName), callFundingCurveSpec,
         getResultSpecForCurve(target, callCurrencyString, callFundingCurveName, putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName)));
-    result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(fullCallForwardCurveName, data, callArrayResult.get(fullCallForwardCurveName), callForwardCurveSpec,
+    result.addAll(YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(fullCallForwardCurveName, data, callArrayResult.get(fullCallForwardCurveName), callForwardCurveSpec,
         getResultSpecForCurve(target, callCurrencyString, callForwardCurveName, putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName)));
     return result;
   }

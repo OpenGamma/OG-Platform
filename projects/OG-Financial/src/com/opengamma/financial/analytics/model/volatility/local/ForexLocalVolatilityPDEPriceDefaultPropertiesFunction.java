@@ -21,6 +21,10 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class ForexLocalVolatilityPDEPriceDefaultPropertiesFunction extends DefaultPropertyFunction {
+  private static final String[] s_valueRequirements = new String[] {
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.FX_PRESENT_VALUE
+  };
   private final String _forwardCurveCalculationMethod;
   private final String _forwardCurveName;
   private final String _surfaceType;
@@ -81,23 +85,25 @@ public class ForexLocalVolatilityPDEPriceDefaultPropertiesFunction extends Defau
 
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, ValuePropertyNames.CURVE_CALCULATION_METHOD);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, ValuePropertyNames.CURVE);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_H);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_MAX_MONEYNESS);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_PDE_DIRECTION);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_SPACE_GRID_BUNCHING);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_SPACE_STEPS);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, ValuePropertyNames.SURFACE);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_THETA);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_TIME_GRID_BUNCHING);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_TIME_STEPS);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_RESULT_STRIKE_INTERPOLATOR);
-    defaults.addValuePropertyName(ValueRequirementNames.PRESENT_VALUE, LocalVolatilityPDEValuePropertyNames.PROPERTY_RESULT_TIME_INTERPOLATOR);
+    for (final String valueRequirement : s_valueRequirements) {
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE_CALCULATION_METHOD);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.CURVE);
+      defaults.addValuePropertyName(valueRequirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_H);
+      defaults.addValuePropertyName(valueRequirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_MAX_MONEYNESS);
+      defaults.addValuePropertyName(valueRequirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_PDE_DIRECTION);
+      defaults.addValuePropertyName(valueRequirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_SPACE_GRID_BUNCHING);
+      defaults.addValuePropertyName(valueRequirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_SPACE_STEPS);
+      defaults.addValuePropertyName(valueRequirement, ValuePropertyNames.SURFACE);
+      defaults.addValuePropertyName(valueRequirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_SURFACE_TYPE);
+      defaults.addValuePropertyName(valueRequirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_THETA);
+      defaults.addValuePropertyName(valueRequirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_TIME_GRID_BUNCHING);
+      defaults.addValuePropertyName(valueRequirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_TIME_STEPS);
+      defaults.addValuePropertyName(valueRequirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_X_AXIS);
+      defaults.addValuePropertyName(valueRequirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS);
+      defaults.addValuePropertyName(valueRequirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_Y_AXIS_TYPE);
+      defaults.addValuePropertyName(valueRequirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_RESULT_STRIKE_INTERPOLATOR);
+      defaults.addValuePropertyName(valueRequirement, LocalVolatilityPDEValuePropertyNames.PROPERTY_RESULT_TIME_INTERPOLATOR);
+    }
   }
 
   @Override

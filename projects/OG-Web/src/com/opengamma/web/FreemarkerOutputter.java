@@ -7,6 +7,7 @@ package com.opengamma.web;
 
 import java.io.IOException;
 import java.io.StringWriter;
+import java.util.Locale;
 import java.util.Map;
 
 import javax.servlet.ServletContext;
@@ -14,11 +15,14 @@ import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.DateTimeFormatters;
 
 import org.joda.beans.impl.flexi.FlexiBean;
+import org.joda.beans.integrate.freemarker.FreemarkerObjectWrapper;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.OpenGammaClock;
 
 import freemarker.template.Configuration;
 import freemarker.template.Template;
+import freemarker.template.TemplateScalarModel;
 
 /**
  * Main class that groups functionality for outputting to Freemarker.
@@ -29,19 +33,67 @@ import freemarker.template.Template;
 public class FreemarkerOutputter {
 
   /**
-   *
+   * The servlet context attribute.
    */
-  public static final String FREEMARKER_CONFIGURATION = "FREEMARKER_CONFIGURATION";
+  private static final String FREEMARKER_CONFIGURATION = FreemarkerOutputter.class.getName() + ".FreemarkerConfiguration";
+
   /**
    * The Freemarker configuration.
    */
   private final Configuration _configuration;
 
   /**
+   * Creates the Freemarker system configuration.
+   * <p>
+   * This creates the {@link Configuration Freemarker configuration} which must be customised
+   * with a template loader. Callers must then invoke {@link #init(ServletContext, Configuration)}.
+   * 
+   * @return the standard Freemarker configuration, not null
+   */
+  public static Configuration createConfiguration() {
+    Configuration cfg = new Configuration();
+    cfg.setDefaultEncoding("UTF-8");
+    cfg.setOutputEncoding("UTF-8");
+    cfg.setLocale(Locale.ENGLISH);
+    cfg.setLocalizedLookup(true);
+    cfg.addAutoInclude("common/base.ftl");
+    FreemarkerObjectWrapper objectWrapper = new FreemarkerObjectWrapper();
+    objectWrapper.setNullModel(TemplateScalarModel.EMPTY_STRING);
+    cfg.setObjectWrapper(objectWrapper);
+    return cfg;
+  }
+
+  /**
+   * Initializes the Freemarker system.
+   * <p>
+   * This stores the {@link Configuration Freemarker configuration} in the servlet context for later use.
+   * 
+   * @param servletContext  the servlet context, not null
+   * @param configuration  the configuration to use, not null
+   */
+  public static void init(ServletContext servletContext, Configuration configuration) {
+    servletContext.setAttribute(FreemarkerOutputter.FREEMARKER_CONFIGURATION, configuration);
+  }
+
+  //-------------------------------------------------------------------------
+  /**
    * Creates the resource.
+   * 
+   * @param servletContext  the servlet context, not null
    */
   FreemarkerOutputter(final ServletContext servletContext) {
+    ArgumentChecker.notNull(servletContext, "servletContext");
     _configuration = (Configuration) servletContext.getAttribute(FREEMARKER_CONFIGURATION);
+  }
+
+  /**
+   * Creates the resource.
+   * 
+   * @param configuration  the configuration, not null
+   */
+  FreemarkerOutputter(final Configuration configuration) {
+    ArgumentChecker.notNull(configuration, "configuration");
+    _configuration = configuration;
   }
 
   //-------------------------------------------------------------------------

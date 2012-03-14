@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!-- Property file configuration -->
+  <bean id="bbgDataRecordingProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="ignoreUnresolvablePlaceholders" value="true" />
+    <property name="location">
+      <value>classpath:bbgData-recording.properties</value>
+    </property>
+  </bean>
+
+  <!-- Bloomberg Timeseries Loader -->
+  <bean id="htsLoader" class="com.opengamma.production.marketdata.RandomTimeSeriesLoader">
+    <constructor-arg ref="dbHtsMaster" />
+  </bean>
+
+  <!--
+  The use of init-method and destroy-method are hacks until IGN-43 is resolved, at which point the lifecycle methods
+  will be called automatically.
+   -->
+
+  <!-- ############################################################################################################ -->
+  <!-- Need to respond to distributed entitlement requests ourself -->
+  <bean id="entitlementChecker" class="com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker" />
+  <bean id="entitlementServer" class="com.opengamma.livedata.entitlement.EntitlementServer">
+      <constructor-arg index="0" ref="entitlementChecker"/>
+  </bean>
+  <bean id="entitlementRequestDispatcher" class="com.opengamma.transport.FudgeRequestDispatcher">
+      <constructor-arg index="0" ref="entitlementServer"/>
+  </bean>
+  <bean id="entitlementRequestJmsReceiver" class="com.opengamma.transport.jms.JmsByteArrayRequestDispatcher">
+      <constructor-arg index="0" ref="entitlementRequestDispatcher"/>
+  </bean>
+  <bean id="entitlementJmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer" init-method="start" destroy-method="stop">
+      <property name="connectionFactory" ref="jmsConnectionFactory"/>
+      <property name="destination">
+          <bean class="org.apache.activemq.command.ActiveMQTopic">
+              <constructor-arg value="BloombergEntitlementRequestTopic" />
+          </bean>
+      </property>
+      <property name="messageListener" ref="entitlementRequestJmsReceiver" />
+      <property name="autoStartup" value="false" />
+  </bean>
+
+  <!-- ############################################################################################################ -->
+  <!--
+  Need to provide our own reference data, which is clearly necessary for things like determining the underlying of a
+  security. There are two phases to this: recording reference data and then using the recording for a true standalone
+  server. Uncomment the appropriate section below.
+  -->
+
+  <bean id="refDataFile" class="com.opengamma.util.FileFactoryBean">
+    <property name="filename" value="${opengamma.demo.refdata.file}" />
+  </bean>
+
+  <!--
+  Uncomment to form a recording of reference data.
+  -->
+  <!--
+  <bean id="sessionOptions" class="com.bloomberglp.blpapi.SessionOptions">
+    <property name="serverHost" value="${opengamma.bloomberg.host}" />
+    <property name="serverPort" value="${opengamma.bloomberg.port}" />
+  </bean>
+  <bean id="bbgRefDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider" init-method="start" destroy-method="stop">
+    <constructor-arg index="0" ref="sessionOptions" />
+  </bean>
+  <bean id="bbgReferenceDataProvider" class="com.opengamma.production.livedata.LoggingReferenceDataProvider">
+    <constructor-arg ref="bbgRefDataProvider" />
+    <constructor-arg ref="fudgeContext" />
+    <constructor-arg ref="refDataFile" />
+  </bean>
+  -->
+
+  <!-- Uncomment to use recorded reference data -->
+  <bean id="bbgReferenceDataProvider" class="com.opengamma.bbg.livedata.LoggedReferenceDataProvider">
+    <constructor-arg ref="fudgeContext" />
+    <constructor-arg ref="refDataFile" />
+  </bean>
+
+  <!-- ############################################################################################################ -->
+  <!--
+  The standalone instance needs its own live data server which publishes ticks on the standard topics on the local
+  ActiveMQ instance. For this we use a looped sample of recorded tick data.
+  -->
+  <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+      <property name="connectionFactory" ref="jmsConnectionFactory" />
+      <property name="pubSubDomain" value="true"/>
+  </bean>
+  <bean id="jmsSenderFactory" class="com.opengamma.livedata.server.distribution.JmsSenderFactory">
+      <property name="jmsConnector" ref="jmsConnector"/>
+  </bean>
+  <bean id="recordedLiveDataServer" class="com.opengamma.production.marketdata.RecordedBloombergLiveDataServer" init-method="start" destroy-method="stop">
+    <constructor-arg value="${opengamma.demo.ticks.path}" />
+    <constructor-arg value="${opengamma.demo.ticks.start}" />
+    <constructor-arg value="${opengamma.demo.ticks.end}" />
+    <constructor-arg ref="bbgReferenceDataProvider" />
+    <property name="entitlementChecker" ref="entitlementChecker" />
+    <property name="marketDataSenderFactory" ref="jmsSenderFactory" />
+    <property name="distributionSpecificationResolver" ref="distributionSpecificationResolver" />
+  </bean>
+  <bean id="distributionSpecificationResolver" factory-bean="recordedLiveDataServer" factory-method="getDefaultDistributionSpecificationResolver" />
+  <bean id="subscriptionRequestReceiver" class="com.opengamma.livedata.server.SubscriptionRequestReceiver">
+      <constructor-arg index="0" ref="recordedLiveDataServer"/>
+  </bean>
+  <bean id="subscriptionRequestDispatcher" class="com.opengamma.transport.FudgeRequestDispatcher">
+      <constructor-arg index="0" ref="subscriptionRequestReceiver"/>
+  </bean>
+
+  <bean id="subscriptionRequestJmsReceiver" class="com.opengamma.transport.jms.JmsByteArrayRequestDispatcher">
+      <constructor-arg index="0" ref="subscriptionRequestDispatcher"/>
+  </bean>
+  <bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer" init-method="start" destroy-method="stop">
+      <property name="connectionFactory" ref="jmsConnectionFactory"/>
+      <property name="destination">
+          <bean class="org.apache.activemq.command.ActiveMQTopic">
+              <constructor-arg value="BloombergSubscriptionRequestTopic" />
+          </bean>
+      </property>
+      <property name="messageListener" ref="subscriptionRequestJmsReceiver" />
+      <property name="autoStartup" value="false" />
+  </bean>
+
+
+</beans>

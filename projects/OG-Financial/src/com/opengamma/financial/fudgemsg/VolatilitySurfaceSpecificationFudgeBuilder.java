@@ -41,6 +41,9 @@ public class VolatilitySurfaceSpecificationFudgeBuilder implements FudgeBuilder<
     if (object.getSurfaceQuoteType() != null) {
       message.add("quote", object.getSurfaceQuoteType());
     }
+    if (object.getQuoteUnits() != null) {
+      message.add("quoteUnits", object.getQuoteUnits());
+    }
     serializer.addToMessageWithClassHeaders(message, "surfaceInstrumentProvider", null, object.getSurfaceInstrumentProvider());
     return message;
   }
@@ -57,11 +60,15 @@ public class VolatilitySurfaceSpecificationFudgeBuilder implements FudgeBuilder<
     if (message.hasField("quote") && message.getString("quote") != null) {
       quoteType = message.getString("quote");
     } else {
-      quoteType = SurfaceQuoteType.CALL_DELTA;
+      quoteType = SurfaceQuoteType.CALL_STRIKE;
     }
     final String name = message.getString("name");
     final FudgeField field = message.getByName("surfaceInstrumentProvider");
     final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider = (SurfaceInstrumentProvider<?, ?>) deserializer.fieldValueToObject(field);
+    if (message.hasField("quoteUnits") && message.getString("quoteUnits") != null) {
+      final String quoteUnits = message.getString("quoteUnits");
+      return new VolatilitySurfaceSpecification(name, target, quoteType, quoteUnits, surfaceInstrumentProvider);
+    }
     return new VolatilitySurfaceSpecification(name, target, quoteType, surfaceInstrumentProvider);
   }
 

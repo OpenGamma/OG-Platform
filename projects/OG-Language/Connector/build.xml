@@ -1,3 +1,20 @@
-<project name="Connector">
-	<import file="${basedir}/../build-cpp.xml" />
+<project name="Connector" xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks">
+
+	<import file="${basedir}/../build-core-cpp.xml" />
+
+  <target name="cpp-define-extra" if="cpp.present.ant">
+    <cpptasks:defineset id="cpp.define.extra">
+      <define name="DEFAULT_PIPE_FOLDER" value="TEXT (QUOTE (${defaults.pipe.folder}))" if="defaults.pipe.folder" />
+    </cpptasks:defineset>
+  </target>
+
+  <target name="clean" depends="core-cpp.clean">
+    <delete>
+      <fileset dir="${basedir}">
+        <include name="com_opengamma_language_*.c" />
+        <include name="com_opengamma_language_*.h" />
+      </fileset>
+    </delete>
+  </target>
+
 </project>

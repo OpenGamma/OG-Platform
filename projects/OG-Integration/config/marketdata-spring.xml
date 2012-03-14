@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <!-- Override properties configuration -->
+  <bean class="org.springframework.beans.factory.config.PropertyOverrideConfigurer">
+    <property name="ignoreInvalidKeys" value="true" />
+    <property name="location">
+      <value>classpath:marketdata-override.properties</value>
+    </property>
+  </bean>
+
+  <!-- Property file configuration -->
+  <bean id="marketDataSpringProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="ignoreUnresolvablePlaceholders" value="true" />
+    <property name="location">
+      <value>classpath:com/opengamma/web/marketdata.properties</value>
+    </property>
+  </bean>
+
+  <bean id="connector" class="org.eclipse.jetty.server.nio.SelectChannelConnector">
+    <property name="port" value="${jetty.port}" />
+    <property name="confidentialPort" value="${jetty.securePort}" />
+  </bean>
+  
+  <bean id="webAppContext" class="org.eclipse.jetty.webapp.WebAppContext">
+    <property name="contextPath" value="/" />
+    <property name="resourceBase" value="${jetty.resourceBase}" />
+    <property name="descriptor" value="${jetty.resourceBase}/WEB-INF/web.xml" />
+    <property name="defaultsDescriptor" value="./config/webdefaults.xml" />
+    <property name="initParams">
+      <map>
+        <entry key="contextConfigLocation" value="classpath:marketdata-beans.xml" />
+      </map>
+    </property>
+    <property name="eventListeners">
+      <list>
+        <bean id="contextLoader"
+              class="org.springframework.web.context.ContextLoaderListener" />
+      </list>
+    </property>
+  </bean>
+
+  <bean id="server" class="org.eclipse.jetty.server.Server" init-method="start" destroy-method="stop">
+
+    <property name="connectors">
+      <list>
+        <ref bean="connector" />
+      </list>
+    </property>
+
+    <property name="handler">
+      <bean id="handlerList" class="org.eclipse.jetty.server.handler.HandlerList">
+        <property name="handlers">
+          <list>
+            <ref bean="webAppContext" />
+          </list>
+        </property>
+      </bean>
+    </property>
+
+    <property name="stopAtShutdown" value="true" />
+    <property name="gracefulShutdown" value="1000" />
+    <property name="sendDateHeader" value="true" />
+    <property name="sendServerVersion" value="true" />
+
+  </bean>
+
+</beans>

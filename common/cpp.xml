@@ -1,0 +1,223 @@
+<!--
+  Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+
+  Please see distribution for license.
+-->
+<project name="cpp" xmlns:ivy="antlib:org.apache.ivy.ant">
+
+  <!--
+    Utility tasks and macros for working with C/C++ projects.
+  -->
+
+  <property file="${common.dir}/cpp.properties" />
+  <import file="${common.dir}/cpp-msvc.xml" />
+  <import file="${common.dir}/cpp-ant.xml" />
+
+  <!--
+    cpp-present:
+        Checks whether MSBuild (Windows) or CPPTasks (Unix) are available. If
+        they are the cpp.present property is set. If not, the property is
+        unset. If the build tools are not available the build will only fail
+        if cpp.required is set otherwise a message is printed.
+
+        cpp.present.msvc  is set if Visual Studio is being used
+        cpp.present.ant   is set if cpptasks is being used
+  -->
+  <target name="cpp-present" depends="cpp-present-msvc,cpp-present-ant" unless="cpp.present">
+    <echo>C/C++ support is not available. No binary artifacts will be produced.</echo>
+    <fail if="cpp.required" />
+  </target>
+
+  <!--
+    cpp-headers-present:
+        Checks whether the build environment can make the precompiled header,
+        i.e. if the necessary header files are installed on the system. Sets
+        cpp.headers.present if the are, if they are not reports a warning
+        message, fails if cpp.headers.required is set.
+
+        cpp.src.dir   the folder the source code is in
+  -->
+  <target name="cpp-headers-present" depends="cpp-present,cpp-headers-present-msvc,cpp-headers-present-ant" unless="cpp.headers.present">
+    <echo>Can't build ${ant.project.name} - required header files and libraries missing.</echo>
+    <fail if="cpp.headers.required" />
+  </target>
+
+  <!--
+    cpp-compile-all:
+    cpp-compile-release:
+    cpp-compile-debug:
+        Compiles one or more configurations of the project. The configurations
+        can be controlled with cpp.disable.<configuration> properties
+  -->
+  <target name="cpp-compile-debug" depends="cpp-compile-debug-msvc,cpp-compile-debug-ant" />
+  <target name="cpp-compile-release" depends="cpp-compile-release-msvc,cpp-compile-release-ant" />
+  <target name="cpp-compile-all" depends="cpp-headers-present" if="cpp.headers.present" unless="cpp.disable.all">
+    <parallel>
+      <antcall target="cpp-compile-debug" inheritrefs="true" />
+      <antcall target="cpp-compile-release" inheritrefs="true" />
+    </parallel>
+  </target>
+
+  <!--
+    cpp-compile-check:
+        Dependent target for building a configuration of the project. This will
+        be called before the configuration is built and can set properties that
+        are recognised by the build. E.g. cpp.disable.current will prevent any
+        further actions.
+
+        cpp.output      base artifact name based on the configuration
+        cpp.output.dir  artifact output path
+  -->
+  <target name="cpp-compile-check">
+    <echo>Compiling ${ant.project.name} (${cpp.output})</echo>
+  </target>
+
+  <!--
+    cpp-compile-after:
+        Called after a configuration of the project has been built.
+
+        cpp.output      base artifact name based on the configuration
+        cpp.output.dir  artifact output path
+  -->
+  <target name="cpp-compile-after" />
+
+  <!--
+    cpp-test-all:
+    cpp-test-release:
+    cpp-test-debug:
+        Runs the tests with one or more configurations of the project. The
+        configurations can be controlled with cpp.disable.<configuration>
+        properties
+  -->
+  <target name="cpp-test-debug" depends="cpp-test-debug-msvc,cpp-test-debug-ant" />
+  <target name="cpp-test-release" depends="cpp-test-release-msvc,cpp-test-release-ant" />
+  <target name="cpp-test-all" depends="cpp-headers-present" if="cpp.headers.present" unless="cpp.disable.all">
+    <antcall target="cpp-test-debug" inheritrefs="true" />
+    <antcall target="cpp-test-release" inheritrefs="true" />
+  </target>
+
+  <!--
+    cpp-test-check:
+        Dependent target for testing a configuration of the project. This will
+        be called before the configuration is tested and can set properties
+        that are recognised by the test. E.g. cpp.disable.current will prevent
+        any further actions.
+
+        cpp.test  base artifact name bsed on the configuration
+  -->
+  <target name="cpp-test-check">
+    <echo>Testing ${ant.project.name} (${cpp.test})</echo>
+  </target>
+
+  <!--
+    cpp-test-after
+        Called after a configuration of the project has been tested.
+
+        cpp.test  base artifact name based on the configuration
+  -->
+  <target name="cpp-test-after" />
+
+  <!--
+    cpp-publish-all:
+    cpp-publish-release:
+    cpp-publish-debug:
+        Copy headers and generated artifacts to a distribution directory.
+
+        cpp.publish.libraries  set to publish library items
+        cpp.publish.headers    set to publish header files
+        cpp.publish.binaries   set to publish binary executables
+
+    cpp-publish:
+        Publish a library or binary artifact from a configuration
+
+        cpp.output  set to the configuration label
+  -->
+  <target name="cpp-publish-library" if="cpp.publish.libraries">
+    <mkdir dir="${dist.dir}/lib/${cpp.output}" />
+    <copy todir="${dist.dir}/lib/${cpp.output}">
+      <fileset dir="${build.dir}/${cpp.output}">
+        <include name="lib${ant.project.name}.a" />
+        <include name="lib${ant.project.name}.so" />
+        <include name="${ant.project.name}.lib" />
+        <include name="${ant.project.name}.dll" />
+      </fileset>
+    </copy>
+  </target>
+  <target name="cpp-publish-headers" if="cpp.publish.headers">
+    <mkdir dir="${dist.dir}/include/${ant.project.name}" />
+    <copy todir="${dist.dir}/include/${ant.project.name}">
+      <fileset dir="${cpp.src.dir}">
+        <include name="*.h" />
+      </fileset>
+    </copy>
+  </target>
+  <target name="cpp-publish-binary" if="cpp.publish.binaries">
+    <mkdir dir="${dist.dir}/bin/${cpp.output}" />
+    <copy todir="${dist.dir}/bin/${cpp.output}">
+      <fileset dir="${build.dir}/${cpp.output}">
+        <include name="${ant.project.name}" />
+        <include name="${ant.project.name}.exe" />
+      </fileset>
+    </copy>
+  </target>
+  <target name="cpp-publish">
+    <antcall target="cpp-publish-library" />
+    <antcall target="cpp-publish-binary" />
+  </target>
+  <target name="cpp-publish-debug" depends="cpp-publish-debug-msvc,cpp-publish-debug-ant" />
+  <target name="cpp-publish-release" depends="cpp-publish-release-msvc,cpp-publish-release-ant" />
+  <target name="cpp-publish-all" depends="cpp-headers-present" if="cpp.headers.present" unless="cpp.disable.all">
+    <antcall target="cpp-publish-headers" inheritrefs="true" />
+    <antcall target="cpp-publish-debug" inheritrefs="true" />
+    <antcall target="cpp-publish-release" inheritrefs="true" />
+  </target>
+
+  <!--
+    cpp-clean-all:
+    cpp-clean-release:
+    cpp-clean-debug:
+        Delete all temporary build artifacts. This does not delete the
+        published artifacts or the build output; i.e. it tidies up the content
+        of the cpp.obj.dir folder.
+
+    cpp-clean:
+        Clean the temporary build artifacts from a configuration.
+
+        cpp.output  set to the configuration label
+  -->
+  <target name="cpp-clean-debug" depends="cpp-clean-debug-msvc,cpp-clean-debug-ant" />
+  <target name="cpp-clean-release" depends="cpp-clean-release-msvc,cpp-clean-release-ant" />
+  <target name="cpp-clean-all" depends="cpp-clean-debug,cpp-clean-release" />
+  <target name="cpp-clean">
+    <delete dir="${cpp.obj.dir}/${cpp.output}" />
+  </target>
+
+  <!--
+    unpack-resolve:
+        Expands out any IVY artifacts into the local "include" and "lib"
+        folders ready to be built. Common libraries are unpacked here (or in
+        the slave files) if the artifacts were detected.
+  -->
+  <macrodef name="unpack-zip">
+    <attribute name="org" />
+    <attribute name="name" />
+    <attribute name="type" />
+    <sequential>
+      <unzip dest="${lib.dir}/@{type}" overwrite="false">
+        <fileset dir="${lib.dir}/@{type}/@{org}/@{name}">
+          <include name="*.zip" />
+        </fileset>
+      </unzip>
+    </sequential>
+  </macrodef>
+  <target name="unpack-resolve-og-language" if="com.opengamma.og-language.lib">
+    <unpack-zip org="com.opengamma" name="og-language" type="include" />
+    <unpack-zip org="com.opengamma" name="og-language" type="lib" />
+  </target>
+  <target name="unpack-resolve-check" depends="cpp-present" if="cpp.present">
+    <ivy:artifactproperty name="[organization].[module].[type]" value="[revision]" />
+    <antcall target="unpack-resolve-og-language" />
+  </target>
+  <target name="unpack-resolve" depends="unpack-resolve-check,unpack-resolve-msvc,unpack-resolve-ant" />
+
+</project>
