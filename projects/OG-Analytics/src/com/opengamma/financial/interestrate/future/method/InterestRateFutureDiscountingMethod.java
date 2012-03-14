@@ -21,8 +21,8 @@ import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Method to compute the price for an interest rate future with discounting (like a forward). 
- * No convexity adjustment is done. 
+ * Method to compute the price for an interest rate future with discounting (like a forward).
+ * No convexity adjustment is done.
  */
 public final class InterestRateFutureDiscountingMethod extends InterestRateFutureMethod {
 
@@ -38,7 +38,7 @@ public final class InterestRateFutureDiscountingMethod extends InterestRateFutur
   /**
    * Computes the price of a future from the curves using an estimation of the future rate without convexity adjustment.
    * @param future The future.
-   * @param curves The yield curves. Should contain the forward curve associated. 
+   * @param curves The yield curves. Should contain the forward curve associated.
    * @return The price.
    */
   public double price(final InterestRateFuture future, final YieldCurveBundle curves) {
@@ -65,7 +65,7 @@ public final class InterestRateFutureDiscountingMethod extends InterestRateFutur
   /**
    * Computes the future rate (1-price) from the curves using an estimation of the future rate without convexity adjustment.
    * @param future The future.
-   * @param curves The yield curves. Should contain the forward curve associated. 
+   * @param curves The yield curves. Should contain the forward curve associated.
    * @return The rate.
    */
   public double parRate(final InterestRateFuture future, final YieldCurveBundle curves) {
@@ -80,7 +80,7 @@ public final class InterestRateFutureDiscountingMethod extends InterestRateFutur
   /**
    * Compute the price sensitivity to rates of a interest rate future by discounting.
    * @param future The future.
-   * @param curves The yield curves. Should contain the forward curve associated. 
+   * @param curves The yield curves. Should contain the forward curve associated.
    * @return The price rate sensitivity.
    */
   @Override
@@ -88,19 +88,21 @@ public final class InterestRateFutureDiscountingMethod extends InterestRateFutur
     Validate.notNull(future, "Future");
     Validate.notNull(curves, "Curves");
     final YieldAndDiscountCurve forwardCurve = curves.getCurve(future.getForwardCurveName());
-    double dfForwardStart = forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime());
-    double dfForwardEnd = forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime());
+    final double dfForwardStart = forwardCurve.getDiscountFactor(future.getFixingPeriodStartTime());
+    final double dfForwardEnd = forwardCurve.getDiscountFactor(future.getFixingPeriodEndTime());
     // Backward sweep
-    double priceBar = 1.0;
-    double forwardBar = -priceBar;
-    double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / future.getFixingPeriodAccrualFactor() * forwardBar;
-    double dfForwardStartBar = 1.0 / (future.getFixingPeriodAccrualFactor() * dfForwardEnd) * forwardBar;
-    Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
-    List<DoublesPair> listForward = new ArrayList<DoublesPair>();
+    final double priceBar = 1.0;
+    final double forwardBar = -priceBar;
+    final double dfForwardEndBar = -dfForwardStart / (dfForwardEnd * dfForwardEnd) / future.getFixingPeriodAccrualFactor() * forwardBar;
+    final double dfForwardStartBar = 1.0 / (future.getFixingPeriodAccrualFactor() * dfForwardEnd) * forwardBar;
+    final Map<String, List<DoublesPair>> resultMap = new HashMap<String, List<DoublesPair>>();
+    final List<DoublesPair> listForward = new ArrayList<DoublesPair>();
+    final List<DoublesPair> listFunding = new ArrayList<DoublesPair>();
     listForward.add(new DoublesPair(future.getFixingPeriodStartTime(), -future.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(future.getFixingPeriodEndTime(), -future.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
     resultMap.put(future.getForwardCurveName(), listForward);
-    InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
+    resultMap.put(future.getDiscountingCurveName(), listFunding);
+    final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return result;
   }
 
