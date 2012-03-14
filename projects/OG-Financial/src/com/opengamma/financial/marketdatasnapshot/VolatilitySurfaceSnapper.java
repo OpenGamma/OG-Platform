@@ -38,7 +38,8 @@ public class VolatilitySurfaceSnapper extends
     String surface = getSingleProperty(spec, ValuePropertyNames.SURFACE);
     String instrumentType = getSingleProperty(spec, "InstrumentType"); //TODO constant
     String quoteType = getSingleProperty(spec, SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
-    return new VolatilitySurfaceKey(uniqueId, surface, instrumentType, quoteType);
+    String quoteUnits = getSingleProperty(spec, SurfacePropertyNames.PROPERTY_SURFACE_UNITS);
+    return new VolatilitySurfaceKey(uniqueId, surface, instrumentType, quoteType, quoteUnits);
   }
 
   @SuppressWarnings("unchecked")
