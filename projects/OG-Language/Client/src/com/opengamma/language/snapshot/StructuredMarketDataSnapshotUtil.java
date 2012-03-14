@@ -55,11 +55,11 @@ import com.opengamma.util.tuple.Pair;
     if (!s_surfaceName.validate(parsed)) {
       return null;
     }
-    return new VolatilitySurfaceKey(UniqueId.parse(parsed[0]), parsed[1], parsed[3], parsed[2]);
+    return new VolatilitySurfaceKey(UniqueId.parse(parsed[0]), parsed[1], parsed[4], parsed[2], parsed[3]);
   }
 
   public static String fromVolatilitySurfaceKey(final VolatilitySurfaceKey key) {
-    return s_surfaceName.create(key.getTarget().toString(), key.getName(), key.getQuoteType (), key.getInstrumentType());
+    return s_surfaceName.create(key.getTarget().toString(), key.getName(), key.getQuoteType(), key.getQuoteUnits(), key.getInstrumentType());
   }
 
   public static VolatilityCubeKey toVolatilityCubeKey(final String name) {

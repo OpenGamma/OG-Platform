@@ -100,8 +100,8 @@ public final class InterestRateFutureDiscountingMethod extends InterestRateFutur
     final List<DoublesPair> listFunding = new ArrayList<DoublesPair>();
     listForward.add(new DoublesPair(future.getFixingPeriodStartTime(), -future.getFixingPeriodStartTime() * dfForwardStart * dfForwardStartBar));
     listForward.add(new DoublesPair(future.getFixingPeriodEndTime(), -future.getFixingPeriodEndTime() * dfForwardEnd * dfForwardEndBar));
-    resultMap.put(future.getForwardCurveName(), listForward);
     resultMap.put(future.getDiscountingCurveName(), listFunding);
+    resultMap.put(future.getForwardCurveName(), listForward);
     final InterestRateCurveSensitivity result = new InterestRateCurveSensitivity(resultMap);
     return result;
   }
