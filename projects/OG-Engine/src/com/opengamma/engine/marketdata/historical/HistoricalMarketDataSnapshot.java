@@ -51,7 +51,7 @@ public class HistoricalMarketDataSnapshot extends AbstractMarketDataSnapshot {
   
   @Override
   public UniqueId getUniqueId() {
-    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "HistoricalMarketDataSnapshot:"+getSnapshotTime());
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "HistoricalMarketDataSnapshot:" + getSnapshotTime());
   }
   
   @Override
@@ -71,6 +71,7 @@ public class HistoricalMarketDataSnapshot extends AbstractMarketDataSnapshot {
     HistoricalTimeSeries hts = getTimeSeriesSource().getHistoricalTimeSeries(
         valueName,
         identifiers,
+        _snapshotDate,
         _timeSeriesFieldResolverKey,
         _snapshotDate,
         true, 

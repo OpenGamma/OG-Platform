@@ -19,6 +19,8 @@ import java.util.Set;
 import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFactory;
 import org.fudgemsg.MutableFudgeMsg;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
 import com.opengamma.lang.annotation.ExternalFunction;
@@ -40,6 +42,8 @@ import com.opengamma.language.test.TestUtils;
  */
 @Test
 public class ExternalFunctionHandlerTest {
+  
+  private static final Logger s_logger=LoggerFactory.getLogger(ExternalFunctionHandlerTest.class);
 
   private Set<String> getExportedFunctions(final Class<?> clazz) {
     final ExternalFunctionHandler handler = new ExternalFunctionHandler(clazz);
@@ -47,6 +51,7 @@ public class ExternalFunctionHandlerTest {
     for (MetaFunction function : handler.getFunctions()) {
       functions.add(function.getName());
     }
+    s_logger.debug("{} functions = {}", clazz.getSimpleName (), functions);
     return functions;
   }
 
@@ -170,7 +175,6 @@ public class ExternalFunctionHandlerTest {
   public void testConstructed() {
     final Set<String> functions = getExportedFunctions(Constructed.class);
     assertEquals(functions.size(), 2);
-    System.out.println(functions);
     assertTrue(functions.contains("Constructed"));
     assertTrue(functions.contains("Constructed.getA"));
   }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+  <bean id="htsLoader" class="com.opengamma.bbg.loader.BloombergHistoricalLoader">
+    <constructor-arg ref="dbHtsMaster" />
+    <constructor-arg ref="bbgHistoricalTimeSeriesSource" />
+    <constructor-arg>
+      <bean class="com.opengamma.bbg.BloombergIdentifierProvider">
+        <constructor-arg ref="bbgReferenceDataProvider"/>
+      </bean>
+    </constructor-arg>
+  </bean>
+</beans>

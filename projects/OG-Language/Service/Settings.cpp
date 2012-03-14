@@ -90,34 +90,18 @@ private:
 
 #ifdef _WIN32
 
-	/// Checks for a JVM library defined in the registry at HKLM\\SOFTWARE\\JavaSoft\\Java Runtime Environment.
-	/// Registry mapping under WOW64 will make sure that a 32-bit process sees a 32-bit JVM and a 64-bit process
-	/// sees a 64-bit JVM.
+	/// Checks for a valid JVM library indexed with a given version code. The default Java installation will
+	/// write the correct version code to the CurrentVersion value. When Java is bundled as part of the
+	/// OpenGamma distribution, we'll create additional keys.
 	///
-	/// @return the path to the JVM DLL, or NULL if there is none (or an error occurs)
-	static TCHAR *SearchRegistry () {
-		HKEY hkeyJRE;
-		HRESULT hr;
-		if ((hr = RegOpenKeyEx (HKEY_LOCAL_MACHINE, TEXT ("SOFTWARE\\JavaSoft\\Java Runtime Environment"), 0, KEY_READ, &hkeyJRE)) != ERROR_SUCCESS) {
-			LOGDEBUG (TEXT ("No JRE registry key"));
-			return NULL;
-		}
-		TCHAR szVersion[16];
-		DWORD cbVersion = sizeof (szVersion);
-		if ((hr = RegGetValue (hkeyJRE, NULL, TEXT ("CurrentVersion"), RRF_RT_REG_SZ, NULL, szVersion, &cbVersion)) != ERROR_SUCCESS) {
-			RegCloseKey (hkeyJRE);
-			LOGWARN (TEXT ("No CurrentVersion value in JRE key"));
-			return NULL;
-		}
-		LOGDEBUG (TEXT ("Found JRE v") << szVersion);
+	/// @return the path to the JVM DLL if found, or NULL if there is none
+	static TCHAR *SearchJavaVersion (HKEY hkeyJRE, const TCHAR *pszVersion) {
 		TCHAR szPath[MAX_PATH];
 		DWORD cbPath = sizeof (szPath);
-		if ((hr = RegGetValue (hkeyJRE, szVersion, TEXT ("RuntimeLib"), RRF_RT_REG_SZ, NULL, szPath, &cbPath)) != ERROR_SUCCESS) {
-			RegCloseKey (hkeyJRE);
-			LOGWARN (TEXT ("No RuntimeLib found for JRE v") << szVersion);
+		LOGDEBUG (TEXT ("Trying JRE ") << pszVersion);
+		if (RegGetValue (hkeyJRE, pszVersion, TEXT ("RuntimeLib"), RRF_RT_REG_SZ, NULL, szPath, &cbPath) != ERROR_SUCCESS) {
 			return NULL;
 		}
-		RegCloseKey (hkeyJRE);
 		HANDLE hFile = CreateFile (szPath, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 		if (hFile == INVALID_HANDLE_VALUE) {
 			// JDK1.6 puts the wrong path into the registry. It ends \client\jvm.dll but should be \server\jvm.dll
@@ -137,8 +121,53 @@ private:
 		} else {
 			CloseHandle (hFile);
 		}
-		LOGINFO (TEXT ("Runtime library ") << szPath << TEXT (" found from registry"));
 		return _tcsdup (szPath);
+	}
+
+	/// Checks for a JVM library defined in the registry at HKLM\\SOFTWARE\\JavaSoft\\Java Runtime Environment.
+	/// Registry mapping under WOW64 will make sure that a 32-bit process sees a 32-bit JVM and a 64-bit process
+	/// sees a 64-bit JVM.
+	///
+	/// @return the path to the JVM DLL, or NULL if there is none (or an error occurs)
+	static TCHAR *SearchRegistry () {
+		HKEY hkeyJRE;
+		if (RegOpenKeyEx (HKEY_LOCAL_MACHINE, TEXT ("SOFTWARE\\JavaSoft\\Java Runtime Environment"), 0, KEY_READ, &hkeyJRE) != ERROR_SUCCESS) {
+			LOGDEBUG (TEXT ("No JRE registry key"));
+			return NULL;
+		}
+		TCHAR szVersion[16];
+		DWORD cbVersion = sizeof (szVersion);
+		TCHAR *pszPath = NULL;
+		do {
+			// Try the published default
+			if (RegGetValue (hkeyJRE, NULL, TEXT ("CurrentVersion"), RRF_RT_REG_SZ, NULL, szVersion, &cbVersion) == ERROR_SUCCESS) {
+				LOGDEBUG (TEXT ("Found JRE v") << szVersion);
+				pszPath = SearchJavaVersion (hkeyJRE, szVersion);
+				if (pszPath) {
+					LOGINFO (TEXT ("Found default JVM ") << pszPath << TEXT (" in registry"));
+					break;
+				} else {
+					LOGWARN (TEXT ("No RuntimeLib found for JRE v") << szVersion);
+				}
+			} else {
+				LOGDEBUG (TEXT ("No default JVM installed"));
+			}
+			// Try the version bundled with OG-Language
+			pszPath = SearchJavaVersion (hkeyJRE, TEXT ("OG-Language"));
+			if (pszPath) {
+				LOGINFO (TEXT ("Using JVM ") << pszPath << TEXT (" bundled with OG-Language distribution"));
+				break;
+			}
+			// Try the version bundled with OG-Platform
+			pszPath = SearchJavaVersion (hkeyJRE, TEXT ("OG-Platform"));
+			if (pszPath) {
+				LOGINFO (TEXT ("Using JVM ") << pszPath << TEXT (" bundled with OG-Platform distribution"));
+				break;
+			}
+			LOGWARN (TEXT ("No default JVM or OpenGamma bundled JVM found in the registry"));
+		} while (false);
+		RegCloseKey (hkeyJRE);
+		return pszPath;
 	}
 
 #else /* ifndef _WIN32 */

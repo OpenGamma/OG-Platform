@@ -1,0 +1,13 @@
+1000,BbgId,APVJS.X Equity
+1000,BbgId,APVJS.X Equity
+2000,BbgId,APVJN.X Equity
+5000,BbgId,AJLJV.X Equity
+3500,BbgId,IBMJE.X Equity
+450,BbgId,IBMJF.X Equity
+6000,BbgId,IBMJG.X Equity
+200,BbgId,IBMJI.X Equity
+430,BbgId,GPYVP.X Equity
+1200,BbgId,GPYVS.X Equity
+9000,BbgId,GPYVB.X Equity
+20000,BbgId,GPYJR.X Equity
+5000,BbgId,GPYJM.X Equity

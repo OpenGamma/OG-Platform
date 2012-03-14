@@ -55,27 +55,27 @@ import com.opengamma.util.money.Currency;
  */
 public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompiledInvoker {
   private static final String[] GREEK_NAMES = new String[] {
-      ValueRequirementNames.LOCAL_VOLATILITY_DELTA,
-      ValueRequirementNames.LOCAL_VOLATILITY_DUAL_DELTA,
-      ValueRequirementNames.LOCAL_VOLATILITY_DUAL_GAMMA,
-      ValueRequirementNames.LOCAL_VOLATILITY_GAMMA,
-      ValueRequirementNames.LOCAL_VOLATILITY_VANNA,
-      ValueRequirementNames.LOCAL_VOLATILITY_VEGA,
-      ValueRequirementNames.LOCAL_VOLATILITY_VOMMA,
-      ValueRequirementNames.LOCAL_VOLATILITY_GRID_PRICE,
-      ValueRequirementNames.BLACK_VOLATILITY_GRID_PRICE,
-      ValueRequirementNames.LOCAL_VOLATILITY_GRID_IMPLIED_VOL };
+    ValueRequirementNames.LOCAL_VOLATILITY_DELTA,
+    ValueRequirementNames.LOCAL_VOLATILITY_DUAL_DELTA,
+    ValueRequirementNames.LOCAL_VOLATILITY_DUAL_GAMMA,
+    ValueRequirementNames.LOCAL_VOLATILITY_GAMMA,
+    ValueRequirementNames.LOCAL_VOLATILITY_VANNA,
+    ValueRequirementNames.LOCAL_VOLATILITY_VEGA,
+    ValueRequirementNames.LOCAL_VOLATILITY_VOMMA,
+    ValueRequirementNames.LOCAL_VOLATILITY_GRID_PRICE,
+    ValueRequirementNames.BLACK_VOLATILITY_GRID_PRICE,
+    ValueRequirementNames.LOCAL_VOLATILITY_GRID_IMPLIED_VOL };
   private static final Greek[] GREEKS = new Greek[] {
-      PDEResultCollection.GRID_DELTA,
-      PDEResultCollection.GRID_DUAL_DELTA,
-      PDEResultCollection.GRID_DUAL_GAMMA,
-      PDEResultCollection.GRID_GAMMA,
-      PDEResultCollection.GRID_VANNA,
-      PDEResultCollection.GRID_VEGA,
-      PDEResultCollection.GRID_VOMMA,
-      PDEResultCollection.GRID_PRICE,
-      PDEResultCollection.GRID_BLACK_PRICE,
-      PDEResultCollection.GRID_IMPLIED_VOL };
+    PDEResultCollection.GRID_DELTA,
+    PDEResultCollection.GRID_DUAL_DELTA,
+    PDEResultCollection.GRID_DUAL_GAMMA,
+    PDEResultCollection.GRID_GAMMA,
+    PDEResultCollection.GRID_VANNA,
+    PDEResultCollection.GRID_VEGA,
+    PDEResultCollection.GRID_VOMMA,
+    PDEResultCollection.GRID_PRICE,
+    PDEResultCollection.GRID_BLACK_PRICE,
+    PDEResultCollection.GRID_IMPLIED_VOL };
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
@@ -496,7 +496,7 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
     final Currency putCurrency = fxOption.getPutCurrency();
     final Currency callCurrency = fxOption.getCallCurrency();
     if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
-      return fxOption.getCallAmount() / fxOption.getPutAmount(); //Review R White 8/3/2012 this was done wrongly in 3 different places 
+      return fxOption.getCallAmount() / fxOption.getPutAmount(); //Review R White 8/3/2012 this was done wrongly in 3 different places
     }
     return fxOption.getPutAmount() / fxOption.getCallAmount();
 

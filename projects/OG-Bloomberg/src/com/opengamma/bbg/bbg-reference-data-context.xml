@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+    	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+    	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+    	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+
+  <import resource="classpath:/com/opengamma/bbg/bbg-context-common.xml"/>
+
+  <bean id="mongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
+    <property name="name" value="BloombergReferenceData" />
+    <property name="host" value="${opengamma.mongo.host}" />
+    <property name="port" value="${opengamma.mongo.port}" /> 	
+    <property name="databaseName" value="${opengamma.bloomberg.reference.database}" />
+  </bean>
+
+  <bean id="bbgReferenceDataStatistics" class="com.opengamma.bbg.referencedata.statistics.DailyBloombergReferenceDataStatistics" />
+  <bean id="bbgReferenceDataStatisticsMBean" class="com.opengamma.bbg.referencedata.statistics.DailyBloombergReferenceDataStatisticsMBean">
+    <constructor-arg ref="bbgReferenceDataStatistics" />
+  </bean>
+  
+  <bean id="bbgReferenceDataProvider" class="com.opengamma.bbg.MongoDBCachingReferenceDataProvider">
+    <constructor-arg>
+      <bean class="com.opengamma.bbg.referencedata.cache.MongoDBPermanentErrorCachingReferenceDataProvider" init-method="start">
+        <constructor-arg ref="sessionOptions" />
+        <constructor-arg ref="mongoConnector"/>
+        <constructor-arg ref="bbgReferenceDataStatistics" />
+      </bean>
+    </constructor-arg>
+    <constructor-arg ref="mongoConnector"/>
+  </bean>
+</beans>

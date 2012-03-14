@@ -78,7 +78,7 @@ public class JodaBeanParser extends RowParser {
   private Class<DirectBean> _securityClass;
   
   // Map from column name to the field's Java type
-  private Map<String, Class<Object>> _columns = new HashMap<String, Class<Object>>();
+  private Map<String, Class<?>> _columns = new HashMap<String, Class<?>>();
 
   static {
     // Register the automatic string converters with Joda Beans
@@ -112,13 +112,13 @@ public class JodaBeanParser extends RowParser {
   }
 
   @SuppressWarnings("unchecked")
-  private Map<String, Class<Object>> recursiveGetColumnMap(Class<DirectBean> clazz, String prefix) {
+  private Map<String, Class<?>> recursiveGetColumnMap(Class<DirectBean> clazz, String prefix) {
  
     // Scan through and capture the list of relevant properties and their types
     // TODO identify and traverse underlying securities/legs, ignore uniqueIds
-    Map<String, Class<Object>> columns = new HashMap<String, Class<Object>>();
+    Map<String, Class<?>> columns = new HashMap<String, Class<?>>();
     
-    for (MetaProperty<Object> metaProperty : JodaBeanUtils.metaBean(clazz).metaPropertyIterable()) {
+    for (MetaProperty<?> metaProperty : JodaBeanUtils.metaBean(clazz).metaPropertyIterable()) {
       
 //      // Traverse underlying security
 //      if (metaProperty.name().toLowerCase().equals("underlyingid")) {
@@ -177,7 +177,7 @@ public class JodaBeanParser extends RowParser {
       BeanBuilder<? extends DirectBean> builder = (BeanBuilder<? extends DirectBean>) metaBean.builder();
 
       // Populate the bean from the supplied row using the builder
-      for (MetaProperty<Object> metaProperty : JodaBeanUtils.metaBean(clazz).metaPropertyIterable()) {
+      for (MetaProperty<?> metaProperty : JodaBeanUtils.metaBean(clazz).metaPropertyIterable()) {
 
         // If this property is itself a bean without a converter, recurse to populate relevant fields
         if (isBean(metaProperty.propertyType()) && !isConvertible(metaProperty.propertyType())) {
@@ -245,7 +245,7 @@ public class JodaBeanParser extends RowParser {
     Map<String, String> result = new HashMap<String, String>();
     
     // Populate the row from the bean's properties
-    for (MetaProperty<Object> metaProperty : bean.metaBean().metaPropertyIterable()) {
+    for (MetaProperty<?> metaProperty : bean.metaBean().metaPropertyIterable()) {
       
       // If this property is itself a bean without a converter, recurse to populate relevant columns
       if (isBean(metaProperty.propertyType()) && !isConvertible(metaProperty.propertyType())) {
@@ -317,7 +317,7 @@ public class JodaBeanParser extends RowParser {
     return (Collection<Class<?>>) subClasses;
   }
   
-  private boolean isConvertible(Class<Object> clazz) {
+  private boolean isConvertible(Class<?> clazz) {
     try {
       JodaBeanUtils.stringConverter().findConverter(clazz);
       return true;
@@ -326,11 +326,11 @@ public class JodaBeanParser extends RowParser {
     }
   }
   
-  private boolean isBean(Class<Object> clazz) {
+  private boolean isBean(Class<?> clazz) {
     return DirectBean.class.isAssignableFrom(clazz) ? true : false; 
   }
 
-  private boolean ignoreMetaProperty(MetaProperty<Object> mp) {
+  private boolean ignoreMetaProperty(MetaProperty<?> mp) {
     String s = mp.name().trim().toLowerCase(); 
     for (String t : IGNORE_METAPROPERTIES) {
       if (s.equals(t)) {

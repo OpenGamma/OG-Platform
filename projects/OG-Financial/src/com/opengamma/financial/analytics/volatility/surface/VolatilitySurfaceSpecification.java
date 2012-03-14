@@ -16,19 +16,23 @@ public class VolatilitySurfaceSpecification {
   private final SurfaceInstrumentProvider<?, ?> _surfaceInstrumentProvider;
   private final String _name;
   private final String _surfaceQuoteType;
+  private final String _quoteUnits;
   private final UniqueIdentifiable _target;
 
-  //  public VolatilitySurfaceSpecification(final String name, final UniqueIdentifiable target, final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider) {
-  //    this(name, target, null, surfaceInstrumentProvider);
-  //  }
-
   public VolatilitySurfaceSpecification(final String name, final UniqueIdentifiable target, final String surfaceQuoteType, final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider) {
+    this(name, target, surfaceQuoteType, SurfacePropertyNames.VOLATILITY_QUOTE, surfaceInstrumentProvider);
+  }
+
+  public VolatilitySurfaceSpecification(final String name, final UniqueIdentifiable target, final String surfaceQuoteType, final String quoteUnits,
+      final SurfaceInstrumentProvider<?, ?> surfaceInstrumentProvider) {
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(target, "target");
     ArgumentChecker.notNull(surfaceQuoteType, "surface quote type");
+    ArgumentChecker.notNull(quoteUnits, "quote units");
     ArgumentChecker.notNull(surfaceInstrumentProvider, "surface instrument provider");
     _name = name;
     _surfaceQuoteType = surfaceQuoteType;
+    _quoteUnits = quoteUnits;
     _target = target;
     _surfaceInstrumentProvider = surfaceInstrumentProvider;
   }
@@ -43,6 +47,10 @@ public class VolatilitySurfaceSpecification {
 
   public String getSurfaceQuoteType() {
     return _surfaceQuoteType;
+  }
+
+  public String getQuoteUnits() {
+    return _quoteUnits;
   }
 
   /**
@@ -71,11 +79,12 @@ public class VolatilitySurfaceSpecification {
     return other.getName().equals(getName()) &&
         other.getTarget().equals(getTarget()) &&
         other.getSurfaceInstrumentProvider().equals(getSurfaceInstrumentProvider()) &&
-        other.getSurfaceQuoteType().equals(getSurfaceQuoteType());
+        other.getSurfaceQuoteType().equals(getSurfaceQuoteType()) &&
+        other.getQuoteUnits().equals(getQuoteUnits());
   }
 
   @Override
   public int hashCode() {
-    return getName().hashCode() * getTarget().hashCode() * getSurfaceQuoteType().hashCode();
+    return getName().hashCode() * getTarget().hashCode() * getSurfaceQuoteType().hashCode() * getQuoteUnits().hashCode();
   }
 }

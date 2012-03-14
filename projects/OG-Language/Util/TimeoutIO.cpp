@@ -111,6 +111,12 @@ waitOnSignal:
 /// @return true if an I/O operation is available, false otherwise
 bool CTimeoutIO::BeginOverlapped (unsigned long timeout, bool bRead) {
 	m_oBlockedThread.Set (CThread::GetInterruptible ());
+	if (IsClosed ()) {
+		m_oBlockedThread.Set (NULL);
+		LOGDEBUG (TEXT ("Already closed; no I/O operations available"));
+		SetLastError (ECANCELED);
+		return false;
+	}
 	fd_set fds;
 	FD_ZERO (&fds);
 	FD_SET (m_file, &fds);
