@@ -363,6 +363,7 @@
 
   <target name="clean-install">
     <delete dir="${install.dir}" failonerror="false" />
+    <subant target="clean" buildpath="Installer" />
   </target>
 
   <!-- 

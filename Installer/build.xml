@@ -22,4 +22,10 @@
     <antcall target="build-monolith" inheritrefs="true" />
   </target>
 
+  <target name="clean" description="Removes the generated installer artifacts">
+    <delete dir="dist" failonerror="false" />
+    <delete file="temp.aip" failonerror="false" />
+    <delete dir="temp-cache" failonerror="false" />
+  </target>
+
 </project>
