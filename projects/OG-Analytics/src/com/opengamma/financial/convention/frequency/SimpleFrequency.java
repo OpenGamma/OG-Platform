@@ -86,6 +86,10 @@ public final class SimpleFrequency implements Frequency, Serializable {
    * A frequency with a period of eleven months
    */
   public static final SimpleFrequency ELEVEN_MONTHS = new SimpleFrequency(ELEVEN_MONTH_NAME, 12. / 11);
+  /**
+   * A frequency with a period of eighteen months
+   */
+  public static final SimpleFrequency EIGHTEEN_MONTHS = new SimpleFrequency(EIGHTEEN_MONTH_NAME, 12. / 18);
 
   /**
    * The name of the convention.
@@ -205,6 +209,9 @@ public final class SimpleFrequency implements Frequency, Serializable {
     }
     if (_name.equals(ELEVEN_MONTH_NAME)) {
       return PeriodFrequency.ELEVEN_MONTHS;
+    }
+    if (_name.equals(EIGHTEEN_MONTH_NAME)) {
+      return PeriodFrequency.EIGHTEEN_MONTHS;
     }
     throw new IllegalArgumentException("Cannot get a period frequency for " + toString());
   }

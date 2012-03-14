@@ -1,14 +1,21 @@
-<project name="Util">
-	<import file="${basedir}/../build-cpp.xml" />
+<project name="Util" xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks">
 
-	<target name="dist" depends="build-cpp.dist">
-		<mkdir dir="${dist.dir}/build/${ant.project.name}" />
-		<copy todir="${dist.dir}/build/${ant.project.name}">
+	<import file="${basedir}/../build-core-cpp.xml" />
+
+	<target name="dist-publish" depends="core-cpp.dist-publish">
+    <copy todir="${dist.dir}/include/${ant.project.name}">
 			<fileset dir="${basedir}">
 				<include name="OpenGamma.ico" />
 				<include name="OpenGamma.rc" />
 			</fileset>
 		</copy>
 	</target>
+
+  <target name="cpp-define-extra" if="cpp.present.ant">
+    <cpptasks:defineset id="cpp.define.extra">
+      <define name="DEFAULT_CONFIG_FOLDER" value="TEXT (QUOTE (${defaults.config.folder}))" if="defaults.config.folder" />
+      <define name="DEFAULT_CONFIG_BASE" value="TEXT (QUOTE (${defaults.config.base}))" if="defaults.config.base" />
+    </cpptasks:defineset>
+  </target>
 
 </project>

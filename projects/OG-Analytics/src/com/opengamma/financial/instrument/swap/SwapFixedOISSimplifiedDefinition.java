@@ -39,6 +39,61 @@ public class SwapFixedOISSimplifiedDefinition extends SwapDefinition {
   }
 
   /**
+   * Builder of OIS swap from financial description.
+   * @param settlementDate The annuity settlement or first fixing date.
+   * @param tenorAnnuity The total tenor of the annuity.
+   * @param notional The annuity notional.
+   * @param generator The OIS generator.
+   * @param fixedRate The rate of the swap fixed leg.
+   * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
+   * @return The swap.
+   */
+  public static SwapFixedOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final Period tenorAnnuity, final double notional, final GeneratorOIS generator, final double fixedRate,
+      final boolean isPayer) {
+    AnnuityCouponOISSimplifiedDefinition oisLeg = AnnuityCouponOISSimplifiedDefinition.from(settlementDate, tenorAnnuity, notional, generator, !isPayer);
+    final double sign = isPayer ? -1.0 : 1.0;
+    double notionalSigned = sign * notional;
+    return from(oisLeg, notionalSigned, fixedRate);
+  }
+
+  /**
+   * Builder of OIS swap from financial description (start date and end date).
+   * @param settlementDate The annuity settlement or first fixing date.
+   * @param endFixingPeriodDate  The end date of the OIS accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
+   * @param notional The annuity notional.
+   * @param generator The OIS generator.
+   * @param fixedRate The rate of the swap fixed leg.
+   * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
+   * @return The swap.
+   */
+  public static SwapFixedOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notional, final GeneratorOIS generator,
+      final double fixedRate, final boolean isPayer) {
+    AnnuityCouponOISSimplifiedDefinition oisLeg = AnnuityCouponOISSimplifiedDefinition.from(settlementDate, endFixingPeriodDate, notional, generator, !isPayer);
+    final double sign = isPayer ? -1.0 : 1.0;
+    double notionalSigned = sign * notional;
+    return from(oisLeg, notionalSigned, fixedRate);
+  }
+
+  /**
+   * Builder of OIS swap from financial description (start date and end date, the fixed leg and floating leg notionals can be different).
+   * @param settlementDate The annuity settlement or first fixing date.
+   * @param endFixingPeriodDate  The end date of the OIS accrual period. Also called the maturity date of the annuity even if the actual payment can take place one or two days later. Not null.
+   * @param notionalFixed The notional of the fixed leg.
+   * @param notionalOIS The notional of the OIS leg.
+   * @param generator The OIS generator.
+   * @param fixedRate The rate of the swap fixed leg.
+   * @param isPayer The flag indicating if the annuity is paying (true) or receiving (false).
+   * @return The swap.
+   */
+  public static SwapFixedOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime endFixingPeriodDate, final double notionalFixed, final double notionalOIS,
+      final GeneratorOIS generator, final double fixedRate, final boolean isPayer) {
+    AnnuityCouponOISSimplifiedDefinition oisLeg = AnnuityCouponOISSimplifiedDefinition.from(settlementDate, endFixingPeriodDate, notionalOIS, generator, !isPayer);
+    final double sign = isPayer ? -1.0 : 1.0;
+    double notionalSigned = sign * notionalFixed;
+    return from(oisLeg, notionalSigned, fixedRate);
+  }
+
+  /**
    * Swap builder from the financial details. On the fixed leg, the accrual dates are not the same as the payment dates. 
    * There is a difference due to the settlement lag required on the OIS coupons.
    * @param settlementDate The settlement date.
@@ -56,7 +111,7 @@ public class SwapFixedOISSimplifiedDefinition extends SwapDefinition {
    */
   public static SwapFixedOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final Period tenorAnnuity, final Period tenorCoupon, final double notional, final IndexON index,
       final double fixedRate, final boolean isPayer, final int settlementDays, final BusinessDayConvention businessDayConvention, final DayCount dayCount, final boolean isEOM) {
-    final GeneratorOIS generator = new GeneratorOIS("OIS_Convention", index, tenorCoupon, dayCount, businessDayConvention, isEOM, settlementDays);
+    final GeneratorOIS generator = new GeneratorOIS("OIS Generator", index, tenorCoupon, dayCount, businessDayConvention, isEOM, settlementDays);
     final AnnuityCouponOISSimplifiedDefinition oisLeg = AnnuityCouponOISSimplifiedDefinition.from(settlementDate, tenorAnnuity, notional, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;
@@ -81,7 +136,7 @@ public class SwapFixedOISSimplifiedDefinition extends SwapDefinition {
    */
   public static SwapFixedOISSimplifiedDefinition from(final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Period frequency, final double notional, final IndexON index,
       final double fixedRate, final boolean isPayer, final int settlementDays, final BusinessDayConvention businessDayConvention, final DayCount dayCount, final boolean isEOM) {
-    final GeneratorOIS generator = new GeneratorOIS("OIS_Convention", index, frequency, dayCount, businessDayConvention, isEOM, settlementDays);
+    final GeneratorOIS generator = new GeneratorOIS("OIS Generator", index, frequency, dayCount, businessDayConvention, isEOM, settlementDays);
     final AnnuityCouponOISSimplifiedDefinition oisLeg = AnnuityCouponOISSimplifiedDefinition.from(settlementDate, maturityDate, notional, generator, !isPayer);
     final double sign = isPayer ? -1.0 : 1.0;
     final double notionalSigned = sign * notional;

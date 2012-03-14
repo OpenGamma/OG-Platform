@@ -553,7 +553,7 @@
 	</target>
 
 	<!-- clean the project libraries directory (dependencies) -->
-	<target name="clean-lib">
+	<target name="clean-lib" unless="disable.clean-lib">
 		<delete includeemptydirs="true" dir="${lib.dir}" />
 	</target>
 

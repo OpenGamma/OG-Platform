@@ -256,11 +256,23 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
       final ValueSpecification spec = entry.getKey();
       if (spec.getValueName().equals(ValueRequirementNames.YIELD_CURVE)) {
         if (spec.getTargetSpecification().getUniqueId().equals(putCurrency.getUniqueId())) {
-          putFundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-          putForwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+          final Set<String> putCurveProperties = spec.getProperties().getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+          if (putCurveProperties != null && !putCurveProperties.isEmpty()) {
+            putFundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+            putForwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+          } else {
+            putFundingCurveName = spec.getProperty(ValuePropertyNames.CURVE);
+            putForwardCurveName = putFundingCurveName;
+          }
         } else if (spec.getTargetSpecification().getUniqueId().equals(callCurrency.getUniqueId())) {
-          callFundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
-          callForwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+          final Set<String> callCurveProperties = spec.getProperties().getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+          if (callCurveProperties != null && !callCurveProperties.isEmpty()) {
+            callFundingCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+            callForwardCurveName = spec.getProperty(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
+          } else {
+            callFundingCurveName = spec.getProperty(ValuePropertyNames.CURVE);
+            callForwardCurveName = callFundingCurveName;
+          }
         }
       } else if (spec.getValueName().equals(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA)) {
         surfaceName = spec.getProperty(ValuePropertyNames.SURFACE);
@@ -296,7 +308,7 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
         .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
   }
 
-  protected String getResultCurrency(final ComputationTarget target) {
+  protected static String getResultCurrency(final ComputationTarget target) {
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
@@ -314,14 +326,14 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
 
   protected abstract String getValueRequirementName();
 
-  protected ValueRequirement getCurveRequirement(final String curveName, final String optional, final Currency currency) {
+  protected static ValueRequirement getCurveRequirement(final String curveName, final String optional, final Currency currency) {
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName)
         .withOptional(optional);
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
   }
 
-  protected ValueRequirement getSurfaceRequirement(final String surfaceName, final Currency putCurrency, final Currency callCurrency) {
+  protected static ValueRequirement getSurfaceRequirement(final String surfaceName, final Currency putCurrency, final Currency callCurrency) {
     final ValueProperties surfaceProperties = ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX).get();
@@ -329,7 +341,7 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     return new ValueRequirement(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, currenciesTarget, surfaceProperties);
   }
 
-  private YieldAndDiscountCurve getCurve(final FunctionInputs inputs, final Currency currency, final String curveName) {
+  private static YieldAndDiscountCurve getCurve(final FunctionInputs inputs, final Currency currency, final String curveName) {
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName);
     final Object curveObject = inputs.getValue(new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get()));

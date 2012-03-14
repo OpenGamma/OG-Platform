@@ -36,13 +36,23 @@ public class GeneratorSwap {
    * The Ibor index of the floating leg.
    */
   private final IborIndex _iborIndex;
+  /**
+   * The business day convention associated to the index.
+   */
+  private final BusinessDayConvention _businessDayConvention;
+  /**
+   * The flag indicating if the end-of-month rule is used.
+   */
+  private final boolean _endOfMonth;
+  /**
+   * The index spot lag in days between trade and settlement date (usually 2 or 0).
+   */
+  private final int _spotLag;
 
-  // Implementation comment: business day convention, calendar and EOM from IborIndex.
   // REVIEW: Do we need stubShort and stubFirst flags?
-  // REVIEW: Do we need business day convention and EOM in the generator (potentially different from the one of the Ibor index)?
 
   /**
-   * Constructor from all the details.
+   * Constructor from the details. The business day conventions, end-of-month and spot lag are from the Ibor index.
    * @param fixedLegPeriod The fixed leg payment period.
    * @param fixedLegDayCount The day count convention associated to the fixed leg.
    * @param iborIndex The Ibor index of the floating leg.
@@ -55,6 +65,31 @@ public class GeneratorSwap {
     _fixedLegDayCount = fixedLegDayCount;
     _iborIndex = iborIndex;
     _name = iborIndex.getCurrency().toString() + iborIndex.getTenor().toString() + fixedLegPeriod.toString();
+    _businessDayConvention = iborIndex.getBusinessDayConvention();
+    _endOfMonth = iborIndex.isEndOfMonth();
+    _spotLag = iborIndex.getSpotLag();
+  }
+
+  /**
+   * Constructor from the details. The business day conventions, end-of-month and spot lag are from the Ibor index.
+   * @param fixedLegPeriod The fixed leg payment period.
+   * @param fixedLegDayCount The day count convention associated to the fixed leg.
+   * @param iborIndex The Ibor index of the floating leg.
+   * @param businessDayConvention The business day convention associated to the index.
+   * @param endOfMonth The end-of-month flag.
+   * @param spotLag The swap spot lag (usually 2 or 0).
+   */
+  public GeneratorSwap(Period fixedLegPeriod, DayCount fixedLegDayCount, IborIndex iborIndex, final BusinessDayConvention businessDayConvention, final boolean endOfMonth, final int spotLag) {
+    Validate.notNull(fixedLegPeriod, "fixed leg period");
+    Validate.notNull(fixedLegDayCount, "fixed leg day count");
+    Validate.notNull(iborIndex, "ibor index");
+    _fixedLegPeriod = fixedLegPeriod;
+    _fixedLegDayCount = fixedLegDayCount;
+    _iborIndex = iborIndex;
+    _name = iborIndex.getCurrency().toString() + iborIndex.getTenor().toString() + fixedLegPeriod.toString();
+    _businessDayConvention = businessDayConvention;
+    _endOfMonth = endOfMonth;
+    _spotLag = spotLag;
   }
 
   /**
@@ -106,27 +141,27 @@ public class GeneratorSwap {
   }
 
   /**
-   * Gets the generator business day convention.
+   * Gets the swap generator business day convention.
    * @return The convention.
    */
   public BusinessDayConvention getBusinessDayConvention() {
-    return _iborIndex.getBusinessDayConvention();
+    return _businessDayConvention;
   }
 
   /**
-   * Gets the generator spot lag.
+   * Gets the swap generator spot lag.
    * @return The lag (in days).
    */
   public int getSpotLag() {
-    return _iborIndex.getSpotLag();
+    return _spotLag;
   }
 
   /**
-   * Gets the generator end-of-month rule.
+   * Gets the swap generator end-of-month rule.
    * @return The EOM.
    */
   public Boolean isEndOfMonth() {
-    return _iborIndex.isEndOfMonth();
+    return _endOfMonth;
   }
 
   @Override
@@ -138,10 +173,13 @@ public class GeneratorSwap {
   public int hashCode() {
     final int prime = 31;
     int result = 1;
+    result = prime * result + _businessDayConvention.hashCode();
+    result = prime * result + (_endOfMonth ? 1231 : 1237);
     result = prime * result + _fixedLegDayCount.hashCode();
     result = prime * result + _fixedLegPeriod.hashCode();
     result = prime * result + _iborIndex.hashCode();
     result = prime * result + _name.hashCode();
+    result = prime * result + _spotLag;
     return result;
   }
 
@@ -157,6 +195,12 @@ public class GeneratorSwap {
       return false;
     }
     GeneratorSwap other = (GeneratorSwap) obj;
+    if (!ObjectUtils.equals(_businessDayConvention, other._businessDayConvention)) {
+      return false;
+    }
+    if (_endOfMonth != other._endOfMonth) {
+      return false;
+    }
     if (!ObjectUtils.equals(_fixedLegDayCount, other._fixedLegDayCount)) {
       return false;
     }
@@ -164,6 +208,9 @@ public class GeneratorSwap {
       return false;
     }
     if (!ObjectUtils.equals(_iborIndex, other._iborIndex)) {
+      return false;
+    }
+    if (_spotLag != other._spotLag) {
       return false;
     }
     return true;

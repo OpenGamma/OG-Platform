@@ -21,17 +21,6 @@ import com.opengamma.financial.loader.portfolio.PortfolioReader;
 import com.opengamma.financial.loader.portfolio.PortfolioWriter;
 import com.opengamma.financial.loader.portfolio.SingleSheetPortfolioWriter;
 import com.opengamma.financial.loader.portfolio.ZippedPortfolioWriter;
-import com.opengamma.financial.loader.rowparser.CashParser;
-import com.opengamma.financial.loader.rowparser.EquityFutureParser;
-import com.opengamma.financial.loader.rowparser.FRAParser;
-import com.opengamma.financial.loader.rowparser.FXDigitalOptionParser;
-import com.opengamma.financial.loader.rowparser.FXForwardParser;
-import com.opengamma.financial.loader.rowparser.FXOptionParser;
-import com.opengamma.financial.loader.rowparser.IRFutureOptionParser;
-import com.opengamma.financial.loader.rowparser.InterestRateFutureParser;
-import com.opengamma.financial.loader.rowparser.RowParser;
-import com.opengamma.financial.loader.rowparser.SwapParser;
-import com.opengamma.financial.loader.rowparser.SwaptionParser;
 import com.opengamma.financial.tool.ToolContext;
 
 /**
@@ -49,9 +38,9 @@ public class PortfolioSaverTool {
   private static final String PORTFOLIO_NAME_OPT = "n";
   /** Write option flag */
   private static final String WRITE_OPT = "w";
+  /** Asset class flag */
+  private static final String ASSET_CLASS_OPT = "a";
 
-  
-  private static RowParser[] s_rowParsers;
   
   /**
    * ENTRY POINT FOR COMMAND LINE TOOL
@@ -69,24 +58,11 @@ public class PortfolioSaverTool {
   }
 
   private void run(CommandLine cmdLine, ToolContext toolContext) {
-    
-    // Set up list of available parsers
-    s_rowParsers = new RowParser[] {
-      new CashParser(toolContext),
-      new EquityFutureParser(toolContext),
-      new FRAParser(toolContext),
-      new FXDigitalOptionParser(toolContext),
-      new FXForwardParser(toolContext),
-      new FXOptionParser(toolContext),
-      new IRFutureOptionParser(toolContext),
-      new InterestRateFutureParser(toolContext),
-      new SwapParser(toolContext),
-      new SwaptionParser(toolContext)
-    };
-    
+            
     // Set up writer
     PortfolioWriter portfolioWriter = constructPortfolioWriter(
         cmdLine.getOptionValue(FILE_NAME_OPT), 
+        cmdLine.getOptionValues(ASSET_CLASS_OPT),
         cmdLine.hasOption(WRITE_OPT),
         toolContext);
     
@@ -120,7 +96,7 @@ public class PortfolioSaverTool {
   private static Options getOptions(boolean contextProvided) {
     Options options = new Options();
     Option filenameOption = new Option(
-        FILE_NAME_OPT, "filename", true, "The path to the file to create and export to (CSV or ZIP)");
+        FILE_NAME_OPT, "filename", true, "The path to the file to create and export to (CSV, XLS or ZIP)");
     filenameOption.setRequired(true);
     options.addOption(filenameOption);
     
@@ -133,10 +109,15 @@ public class PortfolioSaverTool {
         "Actually persists the portfolio to the file if specified, otherwise pretty-prints without persisting");
     options.addOption(writeOption);
        
+    Option assetClassOption = new Option(
+        ASSET_CLASS_OPT, "assetclass", true, 
+        "Specifies the asset class(es) to parse (ignored if ZIP output file is specified)");
+    options.addOption(assetClassOption);
+    
     return options;
   }
 
-  private static PortfolioWriter constructPortfolioWriter(String filename, boolean write, ToolContext toolContext) {
+  private static PortfolioWriter constructPortfolioWriter(String filename, String[] securityTypes, boolean write, ToolContext toolContext) {
     if (write) {  
       // Check that the file name was specified on the command line
       if (filename == null) {
@@ -148,9 +129,9 @@ public class PortfolioSaverTool {
       String extension = filename.substring(filename.lastIndexOf('.'));
 
       if (extension.equalsIgnoreCase(".csv") || extension.equalsIgnoreCase(".xls")) {
-        // Check that the asset class was specified on the command line
-        return new SingleSheetPortfolioWriter(filename, s_rowParsers);
         
+        return new SingleSheetPortfolioWriter(filename, securityTypes, toolContext);
+            
       // Multi-asset ZIP file extension
       } else if (extension.equalsIgnoreCase(".zip")) {
         // Create zipped multi-asset class loader

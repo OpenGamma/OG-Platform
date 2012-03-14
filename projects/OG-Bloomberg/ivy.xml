@@ -1,0 +1,23 @@
+<ivy-module version="2.0">
+    <info organisation="com.opengamma" module="og-bloomberg" status="integration"/>
+
+    <publications>
+      <artifact name="og-bloomberg" type="jar" />
+      <artifact name="og-bloomberg" type="source" ext="jar" />
+    </publications>
+    <dependencies>
+        <dependency name="og-analytics" rev="latest.integration" />
+        <dependency name="og-component" rev="latest.integration" />
+        <dependency name="og-engine" rev="latest.integration" />
+        <dependency name="og-financial" rev="latest.integration" />
+        <dependency name="og-livedata" rev="latest.integration" />
+        <dependency name="og-masterdb" rev="latest.integration" />
+        <dependency name="og-util" rev="latest.integration" />
+        
+        <dependency org="com.bloomberglp" name="blpapi" rev="3.4.5"/>
+        <dependency org="net.sf.opencsv" name="opencsv" rev="[2.0,3["/>
+        
+        <exclude org="org.apache.log4j" module="log4j" />
+    </dependencies>
+</ivy-module>
+

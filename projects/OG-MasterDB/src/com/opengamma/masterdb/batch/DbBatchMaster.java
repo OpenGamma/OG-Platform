@@ -6,11 +6,10 @@
 package com.opengamma.masterdb.batch;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static com.opengamma.util.db.DbUtil.eqOrIsNull;
+import static com.opengamma.util.db.HibernateDbUtils.eqOrIsNull;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -58,13 +57,27 @@ import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingRequest;
 import com.opengamma.util.tuple.Pair;
 
+/**
+ * A batch master implementation using a database for persistence.
+ * <p>
+ * This is a full implementation of the batch master using an SQL database.
+ * Full details of the API are in {@link BatchMasterWriter}.
+ * <p>
+ * The SQL is stored externally in {@code DbBatchMaster.extsql}.
+ * Alternate databases or specific SQL requirements can be handled using database
+ * specific overrides, such as {@code DbBatchMaster-MySpecialDB.extsql}.
+ * <p>
+ * This class is mutable but must be treated as immutable after configuration.
+ */
 public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter {
 
   /** Logger. */
   private static final Logger s_logger = LoggerFactory.getLogger(DbBatchMaster.class);
 
-
-  final private DbBatchWriter _dbBatchWriter;
+  /**
+   * The batch writer.
+   */
+  private final DbBatchWriter _dbBatchWriter;
 
   /**
    * Creates an instance.
@@ -76,7 +89,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
     _dbBatchWriter = new DbBatchWriter(dbConnector);
   }
 
-
+  //-------------------------------------------------------------------------
   @Override
   public RiskRun getRiskRun(final ObjectId uniqueId) {
     ArgumentChecker.notNull(uniqueId, "uniqueId");
@@ -128,7 +141,6 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
   }
 
   @Override
-  @SuppressWarnings("unchecked")
   public MarketData getMarketDataById(final ObjectId batchSnapshotId) {
     s_logger.info("Getting the batch data snapshot: {}", batchSnapshotId);
 
@@ -176,7 +188,6 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
         return Pair.of(results, paging);
       }
     });
-
   }
 
   @Override
@@ -191,28 +202,23 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
     });
   }
 
-  //--------------------------------------------------------------------------------------------------------------------
-
-
+  //-------------------------------------------------------------------------
   @Override
   @SuppressWarnings("unchecked")
   public Pair<List<RiskRun>, Paging> searchRiskRun(final BatchRunSearchRequest request) {
     s_logger.info("Searching BatchDocuments: ", request);
-
+    
     final DetachedCriteria criteria = DetachedCriteria.forClass(RiskRun.class);
-
-
+    
     if (request.getValuationTime() != null) {
       criteria.add(
         Restrictions.eq("valuationTime", request.getValuationTime()));
     }
-
     if (request.getVersionCorrection() != null) {
       criteria.add(
         Restrictions.eq("versionCorrection", request.getVersionCorrection()));
     }
-
-
+    
     if (request.getMarketDataUid() != null) {
       criteria.createCriteria("marketData")
         .add(Restrictions.eq("baseUidScheme", request.getMarketDataUid().getScheme()))
@@ -220,14 +226,14 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
         .add(eqOrIsNull("baseUidVersion", request.getMarketDataUid().getVersion()));
       //.addOrder(Order.asc("baseUid"));
     }
-
+    
     if (request.getViewDefinitionUid() != null) {
       criteria.add(Restrictions.eq("viewDefinitionUidScheme", request.getViewDefinitionUid().getScheme()))
         .add(Restrictions.eq("viewDefinitionUidValue", request.getViewDefinitionUid().getValue()))
         .add(eqOrIsNull("viewDefinitionUidVersion", request.getViewDefinitionUid().getVersion()));
       //.addOrder(Order.asc("viewDefinitionUid"));
     }
-
+    
     return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Pair<List<RiskRun>, Paging>>() {
       @Override
       public Pair<List<RiskRun>, Paging> doInTransaction(final TransactionStatus status) {
@@ -265,8 +271,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
     });
   }
 
-  //--------------------------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   @Override
   public void addValuesToMarketData(final ObjectId marketDataId, final Set<MarketDataValue> values) {
     getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Void>() {
@@ -291,7 +296,6 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
     });
   }
 
-
   @Override
   public void deleteRiskRun(final ObjectId batchUniqueId) {
     getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Void>() {
@@ -306,6 +310,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
   /**
    * Searches for documents with paging.
    *
+   * @param <D>  the  list type
    * @param pagingRequest  the paging request, not null
    * @param sql  the array of SQL, query and count, not null
    * @param args  the query arguments, not null
@@ -315,7 +320,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
   protected <D> Pair<List<D>, Paging> searchWithPaging(
     final PagingRequest pagingRequest, final String[] sql, final DbMapSqlParameterSource args,
     final ResultSetExtractor<List<D>> extractor) {
-
+    
     return getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Pair<List<D>, Paging>>() {
       @Override
       public Pair<List<D>, Paging> doInTransaction(final TransactionStatus status) {
@@ -336,30 +341,25 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
           }
         }
         return Pair.of(result, paging);
-
       }
     });
   }
 
-
   @Override
-  @SuppressWarnings("unchecked")
   public Pair<List<ViewResultEntry>, Paging> getBatchValues(final ObjectId batchId, final PagingRequest pagingRequest) {
-
     s_logger.info("Getting Batch values: ", pagingRequest);
-
-    final Long run_id = extractOid(batchId);
+    
+    final Long runId = extractOid(batchId);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource();
-    args.addValue("run_id", run_id);
+    args.addValue("run_id", runId);
     if (pagingRequest != null) {
       args.addValue("paging_offset", pagingRequest.getFirstItem());
       args.addValue("paging_fetch", pagingRequest.getPagingSize());
     }
-
+    
     String[] sql = {getExtSqlBundle().getSql("GetBatchValues", args), getExtSqlBundle().getSql("BatchValuesCount", args)};
     return searchWithPaging(pagingRequest, sql, args, new BatchValuesExtractor());
   }
-
 
   @Override
   public void endRiskRun(final ObjectId batchUniqueId) {
@@ -382,8 +382,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
     });
   }
 
-  // -------------------------------------------------------------------------------------------------------------------
-
+  //-------------------------------------------------------------------------
   @Override
   public void addJobResults(final ObjectId riskRunId, final ViewComputationResultModel result) {
     getTransactionTemplateRetrying(getMaxRetries()).execute(new TransactionCallback<Void>() {
@@ -410,16 +409,16 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
     }
 
     private ViewResultEntry buildBatchValue(final ResultSet rs) throws SQLException {
-      final long id = rs.getLong("ID");
-      final long calculation_configuration_id = rs.getLong("calculation_configuration_id");
-      final long value_specification_id = rs.getLong("value_specification_id");
-      final long function_unique_id = rs.getLong("function_unique_id");
-      final long computation_target_id = rs.getLong("computation_target_id");
-      final long run_id = rs.getLong("run_id");
+//      final long id = rs.getLong("ID");
+//      final long calculationConfigurationId = rs.getLong("calculation_configuration_id");
+//      final long valueSpecificationId = rs.getLong("value_specification_id");
+//      final long functionUniqueId = rs.getLong("function_unique_id");
+//      final long computationTargetId = rs.getLong("computation_target_id");
+//      final long runId = rs.getLong("run_id");
       final double value = rs.getDouble("value");
       final String valueName = rs.getString("name");
-      final Timestamp eval_instant = rs.getTimestamp("eval_instant");
-      final long compute_node_id = rs.getLong("compute_node_id");
+//      final Timestamp evalInstant = rs.getTimestamp("eval_instant");
+//      final long computeNodeId = rs.getLong("compute_node_id");
       final ComputationTargetType computationTargetType = ComputationTargetType.valueOf(rs.getString("target_type"));
       final String valueRequirementsSyntheticForm = rs.getString("synthetic_form");
       final String targetTypeIdScheme = rs.getString("target_type_id_scheme");
@@ -435,4 +434,5 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
       return viewResultEntry;
     }
   }
+
 }
