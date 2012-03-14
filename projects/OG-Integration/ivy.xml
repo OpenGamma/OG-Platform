@@ -11,8 +11,6 @@
         <dependency name="og-engine" rev="latest.integration" />
         <dependency name="og-livedata" rev="latest.integration" />
         <dependency name="og-bloomberg" rev="latest.integration" />
-        <dependency name="og-reuters" rev="latest.integration" />
-        <dependency name="og-activ" rev="latest.integration" />
         <dependency name="og-master" rev="latest.integration" />
         <dependency name="og-masterdb" rev="latest.integration" />
         <dependency name="og-financial" rev="latest.integration" />
@@ -26,8 +24,7 @@
         <dependency org="org.jfree" name="jfreechart" rev="1.0.13"/>
         <dependency org="org.jdesktop" name="appframework" rev="1.0.3"/>
         <dependency org="org.jdesktop" name="swingx" rev="1.0"/>
-        <dependency org="net.sourceforge.ehcache" name="ehcache" rev="[1.6.0,2.0["/>
-        <dependency org="com.bloomberglp" name="blpapi" rev="3.1.0"/>
+        <dependency org="net.sourceforge.ehcache" name="ehcache" rev="[1.6.0,2.0["/>                
 
         <exclude org="org.apache.log4j" module="log4j" />
         <exclude org="org.junit" />

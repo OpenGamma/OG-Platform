@@ -151,14 +151,14 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
    */
   public static AnnuityCouponFixedDefinition from(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime[] paymentDatesUnadjusted, final Frequency frequency,
       final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional, final double fixedRate, final boolean isPayer) {
-    Validate.notNull(currency, "currency");
-    Validate.notNull(settlementDate, "settlement date");
-    Validate.notNull(paymentDatesUnadjusted, "payment dates");
-    Validate.isTrue(paymentDatesUnadjusted.length > 0, "payment dates length");
-    Validate.notNull(frequency, "frequency");
-    Validate.notNull(calendar, "calendar");
-    Validate.notNull(dayCount, "day count");
-    Validate.notNull(businessDay, "business day convention");
+    ArgumentChecker.notNull(currency, "currency");
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(paymentDatesUnadjusted, "payment dates");
+    ArgumentChecker.isTrue(paymentDatesUnadjusted.length > 0, "payment dates length");
+    ArgumentChecker.notNull(frequency, "frequency");
+    ArgumentChecker.notNull(calendar, "calendar");
+    ArgumentChecker.notNull(dayCount, "day count");
+    ArgumentChecker.notNull(businessDay, "business day convention");
     final double sign = isPayer ? -1.0 : 1.0;
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar);
     final CouponFixedDefinition[] coupons = new CouponFixedDefinition[paymentDates.length];
