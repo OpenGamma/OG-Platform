@@ -160,7 +160,7 @@ public class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFunction.No
       final SABRInterestRateDataBundle data = getModelParameters(target, inputs, bundle);
       final DoubleMatrix2D jacobian = new DoubleMatrix2D(FunctionUtils.decodeJacobian(jacobianObject));
       final DoubleMatrix1D result = CALCULATOR.calculateFromPresentValue(derivative, null, data, couponSensitivity, jacobian, _nodeSensitivityCalculator);
-      return YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(_forwardCurveName, bundle, result, forwardCurveSpec, getForwardResultSpec(target, currency));
+      return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(_forwardCurveName, bundle, result, forwardCurveSpec, getForwardResultSpec(target, currency));
     }
     final Object fundingCurveObject = inputs.getValue(getFundingCurveRequirement(currency, _forwardCurveName, _fundingCurveName));
     if (fundingCurveObject == null) {

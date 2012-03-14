@@ -26,9 +26,12 @@ import com.opengamma.id.VersionCorrection;
  */
 public class PersistentVersionCorrection implements EnhancedUserType {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PersistentVersionCorrection.class);
-
+  /**
+   * Singleton instance.
+   */
   public static final PersistentVersionCorrection INSTANCE = new PersistentVersionCorrection();
+
+  private static final Logger s_logger = LoggerFactory.getLogger(PersistentVersionCorrection.class);
 
   private static final int[] SQL_TYPES = new int[]{Types.VARCHAR};
 
@@ -36,7 +39,7 @@ public class PersistentVersionCorrection implements EnhancedUserType {
     return SQL_TYPES;
   }
 
-  public Class returnedClass() {
+  public Class<?> returnedClass() {
     return VersionCorrection.class;
   }
 
@@ -60,6 +63,7 @@ public class PersistentVersionCorrection implements EnhancedUserType {
     return nullSafeGet(resultSet, names[0]);
   }
 
+  @SuppressWarnings("deprecation")
   public Object nullSafeGet(ResultSet resultSet, String name) throws SQLException {
     String value = (String) (new StringType()).nullSafeGet(resultSet, name);
     if (value == null) {
@@ -68,8 +72,8 @@ public class PersistentVersionCorrection implements EnhancedUserType {
     return VersionCorrection.parse(value);
   }
 
+  @SuppressWarnings("deprecation")
   public void nullSafeSet(PreparedStatement preparedStatement, Object value, int index) throws HibernateException, SQLException {
-
     if (value == null) {
       s_logger.debug("VersionCorrection -> String : NULL -> NULL");
       (new StringType()).nullSafeSet(preparedStatement, null, index);

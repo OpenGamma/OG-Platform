@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+    	http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+    	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+    	http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+  
+  <!--  import resources from OG-Util -->
+  <import resource="classpath:com/opengamma/transport/jaxrs/beans.xml" />
+  
+  <!-- Property file configuration -->
+  <bean id="beansProperties" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+    <property name="ignoreUnresolvablePlaceholders" value="true" />
+    <property name="locations">
+      <list>
+        <value>classpath:com/opengamma/web/marketdata.properties</value>
+      </list>
+    </property>
+  </bean>
+  
+  <import resource="classpath:/com/opengamma/bbg/bbg-context-common.xml"/>  	
+  <import resource="classpath:/com/opengamma/bbg/livedata/bbg-livedata-context.xml"/>
+  <import resource="classpath:/com/opengamma/bbg/bbg-reference-data-context.xml"/>
+  <import resource="classpath:/com/opengamma/bbg/bbg-historical-data-context.xml"/>
+
+  <bean id="fudgeContext" class="com.opengamma.util.fudgemsg.OpenGammaFudgeContext" factory-method="getInstance" />
+  
+  <!-- Remote access to the reference data provider is via JMS -->
+  <bean id="refDataRequestReceiver" class="com.opengamma.bbg.server.ReferenceDataProviderRequestReceiver">
+    <constructor-arg ref="bbgReferenceDataProvider" />
+  </bean>
+  <bean id="refDataRequestDispatcher" class="com.opengamma.transport.FudgeRequestDispatcher">
+    <constructor-arg ref="refDataRequestReceiver" />
+    <constructor-arg ref="fudgeContext" />
+  </bean>
+  <bean id="refDataJmsReceiver" class="com.opengamma.transport.jms.JmsByteArrayRequestDispatcher">
+    <constructor-arg ref="refDataRequestDispatcher" />
+  </bean>
+  <bean id="refDataMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+    <property name="connectionFactory" ref="jmsConnectionFactory"/>
+    <property name="destination">
+      <bean class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="${refdata.topic.name}" />
+      </bean>
+    </property>
+    <property name="messageListener" ref="refDataJmsReceiver" />
+  </bean>
+  
+  <!-- Remote access to the historical time-series source is through a RESTful API -->
+  <bean id="historicalTimeSeriesSourceRestBean" class="com.opengamma.core.historicaltimeseries.impl.DataHistoricalTimeSeriesSourceResource">
+    <constructor-arg ref="bbgHistoricalTimeSeriesSource" />
+  </bean>
+  
+  <!-- Expose the server's capabilities -->
+  <bean id="configurationResource" class="com.opengamma.util.rest.DataConfigurationResource">
+    <constructor-arg ref="fudgeContext" />
+    <constructor-arg>
+      <map>
+        <entry key="0">
+          <map>
+            <entry key="historicalTimeSeriesSource">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/htsSource/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+          </map>
+        </entry>
+      </map>
+    </constructor-arg>
+  </bean>
+	
+</beans>

@@ -28,10 +28,6 @@ import com.opengamma.financial.security.FinancialSecurityUtils;
  * Present value function for interest rate futures.
  */
 public class InterestRateFuturePresentValueFunction extends InterestRateFutureFunction {
-
-  /**
-   * The calculator used for present value calculation.
-   */
   private static final PresentValueCalculator CALCULATOR = PresentValueCalculator.getInstance();
 
   @Override

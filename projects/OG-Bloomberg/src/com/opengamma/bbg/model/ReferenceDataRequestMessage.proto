@@ -1,0 +1,114 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.bbg.model {
+
+  message ReferenceDataRequestMessage {
+    repeated mutable string security;
+    repeated mutable string field;
+    
+    binding Java {
+      imports "java.util.Set, java.util.TreeSet";
+      body <<<JAVA
+        public Set<String> getSecurities () {
+          return new TreeSet<String> (getSecurity ());
+        }
+        public Set<String> getFields () {
+          return new TreeSet<String> (getField ()); 
+        }
+JAVA;
+    }
+    
+  }
+
+}
+
+/* ORIGINAL JAVA
+
+package com.opengamma.bbg.model;
+
+import java.io.Serializable;
+import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.fudgemsg.FudgeContext;
+import org.fudgemsg.FudgeField;
+import org.fudgemsg.FudgeFieldContainer;
+import org.fudgemsg.FudgeMsg;
+
+import com.opengamma.util.ArgumentChecker;
+
+public class ReferenceDataRequestMessage implements Serializable {
+  
+  public static final String SECURITY_FIELD_NAME = "security";
+  public static final String FIELD_FIELD_NAME = "field";
+  
+  private Set<String> _securities;
+  private Set<String> _fields;
+  
+  public Set<String> getSecurities() {
+    return _securities;
+  }
+
+  public void setSecurities(Set<String> securities) {
+    _securities = securities;
+  }
+
+  public Set<String> getFields() {
+    return _fields;
+  }
+
+  public void setFields(Set<String> fields) {
+    _fields = fields;
+  }
+
+  public FudgeMsg toFudgeMsg(final FudgeContext fudgeContext) {
+    ArgumentChecker.checkNotNull(fudgeContext, "FudgeContext");
+    if(getSecurities() == null || getSecurities().isEmpty()) {
+      return null;
+    }
+    if (getFields() == null || getFields().isEmpty()) {
+     return null; 
+    }
+    FudgeMsg msg = fudgeContext.newMessage();
+    for (String sec : getSecurities()) {
+      msg.add(SECURITY_FIELD_NAME, sec);
+    }
+    for (String field : getFields()) {
+      msg.add(FIELD_FIELD_NAME, field);
+    }
+    return msg;
+  }
+  
+  public static ReferenceDataRequestMessage fromFudgeMsg(final FudgeFieldContainer msg) {
+    if (msg == null) {
+      return null;
+    }
+    ReferenceDataRequestMessage request = new ReferenceDataRequestMessage();
+    Set<String> securities = new TreeSet<String>();
+    List<FudgeField> secFields = msg.getAllByName(SECURITY_FIELD_NAME);
+    for (FudgeField fudgeField : secFields) {
+      securities.add((String)fudgeField.getValue());
+    }
+    request.setSecurities(securities);
+    Set<String> fields = new TreeSet<String>();
+    List<FudgeField> fFields = msg.getAllByName(FIELD_FIELD_NAME);
+    for (FudgeField fudgeField : fFields) {
+      fields.add((String)fudgeField.getValue());
+    }
+    request.setFields(fields);
+    return request;
+  }
+  
+  @Override
+  public String toString() {
+    return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
+  }
+}
+*/

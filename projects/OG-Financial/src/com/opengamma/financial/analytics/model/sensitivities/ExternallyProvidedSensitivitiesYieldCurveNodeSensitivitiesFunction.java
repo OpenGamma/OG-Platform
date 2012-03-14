@@ -172,7 +172,7 @@ public class ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction 
     final ValueProperties.Builder properties = createValueProperties(target);
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final ValueSpecification resultSpec = new ValueSpecification(YCNS_REQUIREMENT, targetSpec, properties.with(ValuePropertyNames.CURVE, curveName).get());
-    final Set<ComputedValue> results = YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(curveName, bundle, sensitivitiesForCurves, curveSpec, resultSpec);
+    final Set<ComputedValue> results = YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName, bundle, sensitivitiesForCurves, curveSpec, resultSpec);
     //s_logger.debug("execute, returning " + results);
     return results;
   }

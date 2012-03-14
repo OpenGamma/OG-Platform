@@ -17,11 +17,11 @@ public final class WebPushServletContextUtils {
   /**
    * The key for {@link ConnectionManager}.
    */
-  private static final String CONNECTION_MANAGER_KEY = ConnectionManager.class.getName();
+  private static final String CONNECTION_MANAGER_KEY = WebPushServletContextUtils.class.getName() + ".ConnectionManager";
   /**
    * The key for {@link LongPollingConnectionManager}.
    */
-  private static final String LONG_POLLING_CONNECTION_MANAGER_KEY = LongPollingConnectionManager.class.getName();
+  private static final String LONG_POLLING_CONNECTION_MANAGER_KEY = WebPushServletContextUtils.class.getName() + ".LongPollingConnectionManager";
 
   /**
    * Restricted constructor.

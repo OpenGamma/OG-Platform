@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<import resource="classpath:/com/opengamma/bbg/loader/refDataProvider-context.xml"/>
+
+	<bean id="csvMicExchangeDataProvider"
+		class="com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider" />
+
+  <!-- ============================================================================== -->
+  <bean id="abstractDbConnector" class="com.opengamma.util.db.DbConnectorFactoryBean" abstract="true">
+    <property name="transactionIsolationLevelName" value="ISOLATION_SERIALIZABLE" />
+    <property name="transactionPropagationBehaviorName" value="PROPAGATION_REQUIRED" />
+    <property name="hibernateMappingFiles">
+      <list>
+        <bean class="com.opengamma.masterdb.security.hibernate.HibernateSecurityMasterFiles"/>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="positionMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
+  <bean id="securityMasterChangeManager" class="com.opengamma.core.change.BasicChangeManager" />
+
+  <!-- ============================================================================== -->
+  <bean id="hsqldbDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+    <property name="driverClass" value="${hsqldb.jdbc.driver}"/>
+    <property name="url" value="${hsqldb.jdbc.url}/test_${user.name}"/>
+    <property name="username" value="${hsqldb.jdbc.username}"/>
+    <property name="password" value="${hsqldb.jdbc.password}"/>
+  </bean>
+
+  <bean id="hsqldbDbConnector" parent="abstractDbConnector">
+    <property name="name" value="FinancialTestsHSQL"/>
+    <property name="dataSource" ref="hsqldbDataSource"/>
+    <property name="dialectName" value="com.opengamma.util.db.HSQLDbDialect"/>
+  </bean>
+
+  <bean id="hsqldbDbSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
+    <constructor-arg ref="hsqldbDbConnector" />
+    <property name="changeManager" ref="securityMasterChangeManager" />
+    <property name="uniqueIdScheme" value="DbSec" />
+  </bean>
+
+  <!-- ============================================================================== -->
+  <bean id="postgresDataSource" class="org.springframework.jdbc.datasource.SimpleDriverDataSource">
+    <property name="driverClass" value="${postgres.jdbc.driver}"/>
+    <property name="url" value="${postgres.jdbc.url}/test_${user.name}"/>
+    <property name="username" value="${postgres.jdbc.username}"/>
+    <property name="password" value="${postgres.jdbc.password}"/>
+  </bean>
+
+  <bean id="postgresDbConnector" parent="abstractDbConnector">
+    <property name="name" value="FinancialTestsPostgres"/>
+    <property name="dataSource" ref="postgresDataSource"/>
+    <property name="dialectName" value="com.opengamma.util.db.PostgresDbDialect"/>
+  </bean>
+
+
+  <bean id="postgresDbSecurityMaster" class="com.opengamma.masterdb.security.DbSecurityMaster">
+    <constructor-arg ref="postgresDbConnector" />
+    <property name="changeManager" ref="securityMasterChangeManager" />
+    <property name="uniqueIdScheme" value="DbSec" />
+  </bean>
+
+  <!-- ============================================================================== -->
+	<bean id="bbgBulkSecurityLoader" class="com.opengamma.bbg.loader.BloombergBulkSecurityLoader">
+		<constructor-arg ref="cachingRefProvider" />
+		<constructor-arg ref="csvMicExchangeDataProvider" />
+	</bean>
+	
+</beans>

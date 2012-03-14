@@ -6,11 +6,28 @@
 package com.opengamma.financial.analytics.model.forex;
 
 
+
 /**
  * 
  */
-public class ForexForwardYieldCurveNodeSensitivitiesFunction { //extends ForexForwardFunction {
+public class ForexForwardYieldCurveNodeSensitivitiesFunction { //extends AbstractFunction.NonCompiledInvoker {
+  //  /** The pay funding curve property */
+  //  public static final String PROPERTY_PAY_FUNDING_CURVE_NAME = "PayFundingCurve";
+  //  /** The pay forward curve property */
+  //  public static final String PROPERTY_PAY_FORWARD_CURVE_NAME = "PayForwardCurve";
+  //  /** The receive funding curve property */
+  //  public static final String PROPERTY_RECEIVE_FUNDING_CURVE_NAME = "ReceiveFundingCurve";
+  //  /** The receive forward curve property */
+  //  public static final String PROPERTY_RECEIVE_FORWARD_CURVE_NAME = "ReceiveForwardCurve";
   //  private static final PresentValueYieldCurveNodeSensitivityForexCalculator CALCULATOR = PresentValueYieldCurveNodeSensitivityForexCalculator.getInstance();
+  //  private ForexSecurityConverter _visitor;
+  //  private SecuritySource _securitySource;
+  //
+  //  @Override
+  //  public void init(final FunctionCompilationContext context) {
+  //    _securitySource = OpenGammaCompilationContext.getSecuritySource(context);
+  //    _visitor = new ForexSecurityConverter(_securitySource);
+  //  }
   //
   //  @Override
   //  protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final FunctionInputs inputs, final ComputationTarget target,
@@ -90,25 +107,67 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction { //extends ForexFo
   //          getReceiveForwardCurveName() + ", error was: " + e.getMessage());
   //    }
   //    final Set<ComputedValue> result = new HashSet<ComputedValue>();
-  //    result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(payFundingCurveName, data,
+  //    result.addAll(YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(payFundingCurveName, data,
   //        payResult.get(payFundingCurveName), payFundingCurveSpec, getResultSpecForCurve(target, payCurrency.getCode(), getPayFundingCurveName())));
-  //    result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(payForwardCurveName, data,
+  //    result.addAll(YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(payForwardCurveName, data,
   //        payResult.get(payForwardCurveName), payForwardCurveSpec, getResultSpecForCurve(target, payCurrency.getCode(), getPayForwardCurveName())));
-  //    result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(receiveFundingCurveName, data,
+  //    result.addAll(YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(receiveFundingCurveName, data,
   //        receiveResult.get(receiveFundingCurveName), receiveFundingCurveSpec, getResultSpecForCurve(target, receiveCurrency.getCode(), getReceiveFundingCurveName())));
-  //    result.addAll(YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(receiveForwardCurveName, data,
+  //    result.addAll(YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(receiveForwardCurveName, data,
   //        receiveResult.get(receiveForwardCurveName), receiveForwardCurveSpec, getResultSpecForCurve(target, receiveCurrency.getCode(), getReceiveForwardCurveName())));
   //    return result;
   //  }
   //
   //  @Override
+  //  public ComputationTargetType getTargetType() {
+  //    return ComputationTargetType.SECURITY;
+  //  }
+  //
+  //  @Override
+  //  public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
+  //    if (target.getType() != ComputationTargetType.SECURITY) {
+  //      return false;
+  //    }
+  //    return target.getSecurity() instanceof FXForwardSecurity;
+  //  }
+  //
+  //  @Override
+  //  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+  //    return Collections.singleton(getResultSpec(target));
+  //  }
+  //
+  //  @Override
   //  public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
+  //    final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
+  //    if (curveName == null) {
+  //      throw new OpenGammaRuntimeException("Must specify a curve against which to calculate the node sensitivities");
+  //    }
+  //    final Set<String> payForwardCurveNames = desiredValue.getConstraints().getValues(PROPERTY_PAY_FORWARD_CURVE_NAME);
+  //    if (payForwardCurveNames == null || payForwardCurveNames.size() != 1) {
+  //      return null;
+  //    }
+  //    final Set<String> payFundingCurveNames = desiredValue.getConstraints().getValues(PROPERTY_PAY_FUNDING_CURVE_NAME);
+  //    if (payFundingCurveNames == null || payFundingCurveNames.size() != 1) {
+  //      return null;
+  //    }
+  //    final Set<String> receiveForwardCurveNames = desiredValue.getConstraints().getValues(PROPERTY_RECEIVE_FORWARD_CURVE_NAME);
+  //    if (receiveForwardCurveNames == null || receiveForwardCurveNames.size() != 1) {
+  //      return null;
+  //    }
+  //    final Set<String> receiveFundingCurveNames = desiredValue.getConstraints().getValues(PROPERTY_RECEIVE_FUNDING_CURVE_NAME);
+  //    if (receiveFundingCurveNames == null || receiveFundingCurveNames.size() != 1) {
+  //      return null;
+  //    }
   //    final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
   //    final FXForwardSecurity fxForward = (FXForwardSecurity) target.getSecurity();
-  //    final String payFundingCurveName = getPayFundingCurveName();
-  //    final String payForwardCurveName = getPayForwardCurveName();
-  //    final String receiveFundingCurveName = getReceiveFundingCurveName();
-  //    final String receiveForwardCurveName = getReceiveForwardCurveName();
+  //    final String payFundingCurveName = payFundingCurveNames.iterator().next();
+  //    final String payForwardCurveName = payForwardCurveNames.iterator().next();
+  //    final String receiveFundingCurveName = receiveFundingCurveNames.iterator().next();
+  //    final String receiveForwardCurveName = receiveForwardCurveNames.iterator().next();
+  //    if (!curveName.equals(payFundingCurveName) && !curveName.equals(receiveFundingCurveName)) {
+  //      throw new OpenGammaRuntimeException("Asked for sensitivities to a curve (" + curveName + ") to which this FX forward is not sensitive " +
+  //          "(allowed " + payFundingCurveName + " and " + receiveFundingCurveName + ")");
+  //    }
   //    final Currency payCurrency = fxForward.getPayCurrency();
   //    final Currency receiveCurrency = fxForward.getReceiveCurrency();
   //    result.add(YieldCurveFunction.getCurveRequirement(payCurrency, payFundingCurveName, payForwardCurveName, payFundingCurveName, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
@@ -128,17 +187,17 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction { //extends ForexFo
   //    result.add(getCurveSpecRequirement(receiveCurrency, receiveForwardCurveName));
   //    return result;
   //  }
-  //
-  //  @Override
-  //  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-  //    final FXForwardSecurity fxForward = (FXForwardSecurity) target.getSecurity();
-  //    final Currency payCurrency = fxForward.getPayCurrency();
-  //    final Currency receiveCurrency = fxForward.getReceiveCurrency();
-  //    return Sets.newHashSet(getResultSpecForCurve(target, payCurrency.getCode(), getPayFundingCurveName()),
-  //        getResultSpecForCurve(target, payCurrency.getCode(), getPayForwardCurveName()),
-  //        getResultSpecForCurve(target, receiveCurrency.getCode(), getReceiveFundingCurveName()),
-  //        getResultSpecForCurve(target, receiveCurrency.getCode(), getReceiveForwardCurveName()));
-  //  }
+  //  //
+  //  //  @Override
+  //  //  public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
+  //  //    final FXForwardSecurity fxForward = (FXForwardSecurity) target.getSecurity();
+  //  //    final Currency payCurrency = fxForward.getPayCurrency();
+  //  //    final Currency receiveCurrency = fxForward.getReceiveCurrency();
+  //  //    return Sets.newHashSet(getResultSpecForCurve(target, payCurrency.getCode(), getPayFundingCurveName()),
+  //  //        getResultSpecForCurve(target, payCurrency.getCode(), getPayForwardCurveName()),
+  //  //        getResultSpecForCurve(target, receiveCurrency.getCode(), getReceiveFundingCurveName()),
+  //  //        getResultSpecForCurve(target, receiveCurrency.getCode(), getReceiveForwardCurveName()));
+  //  //  }
   //
   //  private ValueRequirement getCurveSensitivitiesRequirement(final ComputationTarget target) {
   //    final ValueProperties properties = ValueProperties.builder()
@@ -158,6 +217,19 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction { //extends ForexFo
   //        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
   //        .with(ValuePropertyNames.CURRENCY, currency)
   //        .get();
+  //    return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
+  //  }
+  //
+  //  private ValueSpecification getResultSpec(final ComputationTarget target) {
+  //    final ValueProperties properties = createValueProperties()
+  //        .withAny(ValuePropertyNames.CURRENCY)
+  //        .withAny(ValuePropertyNames.CURVE_CURRENCY)
+  //        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
+  //        .withAny(ValuePropertyNames.CURVE)
+  //        .withAny(PROPERTY_PAY_FORWARD_CURVE_NAME)
+  //        .withAny(PROPERTY_PAY_FUNDING_CURVE_NAME)
+  //        .withAny(PROPERTY_RECEIVE_FORWARD_CURVE_NAME)
+  //        .withAny(PROPERTY_RECEIVE_FUNDING_CURVE_NAME).get();
   //    return new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), properties);
   //  }
 

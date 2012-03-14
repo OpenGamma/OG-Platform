@@ -68,13 +68,15 @@ public final class DealAttributeEncoder {
   public static Map<String, String> write(Deal deal) {
     Map<String, String> attributes = new HashMap<String, String>();
     attributes.put(DEAL_CLASSNAME, deal.getClass().getName());
-    for (MetaProperty<Object> mp : deal.metaBean().metaPropertyIterable()) {
+    for (MetaProperty<?> mp : deal.metaBean().metaPropertyIterable()) {
       Object value = mp.get(deal);
       if (value != null) {
-        StringConverter<Object> stringConverter = JodaBeanUtils.stringConverter().findConverter(mp.propertyType());
+        @SuppressWarnings("unchecked")
+        StringConverter<Object> stringConverter = (StringConverter<Object>) JodaBeanUtils.stringConverter().findConverter(mp.propertyType());
         attributes.put(DEAL_PREFIX + mp.name(), stringConverter.convertToString(value));
       }
     }
     return attributes;
   }
+
 }

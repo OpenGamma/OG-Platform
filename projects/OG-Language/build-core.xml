@@ -1,0 +1,89 @@
+<project name="core" default="compile">
+
+  <!-- Caller must define cc.build.path & cctest.build.path -->
+
+  <property file="${basedir}/build.properties" />
+
+  <import file="${common.dir}/common.xml" />
+  <import file="${common.dir}/advanced-installer.xml" />
+  <import file="${common.dir}/version.xml" />
+
+  <target name="clean" depends="common.clean,clean-installer" />
+
+  <target name="clean-installer">
+    <delete dir="${solution.dir}/Installer/setup-cache" />
+  </target>
+
+  <target name="resolve" depends="common-ivy.resolve">
+    <subant genericantfile="${common.dir}/cpp.xml" target="unpack-resolve" buildpath="${basedir}" inheritall="true" />
+  </target>
+
+  <target name="fudge-proto" depends="common.fudge-proto">
+    <subant buildpath="${java.dir}" target="fudge-proto" inheritall="true" inheritrefs="true" />
+  </target>
+
+  <target name="compile-src" depends="common.compile-src,version-cpp-header,config">
+    <subant buildpathref="cc.build.path" target="compile" inheritall="true" inheritrefs="true" />
+  </target>
+
+  <target name="compile-tests" depends="common.compile-tests">
+    <subant buildpathref="cctest.build.path" target="compile" inheritall="true" inheritrefs="true" />
+  </target>
+
+  <target name="test-batch-cpp">
+    <subant buildpathref="cctest.build.path" target="tests" inheritall="true" inheritrefs="true" />
+  </target>
+  <target name="test-batch" depends="test-batch-cpp,common.test-batch" />
+
+  <target name="config">
+    <copy todir="${build.dir}" file="${solution.dir}/config/logback.xml" />
+  </target>
+
+  <target name="clean-build" depends="common.clean-build">
+    <subant buildpathref="cc.build.path" target="clean" inheritall="true" />
+  </target>
+
+  <target name="installer" depends="ai-present,module-build-number" if="ai.present" description="Builds the windows installation packages (assumes a dist-publish has already been done and Advanced Installer is available)">
+    <ai-set-version version="${module.version.msi}.${module.build.number}" />
+    <ai-build />
+  </target>
+
+  <macrodef name="installer-copy">
+    <attribute name="display-configuration" />
+    <attribute name="internal-configuration" />
+    <sequential>
+      <copy todir="${install.dir}/install">
+        <fileset dir="${dist.dir}">
+          <include name="*-@{display-configuration}.exe" />
+          <include name="*-@{display-configuration}.msi" />
+          <exclude name="*-with-jvm-*" />
+        </fileset>
+        <regexpmapper from="^(.*)-\d+\.\d+\.\d+-@{display-configuration}(.*)$$" to="\1.@{internal-configuration}\2" />
+      </copy>
+    </sequential>
+  </macrodef>
+  
+  <target name="install" depends="installer" if="install.dir">
+    <mkdir dir="${install.dir}/install" />
+    <installer-copy display-configuration="32-bit" internal-configuration="i386" />
+    <installer-copy display-configuration="64-bit" internal-configuration="x64" />
+  </target>
+
+  <!-- Clone the common build files (like this one) from OG-Language. Earlier
+       attempts to fetch them as IVY artifacts were problematic. Far easier to
+       copy them and check them into the git repository -->
+  <available property="og.language.dir" value="${basedir}/../OG-Language" file="${basedir}/../OG-Language/build-core.xml" />
+  <target name="copy-core" if="og.language.dir" description="Copies the core build file from OG-Language if available">
+    <copy todir="${basedir}" overwrite="true">
+      <fileset dir="${og.language.dir}">
+        <include name="build-core*.xml" />
+      </fileset>
+    </copy>
+    <replaceregexp match="(&lt;project[^&gt;]*&gt;)" replace="\1${line.separator}${line.separator}  &lt;!-- THIS IS A COPY OF THE FILE FROM OG-LANGUAGE; CHANGE THE ORIGINAL, NOT THIS ONE --&gt;" flags="s">
+      <fileset dir="${basedir}">
+        <include name="build-core*.xml" />
+      </fileset>
+    </replaceregexp>
+  </target>
+
+</project>

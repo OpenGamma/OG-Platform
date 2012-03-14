@@ -63,7 +63,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
   }
 
   @SuppressWarnings("unchecked")
-  public static <X, Y> Set<ValueRequirement> buildVolatilityRequirements(final VolatilitySurfaceSpecification specification, final VolatilitySurfaceDefinition<X, Y> definition,
+  public static <X, Y> Set<ValueRequirement> buildDataRequirements(final VolatilitySurfaceSpecification specification, final VolatilitySurfaceDefinition<X, Y> definition,
       final ZonedDateTime atInstant) {
     final Set<ValueRequirement> result = new HashSet<ValueRequirement>();
     final SurfaceInstrumentProvider<X, Y> provider = (SurfaceInstrumentProvider<X, Y>) specification.getSurfaceInstrumentProvider();
@@ -110,7 +110,7 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
         final String surfaceName = surfaceNames.iterator().next();
         final VolatilitySurfaceDefinition<Object, Object> definition = getSurfaceDefinition(definitionSource, target, surfaceName, _instrumentType);
         final VolatilitySurfaceSpecification specification = getSurfaceSpecification(specificationSource, target, surfaceName, _instrumentType);
-        return buildVolatilityRequirements(specification, definition, atInstant);
+        return buildDataRequirements(specification, definition, atInstant);
       }
 
       @Override

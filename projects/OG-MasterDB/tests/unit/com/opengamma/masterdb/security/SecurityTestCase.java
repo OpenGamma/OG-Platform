@@ -568,7 +568,7 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   private static <T extends ManageableSecurity> Collection<T> permuteTestSecurities(final Class<T> clazz) {
     intializeClass(clazz);
     MetaBean mb = JodaBeanUtils.metaBean(clazz);
-    List<MetaProperty<Object>> mps = new ArrayList<MetaProperty<Object>>(mb.metaPropertyMap().values());
+    List<MetaProperty<?>> mps = new ArrayList<MetaProperty<?>>(mb.metaPropertyMap().values());
     
     // find the longest set of available data
     final List<?>[] parameterValues = new List<?>[mps.size()];

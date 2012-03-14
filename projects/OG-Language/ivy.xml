@@ -2,14 +2,13 @@
     <info organisation="com.opengamma" module="og-language" status="integration"/>
     <publications>
       <!-- JAR files -->
-      <artifact name="og-language-client" type="jar" ext="jar" />
+      <artifact name="og-language" type="jar" ext="jar" />
+      <artifact name="og-language" type="source" ext="jar" />
       <!-- Header files -->
-      <artifact name="og-language-include" type="include" ext="zip" />
+      <artifact name="og-language" type="include" ext="zip" />
       <!-- Binary files -->
-      <artifact name="og-language-lib" type="lib" ext="zip" />
-      <artifact name="og-language-bin" type="bin" ext="zip" />
-      <!-- Build system -->
-      <artifact name="og-language-build" type="source" ext="zip" />
+      <artifact name="og-language" type="lib" ext="zip" />
+      <artifact name="og-language" type="bin" ext="zip" />
     </publications>
     <dependencies>
       <dependency name="og-financial" rev="latest.integration" />

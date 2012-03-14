@@ -86,13 +86,13 @@ public abstract class InterestRateFutureFunction extends AbstractFunction.NonCom
     return target.getTrade().getSecurity() instanceof InterestRateFutureSecurity;
   }
 
-  protected ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForward, final String advisoryFunding,
+  protected static ValueRequirement getCurveRequirement(final ComputationTarget target, final String curveName, final String advisoryForward, final String advisoryFunding,
       final String curveCalculationMethod) {
     return YieldCurveFunction.getCurveRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), curveName, advisoryForward, advisoryFunding,
         curveCalculationMethod);
   }
 
-  protected YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs, final String forwardCurveName, final String fundingCurveName,
+  protected static YieldCurveBundle getYieldCurves(final ComputationTarget target, final FunctionInputs inputs, final String forwardCurveName, final String fundingCurveName,
       final String curveCalculationMethod) {
     final ValueRequirement forwardCurveRequirement = getCurveRequirement(target, forwardCurveName, null, null, curveCalculationMethod);
     final Object forwardCurveObject = inputs.getValue(forwardCurveRequirement);

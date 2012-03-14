@@ -13,6 +13,7 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
@@ -25,11 +26,12 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
-    InterestRateInstrumentParRateFunction.VALUE_REQUIREMENT,
-    InterestRateInstrumentPresentValueFunction.VALUE_REQUIREMENT,
-    InterestRateInstrumentParRateParallelCurveSensitivityFunction.VALUE_REQUIREMENT,
-    InterestRateInstrumentPV01Function.VALUE_REQUIREMENT,
-    InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.VALUE_REQUIREMENT};
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.PAR_RATE,
+    ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY,
+    ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT,
+    ValueRequirementNames.PV01,
+    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES};
   private final String _curveCalculationMethod;
   private final String _forwardCurve;
   private final String _fundingCurve;
@@ -89,9 +91,8 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
   public PriorityClass getPriority() {
     if ("SECONDARY".equals(_forwardCurve) || "SECONDARY".equals(_fundingCurve)) {
       return PriorityClass.BELOW_NORMAL;
-    } else {
-      return super.getPriority();
     }
+    return super.getPriority();
   }
 
 }

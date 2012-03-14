@@ -32,6 +32,7 @@ public final class ExternalScheme implements Serializable, Comparable<ExternalSc
   /**
    * Computing cache for the schemes.
    */
+  @SuppressWarnings("deprecation")
   private static final ConcurrentMap<String, ExternalScheme> s_cache =
       new MapMaker().initialCapacity(256).concurrencyLevel(4).makeComputingMap(new Function<String, ExternalScheme>() {
         @Override
