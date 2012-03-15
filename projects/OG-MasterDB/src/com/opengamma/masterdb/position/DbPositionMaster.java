@@ -34,7 +34,7 @@ import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdSearch;
@@ -66,9 +66,9 @@ import com.opengamma.util.tuple.Pair;
  * This is a full implementation of the position master using an SQL database.
  * Full details of the API are in {@link PositionMaster}.
  * <p>
- * The SQL is stored externally in {@code DbPositionMaster.extsql}.
+ * The SQL is stored externally in {@code DbPositionMaster.elsql}.
  * Alternate databases or specific SQL requirements can be handled using database
- * specific overrides, such as {@code DbPositionMaster-MySpecialDB.extsql}.
+ * specific overrides, such as {@code DbPositionMaster-MySpecialDB.elsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
@@ -89,7 +89,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
    */
   public DbPositionMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
-    setExtSqlBundle(ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbPositionMaster.class));
+    setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbPositionMaster.class));
   }
 
   //-------------------------------------------------------------------------
@@ -157,7 +157,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
-    String[] sql = {getExtSqlBundle().getSql("Search", args), getExtSqlBundle().getSql("SearchCount", args)};
+    String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
     searchWithPaging(request.getPagingRequest(), sql, args, new PositionDocumentExtractor(), result);
     return result;
   }
@@ -165,7 +165,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
   /**
    * Gets the SQL to find all the ids for a single bundle.
    * <p>
-   * This is too complex for the extsql mechanism.
+   * This is too complex for the elsql mechanism.
    * 
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
@@ -306,7 +306,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
     }
 
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
-    final String sqlSelectIdKey = getExtSqlBundle().getSql("SelectIdKey");
+    final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
     for (Pair<String, String> pair : schemeValueSet) {
       final DbMapSqlParameterSource idkeyArgs = new DbMapSqlParameterSource()
           .addValue("key_scheme", pair.getFirst())
@@ -319,13 +319,13 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
       }
     }
     
-    final String sqlDoc = getExtSqlBundle().getSql("Insert", docArgs);
-    final String sqlIdKey = getExtSqlBundle().getSql("InsertIdKey");
-    final String sqlPosition2IdKey = getExtSqlBundle().getSql("InsertPosition2IdKey");
-    final String sqlTrade = getExtSqlBundle().getSql("InsertTrade");
-    final String sqlTrade2IdKey = getExtSqlBundle().getSql("InsertTrade2IdKey");
-    final String sqlPositionAttributes = getExtSqlBundle().getSql("InsertPositionAttributes");
-    final String sqlTradeAttributes = getExtSqlBundle().getSql("InsertTradeAttributes");
+    final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
+    final String sqlIdKey = getElSqlBundle().getSql("InsertIdKey");
+    final String sqlPosition2IdKey = getElSqlBundle().getSql("InsertPosition2IdKey");
+    final String sqlTrade = getElSqlBundle().getSql("InsertTrade");
+    final String sqlTrade2IdKey = getElSqlBundle().getSql("InsertTrade2IdKey");
+    final String sqlPositionAttributes = getElSqlBundle().getSql("InsertPositionAttributes");
+    final String sqlTradeAttributes = getElSqlBundle().getSql("InsertTradeAttributes");
     getJdbcTemplate().update(sqlDoc, docArgs);
     getJdbcTemplate().batchUpdate(sqlIdKey, idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
     getJdbcTemplate().batchUpdate(sqlPosition2IdKey, posAssocList.toArray(new DbMapSqlParameterSource[posAssocList.size()]));
@@ -370,7 +370,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         .addTimestamp("corrected_to_instant", Objects.firstNonNull(correctedTo, now));
     final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final String sql = getExtSqlBundle().getSql("GetTradeByOidInstants", args);
+    final String sql = getElSqlBundle().getSql("GetTradeByOidInstants", args);
     final List<PositionDocument> docs = namedJdbc.query(sql, args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Trade not found: " + uniqueId);
@@ -390,7 +390,7 @@ public class DbPositionMaster extends AbstractDocumentDbMaster<PositionDocument>
         .addValue("trade_id", extractRowId(uniqueId));
     final PositionDocumentExtractor extractor = new PositionDocumentExtractor();
     NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final String sql = getExtSqlBundle().getSql("GetTradeById", args);
+    final String sql = getElSqlBundle().getSql("GetTradeById", args);
     final List<PositionDocument> docs = namedJdbc.query(sql, args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Trade not found: " + uniqueId);

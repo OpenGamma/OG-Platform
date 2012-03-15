@@ -10,7 +10,7 @@ import java.sql.Driver;
 import org.hibernate.dialect.DerbyDialect;
 import org.hibernate.dialect.Dialect;
 
-import com.opengamma.extsql.ExtSqlConfig;
+import com.opengamma.elsql.ElSqlConfig;
 
 /**
  * Database dialect for Derby databases.
@@ -43,8 +43,8 @@ public class DerbyDbDialect extends DbDialect {
   }
 
   @Override
-  protected ExtSqlConfig createExtSqlConfig() {
-    return ExtSqlConfig.DEFAULT;  // not tested for Derby
+  protected ElSqlConfig createElSqlConfig() {
+    return ElSqlConfig.DEFAULT;  // not tested for Derby
   }
 
   //-------------------------------------------------------------------------

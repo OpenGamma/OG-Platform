@@ -30,7 +30,7 @@ import org.springframework.transaction.support.TransactionCallback;
 import com.opengamma.DataNotFoundException;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.change.ChangeType;
-import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -52,9 +52,9 @@ import com.opengamma.util.tuple.Pair;
  * The time-series data points are effectively stored completely separately from the
  * information document about the time-series.
  * <p>
- * The SQL is stored externally in {@code DbHistoricalTimeSeriesMaster.extsql}.
+ * The SQL is stored externally in {@code DbHistoricalTimeSeriesMaster.elsql}.
  * Alternate databases or specific SQL requirements can be handled using database
- * specific overrides, such as {@code DbHistoricalTimeSeriesMaster-MySpecialDB.extsql}.
+ * specific overrides, such as {@code DbHistoricalTimeSeriesMaster-MySpecialDB.elsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
@@ -98,8 +98,8 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
    * 
    * @return the external SQL bundle, not null
    */
-  public ExtSqlBundle getExtSqlBundle() {
-    return getMaster().getExtSqlBundle();
+  public ElSqlBundle getElSqlBundle() {
+    return getMaster().getElSqlBundle();
   }
 
   //-------------------------------------------------------------------------
@@ -120,11 +120,11 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
     
     // Get version metadata from the data-points and set up a Manageable HTS accordingly
     // While the HTS doc itself might have been deleted, the data-points can still be retrieved here
-    final String sqlVersion = getExtSqlBundle().getSql("SelectDataPointsVersion", args);
+    final String sqlVersion = getElSqlBundle().getSql("SelectDataPointsVersion", args);
     ManageableHistoricalTimeSeries result = namedJdbc.query(sqlVersion, args, new ManageableHTSExtractor(oid));
     if (result == null) {
       // No data-points were found, check if the time-series doc exists or existed at some point
-      final String sqlExists = getExtSqlBundle().getSql("SelectExistential", args);
+      final String sqlExists = getElSqlBundle().getSql("SelectExistential", args);
       result = namedJdbc.query(sqlExists, args, new ManageableHTSExtractor(oid));
       if (result != null) {
         // The time series doc exists or existed at some point, it's just that there are no data-points
@@ -156,7 +156,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
 
     // Get the actual data points and attach to the Manageable HTS
     if (filter.getLatestDate() == null || filter.getEarliestDate() == null || !filter.getLatestDate().isBefore(filter.getEarliestDate())) {
-      final String sqlPoints = getExtSqlBundle().getSql("SelectDataPoints", args);
+      final String sqlPoints = getElSqlBundle().getSql("SelectDataPoints", args);
       LocalDateDoubleTimeSeries series = namedJdbc.query(sqlPoints, args, new DataPointsExtractor());
       result.setTimeSeries(series);
     } else {
@@ -201,7 +201,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       .addValue("doc_oid", docOid)
       .addTimestamp("ver_instant", vc.getVersionAsOf())
       .addTimestamp("corr_instant", vc.getCorrectedTo());
-    final String sql = getExtSqlBundle().getSql("SelectMaxPointDate", queryArgs);
+    final String sql = getElSqlBundle().getSql("SelectMaxPointDate", queryArgs);
     Date result = getDbConnector().getJdbcTemplate().queryForObject(sql, Date.class, queryArgs);
     if (result != null) {
       LocalDate maxDate = DbDateUtils.fromSqlDateAllowNull(result);
@@ -239,7 +239,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
         .addValue("point_value", value);
       argsList.add(args);
     }
-    final String sqlInsert = getExtSqlBundle().getSql("InsertDataPoint");
+    final String sqlInsert = getElSqlBundle().getSql("InsertDataPoint");
     getJdbcTemplate().batchUpdate(sqlInsert, argsList.toArray(new DbMapSqlParameterSource[argsList.size()]));
     return createTimeSeriesUniqueId(docOid, now, now);
   }
@@ -289,7 +289,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
         .addValue("point_value", value);
       argsList.add(args);
     }
-    final String sqlInsert = getExtSqlBundle().getSql("InsertCorrectDataPoint");
+    final String sqlInsert = getElSqlBundle().getSql("InsertCorrectDataPoint");
     getJdbcTemplate().batchUpdate(sqlInsert, argsList.toArray(new DbMapSqlParameterSource[argsList.size()]));
     return resolveObjectId(uniqueId, VersionCorrection.of(now, now));
   }
@@ -330,7 +330,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       .addValue("doc_oid", docOid)
       .addValue("start_date", DbDateUtils.toSqlDateNullFarPast(fromDateInclusive))
       .addValue("end_date", DbDateUtils.toSqlDateNullFarFuture(toDateInclusive));
-    final String sqlRemove = getExtSqlBundle().getSql("SelectRemoveDataPoints");
+    final String sqlRemove = getElSqlBundle().getSql("SelectRemoveDataPoints");
     final List<Map<String, Object>> dates = getJdbcTemplate().queryForList(sqlRemove, queryArgs);
     // insert new rows to remove them
     final Timestamp nowTS = DbDateUtils.toSqlTimestamp(now);
@@ -343,7 +343,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
         .addValue("point_value", null, Types.DOUBLE);
       argsList.add(args);
     }
-    final String sqlInsert = getExtSqlBundle().getSql("InsertCorrectDataPoint");
+    final String sqlInsert = getElSqlBundle().getSql("InsertCorrectDataPoint");
     getJdbcTemplate().batchUpdate(sqlInsert, argsList.toArray(new DbMapSqlParameterSource[argsList.size()]));
     return resolveObjectId(uniqueId, VersionCorrection.of(now, now));
   }
@@ -406,7 +406,7 @@ public class DbHistoricalTimeSeriesDataPointsWorker extends AbstractDbMaster {
       .addTimestamp("corrected_to_instant", versionCorrection.getCorrectedTo());
     final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     final UniqueIdExtractor extractor = new UniqueIdExtractor(oid);
-    final String sql = getExtSqlBundle().getSql("SelectUniqueIdByVersionCorrection", args);
+    final String sql = getElSqlBundle().getSql("SelectUniqueIdByVersionCorrection", args);
     final UniqueId uniqueId = namedJdbc.query(sql, args, extractor);
     if (uniqueId == null) {
       throw new DataNotFoundException("Unable to find time-series: " + objectId.getObjectId());

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.extsql;
+package com.opengamma.elsql;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +48,7 @@ class ContainerSqlFragment extends SqlFragment {
 
   //-------------------------------------------------------------------------
   @Override
-  protected void toSQL(StringBuilder buf, ExtSqlBundle bundle, SqlParameterSource paramSource) {
+  protected void toSQL(StringBuilder buf, ElSqlBundle bundle, SqlParameterSource paramSource) {
     for (SqlFragment fragment : _fragments) {
       fragment.toSQL(buf, bundle, paramSource);
     }

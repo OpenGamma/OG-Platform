@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.extsql;
+package com.opengamma.elsql;
 
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
@@ -27,7 +27,7 @@ final class OrSqlFragment extends ConditionalSqlFragment {
 
   //-------------------------------------------------------------------------
   @Override
-  protected void toSQL(StringBuilder buf, ExtSqlBundle bundle, SqlParameterSource paramSource) {
+  protected void toSQL(StringBuilder buf, ElSqlBundle bundle, SqlParameterSource paramSource) {
     if (isMatch(paramSource)) {
       if (endsWith(buf, " WHERE ") == false && endsWith(buf, " OR ") == false) {
         buf.append("OR ");

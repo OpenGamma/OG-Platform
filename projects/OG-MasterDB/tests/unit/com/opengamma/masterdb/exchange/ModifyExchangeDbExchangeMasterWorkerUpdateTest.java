@@ -17,8 +17,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.extsql.ExtSqlBundle;
-import com.opengamma.extsql.ExtSqlConfig;
+import com.opengamma.elsql.ElSqlBundle;
+import com.opengamma.elsql.ElSqlConfig;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.exchange.ExchangeDocument;
@@ -118,7 +118,7 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
   @Test
   public void test_update_rollback() {
     DbExchangeMaster w = new DbExchangeMaster(_exgMaster.getDbConnector());
-    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("TestRollback"), DbExchangeMaster.class));
+    w.setElSqlBundle(ElSqlBundle.of(new ElSqlConfig("TestRollback"), DbExchangeMaster.class));
     final ExchangeDocument base = _exgMaster.get(UniqueId.of("DbExg", "101", "0"));
     UniqueId uniqueId = UniqueId.of("DbExg", "101", "0");
     ManageableExchange exchange = new ManageableExchange(BUNDLE, "Test", REGION, null);

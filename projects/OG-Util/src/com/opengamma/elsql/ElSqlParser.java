@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.extsql;
+package com.opengamma.elsql;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -16,14 +16,14 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 
 /**
- * A bundle of extsql formatted SQL.
+ * A parse of elsql formatted SQL.
  * <p>
- * The bundle encapsulates the SQL needed for a particular feature.
- * This will typically correspond to a data access object, or set of related tables.
+ * The parser reads the file line by line and creates the named fragments of SQL for later use.
+ * The format is whitespace-aware, with indentation defining blocks (where curly braces would be used in Java).
  * <p>
- * This class is immutable and thread-safe.
+ * This class is mutable and intended for use by a single thread.
  */
-final class ExtSqlParser {
+final class ElSqlParser {
 
   /**
    * The regex for @NAME(identifier).
@@ -76,7 +76,7 @@ final class ExtSqlParser {
    * 
    * @param lines  the lines, not null
    */
-  ExtSqlParser(List<String> lines) {
+  ElSqlParser(List<String> lines) {
     for (int i = 0; i < lines.size(); i++) {
       String line = lines.get(i);
       _lines.add(new Line(line, i + 1));
