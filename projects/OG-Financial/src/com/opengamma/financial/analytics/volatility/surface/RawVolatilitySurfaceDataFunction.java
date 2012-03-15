@@ -162,6 +162,11 @@ public abstract class RawVolatilitySurfaceDataFunction extends AbstractFunction 
       public boolean canHandleMissingInputs() {
         return true;
       }
+      
+      @Override
+      public boolean canHandleMissingRequirements() {
+        return true;
+      }
 
       @SuppressWarnings({"unchecked" })
       protected VolatilitySurfaceDefinition<Object, Object> getSurfaceDefinition(final ConfigDBVolatilitySurfaceDefinitionSource source, final ComputationTarget target,
