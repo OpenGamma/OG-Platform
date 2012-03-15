@@ -1,4 +1,5 @@
 <#escape x as x?html>
+<#setting number_format="0.#####">
 <@page title="Security - ${security.name}">
 
 <@section css="info" if=deleted>
