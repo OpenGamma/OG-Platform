@@ -139,8 +139,11 @@ $.register_module({
                         // Identifiers
                         $('.OG-layout-admin-details-center .og-js-identifiers').html(
                             json_id.reduce(function (acc, cur) {
-                                return acc + '<tr><td><span>'+  cur.scheme +'<span></td><td>'+ cur.value +
-                                    '</td></tr>';
+                                return acc + '<tr><td>[0]</td><td>[1]</td><td>[2]</td><td>[3]</td></tr>'
+                                     .replace('[0]', cur.scheme.lang())
+                                     .replace('[1]', cur.value)
+                                     .replace('[2]', cur.date.start)
+                                     .replace('[3]', cur.date.end);
                             }, '')
                         );
                         // Plot
