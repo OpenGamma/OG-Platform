@@ -146,12 +146,12 @@
   </target>
   <target name="cpp-test-after" />
 
-  <target name="cpp-publish-debug-ant" if="cpp.present.ant">
+  <target name="cpp-publish-debug-ant" if="cpp.present.ant" unless="cpp.disable.debug">
     <antcall target="cpp-publish">
       <param name="cpp.output" value="${cc.debug.configuration}" />
     </antcall>
   </target>
-  <target name="cpp-publish-release-ant" if="cpp.present.ant">
+  <target name="cpp-publish-release-ant" if="cpp.present.ant" unless="cpp.disable.release">
     <antcall target="cpp-publish">
       <param name="cpp.output" value="${cc.release.configuration}" />
     </antcall>

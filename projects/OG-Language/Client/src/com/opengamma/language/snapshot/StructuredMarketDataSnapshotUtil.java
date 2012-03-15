@@ -19,7 +19,7 @@ import com.opengamma.util.tuple.Pair;
 
   private static final CompositeStringUtil s_cubeName = new CompositeStringUtil(2, false);
   private static final CompositeStringUtil s_curveName = new CompositeStringUtil(2, false);
-  private static final CompositeStringUtil s_surfaceName = new CompositeStringUtil(4, false);
+  private static final CompositeStringUtil s_surfaceName = new CompositeStringUtil(5, false);
 
   private StructuredMarketDataSnapshotUtil() {
   }
