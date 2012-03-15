@@ -12,11 +12,10 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.holiday.HolidaySource;
-import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.calendar.Calendar;
-import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCapFloorCMSSpreadDefinition;
@@ -33,54 +32,53 @@ import com.opengamma.util.money.Currency;
 public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecurityVisitor<InstrumentDefinition<?>> {
   private final HolidaySource _holidaySource;
   private final ConventionBundleSource _conventionSource;
+  private final RegionSource _regionSource;
 
-  public CapFloorCMSSpreadSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource) {
+  public CapFloorCMSSpreadSecurityConverter(final HolidaySource holidaySource, final ConventionBundleSource conventionSource, final RegionSource regionSource) {
     Validate.notNull(holidaySource, "holiday source");
     Validate.notNull(conventionSource, "convention source");
     _holidaySource = holidaySource;
     _conventionSource = conventionSource;
+    _regionSource = regionSource;
   }
 
   @Override
   public InstrumentDefinition<?> visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity capFloorCMSSpreadSecurity) {
     Validate.notNull(capFloorCMSSpreadSecurity, "cap/floor security");
-    // Cap/Floor description
+    final ZonedDateTime startDate = capFloorCMSSpreadSecurity.getStartDate();
+    final ZonedDateTime endDate = capFloorCMSSpreadSecurity.getMaturityDate();
     final double notional = capFloorCMSSpreadSecurity.getNotional();
-    final ZonedDateTime settlementDate = capFloorCMSSpreadSecurity.getStartDate();
-    final ZonedDateTime maturityDate = capFloorCMSSpreadSecurity.getMaturityDate();
-    final double strike = capFloorCMSSpreadSecurity.getStrike();
-    final boolean isCap = capFloorCMSSpreadSecurity.isCap();
-    final ExternalId longId = capFloorCMSSpreadSecurity.getLongId(); // First swap index (usually the longer tenor).
-    final ExternalId shortId = capFloorCMSSpreadSecurity.getShortId(); // Second swap index (usually the shorter tenor).
     final Currency currency = capFloorCMSSpreadSecurity.getCurrency();
-    final Period periodPayment = getTenor(capFloorCMSSpreadSecurity.getFrequency());
-    final boolean isPayer = capFloorCMSSpreadSecurity.isPayer();
-    final DayCount dayCount = capFloorCMSSpreadSecurity.getDayCount();
-    final Calendar calendar = CalendarUtils.getCalendar(_holidaySource, currency);
-    // Underlying
-    final ConventionBundle swap1Convention = _conventionSource.getConventionBundle(longId);
-    if (swap1Convention == null) {
-      throw new OpenGammaRuntimeException("Could not get convention for " + longId);
+    final Frequency payFreq = capFloorCMSSpreadSecurity.getFrequency();
+    // FIXME: convert frequency to period in a better way
+    final Period tenorPayment = getTenor(payFreq);
+    final ExternalId[] swapIndexId = new ExternalId[2];
+    swapIndexId[0] = capFloorCMSSpreadSecurity.getLongId();
+    swapIndexId[1] = capFloorCMSSpreadSecurity.getShortId();
+    final ConventionBundle[] swapIndexConvention = new ConventionBundle[2];
+    final ConventionBundle[] iborIndexConvention = new ConventionBundle[2];
+    for (int loopindex = 0; loopindex < 2; loopindex++) {
+      swapIndexConvention[loopindex] = _conventionSource.getConventionBundle(swapIndexId[loopindex]);
+      if (swapIndexConvention[loopindex] == null) {
+        throw new OpenGammaRuntimeException("Could not get swap index convention for " + swapIndexId[loopindex].toString());
+      }
+      iborIndexConvention[loopindex] = _conventionSource.getConventionBundle(swapIndexConvention[loopindex].getSwapFloatingLegInitialRate());
+      if (iborIndexConvention[loopindex] == null) {
+        throw new OpenGammaRuntimeException("Could not get ibor index convention for " + swapIndexConvention[loopindex].getSwapFloatingLegInitialRate());
+      }
     }
-    final ConventionBundle swap2Convention = _conventionSource.getConventionBundle(shortId);
-    if (swap2Convention == null) {
-      throw new OpenGammaRuntimeException("Could not get convention for " + shortId);
+    final ExternalId regionId = swapIndexConvention[0].getSwapFloatingLegRegion();
+    final Calendar calendar = CalendarUtils.getCalendar(_regionSource, _holidaySource, regionId);
+    final IborIndex[] iborIndex = new IborIndex[2];
+    final IndexSwap[] swapIndex = new IndexSwap[2];
+    for (int loopindex = 0; loopindex < 2; loopindex++) {
+      iborIndex[loopindex] = new IborIndex(currency, tenorPayment, iborIndexConvention[loopindex].getSettlementDays(), calendar, iborIndexConvention[loopindex].getDayCount(),
+          iborIndexConvention[loopindex].getBusinessDayConvention(), iborIndexConvention[loopindex].isEOMConvention());
+      final Period fixedLegPaymentPeriod = getTenor(swapIndexConvention[loopindex].getSwapFixedLegFrequency());
+      swapIndex[loopindex] = new IndexSwap(fixedLegPaymentPeriod, swapIndexConvention[loopindex].getSwapFixedLegDayCount(), iborIndex[loopindex], swapIndexConvention[loopindex].getPeriod());
     }
-    final ConventionBundle ibor1Convention = _conventionSource.getConventionBundle(swap1Convention.getSwapFloatingLegInitialRate());
-    final ConventionBundle ibor2Convention = _conventionSource.getConventionBundle(swap2Convention.getSwapFloatingLegInitialRate());
-    final IborIndex ibor1Index = new IborIndex(currency, ibor1Convention.getPeriod(), ibor1Convention.getSettlementDays(), calendar, ibor1Convention.getDayCount(),
-        ibor1Convention.getBusinessDayConvention(), ibor1Convention.isEOMConvention());
-    final IborIndex ibor2Index = new IborIndex(currency, ibor2Convention.getPeriod(), ibor2Convention.getSettlementDays(), calendar, ibor2Convention.getDayCount(),
-        ibor2Convention.getBusinessDayConvention(), ibor2Convention.isEOMConvention());
-    final Period swap1Tenor = getUnderlyingTenor(longId);
-    final DayCount swap1FixedLegDayCount = swap1Convention.getSwapFixedLegDayCount();
-    final Frequency swap1FixedLegFrequency = swap1Convention.getSwapFixedLegFrequency();
-    final IndexSwap swap1Index = new IndexSwap(getTenor(swap1FixedLegFrequency), swap1FixedLegDayCount, ibor1Index, swap1Tenor);
-    final Period swap2Tenor = getUnderlyingTenor(shortId);
-    final DayCount swap2FixedLegDayCount = swap2Convention.getSwapFixedLegDayCount();
-    final Frequency swap2FixedLegFrequency = swap2Convention.getSwapFixedLegFrequency();
-    final IndexSwap swap2Index = new IndexSwap(getTenor(swap2FixedLegFrequency), swap2FixedLegDayCount, ibor2Index, swap2Tenor);
-    return AnnuityCapFloorCMSSpreadDefinition.from(settlementDate, maturityDate, notional, swap1Index, swap2Index, periodPayment, dayCount, isPayer, strike, isCap);
+    return AnnuityCapFloorCMSSpreadDefinition.from(startDate, endDate, notional, swapIndex[0], swapIndex[1], tenorPayment, capFloorCMSSpreadSecurity.getDayCount(),
+        capFloorCMSSpreadSecurity.isPayer(), capFloorCMSSpreadSecurity.getStrike(), capFloorCMSSpreadSecurity.isCap());
   }
 
   // FIXME: convert frequency to period in a better way
@@ -100,13 +98,4 @@ public class CapFloorCMSSpreadSecurityConverter implements CapFloorCMSSpreadSecu
     return tenor;
   }
 
-  //TODO this is horrible - we need to add fields to the security
-  private Period getUnderlyingTenor(final ExternalId id) {
-    if (id.getScheme().equals(SecurityUtils.BLOOMBERG_TICKER)) {
-      final String bbgCode = id.getValue();
-      final String[] noSuffix = bbgCode.split(" ");
-      return Period.ofYears(Integer.parseInt(noSuffix[0].split("SW")[1]));
-    }
-    throw new OpenGammaRuntimeException("Cannot handle id");
-  }
 }

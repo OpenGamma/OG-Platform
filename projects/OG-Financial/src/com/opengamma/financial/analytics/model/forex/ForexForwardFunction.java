@@ -88,7 +88,7 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
     final YieldAndDiscountCurve[] curves = new YieldAndDiscountCurve[] {payCurve, receiveCurve};
     final Forex fxForward = (Forex) definition.toDerivative(now, curveNames);
     final YieldCurveBundle yieldCurves = new YieldCurveBundle(curveNames, curves);
-    final ValueProperties properties = getResultProperties(fullPayCurveName, receiveCurveName, payCurveCalculationMethod, receiveCurveCalculationMethod);
+    final ValueProperties properties = getResultProperties(payCurveName, receiveCurveName, payCurveCalculationMethod, receiveCurveCalculationMethod);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     return getResult(fxForward, yieldCurves, spec);
   }

@@ -93,9 +93,9 @@ public class PortfolioLoaderHelper {
     portfolioNameOption.setRequired(true);
     options.addOption(portfolioNameOption);
 
-    Option runModeOption = new Option(RUN_MODE_OPT, "runmode", true, "The run mode: shareddev, standalone");
-    runModeOption.setRequired(true);
-    options.addOption(runModeOption);
+    //    Option runModeOption = new Option(RUN_MODE_OPT, "runmode", true, "The run mode: shareddev, standalone");
+    //    runModeOption.setRequired(true);
+    //    options.addOption(runModeOption);
 
     Option writeOption = new Option(WRITE_OPT, "write", false, "Actually persists the portfolio to the database");
     options.addOption(writeOption);
@@ -128,7 +128,7 @@ public class PortfolioLoaderHelper {
 
   public static void persistLiborRawSecurities(Set<Currency> currencies, ToolContext toolContext) {
     SecurityMaster securityMaster = toolContext.getSecurityMaster();
-    byte[] rawData = new byte[] {0 };
+    byte[] rawData = new byte[] {0};
     StringBuilder sb = new StringBuilder();
     sb.append("Created ").append(currencies.size()).append(" libor securities:\n");
     for (Currency ccy : currencies) {

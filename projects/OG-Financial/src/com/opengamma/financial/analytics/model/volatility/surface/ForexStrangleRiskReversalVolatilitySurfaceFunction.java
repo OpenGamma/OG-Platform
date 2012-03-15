@@ -186,6 +186,7 @@ public class ForexStrangleRiskReversalVolatilitySurfaceFunction extends Abstract
         ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-        .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, SurfaceQuoteType.MARKET_STRANGLE_RISK_REVERSAL).get());
+        .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, SurfaceQuoteType.MARKET_STRANGLE_RISK_REVERSAL)
+        .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, SurfacePropertyNames.VOLATILITY_QUOTE).get());
   }
 }
