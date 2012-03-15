@@ -545,7 +545,7 @@ public final class BloombergDataUtils {
     for (ExternalIdWithDates identifierWithDates : bundleWithDates) {
       ExternalId identifier = identifierWithDates.toExternalId();
       String identifierValue = identifier.getValue();
-      if (identifierValue.contains(BloombergConstants.MARKET_SECTOR_COMDTY)) {
+      if (identifierValue.contains(BloombergConstants.MARKET_SECTOR_COMDTY) && identifierValue.indexOf(' ') == identifierValue.lastIndexOf(' ')) {
         //found a future code
         int splitIndex = identifierValue.lastIndexOf(' ');
         String secCode = identifierValue.substring(0, splitIndex);
