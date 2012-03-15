@@ -78,10 +78,10 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
     ArgumentChecker.notNull(localVolatility, "local volatility surface");
     final ForwardCurve forwardCurve = data.getForwardCurve();
     final double[] expiries = data.getExpiries();
-    final double[][] strikes = data.getStrikes();
-    final double[][] impliedVols = data.getVolatilities();
+    //    final double[][] strikes = data.getStrikes();
+    //    final double[][] impliedVols = data.getVolatilities();
     final boolean isCall = data.isCallData();
-    return runPDESolver(forwardCurve, localVolatility, expiries, strikes, impliedVols, isCall);
+    return runPDESolver(forwardCurve, localVolatility, expiries, isCall);
   }
 
   public PDEResultCollection getGridGreeks(final SmileSurfaceDataBundle data, final LocalVolatilitySurface<?> localVolatility, final EuropeanVanillaOption option) {
@@ -118,8 +118,7 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
    * Also output the (model) implied volatility as a function of strike for each tenor.
    * @param ps The print stream
    */
-  private PDEFullResults1D runPDESolver(final ForwardCurve forwardCurve, final LocalVolatilitySurface<?> localVolatility, final double[] expiries, final double[][] strikes,
-      final double[][] impliedVols, final boolean isCall) {
+  private PDEFullResults1D runPDESolver(final ForwardCurve forwardCurve, final LocalVolatilitySurface<?> localVolatility, final double[] expiries, final boolean isCall) {
     final int nExpiries = expiries.length;
     final double maxT = expiries[nExpiries - 1];
     //TODO check type of local vol surface
@@ -164,6 +163,8 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
     final DoubleArrayList impliedVolatilities = new DoubleArrayList();
     final DoubleArrayList prices = new DoubleArrayList();
     final DoubleArrayList blackPrices = new DoubleArrayList();
+    final DoubleArrayList absoluteDomesticPrice = new DoubleArrayList();
+    final DoubleArrayList absoluteForeignPrice = new DoubleArrayList();
     final DoubleArrayList bsDelta = new DoubleArrayList();
     final DoubleArrayList bsDualDelta = new DoubleArrayList();
     final DoubleArrayList bsGamma = new DoubleArrayList();
@@ -195,8 +196,11 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
       final double value2 = forward * pdeRes.getFunctionValue(spaceIndex + 1, timeIndex);
       final double m1 = pdeRes.getSpaceValue(spaceIndex);
       final double m2 = pdeRes.getSpaceValue(spaceIndex + 1);
+      //review R White 9/3/2012 This is pointless as moneyness == m1 (it is just the value at space index i) - what we should be doing
+      //is finding the price (and all other greeks) for a given moneyness (corresponding to an option) that is not on the grid
+      //So price and blackPrice should be the same (within the round trip to implied volatility)
       final double price = ((m2 - moneyness) * value1 + (moneyness - m1) * value2) / (m2 - m1);
-      final double blackPrice = BlackFormulaRepository.price(forward, k, expiry, impVol, isCall); //TODO not correct
+      final double blackPrice = BlackFormulaRepository.price(forward, k, expiry, impVol, isCall);
       strikes.add(k);
       impliedVolatilities.add(impVol);
       prices.add(price);
@@ -208,6 +212,7 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
       bsVega.add(getBSVega(forward, k, expiry, impVol));
       bsVanna.add(getBSVanna(forward, k, expiry, impVol));
       bsVomma.add(getBSVomma(forward, k, expiry, impVol));
+      absoluteDomesticPrice.add(Math.PI); //DEBUG - just trying to get a number through the system
 
       final double modelDD = getModelDualDelta(pdeRes, i);
       modelDualDelta.add(modelDD);
@@ -247,6 +252,7 @@ public class LocalVolatilityForwardPDEGreekCalculator<T extends StrikeType> {
     result.put(PDEResultCollection.GRID_VEGA, modelVega.toDoubleArray());
     result.put(PDEResultCollection.GRID_VANNA, modelVanna.toDoubleArray());
     result.put(PDEResultCollection.GRID_VOMMA, modelVomma.toDoubleArray());
+    result.put(PDEResultCollection.GRID_DOMESTIC_PV_QUOTE, absoluteDomesticPrice.toDoubleArray());
     return result;
   }
 
