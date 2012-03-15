@@ -5,7 +5,7 @@
  */
 package com.opengamma.maths.highlevelapi.functions;
 
-import com.opengamma.maths.highlevelapi.exceptions.MathsExceptionGeneric;
+import com.opengamma.maths.commonapi.exceptions.MathsExceptionGeneric;
 import com.opengamma.maths.highlevelapi.datatypes.primitive.OGArrayType;
 import com.opengamma.maths.highlevelapi.datatypes.primitive.OGIndexType;
 import com.opengamma.maths.lowlevelapi.functions.utilities.Min;

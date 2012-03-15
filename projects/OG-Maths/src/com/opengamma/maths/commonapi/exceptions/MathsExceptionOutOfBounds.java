@@ -3,27 +3,27 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.maths.highlevelapi.exceptions;
+package com.opengamma.maths.commonapi.exceptions;
 
 /**
  * Provides a manner in which maths exceptions can be thrown.
  */
-public class MathsExceptionGeneric extends RuntimeException {
+public class MathsExceptionOutOfBounds extends RuntimeException {
   private static final long serialVersionUID = 1L;
 
-  public MathsExceptionGeneric() {
+  public MathsExceptionOutOfBounds() {
     super();
   }
 
-  public MathsExceptionGeneric(final String s) {
+  public MathsExceptionOutOfBounds(final String s) {
     super(s);
   }
 
-  public MathsExceptionGeneric(final String s, final Throwable cause) {
+  public MathsExceptionOutOfBounds(final String s, final Throwable cause) {
     super(s, cause);
   }
 
-  public MathsExceptionGeneric(final Throwable cause) {
+  public MathsExceptionOutOfBounds(final Throwable cause) {
     super(cause);
   }
 }

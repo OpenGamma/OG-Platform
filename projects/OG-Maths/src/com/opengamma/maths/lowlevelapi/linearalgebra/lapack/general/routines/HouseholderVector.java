@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.maths.lowlevelapi.linearalgebra.decompositions.svd;
+package com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.routines;
 
 /**
  * 

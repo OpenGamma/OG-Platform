@@ -3,18 +3,19 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.maths.lowlevelapi.linearalgebra.decompositions.svd;
+package com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.routines;
 
 import java.util.Arrays;
 
 import com.opengamma.maths.lowlevelapi.datatypes.primitive.DenseMatrix;
 import com.opengamma.maths.lowlevelapi.linearalgebra.blas.BLAS1;
+import com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.types.SingularValueDecomposition.SingularValueDecompositionFullUSV;
 
 /**
  * Does svd, this is currently clunky as its being translated from a prototype I wrote in a rather nice vector language :)
  * TODO: Clean up and review. There are a load of possibilities and branches/algs to try along with the usual cache/fake SSE considerations.    
  */
-public class SingularValueDecomposition {
+public class DGESVD {
 
   /**
    * Alg ideas  
@@ -48,6 +49,8 @@ public class SingularValueDecomposition {
 
     // Main SVD code. Decide if we need to transpose A and make a memcpy that we can destroy
     double[] matrixAnew;
+    double[] matrixU = new double[m * m];
+    double[] matrixVT = new double[n * n];
     boolean transposed = false;
     if (m < n) {
       matrixAnew = new double[data.length];
@@ -66,34 +69,17 @@ public class SingularValueDecomposition {
       transposed = false;
     }
 
-    // stu - implement these branches
-    //    if (m >= 5 * n / 3) { // we have a system that is ripe for QR first
-    //
-    //    } else { // hit standard bi-diag
-    // bidiag
-
     double[] d = new double[n];
     double[] dp1 = new double[n - 1];
-    biDiag(data, m, n, d, dp1);
-
-    // then chase
-
-    //    }
+    if (m >= 5 * n / 3) { // we have a system that is ripe for QR first
+      // TODO: implement QR variant, we have 1/2 of it below in fn reduceColSpace()
+      DGEBRD.fullGolubReinsch(matrixAnew, m, n, matrixU, d, dp1, matrixVT);
+    } else { // hit standard bi-diag
+      DGEBRD.fullGolubReinsch(matrixAnew, m, n, matrixU, d, dp1, matrixVT);
+    }
 
     return null;
 
-  }
-
-  private static void biDiag(double[] data, int m, int n, double d[], double dp1[]) {
-    reduceColSpace(data, m, n);
-    reduceRowSpace(data, m, n);
-    for (int i = 0; i < n - 1; i++) {
-      d[i] = data[i * n + i];
-      dp1[i] = data[i * n + i + 1];
-    }
-    d[n - 1] = data[n * n - 1];
-    System.out.println("Diag = " + Arrays.toString(d));
-    System.out.println("Super Diag = " + Arrays.toString(dp1));
   }
 
   /*

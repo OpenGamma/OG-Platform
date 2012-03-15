@@ -10,6 +10,8 @@ import org.testng.annotations.Test;
 import cern.colt.Arrays;
 
 import com.opengamma.maths.lowlevelapi.datatypes.primitive.DenseMatrix;
+import com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.routines.DGESVD;
+import com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.types.SingularValueDecomposition.SingularValueDecompositionFullUSV;
 
 /**
  * 
@@ -28,7 +30,7 @@ public class SingularValueDecompositionTest {
   
   @Test
   public void svdTestRowVect(){
-    SingularValueDecompositionFullUSV tmp = SingularValueDecomposition.full(_DMArowvector);
+    SingularValueDecompositionFullUSV tmp = DGESVD.full(_DMArowvector);
     System.out.println("U="+Arrays.toString(tmp.getMatrixU()));
     System.out.println("S="+Arrays.toString(tmp.getMatrixS()));
     System.out.println("V=");
@@ -37,7 +39,7 @@ public class SingularValueDecompositionTest {
 
   @Test
   public void svdTestColVect(){
-    SingularValueDecompositionFullUSV tmp = SingularValueDecomposition.full(_DMAcolvector);
+    SingularValueDecompositionFullUSV tmp = DGESVD.full(_DMAcolvector);
     System.out.println("U="+Arrays.toString(tmp.getMatrixU()));
     System.out.println("S="+Arrays.toString(tmp.getMatrixS()));
     System.out.println("V=");
@@ -46,7 +48,7 @@ public class SingularValueDecompositionTest {
   
   @Test
   public void svdTestThinMat(){
-    SingularValueDecompositionFullUSV tmp = SingularValueDecomposition.full(_DMAthinmat);
+    SingularValueDecompositionFullUSV tmp = DGESVD.full(_DMAthinmat);
     System.out.println("U="+Arrays.toString(tmp.getMatrixU()));
     System.out.println("S="+Arrays.toString(tmp.getMatrixS()));
     System.out.println("V=");
@@ -55,7 +57,7 @@ public class SingularValueDecompositionTest {
 
   @Test
   public void svdTestLargerThinMat(){
-    SingularValueDecompositionFullUSV tmp = SingularValueDecomposition.full(_DMAlargerthinmat);
+    SingularValueDecompositionFullUSV tmp = DGESVD.full(_DMAlargerthinmat);
     System.out.println("U="+Arrays.toString(tmp.getMatrixU()));
     System.out.println("S="+Arrays.toString(tmp.getMatrixS()));
     System.out.println("V=");

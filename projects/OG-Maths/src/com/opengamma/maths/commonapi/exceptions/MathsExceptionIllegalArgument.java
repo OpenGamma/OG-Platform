@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.maths.highlevelapi.exceptions;
+package com.opengamma.maths.commonapi.exceptions;
 
 /**
  * Provides a manner in which maths exceptions can be thrown.
