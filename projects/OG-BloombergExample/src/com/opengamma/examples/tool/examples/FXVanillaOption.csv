@@ -1,0 +1,5 @@
+"Put Currency","Call Currency","Put Amount","Call Amount",Expiry,"Is long"
+USD,EUR,100000,72000,01/12/2012,true
+USD,EUR,100000,70000,01/06/2013,false
+USD,EUR,100000,71000,01/08/2014,true
+USD,EUR,100000,73000,05/06/2015,false
