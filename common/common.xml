@@ -315,7 +315,7 @@
 			<!-- Read in DbTest.java -->
 			<sysproperty key="disable.instrumentation.sensitive" value="${clover.installed}" />
 		</testng>
-		<move file="${tests.junit.dir}/junitreports" tofile="${tests.junit.dir}/xml" />
+		<move file="${tests.junit.dir}/junitreports" tofile="${tests.junit.dir}/xml" failonerror="false"/>
 		<!--mkdir dir="${tests.junit.dir}/html" />
     <junitreport todir="${tests.junit.dir}/xml">
       <fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />

@@ -20,6 +20,8 @@ import com.opengamma.util.fudgemsg.AbstractFudgeBuilder;
 @FudgeBuilderFor(MultipleCurrencyAmount.class)
 public final class MultipleCurrencyAmountFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<MultipleCurrencyAmount> {
 
+  // REVIEW 2012-03-14 Andrew -- Using the Fudge field name for the currency code and give that the value field would be a more efficient encoding and be simpler to decode 
+
   /** Field name. */
   public static final String CURRENCIES_FIELD_NAME = "currencies";
   /** Field name. */

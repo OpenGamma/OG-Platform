@@ -103,7 +103,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
     } else {
       futureOptionCode.append(Integer.toString(futureOptionExpiry.getYear() % 10));
     }
-    final String typeString = _useCallAboveStrike < strike ? "C " : "P ";
+    final String typeString = _useCallAboveStrike > strike ? "C " : "P "; // CASE: Bloomberg data seems to be populating prices for IN-the-money options!
     futureOptionCode.append(typeString);
     futureOptionCode.append(FORMATTER.format(strike));
     futureOptionCode.append(" ");

@@ -6,6 +6,7 @@
 package com.opengamma.financial.instrument.payment;
 
 import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -21,8 +22,10 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
 import com.opengamma.financial.interestrate.payments.Payment;
 import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.financial.interestrate.payments.method.CouponFixedDiscountingMethod;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.TimeCalculator;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
@@ -289,6 +292,35 @@ public class CouponOISDefinitionTest {
         * (1 + fixingRate * EONIA_COUPON_DEFINITION.getFixingPeriodAccrualFactor()[4]);
     CouponFixed cpnExpected = new CouponFixed(EUR_CUR, paymentTime, CURVES_NAMES[0], EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, (notionalIncreased / NOTIONAL - 1.0) / EUR_PAYMENT_YEAR_FRACTION);
     assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
+  }
+
+  @Test
+  /**
+   * Tests the toDerivative method on the payment date. valuation is at noon, payment set at midnight...
+   */
+  public void toDerivativeJustAfterPayment() {
+    ZonedDateTime valuationTimeIsNoon = DateUtils.getUTCDate(2011, 9, 19, 12, 0);
+    assertTrue("valuationTimeIsNoon used to be after paymentDate, which was midnight. Confirm behaviour", valuationTimeIsNoon.isAfter(EONIA_COUPON_DEFINITION.getPaymentDate()));
+    double fixingRate = 0.01;
+    DoubleTimeSeries<ZonedDateTime> fixingTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTime[] {DateUtils.getUTCDate(2011, 9, 7), DateUtils.getUTCDate(2011, 9, 8),
+        DateUtils.getUTCDate(2011, 9, 9), DateUtils.getUTCDate(2011, 9, 12), DateUtils.getUTCDate(2011, 9, 13), DateUtils.getUTCDate(2011, 9, 14), DateUtils.getUTCDate(2011, 9, 15) }, new double[] {
+        fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate, fixingRate });
+    Payment cpnConverted = EONIA_COUPON_DEFINITION.toDerivative(valuationTimeIsNoon, fixingTS, CURVES_NAMES);
+    double paymentTime = TimeCalculator.getTimeBetween(valuationTimeIsNoon, EUR_PAYMENT_DATE);
+    double notionalIncreased = NOTIONAL * (1 + fixingRate * EONIA_COUPON_DEFINITION.getFixingPeriodAccrualFactor()[0]) * (1 + fixingRate * EONIA_COUPON_DEFINITION.getFixingPeriodAccrualFactor()[1])
+        * (1 + fixingRate * EONIA_COUPON_DEFINITION.getFixingPeriodAccrualFactor()[2]) * (1 + fixingRate * EONIA_COUPON_DEFINITION.getFixingPeriodAccrualFactor()[3])
+        * (1 + fixingRate * EONIA_COUPON_DEFINITION.getFixingPeriodAccrualFactor()[4]);
+
+    CouponFixed cpnExpected = new CouponFixed(EUR_CUR, paymentTime, CURVES_NAMES[0], EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, (notionalIncreased / NOTIONAL - 1.0) / EUR_PAYMENT_YEAR_FRACTION);
+    assertEquals("CouponOISSimplified definition: toDerivative", cpnExpected, cpnConverted);
+
+    // Test pricing, too. Notice that the value of a coupon on its payment date is non-zero
+    final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
+    CurrencyAmount pvConverted = CouponFixedDiscountingMethod.getInstance().presentValue((CouponFixed) cpnConverted, CURVES);
+    CurrencyAmount pvExpected = CouponFixedDiscountingMethod.getInstance().presentValue(cpnExpected, CURVES);
+    assertEquals("CouponOIS definition: toDerivative", pvConverted, pvExpected);
+    assertEquals("CouponOIS definition: toDerivative", pvConverted, CurrencyAmount.of(EUR_CUR, 19445.833380471457));
+
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
