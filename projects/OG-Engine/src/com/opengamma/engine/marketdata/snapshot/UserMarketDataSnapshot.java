@@ -56,6 +56,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   private static final String INSTRUMENT_TYPE_PROPERTY = "InstrumentType";
   private static final String SURFACE_QUOTE_TYPE_PROPERTY = "SurfaceQuoteType";
+  private static final String SURFACE_QUOTE_UNITS_PROPERTY = "SurfaceUnits";
   private static final Map<String, StructuredMarketDataKeyFactory> s_structuredKeyFactories = new HashMap<String, StructuredMarketDataKeyFactory>();
 
   private final MarketDataSnapshotSource _snapshotSource;
@@ -155,7 +156,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
           return null;
         }
         final ValueProperties constraints = valueRequirement.getConstraints();
-        if (constraints.getProperties().size() != 3) {
+        if (constraints.getProperties().size() != 4) {
           return null;
         }
         final Set<String> names = constraints.getValues(ValuePropertyNames.SURFACE);
@@ -170,7 +171,11 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
         if ((quoteTypes == null) || (quoteTypes.size() != 1)) {
           return null;
         }
-        return new VolatilitySurfaceKey(target, names.iterator().next(), instrumentTypes.iterator().next(), quoteTypes.iterator().next());
+        final Set<String> quoteUnits = constraints.getValues(SURFACE_QUOTE_UNITS_PROPERTY);
+        if ((quoteUnits == null) || (quoteUnits.size() != 1)) {
+          return null;
+        }
+        return new VolatilitySurfaceKey(target, names.iterator().next(), instrumentTypes.iterator().next(), quoteTypes.iterator().next(), quoteUnits.iterator().next());
       }
 
     });
