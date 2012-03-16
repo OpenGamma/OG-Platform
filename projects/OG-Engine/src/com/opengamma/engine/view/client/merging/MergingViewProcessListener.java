@@ -7,16 +7,12 @@ package com.opengamma.engine.view.client.merging;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.concurrent.locks.ReentrantLock;
 
 import javax.time.Instant;
 
 import com.google.common.base.Function;
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
@@ -59,6 +55,7 @@ public class MergingViewProcessListener implements ViewResultListener {
   
   private int _cycleCompletedIndex = -1;
   private int _cycleFragmentCompletedIndex = -1;
+  private boolean _cycleInitiated;
   
   public MergingViewProcessListener(ViewResultListener underlying, EngineResourceManagerInternal<?> cycleManager) {
     ArgumentChecker.notNull(underlying, "underlying");
@@ -143,7 +140,10 @@ public class MergingViewProcessListener implements ViewResultListener {
       if (isPassThrough()) {
         getUnderlying().cycleInitiated(cycleInfo);
       } else {
-        _callQueue.add(new CycleInitiatedCall(cycleInfo));
+        if (!_cycleInitiated) {
+          _callQueue.add(new CycleInitiatedCall(cycleInfo));
+          _cycleInitiated = true;
+        }
       }
     } finally {
       _mergerLock.unlock();
@@ -291,6 +291,7 @@ public class MergingViewProcessListener implements ViewResultListener {
       _callQueue.clear();
       _cycleCompletedIndex = -1;
       _cycleFragmentCompletedIndex = -1;
+      _cycleInitiated = false;
       
     } finally {
       _mergerLock.unlock();
@@ -306,6 +307,7 @@ public class MergingViewProcessListener implements ViewResultListener {
       _callQueue.clear();
       _cycleCompletedIndex = -1;
       _cycleFragmentCompletedIndex = -1;
+      _cycleInitiated = false;
       getCycleRetainer().replaceRetainedCycle(null);
     } finally {
       _mergerLock.unlock();

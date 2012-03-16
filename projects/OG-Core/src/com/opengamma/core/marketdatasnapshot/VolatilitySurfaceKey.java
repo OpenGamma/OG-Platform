@@ -25,7 +25,7 @@ import com.opengamma.util.money.Currency;
 public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable<VolatilitySurfaceKey>, Serializable {
 
   /** Serialization version. */
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 2L;
 
   /**
    * The target.
