@@ -26,11 +26,12 @@
     <subant buildpathref="cc.build.path" target="compile" inheritall="true" inheritrefs="true" />
   </target>
 
-  <target name="compile-tests" depends="common.compile-tests">
+  <target name="compile-tests" depends="common.compile-tests" unless="compile.tests">
     <subant buildpathref="cctest.build.path" target="compile" inheritall="true" inheritrefs="true" />
+    <property name="compile.tests" value="true" />
   </target>
 
-  <target name="test-batch-cpp">
+  <target name="test-batch-cpp" depends="compile-tests">
     <subant buildpathref="cctest.build.path" target="tests" inheritall="true" inheritrefs="true" />
   </target>
   <target name="test-batch" depends="test-batch-cpp,common.test-batch" />

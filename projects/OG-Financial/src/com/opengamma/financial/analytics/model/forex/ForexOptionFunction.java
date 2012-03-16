@@ -314,9 +314,9 @@ public abstract class ForexOptionFunction extends AbstractFunction.NonCompiledIn
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     Currency ccy;
     if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) {
-      ccy = putCurrency;
-    } else {
       ccy = callCurrency;
+    } else {
+      ccy = putCurrency;
     }
     return ccy.getCode();
   }

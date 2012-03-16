@@ -96,9 +96,9 @@ public class YieldCurveNodeSensitivitiesHelper {
     sensitivities.put(fundingCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), 0, nFunding)));
     sensitivities.put(forwardCurveName, new DoubleMatrix1D(Arrays.copyOfRange(sensitivitiesForCurves.toArray(), nFunding, nForward + nFunding)));
     final Set<ComputedValue> results = new HashSet<ComputedValue>();
-    results.addAll(getInstrumentLabelledSensitivitiesForCurve(fundingCurveName, bundle, sensitivities.get(fundingCurveName),
+    results.addAll(getSensitivitiesForCurve(bundle.getCurve(fundingCurveName), sensitivities.get(fundingCurveName),
         curveSpecs.get(fundingCurveName), fundingResultSpecification));
-    results.addAll(getInstrumentLabelledSensitivitiesForCurve(forwardCurveName, bundle, sensitivities.get(forwardCurveName),
+    results.addAll(getSensitivitiesForCurve(bundle.getCurve(forwardCurveName), sensitivities.get(forwardCurveName),
         curveSpecs.get(forwardCurveName), forwardResultSpecification));
     return results;
   }

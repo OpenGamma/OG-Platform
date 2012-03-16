@@ -9,18 +9,16 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import javax.time.Instant;
 
-import com.opengamma.engine.value.ValueRequirement;
-import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.CycleInfo;
 import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewDeltaResultModel;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.compilation.CompiledViewDefinition;
 import com.opengamma.engine.view.execution.ViewCycleExecutionOptions;
-import com.opengamma.engine.view.listener.CycleInitiatedCall;
-import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
 import com.opengamma.engine.view.listener.CycleCompletedCall;
 import com.opengamma.engine.view.listener.CycleExecutionFailedCall;
+import com.opengamma.engine.view.listener.CycleFragmentCompletedCall;
+import com.opengamma.engine.view.listener.CycleInitiatedCall;
 import com.opengamma.engine.view.listener.ProcessCompletedCall;
 import com.opengamma.engine.view.listener.ProcessTerminatedCall;
 import com.opengamma.engine.view.listener.ViewDefinitionCompilationFailedCall;
@@ -28,9 +26,6 @@ import com.opengamma.engine.view.listener.ViewDefinitionCompiledCall;
 import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.AbstractTestResultListener;
-
-import java.util.Map;
-import java.util.Set;
 
 /**
  * Implementation of {@link ViewResultListener} for use in tests.

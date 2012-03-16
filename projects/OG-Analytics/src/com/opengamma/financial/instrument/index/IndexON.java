@@ -5,12 +5,12 @@
  */
 package com.opengamma.financial.instrument.index;
 
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.util.money.Currency;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 /**
  * Class describing an OIS-like index. The fixing period is always one business day.
@@ -38,6 +38,7 @@ public class IndexON extends IndexDeposit {
   public IndexON(String name, Currency currency, DayCount dayCount, int publicationLag, Calendar calendar) {
     super(name, currency, calendar);
     Validate.notNull(dayCount, "OIS index: day count");
+    Validate.isTrue(publicationLag == 0 || publicationLag == 1, "Attempted to construct an IndexON with publicationLag other than 0 or 1");
     _publicationLag = publicationLag;
     _dayCount = dayCount;
   }

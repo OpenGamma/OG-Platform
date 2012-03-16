@@ -5,33 +5,25 @@
  */
 package com.opengamma.util.time;
 
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
+import com.opengamma.util.ArgumentChecker;
+
+import javax.time.calendar.ZonedDateTime;
 
 /**
- * Converts dates to 'Analytic Time'. The latter are stored as doubles, 
+ * Converts dates to 'Analytics Time'. The latter are stored as doubles, 
  * and typically represent the fraction of years between some date and the current one.
- * TODO Discuss whether this makes more sense as a singleton pattern as, say, PresentValueCalculator  
  */
 public abstract class TimeCalculator {
   private static final DayCount ACT_ACT = DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
 
-  //DayCountFactory.INSTANCE.getDayCount("Actual/Actual ISDA");
-  //DayCountFactory.INSTANCE.getDayCount("Actual/365");
-
   public static double getTimeBetween(final ZonedDateTime date1, final ZonedDateTime date2) {
-    Validate.notNull(date1, "date1");
-    Validate.notNull(date1, "date2");
-
-    // TODO Confirm the following behaviour, allowing negative values of time, is desired
+    ArgumentChecker.notNull(date1, "date1");
+    ArgumentChecker.notNull(date1, "date2");
+    ArgumentChecker.isTrue(date1.getZone().equals(date2.getZone()), "Attempted to compute Analytics-Time between instants in two different TimeZones. " +
+        "This is not permitted. ZonedDateTime's are: {} and {}", date1, date2);
     final boolean timeIsNegative = date1.isAfter(date2); // date1 >= date2
-
-    // TODO Decide on preferred functional form of t := date2 - date1
-    // I am not a fan of the current setup because it is difficult to invert: dt2 = dt1 + t
 
     if (!timeIsNegative) {
       final double time = ACT_ACT.getDayCountFraction(date1, date2);
