@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.loader.portfolio;
 
-import javax.time.Instant;
 import javax.time.calendar.ZonedDateTime;
 
 import com.opengamma.financial.tool.ToolContext;
@@ -19,7 +18,6 @@ import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.portfolio.PortfolioSearchRequest;
 import com.opengamma.master.portfolio.PortfolioSearchResult;
 import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.position.PositionDocument;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.position.PositionSearchRequest;
@@ -42,8 +40,8 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   
   private PortfolioDocument _portfolioDocument;
   private ManageablePortfolioNode _currentNode;
-  private ManageablePortfolioNode _originalNode = null;
-  private ManageablePortfolioNode _originalRoot = null;
+  private ManageablePortfolioNode _originalNode;
+  private ManageablePortfolioNode _originalRoot;
   
   
   public MasterPortfolioWriter(String portfolioName, ToolContext toolContext) {
@@ -76,26 +74,12 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     searchReq.setFullDetail(true);
     searchReq.setSortOrder(SecuritySearchSortOrder.VERSION_FROM_INSTANT_DESC);
     SecuritySearchResult searchResult = _securityMaster.search(searchReq);
-    //if (searchResult.getDocuments().size() > 0) {
     for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {  
-      //SecurityDocument firstDocument = searchResult.getFirstDocument();
-      //ManageableSecurity foundSecurity = firstDocument.getSecurity();
       if (weakEquals(foundSecurity, security)) {
         // It's already there, don't update or add it
         return foundSecurity;
       }
     }
-//      } else {
-//        // Found it but contents differ, so update it
-//        SecurityDocument updateDoc = new SecurityDocument(security);
-//        updateDoc.setUniqueId(foundSecurity.getUniqueId());
-//        updateDoc.setVersionFromInstant(firstDocument.getVersionFromInstant());
-//        updateDoc.setVersionToInstant(firstDocument.getVersionToInstant());
-//        updateDoc.setCorrectionFromInstant(Instant.now());
-//        SecurityDocument result = _securityMaster.update(updateDoc);
-//        return result.getSecurity();
-//      }
-//    } else {
     // Not found, so add it
     SecurityDocument addDoc = new SecurityDocument(security);
     SecurityDocument result = _securityMaster.add(addDoc);
@@ -215,6 +199,8 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       portfolioDoc = new PortfolioDocument();
       portfolioDoc.setPortfolio(portfolio);
       portfolioDoc = _portfolioMaster.add(portfolioDoc);
+      _originalRoot = null;
+      _originalNode = null;
       
     // If it does, create a new version of the existing portfolio (update) with a new root node
     } else {
