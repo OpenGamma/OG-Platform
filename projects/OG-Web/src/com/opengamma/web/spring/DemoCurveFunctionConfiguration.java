@@ -23,8 +23,9 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction;
-import com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveFromYieldCurveDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveFromYieldCurveFunction;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveFunction;
+import com.opengamma.financial.analytics.model.curve.future.FuturePriceCurveFunction;
 import com.opengamma.financial.analytics.volatility.cube.BloombergSwaptionVolatilityCubeInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunction;
@@ -95,6 +96,8 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     s_logger.info("Added swaption vol cube to repository configuration");
     addFXForwardCurveFunction(configs);
     s_logger.info("Added FX forward curve to repository configuration");
+    addFutureCurveFunction(configs);
+    s_logger.info("Added future curve to repository configuration");
     return new RepositoryConfiguration(configs);
   }
 
@@ -114,11 +117,14 @@ public class DemoCurveFunctionConfiguration extends SingletonFactoryBean<Reposit
     configs.add(new ParameterizedFunctionConfiguration(YieldCurveSpecificationFunction.class.getName(), Arrays.asList(currency, curveName)));
   }
 
-  private void addFXForwardCurveFunction(List<FunctionConfiguration> configs) {
+  private void addFXForwardCurveFunction(final List<FunctionConfiguration> configs) {
     configs.add(new StaticFunctionConfiguration(FXForwardCurveFromYieldCurveFunction.class.getName()));
     configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurveDefaultPropertiesFunction.class.getName(), Arrays.asList("FUNDING-FUNDING", "FUNDING", "FUNDING")));
   }
   
+  private void addFutureCurveFunction(final List<FunctionConfiguration> configs) {
+    configs.add(new StaticFunctionConfiguration(FuturePriceCurveFunction.class.getName()));
+  }
   private void addVolatilityCubeFunction(List<FunctionConfiguration> configs, String... parameters) {
     addVolatilityCubeFunction(configs, Arrays.asList(parameters));
   }

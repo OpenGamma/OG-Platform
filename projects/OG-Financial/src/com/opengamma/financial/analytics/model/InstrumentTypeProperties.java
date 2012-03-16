@@ -18,5 +18,7 @@ public class InstrumentTypeProperties {
   public static final String FOREX = "FX_VANILLA_OPTION";
   /** Property representing a surface for IR future options */
   public static final String IR_FUTURE_OPTION = "IR_FUTURE_OPTION";
+  /** Property representing a curve for IR futures */
+  public static final String IR_FUTURE_PRICE = "IR_FUTURE_PRICE";
 
 }

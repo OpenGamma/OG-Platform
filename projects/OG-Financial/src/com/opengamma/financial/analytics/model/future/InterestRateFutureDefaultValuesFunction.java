@@ -18,14 +18,15 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Dummy function for injecting default curve names into the dependency graph.
  */
 public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunction {
-
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES};
 
   private final String[] _applicableCurrencyNames;
@@ -33,8 +34,12 @@ public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunc
   private final String _forwardCurve;
   private final String _fundingCurve;
 
-  public InterestRateFutureDefaultValuesFunction(final String curveCalculationMethod, final String forwardCurve, final String fundingCurve, final String... applicableCurrencyNames) {
+  public InterestRateFutureDefaultValuesFunction(final String forwardCurve, final String fundingCurve, final String curveCalculationMethod, final String... applicableCurrencyNames) {
     super(ComputationTargetType.TRADE, true);
+    ArgumentChecker.notNull(forwardCurve, "forward curve");
+    ArgumentChecker.notNull(fundingCurve, "funding curve");
+    ArgumentChecker.notNull(curveCalculationMethod, "curve calculation method");
+    ArgumentChecker.notNull(applicableCurrencyNames, "applicable currency names");
     _curveCalculationMethod = curveCalculationMethod;
     _forwardCurve = forwardCurve;
     _fundingCurve = fundingCurve;

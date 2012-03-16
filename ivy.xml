@@ -1,0 +1,7 @@
+<ivy-module version="2.0">
+    <info organisation="com.opengamma" module="og-platform" status="integration"/>
+    <dependencies>
+        <dependency org="latexlet" name="latexlet" rev="1.11"/>
+    </dependencies>
+</ivy-module>
+

@@ -1,13 +1,8 @@
-<project name="Service">
-	<import file="${basedir}/../build-cpp.xml" />
+<project name="Service" xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks">
 
-	<path id="lib.path.id">
-		<fileset dir="${solution.dir}/lib/jar">
-			<exclude name="org.apache.ant/ant/*.jar" />
-		</fileset>
-	</path>
+	<import file="${basedir}/../build-core-cpp.xml" />
 
-	<target name="proto-c" description="--> generates the C/C++ header files for the Fudge messages" unless="proto.c.disabled">
+	<target name="fudge-proto" unless="proto.c.disabled">
 		<java classname="org.fudgemsg.proto.CommandLine" classpathref="lib.path.id" fork="true">
 			<arg value="-d${basedir}" />
 			<arg value="-lC" />
@@ -16,6 +11,31 @@
 		</java>
 	</target>
 
-	<target name="compile" depends="proto-c,build-cpp-impl.compile" />
+	<target name="compile" depends="fudge-proto,core-cpp.compile" />
+
+  <target name="cpp-define-extra" if="cpp.present.ant">
+    <cpptasks:defineset id="cpp.define.extra">
+      <define name="DEFAULT_JVM_LIBRARY" value="TEXT (QUOTE (${defaults.jvm.library}))" if="defaults.jvm.library" />
+      <define name="DEFAULT_PIPE_FOLDER" value="TEXT (QUOTE (${defaults.pipe.folder}))" if="defaults.pipe.folder" />
+    </cpptasks:defineset>
+  </target>
+
+  <target name="cpp-include-extra" if="cpp.present.ant">
+    <cpptasks:cc objdir="${build.dir}">
+      <includepath id="cpp.include.extra">
+        <pathelement path="${jni.base.include.dir}" />
+        <pathelement path="${jni.native.include.dir}" />
+      </includepath>
+    </cpptasks:cc>
+  </target>
+
+  <target name="clean" depends="core-cpp.clean">
+    <delete>
+      <fileset dir="${basedir}">
+        <include name="ClientConnect.c" />
+        <include name="ClientConnect.h" />
+      </fileset>
+    </delete>
+  </target>
 
 </project>

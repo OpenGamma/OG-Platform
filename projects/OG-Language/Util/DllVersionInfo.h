@@ -7,7 +7,7 @@
 #ifndef __inc_og_language_util_dllversioninfo_h
 #define __inc_og_language_util_dllversioninfo_h
 
-#include <version.h>
+#include <Util/Version.h>
 
 #ifndef DllVersion_Comments
 #define DllVersion_Comments			""

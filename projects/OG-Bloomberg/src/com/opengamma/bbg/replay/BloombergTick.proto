@@ -1,0 +1,88 @@
+/**
+ * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+
+namespace com.opengamma.bbg.replay {
+
+  message BloombergTick {
+  
+    required long receivedTS;
+    required string buid;
+    required string security;
+    required message fields;
+  
+  }
+
+}
+
+/* ORIGINAL JAVA
+package com.opengamma.bbg.replay;
+
+import javax.time.Instant;
+import javax.time.calendar.TimeZone;
+import javax.time.calendar.ZonedDateTime;
+import org.fudgemsg.FudgeFieldContainer;
+
+import com.opengamma.util.ArgumentChecker;
+
+public class BloombergTick {
+  public static final String FIELDS_KEY = "fields";
+  public static final String RECEIVED_TS_KEY = "receivedTS";
+  public static final String TERMINATE_KEY = "jobTerminate";
+  public static final String SECURITY_KEY_NAME = "security";
+  public static final String BUID_KEY = "buid";
+  
+  private long _receivedTimeStamp;
+  private String _buid;
+  private String _securityDes;
+  private FudgeFieldContainer _fields;
+  
+  public BloombergTick(long receivedTimeStamp, String buid, String securityDes, FudgeFieldContainer fields) {
+    ArgumentChecker.checkNotNull(buid, "buid");
+    ArgumentChecker.checkNotNull(securityDes, "securityDes");
+    ArgumentChecker.checkNotNull(fields, "fields");
+    _receivedTimeStamp = receivedTimeStamp;
+    _buid = buid;
+    _securityDes = securityDes;
+    _fields = fields;
+  }
+
+  public long getReceivedTimeStamp() {
+    return _receivedTimeStamp;
+  }
+
+  public String getBuid() {
+    return _buid;
+  }
+
+  public String getSecurityDes() {
+    return _securityDes;
+  }
+
+  public FudgeFieldContainer getFields() {
+    return _fields;
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder sb = new StringBuilder();
+    sb.append("BloombergTick[");
+    sb.append("receivedTS=>").append(printTime());
+    sb.append(" buid=>").append(getBuid());
+    sb.append(" securityDes=>").append(getSecurityDes());
+    sb.append(" fields=>").append(getFields().toString());
+    sb.append("]");
+    return sb.toString();
+  }
+
+  private String printTime() {
+    Instant instant = Instant.millisInstant(_receivedTimeStamp);
+    ZonedDateTime zonedDateTime = ZonedDateTime.fromInstant(instant, TimeZone.UTC);
+    return zonedDateTime.toString();
+  }
+  
+}
+
+*/

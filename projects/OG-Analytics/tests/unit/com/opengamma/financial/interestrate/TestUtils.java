@@ -16,11 +16,11 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public abstract class TestUtils {
 
-  public static void assertSensitivityEquals(List<DoublesPair> expected, List<DoublesPair> accual, double tol) {
-    assertEquals(expected.size(), accual.size(), 0);
+  public static void assertSensitivityEquals(List<DoublesPair> expected, List<DoublesPair> actual, double tol) {
+    assertEquals(expected.size(), actual.size(), 0);
     for (int i = 0; i < expected.size(); i++) {
-      assertEquals(expected.get(i).first, accual.get(i).first, 0.0);
-      assertEquals(expected.get(i).second, accual.get(i).second, tol);
+      assertEquals(expected.get(i).first, actual.get(i).first, 0.0);
+      assertEquals(expected.get(i).second, actual.get(i).second, tol);
     }
   }
 

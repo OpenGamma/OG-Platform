@@ -212,7 +212,7 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "uniqueId",
         "exchange");
@@ -245,8 +245,8 @@ public class ExchangeDocument extends AbstractDocument implements Serializable {
     }
 
     @Override
-    public Map<String, MetaProperty<Object>> metaPropertyMap() {
-      return _map;
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return _metaPropertyMap$;
     }
 
     //-----------------------------------------------------------------------

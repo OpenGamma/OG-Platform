@@ -27,6 +27,15 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
     }
   };
 
+  private static final Function1D<DoubleMatrix1D, Boolean> DOMAIN = new Function1D<DoubleMatrix1D, Boolean>() {
+
+    @Override
+    public Boolean evaluate(final DoubleMatrix1D x) {
+      double x1 = x.getEntry(0);
+      return x1 >= 0.0 && x1 <= Math.PI;
+    }
+  };
+
   private static final Function1D<DoubleMatrix1D, DoubleMatrix1D> G = new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
 
     @Override
@@ -40,11 +49,12 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
     }
 
   };
-  private static final double EPS = 1e-5;
+  private static final double EPS = 1e-4;
   private static final ScalarFieldFirstOrderDifferentiator FORWARD = new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.FORWARD, EPS);
   private static final ScalarFieldFirstOrderDifferentiator CENTRAL = new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
   private static final ScalarFieldFirstOrderDifferentiator BACKWARD = new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.BACKWARD, EPS);
 
+  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDifferenceType() {
     new ScalarFirstOrderDifferentiator(null);
@@ -57,7 +67,7 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
 
   @Test
   public void test() {
-    final DoubleMatrix1D x = new DoubleMatrix1D(new double[] {.2245, -1.2344});
+    final DoubleMatrix1D x = new DoubleMatrix1D(.2245, -1.2344);
     DoubleMatrix1D anGrad = G.evaluate(x);
     DoubleMatrix1D fdFwdGrad = FORWARD.differentiate(F).evaluate(x);
     DoubleMatrix1D fdCentGrad = CENTRAL.differentiate(F).evaluate(x);
@@ -67,6 +77,24 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
       assertEquals(fdFwdGrad.getEntry(i), anGrad.getEntry(i), 10 * EPS);
       assertEquals(fdCentGrad.getEntry(i), anGrad.getEntry(i), EPS * EPS);
       assertEquals(fdBackGrad.getEntry(i), anGrad.getEntry(i), 10 * EPS);
+    }
+  }
+
+  @Test
+  public void domainTest() {
+    final DoubleMatrix1D[] x = new DoubleMatrix1D[3];
+    x[0] = new DoubleMatrix1D(0.2245, -1.2344);
+    x[1] = new DoubleMatrix1D(0.0, 12.6);
+    x[2] = new DoubleMatrix1D(Math.PI, 0.0);
+
+    Function1D<DoubleMatrix1D, DoubleMatrix1D> fdGradFunc = CENTRAL.differentiate(F, DOMAIN);
+
+    for (int k = 0; k < 3; k++) {
+      DoubleMatrix1D fdRes = fdGradFunc.evaluate(x[k]);
+      DoubleMatrix1D alRes = G.evaluate(x[k]);
+      for (int i = 0; i < 2; i++) {
+        assertEquals(fdRes.getEntry(i), alRes.getEntry(i), 1e-7);
+      }
     }
   }
 

@@ -1,631 +1,639 @@
 <project name="all" xmlns:ivy="antlib:org.apache.ivy.ant">
 
-	<!-- Load the environment variables first -->
-	<property environment="env" />
-	<!-- also, try a property file because some JVMs don't support env properly -->
-	<property file="${user.home}/.OG-Build-common.properties" />
+  <!-- Load the environment variables first -->
+  <property environment="env" />
+  <!-- also, try a property file because some JVMs don't support env properly -->
+  <property file="${user.home}/.OG-Build-common.properties" />
 
-	<property file="build.properties" />
-	<!-- Set where the OGDEV dir is. We do this outside build.properties so that
-	     we can reference it in build.properties. -->
-	<property file="${common.dir}/ogdev.properties"/>
-	<condition property="ogdev.dir" value="${ogdev.dir.windows}" else="${ogdev.dir.posix}">
-		<os family="windows" />
-	</condition>
-	<property file="${common.dir}/build.properties" />
+  <property file="build.properties" />
+  <!-- Set where the OGDEV dir is. We do this outside build.properties so that
+       we can reference it in build.properties. -->
+  <property file="${common.dir}/ogdev.properties"/>
+  <condition property="ogdev.dir" value="${ogdev.dir.windows}" else="${ogdev.dir.posix}">
+    <os family="windows" />
+  </condition>
+  <property file="${common.dir}/build.properties" />
 
-	<condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}">
-		<os family="windows" />
-	</condition>
-	<condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}">
-		<not>
-			<isset property="env.IVY_SHARED_DEFAULT_ROOT" />
-		</not>
-	</condition>
+  <condition property="env.IVY_SHARED_DEFAULT_ROOT_DEFAULT" value="${env.IVY_SHARED_DEFAULT_ROOT_WINDOWS}" else="${env.IVY_SHARED_DEFAULT_ROOT_NONWINDOWS}">
+    <os family="windows" />
+  </condition>
+  <condition property="env.IVY_SHARED_DEFAULT_ROOT" value="${env.IVY_SHARED_DEFAULT_ROOT_DEFAULT}">
+    <not>
+      <isset property="env.IVY_SHARED_DEFAULT_ROOT" />
+    </not>
+  </condition>
 
-	<property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
-	<property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
-	<property name="ivy.install.version" value="2.1.0" />
-	<property name="build.dir" value="build" />
-	<property name="src.dir" value="src" />
-	<property name="docs.dir" value="${build.dir}/docs" />
+  <property name="ivy.jar.dir" value="${user.home}/.ivy2/jars" />
+  <property name="ivy.jar.file" value="${ivy.jar.dir}/ivy.jar" />
+  <property name="ivy.install.version" value="2.1.0" />
+  <property name="build.dir" value="build" />
+  <property name="src.dir" value="src" />
+  <property name="docs.dir" value="${build.dir}/docs" />
 
-	<import file="git-macros.xml" />
+  <import file="git-macros.xml" />
 
-	<available file="${ivy.jar.file}" property="skip.download"/>
+  <available file="${ivy.jar.file}" property="skip.download"/>
 
-	<import file="${common.dir}/common-ivy.xml"/>
+  <import file="${common.dir}/common-ivy.xml"/>
 
-	<target name="init" depends="get-build-projects-file-for-user"
-		description="initialises the system config (user/pw required)" />
+  <target name="init" depends="get-build-projects-file-for-user"
+    description="initialises the system config (user/pw required)" />
 
-	<!-- get user-specific build-projects.xml file -->
-	<target name="get-build-projects-file-for-user" depends="init-credentials">
-		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/ant/build-projects.xml" dest="${common.dir}/build-projects.xml" username="${opengamma.username}" password="${opengamma.password}"/>
-		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/tests.properties" dest="${common.dir}/tests.properties" username="${opengamma.username}" password="${opengamma.password}"/>
-		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/db.properties" dest="${common.dir}/db.properties" username="${opengamma.username}" password="${opengamma.password}"/>
-		<get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/deploy.properties" dest="${common.dir}/deploy.properties" username="${opengamma.username}" password="${opengamma.password}"/>
-	</target>
+  <!-- get user-specific build-projects.xml file -->
+  <target name="get-build-projects-file-for-user" depends="init-credentials">
+    <get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/ant/build-projects.xml" dest="${common.dir}/build-projects.xml" username="${opengamma.username}" password="${opengamma.password}"/>
+    <get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/tests.properties" dest="${common.dir}/tests.properties" username="${opengamma.username}" password="${opengamma.password}"/>
+    <get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/db.properties" dest="${common.dir}/db.properties" username="${opengamma.username}" password="${opengamma.password}"/>
+    <get src="${opengamma.config.repository}/users/${opengamma.username}/${module.version.target}/config/deploy.properties" dest="${common.dir}/deploy.properties" username="${opengamma.username}" password="${opengamma.password}"/>
+  </target>
 
-	<!-- dump the credentials established in dependant targets to a properties file for use by ivy -->
-	<target name="init-credentials" depends="init-prompt,init-env">
-		<echo file="${common.dir}/credentials.properties">opengamma.username=${opengamma.username}${line.separator}opengamma.password=${opengamma.password}</echo>
-	</target>
+  <!-- dump the credentials established in dependant targets to a properties file for use by ivy -->
+  <target name="init-credentials" depends="init-prompt,init-env">
+    <echo file="${common.dir}/credentials.properties">opengamma.username=${opengamma.username}${line.separator}opengamma.password=${opengamma.password}</echo>
+  </target>
 
-	<!-- prompts the user for username and password if environemnt variables are not set -->
-	<target name="init-prompt" depends="check-user-env-and-password-present" unless="og.user.and.password.set">
-		<echo message="Please enter your credentials or use the defaults if you don't have an account"/>
-		<input message="${line.separator}Username" defaultvalue="opengamma-public" addproperty="opengamma.username"/>
-		<input message="Password" defaultvalue="opengamma" addproperty="opengamma.password"/>
-		<!-- would like to use secure password handling, but it's going in a file and that only works on Ant 1.8 -->
-	</target>
+  <!-- prompts the user for username and password if environemnt variables are not set -->
+  <target name="init-prompt" depends="check-user-env-and-password-present" unless="og.user.and.password.set">
+    <echo message="Please enter your credentials or use the defaults if you don't have an account"/>
+    <input message="${line.separator}Username" defaultvalue="opengamma-public" addproperty="opengamma.username"/>
+    <input message="Password" defaultvalue="opengamma" addproperty="opengamma.password"/>
+    <!-- would like to use secure password handling, but it's going in a file and that only works on Ant 1.8 -->
+  </target>
 
-	<!-- copies the username and password properties from environment vairables if they're set -->
-	<target name="init-env" depends="check-user-env-and-password-present" if="og.user.and.password.set">
-		<property name="opengamma.username" value="${env.OG_USER}"/>
-		<property name="opengamma.password" value="${env.OG_PASSWORD}"/>
-	</target>
+  <!-- copies the username and password properties from environment vairables if they're set -->
+  <target name="init-env" depends="check-user-env-and-password-present" if="og.user.and.password.set">
+    <property name="opengamma.username" value="${env.OG_USER}"/>
+    <property name="opengamma.password" value="${env.OG_PASSWORD}"/>
+  </target>
 
-	<!-- this task sets the og.user.and.password.set property if the environment variables OG_USER and OG_PASSWORD are set -->
-	<!-- which overrides the manual prompt so we can do automated builds from within Bamboo -->
-	<target name="check-user-env-and-password-present">
-		<condition property="og.user.and.password.set">
-			<and>
-				<isset property="env.OG_USER"/>
-				<isset property="env.OG_PASSWORD"/>
-			</and>
-		</condition>
-	</target>
+  <!-- this task sets the og.user.and.password.set property if the environment variables OG_USER and OG_PASSWORD are set -->
+  <!-- which overrides the manual prompt so we can do automated builds from within Bamboo -->
+  <target name="check-user-env-and-password-present">
+    <condition property="og.user.and.password.set">
+      <and>
+        <isset property="env.OG_USER"/>
+        <isset property="env.OG_PASSWORD"/>
+      </and>
+    </condition>
+  </target>
 
-	<target name="checkout-prompt" unless="git.branch">
-		<echo message="Please enter the branch you with to 'git checkout' in each project"/>
-		<input message="${line.separator}Branch name" defaultvalue="master" addproperty="git.branch"/>
-	</target>
+  <target name="checkout-prompt" unless="git.branch">
+    <echo message="Please enter the branch you with to 'git checkout' in each project"/>
+    <input message="${line.separator}Branch name" defaultvalue="master" addproperty="git.branch"/>
+  </target>
 
-	<target name="buildlist" depends="load-ivy">
-		<mkdir dir="projects" />
-		<ivy:buildlist reference="build-path">
-			<fileset dir="projects">
-				<include name="*/build.xml" />
-			</fileset>
-		</ivy:buildlist>
-	</target>
+  <target name="buildlist" depends="load-ivy">
+    <mkdir dir="projects" />
+    <ivy:buildlist reference="build-path">
+      <fileset dir="projects">
+        <include name="*/build.xml" />
+      </fileset>
+    </ivy:buildlist>
+  </target>
 
-	<macrodef name="og-subant">
-		<attribute name="target" />
-		<attribute name="buildpathref" />
-		<sequential>
-			<echo message="Executing @{target} on sub-project @{buildpathref}"/>
-			<subant target="@{target}" buildpathref="@{buildpathref}">
-				<property name="og.build.invoked" value="true" />
-			</subant>
-		</sequential>
-	</macrodef>
+  <macrodef name="og-subant">
+    <attribute name="target" />
+    <attribute name="buildpathref" />
+    <sequential>
+      <echo message="Executing @{target} on sub-project @{buildpathref}"/>
+      <subant target="@{target}" buildpathref="@{buildpathref}">
+        <property name="og.build.invoked" value="true" />
+      </subant>
+    </sequential>
+  </macrodef>
 
-	<target name="publish-all" depends="buildlist">
-		<og-subant target="publish" buildpathref="build-path" />
-	</target>
+  <target name="publish-all" depends="buildlist">
+    <og-subant target="publish" buildpathref="build-path" />
+  </target>
 
-	<target name="publish-all-local" depends="buildlist">
-		<og-subant target="publish-local" buildpathref="build-path" />
-	</target>
+  <target name="publish-all-local" depends="buildlist">
+    <og-subant target="publish-local" buildpathref="build-path" />
+  </target>
 
-	<!-- 
-	    =================================================================== 
-	      Builds and publish all projects to local repo              
-	    =================================================================== 
+  <!-- 
+      =================================================================== 
+        Builds and publish all projects to local repo              
+      =================================================================== 
   -->
-	<target name="build" depends="check-build-projects-file-for-user" description="compile &amp; publish all projects to the local repo">
-		<antcall target="publish-all-local">
-		</antcall>
-	</target>
+  <target name="build" depends="check-build-projects-file-for-user" description="compile &amp; publish all projects to the local repo">
+    <antcall target="publish-all-local">
+    </antcall>
+  </target>
 
-	<target name="resolve-all" depends="buildlist"
-		description="resolve all projects via ivy in the right order">
-		<og-subant target="resolve" buildpathref="build-path" />
-	</target>
+  <target name="resolve-all" depends="buildlist"
+    description="resolve all projects via ivy in the right order">
+    <og-subant target="resolve" buildpathref="build-path" />
+  </target>
 
-	<!-- compile all projects in the right order -->
-	<target name="compile" depends="buildlist">
-		<og-subant target="compile" buildpathref="build-path" />
-	</target>
+  <!-- compile all projects in the right order -->
+  <target name="compile" depends="buildlist">
+    <og-subant target="compile" buildpathref="build-path" />
+  </target>
 
-	<!-- ================================================================== -->
-	<target name="tarball" depends="buildlist">
-		<og-subant target="tarball" buildpathref="build-path" />
-	</target>
+  <!-- ================================================================== -->
+  <target name="tarball" depends="buildlist">
+    <og-subant target="tarball" buildpathref="build-path" />
+  </target>
 
-	<target name="zipfile" depends="buildlist">
-		<og-subant target="src-zipfile" buildpathref="build-path" />
-		<og-subant target="zipfile" buildpathref="build-path" />
-	</target>
+  <target name="zipfile" depends="buildlist">
+    <og-subant target="src-zipfile" buildpathref="build-path" />
+    <og-subant target="zipfile" buildpathref="build-path" />
+  </target>
 
-	<property name="dist.dir" value="dist" />
-	<property name="dist.platform.name" value="platform" />
-	<target name="dist-name">
-		<property file="${common.dir}/credentials.properties" />
-		<property name="dist.file.prefix" value="${opengamma.username}-" />
-		<property name="dist.platform.prefix" value="${dist.file.prefix}${dist.platform.name}-" />
-	</target>
-	<target name="dist-targz">
-		<mkdir dir="${dist.dir}" />
-		<tar destfile="${dist.dir}/${dist.platform.prefix}${dist.target}-${module.version.target}.tar.gz" compression="gzip" longfile="gnu">
-			<tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Analytics/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Core/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Engine/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Examples/dist" includes="*/**" excludes="${dist.src.exclude} * **/*.sh" />
-			<tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Examples/dist" includes="**/*.sh" filemode="755" />
-			<tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Financial/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<tarfileset uid="0" gid="0" dir="${projects.dir}/OG-LiveData/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Master/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<tarfileset uid="0" gid="0" dir="${projects.dir}/OG-MasterDB/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Security/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Util/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Web/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Examples" includes="lib/jar/**/*" excludes="${dist.lib.exclude}lib/jar/com.opengamma/og-**/*" />
-			<tarfileset uid="0" gid="0" dir="." includes="lib/.*" excludes="${dist.lib.exclude}${dist.src.exclude}" />
-		</tar>
-	</target>
-	<target name="dist-zip">
-		<mkdir dir="${dist.dir}" />
-		<zip destfile="${dist.dir}/${dist.platform.prefix}${dist.target}-${module.version.target}.zip">
-			<fileset dir="${projects.dir}/OG-Analytics/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<fileset dir="${projects.dir}/OG-Core/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<fileset dir="${projects.dir}/OG-Engine/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<fileset dir="${projects.dir}/OG-Examples/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<fileset dir="${projects.dir}/OG-Financial/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<fileset dir="${projects.dir}/OG-LiveData/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<fileset dir="${projects.dir}/OG-Master/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<fileset dir="${projects.dir}/OG-MasterDB/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<fileset dir="${projects.dir}/OG-Security/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<fileset dir="${projects.dir}/OG-Util/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<fileset dir="${projects.dir}/OG-Web/dist" includes="*/**" excludes="${dist.src.exclude} *" />
-			<fileset dir="${projects.dir}/OG-Examples" includes="lib/jar/**/*" excludes="${dist.lib.exclude}lib/jar/com.opengamma/og-**/*" />
-			<fileset dir="." includes="lib/.*" excludes="${dist.lib.exclude}${dist.src.exclude}" />
-		</zip>
-	</target>
-	<target name="dist-archive" depends="dist-targz,dist-zip" />
-	<target name="source-dist-dep">
-		<ivy:resolve haltonfailure="false" />
-		<ivy:retrieve	pattern="${wkspace.dir}/repository/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"
-				ivypattern="${wkspace.dir}/repository/[organization]/[module]/[revision]/ivy.xml"
-				type="jar" />
-	</target>
-	<macrodef name="fetchJAR">
-		<attribute name="conf" default="*" />
-		<attribute name="org" />
-		<attribute name="module" />
-		<attribute name="revision" />
-		<sequential>
-			<ivy:resolve inline="true" keep="true" conf="@{conf}" organisation="@{org}" module="@{module}" revision="@{revision}" />
-			<ivy:retrieve pattern="${wkspace.dir}/repository/[organization]/[module]/[revision]/[artifact]-[revision].[ext]" ivypattern="${wkspace.dir}/repository/[organization]/[module]/[revision]/ivy.xml" type="jar" />
-		</sequential>
-	</macrodef>
-	<target name="source-dist-depivy">
-		<replaceregexp file="${repository.filename}" match="^[^&lt;]*&lt;artifact.*type\s*=\s*&quot;([^j]|j[^a]|ja[^r]|jar[^&quot;])[^&gt;]*&gt;" replace="&lt;!-- \0 --&gt;" flags="m" byline="true" />
-		<!-- Fix the unescaped ampersand in e.g. the mockito ivy.xml file -->
-		<replaceregexp file="${repository.filename}" match="&amp; " replace="&amp;amp; " />
-	</target>
-	<target name="eclipse-readme">
-		<property name="eclipse.readme.urlbase" value="http://docs.opengamma.com" />
-		<property name="eclipse.readme" value="Setting-up-an-Eclipse-workspace.html" />
-		<get src="${eclipse.readme.urlbase}/display/DOC/Setting+Up+An+Eclipse+Workspace" dest="${eclipse.readme}" />
-		<replaceregexp file="${eclipse.readme}" match="^.*&lt;!-- wiki content --&gt;" replace="&lt;html&gt;&lt;body&gt;" flags="s" />
-		<replaceregexp file="${eclipse.readme}" match="&lt;!--.*$" replace="&lt;body&gt;&lt;html&gt;" flags="s" />
-		<replaceregexp file="${eclipse.readme}" match="&quot;/(display|images)" replace="&quot;${eclipse.readme.urlbase}/\1" flags="g" />
-	</target>
-	<target name="dist-source" depends="clone-or-pull,clean,dist-name,eclipse-readme"
-		  description="builds a single source distribution zipfile">
-		<mkdir dir="${dist.dir}" />
-		<tar destfile="${dist.dir}/${dist.platform.prefix}src-nodep-${module.version.target}.tar.gz" compression="gzip" longfile="gnu">
-			<tarfileset uid="0" gid="0" dir="." prefix="OG-Platform">
-				<include name="**/*" />
-				<exclude name="**/.git/" />
-				<exclude name="**/build/" />
-				<exclude name="**/dist/" />
-				<exclude name="repository/" />
-				<exclude name="**/*.sh" />
-			</tarfileset>
-			<tarfileset uid="0" gid="0" dir="." prefix="OG-Platform" filemode="755">
-				<include name="**/*.sh" />
-			</tarfileset>
-		</tar>
-		<zip destfile="${dist.dir}/${dist.platform.prefix}src-nodep-${module.version.target}.zip">
-			<zipfileset dir="." prefix="OG-Platform">
-				<include name="**/*" />
-				<exclude name="**/.git/" />
-				<exclude name="**/build/" />
-				<exclude name="**/dist/" />
-				<exclude name="repository/" />
-			</zipfileset>
-		</zip>
-		<subant genericantfile="${wkspace.dir}/build.xml" target="source-dist-dep" inheritall="true">
-			<dirset dir="projects" includes="*" />
-		</subant>
-		<!-- Some packages request older versions while others use later ones which are downloaded.
-		     Need to manually fetch the older version into the cache so the resolve works correctly. -->
-		<!-- TODO: probably don't need the jar, just the ivy.xml file for these ! -->
-		<fetchJAR org="org.springframework" module="spring" revision="[2.5.3,3.0[" conf="core" />
-		<fetchJAR org="org.antlr" module="antlr" revision="2.7.7" />
-		<taskdef resource="net/sf/antcontrib/antcontrib.properties" />
-		<foreach target="source-dist-depivy" param="repository.filename">
-			<fileset dir="repository" includes="**/*.xml" />
-		</foreach>
-		<replaceregexp file="common/build.properties" match="^env\.IVY_SHARED_DEFAULT_ROOT=.*$" replace="" flags="mg" />
-		<replaceregexp file="common/build.properties" match="^\n(env\.IVY_SHARED_DEFAULT_ROOT_.*)$" replace="env.IVY_SHARED_DEFAULT_ROOT=$${wkspace.dir}/repository${line.separator}\1" flags="mg" />
-		<tar destfile="${dist.dir}/${dist.platform.prefix}src-${module.version.target}.tar.gz" compression="gzip" longfile="gnu">
-			<tarfileset uid="0" gid="0" dir="." prefix="OG-Platform">
-				<include name="**/*" />
-				<exclude name="**/.git/" />
-				<exclude name="**/dist/" />
-				<exclude name="projects/*/lib/" />
-				<exclude name="**/*.sh" />
-			</tarfileset>
-			<tarfileset uid="0" gid="0" dir="." prefix="OG-Platform" filemode="755">
-				<include name="**/*.sh" />
-			</tarfileset>
-		</tar>
-		<zip destfile="${dist.dir}/${dist.platform.prefix}src-${module.version.target}.zip">
-			<zipfileset dir="." prefix="OG-Platform">
-				<include name="**/*" />
-				<exclude name="**/.git/" />
-				<exclude name="**/dist/" />
-				<exclude name="projects/*/lib/" />
-			</zipfileset>
-		</zip>
-	</target>
-	<target name="dist-binary" depends="clean-projects,publish-all-local,binary-dist-impl"
-		description="builds a single binary distribution zipfile" />
-	<target name="binary-dist-impl" depends="buildlist,dist-name">
-		<og-subant target="dist-nodep" buildpathref="build-path" />
-		<antcall target="dist-archive">
-			<param name="dist.target" value="binary-nodep" />
-			<param name="dist.lib.exclude" value="**/* " />
-			<param name="dist.src.exclude" value="*/.project */.classpath" />
-		</antcall>
-		<antcall target="dist-archive">
-			<param name="dist.target" value="binary" />
-			<param name="dist.lib.exclude" value="" />
-			<param name="dist.src.exclude" value="*/.project */.classpath" />
-		</antcall>
-	</target>
+  <property name="dist.dir" value="dist" />
+  <property name="dist.platform.name" value="platform" />
+  <target name="dist-name">
+    <property file="${common.dir}/credentials.properties" />
+    <property name="dist.file.prefix" value="${opengamma.username}-" />
+    <property name="dist.platform.prefix" value="${dist.file.prefix}${dist.platform.name}-" />
+  </target>
+  <target name="dist-targz">
+    <mkdir dir="${dist.dir}" />
+    <tar destfile="${dist.dir}/${dist.platform.prefix}${dist.target}-${module.version.target}.tar.gz" compression="gzip" longfile="gnu">
+      <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Analytics/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Core/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Engine/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Examples/dist" includes="*/**" excludes="${dist.src.exclude} * **/*.sh" />
+      <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Examples/dist" includes="**/*.sh" filemode="755" />
+      <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Financial/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-LiveData/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Master/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-MasterDB/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Security/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Util/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Web/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <tarfileset uid="0" gid="0" dir="${projects.dir}/OG-Examples" includes="lib/jar/**/*" excludes="${dist.lib.exclude}lib/jar/com.opengamma/og-**/*" />
+      <tarfileset uid="0" gid="0" dir="." includes="lib/.*" excludes="${dist.lib.exclude}${dist.src.exclude}" />
+    </tar>
+  </target>
+  <target name="dist-zip">
+    <mkdir dir="${dist.dir}" />
+    <zip destfile="${dist.dir}/${dist.platform.prefix}${dist.target}-${module.version.target}.zip">
+      <fileset dir="${projects.dir}/OG-Analytics/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <fileset dir="${projects.dir}/OG-Core/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <fileset dir="${projects.dir}/OG-Engine/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <fileset dir="${projects.dir}/OG-Examples/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <fileset dir="${projects.dir}/OG-Financial/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <fileset dir="${projects.dir}/OG-LiveData/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <fileset dir="${projects.dir}/OG-Master/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <fileset dir="${projects.dir}/OG-MasterDB/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <fileset dir="${projects.dir}/OG-Security/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <fileset dir="${projects.dir}/OG-Util/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <fileset dir="${projects.dir}/OG-Web/dist" includes="*/**" excludes="${dist.src.exclude} *" />
+      <fileset dir="${projects.dir}/OG-Examples" includes="lib/jar/**/*" excludes="${dist.lib.exclude}lib/jar/com.opengamma/og-**/*" />
+      <fileset dir="." includes="lib/.*" excludes="${dist.lib.exclude}${dist.src.exclude}" />
+    </zip>
+  </target>
+  <target name="dist-archive" depends="dist-targz,dist-zip" />
+  <target name="source-dist-dep">
+    <ivy:resolve haltonfailure="false" />
+    <ivy:retrieve  pattern="${wkspace.dir}/repository/[organization]/[module]/[revision]/[artifact]-[revision].[ext]"
+        ivypattern="${wkspace.dir}/repository/[organization]/[module]/[revision]/ivy.xml"
+        type="jar" />
+  </target>
+  <macrodef name="fetchJAR">
+    <attribute name="conf" default="*" />
+    <attribute name="org" />
+    <attribute name="module" />
+    <attribute name="revision" />
+    <sequential>
+      <ivy:resolve inline="true" keep="true" conf="@{conf}" organisation="@{org}" module="@{module}" revision="@{revision}" />
+      <ivy:retrieve pattern="${wkspace.dir}/repository/[organization]/[module]/[revision]/[artifact]-[revision].[ext]" ivypattern="${wkspace.dir}/repository/[organization]/[module]/[revision]/ivy.xml" type="jar" />
+    </sequential>
+  </macrodef>
+  <target name="source-dist-depivy">
+    <replaceregexp file="${repository.filename}" match="^[^&lt;]*&lt;artifact.*type\s*=\s*&quot;([^j]|j[^a]|ja[^r]|jar[^&quot;])[^&gt;]*&gt;" replace="&lt;!-- \0 --&gt;" flags="m" byline="true" />
+    <!-- Fix the unescaped ampersand in e.g. the mockito ivy.xml file -->
+    <replaceregexp file="${repository.filename}" match="&amp; " replace="&amp;amp; " />
+  </target>
+  <target name="eclipse-readme">
+    <property name="eclipse.readme.urlbase" value="http://docs.opengamma.com" />
+    <property name="eclipse.readme" value="Setting-up-an-Eclipse-workspace.html" />
+    <get src="${eclipse.readme.urlbase}/display/DOC/Setting+Up+An+Eclipse+Workspace" dest="${eclipse.readme}" />
+    <replaceregexp file="${eclipse.readme}" match="^.*&lt;!-- wiki content --&gt;" replace="&lt;html&gt;&lt;body&gt;" flags="s" />
+    <replaceregexp file="${eclipse.readme}" match="&lt;!--.*$" replace="&lt;body&gt;&lt;html&gt;" flags="s" />
+    <replaceregexp file="${eclipse.readme}" match="&quot;/(display|images)" replace="&quot;${eclipse.readme.urlbase}/\1" flags="g" />
+  </target>
+  <target name="dist-source" depends="clone-or-pull,clean,dist-name,eclipse-readme"
+      description="builds a single source distribution zipfile">
+    <mkdir dir="${dist.dir}" />
+    <tar destfile="${dist.dir}/${dist.platform.prefix}src-nodep-${module.version.target}.tar.gz" compression="gzip" longfile="gnu">
+      <tarfileset uid="0" gid="0" dir="." prefix="OG-Platform">
+        <include name="**/*" />
+        <exclude name="**/.git/" />
+        <exclude name="**/build/" />
+        <exclude name="**/dist/" />
+        <exclude name="repository/" />
+        <exclude name="**/*.sh" />
+      </tarfileset>
+      <tarfileset uid="0" gid="0" dir="." prefix="OG-Platform" filemode="755">
+        <include name="**/*.sh" />
+      </tarfileset>
+    </tar>
+    <zip destfile="${dist.dir}/${dist.platform.prefix}src-nodep-${module.version.target}.zip">
+      <zipfileset dir="." prefix="OG-Platform">
+        <include name="**/*" />
+        <exclude name="**/.git/" />
+        <exclude name="**/build/" />
+        <exclude name="**/dist/" />
+        <exclude name="repository/" />
+      </zipfileset>
+    </zip>
+    <subant genericantfile="${wkspace.dir}/build.xml" target="source-dist-dep" inheritall="true">
+      <dirset dir="projects" includes="*" />
+    </subant>
+    <!-- Some packages request older versions while others use later ones which are downloaded.
+         Need to manually fetch the older version into the cache so the resolve works correctly. -->
+    <!-- TODO: probably don't need the jar, just the ivy.xml file for these ! -->
+    <fetchJAR org="org.springframework" module="spring" revision="[2.5.3,3.0[" conf="core" />
+    <fetchJAR org="org.antlr" module="antlr" revision="2.7.7" />
+    <taskdef resource="net/sf/antcontrib/antcontrib.properties" />
+    <foreach target="source-dist-depivy" param="repository.filename">
+      <fileset dir="repository" includes="**/*.xml" />
+    </foreach>
+    <replaceregexp file="common/build.properties" match="^env\.IVY_SHARED_DEFAULT_ROOT=.*$" replace="" flags="mg" />
+    <replaceregexp file="common/build.properties" match="^\n(env\.IVY_SHARED_DEFAULT_ROOT_.*)$" replace="env.IVY_SHARED_DEFAULT_ROOT=$${wkspace.dir}/repository${line.separator}\1" flags="mg" />
+    <tar destfile="${dist.dir}/${dist.platform.prefix}src-${module.version.target}.tar.gz" compression="gzip" longfile="gnu">
+      <tarfileset uid="0" gid="0" dir="." prefix="OG-Platform">
+        <include name="**/*" />
+        <exclude name="**/.git/" />
+        <exclude name="**/dist/" />
+        <exclude name="projects/*/lib/" />
+        <exclude name="**/*.sh" />
+      </tarfileset>
+      <tarfileset uid="0" gid="0" dir="." prefix="OG-Platform" filemode="755">
+        <include name="**/*.sh" />
+      </tarfileset>
+    </tar>
+    <zip destfile="${dist.dir}/${dist.platform.prefix}src-${module.version.target}.zip">
+      <zipfileset dir="." prefix="OG-Platform">
+        <include name="**/*" />
+        <exclude name="**/.git/" />
+        <exclude name="**/dist/" />
+        <exclude name="projects/*/lib/" />
+      </zipfileset>
+    </zip>
+  </target>
+  <target name="dist-binary" depends="clean-projects,publish-all-local,binary-dist-impl"
+    description="builds a single binary distribution zipfile" />
+  <target name="binary-dist-impl" depends="buildlist,dist-name">
+    <og-subant target="dist-nodep" buildpathref="build-path" />
+    <antcall target="dist-archive">
+      <param name="dist.target" value="binary-nodep" />
+      <param name="dist.lib.exclude" value="**/* " />
+      <param name="dist.src.exclude" value="*/.project */.classpath" />
+    </antcall>
+    <antcall target="dist-archive">
+      <param name="dist.target" value="binary" />
+      <param name="dist.lib.exclude" value="" />
+      <param name="dist.src.exclude" value="*/.project */.classpath" />
+    </antcall>
+  </target>
 
-	<!-- og-examples-dist is probably more useful than binary-dist -->
-	<target name="dist-og-examples" depends="clean-projects,publish-all-local,og-examples-dist-impl"/>
+  <!-- og-examples-dist is probably more useful than binary-dist -->
+  <target name="dist-og-examples" depends="clean-projects,publish-all-local,og-examples-dist-impl"/>
 
-	<target name="og-examples-dist-impl" depends="buildlist,dist-name">
-		<subant target="zipfile" buildpath="${projects.dir}/OG-Examples">
-			<property name="og.build.invoked" value="true" />
-			<property name="ivy.new.revision" value="${module.version.target}" />
-		</subant>
-		<subant target="tarball" buildpath="${projects.dir}/OG-Examples">
-			<property name="og.build.invoked" value="true" />
-			<property name="ivy.new.revision" value="${module.version.target}" />
-		</subant>
-		<copy todir="${dist.dir}">
-			<fileset dir="${projects.dir}/OG-Examples/dist">
-				<include name="og-examples-*.zip" />
-				<include name="og-examples-*.tar.gz" />
-			</fileset>
-			<globmapper from="og-*" to="${dist.file.prefix}*" />
-		</copy>
-	</target>
+  <target name="og-examples-dist-impl" depends="buildlist,dist-name">
+    <subant target="zipfile" buildpath="${projects.dir}/OG-Examples">
+      <property name="og.build.invoked" value="true" />
+      <property name="ivy.new.revision" value="${module.version.target}" />
+    </subant>
+    <subant target="tarball" buildpath="${projects.dir}/OG-Examples">
+      <property name="og.build.invoked" value="true" />
+      <property name="ivy.new.revision" value="${module.version.target}" />
+    </subant>
+    <copy todir="${dist.dir}">
+      <fileset dir="${projects.dir}/OG-Examples/dist">
+        <include name="og-examples-*.zip" />
+        <include name="og-examples-*.tar.gz" />
+      </fileset>
+      <globmapper from="og-*" to="${dist.file.prefix}*" />
+    </copy>
+  </target>
 
-	<!-- ================================================================== -->
-	<target name="tests-individual-reports" depends="buildlist"
-		description="run tests for all projects with separate reports">
-		<og-subant target="tests" buildpathref="build-path" />
-	</target>
+  <!-- ================================================================== -->
+  <target name="tests-individual-reports" depends="buildlist"
+    description="run tests for all projects with separate reports">
+    <og-subant target="tests" buildpathref="build-path" />
+  </target>
 
-	<target name="tests" depends="test-batch,junit-report"
-		description="run tests for all projects with combined report"/>
+  <target name="tests" depends="test-batch,junit-report"
+    description="run tests for all projects with combined report"/>
 
-	<target name="test-batch" depends="buildlist,test-batch-clean">
-		<subant target="test-batch" buildpathref="build-path">
-			<property name="tests.junit.dir" value="${basedir}/tests/output"/>
-			<!--property name="tests.dir" value="${basedir}/tests"/-->
-		</subant>
-	</target>
+  <target name="test-batch" depends="buildlist,test-batch-clean">
+    <subant target="test-batch" buildpathref="build-path">
+      <property name="tests.junit.dir" value="${basedir}/tests/output"/>
+      <!--property name="tests.dir" value="${basedir}/tests"/-->
+    </subant>
+  </target>
 
-	<target name="test-batch-clean">
-		<delete dir="${tests.junit.dir}/junitreports" includeemptydirs="true" failonerror="false" />
-		<delete dir="${tests.junit.dir}/xml" includeemptydirs="true" failonerror="false" />
-		<delete dir="${tests.junit.dir}/html" includeemptydirs="true" failonerror="false" />
-	</target>
+  <target name="test-batch-clean">
+    <delete dir="${tests.junit.dir}/junitreports" includeemptydirs="true" failonerror="false" />
+    <delete dir="${tests.junit.dir}/xml" includeemptydirs="true" failonerror="false" />
+    <delete dir="${tests.junit.dir}/html" includeemptydirs="true" failonerror="false" />
+  </target>
 
-	<target name="junit-report" depends="test-batch">
-		<mkdir dir="${tests.junit.dir}/html" />
-		<junitreport todir="${tests.junit.dir}/xml">
-			<fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />
-			<!-- this defaults to noframes because frames uses TONS more memory due to console logging, if you -->
-			<!-- really want frames output you'll need to change ANT_OPTS to include something like -Xmx4096m -->
-			<!-- you might also need to up the stack frame size with -Xms -->
-			<report todir="${tests.junit.dir}/html" format="noframes" />
-		</junitreport>
-	</target>
+  <target name="junit-report" depends="test-batch">
+    <mkdir dir="${tests.junit.dir}/html" />
+    <junitreport todir="${tests.junit.dir}/xml">
+      <fileset dir="${tests.junit.dir}/xml" includes="TEST-*.xml" />
+      <!-- this defaults to noframes because frames uses TONS more memory due to console logging, if you -->
+      <!-- really want frames output you'll need to change ANT_OPTS to include something like -Xmx4096m -->
+      <!-- you might also need to up the stack frame size with -Xms -->
+      <report todir="${tests.junit.dir}/html" format="noframes" />
+    </junitreport>
+  </target>
 
-	<!-- ================================================================== -->
-	<target name="clean-ivy-cache" depends="load-ivy">
-		<ivy:cleancache />
-	</target>
+  <!-- ================================================================== -->
+  <target name="clean-ivy-cache" depends="load-ivy">
+    <ivy:cleancache />
+  </target>
 
-	<target name="clean-projects" depends="buildlist">
-		<og-subant target="clean" buildpathref="build-path" />
-	</target>
+  <target name="clean-projects" depends="buildlist">
+    <og-subant target="clean" buildpathref="build-path" />
+  </target>
 
-	<target name="clean-lib">
-		<delete includeemptydirs="true" dir="${lib.dir}" />
-	</target>
+  <target name="clean-lib">
+    <delete includeemptydirs="true" dir="${lib.dir}" />
+  </target>
 
-	<target name="clean-lib-all" depends="buildlist">
-		<og-subant target="clean-lib" buildpathref="build-path" />
-	</target>
+  <target name="clean-lib-all" depends="buildlist">
+    <og-subant target="clean-lib" buildpathref="build-path" />
+  </target>
 
-	<!-- 
-	    ===================================================================================== 
-	      Clean all projects, delete repository, reload ivy and clean the ivy cache                   
-	    ===================================================================================== 
-	-->
-	<target name="clean-all" depends="clean, clean-ivy-cache" description="clean all projects, delete repository, reload ivy &amp; clean the ivy cache" />
+  <target name="clean-install">
+    <delete dir="${install.dir}" failonerror="false" />
+    <subant target="clean" buildpath="Installer" />
+  </target>
 
-	<target name="clean" depends="clean-projects, clean-lib, load-ivy"
-		description="clean all projects, delete repository &amp; reload ivy">
-		<delete dir="${repository.dir}" />
-		<delete dir="${docs.dir}" quiet="true" failonerror="false"/>
-	</target>
+  <!-- 
+      ===================================================================================== 
+        Clean all projects, delete repository, reload ivy and clean the ivy cache                   
+      ===================================================================================== 
+  -->
+  <target name="clean-all" depends="clean, clean-ivy-cache" description="clean all projects, delete repository, reload ivy &amp; clean the ivy cache" />
 
-	<!-- ================================================================== -->
-	<target name="fudge-proto">
-		<og-subant target="fudge-proto" buildpathref="build-path" />
-	</target>
+  <target name="clean" depends="clean-install, clean-projects, clean-lib, load-ivy"
+    description="clean all projects, delete repository &amp; reload ivy">
+    <delete dir="${repository.dir}" />
+    <delete dir="${docs.dir}" quiet="true" failonerror="false"/>
+  </target>
 
-	<!-- builds the Joda-Bean files -->
-	<target name="joda-bean" depends="buildlist">
-		<og-subant target="joda-bean" buildpathref="build-path" />
-	</target>
+  <!-- ================================================================== -->
+  <target name="fudge-proto">
+    <og-subant target="fudge-proto" buildpathref="build-path" />
+  </target>
 
-	<!-- ================================================================== -->
-	<!-- this searches for @PublicAPI and @PublicSPI annotations and uses them -->
-	<!-- to filter the output -->
-	<target name="javadoc-public" depends="load-ivy, resolve">
-		<mkdir dir="${docs.dir}" />
-		<mkdir dir="${docs.dir}/javadoc-public" />
-		<mkdir dir="${docs.dir}/temp-src" />
-		<copy toDir="${docs.dir}/temp-src">
-			<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html">
-				<contains text="@PublicAPI" casesensitive="yes"/>
-			</fileset>
-			<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html">
-				<contains text="@PublicSPI" casesensitive="yes"/>
-			</fileset>
-			<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html">
-				<contains text="@PublicAPI" casesensitive="yes"/>
-			</fileset>
-			<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html">
-				<contains text="@PublicSPI" casesensitive="yes"/>
-			</fileset>
-			<fileset dir="${projects.dir}/OG-Core/src" includes="**/*.java **/package.html">
-				<contains text="@PublicAPI" casesensitive="yes"/>
-			</fileset>
-			<fileset dir="${projects.dir}/OG-Core/src" includes="**/*.java **/package.html">
-				<contains text="@PublicSPI" casesensitive="yes"/>
-			</fileset>
-			<fileset dir="${projects.dir}/OG-Master/src" includes="**/*.java **/package.html">
-				<contains text="@PublicAPI" casesensitive="yes"/>
-			</fileset>
-			<fileset dir="${projects.dir}/OG-Master/src" includes="**/*.java **/package.html">
-				<contains text="@PublicSPI" casesensitive="yes"/>
-			</fileset>
-		</copy>
-		<javadoc sourcepath="${docs.dir}/temp-src" destdir="${docs.dir}/javadoc-public"
-			classpathref="lib.path.id" author="false" windowtitle="${javadocs.windowtitle}"
-			doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}">
-			<link href="http://download.oracle.com/javase/6/docs/api/" />
-			<link href="http://dist.fudgemsg.org/java/javadoc/0.2/" />
-			<link href="http://threeten.sourceforge.net/apidocs/" />
-			<link href="http://joda-beans.sourceforge.net/apidocs/" />
-		</javadoc>
-		<delete dir="${docs.dir}/temp-src"/>
-	</target>
+  <!-- builds the Joda-Bean files -->
+  <target name="joda-bean" depends="buildlist">
+    <og-subant target="joda-bean" buildpathref="build-path" />
+  </target>
 
-	<target name="test-docs-dir">
-		<mkdir dir="${docs.dir}" />
-		<mkdir dir="${docs.dir}/javadoc-all" />
-	</target>
+  <!-- ================================================================== -->
+  <!-- this searches for @PublicAPI and @PublicSPI annotations and uses them -->
+  <!-- to filter the output -->
+  <target name="javadoc-public" depends="load-ivy, resolve">
+    <mkdir dir="${docs.dir}" />
+    <mkdir dir="${docs.dir}/javadoc-public" />
+    <mkdir dir="${docs.dir}/temp-src" />
+    <copy toDir="${docs.dir}/temp-src">
+      <fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html">
+        <contains text="@PublicAPI" casesensitive="yes"/>
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html">
+        <contains text="@PublicSPI" casesensitive="yes"/>
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html">
+        <contains text="@PublicAPI" casesensitive="yes"/>
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html">
+        <contains text="@PublicSPI" casesensitive="yes"/>
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Core/src" includes="**/*.java **/package.html">
+        <contains text="@PublicAPI" casesensitive="yes"/>
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Core/src" includes="**/*.java **/package.html">
+        <contains text="@PublicSPI" casesensitive="yes"/>
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Master/src" includes="**/*.java **/package.html">
+        <contains text="@PublicAPI" casesensitive="yes"/>
+      </fileset>
+      <fileset dir="${projects.dir}/OG-Master/src" includes="**/*.java **/package.html">
+        <contains text="@PublicSPI" casesensitive="yes"/>
+      </fileset>
+    </copy>
+    <javadoc sourcepath="${docs.dir}/temp-src" destdir="${docs.dir}/javadoc-public"
+      classpathref="lib.path.id" author="false" windowtitle="${javadocs.windowtitle}"
+      doctitle="${javadocs.doctitle}" bottom="${javadocs.footer}">
+      <link href="http://download.oracle.com/javase/6/docs/api/" />
+      <link href="http://dist.fudgemsg.org/java/javadoc/0.2/" />
+      <link href="http://threeten.sourceforge.net/apidocs/" />
+      <link href="http://joda-beans.sourceforge.net/apidocs/" />
+    </javadoc>
+    <delete dir="${docs.dir}/temp-src"/>
+  </target>
 
-	<!-- 
-	    =================================================================== 
-	      Creates javadocs documentation for whole system                 
-	    =================================================================== 
-	-->
-	<target name="docs" depends="javadoc-all, javadoc-public-jar" description="javadoc &amp; archive for the whole system (requires > 2GB RAM and LaTeX)" />
+  <target name="test-docs-dir">
+    <mkdir dir="${docs.dir}" />
+    <mkdir dir="${docs.dir}/javadoc-all" />
+  </target>
 
-	<target name="javadoc-all" depends="load-ivy, resolve">
-		<mkdir dir="${docs.dir}" />
-		<mkdir dir="${docs.dir}/javadoc-all" />
-		<mkdir dir="${docs.dir}/temp-src" />
-		<copy toDir="${docs.dir}/temp-src">
-			<fileset dir="${projects.dir}/OG-Analytics/src" includes="**/*.java **/package.html"/>
-			<fileset dir="${projects.dir}/OG-Core/src" includes="**/*.java **/package.html"/>
-			<fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html"/>
-			<fileset dir="${projects.dir}/OG-Examples/src" includes="**/*.java **/package.html"/>
-			<fileset dir="${projects.dir}/OG-Financial/src" includes="**/*.java **/package.html"/>
-			<fileset dir="${projects.dir}/OG-LiveData/src" includes="**/*.java **/package.html"/>
-			<fileset dir="${projects.dir}/OG-Master/src" includes="**/*.java **/package.html"/>
-			<fileset dir="${projects.dir}/OG-MasterDB/src" includes="**/*.java **/package.html"/>
-			<fileset dir="${projects.dir}/OG-Security/src" includes="**/*.java **/package.html"/>
-			<fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html"/>
-			<fileset dir="${projects.dir}/OG-Web/src" includes="**/*.java **/package.html"/>
-		</copy>
-		<javadoc sourcepath="${docs.dir}/temp-src" destdir="${docs.dir}/javadoc-all"
+  <!-- 
+      =================================================================== 
+        Creates javadocs documentation for whole system                 
+      =================================================================== 
+  -->
+  <target name="docs" depends="javadoc-all, javadoc-public-jar" description="javadoc &amp; archive for the whole system (requires > 2GB RAM and LaTeX)" />
+
+  <target name="javadoc-all" depends="load-ivy, resolve">
+    <mkdir dir="${docs.dir}" />
+    <mkdir dir="${docs.dir}/javadoc-all" />
+    <mkdir dir="${docs.dir}/temp-src" />
+    <copy toDir="${docs.dir}/temp-src">
+      <fileset dir="${projects.dir}/OG-Analytics/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Core/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Examples/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Financial/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-LiveData/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Master/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-MasterDB/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Security/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Web/src" includes="**/*.java **/package.html"/>
+    </copy>
+    <javadoc sourcepath="${docs.dir}/temp-src" destdir="${docs.dir}/javadoc-all"
       classpathref="lib.path.id" author="false" windowtitle="${javadoc-all.windowtitle}"
       doctitle="${javadoc-all.doctitle}" bottom="${javadoc-all.bottom}"
       header="${javadoc-all.header}"
-    	maxmemory="2G">
-			<taglet name="latexlet.InlineBlockLaTeXlet" path="${toString:lib.path.id}"/>
-			<taglet name="latexlet.BlockLaTeXlet" path="${toString:lib.path.id}"/>
-			<taglet name="latexlet.InlineLaTeXlet" path="${toString:lib.path.id}"/>
-			<link href="http://download.oracle.com/javase/6/docs/api/" />
-			<link href="http://dist.fudgemsg.org/java/javadoc/0.2/" />
-			<link href="http://threeten.sourceforge.net/apidocs/" />
-			<link href="http://joda-beans.sourceforge.net/apidocs/" />
-		</javadoc>
-		<delete dir="${docs.dir}/temp-src"/>
-	</target>
+      maxmemory="2G">
+      <taglet name="latexlet.InlineBlockLaTeXlet" path="${toString:lib.path.id}"/>
+      <taglet name="latexlet.BlockLaTeXlet" path="${toString:lib.path.id}"/>
+      <taglet name="latexlet.InlineLaTeXlet" path="${toString:lib.path.id}"/>
+      <link href="http://download.oracle.com/javase/6/docs/api/" />
+      <link href="http://dist.fudgemsg.org/java/javadoc/0.2/" />
+      <link href="http://threeten.sourceforge.net/apidocs/" />
+      <link href="http://joda-beans.sourceforge.net/apidocs/" />
+    </javadoc>
+    <delete dir="${docs.dir}/temp-src"/>
+  </target>
 
-	<!-- we might need to do something with versioning here (like depends on 'version' from common.xml) -->
-	<!-- javadoc (public) built into a jar file -->
-	<target name="javadoc-public-jar" depends="javadoc-public">
-		<jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc-public"
-			compress="${jar.compress}" />
-	</target>
+  <!-- we might need to do something with versioning here (like depends on 'version' from common.xml) -->
+  <!-- javadoc (public) built into a jar file -->
+  <target name="javadoc-public-jar" depends="javadoc-public">
+    <jar destfile="${javadocs.jar.file}" basedir="${docs.dir}/javadoc-public"
+      compress="${jar.compress}" />
+  </target>
 
-	<!-- ================================================================== -->
-	<!-- publishes common directory for Bamboo -->
-	<target name="publish-common-dir" if="publish-common-dir" depends="init">
-		<echo message="Syncing common files to ${publish-common-dir}" />
-		<sync todir="${publish-common-dir}/">
-			<fileset dir=".">
-				<include name="common/**"/>
-				<include name="LICENSE.txt"/>
-				<include name="git-macros.xml"/>
-				<include name="git-tasks.xml"/>
-			</fileset>
-		</sync>
-	</target>
+  <!-- ================================================================== -->
+  <!-- publishes common directory for Bamboo -->
+  <target name="publish-common-dir" if="publish-common-dir" depends="init">
+    <echo message="Syncing common files to ${publish-common-dir}" />
+    <sync todir="${publish-common-dir}/">
+      <fileset dir=".">
+        <include name="common/**"/>
+        <include name="LICENSE.txt"/>
+        <include name="git-macros.xml"/>
+        <include name="git-tasks.xml"/>
+      </fileset>
+    </sync>
+  </target>
 
-	<!-- 
-	    =================================================================== 
-	      Generate ivy dependency report                    
-	    =================================================================== 
-	-->
-	<target name="ivy-report" description="generate ivy dependency report" depends="load-ivy">
-		<ivy:report organisation="com.opengamma" module="og-integration" conf="*" />
-	</target>
+  <!-- 
+      =================================================================== 
+        Generate ivy dependency report                    
+      =================================================================== 
+  -->
+  <target name="ivy-report" description="generate ivy dependency report" depends="load-ivy">
+    <ivy:report organisation="com.opengamma" module="og-integration" conf="*" />
+  </target>
 
-	<import file="${common.dir}/clover-common.xml"/>
-	<import file="${common.dir}/build-projects.xml" optional="true"/>
+  <import file="${common.dir}/clover-common.xml"/>
+  <import file="${common.dir}/build-projects.xml" optional="true"/>
 
-	<available property="build.projects.ok" file="${common.dir}/build-projects.xml" />
+  <available property="build.projects.ok" file="${common.dir}/build-projects.xml" />
 
-	<target name="clover-noload" if="build.projects.ok">
-		<antcall target="projects.clover" />
-	</target>
+  <target name="clover-noload" if="build.projects.ok">
+    <antcall target="projects.clover" />
+  </target>
 
-	<target name="clover-load" unless="build.projects.ok">
-		<echo>Reloading build system ...</echo>
-		<subant target="projects.clover" buildpath="${basedir}" antfile="build.xml" />
-	</target>
-	<target name="clover" depends="clover-noload,clover-load" />
+  <target name="clover-load" unless="build.projects.ok">
+    <echo>Reloading build system ...</echo>
+    <subant target="projects.clover" buildpath="${basedir}" antfile="build.xml" />
+  </target>
+  <target name="clover" depends="clover-noload,clover-load" />
 
-	<target name="clone-or-pull-noload" if="build.projects.ok">
-		<antcall target="projects.clone-or-pull" />
-	</target>
+  <target name="clone-or-pull-noload" if="build.projects.ok">
+    <antcall target="projects.clone-or-pull" />
+  </target>
 
-	<target name="clone-or-pull-load" unless="build.projects.ok">
-		<echo>Reloading build system ...</echo>
-		<subant target="projects.clone-or-pull" buildpath="${basedir}" antfile="build.xml" />
-	</target>
+  <target name="clone-or-pull-load" unless="build.projects.ok">
+    <echo>Reloading build system ...</echo>
+    <subant target="projects.clone-or-pull" buildpath="${basedir}" antfile="build.xml" />
+  </target>
 
-	<!-- 
-	    =================================================================== 
-	      Git sync all projects using clone/pull                  
-	    =================================================================== 
-	-->
-	<target name="clone-or-pull" depends="check-build-projects-file-for-user,clone-or-pull-noload,clone-or-pull-load" description="git sync all projects using clone/pull" />
+  <!-- 
+      =================================================================== 
+        Git sync all projects using clone/pull                  
+      =================================================================== 
+  -->
+  <target name="clone-or-pull" depends="check-build-projects-file-for-user,clone-or-pull-noload,clone-or-pull-load" description="git sync all projects using clone/pull" />
 
-	<target name="pull-noload" if="build.projects.ok">
-		<antcall target="projects.pull" />
-	</target>
+  <target name="pull-noload" if="build.projects.ok">
+    <antcall target="projects.pull" />
+  </target>
 
-	<target name="pull-load" unless="build.projects.ok">
-		<echo>Reloading build system ...</echo>
-		<subant target="projects.pull" buildpath="${basedir}" antfile="build.xml" />
-	</target>
+  <target name="pull-load" unless="build.projects.ok">
+    <echo>Reloading build system ...</echo>
+    <subant target="projects.pull" buildpath="${basedir}" antfile="build.xml" />
+  </target>
 
-	<!-- 
-	    =================================================================== 
-	      Git sync all projects using pull                
-	    =================================================================== 
-	-->
-	<target name="pull" depends="pull-noload,pull-load" description="git sync all projects using pull" />
+  <!-- 
+      =================================================================== 
+        Git sync all projects using pull                
+      =================================================================== 
+  -->
+  <target name="pull" depends="pull-noload,pull-load" description="git sync all projects using pull" />
 
-	<target name="status-noload" if="build.projects.ok">
-		<antcall target="projects.status" />
-	</target>
+  <target name="status-noload" if="build.projects.ok">
+    <antcall target="projects.status" />
+  </target>
 
-	<target name="status-load" unless="build.projects.ok">
-		<echo>Reloading build system ...</echo>
-		<subant target="projects.status" buildpath="${basedir}" antfile="build.xml" />
-	</target>
+  <target name="status-load" unless="build.projects.ok">
+    <echo>Reloading build system ...</echo>
+    <subant target="projects.status" buildpath="${basedir}" antfile="build.xml" />
+  </target>
 
-	<target name="status" depends="status-noload,status-load" description="git status check" />
+  <target name="status" depends="status-noload,status-load" description="git status check" />
 
-	<!--
-	    ===================================================================
-	      Set the properties related to credential.properties
-	    ===================================================================
-	  -->
-	<property name="credentials.file" value="${common.dir}/credentials.properties" />
+  <!--
+      ===================================================================
+        Set the properties related to credential.properties
+      ===================================================================
+    -->
+  <property name="credentials.file" value="${common.dir}/credentials.properties" />
 
-	<!-- 
-	       - - - - - - - - - - - - - - - - - 
-	          target: check-build-projects-file-for-user                      
-	       - - - - - - - - - - - - - - - - - 
-	-->
-	<target name="check-build-projects-file-for-user">
-		<available property="credential.file.ok" file="${credentials.file}" />
-		<antcall target="fetch-default-config" />
-	</target>
+  <!-- 
+         - - - - - - - - - - - - - - - - - 
+            target: check-build-projects-file-for-user                      
+         - - - - - - - - - - - - - - - - - 
+  -->
+  <target name="check-build-projects-file-for-user">
+    <available property="credential.file.ok" file="${credentials.file}" />
+    <antcall target="fetch-default-config" />
+  </target>
 
-	<macrodef name="get-build-projects-file">
-		<attribute name="repository" />
-		<attribute name="module" />
-		<attribute name="user" />
-		<attribute name="pass" />
-		<sequential>
-			<get src="@{repository}/users/@{user}/@{module}/ant/build-projects.xml" dest="${common.dir}/build-projects.xml" username="@{user}" password="@{pass}" />
-			<get src="@{repository}/users/@{user}/@{module}/config/tests.properties" dest="${common.dir}/tests.properties" username="@{user}" password="@{pass}" />
-			<get src="@{repository}/users/@{user}/@{module}/config/db.properties" dest="${common.dir}/db.properties" username="@{user}" password="@{pass}" />
-			<get src="@{repository}/users/@{user}/@{module}/config/deploy.properties" dest="${common.dir}/deploy.properties" username="@{user}" password="@{pass}" />
-		</sequential>
-	</macrodef>
+  <macrodef name="get-build-projects-file">
+    <attribute name="repository" />
+    <attribute name="module" />
+    <attribute name="user" />
+    <attribute name="pass" />
+    <sequential>
+      <get src="@{repository}/users/@{user}/@{module}/ant/build-projects.xml" dest="${common.dir}/build-projects.xml" username="@{user}" password="@{pass}" />
+      <get src="@{repository}/users/@{user}/@{module}/config/tests.properties" dest="${common.dir}/tests.properties" username="@{user}" password="@{pass}" />
+      <get src="@{repository}/users/@{user}/@{module}/config/db.properties" dest="${common.dir}/db.properties" username="@{user}" password="@{pass}" />
+      <get src="@{repository}/users/@{user}/@{module}/config/deploy.properties" dest="${common.dir}/deploy.properties" username="@{user}" password="@{pass}" />
+    </sequential>
+  </macrodef>
 
-	<!-- 
-	       - - - - - - - - - - - - - - - - - 
-	          target: fetch-default-config                      
-	       - - - - - - - - - - - - - - - - - 
-	  -->
-	<target name="fetch-default-config" unless="credential.file.ok">
-		<property name="username" value="opengamma-public" />
-		<property name="password" value="opengamma" />
-		<echo file="${credentials.file}">opengamma.username=${username}${line.separator}opengamma.password=${password}</echo>
-		<get-build-projects-file repository="${opengamma.config.repository}" module="${module.version.target}" user="${username}" pass="${password}" />
-	</target>
+  <!-- 
+         - - - - - - - - - - - - - - - - - 
+            target: fetch-default-config                      
+         - - - - - - - - - - - - - - - - - 
+  -->
+  <target name="fetch-default-config" unless="credential.file.ok">
+    <property name="username" value="opengamma-public" />
+    <property name="password" value="opengamma" />
+    <echo file="${credentials.file}">opengamma.username=${username}${line.separator}opengamma.password=${password}</echo>
+    <get-build-projects-file repository="${opengamma.config.repository}" module="${module.version.target}" user="${username}" pass="${password}" />
+  </target>
 
-	<!-- 
-	    =================================================================== 
+  <!-- 
+      =================================================================== 
         Installs Opengamma Engine              
       =================================================================== 
   -->
-	<target name="install" depends="check-build-projects-file-for-user" description="install artifacts to directory specified by property (install.dir)">
-		<fail message="You must set the property install.dir=/where/to/install" unless="install.dir"/>
-		<antcall inheritAll="false" target="install-impl">
-			<param name="install.dir" value="${install.dir}" />
-		</antcall>
-	</target>
+  <target name="install" depends="check-build-projects-file-for-user" description="install artifacts to directory specified by property (install.dir)">
+    <fail message="You must set the property install.dir=/where/to/install" unless="install.dir"/>
+    <antcall inheritAll="false" target="install-impl">
+      <param name="install.dir" value="${install.dir}" />
+    </antcall>
+  </target>
 
-	<target name="install-impl" depends="clean-projects, clone-or-pull, publish-all-local">
-		<mkdir dir="${install.dir}" />
-		<property file="${common.dir}/deploy.properties"/>
-		<subant target="install" buildpath="${project.deploy}" antfile="build.xml">
-			<property name="og.build.invoked" value="true" />
-			<property name="ivy.new.revision" value="${module.version.target}" />
-			<property name="install.dir" value="${install.dir}" />
-		</subant>
-	</target>
-	
-	<target name="clean-src"/>
+  <target name="install-impl" depends="clean-install, clean-projects, clone-or-pull, publish-all-local">
+    <mkdir dir="${install.dir}" />
+    <property file="${common.dir}/deploy.properties"/>
+    <subant target="install" antfile="build.xml">
+      <path>
+        <pathelement path="${project.deploy}" />
+      </path>
+      <property name="og.build.invoked" value="true" />
+      <property name="ivy.new.revision" value="${module.version.target}" />
+      <property name="install.dir" value="${install.dir}" />
+    </subant>
+  </target>
+  
+  <target name="clean-src"/>
 
 </project>
 

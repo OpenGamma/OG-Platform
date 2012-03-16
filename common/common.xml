@@ -53,7 +53,7 @@
 		<ivy:report todir="${build.dir}" />
 	</target>
 
-	<target name="compile" depends="compile-src,compile-tests"
+	<target name="compile" depends="compile-src"
     description="compile all source code" />
 
 	<target name="fudge-proto-present" depends="resolve">
@@ -553,7 +553,7 @@
 	</target>
 
 	<!-- clean the project libraries directory (dependencies) -->
-	<target name="clean-lib">
+	<target name="clean-lib" unless="disable.clean-lib">
 		<delete includeemptydirs="true" dir="${lib.dir}" />
 	</target>
 

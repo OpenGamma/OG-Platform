@@ -217,7 +217,11 @@ public class MixedLogNormalModelData implements SmileModelData {
 
   @Override
   public double getParameter(int index) {
-    return _parameters[index];
+    final double temp = _parameters[index];
+    if (temp >= 0 && temp <= Math.PI / 2) {
+      return temp;
+    }
+    return toZeroToPiByTwo(temp);
   }
 
   @Override
@@ -228,12 +232,29 @@ public class MixedLogNormalModelData implements SmileModelData {
     return new MixedLogNormalModelData(temp, _shiftedMeans);
   }
 
+  private double toZeroToPiByTwo(final double theta) {
+    double x = theta;
+    if (x < 0) {
+      x = -x;
+    }
+    if (x > Math.PI / 2) {
+      int p = (int) (x / Math.PI);
+      x -= p * Math.PI;
+      if (x > Math.PI / 2) {
+        x = -x + Math.PI;
+      }
+    }
+    return x;
+  }
+
   @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
-    result = prime * result + Arrays.hashCode(_parameters);
+    result = prime * result + Arrays.hashCode(_f);
     result = prime * result + (_shiftedMeans ? 1231 : 1237);
+    result = prime * result + Arrays.hashCode(_sigmas);
+    result = prime * result + Arrays.hashCode(_w);
     return result;
   }
 
@@ -249,10 +270,16 @@ public class MixedLogNormalModelData implements SmileModelData {
       return false;
     }
     MixedLogNormalModelData other = (MixedLogNormalModelData) obj;
-    if (!Arrays.equals(_parameters, other._parameters)) {
+    if (_shiftedMeans && !Arrays.equals(_f, other._f)) {
       return false;
     }
     if (_shiftedMeans != other._shiftedMeans) {
+      return false;
+    }
+    if (!Arrays.equals(_sigmas, other._sigmas)) {
+      return false;
+    }
+    if (!Arrays.equals(_w, other._w)) {
       return false;
     }
     return true;

@@ -88,8 +88,6 @@ public class JPConventions {
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("JY0012M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "JPY LIBOR 12m"),
             ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "JPYLIBORP12M")), "JPY LIBOR 12m", act360, following, Period.ofMonths(12), 2, false, jp);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("MUTSCALM Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "JPY TONAR")),
-        "JPY TONAR", act365, following, Period.ofDays(1), 2, false, jp);
 
     //TODO need to check that these are right for deposit rates
     conventionMaster.addConventionBundle(
@@ -173,9 +171,14 @@ public class JPConventions {
         act360, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "JPY LIBOR 6m"), jp, true);
 
     // Overnight Index Swap Convention have additional flag, publicationLag
-    final Integer publicationLag = 0; // TODO CASE PublicationLag JPY - Confirm 0
+    final Integer publicationLag = 0;
+    // TONAR
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("MUTSCALM Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "JPY TONAR")),
+        "JPY TONAR", act365, following, Period.ofDays(1), 2, false, jp, publicationLag);
+    // OIS - TONAR
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "JPY_OIS_SWAP")), "JPY_OIS_SWAP", act365, modified, annual, 2, jp,
         act365, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "JPY TONAR"), jp, true, publicationLag);
+
     conventionMaster
         .addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "JPY_OIS_CASH")), "JPY_OIS_CASH", act365, following, null, 2, false, null);
 

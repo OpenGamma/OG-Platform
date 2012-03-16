@@ -23,7 +23,7 @@ import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 /**
  * 
  */
-/* package */ final class PDEResultsFudgeBuilder {
+/* package */final class PDEResultsFudgeBuilder {
 
   private PDEResultsFudgeBuilder() {
   }
@@ -71,6 +71,7 @@ import com.opengamma.financial.model.finitedifference.PDEGrid1D;
   public static final class PDEResultCollectionFudgeBuilder extends AbstractFudgeBuilder<PDEResultCollection> {
     private static final String STRIKES_FIELD = "strikesField";
     private static final String GRID_IMPLIED_VOLS_FIELD = "impliedVolatilityField";
+    private static final String GRID_FOREX_PV_QUOTES_FIELD = "forexPVQuotesField"; //DEBUG trying to get a new number out 
     private static final String GRID_PRICE_FIELD = "gridPriceField";
     private static final String GRID_BLACK_PRICE_FIELD = "gridBlackPriceField";
     private static final String GRID_BLACK_DELTA_FIELD = "gridBlackDeltaField";
@@ -96,6 +97,12 @@ import com.opengamma.financial.model.finitedifference.PDEGrid1D;
         final double[] impliedVol = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_IMPLIED_VOLS_FIELD));
         result.put(PDEResultCollection.GRID_IMPLIED_VOL, impliedVol);
       }
+      //DEBUG trying to get a new number out 
+      if (message.getByName(GRID_FOREX_PV_QUOTES_FIELD) != null) {
+        final double[] domesticAbsolute = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_FOREX_PV_QUOTES_FIELD));
+        result.put(PDEResultCollection.GRID_DOMESTIC_PV_QUOTE, domesticAbsolute);
+      }
+
       if (message.getByName(GRID_PRICE_FIELD) != null) {
         final double[] price = deserializer.fieldValueToObject(double[].class, message.getByName(GRID_PRICE_FIELD));
         result.put(PDEResultCollection.GRID_PRICE, price);
@@ -166,6 +173,13 @@ import com.opengamma.financial.model.finitedifference.PDEGrid1D;
     @Override
     protected void buildMessage(final FudgeSerializer serializer, final MutableFudgeMsg message, final PDEResultCollection object) {
       serializer.addToMessage(message, STRIKES_FIELD, null, object.getStrikes());
+      if (object.contains(PDEResultCollection.GRID_IMPLIED_VOL)) {
+        serializer.addToMessage(message, GRID_IMPLIED_VOLS_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_IMPLIED_VOL));
+      }
+      //DEBUG trying to get a new number out 
+      if (object.contains(PDEResultCollection.GRID_DOMESTIC_PV_QUOTE)) {
+        serializer.addToMessage(message, GRID_FOREX_PV_QUOTES_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_DOMESTIC_PV_QUOTE));
+      }
       if (object.contains(PDEResultCollection.GRID_IMPLIED_VOL)) {
         serializer.addToMessage(message, GRID_IMPLIED_VOLS_FIELD, null, object.getGridGreeks(PDEResultCollection.GRID_IMPLIED_VOL));
       }
@@ -252,6 +266,7 @@ import com.opengamma.financial.model.finitedifference.PDEGrid1D;
   @FudgeBuilderFor(ForexLocalVolatilityPDEPresentValueResultCollection.class)
   public static final class ForexLocalVolatilityPDEPresentValueResultCollectionBuilder extends AbstractFudgeBuilder<ForexLocalVolatilityPDEPresentValueResultCollection> {
     private static final String STRIKES_FIELD = "strikes";
+
     @Override
     public ForexLocalVolatilityPDEPresentValueResultCollection buildObject(final FudgeDeserializer deserializer, final FudgeMsg message) {
       final double[] strikes = deserializer.fieldValueToObject(double[].class, message.getByName(STRIKES_FIELD));

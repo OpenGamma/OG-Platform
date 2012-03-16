@@ -231,12 +231,12 @@ public class FXUtils {
     }
     return new CurrencyLabelledMatrix1D(keys, values);
   }
-  
-  public static boolean isFXSecurity(Security security) {
+
+  public static boolean isFXSecurity(final Security security) {
     return security instanceof FXForwardSecurity
         || security instanceof FXOptionSecurity
         || security instanceof FXBarrierOptionSecurity
         || security instanceof FXDigitalOptionSecurity;
   }
-  
+
 }

@@ -78,7 +78,33 @@ public class SABRHaganVolatilityFunctionTest extends SABRVolatilityFunctionTestC
     for (int looppts = -nbPoints; looppts < nbPoints; looppts++) {
       assertTrue(Math.abs(sabrVolatilty[looppts + nbPoints + 1] - sabrVolatilty[looppts + nbPoints]) / (strike[looppts + nbPoints + 1] - strike[looppts + nbPoints]) < 20.0);
     }
+  }
 
+  @Test(enabled = false)
+  /**
+   * Produce the smile for a given set of strikes.
+   */
+  public void smile() {
+    double alpha = 0.04079820992199477;
+    double beta = 0.5;
+    double rho = 0.12483799350466732;
+    double nu = 1.1156276403408933;
+    double timeToExpiry = 5.0;
+    double forward = 0.03189998273775524;
+    int nbpoints = 20;
+    double startStrike = 0.0001;
+    double endStrike = 0.2500;
+    final SABRFormulaData SabrData = new SABRFormulaData(alpha, beta, rho, nu);
+    double[] strikes = new double[nbpoints + 1];
+    double[] sabrVolatilty = new double[nbpoints + 1];
+    EuropeanVanillaOption option;
+    for (int loopstrike = 0; loopstrike <= nbpoints; loopstrike++) {
+      strikes[loopstrike] = startStrike + loopstrike * (endStrike - startStrike) / nbpoints;
+      option = new EuropeanVanillaOption(strikes[loopstrike], timeToExpiry, true);
+      sabrVolatilty[loopstrike] = FUNCTION.getVolatilityFunction(option, forward).evaluate(SabrData);
+    }
+    double test = 0.0;
+    test++;
   }
 
   @Test

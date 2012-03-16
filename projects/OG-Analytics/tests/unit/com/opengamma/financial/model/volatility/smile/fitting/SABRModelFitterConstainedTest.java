@@ -9,6 +9,7 @@ import java.util.BitSet;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.annotations.Test;
 
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
@@ -78,4 +79,8 @@ public class SABRModelFitterConstainedTest extends SmileModelFitterTest<SABRForm
     return new double[] {alpha, beta, rho, nu };
   }
 
+  @Test
+  public void doNothing() {
+
+  }
 }

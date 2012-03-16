@@ -21,8 +21,11 @@ import com.opengamma.util.ArgumentChecker;
  * 
  */
 public class LocalVolatilityPDEDefaultPropertiesFunction extends DefaultPropertyFunction {
-  private static final String[] REQUIREMENTS = new String[] {ValueRequirementNames.LOCAL_VOLATILITY_FULL_PDE_GRID, ValueRequirementNames.LOCAL_VOLATILITY_PDE_GREEKS,
-    ValueRequirementNames.LOCAL_VOLATILITY_PDE_BUCKETED_VEGA, ValueRequirementNames.LOCAL_VOLATILITY_FOREX_PV_QUOTES};
+  private static final String[] REQUIREMENTS = new String[] {
+    ValueRequirementNames.LOCAL_VOLATILITY_FULL_PDE_GRID,
+    ValueRequirementNames.LOCAL_VOLATILITY_PDE_GREEKS,
+    ValueRequirementNames.LOCAL_VOLATILITY_PDE_BUCKETED_VEGA,
+    ValueRequirementNames.LOCAL_VOLATILITY_FOREX_PV_QUOTES};
   private final String _forwardCurveCalculationMethod;
   private final String _forwardCurveName;
   private final String _surfaceType;

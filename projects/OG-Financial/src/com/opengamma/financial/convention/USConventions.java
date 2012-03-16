@@ -169,7 +169,6 @@ public class USConventions {
     final DayCount swapFloatDayCount = act360;
     final BusinessDayConvention swapFloatBusinessDay = modified;
     final Frequency swapFloatPaymentFrequency = quarterly;
-    final int publicationLag = 0;
 
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_SWAP")), "USD_SWAP", swapFixedDayCount, swapFixedBusinessDay,
         swapFixedPaymentFrequency, 2, usgb, swapFloatDayCount, swapFloatBusinessDay, swapFloatPaymentFrequency, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR 3m"),
@@ -182,18 +181,20 @@ public class USConventions {
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_IR_FUTURE")), "USD_IR_FUTURE", act360, modified, Period.ofMonths(3),
         2, false, null);
 
+    final int publicationLag = 1;
+    // Fed Fund effective
+    conventionMaster.addConventionBundle(
+        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("FEDL01 Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF EFFECTIVE")), "USD FF EFFECTIVE", act360,
+        following, Period.ofDays(1), 2, false, us, publicationLag);
+    // OIS swap
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_OIS_SWAP")), "USD_OIS_SWAP", thirty360, modified, annual, 2, usgb,
-        thirty360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF EFFECTIVE"), usgb, true);
+        thirty360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF EFFECTIVE"), usgb, true, publicationLag);
 
     // FRA conventions are stored as IRS
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_3M_FRA")), "USD_3M_FRA", thirty360, modified, quarterly, 2, usgb,
         act360, modified, quarterly, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR 3m"), usgb, true);
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_6M_FRA")), "USD_6M_FRA", thirty360, modified, semiAnnual, 2, usgb,
         act360, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR 6m"), usgb, true);
-
-    conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("FEDL01 Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF EFFECTIVE")), "USD FF EFFECTIVE", act360,
-        following, Period.ofDays(1), 2, false, null, publicationLag);
 
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_TENOR_SWAP")), "USD_TENOR_SWAP", act360, modified, quarterly, 2,
         ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD FF 3m"), usgb, act360, modified, quarterly, 2,
@@ -202,6 +203,18 @@ public class USConventions {
 
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_GENERIC_CASH")), "USD_GENERIC_CASH", act360, following,
         Period.ofDays(7), 2, true, null);
+
+    // TODO: Add all ISDA fixing
+    final int[] isdaFixTenor = new int[] {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 15, 20, 30};
+    // ISDA fixing 11.00 New-York
+    for (int looptenor = 0; looptenor < isdaFixTenor.length; looptenor++) {
+      final String tenorString = isdaFixTenor[looptenor] + "Y";
+      final String tenorStringBbg = String.format("%02d", isdaFixTenor[looptenor]);
+      conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD_ISDAFIX_USDLIBOR10_" + tenorString),
+          SecurityUtils.ricSecurityId("USDSFIX" + tenorString + "="), SecurityUtils.bloombergTickerSecurityId("USISDA" + tenorStringBbg + " Index")), "USD_ISDAFIX_USDLIBOR10_" + tenorString,
+          swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, us, act360, modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USD LIBOR 3m"),
+          us, true, Period.ofYears(isdaFixTenor[looptenor]));
+    }
 
     //Identifiers for external data
     conventionMaster.addConventionBundle(

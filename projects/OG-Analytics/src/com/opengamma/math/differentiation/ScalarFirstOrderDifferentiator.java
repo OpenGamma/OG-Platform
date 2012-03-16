@@ -7,14 +7,16 @@ package com.opengamma.math.differentiation;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.math.MathException;
 import com.opengamma.math.function.Function1D;
+import com.opengamma.util.ArgumentChecker;
 
 /**
-* Differentiates a scalar function with respect to its argument using finite difference. 
-* <p>
-* For a function <i>y = f(x)</i> where <i>x</i> and <i>y</i> are scalars, this class produces a gradient function <i>g(x)</i>, 
-* i.e. a function that returns the gradient for each point <i>x</i>, where <i>g</i> is the scalar {@latex.inline $\\frac{dy}{dx}$}.
-*/
+ * Differentiates a scalar function with respect to its argument using finite difference.
+ * <p>
+ * For a function <i>y = f(x)</i> where <i>x</i> and <i>y</i> are scalars, this class produces a gradient function <i>g(x)</i>,
+ * i.e. a function that returns the gradient for each point <i>x</i>, where <i>g</i> is the scalar {@latex.inline $\\frac{dy}{dx}$}.
+ */
 public class ScalarFirstOrderDifferentiator implements Differentiator<Double, Double, Double> {
   private static final double DEFAULT_EPS = 1e-5;
   private static final double MIN_EPS = Math.sqrt(Double.MIN_NORMAL);
@@ -40,10 +42,10 @@ public class ScalarFirstOrderDifferentiator implements Differentiator<Double, Do
   }
 
   /**
-   * @param differenceType {@link FiniteDifferenceType#FORWARD}, {@link FiniteDifferenceType#BACKWARD}, or {@link FiniteDifferenceType#CENTRAL}. In most situations, 
+   * @param differenceType {@link FiniteDifferenceType#FORWARD}, {@link FiniteDifferenceType#BACKWARD}, or {@link FiniteDifferenceType#CENTRAL}. In most situations,
    * {@link FiniteDifferenceType#CENTRAL} is preferable. Not null
-   * @param eps The step size used to approximate the derivative. If this value is too small, the result will most likely be dominated by noise. 
-   * Use around 10<sup>5</sup> times the domain size. 
+   * @param eps The step size used to approximate the derivative. If this value is too small, the result will most likely be dominated by noise.
+   * Use around 10<sup>5</sup> times the domain size.
    */
   public ScalarFirstOrderDifferentiator(final FiniteDifferenceType differenceType, final double eps) {
     Validate.notNull(differenceType);
@@ -91,5 +93,56 @@ public class ScalarFirstOrderDifferentiator implements Differentiator<Double, Do
         };
     }
     throw new IllegalArgumentException("Can only handle forward, backward and central differencing");
+  }
+
+  @Override
+  public Function1D<Double, Double> differentiate(final Function1D<Double, Double> function, final Function1D<Double, Boolean> domain) {
+    Validate.notNull(function);
+    Validate.notNull(domain);
+
+    final double[] wFwd = new double[] {-3. / _twoEps, 4. / _twoEps, -1. / _twoEps };
+    final double[] wCent = new double[] {-1. / _twoEps, 0., 1. / _twoEps };
+    final double[] wBack = new double[] {1. / _twoEps, -4. / _twoEps, 3. / _twoEps };
+
+    return new Function1D<Double, Double>() {
+
+      @SuppressWarnings("synthetic-access")
+      @Override
+      public Double evaluate(final Double x) {
+        Validate.notNull(x, "x");
+        ArgumentChecker.isTrue(domain.evaluate(x), "point {} is not in the function domain", x.toString());
+
+        double[] y = new double[3];
+        double[] w;
+
+        if (!domain.evaluate(x + _eps)) {
+          if (!domain.evaluate(x - _eps)) {
+            throw new MathException("cannot get derivative at point " + x.toString());
+          } else {
+            y[0] = function.evaluate(x - _twoEps);
+            y[1] = function.evaluate(x - _eps);
+            y[2] = function.evaluate(x);
+            w = wBack;
+          }
+        } else {
+          if (!domain.evaluate(x - _eps)) {
+            y[0] = function.evaluate(x);
+            y[1] = function.evaluate(x + _eps);
+            y[2] = function.evaluate(x + _twoEps);
+            w = wFwd;
+          } else {
+            y[0] = function.evaluate(x - _eps);
+            y[2] = function.evaluate(x + _eps);
+            w = wCent;
+          }
+        }
+
+        double res = y[0] * w[0] + y[2] * w[2];
+        if (w[1] != 0) {
+          res += y[1] * w[1];
+        }
+        return res;
+      }
+    };
   }
 }

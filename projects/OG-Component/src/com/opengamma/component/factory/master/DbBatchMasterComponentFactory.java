@@ -52,7 +52,7 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
    * The scheme used by the {@code UniqueId}.
    */
   @PropertyDefinition
-  private String _idScheme;
+  private String _uniqueIdScheme;
 
   //-------------------------------------------------------------------------
   @Override
@@ -62,8 +62,8 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
     // master
     DbBatchMaster master = new DbBatchMaster(getDbConnector());
     
-    if (getIdScheme() != null) {
-      master.setUniqueIdScheme(getIdScheme());
+    if (getUniqueIdScheme() != null) {
+      master.setUniqueIdScheme(getUniqueIdScheme());
     }
     infoMaster.addAttribute(ComponentInfoAttributes.UNIQUE_ID_SCHEME, master.getUniqueIdScheme());
     repo.registerComponent(infoMaster, master);
@@ -101,8 +101,8 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
         return isPublishRest();
       case 39794031:  // dbConnector
         return getDbConnector();
-      case -661606752:  // idScheme
-        return getIdScheme();
+      case -1737146991:  // uniqueIdScheme
+        return getUniqueIdScheme();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -119,8 +119,8 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
       case 39794031:  // dbConnector
         setDbConnector((DbConnector) newValue);
         return;
-      case -661606752:  // idScheme
-        setIdScheme((String) newValue);
+      case -1737146991:  // uniqueIdScheme
+        setUniqueIdScheme((String) newValue);
         return;
     }
     super.propertySet(propertyName, newValue, quiet);
@@ -143,7 +143,7 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
       return JodaBeanUtils.equal(getClassifier(), other.getClassifier()) &&
           JodaBeanUtils.equal(isPublishRest(), other.isPublishRest()) &&
           JodaBeanUtils.equal(getDbConnector(), other.getDbConnector()) &&
-          JodaBeanUtils.equal(getIdScheme(), other.getIdScheme()) &&
+          JodaBeanUtils.equal(getUniqueIdScheme(), other.getUniqueIdScheme()) &&
           super.equals(obj);
     }
     return false;
@@ -155,7 +155,7 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
     hash += hash * 31 + JodaBeanUtils.hashCode(getClassifier());
     hash += hash * 31 + JodaBeanUtils.hashCode(isPublishRest());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDbConnector());
-    hash += hash * 31 + JodaBeanUtils.hashCode(getIdScheme());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getUniqueIdScheme());
     return hash ^ super.hashCode();
   }
 
@@ -241,24 +241,24 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
    * Gets the scheme used by the {@code UniqueId}.
    * @return the value of the property
    */
-  public String getIdScheme() {
-    return _idScheme;
+  public String getUniqueIdScheme() {
+    return _uniqueIdScheme;
   }
 
   /**
    * Sets the scheme used by the {@code UniqueId}.
-   * @param idScheme  the new value of the property
+   * @param uniqueIdScheme  the new value of the property
    */
-  public void setIdScheme(String idScheme) {
-    this._idScheme = idScheme;
+  public void setUniqueIdScheme(String uniqueIdScheme) {
+    this._uniqueIdScheme = uniqueIdScheme;
   }
 
   /**
-   * Gets the the {@code idScheme} property.
+   * Gets the the {@code uniqueIdScheme} property.
    * @return the property, not null
    */
-  public final Property<String> idScheme() {
-    return metaBean().idScheme().createProperty(this);
+  public final Property<String> uniqueIdScheme() {
+    return metaBean().uniqueIdScheme().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -287,19 +287,19 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
     private final MetaProperty<DbConnector> _dbConnector = DirectMetaProperty.ofReadWrite(
         this, "dbConnector", DbBatchMasterComponentFactory.class, DbConnector.class);
     /**
-     * The meta-property for the {@code idScheme} property.
+     * The meta-property for the {@code uniqueIdScheme} property.
      */
-    private final MetaProperty<String> _idScheme = DirectMetaProperty.ofReadWrite(
-        this, "idScheme", DbBatchMasterComponentFactory.class, String.class);
+    private final MetaProperty<String> _uniqueIdScheme = DirectMetaProperty.ofReadWrite(
+        this, "uniqueIdScheme", DbBatchMasterComponentFactory.class, String.class);
     /**
      * The meta-properties.
      */
-    private final Map<String, MetaProperty<Object>> _map = new DirectMetaPropertyMap(
+    private final Map<String, MetaProperty<?>> _metaPropertyMap$ = new DirectMetaPropertyMap(
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "classifier",
         "publishRest",
         "dbConnector",
-        "idScheme");
+        "uniqueIdScheme");
 
     /**
      * Restricted constructor.
@@ -316,8 +316,8 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
           return _publishRest;
         case 39794031:  // dbConnector
           return _dbConnector;
-        case -661606752:  // idScheme
-          return _idScheme;
+        case -1737146991:  // uniqueIdScheme
+          return _uniqueIdScheme;
       }
       return super.metaPropertyGet(propertyName);
     }
@@ -333,8 +333,8 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
     }
 
     @Override
-    public Map<String, MetaProperty<Object>> metaPropertyMap() {
-      return _map;
+    public Map<String, MetaProperty<?>> metaPropertyMap() {
+      return _metaPropertyMap$;
     }
 
     //-----------------------------------------------------------------------
@@ -363,11 +363,11 @@ public class DbBatchMasterComponentFactory extends AbstractComponentFactory {
     }
 
     /**
-     * The meta-property for the {@code idScheme} property.
+     * The meta-property for the {@code uniqueIdScheme} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<String> idScheme() {
-      return _idScheme;
+    public final MetaProperty<String> uniqueIdScheme() {
+      return _uniqueIdScheme;
     }
 
   }
