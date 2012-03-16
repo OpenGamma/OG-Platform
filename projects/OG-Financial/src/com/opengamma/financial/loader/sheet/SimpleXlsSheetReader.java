@@ -159,11 +159,11 @@ public class SimpleXlsSheetReader extends SheetReader {
   }
   
   public static Cell getCellSafe(Row rawRow, int column) {
-     return rawRow.getCell(column, Row.CREATE_NULL_AS_BLANK);
+    return rawRow.getCell(column, Row.CREATE_NULL_AS_BLANK);
   }
   
   public static String getCell(Row rawRow, int column) {
-      return getCellAsString(getCellSafe(rawRow, column));
+    return getCellAsString(getCellSafe(rawRow, column));
   }
   
   public static String getCellAsString(Cell cell) {
