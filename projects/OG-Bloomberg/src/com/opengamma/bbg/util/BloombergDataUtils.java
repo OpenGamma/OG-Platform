@@ -234,6 +234,7 @@ public final class BloombergDataUtils {
     // Filter out non-OpenGamma fields (i.e., BID, ASK, various Bloomberg implied vol fields)
     openGammaRules.add(new FieldFilter(
         MarketDataRequirementNames.MARKET_VALUE,
+        MarketDataRequirementNames.SETTLE_PRICE,
         MarketDataRequirementNames.VOLUME,
         MarketDataRequirementNames.IMPLIED_VOLATILITY,
         MarketDataRequirementNames.YIELD_CONVENTION_MID,
@@ -254,6 +255,7 @@ public final class BloombergDataUtils {
     HistoricalTimeSeriesFieldAdjustmentMap fieldAdjustmentMap = new HistoricalTimeSeriesFieldAdjustmentMap(BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME);
     BloombergRateClassifier rateClassifier = new BloombergRateClassifier(referenceDataProvider, cacheManager);
     HistoricalTimeSeriesAdjuster rateNormalizer = new BloombergRateHistoricalTimeSeriesNormalizer(rateClassifier);
+    fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.SETTLE_PRICE, null, BloombergConstants.BBG_FIELD_SETTLE_PRICE, rateNormalizer);
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.MARKET_VALUE, null, BloombergConstants.BBG_FIELD_LAST_PRICE, rateNormalizer);
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.VOLUME, null, BloombergConstants.BBG_FIELD_VOLUME, null);
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID, null, BloombergConstants.BBG_FIELD_YIELD_TO_MATURITY_MID, null);
