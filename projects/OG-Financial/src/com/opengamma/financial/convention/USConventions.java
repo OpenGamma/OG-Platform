@@ -219,43 +219,43 @@ public class USConventions {
     //Identifiers for external data
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USDCASHP1D"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "USDCASHP1D")),
-        "USDCASHP1D", act360, following, Period.ofDays(1), 0, false, null);
+        "USDCASHP1D", act360, following, Period.ofDays(1), 0, false, us);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USDCASHP1M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "USDCASHP1M")),
-        "USDCASHP1M", act360, modified, Period.ofMonths(1), 2, false, null);
+        "USDCASHP1M", act360, modified, Period.ofMonths(1), 2, false, us);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USDCASHP2M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "USDCASHP2M")),
-        "USDCASHP2M", act360, modified, Period.ofMonths(2), 2, false, null);
+        "USDCASHP2M", act360, modified, Period.ofMonths(2), 2, false, us);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USDCASHP3M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "USDCASHP3M")),
-        "USDCASHP3M", act360, modified, Period.ofMonths(3), 2, false, null);
+        "USDCASHP3M", act360, modified, Period.ofMonths(3), 2, false, us);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USDCASHP4M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "USDCASHP4M")),
-        "USDCASHP4M", act360, modified, Period.ofMonths(4), 2, false, null);
+        "USDCASHP4M", act360, modified, Period.ofMonths(4), 2, false, us);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USDCASHP5M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "USDCASHP5M")),
-        "USDCASHP5M", act360, modified, Period.ofMonths(5), 2, false, null);
+        "USDCASHP5M", act360, modified, Period.ofMonths(5), 2, false, us);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USDCASHP6M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "USDCASHP6M")),
-        "USDCASHP6M", act360, modified, Period.ofMonths(6), 2, false, null);
+        "USDCASHP6M", act360, modified, Period.ofMonths(6), 2, false, us);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USDCASHP7M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "USDCASHP7M")),
-        "USDCASHP7M", act360, modified, Period.ofMonths(7), 2, false, null);
+        "USDCASHP7M", act360, modified, Period.ofMonths(7), 2, false, us);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USDCASHP8M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "USDCASHP8M")),
-        "USDCASHP8M", act360, modified, Period.ofMonths(8), 2, false, null);
+        "USDCASHP8M", act360, modified, Period.ofMonths(8), 2, false, us);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USDCASHP9M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "USDCASHP9M")),
-        "USDCASHP9M", act360, modified, Period.ofMonths(9), 2, false, null);
+        "USDCASHP9M", act360, modified, Period.ofMonths(9), 2, false, us);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USDCASHP10M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "USDCASHP10M")),
-        "USDCASHP10M", act360, modified, Period.ofMonths(10), 2, false, null);
+        "USDCASHP10M", act360, modified, Period.ofMonths(10), 2, false, us);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USDCASHP11M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "USDCASHP11M")),
-        "USDCASHP11M", act360, modified, Period.ofMonths(1), 2, false, null);
+        "USDCASHP11M", act360, modified, Period.ofMonths(11), 2, false, us);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "USDCASHP12M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "USDCASHP12M")),
-        "USDCASHP12M", act360, modified, Period.ofMonths(12), 2, false, null);
+        "USDCASHP12M", act360, modified, Period.ofMonths(12), 2, false, us);
 
     conventionMaster.addConventionBundle(ExternalId.of(FactorExposureData.FACTOR_SCHEME, "IR.SWAP.USD.1M").toBundle(), "IR.SWAP.USD.1M", act360, modified, Period.ofMonths(1), 2, false, null);
     conventionMaster.addConventionBundle(ExternalId.of(FactorExposureData.FACTOR_SCHEME, "IR.SWAP.USD.6M").toBundle(), "IR.SWAP.USD.6M", act360, modified, Period.ofMonths(6), 2, false, null);
