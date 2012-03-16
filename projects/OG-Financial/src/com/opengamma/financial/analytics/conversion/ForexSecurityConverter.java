@@ -119,9 +119,9 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
     ForexDefinition underlying;
     final boolean order = FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency); // To get Base/quote in market standard order.
     if (order) {
-      underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, -callAmount);
+      underlying = ForexDefinition.fromAmounts(putCurrency, callCurrency, settlementDate, putAmount, -callAmount);
     } else {
-      underlying = new ForexDefinition(callCurrency, putCurrency, settlementDate, callAmount, -putAmount);
+      underlying = ForexDefinition.fromAmounts(callCurrency, putCurrency, settlementDate, callAmount, -putAmount);
     }
     return new ForexOptionVanillaDefinition(underlying, expiry, !order, isLong);
   }
