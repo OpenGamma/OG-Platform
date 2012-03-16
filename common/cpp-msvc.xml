@@ -175,23 +175,35 @@
 
   <target name="cpp-publish-debug-msvc" if="cpp.present.msvc">
     <parallel>
-      <antcall target="cpp-publish" inheritrefs="true">
-        <param name="cpp.output" value="${msvc.debug.configuration}${msvc.win32.platform}" />
-      </antcall>
-      <antcall target="cpp-publish" inheritrefs="true">
-        <param name="cpp.output" value="${msvc.debug.configuration}${msvc.x64.platform}" />
-      </antcall>
+      <antcall target="cpp-publish-DebugWin32" inheritrefs="true" />
+      <antcall target="cpp-publish-Debugx64" inheritrefs="true" />
     </parallel>
+  </target>
+  <target name="cpp-publish-DebugWin32" unless="cpp.disable.DebugWin32">
+    <antcall target="cpp-publish" inheritrefs="true">
+      <param name="cpp.output" value="${msvc.debug.configuration}${msvc.win32.platform}" />
+    </antcall>
+  </target>
+  <target name="cpp-publish-Debugx64" unless="cpp.disable.DebugX64">
+    <antcall target="cpp-publish" inheritrefs="true">
+      <param name="cpp.output" value="${msvc.debug.configuration}${msvc.x64.platform}" />
+    </antcall>
   </target>
   <target name="cpp-publish-release-msvc" if="cpp.present.msvc">
     <parallel>
-      <antcall target="cpp-publish" inheritrefs="true">
-        <param name="cpp.output" value="${msvc.release.configuration}${msvc.win32.platform}" />
-      </antcall>
-      <antcall target="cpp-publish" inheritrefs="true">
-        <param name="cpp.output" value="${msvc.release.configuration}${msvc.x64.platform}" />
-      </antcall>
+      <antcall target="cpp-publish-ReleaseWin32" inheritrefs="true" />
+      <antcall target="cpp-publish-Releasex64" inheritrefs="true" />
     </parallel>
+  </target>
+  <target name="cpp-publish-ReleaseWin32" unless="cpp.disable.ReleaseWin32">
+    <antcall target="cpp-publish" inheritrefs="true">
+      <param name="cpp.output" value="${msvc.release.configuration}${msvc.win32.platform}" />
+    </antcall>
+  </target>
+  <target name="cpp-publish-Releasex64" unless="cpp.disable.ReleaseX64">
+    <antcall target="cpp-publish" inheritrefs="true">
+      <param name="cpp.output" value="${msvc.release.configuration}${msvc.x64.platform}" />
+    </antcall>
   </target>
 
   <target name="cpp-clean-debug-msvc">

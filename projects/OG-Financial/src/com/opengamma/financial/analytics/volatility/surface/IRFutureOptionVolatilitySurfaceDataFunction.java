@@ -106,8 +106,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     }
     final ValueRequirement futuresRequirement = new ValueRequirement(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA, target.toSpecification(),
         ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_PRICE).get());
+            .with(ValuePropertyNames.CURVE, curveName)
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_PRICE).get());
     final Object futurePricesObject = inputs.getValue(futuresRequirement);
     if (futurePricesObject == null) {
       throw new OpenGammaRuntimeException("Could not get futures price data");
@@ -133,8 +133,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(),
         createValueProperties()
-        .withAny(ValuePropertyNames.SURFACE)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get()));
+            .withAny(ValuePropertyNames.SURFACE)
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get()));
   }
 
   @Override
@@ -185,7 +185,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
         if (volatility != null) {
           xList.add(x);
           yList.add(y);
-          volatilityValues.put(Pair.of(x, y), volatility / 100);
+          volatilityValues.put(Pair.of(x, y), volatility / 100); // TODO Normalization, could this be done elsewhere?
         }
       }
     }
@@ -204,19 +204,19 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final DoubleArrayList yList = new DoubleArrayList();
     for (final Number x : optionPrices.getXs()) {
       final Number t = IRFutureOptionUtils.getTime(x.doubleValue(), now);
-      final double forward = futurePrices.getYValue(x.doubleValue());
       for (final Double y : optionPrices.getYs()) {
         final Double price = optionPrices.getVolatility(x, y);
+        final double forward = futurePrices.getYValue(x.doubleValue());
         if (price != null) {
           try {
-            final double volatility = getVolatility(surfaceQuoteType, y / 100, price, forward, t.doubleValue(), callAboveStrike);
+            final double volatility = getVolatility(surfaceQuoteType, y / 100, price, forward, t.doubleValue(), callAboveStrike / 100);
             xList.add(x);
             yList.add(y);
             volatilityValues.put(Pair.of(x, y), volatility);
           } catch (final MathException e) {
-            s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage()});
+            s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage() });
           } catch (final IllegalArgumentException e) {
-            s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage()});
+            s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage() });
           }
         }
       }
@@ -237,9 +237,9 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
         throw new OpenGammaRuntimeException("Value for call above strike was null");
       }
       if (strike > callAboveStrike) {
-        return BlackFormulaRepository.impliedVolatility(price, forward, strike, t, true);
+        return BlackFormulaRepository.impliedVolatility(price, forward, strike, t, !true); // FIXME: I've put in the ! as Bloomberg wasn't providing call prices for way OTM options
       }
-      return BlackFormulaRepository.impliedVolatility(price, forward, strike, t, false);
+      return BlackFormulaRepository.impliedVolatility(price, forward, strike, t, !false); //FIXME: I've put in the ! as Bloomberg wasn't providing call prices for way OTM options
     }
     throw new OpenGammaRuntimeException("Cannot handle surface quote type " + surfaceQuoteType);
   }

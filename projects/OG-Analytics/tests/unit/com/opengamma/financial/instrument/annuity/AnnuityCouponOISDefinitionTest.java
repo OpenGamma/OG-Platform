@@ -7,15 +7,7 @@ package com.opengamma.financial.instrument.annuity;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.time.calendar.DayOfWeek;
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
-import org.testng.annotations.Test;
+import static org.testng.AssertJUnit.assertTrue;
 
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -25,10 +17,26 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.GeneratorOIS;
 import com.opengamma.financial.instrument.index.IndexON;
+import com.opengamma.financial.interestrate.TestsDataSetsSABR;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.financial.interestrate.payments.Coupon;
+import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.financial.interestrate.payments.method.CouponFixedDiscountingMethod;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeSeries;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.time.calendar.DayOfWeek;
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
+
+import org.testng.annotations.Test;
 
 /**
  * 
@@ -43,27 +51,53 @@ public class AnnuityCouponOISDefinitionTest {
   private static final ZonedDateTime MATURITY_DATE = DateUtils.getUTCDate(2022, 2, 1);
   private static final Period MATURITY_TENOR = Period.ofYears(10);
   private static final double NOTIONAL = 100000000;
-  private static final IndexON INDEX = new IndexON("O/N", CCY, DAY_COUNT, 2, CALENDAR);
+  private static final IndexON INDEX = new IndexON("O/N", CCY, DAY_COUNT, 0, CALENDAR);
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final GeneratorOIS GENERATOR = new GeneratorOIS("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1);
   private static final boolean IS_PAYER = true;
   private static final AnnuityCouponOISDefinition DEFINITION = AnnuityCouponOISDefinition.from(SETTLEMENT_DATE, MATURITY_DATE, NOTIONAL, GENERATOR, IS_PAYER);
-  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS;
+  private static final int NUM_PAYMENTS = DEFINITION.getNumberOfPayments();
+  private static final ZonedDateTime FINAL_PAYMENT_DATE = DEFINITION.getNthPayment(NUM_PAYMENTS - 1).getPaymentDate();
+
+  private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
+  private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[0]);
+
   private static final ZonedDateTime DATE = DateUtils.getUTCDate(2012, 3, 15);
 
-  static {
-    ZonedDateTime date = SETTLEMENT_DATE;
+  // Utility to create a time series of fixings
+  static ArrayZonedDateTimeDoubleTimeSeries createFixingSeries(ZonedDateTime startDate, ZonedDateTime endDate) {
     final List<ZonedDateTime> dates = new ArrayList<ZonedDateTime>();
     final List<Double> data = new ArrayList<Double>();
-    while (date.isBefore(DATE) || date.equals(DATE)) {
-      dates.add(date);
-      data.add(Math.random() / 100);
-      date = date.plusDays(1);
-      if (date.getDayOfWeek().equals(DayOfWeek.SATURDAY)) {
-        date = date.plusDays(2);
+    ZonedDateTime dt = startDate;
+    while (dt.isBefore(endDate) || dt.equals(endDate)) {
+      dates.add(dt);
+      data.add(0.05 + Math.sin(dt.getDayOfYear()) / 100);
+      dt = dt.plusDays(1);
+      if (dt.getDayOfWeek().equals(DayOfWeek.SATURDAY)) {
+        dt = dt.plusDays(2);
       }
     }
-    FIXING_TS = new ArrayZonedDateTimeDoubleTimeSeries(dates, data);
+    return new ArrayZonedDateTimeDoubleTimeSeries(dates, data);
+  }
+
+  private static final DoubleTimeSeries<ZonedDateTime> FIXING_TS = createFixingSeries(SETTLEMENT_DATE, FINAL_PAYMENT_DATE);
+
+  @Test
+  /**
+   * Tests the toDerivative method on the payment date. valuation is at noon, payment set at midnight...
+   */
+  public void toDerivativeOnDateOfFinalPayment() {
+
+    ZonedDateTime valuationTimeIsNoon = FINAL_PAYMENT_DATE.withTime(12, 0);
+    assertTrue("valuationTimeIsNoon usedn        to be after paymentDate, which was midnight. Confirm behaviour",
+        valuationTimeIsNoon.isAfter(FINAL_PAYMENT_DATE));
+    GenericAnnuity<? extends Coupon> derivative = DEFINITION.toDerivative(valuationTimeIsNoon, FIXING_TS, CURVES_NAMES);
+    assertEquals("On the payment date, we expect the derivative to have the same number of payments as its definition", 1, derivative.getNumberOfPayments());
+    assertTrue("CouponOIS should be of type CouponFixed on the payment date", derivative.getNthPayment(0) instanceof CouponFixed);
+
+    CurrencyAmount pv = CouponFixedDiscountingMethod.getInstance().presentValue((CouponFixed) derivative.getNthPayment(0), CURVES);
+    assertEquals("CouponOIS definition: toDerivative", pv, CurrencyAmount.of(CCY, -2571693.2212814568));
+
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

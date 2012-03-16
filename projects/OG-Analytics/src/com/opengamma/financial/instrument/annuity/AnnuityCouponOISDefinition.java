@@ -5,12 +5,6 @@
  */
 package com.opengamma.financial.instrument.annuity;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import javax.time.calendar.Period;
-import javax.time.calendar.ZonedDateTime;
-
 import com.opengamma.financial.instrument.index.GeneratorOIS;
 import com.opengamma.financial.instrument.payment.CouponOISDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
@@ -18,6 +12,13 @@ import com.opengamma.financial.interestrate.payments.Coupon;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.time.calendar.LocalDate;
+import javax.time.calendar.Period;
+import javax.time.calendar.ZonedDateTime;
 
 /**
  * A wrapper class for a AnnuityDefinition containing CouponOISDefinition.
@@ -85,15 +86,18 @@ public class AnnuityCouponOISDefinition extends AnnuityCouponDefinition<CouponOI
   }
 
   @Override
-  public GenericAnnuity<? extends Coupon> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    ArgumentChecker.notNull(date, "date");
+  public GenericAnnuity<? extends Coupon> toDerivative(final ZonedDateTime valZdt, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
+    ArgumentChecker.notNull(valZdt, "date");
     ArgumentChecker.notNull(indexFixingTS, "index fixing time series");
     ArgumentChecker.notNull(yieldCurveNames, "yield curve names");
     final List<Coupon> resultList = new ArrayList<Coupon>();
     final CouponOISDefinition[] payments = getPayments();
+    ZonedDateTime valZdtInPaymentZone = valZdt.withZoneSameInstant(payments[0].getPaymentDate().getZone());
+    LocalDate valDate = valZdtInPaymentZone.toLocalDate();
+
     for (int loopcoupon = 0; loopcoupon < payments.length; loopcoupon++) {
-      if (!date.isAfter(payments[loopcoupon].getPaymentDate())) {
-        resultList.add(payments[loopcoupon].toDerivative(date, indexFixingTS, yieldCurveNames));
+      if (!valDate.isAfter(payments[loopcoupon].getPaymentDate().toLocalDate())) {
+        resultList.add(payments[loopcoupon].toDerivative(valZdt, indexFixingTS, yieldCurveNames));
       }
     }
     return new GenericAnnuity<Coupon>(resultList.toArray(EMPTY_ARRAY_COUPON));

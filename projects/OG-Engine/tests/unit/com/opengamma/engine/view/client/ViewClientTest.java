@@ -19,9 +19,6 @@ import java.util.Set;
 
 import javax.time.Instant;
 
-import com.opengamma.engine.view.CycleInfo;
-import com.opengamma.engine.view.listener.CycleInitiatedCall;
-import com.opengamma.id.UniqueId;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
@@ -52,7 +49,9 @@ import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.ViewResultModel;
 import com.opengamma.engine.view.calc.ViewComputationJob;
 import com.opengamma.engine.view.execution.ExecutionOptions;
+import com.opengamma.engine.view.listener.CycleInitiatedCall;
 import com.opengamma.id.ExternalId;
+import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.util.test.Timeout;
 import com.opengamma.util.tuple.Pair;
@@ -315,7 +314,6 @@ public class ViewClientTest {
     
     // Resuming should release the most recent result to the client
     client1.resume();
-    assertEquals(0, client2ResultListener.getQueueSize());
     client1ResultListener.getCycleInitiated(TIMEOUT).getCycleInfo();
     ViewComputationResultModel result2Fragment = client1ResultListener.getCycleFragmentCompleted(TIMEOUT).getFullFragment();
     ViewComputationResultModel result2 = client1ResultListener.getCycleCompleted(TIMEOUT).getFullResult();
@@ -328,6 +326,8 @@ public class ViewClientTest {
     // Changes should now propagate straight away to both listeners
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive1(), (byte) 3);
     env.getCurrentComputationJob(viewProcess1).marketDataChanged();
+    client1ResultListener.assertCycleInitiated(TIMEOUT);
+    client2ResultListener.assertCycleInitiated(TIMEOUT);
     client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
     client2ResultListener.assertCycleCompleted(TIMEOUT);
     ViewComputationResultModel result3Fragment = client1ResultListener.getCycleFragmentCompleted(TIMEOUT).getFullFragment();
@@ -345,6 +345,7 @@ public class ViewClientTest {
 
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 1);
     env.getCurrentComputationJob(viewProcess1).marketDataChanged();
+    client2ResultListener.assertCycleInitiated(TIMEOUT);
     client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
     client2ResultListener.assertCycleCompleted(TIMEOUT);
     assertEquals(0, client2ResultListener.getQueueSize());
@@ -352,6 +353,7 @@ public class ViewClientTest {
 
     marketDataProvider.addValue(ViewProcessorTestEnvironment.getPrimitive2(), (byte) 2);
     env.getCurrentComputationJob(viewProcess1).marketDataChanged();
+    client2ResultListener.assertCycleInitiated(TIMEOUT);
     client2ResultListener.assertCycleFragmentCompleted(TIMEOUT);
     client2ResultListener.assertCycleCompleted(TIMEOUT);
     assertEquals(0, client2ResultListener.getQueueSize());
@@ -359,6 +361,7 @@ public class ViewClientTest {
     
     // Start results again
     client1.resume();
+    client1ResultListener.assertCycleInitiated(TIMEOUT);
     ViewComputationResultModel result4Fragment = client1ResultListener.getCycleFragmentCompleted(TIMEOUT).getFullFragment();
     ViewComputationResultModel result4 = client1ResultListener.getCycleCompleted(TIMEOUT).getFullResult();
     assertEquals(0, client1ResultListener.getQueueSize());

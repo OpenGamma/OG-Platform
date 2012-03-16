@@ -175,10 +175,6 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
 
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
-    final String curveName = desiredValue.getConstraint(ValuePropertyNames.CURVE);
-    if (curveName == null) {
-      throw new OpenGammaRuntimeException("Must specify a curve against which to calculate the node sensitivities");
-    }
     final Set<String> forwardCurves = desiredValue.getConstraints().getValues(YieldCurveFunction.PROPERTY_FORWARD_CURVE);
     if (forwardCurves == null || forwardCurves.size() != 1) {
       return null;
@@ -191,11 +187,22 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
     if (calculationMethodNames == null || calculationMethodNames.size() != 1) {
       return null;
     }
+    final Set<String> curves = desiredValue.getConstraints().getValues(ValuePropertyNames.CURVE);
     final String forwardCurveName = forwardCurves.iterator().next();
     final String fundingCurveName = fundingCurves.iterator().next();
-    if (!curveName.equals(forwardCurveName) && !curveName.equals(fundingCurveName)) {
-      throw new OpenGammaRuntimeException("Asked for sensitivities to a curve (" + curveName + ") to which this interest rate future is not sensitive " +
-          "(allowed " + forwardCurveName + " and " + fundingCurveName + ")");
+    final String curveName;
+    if ((curves == null) || curves.isEmpty()) {
+      // Curve not constrained, so make arbitrary choice.
+      curveName = forwardCurveName;
+    } else {
+      if (curves.contains(forwardCurveName)) {
+        curveName = forwardCurveName;
+      } else if (curves.contains(fundingCurveName)) {
+        curveName = fundingCurveName;
+      } else {
+        // Instrument isn't sensitive to the requested curve.
+        return null;
+      }
     }
     final String calculationMethod = calculationMethodNames.iterator().next();
     final Set<ValueRequirement> requirements = new HashSet<ValueRequirement>();
