@@ -101,17 +101,17 @@ $.register_module({
                     processor: function (data) {
                         if (!data[SETS]) return;
                         // remove undefineds that we added
-                        data[SETS] = arr(data[SETS]).filter(function (set) {return set !== undefined;});
+                        data[SETS] = arr(data[SETS]).filter(function (set) {return set !== void 0;});
                         data[SETS].forEach(function (set, set_idx) {
                             if (set[COLS]) {
-                                set[COLS] = arr(set[COLS]).filter(function (col) {return col !== undefined;});
+                                set[COLS] = arr(set[COLS]).filter(function (col) {return col !== void 0;});
                                 set[COLS].forEach(function (col, col_idx) {
                                     if (!col[REQS]) return;
-                                    col[REQS] = col[REQS].filter(function (req) {return req !== undefined;});
+                                    col[REQS] = col[REQS].filter(function (req) {return req !== void 0;});
                                 });
                             }
                             if (set[SPEC])
-                                set[SPEC] = arr(set[SPEC]).filter(function (spec) {return spec !== undefined;});
+                                set[SPEC] = arr(set[SPEC]).filter(function (spec) {return spec !== void 0;});
                         });
                     }
                 }),
@@ -227,7 +227,7 @@ $.register_module({
                                         if (!acc.rem_idx && acc.idx === null) acc.idx = idx;
                                         return acc;
                                     }, {rem_idx: rem_idx + 1, idx: null}).idx;
-                                master[SETS][set_idx] = undefined;
+                                master[SETS][set_idx] = void 0;
                                 if (!is_last) {
                                     $next_tab = $(form_id + ' .og-js-colset-tab:eq(' + next + ')');
                                     $next_set = $(form_id + ' .og-js-colset-holder:eq(' + next + ')');
@@ -276,7 +276,7 @@ $.register_module({
                                             var $el = $(e.target).parents('.og-js-spec:first'),
                                                 specs = $el.find('input:first').attr('name').split('.').slice(0, -1),
                                                 index = specs.pop();
-                                            specs.reduce(function (a, v) {return a[v];}, master)[index] = undefined;
+                                            specs.reduce(function (a, v) {return a[v];}, master)[index] = void 0;
                                             $el.remove();
                                             return false;
                                         }
@@ -301,7 +301,7 @@ $.register_module({
                                                 $('#' + set_id + ' .og-js-empty-cols').show();
                                             }
                                             $col.remove(), $tab.remove();
-                                            cols.reduce(function (a, v) {return a[v];}, master)[col_idx] = undefined;
+                                            cols.reduce(function (a, v) {return a[v];}, master)[col_idx] = void 0;
                                             if (is_last || !is_active) return false;
                                             $next_tab.addClass('og-active');
                                             $next_col.show();
@@ -314,7 +314,7 @@ $.register_module({
                                             var $li = $(e.target).parents('li:first'),
                                                 reqs = $li.find('select:first').attr('name').split('.').slice(0, -1),
                                                 index = reqs.pop();
-                                            reqs.reduce(function (a, v) {return a[v];}, master)[index] = undefined;
+                                            reqs.reduce(function (a, v) {return a[v];}, master)[index] = void 0;
                                             $li.remove();
                                             return false;
                                         }

@@ -376,7 +376,6 @@ $.register_module({
                 dependencies: dependencies, id: config.id, handler: handler, cache_for: 500, version: version
             });
         };
-        load.reload = load.partial(orig_config);
         load.format = format_trades;
         return load;
     }
