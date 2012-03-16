@@ -167,7 +167,7 @@ $.register_module({
                             $('.OG-layout-admin-details-north').empty();
                         }
                         if (json.template_data.hts_id || args.timeseries) common.gadgets.timeseries({
-                            selector: '.OG-js-details-panel .og-js-timeseries',
+                            selector: '.OG-timeseries-gadget',
                             id: json.template_data.hts_id || args.timeseries
                         });
                         if (show_loading) view.notify(null);
