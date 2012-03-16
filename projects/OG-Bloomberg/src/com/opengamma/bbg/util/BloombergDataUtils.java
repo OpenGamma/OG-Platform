@@ -115,6 +115,7 @@ public final class BloombergDataUtils {
   public static final List<String> STANDARD_FIELDS_LIST = ImmutableList.of("BID",
       "ASK",
       "LAST_PRICE",
+      "PX_SETTLE",
       "VOLUME",
       "OPT_IMPLIED_VOLATILITY_BID_RT",
       "OPT_IMPLIED_VOLATILITY_ASK_RT",
@@ -206,6 +207,7 @@ public final class BloombergDataUtils {
     openGammaRules.add(new FieldNameChange("BID", MarketDataRequirementNames.BID));
     openGammaRules.add(new FieldNameChange("ASK", MarketDataRequirementNames.ASK));
     openGammaRules.add(new FieldNameChange("LAST_PRICE", MarketDataRequirementNames.LAST));
+    openGammaRules.add(new FieldNameChange("PX_SETTLE", MarketDataRequirementNames.SETTLE_PRICE));
     openGammaRules.add(new FieldNameChange("VOLUME", MarketDataRequirementNames.VOLUME));
     openGammaRules.add(new FieldNameChange("OPT_IMPLIED_VOLATILITY_BID_RT", MarketDataRequirementNames.BID_IMPLIED_VOLATILITY));
     openGammaRules.add(new FieldNameChange("OPT_IMPLIED_VOLATILITY_ASK_RT", MarketDataRequirementNames.ASK_IMPLIED_VOLATILITY));
