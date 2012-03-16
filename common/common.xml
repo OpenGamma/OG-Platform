@@ -53,7 +53,7 @@
 		<ivy:report todir="${build.dir}" />
 	</target>
 
-	<target name="compile" depends="compile-src,compile-tests"
+	<target name="compile" depends="compile-src"
     description="compile all source code" />
 
 	<target name="fudge-proto-present" depends="resolve">
