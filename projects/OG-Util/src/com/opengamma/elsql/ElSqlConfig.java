@@ -3,35 +3,37 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.extsql;
+package com.opengamma.elsql;
 
 /**
  * Configuration to allow details of the substitutions to be replaced.
  * <p>
- * Implementations must not be thread-safe.
+ * Some standard implementations have been provided, but subclasses may be added.
+ * <p>
+ * Implementations must be thread-safe.
  */
-public class ExtSqlConfig {
+public class ElSqlConfig {
 
   /**
    * A constant for the standard set of config.
    */
-  public static final ExtSqlConfig DEFAULT = new ExtSqlConfig("Default");
+  public static final ElSqlConfig DEFAULT = new ElSqlConfig("Default");
   /**
    * A constant for the config needed for Postgres.
    */
-  public static final ExtSqlConfig POSTGRES = new ExtSqlConfig("Postgres");
+  public static final ElSqlConfig POSTGRES = new ElSqlConfig("Postgres");
   /**
    * A constant for the config needed for HSQL.
    */
-  public static final ExtSqlConfig HSQL = new HsqlExtSqlConfig();
+  public static final ElSqlConfig HSQL = new HsqlElSqlConfig();
   /**
    * A constant for the config needed for MySQL.
    */
-  public static final ExtSqlConfig MYSQL = new MySqlExtSqlConfig();
+  public static final ElSqlConfig MYSQL = new MySqlElSqlConfig();
   /**
    * A constant for the config needed for Vertica.
    */
-  public static final ExtSqlConfig VERTICA = new ExtSqlConfig("Vertica");
+  public static final ElSqlConfig VERTICA = new ElSqlConfig("Vertica");
 
   /**
    * The descriptive name.
@@ -43,7 +45,7 @@ public class ExtSqlConfig {
    * 
    * @param name  a descriptive name for the config, not null
    */
-  public ExtSqlConfig(String name) {
+  public ElSqlConfig(String name) {
     _name = name;
   }
 
@@ -127,15 +129,15 @@ public class ExtSqlConfig {
   //-------------------------------------------------------------------------
   @Override
   public String toString() {
-    return "ExtSqlConfig[" + _name + "]";
+    return "ElSqlConfig[" + _name + "]";
   }
 
   //-------------------------------------------------------------------------
   /**
    * Class for HSQL.
    */
-  private static class HsqlExtSqlConfig extends ExtSqlConfig {
-    public HsqlExtSqlConfig() {
+  private static class HsqlElSqlConfig extends ElSqlConfig {
+    public HsqlElSqlConfig() {
       super("HSQL");
     }
     @Override
@@ -148,8 +150,8 @@ public class ExtSqlConfig {
   /**
    * Class for MySQL.
    */
-  private static class MySqlExtSqlConfig extends ExtSqlConfig {
-    public MySqlExtSqlConfig() {
+  private static class MySqlElSqlConfig extends ElSqlConfig {
+    public MySqlElSqlConfig() {
       super("MySql");
     }
     @Override

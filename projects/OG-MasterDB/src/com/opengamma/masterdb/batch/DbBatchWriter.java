@@ -67,6 +67,7 @@ import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.batch.domain.RiskValueRequirement;
 import com.opengamma.batch.domain.RiskValueSpecification;
 import com.opengamma.batch.domain.StatusEntry;
+import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
@@ -78,7 +79,6 @@ import com.opengamma.engine.view.ViewComputationResultModel;
 import com.opengamma.engine.view.ViewResultEntry;
 import com.opengamma.engine.view.calcnode.InvocationResult;
 import com.opengamma.engine.view.calcnode.MissingInput;
-import com.opengamma.extsql.ExtSqlBundle;
 import com.opengamma.financial.conversion.ResultConverter;
 import com.opengamma.financial.conversion.ResultConverterCache;
 import com.opengamma.id.ObjectId;
@@ -139,7 +139,7 @@ public class DbBatchWriter extends AbstractDbMaster {
   public DbBatchWriter(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
     _resultConverterCache = new ResultConverterCache();
-    setExtSqlBundle(ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbBatchWriter.class));
+    setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbBatchWriter.class));
   }
 
   public RiskRun getRiskRunById(final Long id) {
@@ -390,7 +390,7 @@ public class DbBatchWriter extends AbstractDbMaster {
         }
       }
     }
-    _riskValueRequirements.putAll(populate(data, getExtSqlBundle().getSql("SelectRiskValueRequirement"), getExtSqlBundle().getSql("InsertRiskValueRequirement"), RSK_SEQUENCE_NAME));
+    _riskValueRequirements.putAll(populate(data, getElSqlBundle().getSql("SelectRiskValueRequirement"), getElSqlBundle().getSql("InsertRiskValueRequirement"), RSK_SEQUENCE_NAME));
   }
 
   protected void populateRiskValueSpecifications(CycleInfo cycleInfo) {
@@ -402,7 +402,7 @@ public class DbBatchWriter extends AbstractDbMaster {
         data.get(attribs).add(specification);
       }
     }
-    _riskValueSpecifications.putAll(populate(data, getExtSqlBundle().getSql("SelectRiskValueSpecification"), getExtSqlBundle().getSql("InsertRiskValueSpecification"), RSK_SEQUENCE_NAME));
+    _riskValueSpecifications.putAll(populate(data, getElSqlBundle().getSql("SelectRiskValueSpecification"), getElSqlBundle().getSql("InsertRiskValueSpecification"), RSK_SEQUENCE_NAME));
   }
 
   protected void populateComputationTargets(Collection<ComputationTargetSpecification> computationTargetSpecifications) {
@@ -419,9 +419,9 @@ public class DbBatchWriter extends AbstractDbMaster {
 
     //------------------------------
 
-    String selectComputationTargetSpecificationSql = getExtSqlBundle().getSql("SelectComputationTargetSpecification");
-    String selectComputationTargetSpecificationWithNullVersionSql = getExtSqlBundle().getSql("SelectComputationTargetSpecificationWithNullVersion");
-    String insertComputationTargetSpecificationSql = getExtSqlBundle().getSql("InsertComputationTargetSpecification");
+    String selectComputationTargetSpecificationSql = getElSqlBundle().getSql("SelectComputationTargetSpecification");
+    String selectComputationTargetSpecificationWithNullVersionSql = getElSqlBundle().getSql("SelectComputationTargetSpecificationWithNullVersion");
+    String insertComputationTargetSpecificationSql = getElSqlBundle().getSql("InsertComputationTargetSpecification");
 
 
     final List<DbMapSqlParameterSource> insertArgsList = new ArrayList<DbMapSqlParameterSource>();
@@ -477,7 +477,7 @@ public class DbBatchWriter extends AbstractDbMaster {
       map.put("run_id", riskRunId);
       data.get(map).add(configName);
     }
-    _calculationConfigurations.putAll(populate(data, getExtSqlBundle().getSql("SelectConfigName"), getExtSqlBundle().getSql("InsertConfigName"), RSK_SEQUENCE_NAME));
+    _calculationConfigurations.putAll(populate(data, getElSqlBundle().getSql("SelectConfigName"), getElSqlBundle().getSql("InsertConfigName"), RSK_SEQUENCE_NAME));
   }
 
   protected <T> Map<T, Long> populate(Map<Map<String, Object>, Collection<T>> data, String selectSql, String insertSql, String pkSequenceName) {
@@ -547,8 +547,8 @@ public class DbBatchWriter extends AbstractDbMaster {
     final Long id = extractOid(batchSnapshotId);
     MapSqlParameterSource parameters = new MapSqlParameterSource()
       .addValue("snapshot_id", id);
-    getJdbcTemplate().update(getExtSqlBundle().getSql("DeleteDataSnapshotEntries"), parameters);
-    getJdbcTemplate().update(getExtSqlBundle().getSql("DeleteDataSnapshot"), parameters);
+    getJdbcTemplate().update(getElSqlBundle().getSql("DeleteDataSnapshotEntries"), parameters);
+    getJdbcTemplate().update(getElSqlBundle().getSql("DeleteDataSnapshot"), parameters);
   }
 
   public void endBatchInTransaction(ObjectId batchUniqueId) {
@@ -569,14 +569,14 @@ public class DbBatchWriter extends AbstractDbMaster {
   protected void deleteRiskValuesInTransaction(RiskRun riskRun) {
     MapSqlParameterSource parameters = new MapSqlParameterSource()
       .addValue("run_id", riskRun.getId());
-    getJdbcTemplate().update(getExtSqlBundle().getSql("DeleteRiskValues"), parameters);
+    getJdbcTemplate().update(getElSqlBundle().getSql("DeleteRiskValues"), parameters);
   }
 
   protected void deleteRiskFailuresInTransaction(RiskRun riskRun) {
     MapSqlParameterSource parameters = new MapSqlParameterSource()
       .addValue("run_id", riskRun.getId());
-    getJdbcTemplate().update(getExtSqlBundle().getSql("DeleteRiskFailureReason"), parameters);
-    getJdbcTemplate().update(getExtSqlBundle().getSql("DeleteRiskFailure"), parameters);
+    getJdbcTemplate().update(getElSqlBundle().getSql("DeleteRiskFailureReason"), parameters);
+    getJdbcTemplate().update(getElSqlBundle().getSql("DeleteRiskFailure"), parameters);
   }
 
   protected void deleteRunInTransaction(RiskRun run) {
@@ -825,13 +825,13 @@ public class DbBatchWriter extends AbstractDbMaster {
       }
 
       getJdbcTemplate().batchUpdate(
-        getExtSqlBundle().getSql("InsertMarketDataValue"),
+        getElSqlBundle().getSql("InsertMarketDataValue"),
         marketDataValuesInserts.toArray(new DbMapSqlParameterSource[marketDataValuesInserts.size()])
       );
 
-      //List<Map<String, Object>> marketDataValuesToBeCopied = getJdbcTemplate().queryForList(getExtSqlBundle().getSql("SelectMarketDataValuesToBeCopied"));
+      //List<Map<String, Object>> marketDataValuesToBeCopied = getJdbcTemplate().queryForList(getElSqlBundle().getSql("SelectMarketDataValuesToBeCopied"));
 
-      getJdbcTemplate().update(getExtSqlBundle().getSql("CopyMarketDataValue").replace("INSERTION_IDS", StringUtils.join(ids, ", ")));
+      getJdbcTemplate().update(getElSqlBundle().getSql("CopyMarketDataValue").replace("INSERTION_IDS", StringUtils.join(ids, ", ")));
 
       getJdbcTemplate().update("DELETE FROM rsk_live_data_snapshot_entry_insertion WHERE id in (INSERTION_IDS)".replace("INSERTION_IDS", StringUtils.join(ids, ", ")));
     }
@@ -1065,9 +1065,9 @@ public class DbBatchWriter extends AbstractDbMaster {
         return;
       }
 
-      getJdbcTemplate().batchUpdate(getExtSqlBundle().getSql("InsertRiskSuccess"), successes.toArray(new DbMapSqlParameterSource[successes.size()]));
-      getJdbcTemplate().batchUpdate(getExtSqlBundle().getSql("InsertRiskFailure"), failures.toArray(new DbMapSqlParameterSource[failures.size()]));
-      getJdbcTemplate().batchUpdate(getExtSqlBundle().getSql("InsertRiskFailureReason"), failureReasons.toArray(new DbMapSqlParameterSource[failureReasons.size()]));
+      getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertRiskSuccess"), successes.toArray(new DbMapSqlParameterSource[successes.size()]));
+      getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertRiskFailure"), failures.toArray(new DbMapSqlParameterSource[failures.size()]));
+      getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertRiskFailureReason"), failureReasons.toArray(new DbMapSqlParameterSource[failureReasons.size()]));
 
       upsertStatusEntries(statusCache, calcConfigName, StatusEntry.Status.SUCCESS, successfulTargets);
       upsertStatusEntries(statusCache, calcConfigName, StatusEntry.Status.FAILURE, failedTargets);
@@ -1136,11 +1136,11 @@ public class DbBatchWriter extends AbstractDbMaster {
     s_logger.info("Inserting {} and updating {} {} status entries", newArray(inserts.size(), updates.size(), status));
 
     SqlParameterSource[] batchArgsArray = inserts.toArray(new DbMapSqlParameterSource[inserts.size()]);
-    int[] counts = getJdbcTemplate().batchUpdate(getExtSqlBundle().getSql("InsertFromRunStatus"), batchArgsArray);
+    int[] counts = getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("InsertFromRunStatus"), batchArgsArray);
     checkCount(status + " insert", batchArgsArray, counts);
 
     batchArgsArray = updates.toArray(new DbMapSqlParameterSource[updates.size()]);
-    counts = getJdbcTemplate().batchUpdate(getExtSqlBundle().getSql("UpdateFromRunStatus"), batchArgsArray);
+    counts = getJdbcTemplate().batchUpdate(getElSqlBundle().getSql("UpdateFromRunStatus"), batchArgsArray);
     checkCount(status + " update", batchArgsArray, counts);
 
     s_logger.info("Inserted {} and updated {} {} status entries", newArray(inserts.size(), updates.size(), status));
@@ -1183,7 +1183,7 @@ public class DbBatchWriter extends AbstractDbMaster {
 
     try {
       StatusEntry statusEntry = getJdbcTemplate().queryForObject(
-        getExtSqlBundle().getSql("SelectStatusEntry"),
+        getElSqlBundle().getSql("SelectStatusEntry"),
         StatusEntry.ROW_MAPPER,
         args);
 
@@ -1280,7 +1280,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     }
 
     try {
-      int id = getJdbcTemplate().queryForInt(getExtSqlBundle().getSql("SelectComputeFailureId"), computeFailureKey.toSqlParameterSource());
+      int id = getJdbcTemplate().queryForInt(getElSqlBundle().getSql("SelectComputeFailureId"), computeFailureKey.toSqlParameterSource());
 
       computeFailure = new ComputeFailure();
       computeFailure.setId(id);
@@ -1308,7 +1308,7 @@ public class DbBatchWriter extends AbstractDbMaster {
     computeFailure.setExceptionMsg(computeFailureKey.getExceptionMsg());
     computeFailure.setStackTrace(computeFailureKey.getStackTrace());
 
-    int rowCount = getJdbcTemplate().update(getExtSqlBundle().getSql("InsertComputeFailure"), computeFailure.toSqlParameterSource());
+    int rowCount = getJdbcTemplate().update(getElSqlBundle().getSql("InsertComputeFailure"), computeFailure.toSqlParameterSource());
     if (rowCount == 1) {
       computeFailureCache.put(computeFailureKey, computeFailure);
       return computeFailure;

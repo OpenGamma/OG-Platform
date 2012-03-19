@@ -64,9 +64,9 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
   public static final String SABR_NO_EXTRAPOLATION = "SABRNoExtrapolation";
   //  @SuppressWarnings("unchecked")
   //  private static final VolatilityFunctionProvider<SABRFormulaData> SABR_FUNCTION = (VolatilityFunctionProvider<SABRFormulaData>) VolatilityFunctionFactory
-  //  .getCalculator(VolatilityFunctionFactory.HAGAN);
-  //  private static final double CUT_OFF = 0.1;
-  //  private static final double MU = 5;
+  //      .getCalculator(VolatilityFunctionFactory.HAGAN);
+  //  private static final double CUT_OFF = 0.07;
+  //  private static final double MU = 10.0;
 
   private final boolean _useSABRExtrapolation;
   private final String _forwardCurveName;
@@ -99,8 +99,8 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     _securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
     final SwaptionSecurityConverter swaptionConverter = new SwaptionSecurityConverter(_securitySource, conventionSource, swapConverter);
-    final CapFloorSecurityConverter capFloorVisitor = new CapFloorSecurityConverter(holidaySource, conventionSource);
-    final CapFloorCMSSpreadSecurityConverter capFloorCMSSpreadSecurityVisitor = new CapFloorCMSSpreadSecurityConverter(holidaySource, conventionSource);
+    final CapFloorSecurityConverter capFloorVisitor = new CapFloorSecurityConverter(holidaySource, conventionSource, regionSource);
+    final CapFloorCMSSpreadSecurityConverter capFloorCMSSpreadSecurityVisitor = new CapFloorCMSSpreadSecurityConverter(holidaySource, conventionSource, regionSource);
     _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().swapSecurityVisitor(swapConverter).swaptionVisitor(swaptionConverter).capFloorVisitor(capFloorVisitor)
         .capFloorCMSSpreadVisitor(capFloorCMSSpreadSecurityVisitor).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
@@ -132,8 +132,8 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     final Security security = target.getSecurity();
     return security instanceof SwaptionSecurity
         || (security instanceof SwapSecurity && (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS
-        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS
-        || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
+            || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS 
+            || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
         || security instanceof CapFloorSecurity || (security instanceof CapFloorCMSSpreadSecurity && !_useSABRExtrapolation);
   }
 
@@ -191,7 +191,7 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     }
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve : (YieldAndDiscountCurve) fundingCurveObject;
-    return new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName }, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve });
+    return new YieldCurveBundle(new String[] {_fundingCurveName, _forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
   }
 
   protected SABRInterestRateDataBundle getModelParameters(final ComputationTarget target, final FunctionInputs inputs) {
@@ -212,8 +212,7 @@ public abstract class SABRFunction extends AbstractFunction.NonCompiledInvoker {
     final DayCount dayCount = surfaces.getDayCount();
     final DoubleFunction1D correlationFunction = getCorrelationFunction();
     final SABRInterestRateCorrelationParameters modelParameters = new SABRInterestRateCorrelationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, correlationFunction);
-    //    final SABRInterestRateParameters modelParameters =
-    // _useSABRExtrapolation ? new SABRInterestRateExtrapolationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, CUT_OFF, MU)
+    // final SABRInterestRateParameters modelParameters = _useSABRExtrapolation ? new SABRInterestRateExtrapolationParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, CUT_OFF, MU)
     //        : new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
     return new SABRInterestRateDataBundle(modelParameters, getYieldCurves(target, inputs));
   }

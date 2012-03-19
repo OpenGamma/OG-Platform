@@ -25,7 +25,7 @@ import com.opengamma.util.money.Currency;
 public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable<VolatilitySurfaceKey>, Serializable {
 
   /** Serialization version. */
-  private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 2L;
 
   /**
    * The target.
@@ -43,6 +43,10 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
    * The quote type.
    */
   private final String _quoteType;
+  /**
+   * The quite units.
+   */
+  private final String _quoteUnits;
 
   /**
    * Creates an instance.
@@ -51,16 +55,19 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
    * @param name  the name
    * @param instrumentType  the instrument type
    * @param quoteType the quote type
+   * @param quoteUnits the quote units
    */
-  public VolatilitySurfaceKey(final UniqueIdentifiable target, final String name, final String instrumentType, final String quoteType) {
+  public VolatilitySurfaceKey(final UniqueIdentifiable target, final String name, final String instrumentType, final String quoteType, final String quoteUnits) {
     ArgumentChecker.notNull(target, "target");
     ArgumentChecker.notNull(name, "name");
     ArgumentChecker.notNull(instrumentType, "instrumentType");
     ArgumentChecker.notNull(quoteType, "quoteType");
+    ArgumentChecker.notNull(quoteUnits, "quoteUnits");
     _target = target.getUniqueId();
     _name = name;
     _instrumentType = instrumentType;
     _quoteType = quoteType;
+    _quoteUnits = quoteUnits;
   }
 
   //-------------------------------------------------------------------------
@@ -98,6 +105,14 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
     return _quoteType;
   }
 
+  /**
+   * Gets the quote units field
+   * @return the quote units
+   */
+  public String getQuoteUnits() {
+    return _quoteUnits;
+  }
+
   //-------------------------------------------------------------------------
   /**
    * Compares this key to another, by currency then name.
@@ -119,7 +134,11 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
     if (i != 0) {
       return i;
     }
-    return _quoteType.compareTo(other._quoteType);
+    i = _quoteType.compareTo(other._quoteType);
+    if (i != 0) {
+      return i;
+    }
+    return _quoteUnits.compareTo(other._quoteUnits);
   }
 
   /**
@@ -140,7 +159,8 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
       return _target.equals(other._target)
           && _name.equals(other._name)
           && _instrumentType.equals(other._instrumentType)
-          && _quoteType.equals(other._quoteType);
+          && _quoteType.equals(other._quoteType)
+          && _quoteUnits.equals(other._quoteUnits);
     }
     return false;
   }
@@ -162,6 +182,7 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
     msg.add("name", _name);
     msg.add("instrumentType", _instrumentType);
     msg.add("quoteType", _quoteType);
+    msg.add("quoteUnits", _quoteUnits);
     return msg;
   }
 
@@ -175,7 +196,7 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
     } else {
       targetUid = UniqueId.parse(target);
     }
-    return new VolatilitySurfaceKey(targetUid, msg.getString("name"), msg.getString("instrumentType"), msg.getString("quoteType"));
+    return new VolatilitySurfaceKey(targetUid, msg.getString("name"), msg.getString("instrumentType"), msg.getString("quoteType"), msg.getString("quoteUnits"));
   }
 
 }

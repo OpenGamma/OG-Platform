@@ -1,4 +1,5 @@
 <#escape x as x?html>
+<#setting number_format="0.#####">
 {
     "template_data": {
     <#switch security.securityType>

@@ -60,7 +60,7 @@ public class FixedIncomeConverterDataProvider {
     _conventionSource = conventionSource;
   }
 
-  public InstrumentDerivative convert(final Security security, final InstrumentDefinition<?> definition, final ZonedDateTime now, final String[] curveNames,
+  public InstrumentDerivative convert(final Security security, final InstrumentDefinition<?> definition, final ZonedDateTime now, final String[] curveNames, 
       final HistoricalTimeSeriesSource dataSource) {
     if (definition == null) {
       throw new OpenGammaRuntimeException("Definition to convert was null for security " + security);
@@ -182,45 +182,41 @@ public class FixedIncomeConverterDataProvider {
     return definition.toDerivative(now, indexTS, curveNames);
   }
 
+  /**
+   * Convert from the "security" and "definition" version of a CMS cap/floor annuity to its "derivative" version.
+   * @param security The security.
+   * @param definition The definition version of the instrument.
+   * @param now The conversion moment.
+   * @param curveNames The name of the pricing curves.
+   * @param dataSource The time series data source.
+   * @return The "derivative" version of the instrument.
+   */
   public InstrumentDerivative convert(final CapFloorSecurity security, final AnnuityCapFloorCMSDefinition definition, final ZonedDateTime now, final String[] curveNames,
       final HistoricalTimeSeriesSource dataSource) {
     final ExternalId id = security.getUnderlyingId();
     final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
-    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, ExternalIdBundle.of(id), null, null, startDate, true, now.toLocalDate(), false);
-    if (ts == null) {
-      throw new OpenGammaRuntimeException("Could not get price time series for " + id);
-    }
-    FastBackedDoubleTimeSeries<LocalDate> localDateTS = ts.getTimeSeries();
-    //TODO this normalization should not be done here
-    localDateTS = localDateTS.divide(100);
-    final FastLongDoubleTimeSeries convertedTS = localDateTS.toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
-    final LocalTime fixingTime = LocalTime.of(11, 0);
-    final DoubleTimeSeries<ZonedDateTime> indexTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTimeEpochMillisConverter(now.getZone(), fixingTime), convertedTS);
+    final DoubleTimeSeries<ZonedDateTime> indexTS = getIndexTimeSeries(getIndexIdBundle(id), startDate, now, true, dataSource);
     return definition.toDerivative(now, indexTS, curveNames);
   }
 
+  /**
+   * Convert from the "security" and "definition" version of a CMS spread cap/floor annuity to its "derivative" version.
+   * @param security The security.
+   * @param definition The definition version of the instrument.
+   * @param now The conversion moment.
+   * @param curveNames The name of the pricing curves.
+   * @param dataSource The time series data source.
+   * @return The "derivative" version of the instrument.
+   */
   public InstrumentDerivative convert(final CapFloorCMSSpreadSecurity security, final AnnuityCapFloorCMSSpreadDefinition definition, final ZonedDateTime now, final String[] curveNames,
       final HistoricalTimeSeriesSource dataSource) {
     final ExternalId longId = security.getLongId();
-    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
-    final HistoricalTimeSeries longTS = dataSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, ExternalIdBundle.of(longId), null, null, startDate, true, now.toLocalDate(), false);
-    if (longTS == null) {
-      throw new OpenGammaRuntimeException("Could not get price time series for " + longId);
-    }
-    final FastBackedDoubleTimeSeries<LocalDate> localDateLongTS = longTS.getTimeSeries();
     final ExternalId shortId = security.getShortId();
-    final HistoricalTimeSeries shortTS = dataSource
-        .getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, ExternalIdBundle.of(longId), null, null, startDate, true, now.toLocalDate(), false);
-    if (shortTS == null) {
-      throw new OpenGammaRuntimeException("Could not get price time series for " + shortId);
-    }
-    final FastBackedDoubleTimeSeries<LocalDate> localDateShortTS = shortTS.getTimeSeries();
-    //TODO this normalization should not be done here
-    final FastBackedDoubleTimeSeries<LocalDate> localDateSpreadTS = localDateLongTS.subtract(localDateShortTS).divide(100);
-    final FastLongDoubleTimeSeries convertedSpreadTS = localDateSpreadTS.toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
-    final LocalTime fixingTime = LocalTime.of(11, 0);
-    final DoubleTimeSeries<ZonedDateTime> spreadIndexTS = new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTimeEpochMillisConverter(now.getZone(), fixingTime), convertedSpreadTS);
-    return definition.toDerivative(now, spreadIndexTS, curveNames);
+    final LocalDate startDate = DateUtils.previousWeekDay(now.toLocalDate().minusDays(7));
+    final DoubleTimeSeries<ZonedDateTime> indexLongTS = getIndexTimeSeries(getIndexIdBundle(longId), startDate, now, true, dataSource);
+    final DoubleTimeSeries<ZonedDateTime> indexShortTS = getIndexTimeSeries(getIndexIdBundle(shortId), startDate, now, true, dataSource);
+    final DoubleTimeSeries<ZonedDateTime> indexSpreadTS = indexLongTS.subtract(indexShortTS);
+    return definition.toDerivative(now, indexSpreadTS, curveNames);
   }
 
   @SuppressWarnings("unchecked")
@@ -244,7 +240,6 @@ public class FixedIncomeConverterDataProvider {
       return definition.toDerivative(now, new DoubleTimeSeries[] {payLegTS}, curveNames);
     }
     if (receiveLegTS != null) {
-
       if (InterestRateInstrumentType.getInstrumentTypeFromSecurity(security) == InterestRateInstrumentType.SWAP_FIXED_CMS) {
         return definition.toDerivative(now, new DoubleTimeSeries[] {receiveLegTS, receiveLegTS}, curveNames);
       }
@@ -258,7 +253,6 @@ public class FixedIncomeConverterDataProvider {
     if (leg instanceof FloatingInterestRateLeg) {
       final FloatingInterestRateLeg floatingLeg = (FloatingInterestRateLeg) leg;
       final ExternalIdBundle id = getIndexIdForSwap(floatingLeg);
-
       final LocalDate startDate = swapEffectiveDate.toLocalDate().minusDays(7); // To catch first fixing. SwapSecurity does not have this date.
       if (startDate.isAfter(now.toLocalDate()) || now.isBefore(swapEffectiveDate) || now.equals(swapEffectiveDate)) {
         return ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;
@@ -270,7 +264,6 @@ public class FixedIncomeConverterDataProvider {
       if (ts.getTimeSeries().isEmpty()) {
         return ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;
       }
-
       final FastBackedDoubleTimeSeries<LocalDate> localDateTS = ts.getTimeSeries();
       final FastLongDoubleTimeSeries convertedTS = localDateTS.toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
       final LocalTime fixingTime = LocalTime.of(0, 0); // FIXME CASE Converting a daily historical time series to an arbitrary time. Bad idea
@@ -280,21 +273,53 @@ public class FixedIncomeConverterDataProvider {
   }
 
   private ExternalIdBundle getIndexIdForSwap(final FloatingInterestRateLeg floatingLeg) {
-    if (floatingLeg.getFloatingRateType().isIbor()) {
-      final ExternalId indexId = floatingLeg.getFloatingReferenceRateId();
-      final ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
-      if (indexConvention == null) {
-        throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId);
-        // TODO Confirm this doesn't break many public or demo views
-        // indexConvention = _conventionSource.getConventionBundle(ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, indexId.getValue()));
-      }
-      return indexConvention.getIdentifiers();
-    } else if (floatingLeg.getFloatingRateType().equals(FloatingRateType.OIS)) {
-      final ExternalId indexId = floatingLeg.getFloatingReferenceRateId();
-      final ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
-      return indexConvention.getIdentifiers();
+    if (floatingLeg.getFloatingRateType().isIbor() || floatingLeg.getFloatingRateType().equals(FloatingRateType.OIS) || floatingLeg.getFloatingRateType().equals(FloatingRateType.CMS)) {
+      return getIndexIdBundle(floatingLeg.getFloatingReferenceRateId());
     } else {
       return ExternalIdBundle.of(floatingLeg.getFloatingReferenceRateId());
     }
   }
+
+  /**
+   * Returns the ExternalIDBundle associated to an ExternalId as stored in the convention source.
+   * @param indexId The external id.
+   * @return The bundle.
+   */
+  private ExternalIdBundle getIndexIdBundle(final ExternalId indexId) {
+    final ConventionBundle indexConvention = _conventionSource.getConventionBundle(indexId);
+    if (indexConvention == null) {
+      throw new OpenGammaRuntimeException("No conventions found for floating reference rate " + indexId);
+    }
+    return indexConvention.getIdentifiers();
+  }
+
+  /**
+   * Returns the time series to be used in the toDerivative method.
+   * @param id The ExternalId bundle.
+   * @param startDate The time series start date (included in the time series).
+   * @param endDate The time series end date (included or not in the series according to includeEndDate flag).
+   * @param includeEndDate Flag indicating if the end date should be included in the time series. The usual flag is "true".
+   * @param dataSource The time series data source.
+   * @return The time series.
+   */
+  private DoubleTimeSeries<ZonedDateTime> getIndexTimeSeries(final ExternalIdBundle id, final LocalDate startDate, final ZonedDateTime endDate, final boolean includeEndDate,
+      final HistoricalTimeSeriesSource dataSource) {
+    final LocalDate endDateLocal = endDate.toLocalDate();
+    if (startDate.isAfter(endDateLocal)) {
+      return ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;
+    }
+    final HistoricalTimeSeries ts = dataSource.getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, id, null, null, startDate, true, endDateLocal, includeEndDate);
+    // Implementation note: the normalization take place in the getHistoricalTimeSeries
+    if (ts == null) {
+      throw new OpenGammaRuntimeException("Could not get time series of underlying index " + id.getExternalIds().toString());
+    }
+    if (ts.getTimeSeries().isEmpty()) {
+      return ArrayZonedDateTimeDoubleTimeSeries.EMPTY_SERIES;
+    }
+    final FastBackedDoubleTimeSeries<LocalDate> localDateTS = ts.getTimeSeries();
+    final FastLongDoubleTimeSeries convertedTS = localDateTS.toFastLongDoubleTimeSeries(DateTimeNumericEncoding.TIME_EPOCH_MILLIS);
+    final LocalTime fixingTime = LocalTime.of(0, 0); // FIXME CASE Converting a daily historical time series to an arbitrary time. Bad idea
+    return new ArrayZonedDateTimeDoubleTimeSeries(new ZonedDateTimeEpochMillisConverter(endDate.getZone(), fixingTime), convertedTS);
+  }
+
 }

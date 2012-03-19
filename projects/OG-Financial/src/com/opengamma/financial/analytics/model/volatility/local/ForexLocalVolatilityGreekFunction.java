@@ -55,27 +55,33 @@ import com.opengamma.util.money.Currency;
  */
 public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompiledInvoker {
   private static final String[] GREEK_NAMES = new String[] {
-    ValueRequirementNames.LOCAL_VOLATILITY_DELTA,
-    ValueRequirementNames.LOCAL_VOLATILITY_DUAL_DELTA,
-    ValueRequirementNames.LOCAL_VOLATILITY_DUAL_GAMMA,
-    ValueRequirementNames.LOCAL_VOLATILITY_GAMMA,
-    ValueRequirementNames.LOCAL_VOLATILITY_VANNA,
-    ValueRequirementNames.LOCAL_VOLATILITY_VEGA,
-    ValueRequirementNames.LOCAL_VOLATILITY_VOMMA,
-    ValueRequirementNames.LOCAL_VOLATILITY_GRID_PRICE,
-    ValueRequirementNames.BLACK_VOLATILITY_GRID_PRICE,
-    ValueRequirementNames.LOCAL_VOLATILITY_GRID_IMPLIED_VOL };
+
+      ValueRequirementNames.LOCAL_VOLATILITY_DELTA,
+      ValueRequirementNames.LOCAL_VOLATILITY_DUAL_DELTA,
+      ValueRequirementNames.LOCAL_VOLATILITY_DUAL_GAMMA,
+      ValueRequirementNames.LOCAL_VOLATILITY_GAMMA,
+      ValueRequirementNames.LOCAL_VOLATILITY_VANNA,
+      ValueRequirementNames.LOCAL_VOLATILITY_VEGA,
+      ValueRequirementNames.LOCAL_VOLATILITY_VOMMA,
+      ValueRequirementNames.LOCAL_VOLATILITY_GRID_PRICE,
+      ValueRequirementNames.BLACK_VOLATILITY_GRID_PRICE,
+      ValueRequirementNames.LOCAL_VOLATILITY_GRID_IMPLIED_VOL,
+      ValueRequirementNames.LOCAL_VOLATILITY_DOMESTIC_PRICE
+      //     ValueRequirementNames.LOCAL_VOLATILITY_FOREX_PV_QUOTES
+  };
   private static final Greek[] GREEKS = new Greek[] {
-    PDEResultCollection.GRID_DELTA,
-    PDEResultCollection.GRID_DUAL_DELTA,
-    PDEResultCollection.GRID_DUAL_GAMMA,
-    PDEResultCollection.GRID_GAMMA,
-    PDEResultCollection.GRID_VANNA,
-    PDEResultCollection.GRID_VEGA,
-    PDEResultCollection.GRID_VOMMA,
-    PDEResultCollection.GRID_PRICE,
-    PDEResultCollection.GRID_BLACK_PRICE,
-    PDEResultCollection.GRID_IMPLIED_VOL };
+      PDEResultCollection.GRID_DELTA,
+      PDEResultCollection.GRID_DUAL_DELTA,
+      PDEResultCollection.GRID_DUAL_GAMMA,
+      PDEResultCollection.GRID_GAMMA,
+      PDEResultCollection.GRID_VANNA,
+      PDEResultCollection.GRID_VEGA,
+      PDEResultCollection.GRID_VOMMA,
+      PDEResultCollection.GRID_PRICE,
+      PDEResultCollection.GRID_BLACK_PRICE,
+      PDEResultCollection.GRID_IMPLIED_VOL,
+      PDEResultCollection.GRID_DOMESTIC_PV_QUOTE //DEBUG - this is not getting filled 
+  };
 
   @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
@@ -84,7 +90,7 @@ public class ForexLocalVolatilityGreekFunction extends AbstractFunction.NonCompi
     final String surfaceName = desiredValue.getConstraint(SURFACE);
     final String surfaceType = desiredValue.getConstraint(PROPERTY_SURFACE_TYPE);
     final String xAxis = desiredValue.getConstraint(PROPERTY_X_AXIS);
-    final String yAxis = desiredValue.getConstraint(PROPERTY_Y_AXIS);
+    final String yAxis = desiredValue.getConstraint(PROPERTY_Y_AXIS); //Review R White 12/03/2012 Not sure why integratedVariance is a property of the y axis 
     final String yAxisType = desiredValue.getConstraint(PROPERTY_Y_AXIS_TYPE);
     final String forwardCurveCalculationMethod = desiredValue.getConstraint(CURVE_CALCULATION_METHOD);
     final String forwardCurveName = desiredValue.getConstraint(CURVE);

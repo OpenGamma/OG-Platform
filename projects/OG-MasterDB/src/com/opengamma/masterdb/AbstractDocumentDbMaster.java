@@ -137,7 +137,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     final VersionCorrection vc = (versionCorrection.containsLatest() ? versionCorrection.withLatestFixed(now()) : versionCorrection);
     final DbMapSqlParameterSource args = argsGetByOidInstants(objectId, vc);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final String sql = getExtSqlBundle().getSql("GetByOidInstants", args);
+    final String sql = getElSqlBundle().getSql("GetByOidInstants", args);
     final List<D> docs = namedJdbc.query(sql, args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException(masterName + " not found: " + objectId);
@@ -176,7 +176,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     
     final DbMapSqlParameterSource args = argsGetById(uniqueId);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final String sql = getExtSqlBundle().getSql("GetById", args);
+    final String sql = getElSqlBundle().getSql("GetById", args);
     final List<D> docs = namedJdbc.query(sql, args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException(masterName + " not found: " + uniqueId);
@@ -218,7 +218,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
     s_logger.debug("history {}", request);
     
     final DbMapSqlParameterSource args = argsHistory(request);
-    final String[] sql = {getExtSqlBundle().getSql("History", args), getExtSqlBundle().getSql("HistoryCount", args)};
+    final String[] sql = {getElSqlBundle().getSql("History", args), getElSqlBundle().getSql("HistoryCount", args)};
     searchWithPaging(request.getPagingRequest(), sql, args, extractor, result);
     return result;
   }
@@ -486,7 +486,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
       .addValue("doc_id", extractRowId(document.getUniqueId()))
       .addTimestamp("ver_to_instant", document.getVersionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
-    final String sql = getExtSqlBundle().getSql("UpdateVersionToInstant", args);
+    final String sql = getElSqlBundle().getSql("UpdateVersionToInstant", args);
     int rowsUpdated = getJdbcTemplate().update(sql, args);
     if (rowsUpdated != 1) {
       throw new IncorrectUpdateSemanticsDataAccessException("Update end version instant failed, rows updated: " + rowsUpdated);
@@ -518,7 +518,7 @@ public abstract class AbstractDocumentDbMaster<D extends AbstractDocument> exten
       .addValue("doc_id", extractRowId(document.getUniqueId()))
       .addTimestamp("corr_to_instant", document.getCorrectionToInstant())
       .addValue("max_instant", DbDateUtils.MAX_SQL_TIMESTAMP);
-    final String sql = getExtSqlBundle().getSql("UpdateCorrectionToInstant", args);
+    final String sql = getElSqlBundle().getSql("UpdateCorrectionToInstant", args);
     int rowsUpdated = getJdbcTemplate().update(sql, args);
     if (rowsUpdated != 1) {
       throw new IncorrectUpdateSemanticsDataAccessException("Update end correction instant failed, rows updated: " + rowsUpdated);

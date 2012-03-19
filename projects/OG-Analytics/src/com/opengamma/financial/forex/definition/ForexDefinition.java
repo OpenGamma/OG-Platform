@@ -64,6 +64,25 @@ public class ForexDefinition implements InstrumentDefinition<InstrumentDerivativ
   }
 
   /**
+   * Constructor from the financial details.
+   * @param currency1 The first currency.
+   * @param currency2 The second currency.
+   * @param exchangeDate The date of the exchange.
+   * @param amountCurrency1 The amount in the first currency.
+   * @param amountCurrency2 The amount in the second currency.
+   * @return The Forex transaction.
+   */
+  public static ForexDefinition fromAmounts(final Currency currency1, final Currency currency2, final ZonedDateTime exchangeDate, final double amountCurrency1, final double amountCurrency2) {
+    Validate.notNull(currency1, "Currency 1");
+    Validate.notNull(currency2, "Currency 2");
+    Validate.notNull(exchangeDate, "Exchange date");
+    Validate.isTrue(amountCurrency1 * amountCurrency2 <= 0, "Amounts should have different signs");
+    PaymentFixedDefinition paymentCurrency1 = new PaymentFixedDefinition(currency1, exchangeDate, amountCurrency1);
+    PaymentFixedDefinition paymentCurrency2 = new PaymentFixedDefinition(currency2, exchangeDate, amountCurrency2);
+    return new ForexDefinition(paymentCurrency1, paymentCurrency2);
+  }
+
+  /**
    * Gets the payment in the first currency.
    * @return The payment in the first currency.
    */
