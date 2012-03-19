@@ -1215,6 +1215,7 @@ public final class DependencyGraphBuilder {
     for (Map.Entry<ValueRequirement, ValueSpecification> terminalOutput : _getTerminalValuesCallback.getTerminalValues().entrySet()) {
       graph.addTerminalOutput(terminalOutput.getKey(), terminalOutput.getValue());
     }
+    graph.removeUnnecessaryValues();
     //graph.dumpStructureASCII(System.out);
     if (DEBUG_DUMP_DEPENDENCY_GRAPH) {
       final PrintStream ps = openDebugStream("dependencyGraph");

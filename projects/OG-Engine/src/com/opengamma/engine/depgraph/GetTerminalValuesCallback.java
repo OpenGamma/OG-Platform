@@ -10,7 +10,9 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -21,6 +23,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.depgraph.DependencyGraphBuilder.GraphBuildingContext;
 import com.opengamma.engine.function.ParameterizedFunction;
+import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.util.tuple.Pair;
@@ -90,21 +93,40 @@ import com.opengamma.util.tuple.Pair;
   }
 
   private static boolean mismatchUnionImpl(final Set<ValueSpecification> as, final Set<ValueSpecification> bs) {
-    for (ValueSpecification a : as) {
+    nextA: for (ValueSpecification a : as) { //CSIGNORE
       if (bs.contains(a)) {
         // Exact match
         continue;
       }
+      final String aName = a.getValueName();
+      final ValueProperties aProperties = a.getProperties();
+      boolean mismatch = false;
       for (ValueSpecification b : bs) {
-        if (a.getValueName() == b.getValueName()) {
-          // Match the name, but other data wasn't exact so reject
-          return true;
+        if (aName == b.getValueName()) {
+          // Match the name; check the constraints
+          if (aProperties.isSatisfiedBy(b.getProperties())) {
+            continue nextA;
+          } else {
+            // Mismatch found
+            mismatch = true;
+          }
         }
+      }
+      if (mismatch) {
+        return true;
       }
     }
     return false;
   }
 
+  /**
+   * Tests whether the union of value specifications would be mismatched; that is the two sets can't be composed.
+   * Given the intersection of common value names, the properties must be mutually compatible.
+   * 
+   * @param as the first set of values, not null
+   * @param bs the second set of values, not null
+   * @return true if the values can't be composed, false if they can
+   */
   private static boolean mismatchUnion(final Set<ValueSpecification> as, final Set<ValueSpecification> bs) {
     return mismatchUnionImpl(as, bs) || mismatchUnionImpl(bs, as);
   }
@@ -179,7 +201,7 @@ import com.opengamma.util.tuple.Pair;
     result.node(node);
   }
 
-  private static final class FindExistingNodes implements DependencyNodeCallback, DependencyNodeProducer {
+  private final class FindExistingNodes implements DependencyNodeCallback, DependencyNodeProducer {
 
     private final ResolvedValue _resolvedValue;
     private int _pending;
@@ -214,12 +236,55 @@ import com.opengamma.util.tuple.Pair;
         _pending--;
         if (_found == null) {
           if (node != null) {
-            if (mismatchUnion(node.getOutputValues(), _resolvedValue.getFunctionOutputs())) {
-              s_logger.debug("Can't reuse {} for {}", node, _resolvedValue);
-            } else {
-              s_logger.debug("Reusing {} for {}", node, _resolvedValue);
-              _found = node;
-              callback = _callback;
+            // Any node that is candidate for reuse can't be considered concurrently as the composition
+            // may become mutually exclusive.
+            synchronized (node) {
+              final Set<ValueSpecification> outputValues = node.getOutputValues();
+              if (mismatchUnion(outputValues, _resolvedValue.getFunctionOutputs())) {
+                s_logger.debug("Can't reuse {} for {}", node, _resolvedValue);
+              } else {
+                s_logger.debug("Reusing {} for {}", node, _resolvedValue);
+                synchronized (GetTerminalValuesCallback.this) {
+                  // Update the output values for the node with the union. The input values will
+                  // be dealt with by the callback.
+                  List<ValueSpecification> replacements = null;
+                  for (ValueSpecification output : _resolvedValue.getFunctionOutputs()) {
+                    if (outputValues.contains(output)) {
+                      // Exact match found
+                      continue;
+                    }
+                    final String outputName = output.getValueName();
+                    final ValueProperties outputProperties = output.getProperties();
+                    for (ValueSpecification outputValue : outputValues) {
+                      if (outputName == outputValue.getValueName()) {
+                        if (outputValue.getProperties().isSatisfiedBy(outputProperties)) {
+                          // Found match
+                          final ValueProperties composedProperties = outputValue.getProperties().compose(outputProperties);
+                          if (!composedProperties.equals(outputValue.getProperties())) {
+                            final ValueSpecification newOutputValue = new ValueSpecification(outputValue.getValueName(), outputValue.getTargetSpecification(), composedProperties);
+                            s_logger.debug("Replacing {} with {} in reused node", outputValue, newOutputValue);
+                            if (replacements == null) {
+                              replacements = new ArrayList<ValueSpecification>(outputValues.size() * 2);
+                            }
+                            replacements.add(outputValue);
+                            replacements.add(newOutputValue);
+                          }
+                        }
+                      }
+                    }
+                  }
+                  if (replacements != null) {
+                    final Iterator<ValueSpecification> replacement = replacements.iterator();
+                    while (replacement.hasNext()) {
+                      final ValueSpecification oldValue = replacement.next();
+                      final ValueSpecification newValue = replacement.next();
+                      node.replaceOutputValue(oldValue, newValue);
+                    }
+                  }
+                }
+                _found = node;
+                callback = _callback;
+              }
             }
           }
         }
@@ -298,15 +363,16 @@ import com.opengamma.util.tuple.Pair;
       s_logger.debug("Searching for node for {} inputs at {}", resolvedValue.getFunctionInputs().size(), debugId);
     }
     for (final ValueSpecification input : resolvedValue.getFunctionInputs()) {
-      node.addInputValue(input);
       final DependencyNode inputNode;
       synchronized (this) {
+        node.addInputValue(input);
         inputNode = _spec2Node.get(input);
+        if (inputNode != null) {
+          s_logger.debug("Found node {} for input {}", inputNode, input);
+          node.addInputNode(inputNode);
+        }
       }
-      if (inputNode != null) {
-        s_logger.debug("Found node {} for input {}", inputNode, input);
-        node.addInputNode(inputNode);
-      } else {
+      if (inputNode == null) {
         s_logger.debug("Finding node productions for {}", input);
         final Pair<ResolveTask[], ResolvedValueProducer[]> resolver = context.getTasksProducing(input);
         if (resolver != null) {
@@ -493,4 +559,4 @@ import com.opengamma.util.tuple.Pair;
     return new HashMap<ValueRequirement, ValueSpecification>(_resolvedValues);
   }
 
-};
+}
