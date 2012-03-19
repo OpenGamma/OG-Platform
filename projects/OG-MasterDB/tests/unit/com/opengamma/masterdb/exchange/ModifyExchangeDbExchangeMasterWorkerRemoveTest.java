@@ -34,7 +34,7 @@ public class ModifyExchangeDbExchangeMasterWorkerRemoveTest extends AbstractDbEx
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyExchangeDbExchangeMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, false);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -64,12 +64,6 @@ public class ModifyExchangeDbExchangeMasterWorkerRemoveTest extends AbstractDbEx
     assertEquals("TestExchange101", test.getName());
     assertEquals(TimeZone.of("Europe/London"), exchange.getTimeZone());
     assertEquals(ExternalIdBundle.of(ExternalId.of("A", "B"), ExternalId.of("C", "D"), ExternalId.of("E", "F")), exchange.getExternalIdBundle());
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_exgMaster.getClass().getSimpleName() + "[DbExg]", _exgMaster.toString());
   }
 
 }

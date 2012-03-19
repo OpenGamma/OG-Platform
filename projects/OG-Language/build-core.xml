@@ -63,12 +63,13 @@
       </copy>
     </sequential>
   </macrodef>
-  
-  <target name="install" depends="installer" if="install.dir">
+
+  <target name="install-copy" depends="installer" if="install.dir">
     <mkdir dir="${install.dir}/install" />
     <installer-copy display-configuration="32-bit" internal-configuration="i386" />
     <installer-copy display-configuration="64-bit" internal-configuration="x64" />
   </target>
+  <target name="install" depends="install-copy" />
 
   <!-- Clone the common build files (like this one) from OG-Language. Earlier
        attempts to fetch them as IVY artifacts were problematic. Far easier to

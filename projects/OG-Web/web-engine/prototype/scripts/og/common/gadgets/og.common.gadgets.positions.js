@@ -58,8 +58,12 @@ $.register_module({
             $.when(api.rest.positions.get(rest_options), api.text({module: 'og.views.gadgets.positions'}))
                 .then(function (result, template) {
                     if (result.error) return view.error(result.message);
-                    var args = routes.current().args;
-                    $(selector).html($.tmpl(template, $.extend(result.data, {editable: editable}))).hide().fadeIn();
+                    var $html = $.tmpl(template, $.extend(result.data, {editable: editable})),
+                        cur_page = routes.current().page.substring(1),
+                        url = '#/positions/' + result.data.template_data.object_id,
+                        link = function () {return '<a href="'+ url +'">' + $(this).text() + '</a>'};
+                        if (cur_page !==  'positions') $html.find('thead span').html(link);
+                    $(selector).html($html).hide().fadeIn();
                     timeseries(result, $(selector + ' .og-js-sec-time').outerHeight() - 2);
                     if (editable) common.util.ui.content_editable({
                         pre_dispatch: function (rest_options, handler) {

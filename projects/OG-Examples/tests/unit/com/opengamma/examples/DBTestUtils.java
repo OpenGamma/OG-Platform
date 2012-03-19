@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Properties;
 
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.Resource;
@@ -43,16 +44,18 @@ public final class DBTestUtils {
     dbTool.setDbScriptDir(SCRIPT_INSTALL_DIR.getAbsolutePath());
     dbTool.execute();
     
-    DbTool dbTool2 = new DbTool();
-    dbTool2.setCatalog("og-financial");
-    dbTool2.setJdbcUrl(props.getProperty(JDBC_URL_KEY_USER));
-    dbTool2.setUser(props.getProperty(DB_USERNAME_KEY, ""));
-    dbTool2.setPassword(props.getProperty(DB_PASSWORD_KEY, ""));
-    dbTool2.setCreate(true);
-    dbTool2.setDrop(true);
-    dbTool2.setCreateTables(true);
-    dbTool2.setDbScriptDir(SCRIPT_INSTALL_DIR.getAbsolutePath());
-    dbTool2.execute();
+    if (StringUtils.isNotEmpty(props.getProperty(JDBC_URL_KEY_USER))) {
+      DbTool dbTool2 = new DbTool();
+      dbTool2.setCatalog("og-financial");
+      dbTool2.setJdbcUrl(props.getProperty(JDBC_URL_KEY_USER));
+      dbTool2.setUser(props.getProperty(DB_USERNAME_KEY, ""));
+      dbTool2.setPassword(props.getProperty(DB_PASSWORD_KEY, ""));
+      dbTool2.setCreate(true);
+      dbTool2.setDrop(true);
+      dbTool2.setCreateTables(true);
+      dbTool2.setDbScriptDir(SCRIPT_INSTALL_DIR.getAbsolutePath());
+      dbTool2.execute();
+    }
   }
   
   public static Properties loadProperties(String configResourceLocation) throws IOException {
@@ -108,14 +111,16 @@ public final class DBTestUtils {
     dbTool.setDbScriptDir(SCRIPT_INSTALL_DIR.getAbsolutePath());
     dbTool.execute();
     
-    DbTool dbTool2 = new DbTool();
-    dbTool2.setCatalog("og-financial");
-    dbTool2.setJdbcUrl(props.getProperty(JDBC_URL_KEY_USER));
-    dbTool2.setUser(props.getProperty(DB_USERNAME_KEY, ""));
-    dbTool2.setPassword(props.getProperty(DB_PASSWORD_KEY, ""));
-    dbTool2.setDrop(true);
-    dbTool2.setDbScriptDir(SCRIPT_INSTALL_DIR.getAbsolutePath());
-    dbTool2.execute();
+    if (StringUtils.isNotEmpty(props.getProperty(JDBC_URL_KEY_USER))) {
+      DbTool dbTool2 = new DbTool();
+      dbTool2.setCatalog("og-financial");
+      dbTool2.setJdbcUrl(props.getProperty(JDBC_URL_KEY_USER));
+      dbTool2.setUser(props.getProperty(DB_USERNAME_KEY, ""));
+      dbTool2.setPassword(props.getProperty(DB_PASSWORD_KEY, ""));
+      dbTool2.setDrop(true);
+      dbTool2.setDbScriptDir(SCRIPT_INSTALL_DIR.getAbsolutePath());
+      dbTool2.execute();
+    }
   }
 
   public static String getJettyPort(String configResourceLocation) throws IOException {

@@ -72,6 +72,13 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
   @PropertyDefinition
   private int _depth = -1;
   /**
+   * The flag to determine whether to include positions.
+   * True will return any positions on the requested nodes, false will not include the positions.
+   * By default this is true returning all the positions, set to false to enhance performance.
+   */
+  @PropertyDefinition
+  private boolean _includePositions = true;
+  /**
    * The lowest visibility level to return.  
    */
   @PropertyDefinition(validate = "notNull")
@@ -196,6 +203,8 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
         return getSortOrder();
       case 95472323:  // depth
         return getDepth();
+      case 81400994:  // includePositions
+        return isIncludePositions();
       case 1941332754:  // visibility
         return getVisibility();
     }
@@ -220,6 +229,9 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
         return;
       case 95472323:  // depth
         setDepth((Integer) newValue);
+        return;
+      case 81400994:  // includePositions
+        setIncludePositions((Boolean) newValue);
         return;
       case 1941332754:  // visibility
         setVisibility((DocumentVisibility) newValue);
@@ -247,6 +259,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
           JodaBeanUtils.equal(getName(), other.getName()) &&
           JodaBeanUtils.equal(getSortOrder(), other.getSortOrder()) &&
           JodaBeanUtils.equal(getDepth(), other.getDepth()) &&
+          JodaBeanUtils.equal(isIncludePositions(), other.isIncludePositions()) &&
           JodaBeanUtils.equal(getVisibility(), other.getVisibility()) &&
           super.equals(obj);
     }
@@ -261,6 +274,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
     hash += hash * 31 + JodaBeanUtils.hashCode(getName());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSortOrder());
     hash += hash * 31 + JodaBeanUtils.hashCode(getDepth());
+    hash += hash * 31 + JodaBeanUtils.hashCode(isIncludePositions());
     hash += hash * 31 + JodaBeanUtils.hashCode(getVisibility());
     return hash ^ super.hashCode();
   }
@@ -392,6 +406,37 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the flag to determine whether to include positions.
+   * True will return any positions on the requested nodes, false will not include the positions.
+   * By default this is true returning all the positions, set to false to enhance performance.
+   * @return the value of the property
+   */
+  public boolean isIncludePositions() {
+    return _includePositions;
+  }
+
+  /**
+   * Sets the flag to determine whether to include positions.
+   * True will return any positions on the requested nodes, false will not include the positions.
+   * By default this is true returning all the positions, set to false to enhance performance.
+   * @param includePositions  the new value of the property
+   */
+  public void setIncludePositions(boolean includePositions) {
+    this._includePositions = includePositions;
+  }
+
+  /**
+   * Gets the the {@code includePositions} property.
+   * True will return any positions on the requested nodes, false will not include the positions.
+   * By default this is true returning all the positions, set to false to enhance performance.
+   * @return the property, not null
+   */
+  public final Property<Boolean> includePositions() {
+    return metaBean().includePositions().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the lowest visibility level to return.
    * @return the value of the property, not null
    */
@@ -454,6 +499,11 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
     private final MetaProperty<Integer> _depth = DirectMetaProperty.ofReadWrite(
         this, "depth", PortfolioSearchRequest.class, Integer.TYPE);
     /**
+     * The meta-property for the {@code includePositions} property.
+     */
+    private final MetaProperty<Boolean> _includePositions = DirectMetaProperty.ofReadWrite(
+        this, "includePositions", PortfolioSearchRequest.class, Boolean.TYPE);
+    /**
      * The meta-property for the {@code visibility} property.
      */
     private final MetaProperty<DocumentVisibility> _visibility = DirectMetaProperty.ofReadWrite(
@@ -468,6 +518,7 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
         "name",
         "sortOrder",
         "depth",
+        "includePositions",
         "visibility");
 
     /**
@@ -489,6 +540,8 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
           return _sortOrder;
         case 95472323:  // depth
           return _depth;
+        case 81400994:  // includePositions
+          return _includePositions;
         case 1941332754:  // visibility
           return _visibility;
       }
@@ -549,6 +602,14 @@ public class PortfolioSearchRequest extends AbstractSearchRequest {
      */
     public final MetaProperty<Integer> depth() {
       return _depth;
+    }
+
+    /**
+     * The meta-property for the {@code includePositions} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Boolean> includePositions() {
+      return _includePositions;
     }
 
     /**

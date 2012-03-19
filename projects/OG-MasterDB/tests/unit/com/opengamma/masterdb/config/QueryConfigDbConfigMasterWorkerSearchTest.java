@@ -32,7 +32,7 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QueryConfigDbConfigMasterWorkerSearchTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, true);
     s_logger.info("running testcases for {}", databaseType);
   }
   
@@ -216,13 +216,8 @@ public class QueryConfigDbConfigMasterWorkerSearchTest extends AbstractDbConfigM
     assert102(test.getDocuments().get(1));
     assert101(test.getDocuments().get(2));
   }
-  
+
   //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_cfgMaster.getClass().getSimpleName() + "[DbCfg]", _cfgMaster.toString());
-  }
-  
   private ConfigSearchRequest<ExternalId> createExternalIdSearchRequest() {
     return new ConfigSearchRequest<ExternalId>(ExternalId.class);
   }

@@ -5,10 +5,13 @@
  */
 package com.opengamma.masterdb.batch;
 
-import com.opengamma.id.UniqueId;
-import com.opengamma.id.VersionCorrection;
-import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.util.test.DbTest;
+import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
+
+import java.sql.Timestamp;
+
+import javax.time.Instant;
+import javax.time.calendar.OffsetDateTime;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
@@ -16,12 +19,10 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 
-import javax.time.Instant;
-import javax.time.calendar.OffsetDateTime;
-
-import java.sql.Timestamp;
-
-import static com.opengamma.util.db.DbDateUtils.toSqlTimestamp;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.util.test.DbTest;
 
 public abstract class AbstractDbBatchMasterTest extends DbTest {
 

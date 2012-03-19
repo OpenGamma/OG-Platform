@@ -218,7 +218,7 @@ public class CHConventions {
         "CHFCASHP10M", act360, modified, Period.ofMonths(10), 2, false, ch);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHFCASHP11M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "CHFCASHP11M")),
-        "CHFCASHP11M", act360, modified, Period.ofMonths(1), 2, false, ch);
+        "CHFCASHP11M", act360, modified, Period.ofMonths(11), 2, false, ch);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "CHFCASHP12M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "CHFCASHP12M")),
         "CHFCASHP12M", act360, modified, Period.ofMonths(12), 2, false, ch);

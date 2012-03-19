@@ -25,8 +25,10 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.id.ExternalId;
@@ -53,19 +55,33 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
   protected int _totalConfigs;
   protected int _totalExternalIds;
   protected int _totalBundles;
- 
+  protected boolean _readOnly;  // attempt to speed up tests
 
-  public AbstractDbConfigMasterWorkerTest(String databaseType, String databaseVersion) {
+  public AbstractDbConfigMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
     super(databaseType, databaseVersion);
+    _readOnly = readOnly;
     s_logger.info("running testcases for {}", databaseType);
+  }
+
+  @BeforeClass
+  public void setUpClass() throws Exception {
+    if (_readOnly) {
+      init();
+    }
   }
 
   @BeforeMethod
   public void setUp() throws Exception {
+    if (_readOnly == false) {
+      init();
+    }
+  }
+
+  private void init() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     _cfgMaster = (DbConfigMaster) context.getBean(getDatabaseType() + "DbConfigMaster");
-  
+    
     Instant now = Instant.now();
     _cfgMaster.setTimeSource(TimeSource.fixed(now));
     _version1aInstant = now.minusSeconds(102);
@@ -118,11 +134,21 @@ public abstract class AbstractDbConfigMasterWorkerTest extends DbTest {
         new SqlParameterValue(Types.BLOB, new SqlLobValue(bytes, lobHandler)));
     _totalBundles = 3;
   }
-  
+
   @AfterMethod
   public void tearDown() throws Exception {
-    _cfgMaster = null;
-    super.tearDown();
+    if (_readOnly == false) {
+      _cfgMaster = null;
+      super.tearDown();
+    }
+  }
+
+  @AfterClass
+  public void tearDownClass() throws Exception {
+    if (_readOnly) {
+      _cfgMaster = null;
+      super.tearDown();
+    }
   }
 
   @AfterSuite

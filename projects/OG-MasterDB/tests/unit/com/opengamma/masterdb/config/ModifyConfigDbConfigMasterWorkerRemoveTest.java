@@ -30,7 +30,7 @@ public class ModifyConfigDbConfigMasterWorkerRemoveTest extends AbstractDbConfig
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyConfigDbConfigMasterWorkerRemoveTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, false);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -56,12 +56,6 @@ public class ModifyConfigDbConfigMasterWorkerRemoveTest extends AbstractDbConfig
     assertEquals(null, test.getCorrectionToInstant());
     assertEquals(ExternalId.of("A", "B"), test.getValue());
     assertEquals("TestConfig101", test.getName());
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_cfgMaster.getClass().getSimpleName() + "[DbCfg]", _cfgMaster.toString());
   }
 
 }
