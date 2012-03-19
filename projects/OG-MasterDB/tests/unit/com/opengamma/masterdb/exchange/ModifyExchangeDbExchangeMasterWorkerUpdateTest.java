@@ -39,7 +39,7 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyExchangeDbExchangeMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, false);
     s_logger.info("running testcases for {}", databaseType);
   }
 
