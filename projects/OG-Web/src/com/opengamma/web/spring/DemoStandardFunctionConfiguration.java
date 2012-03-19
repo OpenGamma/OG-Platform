@@ -67,6 +67,7 @@ import com.opengamma.financial.analytics.model.bond.BondZSpreadPresentValueSensi
 import com.opengamma.financial.analytics.model.bond.NelsonSiegelSvenssonBondCurveFunction;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveValuePropertyNames;
 import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFutureYieldCurveNodeSensitivityFunction;
 import com.opengamma.financial.analytics.model.equity.futures.EquityFuturesFunction;
@@ -797,7 +798,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateParallelCurveSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateInstrumentPV01Function.class));
     functionConfigs.add(functionConfiguration(InterestRateInstrumentYieldCurveNodeSensitivitiesFunction.class));
-//    functionConfigs.add(functionConfiguration(InterpolatedYieldCurveFunction.class));
+    functionConfigs.add(functionConfiguration(InterpolatedYieldCurveFunction.class));
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
     functionConfigs.add(functionConfiguration(InterpolatedYieldCurveDefaultPropertiesFunction.class, leftExtrapolatorName, rightExtrapolatorName, "USD", "EUR", "DKK", "AUD", "MYR"));
