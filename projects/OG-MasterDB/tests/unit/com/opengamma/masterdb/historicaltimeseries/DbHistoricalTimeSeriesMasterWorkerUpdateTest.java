@@ -18,8 +18,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.extsql.ExtSqlBundle;
-import com.opengamma.extsql.ExtSqlConfig;
+import com.opengamma.elsql.ElSqlBundle;
+import com.opengamma.elsql.ElSqlConfig;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdWithDates;
@@ -145,7 +145,7 @@ public class DbHistoricalTimeSeriesMasterWorkerUpdateTest extends AbstractDbHist
   @Test
   public void test_update_rollback() {
     DbHistoricalTimeSeriesMaster w = new DbHistoricalTimeSeriesMaster(_htsMaster.getDbConnector());
-    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("TestRollback"), DbHistoricalTimeSeriesMaster.class));
+    w.setElSqlBundle(ElSqlBundle.of(new ElSqlConfig("TestRollback"), DbHistoricalTimeSeriesMaster.class));
     final HistoricalTimeSeriesInfoDocument base = _htsMaster.get(UniqueId.of("DbHts", "101", "0"));
     ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
     info.setUniqueId(UniqueId.of("DbHts", "101", "0"));

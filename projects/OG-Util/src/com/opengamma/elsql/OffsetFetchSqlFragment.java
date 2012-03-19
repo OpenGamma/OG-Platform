@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.extsql;
+package com.opengamma.elsql;
 
 import org.apache.commons.lang.StringUtils;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -47,7 +47,7 @@ final class OffsetFetchSqlFragment extends ContainerSqlFragment {
 
   //-------------------------------------------------------------------------
   @Override
-  protected void toSQL(StringBuilder buf, ExtSqlBundle bundle, SqlParameterSource paramSource) {
+  protected void toSQL(StringBuilder buf, ElSqlBundle bundle, SqlParameterSource paramSource) {
     int offset = 0;
     int fetchLimit = 0;
     if (_offsetVariable != null && paramSource.hasValue(_offsetVariable)) {

@@ -13,7 +13,7 @@
 <listAttribute key="org.testng.eclipse.METHOD_TEST_LIST"/>
 <listAttribute key="org.testng.eclipse.PACKAGE_TEST_LIST">
 <listEntry value="com.opengamma"/>
-<listEntry value="com.opengamma.extsql"/>
+<listEntry value="com.opengamma.elsql"/>
 <listEntry value="com.opengamma.fudge.inner"/>
 <listEntry value="com.opengamma.id"/>
 <listEntry value="com.opengamma.transport"/>

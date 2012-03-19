@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.extsql;
+package com.opengamma.elsql;
 
 import static org.testng.AssertJUnit.assertEquals;
 
@@ -18,14 +18,14 @@ import org.testng.annotations.Test;
  * Test.
  */
 @Test
-public class ExtSqlBundleTest {
+public class ElSqlBundleTest {
 
   public void test_name_1name_1line() {
     List<String> lines = Arrays.asList(
         "@NAME(Test1)",
         "  SELECT * FROM foo"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource());
     assertEquals("SELECT * FROM foo ", sql1);
   }
@@ -38,7 +38,7 @@ public class ExtSqlBundleTest {
         "@NAME(Test2)",
         "  SELECT * FROM bar"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource());
     assertEquals("SELECT * FROM foo ", sql1);
     String sql2 = bundle.getSql("Test2", new MapSqlParameterSource());
@@ -55,7 +55,7 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM bar",
         "  WHERE FALSE"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource());
     assertEquals("SELECT * FROM foo WHERE TRUE ", sql1);
     String sql2 = bundle.getSql("Test2", new MapSqlParameterSource());
@@ -70,7 +70,7 @@ public class ExtSqlBundleTest {
         "  WHERE TRUE",
         "  "
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource());
     assertEquals("SELECT * FROM WHERE TRUE ", sql1);
   }
@@ -80,7 +80,7 @@ public class ExtSqlBundleTest {
     List<String> lines = Arrays.asList(
         "@NAME("
     );
-    ExtSqlBundle.parse(lines);
+    ElSqlBundle.parse(lines);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -88,7 +88,7 @@ public class ExtSqlBundleTest {
     List<String> lines = Arrays.asList(
         "@NAME()"
     );
-    ExtSqlBundle.parse(lines);
+    ElSqlBundle.parse(lines);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -96,12 +96,12 @@ public class ExtSqlBundleTest {
     List<String> lines = Arrays.asList(
         "@NAME(!)"
     );
-    ExtSqlBundle.parse(lines);
+    ElSqlBundle.parse(lines);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void test_name_notFound() {
-    ExtSqlBundle bundle = ExtSqlBundle.parse(new ArrayList<String>());
+    ElSqlBundle bundle = ElSqlBundle.parse(new ArrayList<String>());
     bundle.getSql("Unknown", new MapSqlParameterSource());
   }
 
@@ -114,7 +114,7 @@ public class ExtSqlBundleTest {
         "@NAME(Table)",
         "  foo"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource());
     assertEquals("SELECT * FROM foo WHERE TRUE ", sql1);
     String sql2 = bundle.getSql("Table", new MapSqlParameterSource());
@@ -128,7 +128,7 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM @INCLUDE(Table) WHERE TRUE",
         "  "
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     bundle.getSql("Test1", new MapSqlParameterSource());
   }
 
@@ -138,7 +138,7 @@ public class ExtSqlBundleTest {
         "@NAME(Test1)",
         "  SELECT * FROM @INCLUDE(:var) WHERE TRUE"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", "foo"));
     assertEquals("SELECT * FROM foo WHERE TRUE ", sql1);
   }
@@ -150,7 +150,7 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM @INCLUDE(:var) WHERE TRUE",
         "  "
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     bundle.getSql("Test1", new MapSqlParameterSource());
   }
 
@@ -161,7 +161,7 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM foo",
         "  WHERE var @LIKE :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", "val"));
     assertEquals("SELECT * FROM foo WHERE var = :var ", sql1);
   }
@@ -172,7 +172,7 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM foo",
         "  WHERE var @LIKE :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", "va%"));
     assertEquals("SELECT * FROM foo WHERE var LIKE :var ", sql1);
   }
@@ -183,7 +183,7 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM foo",
         "  WHERE var @LIKE :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", "va_"));
     assertEquals("SELECT * FROM foo WHERE var LIKE :var ", sql1);
   }
@@ -194,7 +194,7 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM foo",
         "  WHERE (var @LIKE :var @ENDLIKE)"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", "val"));
     assertEquals("SELECT * FROM foo WHERE (var = :var ) ", sql1);
   }
@@ -205,7 +205,7 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM foo",
         "  WHERE (var @LIKE :var @ENDLIKE)"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", "va%l"));
     assertEquals("SELECT * FROM foo WHERE (var LIKE :var ) ", sql1);
   }
@@ -216,8 +216,8 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM foo",
         "  WHERE (var @LIKE :var @ENDLIKE)"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
-    bundle = bundle.withConfig(ExtSqlConfig.HSQL);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
+    bundle = bundle.withConfig(ElSqlConfig.HSQL);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", "va%l"));
     assertEquals("SELECT * FROM foo WHERE (var LIKE :var ESCAPE '\\' ) ", sql1);
   }
@@ -229,7 +229,7 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM foo",
         "  @OFFSETFETCH"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     MapSqlParameterSource paramSource = new MapSqlParameterSource("paging_offset", 7).addValue("paging_fetch", 3);
     String sql1 = bundle.getSql("Test1", paramSource);
     assertEquals("SELECT * FROM foo OFFSET 7 ROWS FETCH NEXT 3 ROWS ONLY ", sql1);
@@ -241,7 +241,7 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM foo",
         "  @OFFSETFETCH"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     MapSqlParameterSource paramSource = new MapSqlParameterSource("paging_offset", 7);
     String sql1 = bundle.getSql("Test1", paramSource);
     assertEquals("SELECT * FROM foo OFFSET 7 ROWS ", sql1);
@@ -253,7 +253,7 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM foo",
         "  @OFFSETFETCH"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     MapSqlParameterSource paramSource = new MapSqlParameterSource("paging_fetch", 3);
     String sql1 = bundle.getSql("Test1", paramSource);
     assertEquals("SELECT * FROM foo FETCH FIRST 3 ROWS ONLY ", sql1);
@@ -265,7 +265,7 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM foo",
         "  @OFFSETFETCH(:offset, :fetch) ENDFOO"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     MapSqlParameterSource paramSource = new MapSqlParameterSource("offset", 7).addValue("fetch", 3);
     String sql1 = bundle.getSql("Test1", paramSource);
     assertEquals("SELECT * FROM foo OFFSET 7 ROWS FETCH NEXT 3 ROWS ONLY ENDFOO ", sql1);
@@ -278,7 +278,7 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM foo",
         "  @FETCH"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     MapSqlParameterSource paramSource = new MapSqlParameterSource("paging_fetch", 3);
     String sql1 = bundle.getSql("Test1", paramSource);
     assertEquals("SELECT * FROM foo FETCH FIRST 3 ROWS ONLY ", sql1);
@@ -290,7 +290,7 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM foo",
         "  @FETCH(:fetch) ENDFOO"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     MapSqlParameterSource paramSource = new MapSqlParameterSource("fetch", 4);
     String sql1 = bundle.getSql("Test1", paramSource);
     assertEquals("SELECT * FROM foo FETCH FIRST 4 ROWS ONLY ENDFOO ", sql1);
@@ -302,7 +302,7 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM foo",
         "  @FETCH(5) ENDFOO"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     MapSqlParameterSource paramSource = new MapSqlParameterSource();
     String sql1 = bundle.getSql("Test1", paramSource);
     assertEquals("SELECT * FROM foo FETCH FIRST 5 ROWS ONLY ENDFOO ", sql1);
@@ -316,7 +316,7 @@ public class ExtSqlBundleTest {
         "  @IF(:var)",
         "    WHERE var = :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource());
     assertEquals("SELECT * FROM foo ", sql1);
   }
@@ -328,7 +328,7 @@ public class ExtSqlBundleTest {
         "  @IF(:var)",
         "    WHERE var = :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", "val"));
     assertEquals("SELECT * FROM foo WHERE var = :var ", sql1);
   }
@@ -340,7 +340,7 @@ public class ExtSqlBundleTest {
         "  @IF(:var)",
         "    WHERE var = :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", Boolean.FALSE));
     assertEquals("SELECT * FROM foo ", sql1);
   }
@@ -352,7 +352,7 @@ public class ExtSqlBundleTest {
         "  @IF(:var)",
         "    WHERE var = :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", Boolean.TRUE));
     assertEquals("SELECT * FROM foo WHERE var = :var ", sql1);
   }
@@ -364,7 +364,7 @@ public class ExtSqlBundleTest {
         "  @IF(:var = false)",
         "    WHERE var = :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", Boolean.FALSE));
     assertEquals("SELECT * FROM foo WHERE var = :var ", sql1);
   }
@@ -376,7 +376,7 @@ public class ExtSqlBundleTest {
         "  @IF(:var = true)",
         "    WHERE var = :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", Boolean.FALSE));
     assertEquals("SELECT * FROM foo ", sql1);
   }
@@ -388,7 +388,7 @@ public class ExtSqlBundleTest {
         "  @IF(:var = false)",
         "    WHERE var = :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", Boolean.TRUE));
     assertEquals("SELECT * FROM foo ", sql1);
   }
@@ -400,7 +400,7 @@ public class ExtSqlBundleTest {
         "  @IF(:var = true)",
         "    WHERE var = :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", Boolean.TRUE));
     assertEquals("SELECT * FROM foo WHERE var = :var ", sql1);
   }
@@ -414,7 +414,7 @@ public class ExtSqlBundleTest {
         "    @AND(:var)",
         "      var = :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource());
     assertEquals("SELECT * FROM foo ", sql1);
   }
@@ -427,7 +427,7 @@ public class ExtSqlBundleTest {
         "    @AND(:var)",
         "      var = :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", "val"));
     assertEquals("SELECT * FROM foo WHERE var = :var ", sql1);
   }
@@ -442,7 +442,7 @@ public class ExtSqlBundleTest {
         "    @AND(:vax)",
         "      vax = :vax"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", "val"));
     assertEquals("SELECT * FROM foo WHERE var = :var ", sql1);
   }
@@ -457,7 +457,7 @@ public class ExtSqlBundleTest {
         "    @AND(:vax)",
         "      vax = :vax"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("vax", "val"));
     assertEquals("SELECT * FROM foo WHERE vax = :vax ", sql1);
   }
@@ -472,7 +472,7 @@ public class ExtSqlBundleTest {
         "    @AND(:vax)",
         "      vax = :vax"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     MapSqlParameterSource source = new MapSqlParameterSource("var", "val").addValue("vax", "val");
     String sql1 = bundle.getSql("Test1", source);
     assertEquals("SELECT * FROM foo WHERE var = :var AND vax = :vax ", sql1);
@@ -486,7 +486,7 @@ public class ExtSqlBundleTest {
         "    @AND(:var = Point)",
         "      var = :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource());
     assertEquals("SELECT * FROM foo ", sql1);
   }
@@ -499,7 +499,7 @@ public class ExtSqlBundleTest {
         "    @AND(:var = Point)",
         "      var = :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", "Point"));
     assertEquals("SELECT * FROM foo WHERE var = :var ", sql1);
   }
@@ -512,7 +512,7 @@ public class ExtSqlBundleTest {
         "    @AND(:var = Point)",
         "      var = :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", "NoPoint"));
     assertEquals("SELECT * FROM foo ", sql1);
   }
@@ -522,7 +522,7 @@ public class ExtSqlBundleTest {
     List<String> lines = Arrays.asList(
         "@AND("
     );
-    ExtSqlBundle.parse(lines);
+    ElSqlBundle.parse(lines);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -530,7 +530,7 @@ public class ExtSqlBundleTest {
     List<String> lines = Arrays.asList(
         "@AND()"
     );
-    ExtSqlBundle.parse(lines);
+    ElSqlBundle.parse(lines);
   }
 
 
@@ -539,7 +539,7 @@ public class ExtSqlBundleTest {
     List<String> lines = Arrays.asList(
         "@AND(!)"
     );
-    ExtSqlBundle.parse(lines);
+    ElSqlBundle.parse(lines);
   }
 
   //-------------------------------------------------------------------------
@@ -551,7 +551,7 @@ public class ExtSqlBundleTest {
         "    @OR(:var)",
         "      var = :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource());
     assertEquals("SELECT * FROM foo ", sql1);
   }
@@ -564,7 +564,7 @@ public class ExtSqlBundleTest {
         "    @OR(:var)",
         "      var = :var"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", "val"));
     assertEquals("SELECT * FROM foo WHERE var = :var ", sql1);
   }
@@ -579,7 +579,7 @@ public class ExtSqlBundleTest {
         "    @OR(:vax)",
         "      vax = :vax"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("var", "val"));
     assertEquals("SELECT * FROM foo WHERE var = :var ", sql1);
   }
@@ -594,7 +594,7 @@ public class ExtSqlBundleTest {
         "    @OR(:vax)",
         "      vax = :vax"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     String sql1 = bundle.getSql("Test1", new MapSqlParameterSource("vax", "val"));
     assertEquals("SELECT * FROM foo WHERE vax = :vax ", sql1);
   }
@@ -609,7 +609,7 @@ public class ExtSqlBundleTest {
         "    @OR(:vax)",
         "      vax = :vax"
     );
-    ExtSqlBundle bundle = ExtSqlBundle.parse(lines);
+    ElSqlBundle bundle = ElSqlBundle.parse(lines);
     MapSqlParameterSource source = new MapSqlParameterSource("var", "val").addValue("vax", "val");
     String sql1 = bundle.getSql("Test1", source);
     assertEquals("SELECT * FROM foo WHERE var = :var OR vax = :vax ", sql1);
@@ -622,7 +622,7 @@ public class ExtSqlBundleTest {
         "@AND(:var)",
         "  var = :var"
     );
-    ExtSqlBundle.parse(lines);
+    ElSqlBundle.parse(lines);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -630,7 +630,7 @@ public class ExtSqlBundleTest {
     List<String> lines = Arrays.asList(
         "SELECT foo FROM bar"
     );
-    ExtSqlBundle.parse(lines);
+    ElSqlBundle.parse(lines);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -640,7 +640,7 @@ public class ExtSqlBundleTest {
         "  SELECT * FROM foo",
         "  @UNKNOWN"
     );
-    ExtSqlBundle.parse(lines);
+    ElSqlBundle.parse(lines);
   }
 
 }

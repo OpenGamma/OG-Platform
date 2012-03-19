@@ -119,7 +119,7 @@ public class CouponOISSimplifiedDefinitionTest {
     assertEquals("CouponOISSimplified definition: equal/hash code", EONIA_COUPON_DEFINITION, other);
     assertEquals("CouponOISSimplified definition: equal/hash code", EONIA_COUPON_DEFINITION.hashCode(), other.hashCode());
     CouponOISSimplifiedDefinition modified;
-    modified = new CouponOISSimplifiedDefinition(EUR_CUR, PAYMENT_DATE, START_ACCRUAL_DATE, END_ACCRUAL_DATE, PAYMENT_YEAR_FRACTION, NOTIONAL, new IndexON(EUR_OIS_NAME, EUR_CUR, EUR_DAY_COUNT, 27,
+    modified = new CouponOISSimplifiedDefinition(EUR_CUR, PAYMENT_DATE, START_ACCRUAL_DATE, END_ACCRUAL_DATE, PAYMENT_YEAR_FRACTION, NOTIONAL, new IndexON(EUR_OIS_NAME, EUR_CUR, EUR_DAY_COUNT, 1,
         EUR_CALENDAR), START_ACCRUAL_DATE, END_ACCRUAL_DATE, FIXING_YEAR_FRACTION);
     assertFalse("CouponOISSimplified definition: equal/hash code", EONIA_COUPON_DEFINITION.equals(modified));
     modified = new CouponOISSimplifiedDefinition(EUR_CUR, PAYMENT_DATE, START_ACCRUAL_DATE, END_ACCRUAL_DATE, PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, END_ACCRUAL_DATE, END_ACCRUAL_DATE,

@@ -161,6 +161,16 @@ public class PDEResultCollection implements Iterable<Pair<Greek, double[]>> {
       throw new UnsupportedOperationException();
     }
   };
+
+  /** domestic and foreign prices*/
+  public static final Greek GRID_DOMESTIC_PV_QUOTE = new Greek(new NthOrderUnderlying(0, UnderlyingType.SPOT_PRICE), "Forex PV quote") {
+
+    @Override
+    public <T> T accept(final GreekVisitor<T> visitor) {
+      throw new UnsupportedOperationException();
+    }
+  };
+
   /** The vomma for each strike value on the space grid at expiry */
   public static final Greek GRID_VOMMA = new Greek(new NthOrderUnderlying(2, UnderlyingType.IMPLIED_VOLATILITY), "Forward vomma") {
 

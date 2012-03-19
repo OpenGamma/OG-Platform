@@ -10,7 +10,7 @@ import java.sql.Driver;
 import org.hibernate.dialect.Dialect;
 import org.hibernate.dialect.PostgreSQLDialect;
 
-import com.opengamma.extsql.ExtSqlConfig;
+import com.opengamma.elsql.ElSqlConfig;
 import com.opengamma.util.ReflectionUtils;
 
 /**
@@ -43,8 +43,8 @@ public class VerticaDbDialect extends DbDialect {
   }
 
   @Override
-  protected ExtSqlConfig createExtSqlConfig() {
-    return ExtSqlConfig.VERTICA;
+  protected ElSqlConfig createElSqlConfig() {
+    return ElSqlConfig.VERTICA;
   }
 
   //-------------------------------------------------------------------------

@@ -46,7 +46,7 @@ public class CurrencyConversionFunction extends AbstractFunction.NonCompiledInvo
   /**
    * Default value for {@code _rateLookupIdentifierScheme}.
    */
-  public static final String DEFAULT_LOOKUP_IDENTIFIER_SCHEME = "CurrencyISO";
+  public static final String DEFAULT_LOOKUP_IDENTIFIER_SCHEME = "CurrencyPair";
 
   private static final Logger s_logger = LoggerFactory.getLogger(CurrencyConversionFunction.class);
 

@@ -41,9 +41,11 @@ public class CurveConverter implements ResultConverter<DoublesCurve> {
     if (value instanceof NodalDoublesCurve) {
       NodalDoublesCurve nodalCurve = (NodalDoublesCurve) value;
       List<Double[]> data = new ArrayList<Double[]>();
-      for (int i = 0; i < 30; i++) {
+      final double[] xData = nodalCurve.getXDataAsPrimitive();
+      final double[] yData = nodalCurve.getYDataAsPrimitive();      
+      for (int i = 0; i < xData.length; i++) {
         double x = i;
-        data.add(new Double[] {x, nodalCurve.getYValue(x)});
+        data.add(new Double[] {xData[i], yData[i]});
       }
       result.put("summary", data);
       if (mode == ConversionMode.FULL) {
@@ -120,11 +122,9 @@ public class CurveConverter implements ResultConverter<DoublesCurve> {
     List<Double[]> detailedData = new ArrayList<Double[]>();
     
     Double[] xs = detailedCurve.getXData();
-    double eps = (xs[xs.length - 1] - xs[0]) / 100;
-    double x = 0;
-    for (int i = 0; i < 100; i++) {      
-      detailedData.add(new Double[]{x, detailedCurve.getYValue(x)});
-      x += eps;
+    Double[] ys = detailedCurve.getYData();
+    for (int i = 0; i < xs.length; i++) {      
+      detailedData.add(new Double[]{xs[i], ys[i]});
     }
     return detailedData;
   }
