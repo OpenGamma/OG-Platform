@@ -221,7 +221,7 @@ public class JPConventions {
         "JPYCASHP10M", act360, modified, Period.ofMonths(10), 2, false, jp);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "JPYCASHP11M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "JPYCASHP11M")),
-        "JPYCASHP11M", act360, modified, Period.ofMonths(1), 2, false, jp);
+        "JPYCASHP11M", act360, modified, Period.ofMonths(11), 2, false, jp);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "JPYCASHP12M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "JPYCASHP12M")),
         "JPYCASHP12M", act360, modified, Period.ofMonths(12), 2, false, jp);
