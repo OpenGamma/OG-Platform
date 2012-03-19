@@ -9,10 +9,12 @@
         var method = this, orig = arguments, orig_len = orig.length, key,
             new_method = function () {
                 var arguments_len = arguments.length, args = [], i = 0, j = 0;
-                if (!arguments_len) return method.apply(this, orig);
-                for (; i < orig_len; i++) args.push(orig[i] === void 0 ? arguments[j++] : orig[i]);
+                if (!arguments_len) return method.apply(this, slice.call(orig));
+                for (; i < orig_len; i++)
+                    args.push(orig[i] === void 0 ? arguments[j++] : orig[i]);
                 return method.apply(this, args.concat(slice.call(arguments, j, arguments_len)));
             };
+        // if the function instance has been extended, copy all of its properties
         for (key in method) if (method[has](key)) new_method[key] = method[key];
         return new_method;
     };

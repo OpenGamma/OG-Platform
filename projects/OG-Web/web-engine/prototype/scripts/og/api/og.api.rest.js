@@ -243,9 +243,8 @@ $.register_module({
                     if (request_expired(request, current)) api.abort({id: id});
                 }
                 // clean up registrations
-                registrations.filter(request_expired.partial(void 0, current)).pluck('id').forEach(function (id) {
-                    api.abort({id: id});
-                });
+                registrations.filter(request_expired.partial(void 0, current)).pluck('id')
+                    .forEach(function (id) {api.abort({id: id});});
             },
             configs: { // all requests that begin with /configs
                 root: 'configs',
