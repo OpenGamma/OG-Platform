@@ -37,7 +37,7 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QuerySecurityDbSecurityMasterWorkerSearchTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, true);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -583,12 +583,6 @@ public class QuerySecurityDbSecurityMasterWorkerSearchTest extends AbstractDbSec
     assertEquals(UniqueId.of("DbSec", "101", "0"), doc0.getUniqueId());
     assertEquals(UniqueId.of("DbSec", "102", "0"), doc1.getUniqueId());
     assertEquals(UniqueId.of("DbSec", "201", "1"), doc2.getUniqueId());  // new version
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_secMaster.getClass().getSimpleName() + "[DbSec]", _secMaster.toString());
   }
 
 }

@@ -570,7 +570,7 @@ $.register_module({
                         warn(module.name + ': subscription failed\n', result.message);
                         return setTimeout(subscribe, RESUBSCRIBE);
                     }
-                    if (!result.data || !result.data.updates.length) return setTimeout(listen, INSTANT);;
+                    if (!result.data || !result.data.updates.length) return setTimeout(listen, INSTANT);
                     fire_updates(false, result);
                     setTimeout(listen, INSTANT);
                 }});

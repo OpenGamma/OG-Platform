@@ -29,7 +29,7 @@ public class QueryHolidayDbHolidayMasterWorkerHistoryTest extends AbstractDbHoli
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QueryHolidayDbHolidayMasterWorkerHistoryTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, true);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -186,12 +186,6 @@ public class QueryHolidayDbHolidayMasterWorkerHistoryTest extends AbstractDbHoli
     assertEquals(2, test.getDocuments().size());
     assert202(test.getDocuments().get(0));
     assert201(test.getDocuments().get(1));
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_holMaster.getClass().getSimpleName() + "[DbHol]", _holMaster.toString());
   }
 
 }

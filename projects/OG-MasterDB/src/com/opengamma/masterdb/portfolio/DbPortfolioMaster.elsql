@@ -106,6 +106,40 @@
 
 
 -- ==========================================================================
+-- this is a performance optimisation
+@NAME(SearchNoPositions)
+  WITH cte_docs AS ( @INCLUDE(SearchInner) )
+  SELECT
+    main.id AS portfolio_id,
+    main.oid AS portfolio_oid,
+    main.ver_from_instant AS ver_from_instant,
+    main.ver_to_instant AS ver_to_instant,
+    main.corr_from_instant AS corr_from_instant,
+    main.corr_to_instant AS corr_to_instant,
+    main.name AS portfolio_name,
+    main.visibility AS visibility,
+    n.id AS node_id,
+    n.oid AS node_oid,
+    n.tree_left AS tree_left,
+    n.tree_right AS tree_right,
+    n.name AS node_name,
+    pa.key AS prt_attr_key,
+    pa.value AS prt_attr_value
+  FROM
+    prt_portfolio main
+    INNER JOIN cte_docs ON main.id = cte_docs.id
+    LEFT JOIN prt_node n ON (n.portfolio_id = main.id)
+    LEFT JOIN prt_portfolio_attribute pa ON (pa.portfolio_id = main.id)
+  @WHERE
+    @AND(:depth)
+      n.depth <= :depth
+  ORDER BY
+    main.@INCLUDE(:sort_order),
+    main.id,
+    n.tree_left
+
+
+-- ==========================================================================
 @NAME(SearchInner)
   SELECT
     prt_portfolio.id AS id

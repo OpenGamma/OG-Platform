@@ -7,8 +7,8 @@ package com.opengamma.masterdb;
 
 import org.testng.annotations.Factory;
 
-import com.opengamma.util.test.DbTest;
 import com.opengamma.util.test.AbstractDbUpgradeTest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests the database upgrade scripts.
