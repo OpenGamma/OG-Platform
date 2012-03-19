@@ -5,8 +5,6 @@
  */
 package com.opengamma.masterdb.holiday;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
@@ -27,7 +25,7 @@ public class QueryHolidayDbHolidayMasterWorkerGetTest extends AbstractDbHolidayM
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QueryHolidayDbHolidayMasterWorkerGetTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, true);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -89,12 +87,6 @@ public class QueryHolidayDbHolidayMasterWorkerGetTest extends AbstractDbHolidayM
     UniqueId oid = UniqueId.of("DbHol", "201");
     HolidayDocument test = _holMaster.get(oid);
     assert202(test);
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_holMaster.getClass().getSimpleName() + "[DbHol]", _holMaster.toString());
   }
 
 }

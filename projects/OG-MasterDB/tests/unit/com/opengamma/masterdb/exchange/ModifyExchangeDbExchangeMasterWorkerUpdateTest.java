@@ -135,10 +135,4 @@ public class ModifyExchangeDbExchangeMasterWorkerUpdateTest extends AbstractDbEx
     assertEquals(base, test);
   }
 
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_exgMaster.getClass().getSimpleName() + "[DbExg]", _exgMaster.toString());
-  }
-
 }
