@@ -295,7 +295,7 @@
   <bundle id="og_analytics2.js">
       <bundle idref="lib.js" />
       <bundle idref="core.js" />
-      <fragment>/scripts/og/api/og.api.text.js</fragment>
+      <bundle idref="api.js" />
       <bundle idref="util.js" />
       <bundle idref="util_ui.js" />
       <bundle idref="common.js" />

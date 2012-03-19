@@ -36,16 +36,19 @@ $.register_module({
                 x_max, initial_preset, reset_options,
                 load_plots, empty_plots, update_legend, rescale_yaxis, calculate_y_values, data_points, get_legend;
             $(selector).html('\
-              <div class="og-flot-top"></div>\
-              <div class="og-flot-xaxis"></div>\
-              <div class="og-flot-right-mask"></div>\
-              <div class="og-flot-left-mask"></div>\
-              <div class="og-timeseries-plot og-js-timeseries-plot">\
-                <div class="og-js-p1-crop"><div class="og-js-p1"></div></div>\
-                <div class="og-js-p2-crop"><div class="og-js-p2"></div></div>\
-                <div class="og-tenor"></div>\
-              </div>\
-              <div class="og-plot-header"></div>'
+                <section class="og-plots">\
+                  <div class="og-flot-top"></div>\
+                  <div class="og-flot-xaxis"></div>\
+                  <div class="og-flot-right-mask"></div>\
+                  <div class="og-flot-left-mask"></div>\
+                  <div class="og-timeseries-plot og-js-timeseries-plot">\
+                    <div class="og-js-p1-crop"><div class="og-js-p1"></div></div>\
+                    <div class="og-js-p2-crop"><div class="og-js-p2"></div></div>\
+                    <div class="og-tenor"></div>\
+                  </div>\
+                  <div class="og-plot-header"></div>\
+                </section>\
+                <section class="og-data-points"></section>'
             ).css({position: 'relative'});
             $(plot_selector).html('<span class="og-checking-related">checking for related timeseries data...</span>');
             get_legend = function () {return $(selector + ' .legend');}; // the legend is often regenerated
@@ -107,7 +110,7 @@ $.register_module({
                 $('.og-js-timeseries-plot').animate({opacity: '0.5'});
             };
             data_points = function () {
-                var $template, render_grid, $data_points = $('.OG-timeseries .og-data-points'),
+                var $template, render_grid, $data_points = $(selector + ' .og-data-points'),
                     slick_tmpl = '\
                         <div>\
                           <div class="og-data-series">\
@@ -120,15 +123,20 @@ $.register_module({
                           </div>\
                         </div>';
                 if (!$data_points.length) return;
-                $('.OG-timeseries .og-data-points').html('<div class="og-container"></div>');
-                $template = $('.OG-timeseries .og-data-points .og-container');
+                if (!config.datapoints) {
+                    $data_points.css({'position': 'relative', 'top': '-35px', 'left': '3px'})
+                        .html('<a href="#/timeseries/'+ config.id +'">View Timeseries with DataPoints</a>');
+                    return;
+                }
+                $(selector + ' .og-data-points').html('<div class="og-container"></div>');
+                $template = $(selector + ' .og-data-points .og-container');
                 if (!data_arr) {
                     $template.html('<span class="og-no-datapoint">No data points available</span>')
                         .animate({opacity: '0.5'});
                     return;
                 }
                 render_grid = function (index) {
-                    var SLICK_SELECTOR = '.OG-timeseries .og-data-points .og-slick-' + index, slick, data,
+                    var SLICK_SELECTOR = selector + ' .og-data-points .og-slick-' + index, slick, data,
                     columns = [
                         {id: 'time', name: 'Time', field: 'time', width: 200,
                             formatter: function (row, cell, value) {

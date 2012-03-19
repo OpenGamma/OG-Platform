@@ -110,6 +110,10 @@
     <og-subant target="publish-local" buildpathref="build-path" />
   </target>
 
+  <target name="publish-all-local-with-clover" depends="buildlist">
+    <og-subant target="publish-local-with-clover" buildpathref="build-path" />
+  </target>
+
   <!-- 
       =================================================================== 
         Builds and publish all projects to local repo              

@@ -5,8 +5,6 @@
  */
 package com.opengamma.masterdb.position;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
@@ -27,7 +25,7 @@ public class QueryPositionDbPositionMasterWorkerGetTest extends AbstractDbPositi
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QueryPositionDbPositionMasterWorkerGetTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, true);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -89,12 +87,6 @@ public class QueryPositionDbPositionMasterWorkerGetTest extends AbstractDbPositi
     UniqueId oid = UniqueId.of("DbPos", "221");
     PositionDocument test = _posMaster.get(oid);
     assert222(test);
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_posMaster.getClass().getSimpleName() + "[DbPos]", _posMaster.toString());
   }
 
 }

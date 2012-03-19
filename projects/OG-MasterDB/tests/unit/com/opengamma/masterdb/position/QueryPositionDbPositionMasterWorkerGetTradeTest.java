@@ -39,7 +39,7 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QueryPositionDbPositionMasterWorkerGetTradeTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, true);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -199,12 +199,6 @@ public class QueryPositionDbPositionMasterWorkerGetTradeTest extends AbstractDbP
     assertEquals(2, storedDoc.getPosition().getTrades().size());
     assertTrue(storedDoc.getPosition().getTrades().contains(trade1));
     assertTrue(storedDoc.getPosition().getTrades().contains(trade2));
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_posMaster.getClass().getSimpleName() + "[DbPos]", _posMaster.toString());
   }
 
 }

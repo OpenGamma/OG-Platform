@@ -5,7 +5,30 @@
  */
 package com.opengamma.masterdb.batch;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
+import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertNotNull;
+
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.time.Instant;
+
+import org.springframework.context.ConfigurableApplicationContext;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
+
 import com.google.common.collect.Maps;
+import com.opengamma.batch.RunCreationMode;
+import com.opengamma.batch.SnapshotMode;
+import com.opengamma.batch.domain.RiskRun;
+import com.opengamma.batch.rest.BatchRunSearchRequest;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.impl.SimpleSecurity;
 import com.opengamma.engine.ComputationTargetSpecification;
@@ -13,9 +36,6 @@ import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.CycleInfo;
-import com.opengamma.batch.*;
-import com.opengamma.batch.domain.RiskRun;
-import com.opengamma.batch.rest.BatchRunSearchRequest;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.UniqueIdentifiable;
@@ -24,18 +44,6 @@ import com.opengamma.masterdb.DbMasterTestUtils;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.tuple.Pair;
-import org.springframework.context.ConfigurableApplicationContext;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Factory;
-import org.testng.annotations.Test;
-
-import javax.time.Instant;
-import java.util.*;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Collections.emptyList;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNotNull;
 
 public class DbBatchMasterTest extends DbTest {
 

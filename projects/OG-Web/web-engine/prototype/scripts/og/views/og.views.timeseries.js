@@ -148,8 +148,9 @@ $.register_module({
                         );
                         // Plot
                         common.gadgets.timeseries({
-                            selector: '.OG-timeseries .og-plots',
-                            id: result.data.template_data.object_id
+                            selector: '.OG-timeseries-gadget',
+                            id: result.data.template_data.object_id,
+                            datapoints: true
                         });
                         if (show_loading) view.notify(null);
                         setTimeout(view.layout.inner.resizeAll);

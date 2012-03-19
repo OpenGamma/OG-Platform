@@ -29,7 +29,7 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QueryPositionDbPositionMasterWorkerHistoryTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, true);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -197,12 +197,6 @@ public class QueryPositionDbPositionMasterWorkerHistoryTest extends AbstractDbPo
     assertEquals(2, test.getDocuments().size());
     assert222(test.getDocuments().get(0));
     assert221(test.getDocuments().get(1));
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_posMaster.getClass().getSimpleName() + "[DbPos]", _posMaster.toString());
   }
 
 }
