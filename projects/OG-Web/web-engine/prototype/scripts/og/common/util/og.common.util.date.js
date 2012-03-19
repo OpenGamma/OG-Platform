@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.common.util.date',
     dependencies: [],
     obj: function () {
-        return function (timestamp) {
+        return function (timestamp, format) {
             // the timestamp format isnt supported by for IE or safari, we need to change the format
             if (isNaN(new Date(timestamp).getDate())) return timestamp;
             var add_zero = function (n) {return n < 10 ? '0' + n : '' + n;},
@@ -18,8 +18,8 @@ $.register_module({
                 m = add_zero(obj.getMinutes()),
                 s = add_zero(obj.getSeconds()),
                 date = d + '<span> / </span>' + M + '<span> / </span>' + y,
-                time = '<span>' + h + ':' + m + ':' + s + '</span>';
-            return '<time title="day / month / year">' + date + '<span> @ </span>' + time + '</time>';
+                time = (format === "dateonly") ? '' : '<span> @ </span><span>' + h + ':' + m + ':' + s + '</span>';
+            return '<time title="day / month / year">' + date + time + '</time>';
         }
     }
 });
