@@ -30,7 +30,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -60,9 +60,9 @@ import com.opengamma.util.tuple.LongObjectPair;
  * This is a full implementation of the portfolio master using an SQL database.
  * Full details of the API are in {@link PortfolioMaster}.
  * <p>
- * The SQL is stored externally in {@code DbPortfolioMaster.extsql}.
+ * The SQL is stored externally in {@code DbPortfolioMaster.elsql}.
  * Alternate databases or specific SQL requirements can be handled using database
- * specific overrides, such as {@code DbPortfolioMaster-MySpecialDB.extsql}.
+ * specific overrides, such as {@code DbPortfolioMaster-MySpecialDB.elsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
@@ -96,7 +96,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
    */
   public DbPortfolioMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
-    setExtSqlBundle(ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbPortfolioMaster.class));
+    setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbPortfolioMaster.class));
   }
 
   //-------------------------------------------------------------------------
@@ -146,7 +146,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
-    String[] sql = {getExtSqlBundle().getSql("Search", args), getExtSqlBundle().getSql("SearchCount", args)};
+    String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
     searchWithPaging(request.getPagingRequest(), sql, args, new PortfolioDocumentExtractor(true), result);
     return result;
   }
@@ -227,10 +227,10 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     }
     
     // insert
-    final String sqlDoc = getExtSqlBundle().getSql("Insert", docArgs);
-    final String sqlNode = getExtSqlBundle().getSql("InsertNode");
-    final String sqlPosition = getExtSqlBundle().getSql("InsertPosition");
-    final String sqlAttributes = getExtSqlBundle().getSql("InsertAttribute");
+    final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
+    final String sqlNode = getElSqlBundle().getSql("InsertNode");
+    final String sqlPosition = getElSqlBundle().getSql("InsertPosition");
+    final String sqlAttributes = getElSqlBundle().getSql("InsertAttribute");
     getJdbcTemplate().update(sqlDoc, docArgs);
     getJdbcTemplate().batchUpdate(sqlNode, nodeList.toArray(new DbMapSqlParameterSource[nodeList.size()]));
     getJdbcTemplate().batchUpdate(sqlPosition, posList.toArray(new DbMapSqlParameterSource[posList.size()]));
@@ -331,7 +331,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       .addTimestamp("corrected_to_instant", Objects.firstNonNull(correctedTo, now));
     final PortfolioDocumentExtractor extractor = new PortfolioDocumentExtractor(false);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final String sql = getExtSqlBundle().getSql("GetNodeByOidInstants", args);
+    final String sql = getElSqlBundle().getSql("GetNodeByOidInstants", args);
     final List<PortfolioDocument> docs = namedJdbc.query(sql , args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Node not found: " + uniqueId);
@@ -351,7 +351,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       .addValue("node_id", extractRowId(uniqueId));
     final PortfolioDocumentExtractor extractor = new PortfolioDocumentExtractor(false);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final String sql = getExtSqlBundle().getSql("GetNodeById", args);
+    final String sql = getElSqlBundle().getSql("GetNodeById", args);
     final List<PortfolioDocument> docs = namedJdbc.query(sql, args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Node not found: " + uniqueId);

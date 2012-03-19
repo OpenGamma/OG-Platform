@@ -24,7 +24,7 @@ import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ObjectId;
@@ -53,9 +53,9 @@ import com.opengamma.util.paging.Paging;
  * This is a full implementation of the exchange master using an SQL database.
  * Full details of the API are in {@link ExchangeMaster}.
  * <p>
- * The SQL is stored externally in {@code DbExchangeMaster.extsql}.
+ * The SQL is stored externally in {@code DbExchangeMaster.elsql}.
  * Alternate databases or specific SQL requirements can be handled using database
- * specific overrides, such as {@code DbExchangeMaster-MySpecialDB.extsql}.
+ * specific overrides, such as {@code DbExchangeMaster-MySpecialDB.elsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
@@ -93,7 +93,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
    */
   public DbExchangeMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
-    setExtSqlBundle(ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbExchangeMaster.class));
+    setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbExchangeMaster.class));
   }
 
   //-------------------------------------------------------------------------
@@ -141,7 +141,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
-    String[] sql = {getExtSqlBundle().getSql("Search", args), getExtSqlBundle().getSql("SearchCount", args)};
+    String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
     searchWithPaging(request.getPagingRequest(), sql, args, new ExchangeDocumentExtractor(), result);
     return result;
   }
@@ -149,7 +149,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
   /**
    * Gets the SQL to find all the ids for a single bundle.
    * <p>
-   * This is too complex for the extsql mechanism.
+   * This is too complex for the elsql mechanism.
    * 
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
@@ -215,7 +215,7 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
-    final String sqlSelectIdKey = getExtSqlBundle().getSql("SelectIdKey");
+    final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
     for (ExternalId id : exchange.getExternalIdBundle()) {
       final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
         .addValue("doc_id", docId)
@@ -232,9 +232,9 @@ public class DbExchangeMaster extends AbstractDocumentDbMaster<ExchangeDocument>
         idKeyList.add(idkeyArgs);
       }
     }
-    final String sqlDoc = getExtSqlBundle().getSql("Insert", docArgs);
-    final String sqlIdKey = getExtSqlBundle().getSql("InsertIdKey");
-    final String sqlDoc2IdKey = getExtSqlBundle().getSql("InsertDoc2IdKey");
+    final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
+    final String sqlIdKey = getElSqlBundle().getSql("InsertIdKey");
+    final String sqlDoc2IdKey = getElSqlBundle().getSql("InsertDoc2IdKey");
     getJdbcTemplate().update(sqlDoc, docArgs);
     getJdbcTemplate().batchUpdate(sqlIdKey, idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
     getJdbcTemplate().batchUpdate(sqlDoc2IdKey, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));

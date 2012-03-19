@@ -78,7 +78,9 @@ public class Loader extends ContextInitializationBean {
     globalContext.setPositionSource(new EHCachingPositionSource(new RemotePositionSource(uri), getCacheManager()));
     globalContext.getFunctionProvider().addProvider(new FunctionProviderBean(
         FetchPortfolioFunction.INSTANCE,
+        FetchPositionFunction.INSTANCE,
         GetPositionAttributeFunction.INSTANCE,
+        GetPositionSecurityFunction.INSTANCE,
         PortfolioFunction.INSTANCE,
         PortfolioNodeFunction.INSTANCE,
         PortfoliosFunction.INSTANCE,

@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.extsql;
+package com.opengamma.elsql;
 
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 

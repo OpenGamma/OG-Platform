@@ -115,6 +115,7 @@ public final class BloombergDataUtils {
   public static final List<String> STANDARD_FIELDS_LIST = ImmutableList.of("BID",
       "ASK",
       "LAST_PRICE",
+      "PX_SETTLE",
       "VOLUME",
       "OPT_IMPLIED_VOLATILITY_BID_RT",
       "OPT_IMPLIED_VOLATILITY_ASK_RT",
@@ -206,6 +207,7 @@ public final class BloombergDataUtils {
     openGammaRules.add(new FieldNameChange("BID", MarketDataRequirementNames.BID));
     openGammaRules.add(new FieldNameChange("ASK", MarketDataRequirementNames.ASK));
     openGammaRules.add(new FieldNameChange("LAST_PRICE", MarketDataRequirementNames.LAST));
+    openGammaRules.add(new FieldNameChange("PX_SETTLE", MarketDataRequirementNames.SETTLE_PRICE));
     openGammaRules.add(new FieldNameChange("VOLUME", MarketDataRequirementNames.VOLUME));
     openGammaRules.add(new FieldNameChange("OPT_IMPLIED_VOLATILITY_BID_RT", MarketDataRequirementNames.BID_IMPLIED_VOLATILITY));
     openGammaRules.add(new FieldNameChange("OPT_IMPLIED_VOLATILITY_ASK_RT", MarketDataRequirementNames.ASK_IMPLIED_VOLATILITY));
@@ -234,6 +236,7 @@ public final class BloombergDataUtils {
     // Filter out non-OpenGamma fields (i.e., BID, ASK, various Bloomberg implied vol fields)
     openGammaRules.add(new FieldFilter(
         MarketDataRequirementNames.MARKET_VALUE,
+        MarketDataRequirementNames.SETTLE_PRICE,
         MarketDataRequirementNames.VOLUME,
         MarketDataRequirementNames.IMPLIED_VOLATILITY,
         MarketDataRequirementNames.YIELD_CONVENTION_MID,
@@ -254,6 +257,7 @@ public final class BloombergDataUtils {
     HistoricalTimeSeriesFieldAdjustmentMap fieldAdjustmentMap = new HistoricalTimeSeriesFieldAdjustmentMap(BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME);
     BloombergRateClassifier rateClassifier = new BloombergRateClassifier(referenceDataProvider, cacheManager);
     HistoricalTimeSeriesAdjuster rateNormalizer = new BloombergRateHistoricalTimeSeriesNormalizer(rateClassifier);
+    fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.SETTLE_PRICE, null, BloombergConstants.BBG_FIELD_SETTLE_PRICE, rateNormalizer);
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.MARKET_VALUE, null, BloombergConstants.BBG_FIELD_LAST_PRICE, rateNormalizer);
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.VOLUME, null, BloombergConstants.BBG_FIELD_VOLUME, null);
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.YIELD_YIELD_TO_MATURITY_MID, null, BloombergConstants.BBG_FIELD_YIELD_TO_MATURITY_MID, null);

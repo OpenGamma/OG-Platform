@@ -156,7 +156,7 @@ public class UserMarketDataSnapshot extends AbstractMarketDataSnapshot {
           return null;
         }
         final ValueProperties constraints = valueRequirement.getConstraints();
-        if (constraints.getProperties().size() != 3) {
+        if (constraints.getProperties().size() != 4) {
           return null;
         }
         final Set<String> names = constraints.getValues(ValuePropertyNames.SURFACE);

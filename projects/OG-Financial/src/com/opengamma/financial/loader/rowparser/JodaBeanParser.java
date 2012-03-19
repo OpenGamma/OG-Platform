@@ -7,6 +7,7 @@
 package com.opengamma.financial.loader.rowparser;
 
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -220,15 +221,14 @@ public class JodaBeanParser extends RowParser {
   public ManageablePosition constructPosition(Map<String, String> row, ManageableSecurity security) {
     
     // TODO work out how to determine if fungible
-    ManageablePosition position = new ManageablePosition();
-    return position;
+    return new ManageablePosition(BigDecimal.ONE, security.getExternalIdBundle());
+
   }
   
 
   @Override
   public ManageableTrade constructTrade(Map<String, String> row, ManageableSecurity security, ManageablePosition position) {
-    ManageableTrade trade = new ManageableTrade();
-    return trade;
+    return null;
   }
 
   
