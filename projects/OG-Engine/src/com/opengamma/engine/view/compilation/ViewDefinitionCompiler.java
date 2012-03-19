@@ -145,7 +145,7 @@ public final class ViewDefinitionCompiler {
     }
   }
 
-  private static void outputFailureReport(final DependencyGraphBuilder builder) {
+  public static void outputFailureReport(final DependencyGraphBuilder builder) {
     final Map<Throwable, Integer> exceptions = builder.getExceptions();
     if (!exceptions.isEmpty()) {
       for (Map.Entry<Throwable, Integer> entry : exceptions.entrySet()) {
