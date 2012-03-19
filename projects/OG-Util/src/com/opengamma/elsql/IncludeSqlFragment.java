@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.extsql;
+package com.opengamma.elsql;
 
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 
@@ -43,7 +43,7 @@ final class IncludeSqlFragment extends SqlFragment {
 
   //-------------------------------------------------------------------------
   @Override
-  protected void toSQL(StringBuilder buf, ExtSqlBundle bundle, SqlParameterSource paramSource) {
+  protected void toSQL(StringBuilder buf, ElSqlBundle bundle, SqlParameterSource paramSource) {
     if (_includeKey.startsWith(":")) {
       Object value = paramSource.getValue(_includeKey.substring(1));
       buf.append(value).append(' ');

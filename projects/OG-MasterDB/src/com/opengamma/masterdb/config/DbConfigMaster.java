@@ -29,9 +29,9 @@ import com.opengamma.util.db.DbConnector;
  * This is a full implementation of the config master using an SQL database.
  * Full details of the API are in {@link ConfigMaster}.
  * <p>
- * The SQL is stored externally in {@code DbConfigMaster.extsql}.
+ * The SQL is stored externally in {@code DbConfigMaster.elsql}.
  * Alternate databases or specific SQL requirements can be handled using database
- * specific overrides, such as {@code DbConfigMaster-MySpecialDB.extsql}.
+ * specific overrides, such as {@code DbConfigMaster-MySpecialDB.elsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  * 

@@ -28,7 +28,7 @@ import com.opengamma.core.marketdatasnapshot.impl.ManageableUnstructuredMarketDa
 import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilityCubeSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableVolatilitySurfaceSnapshot;
 import com.opengamma.core.marketdatasnapshot.impl.ManageableYieldCurveSnapshot;
-import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.id.VersionCorrection;
@@ -52,9 +52,9 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  * This is a full implementation of the exchange master using an SQL database.
  * Full details of the API are in {@link MarketDataSnapshotMaster}.
  * <p>
- * The SQL is stored externally in {@code DbMarketDataSnapshotMaster.extsql}.
+ * The SQL is stored externally in {@code DbMarketDataSnapshotMaster.elsql}.
  * Alternate databases or specific SQL requirements can be handled using database
- * specific overrides, such as {@code DbMarketDataSnapshotMaster-MySpecialDB.extsql}.
+ * specific overrides, such as {@code DbMarketDataSnapshotMaster-MySpecialDB.elsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
@@ -91,7 +91,7 @@ public class DbMarketDataSnapshotMaster
    */
   public DbMarketDataSnapshotMaster(DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
-    setExtSqlBundle(ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbMarketDataSnapshotMaster.class));
+    setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbMarketDataSnapshotMaster.class));
   }
 
   //-------------------------------------------------------------------------
@@ -112,7 +112,7 @@ public class DbMarketDataSnapshotMaster
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
-    String[] sql = {getExtSqlBundle().getSql("Search", args), getExtSqlBundle().getSql("SearchCount", args)};
+    String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
     searchWithPaging(request.getPagingRequest(), sql, args, new MarketDataSnapshotDocumentExtractor(request.isIncludeData()), result);
     return result;
   }
@@ -172,7 +172,7 @@ public class DbMarketDataSnapshotMaster
         .addValue("name", document.getName())
         .addValue("detail", new SqlLobValue(bytes, getDialect().getLobHandler()), Types.BLOB);
     
-    final String sql = getExtSqlBundle().getSql("Insert", marketDataSnaphshotArgs);
+    final String sql = getElSqlBundle().getSql("Insert", marketDataSnaphshotArgs);
     getJdbcTemplate().update(sql, marketDataSnaphshotArgs);
     return document;
   }

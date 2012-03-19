@@ -312,7 +312,7 @@ public class BloombergIdentifierProvider implements ExternalIdResolver {
     LocalDate validFrom = parseDate(validFromStr);
     final String validToStr = fieldData.getString(FIELD_FUT_LAST_TRADE_DT);
     LocalDate validTo = parseDate(validToStr);
-    if (validFrom.isAfter(validTo)) {
+    if (validFrom != null && validTo != null && validFrom.isAfter(validTo)) {
       validFrom = null;
     }
     return Pair.of(validFrom, validTo);

@@ -19,9 +19,9 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 
+import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsDocument;
 import com.opengamma.engine.view.calcnode.stats.FunctionCostsMaster;
-import com.opengamma.extsql.ExtSqlBundle;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.db.DbConnector;
 import com.opengamma.util.db.DbDateUtils;
@@ -40,7 +40,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
   /**
    * External SQL bundle.
    */
-  private ExtSqlBundle _externalSqlBundle;
+  private ElSqlBundle _externalSqlBundle;
   /**
    * The database connector.
    */
@@ -59,7 +59,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
     ArgumentChecker.notNull(dbConnector, "dbConnector");
     s_logger.debug("installed DbConnector: {}", dbConnector);
     _dbConnector = dbConnector;
-    _externalSqlBundle = ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbFunctionCostsMaster.class);
+    _externalSqlBundle = ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbFunctionCostsMaster.class);
   }
 
   //-------------------------------------------------------------------------
@@ -68,7 +68,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
    * 
    * @return the external SQL bundle, not null
    */
-  public ExtSqlBundle getExtSqlBundle() {
+  public ElSqlBundle getElSqlBundle() {
     return _externalSqlBundle;
   }
 
@@ -77,7 +77,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
    * 
    * @param bundle  the external SQL bundle, not null
    */
-  public void setExtSqlBundle(ExtSqlBundle bundle) {
+  public void setElSqlBundle(ElSqlBundle bundle) {
     _externalSqlBundle = bundle;
   }
 
@@ -127,7 +127,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
       .addValue("paging_fetch", 1);
     final FunctionCostsDocumentExtractor extractor = new FunctionCostsDocumentExtractor();
     final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
-    final String sql = getExtSqlBundle().getSql("GetCosts", args);
+    final String sql = getElSqlBundle().getSql("GetCosts", args);
     final List<FunctionCostsDocument> docs = namedJdbc.query(sql, args, extractor);
     return docs.isEmpty() ? null : docs.get(0);
   }
@@ -147,7 +147,7 @@ public class DbFunctionCostsMaster implements FunctionCostsMaster {
       .addValue("invocation_cost", costs.getInvocationCost())
       .addValue("data_input_cost", costs.getDataInputCost())
       .addValue("data_output_cost", costs.getDataOutputCost());
-    final String sql = getExtSqlBundle().getSql("InsertCosts", args);
+    final String sql = getElSqlBundle().getSql("InsertCosts", args);
     getDbConnector().getJdbcTemplate().update(sql, args);
     return costs;
   }

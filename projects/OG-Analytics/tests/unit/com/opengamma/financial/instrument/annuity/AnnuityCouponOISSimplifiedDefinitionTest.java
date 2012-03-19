@@ -34,6 +34,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
  * 
  */
 public class AnnuityCouponOISSimplifiedDefinitionTest {
+
   private static final Currency CCY = Currency.EUR;
   private static final Period PAYMENT_PERIOD = Period.ofMonths(6);
   private static final Calendar CALENDAR = new MondayToFridayCalendar("Weekend");
@@ -43,7 +44,7 @@ public class AnnuityCouponOISSimplifiedDefinitionTest {
   private static final ZonedDateTime MATURITY_DATE = DateUtils.getUTCDate(2022, 2, 1);
   private static final Period MATURITY_TENOR = Period.ofYears(10);
   private static final double NOTIONAL = 100000000;
-  private static final IndexON INDEX = new IndexON("O/N", CCY, DAY_COUNT, 2, CALENDAR);
+  private static final IndexON INDEX = new IndexON("O/N", CCY, DAY_COUNT, 1, CALENDAR);
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final GeneratorOIS GENERATOR = new GeneratorOIS("OIS", INDEX, PAYMENT_PERIOD, DAY_COUNT, BUSINESS_DAY, IS_EOM, 1);
   private static final boolean IS_PAYER = true;
