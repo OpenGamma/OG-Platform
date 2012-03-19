@@ -27,7 +27,7 @@ public class ExamplesTest {
 
   @BeforeMethod
   public void setUp() throws IOException {
-    DBTestUtils.createHsqlDB(CONFIG_RESOURCE_LOCATION);
+    DBTestUtils.createTestHsqlDB(CONFIG_RESOURCE_LOCATION);
   }
 
   @AfterMethod
