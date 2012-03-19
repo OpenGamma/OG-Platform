@@ -2,14 +2,20 @@
  * @copyright 2011 - present by OpenGamma Inc
  * @license See distribution for license
  */
-Function.prototype.partial = function () {
-    var method = this, orig = arguments, orig_len = orig.length, i, j, args, arguments_len,
-        new_method, key, has = 'hasOwnProperty';
-    new_method = function () {
-        if (!(arguments_len = arguments.length)) return method.apply(this, orig);
-        for (args = [], i = 0, j = 0; i < orig_len; i += 1) args.push(orig[i] === undefined ? arguments[j++] : orig[i]);
-        return method.apply(this, args.concat(Array.prototype.slice.call(arguments, j, arguments_len)));
+
+(function () {
+    var has = 'hasOwnProperty', slice = Array.prototype.slice;
+    Function.prototype.partial = function () {
+        var method = this, orig = arguments, orig_len = orig.length, key,
+            new_method = function () {
+                var arguments_len = arguments.length, args = [], i = 0, j = 0;
+                if (!arguments_len) return method.apply(this, slice.call(orig));
+                for (; i < orig_len; i++)
+                    args.push(orig[i] === void 0 ? arguments[j++] : orig[i]);
+                return method.apply(this, args.concat(slice.call(arguments, j, arguments_len)));
+            };
+        // if the function instance has been extended, copy all of its properties
+        for (key in method) if (method[has](key)) new_method[key] = method[key];
+        return new_method;
     };
-    for (key in method) if (method[has](key)) new_method[key] = method[key];
-    return new_method;
-};
+})();

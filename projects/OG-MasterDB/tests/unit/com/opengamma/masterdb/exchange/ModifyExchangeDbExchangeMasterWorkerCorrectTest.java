@@ -35,7 +35,7 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyExchangeDbExchangeMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, false);
     s_logger.info("running testcases for {}", databaseType);
   }
 
