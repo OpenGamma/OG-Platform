@@ -35,7 +35,7 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QueryExchangeDbExchangeMasterWorkerSearchTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, true);
     s_logger.info("running testcases for {}", databaseType);
   }
 
