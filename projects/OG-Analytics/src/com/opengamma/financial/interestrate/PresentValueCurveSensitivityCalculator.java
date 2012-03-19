@@ -28,7 +28,9 @@ import com.opengamma.financial.interestrate.bond.method.BillTransactionDiscounti
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.financial.interestrate.cash.method.CashDiscountingMethod;
+import com.opengamma.financial.interestrate.cash.method.DepositZeroDiscountingMethod;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.derivative.BondFuture;
@@ -89,6 +91,7 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
    */
   private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
+  private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final BillSecurityDiscountingMethod METHOD_BILL_SECURITY = BillSecurityDiscountingMethod.getInstance();
   private static final BillTransactionDiscountingMethod METHOD_BILL_TRANSACTION = BillTransactionDiscountingMethod.getInstance();
 
@@ -100,6 +103,11 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
   @Override
   public Map<String, List<DoublesPair>> visitCash(final Cash cash, final YieldCurveBundle curves) {
     return METHOD_DEPOSIT.presentValueCurveSensitivity(cash, curves).getSensitivities();
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitDepositZero(final DepositZero deposit, final YieldCurveBundle curves) {
+    return METHOD_DEPOSIT_ZERO.presentValueCurveSensitivity(deposit, curves).getSensitivities();
   }
 
   @Override

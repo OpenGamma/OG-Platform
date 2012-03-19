@@ -35,6 +35,7 @@ import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
+import com.opengamma.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
@@ -126,7 +127,7 @@ public class ForexDerivativeVisitorTest {
     testException(NDO, o);
     testException(FX_OPTION_DIGITAL);
     testException(FX_OPTION_DIGITAL, o);
-    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP};
+    final InstrumentDerivative[] forexArray = new InstrumentDerivative[] {FX, FX_SWAP };
     try {
       VISITOR_ABSTRACT.visit(forexArray[0]);
       assertTrue(false);
@@ -754,6 +755,18 @@ public class ForexDerivativeVisitorTest {
 
     @Override
     public String visitFederalFundsFutureTransaction(FederalFundsFutureTransaction future) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositZero(DepositZero deposit, T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitDepositZero(DepositZero deposit) {
+      // TODO Auto-generated method stub
       return null;
     }
 

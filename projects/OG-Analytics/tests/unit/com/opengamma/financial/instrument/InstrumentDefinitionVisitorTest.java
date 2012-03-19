@@ -46,6 +46,7 @@ import com.opengamma.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.financial.instrument.cash.DepositIborDefinition;
+import com.opengamma.financial.instrument.cash.DepositZeroDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.instrument.future.FederalFundsFutureSecurityDefinition;
@@ -117,7 +118,7 @@ public class InstrumentDefinitionVisitorTest {
   private static final SwapFixedIborSpreadDefinition SWAP_FIXED_IBOR_SPREAD = new SwapFixedIborSpreadDefinition(ANNUITY_FIXED, ANNUITY_IBOR_SPREAD_1);
   private static final SwapIborIborDefinition SWAP_IBOR_IBOR = new SwapIborIborDefinition(ANNUITY_IBOR_SPREAD_2, ANNUITY_IBOR_SPREAD_1);
   private static final AnnuityDefinition<PaymentFixedDefinition> GENERAL_ANNUITY = new AnnuityDefinition<PaymentFixedDefinition>(new PaymentFixedDefinition[] {
-      new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1000), new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2012, 1, 1), 1000)});
+      new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2011, 1, 1), 1000), new PaymentFixedDefinition(CUR, DateUtils.getUTCDate(2012, 1, 1), 1000) });
   private static final CouponFloatingDefinition COUPON_FLOATING = new CouponFloatingDefinition(CUR, SETTLE_DATE.plusMonths(3), SETTLE_DATE, SETTLE_DATE.plusMonths(3), 0.25, NOTIONAL, SETTLE_DATE) {
 
     @Override
@@ -132,7 +133,7 @@ public class InstrumentDefinitionVisitorTest {
 
   };
   private static final CouponCMSDefinition COUPON_CMS = CouponCMSDefinition.from(CouponIborDefinition.from(1000, SETTLE_DATE, IBOR_INDEX_1), CMS_INDEX);
-  private static final AnnuityCouponCMSDefinition ANNUITY_COUPON_CMS = new AnnuityCouponCMSDefinition(new CouponCMSDefinition[] {COUPON_CMS});
+  private static final AnnuityCouponCMSDefinition ANNUITY_COUPON_CMS = new AnnuityCouponCMSDefinition(new CouponCMSDefinition[] {COUPON_CMS });
 
   private static final InterestRateFutureDefinition IR_FUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createInterestRateFutureSecurityDefinition();
   private static final BondFutureDefinition BNDFUT_SECURITY_DEFINITION = FutureInstrumentsDescriptionDataSet.createBondFutureSecurityDefinition();
@@ -676,6 +677,18 @@ public class InstrumentDefinitionVisitorTest {
 
     @Override
     public String visitFederalFundsFutureTransactionDefinition(FederalFundsFutureTransactionDefinition future) {
+      return null;
+    }
+
+    @Override
+    public String visitDepositZeroDefinition(DepositZeroDefinition deposit, T data) {
+      // TODO Auto-generated method stub
+      return null;
+    }
+
+    @Override
+    public String visitDepositZeroDefinition(DepositZeroDefinition deposit) {
+      // TODO Auto-generated method stub
       return null;
     }
   }
