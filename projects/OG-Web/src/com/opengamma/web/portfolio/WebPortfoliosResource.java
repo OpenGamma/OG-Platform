@@ -108,7 +108,8 @@ public class WebPortfoliosResource extends AbstractWebPortfolioResource {
     searchRequest.setPagingRequest(pr);
     searchRequest.setSortOrder(sort);
     searchRequest.setName(StringUtils.trimToNull(name));
-    searchRequest.setDepth(0);    //PLAT-1733 NOTE: we assume no depth here since the ftl throws the data away
+    searchRequest.setDepth(0);  // see PLAT-1733
+    searchRequest.setIncludePositions(false);  // see PLAT-2012
     if (BooleanUtils.isTrue(includeHidden)) {
       searchRequest.setVisibility(DocumentVisibility.HIDDEN);
     }
