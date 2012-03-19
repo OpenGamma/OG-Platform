@@ -23,7 +23,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 import com.opengamma.DataDuplicationException;
-import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdSearch;
@@ -63,9 +63,9 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  * and versions. All the methods accept both formats although where possible they
  * should be treated separately. 
  * <p>
- * The SQL is stored externally in {@code DbHistoricalTimeSeriesMaster.extsql}.
+ * The SQL is stored externally in {@code DbHistoricalTimeSeriesMaster.elsql}.
  * Alternate databases or specific SQL requirements can be handled using database
- * specific overrides, such as {@code DbHistoricalTimeSeriesMaster-MySpecialDB.extsql}.
+ * specific overrides, such as {@code DbHistoricalTimeSeriesMaster-MySpecialDB.elsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
@@ -115,7 +115,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
    */
   public DbHistoricalTimeSeriesMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
-    setExtSqlBundle(ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbHistoricalTimeSeriesMaster.class));
+    setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbHistoricalTimeSeriesMaster.class));
     _nameTable = new NamedDimensionDbTable(dbConnector, "name", "hts_name", "hts_dimension_seq");
     _dataFieldTable = new NamedDimensionDbTable(dbConnector, "data_field", "hts_data_field", "hts_dimension_seq");
     _dataSourceTable = new NamedDimensionDbTable(dbConnector, "data_source", "hts_data_source", "hts_dimension_seq");
@@ -257,7 +257,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
-    String[] sql = {getExtSqlBundle().getSql("Search", args), getExtSqlBundle().getSql("SearchCount", args)};
+    String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
     searchWithPaging(request.getPagingRequest(), sql, args, new HistoricalTimeSeriesDocumentExtractor(), result);
     return result;
   }
@@ -265,7 +265,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
   /**
    * Gets the SQL to find all the ids for a single bundle.
    * <p>
-   * This is too complex for the extsql mechanism.
+   * This is too complex for the elsql mechanism.
    * 
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
@@ -359,7 +359,7 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
-    final String sqlSelectIdKey = getExtSqlBundle().getSql("SelectIdKey");
+    final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
     for (ExternalIdWithDates id : info.getExternalIdBundle()) {
       final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
         .addValue("doc_id", docId)
@@ -380,9 +380,9 @@ public class DbHistoricalTimeSeriesMaster extends AbstractDocumentDbMaster<Histo
     }
     
     // insert
-    final String sqlDoc = getExtSqlBundle().getSql("Insert", docArgs);
-    final String sqlIdKey = getExtSqlBundle().getSql("InsertIdKey");
-    final String sqlDoc2IdKey = getExtSqlBundle().getSql("InsertDoc2IdKey");
+    final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
+    final String sqlIdKey = getElSqlBundle().getSql("InsertIdKey");
+    final String sqlDoc2IdKey = getElSqlBundle().getSql("InsertDoc2IdKey");
     getJdbcTemplate().update(sqlDoc, docArgs);
     getJdbcTemplate().batchUpdate(sqlIdKey, idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
     getJdbcTemplate().batchUpdate(sqlDoc2IdKey, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));

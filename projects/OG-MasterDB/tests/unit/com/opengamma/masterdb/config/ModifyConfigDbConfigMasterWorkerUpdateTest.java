@@ -17,8 +17,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.extsql.ExtSqlBundle;
-import com.opengamma.extsql.ExtSqlConfig;
+import com.opengamma.elsql.ElSqlBundle;
+import com.opengamma.elsql.ElSqlConfig;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.config.ConfigDocument;
@@ -136,7 +136,7 @@ public class ModifyConfigDbConfigMasterWorkerUpdateTest extends AbstractDbConfig
   @Test
   public void test_update_rollback() {
     DbConfigWorker w = new DbConfigWorker(_cfgMaster.getDbConnector(), _cfgMaster.getUniqueIdScheme());
-    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("TestRollback"), DbConfigMaster.class));
+    w.setElSqlBundle(ElSqlBundle.of(new ElSqlConfig("TestRollback"), DbConfigMaster.class));
     final ConfigDocument<ExternalId> base = _cfgMaster.get(UniqueId.of("DbCfg", "101", "0"), ExternalId.class);
     UniqueId uniqueId = UniqueId.of("DbCfg", "101", "0");
     ConfigDocument<ExternalId> input = new ConfigDocument<ExternalId>(ExternalId.class);

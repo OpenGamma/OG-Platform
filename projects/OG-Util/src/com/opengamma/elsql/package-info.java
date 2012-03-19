@@ -23,7 +23,7 @@
  * The key benefit is a simple external file that a DBA can understand, something
  * which is invaluable for later maintenance and debugging.
  * <p>
- * The file format is a file which typically has the suffix ".extsql".
+ * The file format is a file which typically has the suffix ".elsql".
  * Here is an example highlighting the structure:
  * <pre>
  *  -- an example comment
@@ -49,7 +49,7 @@
  * <p>
  * &#064;NAME(name)<br />
  * The name tag creates a named block which can be referred to from the application
- * or another part of the extsql file. The tag must be on a line by itself.
+ * or another part of the elsql file. The tag must be on a line by itself.
  * <p>
  * &#064;INCLUDE(nameOrVariable)<br />
  * The include tag includes the contents of a named block or a variable (prefixed by colon).
@@ -94,4 +94,4 @@
  * &#064;FETCH(fetchVariable)<br />
  * The fetch tag adds the SQL FETCH clause. It works as per the offset-fetch tag.
  */
-package com.opengamma.extsql;
+package com.opengamma.elsql;

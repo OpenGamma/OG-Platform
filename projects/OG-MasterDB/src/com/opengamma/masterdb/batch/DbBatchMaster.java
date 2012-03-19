@@ -63,9 +63,9 @@ import com.opengamma.util.tuple.Pair;
  * This is a full implementation of the batch master using an SQL database.
  * Full details of the API are in {@link BatchMasterWriter}.
  * <p>
- * The SQL is stored externally in {@code DbBatchMaster.extsql}.
+ * The SQL is stored externally in {@code DbBatchMaster.elsql}.
  * Alternate databases or specific SQL requirements can be handled using database
- * specific overrides, such as {@code DbBatchMaster-MySpecialDB.extsql}.
+ * specific overrides, such as {@code DbBatchMaster-MySpecialDB.elsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
@@ -357,7 +357,7 @@ public class DbBatchMaster extends AbstractDbMaster implements BatchMasterWriter
       args.addValue("paging_fetch", pagingRequest.getPagingSize());
     }
     
-    String[] sql = {getExtSqlBundle().getSql("GetBatchValues", args), getExtSqlBundle().getSql("BatchValuesCount", args)};
+    String[] sql = {getElSqlBundle().getSql("GetBatchValues", args), getElSqlBundle().getSql("BatchValuesCount", args)};
     return searchWithPaging(pagingRequest, sql, args, new BatchValuesExtractor());
   }
 

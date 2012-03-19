@@ -91,7 +91,7 @@ public class IndexONTest {
     assertFalse("OIS Index: equal/hash code", US_OIS.equals(modified));
     modified = new IndexON(US_OIS_NAME, US_CUR, DayCountFactory.INSTANCE.getDayCount("Actual/365"), US_PUBLICATION_LAG, US_CALENDAR);
     assertFalse("OIS Index: equal/hash code", US_OIS.equals(modified));
-    modified = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, 12, US_CALENDAR);
+    modified = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, 0, US_CALENDAR);
     assertFalse("OIS Index: equal/hash code", US_OIS.equals(modified));
     modified = new IndexON(US_OIS_NAME, US_CUR, US_DAY_COUNT, US_PUBLICATION_LAG, EUR_CALENDAR);
     assertFalse("OIS Index: equal/hash code", US_OIS.equals(modified));

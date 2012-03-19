@@ -14,7 +14,7 @@ import org.hsqldb.DatabaseManager;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
 
-import com.opengamma.extsql.ExtSqlConfig;
+import com.opengamma.elsql.ElSqlConfig;
 
 /**
  * Database dialect for HSQL databases.
@@ -46,8 +46,8 @@ public class HSQLDbDialect extends DbDialect {
   }
 
   @Override
-  protected ExtSqlConfig createExtSqlConfig() {
-    return ExtSqlConfig.HSQL;
+  protected ElSqlConfig createElSqlConfig() {
+    return ElSqlConfig.HSQL;
   }
 
   //-------------------------------------------------------------------------
