@@ -96,8 +96,11 @@ public final class ViewDefinitionCompiler {
     final Iterator<Pair<DependencyGraphBuilder, Set<ValueRequirement>>> itr = context.getBuilders().iterator();
     while (itr.hasNext()) {
       final Pair<DependencyGraphBuilder, Set<ValueRequirement>> entry = itr.next();
-      entry.getFirst().addTarget(entry.getSecond());
-      result.put(entry.getFirst().getCalculationConfigurationName(), entry.getFirst().getDependencyGraph());
+      final DependencyGraphBuilder builder = entry.getFirst();
+      builder.addTarget(entry.getSecond());
+      final DependencyGraph graph = builder.getDependencyGraph();
+      graph.removeUnnecessaryValues();
+      result.put(builder.getCalculationConfigurationName(), graph);
       // TODO: do we want to do anything with the ValueRequirement to resolved ValueSpecification data?
       itr.remove();
     }
