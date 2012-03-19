@@ -146,7 +146,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
       if (resultsProvider == null) {
         return;
       }
-      for (ValueSpecification result : resultsProvider.getPartialResults(getTarget())) {
+      for (final ValueSpecification result : resultsProvider.getPartialResults(getTarget())) {
         final Set<String> properties = result.getProperties().getProperties();
         if ((properties != null) && properties.contains(propertyName)) {
           s_logger.debug("Found {} defined on {}", propertyName, result);
@@ -193,7 +193,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
   protected abstract Set<String> getDefaultValue(FunctionCompilationContext context, ComputationTarget target, ValueRequirement desiredValue, String propertyName);
 
   @Override
-  public Set<ComputedValue> execute(FunctionExecutionContext executionContext, FunctionInputs inputs, ComputationTarget target, Set<ValueRequirement> desiredValues) {
+  public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     throw new IllegalStateException("This function should never be executed");
   }
 
@@ -216,7 +216,7 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
     final PropertyDefaults defaults = getDefaults(context, target);
     final ValueProperties.Builder constraints = desiredValue.getConstraints().copy();
     boolean matched = false;
-    for (String propertyName : defaults.getValueName2PropertyNames().get(desiredValue.getValueName())) {
+    for (final String propertyName : defaults.getValueName2PropertyNames().get(desiredValue.getValueName())) {
       final Set<String> existingValues = desiredValue.getConstraints().getValues(propertyName);
       if (isPermitWithout() || (existingValues == null) || desiredValue.getConstraints().isOptional(propertyName)) {
         s_logger.debug("Matched default property {} for {}", propertyName, desiredValue);
@@ -281,9 +281,9 @@ public abstract class DefaultPropertyFunction extends AbstractFunction.NonCompil
     }
     final ComputationTargetSpecification targetSpec = target.toSpecification();
     final Set<ValueSpecification> result = new HashSet<ValueSpecification>();
-    for (Map.Entry<String, Set<String>> valueName2PropertyNames : defaults.getValueName2PropertyNames().entrySet()) {
+    for (final Map.Entry<String, Set<String>> valueName2PropertyNames : defaults.getValueName2PropertyNames().entrySet()) {
       final String valueName = valueName2PropertyNames.getKey();
-      for (String propertyName : valueName2PropertyNames.getValue()) {
+      for (final String propertyName : valueName2PropertyNames.getValue()) {
         result.add(new ValueSpecification(valueName, targetSpec, isPermitWithout() ? ValueProperties.all() : ValueProperties.all().withoutAny(propertyName)));
       }
     }

@@ -36,6 +36,7 @@ import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.bond.BondFunction;
 import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
 import com.opengamma.financial.analytics.model.forex.ForexForwardFunction;
+import com.opengamma.financial.analytics.model.forex.ForexForwardYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.forex.ForexOptionFunction;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
@@ -83,7 +84,11 @@ public class PositionTradeScalingFunction extends PropertyPreservingFunction {
         ForexOptionFunction.PROPERTY_PUT_FORWARD_CURVE_NAME,
         ForexOptionFunction.PROPERTY_PUT_FUNDING_CURVE_NAME,
         ForexForwardFunction.PROPERTY_PAY_CURVE_CALCULATION_METHOD,
-        ForexForwardFunction.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD);
+        ForexForwardFunction.PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD,
+        ForexForwardYieldCurveNodeSensitivitiesFunction.PROPERTY_PAY_FORWARD_CURVE_NAME,
+        ForexForwardYieldCurveNodeSensitivitiesFunction.PROPERTY_PAY_FUNDING_CURVE_NAME,
+        ForexForwardYieldCurveNodeSensitivitiesFunction.PROPERTY_RECEIVE_FORWARD_CURVE_NAME,
+        ForexForwardYieldCurveNodeSensitivitiesFunction.PROPERTY_RECEIVE_FUNDING_CURVE_NAME);
   }
 
   @Override
