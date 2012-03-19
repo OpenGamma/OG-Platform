@@ -19,8 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.id.ObjectId;
@@ -45,14 +47,29 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
   protected int _visiblePortfolios;
   protected int _totalPositions;
   protected OffsetDateTime _now;
+  protected boolean _readOnly;  // attempt to speed up tests
 
-  public AbstractDbPortfolioMasterWorkerTest(String databaseType, String databaseVersion) {
+  public AbstractDbPortfolioMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
     super(databaseType, databaseVersion);
+    _readOnly = readOnly;
     s_logger.info("running testcases for {}", databaseType);
+  }
+
+  @BeforeClass
+  public void setUpClass() throws Exception {
+    if (_readOnly) {
+      init();
+    }
   }
 
   @BeforeMethod
   public void setUp() throws Exception {
+    if (_readOnly == false) {
+      init();
+    }
+  }
+
+  private void init() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     _prtMaster = (DbPortfolioMaster) context.getBean(getDatabaseType() + "DbPortfolioMaster");
@@ -119,8 +136,18 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
 
   @AfterMethod
   public void tearDown() throws Exception {
-    _prtMaster = null;
-    super.tearDown();
+    if (_readOnly == false) {
+      _prtMaster = null;
+      super.tearDown();
+    }
+  }
+
+  @AfterClass
+  public void tearDownClass() throws Exception {
+    if (_readOnly) {
+      _prtMaster = null;
+      super.tearDown();
+    }
   }
 
   @AfterSuite

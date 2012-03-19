@@ -110,10 +110,4 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
     assertEquals(2, searchResult.getDocuments().size());
   }
 
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_exgMaster.getClass().getSimpleName() + "[DbExg]", _exgMaster.toString());
-  }
-
 }

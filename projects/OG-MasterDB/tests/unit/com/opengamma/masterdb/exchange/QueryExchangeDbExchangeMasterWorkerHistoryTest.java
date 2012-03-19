@@ -188,10 +188,4 @@ public class QueryExchangeDbExchangeMasterWorkerHistoryTest extends AbstractDbEx
     assert201(test.getDocuments().get(1));
   }
 
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_exgMaster.getClass().getSimpleName() + "[DbExg]", _exgMaster.toString());
-  }
-
 }
