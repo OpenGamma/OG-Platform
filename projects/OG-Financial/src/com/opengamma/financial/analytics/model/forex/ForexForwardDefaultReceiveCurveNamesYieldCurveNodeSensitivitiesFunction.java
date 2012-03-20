@@ -1,67 +1,59 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
-package com.opengamma.financial.analytics.model.fixedincome;
+package com.opengamma.financial.analytics.model.forex;
 
 import java.util.Collections;
 import java.util.Set;
 
+import com.opengamma.core.security.Security;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
-import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
-import com.opengamma.financial.security.FinancialSecurity;
-import com.opengamma.financial.security.FinancialSecurityUtils;
+import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * Dummy function for injecting default curve names into the dependency graph.
+ * 
  */
-public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPropertyFunction {
+public class ForexForwardDefaultReceiveCurveNamesYieldCurveNodeSensitivitiesFunction extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.PAR_RATE,
-    ValueRequirementNames.PAR_RATE_CURVE_SENSITIVITY,
-    ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT,
-    ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES};
+  private final String _forwardCurveName;
+  private final String _fundingCurveName;
   private final String _curveCalculationMethod;
-  private final String _forwardCurve;
-  private final String _fundingCurve;
   private final String[] _applicableCurrencyNames;
 
-  public InterestRateInstrumentDefaultCurveNameFunction(final String curveCalculationMethod, final String forwardCurve, final String fundingCurve, final String... applicableCurrencyNames) {
+  public ForexForwardDefaultReceiveCurveNamesYieldCurveNodeSensitivitiesFunction(final String forwardCurveName, final String fundingCurveName,
+      final String curveCalculationMethod, final String... applicableCurrencyNames) {
     super(ComputationTargetType.SECURITY, true);
+    ArgumentChecker.notNull(forwardCurveName, "forward curve name");
+    ArgumentChecker.notNull(fundingCurveName, "funding curve name");
     ArgumentChecker.notNull(curveCalculationMethod, "curve calculation method");
-    ArgumentChecker.notNull(forwardCurve, "forward curve name");
-    ArgumentChecker.notNull(fundingCurve, "funding curve name");
-    ArgumentChecker.notNull(applicableCurrencyNames, "applicable currency names list");
-    ArgumentChecker.notEmpty(applicableCurrencyNames, "applicable currency names list");
+    ArgumentChecker.notNull(applicableCurrencyNames, "currency names");
+    _forwardCurveName = forwardCurveName;
+    _fundingCurveName = fundingCurveName;
     _curveCalculationMethod = curveCalculationMethod;
-    _forwardCurve = forwardCurve;
-    _fundingCurve = fundingCurve;
     _applicableCurrencyNames = applicableCurrencyNames;
   }
 
   @Override
   public boolean canApplyTo(final FunctionCompilationContext context, final ComputationTarget target) {
-    if (!(target.getSecurity() instanceof FinancialSecurity)) {
+    final Security security = target.getSecurity();
+    if (!(security instanceof FXForwardSecurity)) {
       return false;
     }
-    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    if (InterestRateInstrumentType.isFixedIncomeInstrumentType(security)) {
-      final String currencyName = FinancialSecurityUtils.getCurrency(security).getCode();
-      for (final String applicableCurrencyName : _applicableCurrencyNames) {
-        if (currencyName.equals(applicableCurrencyName)) {
-          return true;
-        }
+    final FXForwardSecurity fxForward = (FXForwardSecurity) security;
+    for (final String currencyName : _applicableCurrencyNames) {
+      if (currencyName.equals(fxForward.getReceiveCurrency().getCode())) {
+        return true;
       }
     }
     return false;
@@ -79,23 +71,14 @@ public class InterestRateInstrumentDefaultCurveNameFunction extends DefaultPrope
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
     if (YieldCurveFunction.PROPERTY_FORWARD_CURVE.equals(propertyName)) {
-      return Collections.singleton(_forwardCurve);
+      return Collections.singleton(_forwardCurveName);
     }
     if (YieldCurveFunction.PROPERTY_FUNDING_CURVE.equals(propertyName)) {
-      return Collections.singleton(_fundingCurve);
+      return Collections.singleton(_fundingCurveName);
     }
     if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
       return Collections.singleton(_curveCalculationMethod);
     }
     return null;
   }
-
-  @Override
-  public PriorityClass getPriority() {
-    if ("SECONDARY".equals(_forwardCurve) || "SECONDARY".equals(_fundingCurve)) {
-      return PriorityClass.BELOW_NORMAL;
-    }
-    return super.getPriority();
-  }
-
 }

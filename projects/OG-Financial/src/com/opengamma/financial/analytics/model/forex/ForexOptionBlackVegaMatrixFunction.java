@@ -9,10 +9,7 @@ import java.text.DecimalFormat;
 import java.util.Collections;
 import java.util.Set;
 
-import com.opengamma.engine.ComputationTarget;
-import com.opengamma.engine.function.FunctionInputs;
 import com.opengamma.engine.value.ComputedValue;
-import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.DoubleLabelledMatrix2D;
@@ -24,13 +21,16 @@ import com.opengamma.financial.model.option.definition.SmileDeltaTermStructureDa
 /**
  * 
  */
-public class ForexOptionVegaFunction extends ForexOptionFunction {
+public class ForexOptionBlackVegaMatrixFunction extends ForexOptionBlackFunction {
   private static final PresentValueForexVegaSensitivityCalculator CALCULATOR = PresentValueForexVegaSensitivityCalculator.getInstance();
   private static final DecimalFormat DELTA_FORMATTER = new DecimalFormat("##");
 
+  public ForexOptionBlackVegaMatrixFunction() {
+    super(ValueRequirementNames.VEGA_MATRIX);
+  }
+
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final FunctionInputs inputs, final ComputationTarget target,
-      final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName, final String surfaceName) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative fxOption, final SmileDeltaTermStructureDataBundle data, final ValueSpecification spec) {
     final PresentValueVolatilityNodeSensitivityDataBundle result = CALCULATOR.visit(fxOption, data);
     final double[] expiries = result.getExpiries().getData();
     final double[] delta = result.getDelta().getData();
@@ -53,14 +53,7 @@ public class ForexOptionVegaFunction extends ForexOptionFunction {
         values[i][j] = vega[j][i];
       }
     }
-    final ValueProperties.Builder properties = getResultProperties(putFundingCurveName, putForwardCurveName, callFundingCurveName, callForwardCurveName, surfaceName, target);
-    final ValueSpecification spec = new ValueSpecification(getValueRequirementName(), target.toSpecification(), properties.get());
     return Collections.singleton(new ComputedValue(spec, new DoubleLabelledMatrix2D(rowValues, rowLabels, columnValues, columnLabels, values)));
-  }
-
-  @Override
-  protected String getValueRequirementName() {
-    return ValueRequirementNames.VEGA_MATRIX;
   }
 
   private String getFormattedExpiry(final double expiry) {

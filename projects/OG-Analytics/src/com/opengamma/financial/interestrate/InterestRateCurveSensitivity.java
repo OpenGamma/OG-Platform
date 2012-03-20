@@ -38,7 +38,7 @@ public class InterestRateCurveSensitivity {
    * Constructor from a map of sensitivity.
    * @param sensitivity The map.
    */
-  public InterestRateCurveSensitivity(Map<String, List<DoublesPair>> sensitivity) {
+  public InterestRateCurveSensitivity(final Map<String, List<DoublesPair>> sensitivity) {
     Validate.notNull(sensitivity, "sensitivity");
     this._sensitivity = sensitivity;
   }
@@ -56,7 +56,7 @@ public class InterestRateCurveSensitivity {
    * @param other The sensitivity to add.
    * @return The total sensitivity.
    */
-  public InterestRateCurveSensitivity plus(InterestRateCurveSensitivity other) {
+  public InterestRateCurveSensitivity plus(final InterestRateCurveSensitivity other) {
     return new InterestRateCurveSensitivity(addSensitivity(_sensitivity, other._sensitivity));
   }
 
@@ -65,7 +65,7 @@ public class InterestRateCurveSensitivity {
    * @param factor The multiplicative factor.
    * @return The multiplied sensitivity.
    */
-  public InterestRateCurveSensitivity multiply(double factor) {
+  public InterestRateCurveSensitivity multiply(final double factor) {
     return new InterestRateCurveSensitivity(multiplySensitivity(_sensitivity, factor));
   }
 
@@ -79,8 +79,8 @@ public class InterestRateCurveSensitivity {
 
   /**
    * Return a clean sensitivity by sorting the times and adding the duplicate times.
-   * @param relTol Relative tolerance - if the net divided by gross sensitivity is less than this it is ignored/removed 
-   * @param absTol Absolute tolerance  - is the net sensitivity is less than this it is ignored/removed 
+   * @param relTol Relative tolerance - if the net divided by gross sensitivity is less than this it is ignored/removed
+   * @param absTol Absolute tolerance  - is the net sensitivity is less than this it is ignored/removed
    * @return The cleaned sensitivity.
    */
   public InterestRateCurveSensitivity clean(final double relTol, final double absTol) {
@@ -94,7 +94,7 @@ public class InterestRateCurveSensitivity {
    * @param tolerance The tolerance.
    * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
    */
-  public static boolean compare(final InterestRateCurveSensitivity sensi1, final InterestRateCurveSensitivity sensi2, double tolerance) {
+  public static boolean compare(final InterestRateCurveSensitivity sensi1, final InterestRateCurveSensitivity sensi2, final double tolerance) {
     return InterestRateCurveSensitivityUtils.compare(sensi1.getSensitivities(), sensi2.getSensitivities(), tolerance);
   }
 
@@ -107,7 +107,7 @@ public class InterestRateCurveSensitivity {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -117,11 +117,16 @@ public class InterestRateCurveSensitivity {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InterestRateCurveSensitivity other = (InterestRateCurveSensitivity) obj;
+    final InterestRateCurveSensitivity other = (InterestRateCurveSensitivity) obj;
     if (!ObjectUtils.equals(_sensitivity, other._sensitivity)) {
       return false;
     }
     return true;
+  }
+
+  @Override
+  public String toString() {
+    return _sensitivity.toString();
   }
 
 }

@@ -5,8 +5,6 @@
  */
 package com.opengamma.masterdb.security;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
@@ -27,7 +25,7 @@ public class QuerySecurityDbSecurityMasterWorkerGetTest extends AbstractDbSecuri
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QuerySecurityDbSecurityMasterWorkerGetTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, true);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -89,12 +87,6 @@ public class QuerySecurityDbSecurityMasterWorkerGetTest extends AbstractDbSecuri
     UniqueId oid = UniqueId.of("DbSec", "201");
     SecurityDocument test = _secMaster.get(oid);
     assert202(test);
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_secMaster.getClass().getSimpleName() + "[DbSec]", _secMaster.toString());
   }
 
 }

@@ -12,6 +12,8 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.DepositZero;
+import com.opengamma.financial.interestrate.cash.method.DepositZeroDiscountingMethod;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
@@ -64,6 +66,7 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
    */
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
   private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
+  private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final ForwardRateAgreementDiscountingMethod METHOD_FRA = ForwardRateAgreementDiscountingMethod.getInstance();
   private static final InterestRateFutureDiscountingMethod METHOD_IRFUT = InterestRateFutureDiscountingMethod.getInstance();
 
@@ -92,6 +95,11 @@ public final class ParRateCalculator extends AbstractInstrumentDerivativeVisitor
       return rate + ta * (dRate - rate) / eps;
     }
     return (curve.getDiscountFactor(ta) / curve.getDiscountFactor(tb) - 1) / yearFrac;
+  }
+
+  @Override
+  public Double visitDepositZero(final DepositZero deposit, final YieldCurveBundle curves) {
+    return METHOD_DEPOSIT_ZERO.parRate(deposit, curves);
   }
 
   @Override

@@ -27,6 +27,7 @@ import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
+import com.opengamma.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
@@ -279,6 +280,10 @@ public interface InstrumentDerivativeVisitor<S, T> {
   T visitDepositCounterpart(DepositCounterpart deposit, S data);
 
   T visitDepositCounterpart(DepositCounterpart deposit);
+
+  T visitDepositZero(DepositZero deposit, S data);
+
+  T visitDepositZero(DepositZero deposit);
 
   // -----     Forex     -----
 

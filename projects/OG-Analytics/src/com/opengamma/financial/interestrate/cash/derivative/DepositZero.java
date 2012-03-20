@@ -155,14 +155,12 @@ public class DepositZero implements InstrumentDerivative {
 
   @Override
   public <S, T> T accept(InstrumentDerivativeVisitor<S, T> visitor, S data) {
-    // TODO Auto-generated method stub
-    return null;
+    return visitor.visitDepositZero(this, data);
   }
 
   @Override
   public <T> T accept(InstrumentDerivativeVisitor<?, T> visitor) {
-    // TODO Auto-generated method stub
-    return null;
+    return visitor.visitDepositZero(this);
   }
 
   @Override
