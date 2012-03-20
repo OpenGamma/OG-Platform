@@ -98,9 +98,11 @@ public class WikiDocumentationExporter extends AbstractDocumentationExporter {
    */
   public class WikiDocumenter<D extends Definition> extends Documenter<D> {
 
+    private final String[] _wikiDocFolders = getWikiDocFolders();
+
     @Override
     protected String getDescription(final D definition) {
-      return sentence(definition.getDescription()) + "\n\n";
+      return sentence(definition.getDescription()).replaceAll("\n", "\n\n") + "\n\n";
     }
 
     @Override
@@ -124,9 +126,13 @@ public class WikiDocumentationExporter extends AbstractDocumentationExporter {
       return "\n";
     }
 
+    protected String getWikiDoc(final String name) {
+      return WikiDocumentationExporter.this.getWikiDoc(name, _wikiDocFolders);
+    }
+
     @Override
     protected String getBlurb(final D definition) {
-      return getWikiDoc(definition.getName(), getWikiDocFolders());
+      return getWikiDoc(definition.getName());
     }
 
   }
