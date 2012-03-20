@@ -25,7 +25,7 @@ import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.IdUtils;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.ObjectId;
@@ -83,7 +83,7 @@ import com.opengamma.util.paging.PagingRequest;
    */
   public DbConfigWorker(DbConnector dbConnector, String defaultScheme) {
     super(dbConnector, defaultScheme);
-    setExtSqlBundle(ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbConfigMaster.class));
+    setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbConfigMaster.class));
   }
 
   //-------------------------------------------------------------------------
@@ -137,7 +137,7 @@ import com.opengamma.util.paging.PagingRequest;
       .addValue("name", document.getName())
       .addValue("config_type", document.getType().getName())
       .addValue("config", new SqlLobValue(bytes, getDialect().getLobHandler()), Types.BLOB);
-    final String sqlDoc = getExtSqlBundle().getSql("Insert", docArgs);
+    final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
     getJdbcTemplate().update(sqlDoc, docArgs);
     return document;
   }
@@ -147,7 +147,7 @@ import com.opengamma.util.paging.PagingRequest;
     ArgumentChecker.notNull(request, "request");
     ConfigMetaDataResult result = new ConfigMetaDataResult();
     if (request.isConfigTypes()) {
-      final String sql = getExtSqlBundle().getSql("SelectTypes");
+      final String sql = getElSqlBundle().getSql("SelectTypes");
       List<String> configTypes = getJdbcTemplate().getJdbcOperations().queryForList(sql, String.class);
       for (String configType : configTypes) {
         try {
@@ -198,7 +198,7 @@ import com.opengamma.util.paging.PagingRequest;
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
-    String[] sql = {getExtSqlBundle().getSql("Search", args), getExtSqlBundle().getSql("SearchCount", args)};
+    String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
     
     final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     ConfigDocumentExtractor configDocumentExtractor = new ConfigDocumentExtractor();
@@ -237,7 +237,7 @@ import com.opengamma.util.paging.PagingRequest;
     ConfigHistoryResult<T> result = new ConfigHistoryResult<T>();
     ConfigDocumentExtractor extractor = new ConfigDocumentExtractor();
     final DbMapSqlParameterSource args = argsHistory(request);
-    final String[] sql = {getExtSqlBundle().getSql("History", args), getExtSqlBundle().getSql("HistoryCount", args)};
+    final String[] sql = {getElSqlBundle().getSql("History", args), getElSqlBundle().getSql("HistoryCount", args)};
     
     final NamedParameterJdbcOperations namedJdbc = getDbConnector().getJdbcTemplate().getNamedParameterJdbcOperations();
     if (request.getPagingRequest().equals(PagingRequest.ALL)) {

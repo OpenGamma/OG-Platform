@@ -33,7 +33,7 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyPortfolioDbPortfolioMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, false);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -122,12 +122,6 @@ public class ModifyPortfolioDbPortfolioMasterWorkerCorrectTest extends AbstractD
     assertEquals(2, searchResult.getDocuments().size());
     assertEquals(corrected.getUniqueId(), searchResult.getDocuments().get(0).getUniqueId());
     assertEquals(oldPortfolioId, searchResult.getDocuments().get(1).getUniqueId());
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_prtMaster.getClass().getSimpleName() + "[DbPrt]", _prtMaster.toString());
   }
 
 }

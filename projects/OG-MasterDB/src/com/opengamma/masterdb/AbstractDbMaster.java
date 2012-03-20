@@ -19,7 +19,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.orm.hibernate3.HibernateTemplate;
 import org.springframework.transaction.support.TransactionTemplate;
 
-import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.ArgumentChecker;
@@ -60,7 +60,7 @@ public abstract class AbstractDbMaster {
   /**
    * External SQL bundle.
    */
-  private ExtSqlBundle _externalSqlBundle;
+  private ElSqlBundle _externalSqlBundle;
   
   /**
    * The Hibernate template.
@@ -137,7 +137,7 @@ public abstract class AbstractDbMaster {
    * 
    * @return the external SQL bundle, not null
    */
-  public ExtSqlBundle getExtSqlBundle() {
+  public ElSqlBundle getElSqlBundle() {
     return _externalSqlBundle;
   }
 
@@ -146,7 +146,7 @@ public abstract class AbstractDbMaster {
    * 
    * @param bundle  the external SQL bundle, not null
    */
-  public void setExtSqlBundle(ExtSqlBundle bundle) {
+  public void setElSqlBundle(ElSqlBundle bundle) {
     _externalSqlBundle = bundle;
   }
   

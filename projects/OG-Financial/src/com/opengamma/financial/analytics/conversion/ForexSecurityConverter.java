@@ -116,15 +116,14 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
     final ZonedDateTime expiry = fxOptionSecurity.getExpiry().getExpiry();
     final ZonedDateTime settlementDate = fxOptionSecurity.getSettlementDate();
     final boolean isLong = fxOptionSecurity.isLong();
-    final ForexDefinition underlying;
-    if (FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency)) { // To get Base/quote in market standard order.
-      final double fxRate = callAmount / putAmount;
-      underlying = new ForexDefinition(putCurrency, callCurrency, settlementDate, putAmount, fxRate);
-      return new ForexOptionVanillaDefinition(underlying, expiry, false, isLong);
+    ForexDefinition underlying;
+    final boolean order = FXUtils.isInBaseQuoteOrder(putCurrency, callCurrency); // To get Base/quote in market standard order.
+    if (order) {
+      underlying = ForexDefinition.fromAmounts(putCurrency, callCurrency, settlementDate, putAmount, -callAmount);
+    } else {
+      underlying = ForexDefinition.fromAmounts(callCurrency, putCurrency, settlementDate, callAmount, -putAmount);
     }
-    final double fxRate = putAmount / callAmount;
-    underlying = new ForexDefinition(callCurrency, putCurrency, settlementDate, callAmount, fxRate);
-    return new ForexOptionVanillaDefinition(underlying, expiry, true, isLong);
+    return new ForexOptionVanillaDefinition(underlying, expiry, !order, isLong);
   }
 
   @Override
@@ -154,9 +153,8 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
     final Currency receiveCurrency = fxForwardSecurity.getReceiveCurrency();
     final double payAmount = fxForwardSecurity.getPayAmount();
     final double receiveAmount = fxForwardSecurity.getReceiveAmount();
-    final double fxRate = Math.abs(receiveAmount / payAmount); //TODO remove the abs when trades are formed correctly
     final ZonedDateTime forwardDate = fxForwardSecurity.getForwardDate();
-    return new ForexDefinition(payCurrency, receiveCurrency, forwardDate, payAmount, fxRate);
+    return ForexDefinition.fromAmounts(payCurrency, receiveCurrency, forwardDate, -payAmount, receiveAmount);
   }
 
   private KnockType getKnockType(final BarrierDirection direction) {

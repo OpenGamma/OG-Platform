@@ -3,13 +3,13 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.extsql;
+package com.opengamma.elsql;
 
 import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.extsql.ExtSqlParser.Line;
+import com.opengamma.elsql.ElSqlParser.Line;
 
 /**
  * Test.

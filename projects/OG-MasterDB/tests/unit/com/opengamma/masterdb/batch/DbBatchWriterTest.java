@@ -5,25 +5,25 @@
  */
 package com.opengamma.masterdb.batch;
 
-import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
-import com.opengamma.DataNotFoundException;
-import com.opengamma.core.security.Security;
-import com.opengamma.core.security.impl.SimpleSecurity;
-import com.opengamma.engine.ComputationTargetSpecification;
-import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.value.*;
-import com.opengamma.engine.view.CycleInfo;
-import com.opengamma.engine.view.InMemoryViewComputationResultModel;
-import com.opengamma.engine.view.ViewComputationResultModel;
-import com.opengamma.engine.view.calcnode.InvocationResult;
-import com.opengamma.batch.RunCreationMode;
-import com.opengamma.batch.SnapshotMode;
-import com.opengamma.batch.domain.*;
-import com.opengamma.id.*;
-import com.opengamma.masterdb.DbMasterTestUtils;
-import com.opengamma.util.paging.PagingRequest;
-import com.opengamma.util.test.DbTest;
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Collections.emptyList;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.assertNull;
+
+import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import javax.time.Instant;
+import javax.time.calendar.OffsetDateTime;
+
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
@@ -31,15 +31,39 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import javax.time.Instant;
-import javax.time.calendar.OffsetDateTime;
-import java.util.*;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Collections.emptyList;
-import static org.testng.AssertJUnit.*;
+import com.google.common.collect.Maps;
+import com.google.common.collect.Sets;
+import com.opengamma.DataNotFoundException;
+import com.opengamma.batch.RunCreationMode;
+import com.opengamma.batch.SnapshotMode;
+import com.opengamma.batch.domain.FunctionUniqueId;
+import com.opengamma.batch.domain.HbComputationTargetSpecification;
+import com.opengamma.batch.domain.MarketData;
+import com.opengamma.batch.domain.MarketDataValue;
+import com.opengamma.batch.domain.RiskRun;
+import com.opengamma.batch.domain.RiskValueSpecification;
+import com.opengamma.core.security.Security;
+import com.opengamma.core.security.impl.SimpleSecurity;
+import com.opengamma.engine.ComputationTargetSpecification;
+import com.opengamma.engine.ComputationTargetType;
+import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueProperties;
+import com.opengamma.engine.value.ValuePropertyNames;
+import com.opengamma.engine.value.ValueRequirement;
+import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.CycleInfo;
+import com.opengamma.engine.view.InMemoryViewComputationResultModel;
+import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.calcnode.InvocationResult;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ObjectId;
+import com.opengamma.id.UniqueId;
+import com.opengamma.id.UniqueIdentifiable;
+import com.opengamma.id.VersionCorrection;
+import com.opengamma.masterdb.DbMasterTestUtils;
+import com.opengamma.util.paging.PagingRequest;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Test DbBatchWriter.
