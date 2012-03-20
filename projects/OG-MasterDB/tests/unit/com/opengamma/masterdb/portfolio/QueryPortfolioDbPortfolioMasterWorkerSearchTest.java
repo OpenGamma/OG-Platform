@@ -311,4 +311,18 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     assert301(test.getDocuments().get(3));
   }
 
+  //-------------------------------------------------------------------------
+  @Test
+  public void test_search_noPositions() {
+    PortfolioSearchRequest request = new PortfolioSearchRequest();
+    request.setIncludePositions(false);
+    PortfolioSearchResult test = _prtMaster.search(request);
+    
+    assertEquals(_visiblePortfolios, test.getDocuments().size());
+    assertNoPositions();
+    assert101(test.getDocuments().get(0), 999);
+    assert102(test.getDocuments().get(1));
+    assert202(test.getDocuments().get(2));
+  }
+
 }

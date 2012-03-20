@@ -47,6 +47,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
   protected int _visiblePortfolios;
   protected int _totalPositions;
   protected OffsetDateTime _now;
+  private boolean _includePositions = true;
   protected boolean _readOnly;  // attempt to speed up tests
 
   public AbstractDbPortfolioMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
@@ -64,6 +65,7 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
 
   @BeforeMethod
   public void setUp() throws Exception {
+    _includePositions = true;
     if (_readOnly == false) {
       init();
     }
@@ -196,8 +198,12 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals("TestNode112", node.getName());
     assertEquals(UniqueId.of("DbPrt", "111", "0"), node.getParentNodeId());
     assertEquals(portfolioId, node.getPortfolioId());
-    assertEquals(node.getPositionIds().toString(), 1, node.getPositionIds().size());
-    assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+    if (_includePositions) {
+      assertEquals(node.getPositionIds().toString(), 1, node.getPositionIds().size());
+      assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+    } else {
+      assertEquals(0, node.getPositionIds().size());
+    }
     if (depth == 1) {
       assertEquals(0, node.getChildNodes().size());
       return;
@@ -213,9 +219,13 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals(UniqueId.of("DbPrt", "112", "0"), node.getParentNodeId());
     assertEquals(portfolioId, node.getPortfolioId());
     assertEquals(0, node.getChildNodes().size());
-    assertEquals(2, node.getPositionIds().size());
-    assertEquals(true, node.getPositionIds().contains(ObjectId.of("DbPos", "501")));
-    assertEquals(true, node.getPositionIds().contains(ObjectId.of("DbPos", "502")));
+    if (_includePositions) {
+      assertEquals(2, node.getPositionIds().size());
+      assertEquals(true, node.getPositionIds().contains(ObjectId.of("DbPos", "501")));
+      assertEquals(true, node.getPositionIds().contains(ObjectId.of("DbPos", "502")));
+    } else {
+      assertEquals(0, node.getPositionIds().size());
+    }
   }
 
   protected void assert102(final PortfolioDocument test) {
@@ -260,8 +270,12 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals(null, node.getParentNodeId());
     assertEquals(portfolioId, node.getPortfolioId());
     assertEquals(0, node.getChildNodes().size());
-    assertEquals(1, node.getPositionIds().size());
-    assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+    if (_includePositions) {
+      assertEquals(1, node.getPositionIds().size());
+      assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+    } else {
+      assertEquals(0, node.getPositionIds().size());
+    }
   }
 
   protected void assert202(final PortfolioDocument test) {
@@ -288,8 +302,12 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals(null, node.getParentNodeId());
     assertEquals(portfolioId, node.getPortfolioId());
     assertEquals(0, node.getChildNodes().size());
-    assertEquals(1, node.getPositionIds().size());
-    assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+    if (_includePositions) {
+      assertEquals(1, node.getPositionIds().size());
+      assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+    } else {
+      assertEquals(0, node.getPositionIds().size());
+    }
   }
   
   protected void assert301(final PortfolioDocument test) {
@@ -316,8 +334,16 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals(null, node.getParentNodeId());
     assertEquals(portfolioId, node.getPortfolioId());
     assertEquals(0, node.getChildNodes().size());
-    assertEquals(1, node.getPositionIds().size());
-    assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+    if (_includePositions) {
+      assertEquals(1, node.getPositionIds().size());
+      assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+    } else {
+      assertEquals(0, node.getPositionIds().size());
+    }
+  }
+
+  protected void assertNoPositions() {
+    _includePositions = false;
   }
 
 }

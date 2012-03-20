@@ -45,7 +45,6 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InstrumentSensitivityCalculator;
-import com.opengamma.financial.interestrate.PresentValueCurveSensitivitySABRCalculator;
 import com.opengamma.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -60,9 +59,9 @@ import com.opengamma.util.money.Currency;
  * 
  */
 public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends AbstractFunction.NonCompiledInvoker {
-  private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRCalculator.getInstance());
+  private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.getDefaultInstance();
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
-  private static final String VALUE_REQUIREMENT = ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
+  private static final String s_valueRequirement = ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES;
   private InterestRateFutureTradeConverter _converter;
   private FixedIncomeConverterDataProvider _dataConverter;
 
@@ -244,7 +243,7 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
         .withAny(ValuePropertyNames.CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).get();
-    return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
+    return new ValueSpecification(s_valueRequirement, target.toSpecification(), result);
   }
 
   private ValueSpecification getResultSpec(final ComputationTarget target, final Currency ccy, final String calculationMethod) {
@@ -255,7 +254,7 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
         .withAny(ValuePropertyNames.CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).get();
-    return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
+    return new ValueSpecification(s_valueRequirement, target.toSpecification(), result);
   }
 
   private ValueSpecification getResultSpec(final ComputationTarget target, final Currency ccy, final String curveName,
@@ -267,7 +266,7 @@ public class InterestRateFutureYieldCurveNodeSensitivitiesFunction extends Abstr
         .with(ValuePropertyNames.CURVE, curveName)
         .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
         .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).get();
-    return new ValueSpecification(VALUE_REQUIREMENT, target.toSpecification(), result);
+    return new ValueSpecification(s_valueRequirement, target.toSpecification(), result);
   }
 
   private static ValueRequirement getJacobianRequirement(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName, final String calculationMethod) {

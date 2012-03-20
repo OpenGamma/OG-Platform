@@ -23,7 +23,7 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class ForexForwardDefaultPayCurveNamesYieldCurveNodeSensitivitiesFunction extends DefaultPropertyFunction {
+public class ForexForwardDefaultReceiveCurveNamesYieldCurveNodeSensitivitiesFunction extends DefaultPropertyFunction {
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES};
   private final String _forwardCurveName;
@@ -31,7 +31,7 @@ public class ForexForwardDefaultPayCurveNamesYieldCurveNodeSensitivitiesFunction
   private final String _curveCalculationMethod;
   private final String[] _applicableCurrencyNames;
 
-  public ForexForwardDefaultPayCurveNamesYieldCurveNodeSensitivitiesFunction(final String forwardCurveName, final String fundingCurveName,
+  public ForexForwardDefaultReceiveCurveNamesYieldCurveNodeSensitivitiesFunction(final String forwardCurveName, final String fundingCurveName,
       final String curveCalculationMethod, final String... applicableCurrencyNames) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(forwardCurveName, "forward curve name");
@@ -52,7 +52,7 @@ public class ForexForwardDefaultPayCurveNamesYieldCurveNodeSensitivitiesFunction
     }
     final FXForwardSecurity fxForward = (FXForwardSecurity) security;
     for (final String currencyName : _applicableCurrencyNames) {
-      if (currencyName.equals(fxForward.getPayCurrency().getCode())) {
+      if (currencyName.equals(fxForward.getReceiveCurrency().getCode())) {
         return true;
       }
     }
