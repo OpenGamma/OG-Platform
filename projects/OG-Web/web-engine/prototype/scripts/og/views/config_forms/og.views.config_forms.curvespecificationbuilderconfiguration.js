@@ -97,7 +97,7 @@ $.register_module({
                     section_width += 40; // padding + awesome list delete icon
                     $('.OG-layout-admin-details-center .ui-layout-header').html(header);
                     $(form_id + ' .og-js-section').width(section_width);
-                    load_handler(form);
+                    setTimeout(load_handler.partial(form));
                 }},
                 {type: 'form:submit', handler: save_resource},
                 {type: 'keydown', selector: form_id + ' .og-js-popup input', handler: function (e) {

@@ -13,8 +13,11 @@ import com.opengamma.language.context.SessionContext;
  */
 public class WikiExporter extends Exporter {
 
-  public WikiExporter(final SessionContext sessionContext) {
+  private final WikiPageExporter.WikiPageHook _wikiHook;
+
+  public WikiExporter(final SessionContext sessionContext, final WikiPageExporter.WikiPageHook wikiHook) {
     super(sessionContext);
+    _wikiHook = wikiHook;
   }
 
   protected CategorizingDefinitionExporter getCategorizingDefinitionExporter() {
@@ -37,6 +40,9 @@ public class WikiExporter extends Exporter {
     setExporter(docExporter);
     super.run();
     final WikiPageExporter pageExporter = getPageExporter(defExporter);
+    if (_wikiHook != null) {
+      pageExporter.setWikiPageHook(_wikiHook);
+    }
     pageExporter.init();
     pageExporter.writePages();
   }
