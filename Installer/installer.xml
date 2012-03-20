@@ -30,7 +30,7 @@
     </condition>
   </target>
   <target name="build-jvm-i386" depends="build-jvm-i386-check" unless="disable.build.jvm.i386">
-    <ai-build build-id="${aip.build.jvm.i386}" />
+    <ai-build build-id="${ai.build.jvm.i386}" />
   </target>
 
   <target name="build-jvm-x64-check">
@@ -43,7 +43,7 @@
     </condition>
   </target>
   <target name="build-jvm-x64" depends="build-jvm-x64-check" unless="disable.build.jvm.x64">
-    <ai-build build-id="${aip.build.jvm.x64}" />
+    <ai-build build-id="${ai.build.jvm.x64}" />
   </target>
 
   <target name="build-nojvm-i386-check">
@@ -56,7 +56,7 @@
     </condition>
   </target>
   <target name="build-nojvm-i386" depends="build-nojvm-i386-check" unless="disable.build.nojvm.i386">
-    <ai-build build-id="${aip.build.nojvm.i386}" />
+    <ai-build build-id="${ai.build.nojvm.i386}" />
   </target>
 
   <target name="build-nojvm-x64-check">
@@ -69,7 +69,7 @@
     </condition>
   </target>
   <target name="build-nojvm-x64" depends="build-nojvm-x64-check" unless="disable.build.nojvm.x64">
-    <ai-build build-id="${aip.build.nojvm.x64}" />
+    <ai-build build-id="${ai.build.nojvm.x64}" />
   </target>
 
   <!-- execution hooks -->

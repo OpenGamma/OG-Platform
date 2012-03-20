@@ -666,10 +666,4 @@ public class QueryExchangeDbExchangeMasterWorkerSearchTest extends AbstractDbExc
     assert202(test.getDocuments().get(2));  // new version
   }
 
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_exgMaster.getClass().getSimpleName() + "[DbExg]", _exgMaster.toString());
-  }
-
 }

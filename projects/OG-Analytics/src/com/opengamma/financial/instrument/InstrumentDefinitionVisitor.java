@@ -24,6 +24,7 @@ import com.opengamma.financial.instrument.bond.BondIborTransactionDefinition;
 import com.opengamma.financial.instrument.cash.CashDefinition;
 import com.opengamma.financial.instrument.cash.DepositCounterpartDefinition;
 import com.opengamma.financial.instrument.cash.DepositIborDefinition;
+import com.opengamma.financial.instrument.cash.DepositZeroDefinition;
 import com.opengamma.financial.instrument.fra.ForwardRateAgreementDefinition;
 import com.opengamma.financial.instrument.future.BondFutureDefinition;
 import com.opengamma.financial.instrument.future.FederalFundsFutureSecurityDefinition;
@@ -104,6 +105,10 @@ public interface InstrumentDefinitionVisitor<T, U> {
   U visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit, T data);
 
   U visitDepositCounterpartDefinition(DepositCounterpartDefinition deposit);
+
+  U visitDepositZeroDefinition(DepositZeroDefinition deposit, T data);
+
+  U visitDepositZeroDefinition(DepositZeroDefinition deposit);
 
   U visitForwardRateAgreementDefinition(ForwardRateAgreementDefinition fra, T data);
 

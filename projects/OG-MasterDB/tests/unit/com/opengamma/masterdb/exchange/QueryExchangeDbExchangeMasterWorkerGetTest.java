@@ -5,8 +5,6 @@
  */
 package com.opengamma.masterdb.exchange;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
@@ -89,12 +87,6 @@ public class QueryExchangeDbExchangeMasterWorkerGetTest extends AbstractDbExchan
     UniqueId oid = UniqueId.of("DbExg", "201");
     ExchangeDocument test = _exgMaster.get(oid);
     assert202(test);
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_exgMaster.getClass().getSimpleName() + "[DbExg]", _exgMaster.toString());
   }
 
 }

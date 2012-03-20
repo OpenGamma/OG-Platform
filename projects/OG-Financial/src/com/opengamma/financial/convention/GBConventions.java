@@ -223,7 +223,7 @@ public class GBConventions {
         "GBPCASHP10M", act365, modified, Period.ofMonths(10), 0, false, gb);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBPCASHP11M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "GBPCASHP11M")),
-        "GBPCASHP11M", act365, modified, Period.ofMonths(1), 0, false, gb);
+        "GBPCASHP11M", act365, modified, Period.ofMonths(11), 0, false, gb);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "GBPCASHP12M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "GBPCASHP12M")),
         "GBPCASHP12M", act365, modified, Period.ofMonths(12), 0, false, gb);
