@@ -44,7 +44,7 @@ public class VolatilitySurfaceKey implements StructuredMarketDataKey, Comparable
    */
   private final String _quoteType;
   /**
-   * The quite units.
+   * The quote units.
    */
   private final String _quoteUnits;
 

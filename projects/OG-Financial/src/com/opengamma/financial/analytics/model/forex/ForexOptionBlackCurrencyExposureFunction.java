@@ -32,25 +32,4 @@ public class ForexOptionBlackCurrencyExposureFunction extends ForexOptionBlackFu
     final MultipleCurrencyAmount result = CALCULATOR.visit(fxOption, data);
     return Collections.singleton(new ComputedValue(spec, FXUtils.getMultipleCurrencyAmountAsMatrix(result)));
   }
-
-  //  @Override
-  //  protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-  //    return createValueProperties()
-  //        .withAny(PROPERTY_PUT_FUNDING_CURVE_NAME)
-  //        .withAny(PROPERTY_PUT_FORWARD_CURVE_NAME)
-  //        .withAny(PROPERTY_CALL_FUNDING_CURVE_NAME)
-  //        .withAny(PROPERTY_CALL_FORWARD_CURVE_NAME)
-  //        .withAny(PROPERTY_FX_VOLATILITY_SURFACE_NAME);
-  //  }
-  //
-  //  @Override
-  //  protected ValueProperties.Builder getResultProperties(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName,
-  //      final String callForwardCurveName, final String surfaceName, final ComputationTarget target) {
-  //    return createValueProperties()
-  //        .with(PROPERTY_PUT_FUNDING_CURVE_NAME, putFundingCurveName)
-  //        .with(PROPERTY_PUT_FORWARD_CURVE_NAME, putForwardCurveName)
-  //        .with(PROPERTY_CALL_FUNDING_CURVE_NAME, callFundingCurveName)
-  //        .with(PROPERTY_CALL_FORWARD_CURVE_NAME, callForwardCurveName)
-  //        .with(PROPERTY_FX_VOLATILITY_SURFACE_NAME, surfaceName);
-  //  }
 }

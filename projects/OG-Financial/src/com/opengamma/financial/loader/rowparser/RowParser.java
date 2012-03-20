@@ -57,7 +57,7 @@ public abstract class RowParser {
    * @return              the RowParser class for the specified security type, or null if unable to identify a suitable parser
    */
   public static RowParser newRowParser(String securityName, ToolContext toolContext) {
-    // Now using the experimental JodaBean parser
+    // Now using the JodaBean parser
     return new JodaBeanParser(securityName, toolContext);
   }
 
@@ -140,7 +140,34 @@ public abstract class RowParser {
   public ManageableTrade constructTrade(Map<String, String> row, ManageableSecurity security, ManageablePosition position) {
     return null;
   }
+
+  /**
+   * Returns the current tool context
+   * @return  the current tool context
+   */
+  public ToolContext getToolContext() {
+    return _toolContext;
+  }
+
+  /**
+   * Sets the tool context
+   * @param toolContext the new tool context
+   */
+  public void setToolContext(ToolContext toolContext) {
+    _toolContext = toolContext;
+  }
+
+  /**
+   * Gets the list of column names that this particular row parser knows of
+   * @return  A string array containing the column names
+   */
+  public abstract String[] getColumns();
+
+  public int getSecurityHashCode() {
+    return 0;
+  }
   
+ 
   protected String getWithException(Map<String, String> fieldValueMap, String fieldName) {
     String result = fieldValueMap.get(fieldName);
     if (result == null) {
@@ -154,14 +181,4 @@ public abstract class RowParser {
     return LocalDate.parse(getWithException(fieldValueMap, fieldName), CSV_DATE_FORMATTER);
   }
 
-  public ToolContext getToolContext() {
-    return _toolContext;
-  }
-
-  public void setToolContext(ToolContext toolContext) {
-    _toolContext = toolContext;
-  }
-
-  public abstract String[] getColumns();
-  
 }
