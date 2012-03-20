@@ -114,10 +114,7 @@ public class ForexCallDeltaVolatilitySurfaceFunction extends AbstractFunction.No
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    if (UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme())) {
-      return true;
-    }
-    return false;
+    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 
   @Override

@@ -31,7 +31,7 @@ public class ModifyConfigDbConfigMasterWorkerAddTest extends AbstractDbConfigMas
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyConfigDbConfigMasterWorkerAddTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, false);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -79,12 +79,6 @@ public class ModifyConfigDbConfigMasterWorkerAddTest extends AbstractDbConfigMas
     
     ConfigDocument<ExternalId> test = _cfgMaster.get(added.getUniqueId(), ExternalId.class);
     assertEquals(added, test);
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_cfgMaster.getClass().getSimpleName() + "[DbCfg]", _cfgMaster.toString());
   }
 
 }

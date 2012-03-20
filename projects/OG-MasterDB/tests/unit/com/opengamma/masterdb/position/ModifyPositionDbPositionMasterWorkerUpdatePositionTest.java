@@ -45,7 +45,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyPositionDbPositionMasterWorkerUpdatePositionTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, false);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -268,12 +268,6 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     final PositionDocument test = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
     
     assertEquals(base, test);
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_posMaster.getClass().getSimpleName() + "[DbPos]", _posMaster.toString());
   }
 
 }

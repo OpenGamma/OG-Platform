@@ -167,14 +167,12 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
 
   @Override
   public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
-    // TODO Auto-generated method stub
-    return null;
+    return visitor.visitDepositZeroDefinition(this, data);
   }
 
   @Override
   public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
-    // TODO Auto-generated method stub
-    return null;
+    return visitor.visitDepositZeroDefinition(this);
   }
 
   @Override

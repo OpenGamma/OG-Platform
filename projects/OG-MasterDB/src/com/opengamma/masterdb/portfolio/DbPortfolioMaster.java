@@ -146,27 +146,32 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
-    String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
-    searchWithPaging(request.getPagingRequest(), sql, args, new PortfolioDocumentExtractor(true), result);
+    if (request.isIncludePositions()) {
+      String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
+      searchWithPaging(request.getPagingRequest(), sql, args, new PortfolioDocumentExtractor(true, true), result);
+    } else {
+      String[] sql = {getElSqlBundle().getSql("SearchNoPositions", args), getElSqlBundle().getSql("SearchCount", args)};
+      searchWithPaging(request.getPagingRequest(), sql, args, new PortfolioDocumentExtractor(false, true), result);
+    }
     return result;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public PortfolioDocument get(final UniqueId uniqueId) {
-    return doGet(uniqueId, new PortfolioDocumentExtractor(true), "Portfolio");
+    return doGet(uniqueId, new PortfolioDocumentExtractor(true, true), "Portfolio");
   }
 
   //-------------------------------------------------------------------------
   @Override
   public PortfolioDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
-    return doGetByOidInstants(objectId, versionCorrection, new PortfolioDocumentExtractor(true), "Portfolio");
+    return doGetByOidInstants(objectId, versionCorrection, new PortfolioDocumentExtractor(true, true), "Portfolio");
   }
 
   //-------------------------------------------------------------------------
   @Override
   public PortfolioHistoryResult history(final PortfolioHistoryRequest request) {
-    return doHistory(request, new PortfolioHistoryResult(), new PortfolioDocumentExtractor(true));
+    return doHistory(request, new PortfolioHistoryResult(), new PortfolioDocumentExtractor(true, true));
   }
 
   @Override
@@ -329,7 +334,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       .addValue("node_oid", extractOid(uniqueId))
       .addTimestamp("version_as_of_instant", Objects.firstNonNull(versionAsOf, now))
       .addTimestamp("corrected_to_instant", Objects.firstNonNull(correctedTo, now));
-    final PortfolioDocumentExtractor extractor = new PortfolioDocumentExtractor(false);
+    final PortfolioDocumentExtractor extractor = new PortfolioDocumentExtractor(true, false);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final String sql = getElSqlBundle().getSql("GetNodeByOidInstants", args);
     final List<PortfolioDocument> docs = namedJdbc.query(sql , args, extractor);
@@ -349,7 +354,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     s_logger.debug("getNodeById {}", uniqueId);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("node_id", extractRowId(uniqueId));
-    final PortfolioDocumentExtractor extractor = new PortfolioDocumentExtractor(false);
+    final PortfolioDocumentExtractor extractor = new PortfolioDocumentExtractor(true, false);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
     final String sql = getElSqlBundle().getSql("GetNodeById", args);
     final List<PortfolioDocument> docs = namedJdbc.query(sql, args, extractor);
@@ -364,6 +369,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
    * Mapper from SQL rows to a PortfolioDocument.
    */
   protected final class PortfolioDocumentExtractor implements ResultSetExtractor<List<PortfolioDocument>> {
+    private final boolean _includePosition;
     private final boolean _complete;
     private long _lastPortfolioId = -1;
     private long _lastNodeId = -1;
@@ -373,7 +379,8 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     private List<PortfolioDocument> _documents = new ArrayList<PortfolioDocument>();
     private final Stack<LongObjectPair<ManageablePortfolioNode>> _nodes = new Stack<LongObjectPair<ManageablePortfolioNode>>();
 
-    public PortfolioDocumentExtractor(boolean complete) {
+    public PortfolioDocumentExtractor(boolean includePositions, boolean complete) {
+      _includePosition = includePositions;
       _complete = complete;
     }
 
@@ -390,14 +397,17 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
           _lastNodeId = nodeId;
           buildNode(rs, nodeId);
         }
-        final String posIdScheme = rs.getString("POS_KEY_SCHEME");
-        final String posIdValue = rs.getString("POS_KEY_VALUE");
-        if (posIdScheme != null && posIdValue != null) {
-          UniqueId id = UniqueId.of(posIdScheme, posIdValue);
-          if (!_nodePositionIds.contains(id.getObjectId())) {
-            _node.addPosition(id);
-            _nodePositionIds.add(id.getObjectId()); //have to add to both to maintain invariant
-            assert (_nodePositionIds.size() == _node.getPositionIds().size());
+        
+        if (_includePosition) {
+          final String posIdScheme = rs.getString("POS_KEY_SCHEME");
+          final String posIdValue = rs.getString("POS_KEY_VALUE");
+          if (posIdScheme != null && posIdValue != null) {
+            UniqueId id = UniqueId.of(posIdScheme, posIdValue);
+            if (!_nodePositionIds.contains(id.getObjectId())) {
+              _node.addPosition(id);
+              _nodePositionIds.add(id.getObjectId()); //have to add to both to maintain invariant
+              assert (_nodePositionIds.size() == _node.getPositionIds().size());
+            }
           }
         }
         

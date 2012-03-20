@@ -20,6 +20,8 @@ import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor
 import com.opengamma.financial.interestrate.annuity.definition.GenericAnnuity;
 import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
 import com.opengamma.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.DepositZero;
+import com.opengamma.financial.interestrate.cash.method.DepositZeroDiscountingMethod;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
@@ -49,23 +51,35 @@ import com.opengamma.util.tuple.DoublesPair;
  * <b>Note:</b> The length of the list is instrument dependent and may have repeated times (with the understanding the sensitivities should be summed).
  */
 public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
+
+  /**
+   * The method unique instance.
+   */
+  private static final ParRateCurveSensitivityCalculator INSTANCE = new ParRateCurveSensitivityCalculator();
+
+  /**
+   * Return the unique instance of the class.
+   * @return The instance.
+   */
+  public static ParRateCurveSensitivityCalculator getInstance() {
+    return INSTANCE;
+  }
+
+  /**
+   * Constructor.
+   */
+  ParRateCurveSensitivityCalculator() {
+  }
+
+  /**
+   * The methods and calculators.
+   */
   private static final PresentValueCalculator PV_CALCULATOR = PresentValueCalculator.getInstance();
   private static final ParRateCalculator PRC_CALCULATOR = ParRateCalculator.getInstance();
   private static final PresentValueCurveSensitivityCalculator PV_SENSITIVITY_CALCULATOR = PresentValueCurveSensitivityCalculator.getInstance();
   private static final RateReplacingInterestRateDerivativeVisitor REPLACE_RATE = RateReplacingInterestRateDerivativeVisitor.getInstance();
-  /**
-   * The method used for OIS coupons.
-   */
   private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
-
-  private static final ParRateCurveSensitivityCalculator s_instance = new ParRateCurveSensitivityCalculator();
-
-  public static ParRateCurveSensitivityCalculator getInstance() {
-    return s_instance;
-  }
-
-  private ParRateCurveSensitivityCalculator() {
-  }
+  private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
 
   @Override
   public Map<String, List<DoublesPair>> visit(final InstrumentDerivative instrument, final YieldCurveBundle curves) {
@@ -95,6 +109,11 @@ public final class ParRateCurveSensitivityCalculator extends AbstractInstrumentD
     }
     result.put(curveName, temp);
     return result;
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitDepositZero(final DepositZero deposit, final YieldCurveBundle curves) {
+    return METHOD_DEPOSIT_ZERO.parRateCurveSensitivity(deposit, curves).getSensitivities();
   }
 
   @Override

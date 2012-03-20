@@ -21,7 +21,9 @@ import com.opengamma.financial.interestrate.bond.method.BillTransactionDiscounti
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.financial.interestrate.cash.method.CashDiscountingMethod;
+import com.opengamma.financial.interestrate.cash.method.DepositZeroDiscountingMethod;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.derivative.BondFuture;
@@ -78,6 +80,7 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
    */
   private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
+  private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final BillSecurityDiscountingMethod METHOD_BILL_SECURITY = BillSecurityDiscountingMethod.getInstance();
   private static final BillTransactionDiscountingMethod METHOD_BILL_TRANSACTION = BillTransactionDiscountingMethod.getInstance();
   private static final CouponCMSDiscountingMethod METHOD_CMS_DISCOUNTING = CouponCMSDiscountingMethod.getInstance();
@@ -104,6 +107,11 @@ public class PresentValueCalculator extends AbstractInstrumentDerivativeVisitor<
   @Override
   public Double visitCash(final Cash deposit, final YieldCurveBundle curves) {
     return METHOD_DEPOSIT.presentValue(deposit, curves).getAmount();
+  }
+
+  @Override
+  public Double visitDepositZero(final DepositZero deposit, final YieldCurveBundle curves) {
+    return METHOD_DEPOSIT_ZERO.presentValue(deposit, curves).getAmount();
   }
 
   @Override

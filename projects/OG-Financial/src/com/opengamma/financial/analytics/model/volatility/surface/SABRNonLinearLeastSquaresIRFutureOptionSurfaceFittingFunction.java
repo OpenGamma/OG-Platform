@@ -186,7 +186,7 @@ public class SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction exten
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
+    return Currency.OBJECT_SCHEME.equals(target.getUniqueId().getScheme()) && target.getUniqueId().getValue().length() == 3;
   }
 
   @Override

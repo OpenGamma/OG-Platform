@@ -40,7 +40,7 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyHolidayDbHolidayMasterWorkerUpdateTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, false);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -134,12 +134,6 @@ public class ModifyHolidayDbHolidayMasterWorkerUpdateTest extends AbstractDbHoli
     final HolidayDocument test = _holMaster.get(UniqueId.of("DbHol", "101", "0"));
     
     assertEquals(base, test);
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_holMaster.getClass().getSimpleName() + "[DbHol]", _holMaster.toString());
   }
 
 }

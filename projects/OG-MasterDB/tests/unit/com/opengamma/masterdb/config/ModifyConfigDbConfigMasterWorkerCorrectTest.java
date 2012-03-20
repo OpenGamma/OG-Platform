@@ -32,7 +32,7 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyConfigDbConfigMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, false);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -116,12 +116,6 @@ public class ModifyConfigDbConfigMasterWorkerCorrectTest extends AbstractDbConfi
     assertEquals(now, old.getCorrectionToInstant());  // old version ended
     assertEquals(base.getName(), old.getName());
     assertEquals(base.getValue(), old.getValue());
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_cfgMaster.getClass().getSimpleName() + "[DbCfg]", _cfgMaster.toString());
   }
 
 }

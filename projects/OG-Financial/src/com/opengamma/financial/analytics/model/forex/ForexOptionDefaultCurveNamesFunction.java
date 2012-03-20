@@ -59,29 +59,29 @@ public class ForexOptionDefaultCurveNamesFunction extends DefaultPropertyFunctio
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueName : _valueNames) {
-      defaults.addValuePropertyName(valueName, ForexOptionFunction.PROPERTY_PUT_FUNDING_CURVE_NAME);
-      defaults.addValuePropertyName(valueName, ForexOptionFunction.PROPERTY_PUT_FORWARD_CURVE_NAME);
-      defaults.addValuePropertyName(valueName, ForexOptionFunction.PROPERTY_CALL_FUNDING_CURVE_NAME);
-      defaults.addValuePropertyName(valueName, ForexOptionFunction.PROPERTY_CALL_FORWARD_CURVE_NAME);
-      defaults.addValuePropertyName(valueName, ForexOptionFunction.PROPERTY_FX_VOLATILITY_SURFACE_NAME);
+      defaults.addValuePropertyName(valueName, ForexOptionBlackFunction.PROPERTY_PUT_FUNDING_CURVE_NAME);
+      defaults.addValuePropertyName(valueName, ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE_NAME);
+      defaults.addValuePropertyName(valueName, ForexOptionBlackFunction.PROPERTY_CALL_FUNDING_CURVE_NAME);
+      defaults.addValuePropertyName(valueName, ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE_NAME);
+      defaults.addValuePropertyName(valueName, ForexOptionBlackFunction.PROPERTY_FX_VOLATILITY_SURFACE_NAME);
     }
   }
 
   @Override
   protected Set<String> getDefaultValue(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue, final String propertyName) {
-    if (ForexOptionFunction.PROPERTY_PUT_FUNDING_CURVE_NAME.equals(propertyName)) {
+    if (ForexOptionBlackFunction.PROPERTY_PUT_FUNDING_CURVE_NAME.equals(propertyName)) {
       return Collections.singleton(_putFundingCurve);
     }
-    if (ForexOptionFunction.PROPERTY_PUT_FORWARD_CURVE_NAME.equals(propertyName)) {
+    if (ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE_NAME.equals(propertyName)) {
       return Collections.singleton(_putForwardCurve);
     }
-    if (ForexOptionFunction.PROPERTY_CALL_FUNDING_CURVE_NAME.equals(propertyName)) {
+    if (ForexOptionBlackFunction.PROPERTY_CALL_FUNDING_CURVE_NAME.equals(propertyName)) {
       return Collections.singleton(_callFundingCurve);
     }
-    if (ForexOptionFunction.PROPERTY_CALL_FORWARD_CURVE_NAME.equals(propertyName)) {
+    if (ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE_NAME.equals(propertyName)) {
       return Collections.singleton(_callForwardCurve);
     }
-    if (ForexOptionFunction.PROPERTY_FX_VOLATILITY_SURFACE_NAME.equals(propertyName)) {
+    if (ForexOptionBlackFunction.PROPERTY_FX_VOLATILITY_SURFACE_NAME.equals(propertyName)) {
       return Collections.singleton(_surface);
     }
     return null;

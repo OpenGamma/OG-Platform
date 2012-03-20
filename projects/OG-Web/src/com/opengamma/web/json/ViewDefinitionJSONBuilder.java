@@ -45,18 +45,18 @@ public final class ViewDefinitionJSONBuilder extends AbstractJSONBuilder<ViewDef
   
   private static String createTemplate() {
     ViewDefinitionJSONBuilder builder = ViewDefinitionJSONBuilder.INSTANCE; 
-    return builder.toJSON(getDummyView());
+    return builder.toJSON(getBlankView());
   }
 
-  private static ViewDefinition getDummyView() {
-    ViewDefinition dummy = new ViewDefinition("dummy", new UserPrincipal("", ""));
-    dummy.setDefaultCurrency(Currency.GBP);
-    dummy.setMaxDeltaCalculationPeriod(0L);
-    dummy.setMaxFullCalculationPeriod(0L);
-    dummy.setMinDeltaCalculationPeriod(0L);
-    dummy.setMinFullCalculationPeriod(0L);
-    dummy.addPortfolioRequirementName("", "", "");
-    return dummy;
+  private static ViewDefinition getBlankView() {
+    ViewDefinition blank = new ViewDefinition("Untitled", new UserPrincipal("", ""));
+    blank.setDefaultCurrency(Currency.GBP);
+    blank.setMaxDeltaCalculationPeriod(0L);
+    blank.setMaxFullCalculationPeriod(0L);
+    blank.setMinDeltaCalculationPeriod(0L);
+    blank.setMinFullCalculationPeriod(0L);
+    blank.addPortfolioRequirementName("", "", "");
+    return blank;
   }
 
   @Override
