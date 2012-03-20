@@ -158,6 +158,7 @@ $.register_module({
                             });
                             view.notify(null);
                             setTimeout(view.layout.inner.resizeAll);
+                            console.log('data:', JSON.stringify(form.compile().data));
                         },
                         selector: '.OG-layout-admin-details-center .ui-layout-content',
                         type: details_json.template_data.type
