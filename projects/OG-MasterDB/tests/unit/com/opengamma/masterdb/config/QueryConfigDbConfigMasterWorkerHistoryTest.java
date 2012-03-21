@@ -30,7 +30,7 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QueryConfigDbConfigMasterWorkerHistoryTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, true);
     s_logger.info("running testcases for {}", databaseType);
   }
   
@@ -181,12 +181,6 @@ public class QueryConfigDbConfigMasterWorkerHistoryTest extends AbstractDbConfig
     assertEquals(2, test.getDocuments().size());
     assert202(test.getDocuments().get(0));
     assert201(test.getDocuments().get(1));
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_cfgMaster.getClass().getSimpleName() + "[DbCfg]", _cfgMaster.toString());
   }
 
 }

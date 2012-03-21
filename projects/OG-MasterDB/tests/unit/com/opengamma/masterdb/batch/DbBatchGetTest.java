@@ -5,18 +5,17 @@
  */
 package com.opengamma.masterdb.batch;
 
-import com.opengamma.DataNotFoundException;
-import com.opengamma.id.ObjectId;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.test.DbTest;
+import static org.testng.Assert.fail;
+import static org.testng.AssertJUnit.assertNotNull;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertNull;
-import static org.testng.Assert.fail;
-import static org.testng.AssertJUnit.assertNotNull;
+import com.opengamma.DataNotFoundException;
+import com.opengamma.id.ObjectId;
+import com.opengamma.util.test.DbTest;
 
 /**
  * Tests DbBatchGetTest.

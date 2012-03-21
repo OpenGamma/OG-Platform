@@ -220,18 +220,18 @@ public class EUConventions {
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_OIS_SWAP")), "EUR_OIS_SWAP", act360, modified, annual, 2, eu,
         act360, modified, annual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR EONIA"), eu, true, publicationLagON);
 
-    // TODO: Add fixing swap (ISDA fixing)
+    // TODO: Add all ISDA fixing
     final int[] isdaFixTenor = new int[] {2, 3, 4, 5, 6, 7, 8, 9, 10, 12, 15, 20, 25, 30};
     // ISDA fixing Euribor 10.00 Frankfurt
     conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EURIBOR10_1Y"), SecurityUtils.ricSecurityId("EURSFIXA1Y=")),
         "EUR_ISDAFIX_EURIBOR10_1Y", swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, act360, modified, quarterly, 2,
-        ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 3m"), eu, true);
+        ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 3m"), eu, true, Period.ofYears(1));
     for (int looptenor = 0; looptenor < isdaFixTenor.length; looptenor++) {
       final String tenorString = isdaFixTenor[looptenor] + "Y";
       conventionMaster.addConventionBundle(
           ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR_ISDAFIX_EURIBOR10_" + tenorString), SecurityUtils.ricSecurityId("EURSFIXA" + tenorString + "=")),
           "EUR_ISDAFIX_EURIBOR10_" + tenorString, swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, act360, modified, semiAnnual, 2,
-          ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 6m"), eu, true);
+          ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURIBOR 6m"), eu, true, Period.ofYears(isdaFixTenor[looptenor]));
     }
     // ISDA fixing Euro Libor 10.00 London
     conventionMaster.addConventionBundle(
@@ -245,48 +245,47 @@ public class EUConventions {
           "EUR_ISDAFIX_EUROLIBOR10_" + tenorString, swapFixedDayCount, swapFixedBusinessDay, swapFixedPaymentFrequency, 2, eu, act360, modified, semiAnnual, 2,
           ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EUR LIBOR 6m"), eu, true);
     }
-    // EURSFIXB1Y= // 11.00 am Frank
 
     //Identifiers for external data // TODO where is this used?
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURCASHP1D"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURCASHP1D")),
-        "EURCASHP1D", act360, following, Period.ofDays(1), 0, false, null);
+        "EURCASHP1D", act360, following, Period.ofDays(1), 0, false, eu);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURCASHP1M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURCASHP1M")),
-        "EURCASHP1M", act360, modified, Period.ofMonths(1), 2, false, null);
+        "EURCASHP1M", act360, modified, Period.ofMonths(1), 2, false, eu);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURCASHP2M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURCASHP2M")),
-        "EURCASHP2M", act360, modified, Period.ofMonths(2), 2, false, null);
+        "EURCASHP2M", act360, modified, Period.ofMonths(2), 2, false, eu);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURCASHP3M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURCASHP3M")),
-        "EURCASHP3M", act360, modified, Period.ofMonths(3), 2, false, null);
+        "EURCASHP3M", act360, modified, Period.ofMonths(3), 2, false, eu);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURCASHP4M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURCASHP4M")),
-        "EURCASHP4M", act360, modified, Period.ofMonths(4), 2, false, null);
+        "EURCASHP4M", act360, modified, Period.ofMonths(4), 2, false, eu);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURCASHP5M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURCASHP5M")),
-        "EURCASHP5M", act360, modified, Period.ofMonths(5), 2, false, null);
+        "EURCASHP5M", act360, modified, Period.ofMonths(5), 2, false, eu);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURCASHP6M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURCASHP6M")),
-        "EURCASHP6M", act360, modified, Period.ofMonths(6), 2, false, null);
+        "EURCASHP6M", act360, modified, Period.ofMonths(6), 2, false, eu);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURCASHP7M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURCASHP7M")),
-        "EURCASHP7M", act360, modified, Period.ofMonths(7), 2, false, null);
+        "EURCASHP7M", act360, modified, Period.ofMonths(7), 2, false, eu);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURCASHP8M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURCASHP8M")),
-        "EURCASHP8M", act360, modified, Period.ofMonths(8), 2, false, null);
+        "EURCASHP8M", act360, modified, Period.ofMonths(8), 2, false, eu);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURCASHP9M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURCASHP9M")),
-        "EURCASHP9M", act360, modified, Period.ofMonths(9), 2, false, null);
+        "EURCASHP9M", act360, modified, Period.ofMonths(9), 2, false, eu);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURCASHP10M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURCASHP10M")),
-        "EURCASHP10M", act360, modified, Period.ofMonths(10), 2, false, null);
+        "EURCASHP10M", act360, modified, Period.ofMonths(10), 2, false, eu);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURCASHP11M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURCASHP11M")),
-        "EURCASHP11M", act360, modified, Period.ofMonths(11), 2, false, null);
+        "EURCASHP11M", act360, modified, Period.ofMonths(11), 2, false, eu);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "EURCASHP12M"), ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "EURCASHP12M")),
-        "EURCASHP12M", act360, modified, Period.ofMonths(12), 2, false, null);
+        "EURCASHP12M", act360, modified, Period.ofMonths(12), 2, false, eu);
   }
 
 }

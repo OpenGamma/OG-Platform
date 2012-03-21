@@ -34,7 +34,7 @@ static void StopConnector () {
 static void QueryAvailable () {
 	CFunctionQueryAvailable query (g_poConnector);
 	ASSERT (query.Send ());
-	com_opengamma_language_function_Available *pAvailable = query.Recv (CRequestBuilder::GetDefaultTimeout ());
+	com_opengamma_language_function_Available *pAvailable = query.Recv (CRequestBuilder::GetDefaultTimeout () * 2);
 	ASSERT (pAvailable);
 	LOGINFO (TEXT ("Received ") << pAvailable->fudgeCountFunction << TEXT (" definitions"));
 	ASSERT (pAvailable->fudgeCountFunction > 0);

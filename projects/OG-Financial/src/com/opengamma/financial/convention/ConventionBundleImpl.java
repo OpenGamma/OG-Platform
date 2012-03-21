@@ -75,8 +75,6 @@ public class ConventionBundleImpl implements ConventionBundle {
 
   //swaptions
   private boolean _isCashSettled;
-  
-  // FRA: add _fraUnderlyingIndex
 
   // cash/general
   public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Frequency frequency,
@@ -135,8 +133,8 @@ public class ConventionBundleImpl implements ConventionBundle {
   }
 
   // Overnight Indices
-  public ConventionBundleImpl(final ExternalIdBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
-      final Period period, final int settlementDays, final boolean isEOM, final ExternalId region, final Integer publicationLag) {
+  public ConventionBundleImpl(final ExternalIdBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, final Period period,
+      final int settlementDays, final boolean isEOM, final ExternalId region, final Integer publicationLag) {
     _bundle = bundle;
     _name = name;
     _dayCount = dayCount;
@@ -160,7 +158,7 @@ public class ConventionBundleImpl implements ConventionBundle {
     _yearFraction = yearFraction;
   }
 
-  // swaps
+  // Swaps and FRA without EOM
   public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount swapFixedLegDayCount, final BusinessDayConvention swapFixedLegBusinessDayConvention,
       final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final ExternalId swapFixedLegRegion, final DayCount swapFloatingLegDayCount,
       final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
@@ -184,8 +182,7 @@ public class ConventionBundleImpl implements ConventionBundle {
     _swapFloatingLegRegion = swapFloatingLegRegion;
   }
 
-  // 
-
+  // Swaps and FRA
   public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount swapFixedLegDayCount, final BusinessDayConvention swapFixedLegBusinessDayConvention,
       final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final ExternalId swapFixedLegRegion, final DayCount swapFloatingLegDayCount,
       final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
@@ -208,6 +205,32 @@ public class ConventionBundleImpl implements ConventionBundle {
     _swapFloatingLegInitialRate = swapFloatingLegInitialRate;
     _swapFloatingLegRegion = swapFloatingLegRegion;
     _isEOMConvention = isEOM;
+  }
+
+  // Swaps indexes
+  public ConventionBundleImpl(final ExternalIdBundle initialBundle, final String name, final DayCount swapFixedLegDayCount, final BusinessDayConvention swapFixedLegBusinessDayConvention,
+      final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final ExternalId swapFixedLegRegion, final DayCount swapFloatingLegDayCount,
+      final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
+      final ExternalId swapFloatingLegInitialRate, final ExternalId swapFloatingLegRegion, final boolean isEOM, final Period swapTenor) {
+    _bundle = initialBundle;
+    _name = name;
+    _dayCount = null;
+    _businessDayConvention = null;
+    _frequency = null;
+    _settlementDays = null;
+    _swapFixedLegDayCount = swapFixedLegDayCount;
+    _swapFixedLegBusinessDayConvention = swapFixedLegBusinessDayConvention;
+    _swapFixedLegFrequency = swapFixedLegFrequency;
+    _swapFixedLegSettlementDays = swapFixedLegSettlementDays;
+    _swapFixedLegRegion = swapFixedLegRegion;
+    _swapFloatingLegDayCount = swapFloatingLegDayCount;
+    _swapFloatingLegBusinessDayConvention = swapFloatingLegBusinessDayConvention;
+    _swapFloatingLegFrequency = swapFloatingLegFrequency;
+    _swapFloatingLegSettlementDays = swapFloatingLegSettlementDays;
+    _swapFloatingLegInitialRate = swapFloatingLegInitialRate;
+    _swapFloatingLegRegion = swapFloatingLegRegion;
+    _isEOMConvention = isEOM;
+    _period = swapTenor;
   }
 
   // OIS Swaps

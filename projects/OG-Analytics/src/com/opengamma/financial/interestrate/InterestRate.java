@@ -23,7 +23,19 @@ public abstract class InterestRate {
 
   public abstract InterestRate fromAnnual(AnnualInterestRate annual);
 
+  /**
+   * Create an InterestRate object with the correct composition type from a continuously compounded InterestRate object.
+   * @param continuous The continuously compounded InterestRate.
+   * @return The new object.
+   */
   public abstract InterestRate fromContinuous(ContinuousInterestRate continuous);
+
+  /**
+   * Computes the derivative of the rate in the correct composition type from a continuously compounded InterestRate object.
+   * @param continuous The continuously compounded InterestRate.
+   * @return The derivative.
+   */
+  public abstract double fromContinuousDerivative(ContinuousInterestRate continuous);
 
   public abstract InterestRate fromPeriodic(PeriodicInterestRate periodic);
 

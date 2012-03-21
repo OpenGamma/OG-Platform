@@ -11,9 +11,15 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.SortedMap;
+import java.util.TreeMap;
+
+import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
 import org.joda.beans.MetaProperty;
+import org.joda.beans.PropertyReadWrite;
 import org.joda.beans.impl.direct.DirectBean;
 import org.joda.beans.impl.direct.DirectMetaBean;
 import org.slf4j.Logger;
@@ -33,8 +39,8 @@ import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.VarianceSwapLeg;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.position.ManageablePosition;
-import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.ManageableSecurityLink;
 
 /**
  * A generic row parser for Joda beans that automatically identifies fields to be persisted to rows/populated from rows
@@ -43,6 +49,9 @@ public class JodaBeanParser extends RowParser {
 
   private static final Logger s_logger = LoggerFactory.getLogger(JodaBeanParser.class);
 
+  /**
+   * Types of swap leg that might be encountered, and for which additional fields are generated
+   */
   private static final Class<?>[] SWAP_LEG_CLASSES = {
     SwapLeg.class,
     InterestRateLeg.class,
@@ -55,6 +64,9 @@ public class JodaBeanParser extends RowParser {
     FloatingVarianceSwapLeg.class
   };
   
+  /**
+   * The packages where security classes are to be found
+   */
   private static final String[] CLASS_PACKAGES = {
     "com.opengamma.financial.security.bond",
     "com.opengamma.financial.security.capfloor",
@@ -67,24 +79,39 @@ public class JodaBeanParser extends RowParser {
     "com.opengamma.financial.security.swap",
   };
 
+  /**
+   * Security properties to ignore when scanning
+   */
   private static final String[] IGNORE_METAPROPERTIES = {
     "attributes",
-    "uniqueid"
+    "uniqueid",
+    "objectid",
+    "securitylink",
+    "trades",
+    "attributes"
   };
   
+  /**
+   * Every security class name ends with this
+   */
   private static final String CLASS_POSTFIX = "Security";
 
-  // The security class that this parser is adapted to
+  /**
+   *  The security class that this parser is adapted to
+   */
   private Class<DirectBean> _securityClass;
   
-  // Map from column name to the field's Java type
-  private Map<String, Class<?>> _columns = new HashMap<String, Class<?>>();
+  /**
+   *  Map from column name to the field's Java type
+   */
+  private SortedMap<String, Class<?>> _columns = new TreeMap<String, Class<?>>();
 
   static {
     // Register the automatic string converters with Joda Beans
     JodaBeanConverters.getInstance();
 
     // Force registration of various meta beans that might not have been loaded yet
+    ManageablePosition.meta();
     Notional.meta();
     SwapLeg.meta();
     InterestRateLeg.meta();
@@ -100,32 +127,86 @@ public class JodaBeanParser extends RowParser {
   public JodaBeanParser(String securityName, ToolContext toolContext) throws OpenGammaRuntimeException {
     super(toolContext);
 
-    
     // Find the corresponding security class
     _securityClass = getClass(securityName + CLASS_POSTFIX);
 
     // Set column map
     _columns = recursiveGetColumnMap(_securityClass, "");
+    _columns.putAll(recursiveGetColumnMap(ManageablePosition.class, "position:"));
     
     s_logger.info(securityName + " properties: " + _columns);
 
   }
 
+
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Import routines: construct security(ies), position, trade
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  
+  @Override
+  public ManageableSecurity[] constructSecurity(Map<String, String> row) {
+    ArrayList<ManageableSecurity> securities = new ArrayList<ManageableSecurity>();    
+    securities.add((ManageableSecurity) recursiveConstructBean(row, _securityClass, ""));
+    return securities.toArray(new ManageableSecurity[securities.size()]);
+  }
+  
+  @Override
+  public ManageablePosition constructPosition(Map<String, String> row, ManageableSecurity security) {
+    ManageablePosition result = (ManageablePosition) recursiveConstructBean(row, ManageablePosition.class, "position:");
+    result.setSecurityLink(new ManageableSecurityLink(security.getExternalIdBundle()));
+    return result;
+  }
+
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Export routines: construct row from security, position, trade
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+   
+  @Override
+  public Map<String, String> constructRow(ManageableSecurity security) {
+    return recursiveConstructRow(security, "");
+  }
+  
+  @Override
+  public Map<String, String> constructRow(ManageablePosition position) {
+    return recursiveConstructRow(position, "position:");
+  }
+
+  
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+  // Utility routines
+  //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+  @Override
+  public String[] getColumns() {
+    return _columns.keySet().toArray(new String[_columns.size()]);
+  }
+
+  @Override
+  public int getSecurityHashCode() {
+    HashCodeBuilder hashCodeBuilder = new HashCodeBuilder();
+    for (Entry<String, Class<?>> entry : _columns.entrySet()) {      
+      hashCodeBuilder.append(entry.getKey());
+      hashCodeBuilder.append(entry.getValue().getCanonicalName());
+    }
+    return hashCodeBuilder.toHashCode();
+  }
+
+  /**
+   * Extract a map of column (field) names and types from the properties of the specified direct bean class.
+   * Appropriate member classes (such as swap legs) are recursively traversed and their columns also extracted 
+   * and added to the map.
+   * @param clazz   The bean type from which to extract properties
+   * @param prefix  The class membership path traced from the top-level bean class to the current class
+   * @return        A map of the column names and their types
+   */
   @SuppressWarnings("unchecked")
-  private Map<String, Class<?>> recursiveGetColumnMap(Class<DirectBean> clazz, String prefix) {
+  private SortedMap<String, Class<?>> recursiveGetColumnMap(Class<?> clazz, String prefix) {
  
     // Scan through and capture the list of relevant properties and their types
-    // TODO identify and traverse underlying securities/legs, ignore uniqueIds
-    Map<String, Class<?>> columns = new HashMap<String, Class<?>>();
+    SortedMap<String, Class<?>> columns = new TreeMap<String, Class<?>>();
     
     for (MetaProperty<?> metaProperty : JodaBeanUtils.metaBean(clazz).metaPropertyIterable()) {
-      
-//      // Traverse underlying security
-//      if (metaProperty.name().toLowerCase().equals("underlyingid")) {
-//        
-//        // HOW THE FUCK DO YOU WORK OUT WHAT TYPE OF SECURITY THE UNDERLYING ID IS GOING TO REFER TO
-//        // PROBABLY HARD CODED... :(
-//      } else 
         
       // Skip any undesired properties, process the rest
       if (!ignoreMetaProperty(metaProperty)) {
@@ -154,19 +235,15 @@ public class JodaBeanParser extends RowParser {
     return columns;
   }
   
-  
-  /*
-   * Import routines: construct security(ies), position, trade
+  /**
+   * Build a bean of the specified type by extracting property values from the supplied map of field names to 
+   * values, using recursion to construct the member beans in the same manner. 
+   * @param row     The map from property (or column, or field) names to values
+   * @param clazz   The bean type of which to construct an instance
+   * @param prefix  The class membership path traced from the top-level bean class to the current class
+   * @return        The constructed security bean
    */
-  
-  @Override
-  public ManageableSecurity[] constructSecurity(Map<String, String> row) {
-    ArrayList<ManageableSecurity> securities = new ArrayList<ManageableSecurity>();    
-    securities.add((ManageableSecurity) recursiveConstructSecurity(row, _securityClass, ""));
-    return securities.toArray(new ManageableSecurity[securities.size()]);
-  }
-  
-  private DirectBean recursiveConstructSecurity(Map<String, String> row, Class<DirectBean> clazz, String prefix) {
+  private DirectBean recursiveConstructBean(Map<String, String> row, Class<?> clazz, String prefix) {
     try {
       // Get a reference to the meta-bean
       Method metaMethod = clazz.getMethod("meta", (Class<?>[]) null);
@@ -179,36 +256,37 @@ public class JodaBeanParser extends RowParser {
       // Populate the bean from the supplied row using the builder
       for (MetaProperty<?> metaProperty : JodaBeanUtils.metaBean(clazz).metaPropertyIterable()) {
 
-        // If this property is itself a bean without a converter, recurse to populate relevant fields
-        if (isBean(metaProperty.propertyType()) && !isConvertible(metaProperty.propertyType())) {
+        // Skip any undesired properties, process the rest
+        if (!ignoreMetaProperty(metaProperty)) {
 
-          // Get the actual type of this bean from the relevant column
-          String className = row.get((prefix + metaProperty.name()).trim().toLowerCase());
-          Class<DirectBean> beanClass = getClass(className);
-          
-          // Recursively set properties
-          builder.set(metaProperty.name(),
-              recursiveConstructSecurity(row, beanClass, prefix + metaProperty.name() + ":"));
-
-        // If not a bean, or it is a bean for which a converter exists, just set value in builder using joda convert
-        } else {
-          // Convert raw value in row to the target property's type
-          String rawValue = row.get((prefix + metaProperty.name()).trim().toLowerCase());
-          
-          // Set property value
-          if (!ignoreMetaProperty(metaProperty)) {
+          // If this property is itself a bean without a converter, recurse to populate relevant fields
+          if (isBean(metaProperty.propertyType()) && !isConvertible(metaProperty.propertyType())) {
+  
+            // Get the actual type of this bean from the relevant column
+            String className = row.get((prefix + metaProperty.name()).trim().toLowerCase());
+            Class<DirectBean> beanClass = getClass(className);
+            
+            // Recursively set properties
+            builder.set(metaProperty.name(),
+                recursiveConstructBean(row, beanClass, prefix + metaProperty.name() + ":"));
+  
+          // If not a bean, or it is a bean for which a converter exists, just set value in builder using joda convert
+          } else {
+            // Convert raw value in row to the target property's type
+            String rawValue = row.get((prefix + metaProperty.name()).trim().toLowerCase());
+            
+            // Set property value
             if (rawValue != null && !rawValue.equals("")) {
-              // builder.setString(metaProperty.name(), rawValue);
               builder.set(metaProperty.name(), 
                   JodaBeanUtils.stringConverter().convertFromString(metaProperty.propertyType(), rawValue));
             } else {
               s_logger.warn("Skipping empty or null value for " + prefix + metaProperty.name());
             }
           }
-        }    
+        }
       }
       
-      // Actually build the security
+      // Actually build the bean
       return builder.build();
   
     } catch (Throwable ex) {
@@ -216,50 +294,33 @@ public class JodaBeanParser extends RowParser {
     }
   }
   
-  @Override
-  public ManageablePosition constructPosition(Map<String, String> row, ManageableSecurity security) {
-    
-    // TODO work out how to determine if fungible
-    ManageablePosition position = new ManageablePosition();
-    return position;
-  }
-  
-
-  @Override
-  public ManageableTrade constructTrade(Map<String, String> row, ManageableSecurity security, ManageablePosition position) {
-    ManageableTrade trade = new ManageableTrade();
-    return trade;
-  }
-
-  
-  /*
-   * Export routines: construct row from security, position, trade
+  /**
+   * Extracts a map of column names to values from a supplied security bean's properties, using recursion to 
+   * extract properties from any member beans. 
+   * @param bean    The bean instance from which to extract property values
+   * @param prefix  The class membership path traced from the top-level bean class to the current class
+   * @return        A map of extracted column names and values
    */
-  
-  @Override
-  public Map<String, String> constructRow(ManageableSecurity security) {
-    return recursiveConstructRow(security, "");
-  }
-  
   private Map<String, String> recursiveConstructRow(DirectBean bean, String prefix) {
     Map<String, String> result = new HashMap<String, String>();
     
     // Populate the row from the bean's properties
     for (MetaProperty<?> metaProperty : bean.metaBean().metaPropertyIterable()) {
       
-      // If this property is itself a bean without a converter, recurse to populate relevant columns
-      if (isBean(metaProperty.propertyType()) && !isConvertible(metaProperty.propertyType())) {
-        
-        // Store the class name in a separate column (to help identify the correct subclass during loading)
-        result.put(prefix + metaProperty.name(), metaProperty.get(bean).getClass().getSimpleName());
-        
-        // Recursively extract bean's columns        
-        result.putAll(recursiveConstructRow((DirectBean) metaProperty.get(bean), prefix + metaProperty.name() + ":"));
-        
-      // If not a bean, or it is a bean for which a converter exists, just extract its value using joda convert
-      } else {
-        // Set the column
-        if (!ignoreMetaProperty(metaProperty)) {       
+      // Skip any undesired properties, process the rest
+      if (!ignoreMetaProperty(metaProperty)) {
+        // If this property is itself a bean without a converter, recurse to populate relevant columns
+        if (isBean(metaProperty.propertyType()) && !isConvertible(metaProperty.propertyType())) {
+          
+          // Store the class name in a separate column (to help identify the correct subclass during loading)
+          result.put(prefix + metaProperty.name(), metaProperty.get(bean).getClass().getSimpleName());
+          
+          // Recursively extract bean's columns        
+          result.putAll(recursiveConstructRow((DirectBean) metaProperty.get(bean), prefix + metaProperty.name() + ":"));
+          
+        // If not a bean, or it is a bean for which a converter exists, just extract its value using joda convert
+        } else {
+          // Set the column
           if (_columns.containsKey(prefix + metaProperty.name())) {
             result.put(prefix + metaProperty.name(), metaProperty.getString(bean));
           } else {
@@ -271,24 +332,12 @@ public class JodaBeanParser extends RowParser {
     return result;
   }
   
-  @Override
-  public Map<String, String> constructRow(ManageablePosition position) {
-    Map<String, String> result = new HashMap<String, String>();
-
-    // TODO extract standard position fields
-    return result;
-  }
-  
-
-  @Override
-  public Map<String, String> constructRow(ManageableTrade trade) {
-    Map<String, String> result = new HashMap<String, String>();
-
-    // TODO extract standard trade fields
-    return result;
-  }
-
-  
+  /**
+   * Given a class name, look for the class in the list of packages specified by CLASS_PACKAGES and return it
+   * or throw exception if not found  
+   * @param className   the class name to seek
+   * @return            the corresponding class 
+   */
   @SuppressWarnings("unchecked")
   private Class<DirectBean> getClass(String className) {
     Class<DirectBean> theClass = null;
@@ -305,6 +354,12 @@ public class JodaBeanParser extends RowParser {
     return theClass;
   }
   
+  /**
+   * Given a bean class, find its subclasses; this is current hard coded as Java can neither identify the 
+   * classes within a package, nor identify a class's subclasses. Currently identifies swap legs.
+   * @param beanClass
+   * @return
+   */
   private Collection<Class<?>> getSubClasses(Class<?> beanClass) {
     Collection<Class<?>> subClasses = new ArrayList<Class<?>>();
     
@@ -317,6 +372,11 @@ public class JodaBeanParser extends RowParser {
     return (Collection<Class<?>>) subClasses;
   }
   
+  /**
+   * Checks whether the supplied class has a registered Joda string converter
+   * @param clazz   the class to check
+   * @return        the answer
+   */
   private boolean isConvertible(Class<?> clazz) {
     try {
       JodaBeanUtils.stringConverter().findConverter(clazz);
@@ -326,23 +386,31 @@ public class JodaBeanParser extends RowParser {
     }
   }
   
+  /**
+   * Determines whether the supplied class is a direct bean
+   * @param clazz the class in question
+   * @return      the answer
+   */
   private boolean isBean(Class<?> clazz) {
     return DirectBean.class.isAssignableFrom(clazz) ? true : false; 
   }
 
+  /**
+   * Checks whether the specified metaproperty is to be ignored when extracting fields
+   * @param mp  the metaproperty in question
+   * @return    the answer
+   */
   private boolean ignoreMetaProperty(MetaProperty<?> mp) {
+    if (mp.readWrite() != PropertyReadWrite.READ_WRITE) {
+      return true;
+    }
     String s = mp.name().trim().toLowerCase(); 
     for (String t : IGNORE_METAPROPERTIES) {
-      if (s.equals(t)) {
+      if (s.equals(t.trim().toLowerCase())) {
         return true;
       }
     }
     return false;
   }
   
-  @Override
-  public String[] getColumns() {
-    return _columns.keySet().toArray(new String[_columns.size()]);
-  }
-
 }

@@ -18,7 +18,7 @@ $.register_module({
         'og.views.extras.portfolios_sync'
     ],
     obj: function () {
-        var api = og.api, common = og.common,
+        var api = og.api, common = og.common, gadgets = common.gadgets,
             details = common.details, history = common.util.history,
             routes = common.routes, ui = common.util.ui, module = this,
             page_name = module.name.split('.').pop(), json = {},
@@ -182,10 +182,9 @@ $.register_module({
                 // if the position in the URL is not in the JSON, it has been removed so don't display
                 // but don't redirect so history will still work
                 if (!position || !~json.positions.pluck('id').indexOf(position)) return;
-                common.gadgets.positions({
-                    id: position, selector: '.og-js-details-positions', editable: false, view: view
-                });
-                common.gadgets.trades({id: position, selector: '.og-js-trades-table'});
+                api.rest.positions.get({id: position, update: view.update, cache_for: 500, dependencies: ['position']});
+                gadgets.positions({id: position, selector: '.og-js-details-positions', editable: false, view: view});
+                gadgets.trades({id: position, selector: '.og-js-trades-table'});
             };
             render_position_rows = function (selector, json) {
                 var display_columns = [], data_columns = [], format = common.slickgrid.formatters.positions,

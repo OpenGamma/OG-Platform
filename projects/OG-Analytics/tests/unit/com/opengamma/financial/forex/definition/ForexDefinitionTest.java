@@ -58,13 +58,22 @@ public class ForexDefinitionTest {
    * Tests the class getters.
    */
   public void getter() {
-    assertEquals(CUR_1, FX.getCurrency1());
+    assertEquals("ForexDefinition getter", CUR_1, FX.getCurrency1());
     assertEquals(CUR_2, FX.getCurrency2());
     assertEquals(PAYMENT_DATE, FX.getExchangeDate());
     assertEquals(NOMINAL_1, FX.getPaymentCurrency1().getAmount());
     assertEquals(-NOMINAL_1 * FX_RATE, FX.getPaymentCurrency2().getAmount());
     assertEquals(new PaymentFixedDefinition(CUR_1, PAYMENT_DATE, NOMINAL_1), FX.getPaymentCurrency1());
     assertEquals(new PaymentFixedDefinition(CUR_2, PAYMENT_DATE, -NOMINAL_1 * FX_RATE), FX.getPaymentCurrency2());
+  }
+
+  @Test
+  /**
+   * Tests the class builder.
+   */
+  public void from() {
+    ForexDefinition fXfrom = ForexDefinition.fromAmounts(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, -FX_RATE * NOMINAL_1);
+    assertEquals("ForexDefinition builder", FX, fXfrom);
   }
 
   @Test

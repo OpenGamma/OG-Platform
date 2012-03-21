@@ -11,6 +11,8 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.Arrays;
 import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
@@ -18,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.financial.loader.rowparser.RowParser;
 import com.opengamma.financial.loader.sheet.CsvSheetReader;
 import com.opengamma.financial.loader.sheet.SheetReader;
 import com.opengamma.financial.tool.ToolContext;
@@ -33,12 +36,11 @@ public class ZippedPortfolioReader implements PortfolioReader {
   private static final Logger s_logger = LoggerFactory.getLogger(ZippedPortfolioReader.class);
 
   private static final String SHEET_EXTENSION = ".csv";
-  private static final String CONFIG_FILE = "METADATA.INI";
-  private static final String VERSION_TAG = "version";
-  private static final String VERSION = "1.0";
 
   private ZipFile _zipFile;
   private ToolContext _toolContext;
+
+  private Map<String, Integer> _versionMap = new HashMap<String, Integer>();
 
   public ZippedPortfolioReader(String filename, ToolContext toolContext) {
     _toolContext = toolContext;
@@ -49,33 +51,12 @@ public class ZippedPortfolioReader implements PortfolioReader {
       throw new OpenGammaRuntimeException("Could not open " + filename);
     }
 
-    // Check archive version listed in config file
-    InputStream cfgInputStream;
-    ZipEntry cfgEntry = _zipFile.getEntry(CONFIG_FILE);
-    if (cfgEntry != null) {
-      try {
-        cfgInputStream = _zipFile.getInputStream(cfgEntry);
-        BufferedReader cfgReader = new BufferedReader(new InputStreamReader(cfgInputStream));
-        
-        String input;
-        while ((input = cfgReader.readLine()) != null) {
-          String[] line = input.split("=", 2);
-          if (line[0].trim().equalsIgnoreCase(VERSION_TAG) && line[1].trim().equalsIgnoreCase(VERSION)) {
-            
-            s_logger.info("Using ZIP archive " + filename);
-            return;
-          }
-        }
-        throw new OpenGammaRuntimeException("Archive " + filename + " should be at version " + VERSION);
-      } catch (IOException ex) {
-        throw new OpenGammaRuntimeException("Could not open configuration file " + CONFIG_FILE + " in ZIP archive" + filename);
-      }
-    } else {
-      throw new OpenGammaRuntimeException("Could not find configuration file " + CONFIG_FILE + " in ZIP archive" + filename);
-    }
+    // Retrieve security hashes listed in config file
+    readMetaData("METADATA.INI");
     
+    s_logger.info("Using ZIP archive " + filename);
   }
-  
+
   @Override
   public void writeTo(PortfolioWriter portfolioWriter) {
 
@@ -96,10 +77,27 @@ public class ZippedPortfolioReader implements PortfolioReader {
           // Set up a sheet reader for the current CSV file in the ZIP archive
           SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
 
+          RowParser parser = RowParser.newRowParser(secType, _toolContext);
+          if (parser == null) {
+            s_logger.error("Could not build a row parser for security type '" + secType + "'");
+            continue; 
+          }
+          if (_versionMap.get(secType) == null) {
+            s_logger.error("Versioning hash for security type '" + secType + "' could not be found");
+            continue;
+          }
+          if (parser.getSecurityHashCode() != _versionMap.get(secType)) {
+            s_logger.error("The parser version for the '" + secType + "' security (hash " + 
+                Integer.toHexString(parser.getSecurityHashCode()) + 
+                ") does not match the data stored in the archive (hash " + 
+                Integer.toHexString(_versionMap.get(secType)) + ")");
+            continue;
+          }
+          
           // Create a generic simple portfolio loader for the current sheet, using a dynamically loaded row parser class
-          SingleSheetPortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(sheet, sheet.getColumns(), secType, _toolContext);
+          SingleSheetPortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(sheet, sheet.getColumns(), parser);
 
-          s_logger.info("Processing " + entry.getName() + " as " + secType);
+          s_logger.info("Processing rows in archive entry " + entry.getName() + " as " + secType);
 
           // Replicate the zip entry's path in the portfolio node tree:
           // Start at root and traverse existing portfolio nodes that match,
@@ -133,12 +131,45 @@ public class ZippedPortfolioReader implements PortfolioReader {
           portfolioWriter.flush();
 
         } catch (Throwable ex) {
-          //throw new OpenGammaRuntimeException("Could not identify an appropriate loader for ZIP entry " + entry.getName());
           s_logger.warn("Could not import from " + entry.getName() + ", skipping file (exception is " + ex + ")");
         }
       }
     }
   }
+    
+  private void readMetaData(String filename) {
+
+    InputStream cfgInputStream;
+    ZipEntry cfgEntry = _zipFile.getEntry(filename);
+    if (cfgEntry != null) {
+      try {
+        cfgInputStream = _zipFile.getInputStream(cfgEntry);
+        BufferedReader cfgReader = new BufferedReader(new InputStreamReader(cfgInputStream));
+        
+        String input;
+        while ((input = cfgReader.readLine()) != null && !input.equals("[securityHashes]")); // CSIGNORE
+        
+        while ((input = cfgReader.readLine()) != null) {
+          String[] line = input.split("=", 2);
+          if (line.length == 2) {
+            try {
+              _versionMap.put(line[0].trim(), (int) Long.parseLong(line[1].trim(), 16));
+            } catch (NumberFormatException e) {
+              continue;
+            }
+          } else if (input.contains("[]")) {
+            break;
+          } else {
+            continue;
+          }
+        }
+        
+      } catch (IOException ex) {
+        throw new OpenGammaRuntimeException("Could not open METADATA.INI");
+      }
+    } else {
+      throw new OpenGammaRuntimeException("Could not find METADATA.INI");
+    }
+  }
   
- 
 }

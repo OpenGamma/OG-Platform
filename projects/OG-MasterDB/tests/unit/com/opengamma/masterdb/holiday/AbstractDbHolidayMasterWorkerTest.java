@@ -21,8 +21,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.core.holiday.HolidayType;
@@ -44,14 +46,29 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
   protected Instant _version1Instant;
   protected Instant _version2Instant;
   protected int _totalHolidays;
+  protected boolean _readOnly;  // attempt to speed up tests
 
-  public AbstractDbHolidayMasterWorkerTest(String databaseType, String databaseVersion) {
+  public AbstractDbHolidayMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
     super(databaseType, databaseVersion);
+    _readOnly = readOnly;
     s_logger.info("running testcases for {}", databaseType);
+  }
+
+  @BeforeClass
+  public void setUpClass() throws Exception {
+    if (_readOnly) {
+      init();
+    }
   }
 
   @BeforeMethod
   public void setUp() throws Exception {
+    if (_readOnly == false) {
+      init();
+    }
+  }
+
+  private void init() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     _holMaster = (DbHolidayMaster) context.getBean(getDatabaseType() + "DbHolidayMaster");
@@ -105,8 +122,18 @@ public abstract class AbstractDbHolidayMasterWorkerTest extends DbTest {
 
   @AfterMethod
   public void tearDown() throws Exception {
-    _holMaster = null;
-    super.tearDown();
+    if (_readOnly == false) {
+      _holMaster = null;
+      super.tearDown();
+    }
+  }
+
+  @AfterClass
+  public void tearDownClass() throws Exception {
+    if (_readOnly) {
+      _holMaster = null;
+      super.tearDown();
+    }
   }
 
   @AfterSuite

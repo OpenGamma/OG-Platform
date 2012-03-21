@@ -35,7 +35,7 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyExchangeDbExchangeMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, false);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -108,12 +108,6 @@ public class ModifyExchangeDbExchangeMasterWorkerCorrectTest extends AbstractDbE
     ExchangeHistoryRequest search = new ExchangeHistoryRequest(base.getUniqueId(), now, null);
     ExchangeHistoryResult searchResult = _exgMaster.history(search);
     assertEquals(2, searchResult.getDocuments().size());
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_exgMaster.getClass().getSimpleName() + "[DbExg]", _exgMaster.toString());
   }
 
 }

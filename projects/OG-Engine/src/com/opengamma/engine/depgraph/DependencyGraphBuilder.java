@@ -41,6 +41,7 @@ import com.opengamma.engine.function.resolver.CompiledFunctionResolver;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.engine.view.compilation.ViewDefinitionCompiler;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.Cancelable;
 import com.opengamma.util.tuple.Pair;
@@ -931,6 +932,7 @@ public final class DependencyGraphBuilder {
     } catch (InterruptedException e) {
       throw new OpenGammaRuntimeException("Interrupted", e);
     }
+    ViewDefinitionCompiler.outputFailureReport(this);
     RuntimeException ex = exception.get();
     if (ex != null) {
       throw ex;

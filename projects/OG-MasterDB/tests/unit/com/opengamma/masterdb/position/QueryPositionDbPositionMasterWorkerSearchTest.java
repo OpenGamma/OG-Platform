@@ -43,7 +43,7 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QueryPositionDbPositionMasterWorkerSearchTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, true);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -700,12 +700,6 @@ public class QueryPositionDbPositionMasterWorkerSearchTest extends AbstractDbPos
     assert122(test.getDocuments().get(3));
     assert123(test.getDocuments().get(4));
     assert222(test.getDocuments().get(5));  // new version
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_posMaster.getClass().getSimpleName() + "[DbPos]", _posMaster.toString());
   }
 
 }

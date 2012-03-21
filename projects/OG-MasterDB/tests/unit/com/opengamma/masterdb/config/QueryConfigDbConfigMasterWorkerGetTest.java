@@ -30,7 +30,7 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QueryConfigDbConfigMasterWorkerGetTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, true);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -100,12 +100,6 @@ public class QueryConfigDbConfigMasterWorkerGetTest extends AbstractDbConfigMast
     } else {
       Assert.fail();
     }
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_cfgMaster.getClass().getSimpleName() + "[DbCfg]", _cfgMaster.toString());
   }
 
 }
