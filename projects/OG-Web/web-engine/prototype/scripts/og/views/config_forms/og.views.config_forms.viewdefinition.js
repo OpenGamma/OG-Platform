@@ -140,7 +140,7 @@ $.register_module({
                         </header>\
                     ';
                     $('.OG-layout-admin-details-center .ui-layout-header').html(header);
-                    load_handler(form);
+                    setTimeout(load_handler.partial(form));
                 }},
                 {type: 'form:submit', handler: save_resource},
                 {type: 'click', selector: form_id + ' .og-js-collapse-handle', handler: function (e) {

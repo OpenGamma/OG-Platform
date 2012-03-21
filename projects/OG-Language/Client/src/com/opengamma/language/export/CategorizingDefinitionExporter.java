@@ -68,7 +68,7 @@ public class CategorizingDefinitionExporter extends AbstractDefinitionExporter {
 
     @Override
     public int compareTo(final Entry e) {
-      return getName().compareTo(e.getName());
+      return getName().compareToIgnoreCase(e.getName());
     }
 
   }

@@ -21,26 +21,40 @@ import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * 
+ * TODO use root finding rather than chi^2 for this
  */
-public class PiecewiseSABRFitter1 {
-  private static final Logger s_logger = LoggerFactory.getLogger(PiecewiseSABRFitter1.class);
+public class PiecewiseSABRFitter {
+  private static final double DEFAULT_BETA = 0.9;
+  private static final WeightingFunction DEFAULT_WEIGHTING_FUNCTION = SineWeightingFunction.getInstance();
+
+  private static final Logger s_logger = LoggerFactory.getLogger(PiecewiseSABRFitter.class);
   private static final SABRHaganVolatilityFunction MODEL = new SABRHaganVolatilityFunction();
   private final double _defaultBeta;
   private final WeightingFunction _weightingFunction;
+  private final boolean _globalBetaSearch;
 
-  public PiecewiseSABRFitter1() {
-    this(0.9, LinearWeightingFunction.getInstance());
+  public PiecewiseSABRFitter() {
+    _defaultBeta = DEFAULT_BETA;
+    _weightingFunction = DEFAULT_WEIGHTING_FUNCTION;
+    _globalBetaSearch = true;
   }
 
-  public PiecewiseSABRFitter1(final double defaultBeta, final WeightingFunction weightingFunction) {
+  public PiecewiseSABRFitter(final double defaultBeta) {
+    ArgumentChecker.isTrue(ArgumentChecker.isInRangeInclusive(0, 1, defaultBeta), "Beta must be >= 0 and <= 1; have {}", defaultBeta);
+    _defaultBeta = defaultBeta;
+    _weightingFunction = DEFAULT_WEIGHTING_FUNCTION;
+    _globalBetaSearch = false;
+  }
+
+  public PiecewiseSABRFitter(final double defaultBeta, final WeightingFunction weightingFunction) {
     ArgumentChecker.isTrue(ArgumentChecker.isInRangeInclusive(0, 1, defaultBeta), "Beta must be >= 0 and <= 1; have {}", defaultBeta);
     ArgumentChecker.notNull(weightingFunction, "weighting function");
     _defaultBeta = defaultBeta;
     _weightingFunction = weightingFunction;
+    _globalBetaSearch = false;
   }
 
-  public Function1D<Double, Double> getVolatilityFunction(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
+  public final SABRFormulaData[] getFittedfModelParameters(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
     ArgumentChecker.notNull(strikes, "strikes");
     ArgumentChecker.notNull(impliedVols, "implied volatilities");
     final int n = strikes.length;
@@ -55,7 +69,8 @@ public class PiecewiseSABRFitter1 {
       averageVol += vol;
       averageVol2 += vol * vol;
     }
-    averageVol2 = Math.sqrt((averageVol2 - averageVol / n) / (n - 1));
+    double temp = averageVol2 - averageVol * averageVol / n;
+    averageVol2 = temp <= 0.0 ? 0.0 : Math.sqrt(temp) / (n - 1); //while temp should never be negative, rounding errors can make it so
     averageVol /= n;
 
     DoubleMatrix1D start;
@@ -63,6 +78,9 @@ public class PiecewiseSABRFitter1 {
     //almost flat surface
     if (averageVol2 / averageVol < 0.01) {
       start = new DoubleMatrix1D(averageVol, 1.0, 0.0, 0.0);
+      if (!_globalBetaSearch && _defaultBeta != 1.0) {
+        s_logger.warn("Smile almost flat. Cannot use beta = ", +_defaultBeta + " so ignored");
+      }
     } else {
       final double approxAlpha = averageVol * Math.pow(forward, 1 - _defaultBeta);
       start = new DoubleMatrix1D(approxAlpha, _defaultBeta, 0.0, 0.3);
@@ -74,7 +92,7 @@ public class PiecewiseSABRFitter1 {
     Arrays.fill(errors, 0.0001); //1bps
     final SmileModelFitter<SABRFormulaData> globalFitter = new SABRModelFitter(forward, strikes, expiry, impliedVols, errors, MODEL);
     final BitSet fixed = new BitSet();
-    if (n == 3) {
+    if (n == 3 || !_globalBetaSearch) {
       fixed.set(1); //fixed beta
     }
 
@@ -83,7 +101,7 @@ public class PiecewiseSABRFitter1 {
 
     if (n == 3) {
       if (gRes.getChiSq() / n > 1.0) {
-        s_logger.warn("chi^2 on SABR fit is " + gRes.getChiSq());
+        s_logger.warn("chi^2 on SABR fit to ", +n + " points is " + gRes.getChiSq());
       }
       modelParams[0] = new SABRFormulaData(gRes.getModelParameters().getData());
     } else {
@@ -100,12 +118,19 @@ public class PiecewiseSABRFitter1 {
         final SmileModelFitter<SABRFormulaData> fitter = new SABRModelFitter(forward, tStrikes, expiry, tVols, errors, MODEL);
         final LeastSquareResultsWithTransform lRes = fitter.solve(start, fixed);
         if (lRes.getChiSq() > 3.0) {
-          s_logger.warn("chi^2 on SABR fit " + i + " is " + lRes.getChiSq());
+          s_logger.warn("chi^2 on 3-point SABR fit #" + i + " is " + lRes.getChiSq());
         }
         modelParams[i] = new SABRFormulaData(lRes.getModelParameters().getData());
       }
 
     }
+    return modelParams;
+  }
+
+  public Function1D<Double, Double> getVolatilityFunction(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
+
+    final SABRFormulaData[] modelParams = getFittedfModelParameters(forward, strikes, expiry, impliedVols);
+    final int n = strikes.length;
     return new Function1D<Double, Double>() {
 
       @Override

@@ -56,7 +56,7 @@ $.register_module({
                           <h1 class="og-js-name">' + orig_name + '</h1>\
                         </header>';
                     $('.OG-layout-admin-details-center .ui-layout-header').html(header);
-                    load_handler(form);
+                    setTimeout(load_handler.partial(form));
                 }},
                 {type: 'keyup', selector: form_id + ' [name=name]', handler: function (e) {
                     $('.OG-layout-admin-details-center .og-js-name').text($(e.target).val());

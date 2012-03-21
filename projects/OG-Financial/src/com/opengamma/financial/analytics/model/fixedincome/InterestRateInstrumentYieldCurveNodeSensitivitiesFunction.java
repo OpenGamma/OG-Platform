@@ -239,11 +239,6 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
         calculationMethod);
   }
 
-  private static ValueRequirement getJacobianRequirement(final ComputationTarget target, final String calculationMethod) {
-    return YieldCurveFunction.getJacobianRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()),
-        calculationMethod);
-  }
-
   private static ValueRequirement getJacobianRequirement(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName,
       final String calculationMethod) {
     return YieldCurveFunction.getJacobianRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()), forwardCurveName, fundingCurveName, calculationMethod);

@@ -24,6 +24,7 @@ import com.opengamma.language.function.MetaFunction;
 public class ExternalFunctionProvider extends AbstractFunctionProvider {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ExternalFunctionProvider.class);
+  private static boolean s_excludeTests;
 
   private final List<MetaFunction> _functions = functions();
 
@@ -49,7 +50,14 @@ public class ExternalFunctionProvider extends AbstractFunctionProvider {
     return Collections.emptyList();
   }
 
-  @SuppressWarnings("unused")
+  public static void setExcludeTests(boolean excludeTests) {
+    s_excludeTests = excludeTests;
+  }
+
+  public static boolean isExcludeTests() {
+    return s_excludeTests;
+  }
+
   private static boolean isTestClass(final Class<?> clazz) {
     String[] cs = clazz.getName().split("[\\.\\$]");
     for (String c : cs) {
@@ -63,11 +71,9 @@ public class ExternalFunctionProvider extends AbstractFunctionProvider {
   private static List<MetaFunction> createFunctions(final ExternalFunctionCache cache) {
     final List<MetaFunction> functions = new ArrayList<MetaFunction>();
     for (Class<?> clazz : cache.getClasses()) {
-      // Use the following test when running with the Test classes in the classpath to
-      // avoid generating documentation for them.
-      /*if (isTestClass(clazz)) {
+      if (isExcludeTests() && isTestClass(clazz)) {
         continue;
-      }*/
+      }
       final ExternalFunctionHandler handler = new ExternalFunctionHandler(clazz);
       functions.addAll(handler.getFunctions());
     }
