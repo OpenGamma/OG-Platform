@@ -29,7 +29,7 @@ public class QueryConfigDbConfigMasterWorkerMetaDataTest extends AbstractDbConfi
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QueryConfigDbConfigMasterWorkerMetaDataTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, true);
     s_logger.info("running testcases for {}", databaseType);
   }
 

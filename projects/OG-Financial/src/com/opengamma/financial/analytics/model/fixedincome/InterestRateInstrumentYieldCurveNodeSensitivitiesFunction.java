@@ -210,9 +210,9 @@ public class InterestRateInstrumentYieldCurveNodeSensitivitiesFunction extends A
       requirements.add(getCurveRequirement(target, forwardCurveName, forwardCurveName, fundingCurveName, calculationMethod));
       requirements.add(getCurveSpecRequirement(target, curveName));
       if (!calculationMethod.equals(InterpolatedYieldCurveFunction.CALCULATION_METHOD_NAME)) {
-        requirements.add(getJacobianRequirement(target, calculationMethod));
+        requirements.add(getJacobianRequirement(target, forwardCurveName, fundingCurveName, calculationMethod));
         if (calculationMethod.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)) {
-          requirements.add(getCouponSensitivityRequirement(target, null, null));
+          requirements.add(getCouponSensitivityRequirement(target, forwardCurveName, fundingCurveName));
         }
       }
       return requirements;

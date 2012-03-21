@@ -5,6 +5,18 @@
  */
 package com.opengamma.masterdb.batch;
 
+import static org.testng.Assert.assertTrue;
+
+import java.util.List;
+
+import javax.time.Duration;
+import javax.time.Instant;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.Factory;
+import org.testng.annotations.Test;
+
 import com.opengamma.batch.domain.RiskRun;
 import com.opengamma.batch.rest.BatchRunSearchRequest;
 import com.opengamma.id.UniqueId;
@@ -12,17 +24,6 @@ import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.test.DbTest;
 import com.opengamma.util.tuple.Pair;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.annotations.Factory;
-import org.testng.annotations.Test;
-
-import javax.time.Duration;
-import javax.time.Instant;
-
-import java.util.List;
-
-import static org.testng.Assert.assertTrue;
 
 /**
  * Tests DbBatchGetTest.

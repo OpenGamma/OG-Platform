@@ -35,7 +35,7 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyPositionDbPositionMasterWorkerRemovePositionTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, false);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -66,12 +66,6 @@ public class ModifyPositionDbPositionMasterWorkerRemovePositionTest extends Abst
     ExternalIdBundle secKey = position.getSecurityLink().getExternalId();
     assertEquals(1, secKey.size());
     assertEquals(ExternalId.of("TICKER", "ORCL"), secKey.getExternalIds().iterator().next());
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_posMaster.getClass().getSimpleName() + "[DbPos]", _posMaster.toString());
   }
 
 }

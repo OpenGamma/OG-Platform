@@ -36,7 +36,7 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyHolidayDbHolidayMasterWorkerCorrectTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, false);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -109,12 +109,6 @@ public class ModifyHolidayDbHolidayMasterWorkerCorrectTest extends AbstractDbHol
     HolidayHistoryRequest search = new HolidayHistoryRequest(base.getUniqueId(), now, null);
     HolidayHistoryResult searchResult = _holMaster.history(search);
     assertEquals(2, searchResult.getDocuments().size());
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_holMaster.getClass().getSimpleName() + "[DbHol]", _holMaster.toString());
   }
 
 }

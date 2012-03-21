@@ -30,7 +30,7 @@ import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
 import com.opengamma.DataNotFoundException;
-import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.ObjectIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -60,9 +60,9 @@ import com.opengamma.util.tuple.LongObjectPair;
  * This is a full implementation of the portfolio master using an SQL database.
  * Full details of the API are in {@link PortfolioMaster}.
  * <p>
- * The SQL is stored externally in {@code DbPortfolioMaster.extsql}.
+ * The SQL is stored externally in {@code DbPortfolioMaster.elsql}.
  * Alternate databases or specific SQL requirements can be handled using database
- * specific overrides, such as {@code DbPortfolioMaster-MySpecialDB.extsql}.
+ * specific overrides, such as {@code DbPortfolioMaster-MySpecialDB.elsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
@@ -96,7 +96,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
    */
   public DbPortfolioMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
-    setExtSqlBundle(ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbPortfolioMaster.class));
+    setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbPortfolioMaster.class));
   }
 
   //-------------------------------------------------------------------------
@@ -146,27 +146,32 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
-    String[] sql = {getExtSqlBundle().getSql("Search", args), getExtSqlBundle().getSql("SearchCount", args)};
-    searchWithPaging(request.getPagingRequest(), sql, args, new PortfolioDocumentExtractor(true), result);
+    if (request.isIncludePositions()) {
+      String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
+      searchWithPaging(request.getPagingRequest(), sql, args, new PortfolioDocumentExtractor(true, true), result);
+    } else {
+      String[] sql = {getElSqlBundle().getSql("SearchNoPositions", args), getElSqlBundle().getSql("SearchCount", args)};
+      searchWithPaging(request.getPagingRequest(), sql, args, new PortfolioDocumentExtractor(false, true), result);
+    }
     return result;
   }
 
   //-------------------------------------------------------------------------
   @Override
   public PortfolioDocument get(final UniqueId uniqueId) {
-    return doGet(uniqueId, new PortfolioDocumentExtractor(true), "Portfolio");
+    return doGet(uniqueId, new PortfolioDocumentExtractor(true, true), "Portfolio");
   }
 
   //-------------------------------------------------------------------------
   @Override
   public PortfolioDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
-    return doGetByOidInstants(objectId, versionCorrection, new PortfolioDocumentExtractor(true), "Portfolio");
+    return doGetByOidInstants(objectId, versionCorrection, new PortfolioDocumentExtractor(true, true), "Portfolio");
   }
 
   //-------------------------------------------------------------------------
   @Override
   public PortfolioHistoryResult history(final PortfolioHistoryRequest request) {
-    return doHistory(request, new PortfolioHistoryResult(), new PortfolioDocumentExtractor(true));
+    return doHistory(request, new PortfolioHistoryResult(), new PortfolioDocumentExtractor(true, true));
   }
 
   @Override
@@ -227,10 +232,10 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     }
     
     // insert
-    final String sqlDoc = getExtSqlBundle().getSql("Insert", docArgs);
-    final String sqlNode = getExtSqlBundle().getSql("InsertNode");
-    final String sqlPosition = getExtSqlBundle().getSql("InsertPosition");
-    final String sqlAttributes = getExtSqlBundle().getSql("InsertAttribute");
+    final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
+    final String sqlNode = getElSqlBundle().getSql("InsertNode");
+    final String sqlPosition = getElSqlBundle().getSql("InsertPosition");
+    final String sqlAttributes = getElSqlBundle().getSql("InsertAttribute");
     getJdbcTemplate().update(sqlDoc, docArgs);
     getJdbcTemplate().batchUpdate(sqlNode, nodeList.toArray(new DbMapSqlParameterSource[nodeList.size()]));
     getJdbcTemplate().batchUpdate(sqlPosition, posList.toArray(new DbMapSqlParameterSource[posList.size()]));
@@ -329,9 +334,9 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
       .addValue("node_oid", extractOid(uniqueId))
       .addTimestamp("version_as_of_instant", Objects.firstNonNull(versionAsOf, now))
       .addTimestamp("corrected_to_instant", Objects.firstNonNull(correctedTo, now));
-    final PortfolioDocumentExtractor extractor = new PortfolioDocumentExtractor(false);
+    final PortfolioDocumentExtractor extractor = new PortfolioDocumentExtractor(true, false);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final String sql = getExtSqlBundle().getSql("GetNodeByOidInstants", args);
+    final String sql = getElSqlBundle().getSql("GetNodeByOidInstants", args);
     final List<PortfolioDocument> docs = namedJdbc.query(sql , args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Node not found: " + uniqueId);
@@ -349,9 +354,9 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     s_logger.debug("getNodeById {}", uniqueId);
     final DbMapSqlParameterSource args = new DbMapSqlParameterSource()
       .addValue("node_id", extractRowId(uniqueId));
-    final PortfolioDocumentExtractor extractor = new PortfolioDocumentExtractor(false);
+    final PortfolioDocumentExtractor extractor = new PortfolioDocumentExtractor(true, false);
     final NamedParameterJdbcOperations namedJdbc = getJdbcTemplate().getNamedParameterJdbcOperations();
-    final String sql = getExtSqlBundle().getSql("GetNodeById", args);
+    final String sql = getElSqlBundle().getSql("GetNodeById", args);
     final List<PortfolioDocument> docs = namedJdbc.query(sql, args, extractor);
     if (docs.isEmpty()) {
       throw new DataNotFoundException("Node not found: " + uniqueId);
@@ -364,6 +369,7 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
    * Mapper from SQL rows to a PortfolioDocument.
    */
   protected final class PortfolioDocumentExtractor implements ResultSetExtractor<List<PortfolioDocument>> {
+    private final boolean _includePosition;
     private final boolean _complete;
     private long _lastPortfolioId = -1;
     private long _lastNodeId = -1;
@@ -373,7 +379,8 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
     private List<PortfolioDocument> _documents = new ArrayList<PortfolioDocument>();
     private final Stack<LongObjectPair<ManageablePortfolioNode>> _nodes = new Stack<LongObjectPair<ManageablePortfolioNode>>();
 
-    public PortfolioDocumentExtractor(boolean complete) {
+    public PortfolioDocumentExtractor(boolean includePositions, boolean complete) {
+      _includePosition = includePositions;
       _complete = complete;
     }
 
@@ -390,14 +397,17 @@ public class DbPortfolioMaster extends AbstractDocumentDbMaster<PortfolioDocumen
           _lastNodeId = nodeId;
           buildNode(rs, nodeId);
         }
-        final String posIdScheme = rs.getString("POS_KEY_SCHEME");
-        final String posIdValue = rs.getString("POS_KEY_VALUE");
-        if (posIdScheme != null && posIdValue != null) {
-          UniqueId id = UniqueId.of(posIdScheme, posIdValue);
-          if (!_nodePositionIds.contains(id.getObjectId())) {
-            _node.addPosition(id);
-            _nodePositionIds.add(id.getObjectId()); //have to add to both to maintain invariant
-            assert (_nodePositionIds.size() == _node.getPositionIds().size());
+        
+        if (_includePosition) {
+          final String posIdScheme = rs.getString("POS_KEY_SCHEME");
+          final String posIdValue = rs.getString("POS_KEY_VALUE");
+          if (posIdScheme != null && posIdValue != null) {
+            UniqueId id = UniqueId.of(posIdScheme, posIdValue);
+            if (!_nodePositionIds.contains(id.getObjectId())) {
+              _node.addPosition(id);
+              _nodePositionIds.add(id.getObjectId()); //have to add to both to maintain invariant
+              assert (_nodePositionIds.size() == _node.getPositionIds().size());
+            }
           }
         }
         

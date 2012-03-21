@@ -5,7 +5,6 @@
  */
 package com.opengamma.financial.loader.rowparser;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -19,7 +18,6 @@ import com.opengamma.core.region.RegionUtils;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.GUIDGenerator;
 import com.opengamma.util.i18n.Country;
@@ -67,12 +65,6 @@ public class FXForwardParser extends RowParser {
     return result;
   }
   
-  public ManageablePosition constructPosition(Map<String, String> row, ManageableSecurity security) {
-    ManageablePosition result = new ManageablePosition(BigDecimal.ONE, security.getExternalIdBundle());
-    
-    return result; 
-  }
-
   public Map<String, String> constructRow(ManageableSecurity security) {
     Map<String, String> result = new HashMap<String, String>();
     FXForwardSecurity fxForward = (FXForwardSecurity) security;

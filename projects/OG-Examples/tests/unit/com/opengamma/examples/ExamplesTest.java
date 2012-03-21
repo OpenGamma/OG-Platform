@@ -20,17 +20,16 @@ import com.opengamma.component.rest.RemoteComponentServer;
 /**
  * Test.
  */
-@Test
+@Test(singleThreaded = true)
 public class ExamplesTest {
-  
 
   private static final String CONFIG_RESOURCE_LOCATION = "classpath:fullstack/fullstack-example-test.properties";
 
   @BeforeMethod
   public void setUp() throws IOException {
-    DBTestUtils.createHsqlDB(CONFIG_RESOURCE_LOCATION);
+    DBTestUtils.createTestHsqlDB(CONFIG_RESOURCE_LOCATION);
   }
-  
+
   @AfterMethod
   public void runAfter() throws IOException {
     DBTestUtils.cleanUp(CONFIG_RESOURCE_LOCATION);

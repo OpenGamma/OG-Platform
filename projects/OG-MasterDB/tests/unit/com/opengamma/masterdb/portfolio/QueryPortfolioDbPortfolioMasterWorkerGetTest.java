@@ -5,8 +5,6 @@
  */
 package com.opengamma.masterdb.portfolio;
 
-import static org.testng.AssertJUnit.assertEquals;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Factory;
@@ -27,7 +25,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerGetTest extends AbstractDbPort
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QueryPortfolioDbPortfolioMasterWorkerGetTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, true);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -89,12 +87,6 @@ public class QueryPortfolioDbPortfolioMasterWorkerGetTest extends AbstractDbPort
     UniqueId oid = UniqueId.of("DbPrt", "101");
     PortfolioDocument test = _prtMaster.get(oid);
     assert101(test, 999);
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_prtMaster.getClass().getSimpleName() + "[DbPrt]", _prtMaster.toString());
   }
 
 }

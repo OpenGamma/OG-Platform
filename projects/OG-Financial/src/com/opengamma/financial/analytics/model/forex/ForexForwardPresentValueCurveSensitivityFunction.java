@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
  * 
  * Please see distribution for license.
  */
@@ -13,6 +13,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
 import com.opengamma.financial.forex.derivative.Forex;
+import com.opengamma.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 
 /**
@@ -27,7 +28,9 @@ public class ForexForwardPresentValueCurveSensitivityFunction extends ForexForwa
 
   @Override
   protected Set<ComputedValue> getResult(final Forex fxForward, final YieldCurveBundle data, final ValueSpecification spec) {
-    return Collections.singleton(new ComputedValue(spec, CALCULATOR.visit(fxForward, data)));
+    final MultipleCurrencyInterestRateCurveSensitivity result = CALCULATOR.visit(fxForward, data);
+    return Collections.singleton(new ComputedValue(spec, result));
   }
+
 
 }
