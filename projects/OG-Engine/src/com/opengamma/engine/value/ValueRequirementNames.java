@@ -44,6 +44,7 @@ public final class ValueRequirementNames {
   public static final String FUTURE_PRICE_CURVE_DATA = "FuturePriceCurveData";
   public static final String STANDARD_VOLATILITY_SURFACE_DATA = "StandardVolatilitySurfaceData";
   public static final String INTERPOLATED_VOLATILITY_SURFACE = "InterpolatedVolatilitySurfaceData";
+  public static final String VOLATILITY_SURFACE_SPEC = "VolatilitySurfaceSpecification";
   public static final String COST_OF_CARRY = "Cost Of Carry";
 
   public static final String VOLATILITY_CUBE = "VolatilityCube";
