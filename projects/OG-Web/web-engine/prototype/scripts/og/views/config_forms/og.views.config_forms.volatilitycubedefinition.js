@@ -76,7 +76,7 @@ $.register_module({
                         </header>\
                     ';
                     $('.OG-layout-admin-details-center .ui-layout-header').html(header);
-                    load_handler(form);
+                    setTimeout(load_handler.partial(form));
                 }},
                 {type: 'click', selector: form_id + ' .og-js-rem', handler: function (e) {
                     $(e.target).parents('.og-js-strip:first').remove();

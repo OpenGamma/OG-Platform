@@ -46,6 +46,7 @@
       <entry name="?*.ftl" />
       <entry name="?*.txt" />
       <entry name="?*.csv" />
+      <entry name="?*.ini" />
     </wildcardResourcePatterns>
     <annotationProcessing enabled="false" useClasspath="true" />
   </component>
