@@ -26,7 +26,7 @@ import com.opengamma.util.OpenGammaClock;
 /**
  * 
  */
-public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Number, Double> {
+public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implements CallPutSurfaceInstrumentProvider<Number, Double> {
   private static final BiMap<MonthOfYear, Character> s_monthCode;
   private static final DateAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster();
   private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
@@ -118,6 +118,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
     return _postfix;
   }
 
+  @Override
   public Double useCallAboveStrike() {
     return _useCallAboveStrike;
   }
