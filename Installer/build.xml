@@ -17,10 +17,10 @@
   <target name="build" description="Builds the installer packages in the dist sub-directory">
     <parallel>
       <antcall target="build-servers" inheritrefs="true">
-        <param name="ai.build.file" value="${basedir}/temp-servers.aip" />
+        <param name="ai.build.file" value="${basedir}${file.separator}temp-servers.aip" />
       </antcall>
       <antcall target="build-clients" inheritrefs="true">
-        <param name="ai.build.file" value="${basedir}/temp-clients.aip" />
+        <param name="ai.build.file" value="${basedir}${file.separator}temp-clients.aip" />
       </antcall>
     </parallel>
     <antcall target="build-monolith" inheritrefs="true" />
