@@ -106,8 +106,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
 
     } else if (surfaceQuoteUnits.equals(SurfacePropertyNames.PRICE_QUOTE)) {
 
-      NodalDoublesCurve futuresPrices = getFuturePricesCurve(target, curveName, inputs);
-      VolatilitySurfaceData<Number, Double> volSurface = getSurfaceFromPriceQuote(specification, surfaceData, futuresPrices, now, surfaceQuoteType);
+      final NodalDoublesCurve futuresPrices = getFuturePricesCurve(target, curveName, inputs);
+      final VolatilitySurfaceData<Number, Double> volSurface = getSurfaceFromPriceQuote(specification, surfaceData, futuresPrices, now, surfaceQuoteType);
       return Collections.singleton(new ComputedValue(spec, volSurface));
 
     } else {
@@ -134,8 +134,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(),
         createValueProperties()
-            .withAny(ValuePropertyNames.SURFACE)
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get()));
+        .withAny(ValuePropertyNames.SURFACE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get()));
   }
 
   @Override
@@ -197,8 +197,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
   private static VolatilitySurfaceData<Number, Double> getSurfaceFromPriceQuote(final VolatilitySurfaceSpecification specification,
       final VolatilitySurfaceData<Number, Double> optionPrices, final NodalDoublesCurve futurePrices, final ZonedDateTime now, final String surfaceQuoteType) {
     double callAboveStrike = 0;
-    if (specification.getSurfaceInstrumentProvider() instanceof BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider) {
-      callAboveStrike = ((BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider) specification.getSurfaceInstrumentProvider()).useCallAboveStrike();
+    if (specification.getSurfaceInstrumentProvider() instanceof CallPutSurfaceInstrumentProvider) {
+      callAboveStrike = ((CallPutSurfaceInstrumentProvider<?, ?>) specification.getSurfaceInstrumentProvider()).useCallAboveStrike();
     }
     final Map<Pair<Number, Double>, Double> volatilityValues = new HashMap<Pair<Number, Double>, Double>();
     final ObjectArrayList<Number> xList = new ObjectArrayList<Number>();
@@ -210,7 +210,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
         final double forward = futurePrices.getYValue(x.doubleValue());
         if (price != null) {
           try {
-            final double volatility = getVolatility(surfaceQuoteType, y / 100, price, forward, t.doubleValue(), callAboveStrike / 100);
+            final double volatility = getVolatility(surfaceQuoteType, y / 100, price, forward, t.doubleValue(), callAboveStrike / 100.);
             xList.add(x);
             yList.add(y);
             volatilityValues.put(Pair.of(x, y), volatility);
@@ -227,15 +227,15 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
   }
 
   /** Futures prices are required to form implied volatilities when the units of the input surface is quoted in prices. */
-  private static NodalDoublesCurve getFuturePricesCurve(final ComputationTarget target, String curveName, FunctionInputs inputs) {
+  private static NodalDoublesCurve getFuturePricesCurve(final ComputationTarget target, final String curveName, final FunctionInputs inputs) {
     if (curveName == null) {
       throw new OpenGammaRuntimeException("Could not get curve name");
     }
 
     final ValueRequirement futuresRequirement = new ValueRequirement(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA, target.toSpecification(),
         ValueProperties.builder()
-            .with(ValuePropertyNames.CURVE, curveName)
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_PRICE).get());
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_PRICE).get());
     final Object futurePricesObject = inputs.getValue(futuresRequirement);
     if (futurePricesObject == null) {
       throw new OpenGammaRuntimeException("Could not get futures price data");
