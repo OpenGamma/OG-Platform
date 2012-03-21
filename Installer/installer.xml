@@ -14,7 +14,7 @@
 
   <target name="create-build-file" depends="create-temp,enable-all" />
 
-  <target name="set-build-number" if="ai.present" unless="disable.build.all" depends="module-build-number">
+  <target name="set-build-number" depends="module-build-number,ai-present" if="ai.present" unless="disable.build.all">
     <ai-set-version version="${module.version.msi}.${module.build.number}" />
   </target>
 
@@ -74,7 +74,7 @@
 
   <!-- execution hooks -->
 
-  <target name="build-all" depends="ai-present" if="ai.present">
+  <target name="build-all" if="ai.present">
     <parallel>
       <antcall target="build-jvm-i386" inheritrefs="true" />
       <antcall target="build-jvm-x64" inheritrefs="true" />
