@@ -143,7 +143,7 @@
 			<jvmarg value="-Dopengamma.platform.os=posix" />
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
-			<arg value="start.class=com.opengamma.production.startup.EngineServer" />
+			<arg value="start.class=com.opengamma.integration.startup.EngineServer" />
 			<arg value="${basedir}${file.separator}config${file.separator}engine-spring.xml" />
 			<arg value="path=${toString:jetty.run.path}" />
 		</java>
@@ -158,7 +158,7 @@
 			<jvmarg value="-Dopengamma.platform.os=posix" />
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
-			<arg value="start.class=com.opengamma.production.startup.EngineServer" />
+			<arg value="start.class=com.opengamma.integration.startup.EngineServer" />
 			<arg value="${basedir}${file.separator}config${file.separator}engine-spring.xml" />
 			<arg value="path=${toString:jetty.run.path}" />
 		</java>

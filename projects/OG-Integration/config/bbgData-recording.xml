@@ -11,7 +11,7 @@
   </bean>
 
   <!-- Bloomberg Timeseries Loader -->
-  <bean id="htsLoader" class="com.opengamma.production.marketdata.RandomTimeSeriesLoader">
+  <bean id="htsLoader" class="com.opengamma.integration.marketdata.RandomTimeSeriesLoader">
     <constructor-arg ref="dbHtsMaster" />
   </bean>
 
@@ -90,7 +90,7 @@
   <bean id="jmsSenderFactory" class="com.opengamma.livedata.server.distribution.JmsSenderFactory">
       <property name="jmsConnector" ref="jmsConnector"/>
   </bean>
-  <bean id="recordedLiveDataServer" class="com.opengamma.production.marketdata.RecordedBloombergLiveDataServer" init-method="start" destroy-method="stop">
+  <bean id="recordedLiveDataServer" class="com.opengamma.integration.marketdata.RecordedBloombergLiveDataServer" init-method="start" destroy-method="stop">
     <constructor-arg value="${opengamma.demo.ticks.path}" />
     <constructor-arg value="${opengamma.demo.ticks.start}" />
     <constructor-arg value="${opengamma.demo.ticks.end}" />
