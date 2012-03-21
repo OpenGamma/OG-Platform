@@ -27,7 +27,7 @@ public class VolatilitySurfaceDataConverter implements ResultConverter<Volatilit
     result.put("yCount", value.getYs().length);
     
     if (mode == ConversionMode.FULL) {
-      //TODO assuming that all curves are interpolated - bad
+      //TODO assuming that all surfaces are interpolated - bad
       Object[] xs = value.getXs();
       String[] xsStrings = new String[xs.length];
       for (int i = 0; i < xs.length; i++) {
@@ -46,7 +46,7 @@ public class VolatilitySurfaceDataConverter implements ResultConverter<Volatilit
       
       double[][] surface = new double[ys.length][xs.length];
       boolean[][] missingValues = new boolean[ys.length][xs.length];
-      // Summary view includes only the actual points of the curve
+      // Summary view includes only the actual points of the surface
       for (int y = 0; y < ys.length; y++) {
         for (int x = 0; x < xs.length; x++) {
           Object xt = xs[x];
