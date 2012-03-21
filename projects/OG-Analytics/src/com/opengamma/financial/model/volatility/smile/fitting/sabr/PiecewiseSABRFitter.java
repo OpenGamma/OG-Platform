@@ -128,8 +128,9 @@ public class PiecewiseSABRFitter {
   }
 
   public Function1D<Double, Double> getVolatilityFunction(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
-    final int n = strikes.length;
+
     final SABRFormulaData[] modelParams = getFittedfModelParameters(forward, strikes, expiry, impliedVols);
+    final int n = strikes.length;
     return new Function1D<Double, Double>() {
 
       @Override

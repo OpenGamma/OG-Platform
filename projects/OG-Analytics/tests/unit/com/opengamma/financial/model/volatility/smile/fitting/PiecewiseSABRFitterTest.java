@@ -41,7 +41,7 @@ public class PiecewiseSABRFitterTest {
   }
 
   @Test
-  //(enabled = false)
+  (enabled = false)
   public void bumpTest() {
     double bump = 5e-3;
     int index = 1;
@@ -79,7 +79,7 @@ public class PiecewiseSABRFitterTest {
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void FlatBumpTest() {
     final int n = STRIKES.length;
     final double[] vols = new double[n];
