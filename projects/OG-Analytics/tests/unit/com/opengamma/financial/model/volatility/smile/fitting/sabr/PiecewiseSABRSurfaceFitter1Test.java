@@ -119,7 +119,7 @@ public class PiecewiseSABRSurfaceFitter1Test {
   @Test
   (enabled = false)
   public void fitMarketData() {
-    final PiecewiseSABRFitter1 fitter = new PiecewiseSABRFitter1();
+    final PiecewiseSABRFitter fitter = new PiecewiseSABRFitter();
     final Function1D[] fitters = new Function1D[N];
     System.out.println("Fitted smiles by strike");
     System.out.print("\t");

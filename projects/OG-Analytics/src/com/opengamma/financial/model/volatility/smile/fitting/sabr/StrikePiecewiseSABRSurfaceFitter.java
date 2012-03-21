@@ -24,7 +24,7 @@ import com.opengamma.math.surface.FunctionalDoublesSurface;
  * 
  */
 public class StrikePiecewiseSABRSurfaceFitter implements PiecewiseSABRSurfaceFitter1<Strike> {
-  private static final PiecewiseSABRFitter1 FITTER = new PiecewiseSABRFitter1();
+  private static final PiecewiseSABRFitter FITTER = new PiecewiseSABRFitter();
   private static final Interpolator1D EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
   private final boolean _useLogTime;
   private final boolean _useIntegratedVar;
