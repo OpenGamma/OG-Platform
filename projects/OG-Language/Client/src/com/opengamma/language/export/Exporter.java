@@ -6,9 +6,11 @@
 
 package com.opengamma.language.export;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 import com.opengamma.language.context.SessionContext;
+import com.opengamma.language.function.FunctionDefinitionFilter;
 import com.opengamma.language.function.FunctionRepository;
 import com.opengamma.language.function.MetaFunction;
 import com.opengamma.language.livedata.LiveDataRepository;
@@ -43,36 +45,78 @@ public class Exporter implements Runnable {
   protected RepositoryExporter getExporter() {
     return _exporter;
   }
-  
-  // TODO: the filters should be applied from the global context as these may rename parameters or entities
+
+  /**
+   * Returns the unfiltered definitions.
+   * 
+   * @param repository the repository for the basic definitions
+   * @return the definitions
+   */
+  protected Collection<MetaFunction> getRawFunctions(final FunctionRepository repository) {
+    return repository.getAll().values();
+  }
+
+  /**
+   * Returns the filtered definitions.
+   * 
+   * @param repository the repository for the basic definitions
+   * @param filter the definition filter
+   * @return the filtered definitions
+   */
+  protected Collection<com.opengamma.language.function.Definition> getFilteredFunctions(final FunctionRepository repository, final FunctionDefinitionFilter filter) {
+    final Collection<MetaFunction> raw = getRawFunctions(repository);
+    final Collection<com.opengamma.language.function.Definition> functions = new ArrayList<com.opengamma.language.function.Definition>(raw.size());
+    for (MetaFunction function : raw) {
+      final com.opengamma.language.function.Definition export = filter.createDefinition(function);
+      if (export != null) {
+        functions.add(export);
+      }
+    }
+    return functions;
+  }
 
   protected void exportFunctions() {
     final FunctionRepository repository = getSessionContext().getFunctionRepository();
     repository.initialize(getSessionContext().getFunctionProvider(), false);
-    final Collection<MetaFunction> functions = repository.getAll().values();
     final FunctionDefinitionExporter exporter = getExporter().getFunctionExporter();
-    for (MetaFunction function : functions) {
-      exporter.exportFunction(function);
+    for (com.opengamma.language.function.Definition export : getFilteredFunctions(repository, getSessionContext().getGlobalContext().getFunctionDefinitionFilter())) {
+      exporter.exportFunction(export);
     }
+  }
+
+  // TODO: the pattern for functions on live data and procedure
+
+  protected Collection<MetaLiveData> getLiveData(final LiveDataRepository repository) {
+    return repository.getAll().values();
   }
 
   protected void exportLiveData() {
     final LiveDataRepository repository = getSessionContext().getLiveDataRepository();
     repository.initialize(getSessionContext().getLiveDataProvider(), false);
-    final Collection<MetaLiveData> liveDatas = repository.getAll().values();
+    final Collection<MetaLiveData> liveDatas = getLiveData(repository);
     final LiveDataDefinitionExporter exporter = getExporter().getLiveDataExporter();
     for (MetaLiveData liveData : liveDatas) {
-      exporter.exportLiveData(liveData);
+      final com.opengamma.language.livedata.Definition export = getSessionContext().getGlobalContext().getLiveDataDefinitionFilter().createDefinition(liveData);
+      if (export != null) {
+        exporter.exportLiveData(export);
+      }
     }
+  }
+
+  protected Collection<MetaProcedure> getProcedures(final ProcedureRepository repository) {
+    return repository.getAll().values();
   }
 
   protected void exportProcedures() {
     final ProcedureRepository repository = getSessionContext().getProcedureRepository();
     repository.initialize(getSessionContext().getProcedureProvider(), false);
-    final Collection<MetaProcedure> procedures = repository.getAll().values();
+    final Collection<MetaProcedure> procedures = getProcedures(repository);
     final ProcedureDefinitionExporter exporter = getExporter().getProcedureExporter();
     for (MetaProcedure procedure : procedures) {
-      exporter.exportProcedure(procedure);
+      final com.opengamma.language.procedure.Definition export = getSessionContext().getGlobalContext().getProcedureDefinitionFilter().createDefinition(procedure);
+      if (export != null) {
+        exporter.exportProcedure(export);
+      }
     }
   }
 

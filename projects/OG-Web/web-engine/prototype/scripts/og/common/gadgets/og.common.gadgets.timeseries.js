@@ -140,7 +140,7 @@ $.register_module({
                     columns = [
                         {id: 'time', name: 'Time', field: 'time', width: 200,
                             formatter: function (row, cell, value) {
-                                return og.common.util.date(value);
+                                return og.common.util.date(value, "dateonly");
                             }
                         },
                         {id: 'value', name: 'Value', field: 'value', width: 160}

@@ -117,7 +117,7 @@ $.register_module({
                     ';
                     $('.OG-layout-admin-details-center .ui-layout-header').html(header);
                     $(form_id + ' [name=currency]').val(master.currency);
-                    load_handler(form);
+                    setTimeout(load_handler.partial(form));
                 }},
                 {type: 'form:submit', handler: save_resource},
                 {type: 'change', selector: form_id + ' [name=currency]', handler: function (e) {

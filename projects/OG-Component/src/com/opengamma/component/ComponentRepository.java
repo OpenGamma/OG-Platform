@@ -551,8 +551,14 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
    */
   @Override
   public void start() {
-    checkStatus(Status.CREATING);
-    _status.set(Status.STARTING);
+    Status status = _status.get();
+    if (status == Status.STARTING) {
+      return;  // already starting
+    }
+    checkStatus(status, Status.CREATING);
+    if (_status.compareAndSet(status, Status.STARTING) == false) {
+      return;  // another thread just beat this one
+    }
     try {
       for (Lifecycle obj : _lifecycles) {
         obj.start();
@@ -648,9 +654,13 @@ public class ComponentRepository implements Lifecycle, ServletContextAware {
   }
 
   //-------------------------------------------------------------------------
-  private void checkStatus(Status status) {
-    if (_status.get() != status) {
-      throw new IllegalStateException("Invalid repository status, expected " + status + " but was " + _status);
+  private void checkStatus(Status required) {
+    checkStatus(_status.get(), required);
+  }
+
+  private void checkStatus(Status current, Status required) {
+    if (current != required) {
+      throw new IllegalStateException("Invalid repository status, expected " + required + " but was " + current);
     }
   }
 
