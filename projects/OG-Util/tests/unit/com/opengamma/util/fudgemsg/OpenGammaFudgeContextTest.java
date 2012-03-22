@@ -12,7 +12,6 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.fudgemsg.FudgeContext;
 import org.testng.annotations.Test;
 
-import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 import com.opengamma.util.paging.Paging;
 import com.opengamma.util.paging.PagingFudgeBuilder;
 
