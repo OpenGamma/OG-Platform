@@ -235,6 +235,7 @@
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>
     <fragment>/scripts/og/views/common/og.views.common.versions.js</fragment>
+    <fragment>/scripts/og/views/common/og.views.common.toolbar.upload.js</fragment>
     <fragment>/scripts/og/views/common/og.views.common.default_details.js</fragment>
     <fragment>/scripts/og/views/common/og.views.common.core.js</fragment>
   </bundle>
@@ -301,5 +302,5 @@
       <bundle idref="common.js" />
       <bundle idref="views_common.js" />
       <fragment>/scripts/og/views/og.views.analytics2.js</fragment>
-  </bundle>  
+  </bundle>
 </uiResourceConfig>
