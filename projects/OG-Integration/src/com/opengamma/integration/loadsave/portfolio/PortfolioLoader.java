@@ -16,7 +16,6 @@ import com.opengamma.integration.loadsave.portfolio.reader.ZippedPortfolioReader
 import com.opengamma.integration.loadsave.portfolio.writer.DummyPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
-import com.opengamma.integration.tool.IntegrationToolContext;
 
 /**
  * Provides portfolio loading functionality
@@ -63,7 +62,7 @@ public class PortfolioLoader {
       s_logger.info("Write option omitted, will pretty-print instead of persisting to OpenGamma masters");
       
       // Create a dummy portfolio writer to pretty-print instead of persisting
-      return new DummyPortfolioWriter();         
+      return new DummyPortfolioWriter();
     }
 
   }

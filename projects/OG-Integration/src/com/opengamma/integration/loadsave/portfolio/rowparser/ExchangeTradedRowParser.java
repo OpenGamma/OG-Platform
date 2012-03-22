@@ -14,7 +14,6 @@ import javax.time.calendar.ZoneOffset;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergSecurityMaster;
-import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.ExternalId;
@@ -51,14 +50,10 @@ public class ExchangeTradedRowParser extends RowParser {
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> row) {
     // Look up security using ticker
-    if (BloombergDataUtils.isValidBloombergTicker(getWithException(row, TICKER))) {
-      return new ManageableSecurity[] { 
-        _bbgSecSource.getSecurity(
-          ExternalIdBundle.of(
-            SecurityUtils.bloombergTickerSecurityId(getWithException(row, TICKER))
-          )
-        ) 
-      };
+    ManageableSecurity security = _bbgSecSource.getSecurity(ExternalIdBundle.of(
+        SecurityUtils.bloombergTickerSecurityId(getWithException(row, TICKER))));
+    if (security != null) {
+      return new ManageableSecurity[] {security };
     } else {
       return new ManageableSecurity[] {};
     }

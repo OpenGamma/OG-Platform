@@ -85,6 +85,7 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
           security[i] = portfolioWriter.writeSecurity(security[i]);        
         }
   
+        
         // Build the position and trade(s) using security[0] (underlying)
         ManageablePosition position = _rowParser.constructPosition(row, security[0]);
         
