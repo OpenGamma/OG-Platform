@@ -21,8 +21,6 @@ import com.opengamma.master.security.ManageableSecurity;
  */
 public class DummyPortfolioWriter implements PortfolioWriter {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoader.class);
-
   private ManageablePortfolioNode _node = new ManageablePortfolioNode();
   
   @Override
