@@ -39,7 +39,7 @@ public abstract class RowParser {
   
   {
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
-    builder.appendPattern("dd/MM/yyyy");
+    builder.appendPattern("yyyy-MM-dd");
     CSV_DATE_FORMATTER = builder.toFormatter();
     builder = new DateTimeFormatterBuilder();
     builder.appendPattern("yyyy-MM-dd");
