@@ -24,8 +24,8 @@ import org.testng.annotations.Factory;
 import org.testng.annotations.Test;
 
 import com.opengamma.DataNotFoundException;
-import com.opengamma.extsql.ExtSqlBundle;
-import com.opengamma.extsql.ExtSqlConfig;
+import com.opengamma.elsql.ElSqlBundle;
+import com.opengamma.elsql.ElSqlConfig;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.position.ManageablePosition;
@@ -45,7 +45,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyPositionDbPositionMasterWorkerUpdatePositionTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, false);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -254,7 +254,7 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
   @Test
   public void test_update_rollback() {
     DbPositionMaster w = new DbPositionMaster(_posMaster.getDbConnector());
-    w.setExtSqlBundle(ExtSqlBundle.of(new ExtSqlConfig("TestRollback"), DbPositionMaster.class));
+    w.setElSqlBundle(ElSqlBundle.of(new ElSqlConfig("TestRollback"), DbPositionMaster.class));
     final PositionDocument base = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
     ManageablePosition pos = new ManageablePosition(BigDecimal.TEN, ExternalId.of("A", "B"));
     pos.setUniqueId(UniqueId.of("DbPos", "121", "0"));
@@ -268,12 +268,6 @@ public class ModifyPositionDbPositionMasterWorkerUpdatePositionTest extends Abst
     final PositionDocument test = _posMaster.get(UniqueId.of("DbPos", "121", "0"));
     
     assertEquals(base, test);
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_posMaster.getClass().getSimpleName() + "[DbPos]", _posMaster.toString());
   }
 
 }

@@ -16,7 +16,7 @@ import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVan
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.financial.model.volatility.local.DupireLocalVolatilityCalculator;
 import com.opengamma.financial.model.volatility.local.LocalVolatilitySurface;
-import com.opengamma.financial.model.volatility.smile.fitting.PiecewiseSABRFitter;
+import com.opengamma.financial.model.volatility.smile.fitting.sabr.PiecewiseSABRFitter;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
@@ -120,7 +120,10 @@ public class PiecewiseSABRSurfaceFitterTest {
   @Test
   (enabled = false)
   public void fitMarketData() {
-    final PiecewiseSABRFitter[] fitters = new PiecewiseSABRFitter[N];
+    final PiecewiseSABRFitter fitter = new PiecewiseSABRFitter();
+    @SuppressWarnings("unchecked")
+    final Function1D<Double, Double>[] smiles = new Function1D[N];
+    //  final PiecewiseSABRFitter[] fitters = new PiecewiseSABRFitter[N];
     System.out.println("Fitted smiles by strike");
     System.out.print("\t");
     for (int j = 0; j < 100; j++) {
@@ -129,11 +132,11 @@ public class PiecewiseSABRSurfaceFitterTest {
     }
     System.out.print("\n");
     for (int i = 0; i < N; i++) {
-      fitters[i] = new PiecewiseSABRFitter(FORWARDS[i], STRIKES[i], EXPIRIES[i], VOLS[i]);
+      smiles[i] = fitter.getVolatilityFunction(FORWARDS[i], STRIKES[i], EXPIRIES[i], VOLS[i]);
       System.out.print(EXPIRIES[i] + "\t");
       for (int j = 0; j < 100; j++) {
         final double k = 0.5 + j * 4.5 / 99.;
-        final double vol = fitters[i].getVol(k);
+        final double vol = smiles[i].evaluate(k);
         System.out.print(vol + "\t");
       }
       System.out.print("\n");
@@ -150,8 +153,8 @@ public class PiecewiseSABRSurfaceFitterTest {
       System.out.print(EXPIRIES[i] + "\t");
       for (int j = 0; j < 100; j++) {
         final double d = 0.05 + j * 0.9 / 99.;
-        final Function1D<Double, Double> func = getStrikeForDeltaFunction(FORWARDS[i], EXPIRIES[i], true, fitters[i].getVolFunction());
-        final double vol = fitters[i].getVol(func.evaluate(d));
+        final Function1D<Double, Double> func = getStrikeForDeltaFunction(FORWARDS[i], EXPIRIES[i], true, smiles[i]);
+        final double vol = smiles[i].evaluate(func.evaluate(d));
         System.out.print(vol + "\t");
       }
       System.out.print("\n");

@@ -28,8 +28,6 @@ import javax.time.calendar.TimeProvider;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
-import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
 import org.apache.commons.lang.RandomStringUtils;
 import org.joda.beans.BeanBuilder;
 import org.joda.beans.JodaBeanUtils;
@@ -103,9 +101,11 @@ import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.option.VanillaPayoffStyle;
 import com.opengamma.financial.security.swap.CommodityNotional;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
+import com.opengamma.financial.security.swap.FixedVarianceSwapLeg;
 import com.opengamma.financial.security.swap.FloatingGearingIRLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingSpreadIRLeg;
+import com.opengamma.financial.security.swap.FloatingVarianceSwapLeg;
 import com.opengamma.financial.security.swap.ForwardSwapSecurity;
 import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.Notional;
@@ -568,7 +568,7 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
   private static <T extends ManageableSecurity> Collection<T> permuteTestSecurities(final Class<T> clazz) {
     intializeClass(clazz);
     MetaBean mb = JodaBeanUtils.metaBean(clazz);
-    List<MetaProperty<Object>> mps = new ArrayList<MetaProperty<Object>>(mb.metaPropertyMap().values());
+    List<MetaProperty<?>> mps = new ArrayList<MetaProperty<?>>(mb.metaPropertyMap().values());
     
     // find the longest set of available data
     final List<?>[] parameterValues = new List<?>[mps.size()];

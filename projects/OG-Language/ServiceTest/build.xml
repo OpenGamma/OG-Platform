@@ -1,3 +1,14 @@
-<project name="ServiceTest">
-	<import file="${basedir}/../build-cpp.xml" />
+<project name="ServiceTest" xmlns:cpptasks="antlib:net.sf.antcontrib.cpptasks">
+
+	<import file="${basedir}/../build-core-cpp.xml" />
+
+  <target name="cpp-include-extra" if="cpp.present.ant">
+    <cpptasks:cc objdir="${build.dir}">
+      <includepath id="cpp.include.extra">
+        <pathelement path="${jni.base.include.dir}" />
+        <pathelement path="${jni.native.include.dir}" />
+      </includepath>
+    </cpptasks:cc>
+  </target>
+
 </project>

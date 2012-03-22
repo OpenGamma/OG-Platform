@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+
+<beans>
+
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location">
+			<value>classpath:tests.properties</value>
+		</property>
+	</bean>
+
+	<!-- Bloomberg Reference Data Provider -->
+	<bean id="refDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider">
+		<constructor-arg>
+			<bean class="com.bloomberglp.blpapi.SessionOptions">
+				<property name="serverHost" value="${bbgServer.host}" />
+				<property name="serverPort" value="${bbgServer.port}" />
+			</bean>
+		</constructor-arg>
+	</bean>
+
+	<!-- Caching Reference Data Provider -->
+  <bean id="mongoConnector" class="com.opengamma.util.mongo.MongoConnectorFactoryBean">
+    <property name="name" value="BloombergReferenceData" />
+    <property name="host" value="${mongoServer.host}" />
+    <property name="port" value="${mongoServer.port}" /> 	
+    <property name="databaseName" value="testReferenceData" />
+    <property name="collectionSuffix" value="bloomberg-security-loader-test-context" />
+  </bean>
+
+  <bean id="cachingRefProvider" class="com.opengamma.bbg.MongoDBCachingReferenceDataProvider">
+    <constructor-arg ref="refDataProvider" />
+    <constructor-arg ref="mongoConnector" />
+  </bean>
+
+</beans>

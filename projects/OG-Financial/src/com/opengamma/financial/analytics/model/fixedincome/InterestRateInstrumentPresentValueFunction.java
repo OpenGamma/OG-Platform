@@ -21,27 +21,22 @@ import com.opengamma.financial.security.bond.BondSecurity;
  * 
  */
 public class InterestRateInstrumentPresentValueFunction extends InterestRateInstrumentFunction {
-
-  /**
-   * The value name calculated by this function.
-   */
-  public static final String VALUE_REQUIREMENT = ValueRequirementNames.PRESENT_VALUE;
-
   private static final PresentValueCalculator CALCULATOR = PresentValueCalculator.getInstance();
 
   public InterestRateInstrumentPresentValueFunction() {
-    super(VALUE_REQUIREMENT);
+    super(ValueRequirementNames.PRESENT_VALUE);
   }
 
   @Override
   public Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle,
-      final FinancialSecurity security, final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {
+      final FinancialSecurity security, final ComputationTarget target, final String forwardCurveName, final String fundingCurveName,
+      final String curveCalculationMethod, final String currency) {
     Double presentValue = CALCULATOR.visit(derivative, bundle);
     if (security instanceof BondSecurity) {
-      BondSecurity bondSec = (BondSecurity) security;
+      final BondSecurity bondSec = (BondSecurity) security;
       presentValue = presentValue * bondSec.getParAmount();
     }
-    return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName), presentValue));
+    return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod, currency), presentValue));
   }
 
 }

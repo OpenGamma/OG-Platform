@@ -1,1 +1,0 @@
-ALTER TABLE pos_trade ADD CONSTRAINT pos_fk_tradei2tradei FOREIGN KEY (oid) REFERENCES pos_trade(id);

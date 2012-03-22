@@ -25,8 +25,10 @@ import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
 import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.DefaultLobHandler;
 import org.springframework.jdbc.support.lob.LobHandler;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.id.ExternalId;
@@ -49,14 +51,29 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
   protected Instant _version1Instant;
   protected Instant _version2Instant;
   protected int _totalExchanges;
+  protected boolean _readOnly;  // attempt to speed up tests
 
-  public AbstractDbExchangeMasterWorkerTest(String databaseType, String databaseVersion) {
+  public AbstractDbExchangeMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
     super(databaseType, databaseVersion);
+    _readOnly = readOnly;
     s_logger.info("running testcases for {}", databaseType);
+  }
+
+  @BeforeClass
+  public void setUpClass() throws Exception {
+    if (_readOnly) {
+      init();
+    }
   }
 
   @BeforeMethod
   public void setUp() throws Exception {
+    if (_readOnly == false) {
+      init();
+    }
+  }
+
+  private void init() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     _exgMaster = (DbExchangeMaster) context.getBean(getDatabaseType() + "DbExchangeMaster");
@@ -150,8 +167,18 @@ public abstract class AbstractDbExchangeMasterWorkerTest extends DbTest {
 
   @AfterMethod
   public void tearDown() throws Exception {
-    _exgMaster = null;
-    super.tearDown();
+    if (_readOnly == false) {
+      _exgMaster = null;
+      super.tearDown();
+    }
+  }
+
+  @AfterClass
+  public void tearDownClass() throws Exception {
+    if (_readOnly) {
+      _exgMaster = null;
+      super.tearDown();
+    }
   }
 
   @AfterSuite

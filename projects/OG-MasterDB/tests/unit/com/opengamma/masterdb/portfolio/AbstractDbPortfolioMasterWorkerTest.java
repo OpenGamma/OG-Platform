@@ -19,8 +19,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.jdbc.core.simple.SimpleJdbcTemplate;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.AfterSuite;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
 import com.opengamma.id.ObjectId;
@@ -45,14 +47,31 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
   protected int _visiblePortfolios;
   protected int _totalPositions;
   protected OffsetDateTime _now;
+  private boolean _includePositions = true;
+  protected boolean _readOnly;  // attempt to speed up tests
 
-  public AbstractDbPortfolioMasterWorkerTest(String databaseType, String databaseVersion) {
+  public AbstractDbPortfolioMasterWorkerTest(String databaseType, String databaseVersion, boolean readOnly) {
     super(databaseType, databaseVersion);
+    _readOnly = readOnly;
     s_logger.info("running testcases for {}", databaseType);
+  }
+
+  @BeforeClass
+  public void setUpClass() throws Exception {
+    if (_readOnly) {
+      init();
+    }
   }
 
   @BeforeMethod
   public void setUp() throws Exception {
+    _includePositions = true;
+    if (_readOnly == false) {
+      init();
+    }
+  }
+
+  private void init() throws Exception {
     super.setUp();
     ConfigurableApplicationContext context = DbMasterTestUtils.getContext(getDatabaseType());
     _prtMaster = (DbPortfolioMaster) context.getBean(getDatabaseType() + "DbPortfolioMaster");
@@ -119,8 +138,18 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
 
   @AfterMethod
   public void tearDown() throws Exception {
-    _prtMaster = null;
-    super.tearDown();
+    if (_readOnly == false) {
+      _prtMaster = null;
+      super.tearDown();
+    }
+  }
+
+  @AfterClass
+  public void tearDownClass() throws Exception {
+    if (_readOnly) {
+      _prtMaster = null;
+      super.tearDown();
+    }
   }
 
   @AfterSuite
@@ -169,8 +198,12 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals("TestNode112", node.getName());
     assertEquals(UniqueId.of("DbPrt", "111", "0"), node.getParentNodeId());
     assertEquals(portfolioId, node.getPortfolioId());
-    assertEquals(node.getPositionIds().toString(), 1, node.getPositionIds().size());
-    assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+    if (_includePositions) {
+      assertEquals(node.getPositionIds().toString(), 1, node.getPositionIds().size());
+      assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+    } else {
+      assertEquals(0, node.getPositionIds().size());
+    }
     if (depth == 1) {
       assertEquals(0, node.getChildNodes().size());
       return;
@@ -186,9 +219,13 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals(UniqueId.of("DbPrt", "112", "0"), node.getParentNodeId());
     assertEquals(portfolioId, node.getPortfolioId());
     assertEquals(0, node.getChildNodes().size());
-    assertEquals(2, node.getPositionIds().size());
-    assertEquals(true, node.getPositionIds().contains(ObjectId.of("DbPos", "501")));
-    assertEquals(true, node.getPositionIds().contains(ObjectId.of("DbPos", "502")));
+    if (_includePositions) {
+      assertEquals(2, node.getPositionIds().size());
+      assertEquals(true, node.getPositionIds().contains(ObjectId.of("DbPos", "501")));
+      assertEquals(true, node.getPositionIds().contains(ObjectId.of("DbPos", "502")));
+    } else {
+      assertEquals(0, node.getPositionIds().size());
+    }
   }
 
   protected void assert102(final PortfolioDocument test) {
@@ -233,8 +270,12 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals(null, node.getParentNodeId());
     assertEquals(portfolioId, node.getPortfolioId());
     assertEquals(0, node.getChildNodes().size());
-    assertEquals(1, node.getPositionIds().size());
-    assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+    if (_includePositions) {
+      assertEquals(1, node.getPositionIds().size());
+      assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+    } else {
+      assertEquals(0, node.getPositionIds().size());
+    }
   }
 
   protected void assert202(final PortfolioDocument test) {
@@ -261,8 +302,12 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals(null, node.getParentNodeId());
     assertEquals(portfolioId, node.getPortfolioId());
     assertEquals(0, node.getChildNodes().size());
-    assertEquals(1, node.getPositionIds().size());
-    assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+    if (_includePositions) {
+      assertEquals(1, node.getPositionIds().size());
+      assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+    } else {
+      assertEquals(0, node.getPositionIds().size());
+    }
   }
   
   protected void assert301(final PortfolioDocument test) {
@@ -289,8 +334,16 @@ public abstract class AbstractDbPortfolioMasterWorkerTest extends DbTest {
     assertEquals(null, node.getParentNodeId());
     assertEquals(portfolioId, node.getPortfolioId());
     assertEquals(0, node.getChildNodes().size());
-    assertEquals(1, node.getPositionIds().size());
-    assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+    if (_includePositions) {
+      assertEquals(1, node.getPositionIds().size());
+      assertEquals(ObjectId.of("DbPos", "500"), node.getPositionIds().get(0));
+    } else {
+      assertEquals(0, node.getPositionIds().size());
+    }
+  }
+
+  protected void assertNoPositions() {
+    _includePositions = false;
   }
 
 }

@@ -25,7 +25,7 @@ import org.springframework.jdbc.core.support.SqlLobValue;
 import org.springframework.jdbc.support.lob.LobHandler;
 
 import com.google.common.collect.Lists;
-import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.ExternalIdSearch;
@@ -57,9 +57,9 @@ import com.opengamma.util.paging.Paging;
  * This is a full implementation of the security master using an SQL database.
  * Full details of the API are in {@link SecurityMaster}.
  * <p>
- * The SQL is stored externally in {@code DbSecurityMaster.extsql}.
+ * The SQL is stored externally in {@code DbSecurityMaster.elsql}.
  * Alternate databases or specific SQL requirements can be handled using database
- * specific overrides, such as {@code DbSecurityMaster-MySpecialDB.extsql}.
+ * specific overrides, such as {@code DbSecurityMaster-MySpecialDB.elsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
@@ -100,7 +100,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
    */
   public DbSecurityMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
-    setExtSqlBundle(ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbSecurityMaster.class));
+    setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbSecurityMaster.class));
   }
 
   //-------------------------------------------------------------------------
@@ -130,7 +130,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     ArgumentChecker.notNull(request, "request");
     SecurityMetaDataResult result = new SecurityMetaDataResult();
     if (request.isSecurityTypes()) {
-      final String sql = getExtSqlBundle().getSql("SelectTypes");
+      final String sql = getElSqlBundle().getSql("SelectTypes");
       List<String> securityTypes = getJdbcTemplate().getJdbcOperations().queryForList(sql, String.class);
       result.getSecurityTypes().addAll(securityTypes);
     }
@@ -189,7 +189,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
       detailProvider.extendSearch(request, args);
     }
     
-    String[] sql = {getExtSqlBundle().getSql("Search", args), getExtSqlBundle().getSql("SearchCount", args)};
+    String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
     searchWithPaging(request.getPagingRequest(), sql, args, new SecurityDocumentExtractor(), result);
     if (request.isFullDetail()) {
       loadDetail(detailProvider, result.getDocuments());
@@ -200,7 +200,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   /**
    * Gets the SQL to find all the ids for a single bundle.
    * <p>
-   * This is too complex for the extsql mechanism.
+   * This is too complex for the elsql mechanism.
    * 
    * @param idSearch  the identifier search, not null
    * @return the SQL, not null
@@ -289,7 +289,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     // the arguments for inserting into the idkey tables
     final List<DbMapSqlParameterSource> assocList = new ArrayList<DbMapSqlParameterSource>();
     final List<DbMapSqlParameterSource> idKeyList = new ArrayList<DbMapSqlParameterSource>();
-    final String sqlSelectIdKey = getExtSqlBundle().getSql("SelectIdKey");
+    final String sqlSelectIdKey = getElSqlBundle().getSql("SelectIdKey");
     for (ExternalId id : document.getSecurity().getExternalIdBundle()) {
       final DbMapSqlParameterSource assocArgs = new DbMapSqlParameterSource()
         .addValue("doc_id", docId)
@@ -306,9 +306,9 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
         idKeyList.add(idkeyArgs);
       }
     }
-    final String sqlDoc = getExtSqlBundle().getSql("Insert", docArgs);
-    final String sqlIdKey = getExtSqlBundle().getSql("InsertIdKey");
-    final String sqlDoc2IdKey = getExtSqlBundle().getSql("InsertDoc2IdKey");
+    final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
+    final String sqlIdKey = getElSqlBundle().getSql("InsertIdKey");
+    final String sqlDoc2IdKey = getElSqlBundle().getSql("InsertDoc2IdKey");
     getJdbcTemplate().update(sqlDoc, docArgs);
     getJdbcTemplate().batchUpdate(sqlIdKey, idKeyList.toArray(new DbMapSqlParameterSource[idKeyList.size()]));
     getJdbcTemplate().batchUpdate(sqlDoc2IdKey, assocList.toArray(new DbMapSqlParameterSource[assocList.size()]));
@@ -340,7 +340,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
               .addValue("value", entry.getValue());
       securityAttributeList.add(attributeArgs);
     }
-    final String sqlAttributes = getExtSqlBundle().getSql("InsertAttributes");
+    final String sqlAttributes = getElSqlBundle().getSql("InsertAttributes");
     getJdbcTemplate().batchUpdate(sqlAttributes, securityAttributeList.toArray(new DbMapSqlParameterSource[securityAttributeList.size()]));
     return document;
   }
@@ -349,7 +349,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
     final DbMapSqlParameterSource rawArgs = new DbMapSqlParameterSource()
       .addValue("security_id", extractRowId(security.getUniqueId()))
       .addValue("raw_data", new SqlLobValue(security.getRawData(), getDialect().getLobHandler()), Types.BLOB);
-    final String sqlRaw = getExtSqlBundle().getSql("InsertRaw", rawArgs);
+    final String sqlRaw = getElSqlBundle().getSql("InsertRaw", rawArgs);
     getJdbcTemplate().update(sqlRaw, rawArgs);
   }
 

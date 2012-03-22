@@ -9,7 +9,7 @@ import java.sql.Driver;
 
 import org.hibernate.dialect.Dialect;
 
-import com.opengamma.extsql.ExtSqlConfig;
+import com.opengamma.elsql.ElSqlConfig;
 
 /**
  * Database dialect for mocking.
@@ -27,8 +27,8 @@ public class MockDbDialect extends DbDialect {
   }
 
   @Override
-  protected ExtSqlConfig createExtSqlConfig() {
-    return ExtSqlConfig.DEFAULT;
+  protected ElSqlConfig createElSqlConfig() {
+    return ElSqlConfig.DEFAULT;
   }
 
 }

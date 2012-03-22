@@ -25,7 +25,7 @@ public class SVDecompositionCommons extends Decomposition<SVDecompositionResult>
   @Override
   public SVDecompositionResult evaluate(final DoubleMatrix2D x) {
     Validate.notNull(x);
-    MatrixValidate.noNaN(x);
+    MatrixValidate.notNaNOrInfinite(x);
     final RealMatrix commonsMatrix = CommonsMathWrapper.wrap(x);
     final SingularValueDecomposition svd = new SingularValueDecompositionImpl(commonsMatrix);
     return new SVDecompositionCommonsResult(svd);

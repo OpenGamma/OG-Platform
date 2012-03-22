@@ -22,7 +22,7 @@ import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.ResultSetExtractor;
 
 import com.opengamma.core.holiday.HolidayType;
-import com.opengamma.extsql.ExtSqlBundle;
+import com.opengamma.elsql.ElSqlBundle;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ExternalIdSearchType;
@@ -54,9 +54,9 @@ import com.opengamma.util.paging.Paging;
  * This is a full implementation of the holiday master using an SQL database.
  * Full details of the API are in {@link HolidayMaster}.
  * <p>
- * The SQL is stored externally in {@code DbHolidayMaster.extsql}.
+ * The SQL is stored externally in {@code DbHolidayMaster.elsql}.
  * Alternate databases or specific SQL requirements can be handled using database
- * specific overrides, such as {@code DbHolidayMaster-MySpecialDB.extsql}.
+ * specific overrides, such as {@code DbHolidayMaster-MySpecialDB.elsql}.
  * <p>
  * This class is mutable but must be treated as immutable after configuration.
  */
@@ -90,7 +90,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
    */
   public DbHolidayMaster(final DbConnector dbConnector) {
     super(dbConnector, IDENTIFIER_SCHEME_DEFAULT);
-    setExtSqlBundle(ExtSqlBundle.of(dbConnector.getDialect().getExtSqlConfig(), DbHolidayMaster.class));
+    setElSqlBundle(ElSqlBundle.of(dbConnector.getDialect().getElSqlConfig(), DbHolidayMaster.class));
   }
 
   //-------------------------------------------------------------------------
@@ -170,7 +170,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
     args.addValue("paging_offset", request.getPagingRequest().getFirstItem());
     args.addValue("paging_fetch", request.getPagingRequest().getPagingSize());
     
-    final String[] sql = {getExtSqlBundle().getSql("Search", args), getExtSqlBundle().getSql("SearchCount", args)};
+    final String[] sql = {getElSqlBundle().getSql("Search", args), getElSqlBundle().getSql("SearchCount", args)};
     searchWithPaging(request.getPagingRequest(), sql, args, new HolidayDocumentExtractor(), result);
     return result;
   }
@@ -178,7 +178,7 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
   /**
    * Gets the SQL to search for ids.
    * <p>
-   * This is too complex for the extsql mechanism.
+   * This is too complex for the elsql mechanism.
    * 
    * @param bundle  the bundle, not null
    * @param type  the type to search for, not null
@@ -250,8 +250,8 @@ public class DbHolidayMaster extends AbstractDocumentDbMaster<HolidayDocument> i
         .addDate("hol_date", date);
       dateList.add(dateArgs);
     }
-    final String sqlDoc = getExtSqlBundle().getSql("Insert", docArgs);
-    final String sqlDate = getExtSqlBundle().getSql("InsertDate");
+    final String sqlDoc = getElSqlBundle().getSql("Insert", docArgs);
+    final String sqlDate = getElSqlBundle().getSql("InsertDate");
     getJdbcTemplate().update(sqlDoc, docArgs);
     getJdbcTemplate().batchUpdate(sqlDate, dateList.toArray(new DbMapSqlParameterSource[dateList.size()]));
     // set the uniqueId

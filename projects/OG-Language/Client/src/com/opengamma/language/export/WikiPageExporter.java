@@ -7,7 +7,6 @@
 package com.opengamma.language.export;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -15,7 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.language.export.CategorizingDefinitionExporter.Entry;
 
 /**
@@ -23,18 +21,73 @@ import com.opengamma.language.export.CategorizingDefinitionExporter.Entry;
  */
 public class WikiPageExporter extends CategorizedPageExporter {
 
+  /**
+   * Page hook. This inverts the dependency on the Wiki API.
+   */
+  public interface WikiPageHook {
+
+    void emitAToZPage(String content);
+
+    void emitCategoryPage(String name, String content);
+
+    void emitEntryPage(String name, String content);
+
+  }
+
   private final Map<Entry, String> _entryPages = new HashMap<Entry, String>();
   private final Map<String, ByteArrayOutputStream> _pageContent = new HashMap<String, ByteArrayOutputStream>();
+
+  private WikiPageHook _hook = new WikiPageHook() {
+
+    @Override
+    public void emitAToZPage(final String content) {
+      System.out.println("### A-Z ###");
+      System.out.println();
+      System.out.println(content);
+    }
+
+    @Override
+    public void emitCategoryPage(final String category, final String content) {
+      System.out.println("### " + category + " ###");
+      System.out.println();
+      System.out.println(content);
+    }
+
+    @Override
+    public void emitEntryPage(final String name, final String content) {
+      System.out.println("### " + name + " ###");
+      System.out.println();
+      System.out.println(content);
+    }
+
+  };
 
   public WikiPageExporter(final CategorizingDefinitionExporter exporter) {
     super(exporter);
   }
 
-  // TODO: open the print streams to produce fragments on the filesystem
+  public void setWikiPageHook(final WikiPageHook hook) {
+    _hook = hook;
+  }
+
+  public WikiPageHook getWikiPageHook() {
+    return _hook;
+  }
 
   @Override
   protected void writePageFooter(final PrintStream out, final String title) {
     out.println();
+  }
+
+  @Override
+  protected PrintStream openAToZPage() {
+    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    return new PrintStream(baos) {
+      @Override
+      public void close() {
+        _hook.emitAToZPage(baos.toString());
+      }
+    };
   }
 
   @Override
@@ -74,9 +127,18 @@ public class WikiPageExporter extends CategorizedPageExporter {
     return "[" + prettyPrintCategory(category) + "|" + pageAddressCategory(category) + "]";
   }
 
+  protected String shortDescription(final String description) {
+    final int dot = description.indexOf('.');
+    if (dot < 0) {
+      return description;
+    } else {
+      return description.substring(0, dot);
+    }
+  }
+
   @Override
   protected void writeAToZTableRow(final PrintStream out, final Entry entry) {
-    out.println("| " + hyperlinkEntry(entry) + " | " + hyperlinkCategory(entry.getCategory()) + " | " + entry.getDescription() + " |");
+    out.println("| " + hyperlinkEntry(entry) + " | " + hyperlinkCategory(entry.getCategory()) + " | " + shortDescription(entry.getDescription()) + " |");
   }
 
   @Override
@@ -91,7 +153,18 @@ public class WikiPageExporter extends CategorizedPageExporter {
 
   @Override
   protected void writeContentsTableRow(final PrintStream out, final Entry entry) {
-    out.println("| " + hyperlinkEntry(entry) + " | " + entry.getDescription() + " |");
+    out.println("| " + hyperlinkEntry(entry) + " | " + shortDescription(entry.getDescription()) + " |");
+  }
+
+  @Override
+  protected PrintStream openCategoryPage(final String category) {
+    final ByteArrayOutputStream baos = new ByteArrayOutputStream();
+    return new PrintStream(baos) {
+      @Override
+      public void close() {
+        _hook.emitCategoryPage(pageAddressCategory(category), baos.toString());
+      }
+    };
   }
 
   @Override
@@ -103,8 +176,6 @@ public class WikiPageExporter extends CategorizedPageExporter {
       writer = new ByteArrayOutputStream();
       _pageContent.put(pageName, writer);
       ps = new PrintStream(writer);
-      ps.println("### Entry page " + entry.getCategory() + "/" + pageName);
-      ps.println();
     } else {
       ps = new PrintStream(writer);
     }
@@ -120,12 +191,8 @@ public class WikiPageExporter extends CategorizedPageExporter {
 
   @Override
   protected void endWriteEntryPages() {
-    for (ByteArrayOutputStream page : _pageContent.values()) {
-      try {
-        System.out.write(page.toByteArray());
-      } catch (IOException e) {
-        throw new OpenGammaRuntimeException("I/O exception", e);
-      }
+    for (Map.Entry<String, ByteArrayOutputStream> page : _pageContent.entrySet()) {
+      _hook.emitEntryPage(page.getKey(), page.getValue().toString());
     }
   }
 
@@ -164,18 +231,21 @@ public class WikiPageExporter extends CategorizedPageExporter {
     }
   }
 
+  protected String getPage(String name) {
+    if (name.startsWith("Set") || name.startsWith("Get")) {
+      name = name.substring(3);
+    } else if (name.startsWith("Expand")) {
+      name = name.substring(6);
+    } else if (name.startsWith("Fetch") || name.startsWith("Store")) {
+      name = name.substring(5);
+    }
+    return Character.toString(name.charAt(0));
+  }
+
   protected void paginate(final Map<String, List<Entry>> pages) {
     final List<Entry> toCategorise = pages.get(null);
     for (Entry entry : toCategorise) {
-      String name = entry.getName();
-      if (name.startsWith("Set") || name.startsWith("Get")) {
-        name = name.substring(3);
-      } else if (name.startsWith("Expand")) {
-        name = name.substring(6);
-      } else if (name.startsWith("Fetch") || name.startsWith("Store")) {
-        name = name.substring(5);
-      }
-      final String page = Character.toString(name.charAt(0));
+      final String page = getPage(entry.getName());
       List<Entry> pageEntries = pages.get(page);
       if (pageEntries == null) {
         pageEntries = new ArrayList<Entry>();

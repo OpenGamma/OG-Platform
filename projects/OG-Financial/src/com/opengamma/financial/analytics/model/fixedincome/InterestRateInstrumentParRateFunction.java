@@ -20,27 +20,19 @@ import com.opengamma.financial.security.FinancialSecurity;
  * 
  */
 public class InterestRateInstrumentParRateFunction extends InterestRateInstrumentFunction {
-
-  /**
-   * The value name calculated by this function.
-   */
-  public static final String VALUE_REQUIREMENT = ValueRequirementNames.PAR_RATE;
-
   private static final ParRateCalculator CALCULATOR = ParRateCalculator.getInstance();
 
   public InterestRateInstrumentParRateFunction() {
-    super(VALUE_REQUIREMENT);
+    super(ValueRequirementNames.PAR_RATE);
   }
 
   @Override
   public Set<ComputedValue> getComputedValues(final InstrumentDerivative derivative, final YieldCurveBundle bundle,
-      final FinancialSecurity security, final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {
+      final FinancialSecurity security, final ComputationTarget target, final String forwardCurveName, final String fundingCurveName,
+      final String curveCalculationMethod, final String currency) {
     final Double parRate = CALCULATOR.visit(derivative, bundle);
-    return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName), parRate));
+    return Collections.singleton(new ComputedValue(getResultSpec(target, forwardCurveName, fundingCurveName, curveCalculationMethod,
+        currency), parRate));
   }
 
-  @Override
-  public String getShortName() {
-    return "InterestRateInstrumentParRateFunction";
-  }
 }

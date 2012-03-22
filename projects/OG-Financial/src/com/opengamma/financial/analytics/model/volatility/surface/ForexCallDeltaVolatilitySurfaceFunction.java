@@ -32,6 +32,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.surface.DefaultVolatilitySurfaceShiftFunction;
+import com.opengamma.financial.analytics.volatility.surface.SurfacePropertyNames;
 import com.opengamma.financial.analytics.volatility.surface.SurfaceQuoteType;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceShiftFunction;
 import com.opengamma.financial.model.option.definition.SmileDeltaParameter;
@@ -54,9 +55,9 @@ public class ForexCallDeltaVolatilitySurfaceFunction extends AbstractFunction.No
       throw new OpenGammaRuntimeException("Could not get " + surfaceRequirement);
     }
     @SuppressWarnings("unchecked")
-    final VolatilitySurfaceData<Tenor, Integer> fxVolatilitySurface = (VolatilitySurfaceData<Tenor, Integer>) volatilitySurfaceObject;
+    final VolatilitySurfaceData<Tenor, Double> fxVolatilitySurface = (VolatilitySurfaceData<Tenor, Double>) volatilitySurfaceObject;
     final Tenor[] tenors = fxVolatilitySurface.getXs();
-    final Integer[] deltaValues = fxVolatilitySurface.getYs();
+    final Double[] deltaValues = fxVolatilitySurface.getYs();
     Arrays.sort(tenors);
     Arrays.sort(deltaValues);
     final int nPoints = tenors.length;
@@ -76,12 +77,14 @@ public class ForexCallDeltaVolatilitySurfaceFunction extends AbstractFunction.No
       final DoubleArrayList deltas = new DoubleArrayList();
       final DoubleArrayList volatilities = new DoubleArrayList();
       for (int j = 0; j < nSmileValues; j++) {
-        final Integer delta = deltaValues[j];
+        final Double delta = deltaValues[j];
         if (delta != null) {
           Double volatility = fxVolatilitySurface.getVolatility(tenor, delta);
           if (volatility != null) {
             volatility *= shiftMultiplier;
-            deltas.add(delta / 100);
+            if (delta < 50) {
+              deltas.add(delta / 100);
+            }
             volatilities.add(volatility);
           }
         } else {
@@ -111,10 +114,7 @@ public class ForexCallDeltaVolatilitySurfaceFunction extends AbstractFunction.No
     if (target.getType() != ComputationTargetType.PRIMITIVE) {
       return false;
     }
-    if (UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme())) {
-      return true;
-    }
-    return false;
+    return UnorderedCurrencyPair.OBJECT_SCHEME.equals(target.getUniqueId().getScheme());
   }
 
   @Override
@@ -160,6 +160,7 @@ public class ForexCallDeltaVolatilitySurfaceFunction extends AbstractFunction.No
         ValueProperties.builder()
         .with(ValuePropertyNames.SURFACE, surfaceName)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.FOREX)
-        .with(SurfaceQuoteType.PROPERTY_SURFACE_QUOTE_TYPE, SurfaceQuoteType.CALL_DELTA).get());
+        .with(SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE, SurfaceQuoteType.CALL_DELTA)
+        .with(SurfacePropertyNames.PROPERTY_SURFACE_UNITS, SurfacePropertyNames.VOLATILITY_QUOTE).get());
   }
 }

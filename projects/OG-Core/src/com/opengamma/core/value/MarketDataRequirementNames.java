@@ -36,6 +36,13 @@ public interface MarketDataRequirementNames {
   String LAST = "Market_Last";
   
   /**
+   * Settlement value. This is used when one wants most recent close available in both Live and Historical 
+   * Live - value of last trading day's settlement
+   * Historical - value of specified day's settlement 
+   */
+  String SETTLE_PRICE = "Market_SettlementPrice";
+  
+  /**
    * (bid + ask) / 2
    */
   String MID = "Market_Mid";

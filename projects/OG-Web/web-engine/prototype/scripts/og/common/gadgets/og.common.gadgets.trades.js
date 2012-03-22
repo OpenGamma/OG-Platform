@@ -293,9 +293,14 @@ $.register_module({
                 if (result.error) return alert(result.message);
                 orig_config = config;
                 template_data = result.data.template_data;
-                var trades = result.data.trades, selector = config.selector, tbody, has_attributes = false,
+                var trades, selector = config.selector, tbody, has_attributes = false,
                     fields = ['id', 'quantity', 'counterParty', 'trade_date_time', 'premium', 'premium_date_time'];
-                if (!trades) return $(selector).html(html.og_table.replace('{TBODY}',
+                trades = (result.data.trades || []).sort(function (a, b) {
+                    return a['trade_date_time'] > b['trade_date_time'] ? -1
+                        : a['trade_date_time'] < b['trade_date_time'] ? 1
+                            : 0;
+                });
+                if (!trades.length) return $(selector).html(html.og_table.replace('{TBODY}',
                     '<tr><td colspan="6">No Trades</td></tr>')), attach_trades_link(selector);
                 tbody = trades.reduce(function (acc, trade) {
                     acc.push('<tr class="og-row"><td>', fields.map(function (field, i) {
@@ -371,7 +376,6 @@ $.register_module({
                 dependencies: dependencies, id: config.id, handler: handler, cache_for: 500, version: version
             });
         };
-        load.reload = load.partial(orig_config);
         load.format = format_trades;
         return load;
     }

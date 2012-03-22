@@ -35,7 +35,7 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public ModifyPositionDbPositionMasterWorkerCorrectPositionTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, false);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -103,12 +103,6 @@ public class ModifyPositionDbPositionMasterWorkerCorrectPositionTest extends Abs
     PositionHistoryRequest search = new PositionHistoryRequest(base.getUniqueId(), now, null);
     PositionHistoryResult searchResult = _posMaster.history(search);
     assertEquals(2, searchResult.getDocuments().size());
-  }
-
-  //-------------------------------------------------------------------------
-  @Test
-  public void test_toString() {
-    assertEquals(_posMaster.getClass().getSimpleName() + "[DbPos]", _posMaster.toString());
   }
 
 }

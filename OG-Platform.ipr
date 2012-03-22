@@ -46,6 +46,7 @@
       <entry name="?*.ftl" />
       <entry name="?*.txt" />
       <entry name="?*.csv" />
+      <entry name="?*.ini" />
     </wildcardResourcePatterns>
     <annotationProcessing enabled="false" useClasspath="true" />
   </component>
@@ -235,6 +236,7 @@
       <module fileurl="file://$PROJECT_DIR$/projects/Fudge-Java/Fudge-Java.iml" filepath="$PROJECT_DIR$/projects/Fudge-Java/Fudge-Java.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/Fudge-Proto/Fudge-Proto.iml" filepath="$PROJECT_DIR$/projects/Fudge-Proto/Fudge-Proto.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Analytics/OG-Analytics.iml" filepath="$PROJECT_DIR$/projects/OG-Analytics/OG-Analytics.iml" />
+      <module fileurl="file://$PROJECT_DIR$/projects/OG-Bloomberg/OG-Bloomberg.iml" filepath="$PROJECT_DIR$/projects/OG-Bloomberg/OG-Bloomberg.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Component/OG-Component.iml" filepath="$PROJECT_DIR$/projects/OG-Component/OG-Component.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Core/OG-Core.iml" filepath="$PROJECT_DIR$/projects/OG-Core/OG-Core.iml" />
       <module fileurl="file://$PROJECT_DIR$/projects/OG-Engine/OG-Engine.iml" filepath="$PROJECT_DIR$/projects/OG-Engine/OG-Engine.iml" />

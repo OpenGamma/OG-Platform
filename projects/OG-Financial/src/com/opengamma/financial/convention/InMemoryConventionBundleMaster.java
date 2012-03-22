@@ -135,6 +135,14 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     return add(bundle, convention);
   }
 
+  // (Case) Overnight Indices 
+  @Override
+  public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention, Period period,
+      int settlementDays, boolean isEOM, ExternalId region, Integer publicationLag) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, dayCount, businessDayConvention, period, settlementDays, isEOM, region, publicationLag);
+    return add(bundle, convention);
+  }
+
   @Override
   public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount dayCount, final BusinessDayConvention businessDayConvention,
       final int settlementDays, final boolean isEOMConvention) {
@@ -153,6 +161,7 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   @Override
+  // IRswap and FRA
   public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount swapFixedLegDayCount,
       final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final ExternalId swapFixedLegRegion,
       final DayCount swapFloatingLegDayCount, final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
@@ -164,6 +173,30 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
   }
 
   @Override
+  // IRswap indexes
+  public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount swapFixedLegDayCount,
+      final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final ExternalId swapFixedLegRegion,
+      final DayCount swapFloatingLegDayCount, final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
+      final ExternalId swapFloatingLegInitialRate, final ExternalId swapFloatingLegRegion, final Boolean isEOM, final Period swapTenor) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, swapFixedLegDayCount, swapFixedLegBusinessDayConvention, swapFixedLegFrequency, swapFixedLegSettlementDays,
+        swapFixedLegRegion, swapFloatingLegDayCount, swapFloatingLegBusinessDayConvention, swapFloatingLegFrequency, swapFloatingLegSettlementDays, swapFloatingLegInitialRate, swapFloatingLegRegion,
+        isEOM, swapTenor);
+    return add(bundle, convention);
+  }
+
+  @Override
+  public synchronized UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount swapFixedLegDayCount,
+      final BusinessDayConvention swapFixedLegBusinessDayConvention, final Frequency swapFixedLegFrequency, final Integer swapFixedLegSettlementDays, final ExternalId swapFixedLegRegion,
+      final DayCount swapFloatingLegDayCount, final BusinessDayConvention swapFloatingLegBusinessDayConvention, final Frequency swapFloatingLegFrequency, final Integer swapFloatingLegSettlementDays,
+      final ExternalId swapFloatingLegInitialRate, final ExternalId swapFloatingLegRegion, final Boolean isEOM, final Integer publicationLag) {
+    final ConventionBundleImpl convention = new ConventionBundleImpl(bundle, name, swapFixedLegDayCount, swapFixedLegBusinessDayConvention, swapFixedLegFrequency, swapFixedLegSettlementDays,
+        swapFixedLegRegion, swapFloatingLegDayCount, swapFloatingLegBusinessDayConvention, swapFloatingLegFrequency, swapFloatingLegSettlementDays, swapFloatingLegInitialRate, swapFloatingLegRegion,
+        isEOM, publicationLag);
+    return add(bundle, convention);
+  }
+
+  @Override
+  // Basis swap
   public UniqueId addConventionBundle(final ExternalIdBundle bundle, final String name, final DayCount basisSwapPayFloatingLegDayCount,
       final BusinessDayConvention basisSwapPayFloatingLegBusinessDayConvention, final Frequency basisSwapPayFloatingLegFrequency, final Integer basisSwapPayFloatingLegSettlementDays,
       final ExternalId basisSwapPayFloatingLegInitialRate, final ExternalId basisSwapPayFloatingLegRegion, final DayCount basisSwapReceiveFloatingLegDayCount,
@@ -219,8 +252,8 @@ public class InMemoryConventionBundleMaster implements ConventionBundleMaster {
     final Collection<ConventionBundle> collection = _mapper.get(request.getIdentifiers());
     return new ConventionBundleSearchResult(wrapReferenceRatesWithDocuments(collection));
   }
-  
-  /*package*/ Collection<ConventionBundle> getAll() {
+
+  /*package*/Collection<ConventionBundle> getAll() {
     return _mapper.getAll();
   }
 

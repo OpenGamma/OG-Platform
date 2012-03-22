@@ -10,6 +10,10 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import cern.jet.random.engine.MersenneTwister;
+import cern.jet.random.engine.MersenneTwister64;
+import cern.jet.random.engine.RandomEngine;
+
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.math.function.Function1D;
 
@@ -17,10 +21,11 @@ import com.opengamma.math.function.Function1D;
  * 
  */
 public class MixedLogNormalVolatilityModelTest {
-
+  private static final RandomEngine RANDOM = new MersenneTwister64(MersenneTwister.DEFAULT_SEED);
   private static final MixedLogNormalModelData LEPTOKURTIC1;
   private static final MixedLogNormalModelData LEPTOKURTIC2;
   private static final MixedLogNormalModelData PLATYKURTIC;
+  private static final MixedLogNormalModelData LARGE_SYSTEM;
   private static final double FORWARD = 0.05;
   private static final double T = 0.6;
   private static final MixedLogNormalVolatilityFunction VOL_FUNC = new MixedLogNormalVolatilityFunction();
@@ -36,6 +41,17 @@ public class MixedLogNormalVolatilityModelTest {
     LEPTOKURTIC1 = new MixedLogNormalModelData(new double[] {0.8, 0.2 }, new double[] {0.2, 0.7 });
     LEPTOKURTIC2 = new MixedLogNormalModelData(new double[] {0.8, 0.2 }, new double[] {0.2, 0.7 }, new double[] {1.1, 0.6 });
     PLATYKURTIC = new MixedLogNormalModelData(new double[] {0.5, 0.5 }, new double[] {0.2, 0.2 }, new double[] {0.5, 1.5 });
+    int n = 5;
+    double[] parms = new double[3 * n - 2];
+    parms[0] = 0.2;
+    for (int i = 1; i < n; i++) {
+      parms[i] = 0.5 * RANDOM.nextDouble();
+    }
+    for (int i = 0; i < n - 1; i++) {
+      parms[n + i] = Math.PI / 2 * RANDOM.nextDouble();
+      parms[2 * n - 1 + i] = parms[n + i] * (0.9 + 0.2 * RANDOM.nextDouble());
+    }
+    LARGE_SYSTEM = new MixedLogNormalModelData(parms);
   }
 
   @Test(enabled = false)
@@ -74,45 +90,44 @@ public class MixedLogNormalVolatilityModelTest {
 
   @Test
   public void modelAdjointTest() {
+    modelAdjointTest(LEPTOKURTIC1);
+    modelAdjointTest(LEPTOKURTIC2);
+    modelAdjointTest(LARGE_SYSTEM);
+  }
+
+  private void modelAdjointTest(final MixedLogNormalModelData data) {
     final double strike = 1.1 * FORWARD;
     EuropeanVanillaOption option = new EuropeanVanillaOption(strike, T, true);
     Function1D<MixedLogNormalModelData, double[]> modelAdjointFunc = VOL_FUNC.getModelAdjointFunction(option, FORWARD);
     Function1D<MixedLogNormalModelData, double[]> fdModelAdjointFunc = FD_VOL_FUNC.getModelAdjointFunction(option, FORWARD);
 
-    double[] sense = modelAdjointFunc.evaluate(LEPTOKURTIC1);
-    double[] fdSense = fdModelAdjointFunc.evaluate(LEPTOKURTIC1);
-    int nParms = LEPTOKURTIC1.getNumberOfparameters();
+    double[] sense = modelAdjointFunc.evaluate(data);
+    double[] fdSense = fdModelAdjointFunc.evaluate(data);
+    int nParms = data.getNumberOfparameters();
     for (int i = 0; i < nParms; i++) {
-      assertEquals("LEPTOKURTIC1: parameter " + i, fdSense[i], sense[i], 1e-6);
+      assertEquals(" : parameter " + i, fdSense[i], sense[i], 1e-6);
     }
 
-    sense = modelAdjointFunc.evaluate(LEPTOKURTIC2);
-    fdSense = fdModelAdjointFunc.evaluate(LEPTOKURTIC2);
-    nParms = LEPTOKURTIC2.getNumberOfparameters();
-    for (int i = 0; i < nParms; i++) {
-      assertEquals("LEPTOKURTIC2: parameter " + i, fdSense[i], sense[i], 1e-6);
-    }
   }
 
   @Test
   public void volatilityAdjointTest() {
+    volatilityAdjointTest(LEPTOKURTIC1);
+    volatilityAdjointTest(LEPTOKURTIC2);
+    volatilityAdjointTest(LARGE_SYSTEM);
+  }
+
+  public void volatilityAdjointTest(final MixedLogNormalModelData data) {
     final double strike = 0.8 * FORWARD;
     EuropeanVanillaOption option = new EuropeanVanillaOption(strike, T, true);
     Function1D<MixedLogNormalModelData, double[]> modelAdjointFunc = VOL_FUNC.getVolatilityAdjointFunction(option, FORWARD);
     Function1D<MixedLogNormalModelData, double[]> fdModelAdjointFunc = FD_VOL_FUNC.getVolatilityAdjointFunction(option, FORWARD);
 
-    double[] sense = modelAdjointFunc.evaluate(LEPTOKURTIC1);
-    double[] fdSense = fdModelAdjointFunc.evaluate(LEPTOKURTIC1);
-    int nParms = 3 + LEPTOKURTIC1.getNumberOfparameters();
+    double[] sense = modelAdjointFunc.evaluate(data);
+    double[] fdSense = fdModelAdjointFunc.evaluate(data);
+    int nParms = 3 + data.getNumberOfparameters();
     for (int i = 0; i < nParms; i++) {
-      assertEquals("LEPTOKURTIC1: parameter " + i, fdSense[i], sense[i], 1e-6);
-    }
-
-    sense = modelAdjointFunc.evaluate(LEPTOKURTIC2);
-    fdSense = fdModelAdjointFunc.evaluate(LEPTOKURTIC2);
-    nParms = 3 + LEPTOKURTIC2.getNumberOfparameters();
-    for (int i = 0; i < nParms; i++) {
-      assertEquals("LEPTOKURTIC2: parameter " + i, fdSense[i], sense[i], 1e-6);
+      assertEquals("parameter " + i, fdSense[i], sense[i], 1e-6);
     }
   }
 

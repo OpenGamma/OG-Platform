@@ -163,9 +163,9 @@ public class CouponIborSpreadDefinition extends CouponIborDefinition {
       }
     }
     if (dayConversion.isAfter(dayFixing)) { // The fixing is required
-      Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+      Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate().withHourOfDay(0)); // TODO: remove time from fixing date.
       if (fixedRate == null) {
-        throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
+        throw new OpenGammaRuntimeException("Could not get fixing value for date " + dayFixing);
       }
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), fixedRate + _spread);
     }

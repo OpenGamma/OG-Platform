@@ -17,6 +17,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.financial.analytics.volatility.surface.SurfacePropertyNames;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
@@ -36,7 +37,9 @@ public class VolatilitySurfaceSnapper extends
     UniqueId uniqueId = spec.getTargetSpecification().getUniqueId();
     String surface = getSingleProperty(spec, ValuePropertyNames.SURFACE);
     String instrumentType = getSingleProperty(spec, "InstrumentType"); //TODO constant
-    return new VolatilitySurfaceKey(uniqueId, surface, instrumentType);
+    String quoteType = getSingleProperty(spec, SurfacePropertyNames.PROPERTY_SURFACE_QUOTE_TYPE);
+    String quoteUnits = getSingleProperty(spec, SurfacePropertyNames.PROPERTY_SURFACE_UNITS);
+    return new VolatilitySurfaceKey(uniqueId, surface, instrumentType, quoteType, quoteUnits);
   }
 
   @SuppressWarnings("unchecked")

@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE beans PUBLIC "-//SPRING//DTD BEAN//EN" "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+
+  <bean id="liveMarketDataSourceRegistry" class="com.opengamma.engine.marketdata.live.DefaultLiveMarketDataSourceRegistry" />
+
+  <!-- Live market data -->
+  <bean id="liveMarketDataProviderFactory" class="com.opengamma.engine.marketdata.live.LiveMarketDataProviderFactoryFactoryBean">
+    <property name="liveDataClient">
+      <bean class="com.opengamma.livedata.client.RemoteLiveDataClientFactoryBean">
+        <property name="jmsConnector" ref="jmsConnector" />
+        <property name="subscriptionTopic" value="${liveDataClient.subscriptionTopic}" />
+        <property name="entitlementTopic" value="${liveDataClient.entitlementTopic}" />
+        <property name="heartbeatTopic" value="${liveDataClient.heartbeatTopic}" />
+      </bean>
+    </property>
+    <property name="securitySource" ref="combinedSecuritySource" />
+    <property name="availabilityProvider">
+      <bean class="com.opengamma.integration.server.DemoLiveDataAvailabilityProviderFactoryBean">
+        <constructor-arg ref="combinedSecuritySource" />
+      </bean>    
+    </property>
+  </bean>
+  
+  <!-- Historical market data -->
+  <bean id="historicalMarketDataProviderFactory" class="com.opengamma.engine.marketdata.historical.HistoricalMarketDataProviderFactoryFactoryBean">
+    <property name="timeSeriesSource" ref="sharedHistoricalTimeSeriesSource" />
+  </bean>
+  
+  <!-- User market data -->
+  <bean id="userMarketDataProviderFactory" class="com.opengamma.engine.marketdata.snapshot.UserMarketDataProviderFactoryFactoryBean">
+    <property name="snapshotSource" ref="combinedSnapshotSource" />
+  </bean>
+
+  <!-- Combined market data -->
+  <bean id="combinedMarketDataProviderFactory" class="com.opengamma.engine.marketdata.CombinedMarketDataProviderFactoryFactoryBean">
+  </bean>
+  
+  <!-- MarketDataProvider resolver -->
+  <bean id="marketDataProviderResolver" class="com.opengamma.engine.marketdata.resolver.TypeBasedMarketDataProviderResolverFactoryBean">
+    <property name="typesAndProviders">
+      <map>
+        <entry key="com.opengamma.engine.marketdata.spec.LiveMarketDataSpecification" value-ref="liveMarketDataProviderFactory" />
+        <entry key="com.opengamma.engine.marketdata.spec.HistoricalMarketDataSpecification" value-ref="historicalMarketDataProviderFactory" />
+        <entry key="com.opengamma.engine.marketdata.spec.UserMarketDataSpecification" value-ref="userMarketDataProviderFactory" />
+        <entry key="com.opengamma.engine.marketdata.spec.CombinedMarketDataSpecification" value-ref="combinedMarketDataProviderFactory" />
+      </map>
+    </property>
+  </bean>
+  
+  <!-- Hook up the circular dependency -->
+  <bean id="circularMarketDataProviderFactory" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+   <property name="targetObject"><ref local="combinedMarketDataProviderFactory"/></property>
+   <property name="targetMethod"><value>setUnderlying</value></property>
+   <property name="arguments">
+     <list>
+     <ref bean="marketDataProviderResolver"/>
+     </list>
+   </property>
+ </bean>
+  
+
+</beans>

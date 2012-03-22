@@ -19,12 +19,13 @@ public final class BeanUtils {
   private BeanUtils() {
   }
 
-  public static Iterable<MetaProperty<Object>> writableMetaProperties(MetaBean metaBean) {
-    return Iterables.filter(metaBean.metaPropertyIterable(), new Predicate<MetaProperty<Object>>() {
+  public static Iterable<MetaProperty<?>> writableMetaProperties(MetaBean metaBean) {
+    return Iterables.filter(metaBean.metaPropertyIterable(), new Predicate<MetaProperty<?>>() {
       @Override
-      public boolean apply(MetaProperty<Object> property) {
+      public boolean apply(MetaProperty<?> property) {
         return property.readWrite().isWritable();
       }
     });
   }
+
 }

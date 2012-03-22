@@ -41,7 +41,7 @@ public class ExampleDatabasePopulaterTest {
   @Test
   public void testPortfolioAndDataLoaded() throws Exception {
     for (int i = 0; i < 2; i++) {
-      DBTestUtils.createHsqlDB(CONFIG_RESOURCE_LOCATION);
+      DBTestUtils.createTestHsqlDB(CONFIG_RESOURCE_LOCATION);
       
       new ExampleDatabasePopulater().run(AbstractExampleTool.TOOLCONTEXT_EXAMPLE_PROPERTIES);
       

@@ -62,7 +62,7 @@ public class SABRModelFitterConstained extends SmileModelFitter<SABRFormulaData>
         final double beta = x.getEntry(1);
         final double rho = x.getEntry(2);
         final double nu = x.getEntry(3);
-        return (alpha <= 0 || beta < 0.0 || rho < -1.0 || rho > 1.0 || nu < 0.0);
+        return (alpha >= 0 && beta >= 0.0 && rho >= -1.0 && rho <= 1.0 && nu >= 0.0);
       }
     };
   }

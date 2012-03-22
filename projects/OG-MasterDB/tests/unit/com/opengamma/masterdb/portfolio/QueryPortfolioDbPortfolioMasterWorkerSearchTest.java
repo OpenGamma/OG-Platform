@@ -32,7 +32,7 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
 
   @Factory(dataProvider = "databases", dataProviderClass = DbTest.class)
   public QueryPortfolioDbPortfolioMasterWorkerSearchTest(String databaseType, String databaseVersion) {
-    super(databaseType, databaseVersion);
+    super(databaseType, databaseVersion, true);
     s_logger.info("running testcases for {}", databaseType);
   }
 
@@ -310,11 +310,19 @@ public class QueryPortfolioDbPortfolioMasterWorkerSearchTest extends AbstractDbP
     assert202(test.getDocuments().get(2));
     assert301(test.getDocuments().get(3));
   }
-  
+
   //-------------------------------------------------------------------------
   @Test
-  public void test_toString() {
-    assertEquals(_prtMaster.getClass().getSimpleName() + "[DbPrt]", _prtMaster.toString());
+  public void test_search_noPositions() {
+    PortfolioSearchRequest request = new PortfolioSearchRequest();
+    request.setIncludePositions(false);
+    PortfolioSearchResult test = _prtMaster.search(request);
+    
+    assertEquals(_visiblePortfolios, test.getDocuments().size());
+    assertNoPositions();
+    assert101(test.getDocuments().get(0), 999);
+    assert102(test.getDocuments().get(1));
+    assert202(test.getDocuments().get(2));
   }
 
 }

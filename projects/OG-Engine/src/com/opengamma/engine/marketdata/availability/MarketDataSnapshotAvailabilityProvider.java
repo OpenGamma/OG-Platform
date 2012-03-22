@@ -18,7 +18,7 @@ import com.opengamma.util.ArgumentChecker;
 public class MarketDataSnapshotAvailabilityProvider implements MarketDataAvailabilityProvider {
 
   private final MarketDataSnapshot _snapshot;
-  
+
   /**
    * Constructs an instance.
    * 
@@ -28,7 +28,7 @@ public class MarketDataSnapshotAvailabilityProvider implements MarketDataAvailab
     ArgumentChecker.notNull(snapshot, "snapshot");
     _snapshot = snapshot;
   }
-  
+
   @Override
   public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
     if (requirement.getTargetSpecification().getType() == ComputationTargetType.PORTFOLIO_NODE ||
@@ -44,7 +44,7 @@ public class MarketDataSnapshotAvailabilityProvider implements MarketDataAvailab
     }
     return MarketDataAvailability.NOT_AVAILABLE;
   }
-  
+
   //-------------------------------------------------------------------------
   private MarketDataSnapshot getSnapshot() {
     return _snapshot;

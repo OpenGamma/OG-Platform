@@ -46,7 +46,7 @@ import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecifica
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
-import com.opengamma.financial.analytics.model.ircurve.MarketInstrumentImpliedYieldCurveFunction;
+import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionHelper;
 import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurfaces;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -100,7 +100,7 @@ public class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFunction.No
     this(Currency.of(currency), definitionName, Boolean.parseBoolean(useSABRExtrapolation), forwardCurveName, fundingCurveName);
   }
 
-  public SABRYieldCurveNodeSensitivitiesFunction(final Currency currency, final String definitionName, final boolean useSABRExtrapolation, final String forwardCurveName,
+  public SABRYieldCurveNodeSensitivitiesFunction(final Currency currency, final String definitionName, final boolean useSABRExtrapolation, final String forwardCurveName, 
       final String fundingCurveName) {
     _nodeSensitivityCalculator = useSABRExtrapolation ? PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRExtrapolationCalculator.getInstance())
         : PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivitySABRCalculator.getInstance());
@@ -118,8 +118,8 @@ public class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFunction.No
     _securitySource = OpenGammaCompilationContext.getSecuritySource(context);
     final SwapSecurityConverter swapConverter = new SwapSecurityConverter(holidaySource, conventionSource, regionSource, false);
     final SwaptionSecurityConverter swaptionConverter = new SwaptionSecurityConverter(_securitySource, conventionSource, swapConverter);
-    final CapFloorSecurityConverter capFloorConverter = new CapFloorSecurityConverter(holidaySource, conventionSource);
-    final CapFloorCMSSpreadSecurityConverter capFloorCMSSpreadSecurityVisitor = new CapFloorCMSSpreadSecurityConverter(holidaySource, conventionSource);
+    final CapFloorSecurityConverter capFloorConverter = new CapFloorSecurityConverter(holidaySource, conventionSource, regionSource);
+    final CapFloorCMSSpreadSecurityConverter capFloorCMSSpreadSecurityVisitor = new CapFloorCMSSpreadSecurityConverter(holidaySource, conventionSource, regionSource);
     _securityVisitor = FinancialSecurityVisitorAdapter.<InstrumentDefinition<?>>builder().swapSecurityVisitor(swapConverter).swaptionVisitor(swaptionConverter).capFloorVisitor(capFloorConverter)
         .capFloorCMSSpreadVisitor(capFloorCMSSpreadSecurityVisitor).create();
     _definitionConverter = new FixedIncomeConverterDataProvider(conventionSource);
@@ -132,7 +132,7 @@ public class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFunction.No
     final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
     final InstrumentDefinition<?> definition = security.accept(_securityVisitor);
-    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, new String[] {_fundingCurveName, _forwardCurveName }, dataSource);
+    final InstrumentDerivative derivative = _definitionConverter.convert(security, definition, now, new String[] {_fundingCurveName, _forwardCurveName}, dataSource);
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
     final Object forwardCurveObject = inputs.getValue(getForwardCurveRequirement(currency, _forwardCurveName, _fundingCurveName));
     if (forwardCurveObject == null) {
@@ -160,7 +160,7 @@ public class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFunction.No
       final SABRInterestRateDataBundle data = getModelParameters(target, inputs, bundle);
       final DoubleMatrix2D jacobian = new DoubleMatrix2D(FunctionUtils.decodeJacobian(jacobianObject));
       final DoubleMatrix1D result = CALCULATOR.calculateFromPresentValue(derivative, null, data, couponSensitivity, jacobian, _nodeSensitivityCalculator);
-      return YieldCurveNodeSensitivitiesHelper.getSensitivitiesForCurve(_forwardCurveName, bundle, result, forwardCurveSpec, getForwardResultSpec(target, currency));
+      return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(_forwardCurveName, bundle, result, forwardCurveSpec, getForwardResultSpec(target, currency));
     }
     final Object fundingCurveObject = inputs.getValue(getFundingCurveRequirement(currency, _forwardCurveName, _fundingCurveName));
     if (fundingCurveObject == null) {
@@ -201,7 +201,7 @@ public class SABRYieldCurveNodeSensitivitiesFunction extends AbstractFunction.No
     final Security security = target.getSecurity();
     return security instanceof SwaptionSecurity
         || (security instanceof SwapSecurity && (SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_FIXED_CMS
-            || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS
+            || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_CMS_CMS 
             || SwapSecurityUtils.getSwapType(((SwapSecurity) security)) == InterestRateInstrumentType.SWAP_IBOR_CMS))
         || security instanceof CapFloorSecurity;
   }

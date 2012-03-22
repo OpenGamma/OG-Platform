@@ -45,7 +45,31 @@
  * {@link com.opengamma.web.portfolio.WebPortfoliosResource#getJSON(Integer, Integer, Integer, String, String, java.util.List, java.util.List, Boolean)}
  * for an example.</p>
  *
- * <h2>Views</h2>
+ * <h2>Querying Available View Definitions, Market Data Snapshots and Aggregators</h2>
+ * <p>The view definitions, market data snapshots and aggregators available in the system can be queried as follows:</p>
+ * <pre>
+ *   /jax/viewdefinitions</pre>
+ * <p>returns</p>
+ * <pre>
+ *   {viewDefId1: viewDefName1, viewDefId2: viewDefName2, ...}
+ * </pre>
+ * <p>and</p>
+ * <pre>
+ *   /jax/marketdatasnapshots</pre>
+ * <p>returns</p>
+ * <pre>
+ *   {basisViewName1: {snapshotUniqueId1: snapshotName1, snapshotUniqueId2: snapshotName2, ...},
+ *    basisViewName2: {snapshotUniqueId3: snapshotName3, snapshotUniqueId4: snapshotName4, ...}}
+ * </pre>
+ * <p>and</p>
+ * <pre>
+ *   /jax/aggregators</pre>
+ * <p>returns</p>
+ * <pre>
+ *   [aggregatorName1, aggregatorName2, ...]
+ * </pre>
+ *
+ ** <h2>Views</h2>
  * <p>Before a client can receive data for a view it must create a viewport.  This is done by making a {@code POST}
  * request to:</p>
  * <pre>
@@ -92,30 +116,6 @@
  *   whose full data should be sent to the client.  This is for cells that contain multi-valued data (e.g.
  *   yield curves) where the user can open a pop-up to view the full data.</li>
  * </ul>
- *
- * <h3>Querying Available View Definitions, Market Data Snapshots and Aggregators</h3>
- * <p>The view definitions, market data snapshots and aggregators available in the system can be queried as follows:</p>
- * <pre>
- *   /jax/viewdefinitions</pre>
- * <p>returns</p>
- * <pre>
- *   {viewDefId1: viewDefName1, viewDefId2: viewDefName2, ...}
- * </pre>
- * <p>and</p>
- * <pre>
- *   /jax/marketdatasnapshots</pre>
- * <p>returns</p>
- * <pre>
- *   {basisViewName1: {snapshotUniqueId1: snapshotName1, snapshotUniqueId2: snapshotName2, ...},
- *    basisViewName2: {snapshotUniqueId3: snapshotName3, snapshotUniqueId4: snapshotName4, ...}}
- * </pre>
- * <p>and</p>
- * <pre>
- *   /jax/aggregators</pre>
- * <p>returns</p>
- * <pre>
- *   [aggregatorName1, aggregatorName2, ...]
- * </pre>
  *
  * <h1>Receiving Notifications of Updates</h1>
  * <p>A client receives updates by making a request to the update URL for its client ID.</p>
@@ -168,8 +168,6 @@
  *   probably isn't what we want, a subscription should probably be created if there are some query params
  *   specifying what to search for.  it might even be necessary to allow the relevant query params to be
  *   specified in the annotation</li>
- *   <li>Subscription annotations have only been added for portfolios and positions ({@link com.opengamma.web.portfolio.WebPortfoliosResource}
- *   and {@link com.opengamma.web.position.WebPositionsResource}), they need to be added for other entity types.
  *   <li>Should subscriptions be created from the POST methods that create entities?  A new filter would be needed
  *   that looked at the redirecting response to find the URL of the new entity.</li>
  * </ul>

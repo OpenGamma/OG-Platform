@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
 import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
@@ -109,7 +110,10 @@ public abstract class AbstractHistoricalMarketDataProvider extends AbstractMarke
   @Override
   public MarketDataAvailability getAvailability(final ValueRequirement requirement) {
     final ExternalId identifier = requirement.getTargetSpecification().getIdentifier();
-    final HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(requirement.getValueName(), ExternalIdBundle.of(identifier), getTimeSeriesResolverKey());
+    final HistoricalTimeSeries hts = _historicalTimeSeriesSource.getHistoricalTimeSeries(requirement.getValueName(), ExternalIdBundle.of(identifier), null, getTimeSeriesResolverKey());
+    if (hts == null && requirement.getValueName().equals(MarketDataRequirementNames.MARKET_VALUE)) {
+      System.err.println("Missing: " + requirement);
+    }
     return (hts != null) ? MarketDataAvailability.AVAILABLE : MarketDataAvailability.NOT_AVAILABLE;
   }
   

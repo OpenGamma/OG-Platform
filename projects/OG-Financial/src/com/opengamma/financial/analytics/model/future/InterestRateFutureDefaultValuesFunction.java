@@ -11,28 +11,36 @@ import java.util.Set;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.FunctionCompilationContext;
+import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.property.DefaultPropertyFunction;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.future.InterestRateFutureSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Dummy function for injecting default curve names into the dependency graph.
  */
 public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunction {
-
   private static final String[] s_valueNames = new String[] {
     ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.PV01,
     ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES};
 
   private final String[] _applicableCurrencyNames;
+  private final String _curveCalculationMethod;
   private final String _forwardCurve;
   private final String _fundingCurve;
 
-  public InterestRateFutureDefaultValuesFunction(final String forwardCurve, final String fundingCurve, final String... applicableCurrencyNames) {
+  public InterestRateFutureDefaultValuesFunction(final String forwardCurve, final String fundingCurve, final String curveCalculationMethod, final String... applicableCurrencyNames) {
     super(ComputationTargetType.TRADE, true);
+    ArgumentChecker.notNull(forwardCurve, "forward curve");
+    ArgumentChecker.notNull(fundingCurve, "funding curve");
+    ArgumentChecker.notNull(curveCalculationMethod, "curve calculation method");
+    ArgumentChecker.notNull(applicableCurrencyNames, "applicable currency names");
+    _curveCalculationMethod = curveCalculationMethod;
     _forwardCurve = forwardCurve;
     _fundingCurve = fundingCurve;
     _applicableCurrencyNames = applicableCurrencyNames;
@@ -46,8 +54,9 @@ public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunc
     if (!(target.getTrade().getSecurity() instanceof InterestRateFutureSecurity)) {
       return false;
     }
+    final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
     for (final String applicableCurrencyName : _applicableCurrencyNames) {
-      if (applicableCurrencyName.equals(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode())) {
+      if (applicableCurrencyName.equals(currency)) {
         return true;
       }
     }
@@ -59,6 +68,7 @@ public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunc
     for (final String valueName : s_valueNames) {
       defaults.addValuePropertyName(valueName, YieldCurveFunction.PROPERTY_FORWARD_CURVE);
       defaults.addValuePropertyName(valueName, YieldCurveFunction.PROPERTY_FUNDING_CURVE);
+      defaults.addValuePropertyName(valueName, ValuePropertyNames.CURVE_CALCULATION_METHOD);
     }
   }
 
@@ -69,6 +79,9 @@ public class InterestRateFutureDefaultValuesFunction extends DefaultPropertyFunc
     }
     if (YieldCurveFunction.PROPERTY_FUNDING_CURVE.equals(propertyName)) {
       return Collections.singleton(_fundingCurve);
+    }
+    if (ValuePropertyNames.CURVE_CALCULATION_METHOD.equals(propertyName)) {
+      return Collections.singleton(_curveCalculationMethod);
     }
     return null;
   }

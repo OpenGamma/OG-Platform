@@ -22,6 +22,7 @@ import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
+import com.opengamma.math.curve.DoublesCurve;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.Tenor;
@@ -63,6 +64,7 @@ public class ResultConverterCache {
     registerConverter(BlackVolatilitySurfaceMoneyness.class, new BlackVolatilitySurfaceMoneynessConverter());
     registerConverter(LocalVolatilitySurfaceMoneyness.class, new LocalVolatilitySurfaceMoneynessConverter());
     registerConverter(BucketedGreekResultCollection.class, new BucketedVegaConverter());
+    registerConverter(DoublesCurve.class, new CurveConverter());
   }
 
   private <T> void registerConverter(Class<T> clazz, ResultConverter<? super T> converter) {

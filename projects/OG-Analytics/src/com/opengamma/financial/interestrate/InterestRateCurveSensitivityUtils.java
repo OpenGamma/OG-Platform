@@ -37,25 +37,27 @@ public class InterestRateCurveSensitivityUtils {
    * Takes a list of curve sensitivities (i.e. an unordered list of pairs of times and sensitivities) and returns a list order by ascending
    * time, and with sensitivities that occur at the same time netted (zero net sensitivities are removed)
    * @param old An unordered list of pairs of times and sensitivities
-   * @param relTol Relative tolerance - if the net divided by gross sensitivity is less than this it is ignored/removed 
-   * @param absTol Absolute tolerance  - is the net sensitivity is less than this it is ignored/removed 
+   * @param relTol Relative tolerance - if the net divided by gross sensitivity is less than this it is ignored/removed
+   * @param absTol Absolute tolerance  - is the net sensitivity is less than this it is ignored/removed
    * @return A time ordered netted list
    */
   static final List<DoublesPair> clean(final List<DoublesPair> old, final double relTol, final double absTol) {
 
     Validate.notNull(old, "null list");
     Validate.isTrue(relTol >= 0.0 && absTol >= 0.0);
-
+    if (old.size() == 0) {
+      return new ArrayList<DoublesPair>();
+    }
     final List<DoublesPair> res = new ArrayList<DoublesPair>();
-    DoublesPair[] sort = old.toArray(new DoublesPair[] {});
+    final DoublesPair[] sort = old.toArray(new DoublesPair[] {});
     Arrays.sort(sort, FirstThenSecondDoublesPairComparator.INSTANCE);
-    DoublesPair pairOld = sort[0];
+    final DoublesPair pairOld = sort[0];
     double tOld = pairOld.first;
     double sum = pairOld.getSecond();
     double scale = Math.abs(sum);
     double t = tOld;
     for (int i = 1; i < sort.length; i++) {
-      DoublesPair pair = sort[i];
+      final DoublesPair pair = sort[i];
       t = pair.first;
       if (t > tOld) {
         if (Math.abs(sum) > absTol && Math.abs(sum) / scale > relTol) {
@@ -79,33 +81,33 @@ public class InterestRateCurveSensitivityUtils {
 
   /**
    * Takes a map of curve sensitivities (i.e. a map between curve names and a unordered lists of pairs of times and sensitivities)
-   *  and returns a similar map where the lists order by ascending time, and with sensitivities that occur at the same time netted 
+   *  and returns a similar map where the lists order by ascending time, and with sensitivities that occur at the same time netted
    *  (zero net sensitivities are removed)
    * @param old A map between curve names and unordered lists of pairs of times and sensitivities
-   * @param relTol Relative tolerance - if the net divided by gross sensitivity is less than this it is ignored/removed 
-   * @param absTol Absolute tolerance  - is the net sensitivity is less than this it is ignored/removed 
+   * @param relTol Relative tolerance - if the net divided by gross sensitivity is less than this it is ignored/removed
+   * @param absTol Absolute tolerance  - is the net sensitivity is less than this it is ignored/removed
    * @return A map between curve names and time ordered netted lists
    */
-  public static Map<String, List<DoublesPair>> clean(Map<String, List<DoublesPair>> old, final double relTol, final double absTol) {
-    Map<String, List<DoublesPair>> res = new HashMap<String, List<DoublesPair>>();
-    Set<Entry<String, List<DoublesPair>>> sense = old.entrySet();
-    Iterator<Entry<String, List<DoublesPair>>> interator = sense.iterator();
+  public static Map<String, List<DoublesPair>> clean(final Map<String, List<DoublesPair>> old, final double relTol, final double absTol) {
+    final Map<String, List<DoublesPair>> res = new HashMap<String, List<DoublesPair>>();
+    final Set<Entry<String, List<DoublesPair>>> sense = old.entrySet();
+    final Iterator<Entry<String, List<DoublesPair>>> interator = sense.iterator();
     while (interator.hasNext()) {
-      Entry<String, List<DoublesPair>> entry = interator.next();
+      final Entry<String, List<DoublesPair>> entry = interator.next();
       res.put(entry.getKey(), clean(entry.getValue(), relTol, absTol));
     }
     return res;
   }
 
   /**
-   * Add two list representing sensitivities into one. No attempt is made to net off sensitivities occurring at the same time - Use clean() 
+   * Add two list representing sensitivities into one. No attempt is made to net off sensitivities occurring at the same time - Use clean()
    * to do this
-   * @param sensi1 First list of sensitivities 
+   * @param sensi1 First list of sensitivities
    * @param sensi2 Second list of sensitivities
-   * @return combined list 
+   * @return combined list
    */
   public static List<DoublesPair> addSensitivity(final List<DoublesPair> sensi1, final List<DoublesPair> sensi2) {
-    List<DoublesPair> temp = new ArrayList<DoublesPair>();
+    final List<DoublesPair> temp = new ArrayList<DoublesPair>();
     for (final DoublesPair pair : sensi1) {
       temp.add(pair);
     }
@@ -157,16 +159,16 @@ public class InterestRateCurveSensitivityUtils {
    * @param factor  the multiplicative factor, not null
    * @return the multiplied sensitivity, not null
    */
-  public static Map<String, List<DoublesPair>> multiplySensitivity(final Map<String, List<DoublesPair>> sensitivity, double factor) {
+  public static Map<String, List<DoublesPair>> multiplySensitivity(final Map<String, List<DoublesPair>> sensitivity, final double factor) {
     Validate.notNull(sensitivity, "sensitivity");
-    Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
     for (final String name : sensitivity.keySet()) {
       result.put(name, multiplySensitivity(sensitivity.get(name), factor));
     }
     return result;
   }
 
-  public static List<DoublesPair> multiplySensitivity(final List<DoublesPair> sensitivity, double factor) {
+  public static List<DoublesPair> multiplySensitivity(final List<DoublesPair> sensitivity, final double factor) {
     Validate.notNull(sensitivity, "sensitivity");
 
     final List<DoublesPair> curveSensi = new ArrayList<DoublesPair>();
@@ -183,7 +185,7 @@ public class InterestRateCurveSensitivityUtils {
    * @param tolerance The tolerance.
    * @return True if the difference is below the tolerance and False if not.
    */
-  public static boolean compare(final List<DoublesPair> sensi1, final List<DoublesPair> sensi2, double tolerance) {
+  public static boolean compare(final List<DoublesPair> sensi1, final List<DoublesPair> sensi2, final double tolerance) {
     for (int looptime = 0; looptime < sensi1.size(); looptime++) {
       if ((Math.abs(sensi1.get(looptime).first - sensi2.get(looptime).first) > tolerance) || (Math.abs(sensi1.get(looptime).second - sensi2.get(looptime).second) >= tolerance)) {
         return false;
@@ -199,7 +201,7 @@ public class InterestRateCurveSensitivityUtils {
    * @param tolerance The tolerance.
    * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
    */
-  public static boolean compare(final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2, double tolerance) {
+  public static boolean compare(final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2, final double tolerance) {
     Validate.notNull(sensi1, "sensitivity");
     Validate.notNull(sensi2, "sensitivity");
     for (final String name : sensi1.keySet()) {

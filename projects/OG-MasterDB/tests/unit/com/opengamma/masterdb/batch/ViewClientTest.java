@@ -5,9 +5,37 @@
  */
 package com.opengamma.masterdb.batch;
 
+import static com.google.common.collect.Maps.newHashMap;
+import static com.google.common.collect.Sets.newHashSet;
+import static com.opengamma.util.functional.Functional.first;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.mockito.MockitoAnnotations.initMocks;
+import static org.testng.AssertJUnit.assertEquals;
+import static org.testng.AssertJUnit.assertTrue;
+
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
+import javax.time.Instant;
+
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 import com.opengamma.engine.ComputationTargetSpecification;
 import com.opengamma.engine.ComputationTargetType;
-import com.opengamma.engine.marketdata.*;
+import com.opengamma.engine.marketdata.AbstractMarketDataProvider;
+import com.opengamma.engine.marketdata.AbstractMarketDataSnapshot;
+import com.opengamma.engine.marketdata.MarketDataInjector;
+import com.opengamma.engine.marketdata.MarketDataPermissionProvider;
+import com.opengamma.engine.marketdata.MarketDataSnapshot;
+import com.opengamma.engine.marketdata.PermissiveMarketDataPermissionProvider;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailability;
 import com.opengamma.engine.marketdata.availability.MarketDataAvailabilityProvider;
 import com.opengamma.engine.marketdata.spec.MarketData;
@@ -17,7 +45,12 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.engine.view.*;
+import com.opengamma.engine.view.CycleInfo;
+import com.opengamma.engine.view.ViewComputationResultModel;
+import com.opengamma.engine.view.ViewDeltaResultModel;
+import com.opengamma.engine.view.ViewProcessImpl;
+import com.opengamma.engine.view.ViewProcessState;
+import com.opengamma.engine.view.ViewProcessorImpl;
 import com.opengamma.engine.view.calc.ViewResultListenerFactory;
 import com.opengamma.engine.view.client.ViewClient;
 import com.opengamma.engine.view.client.ViewResultMode;
@@ -27,26 +60,6 @@ import com.opengamma.engine.view.listener.ViewResultListener;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.UniqueId;
 import com.opengamma.livedata.UserPrincipal;
-import com.opengamma.util.test.Timeout;
-import com.opengamma.util.tuple.Pair;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
-import javax.time.Instant;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import static com.google.common.collect.Maps.newHashMap;
-import static com.google.common.collect.Sets.newHashSet;
-import static com.opengamma.util.functional.Functional.first;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.mockito.MockitoAnnotations.initMocks;
-import static org.testng.AssertJUnit.*;
 
 public class ViewClientTest {
 

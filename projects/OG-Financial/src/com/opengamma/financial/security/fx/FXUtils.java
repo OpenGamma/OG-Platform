@@ -12,9 +12,11 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.analytics.CurrencyLabelledMatrix1D;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
@@ -229,4 +231,12 @@ public class FXUtils {
     }
     return new CurrencyLabelledMatrix1D(keys, values);
   }
+
+  public static boolean isFXSecurity(final Security security) {
+    return security instanceof FXForwardSecurity
+        || security instanceof FXOptionSecurity
+        || security instanceof FXBarrierOptionSecurity
+        || security instanceof FXDigitalOptionSecurity;
+  }
+
 }

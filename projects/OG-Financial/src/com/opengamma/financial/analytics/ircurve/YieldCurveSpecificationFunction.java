@@ -147,7 +147,7 @@ public class YieldCurveSpecificationFunction extends AbstractFunction {
     @Override
     public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
       final FixedIncomeStripIdentifierAndMaturityBuilder builder = new FixedIncomeStripIdentifierAndMaturityBuilder(OpenGammaExecutionContext.getRegionSource(executionContext),
-          OpenGammaExecutionContext.getConventionBundleSource(executionContext), executionContext.getSecuritySource());
+          OpenGammaExecutionContext.getConventionBundleSource(executionContext), executionContext.getSecuritySource(), OpenGammaExecutionContext.getHolidaySource(executionContext));
       final Map<ExternalId, Double> marketDataMap = getHelper().buildMarketDataMap(inputs);
       final InterpolatedYieldCurveSpecificationWithSecurities curveSpecificationWithSecurities = builder.resolveToSecurity(getCurveSpecification(), marketDataMap);
       return Collections.singleton(new ComputedValue(getResultSpecification(), curveSpecificationWithSecurities));

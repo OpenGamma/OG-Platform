@@ -177,6 +177,7 @@ $.register_module({
             str = common.str,
             /** @ignore */
             default_get = function (fields, api_fields, config) {
+                config = config || {};
                 var root = this.root, method = [root], data = {}, meta,
                     all = fields.concat('id', 'version', 'page_size', 'page', 'from', 'to'),
                     id = str(config.id), version = str(config.version), version_search = version === '*',
@@ -206,6 +207,7 @@ $.register_module({
             },
             /** @ignore */
             default_del = function (config) {
+                config = config || {};
                 var root = this.root, method = [root], meta, id = str(config.id), version = str(config.version);
                 meta = check({
                     bundle: {method: root + '#del', config: config},
@@ -241,13 +243,13 @@ $.register_module({
                     if (request_expired(request, current)) api.abort({id: id});
                 }
                 // clean up registrations
-                registrations.filter(request_expired.partial(undefined, current)).pluck('id').forEach(function (id) {
-                    api.abort({id: id});
-                });
+                registrations.filter(request_expired.partial(void 0, current)).pluck('id')
+                    .forEach(function (id) {api.abort({id: id});});
             },
             configs: { // all requests that begin with /configs
                 root: 'configs',
                 get: function (config) {
+                    config = config || {};
                     var root = this.root, method = [root], data = {}, meta,
                         id = str(config.id), version = str(config.version), version_search = version === '*',
                         fields = ['name', 'type'], field_search = fields.some(function (val) {return val in config;}),
@@ -276,6 +278,7 @@ $.register_module({
                     return request(method, {data: data, meta: meta});
                 },
                 put: function (config) {
+                    config = config || {};
                     var root = this.root, method = [root], data = {}, meta,
                         id = str(config.id), fields = ['name', 'json', 'type', 'xml'],
                         api_fields = ['name', 'configJSON', 'type', 'configXML'];
@@ -304,6 +307,7 @@ $.register_module({
             handshake: { // all requests that begin with /handshake
                 root: 'handshake',
                 get: function (config) {
+                    config = config || {};
                     if (api.id) warn(module.name + ': handshake has already been called');
                     var root = this.root, data = {}, meta;
                     meta = check({bundle: {method: root + '#get', config: config}});
@@ -319,9 +323,16 @@ $.register_module({
                 del: not_implemented.partial('del')
             },
             id: null,
+            marketdatasnapshots: { // all requests that begin with /marketdatasnapshots
+                root: 'marketdatasnapshots',
+                get: default_get.partial([], null),
+                put: not_available.partial('put'),
+                del: not_available.partial('del')
+            },
             portfolios: { // all requests that begin with /portfolios
                 root: 'portfolios',
                 get: function (config) {
+                    config = config || {};
                     var root = this.root, method = [root], data = {}, meta,
                         id = str(config.id), node = str(config.node), version = str(config.version),
                         name = str(config.name), name_search =  'name' in config, version_search = version === '*',
@@ -351,6 +362,7 @@ $.register_module({
                     return request(method, {data: data, meta: meta});
                 },
                 put: function (config) {
+                    config = config || {};
                     var root = this.root, method = [root], data = {}, meta,
                         name = str(config.name), id = str(config.id), version = str(config.version),
                         node = str(config.node), new_node = config['new'], position = str(config.position);
@@ -374,6 +386,7 @@ $.register_module({
                     return request(method, {data: data, meta: meta});
                 },
                 del: function (config) {
+                    config = config || {};
                     var root = this.root, method = [root], meta,
                         id = str(config.id), version = str(config.version),
                         node = str(config.node), position = str(config.position);
@@ -397,6 +410,7 @@ $.register_module({
                 get: default_get.partial(['min_quantity', 'max_quantity', 'identifier'],
                         ['minquantity', 'maxquantity', 'identifier']),
                 put: function (config) {
+                    config = config || {};
                     var root = this.root, method = [root], data = {}, meta,
                         id = str(config.id), version = str(config.version),
                         fields = ['identifier', 'quantity', 'scheme_type', 'trades'],
@@ -430,6 +444,7 @@ $.register_module({
                 root: 'securities',
                 get: default_get.partial(['name', 'type'], null),
                 put: function (config) {
+                    config = config || {};
                     var root = this.root, method = [root], data = {}, meta,
                         id = str(config.id), fields = ['identifier', 'scheme_type'],
                         api_fields = ['idvalue', 'idscheme'];
@@ -448,6 +463,7 @@ $.register_module({
             sync: {  // all requests that begin with /sync
                 root: 'sync',
                 get: function (config) {
+                    config = config || {};
                     var root = this.root, method = [root], data = {}, meta, fields = ['status', 'trades'];
                     meta = check({
                         bundle: {method: root + '#get', config: config},
@@ -463,6 +479,7 @@ $.register_module({
             timeseries: { // all requests that begin with /timeseries
                 root: 'timeseries',
                 get: function (config) {
+                    config = config || {};
                     var root = this.root, method = [root], data = {}, meta,
                         id = str(config.id),
                         fields = ['identifier', 'data_source', 'data_provider', 'data_field', 'observation_time'],
@@ -481,6 +498,7 @@ $.register_module({
                     return request(method, {data: data, meta: meta});
                 },
                 put: function (config) {
+                    config = config || {};
                     var root = this.root, method = [root], data = {}, meta,
                         fields = ['data_provider', 'data_field', 'start', 'end', 'scheme_type', 'identifier'],
                         api_fields = ['dataProvider', 'dataField', 'start', 'end', 'idscheme', 'idvalue'];
@@ -497,6 +515,7 @@ $.register_module({
             updates: { // all requests that begin with /updates
                 root: 'updates',
                 get: function (config) {
+                    config = config || {};
                     var root = this.root, data = {}, meta;
                     meta = check({bundle: {method: root + '#get', config: config}});
                     return request(null, {url: ['', root, api.id].join('/'), data: data, meta: meta});
@@ -507,6 +526,7 @@ $.register_module({
             valuerequirementnames: {
                 root: 'valuerequirementnames',
                 get: function (config) {
+                    config = config || {};
                     var root = this.root, method = [root], data = {}, meta, meta_request = config.meta;
                     meta = check({
                         bundle: {method: root + '#get', config: config},
@@ -518,6 +538,12 @@ $.register_module({
                 },
                 put: not_implemented.partial('put'),
                 del: not_implemented.partial('del')
+            },
+            viewdefinitions: { // all requests that begin with /viewdefinitions
+                root: 'viewdefinitions',
+                get: default_get.partial([], null),
+                put: not_available.partial('put'),
+                del: not_available.partial('del')
             }
         };
         (subscribe = api.handshake.get.partial({handler: function (result) {
@@ -544,7 +570,7 @@ $.register_module({
                         warn(module.name + ': subscription failed\n', result.message);
                         return setTimeout(subscribe, RESUBSCRIBE);
                     }
-                    if (!result.data || !result.data.updates.length) return setTimeout(listen, INSTANT);;
+                    if (!result.data || !result.data.updates.length) return setTimeout(listen, INSTANT);
                     fire_updates(false, result);
                     setTimeout(listen, INSTANT);
                 }});

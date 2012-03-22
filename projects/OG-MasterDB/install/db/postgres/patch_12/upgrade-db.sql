@@ -1,1 +1,0 @@
-ALTER TABLE sec_future ADD COLUMN unit_amount DOUBLE PRECISION;
