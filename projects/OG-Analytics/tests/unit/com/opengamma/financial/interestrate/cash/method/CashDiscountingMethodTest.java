@@ -158,7 +158,7 @@ public class CashDiscountingMethodTest {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
     Cash deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
     InterestRateCurveSensitivity pvcsComputed = METHOD_DEPOSIT.presentValueCurveSensitivity(deposit, CURVES);
-    pvcsComputed = pvcsComputed.clean(0.0, 1.0E-4);
+    pvcsComputed = pvcsComputed.cleaned(0.0, 1.0E-4);
     assertEquals("DepositDefinition: present value curve sensitivity", 1, pvcsComputed.getSensitivities().size());
     assertEquals("DepositDefinition: present value curve sensitivity", 1, pvcsComputed.getSensitivities().get(CURVES_NAME[0]).size());
     final double deltaTolerancePrice = 1.0E+2;

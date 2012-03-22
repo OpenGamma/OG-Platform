@@ -204,7 +204,7 @@ public class SwaptionCashFixedIborHullWhiteMethodTest {
    */
   public void presentValueCurveSensitivity() {
     InterestRateCurveSensitivity pvsSwaption = METHOD_HW_APPROXIMATION.presentValueCurveSensitivity(SWAPTION_PAYER_LONG, BUNDLE_HW);
-    pvsSwaption = pvsSwaption.clean();
+    pvsSwaption = pvsSwaption.cleaned();
     final double deltaTolerancePrice = 1.0E+4;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-6;
