@@ -5,8 +5,8 @@
  */
 package com.opengamma.examples.loader;
 
-import static com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper.getWithException;
-import static com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper.normaliseHeaders;
+import static com.opengamma.examples.loader.PortfolioLoaderHelper.getWithException;
+import static com.opengamma.examples.loader.PortfolioLoaderHelper.normaliseHeaders;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;

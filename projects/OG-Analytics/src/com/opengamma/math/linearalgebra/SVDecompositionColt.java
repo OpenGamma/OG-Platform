@@ -21,7 +21,7 @@ public class SVDecompositionColt extends Decomposition<SVDecompositionResult> {
   @Override
   public SVDecompositionResult evaluate(final DoubleMatrix2D x) {
     Validate.notNull(x);
-    MatrixValidate.noNaN(x);
+    MatrixValidate.notNaNOrInfinite(x);
     final cern.colt.matrix.DoubleMatrix2D coltMatrix = ColtMathWrapper.wrap(x);
     final SingularValueDecomposition svd = new SingularValueDecomposition(coltMatrix);
     return new SVDecompositionColtResult(svd);

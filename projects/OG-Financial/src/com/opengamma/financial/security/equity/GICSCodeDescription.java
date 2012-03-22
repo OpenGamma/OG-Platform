@@ -22,7 +22,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.common.base.Objects;
-import com.opengamma.financial.loader.sheet.SimpleXlsSheetReader;
 
 /**
  * The description of a GICS code.
@@ -90,7 +89,7 @@ final class GICSCodeDescription {
         continue;
       }
       for (int cellNum = 0; cellNum < row.getPhysicalNumberOfCells(); cellNum++) {
-        Cell cell = SimpleXlsSheetReader.getCellSafe(row, cellNum);
+        Cell cell = row.getCell(cellNum, Row.CREATE_NULL_AS_BLANK);
         if (isNumeric(cell)) {
           //worst case if the Excel file is in an  incorrect (or updated) format
           // is that number -> random or empty string mappings will be created
@@ -113,12 +112,18 @@ final class GICSCodeDescription {
     if (cell == null) {
       return "";
     } 
-    if (cell.getCellType() == Cell.CELL_TYPE_NUMERIC) {
-      return Integer.valueOf((int) cell.getNumericCellValue()).toString();
-    } else {
-      return SimpleXlsSheetReader.getCellAsString(cell);
+    switch (cell.getCellType()) {
+      case Cell.CELL_TYPE_NUMERIC:
+        return Integer.valueOf((int) cell.getNumericCellValue()).toString();
+      case Cell.CELL_TYPE_STRING:
+        return cell.getStringCellValue();
+      case Cell.CELL_TYPE_BOOLEAN:
+        return Boolean.toString(cell.getBooleanCellValue());
+      case Cell.CELL_TYPE_BLANK:
+        return "";
+      default:
+        return "null";
     }
-
   }
 
 
@@ -130,7 +135,7 @@ final class GICSCodeDescription {
    * @return String value of specified cell, or empty String if invalid cell
    */
   static String getGICSCellValue(Row row, int cellNum) {
-    return getGICSCellValue(SimpleXlsSheetReader.getCellSafe(row, cellNum));
+    return getGICSCellValue(row.getCell(cellNum, Row.CREATE_NULL_AS_BLANK));
 
   }
 

@@ -5,7 +5,8 @@
  */
 package com.opengamma.web.server.push;
 
-import com.opengamma.util.tuple.Pair;
+import static org.testng.Assert.assertEquals;
+
 import org.apache.commons.lang.StringUtils;
 import org.eclipse.jetty.server.Server;
 import org.json.JSONArray;
@@ -16,7 +17,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import static org.testng.Assert.assertEquals;
+import com.opengamma.util.tuple.Pair;
 
 /**
  *

@@ -28,13 +28,14 @@ import com.opengamma.id.UniqueIdentifiable;
 import com.opengamma.util.ArgumentChecker;
 
 /**
- * A flexible link between an object and a security.
+ * An abstract implementation of a link between two parts of the system.
  * <p>
- * A security link represents a connection from an entity to a security.
+ * A link represents a connection from one entity to another in the object model.
  * The connection can be held by an {@code ObjectId} or an {@code ExternalIdBundle}.
+ * The link is resolved using a resolver.
  * <p>
- * This class is mutable and not thread-safe.
- * It is intended to be used in the engine via the read-only {@code SecurityLink} interface.
+ * This class makes no guarantees about the thread-safety of implementations.
+ * However, it is strongly recommended that the methods in this interface are individually thread-safe.
  * 
  * @param <T> the target type of the link
  */
