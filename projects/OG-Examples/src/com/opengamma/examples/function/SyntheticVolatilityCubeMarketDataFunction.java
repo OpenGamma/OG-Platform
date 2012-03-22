@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.examples.volatility.cube;
+package com.opengamma.examples.function;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -31,6 +31,7 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
+import com.opengamma.examples.volatility.cube.SyntheticSwaptionVolatilityCubeInstrumentProvider;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeDefinition;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunctionHelper;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeSpecification;
@@ -45,20 +46,20 @@ import com.opengamma.util.tuple.Triple;
 /**
  * 
  */
-public class VolatilityCubeMarketDataFunction extends AbstractFunction {
+public class SyntheticVolatilityCubeMarketDataFunction extends AbstractFunction {
 
-  private static final ExampleSwaptionVolatilityCubeInstrumentProvider INSTRUMENT_PROVIDER = ExampleSwaptionVolatilityCubeInstrumentProvider.INSTANCE;
+  private static final SyntheticSwaptionVolatilityCubeInstrumentProvider INSTRUMENT_PROVIDER = SyntheticSwaptionVolatilityCubeInstrumentProvider.INSTANCE;
 
   private ValueSpecification _marketDataResult;
   private Set<ValueSpecification> _results;
   private final VolatilityCubeFunctionHelper _helper;
   private VolatilityCubeDefinition _definition;
 
-  public VolatilityCubeMarketDataFunction(final String currency, final String definitionName) {
+  public SyntheticVolatilityCubeMarketDataFunction(final String currency, final String definitionName) {
     this(Currency.of(currency), definitionName);
   }
 
-  public VolatilityCubeMarketDataFunction(final Currency currency, final String definitionName) {
+  public SyntheticVolatilityCubeMarketDataFunction(final Currency currency, final String definitionName) {
     _helper = new VolatilityCubeFunctionHelper(currency, definitionName);
   }
 

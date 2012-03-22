@@ -242,17 +242,24 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
     ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
     ValueProperties defaultProperties = ValueProperties.with("ForwardCurve", "SECONDARY").with("FundingCurve", "SECONDARY").with("Currency", "USD").get();
     defaultCalc.setDefaultProperties(defaultProperties);
-    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01);
-    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PAR_RATE);
-    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
-    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
-    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
+//    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01);
+//    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PAR_RATE);
+//    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT);
+//    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
+//    defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
     defaultCalc.addSpecificRequirement(new ValueRequirement(
         ValueRequirementNames.YIELD_CURVE,
         ComputationTargetType.PRIMITIVE,
         UniqueId.of("CurrencyISO", "USD"),
         ValueProperties.with("Curve", "SECONDARY").get()));
     viewDefinition.addViewCalculationConfiguration(defaultCalc);
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01, ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PAR_RATE, ValueProperties.none());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PAR_RATE_PARALLEL_CURVE_SHIFT, 
+        ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").get());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE, ValueProperties.none());
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, 
+        ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").get());
 
     return viewDefinition;
   }

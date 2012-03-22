@@ -32,9 +32,9 @@ import com.opengamma.util.tuple.ObjectsPair;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Generates Example instrument codes for volatilities given points.
+ * Generates Synthetic instrument codes for volatilities given points.
  */
-public final class ExampleSwaptionVolatilityCubeInstrumentProvider {
+public final class SyntheticSwaptionVolatilityCubeInstrumentProvider {
   
   //TODO: other ATM surfaces
   private static final Currency ATM_INSTRUMENT_PROVIDER_CURRENCY = Currency.USD;
@@ -46,13 +46,13 @@ public final class ExampleSwaptionVolatilityCubeInstrumentProvider {
   /**
    * Generates Example codes for volatilities given points.
    */
-  public static final ExampleSwaptionVolatilityCubeInstrumentProvider INSTANCE = new ExampleSwaptionVolatilityCubeInstrumentProvider();
+  public static final SyntheticSwaptionVolatilityCubeInstrumentProvider INSTANCE = new SyntheticSwaptionVolatilityCubeInstrumentProvider();
 
-  private static final String TICKER_FILE = "VolatilityCubeIdentifierLookupTable.csv";
+  private static final String TICKER_FILE = "SyntheticVolatilityCubeIdentifierLookupTable.csv";
 
   private final HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<ExternalId>> _idsByPoint;
 
-  private ExampleSwaptionVolatilityCubeInstrumentProvider() {
+  private SyntheticSwaptionVolatilityCubeInstrumentProvider() {
     //TODO not here
     _idsByPoint = new HashMap<ObjectsPair<Currency, VolatilityPoint>, Set<ExternalId>>();
 

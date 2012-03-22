@@ -21,14 +21,14 @@ import com.opengamma.util.time.Tenor;
 /**
  * Source of a single Volatility Cube Definition per currency: "EXAMPLE" which includes all slices for which synthetic tickers exist
  */
-public class ExampleVolatilityCubeDefinitionSource implements VolatilityCubeDefinitionSource {
+public class SyntheticVolatilityCubeDefinitionSource implements VolatilityCubeDefinitionSource {
 
   /**
    * The name of the definition which this source provides for all currencies
    */
   public static final String DEFINITION_NAME = "SECONDARY";
 
-  private final ExampleSwaptionVolatilityCubeInstrumentProvider _instrumentProvider = ExampleSwaptionVolatilityCubeInstrumentProvider.INSTANCE;
+  private final SyntheticSwaptionVolatilityCubeInstrumentProvider _instrumentProvider = SyntheticSwaptionVolatilityCubeInstrumentProvider.INSTANCE;
 
   @Override
   public VolatilityCubeDefinition getDefinition(final Currency currency, final String name) {

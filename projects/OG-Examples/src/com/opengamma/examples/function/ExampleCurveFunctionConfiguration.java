@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.examples.functionrepo;
+package com.opengamma.examples.function;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -19,14 +19,15 @@ import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
+import com.opengamma.examples.volatility.cube.SyntheticSwaptionVolatilityCubeInstrumentProvider;
+import com.opengamma.examples.volatility.cube.SyntheticVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction;
-import com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveFromYieldCurveDefaultPropertiesFunction;
-import com.opengamma.financial.analytics.model.volatility.local.FXForwardCurveFromYieldCurveFunction;
-import com.opengamma.financial.analytics.volatility.cube.BloombergSwaptionVolatilityCubeInstrumentProvider;
-import com.opengamma.financial.analytics.volatility.cube.BloombergVolatilityCubeDefinitionSource;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveFunction;
+import com.opengamma.financial.analytics.model.curve.future.FuturePriceCurveFunction;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunction;
 import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeMarketDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
@@ -86,15 +87,17 @@ public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<Repo
     s_logger.info("Added swaption vol cube to repository configuration");
     addFXForwardCurveFunction(configs);
     s_logger.info("Added FX forward curve to repository configuration");
+    addFutureCurveFunction(configs);
+    s_logger.info("Added future curve to repository configuration");
     return new RepositoryConfiguration(configs);
   }
 
   private void addSwaptionVolCubeFunction(final List<FunctionConfiguration> configs) {
-    addVolatilityCubeFunction(configs, "USD", "SECONDARY");
+    addVolatilityCubeFunction(configs, "USD", "SYNTHETIC");
 
-    Set<Currency> volCubeCurrencies = BloombergSwaptionVolatilityCubeInstrumentProvider.BLOOMBERG.getAllCurrencies();
+    Set<Currency> volCubeCurrencies = SyntheticSwaptionVolatilityCubeInstrumentProvider.INSTANCE.getAllCurrencies();
     for (Currency currency : volCubeCurrencies) {
-      addVolatilityCubeFunction(configs, currency.getCode(), BloombergVolatilityCubeDefinitionSource.DEFINITION_NAME);
+      addVolatilityCubeFunction(configs, currency.getCode(), SyntheticVolatilityCubeDefinitionSource.DEFINITION_NAME);
     }
   }
 
@@ -106,7 +109,11 @@ public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<Repo
 
   private void addFXForwardCurveFunction(List<FunctionConfiguration> configs) {
     configs.add(new StaticFunctionConfiguration(FXForwardCurveFromYieldCurveFunction.class.getName()));
-    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurveDefaultPropertiesFunction.class.getName(), Arrays.asList("DEFAULT", "SECONDARY", "SECONDARY")));
+    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurveDefaultPropertiesFunction.class.getName(), Arrays.asList("SYNTHETIC", "SECONDARY", "SECONDARY")));
+  }
+  
+  private void addFutureCurveFunction(final List<FunctionConfiguration> configs) {
+    configs.add(new StaticFunctionConfiguration(FuturePriceCurveFunction.class.getName()));
   }
   
   private void addVolatilityCubeFunction(List<FunctionConfiguration> configs, String... parameters) {
