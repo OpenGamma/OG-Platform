@@ -45,9 +45,9 @@ import com.opengamma.master.security.ManageableSecurityLink;
 /**
  * A generic row parser for Joda beans that automatically identifies fields to be persisted to rows/populated from rows
  */
-public class JodaBeanParser extends RowParser {
+public class JodaBeanRowParser extends RowParser {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(JodaBeanParser.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(JodaBeanRowParser.class);
 
   /**
    * Types of swap leg that might be encountered, and for which additional fields are generated
@@ -124,7 +124,7 @@ public class JodaBeanParser extends RowParser {
     FloatingVarianceSwapLeg.meta();
   }
   
-  public JodaBeanParser(String securityName, ToolContext toolContext) throws OpenGammaRuntimeException {
+  public JodaBeanRowParser(String securityName, ToolContext toolContext) throws OpenGammaRuntimeException {
     super(toolContext);
 
     // Find the corresponding security class

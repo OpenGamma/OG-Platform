@@ -23,6 +23,9 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -70,14 +73,14 @@ public class FinancialSecurityUtils {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
         }
       }
-        break;
+      break;
       case PRIMITIVE: {
         final UniqueId uid = target.getUniqueId();
         if (uid.getScheme().equals(Currency.OBJECT_SCHEME)) {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, uid.getValue()).get();
         }
       }
-        break;
+      break;
       case SECURITY: {
         final Security security = target.getSecurity();
         final Currency ccy = getCurrency(security);
@@ -85,7 +88,7 @@ public class FinancialSecurityUtils {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
         }
       }
-        break;
+      break;
       case TRADE: {
         final Security security = target.getTrade().getSecurity();
         final Currency ccy = getCurrency(security);
@@ -93,7 +96,7 @@ public class FinancialSecurityUtils {
           return ValueProperties.with(ValuePropertyNames.CURRENCY, ccy.getCode()).get();
         }
       }
-        break;
+      break;
     }
     return ValueProperties.none();
   }
@@ -147,7 +150,7 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public ExternalId visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+        public ExternalId visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
           return null;
         }
 
@@ -157,7 +160,7 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public ExternalId visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+        public ExternalId visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
           throw null;
         }
 
@@ -166,18 +169,13 @@ public class FinancialSecurityUtils {
           return null;
         }
 
-        //        @Override
-        //        public ExternalId visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-        //          return null;
-        //        }
-
         @Override
         public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
           return null;
         }
 
         @Override
-        public ExternalId visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+        public ExternalId visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
           return null;
         }
 
@@ -202,7 +200,7 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public ExternalId visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+        public ExternalId visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
           return security.getRegionId();
         }
 
@@ -219,6 +217,21 @@ public class FinancialSecurityUtils {
         @Override
         public ExternalId visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
           return security.getRegionId();
+        }
+
+        @Override
+        public ExternalId visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+          return security.getRegion();
+        }
+
+        @Override
+        public ExternalId visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+          return security.getRegion();
+        }
+
+        @Override
+        public ExternalId visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
+          return security.getRegion();
         }
 
       });
@@ -276,7 +289,7 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public ExternalId visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+        public ExternalId visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
           return ExternalId.of(ExchangeUtils.ISO_MIC, security.getExchange());
         }
 
@@ -286,7 +299,7 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public ExternalId visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+        public ExternalId visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
           throw null;
         }
 
@@ -295,18 +308,13 @@ public class FinancialSecurityUtils {
           return null;
         }
 
-        //        @Override
-        //        public ExternalId visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-        //          return null;
-        //        }
-
         @Override
         public ExternalId visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
           return null;
         }
 
         @Override
-        public ExternalId visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+        public ExternalId visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
           return null;
         }
 
@@ -331,7 +339,7 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public ExternalId visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+        public ExternalId visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
           return security.getRegionId();
         }
 
@@ -348,6 +356,21 @@ public class FinancialSecurityUtils {
         @Override
         public ExternalId visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
           return security.getRegionId();
+        }
+
+        @Override
+        public ExternalId visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+          return null;
+        }
+
+        @Override
+        public ExternalId visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
+          return null;
         }
 
       });
@@ -412,7 +435,7 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Currency visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+        public Currency visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
           return security.getCurrency();
         }
 
@@ -422,7 +445,7 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Currency visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+        public Currency visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
           throw new UnsupportedOperationException("FX securities do not have a currency");
         }
 
@@ -431,18 +454,13 @@ public class FinancialSecurityUtils {
           return security.getCurrency();
         }
 
-        //        @Override
-        //        public Currency visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-        //          return security.getCurrency();
-        //        }
-
         @Override
         public Currency visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
           return security.getCurrency();
         }
 
         @Override
-        public Currency visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+        public Currency visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
           return equityIndexDividendFutureOptionSecurity.getCurrency();
         }
 
@@ -457,7 +475,7 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Currency visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+        public Currency visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
           throw new UnsupportedOperationException("Non-deliverable FX forward securities do not have a currency");
         }
 
@@ -477,21 +495,36 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Currency visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security) {
+        public Currency visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
           throw new UnsupportedOperationException("FX digital option securities do not have a currency");
         }
 
         @Override
-        public Currency visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
+        public Currency visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
           throw new UnsupportedOperationException("NDF FX digital option securities do not have a currency");
+        }
+
+        @Override
+        public Currency visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+          return security.getCurrency();
+        }
+
+        @Override
+        public Currency visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+          return security.getCurrency();
+        }
+
+        @Override
+        public Currency visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
+          return security.getCurrency();
         }
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
-      RawSecurity rawSecurity = (RawSecurity) security;
+      final RawSecurity rawSecurity = (RawSecurity) security;
       if (security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {
-        FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
-        SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class, msg.getMessage());
+        final FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
+        final SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class, msg.getMessage());
         return securityEntryData.getCurrency();
       }
     }
@@ -542,7 +575,7 @@ public class FinancialSecurityUtils {
             if (payLeg.getCurrency().equals(receiveLeg.getCurrency())) {
               return Collections.singletonList(payLeg.getCurrency());
             } else {
-              Collection<Currency> collection = new ArrayList<Currency>();
+              final Collection<Currency> collection = new ArrayList<Currency>();
               collection.add(payLeg.getCurrency());
               collection.add(receiveLeg.getCurrency());
               return collection;
@@ -562,21 +595,21 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Collection<Currency> visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+        public Collection<Currency> visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
 
         @Override
         public Collection<Currency> visitFXOptionSecurity(final FXOptionSecurity security) {
-          Collection<Currency> currencies = new ArrayList<Currency>();
+          final Collection<Currency> currencies = new ArrayList<Currency>();
           currencies.add(security.getCallCurrency());
           currencies.add(security.getPutCurrency());
           return currencies;
         }
 
         @Override
-        public Collection<Currency> visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
-          Collection<Currency> currencies = new ArrayList<Currency>();
+        public Collection<Currency> visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
+          final Collection<Currency> currencies = new ArrayList<Currency>();
           currencies.add(security.getCallCurrency());
           currencies.add(security.getPutCurrency());
           //deliveryCurrency is always already covered
@@ -589,24 +622,19 @@ public class FinancialSecurityUtils {
           return Collections.singletonList(security.getCurrency());
         }
 
-        //        @Override
-        //        public Collection<Currency> visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-        //          return Collections.singletonList(security.getCurrency());
-        //        }
-
         @Override
         public Collection<Currency> visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
 
         @Override
-        public Collection<Currency> visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity security) {
+        public Collection<Currency> visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
           return Collections.singletonList(security.getCurrency());
         }
 
         @Override
         public Collection<Currency> visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
-          Collection<Currency> currencies = new ArrayList<Currency>();
+          final Collection<Currency> currencies = new ArrayList<Currency>();
           currencies.add(security.getCallCurrency());
           currencies.add(security.getPutCurrency());
           return currencies;
@@ -614,15 +642,15 @@ public class FinancialSecurityUtils {
 
         @Override
         public Collection<Currency> visitFXForwardSecurity(final FXForwardSecurity security) {
-          Collection<Currency> currencies = new ArrayList<Currency>();
+          final Collection<Currency> currencies = new ArrayList<Currency>();
           currencies.add(security.getPayCurrency());
           currencies.add(security.getReceiveCurrency());
           return currencies;
         }
 
         @Override
-        public Collection<Currency> visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
-          Collection<Currency> currencies = new ArrayList<Currency>();
+        public Collection<Currency> visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
+          final Collection<Currency> currencies = new ArrayList<Currency>();
           currencies.add(security.getPayCurrency());
           currencies.add(security.getReceiveCurrency());
           return currencies;
@@ -644,28 +672,43 @@ public class FinancialSecurityUtils {
         }
 
         @Override
-        public Collection<Currency> visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security) {
-          Collection<Currency> currencies = new ArrayList<Currency>();
+        public Collection<Currency> visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
+          final Collection<Currency> currencies = new ArrayList<Currency>();
           currencies.add(security.getCallCurrency());
           currencies.add(security.getPutCurrency());
           return currencies;
         }
 
         @Override
-        public Collection<Currency> visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
-          Collection<Currency> currencies = new ArrayList<Currency>();
+        public Collection<Currency> visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
+          final Collection<Currency> currencies = new ArrayList<Currency>();
           currencies.add(security.getCallCurrency());
           currencies.add(security.getPutCurrency());
           return currencies;
         }
 
+        @Override
+        public Collection<Currency> visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
+        @Override
+        public Collection<Currency> visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
+          return Collections.singletonList(security.getCurrency());
+        }
+
       });
       return ccy;
     } else if (security instanceof RawSecurity) {
-      RawSecurity rawSecurity = (RawSecurity) security;
+      final RawSecurity rawSecurity = (RawSecurity) security;
       if (security.getSecurityType().equals(SecurityEntryData.EXTERNAL_SENSITIVITIES_SECURITY_TYPE)) {
-        FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
-        SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class, msg.getMessage());
+        final FudgeMsgEnvelope msg = OpenGammaFudgeContext.getInstance().deserialize(rawSecurity.getRawData());
+        final SecurityEntryData securityEntryData = OpenGammaFudgeContext.getInstance().fromFudgeMsg(SecurityEntryData.class, msg.getMessage());
         return Collections.singleton(securityEntryData.getCurrency());
       }
     }
@@ -685,117 +728,127 @@ public class FinancialSecurityUtils {
       final Boolean isExchangeTraded = finSec.accept(new FinancialSecurityVisitor<Boolean>() {
 
         @Override
-        public Boolean visitBondSecurity(BondSecurity security) {
+        public Boolean visitBondSecurity(final BondSecurity security) {
           return null;
         }
 
         @Override
-        public Boolean visitCashSecurity(CashSecurity security) {
+        public Boolean visitCashSecurity(final CashSecurity security) {
           return null;
         }
 
         @Override
-        public Boolean visitEquitySecurity(EquitySecurity security) {
+        public Boolean visitEquitySecurity(final EquitySecurity security) {
           return true;
         }
 
         @Override
-        public Boolean visitFRASecurity(FRASecurity security) {
+        public Boolean visitFRASecurity(final FRASecurity security) {
           return null;
         }
 
         @Override
-        public Boolean visitFutureSecurity(FutureSecurity security) {
+        public Boolean visitFutureSecurity(final FutureSecurity security) {
           return true;
         }
 
         @Override
-        public Boolean visitSwapSecurity(SwapSecurity security) {
+        public Boolean visitSwapSecurity(final SwapSecurity security) {
           return null;
         }
 
         @Override
-        public Boolean visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
+        public Boolean visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
           return true;
         }
 
         @Override
-        public Boolean visitEquityOptionSecurity(EquityOptionSecurity security) {
+        public Boolean visitEquityOptionSecurity(final EquityOptionSecurity security) {
           return true;
         }
 
         @Override
-        public Boolean visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+        public Boolean visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
           throw new NotImplementedException();
         }
 
         @Override
-        public Boolean visitFXOptionSecurity(FXOptionSecurity security) {
+        public Boolean visitFXOptionSecurity(final FXOptionSecurity security) {
           return null;
         }
 
         @Override
-        public Boolean visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+        public Boolean visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
           return null;
         }
 
         @Override
-        public Boolean visitSwaptionSecurity(SwaptionSecurity security) {
-          return null;
-        }
-
-        //        @Override
-        //        public Boolean visitInterestRateFutureSecurity(final InterestRateFutureSecurity security) {
-        //          return null;
-        //        }
-
-        @Override
-        public Boolean visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+        public Boolean visitSwaptionSecurity(final SwaptionSecurity security) {
           return null;
         }
 
         @Override
-        public Boolean visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+        public Boolean visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Boolean visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
           throw new NotImplementedException();
         }
 
         @Override
-        public Boolean visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
+        public Boolean visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
           return null;
         }
 
         @Override
-        public Boolean visitFXForwardSecurity(FXForwardSecurity security) {
+        public Boolean visitFXForwardSecurity(final FXForwardSecurity security) {
           return true;
         }
 
         @Override
-        public Boolean visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+        public Boolean visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
           return true;
         }
 
         @Override
-        public Boolean visitCapFloorSecurity(CapFloorSecurity security) {
+        public Boolean visitCapFloorSecurity(final CapFloorSecurity security) {
           return null;
         }
 
         @Override
-        public Boolean visitCapFloorCMSSpreadSecurity(CapFloorCMSSpreadSecurity security) {
+        public Boolean visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
           return null;
         }
 
         @Override
-        public Boolean visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security) {
+        public Boolean visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
           return null;
         }
 
         @Override
-        public Boolean visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security) {
+        public Boolean visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
           return null;
         }
 
         @Override
-        public Boolean visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
+        public Boolean visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Boolean visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Boolean visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+          return null;
+        }
+
+        @Override
+        public Boolean visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
           return null;
         }
 

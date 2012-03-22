@@ -259,4 +259,21 @@ public class DbSecurityMasterDetailProviderRandomTest extends DbTest implements 
     _testCase.testEquityVarianceSwapSecurity();
   }
 
+  @Override
+  @Test
+  public void testSimpleZeroDepositSecurity() {
+    return;
+  }
+  
+  @Override
+  @Test
+  public void testPeriodicZeroDepositSecurity() {
+    return;
+  }
+  
+  @Override
+  @Test
+  public void testContinuousZeroDepositSecurity() {
+    return;
+  }
 }

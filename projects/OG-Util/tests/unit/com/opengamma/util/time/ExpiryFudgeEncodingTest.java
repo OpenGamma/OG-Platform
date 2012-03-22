@@ -10,8 +10,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
-import com.opengamma.util.time.Expiry;
-import com.opengamma.util.time.ExpiryAccuracy;
 
 /**
  * Test Fudge encoding.

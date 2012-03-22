@@ -7,7 +7,6 @@ package com.opengamma.core.position.impl;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Collections;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -104,10 +103,11 @@ public class SimpleTrade extends DirectBean
   @PropertyDefinition
   private OffsetTime _premiumTime;
   /**
-   * The unmodifiable trade attributes.
+   * The general purpose trade attributes.
+   * These can be used to add arbitrary additional information to the object.
    */
-  @PropertyDefinition(get = "", set = "setClearPutAll", validate = "notNull")
-  private Map<String, String> _attributes = Maps.newHashMap();
+  @PropertyDefinition(validate = "notNull")
+  private final Map<String, String> _attributes = Maps.newHashMap();
 
   /**
    * Creates a trade which must be initialized by calling methods.
@@ -201,38 +201,10 @@ public class SimpleTrade extends DirectBean
 
   //-------------------------------------------------------------------------
   @Override
-  public Map<String, String> getAttributes() {
-    return Collections.unmodifiableMap(_attributes);
-  }
-
-  /**
-   * Add an attribute.
-   * 
-   * @param key  the attribute key, not null
-   * @param value  the attribute value, not null
-   */
-  @Override
   public void addAttribute(String key, String value) {
     ArgumentChecker.notNull(key, "key");
     ArgumentChecker.notNull(value, "value");
     _attributes.put(key, value);
-  }
-
-  /**
-   * Removes all attributes.
-   */
-  public void clearAttributes() {
-    _attributes.clear();
-  }
-
-  /**
-   * Removes the attribute with specified key.
-   * 
-   * @param key  the attribute key to remove, not null
-   */
-  public void removeAttribute(final String key) {
-    ArgumentChecker.notNull(key, "key");
-    _attributes.remove(key);
   }
 
   //-------------------------------------------------------------------------
@@ -301,10 +273,7 @@ public class SimpleTrade extends DirectBean
       case 652186052:  // premiumTime
         return getPremiumTime();
       case 405645655:  // attributes
-        if (quiet) {
-          return null;
-        }
-        throw new UnsupportedOperationException("Property cannot be read: attributes");
+        return getAttributes();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -380,7 +349,7 @@ public class SimpleTrade extends DirectBean
           JodaBeanUtils.equal(getPremiumCurrency(), other.getPremiumCurrency()) &&
           JodaBeanUtils.equal(getPremiumDate(), other.getPremiumDate()) &&
           JodaBeanUtils.equal(getPremiumTime(), other.getPremiumTime()) &&
-          JodaBeanUtils.equal(_attributes, other._attributes);
+          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
     }
     return false;
   }
@@ -399,7 +368,7 @@ public class SimpleTrade extends DirectBean
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumDate());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPremiumTime());
-    hash += hash * 31 + JodaBeanUtils.hashCode(_attributes);
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
     return hash;
   }
 
@@ -683,7 +652,17 @@ public class SimpleTrade extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Sets the unmodifiable trade attributes.
+   * Gets the general purpose trade attributes.
+   * These can be used to add arbitrary additional information to the object.
+   * @return the value of the property, not null
+   */
+  public Map<String, String> getAttributes() {
+    return _attributes;
+  }
+
+  /**
+   * Sets the general purpose trade attributes.
+   * These can be used to add arbitrary additional information to the object.
    * @param attributes  the new value of the property
    */
   public void setAttributes(Map<String, String> attributes) {
@@ -693,6 +672,7 @@ public class SimpleTrade extends DirectBean
 
   /**
    * Gets the the {@code attributes} property.
+   * These can be used to add arbitrary additional information to the object.
    * @return the property, not null
    */
   public final Property<Map<String, String>> attributes() {
@@ -768,7 +748,7 @@ public class SimpleTrade extends DirectBean
      * The meta-property for the {@code attributes} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<String, String>> _attributes = DirectMetaProperty.ofWriteOnly(
+    private final MetaProperty<Map<String, String>> _attributes = DirectMetaProperty.ofReadWrite(
         this, "attributes", SimpleTrade.class, (Class) Map.class);
     /**
      * The meta-properties.

@@ -1,17 +1,5 @@
 package com.opengamma.web.server.push;
 
-import com.google.common.collect.Lists;
-import com.opengamma.core.change.ChangeEvent;
-import com.opengamma.core.change.ChangeType;
-import com.opengamma.id.UniqueId;
-import com.opengamma.web.server.push.rest.MasterType;
-import org.mockito.ArgumentMatcher;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
-import javax.time.Instant;
-import java.util.Collection;
-
 import static com.opengamma.web.server.push.CollectionMatcher.collectionOf;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.argThat;
@@ -20,6 +8,20 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
+
+import java.util.Collection;
+
+import javax.time.Instant;
+
+import org.mockito.ArgumentMatcher;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import com.google.common.collect.Lists;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeType;
+import com.opengamma.id.UniqueId;
+import com.opengamma.web.server.push.rest.MasterType;
 
 /**
  * Test the subscription mechanism of {@link ClientConnection}.  Subscriptions are added for REST URLs.  When any
