@@ -6,12 +6,12 @@
 package com.opengamma.financial.portfolio.save;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -90,7 +90,7 @@ public class SavePortfolio {
     manageablePosition.setQuantity(position.getQuantity());
     final ExternalIdBundle securityKey = filterSecurityKey(position.getSecurityLink().getExternalId());
     manageablePosition.getSecurityLink().setExternalId(securityKey);
-    final Set<Trade> trades = position.getTrades();
+    final Collection<Trade> trades = position.getTrades();
     final List<ManageableTrade> manageableTrades = new ArrayList<ManageableTrade>(trades.size());
     for (Trade trade : trades) {
       final ManageableTrade mtrade = new ManageableTrade(trade);
