@@ -6,11 +6,23 @@
 
 package com.opengamma.integration.loadsave.portfolio;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.bbg.BloombergConstants;
+import com.opengamma.bbg.BloombergIdentifierProvider;
+import com.opengamma.bbg.livedata.BloombergIdResolver;
+import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
+import com.opengamma.bbg.loader.BloombergHistoricalLoader;
+import com.opengamma.bbg.util.BloombergDataUtils;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.integration.loadsave.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.loadsave.portfolio.reader.SingleSheetSimplePortfolioReader;
 import com.opengamma.integration.loadsave.portfolio.rowparser.ExchangeTradedRowParser;
@@ -18,6 +30,9 @@ import com.opengamma.integration.loadsave.portfolio.writer.DummyPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.tool.IntegrationToolContext;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * This is a portfolio loader that also attempts to resolve and load related time series 
@@ -27,8 +42,9 @@ public class ResolvingPortfolioLoader {
 
   private static final Logger s_logger = LoggerFactory.getLogger(ResolvingPortfolioLoader.class);
 
+  
   public void run(String portfolioName, String fileName, String dataSource, String dataProvider, 
-      String dataField, String observationTime, boolean persist, IntegrationToolContext toolContext) {
+      String[] dataFields, String observationTime, boolean persist, IntegrationToolContext toolContext) {
     
     // Set up writer
     PortfolioWriter portfolioWriter = constructPortfolioWriter(
@@ -40,10 +56,43 @@ public class ResolvingPortfolioLoader {
     PortfolioReader portfolioReader = constructPortfolioReader(
         fileName, 
         toolContext);
+
+    // Get bbg hts loader
+    BloombergHistoricalLoader bbgLoader = new BloombergHistoricalLoader(
+        toolContext.getHistoricalTimeSeriesMaster(), 
+        toolContext.getBloombergHistoricalTimeSeriesSource(),
+        new BloombergIdentifierProvider(toolContext.getBloombergReferenceDataProvider()));
     
     // Load in and write the securities, positions and trades, additionally loading related time series
-    // TODO open up portfolioReader/Writer
-    portfolioReader.writeTo(portfolioWriter);
+    while (true) {
+      
+      // Read in next row
+      ObjectsPair<ManageablePosition, ManageableSecurity[]> next = portfolioReader.readNext();
+      
+      // Check for EOF
+      if (next == null) {
+        break;
+      }
+      
+      // If position and security data is available, send it to the writer
+      if (next.getFirst() != null && next.getSecond() != null) {
+        for (ManageableSecurity security : next.getSecond()) {
+          portfolioWriter.writeSecurity(security);
+          
+          // Load this security's relevant HTSes
+          if (dataFields != null) {
+            for (String dataField : dataFields) {
+              Set<ExternalId> id = new HashSet<ExternalId>();
+              id.add(security.getExternalIdBundle().getExternalId(ExternalScheme.of("BLOOMBERG_TICKER")));
+              s_logger.warn("Loading historical time series " + id.toString() + ", fields " + dataField + " from " + dataProvider + ": " + 
+                  bbgLoader.addTimeSeries(id, dataProvider, dataField, null, null)
+              );
+            }
+          }
+        }
+        portfolioWriter.writePosition(next.getFirst());
+      }
+    }
     
     // Flush changes to portfolio master & close
     portfolioWriter.flush();

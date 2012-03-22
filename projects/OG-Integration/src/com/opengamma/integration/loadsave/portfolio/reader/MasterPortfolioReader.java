@@ -24,6 +24,7 @@ import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
 import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * Portfolio reader.
@@ -115,6 +116,16 @@ public class MasterPortfolioReader implements PortfolioReader {
     PortfolioDocument portfolioDoc = portSearchResult.getFirstDocument();
    
     return portfolioDoc;
+  }
+
+  @Override
+  public ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public ManageablePortfolioNode getCurrentNode() {
+    throw new UnsupportedOperationException();
   }
 
 }

@@ -6,10 +6,6 @@
 
 package com.opengamma.integration.loadsave.portfolio.writer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.opengamma.integration.loadsave.portfolio.PortfolioLoader;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
