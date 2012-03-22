@@ -7,8 +7,9 @@ package com.opengamma.core.position.impl;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.text.StrBuilder;
 import org.joda.beans.BeanBuilder;
@@ -24,7 +25,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.opengamma.core.LinkUtils;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
@@ -73,7 +73,7 @@ public class SimplePosition extends DirectBean
    * An empty list usually means that trade data is unavailable.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Set<Trade> _trades = Sets.newHashSet();
+  private final Collection<Trade> _trades = new ArrayList<Trade>();
   /**
    * The general purpose position attributes.
    * These can be used to add arbitrary additional information to the object
@@ -308,7 +308,7 @@ public class SimplePosition extends DirectBean
         setSecurityLink((SecurityLink) newValue);
         return;
       case -865715313:  // trades
-        setTrades((Set<Trade>) newValue);
+        setTrades((Collection<Trade>) newValue);
         return;
       case 405645655:  // attributes
         setAttributes((Map<String, String>) newValue);
@@ -468,7 +468,7 @@ public class SimplePosition extends DirectBean
    * An empty list usually means that trade data is unavailable.
    * @return the value of the property, not null
    */
-  public Set<Trade> getTrades() {
+  public Collection<Trade> getTrades() {
     return _trades;
   }
 
@@ -477,7 +477,7 @@ public class SimplePosition extends DirectBean
    * An empty list usually means that trade data is unavailable.
    * @param trades  the new value of the property
    */
-  public void setTrades(Set<Trade> trades) {
+  public void setTrades(Collection<Trade> trades) {
     this._trades.clear();
     this._trades.addAll(trades);
   }
@@ -487,7 +487,7 @@ public class SimplePosition extends DirectBean
    * An empty list usually means that trade data is unavailable.
    * @return the property, not null
    */
-  public final Property<Set<Trade>> trades() {
+  public final Property<Collection<Trade>> trades() {
     return metaBean().trades().createProperty(this);
   }
 
@@ -557,8 +557,8 @@ public class SimplePosition extends DirectBean
      * The meta-property for the {@code trades} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Set<Trade>> _trades = DirectMetaProperty.ofReadWrite(
-        this, "trades", SimplePosition.class, (Class) Set.class);
+    private final MetaProperty<Collection<Trade>> _trades = DirectMetaProperty.ofReadWrite(
+        this, "trades", SimplePosition.class, (Class) Collection.class);
     /**
      * The meta-property for the {@code attributes} property.
      */
@@ -654,7 +654,7 @@ public class SimplePosition extends DirectBean
      * The meta-property for the {@code trades} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Set<Trade>> trades() {
+    public final MetaProperty<Collection<Trade>> trades() {
       return _trades;
     }
 
