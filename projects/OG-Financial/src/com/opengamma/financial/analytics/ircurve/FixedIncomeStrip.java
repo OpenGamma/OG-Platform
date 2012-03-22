@@ -28,7 +28,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   private final StripInstrumentType _instrumentType;
   private final Tenor _curveNodePointTime;
   private final String _conventionName;
-  private int _nthFutureFromTenor;
+  private final int _nthFutureFromTenor;
 
   /**
    * Creates a strip for non-future, non-FRA and non-swap instruments.
@@ -88,7 +88,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   }
 
   /**
-   * Get the number of the quarterly IR futures after the tenor to choose.  
+   * Get the number of the quarterly IR futures after the tenor to choose.
    * NOTE: THIS DOESN'T REFER TO A GENERIC FUTURE
    * 
    * @return the number of futures after the tenor
@@ -116,10 +116,10 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
    * @return The effective tenor of the strip
    */
   public Tenor getEffectiveTenor() {
-    return new Tenor(getInstrumentType() == StripInstrumentType.FUTURE ? 
-        getCurveNodePointTime().getPeriod().plusMonths(3 * getNumberOfFuturesAfterTenor()) : getCurveNodePointTime().getPeriod());    
+    return new Tenor(getInstrumentType() == StripInstrumentType.FUTURE ?
+        getCurveNodePointTime().getPeriod().plusMonths(3 * getNumberOfFuturesAfterTenor()) : getCurveNodePointTime().getPeriod());
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public int compareTo(final FixedIncomeStrip other) {
@@ -161,7 +161,7 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
 
   @Override
   public String toString() {
-    StringBuffer sb = new StringBuffer("FixedIncomeStrip[");
+    final StringBuffer sb = new StringBuffer("FixedIncomeStrip[");
     sb.append("instrument type=");
     sb.append(getInstrumentType());
     sb.append(", ");
@@ -182,16 +182,16 @@ public class FixedIncomeStrip implements Serializable, Comparable<FixedIncomeStr
   //-------------------------------------------------------------------------
   // REVIEW: jim 22-Aug-2010 -- get rid of these and use the builder directly
   public void toFudgeMsg(final FudgeSerializer serializer, final MutableFudgeMsg message) {
-    FixedIncomeStripFudgeBuilder builder = new FixedIncomeStripFudgeBuilder();
-    MutableFudgeMsg container = builder.buildMessage(serializer, this);
-    for (FudgeField field : container.getAllFields()) {
+    final FixedIncomeStripFudgeBuilder builder = new FixedIncomeStripFudgeBuilder();
+    final MutableFudgeMsg container = builder.buildMessage(serializer, this);
+    for (final FudgeField field : container.getAllFields()) {
       message.add(field);
     }
   }
 
   // REVIEW: jim 22-Aug-2010 -- get rid of these and use the builder directly
   public static FixedIncomeStrip fromFudgeMsg(final FudgeDeserializer deserializer, final FudgeMsg message) {
-    FixedIncomeStripFudgeBuilder builder = new FixedIncomeStripFudgeBuilder();
+    final FixedIncomeStripFudgeBuilder builder = new FixedIncomeStripFudgeBuilder();
     return builder.buildObject(deserializer, message);
   }
 

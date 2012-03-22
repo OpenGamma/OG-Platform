@@ -19,6 +19,9 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -44,30 +47,30 @@ import com.opengamma.util.CompareUtils;
  *
  */
 public class LongShortAggregationFunction implements AggregationFunction<String> {
-  private boolean _useAttributes;
-    
+  private final boolean _useAttributes;
+
   private static final String NAME = "Long/Short";
-  private static final String NOT_LONG_SHORT = "N/A"; 
+  private static final String NOT_LONG_SHORT = "N/A";
   private static final String LONG = "Long";
   private static final String SHORT = "Short";
 
   private static final List<String> REQUIRED = Arrays.asList(LONG, SHORT, NOT_LONG_SHORT);
   private final Comparator<Position> _comparator = new PositionComparator();
-  private SecuritySource _secSource;
-  
-  public LongShortAggregationFunction(SecuritySource secSource) {
+  private final SecuritySource _secSource;
+
+  public LongShortAggregationFunction(final SecuritySource secSource) {
     this(secSource, false);
   }
-  
-  public LongShortAggregationFunction(SecuritySource secSource, boolean useAttributes) {
+
+  public LongShortAggregationFunction(final SecuritySource secSource, final boolean useAttributes) {
     _secSource = secSource;
     _useAttributes = useAttributes;
   }
-  
+
   @Override
   public String classifyPosition(final Position position) {
     if (_useAttributes) {
-      Map<String, String> attributes = position.getAttributes();
+      final Map<String, String> attributes = position.getAttributes();
       if (attributes.containsKey(getName())) {
         return attributes.get(getName());
       } else {
@@ -75,128 +78,144 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
       }
     } else {
       position.getSecurityLink().resolve(_secSource);
-      FinancialSecurityVisitor<String> visitor = new FinancialSecurityVisitor<String>() {
-  
+      final FinancialSecurityVisitor<String> visitor = new FinancialSecurityVisitor<String>() {
+
         @Override
-        public String visitBondSecurity(BondSecurity security) {
-          return position.getQuantity().longValue() < 0 ? SHORT : LONG;
-        }
-  
-        @Override
-        public String visitCashSecurity(CashSecurity security) {
-          return security.getAmount() * position.getQuantity().longValue() < 0 ? SHORT : LONG;
-        }
-  
-        @Override
-        public String visitEquitySecurity(EquitySecurity security) {
-          return position.getQuantity().longValue() < 0 ? SHORT : LONG;
-        }
-  
-        @Override
-        public String visitFRASecurity(FRASecurity security) {
-          return security.getAmount() * position.getQuantity().longValue() < 0 ? SHORT : LONG;
-        }
-  
-        @Override
-        public String visitFutureSecurity(FutureSecurity security) {
-          return position.getQuantity().longValue() < 0 ? SHORT : LONG;
-        }
-  
-        @Override
-        public String visitSwapSecurity(SwapSecurity security) {
-          return NOT_LONG_SHORT;
-        }
-  
-        @Override
-        public String visitEquityIndexOptionSecurity(EquityIndexOptionSecurity security) {
-          return position.getQuantity().longValue() < 0 ? SHORT : LONG;
-        }
-  
-        @Override
-        public String visitEquityOptionSecurity(EquityOptionSecurity security) {
+        public String visitBondSecurity(final BondSecurity security) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
 
         @Override
-        public String visitEquityBarrierOptionSecurity(EquityBarrierOptionSecurity security) {
+        public String visitCashSecurity(final CashSecurity security) {
+          return security.getAmount() * position.getQuantity().longValue() < 0 ? SHORT : LONG;
+        }
+
+        @Override
+        public String visitEquitySecurity(final EquitySecurity security) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
-        
+
         @Override
-        public String visitFXOptionSecurity(FXOptionSecurity security) {
+        public String visitFRASecurity(final FRASecurity security) {
+          return security.getAmount() * position.getQuantity().longValue() < 0 ? SHORT : LONG;
+        }
+
+        @Override
+        public String visitFutureSecurity(final FutureSecurity security) {
+          return position.getQuantity().longValue() < 0 ? SHORT : LONG;
+        }
+
+        @Override
+        public String visitSwapSecurity(final SwapSecurity security) {
+          return NOT_LONG_SHORT;
+        }
+
+        @Override
+        public String visitEquityIndexOptionSecurity(final EquityIndexOptionSecurity security) {
+          return position.getQuantity().longValue() < 0 ? SHORT : LONG;
+        }
+
+        @Override
+        public String visitEquityOptionSecurity(final EquityOptionSecurity security) {
+          return position.getQuantity().longValue() < 0 ? SHORT : LONG;
+        }
+
+        @Override
+        public String visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity security) {
+          return position.getQuantity().longValue() < 0 ? SHORT : LONG;
+        }
+
+        @Override
+        public String visitFXOptionSecurity(final FXOptionSecurity security) {
           return security.isLong() ? LONG : SHORT;
         }
-  
+
         @Override
-        public String visitNonDeliverableFXOptionSecurity(NonDeliverableFXOptionSecurity security) {
+        public String visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity security) {
           return security.isLong() ? LONG : SHORT;
         }
-        
+
         @Override
-        public String visitSwaptionSecurity(SwaptionSecurity security) {
+        public String visitSwaptionSecurity(final SwaptionSecurity security) {
           return security.isLong() ? LONG : SHORT;
         }
-  
+
         @Override
-        public String visitIRFutureOptionSecurity(IRFutureOptionSecurity security) {
+        public String visitIRFutureOptionSecurity(final IRFutureOptionSecurity security) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
 
         @Override
         public String visitEquityIndexDividendFutureOptionSecurity(
-            EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
+            final EquityIndexDividendFutureOptionSecurity equityIndexDividendFutureOptionSecurity) {
           return position.getQuantity().longValue() < 0 ? SHORT : LONG;
         }
-  
-        @Override
-        public String visitFXBarrierOptionSecurity(FXBarrierOptionSecurity security) {
-          return security.isLong() ? LONG : SHORT;
-        }
-  
-        @Override
-        public String visitFXForwardSecurity(FXForwardSecurity security) {
-          return NOT_LONG_SHORT;
-        }
-        
-        @Override
-        public String visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
-          return NOT_LONG_SHORT;
-        }
-  
-        @Override
-        public String visitCapFloorSecurity(CapFloorSecurity security) {
-          return NOT_LONG_SHORT;
-        }
-  
-        @Override
-        public String visitCapFloorCMSSpreadSecurity(CapFloorCMSSpreadSecurity security) {
-          return NOT_LONG_SHORT;
-        }
-  
-        @Override
-        public String visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security) {
-          return NOT_LONG_SHORT;
-        }
 
         @Override
-        public String visitFXDigitalOptionSecurity(FXDigitalOptionSecurity security) {
+        public String visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
           return security.isLong() ? LONG : SHORT;
         }
 
         @Override
-        public String visitNonDeliverableFXDigitalOptionSecurity(NonDeliverableFXDigitalOptionSecurity security) {
+        public String visitFXForwardSecurity(final FXForwardSecurity security) {
+          return NOT_LONG_SHORT;
+        }
+
+        @Override
+        public String visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
+          return NOT_LONG_SHORT;
+        }
+
+        @Override
+        public String visitCapFloorSecurity(final CapFloorSecurity security) {
+          return NOT_LONG_SHORT;
+        }
+
+        @Override
+        public String visitCapFloorCMSSpreadSecurity(final CapFloorCMSSpreadSecurity security) {
+          return NOT_LONG_SHORT;
+        }
+
+        @Override
+        public String visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
+          return NOT_LONG_SHORT;
+        }
+
+        @Override
+        public String visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity security) {
           return security.isLong() ? LONG : SHORT;
         }
-        
+
+        @Override
+        public String visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity security) {
+          return security.isLong() ? LONG : SHORT;
+        }
+
+        @Override
+        public String visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+          throw new UnsupportedOperationException("SimpleZeroDepositSecurity should not be used in a position");
+        }
+
+        @Override
+        public String visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+          throw new UnsupportedOperationException("PeriodicZeroDepositSecurity should not be used in a position");
+        }
+
+        @Override
+        public String visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
+          throw new UnsupportedOperationException("ContinuousZeroDepositSecurity should not be used in a position");
+        }
+
       };
       if (position.getSecurity() instanceof FinancialSecurity) {
-        FinancialSecurity finSec = (FinancialSecurity) position.getSecurity();
+        final FinancialSecurity finSec = (FinancialSecurity) position.getSecurity();
         return finSec.accept(visitor);
       }
       return NOT_LONG_SHORT;
     }
   }
 
+  @Override
   public String getName() {
     return NAME;
   }
@@ -207,13 +226,13 @@ public class LongShortAggregationFunction implements AggregationFunction<String>
   }
 
   @Override
-  public int compare(String o1, String o2) {
+  public int compare(final String o1, final String o2) {
     return CompareUtils.compareByList(REQUIRED, o1, o2);
   }
-  
+
   private class PositionComparator implements Comparator<Position> {
     @Override
-    public int compare(Position o1, Position o2) {
+    public int compare(final Position o1, final Position o2) {
       return CompareUtils.compareWithNullLow(o1.getQuantity(), o2.getQuantity());
     }
   }
