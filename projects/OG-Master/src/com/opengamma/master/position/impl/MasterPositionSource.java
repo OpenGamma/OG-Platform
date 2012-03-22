@@ -216,9 +216,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
     if (manPos == null) {
       throw new DataNotFoundException("Unable to find position: " + uniqueId);
     }
-    SimplePosition pos = new SimplePosition();
-    convertPosition(nodeId, manPos, pos);
-    return pos;
+    return convertPosition(nodeId, manPos);
   }
 
   @Override
@@ -306,9 +304,7 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
       for (ObjectId positionId : manNode.getPositionIds()) {
         final ManageablePosition foundPosition = positionCache.get(positionId);
         if (foundPosition != null) {
-          final SimplePosition position = new SimplePosition();
-          convertPosition(nodeId, foundPosition, position);
-          sourceNode.addPosition(position);
+          sourceNode.addPosition(convertPosition(nodeId, foundPosition));
         } else {
           s_logger.warn("Position {} not found for portfolio node {}", positionId, nodeId);
         }
@@ -326,19 +322,16 @@ public class MasterPositionSource implements PositionSource, VersionedSource {
    * 
    * @param nodeId  the parent node unique identifier, null if root
    * @param manPos  the manageable position, not null
-   * @param sourcePosition  the source position, not null
+   * @return the converted position, not null
    */
-  protected void convertPosition(final UniqueId nodeId, final ManageablePosition manPos, final SimplePosition sourcePosition) {
+  protected SimplePosition convertPosition(final UniqueId nodeId, final ManageablePosition manPos) {
+    final SimplePosition position = manPos.toPosition(nodeId);
     UniqueId posId = convertId(manPos.getUniqueId(), nodeId);
-    sourcePosition.setUniqueId(posId);
-    sourcePosition.setParentNodeId(nodeId);
-    sourcePosition.setQuantity(manPos.getQuantity());
-    sourcePosition.setSecurityLink(manPos.getSecurityLink());
+    position.setUniqueId(posId);
     for (ManageableTrade manTrade : manPos.getTrades()) {
       convertTrade(nodeId, posId, manTrade);
-      sourcePosition.addTrade(manTrade);
     }
-    sourcePosition.setAttributes(manPos.getAttributes());
+    return position;
   }
 
   /**
