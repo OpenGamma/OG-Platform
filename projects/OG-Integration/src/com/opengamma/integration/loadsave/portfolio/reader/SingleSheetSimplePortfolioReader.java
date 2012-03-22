@@ -7,6 +7,9 @@ package com.opengamma.integration.loadsave.portfolio.reader;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
@@ -21,6 +24,8 @@ import com.opengamma.master.security.ManageableSecurity;
  * class for specific asset class loaders that follow this rule.
  */
 public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(SingleSheetSimplePortfolioReader.class);
 
   /*
    * Load one or more parsers for different types of securities/trades/whatever here
@@ -73,23 +78,26 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
       
       // Build the underlying security
       ManageableSecurity[] security = _rowParser.constructSecurity(row);
-      
-      // Attempt to write securities and obtain the correct security (either newly written or original)
-      // Write array in reverse order as underlying is at position 0
-      for (int i = security.length - 1; i >= 0; i--) {
-        security[i] = portfolioWriter.writeSecurity(security[i]);        
+      if (security.length > 0) {
+        // Attempt to write securities and obtain the correct security (either newly written or original)
+        // Write array in reverse order as underlying is at position 0
+        for (int i = security.length - 1; i >= 0; i--) {
+          security[i] = portfolioWriter.writeSecurity(security[i]);        
+        }
+  
+        // Build the position and trade(s) using security[0] (underlying)
+        ManageablePosition position = _rowParser.constructPosition(row, security[0]);
+        
+        ManageableTrade trade = _rowParser.constructTrade(row, security[0], position);
+        if (trade != null) { 
+          position.addTrade(trade);
+        }
+        
+        // Write positions/trade(s) to masters (trades are implicitly written with the position)
+        portfolioWriter.writePosition(position);
+      } else {
+        s_logger.warn("Row parser was unable to construct a security from row " + row);
       }
-
-      // Build the position and trade(s) using security[0] (underlying)
-      ManageablePosition position = _rowParser.constructPosition(row, security[0]);
-      
-      ManageableTrade trade = _rowParser.constructTrade(row, security[0], position);
-      if (trade != null) { 
-        position.addTrade(trade);
-      }
-      
-      // Write positions/trade(s) to masters (trades are implicitly written with the position)
-      portfolioWriter.writePosition(position);
     }
   }
 

@@ -1,8 +1,9 @@
 /**
- * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
  * Please see distribution for license.
  */
+
 package com.opengamma.integration.loadsave.portfolio;
 
 import org.slf4j.Logger;
@@ -12,20 +13,22 @@ import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.loadsave.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.loadsave.portfolio.reader.SingleSheetSimplePortfolioReader;
-import com.opengamma.integration.loadsave.portfolio.reader.ZippedPortfolioReader;
+import com.opengamma.integration.loadsave.portfolio.rowparser.ExchangeTradedRowParser;
 import com.opengamma.integration.loadsave.portfolio.writer.DummyPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.tool.IntegrationToolContext;
 
 /**
- * Provides portfolio loading functionality
+ * This is a portfolio loader that also attempts to resolve and load related time series 
+ * (such as PX_LAST, and normally supplied on the tool's command line) will be pre-loaded.
  */
-public class PortfolioLoader {
+public class ResolvingPortfolioLoader {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoader.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(ResolvingPortfolioLoader.class);
 
-  public void run(String portfolioName, String fileName, String securityType, boolean persist, ToolContext toolContext) {
+  public void run(String portfolioName, String fileName, String dataSource, String dataProvider, 
+      String dataField, String observationTime, boolean persist, IntegrationToolContext toolContext) {
     
     // Set up writer
     PortfolioWriter portfolioWriter = constructPortfolioWriter(
@@ -36,17 +39,17 @@ public class PortfolioLoader {
      // Set up reader
     PortfolioReader portfolioReader = constructPortfolioReader(
         fileName, 
-        securityType, 
         toolContext);
     
-    // Load in and write the securities, positions and trades
+    // Load in and write the securities, positions and trades, additionally loading related time series
+    // TODO open up portfolioReader/Writer
     portfolioReader.writeTo(portfolioWriter);
     
     // Flush changes to portfolio master & close
     portfolioWriter.flush();
     portfolioWriter.close();
   }
-  
+
   private static PortfolioWriter constructPortfolioWriter(String portfolioName, boolean write, ToolContext toolContext) {
     if (write) {  
       // Check that the portfolio name was specified on the command line
@@ -65,26 +68,17 @@ public class PortfolioLoader {
       // Create a dummy portfolio writer to pretty-print instead of persisting
       return new DummyPortfolioWriter();         
     }
-
   }
 
-  private static PortfolioReader constructPortfolioReader(String filename, String securityClass, ToolContext toolContext) {
+  private static PortfolioReader constructPortfolioReader(String filename, IntegrationToolContext toolContext) {
     String extension = filename.substring(filename.lastIndexOf('.'));
     
     // Single CSV or XLS file extension
     if (extension.equalsIgnoreCase(".csv") || extension.equalsIgnoreCase(".xls")) {
       // Check that the asset class was specified on the command line
-      if (securityClass == null) {
-        throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename + " (use '-a')");
-      } else {
-        return new SingleSheetSimplePortfolioReader(filename, securityClass, toolContext);
-      }
-    // Multi-asset ZIP file extension
-    } else if (extension.equalsIgnoreCase(".zip")) {
-      // Create zipped multi-asset class loader
-      return new ZippedPortfolioReader(filename, toolContext);
+      return new SingleSheetSimplePortfolioReader(filename, new ExchangeTradedRowParser(toolContext));
     } else {
-      throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
+      throw new OpenGammaRuntimeException("Input filename should end in .CSV or .XLS");
     }
   }
 
