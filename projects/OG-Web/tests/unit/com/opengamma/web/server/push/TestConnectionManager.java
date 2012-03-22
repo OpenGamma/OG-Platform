@@ -5,12 +5,12 @@
  */
 package com.opengamma.web.server.push;
 
-import com.opengamma.id.UniqueId;
-import com.opengamma.web.server.push.rest.MasterType;
+import static org.mockito.Mockito.mock;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-import static org.mockito.Mockito.mock;
+import com.opengamma.id.UniqueId;
+import com.opengamma.web.server.push.rest.MasterType;
 
 /**
  * Test subscription manager that can have a maximum of one connection.

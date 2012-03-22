@@ -42,7 +42,6 @@
     <orderEntry type="module" module-name="OG-MasterDB" />
     <orderEntry type="module" module-name="OG-Financial" />
     <orderEntry type="module" module-name="OG-Web" />
-    <orderEntry type="module" module-name="OG-Activ" />
     <orderEntry type="module" module-name="Fudge-Java" />
     <orderEntry type="module" module-name="Fudge-Proto" />
     <orderEntry type="module" module-name="OG-Component" />

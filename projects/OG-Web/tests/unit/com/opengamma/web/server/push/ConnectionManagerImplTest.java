@@ -5,16 +5,17 @@
  */
 package com.opengamma.web.server.push;
 
+import static org.mockito.Mockito.mock;
+
+import java.util.Collections;
+
+import org.testng.annotations.Test;
+
 import com.opengamma.DataNotFoundException;
 import com.opengamma.core.change.ChangeManager;
 import com.opengamma.core.change.ChangeProvider;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.push.rest.MasterType;
-import org.testng.annotations.Test;
-
-import java.util.Collections;
-
-import static org.mockito.Mockito.mock;
 
 public class ConnectionManagerImplTest {
 

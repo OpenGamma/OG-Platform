@@ -18,10 +18,6 @@ import org.slf4j.LoggerFactory;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import com.opengamma.core.position.PortfolioNode;
-import com.opengamma.core.position.PortfolioNodeFudgeBuilder;
-import com.opengamma.core.position.Position;
-import com.opengamma.core.position.PositionFudgeBuilder;
 import com.opengamma.core.position.impl.SimplePortfolioNode;
 import com.opengamma.core.position.impl.SimplePosition;
 import com.opengamma.id.ExternalId;
