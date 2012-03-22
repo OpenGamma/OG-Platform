@@ -870,4 +870,21 @@ public abstract class SecurityTestCase implements SecurityTestCaseMethods {
     assertSecurities(EquityVarianceSwapSecurity.class);
   }
   
+  @Override
+  @Test
+  public void testSimpleZeroDepositSecurity() {
+	  return;
+  }
+  
+  @Override
+  @Test
+  public void testPeriodicZeroDepositSecurity() {
+    return;
+  }
+  
+  @Override 
+  @Test
+  public void testContinuousZeroDepositSecurity() {
+    return;
+  }
 }
