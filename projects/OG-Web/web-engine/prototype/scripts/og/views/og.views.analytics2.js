@@ -12,11 +12,7 @@ $.register_module({
         module.rules = {load: {route: '/', method: module.name + '.load'}};
         return view = {
             load: function (args) {
-                og.api.text({
-                    module: 'og.views.analytics.grid', handler: function (result) {
-                        $('.OG-layout-analytics-center').html(result);
-                    }
-                });
+                og.analytics.grid({selector: '.OG-layout-analytics-center'});
             },
             init: function () {for (var rule in module.rules) routes.add(module.rules[rule]);},
             rules: module.rules
