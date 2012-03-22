@@ -1,5 +1,18 @@
 package com.opengamma.web.server.push;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.eclipse.jetty.server.Server;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.web.context.WebApplicationContext;
+import org.testng.annotations.Test;
+
 import com.opengamma.core.marketdatasnapshot.impl.ManageableMarketDataSnapshot;
 import com.opengamma.id.UniqueId;
 import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotDocument;
@@ -9,18 +22,6 @@ import com.opengamma.master.marketdatasnapshot.MarketDataSnapshotSearchResult;
 import com.opengamma.master.marketdatasnapshot.impl.InMemorySnapshotMaster;
 import com.opengamma.util.tuple.Pair;
 import com.opengamma.web.server.push.rest.MarketDataSnapshotListResource;
-import org.eclipse.jetty.server.Server;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.web.context.WebApplicationContext;
-import org.testng.annotations.Test;
-
-import java.util.Arrays;
-import java.util.List;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.testng.AssertJUnit.assertEquals;
 
 public class MarketDataSnapshotListResourceTest {
 

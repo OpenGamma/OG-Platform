@@ -12,9 +12,7 @@
     </constructor-arg>
   </bean>
 
-  <bean id="securityLoader" class="com.opengamma.activfinancial.loader.ActivSecurityMasterLoaderWrapper">
-    <constructor-arg ref="bbgSecurityLoader" />
-  </bean>
+  <alias name="securityLoader" alias="bbgSecurityLoader"/>
 
   <bean id="bbgSecurityLoader" class="com.opengamma.bbg.loader.BloombergSecurityMasterLoader">
     <constructor-arg ref="dbSecurityMaster" />

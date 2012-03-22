@@ -7,8 +7,6 @@ package com.opengamma.id;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**

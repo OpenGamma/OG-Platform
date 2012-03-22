@@ -5,11 +5,12 @@
  */
 package com.opengamma.web.server.push;
 
-import com.opengamma.web.server.push.rest.ViewportDefinitionMessageBodyReader;
-
-import javax.ws.rs.core.Application;
 import java.util.HashSet;
 import java.util.Set;
+
+import javax.ws.rs.core.Application;
+
+import com.opengamma.web.server.push.rest.ViewportDefinitionMessageBodyReader;
 
 /**
  *

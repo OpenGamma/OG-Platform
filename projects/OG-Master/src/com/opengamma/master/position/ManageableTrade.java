@@ -208,12 +208,7 @@ public class ManageableTrade extends DirectBean implements Trade, MutableUniqueI
   }
 
   //-------------------------------------------------------------------------
-  /**
-   * Adds a key value pair to attributes
-   * 
-   * @param key  the key to add, not null
-   * @param value  the value to add, not null
-   */
+  @Override
   public void addAttribute(String key, String value) {
     ArgumentChecker.notNull(key, "key");
     ArgumentChecker.notNull(value, "value");
