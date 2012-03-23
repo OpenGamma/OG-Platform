@@ -177,7 +177,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
    */
   public void presentValueCurveSensitivityCap() {
     InterestRateCurveSensitivity pvcsCap = METHOD.presentValueCurveSensitivity(CMS_CAP, SABR_BUNDLE);
-    pvcsCap = pvcsCap.clean();
+    pvcsCap = pvcsCap.cleaned();
     final double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1.0E-6;
@@ -225,7 +225,7 @@ public class CapFloorCMSSABRReplicationMethodTest {
    */
   public void presentValueCurveSensitivityFloor() {
     InterestRateCurveSensitivity pvcsCap = METHOD.presentValueCurveSensitivity(CMS_FLOOR, SABR_BUNDLE);
-    pvcsCap = pvcsCap.clean();
+    pvcsCap = pvcsCap.cleaned();
     final double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1.0E-6;
@@ -282,12 +282,12 @@ public class CapFloorCMSSABRReplicationMethodTest {
     AnnuityCapFloorCMSDefinition capDefinition = AnnuityCapFloorCMSDefinition.from(START_DATE, END_DATE, NOTIONAL, USD_SWAP_10Y, capPeriod, capDayCount, false, STRIKE, IS_CAP);
     GenericAnnuity<? extends Payment> cap = capDefinition.toDerivative(REFERENCE_DATE, CURVES_NAME);
     InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(PVCSC_SABR.visit(cap, SABR_BUNDLE));
-    pvcsCalculator = pvcsCalculator.clean();
+    pvcsCalculator = pvcsCalculator.cleaned();
     InterestRateCurveSensitivity pvcsExpected = new InterestRateCurveSensitivity();
     for (int loopcpn = 0; loopcpn < cap.getNumberOfPayments(); loopcpn++) {
       pvcsExpected = pvcsExpected.plus(new InterestRateCurveSensitivity(PVCSC_SABR.visit(cap.getNthPayment(loopcpn), SABR_BUNDLE)));
     }
-    pvcsExpected = pvcsExpected.clean();
+    pvcsExpected = pvcsExpected.cleaned();
     assertTrue("Cap annuity - SABR pv", InterestRateCurveSensitivity.compare(pvcsExpected, pvcsCalculator, 1.0E-2));
   }
 

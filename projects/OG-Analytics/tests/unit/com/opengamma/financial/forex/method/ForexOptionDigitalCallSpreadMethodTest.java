@@ -8,6 +8,8 @@ package com.opengamma.financial.forex.method;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Map;
+
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -52,8 +54,9 @@ public class ForexOptionDigitalCallSpreadMethodTest {
   // Methods and curves
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
   private static final String[] CURVES_NAME = TestsDataSetsForex.curveNames();
-  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(CURVES, FX_MATRIX, SMILE_TERM, Pair.of(EUR, USD));
-  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_FLAT = new SmileDeltaTermStructureDataBundle(CURVES, FX_MATRIX, SMILE_TERM_FLAT, Pair.of(EUR, USD));
+  private static final Map<String, Currency> CURVE_CURRENCY = TestsDataSetsForex.curveCurrency();
+  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(FX_MATRIX, CURVE_CURRENCY, CURVES, SMILE_TERM, Pair.of(EUR, USD));
+  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE_FLAT = new SmileDeltaTermStructureDataBundle(FX_MATRIX, CURVE_CURRENCY, CURVES, SMILE_TERM_FLAT, Pair.of(EUR, USD));
   private static final ForexOptionVanillaBlackMethod METHOD_VANILLA_BLACK = ForexOptionVanillaBlackMethod.getInstance();
   private static final ForexOptionDigitalBlackMethod METHOD_DIGITAL_BLACK = ForexOptionDigitalBlackMethod.getInstance();
   private static final ForexOptionDigitalCallSpreadMethod METHOD_DIGITAL_SPREAD = new ForexOptionDigitalCallSpreadMethod(METHOD_VANILLA_BLACK);

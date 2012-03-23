@@ -12,7 +12,6 @@ import java.util.Map;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.data.Interpolator1DDataBundle;
@@ -37,8 +36,7 @@ public abstract class NodeSensitivityCalculator {
     Validate.notNull(ird, "null InterestRateDerivative");
     Validate.notNull(calculator, "null calculator");
     Validate.notNull(interpolatedCurves, "interpolated curves");
-    final YieldCurveBundle allCurves = (interpolatedCurves instanceof SABRInterestRateDataBundle) ? new SABRInterestRateDataBundle((SABRInterestRateDataBundle) interpolatedCurves)
-        : new YieldCurveBundle(interpolatedCurves);
+    final YieldCurveBundle allCurves = interpolatedCurves.copy();
     if (fixedCurves != null) {
       for (final String name : interpolatedCurves.getAllNames()) {
         Validate.isTrue(!fixedCurves.containsName(name), "fixed curves contain a name that is also in interpolated curves");
@@ -82,6 +80,18 @@ public abstract class NodeSensitivityCalculator {
     }
     return new DoubleMatrix1D(result.toArray(new Double[0]));
   }
+
+  /**
+   * Computes the node sensitivity from an InterestRateCurveSensitivity object and the corresponding yield curve bundle.
+   * @param curveSensitivities The sensitivities.
+   * @param interpolatedCurves The curve bundle.
+   * @return The node sensitivities.
+   */
+  public DoubleMatrix1D curveToNodeSensitivities(final InterestRateCurveSensitivity curveSensitivities, final YieldCurveBundle interpolatedCurves) {
+    return curveToNodeSensitivities(curveSensitivities.getSensitivities(), interpolatedCurves);
+  }
+
+  // TODO: add a method using InterestRateSensitivity.
 
   public DoubleMatrix1D curveToNodeSensitivities(final List<DoublesPair> curveSensitivities, final YieldAndDiscountCurve yieldCurve) {
     if (!(yieldCurve.getCurve() instanceof InterpolatedDoublesCurve)) {

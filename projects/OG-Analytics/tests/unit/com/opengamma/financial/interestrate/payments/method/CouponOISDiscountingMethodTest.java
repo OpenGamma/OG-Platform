@@ -170,7 +170,7 @@ public class CouponOISDiscountingMethodTest {
    */
   public void presentValueCurveSensitivityNotStarted() {
     final InterestRateCurveSensitivity pvcs = METHOD_OIS.presentValueCurveSensitivity(EONIA_COUPON_NOTSTARTED, CURVES);
-    pvcs.clean();
+    pvcs.cleaned();
     final double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-6;
@@ -207,7 +207,7 @@ public class CouponOISDiscountingMethodTest {
     final CouponOIS eoniaCouponNotStartedOneCurve = new CouponOIS(EUR_CUR, PAYMENT_TIME_1, CURVES_NAMES[0], PAYMENT_YEAR_FRACTION, NOTIONAL, EUR_OIS, START_ACCRUAL_TIME_1, END_ACCRUAL_TIME_1,
         FIXING_YEAR_FRACTION, NOTIONAL, CURVES_NAMES[0]);
     final InterestRateCurveSensitivity pvcs = METHOD_OIS.presentValueCurveSensitivity(eoniaCouponNotStartedOneCurve, CURVES);
-    pvcs.clean();
+    pvcs.cleaned();
     final double deltaTolerancePrice = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-6;
@@ -263,7 +263,7 @@ public class CouponOISDiscountingMethodTest {
    */
   public void parRateCurveSensitivityNotStarted() {
     final InterestRateCurveSensitivity prcs = METHOD_OIS.parRateCurveSensitivity(EONIA_COUPON_NOTSTARTED, CURVES);
-    prcs.clean();
+    prcs.cleaned();
     final double deltaTolerancePrice = 1.0E-10;
     // 1. Forward curve sensitivity
     final double[] nodeTimesForward = new double[] {EONIA_COUPON_NOTSTARTED.getFixingPeriodStartTime(), EONIA_COUPON_NOTSTARTED.getFixingPeriodEndTime() };

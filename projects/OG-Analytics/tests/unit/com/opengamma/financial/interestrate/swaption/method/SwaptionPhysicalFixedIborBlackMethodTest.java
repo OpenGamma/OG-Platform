@@ -125,7 +125,7 @@ public class SwaptionPhysicalFixedIborBlackMethodTest {
    */
   public void presentValueCurveSensitivity() {
     InterestRateCurveSensitivity pvcsSwaption = METHOD_BLACK.presentValueCurveSensitivity(SWAPTION_LONG_REC, CURVES_BLACK);
-    pvcsSwaption = pvcsSwaption.clean();
+    pvcsSwaption = pvcsSwaption.cleaned();
     // 1. Forward curve sensitivity
     DoubleAVLTreeSet forwardTime = new DoubleAVLTreeSet();
     for (int loopcpn = 0; loopcpn < SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {
