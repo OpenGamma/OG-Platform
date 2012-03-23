@@ -63,7 +63,8 @@ public class SimpleTrade extends DirectBean
   @PropertyDefinition(validate = "notNull")
   private BigDecimal _quantity;
   /**
-   * The link to the security.
+   * The link referencing the security, not null.
+   * This may also hold the resolved security.
    */
   @PropertyDefinition(validate = "notNull")
   private SecurityLink _securityLink;
@@ -78,39 +79,40 @@ public class SimpleTrade extends DirectBean
   @PropertyDefinition
   private LocalDate _tradeDate;
   /**
-   * The trade time with offset.
+   * The trade time with offset, null if not known.
    */
   @PropertyDefinition
   private OffsetTime _tradeTime;
   /**
-   * Amount paid for trade at time of purchase
+   * Amount paid for trade at time of purchase, null if not known.
    */
   @PropertyDefinition
   private Double _premium;
   /**
-   * Currency of payment at time of purchase
+   * Currency of payment at time of purchase, null if not known.
    */
   @PropertyDefinition
   private Currency _premiumCurrency;
   /**
-   * Date of premium payment
+   * Date of premium payment, null if not known.
    */
   @PropertyDefinition
   private LocalDate _premiumDate;
   /**
-   * Time of premium payment
+   * Time of premium payment, null if not known.
    */
   @PropertyDefinition
   private OffsetTime _premiumTime;
   /**
    * The general purpose trade attributes.
-   * These can be used to add arbitrary additional information to the object.
+   * These can be used to add arbitrary additional information to the object
+   * and for aggregating in portfolios.
    */
   @PropertyDefinition(validate = "notNull")
   private final Map<String, String> _attributes = Maps.newHashMap();
 
   /**
-   * Creates a trade which must be initialized by calling methods.
+   * Construct an empty instance that must be populated via setters.
    */
   public SimpleTrade() {
     _securityLink = new SimpleSecurityLink();
@@ -205,6 +207,16 @@ public class SimpleTrade extends DirectBean
     ArgumentChecker.notNull(key, "key");
     ArgumentChecker.notNull(value, "value");
     _attributes.put(key, value);
+  }
+
+  /**
+   * Removes the attribute with specified key.
+   * 
+   * @param key  the attribute key to remove, not null
+   */
+  public void removeAttribute(final String key) {
+    ArgumentChecker.notNull(key, "key");
+    _attributes.remove(key);
   }
 
   //-------------------------------------------------------------------------
@@ -451,7 +463,8 @@ public class SimpleTrade extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the link to the security.
+   * Gets the link referencing the security, not null.
+   * This may also hold the resolved security.
    * @return the value of the property, not null
    */
   public SecurityLink getSecurityLink() {
@@ -459,7 +472,8 @@ public class SimpleTrade extends DirectBean
   }
 
   /**
-   * Sets the link to the security.
+   * Sets the link referencing the security, not null.
+   * This may also hold the resolved security.
    * @param securityLink  the new value of the property, not null
    */
   public void setSecurityLink(SecurityLink securityLink) {
@@ -469,6 +483,7 @@ public class SimpleTrade extends DirectBean
 
   /**
    * Gets the the {@code securityLink} property.
+   * This may also hold the resolved security.
    * @return the property, not null
    */
   public final Property<SecurityLink> securityLink() {
@@ -527,7 +542,7 @@ public class SimpleTrade extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the trade time with offset.
+   * Gets the trade time with offset, null if not known.
    * @return the value of the property
    */
   public OffsetTime getTradeTime() {
@@ -535,7 +550,7 @@ public class SimpleTrade extends DirectBean
   }
 
   /**
-   * Sets the trade time with offset.
+   * Sets the trade time with offset, null if not known.
    * @param tradeTime  the new value of the property
    */
   public void setTradeTime(OffsetTime tradeTime) {
@@ -552,7 +567,7 @@ public class SimpleTrade extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets amount paid for trade at time of purchase
+   * Gets amount paid for trade at time of purchase, null if not known.
    * @return the value of the property
    */
   public Double getPremium() {
@@ -560,7 +575,7 @@ public class SimpleTrade extends DirectBean
   }
 
   /**
-   * Sets amount paid for trade at time of purchase
+   * Sets amount paid for trade at time of purchase, null if not known.
    * @param premium  the new value of the property
    */
   public void setPremium(Double premium) {
@@ -577,7 +592,7 @@ public class SimpleTrade extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets currency of payment at time of purchase
+   * Gets currency of payment at time of purchase, null if not known.
    * @return the value of the property
    */
   public Currency getPremiumCurrency() {
@@ -585,7 +600,7 @@ public class SimpleTrade extends DirectBean
   }
 
   /**
-   * Sets currency of payment at time of purchase
+   * Sets currency of payment at time of purchase, null if not known.
    * @param premiumCurrency  the new value of the property
    */
   public void setPremiumCurrency(Currency premiumCurrency) {
@@ -602,7 +617,7 @@ public class SimpleTrade extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets date of premium payment
+   * Gets date of premium payment, null if not known.
    * @return the value of the property
    */
   public LocalDate getPremiumDate() {
@@ -610,7 +625,7 @@ public class SimpleTrade extends DirectBean
   }
 
   /**
-   * Sets date of premium payment
+   * Sets date of premium payment, null if not known.
    * @param premiumDate  the new value of the property
    */
   public void setPremiumDate(LocalDate premiumDate) {
@@ -627,7 +642,7 @@ public class SimpleTrade extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets time of premium payment
+   * Gets time of premium payment, null if not known.
    * @return the value of the property
    */
   public OffsetTime getPremiumTime() {
@@ -635,7 +650,7 @@ public class SimpleTrade extends DirectBean
   }
 
   /**
-   * Sets time of premium payment
+   * Sets time of premium payment, null if not known.
    * @param premiumTime  the new value of the property
    */
   public void setPremiumTime(OffsetTime premiumTime) {
@@ -653,7 +668,8 @@ public class SimpleTrade extends DirectBean
   //-----------------------------------------------------------------------
   /**
    * Gets the general purpose trade attributes.
-   * These can be used to add arbitrary additional information to the object.
+   * These can be used to add arbitrary additional information to the object
+   * and for aggregating in portfolios.
    * @return the value of the property, not null
    */
   public Map<String, String> getAttributes() {
@@ -662,7 +678,8 @@ public class SimpleTrade extends DirectBean
 
   /**
    * Sets the general purpose trade attributes.
-   * These can be used to add arbitrary additional information to the object.
+   * These can be used to add arbitrary additional information to the object
+   * and for aggregating in portfolios.
    * @param attributes  the new value of the property
    */
   public void setAttributes(Map<String, String> attributes) {
@@ -672,7 +689,8 @@ public class SimpleTrade extends DirectBean
 
   /**
    * Gets the the {@code attributes} property.
-   * These can be used to add arbitrary additional information to the object.
+   * These can be used to add arbitrary additional information to the object
+   * and for aggregating in portfolios.
    * @return the property, not null
    */
   public final Property<Map<String, String>> attributes() {

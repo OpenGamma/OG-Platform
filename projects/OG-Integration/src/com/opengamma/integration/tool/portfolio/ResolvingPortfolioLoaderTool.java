@@ -8,13 +8,13 @@ package com.opengamma.integration.tool.portfolio;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import com.opengamma.integration.loadsave.portfolio.ExchangeTradedPortfolioLoader;
+import com.opengamma.integration.loadsave.portfolio.ResolvingPortfolioLoader;
 import com.opengamma.integration.tool.AbstractIntegrationTool;
 
 /**
  * The portfolio loader tool
  */
-public class ExchangeTradedPortfolioLoaderTool extends AbstractIntegrationTool {
+public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
 
   /** File name option flag */
   private static final String FILE_NAME_OPT = "f";
@@ -38,7 +38,7 @@ public class ExchangeTradedPortfolioLoaderTool extends AbstractIntegrationTool {
    * @param args  the arguments, not null
    */
   public static void main(String[] args) { //CSIGNORE
-    new ExchangeTradedPortfolioLoaderTool().initAndRun(args);
+    new ResolvingPortfolioLoaderTool().initAndRun(args);
     System.exit(0);
   }
 
@@ -49,13 +49,13 @@ public class ExchangeTradedPortfolioLoaderTool extends AbstractIntegrationTool {
   @Override
   protected void doRun() {      
     // Call the portfolio loader with the supplied arguments
-    new ExchangeTradedPortfolioLoader().run(
+    new ResolvingPortfolioLoader().run(
         getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT), 
         getCommandLine().getOptionValue(FILE_NAME_OPT), 
-        getCommandLine().getOptionValue(TIME_SERIES_DATASOURCE_OPT), 
-        getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT), 
-        getCommandLine().getOptionValue(TIME_SERIES_DATAFIELD_OPT), 
-        getCommandLine().getOptionValue(TIME_SERIES_OBSERVATIONTIME_OPT), 
+        getCommandLine().getOptionValue(TIME_SERIES_DATASOURCE_OPT) == null ? "BLOOMBERG" : getCommandLine().getOptionValue(TIME_SERIES_DATASOURCE_OPT), 
+        getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT) == null ? "CMPL" : getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT),
+        getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT) == null ? new String[] {"PX_LAST"} : getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT), 
+        getCommandLine().getOptionValue(TIME_SERIES_OBSERVATIONTIME_OPT) == null ? "LONDON_CLOSE" : getCommandLine().getOptionValue(TIME_SERIES_OBSERVATIONTIME_OPT), 
         getCommandLine().hasOption(WRITE_OPT), 
         getToolContext()
     );

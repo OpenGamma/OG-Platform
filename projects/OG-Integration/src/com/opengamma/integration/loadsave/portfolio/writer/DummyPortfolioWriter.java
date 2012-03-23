@@ -6,10 +6,6 @@
 
 package com.opengamma.integration.loadsave.portfolio.writer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.opengamma.integration.loadsave.portfolio.PortfolioLoader;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
@@ -21,19 +17,17 @@ import com.opengamma.master.security.ManageableSecurity;
  */
 public class DummyPortfolioWriter implements PortfolioWriter {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoader.class);
-
   private ManageablePortfolioNode _node = new ManageablePortfolioNode();
   
   @Override
   public ManageableSecurity writeSecurity(ManageableSecurity security) {
-    s_logger.info("Security: " + security.toString());
+    System.out.println("Security: " + security.toString());
     return security;
   }
 
   @Override
   public ManageablePosition writePosition(ManageablePosition position) {
-    s_logger.info("Position: " + position.toString());
+    System.out.println("Position: " + position.toString());
     return position;
   }
 
@@ -49,19 +43,19 @@ public class DummyPortfolioWriter implements PortfolioWriter {
 
   @Override
   public ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node) {
-    s_logger.info("Set node to: " + node.toString());
+    System.out.println("Set node to: " + node.toString());
     _node = node;
     return _node;
   }
 
   @Override
   public void flush() {
-    s_logger.info("Flushed writer");
+    System.out.println("Flushed writer");
   }
 
   @Override
   public void close() {
-    s_logger.info("Closed writer");
+    System.out.println("Closed writer");
   }
   
 }
