@@ -118,6 +118,11 @@ public class InterestRateCurveSensitivity {
   }
 
   @Override
+  public String toString() {
+    return _sensitivity.toString();
+  }
+
+  @Override
   public int hashCode() {
     final int prime = 31;
     int result = 1;
@@ -141,11 +146,6 @@ public class InterestRateCurveSensitivity {
       return false;
     }
     return true;
-  }
-
-  @Override
-  public String toString() {
-    return _sensitivity.toString();
   }
 
 }

@@ -33,6 +33,7 @@ import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivityUtils;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -608,8 +609,9 @@ public class ForexOptionVanillaMethodTest {
     final ForexOptionVanilla forexOptionCall = forexOptionDefinitionCall.toDerivative(REFERENCE_DATE, CURVES_NAME);
     final MultipleCurrencyInterestRateCurveSensitivity sensi = PVCSC_BLACK.visit(forexOptionCall, SMILE_BUNDLE);
     final InterestRateCurveSensitivity sensiConverted = PVCSCC_BLACK.visit(forexOptionCall, SMILE_BUNDLE);
-    InterestRateCurveSensitivity sensiComp = sensi.getSensitivity(USD);
-    sensiComp = sensiComp.plus(sensi.getSensitivity(EUR).multiply(SPOT));
+    InterestRateCurveSensitivity sensiComp = new InterestRateCurveSensitivity();
+    sensiComp = sensiComp.plus(CURVES_NAME[1], sensi.getSensitivity(USD).getSensitivities().get(CURVES_NAME[1]));
+    sensiComp = sensiComp.plus(CURVES_NAME[0], InterestRateCurveSensitivityUtils.multiplySensitivity(sensi.getSensitivity(USD).getSensitivities().get(CURVES_NAME[0]), SPOT));
     assertTrue("Forex Option: present value curve sensitivity converted", InterestRateCurveSensitivity.compare(sensiConverted, sensiComp, TOLERANCE_DELTA));
   }
 
