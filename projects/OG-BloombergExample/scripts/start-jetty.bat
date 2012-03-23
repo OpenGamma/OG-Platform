@@ -11,7 +11,7 @@ set JAVACMD=%JAVA_HOME%\bin\java.exe
   -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing ^
   -Dlogback.configurationFile=jetty-logback.xml ^
 	-Dcommandmonitor.secret=OpenGamma ^
-  -cp config;og-og-bloombergexample.jar;lib ^
+  -cp config;og-examples.jar;lib ^
   com.opengamma.component.OpenGammaComponentServer ^
   config\fullstack\fullstack-example-bin.properties
   

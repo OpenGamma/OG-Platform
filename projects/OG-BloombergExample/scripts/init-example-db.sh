@@ -18,7 +18,7 @@ if [ "`basename $0`" = "init-example-db.sh" ] ; then
   cd `dirname $0`/.. #PLAT-1527
 fi
 
-CLASSPATH=config:og-og-bloombergexample.jar
+CLASSPATH=config:og-examples.jar
 for FILE in `ls -1 lib/*` ; do
   CLASSPATH=$CLASSPATH:$FILE
 done

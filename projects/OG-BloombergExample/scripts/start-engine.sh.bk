@@ -1,6 +1,6 @@
 #!/bin/sh
 
-if [ "`basename $0`" = "start-jetty.sh" ] ; then
+if [ "`basename $0`" == "start-engine.sh" ] ; then
   cd `dirname $0`/..
 fi
 
@@ -27,9 +27,9 @@ JMX_OPTS="-Dcom.sun.management.jmxremote -Dcom.sun.management.jmxremote.authenti
   -Dcom.sun.management.jmxremote.port=8052 -Dcom.sun.management.jmxremote.ssl=false"
 MEM_OPTS="-Xms512m -Xmx2048m -XX:MaxPermSize=256M -XX:+UseConcMarkSweepGC \
   -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing"
-
+  
 $JAVA $JMX_OPTS $MEM_OPTS -cp $CLASSPATH \
   -Dlogback.configurationFile=jetty-logback.xml \
   -Dcommandmonitor.secret=OpenGamma -Dcommandmonitor.port=8079 \
   com.opengamma.component.OpenGammaComponentServer \
-  -q classpath:fullstack/fullstack-example-bin.properties
+  -q classpath:fullstack/fullstack-example.properties

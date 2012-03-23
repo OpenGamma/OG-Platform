@@ -8,7 +8,7 @@ set JAVACMD=%JAVA_HOME%\bin\java.exe
 
 "%JAVACMD%" ^
 	-Dcommandmonitor.secret=OpenGamma ^
-  -cp config;og-og-bloombergexample.jar;lib ^
+  -cp config;og-examples.jar;lib ^
   com.opengamma.component.OpenGammaComponentServerMonitor
   
 REM PLAT-1527
