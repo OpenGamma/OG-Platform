@@ -9,7 +9,6 @@ import javax.time.Instant;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.id.VersionCorrection;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**

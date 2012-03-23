@@ -22,7 +22,7 @@ public class MockMarketDataSnapshot extends AbstractMarketDataSnapshot {
 
   @Override
   public UniqueId getUniqueId() {
-    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "MockMarketDataSnapshot:"+getSnapshotTime());
+    return UniqueId.of(MARKET_DATA_SNAPSHOT_ID_SCHEME, "MockMarketDataSnapshot:" + getSnapshotTime());
   }
 
   @Override

@@ -9,9 +9,9 @@ import com.opengamma.core.Link;
 import com.opengamma.util.PublicAPI;
 
 /**
- * A flexible link between an object and a exchange.
+ * A flexible link between an object and an exchange.
  * <p>
- * The exchange link represents a connection from an entity to a exchange.
+ * The exchange link represents a connection from an entity to an exchange.
  * The connection can be held by an {@code ObjectId} or an {@code ExternalIdBundle}.
  * To obtain the target exchange, the link must be resolved.
  * <p>

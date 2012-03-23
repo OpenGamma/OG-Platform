@@ -24,6 +24,9 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -51,6 +54,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
+//TODO use the visitor adapter
 public class ForexSecurityConverter implements FinancialSecurityVisitor<InstrumentDefinition<?>> {
   @SuppressWarnings("unused")
   private final SecuritySource _securitySource;
@@ -273,10 +277,18 @@ public class ForexSecurityConverter implements FinancialSecurityVisitor<Instrume
     return null;
   }
 
-  //  @Override
-  //  public InstrumentDefinition<?> visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
-  //    // TODO Auto-generated method stub
-  //    return null;
-  //  }
+  @Override
+  public InstrumentDefinition<?> visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+    return null;
+  }
 
+  @Override
+  public InstrumentDefinition<?> visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+    return null;
+  }
+
+  @Override
+  public InstrumentDefinition<?> visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
+    return null;
+  }
 }

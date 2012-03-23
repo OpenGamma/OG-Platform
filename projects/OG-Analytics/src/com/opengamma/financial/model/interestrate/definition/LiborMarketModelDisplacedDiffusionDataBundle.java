@@ -30,6 +30,15 @@ public class LiborMarketModelDisplacedDiffusionDataBundle extends YieldCurveBund
     _parameters = lmmParameters;
   }
 
+  @Override
+  /**
+   * Create a new copy of the bundle using a new map and the same curve and curve names. The same LiborMarketModelDisplacedDiffusionParameters is used.
+   * @return The bundle.
+   */
+  public LiborMarketModelDisplacedDiffusionDataBundle copy() {
+    return new LiborMarketModelDisplacedDiffusionDataBundle(_parameters, this);
+  }
+
   /**
    * Gets the G2++ parameters.
    * @return The parameters.

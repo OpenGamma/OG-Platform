@@ -60,11 +60,11 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
    * @param startDate The start date.
    * @param endDate The end date.
    * @param notional The notional.
-   * @param paymentAccrualFactor The accural factor (or year fraction).
+   * @param paymentAccrualFactor The accrual factor (or year fraction).
    * @param rate The interest rate and its composition type.
    */
-  public DepositZeroDefinition(Currency currency, ZonedDateTime startDate, ZonedDateTime endDate,
-      double notional, double paymentAccrualFactor, InterestRate rate) {
+  public DepositZeroDefinition(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate,
+      final double notional, final double paymentAccrualFactor, final InterestRate rate) {
     ArgumentChecker.notNull(currency, "Currency");
     ArgumentChecker.notNull(startDate, "Start date");
     ArgumentChecker.notNull(endDate, "End date");
@@ -87,8 +87,9 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
    * @param rate The interest rate and its composition type.
    * @return The deposit.
    */
-  public static DepositZeroDefinition from(Currency currency, ZonedDateTime startDate, ZonedDateTime endDate,
-      DayCount daycount, InterestRate rate) {
+  public static DepositZeroDefinition from(final Currency currency, final ZonedDateTime startDate, final ZonedDateTime endDate,
+      final DayCount daycount, final InterestRate rate) {
+    ArgumentChecker.notNull(daycount, "day count");
     return new DepositZeroDefinition(currency, startDate, endDate, 1.0, daycount.getDayCountFraction(startDate, endDate), rate);
   }
 
@@ -101,7 +102,7 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
   }
 
   /**
-   * Gets the deposit start date 
+   * Gets the deposit start date
    * @return The date.
    */
   public ZonedDateTime getStartDate() {
@@ -109,7 +110,7 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
   }
 
   /**
-   * Gets the deposit end date 
+   * Gets the deposit end date
    * @return The date.
    */
   public ZonedDateTime getEndDate() {
@@ -154,9 +155,9 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
   }
 
   @Override
-  public DepositZero toDerivative(ZonedDateTime date, String... yieldCurveNames) {
+  public DepositZero toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     Validate.isTrue(!date.isAfter(_endDate), "date is after end date");
-    double startTime = TimeCalculator.getTimeBetween(date, _startDate);
+    final double startTime = TimeCalculator.getTimeBetween(date, _startDate);
     if (startTime < 0) {
       return new DepositZero(_currency, 0, TimeCalculator.getTimeBetween(date, _endDate), 0, _notional, _paymentAccrualFactor, _rate,
           _interestAmount, yieldCurveNames[0]);
@@ -166,12 +167,12 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
   }
 
   @Override
-  public <U, V> V accept(InstrumentDefinitionVisitor<U, V> visitor, U data) {
+  public <U, V> V accept(final InstrumentDefinitionVisitor<U, V> visitor, final U data) {
     return visitor.visitDepositZeroDefinition(this, data);
   }
 
   @Override
-  public <V> V accept(InstrumentDefinitionVisitor<?, V> visitor) {
+  public <V> V accept(final InstrumentDefinitionVisitor<?, V> visitor) {
     return visitor.visitDepositZeroDefinition(this);
   }
 
@@ -194,7 +195,7 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -204,7 +205,7 @@ public class DepositZeroDefinition implements InstrumentDefinition<DepositZero> 
     if (getClass() != obj.getClass()) {
       return false;
     }
-    DepositZeroDefinition other = (DepositZeroDefinition) obj;
+    final DepositZeroDefinition other = (DepositZeroDefinition) obj;
     if (!ObjectUtils.equals(_currency, other._currency)) {
       return false;
     }

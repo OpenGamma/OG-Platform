@@ -5,6 +5,12 @@
  */
 package com.opengamma.web.server.push;
 
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.ws.rs.core.Context;
+
 import com.sun.jersey.api.core.HttpContext;
 import com.sun.jersey.api.model.AbstractMethod;
 import com.sun.jersey.api.model.AbstractResourceMethod;
@@ -14,11 +20,6 @@ import com.sun.jersey.spi.container.ContainerResponse;
 import com.sun.jersey.spi.container.ContainerResponseFilter;
 import com.sun.jersey.spi.container.ResourceFilter;
 import com.sun.jersey.spi.container.ResourceFilterFactory;
-
-import javax.ws.rs.core.Context;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * test filter for exploring the data available in the {@code filter} methods.

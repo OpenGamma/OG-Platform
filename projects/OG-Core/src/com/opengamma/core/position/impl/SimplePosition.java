@@ -1,15 +1,15 @@
 /**
  * Copyright (C) 2009 - present by OpenGamma Inc. and the OpenGamma group of companies
- * 
+ *
  * Please see distribution for license.
  */
 package com.opengamma.core.position.impl;
 
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.util.Collections;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import org.apache.commons.lang.text.StrBuilder;
 import org.joda.beans.BeanBuilder;
@@ -25,7 +25,6 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import com.opengamma.core.LinkUtils;
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.Trade;
@@ -64,20 +63,24 @@ public class SimplePosition extends DirectBean
   @PropertyDefinition(validate = "notNull")
   private BigDecimal _quantity;
   /**
-   * The link to the security.
+   * The link referencing the security, not null.
+   * This may also hold the resolved security.
    */
   @PropertyDefinition(validate = "notNull")
   private SecurityLink _securityLink;
   /**
-   * The sets of trades that make up the position.
+   * The trades that the make up the position, not null.
+   * An empty list usually means that trade data is unavailable.
    */
   @PropertyDefinition(validate = "notNull")
-  private final Set<Trade> _trades = Sets.newHashSet();
+  private final Collection<Trade> _trades = new ArrayList<Trade>();
   /**
-   * The unmodifiable position attributes.
+   * The general purpose position attributes.
+   * These can be used to add arbitrary additional information to the object
+   * and for aggregating in portfolios.
    */
-  @PropertyDefinition(get = "", set = "setClearPutAll", validate = "notNull")
-  private Map<String, String> _attributes = Maps.newHashMap();
+  @PropertyDefinition(validate = "notNull")
+  private final Map<String, String> _attributes = Maps.newHashMap();
 
   /**
    * Construct an empty instance that must be populated via setters.
@@ -215,11 +218,6 @@ public class SimplePosition extends DirectBean
   }
 
   //-------------------------------------------------------------------------
-  @Override
-  public Map<String, String> getAttributes() {
-    return Collections.unmodifiableMap(_attributes);
-  }
-
   /**
    * Add an attribute.
    * 
@@ -230,13 +228,6 @@ public class SimplePosition extends DirectBean
     ArgumentChecker.notNull(key, "key");
     ArgumentChecker.notNull(value, "value");
     _attributes.put(key, value);
-  }
-
-  /**
-   * Removes all attributes.
-   */
-  public void clearAttributes() {
-    _attributes.clear();
   }
 
   /**
@@ -295,10 +286,7 @@ public class SimplePosition extends DirectBean
       case -865715313:  // trades
         return getTrades();
       case 405645655:  // attributes
-        if (quiet) {
-          return null;
-        }
-        throw new UnsupportedOperationException("Property cannot be read: attributes");
+        return getAttributes();
     }
     return super.propertyGet(propertyName, quiet);
   }
@@ -320,7 +308,7 @@ public class SimplePosition extends DirectBean
         setSecurityLink((SecurityLink) newValue);
         return;
       case -865715313:  // trades
-        setTrades((Set<Trade>) newValue);
+        setTrades((Collection<Trade>) newValue);
         return;
       case 405645655:  // attributes
         setAttributes((Map<String, String>) newValue);
@@ -351,7 +339,7 @@ public class SimplePosition extends DirectBean
           JodaBeanUtils.equal(getQuantity(), other.getQuantity()) &&
           JodaBeanUtils.equal(getSecurityLink(), other.getSecurityLink()) &&
           JodaBeanUtils.equal(getTrades(), other.getTrades()) &&
-          JodaBeanUtils.equal(_attributes, other._attributes);
+          JodaBeanUtils.equal(getAttributes(), other.getAttributes());
     }
     return false;
   }
@@ -364,7 +352,7 @@ public class SimplePosition extends DirectBean
     hash += hash * 31 + JodaBeanUtils.hashCode(getQuantity());
     hash += hash * 31 + JodaBeanUtils.hashCode(getSecurityLink());
     hash += hash * 31 + JodaBeanUtils.hashCode(getTrades());
-    hash += hash * 31 + JodaBeanUtils.hashCode(_attributes);
+    hash += hash * 31 + JodaBeanUtils.hashCode(getAttributes());
     return hash;
   }
 
@@ -447,7 +435,8 @@ public class SimplePosition extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the link to the security.
+   * Gets the link referencing the security, not null.
+   * This may also hold the resolved security.
    * @return the value of the property, not null
    */
   public SecurityLink getSecurityLink() {
@@ -455,7 +444,8 @@ public class SimplePosition extends DirectBean
   }
 
   /**
-   * Sets the link to the security.
+   * Sets the link referencing the security, not null.
+   * This may also hold the resolved security.
    * @param securityLink  the new value of the property, not null
    */
   public void setSecurityLink(SecurityLink securityLink) {
@@ -465,6 +455,7 @@ public class SimplePosition extends DirectBean
 
   /**
    * Gets the the {@code securityLink} property.
+   * This may also hold the resolved security.
    * @return the property, not null
    */
   public final Property<SecurityLink> securityLink() {
@@ -473,33 +464,48 @@ public class SimplePosition extends DirectBean
 
   //-----------------------------------------------------------------------
   /**
-   * Gets the sets of trades that make up the position.
+   * Gets the trades that the make up the position, not null.
+   * An empty list usually means that trade data is unavailable.
    * @return the value of the property, not null
    */
-  public Set<Trade> getTrades() {
+  public Collection<Trade> getTrades() {
     return _trades;
   }
 
   /**
-   * Sets the sets of trades that make up the position.
+   * Sets the trades that the make up the position, not null.
+   * An empty list usually means that trade data is unavailable.
    * @param trades  the new value of the property
    */
-  public void setTrades(Set<Trade> trades) {
+  public void setTrades(Collection<Trade> trades) {
     this._trades.clear();
     this._trades.addAll(trades);
   }
 
   /**
    * Gets the the {@code trades} property.
+   * An empty list usually means that trade data is unavailable.
    * @return the property, not null
    */
-  public final Property<Set<Trade>> trades() {
+  public final Property<Collection<Trade>> trades() {
     return metaBean().trades().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
   /**
-   * Sets the unmodifiable position attributes.
+   * Gets the general purpose position attributes.
+   * These can be used to add arbitrary additional information to the object
+   * and for aggregating in portfolios.
+   * @return the value of the property, not null
+   */
+  public Map<String, String> getAttributes() {
+    return _attributes;
+  }
+
+  /**
+   * Sets the general purpose position attributes.
+   * These can be used to add arbitrary additional information to the object
+   * and for aggregating in portfolios.
    * @param attributes  the new value of the property
    */
   public void setAttributes(Map<String, String> attributes) {
@@ -509,6 +515,8 @@ public class SimplePosition extends DirectBean
 
   /**
    * Gets the the {@code attributes} property.
+   * These can be used to add arbitrary additional information to the object
+   * and for aggregating in portfolios.
    * @return the property, not null
    */
   public final Property<Map<String, String>> attributes() {
@@ -549,13 +557,13 @@ public class SimplePosition extends DirectBean
      * The meta-property for the {@code trades} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Set<Trade>> _trades = DirectMetaProperty.ofReadWrite(
-        this, "trades", SimplePosition.class, (Class) Set.class);
+    private final MetaProperty<Collection<Trade>> _trades = DirectMetaProperty.ofReadWrite(
+        this, "trades", SimplePosition.class, (Class) Collection.class);
     /**
      * The meta-property for the {@code attributes} property.
      */
     @SuppressWarnings({"unchecked", "rawtypes" })
-    private final MetaProperty<Map<String, String>> _attributes = DirectMetaProperty.ofWriteOnly(
+    private final MetaProperty<Map<String, String>> _attributes = DirectMetaProperty.ofReadWrite(
         this, "attributes", SimplePosition.class, (Class) Map.class);
     /**
      * The meta-properties.
@@ -646,7 +654,7 @@ public class SimplePosition extends DirectBean
      * The meta-property for the {@code trades} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<Set<Trade>> trades() {
+    public final MetaProperty<Collection<Trade>> trades() {
       return _trades;
     }
 

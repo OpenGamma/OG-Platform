@@ -1,21 +1,22 @@
 package com.opengamma.web.server.push;
 
-import com.opengamma.engine.view.ViewDefinitionRepository;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.tuple.Pair;
-import com.opengamma.web.server.push.rest.ViewDefinitionEntriesResource;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.testng.AssertJUnit.assertEquals;
+
+import java.util.HashMap;
+import java.util.Map;
+
 import org.eclipse.jetty.server.Server;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.web.context.WebApplicationContext;
 import org.testng.annotations.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.testng.AssertJUnit.assertEquals;
+import com.opengamma.engine.view.ViewDefinitionRepository;
+import com.opengamma.id.UniqueId;
+import com.opengamma.util.tuple.Pair;
+import com.opengamma.web.server.push.rest.ViewDefinitionEntriesResource;
 
 public class ViewDefinitionEntriesResourceTest {
 

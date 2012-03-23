@@ -10,8 +10,6 @@ import javax.time.calendar.MonthOfYear;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdWithDates;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**

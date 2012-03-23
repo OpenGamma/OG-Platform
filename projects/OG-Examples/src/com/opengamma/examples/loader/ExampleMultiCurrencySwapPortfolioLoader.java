@@ -31,7 +31,6 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
-import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingInterestRateLeg;
 import com.opengamma.financial.security.swap.FloatingRateType;
