@@ -41,6 +41,8 @@ public class InMemoryNamedMarketDataSpecificationRepository implements NamedMark
   }
 
   public void addSpecification(String name, MarketDataSpecification specification) {
+    ArgumentChecker.notNull(name, "name");
+    ArgumentChecker.notNull(specification, "specification");
     _nameToSpec.put(name, specification);
   }
   
