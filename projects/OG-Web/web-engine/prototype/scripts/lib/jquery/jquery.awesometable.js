@@ -31,6 +31,8 @@
                 width: $self.parentsUntil('.js-awesometable').parent().find(' > table thead').width() + 'px'
             });
         }
+        // cascade header click
+        $dup.find('th').click(function () {$($self.find('th')[$(this).index()]).click();});
         // resize the new header to mimic original
         (function () {
             var len = $self.find('th').length, $dup = $('.js-awesometable > table th'),
