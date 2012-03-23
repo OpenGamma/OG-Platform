@@ -5,15 +5,15 @@
  */
 package com.opengamma.financial.instrument.future;
 
-import javax.time.calendar.ZonedDateTime;
-
-import org.apache.commons.lang.ObjectUtils;
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+
+import javax.time.calendar.ZonedDateTime;
+
+import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang.Validate;
 
 /**
  * Description of transaction on an interest rate future option security with daily margining process (LIFFE and Eurex type).
@@ -101,7 +101,7 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
     Validate.isTrue(!date.isBefore(_tradeDate), "Date is after trade date");
     final InterestRateFutureOptionMarginSecurity underlyingOption = _underlyingOption.toDerivative(date, yieldCurveNames);
     double referencePrice;
-    if (_tradeDate.isBefore(date)) { // Transaction was before last margining.
+    if (_tradeDate.toLocalDate().isBefore(date.toLocalDate())) { // Transaction was before last margining.
       referencePrice = lastMarginPrice;
     } else { // Transaction is today
       referencePrice = _tradePrice;
