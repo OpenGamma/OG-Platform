@@ -248,10 +248,14 @@ public abstract class AbstractTool {
     return option;
   }
 
+  protected Class<?> getEntryPointClass() {
+    return getClass();
+  }
+
   private void usage(Options options) {
     HelpFormatter formatter = new HelpFormatter();
     formatter.setWidth(120);
-    formatter.printHelp("java " + getClass().getName(), options, true);
+    formatter.printHelp("java " + getEntryPointClass().getName(), options, true);
   }
 
 }
