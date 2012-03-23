@@ -44,22 +44,19 @@ public class PortfolioLoaderResource {
                                          //@FormDataParam("dataField") String dataField,
                                          @PathParam("updatePeriod") final long updatePeriod,
                                          @PathParam("updateCount") final int updateCount) throws IOException {
-    FormDataBodyPart fileBodyPart = formData.getField("file");
-    if (fileBodyPart == null) {
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
-    }
-    FormDataBodyPart dataFieldBodyPart = formData.getField("dataField");
-    if (dataFieldBodyPart == null) {
-      throw new WebApplicationException(Response.Status.BAD_REQUEST);
-    }
+    FormDataBodyPart fileBodyPart = getBodyPart(formData, "file");
+    FormDataBodyPart dataFieldBodyPart = getBodyPart(formData, "dataField");
+    FormDataBodyPart bodyPart = getBodyPart(formData, "portfolioName");
     String dataField = dataFieldBodyPart.getValue();
+    String portfolioName = bodyPart.getValue();
     Object fileEntity = fileBodyPart.getEntity();
     if (!(fileEntity instanceof BodyPartEntity)) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
     InputStream fileStream = ((BodyPartEntity) fileEntity).getInputStream();
     String fileContent = IOUtils.toString(fileStream);
-    s_logger.warn("Portfolio uploaded. dataField: {}, portfolio: {}", dataField, fileContent);
+    s_logger.warn("Portfolio uploaded. portfolioName: {}, dataField: {}, portfolio: {}",
+                  new Object[]{portfolioName, dataField, fileContent});
     return new StreamingOutput() {
       @Override
       public void write(OutputStream output) throws IOException, WebApplicationException {
@@ -74,5 +71,13 @@ public class PortfolioLoaderResource {
         }
       }
     };
+  }
+
+  private static FormDataBodyPart getBodyPart(FormDataMultiPart formData, String fieldName) {
+    FormDataBodyPart bodyPart = formData.getField(fieldName);
+    if (bodyPart == null) {
+      throw new WebApplicationException(Response.Status.BAD_REQUEST);
+    }
+    return bodyPart;
   }
 }
