@@ -201,22 +201,26 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
 
   private ViewDefinition getEquityViewDefinition(String portfolioName) {
     UniqueId portfolioId = getPortfolioId(portfolioName);
-    ViewDefinition equityViewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
-    equityViewDefinition.setDefaultCurrency(Currency.USD);
-    equityViewDefinition.setMaxFullCalculationPeriod(30000L);
-    equityViewDefinition.setMinFullCalculationPeriod(500L);
-    equityViewDefinition.setMinDeltaCalculationPeriod(500L);
-    equityViewDefinition.setMaxDeltaCalculationPeriod(30000L);
-    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE, ValueProperties.none());
-    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.CAPM_BETA, ValueProperties.none());
-    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.HISTORICAL_VAR, ValueProperties.none());
-    //    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.JENSENS_ALPHA, ValueProperties.none());
-    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.SHARPE_RATIO, ValueProperties.none());
-    //    equityViewDefinition.addPortfolioRequirement("Default", EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TOTAL_RISK_ALPHA, ValueProperties.none());
-    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.TREYNOR_RATIO, ValueProperties.none());
-    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.WEIGHT, ValueProperties.none());
-    equityViewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL, ValueProperties.none());
-    return equityViewDefinition;
+    ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
+    viewDefinition.setDefaultCurrency(Currency.USD);
+    viewDefinition.setMaxFullCalculationPeriod(30000L);
+    viewDefinition.setMinFullCalculationPeriod(500L);
+    viewDefinition.setMinDeltaCalculationPeriod(500L);
+    viewDefinition.setMaxDeltaCalculationPeriod(30000L);
+    
+    ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
+    addValueRequirements(defaultCalc, EquitySecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE, ValueRequirementNames.CAPM_BETA, ValueRequirementNames.HISTORICAL_VAR,
+        ValueRequirementNames.SHARPE_RATIO, ValueRequirementNames.TREYNOR_RATIO, ValueRequirementNames.JENSENS_ALPHA, ValueRequirementNames.TOTAL_RISK_ALPHA);
+    defaultCalc.addPortfolioRequirement(EquitySecurity.SECURITY_TYPE, ValueRequirementNames.PNL, 
+        ValueProperties.with(ValuePropertyNames.CURRENCY, Currency.USD.getCode()).get());
+    viewDefinition.addViewCalculationConfiguration(defaultCalc);
+    return viewDefinition;
+  }
+
+  private void addValueRequirements(final ViewCalculationConfiguration calcConfiguration, final String securityType, final String ... valueRequirementNames) {
+    for (String valueRequirementName : valueRequirementNames) {
+      calcConfiguration.addPortfolioRequirementName(securityType, valueRequirementName);
+    }
   }
 
   private UniqueId getPortfolioId(String portfolioName) {
