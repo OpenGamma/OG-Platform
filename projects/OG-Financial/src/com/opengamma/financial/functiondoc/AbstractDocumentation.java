@@ -462,7 +462,7 @@ public abstract class AbstractDocumentation implements Runnable {
     final List<String> categories = new ArrayList<String>(_valueRequirementByCategory.keySet());
     Collections.sort(categories);
     for (String category : categories) {
-      sb.append("\nh2.").append(category).append("\n\n");
+      sb.append("\nh2. ").append(category).append("\n\n");
       sb.append("|| Value Requirement Name || Java Constant || Description ||\n");
       for (ValueRequirementInfo info : _valueRequirementByCategory.get(category)) {
         sb.append("| ").append(info.getName()).append(" | ").append(info.getSymbol()).append(" | ");

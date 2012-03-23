@@ -788,7 +788,7 @@ public final class ValueRequirementNames {
   ///// Bonds
 
   /**
-   * TODO: single sentence description of ACTUAL_REPO
+   * The return earned on a repo transaction expressed as an interest rate on the case side of the transaction.
    */
   public static final String ACTUAL_REPO = "Actual Repo";
   /**
@@ -832,11 +832,11 @@ public final class ValueRequirementNames {
    */
   public static final String MACAULAY_DURATION = "Macaulay Duration";
   /**
-   * TODO: single sentence description of MARKET_CLEAN_PRICE
+   * The quoted market value of the clean price of a bond (ie excluding accrued interest).
    */
   public static final String MARKET_CLEAN_PRICE = "Market Clean Price";
   /**
-   * The quoted market value of the dirty price of a bond. 
+   * The quoted market value of the dirty price of a bond (ie excluding accrued interest).
    */
   public static final String MARKET_DIRTY_PRICE = "Market Dirty Price";
   /**
@@ -860,7 +860,7 @@ public final class ValueRequirementNames {
    */
   public static final String NSS_BOND_CURVE = "Nelson-Siegel-Svennson Bond Curve";
   /**
-   * TODO: single sentence description of PRESENT_VALUE_Z_SPREAD_SENSITIVITY
+   * The sensitivity of a bond's PV to a unit change in the Z-spread.
    */
   public static final String PRESENT_VALUE_Z_SPREAD_SENSITIVITY = "PV Z Spread Sensitivity";
   /**
