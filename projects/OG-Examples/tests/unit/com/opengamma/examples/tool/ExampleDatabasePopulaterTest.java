@@ -13,7 +13,7 @@ import org.testng.annotations.Test;
 import com.opengamma.component.tool.ToolContextUtils;
 import com.opengamma.examples.DBTestUtils;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
-import com.opengamma.examples.loader.ExampleMixedPortfolioLoader;
+import com.opengamma.examples.loader.ExampleMultiAssetPortfolioLoader;
 import com.opengamma.examples.loader.ExampleMultiCurrencySwapPortfolioLoader;
 import com.opengamma.examples.loader.ExampleSwapPortfolioLoader;
 import com.opengamma.financial.tool.ToolContext;
@@ -78,7 +78,7 @@ public class ExampleDatabasePopulaterTest {
 
   private void assertMixedPortfolio(ToolContext toolContext) {
     PortfolioMaster portfolioMaster = toolContext.getPortfolioMaster();
-    assertPortfolio(portfolioMaster, ExampleMixedPortfolioLoader.PORTFOLIO_NAME);
+    assertPortfolio(portfolioMaster, ExampleMultiAssetPortfolioLoader.PORTFOLIO_NAME);
   }
 
   private void assertPortfolio(PortfolioMaster portfolioMaster, String portfolioName) {

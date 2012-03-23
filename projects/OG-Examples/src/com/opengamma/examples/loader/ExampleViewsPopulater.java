@@ -82,12 +82,12 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
   }
 
   private void createMixedPortfolioViewDefinition() {
-    storeViewDefinition(getMixedPortfolioViewDefinition());
+    storeViewDefinition(getMultiAssetPortfolioViewDefinition());
   }
 
-  private ViewDefinition getMixedPortfolioViewDefinition() {
-    UniqueId portfolioId = getPortfolioId(ExampleMixedPortfolioLoader.PORTFOLIO_NAME);
-    ViewDefinition viewDefinition = new ViewDefinition(ExampleMixedPortfolioLoader.PORTFOLIO_NAME + " View", portfolioId, UserPrincipal.getTestUser());
+  private ViewDefinition getMultiAssetPortfolioViewDefinition() {
+    UniqueId portfolioId = getPortfolioId(ExampleMultiAssetPortfolioLoader.PORTFOLIO_NAME);
+    ViewDefinition viewDefinition = new ViewDefinition(ExampleMultiAssetPortfolioLoader.PORTFOLIO_NAME + " View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);
@@ -266,8 +266,11 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
 
     ViewCalculationConfiguration nativeCurrencyCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
     nativeCurrencyCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
-    addValueRequirements(nativeCurrencyCalc, SwapSecurity.SECURITY_TYPE, 
-        new String[] {ValueRequirementNames.PV01, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES }, ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").get());
+    addValueRequirements(nativeCurrencyCalc, SwapSecurity.SECURITY_TYPE, new String[] {ValueRequirementNames.PV01}, ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").get());
+    for (Currency ccy : ExampleMultiCurrencySwapPortfolioLoader.s_currencies) {
+      nativeCurrencyCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, 
+          ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).get());
+    }
     viewDefinition.addViewCalculationConfiguration(nativeCurrencyCalc);
 
     return viewDefinition;

@@ -15,7 +15,7 @@ import com.google.common.collect.Sets;
 import com.opengamma.examples.loader.ExampleCurveAndSurfaceDefinitionLoader;
 import com.opengamma.examples.loader.ExampleEquityPortfolioLoader;
 import com.opengamma.examples.loader.ExampleHistoricalDataGeneratorTool;
-import com.opengamma.examples.loader.ExampleMixedPortfolioLoader;
+import com.opengamma.examples.loader.ExampleMultiAssetPortfolioLoader;
 import com.opengamma.examples.loader.ExampleMultiCurrencySwapPortfolioLoader;
 import com.opengamma.examples.loader.ExampleSwapPortfolioLoader;
 import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
@@ -100,7 +100,7 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
   }
 
   private void loadMixedPortfolio() {
-    ExampleMixedPortfolioLoader mixedPortfolioLoader = new ExampleMixedPortfolioLoader();
+    ExampleMultiAssetPortfolioLoader mixedPortfolioLoader = new ExampleMultiAssetPortfolioLoader();
     System.out.println("Creating example mixed portfolio");
     mixedPortfolioLoader.run(getToolContext());
     System.out.println("Finished");

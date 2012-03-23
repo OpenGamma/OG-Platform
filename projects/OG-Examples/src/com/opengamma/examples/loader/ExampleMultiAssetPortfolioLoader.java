@@ -68,21 +68,21 @@ import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
 
 /**
- * Example code to load a mixed portfolio.
+ * Example code to load a multi asset portfolio.
  */
-public class ExampleMixedPortfolioLoader extends AbstractExampleTool {
+public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
   
   /**
    * Example mixed portfolio name
    */
-  public static final String PORTFOLIO_NAME = "Example Mixed Portfolio";
-  private static final String ID_SCHEME = "MIXED_PORFOLIO_LOADER";
+  public static final String PORTFOLIO_NAME = "Example Multi Asset Portfolio";
+  private static final String ID_SCHEME = "MULTI_ASSET_PORFOLIO_LOADER";
   private static final DayCount DAY_COUNT = DayCountFactory.INSTANCE.getDayCount("Actual/360");
   private static final BusinessDayConvention BUSINESS_DAY = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Following");
   private static final ExternalId USDLIBOR3M = ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, "USDLIBORP3M");
 
   public static void main(String[] args) { //CSIGNORE
-    new ExampleMixedPortfolioLoader().initAndRun(args);
+    new ExampleMultiAssetPortfolioLoader().initAndRun(args);
     System.exit(0);
   }
 
