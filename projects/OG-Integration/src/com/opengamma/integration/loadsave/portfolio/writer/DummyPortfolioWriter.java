@@ -6,10 +6,6 @@
 
 package com.opengamma.integration.loadsave.portfolio.writer;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.opengamma.integration.loadsave.portfolio.PortfolioLoader;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
@@ -20,8 +16,6 @@ import com.opengamma.master.security.ManageableSecurity;
  * TODO implement portfolio tree methods
  */
 public class DummyPortfolioWriter implements PortfolioWriter {
-
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoader.class);
 
   private ManageablePortfolioNode _node = new ManageablePortfolioNode();
   

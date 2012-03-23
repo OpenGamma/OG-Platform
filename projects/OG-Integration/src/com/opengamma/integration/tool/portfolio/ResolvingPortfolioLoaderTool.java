@@ -52,10 +52,10 @@ public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
     new ResolvingPortfolioLoader().run(
         getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT), 
         getCommandLine().getOptionValue(FILE_NAME_OPT), 
-        getCommandLine().getOptionValue(TIME_SERIES_DATASOURCE_OPT), 
-        getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT), 
-        getCommandLine().getOptionValue(TIME_SERIES_DATAFIELD_OPT), 
-        getCommandLine().getOptionValue(TIME_SERIES_OBSERVATIONTIME_OPT), 
+        getCommandLine().getOptionValue(TIME_SERIES_DATASOURCE_OPT) == null ? "BLOOMBERG" : getCommandLine().getOptionValue(TIME_SERIES_DATASOURCE_OPT), 
+        getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT) == null ? "CMPL" : getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT),
+        getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT) == null ? new String[] {"PX_LAST"} : getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT), 
+        getCommandLine().getOptionValue(TIME_SERIES_OBSERVATIONTIME_OPT) == null ? "LONDON_CLOSE" : getCommandLine().getOptionValue(TIME_SERIES_OBSERVATIONTIME_OPT), 
         getCommandLine().hasOption(WRITE_OPT), 
         getToolContext()
     );
