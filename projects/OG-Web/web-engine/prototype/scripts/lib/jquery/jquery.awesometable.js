@@ -31,6 +31,7 @@
                 width: $self.parentsUntil('.js-awesometable').parent().find(' > table thead').width() + 'px'
             });
         }
+
         $self.find('thead tr').hide().parent().find('tr:last').show(); // if multiple header rows, use last only
         // cascade header click
         $dup.find('th').click(function () {$($self.find('tr:last-child th')[$(this).index()]).click();});
