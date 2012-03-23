@@ -7,6 +7,10 @@
 package com.opengamma.integration.loadsave.portfolio.reader;
 
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
+import com.opengamma.master.portfolio.ManageablePortfolioNode;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * Abstract portfolio loader class that merely specifies the ability to write imported trades/positions to a PortfolioWriter
@@ -20,4 +24,15 @@ public abstract interface PortfolioReader {
    */
   void writeTo(PortfolioWriter portfolioWriter);
   
+  /**
+   * Read the next row as a position, possibly containing trades, and one or more securities
+   * @return a pair containing the position and its securities
+   */
+  ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext();
+    
+  /**
+   * Get the current portfolio node. This is normally root if reading from a simple sheet
+   * @return  the current node
+   */
+  ManageablePortfolioNode getCurrentNode();
 }

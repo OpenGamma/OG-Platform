@@ -263,7 +263,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    */
   public void presentValueCurveSensitivityCap() {
     InterestRateCurveSensitivity pvcsCap = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_CAP_SPREAD, SABR_BUNDLE);
-    pvcsCap = pvcsCap.clean();
+    pvcsCap = pvcsCap.cleaned();
     final double deltaToleranceRelative = 2.5E-4; // Numerical imprecision, reduce to E-6 when nbInteration = 1000;
     final double deltaShift = 1.0E-6;
     String bumpedCurveName = "Bumped Curve";
@@ -323,7 +323,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     String[] curvesUpName = TestsDataSetsSABR.curves2Names();
     CapFloorCMSSpread cmsCapSpread = (CapFloorCMSSpread) CMS_CAP_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {curvesUpName[0], curvesUpName[1]});
     InterestRateCurveSensitivity pvcsCap = METHOD_CMS_SPREAD.presentValueCurveSensitivity(cmsCapSpread, sabrBundleCurveUp);
-    pvcsCap = pvcsCap.clean();
+    pvcsCap = pvcsCap.cleaned();
     final double deltaToleranceRelative = 3.0E-4; // Numerical imprecision, reduce to E-6 when nbInteration = 1000;
     final double deltaShift = 1.0E-6;
     String bumpedCurveName = "Bumped Curve";
@@ -379,7 +379,7 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
    */
   public void presentValueCurveSensitivityFloor() {
     InterestRateCurveSensitivity pvcsFloor = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_FLOOR_SPREAD, SABR_BUNDLE);
-    pvcsFloor = pvcsFloor.clean();
+    pvcsFloor = pvcsFloor.cleaned();
     final double deltaToleranceRelative = 7.0E-4; // Numerical imprecision, reduce to E-6 when nbInteration = 1000;
     final double deltaShift = 1.0E-6;
     String bumpedCurveName = "Bumped Curve";
@@ -452,10 +452,10 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     SABRInterestRateCorrelationParameters sabrCorrelation = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
     SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
     InterestRateCurveSensitivity pvcsLong = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
-    pvcsLong = pvcsLong.clean();
+    pvcsLong = pvcsLong.cleaned();
     InterestRateCurveSensitivity pvcsShort = METHOD_CMS_SPREAD.presentValueCurveSensitivity(cmsCapSpreadShort, sabrBundleCor);
     pvcsShort = pvcsShort.multiply(-1);
-    pvcsShort = pvcsShort.clean();
+    pvcsShort = pvcsShort.cleaned();
     assertTrue("CMS cap spread: Long/Short parity", InterestRateCurveSensitivity.compare(pvcsLong, pvcsShort, TOLERANCE_PRICE));
   }
 
@@ -469,10 +469,10 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     SABRInterestRateCorrelationParameters sabrCorrelation = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
     SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
     InterestRateCurveSensitivity pvcsLong = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_FLOOR_SPREAD, sabrBundleCor);
-    pvcsLong = pvcsLong.clean();
+    pvcsLong = pvcsLong.cleaned();
     InterestRateCurveSensitivity pvcsShort = METHOD_CMS_SPREAD.presentValueCurveSensitivity(cmsCapSpreadShort, sabrBundleCor);
     pvcsShort = pvcsShort.multiply(-1);
-    pvcsShort = pvcsShort.clean();
+    pvcsShort = pvcsShort.cleaned();
     assertTrue("CMS floor spread: Long/Short parity", InterestRateCurveSensitivity.compare(pvcsLong, pvcsShort, TOLERANCE_PRICE));
   }
 
@@ -484,21 +484,21 @@ public class CapFloorCMSSpreadSABRBinormalMethodTest {
     SABRInterestRateCorrelationParameters sabrCorrelation = SABRInterestRateCorrelationParameters.from(SABR_PARAMETERS, CORRELATION_FUNCTION);
     SABRInterestRateDataBundle sabrBundleCor = new SABRInterestRateDataBundle(sabrCorrelation, CURVES);
     InterestRateCurveSensitivity pvcsCapLong = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_CAP_SPREAD, sabrBundleCor);
-    pvcsCapLong = pvcsCapLong.clean();
+    pvcsCapLong = pvcsCapLong.cleaned();
     InterestRateCurveSensitivity pvcsFloorLong = METHOD_CMS_SPREAD.presentValueCurveSensitivity(CMS_FLOOR_SPREAD, sabrBundleCor);
-    pvcsFloorLong = pvcsFloorLong.clean();
+    pvcsFloorLong = pvcsFloorLong.cleaned();
     CouponCMS cms1 = new CouponCMS(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_1, SETTLEMENT_TIME);
     CouponCMS cms2 = new CouponCMS(CUR, PAYMENT_TIME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, FIXING_TIME, SWAP_2, SETTLEMENT_TIME);
     CouponFixed cpnStrike = new CouponFixed(CUR, PAYMENT_TIME, FUNDING_CURVE_NAME, PAYMENT_ACCRUAL_FACTOR, NOTIONAL, STRIKE);
     InterestRateCurveSensitivity pvcsCMS1 = METHOD_CMS.presentValueCurveSensitivity(cms1, sabrBundleCor);
-    pvcsCMS1 = pvcsCMS1.clean();
+    pvcsCMS1 = pvcsCMS1.cleaned();
     InterestRateCurveSensitivity pvcsCMS2 = METHOD_CMS.presentValueCurveSensitivity(cms2, sabrBundleCor);
-    pvcsCMS2 = pvcsCMS2.clean();
+    pvcsCMS2 = pvcsCMS2.cleaned();
     InterestRateCurveSensitivity pvcsStrike = METHOD_CPN_FIXED.presentValueCurveSensitivity(cpnStrike, sabrBundleCor);
     InterestRateCurveSensitivity pvcsParity1 = pvcsCMS1.plus(pvcsCMS2.plus(pvcsStrike).multiply(-1));
-    pvcsParity1 = pvcsParity1.clean();
+    pvcsParity1 = pvcsParity1.cleaned();
     InterestRateCurveSensitivity pvcsParity2 = pvcsCapLong.plus(pvcsFloorLong.multiply(-1));
-    pvcsParity2 = pvcsParity2.clean();
+    pvcsParity2 = pvcsParity2.cleaned();
     assertTrue("CMS spread: curve sensitivity - Cap/Floor parity", InterestRateCurveSensitivity.compare(pvcsParity1, pvcsParity2, TOLERANCE_PRICE));
   }
 

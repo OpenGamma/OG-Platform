@@ -125,8 +125,9 @@ public abstract class NodeSensitivityCalculatorTest {
     assertArrayEquals(fdResult.getData(), result.getData(), 1e-8);
   }
 
-  protected DoubleMatrix1D finiteDiffNodeSensitivities(final InstrumentDerivative ird, final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator,
-      final YieldCurveBundle fixedCurves, final YieldCurveBundle interpolatedCurves) {
+  // TODO: make this a method generally available?
+  protected DoubleMatrix1D finiteDiffNodeSensitivities(final InstrumentDerivative ird, final InstrumentDerivativeVisitor<YieldCurveBundle, Double> valueCalculator, final YieldCurveBundle fixedCurves,
+      final YieldCurveBundle interpolatedCurves) {
 
     int nNodes = 0;
     for (final String curveName : interpolatedCurves.getAllNames()) {
@@ -148,7 +149,7 @@ public abstract class NodeSensitivityCalculatorTest {
       @Override
       public Double evaluate(final DoubleMatrix1D x) {
 
-        final YieldCurveBundle curves = new YieldCurveBundle();
+        final YieldCurveBundle curves = interpolatedCurves.copy(); // new YieldCurveBundle();
         int index2 = 0;
         for (final String name : interpolatedCurves.getAllNames()) {
           final YieldAndDiscountCurve curve = interpolatedCurves.getCurve(name);
@@ -159,7 +160,7 @@ public abstract class NodeSensitivityCalculatorTest {
           index2 += numberOfNodes;
 
           final YieldAndDiscountCurve newCurve = new YieldCurve(InterpolatedDoublesCurve.from(dataBundle.getKeys(), yields1, ((InterpolatedDoublesCurve) curve.getCurve()).getInterpolator()));
-          curves.setCurve(name, newCurve);
+          curves.replaceCurve(name, newCurve); // setCurve(name, newCurve);
         }
         if (fixedCurves != null) {
           curves.addAll(fixedCurves);

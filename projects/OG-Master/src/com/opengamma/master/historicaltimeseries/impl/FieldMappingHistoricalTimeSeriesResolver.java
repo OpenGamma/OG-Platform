@@ -86,6 +86,10 @@ public class FieldMappingHistoricalTimeSeriesResolver extends DefaultHistoricalT
     return new HistoricalTimeSeriesResolutionResult(selectedResult, adjuster);
   }
   
+  public Collection<HistoricalTimeSeriesFieldAdjustmentMap> getFieldMaps() {
+    return _fieldMaps.values();
+  }
+  
   //-------------------------------------------------------------------------
   private Map<String, HistoricalTimeSeriesFieldAdjustmentMap> getFieldMaps(Collection<HistoricalTimeSeriesFieldAdjustmentMap> fieldMaps) {
     Map<String, HistoricalTimeSeriesFieldAdjustmentMap> result = new HashMap<String, HistoricalTimeSeriesFieldAdjustmentMap>();

@@ -270,7 +270,7 @@ public class AnnuityCouponIborRatchetHullWhiteMethodTest {
     methodMC = new HullWhiteMonteCarloMethod(new NormalRandomNumberGenerator(0.0, 1.0, new MersenneTwister()), nbPath);
     // Seed fixed to the DEFAULT_SEED for testing purposes.
     InterestRateCurveSensitivity pvcsMC = methodMC.presentValueCurveSensitivity(ANNUITY_RATCHET_FIXED, CURVES_NAMES[0], BUNDLE_HW);
-    pvcsMC = pvcsMC.clean(1.0E-10, 1.0E-2); // (1.0E-10, 1.0E-2);
+    pvcsMC = pvcsMC.cleaned(1.0E-10, 1.0E-2); // (1.0E-10, 1.0E-2);
 
     PresentValueHullWhiteMonteCarloCalculator calculator = PresentValueHullWhiteMonteCarloCalculator.getInstance();
 

@@ -164,7 +164,7 @@ public class CapFloorIborSABRMethodTest {
     final double deltaTolerance = 1.0E+2;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-7;
-    pvsCapLong = pvsCapLong.clean();
+    pvsCapLong = pvsCapLong.cleaned();
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
     final String[] bumpedCurvesForwardName = {FUNDING_CURVE_NAME, bumpedCurveName};

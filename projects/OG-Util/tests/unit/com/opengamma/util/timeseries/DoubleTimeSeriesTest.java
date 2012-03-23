@@ -6,14 +6,6 @@
 package com.opengamma.util.timeseries;
 
 
-import org.testng.annotations.Test;
-import org.testng.Assert;
-import org.testng.AssertJUnit;
-import static org.testng.AssertJUnit.assertEquals;
-import static org.testng.AssertJUnit.assertFalse;
-import static org.testng.AssertJUnit.assertTrue;
-import static org.testng.AssertJUnit.fail;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -26,9 +18,10 @@ import org.fudgemsg.FudgeMsg;
 import org.fudgemsg.FudgeMsgFormatter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.testng.Assert;
+import org.testng.AssertJUnit;
 import org.testng.annotations.Test;
 
-import com.beust.jcommander.internal.Lists;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;

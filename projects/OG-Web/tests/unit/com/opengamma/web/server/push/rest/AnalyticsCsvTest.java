@@ -5,10 +5,11 @@
  */
 package com.opengamma.web.server.push.rest;
 
-import com.opengamma.web.server.push.WebPushTestUtils;
+import java.io.IOException;
+
 import org.json.JSONException;
 
-import java.io.IOException;
+import com.opengamma.web.server.push.WebPushTestUtils;
 
 /**
  * Tests getting analytics as CSV from a real engine.  Requires an engine running on {@code localhost}.

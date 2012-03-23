@@ -26,6 +26,9 @@ import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.loadsave.sheet.reader.CsvSheetReader;
 import com.opengamma.integration.loadsave.sheet.reader.SheetReader;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * Portfolio reader that reads multiple CSV files within a ZIP archive, identifies the correct parser class for each,
@@ -38,16 +41,18 @@ public class ZippedPortfolioReader implements PortfolioReader {
 
   private static final String SHEET_EXTENSION = ".csv";
 
-  private ZipFile _zipFile;
   private ToolContext _toolContext;
-
+  private ZipFile _zipFile;
   private Map<String, Integer> _versionMap = new HashMap<String, Integer>();
 
+  private Enumeration<ZipEntry> _zipEntries;
+  
   public ZippedPortfolioReader(String filename, ToolContext toolContext) {
     _toolContext = toolContext;
     
     try {
       _zipFile = new ZipFile(filename);
+      _zipEntries = (Enumeration<ZipEntry>) _zipFile.entries();
     } catch (IOException ex) {
       throw new OpenGammaRuntimeException("Could not open " + filename);
     }
@@ -137,7 +142,60 @@ public class ZippedPortfolioReader implements PortfolioReader {
       }
     }
   }
-    
+
+  // TODO
+  @Override
+  public ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext() {
+    throw new UnsupportedOperationException();
+//    if (!_zipEntries.hasMoreElements()) {
+//      return null;
+//    }
+//    
+//    ZipEntry entry = _zipEntries.nextElement();
+//    
+//    if (!entry.isDirectory() && entry.getName().substring(entry.getName().lastIndexOf('.')).equalsIgnoreCase(SHEET_EXTENSION)) {
+//      try {
+//        // Extract full path
+//        String[] path = entry.getName().split("/");
+//
+//        // Extract security name
+//        String secType = path[path.length - 1].substring(0, path[path.length - 1].lastIndexOf('.'));
+//
+//        // Set up a sheet reader for the current CSV file in the ZIP archive
+//        SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
+//
+//        RowParser parser = RowParser.newRowParser(secType, _toolContext);
+//        if (parser == null) {
+//          s_logger.error("Could not build a row parser for security type '" + secType + "'");
+//          return null; 
+//        }
+//        if (_versionMap.get(secType) == null) {
+//          s_logger.error("Versioning hash for security type '" + secType + "' could not be found");
+//          return null;
+//        }
+//        if (parser.getSecurityHashCode() != _versionMap.get(secType)) {
+//          s_logger.error("The parser version for the '" + secType + "' security (hash " + 
+//              Integer.toHexString(parser.getSecurityHashCode()) + 
+//              ") does not match the data stored in the archive (hash " + 
+//              Integer.toHexString(_versionMap.get(secType)) + ")");
+//          return null;
+//        }
+//        
+//        // Create a generic simple portfolio loader for the current sheet, using a dynamically loaded row parser class
+//        SingleSheetPortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(sheet, sheet.getColumns(), parser);
+//
+//        s_logger.info("Processing rows in archive entry " + entry.getName() + " as " + secType);
+//
+//      } catch (Throwable ex) {
+//        s_logger.warn("Could not import from " + entry.getName() + ", skipping file (exception is " + ex + ")");
+//      }
+//    }
+//
+//    return null;
+  }
+ 
+  
+  
   private void readMetaData(String filename) {
 
     InputStream cfgInputStream;
@@ -172,5 +230,11 @@ public class ZippedPortfolioReader implements PortfolioReader {
       throw new OpenGammaRuntimeException("Could not find METADATA.INI");
     }
   }
-  
+
+  // TODO
+  @Override
+  public ManageablePortfolioNode getCurrentNode() {
+    throw new UnsupportedOperationException();
+  }
+ 
 }

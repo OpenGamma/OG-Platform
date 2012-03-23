@@ -24,6 +24,12 @@ import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurityVisitor;
 import com.opengamma.financial.security.cash.CashSecurity;
 import com.opengamma.financial.security.cash.CashSecurityVisitor;
+import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurityVisitor;
+import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurityVisitor;
+import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurityVisitor;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquitySecurityVisitor;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
@@ -75,10 +81,10 @@ import com.opengamma.financial.security.swap.SwapSecurityVisitor;
  * 
  */
 public class DetailedAssetClassAggregationFunction implements AggregationFunction<String> {
-  
+
   private static final String NAME = "Asset Class - Detailed";
-  
-  private Comparator<Position> _comparator = new SimplePositionComparator();
+
+  private final Comparator<Position> _comparator = new SimplePositionComparator();
   private static final String EQUITIES = "Equities";
   private static final String GOVERNMENT_BONDS = "Government Bonds";
   private static final String MUNICIPAL_BONDS = "Municipal Bonds";
@@ -224,61 +230,73 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
           return EQUITY_INDEX_OPTIONS;
         }
       }, new EquityIndexDividendFutureOptionSecurityVisitor<String>() {
+
         @Override
         public String visitEquityIndexDividendFutureOptionSecurity(final EquityIndexDividendFutureOptionSecurity security) {
           return EQUITY_INDEX_DIVIDEND_FUTURE_OPTIONS;
         }
       }, new EquityOptionSecurityVisitor<String>() {
+
         @Override
         public String visitEquityOptionSecurity(final EquityOptionSecurity equityOptionSecurity) {
           return EQUITY_OPTIONS;
         }
       }, new EquityBarrierOptionSecurityVisitor<String>() {
+
         @Override
         public String visitEquityBarrierOptionSecurity(final EquityBarrierOptionSecurity equityOptionSecurity) {
           return EQUITY_BARRIER_OPTIONS;
         }
       }, new FXOptionSecurityVisitor<String>() {
+
         @Override
         public String visitFXOptionSecurity(final FXOptionSecurity fxOptionSecurity) {
           return FX_OPTIONS;
         }
       }, new NonDeliverableFXOptionSecurityVisitor<String>() {
+
         @Override
         public String visitNonDeliverableFXOptionSecurity(final NonDeliverableFXOptionSecurity fxOptionSecurity) {
           return NONDELIVERABLE_FX_OPTIONS;
         }
       }, new SwaptionSecurityVisitor<String>() {
+
         @Override
         public String visitSwaptionSecurity(final SwaptionSecurity swaptionSecurity) {
           return SWAPTIONS;
         }
       }, new IRFutureOptionSecurityVisitor<String>() {
+
         @Override
         public String visitIRFutureOptionSecurity(final IRFutureOptionSecurity irFutureOptionSecurity) {
           return IRFUTURE_OPTIONS;
         }
       }, new FXBarrierOptionSecurityVisitor<String>() {
+
         @Override
         public String visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
           return FX_BARRIER_OPTIONS;
         }
       }, new FXDigitalOptionSecurityVisitor<String>() {
+
         @Override
         public String visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity fxDigitalOptionSecurity) {
           return FX_DIGITAL_OPTIONS;
         }
       }, new NonDeliverableFXDigitalOptionSecurityVisitor<String>() {
+
         @Override
         public String visitNonDeliverableFXDigitalOptionSecurity(final NonDeliverableFXDigitalOptionSecurity nonDeliverableFxDigitalOptionSecurity) {
           return NONDELIVERABLE_FX_DIGITAL_OPTIONS;
         }
       }, new FXForwardSecurityVisitor<String>() {
+
         @Override
         public String visitFXForwardSecurity(final FXForwardSecurity security) {
           return FX_FORWARDS;
         }
       }, new NonDeliverableFXForwardSecurityVisitor<String>() {
+
         @Override
         public String visitNonDeliverableFXForwardSecurity(final NonDeliverableFXForwardSecurity security) {
           return NONDELIVERABLE_FX_FORWARDS;
@@ -298,8 +316,25 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
         public String visitEquityVarianceSwapSecurity(final EquityVarianceSwapSecurity security) {
           return EQUITY_VARIANCE_SWAPS;
         }
-      }
-      ));
+      }, new SimpleZeroDepositSecurityVisitor<String>() {
+
+        @Override
+        public String visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+          throw new UnsupportedOperationException("Should not form a position containing a SimpleZeroDepositSecurity");
+        }
+      }, new PeriodicZeroDepositSecurityVisitor<String>() {
+
+        @Override
+        public String visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+          throw new UnsupportedOperationException("Should not form a position containing a PeriodicZeroDepositSecurity");
+        }
+      }, new ContinuousZeroDepositSecurityVisitor<String>() {
+
+        @Override
+        public String visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
+          throw new UnsupportedOperationException("Should not form a position containing a ContinuousZeroDepositSecurity");
+        }
+      }));
     } else {
       return UNKNOWN;
     }
@@ -316,7 +351,7 @@ public class DetailedAssetClassAggregationFunction implements AggregationFunctio
   }
 
   @Override
-  public int compare(String detailedAssetClass1, String detailedAssetClass2) {
+  public int compare(final String detailedAssetClass1, final String detailedAssetClass2) {
     return detailedAssetClass1.compareTo(detailedAssetClass2);
   }
 

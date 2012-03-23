@@ -42,7 +42,6 @@
     <orderEntry type="module" module-name="OG-MasterDB" />
     <orderEntry type="module" module-name="OG-Financial" />
     <orderEntry type="module" module-name="OG-Web" />
-    <orderEntry type="module" module-name="OG-Activ" />
     <orderEntry type="module" module-name="Fudge-Java" />
     <orderEntry type="module" module-name="Fudge-Proto" />
     <orderEntry type="module" module-name="OG-Component" />
@@ -63,7 +62,6 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.jdesktop/swingx/jars/swingx-1.0.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sourceforge.ehcache/ehcache/jars/ehcache-core-1.7.2.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.slf4j/slf4j/jars/slf4j-api-1.5.11.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.bloomberglp/blpapi/jars/blpapi-3.1.0.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/javadocs/commons-logging-javadoc-1.1.1.jar!/" />

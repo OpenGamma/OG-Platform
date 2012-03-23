@@ -9,7 +9,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.id.UniqueId;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**

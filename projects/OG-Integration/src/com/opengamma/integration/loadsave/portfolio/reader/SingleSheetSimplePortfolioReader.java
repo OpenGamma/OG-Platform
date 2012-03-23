@@ -7,20 +7,27 @@ package com.opengamma.integration.loadsave.portfolio.reader;
 
 import java.util.Map;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.loadsave.sheet.reader.SheetReader;
+import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * A simple portfolio reader assumes that the input sheet only contains one asset class, and may also be used as a base
  * class for specific asset class loaders that follow this rule.
  */
 public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader {
+
+  private static final Logger s_logger = LoggerFactory.getLogger(SingleSheetSimplePortfolioReader.class);
 
   /*
    * Load one or more parsers for different types of securities/trades/whatever here
@@ -68,33 +75,68 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
     // Get the next row from the sheet
     while ((row = getSheet().loadNextRow()) != null) {
     
-      // Print debugging output
-      // prettyPrintRow(row);
-      
       // Build the underlying security
       ManageableSecurity[] security = _rowParser.constructSecurity(row);
-      
-      // Attempt to write securities and obtain the correct security (either newly written or original)
-      // Write array in reverse order as underlying is at position 0
-      for (int i = security.length - 1; i >= 0; i--) {
-        security[i] = portfolioWriter.writeSecurity(security[i]);        
+      if (security.length > 0) {
+        // Attempt to write securities and obtain the correct security (either newly written or original)
+        // Write array in reverse order as underlying is at position 0
+        for (int i = security.length - 1; i >= 0; i--) {
+          security[i] = portfolioWriter.writeSecurity(security[i]);        
+        }
+  
+        
+        // Build the position and trade(s) using security[0] (underlying)
+        ManageablePosition position = _rowParser.constructPosition(row, security[0]);
+        
+        ManageableTrade trade = _rowParser.constructTrade(row, security[0], position);
+        if (trade != null) { 
+          position.addTrade(trade);
+        }
+        
+        // Write positions/trade(s) to masters (trades are implicitly written with the position)
+        portfolioWriter.writePosition(position);
+      } else {
+        s_logger.warn("Row parser was unable to construct a security from row " + row);
       }
-
-      // Build the position and trade(s) using security[0] (underlying)
-      ManageablePosition position = _rowParser.constructPosition(row, security[0]);
-      
-      ManageableTrade trade = _rowParser.constructTrade(row, security[0], position);
-      if (trade != null) { 
-        position.addTrade(trade);
-      }
-      
-      // Write positions/trade(s) to masters (trades are implicitly written with the position)
-      portfolioWriter.writePosition(position);
     }
+  }
+
+  @Override
+  public ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext() {
+    
+    Map<String, String> row = getSheet().loadNextRow();    
+    if (row == null) {
+      return null;
+    }
+    
+    // Build the underlying security
+    ManageableSecurity[] securities = _rowParser.constructSecurity(row);
+    if (securities != null && securities.length > 0) {
+      
+      // Build the position and trade(s) using security[0] (underlying)
+      ManageablePosition position = _rowParser.constructPosition(row, securities[0]);      
+      if (position != null) {
+        ManageableTrade trade = _rowParser.constructTrade(row, securities[0], position);
+        if (trade != null) { 
+          position.addTrade(trade);
+        }
+      }
+      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(position, securities);
+      
+    } else {
+      s_logger.warn("Row parser was unable to construct a security from row " + row);
+      return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(null, null);
+    }
+    
   }
 
   public String[] getColumns() {
     return _columns;
+  }
+
+  @Override
+  public ManageablePortfolioNode getCurrentNode() {
+    return new ManageablePortfolioNode("Root");
   }
 
 }

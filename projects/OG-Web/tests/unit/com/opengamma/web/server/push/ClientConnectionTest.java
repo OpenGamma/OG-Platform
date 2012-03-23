@@ -1,18 +1,5 @@
 package com.opengamma.web.server.push;
 
-import com.google.common.collect.Lists;
-import com.opengamma.core.change.ChangeEvent;
-import com.opengamma.core.change.ChangeType;
-import com.opengamma.id.UniqueId;
-import com.opengamma.web.server.push.rest.MasterType;
-import org.mockito.ArgumentMatcher;
-import org.testng.annotations.BeforeMethod;
-import org.testng.annotations.Test;
-
-import javax.time.Instant;
-import java.util.Collection;
-
-import static com.opengamma.web.server.push.CollectionMatcher.collectionOf;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -20,6 +7,20 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
+
+import java.util.Collection;
+
+import javax.time.Instant;
+
+import org.mockito.ArgumentMatcher;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
+import com.google.common.collect.Lists;
+import com.opengamma.core.change.ChangeEvent;
+import com.opengamma.core.change.ChangeType;
+import com.opengamma.id.UniqueId;
+import com.opengamma.web.server.push.rest.MasterType;
 
 /**
  * Test the subscription mechanism of {@link ClientConnection}.  Subscriptions are added for REST URLs.  When any
@@ -61,7 +62,7 @@ public class ClientConnectionTest {
     // subscribe and verify the _listener receives the event
     _connection.subscribe(_uid1, TEST_URL1);
     _connection.entityChanged(event);
-    verify(_listener).itemsUpdated(collectionOf(TEST_URL1));
+    verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1));
 
     // send the event again and make sure the subscription has been cancelled
     _connection.entityChanged(event);
@@ -77,7 +78,7 @@ public class ClientConnectionTest {
     // subscribe and verify the listener receives the event
     _connection.subscribe(MasterType.PORTFOLIO, TEST_URL1);
     _connection.masterChanged(MasterType.PORTFOLIO);
-    verify(_listener).itemsUpdated(collectionOf(TEST_URL1));
+    verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1));
 
     // send the event again and make sure the subscription has been cancelled
     _connection.masterChanged(MasterType.PORTFOLIO);
@@ -95,7 +96,7 @@ public class ClientConnectionTest {
     _connection.subscribe(_uid1, TEST_URL1);
     _connection.subscribe(_uid1, TEST_URL2);
     _connection.entityChanged(event);
-    verify(_listener).itemsUpdated(collectionOf(TEST_URL1, TEST_URL2));
+    verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1, TEST_URL2));
 
     // send the event again and make sure the subscription has been cancelled
     _connection.entityChanged(event);
@@ -111,7 +112,7 @@ public class ClientConnectionTest {
     _connection.subscribe(MasterType.PORTFOLIO, TEST_URL1);
     _connection.subscribe(MasterType.PORTFOLIO, TEST_URL2);
     _connection.masterChanged(MasterType.PORTFOLIO);
-    verify(_listener).itemsUpdated(collectionOf(TEST_URL1, TEST_URL2));
+    verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1, TEST_URL2));
 
     // send the event again and make sure the subscription has been cancelled
     _connection.masterChanged(MasterType.PORTFOLIO);
@@ -131,7 +132,7 @@ public class ClientConnectionTest {
     _connection.subscribe(_uid1, TEST_URL1);
     _connection.subscribe(_uid2, TEST_URL1);
     _connection.entityChanged(event1);
-    verify(_listener).itemsUpdated(collectionOf(TEST_URL1));
+    verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1));
 
     // send an event for the other subscription and check nothing is delivered to the listener
     _connection.entityChanged(event2);
@@ -148,7 +149,7 @@ public class ClientConnectionTest {
     _connection.subscribe(MasterType.PORTFOLIO, TEST_URL1);
     _connection.subscribe(MasterType.POSITION, TEST_URL1);
     _connection.masterChanged(MasterType.PORTFOLIO);
-    verify(_listener).itemsUpdated(collectionOf(TEST_URL1));
+    verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1));
 
     // send an event for the other subscribed master type and make sure the subscription has been cancelled
     _connection.masterChanged(MasterType.POSITION);
@@ -164,7 +165,7 @@ public class ClientConnectionTest {
     _connection.subscribe(_uid1, TEST_URL1);
     _connection.subscribe(MasterType.PORTFOLIO, TEST_URL1);
     _connection.masterChanged(MasterType.PORTFOLIO);
-    verify(_listener).itemsUpdated(collectionOf(TEST_URL1));
+    verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1));
     _connection.entityChanged(new ChangeEvent(ChangeType.UPDATED, _uid1, _uid1, Instant.now()));
     verifyNoMoreInteractions(_listener);
   }
@@ -178,7 +179,7 @@ public class ClientConnectionTest {
     _connection.subscribe(_uid1, TEST_URL1);
     _connection.subscribe(MasterType.PORTFOLIO, TEST_URL1);
     _connection.entityChanged(new ChangeEvent(ChangeType.UPDATED, _uid1, _uid1, Instant.now()));
-    verify(_listener).itemsUpdated(collectionOf(TEST_URL1));
+    verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1));
     _connection.masterChanged(MasterType.PORTFOLIO);
     verifyNoMoreInteractions(_listener);
   }

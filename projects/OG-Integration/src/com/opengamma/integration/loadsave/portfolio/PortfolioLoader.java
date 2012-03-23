@@ -62,7 +62,7 @@ public class PortfolioLoader {
       s_logger.info("Write option omitted, will pretty-print instead of persisting to OpenGamma masters");
       
       // Create a dummy portfolio writer to pretty-print instead of persisting
-      return new DummyPortfolioWriter();         
+      return new DummyPortfolioWriter();
     }
 
   }

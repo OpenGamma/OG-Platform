@@ -9,9 +9,6 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalIdSearch;
-import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**
