@@ -82,6 +82,10 @@
         padding-left: 10px;
     }
 
+    .OG-table thead tr + tr th:last-child {
+      border-right: none;
+    }
+
 /* Sub list content */
 
     .OG-table .og-sub-list {

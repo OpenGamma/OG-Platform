@@ -180,7 +180,10 @@ $.register_module({
           <table class="OG-table og-tablesorter">\
             <thead>\
               <tr>\
-                <th><span>Trades</span></th>\
+                <th colspan="6"><span>Trades</span></th>\
+              </tr>\
+              <tr>\
+                <th>ID</th>\
                 <th>Quantity</th>\
                 <th>Counterparty</th>\
                 <th>Trade Date / Time</th>\
