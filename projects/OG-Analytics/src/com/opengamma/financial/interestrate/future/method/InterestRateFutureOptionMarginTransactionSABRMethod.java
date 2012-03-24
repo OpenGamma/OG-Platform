@@ -21,19 +21,30 @@ import com.opengamma.util.money.CurrencyAmount;
  * i.e. 0 for normal options and x for x-year mid-curve options.
  */
 public final class InterestRateFutureOptionMarginTransactionSABRMethod extends InterestRateFutureOptionMarginTransactionMethod {
+  //TODO: Change the method to have only one generic Transaction method for all Security methods.
+  /**
+   * Creates the method unique instance.
+   */
   private static final InterestRateFutureOptionMarginTransactionSABRMethod INSTANCE = new InterestRateFutureOptionMarginTransactionSABRMethod();
 
+  /**
+   * Return the method unique instance.
+   * @return The instance.
+   */
   public static InterestRateFutureOptionMarginTransactionSABRMethod getInstance() {
     return INSTANCE;
+  }
+
+  /**
+   * Constructor.
+   */
+  private InterestRateFutureOptionMarginTransactionSABRMethod() {
   }
 
   /**
    * The method used to compute the underlying security price.
    */
   private static final InterestRateFutureOptionMarginSecuritySABRMethod METHOD_SECURITY = InterestRateFutureOptionMarginSecuritySABRMethod.getInstance();
-
-  private InterestRateFutureOptionMarginTransactionSABRMethod() {
-  }
 
   /**
    * Computes the present value of a transaction from the future price and SABR data.

@@ -44,14 +44,8 @@ import com.opengamma.util.tuple.DoublesPair;
 public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
 
   /**
-   * The par rate calculator.
+   * The method default instance.
    */
-  private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
-  /**
-   * The par rate sensitivity calculator.
-   */
-  private static final ParRateCurveSensitivityCalculator PRSC = ParRateCurveSensitivityCalculator.getInstance();
-
   private static final CapFloorCMSSABRReplicationMethod INSTANCE = new CapFloorCMSSABRReplicationMethod();
 
   /** 
@@ -71,6 +65,15 @@ public class CapFloorCMSSABRReplicationMethod implements PricingMethod {
    * Minimal number of integration steps in the replication.
    */
   private final int _nbIteration = 10;
+
+  /**
+   * The par rate calculator.
+   */
+  private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
+  /**
+   * The par rate sensitivity calculator.
+   */
+  private static final ParRateCurveSensitivityCalculator PRSC = ParRateCurveSensitivityCalculator.getInstance();
 
   /** 
    * Default constructor of the CMS cap/floor replication method. The default integration interval is 1.00 (100%).

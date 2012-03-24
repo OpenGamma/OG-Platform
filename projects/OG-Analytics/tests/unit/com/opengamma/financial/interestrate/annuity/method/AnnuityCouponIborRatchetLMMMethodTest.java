@@ -21,7 +21,7 @@ import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborRatchetDefinition;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.instrument.index.iborindex.EURIBOR3M;
+import com.opengamma.financial.instrument.index.iborindex.IndexIborTestsMaster;
 import com.opengamma.financial.interestrate.PresentValueCalculator;
 import com.opengamma.financial.interestrate.TestsDataSetsSABR;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
@@ -48,7 +48,7 @@ import com.opengamma.util.timeseries.zoneddatetime.ArrayZonedDateTimeDoubleTimeS
 public class AnnuityCouponIborRatchetLMMMethodTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
-  private static final IborIndex INDEX_EURIBOR3M = new EURIBOR3M(TARGET);
+  private static final IborIndex INDEX_EURIBOR3M = IndexIborTestsMaster.getInstance().getIndex("EURIBOR3M", TARGET);
   private static final Currency EUR = INDEX_EURIBOR3M.getCurrency();
   // Annuity description
   private static final ZonedDateTime SETTLEMENT_DATE = DateUtils.getUTCDate(2011, 9, 7);

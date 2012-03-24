@@ -20,12 +20,23 @@ import com.opengamma.util.tuple.DoublesPair;
  * i.e. 0 for quarterly options and x for x-year mid-curve options. The future prices are computed without convexity adjustments.
  */
 public final class InterestRateFutureOptionMarginSecuritySABRMethod {
+
+  /**
+   * Creates the method unique instance.
+   */
   private static final InterestRateFutureOptionMarginSecuritySABRMethod INSTANCE = new InterestRateFutureOptionMarginSecuritySABRMethod();
 
+  /**
+   * Return the method unique instance.
+   * @return The instance.
+   */
   public static InterestRateFutureOptionMarginSecuritySABRMethod getInstance() {
     return INSTANCE;
   }
 
+  /**
+   * Constructor.
+   */
   private InterestRateFutureOptionMarginSecuritySABRMethod() {
   }
 
