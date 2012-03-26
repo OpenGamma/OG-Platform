@@ -32,9 +32,9 @@ import com.opengamma.util.tuple.Pair;
 /**
  * Source of random, but reasonable, swap security instances.
  */
-public abstract class SwapSecurityGenerator extends SecurityGenerator<SwapSecurity> {
+public abstract class AbstractSwapSecurityGenerator extends SecurityGenerator<SwapSecurity> {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(SwapSecurityGenerator.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractSwapSecurityGenerator.class);
   private static final Tenor[] TENORS = new Tenor[] {Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.THREE_YEARS, Tenor.FIVE_YEARS, Tenor.ofYears(7), Tenor.ofYears(10), Tenor.ofYears(12), Tenor.ofYears(15),
       Tenor.ofYears(20) };
 

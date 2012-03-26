@@ -21,7 +21,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Source of random, but reasonable, Cap/Floor securities.
  */
-public abstract class CapFloorSecurityGenerator extends SecurityGenerator<CapFloorSecurity> {
+public abstract class AbstractCapFloorSecurityGenerator extends SecurityGenerator<CapFloorSecurity> {
 
   private static final DayCount[] DAY_COUNT = new DayCount[] {DayCountFactory.INSTANCE.getDayCount("Act/360"), DayCountFactory.INSTANCE.getDayCount("30U/360") };
   private static final Frequency[] FREQUENCY = new Frequency[] {SimpleFrequency.QUARTERLY, SimpleFrequency.SEMI_ANNUAL, SimpleFrequency.ANNUAL };

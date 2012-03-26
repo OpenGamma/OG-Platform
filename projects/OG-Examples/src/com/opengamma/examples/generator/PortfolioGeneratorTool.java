@@ -8,16 +8,12 @@ package com.opengamma.examples.generator;
 import org.apache.commons.cli.Options;
 
 import com.opengamma.examples.tool.AbstractExampleTool;
+import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
 
 /**
  * Utility for generating a portfolio of securities.
  */
-public class PortfolioGeneratorTool extends com.opengamma.financial.generator.PortfolioGeneratorTool {
-
-  /**
-   * Default portfolio size used by sub-classes.
-   */
-  protected static final int PORTFOLIO_SIZE = 200;
+public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
   public static void main(final String[] args) { // CSIGNORE
     (new AbstractExampleTool() {

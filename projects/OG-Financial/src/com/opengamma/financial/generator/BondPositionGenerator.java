@@ -22,7 +22,7 @@ public class BondPositionGenerator extends SimplePositionGenerator<BondSecurity>
   }
 
   public BondPositionGenerator(final BondSecurityGenerator<?> securityGenerator, final SecurityPersister securityPersister) {
-    this(new StaticQuantityGenerator(BigDecimal.ONE), securityGenerator, securityPersister);
+    super(securityGenerator, securityPersister);
   }
 
   @Override

@@ -3,21 +3,12 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.examples.generator;
-
-import com.opengamma.financial.generator.BondPositionGenerator;
-import com.opengamma.financial.generator.GovernmentBondSecurityGenerator;
-import com.opengamma.financial.generator.LeafPortfolioNodeGenerator;
-import com.opengamma.financial.generator.NameGenerator;
-import com.opengamma.financial.generator.PortfolioGenerator;
-import com.opengamma.financial.generator.PortfolioNodeGenerator;
-import com.opengamma.financial.generator.PositionGenerator;
-import com.opengamma.financial.generator.StaticNameGenerator;
+package com.opengamma.financial.generator;
 
 /**
  * Utility for constructing a random bond portfolio.
  */
-public class BondPortfolioGeneratorTool extends PortfolioGeneratorTool {
+public class BondPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
   @Override
   public PortfolioGenerator createPortfolioGenerator(final NameGenerator portfolioNameGenerator) {

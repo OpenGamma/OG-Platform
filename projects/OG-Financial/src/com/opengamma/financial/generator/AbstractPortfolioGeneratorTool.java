@@ -36,9 +36,14 @@ import com.opengamma.master.security.ManageableSecurityLink;
 /**
  * Utility for generating a portfolio of securities.
  */
-public abstract class PortfolioGeneratorTool {
+public abstract class AbstractPortfolioGeneratorTool {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioGeneratorTool.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(AbstractPortfolioGeneratorTool.class);
+
+  /**
+   * Default portfolio size used by sub-classes.
+   */
+  protected static final int PORTFOLIO_SIZE = 200;
 
   private Random _random;
   private SecurityPersister _securityPersister;
@@ -102,24 +107,37 @@ public abstract class PortfolioGeneratorTool {
    */
   public static final String WRITE_OPT = "write";
 
-  private PortfolioGeneratorTool getInstance(final String security) {
+  private static AbstractPortfolioGeneratorTool getInstance(final Class<?> clazz, final String toolName, final String security) {
+    if (!AbstractPortfolioGeneratorTool.class.isAssignableFrom(clazz)) {
+      throw new OpenGammaRuntimeException("Couldn't find generator tool class for " + security);
+    }
     try {
       final String className;
       int i = security.indexOf('.');
       if (i < 0) {
-        className = getClass().getPackage().getName() + "." + security + getClass().getSimpleName();
+        className = clazz.getPackage().getName() + "." + security + toolName;
       } else {
         className = security;
       }
       s_logger.info("Loading {}", className);
-      return (PortfolioGeneratorTool) Class.forName(className).newInstance();
+      final Class<?> instanceClass;
+      try {
+        instanceClass = Class.forName(className);
+      } catch (ClassNotFoundException e) {
+        return getInstance(clazz.getSuperclass(), toolName, security);
+      }
+      return (AbstractPortfolioGeneratorTool) instanceClass.newInstance();
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Couldn't create generator tool instance for " + security, e);
     }
   }
 
+  private AbstractPortfolioGeneratorTool getInstance(final String security) {
+    return getInstance(getClass(), security, getClass().getSimpleName());
+  }
+
   public void run(final ToolContext context, final String portfolioName, final String security, final boolean write) {
-    final PortfolioGeneratorTool instance = getInstance(security);
+    final AbstractPortfolioGeneratorTool instance = getInstance(security);
     instance.setToolContext(context);
     instance.setRandom(new SecureRandom());
     final SecuritySource securitySource;
