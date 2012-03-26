@@ -8,13 +8,25 @@ package com.opengamma.integration.tool.portfolio;
 import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
 
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.integration.loadsave.portfolio.PortfolioLoader;
+import com.opengamma.integration.loadsave.portfolio.PortfolioCopier;
+import com.opengamma.integration.loadsave.portfolio.SimplePortfolioCopier;
+import com.opengamma.integration.loadsave.portfolio.reader.PortfolioReader;
+import com.opengamma.integration.loadsave.portfolio.reader.SingleSheetSimplePortfolioReader;
+import com.opengamma.integration.loadsave.portfolio.reader.ZippedPortfolioReader;
+import com.opengamma.integration.loadsave.portfolio.writer.DummyPortfolioWriter;
+import com.opengamma.integration.loadsave.portfolio.writer.MasterPortfolioWriter;
+import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.tool.AbstractIntegrationTool;
+import com.opengamma.integration.tool.IntegrationToolContext;
+import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.security.SecurityMaster;
 
 /**
  * The portfolio loader tool
@@ -46,24 +58,80 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
    * Loads the portfolio into the position master.
    */
   @Override
-  protected void doRun() {      
-    // Call the portfolio loader with the supplied arguments
-    PortfolioLoader loader = new PortfolioLoader(getToolContext().getPortfolioMaster(),
-                                                 getToolContext().getPositionMaster(),
-                                                 getToolContext().getSecurityMaster());
-    String fileName = getCommandLine().getOptionValue(FILE_NAME_OPT);
-    try {
-      loader.run(
-          getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT),
-          fileName,
-          new BufferedInputStream(new FileInputStream(fileName)),
-          getCommandLine().getOptionValue(SECURITY_TYPE_OPT),
-          getCommandLine().hasOption(WRITE_OPT));
-    } catch (FileNotFoundException e) {
-      throw new OpenGammaRuntimeException("Portfolio file not found: " + fileName, e);
+  protected void doRun() {
+    IntegrationToolContext context = getToolContext();
+
+    // Create portfolio writer
+    PortfolioWriter portfolioWriter = constructPortfolioWriter(
+        getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT), 
+        context.getPortfolioMaster(), 
+        context.getPositionMaster(), 
+        context.getSecurityMaster(),
+        getCommandLine().hasOption(WRITE_OPT)
+    );
+
+    // Construct portfolio reader
+    PortfolioReader portfolioReader = constructPortfolioReader(
+        getCommandLine().getOptionValue(FILE_NAME_OPT), 
+        getCommandLine().getOptionValue(SECURITY_TYPE_OPT)
+    );
+
+    // Construct portfolio copier
+    PortfolioCopier portfolioCopier = new SimplePortfolioCopier();
+        
+    // Copy portfolio
+    portfolioCopier.copy(portfolioReader, portfolioWriter);
+
+    // close stuff
+    portfolioReader.close();
+    portfolioWriter.close();
+  }
+ 
+  private static PortfolioWriter constructPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster,
+      PositionMaster positionMaster, SecurityMaster securityMaster, boolean write) {
+    if (write) {  
+      // Check that the portfolio name was specified on the command line
+      if (portfolioName == null) {
+        throw new OpenGammaRuntimeException("Portfolio name omitted, cannot persist to OpenGamma masters");
+      }
+      // Create a portfolio writer to persist imported positions, trades and securities to the OG masters
+      return new MasterPortfolioWriter(
+          portfolioName, 
+          portfolioMaster, 
+          positionMaster, 
+          securityMaster);
+    } else {
+      // Create a dummy portfolio writer to pretty-print instead of persisting
+      return new DummyPortfolioWriter();         
+    }  
+  }
+
+  private PortfolioReader constructPortfolioReader(String filename, String securityClass) {
+    
+    String extension = filename.substring(filename.lastIndexOf('.'));
+    // Single CSV or XLS file extension
+    if (extension.equalsIgnoreCase(".csv") || extension.equalsIgnoreCase(".xls")) {
+      // Check that the asset class was specified on the command line
+      if (securityClass == null) {
+        throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename + " (use '-a')");
+      } else {
+        InputStream inputStream;
+        try {
+          inputStream = new BufferedInputStream(new FileInputStream(filename));
+        } catch (FileNotFoundException e) {
+          throw new OpenGammaRuntimeException("Could not open file " + filename + " for reading: " + e);
+        }
+        return new SingleSheetSimplePortfolioReader(filename, inputStream, securityClass);
+      }
+    // Multi-asset ZIP file extension
+    } else if (extension.equalsIgnoreCase(".zip")) {
+      // Create zipped multi-asset class loader
+      return new ZippedPortfolioReader(filename);
+    } else {
+      throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
     }
   }
-  
+
   @Override
   protected Options createOptions(boolean contextProvided) {
     

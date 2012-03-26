@@ -11,8 +11,6 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
 import com.opengamma.integration.loadsave.sheet.writer.SheetWriter;
 import com.opengamma.master.portfolio.ManageablePortfolio;
@@ -37,7 +35,7 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
   private ManageablePortfolio _portfolio;
 
   
-  public SingleSheetPortfolioWriter(String filename, String[] securityTypes, ToolContext toolContext) {
+  public SingleSheetPortfolioWriter(String filename, String[] securityTypes) {
     
     Map<String, RowParser> rowParsers = new HashMap<String, RowParser>();
     for (String s : securityTypes) {

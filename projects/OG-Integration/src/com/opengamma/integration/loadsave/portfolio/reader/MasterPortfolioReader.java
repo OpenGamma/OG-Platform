@@ -18,7 +18,6 @@ import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -28,7 +27,6 @@ import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.PositionMaster;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
-import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.tuple.ObjectsPair;
 
 /**
@@ -49,10 +47,12 @@ public class MasterPortfolioReader implements PortfolioReader {
   private Iterator<ManageablePortfolioNode> _nodeIterator;
   private Iterator<ObjectId> _positionIdIterator;
   
-  public MasterPortfolioReader(String portfolioName, ToolContext toolContext) {
-    _portfolioMaster = toolContext.getPortfolioMaster();
-    _positionMaster = toolContext.getPositionMaster();
-    _securitySource = toolContext.getSecuritySource();
+  
+  public MasterPortfolioReader(String portfolioName, PortfolioMaster portfolioMaster, 
+      PositionMaster positionMaster, SecuritySource securitySource) {
+    _portfolioMaster = portfolioMaster;
+    _positionMaster = positionMaster;
+    _securitySource = securitySource;   
     _portfolioDocument = openPortfolio(portfolioName);
     
     _currentNode = _portfolioDocument.getPortfolio().getRootNode();
@@ -66,19 +66,11 @@ public class MasterPortfolioReader implements PortfolioReader {
 
     _positionIdIterator = _nodeIterator.next().getPositionIds().iterator();
   }
-  
-  public MasterPortfolioReader(String portfolioName, PortfolioMaster portfolioMaster, 
-      PositionMaster positionMaster, SecurityMaster securityMaster, SecuritySource securitySource) {
-    _portfolioMaster = portfolioMaster;
-    _positionMaster = positionMaster;
-    _securitySource = securitySource;   
-    _portfolioDocument = openPortfolio(portfolioName);
-  }
 
-  @Override
-  public void writeTo(PortfolioWriter portfolioWriter) {
-    recursiveTraversePortfolioNodes(_portfolioDocument.getPortfolio().getRootNode(), portfolioWriter);
-  }
+//  @Override
+//  public void writeTo(PortfolioWriter portfolioWriter) {
+//    recursiveTraversePortfolioNodes(_portfolioDocument.getPortfolio().getRootNode(), portfolioWriter);
+//  }
 
   private void recursiveTraversePortfolioNodes(ManageablePortfolioNode node, PortfolioWriter portfolioWriter) {
     
@@ -202,6 +194,10 @@ public class MasterPortfolioReader implements PortfolioReader {
     PortfolioDocument portfolioDoc = portSearchResult.getFirstDocument();
    
     return portfolioDoc;
+  }
+
+  @Override
+  public void close() {
   }
 
 }

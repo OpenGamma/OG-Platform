@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
 import com.opengamma.integration.loadsave.sheet.writer.CsvSheetWriter;
 import com.opengamma.integration.loadsave.sheet.writer.SheetWriter;
@@ -41,7 +40,6 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   private static final char DIRECTORY_SEPARATOR = '/';
 
   private ZipOutputStream _zipFile;
-  private ToolContext _toolContext;
   private ManageablePortfolio _portfolio;
   private Map<String, Integer> _versionMap = new HashMap<String, Integer>();
   private ManageablePortfolioNode _currentNode;
@@ -49,9 +47,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   private Map<String, SingleSheetPortfolioWriter> _writerMap = new HashMap<String, SingleSheetPortfolioWriter>();
   private Map<String, ByteArrayOutputStream> _bufferMap = new HashMap<String, ByteArrayOutputStream>();
   
-  public ZippedPortfolioWriter(String filename, ToolContext toolContext) {
-
-    _toolContext = toolContext;
+  public ZippedPortfolioWriter(String filename) {
 
     // Confirm file doesn't already exist
     File file = new File(filename);

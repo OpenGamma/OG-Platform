@@ -6,8 +6,6 @@
 
 package com.opengamma.integration.loadsave.portfolio.reader;
 
-import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
-import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -17,12 +15,6 @@ import com.opengamma.util.tuple.ObjectsPair;
  * (This tight linkage between reader and writer might have to change)
  */
 public abstract interface PortfolioReader {
-
-  /**
-   * Write the multisheet contents to the specified portfolio
-   * @param portfolioWriter The portfolio writer to use for writing
-   */
-  void writeTo(PortfolioWriter portfolioWriter);
   
   /**
    * Read the next row as a position, possibly containing trades, and one or more securities
@@ -35,5 +27,7 @@ public abstract interface PortfolioReader {
    * @return  the current node
    */
   String[] getCurrentPath();
-  
+    
+  void close();
+
 }
