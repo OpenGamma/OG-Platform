@@ -11,13 +11,12 @@ package com.opengamma.financial.generator;
 public class BondPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
   @Override
-  public PortfolioGenerator createPortfolioGenerator(final NameGenerator portfolioNameGenerator) {
+  public PortfolioNodeGenerator createPortfolioNodeGenerator(final int size) {
     final GovernmentBondSecurityGenerator securities = new GovernmentBondSecurityGenerator();
     configure(securities);
     final PositionGenerator positions = new BondPositionGenerator(securities, getSecurityPersister());
     // TODO: create other bond types
-    final PortfolioNodeGenerator rootNode = new LeafPortfolioNodeGenerator(new StaticNameGenerator("Bonds"), positions, PORTFOLIO_SIZE);
-    return new PortfolioGenerator(rootNode, portfolioNameGenerator);
+    return new LeafPortfolioNodeGenerator(new StaticNameGenerator("Bonds"), positions, size);
   }
 
 }

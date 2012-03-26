@@ -15,12 +15,11 @@ public abstract class AbstractCapFloorCMSSpreadPortfolioGeneratorTool extends Ab
   protected abstract AbstractCapFloorCMSSpreadSecurityGenerator createCapFloorCMSSpreadSecurityGenerator();
 
   @Override
-  public PortfolioGenerator createPortfolioGenerator(final NameGenerator portfolioNameGenerator) {
+  public PortfolioNodeGenerator createPortfolioNodeGenerator(final int size) {
     final AbstractCapFloorCMSSpreadSecurityGenerator securities = createCapFloorCMSSpreadSecurityGenerator();
     configure(securities);
     final PositionGenerator positions = new SimplePositionGenerator<CapFloorCMSSpreadSecurity>(securities, getSecurityPersister());
-    final PortfolioNodeGenerator rootNode = new LeafPortfolioNodeGenerator(new StaticNameGenerator("Cap/Floor CMS Spread"), positions, PORTFOLIO_SIZE);
-    return new PortfolioGenerator(rootNode, portfolioNameGenerator);
+    return new LeafPortfolioNodeGenerator(new StaticNameGenerator("Cap/Floor CMS Spread"), positions, size);
   }
 
 }

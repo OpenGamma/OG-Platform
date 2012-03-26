@@ -48,14 +48,30 @@ public abstract class AbstractPortfolioGeneratorTool {
   private Random _random;
   private SecurityPersister _securityPersister;
   private ToolContext _toolContext;
+  private Class<? extends AbstractPortfolioGeneratorTool> _classContext;
+
+  public AbstractPortfolioGeneratorTool() {
+    _classContext = getClass();
+  }
 
   public PortfolioGenerator createPortfolioGenerator(final NameGenerator portfolioNameGenerator) {
-    throw new UnsupportedOperationException();
+    return new PortfolioGenerator(createPortfolioNodeGenerator(PORTFOLIO_SIZE), portfolioNameGenerator);
   }
 
   public Portfolio createPortfolio(final String portfolioName) {
-    final PortfolioGenerator portfolioGenerator = createPortfolioGenerator(new StaticNameGenerator(portfolioName));
-    return portfolioGenerator.createPortfolio();
+    return createPortfolioGenerator(new StaticNameGenerator(portfolioName)).createPortfolio();
+  }
+
+  public PortfolioNodeGenerator createPortfolioNodeGenerator(int portfolioSize) {
+    throw new UnsupportedOperationException();
+  }
+  
+  public PortfolioNode createPortfolioNode(final int size) {
+    return createPortfolioNodeGenerator(size).createPortfolioNode();
+  }
+
+  public PortfolioNode createPortfolioNode() {
+    return createPortfolioNode(PORTFOLIO_SIZE);
   }
 
   public Random getRandom() {
@@ -64,6 +80,14 @@ public abstract class AbstractPortfolioGeneratorTool {
 
   public void setRandom(final Random random) {
     _random = random;
+  }
+
+  private void setClassContext(final Class<? extends AbstractPortfolioGeneratorTool> classContext) {
+    _classContext = classContext;
+  }
+
+  private Class<? extends AbstractPortfolioGeneratorTool> getClassContext() {
+    return _classContext;
   }
 
   public SecurityPersister getSecurityPersister() {
@@ -94,6 +118,18 @@ public abstract class AbstractPortfolioGeneratorTool {
     }
   }
 
+  protected void configure(final AbstractPortfolioGeneratorTool tool) {
+    if (getRandom() != null) {
+      tool.setRandom(getRandom());
+    }
+    if (getToolContext() != null) {
+      tool.setToolContext(getToolContext());
+    }
+    if (getSecurityPersister() != null) {
+      tool.setSecurityPersister(getSecurityPersister());
+    }
+  }
+
   /**
    * Command line option for specifying the portfolio name to generate.
    */
@@ -107,7 +143,7 @@ public abstract class AbstractPortfolioGeneratorTool {
    */
   public static final String WRITE_OPT = "write";
 
-  private static AbstractPortfolioGeneratorTool getInstance(final Class<?> clazz, final String toolName, final String security) {
+  private AbstractPortfolioGeneratorTool getInstance(final Class<?> clazz, final String security) {
     if (!AbstractPortfolioGeneratorTool.class.isAssignableFrom(clazz)) {
       throw new OpenGammaRuntimeException("Couldn't find generator tool class for " + security);
     }
@@ -115,25 +151,28 @@ public abstract class AbstractPortfolioGeneratorTool {
       final String className;
       int i = security.indexOf('.');
       if (i < 0) {
-        className = clazz.getPackage().getName() + "." + security + toolName;
+        className = clazz.getPackage().getName() + "." + security + "PortfolioGeneratorTool";
       } else {
         className = security;
       }
-      s_logger.info("Loading {}", className);
       final Class<?> instanceClass;
       try {
+        s_logger.debug("Trying class {}", className);
         instanceClass = Class.forName(className);
       } catch (ClassNotFoundException e) {
-        return getInstance(clazz.getSuperclass(), toolName, security);
+        return getInstance(clazz.getSuperclass(), security);
       }
-      return (AbstractPortfolioGeneratorTool) instanceClass.newInstance();
+      s_logger.info("Loading {}", className);
+      final AbstractPortfolioGeneratorTool tool = (AbstractPortfolioGeneratorTool) instanceClass.newInstance();
+      tool.setClassContext(getClassContext());
+      return tool;
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Couldn't create generator tool instance for " + security, e);
     }
   }
 
-  private AbstractPortfolioGeneratorTool getInstance(final String security) {
-    return getInstance(getClass(), getClass().getSimpleName(), security);
+  protected AbstractPortfolioGeneratorTool getInstance(final String security) {
+    return getInstance(getClassContext(), security);
   }
 
   public void run(final ToolContext context, final String portfolioName, final String security, final boolean write) {

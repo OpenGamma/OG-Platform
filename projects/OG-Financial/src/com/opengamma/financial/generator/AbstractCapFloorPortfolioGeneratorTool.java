@@ -15,12 +15,11 @@ public abstract class AbstractCapFloorPortfolioGeneratorTool extends AbstractPor
   protected abstract AbstractCapFloorSecurityGenerator createCapFloorSecurityGenerator();
 
   @Override
-  public PortfolioGenerator createPortfolioGenerator(final NameGenerator portfolioNameGenerator) {
+  public PortfolioNodeGenerator createPortfolioNodeGenerator(final int size) {
     final AbstractCapFloorSecurityGenerator securities = createCapFloorSecurityGenerator();
     configure(securities);
     final PositionGenerator positions = new SimplePositionGenerator<CapFloorSecurity>(securities, getSecurityPersister());
-    final PortfolioNodeGenerator rootNode = new LeafPortfolioNodeGenerator(new StaticNameGenerator("Cap/Floor"), positions, PORTFOLIO_SIZE);
-    return new PortfolioGenerator(rootNode, portfolioNameGenerator);
+    return new LeafPortfolioNodeGenerator(new StaticNameGenerator("Cap/Floor"), positions, size);
   }
 
 }
