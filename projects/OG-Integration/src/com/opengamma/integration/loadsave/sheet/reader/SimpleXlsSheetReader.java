@@ -31,7 +31,7 @@ public class SimpleXlsSheetReader extends SheetReader {
 //  private int _firstRow;
 //  private int _firstColumn;
 
-  
+
   public SimpleXlsSheetReader(String filename, int sheetIndex) {
     InputStream fileInputStream = openFile(filename);
     _workbook = getWorkbook(fileInputStream);

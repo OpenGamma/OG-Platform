@@ -14,7 +14,6 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatterBuilder;
 
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
@@ -35,8 +34,6 @@ public abstract class RowParser {
   protected DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("0,000");
   // CSON
   
-  private ToolContext _toolContext;
-  
   {
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
     builder.appendPattern("yyyy-MM-dd");
@@ -45,10 +42,6 @@ public abstract class RowParser {
     builder.appendPattern("yyyy-MM-dd");
     OUTPUT_DATE_FORMATTER = builder.toFormatter();
   }
-
-  public RowParser(ToolContext toolContext) {
-    _toolContext = toolContext;
-  }
   
   /**
    * Creates a new row parser for the specified security type and tool context
@@ -56,9 +49,9 @@ public abstract class RowParser {
    * @param toolContext   the tool context for the row parser (for access to masters and sources)
    * @return              the RowParser class for the specified security type, or null if unable to identify a suitable parser
    */
-  public static RowParser newRowParser(String securityName, ToolContext toolContext) {
+  public static RowParser newRowParser(String securityName) {
     // Now using the JodaBean parser
-    return new JodaBeanRowParser(securityName, toolContext);
+    return new JodaBeanRowParser(securityName);
   }
 
   /**
@@ -139,22 +132,6 @@ public abstract class RowParser {
    */
   public ManageableTrade constructTrade(Map<String, String> row, ManageableSecurity security, ManageablePosition position) {
     return null;
-  }
-
-  /**
-   * Returns the current tool context
-   * @return  the current tool context
-   */
-  public ToolContext getToolContext() {
-    return _toolContext;
-  }
-
-  /**
-   * Sets the tool context
-   * @param toolContext the new tool context
-   */
-  public void setToolContext(ToolContext toolContext) {
-    _toolContext = toolContext;
   }
 
   /**

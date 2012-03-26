@@ -40,7 +40,6 @@ import com.opengamma.web.config.WebConfigsResource;
 import com.opengamma.web.exchange.WebExchangesResource;
 import com.opengamma.web.historicaltimeseries.WebAllHistoricalTimeSeriesResource;
 import com.opengamma.web.holiday.WebHolidaysResource;
-import com.opengamma.web.loader.PortfolioLoaderResource;
 import com.opengamma.web.portfolio.WebPortfoliosResource;
 import com.opengamma.web.position.WebPositionsResource;
 import com.opengamma.web.region.WebRegionsResource;
@@ -163,8 +162,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     JerseyRestResourceFactory hts = new JerseyRestResourceFactory(WebAllHistoricalTimeSeriesResource.class,
         getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesLoader());
     repo.getRestComponents().publishResource(hts);
-
-    repo.getRestComponents().publishResource(new PortfolioLoaderResource());
   }
 
   protected void initValueRequirementNames(ComponentRepository repo) {

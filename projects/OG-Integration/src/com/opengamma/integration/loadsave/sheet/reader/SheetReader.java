@@ -19,13 +19,13 @@ import com.opengamma.OpenGammaRuntimeException;
 public abstract class SheetReader {
   
   private String[] _columns; // The column names and order
-  
-  public static SheetReader newSheetReader(String filename) {
+
+  public static SheetReader newSheetReader(String filename, InputStream portfolioFileStream) {
     String extension = filename.substring(filename.lastIndexOf('.')).toLowerCase();
     if (extension.equals(".csv")) {
-      return new CsvSheetReader(filename);
+      return new CsvSheetReader(portfolioFileStream);
     } else if (extension.equals(".xls")) {
-      return new SimpleXlsSheetReader(filename, 0);
+      return new SimpleXlsSheetReader(portfolioFileStream, 0);
     } else {
       throw new OpenGammaRuntimeException("Could not identify the input format from the file name extension");
     }
@@ -40,7 +40,7 @@ public abstract class SheetReader {
   public void setColumns(String[] columns) {
     _columns = columns;
   }
-  
+
   protected InputStream openFile(String filename) {
     // Open input file for reading
     FileInputStream fileInputStream;

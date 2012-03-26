@@ -5,8 +5,14 @@
  */
 package com.opengamma.integration.tool.portfolio;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
+
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.integration.loadsave.portfolio.PortfolioLoader;
 import com.opengamma.integration.tool.AbstractIntegrationTool;
 
@@ -42,13 +48,20 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
   @Override
   protected void doRun() {      
     // Call the portfolio loader with the supplied arguments
-    new PortfolioLoader().run(
-        getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT), 
-        getCommandLine().getOptionValue(FILE_NAME_OPT), 
-        getCommandLine().getOptionValue(SECURITY_TYPE_OPT), 
-        getCommandLine().hasOption(WRITE_OPT), 
-        getToolContext()
-    );
+    PortfolioLoader loader = new PortfolioLoader(getToolContext().getPortfolioMaster(),
+                                                 getToolContext().getPositionMaster(),
+                                                 getToolContext().getSecurityMaster());
+    String fileName = getCommandLine().getOptionValue(FILE_NAME_OPT);
+    try {
+      loader.run(
+          getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT),
+          fileName,
+          new BufferedInputStream(new FileInputStream(fileName)),
+          getCommandLine().getOptionValue(SECURITY_TYPE_OPT),
+          getCommandLine().hasOption(WRITE_OPT));
+    } catch (FileNotFoundException e) {
+      throw new OpenGammaRuntimeException("Portfolio file not found: " + fileName, e);
+    }
   }
   
   @Override
