@@ -20,7 +20,6 @@ import com.opengamma.bbg.loader.BloombergHistoricalLoader;
 import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.bloombergexample.loader.*;
-import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
