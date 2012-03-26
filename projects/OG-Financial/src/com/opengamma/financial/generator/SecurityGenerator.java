@@ -22,6 +22,7 @@ import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -58,6 +59,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private HistoricalTimeSeriesSource _historicalSource;
   private RegionSource _regionSource;
   private ExchangeMaster _exchangeMaster;
+  private SecurityMaster _securityMaster;
 
   public Random getRandom() {
     return _random;
@@ -137,6 +139,14 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   public void setRegionSource(final RegionSource regionSource) {
     _regionSource = regionSource;
+  }
+
+  public SecurityMaster getSecurityMaster() {
+    return _securityMaster;
+  }
+
+  public void setSecurityMaster(final SecurityMaster securityMaster) {
+    _securityMaster = securityMaster;
   }
 
   public static Currency[] getDefaultCurrencies() {
