@@ -28,13 +28,11 @@ public class SimpleXlsSheetReader extends SheetReader {
   private Sheet _sheet;
   private Workbook _workbook;
   private int _currentRowNumber;
-//  private int _firstRow;
-//  private int _firstColumn;
-
-
+  private InputStream _inputStream;
+  
   public SimpleXlsSheetReader(String filename, int sheetIndex) {
-    InputStream fileInputStream = openFile(filename);
-    _workbook = getWorkbook(fileInputStream);
+    _inputStream = openFile(filename);
+    _workbook = getWorkbook(_inputStream);
     _sheet = _workbook.getSheetAt(sheetIndex);
     _currentRowNumber = _sheet.getFirstRowNum();
     
@@ -177,6 +175,15 @@ public class SimpleXlsSheetReader extends SheetReader {
         return "";
       default:
         return "null";
+    }
+  }
+
+  @Override
+  public void close() {
+    try {
+      _inputStream.close();
+    } catch (IOException ex) {
+      // TODO Auto-generated catch block
     }
   }
   

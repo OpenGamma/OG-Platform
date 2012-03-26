@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
 import com.opengamma.bbg.BloombergSecurityMaster;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.integration.loadsave.portfolio.ResolvingPortfolioLoader;
+import com.opengamma.integration.loadsave.portfolio.ResolvingPortfolioCopier;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
@@ -44,7 +44,7 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 public class PortfolioLoaderResource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderResource.class);
-  private final ResolvingPortfolioLoader _loader;
+  private final ResolvingPortfolioCopier _copier;
 
   /*public PortfolioLoaderResource(BloombergSecurityMaster bbgSecurityMaster,
                                  HistoricalTimeSeriesMaster htsMaster,
@@ -57,7 +57,7 @@ public class PortfolioLoaderResource {
     ArgumentChecker.notNull(htsMaster, "htsMaster");
     ArgumentChecker.notNull(bbgHtsSource, "bbgHtsSource");
     ArgumentChecker.notNull(bbgRefDataProvider, "bbgRefDataProvider");
-    _loader = new ResolvingPortfolioLoader(bbgSecurityMaster,
+    _copier = new ResolvingPortfolioLoader(bbgSecurityMaster,
                                            htsMaster,
                                            bbgHtsSource,
                                            bbgRefDataProvider,
@@ -67,7 +67,7 @@ public class PortfolioLoaderResource {
   }*/
 
   public PortfolioLoaderResource() {
-    _loader = null;
+    _copier = null;
   }
 
   @Path("{updatePeriod}/{updateCount}")
@@ -97,7 +97,7 @@ public class PortfolioLoaderResource {
                   new Object[]{fileName, portfolioName, dataField, fileContent});
     // TODO fix the args
     // TODO stream the output back to the web
-    //_loader.loadPortfolio(portfolioName, fileName, fileStream, "", "", new String[]{dataField}, "", true);
+    //_copier.loadPortfolio(portfolioName, fileName, fileStream, "", "", new String[]{dataField}, "", true);
     StreamingOutput streamingOutput = new StreamingOutput() {
       @Override
       public void write(OutputStream output) throws IOException, WebApplicationException {

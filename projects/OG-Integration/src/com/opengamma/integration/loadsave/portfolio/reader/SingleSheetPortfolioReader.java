@@ -6,12 +6,6 @@
 
 package com.opengamma.integration.loadsave.portfolio.reader;
 
-import java.util.Map;
-
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import com.opengamma.integration.loadsave.portfolio.PortfolioLoader;
 import com.opengamma.integration.loadsave.sheet.reader.SheetReader;
 
 /**
@@ -19,8 +13,6 @@ import com.opengamma.integration.loadsave.sheet.reader.SheetReader;
  */
 public abstract class SingleSheetPortfolioReader implements PortfolioReader {
  
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoader.class);
-
   private SheetReader _sheet;         // The spreadsheet from which to import
      
   public SingleSheetPortfolioReader(SheetReader sheet) {
@@ -35,12 +27,4 @@ public abstract class SingleSheetPortfolioReader implements PortfolioReader {
     _sheet = sheet;
   }
   
-  protected void prettyPrintRow(Map<String, String> row) {
-    String out = "Read in: | ";
-    for (String s : row.keySet()) {
-      out += (s + "=" + row.get(s) + " | ");
-    }
-    s_logger.info(out);
-  }
-
 }

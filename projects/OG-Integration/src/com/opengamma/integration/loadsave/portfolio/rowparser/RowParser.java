@@ -46,7 +46,6 @@ public abstract class RowParser {
   /**
    * Creates a new row parser for the specified security type and tool context
    * @param securityName  the type of the security for which a row parser is to be created
-   * @param toolContext   the tool context for the row parser (for access to masters and sources)
    * @return              the RowParser class for the specified security type, or null if unable to identify a suitable parser
    */
   public static RowParser newRowParser(String securityName) {
