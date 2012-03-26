@@ -6,23 +6,36 @@
 package com.opengamma.financial.analytics.model.swaption;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Set;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.engine.value.ComputedValue;
+import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.PresentValueBlackSwaptionSensitivity;
 import com.opengamma.financial.interestrate.PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator;
 import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
+import com.opengamma.util.tuple.DoublesPair;
 
 /**
  * 
  */
-public class SwaptionBlackVolatilitySensitivityFunction {
+public class SwaptionBlackVolatilitySensitivityFunction extends SwaptionBlackFunction {
   private static final PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator CALCULATOR = PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator.getInstance();
 
+  public SwaptionBlackVolatilitySensitivityFunction() {
+    super(ValueRequirementNames.VALUE_VEGA);
+  }
+
+  @Override
   protected Set<ComputedValue> getResult(final InstrumentDerivative swaption, final YieldCurveWithBlackSwaptionBundle data, final ValueSpecification spec) {
     final PresentValueBlackSwaptionSensitivity sensitivities = swaption.accept(CALCULATOR, data);
-    return Collections.singleton(new ComputedValue(spec, sensitivities));
+    final HashMap<DoublesPair, Double> result = sensitivities.getSensitivity().getMap();
+    if (result.size() != 1) {
+      throw new OpenGammaRuntimeException("Expecting only one result for value vega");
+    }
+    return Collections.singleton(new ComputedValue(spec, result.values().iterator().next()));
   }
 }

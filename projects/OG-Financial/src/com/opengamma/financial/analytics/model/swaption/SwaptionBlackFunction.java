@@ -140,7 +140,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
-    return Collections.singleton(new ValueSpecification(ValueRequirementNames.PRESENT_VALUE, target.toSpecification(), getResultProperties(currency)));
+    return Collections.singleton(new ValueSpecification(_valueRequirementName, target.toSpecification(), getResultProperties(currency)));
   }
 
   @Override

@@ -24,7 +24,8 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
   private static final String[] s_valueRequirements = new String[] {
-    ValueRequirementNames.PRESENT_VALUE
+    ValueRequirementNames.PRESENT_VALUE,
+    ValueRequirementNames.VALUE_VEGA
   };
   private final String _forwardCurveName;
   private final String _fundingCurveName;
