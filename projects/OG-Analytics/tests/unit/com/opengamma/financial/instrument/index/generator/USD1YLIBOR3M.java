@@ -10,7 +10,7 @@ import javax.time.calendar.Period;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.GeneratorSwap;
-import com.opengamma.financial.instrument.index.iborindex.USDLIBOR3M;
+import com.opengamma.financial.instrument.index.iborindex.IndexIborTestsMaster;
 
 /**
  * Swap generator for the USD Annual ACT/360 vs Libor 3M.
@@ -22,7 +22,7 @@ public class USD1YLIBOR3M extends GeneratorSwap {
    * @param calendar A USD calendar.
    */
   public USD1YLIBOR3M(Calendar calendar) {
-    super(Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("ACT/360"), new USDLIBOR3M(calendar));
+    super(Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("ACT/360"), IndexIborTestsMaster.getInstance().getIndex("USDLIBOR3M", calendar));
   }
 
 }

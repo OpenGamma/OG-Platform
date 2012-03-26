@@ -29,7 +29,7 @@ import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.generator.EURDeposit;
-import com.opengamma.financial.instrument.index.iborindex.EURIBOR6M;
+import com.opengamma.financial.instrument.index.iborindex.IndexIborTestsMaster;
 import com.opengamma.util.time.DateUtils;
 
 /**
@@ -40,7 +40,7 @@ public class ScheduleCalculatorTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");
   private static final GeneratorDeposit GENERATOR_DEPOSIT = new EURDeposit(CALENDAR);
-  private static final IborIndex INDEX_EURIBOR6M = new EURIBOR6M(CALENDAR);
+  private static final IborIndex INDEX_EURIBOR6M = IndexIborTestsMaster.getInstance().getIndex("EURIBOR6M", CALENDAR);
 
   private static final Calendar ALL = new AllCalendar();
   private static final Calendar WEEKEND = new WeekendCalendar();
