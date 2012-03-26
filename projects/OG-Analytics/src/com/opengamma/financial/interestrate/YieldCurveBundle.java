@@ -18,6 +18,7 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
  * 
  */
 public class YieldCurveBundle {
+
   private final Map<String, YieldAndDiscountCurve> _curves;
 
   public YieldCurveBundle(final String[] names, final YieldAndDiscountCurve[] curves) {
@@ -106,6 +107,14 @@ public class YieldCurveBundle {
 
   public Boolean containsName(final String curveName) {
     return _curves.containsKey(curveName);
+  }
+
+  /**
+   * Create a new copy of the bundle using a new map and the same curve and curve names.
+   * @return The bundle.
+   */
+  public YieldCurveBundle copy() {
+    return new YieldCurveBundle(_curves);
   }
 
   @Override

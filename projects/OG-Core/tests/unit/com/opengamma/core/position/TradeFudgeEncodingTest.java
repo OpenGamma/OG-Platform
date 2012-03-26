@@ -12,8 +12,6 @@ import javax.time.calendar.OffsetTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.core.position.Trade;
-import com.opengamma.core.position.TradeFudgeBuilder;
 import com.opengamma.core.position.impl.SimpleCounterparty;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.security.impl.SimpleSecurityLink;

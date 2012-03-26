@@ -30,6 +30,15 @@ public class G2ppPiecewiseConstantDataBundle extends YieldCurveBundle {
     _parameters = g2ppParameters;
   }
 
+  @Override
+  /**
+   * Create a new copy of the bundle using a new map and the same curve and curve names. The same G2ppPiecewiseConstantParameters is used.
+   * @return The bundle.
+   */
+  public G2ppPiecewiseConstantDataBundle copy() {
+    return new G2ppPiecewiseConstantDataBundle(_parameters, this);
+  }
+
   /**
    * Gets the G2++ parameters.
    * @return The parameters.

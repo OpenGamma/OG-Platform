@@ -10,7 +10,7 @@ import javax.time.calendar.Period;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.GeneratorSwap;
-import com.opengamma.financial.instrument.index.iborindex.EURIBOR3M;
+import com.opengamma.financial.instrument.index.iborindex.IndexIborTestsMaster;
 
 /**
  * Swap generator for the EUR Annual 30/360 vs Euribor 3M.
@@ -22,7 +22,7 @@ public class EUR1YEURIBOR3M extends GeneratorSwap {
    * @param calendar A EUR calendar.
    */
   public EUR1YEURIBOR3M(Calendar calendar) {
-    super(Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("30/360"), new EURIBOR3M(calendar));
+    super(Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("30/360"), IndexIborTestsMaster.getInstance().getIndex("EURIBOR3M", calendar));
   }
 
 }

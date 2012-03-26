@@ -33,7 +33,7 @@ public class InterestRateFutureOptionTradeConverter {
     Validate.notNull(trade, "trade");
     Validate.isTrue(trade.getSecurity() instanceof IRFutureOptionSecurity, "Can only handle trades with security type IRFutureOptionSecurity");
     final Object securityDefinition = _securityConverter.convert((IRFutureOptionSecurity) trade.getSecurity());
-    final int quantity = trade.getQuantity().intValue();
+    final int quantity = 1; // trade.getQuantity().intValue(); TODO: correct when position/trade dilemma is solved.
     //TODO trade time or premium time?
     //    final ZonedDateTime tradeDate = ZonedDateTime.of(trade.getPremiumDate().atTime(trade.getPremiumTime()),
     //        TimeZone.UTC); //TODO get the real time zone

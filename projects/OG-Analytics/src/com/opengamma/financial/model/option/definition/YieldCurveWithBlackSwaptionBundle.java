@@ -31,6 +31,15 @@ public class YieldCurveWithBlackSwaptionBundle extends YieldCurveBundle {
     _parameters = parameters;
   }
 
+  @Override
+  /**
+   * Create a new copy of the bundle using a new map and the same curve and curve names. The same BlackSwaptionParameters is used.
+   * @return The bundle.
+   */
+  public YieldCurveWithBlackSwaptionBundle copy() {
+    return new YieldCurveWithBlackSwaptionBundle(_parameters, this);
+  }
+
   /**
    * Gets the Black volatility surface.
    * @return The surface.

@@ -5,11 +5,12 @@
  */
 package com.opengamma.financial.instrument.payment;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.Validate;
 
-import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
 import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
@@ -148,39 +149,31 @@ public class CapFloorCMSDefinition extends CouponCMSDefinition implements CapFlo
   }
 
   @Override
-  public Coupon toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime> indexFixingTS, final String... yieldCurveNames) {
-    Validate.notNull(date, "date");
-    Validate.notNull(indexFixingTS, "index fixing time series");
+  public Coupon toDerivative(final ZonedDateTime dateTime, final DoubleTimeSeries<ZonedDateTime> indexFixingTimeSeries, final String... yieldCurveNames) {
+    Validate.notNull(dateTime, "date");
+    LocalDate dayConversion = dateTime.toLocalDate();
+    Validate.notNull(indexFixingTimeSeries, "Index fixing time series");
     Validate.notNull(yieldCurveNames, "yield curve names");
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    Validate.isTrue(!date.isAfter(getPaymentDate()), "date is after payment date");
+    Validate.isTrue(!dayConversion.isAfter(getPaymentDate().toLocalDate()), "date is after payment date");
     final String fundingCurveName = yieldCurveNames[0];
-    final double paymentTime = TimeCalculator.getTimeBetween(date, getPaymentDate());
-    if (date.isAfter(getFixingDate()) || date.equals(getFixingDate())) { // The CMS coupon has already fixed, it is now a fixed coupon.
-      Double fixedRate = indexFixingTS.getValue(getFixingDate());
-      //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
-      if (fixedRate == null) {
-        final ZonedDateTime fixingDateAtLiborFixingTime = getFixingDate().withTime(11, 0);
-        fixedRate = indexFixingTS.getValue(fixingDateAtLiborFixingTime);
+    final double paymentTime = TimeCalculator.getTimeBetween(dateTime, getPaymentDate());
+    LocalDate dayFixing = getFixingDate().toLocalDate();
+    if (dayConversion.equals(dayFixing)) { // The fixing is on the reference date; if known the fixing is used and if not, the floating coupon is created.
+      Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate());
+      if (fixedRate != null) {
+        return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(fixedRate));
       }
+    }
+    if (dayConversion.isAfter(dayFixing)) { // The fixing is required
+      Double fixedRate = indexFixingTimeSeries.getValue(getFixingDate().withHourOfDay(0)); // TODO: remove time from fixing date.
       if (fixedRate == null) {
-        final ZonedDateTime previousBusinessDay = BusinessDayConventionFactory.INSTANCE.getBusinessDayConvention("Preceding").adjustDate(getCMSIndex().getIborIndex().getCalendar(),
-            getFixingDate().minusDays(1));
-        fixedRate = indexFixingTS.getValue(previousBusinessDay);
-        //TODO remove me when times are sorted out in the swap definitions or we work out how to deal with this another way
-        if (fixedRate == null) {
-          final ZonedDateTime previousBusinessDayAtLiborFixingTime = previousBusinessDay.withTime(11, 0);
-          fixedRate = indexFixingTS.getValue(previousBusinessDayAtLiborFixingTime);
-        }
-        if (fixedRate == null) {
-          fixedRate = indexFixingTS.getLatestValue(); //TODO remove me as soon as possible
-          //throw new OpenGammaRuntimeException("Could not get fixing value for date " + getFixingDate());
-        }
+        throw new OpenGammaRuntimeException("Could not get fixing value for date " + dayFixing);
       }
       return new CouponFixed(getCurrency(), paymentTime, fundingCurveName, getPaymentYearFraction(), getNotional(), payOff(fixedRate));
     }
     // CMS is not fixed yet, all the details are required.
-    final CouponCMS cmsCoupon = (CouponCMS) super.toDerivative(date, indexFixingTS, yieldCurveNames);
+    final CouponCMS cmsCoupon = (CouponCMS) super.toDerivative(dateTime, indexFixingTimeSeries, yieldCurveNames);
     return CapFloorCMS.from(cmsCoupon, _strike, _isCap);
   }
 

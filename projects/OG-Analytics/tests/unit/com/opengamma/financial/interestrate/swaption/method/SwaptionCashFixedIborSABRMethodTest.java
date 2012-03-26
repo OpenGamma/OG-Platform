@@ -199,9 +199,9 @@ public class SwaptionCashFixedIborSABRMethodTest {
     final double deltaTolerance = 1E+2; //Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1e-9;
     InterestRateCurveSensitivity pvsSwapPayer = new InterestRateCurveSensitivity(PVSC.visit(SWAP_PAYER, sabrBundle));
-    pvsSwapPayer = pvsSwapPayer.clean();
+    pvsSwapPayer = pvsSwapPayer.cleaned();
     InterestRateCurveSensitivity sensi = new InterestRateCurveSensitivity(pvscLongPayer);
-    sensi = sensi.clean();
+    sensi = sensi.cleaned();
     final double pv = PVC.visit(SWAPTION_LONG_PAYER, sabrBundle);
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";

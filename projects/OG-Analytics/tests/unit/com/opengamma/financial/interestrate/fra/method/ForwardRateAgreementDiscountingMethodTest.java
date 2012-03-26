@@ -118,7 +118,7 @@ public class ForwardRateAgreementDiscountingMethodTest {
     // Par rate sensitivity
     final InterestRateCurveSensitivity prsFra = FRA_METHOD.parRateCurveSensitivity(FRA, curves);
     final InterestRateCurveSensitivity pvsFra = FRA_METHOD.presentValueCurveSensitivity(FRA, curves);
-    prsFra.clean();
+    prsFra.cleaned();
     final double deltaTolerancePrice = 1.0E+2;
     final double deltaToleranceRate = 1.0E-7;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.

@@ -175,7 +175,7 @@ public class SwaptionCashFixedIborSABRExtrapolationRightMethodTest {
     final double deltaTolerance = 5.0E+4;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-5;
-    pvsLongPayerExtra = pvsLongPayerExtra.clean();
+    pvsLongPayerExtra = pvsLongPayerExtra.cleaned();
     final double pv = methodExtra.presentValue(swaptionLongPayerHighStrike, sabrBundle);
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";

@@ -165,7 +165,7 @@ public class CouponCMSSABRReplicationMethodTest {
     // Present value sensitivity comparison with finite difference.
     final double deltaTolerance = 1E+2; //Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1e-9;
-    pvsReceiver = pvsReceiver.clean();
+    pvsReceiver = pvsReceiver.cleaned();
     final double pv = METHOD.presentValue(CMS_COUPON_RECEIVER, sabrBundle);
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";

@@ -31,5 +31,5 @@ MEM_OPTS="-Xms1024m -Xmx1024m -XX:MaxPermSize=256M -XX:+UseConcMarkSweepGC \
 $JAVA $JMX_OPTS $MEM_OPTS -jar lib/org.eclipse-jetty-jetty-start-7.0.1.v20091125.jar \
   -Djetty.port=8090 -DSTOP.PORT=8089 -DSTOP.KEY=OpenGamma \
   -Dlogback.configurationFile=marketdata-logback.xml \
-  start.class=com.opengamma.production.startup.MarketDataServer \
+  start.class=com.opengamma.integration.startup.MarketDataServer \
   config/marketdata-spring.xml "path=$CLASSPATH"

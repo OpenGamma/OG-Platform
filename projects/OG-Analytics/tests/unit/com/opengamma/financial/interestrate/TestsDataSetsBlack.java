@@ -37,6 +37,17 @@ public class TestsDataSetsBlack {
   private static final BlackSwaptionParameters BLACK_SWAPTION_EUR6 = new BlackSwaptionParameters(BLACK_SURFACE, EUR1YEURIBOR6M);
   private static final BlackSwaptionParameters BLACK_SWAPTION_EUR3 = new BlackSwaptionParameters(BLACK_SURFACE, EUR1YEURIBOR3M);
 
+  //  private static final double[] CUBE_X = new double[]{};
+  //  private static final double[] CUBE_Y = new double[]{};
+  //  private static final double[] CUBE_Z = new double[]{};
+  //  private static final double[] CUBE_VALUES = new double[]{};
+  //  private static final InterpolatorND INTERPOLATOR_2D = 
+  //  private static final InterpolatedDoublesCube BLACK_CUBE = InterpolatedDoublesCube.from(CUBE_X, CUBE_Y, CUBE_Z, CUBE_VALUES, interpolator);
+
+  public static InterpolatedDoublesSurface createBlackSurface() {
+    return BLACK_SURFACE;
+  }
+
   public static BlackSwaptionParameters createBlackSwaptionEUR6() {
     return BLACK_SWAPTION_EUR6;
   }

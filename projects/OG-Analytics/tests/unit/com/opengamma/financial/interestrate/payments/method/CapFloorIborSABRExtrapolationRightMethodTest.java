@@ -219,7 +219,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     final double deltaTolerancePrice = 1.0E-1;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1.0E-7;
-    pvsCapLong = pvsCapLong.clean();
+    pvsCapLong = pvsCapLong.cleaned();
     String bumpedCurveName = "Bumped Curve";
     // 1. Forward curve sensitivity
     final String[] CurveNameBumpedForward = {FUNDING_CURVE_NAME, bumpedCurveName};
@@ -264,7 +264,7 @@ public class CapFloorIborSABRExtrapolationRightMethodTest {
     final double deltaTolerancePrice = 1.0E-1;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1.0E-7;
-    pvsCapLong = pvsCapLong.clean();
+    pvsCapLong = pvsCapLong.cleaned();
     String bumpedCurveName = "Bumped Curve";
     // 1. Forward curve sensitivity
     final String[] CurveNameBumpedForward = {FUNDING_CURVE_NAME, bumpedCurveName};

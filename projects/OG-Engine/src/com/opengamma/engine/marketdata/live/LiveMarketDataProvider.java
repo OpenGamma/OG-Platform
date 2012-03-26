@@ -35,6 +35,7 @@ import com.opengamma.livedata.UserPrincipal;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResponse;
 import com.opengamma.livedata.msg.LiveDataSubscriptionResult;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
 
 /**
  * A {@link MarketDataProvider} for live data.
@@ -58,21 +59,22 @@ public class LiveMarketDataProvider extends AbstractMarketDataProvider implement
   private final Set<ValueRequirement> _failedRequirements = new CopyOnWriteArraySet<ValueRequirement>();
 
   public LiveMarketDataProvider(LiveDataClient liveDataClient, SecuritySource securitySource, MarketDataAvailabilityProvider availabilityProvider) {
-    this(liveDataClient, securitySource, availabilityProvider, new FudgeContext());
+    this(liveDataClient, securitySource, availabilityProvider, OpenGammaFudgeContext.getInstance(), new LiveMarketDataPermissionProvider(liveDataClient, securitySource));
   }
 
-  public LiveMarketDataProvider(LiveDataClient liveDataClient, SecuritySource securitySource,
-      MarketDataAvailabilityProvider availabilityProvider, FudgeContext fudgeContext) {
+  public LiveMarketDataProvider(final LiveDataClient liveDataClient, final SecuritySource securitySource,
+      final MarketDataAvailabilityProvider availabilityProvider, final FudgeContext fudgeContext, final MarketDataPermissionProvider permissionProvider) {
     ArgumentChecker.notNull(liveDataClient, "liveDataClient");
     ArgumentChecker.notNull(securitySource, "securitySource");
     ArgumentChecker.notNull(availabilityProvider, "availabilityProvider");
     ArgumentChecker.notNull(fudgeContext, "fudgeContext");
+    ArgumentChecker.notNull(permissionProvider, "permissionProvider");
     _liveDataClient = liveDataClient;
     _securitySource = securitySource;
     _fudgeContext = fudgeContext;
     _availabilityProvider = availabilityProvider;
     _underlyingProvider = new InMemoryLKVMarketDataProvider(securitySource);
-    _permissionProvider = new LiveMarketDataPermissionProvider(liveDataClient, securitySource);
+    _permissionProvider = permissionProvider;
   }
 
   //-------------------------------------------------------------------------
