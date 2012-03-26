@@ -17,6 +17,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.view.ViewCalculationConfiguration;
 import com.opengamma.engine.view.ViewDefinition;
 import com.opengamma.examples.tool.AbstractExampleTool;
+import com.opengamma.financial.generator.SecurityGenerator;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -272,7 +273,7 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
     defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PV01);
     defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
     defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES);
-    for (Currency ccy : ExampleMultiCurrencySwapPortfolioLoader.s_currencies) {
+    for (Currency ccy : SecurityGenerator.getDefaultCurrencies()) {
       defaultCalc.addSpecificRequirement(new ValueRequirement(ValueRequirementNames.YIELD_CURVE,
           ComputationTargetType.PRIMITIVE, UniqueId.of("CurrencyISO", ccy.getCode()), ValueProperties.with("Curve", "SECONDARY").get()));
     }
