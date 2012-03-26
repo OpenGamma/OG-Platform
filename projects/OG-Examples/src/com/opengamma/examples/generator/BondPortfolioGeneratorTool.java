@@ -5,25 +5,27 @@
  */
 package com.opengamma.examples.generator;
 
+import com.opengamma.financial.generator.BondPositionGenerator;
+import com.opengamma.financial.generator.GovernmentBondSecurityGenerator;
 import com.opengamma.financial.generator.LeafPortfolioNodeGenerator;
 import com.opengamma.financial.generator.NameGenerator;
 import com.opengamma.financial.generator.PortfolioGenerator;
 import com.opengamma.financial.generator.PortfolioNodeGenerator;
 import com.opengamma.financial.generator.PositionGenerator;
 import com.opengamma.financial.generator.StaticNameGenerator;
-import com.opengamma.financial.generator.SwapPositionGenerator;
 
 /**
- * Utility for constructing a random swap portfolio.
+ * Utility for constructing a random bond portfolio.
  */
-public class SwapPortfolioGeneratorTool extends PortfolioGeneratorTool {
+public class BondPortfolioGeneratorTool extends PortfolioGeneratorTool {
 
   @Override
   public PortfolioGenerator createPortfolioGenerator(final NameGenerator portfolioNameGenerator) {
-    final SwapSecurityGenerator securities = new SwapSecurityGenerator();
+    final GovernmentBondSecurityGenerator securities = new GovernmentBondSecurityGenerator();
     configure(securities);
-    final PositionGenerator positions = new SwapPositionGenerator(securities, getSecurityPersister());
-    final PortfolioNodeGenerator rootNode = new LeafPortfolioNodeGenerator(new StaticNameGenerator("Swaps"), positions, PORTFOLIO_SIZE);
+    final PositionGenerator positions = new BondPositionGenerator(securities, getSecurityPersister());
+    // TODO: create other bond types
+    final PortfolioNodeGenerator rootNode = new LeafPortfolioNodeGenerator(new StaticNameGenerator("Bonds"), positions, PORTFOLIO_SIZE);
     return new PortfolioGenerator(rootNode, portfolioNameGenerator);
   }
 

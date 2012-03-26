@@ -8,6 +8,9 @@ package com.opengamma.financial.generator;
 import java.text.DecimalFormat;
 import java.util.Random;
 
+import javax.time.calendar.DateProvider;
+import javax.time.calendar.DayOfWeek;
+import javax.time.calendar.ZonedDateTime;
 import javax.time.calendar.format.DateTimeFormatter;
 import javax.time.calendar.format.DateTimeFormatterBuilder;
 
@@ -17,7 +20,6 @@ import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
-import com.opengamma.util.time.Tenor;
 
 /**
  * Utility class for constructing parameters to random (but reasonable) securities.
@@ -41,6 +43,11 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
    */
   public static final DecimalFormat NOTIONAL_FORMATTER = new DecimalFormat("0,000");
 
+  /**
+   * Constant for the length of a year in days.
+   */
+  protected static final double YEAR_LENGTH = 365.25;
+
   private Random _random = new Random();
   private ConventionBundleSource _conventionSource;
   private ConfigSource _configSource;
@@ -57,6 +64,18 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   protected int getRandom(final int n) {
     return getRandom().nextInt(n);
+  }
+
+  protected double getRandom(final double low, final double high) {
+    return low + (high - low) * getRandom().nextDouble();
+  }
+
+  protected <X> X getRandom(final X[] xs) {
+    return xs[getRandom(xs.length)];
+  }
+
+  protected int getRandom(final int[] xs) {
+    return xs[getRandom(xs.length)];
   }
 
   public ConventionBundleSource getConventionSource() {
@@ -100,17 +119,32 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   }
 
   protected Currency getRandomCurrency() {
-    final Currency[] currencies = getCurrencies();
-    return currencies[getRandom(currencies.length)];
+    return getRandom(getCurrencies());
   }
 
-  public Tenor[] getTenors() {
-    return new Tenor[] {Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.THREE_YEARS, Tenor.FIVE_YEARS, Tenor.ofYears(7), Tenor.ofYears(10), Tenor.ofYears(12), Tenor.ofYears(15), Tenor.ofYears(20) };
+  private boolean isWorkday(final DayOfWeek dow, final Currency currency) {
+    // TODO: use a proper convention/holiday source
+    return dow.getValue() < 6;
   }
 
-  protected Tenor getRandomTenor() {
-    final Tenor[] tenors = getTenors();
-    return tenors[getRandom(tenors.length)];
+  private boolean isHoliday(final DateProvider ldp, final Currency currency) {
+    return getHolidaySource().isHoliday(ldp.toLocalDate(), currency);
+  }
+
+  // TODO: replace this with a date adjuster
+  protected ZonedDateTime nextWorkingDay(ZonedDateTime zdt, final Currency currency) {
+    while (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt, currency)) {
+      zdt = zdt.plusDays(1);
+    }
+    return zdt;
+  }
+
+  // TODO: replace this with a date adjuster
+  protected ZonedDateTime previousWorkingDay(ZonedDateTime zdt, final Currency currency) {
+    while (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt, currency)) {
+      zdt = zdt.minusDays(1);
+    }
+    return zdt;
   }
 
   /**

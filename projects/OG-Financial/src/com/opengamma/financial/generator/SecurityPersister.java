@@ -30,7 +30,7 @@ public abstract class SecurityPersister {
   }
 
   public SecurityPersister() {
-    this(ExternalScheme.of("GUID"));
+    this(ExternalScheme.of("RANDOM_SECURITY_GENERATOR"));
   }
 
   protected abstract void storeSecurityImpl(ManageableSecurity security);

@@ -35,6 +35,8 @@ import com.opengamma.util.tuple.Pair;
 public abstract class SwapSecurityGenerator extends SecurityGenerator<SwapSecurity> {
 
   private static final Logger s_logger = LoggerFactory.getLogger(SwapSecurityGenerator.class);
+  private static final Tenor[] TENORS = new Tenor[] {Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.THREE_YEARS, Tenor.FIVE_YEARS, Tenor.ofYears(7), Tenor.ofYears(10), Tenor.ofYears(12), Tenor.ofYears(15),
+      Tenor.ofYears(20) };
 
   private int _daysTrading = 60;
   private String _historicalConfigDoc = "DEFAULT_TSS_CONFIG";
@@ -98,7 +100,7 @@ public abstract class SwapSecurityGenerator extends SecurityGenerator<SwapSecuri
       s_logger.error("Couldn't get swap convention for {}", ccy.getCode());
       return null;
     }
-    final Tenor maturity = getRandomTenor();
+    final Tenor maturity = getRandom(TENORS);
     // get the convention of the identifier of the initial rate
     ConventionBundle liborConvention = getConventionSource().getConventionBundle(swapConvention.getSwapFloatingLegInitialRate());
     if (liborConvention == null) {

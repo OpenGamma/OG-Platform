@@ -14,6 +14,11 @@ import com.opengamma.examples.tool.AbstractExampleTool;
  */
 public class PortfolioGeneratorTool extends com.opengamma.financial.generator.PortfolioGeneratorTool {
 
+  /**
+   * Default portfolio size used by sub-classes.
+   */
+  protected static final int PORTFOLIO_SIZE = 200;
+
   public static void main(final String[] args) { // CSIGNORE
     (new AbstractExampleTool() {
 

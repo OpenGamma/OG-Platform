@@ -20,10 +20,10 @@ import com.opengamma.util.ArgumentChecker;
 public class SimplePositionGenerator<T extends ManageableSecurity> implements PositionGenerator {
 
   private final QuantityGenerator _quantityGenerator;
-  private final SecurityGenerator<T> _securityGenerator;
+  private final SecurityGenerator<? extends T> _securityGenerator;
   private final SecurityPersister _securityPersister;
 
-  public SimplePositionGenerator(final QuantityGenerator quantityGenerator, final SecurityGenerator<T> securityGenerator, final SecurityPersister securityPersister) {
+  public SimplePositionGenerator(final QuantityGenerator quantityGenerator, final SecurityGenerator<? extends T> securityGenerator, final SecurityPersister securityPersister) {
     ArgumentChecker.notNull(quantityGenerator, "quantityGenerator");
     ArgumentChecker.notNull(securityGenerator, "securityGenerator");
     ArgumentChecker.notNull(securityPersister, "securityPersister");
@@ -36,7 +36,7 @@ public class SimplePositionGenerator<T extends ManageableSecurity> implements Po
     return _quantityGenerator;
   }
 
-  protected SecurityGenerator<T> getSecurityGenerator() {
+  protected SecurityGenerator<? extends T> getSecurityGenerator() {
     return _securityGenerator;
   }
 
