@@ -87,6 +87,6 @@ public class InterestRateCurveSensitivityTest {
     List<DoublesPair> expectedSensiDataClean12 = Arrays.asList(new DoublesPair[] {new DoublesPair(1, 50), new DoublesPair(2, 50), new DoublesPair(3, 50), new DoublesPair(4, 50)});
     Map<String, List<DoublesPair>> expectedSensiClean12 = new HashMap<String, List<DoublesPair>>();
     expectedSensiClean12.put(CURVE_NAME_1, expectedSensiDataClean12);
-    assertEquals((new InterestRateCurveSensitivity(expectedSensiClean12)).getSensitivities(), pvSensi_11.plus(pvSensi_12).clean().getSensitivities());
+    assertEquals((new InterestRateCurveSensitivity(expectedSensiClean12)).getSensitivities(), pvSensi_11.plus(pvSensi_12).cleaned().getSensitivities());
   }
 }

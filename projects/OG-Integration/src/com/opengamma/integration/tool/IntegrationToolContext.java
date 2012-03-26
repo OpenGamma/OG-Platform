@@ -18,6 +18,7 @@ import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.bbg.BloombergSecurityMaster;
 import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.financial.tool.ToolContext;
 import org.joda.beans.impl.direct.DirectBeanBuilder;
@@ -29,7 +30,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
  * Each component is optional, although typically all are provided.
  */
 @BeanDefinition
-public class IntegrationToolContext extends ToolContext {
+public class IntegrationToolContext extends ToolContext implements BloombergToolContext {
 
   /**
    * The Bloomberg security source.

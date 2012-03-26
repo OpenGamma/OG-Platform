@@ -162,7 +162,6 @@ public class WebsiteBasicsComponentFactory extends AbstractComponentFactory {
     JerseyRestResourceFactory hts = new JerseyRestResourceFactory(WebAllHistoricalTimeSeriesResource.class,
         getHistoricalTimeSeriesMaster(), getHistoricalTimeSeriesLoader());
     repo.getRestComponents().publishResource(hts);
-    
   }
 
   protected void initValueRequirementNames(ComponentRepository repo) {

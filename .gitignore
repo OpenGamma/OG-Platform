@@ -22,6 +22,7 @@ common/deploy.properties
 !/projects/OG-Security
 !/projects/OG-Util
 !/projects/OG-Web
+!/projects/OG-BloombergExample
 repository/
 ivy/
 bootstrap/

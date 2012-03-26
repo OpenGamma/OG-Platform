@@ -222,8 +222,15 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
 
       private Set<ValueSpecification> resultWithSatisfiedRequirements(final Set<ValueRequirement> visited, final CompiledFunctionDefinition function,
           final ComputationTarget target, final ValueRequirement requiredOutputValue, final ValueSpecification resolvedOutputValue) {
-        final Set<ValueRequirement> requirements = function.getRequirements(_context, target, requiredOutputValue);
-        if (requirements == null) {
+        final Set<ValueRequirement> requirements;
+        try {
+          requirements = function.getRequirements(_context, target, requiredOutputValue);
+          if (requirements == null) {
+            return null;
+          }
+        } catch (Throwable t) {
+          s_logger.error("Error applying {} to {}", function, target);
+          s_logger.warn("Exception thrown", t);
           return null;
         }
         if (requirements.isEmpty()) {
@@ -281,7 +288,7 @@ public class AvailablePortfolioOutputs extends AvailableOutputsImpl {
               if (results != null) {
                 for (ValueSpecification result : results) {
                   if ((resolvedOutputValue == result) || requiredOutputValue.isSatisfiedBy(result)) {
-                    outputs.add(result);
+                    outputs.add(result.compose(requiredOutputValue));
                   }
                 }
               }

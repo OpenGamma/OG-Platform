@@ -37,7 +37,6 @@ import com.opengamma.financial.security.swap.InterestRateLeg;
 import com.opengamma.financial.security.swap.Notional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.VarianceSwapLeg;
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
@@ -125,9 +124,7 @@ public class JodaBeanRowParser extends RowParser {
     FloatingVarianceSwapLeg.meta();
   }
   
-  public JodaBeanRowParser(String securityName, ToolContext toolContext) throws OpenGammaRuntimeException {
-    super(toolContext);
-
+  public JodaBeanRowParser(String securityName) throws OpenGammaRuntimeException {
     // Find the corresponding security class
     _securityClass = getClass(securityName + CLASS_POSTFIX);
 

@@ -30,6 +30,15 @@ public class HullWhiteOneFactorPiecewiseConstantDataBundle extends YieldCurveBun
     _parameters = hullWhiteParameters;
   }
 
+  @Override
+  /**
+   * Create a new copy of the bundle using a new map and the same curve and curve names. The same HullWhiteOneFactorPiecewiseConstantParameters is used.
+   * @return The bundle.
+   */
+  public HullWhiteOneFactorPiecewiseConstantDataBundle copy() {
+    return new HullWhiteOneFactorPiecewiseConstantDataBundle(_parameters, this);
+  }
+
   /**
    * Gets the Hull-White one factor parameters.
    * @return The parameters.

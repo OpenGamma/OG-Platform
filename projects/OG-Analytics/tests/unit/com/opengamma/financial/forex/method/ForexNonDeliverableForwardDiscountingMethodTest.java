@@ -8,6 +8,8 @@ package com.opengamma.financial.forex.method;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Map;
+
 import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
@@ -43,9 +45,10 @@ public class ForexNonDeliverableForwardDiscountingMethodTest {
 
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
   private static final String[] CURVE_NAMES = TestsDataSetsForex.curveNames();
+  private static final Map<String, Currency> CURVE_CURRENCY = TestsDataSetsForex.curveCurrency();
   private static final double USD_KRW = 1111.11;
   private static final FXMatrix FX_MATRIX = new FXMatrix(USD, KRW, USD_KRW);
-  private static final YieldCurveWithFXBundle CURVESFX = new YieldCurveWithFXBundle(FX_MATRIX, CURVES);
+  private static final YieldCurveWithFXBundle CURVESFX = new YieldCurveWithFXBundle(FX_MATRIX, CURVE_CURRENCY, CURVES);
 
   private static final ForexNonDeliverableForward NDF = NDF_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[3], CURVE_NAMES[1]});
   private static final Forex FOREX = FOREX_DEFINITION.toDerivative(REFERENCE_DATE, new String[] {CURVE_NAMES[1], CURVE_NAMES[3]});

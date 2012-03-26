@@ -127,7 +127,7 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
   public MultipleCurrencyInterestRateCurveSensitivity clean() {
     TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
     for (Currency loopccy : _sensitivity.keySet()) {
-      map.put(loopccy, _sensitivity.get(loopccy).clean());
+      map.put(loopccy, _sensitivity.get(loopccy).cleaned());
     }
     MultipleCurrencyInterestRateCurveSensitivity result = new MultipleCurrencyInterestRateCurveSensitivity(map);
     return result;
@@ -160,6 +160,11 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
    */
   public Set<Currency> getCurrencies() {
     return _sensitivity.keySet();
+  }
+
+  @Override
+  public String toString() {
+    return _sensitivity.toString();
   }
 
   @Override

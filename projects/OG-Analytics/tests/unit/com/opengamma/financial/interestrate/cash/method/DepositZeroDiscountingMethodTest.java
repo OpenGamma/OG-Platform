@@ -183,7 +183,7 @@ public class DepositZeroDiscountingMethodTest {
     ZonedDateTime referenceDate = DateUtils.getUTCDate(2011, 12, 20);
     DepositZero deposit = DEPOSIT_DEFINITION.toDerivative(referenceDate, CURVES_NAME[0]);
     InterestRateCurveSensitivity pvcsMethod = METHOD_DEPOSIT.presentValueCurveSensitivity(deposit, CURVES);
-    pvcsMethod = pvcsMethod.clean(0.0, 1.0E-4);
+    pvcsMethod = pvcsMethod.cleaned(0.0, 1.0E-4);
     assertEquals("DepositDefinition: present value curve sensitivity", 1, pvcsMethod.getSensitivities().size());
     assertEquals("DepositDefinition: present value curve sensitivity", 1, pvcsMethod.getSensitivities().get(CURVES_NAME[0]).size());
     final double deltaTolerancePrice = 1.0E+2;
@@ -199,7 +199,7 @@ public class DepositZeroDiscountingMethodTest {
     assertEquals("Sensitivity coupon pv to forward curve: Node " + 0, nodeTimesDisc[0], pairPv.getFirst(), 1E-8);
     AssertJUnit.assertEquals("Sensitivity finite difference method: node sensitivity", pairPv.second, sensiDiscMethod[0], deltaTolerancePrice);
     InterestRateCurveSensitivity pvcsCalculator = new InterestRateCurveSensitivity(PVCSC.visit(deposit, CURVES));
-    pvcsCalculator = pvcsCalculator.clean(0.0, 1.0E-4);
+    pvcsCalculator = pvcsCalculator.cleaned(0.0, 1.0E-4);
     assertTrue("DepositZero: present value curve sensitivity", InterestRateCurveSensitivity.compare(pvcsMethod, pvcsCalculator, TOLERANCE_RATE));
   }
 
@@ -270,7 +270,7 @@ public class DepositZeroDiscountingMethodTest {
     }
     CURVES.replaceCurve(CURVES_NAME[0], curveToBump);
     InterestRateCurveSensitivity prcsCalculator = new InterestRateCurveSensitivity(PRCSC.visit(deposit, CURVES));
-    prcsCalculator = prcsCalculator.clean(0.0, 1.0E-4);
+    prcsCalculator = prcsCalculator.cleaned(0.0, 1.0E-4);
     assertTrue("DepositZero: par rate curve sensitivity", InterestRateCurveSensitivity.compare(prcsMethod, prcsCalculator, TOLERANCE_RATE));
   }
 

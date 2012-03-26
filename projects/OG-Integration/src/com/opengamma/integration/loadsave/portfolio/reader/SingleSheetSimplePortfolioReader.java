@@ -5,6 +5,7 @@
  */
 package com.opengamma.integration.loadsave.portfolio.reader;
 
+import java.io.InputStream;
 import java.util.Map;
 
 import org.slf4j.Logger;
@@ -38,8 +39,8 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
    */
   private String[] _columns;
 
-  public SingleSheetSimplePortfolioReader(String filename, RowParser rowParser) {
-    super(SheetReader.newSheetReader(filename));
+  public SingleSheetSimplePortfolioReader(String filename, InputStream portfolioFileStream, RowParser rowParser) {
+    super(SheetReader.newSheetReader(filename, portfolioFileStream));
     _columns = getSheet().getColumns();
     _rowParser = rowParser;
   }
@@ -50,10 +51,10 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
     _rowParser = rowParser;
   }
 
-  public SingleSheetSimplePortfolioReader(String filename, String securityClass, ToolContext toolContext) {
-    super(SheetReader.newSheetReader(filename));
+  public SingleSheetSimplePortfolioReader(String filename, InputStream portfolioFileStream, String securityClass) {
+    super(SheetReader.newSheetReader(filename, portfolioFileStream));
     _columns = getSheet().getColumns();
-    _rowParser = RowParser.newRowParser(securityClass, toolContext);
+    _rowParser = RowParser.newRowParser(securityClass);
     if (_rowParser == null) {
       throw new OpenGammaRuntimeException("Could not identify an appropriate row parser for security class " + securityClass);
     }
@@ -62,7 +63,7 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
   public SingleSheetSimplePortfolioReader(SheetReader sheet, String[] columns, String securityClass, ToolContext toolContext) {
     super(sheet);
     _columns = getSheet().getColumns();
-    _rowParser = RowParser.newRowParser(securityClass, toolContext);
+    _rowParser = RowParser.newRowParser(securityClass);
     if (_rowParser == null) {
       throw new OpenGammaRuntimeException("Could not identify an appropriate row parser for security class " + securityClass);
     }

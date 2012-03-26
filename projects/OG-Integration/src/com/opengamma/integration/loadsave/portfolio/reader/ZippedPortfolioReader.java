@@ -20,7 +20,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.loadsave.sheet.reader.CsvSheetReader;
@@ -28,6 +27,7 @@ import com.opengamma.integration.loadsave.sheet.reader.SheetReader;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.ObjectsPair;
 
 /**
@@ -41,7 +41,6 @@ public class ZippedPortfolioReader implements PortfolioReader {
 
   private static final String SHEET_EXTENSION = ".csv";
 
-  private ToolContext _toolContext;
   private ZipFile _zipFile;
   private Map<String, Integer> _versionMap = new HashMap<String, Integer>();
 
@@ -49,9 +48,8 @@ public class ZippedPortfolioReader implements PortfolioReader {
   private PortfolioReader _currentReader;
   private String[] _currentPath = new String[0];
   
-  public ZippedPortfolioReader(String filename, ToolContext toolContext) {
-    _toolContext = toolContext;
-    
+  public ZippedPortfolioReader(String filename) {
+    ArgumentChecker.notNull(filename, "filename");
     try {
       _zipFile = new ZipFile(filename);
       _zipEntries = (Enumeration<ZipEntry>) _zipFile.entries();
@@ -85,7 +83,7 @@ public class ZippedPortfolioReader implements PortfolioReader {
           // Set up a sheet reader for the current CSV file in the ZIP archive
           SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
 
-          RowParser parser = RowParser.newRowParser(secType, _toolContext);
+          RowParser parser = RowParser.newRowParser(secType);
           if (parser == null) {
             s_logger.error("Could not build a row parser for security type '" + secType + "'");
             continue; 
@@ -182,7 +180,7 @@ public class ZippedPortfolioReader implements PortfolioReader {
         // Set up a sheet reader and a row parser for the current CSV file in the ZIP archive
         SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
         
-        RowParser parser = RowParser.newRowParser(secType, _toolContext);
+        RowParser parser = RowParser.newRowParser(secType);
         if (parser == null) {
           s_logger.error("Could not build a row parser for security type '" + secType + "'");
           return null; 

@@ -133,8 +133,8 @@ public class BondFutureSecurityDiscountingMethodTest {
     }
     InterestRateCurveSensitivity sensiBond = METHOD_BOND.dirtyPriceCurveSensitivity(BASKET[minIndex], CURVES);
     sensiBond = sensiBond.multiply(1.0 / CONVERSION_FACTOR[minIndex]);
-    sensiFuture = sensiFuture.clean();
-    sensiBond = sensiBond.clean();
+    sensiFuture = sensiFuture.cleaned();
+    sensiBond = sensiBond.cleaned();
     for (int loopsensi = 0; loopsensi < sensiFuture.getSensitivities().get(CREDIT_CURVE_NAME).size(); loopsensi++) {
       assertEquals("Bond future security Discounting Method: curve sensitivity " + loopsensi, sensiBond.getSensitivities().get(CREDIT_CURVE_NAME).get(loopsensi).first, sensiFuture.getSensitivities()
           .get(CREDIT_CURVE_NAME).get(loopsensi).first, 1.0E-10);

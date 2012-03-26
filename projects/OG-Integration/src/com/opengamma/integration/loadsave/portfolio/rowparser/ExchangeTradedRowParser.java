@@ -12,16 +12,15 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 import javax.time.calendar.ZoneOffset;
 
-import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.bbg.BloombergSecurityMaster;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A row parser that reads in a ticker for an exchange-traded security, a quantity for a position, and
@@ -39,12 +38,9 @@ public class ExchangeTradedRowParser extends RowParser {
   
   private BloombergSecurityMaster _bbgSecSource;
 
-  public ExchangeTradedRowParser(IntegrationToolContext toolContext) {
-    super(toolContext);
-    _bbgSecSource = toolContext.getBloombergSecuritySource();
-    if (_bbgSecSource == null) {
-      throw new OpenGammaRuntimeException("A Bloomberg security source is not available in this tool context");
-    }
+  public ExchangeTradedRowParser(BloombergSecurityMaster bbgSecSource) {
+    ArgumentChecker.notNull(bbgSecSource, "bbgSecSource");
+    _bbgSecSource = bbgSecSource;
   }
 
   @Override

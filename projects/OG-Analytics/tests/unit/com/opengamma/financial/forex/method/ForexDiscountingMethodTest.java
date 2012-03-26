@@ -41,7 +41,8 @@ public class ForexDiscountingMethodTest {
   private static final double FX_RATE = 1.4177;
   private static final ForexDefinition FX_DEFINITION = new ForexDefinition(CUR_1, CUR_2, PAYMENT_DATE, NOMINAL_1, FX_RATE);
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
-  private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
+  private static final String[] CURVES_NAME = TestsDataSetsForex.curveNames();
+  private static final Map<String, Currency> CURVE_CURRENCY = TestsDataSetsForex.curveCurrency();
   private static final ZonedDateTime REFERENCE_DATE = DateUtils.getUTCDate(2011, 5, 20);
   private static final Forex FX = FX_DEFINITION.toDerivative(REFERENCE_DATE, CURVES_NAME);
   private static final PaymentFixedDefinition PAY_DEFINITION_1 = new PaymentFixedDefinition(CUR_1, PAYMENT_DATE, NOMINAL_1);
@@ -132,7 +133,7 @@ public class ForexDiscountingMethodTest {
   public void forwardRate() {
     double fxToday = 1.4123;
     FXMatrix fxMatrix = new FXMatrix(CUR_1, CUR_2, fxToday);
-    YieldCurveWithFXBundle curvesFx = new YieldCurveWithFXBundle(fxMatrix, CURVES);
+    YieldCurveWithFXBundle curvesFx = new YieldCurveWithFXBundle(fxMatrix, CURVE_CURRENCY, CURVES);
     double fwd = METHOD.forwardForexRate(FX, curvesFx);
     double dfDomestic = CURVES.getCurve(CURVES_NAME[1]).getDiscountFactor(FX.getPaymentTime());
     double dfForeign = CURVES.getCurve(CURVES_NAME[0]).getDiscountFactor(FX.getPaymentTime());
@@ -147,7 +148,7 @@ public class ForexDiscountingMethodTest {
   public void forwardRateMethodVsCalculator() {
     double fxToday = 1.4123;
     FXMatrix fxMatrix = new FXMatrix(CUR_1, CUR_2, fxToday);
-    YieldCurveWithFXBundle curvesFx = new YieldCurveWithFXBundle(fxMatrix, CURVES);
+    YieldCurveWithFXBundle curvesFx = new YieldCurveWithFXBundle(fxMatrix, CURVE_CURRENCY, CURVES);
     double fwdMethod = METHOD.forwardForexRate(FX, curvesFx);
     ForwardRateForexCalculator FWDC = ForwardRateForexCalculator.getInstance();
     double fwdCalculator = FWDC.visit(FX, curvesFx);
