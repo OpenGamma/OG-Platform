@@ -10,7 +10,7 @@ import javax.time.calendar.Period;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.GeneratorSwap;
-import com.opengamma.financial.instrument.index.iborindex.DKKCIBOR6M;
+import com.opengamma.financial.instrument.index.iborindex.IndexIborTestsMaster;
 
 /**
  * Swap generator for the DKK Annual 30/360 vs Cibor 6M.
@@ -22,7 +22,7 @@ public class DKK1YCIBOR6M extends GeneratorSwap {
    * @param calendar A DKK calendar.
    */
   public DKK1YCIBOR6M(Calendar calendar) {
-    super(Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("30/360"), new DKKCIBOR6M(calendar));
+    super(Period.ofMonths(12), DayCountFactory.INSTANCE.getDayCount("30/360"), IndexIborTestsMaster.getInstance().getIndex("DKKCIBOR6M", calendar));
   }
 
 }

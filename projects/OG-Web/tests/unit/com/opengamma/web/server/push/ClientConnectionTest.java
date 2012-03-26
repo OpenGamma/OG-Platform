@@ -1,7 +1,5 @@
-/*
 package com.opengamma.web.server.push;
 
-import static com.opengamma.web.server.push.CollectionMatcher.collectionOf;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -24,14 +22,12 @@ import com.opengamma.core.change.ChangeType;
 import com.opengamma.id.UniqueId;
 import com.opengamma.web.server.push.rest.MasterType;
 
-*/
 /**
  * Test the subscription mechanism of {@link ClientConnection}.  Subscriptions are added for REST URLs.  When any
  * event fires for a particular URL the URL is considered dirty and the client should re-request it.  Therefore there
  * is no need to fire any more events for that URL until the client resubscribes.  So when any event fires for
  * a URL all other subscriptions for that URL should be cleared.
- *//*
-
+ */
 @SuppressWarnings("unchecked")
 public class ClientConnectionTest {
 
@@ -52,11 +48,9 @@ public class ClientConnectionTest {
     _connection = new ClientConnection(USER_ID, CLIENT_ID, _listener, mock(ViewportManager.class), timeoutTask);
   }
 
-  */
-/**
+  /**
    * Checks that a listener to changes to an entity gets fired once and once only.
-   *//*
-
+   */
   @Test
   public void subscribeToEntityEvent() {
     ChangeEvent event = new ChangeEvent(ChangeType.UPDATED, _uid1, _uid1, Instant.now());
@@ -68,7 +62,7 @@ public class ClientConnectionTest {
     // subscribe and verify the _listener receives the event
     _connection.subscribe(_uid1, TEST_URL1);
     _connection.entityChanged(event);
-    verify(_listener).itemsUpdated(collectionOf(TEST_URL1));
+    verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1));
 
     // send the event again and make sure the subscription has been cancelled
     _connection.entityChanged(event);
@@ -84,18 +78,16 @@ public class ClientConnectionTest {
     // subscribe and verify the listener receives the event
     _connection.subscribe(MasterType.PORTFOLIO, TEST_URL1);
     _connection.masterChanged(MasterType.PORTFOLIO);
-    verify(_listener).itemsUpdated(collectionOf(TEST_URL1));
+    verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1));
 
     // send the event again and make sure the subscription has been cancelled
     _connection.masterChanged(MasterType.PORTFOLIO);
     verifyNoMoreInteractions(_listener);
   }
 
-  */
-/**
+  /**
    * Multiple URLs subscribing to the same entity should produce multiple updates when the entity changes.
-   *//*
-
+   */
   @Test
   public void multipleSubscriptionsToEntity() {
     ChangeEvent event = new ChangeEvent(ChangeType.UPDATED, _uid1, _uid1, Instant.now());
@@ -104,37 +96,33 @@ public class ClientConnectionTest {
     _connection.subscribe(_uid1, TEST_URL1);
     _connection.subscribe(_uid1, TEST_URL2);
     _connection.entityChanged(event);
-    verify(_listener).itemsUpdated(collectionOf(TEST_URL1, TEST_URL2));
+    verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1, TEST_URL2));
 
     // send the event again and make sure the subscription has been cancelled
     _connection.entityChanged(event);
     verifyNoMoreInteractions(_listener);
   }
 
-  */
-/**
+  /**
    * Multiple URLs subscribing to the same master should produce multiple updates when the master fires a change event.
-   *//*
-
+   */
   @Test
   public void multipleSubscriptionsToMaster() {
     // subscribe and verify the listener receives the event
     _connection.subscribe(MasterType.PORTFOLIO, TEST_URL1);
     _connection.subscribe(MasterType.PORTFOLIO, TEST_URL2);
     _connection.masterChanged(MasterType.PORTFOLIO);
-    verify(_listener).itemsUpdated(collectionOf(TEST_URL1, TEST_URL2));
+    verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1, TEST_URL2));
 
     // send the event again and make sure the subscription has been cancelled
     _connection.masterChanged(MasterType.PORTFOLIO);
     verifyNoMoreInteractions(_listener);
   }
 
-  */
-/**
+  /**
    * A particular URL should only have one event delivered no matter how many subscriptions it has.  After the
    * first event no more should be triggered until a new subscription is set up.
-   *//*
-
+   */
   @Test
   public void multipeEntitySubscriptionsForSameUrl() {
     ChangeEvent event1 = new ChangeEvent(ChangeType.UPDATED, _uid1, _uid1, Instant.now());
@@ -144,69 +132,61 @@ public class ClientConnectionTest {
     _connection.subscribe(_uid1, TEST_URL1);
     _connection.subscribe(_uid2, TEST_URL1);
     _connection.entityChanged(event1);
-    verify(_listener).itemsUpdated(collectionOf(TEST_URL1));
+    verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1));
 
     // send an event for the other subscription and check nothing is delivered to the listener
     _connection.entityChanged(event2);
     verifyNoMoreInteractions(_listener);
   }
 
-  */
-/**
+  /**
    * A particular URL should only have one event delivered no matter how many subscriptions it has.  After the
    * first event no more should be triggered until a new subscription is set up.
-   *//*
-
+   */
   @Test
   public void multipeMasterSubscriptionsForSameUrl() {
     // subscribe and verify the listener receives the event
     _connection.subscribe(MasterType.PORTFOLIO, TEST_URL1);
     _connection.subscribe(MasterType.POSITION, TEST_URL1);
     _connection.masterChanged(MasterType.PORTFOLIO);
-    verify(_listener).itemsUpdated(collectionOf(TEST_URL1));
+    verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1));
 
     // send an event for the other subscribed master type and make sure the subscription has been cancelled
     _connection.masterChanged(MasterType.POSITION);
     verifyNoMoreInteractions(_listener);
   }
 
-  */
-/**
+  /**
    * If there is an entity and master subscription for the same URL then only one event should fire even
    * if both the entity and master are changed.
-   *//*
-
+   */
   @Test
   public void masterAndEntitySubscriptionForSameUrlMasterChangesFirst() {
     _connection.subscribe(_uid1, TEST_URL1);
     _connection.subscribe(MasterType.PORTFOLIO, TEST_URL1);
     _connection.masterChanged(MasterType.PORTFOLIO);
-    verify(_listener).itemsUpdated(collectionOf(TEST_URL1));
+    verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1));
     _connection.entityChanged(new ChangeEvent(ChangeType.UPDATED, _uid1, _uid1, Instant.now()));
     verifyNoMoreInteractions(_listener);
   }
 
-  */
-/**
+  /**
    * If there is an entity and master subscription for the same URL then only one event should fire even
    * if both the entity and master are changed.
-   *//*
-
+   */
   @Test
   public void masterAndEntitySubscriptionForSameUrlEntityChangesFirst() {
     _connection.subscribe(_uid1, TEST_URL1);
     _connection.subscribe(MasterType.PORTFOLIO, TEST_URL1);
     _connection.entityChanged(new ChangeEvent(ChangeType.UPDATED, _uid1, _uid1, Instant.now()));
-    verify(_listener).itemsUpdated(collectionOf(TEST_URL1));
+    verify(_listener).itemsUpdated(CollectionMatcher.collectionOf(TEST_URL1));
     _connection.masterChanged(MasterType.PORTFOLIO);
     verifyNoMoreInteractions(_listener);
   }
 
-  */
-/**
+  /**
    * Checks that nothing happens when a subscription is set up for an entity and a different entity changes.
-   *//*
-
+   */
   @Test
   public void subscriptionForDifferentEntity() {
     _connection.subscribe(_uid1, TEST_URL1);
@@ -214,11 +194,9 @@ public class ClientConnectionTest {
     verifyZeroInteractions(_listener);
   }
 
-  */
-/**
+  /**
    * Checks that nothing happens when a subscription is set up for a master and a different master changes.
-   *//*
-
+   */
   @Test
   public void subscriptionForDifferentMaster() {
     _connection.subscribe(MasterType.PORTFOLIO, TEST_URL1);
@@ -227,7 +205,6 @@ public class ClientConnectionTest {
   }
 }
 
-*/
 /**
  * <p>Matcher for checking an argument to a mock is a collection containing all of the specified items and nothing else.
  * The order of the elements isn't important.</p>
@@ -235,8 +212,7 @@ public class ClientConnectionTest {
  * <em>I'm surprised this isn't already available in Mockito, although maybe it's there and I just can't find it.</em>
 
  * @param <T> The type of items in the collection
- *//*
-
+ */
 @SuppressWarnings("unchecked")
 class CollectionMatcher<T> extends ArgumentMatcher<Collection<T>> {
 
@@ -264,4 +240,3 @@ class CollectionMatcher<T> extends ArgumentMatcher<Collection<T>> {
     return argThat(new CollectionMatcher<T>(items));
   }
 }
-*/
