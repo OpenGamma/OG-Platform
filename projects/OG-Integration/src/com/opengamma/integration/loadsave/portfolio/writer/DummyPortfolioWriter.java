@@ -57,5 +57,10 @@ public class DummyPortfolioWriter implements PortfolioWriter {
   public void close() {
     System.out.println("Closed writer");
   }
+
+  @Override
+  public void setPath(String[] newPath) {
+    System.out.println("Set path to: " + newPath);
+  }
   
 }

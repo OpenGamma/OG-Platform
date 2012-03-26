@@ -1,4 +1,5 @@
-//CSOFF
+package com.opengamma.example.coupledfokkerplank;
+
 import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 import com.opengamma.financial.model.finitedifference.PDEResults1D;
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;

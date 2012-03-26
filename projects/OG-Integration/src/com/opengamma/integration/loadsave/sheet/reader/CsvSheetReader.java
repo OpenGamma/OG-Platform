@@ -22,14 +22,14 @@ import au.com.bytecode.opencsv.CSVReader;
 public class CsvSheetReader extends SheetReader {
 
   private CSVReader _csvReader;
-
+  
   public CsvSheetReader(String filename, String[] columns) {
 
     // Open file
-    InputStream fileInputStream = openFile(filename);
+    InputStream inputStream = openFile(filename);
 
     // Set up CSV reader
-    _csvReader = new CSVReader(new InputStreamReader(fileInputStream));
+    _csvReader = new CSVReader(new InputStreamReader(inputStream));
     
     // Set columns
     setColumns(columns);
@@ -109,5 +109,14 @@ public class CsvSheetReader extends SheetReader {
     }
     
     return columns;
+  }
+
+  @Override
+  public void close() {
+    try {
+      _csvReader.close();
+    } catch (IOException ex) {
+      
+    }
   }
 }

@@ -87,7 +87,8 @@ public class JodaBeanRowParser extends RowParser {
     "objectid",
     "securitylink",
     "trades",
-    "attributes"
+    "attributes",
+    "gicscode"
   };
   
   /**
