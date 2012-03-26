@@ -1,6 +1,15 @@
 package com.opengamma.integration.loadsave;
 
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -13,9 +22,6 @@ import javax.time.calendar.format.DateTimeFormatterBuilder;
 import org.mockito.stubbing.OngoingStubbing;
 import org.testng.annotations.Test;
 
-import au.com.bytecode.opencsv.CSVReader;
-
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdSearch;
@@ -34,7 +40,7 @@ import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
-import static org.mockito.Mockito.*;
+import au.com.bytecode.opencsv.CSVReader;
 
 public class TimeSeriesLoaderTest {
   
@@ -68,7 +74,7 @@ public class TimeSeriesLoaderTest {
             mockSheetReader, DATA_SOURCE, DATA_PROVIDER, DATA_FIELD, OBSERVATION_TIME, ID_SCHEME, DATE_FORMAT);
     
     // Write 
-    TimeSeriesWriter mockTimeSeriesWriter = buildMockTimeSeriesWriter();
+    TimeSeriesWriter mockTimeSeriesWriter = mock(TimeSeriesWriter.class);
     
     reader.writeTo(mockTimeSeriesWriter);
     
@@ -93,19 +99,18 @@ public class TimeSeriesLoaderTest {
     LocalDate[] existingDates = {LocalDate.of(2010,1,1), LocalDate.of(2011,1,1)};
     double[] existingValues = {1.0, 2.0};
     LocalDateDoubleTimeSeries existingDataPoints = new ArrayLocalDateDoubleTimeSeries(existingDates, existingValues); 
-    ToolContext mockToolContext = buildMockToolContext(existingDataPoints);
-    
+
     LocalDate[] newDates = {LocalDate.of(2010,2,1), LocalDate.of(2011,2,1)};
     double[] newValues = {1.5, 2.5};
     LocalDateDoubleTimeSeries newDataPoints = new ArrayLocalDateDoubleTimeSeries(newDates, newValues);
-    
+    HistoricalTimeSeriesMaster htsMaster = buildHistoricalTimeSeriesMaster(existingDataPoints);
+
     // Write the new data points to an existing hts
-    TimeSeriesWriter writer = new MasterTimeSeriesWriter(mockToolContext); 
+    TimeSeriesWriter writer = new MasterTimeSeriesWriter(htsMaster);
     writer.writeDataPoints(EXISTING_HTSINFO_EXTERNALID, DATA_SOURCE, DATA_PROVIDER, DATA_FIELD, OBSERVATION_TIME, 
         newDataPoints);
     
     // Retrieve the hts contents from the master
-    HistoricalTimeSeriesMaster htsMaster = mockToolContext.getHistoricalTimeSeriesMaster();
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.setExternalIdSearch(new ExternalIdSearch(EXISTING_HTSINFO_EXTERNALID));
     HistoricalTimeSeriesInfoSearchResult result = htsMaster.search(request);
@@ -138,15 +143,13 @@ public class TimeSeriesLoaderTest {
     LocalDate[] dates = {LocalDate.of(2010,1,1), LocalDate.of(2011,1,1)};
     double[] values = {1.0, 2.0};
     LocalDateDoubleTimeSeries dataPoints = new ArrayLocalDateDoubleTimeSeries(dates, values); 
-    ToolContext mockToolContext = buildMockToolContext(dataPoints);
-    
+    HistoricalTimeSeriesMaster htsMaster = buildHistoricalTimeSeriesMaster(dataPoints);
     // Write the new data points to an existing hts
-    TimeSeriesWriter writer = new MasterTimeSeriesWriter(mockToolContext); 
+    TimeSeriesWriter writer = new MasterTimeSeriesWriter(htsMaster);
     writer.writeDataPoints(NEW_HTSINFO_EXTERNALID, DATA_SOURCE, DATA_PROVIDER, DATA_FIELD, OBSERVATION_TIME, 
         dataPoints);
     
     // Retrieve and check the hts master contents
-    HistoricalTimeSeriesMaster htsMaster = mockToolContext.getHistoricalTimeSeriesMaster();
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.setExternalIdSearch(new ExternalIdSearch(NEW_HTSINFO_EXTERNALID));
     HistoricalTimeSeriesInfoSearchResult result = htsMaster.search(request);
@@ -163,13 +166,12 @@ public class TimeSeriesLoaderTest {
    * an in-memory master and ensuring that the same points are retrieved.
    */
   @Test
-  public void testTimeSeriesLoaderTool() {
+  public void testTimeSeriesLoaderTool() throws FileNotFoundException {
     
     // Build a mock master with an existing hts
     LocalDate[] existingDates = {LocalDate.of(2010,1,1), LocalDate.of(2011,1,1)};
     double[] existingValues = {1.0, 2.0};
     LocalDateDoubleTimeSeries existingDataPoints = new ArrayLocalDateDoubleTimeSeries(existingDates, existingValues); 
-    ToolContext mockToolContext = buildMockToolContext(existingDataPoints);
 
     // Read in the time series directly from the file and construct a time series to compare with
     DateTimeFormatterBuilder builder = new DateTimeFormatterBuilder();
@@ -196,13 +198,14 @@ public class TimeSeriesLoaderTest {
     LocalDateDoubleTimeSeries compareDataPoints = new ListLocalDateDoubleTimeSeries(dates, values);
 
     // Set up the reader to read from file and the writer to write to the in-memory master, and do the import 
+    InputStream fileStream = new BufferedInputStream(new FileInputStream(FILENAME));
     TimeSeriesReader reader = new SingleSheetMultiTimeSeriesReader(
-        FILENAME, DATA_SOURCE, DATA_PROVIDER, DATA_FIELD, OBSERVATION_TIME, ID_SCHEME, DATE_FORMAT);
-    TimeSeriesWriter writer = new MasterTimeSeriesWriter(mockToolContext);
+        FILENAME, fileStream, DATA_SOURCE, DATA_PROVIDER, DATA_FIELD, OBSERVATION_TIME, ID_SCHEME, DATE_FORMAT);
+    HistoricalTimeSeriesMaster htsMaster = buildHistoricalTimeSeriesMaster(existingDataPoints);
+    TimeSeriesWriter writer = new MasterTimeSeriesWriter(htsMaster);
     reader.writeTo(writer);
     
     // Retrieve hts master contents
-    HistoricalTimeSeriesMaster htsMaster = mockToolContext.getHistoricalTimeSeriesMaster();
     HistoricalTimeSeriesInfoSearchRequest request = new HistoricalTimeSeriesInfoSearchRequest();
     request.setExternalIdSearch(new ExternalIdSearch(ExternalId.of(ID_SCHEME, readId)));
     HistoricalTimeSeriesInfoSearchResult result = htsMaster.search(request);
@@ -235,14 +238,8 @@ public class TimeSeriesLoaderTest {
     stub.thenReturn(null);
     return mock;    
   }
-  
-  private TimeSeriesWriter buildMockTimeSeriesWriter() {
-    TimeSeriesWriter mock = mock(TimeSeriesWriter.class);
-    return mock;
-  }
-   
-  private ToolContext buildMockToolContext(LocalDateDoubleTimeSeries lddts) {
-    
+
+  private HistoricalTimeSeriesMaster buildHistoricalTimeSeriesMaster(LocalDateDoubleTimeSeries lddts) {
     // Create HTS info and infoDoc
     ManageableHistoricalTimeSeriesInfo mHtsInfo = new ManageableHistoricalTimeSeriesInfo();
     mHtsInfo.setDataField(DATA_FIELD);
@@ -252,19 +249,14 @@ public class TimeSeriesLoaderTest {
     mHtsInfo.setExternalIdBundle(ExternalIdBundleWithDates.of(EXISTING_HTSINFO_EXTERNALID.toBundle()));
     mHtsInfo.setName("Test HTS");
     HistoricalTimeSeriesInfoDocument htsInfoDoc = new HistoricalTimeSeriesInfoDocument(mHtsInfo);
-    
+
     // Create in memory HTS master and add HTS info/doc
-    HistoricalTimeSeriesMaster htsMaster = new InMemoryHistoricalTimeSeriesMaster();        
+    HistoricalTimeSeriesMaster htsMaster = new InMemoryHistoricalTimeSeriesMaster();
     htsInfoDoc = htsMaster.add(htsInfoDoc);
-    
+
     // Create the actual time series and add to HTS master
     htsMaster.updateTimeSeriesDataPoints(htsInfoDoc.getInfo().getTimeSeriesObjectId(), lddts);
-    
-    // Create mock tool context and set HTS master
-    ToolContext mockToolContext = mock(ToolContext.class);
-    when(mockToolContext.getHistoricalTimeSeriesMaster()).thenReturn(htsMaster);
-
-    return mockToolContext;
+    return htsMaster;
   }
-  
+
 }

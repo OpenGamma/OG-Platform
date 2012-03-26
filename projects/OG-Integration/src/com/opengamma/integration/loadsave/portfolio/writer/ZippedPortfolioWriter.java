@@ -231,7 +231,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
 
       s_logger.info("Creating a new row parser for " + className + " securities");
 
-      parser = RowParser.newRowParser(className, _toolContext);
+      parser = RowParser.newRowParser(className);
       if (parser == null) {
         return null;
       }

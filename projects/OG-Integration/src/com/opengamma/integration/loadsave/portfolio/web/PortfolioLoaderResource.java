@@ -3,7 +3,7 @@
  *
  * Please see distribution for license.
  */
-package com.opengamma.web.loader;
+package com.opengamma.integration.loadsave.portfolio.web;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,10 +18,18 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
-import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.bbg.BloombergSecurityMaster;
+import com.opengamma.bbg.ReferenceDataProvider;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
+import com.opengamma.integration.loadsave.portfolio.ResolvingPortfolioLoader;
+import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
+import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.security.SecurityMaster;
+import com.opengamma.util.ArgumentChecker;
 import com.sun.jersey.multipart.BodyPartEntity;
 import com.sun.jersey.multipart.FormDataBodyPart;
 import com.sun.jersey.multipart.FormDataMultiPart;
@@ -34,6 +42,27 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 public class PortfolioLoaderResource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderResource.class);
+  private final ResolvingPortfolioLoader _loader;
+
+  public PortfolioLoaderResource(BloombergSecurityMaster bbgSecurityMaster,
+                                 HistoricalTimeSeriesMaster htsMaster,
+                                 HistoricalTimeSeriesSource bbgHtsSource,
+                                 ReferenceDataProvider bbgRefDataProvider,
+                                 PortfolioMaster portfolioMaster,
+                                 PositionMaster positionMaster,
+                                 SecurityMaster securityMaster) {
+    ArgumentChecker.notNull(bbgSecurityMaster, "bbgSecurityMaster");
+    ArgumentChecker.notNull(htsMaster, "htsMaster");
+    ArgumentChecker.notNull(bbgHtsSource, "bbgHtsSource");
+    ArgumentChecker.notNull(bbgRefDataProvider, "bbgRefDataProvider");
+    _loader = new ResolvingPortfolioLoader(bbgSecurityMaster,
+                                           htsMaster,
+                                           bbgHtsSource,
+                                           bbgRefDataProvider,
+                                           portfolioMaster,
+                                           positionMaster,
+                                           securityMaster);
+  }
 
   @Path("{updatePeriod}/{updateCount}")
   @POST
@@ -41,6 +70,7 @@ public class PortfolioLoaderResource {
   public StreamingOutput uploadPortfolio(FormDataMultiPart formData,
                                          // TODO according to the docs this should work but jersey won't start with them uncommented
                                          //@FormDataParam("file") FormDataBodyPart fileBodyPart,
+                                         //@FormDataParam("portfolioName") String portfolioName,
                                          //@FormDataParam("dataField") String dataField,
                                          @PathParam("updatePeriod") final long updatePeriod,
                                          @PathParam("updateCount") final int updateCount) throws IOException {
@@ -49,14 +79,18 @@ public class PortfolioLoaderResource {
     FormDataBodyPart bodyPart = getBodyPart(formData, "portfolioName");
     String dataField = dataFieldBodyPart.getValue();
     String portfolioName = bodyPart.getValue();
+    String fileName = fileBodyPart.getFormDataContentDisposition().getFileName();
     Object fileEntity = fileBodyPart.getEntity();
     if (!(fileEntity instanceof BodyPartEntity)) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
     InputStream fileStream = ((BodyPartEntity) fileEntity).getInputStream();
-    String fileContent = IOUtils.toString(fileStream);
-    s_logger.warn("Portfolio uploaded. portfolioName: {}, dataField: {}, portfolio: {}",
-                  new Object[]{portfolioName, dataField, fileContent});
+    /*String fileContent = IOUtils.toString(fileStream);
+    s_logger.warn("Portfolio uploaded. fileName: {}, portfolioName: {}, dataField: {}, portfolio: {}",
+                  new Object[]{fileName, portfolioName, dataField, fileContent});*/
+    // TODO fix the args
+    // TODO stream the output back to the web
+    _loader.loadPortfolio(portfolioName, fileName, fileStream, "", "", new String[]{dataField}, "", true);
     return new StreamingOutput() {
       @Override
       public void write(OutputStream output) throws IOException, WebApplicationException {
