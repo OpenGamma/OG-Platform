@@ -144,7 +144,7 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
     final YieldAndDiscountCurve callFundingCurve = getCurve(inputs, callCurrency, callFundingCurveName);
     final YieldAndDiscountCurve callForwardCurve = getCurve(inputs, callCurrency, callForwardCurveName);
     final YieldAndDiscountCurve[] curves;
-    Map<String, Currency> curveCurrency = new HashMap<String, Currency>();
+    final Map<String, Currency> curveCurrency = new HashMap<String, Currency>();
     curveCurrency.put(fullPutFundingCurveName, putCurrency);
     curveCurrency.put(fullPutForwardCurveName, putCurrency);
     curveCurrency.put(fullCallFundingCurveName, callCurrency);
@@ -293,15 +293,26 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
   }
 
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-    return createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD).withAny(PROPERTY_PUT_FUNDING_CURVE_NAME).withAny(PROPERTY_PUT_FORWARD_CURVE_NAME)
-        .withAny(PROPERTY_CALL_FUNDING_CURVE_NAME).withAny(PROPERTY_CALL_FORWARD_CURVE_NAME).withAny(PROPERTY_FX_VOLATILITY_SURFACE_NAME).with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
+    return createValueProperties()
+        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .withAny(PROPERTY_PUT_FUNDING_CURVE_NAME)
+        .withAny(PROPERTY_PUT_FORWARD_CURVE_NAME)
+        .withAny(PROPERTY_CALL_FUNDING_CURVE_NAME)
+        .withAny(PROPERTY_CALL_FORWARD_CURVE_NAME)
+        .withAny(PROPERTY_FX_VOLATILITY_SURFACE_NAME)
+        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
   }
 
   protected ValueProperties.Builder getResultProperties(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName,
       final String surfaceName, final ComputationTarget target) {
-    return createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD).with(PROPERTY_PUT_FUNDING_CURVE_NAME, putFundingCurveName)
-        .with(PROPERTY_PUT_FORWARD_CURVE_NAME, putForwardCurveName).with(PROPERTY_CALL_FUNDING_CURVE_NAME, callFundingCurveName).with(PROPERTY_CALL_FORWARD_CURVE_NAME, callForwardCurveName)
-        .with(PROPERTY_FX_VOLATILITY_SURFACE_NAME, surfaceName).with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
+    return createValueProperties()
+        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .with(PROPERTY_PUT_FUNDING_CURVE_NAME, putFundingCurveName)
+        .with(PROPERTY_PUT_FORWARD_CURVE_NAME, putForwardCurveName)
+        .with(PROPERTY_CALL_FUNDING_CURVE_NAME, callFundingCurveName)
+        .with(PROPERTY_CALL_FORWARD_CURVE_NAME, callForwardCurveName)
+        .with(PROPERTY_FX_VOLATILITY_SURFACE_NAME, surfaceName)
+        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
   }
 
   protected static String getResultCurrency(final ComputationTarget target) {
