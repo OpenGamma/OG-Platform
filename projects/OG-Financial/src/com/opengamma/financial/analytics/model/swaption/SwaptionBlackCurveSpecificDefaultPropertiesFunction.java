@@ -22,12 +22,9 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  */
-public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunction {
+public class SwaptionBlackCurveSpecificDefaultPropertiesFunction extends DefaultPropertyFunction {
   private static final String[] s_valueRequirements = new String[] {
-    ValueRequirementNames.PRESENT_VALUE,
-    ValueRequirementNames.VALUE_VEGA,
     ValueRequirementNames.PV01,
-    ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES
   };
   private final String _forwardCurveName;
   private final String _fundingCurveName;
@@ -35,7 +32,7 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
   private final String _curveCalculationMethod;
   private final String[] _applicableCurrencies;
 
-  public SwaptionBlackDefaultPropertiesFunction(final String forwardCurveName, final String fundingCurveName, final String surfaceName,
+  public SwaptionBlackCurveSpecificDefaultPropertiesFunction(final String forwardCurveName, final String fundingCurveName, final String surfaceName,
       final String curveCalculationMethod, final String... applicableCurrencies) {
     super(ComputationTargetType.SECURITY, true);
     ArgumentChecker.notNull(forwardCurveName, "forward curve name");
@@ -64,7 +61,6 @@ public class SwaptionBlackDefaultPropertiesFunction extends DefaultPropertyFunct
     }
     return false;
   }
-
   @Override
   protected void getDefaults(final PropertyDefaults defaults) {
     for (final String valueRequirement : s_valueRequirements) {
