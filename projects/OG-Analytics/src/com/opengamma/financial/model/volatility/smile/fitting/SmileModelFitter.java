@@ -37,6 +37,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
     }
   };
 
+  private final VolatilityFunctionProvider<T> _model;
   private final Function1D<T, double[]> _volFunc;
   private final Function1D<T, double[][]> _volAdjointFunc;
   private final DoubleMatrix1D _marketValues;
@@ -67,6 +68,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
 
     _volFunc = model.getVolatilityFunction(forward, strikes, timeToExpiry);
     _volAdjointFunc = model.getModelAdjointFunction(forward, strikes, timeToExpiry);
+    _model = model;
   }
 
   /**
@@ -141,6 +143,10 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
 
   protected Function1D<DoubleMatrix1D, Boolean> getConstraintFunction(@SuppressWarnings("unused") final NonLinearParameterTransforms t) {
     return UNCONSTRAINED;
+  }
+
+  public VolatilityFunctionProvider<T> getModel() {
+    return _model;
   }
 
 }

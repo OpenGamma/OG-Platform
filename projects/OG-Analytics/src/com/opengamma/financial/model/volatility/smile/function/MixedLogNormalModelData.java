@@ -285,4 +285,11 @@ public class MixedLogNormalModelData implements SmileModelData {
     return true;
   }
 
+  @Override
+  public String toString() {
+    return "MixedLogNormalModelData [_sigmas=" + Arrays.toString(_sigmas) + ", _w=" + Arrays.toString(_w) + ", _f=" + Arrays.toString(_f) + "]";
+  }
+
+
+
 }

@@ -13,6 +13,9 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.model.volatility.smile.fitting.SABRModelFitter;
 import com.opengamma.financial.model.volatility.smile.fitting.SmileModelFitter;
+import com.opengamma.financial.model.volatility.smile.fitting.interpolation.SineWeightingFunction;
+import com.opengamma.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
+import com.opengamma.financial.model.volatility.smile.fitting.interpolation.WeightingFunction;
 import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.math.function.Function1D;
@@ -54,7 +57,7 @@ public class PiecewiseSABRFitter {
     _globalBetaSearch = false;
   }
 
-  public final SABRFormulaData[] getFittedfModelParameters(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
+  public final SABRFormulaData[] getFittedModelParameters(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
     ArgumentChecker.notNull(strikes, "strikes");
     ArgumentChecker.notNull(impliedVols, "implied volatilities");
     final int n = strikes.length;
@@ -76,8 +79,9 @@ public class PiecewiseSABRFitter {
     DoubleMatrix1D start;
 
     //almost flat surface
-    if (averageVol2 / averageVol < 0.01) {
-      start = new DoubleMatrix1D(averageVol, 1.0, 0.0, 0.0);
+    if (averageVol2 / averageVol < 0.01) { //TODO remove the false before put back
+      final double approxAlpha = averageVol * Math.pow(forward, 0.01);
+      start = new DoubleMatrix1D(approxAlpha, 0.99, 0.0, 0.001);
       if (!_globalBetaSearch && _defaultBeta != 1.0) {
         s_logger.warn("Smile almost flat. Cannot use beta = ", +_defaultBeta + " so ignored");
       }
@@ -129,7 +133,7 @@ public class PiecewiseSABRFitter {
 
   public Function1D<Double, Double> getVolatilityFunction(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
 
-    final SABRFormulaData[] modelParams = getFittedfModelParameters(forward, strikes, expiry, impliedVols);
+    final SABRFormulaData[] modelParams = getFittedModelParameters(forward, strikes, expiry, impliedVols);
     final int n = strikes.length;
     return new Function1D<Double, Double>() {
 
