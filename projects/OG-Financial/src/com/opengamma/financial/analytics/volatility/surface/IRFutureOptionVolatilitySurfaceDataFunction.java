@@ -6,7 +6,6 @@
 package com.opengamma.financial.analytics.volatility.surface;
 
 import it.unimi.dsi.fastutil.doubles.DoubleArrayList;
-import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -169,22 +168,22 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     return requirements;
   }
 
-  private static VolatilitySurfaceData<Number, Double> getSurfaceFromVolatilityQuote(final VolatilitySurfaceData<Number, Double> optionVolatilities) {
-    final Map<Pair<Number, Double>, Double> volatilityValues = new HashMap<Pair<Number, Double>, Double>();
-    final ObjectArrayList<Number> xList = new ObjectArrayList<Number>();
+  private static VolatilitySurfaceData<Double, Double> getSurfaceFromVolatilityQuote(final VolatilitySurfaceData<Number, Double> optionVolatilities) {
+    final Map<Pair<Double, Double>, Double> volatilityValues = new HashMap<Pair<Double, Double>, Double>();
+    final DoubleArrayList xList = new DoubleArrayList();
     final DoubleArrayList yList = new DoubleArrayList();
     for (final Number x : optionVolatilities.getXs()) {
       for (final Double y : optionVolatilities.getYs()) {
-        final Double volatility = optionVolatilities.getVolatility(x, y);
+        final Double volatility = optionVolatilities.getVolatility(x.doubleValue(), y);
         if (volatility != null) {
-          xList.add(x);
+          xList.add(x.doubleValue());
           yList.add(y);
-          volatilityValues.put(Pair.of(x, y), volatility / 100); // TODO Normalisation, could this be done elsewhere?
+          volatilityValues.put(Pair.of(x.doubleValue(), y), volatility / 100); // TODO Normalisation, could this be done elsewhere?
         }
       }
     }
-    return new VolatilitySurfaceData<Number, Double>(optionVolatilities.getDefinitionName(), optionVolatilities.getSpecificationName(),
-        optionVolatilities.getTarget(), xList.toArray(new Number[0]), yList.toArray(new Double[0]), volatilityValues);
+    return new VolatilitySurfaceData<Double, Double>(optionVolatilities.getDefinitionName(), optionVolatilities.getSpecificationName(),
+        optionVolatilities.getTarget(), xList.toArray(new Double[0]), yList.toArray(new Double[0]), volatilityValues);
   }
 
   private static VolatilitySurfaceData<Double, Double> getSurfaceFromPriceQuote(final VolatilitySurfaceSpecification specification,

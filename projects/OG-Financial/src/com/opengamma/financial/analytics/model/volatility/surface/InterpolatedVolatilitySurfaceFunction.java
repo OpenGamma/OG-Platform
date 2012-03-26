@@ -61,6 +61,9 @@ public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonC
     }
     @SuppressWarnings("unchecked")
     final VolatilitySurfaceData<Double, Double> volatilityData = (VolatilitySurfaceData<Double, Double>) volatilityDataObject;
+    if (volatilityData.size() == 0) {
+      throw new OpenGammaRuntimeException("Volatility surface data for requirement " + volatilityDataRequirement + " was empty");
+    }
     final DoubleArrayList x = new DoubleArrayList();
     final DoubleArrayList y = new DoubleArrayList();
     final DoubleArrayList sigma = new DoubleArrayList();
@@ -111,10 +114,12 @@ public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonC
     final ValueProperties constraints = desiredValue.getConstraints();
     final Set<String> surfaceNames = constraints.getValues(ValuePropertyNames.SURFACE);
     if (surfaceNames == null || surfaceNames.size() != 1) {
+      s_logger.error("Could not get surface name from constraints {}", constraints);
       return null;
     }
     final Set<String> instrumentTypeNames = constraints.getValues(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE);
     if (instrumentTypeNames == null || instrumentTypeNames.size() != 1) {
+      s_logger.error("Could not get instrument type from constraints {}", constraints);
       return null;
     }
     final Set<String> leftXExtrapolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
@@ -139,14 +144,6 @@ public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonC
     }
     final Set<String> yInterpolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.Y_INTERPOLATOR_NAME);
     if (yInterpolatorNames == null || yInterpolatorNames.size() != 1) {
-      return null;
-    }
-    if (surfaceNames == null || surfaceNames.size() != 1) {
-      s_logger.error("Could not get surface name from constraints " + constraints);
-      return null;
-    }
-    if (instrumentTypeNames == null || instrumentTypeNames.size() != 1) {
-      s_logger.error("Could not get instrument type from constraints " + constraints);
       return null;
     }
     final String surfaceName = surfaceNames.iterator().next();

@@ -161,6 +161,7 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
         final ValueProperties constraints = desiredValue.getConstraints();
         final Set<String> curveNames = constraints.getValues(ValuePropertyNames.CURVE);
         if (curveNames == null || curveNames.size() != 1) {
+          s_logger.error("Could not get curve name from constraints {}", constraints);
           return null;
         }
         final Set<String> leftInterpolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME);
@@ -169,10 +170,6 @@ public class InterpolatedYieldCurveFunction extends AbstractFunction {
         }
         final Set<String> rightInterpolatorNames = constraints.getValues(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME);
         if (rightInterpolatorNames == null || rightInterpolatorNames.size() != 1) {
-          return null;
-        }
-        if (curveNames == null || curveNames.size() != 1) {
-          s_logger.error("Could not get curve name from constraints " + constraints);
           return null;
         }
         final String curveName = curveNames.iterator().next();

@@ -52,6 +52,7 @@ import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.BlackSwaptionParameters;
 import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
+import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.financial.security.swap.FixedInterestRateLeg;
@@ -107,7 +108,10 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     if (volatilitySurfaceObject == null) {
       throw new OpenGammaRuntimeException("Could not get volatility surface");
     }
-    final InterpolatedDoublesSurface volatilitySurface = (InterpolatedDoublesSurface) volatilitySurfaceObject;
+    final VolatilitySurface volatilitySurface = (VolatilitySurface) volatilitySurfaceObject;
+    if (!(volatilitySurface.getSurface() instanceof InterpolatedDoublesSurface)) {
+      throw new OpenGammaRuntimeException("Expecting an InterpolatedDoublesSurface; got " + volatilitySurface.getSurface().getClass());
+    }
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingCurveObject;
     final InstrumentDefinition<?> definition = security.accept(_visitor);
@@ -115,7 +119,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     final ValueProperties properties = getResultProperties(currency.getCode(), forwardCurveName, fundingCurveName, curveCalculationMethod, surfaceName);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final YieldCurveBundle curves = new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
-    final BlackSwaptionParameters parameters = new BlackSwaptionParameters(volatilitySurface, getSwapGenerator(security, definition, securitySource));
+    final BlackSwaptionParameters parameters = new BlackSwaptionParameters((InterpolatedDoublesSurface) volatilitySurface.getSurface(), getSwapGenerator(security, definition, securitySource));
     final YieldCurveWithBlackSwaptionBundle data = new YieldCurveWithBlackSwaptionBundle(parameters, curves);
     return getResult(swaption, data, spec);
   }
@@ -195,7 +199,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
 
   private ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {
     final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.SURFACE)
+        .with(ValuePropertyNames.SURFACE, surface)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM).get();
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
   }

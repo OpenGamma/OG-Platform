@@ -176,6 +176,8 @@ import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedS
 import com.opengamma.financial.analytics.model.sensitivities.ExternallyProvidedSensitivitiesYieldCurveNodeSensitivitiesFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFXFuturePresentValueFunction;
 import com.opengamma.financial.analytics.model.simpleinstrument.SimpleFuturePresentValueFunction;
+import com.opengamma.financial.analytics.model.swaption.SwaptionBlackDefaultPropertiesFunction;
+import com.opengamma.financial.analytics.model.swaption.SwaptionBlackPresentValueFunction;
 import com.opengamma.financial.analytics.model.var.PortfolioHistoricalVaRDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.var.PortfolioHistoricalVaRFunction;
 import com.opengamma.financial.analytics.model.var.PositionHistoricalVaRDefaultPropertiesFunction;
@@ -397,6 +399,7 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     addInterestRateFutureCalculators(functionConfigs);
     addInterestRateFutureOptionCalculators(functionConfigs);
     addEquityDerivativesCalculators(functionConfigs);
+    addSwaptionBlackCalculators(functionConfigs);
     addLocalVolatilityCalculators(functionConfigs);
     addExternallyProvidedSensitivitiesFunctions(functionConfigs);
 
@@ -791,6 +794,11 @@ public class DemoStandardFunctionConfiguration extends SingletonFactoryBean<Repo
     functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY)));
   }
 
+  private static void addSwaptionBlackCalculators(final List<FunctionConfiguration> functionConfigs) {
+    functionConfigs.add(functionConfiguration(SwaptionBlackPresentValueFunction.class));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SwaptionBlackDefaultPropertiesFunction.class.getName(), Arrays.asList("FORWARD_3M", "FUNDING", "DEFAULT", "PresentValue", "USD")));
+  }
+  
   private static void addFixedIncomeInstrumentCalculators(List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateInstrumentParRateFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateInstrumentPresentValueFunction.class));
