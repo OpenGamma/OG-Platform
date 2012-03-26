@@ -11,16 +11,12 @@ import java.util.List;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.ObjectUtils;
-
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.ActualActualICMA;
 import com.opengamma.financial.convention.daycount.ActualActualICMANormal;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.frequency.Frequency;
-import com.opengamma.financial.convention.frequency.PeriodFrequency;
-import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
 import com.opengamma.financial.interestrate.payments.CouponFixed;
@@ -32,21 +28,13 @@ import com.opengamma.util.money.Currency;
  * A wrapper class for a AnnuityDefinition containing CouponFixedDefinition.
  */
 public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedDefinition> {
-  private final DayCount _dayCount;
-  private final Period _tenor;
 
   /**
    * Constructor from a list of fixed coupons.
    * @param payments The fixed coupons.
-   * @param dayCount The day count
-   * @param tenor The tenor
    */
-  public AnnuityCouponFixedDefinition(final CouponFixedDefinition[] payments, final DayCount dayCount, final Period tenor) {
+  public AnnuityCouponFixedDefinition(final CouponFixedDefinition[] payments) {
     super(payments);
-    ArgumentChecker.notNull(dayCount, "day count");
-    ArgumentChecker.notNull(tenor, "tenor");
-    _dayCount = dayCount;
-    _tenor = tenor;
   }
 
   /**
@@ -105,7 +93,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
       coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], dayCount.getDayCountFraction(paymentDates[loopcpn - 1],
           paymentDates[loopcpn]), sign * notional, fixedRate);
     }
-    return new AnnuityCouponFixedDefinition(coupons, dayCount, paymentPeriod);
+    return new AnnuityCouponFixedDefinition(coupons);
   }
 
   /**
@@ -141,7 +129,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
       coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], dayCount.getDayCountFraction(paymentDates[loopcpn - 1],
           paymentDates[loopcpn]), sign * notional, fixedRate);
     }
-    return new AnnuityCouponFixedDefinition(coupons, dayCount, getPeriodFromFrequency(frequency));
+    return new AnnuityCouponFixedDefinition(coupons);
   }
 
   /**
@@ -178,7 +166,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
       coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDates[loopcpn - 1], paymentDates[loopcpn], dayCount.getDayCountFraction(paymentDates[loopcpn - 1],
           paymentDates[loopcpn]), sign * notional, fixedRate);
     }
-    return new AnnuityCouponFixedDefinition(coupons, dayCount, getPeriodFromFrequency(frequency));
+    return new AnnuityCouponFixedDefinition(coupons);
   }
 
   /**
@@ -221,7 +209,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
           paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn]), sign * notional, fixedRate);
     }
 
-    return new AnnuityCouponFixedDefinition(coupons, dayCount, period);
+    return new AnnuityCouponFixedDefinition(coupons);
   }
 
   /**
@@ -264,7 +252,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
       coupons[loopcpn] = new CouponFixedDefinition(currency, paymentDates[loopcpn], paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], dayCount.getAccruedInterest(
           paymentDatesUnadjusted[loopcpn - 1], paymentDatesUnadjusted[loopcpn], paymentDatesUnadjusted[loopcpn], 1.0, nbPaymentPerYear), sign * notional, fixedRate);
     }
-    return new AnnuityCouponFixedDefinition(coupons, dayCount, period);
+    return new AnnuityCouponFixedDefinition(coupons);
   }
 
   /**
@@ -280,7 +268,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
         list.add(payment);
       }
     }
-    return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[0]), _dayCount, _tenor);
+    return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[0]));
   }
 
   /**
@@ -295,21 +283,7 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
         list.add(payment);
       }
     }
-    return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[0]), _dayCount, _tenor);
-  }
-
-  /**
-   * @return The day count
-   */
-  public DayCount getDayCount() {
-    return _dayCount;
-  }
-
-  /**
-   * @return The payment period
-   */
-  public Period getPaymentPeriod() {
-    return _tenor;
+    return new AnnuityCouponFixedDefinition(list.toArray(new CouponFixedDefinition[0]));
   }
 
   @Override
@@ -321,48 +295,6 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
       }
     }
     return new AnnuityCouponFixed(resultList.toArray(new CouponFixed[0]));
-  }
-
-  private static Period getPeriodFromFrequency(final Frequency frequency) {
-    Period tenor;
-    if (frequency instanceof PeriodFrequency) {
-      tenor = ((PeriodFrequency) frequency).getPeriod();
-    } else if (frequency instanceof SimpleFrequency) {
-      tenor = ((SimpleFrequency) frequency).toPeriodFrequency().getPeriod();
-    } else {
-      throw new IllegalArgumentException("Can only handle PeriodFrequency and SimpleFrequency");
-    }
-    return tenor;
-  }
-
-  @Override
-  public int hashCode() {
-    final int prime = 31;
-    int result = super.hashCode();
-    result = prime * result + _dayCount.hashCode();
-    result = prime * result + _tenor.hashCode();
-    return result;
-  }
-
-  @Override
-  public boolean equals(final Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!super.equals(obj)) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final AnnuityCouponFixedDefinition other = (AnnuityCouponFixedDefinition) obj;
-    if (!ObjectUtils.equals(_dayCount, other._dayCount)) {
-      return false;
-    }
-    if (!ObjectUtils.equals(_tenor, other._tenor)) {
-      return false;
-    }
-    return true;
   }
 
 }

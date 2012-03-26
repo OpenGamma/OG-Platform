@@ -13,7 +13,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -25,7 +24,6 @@ import com.opengamma.engine.value.ValueProperties;
 import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.forex.derivative.Forex;
@@ -44,19 +42,12 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
   public static final String PROPERTY_PAY_CURVE_CALCULATION_METHOD = "PayCurveCalculationMethod";
   /** The receive curve calculation method property */
   public static final String PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD = "ReceiveCurveCalculationMethod";
-  private ForexSecurityConverter _visitor;
-  private SecuritySource _securitySource;
+  private static final ForexSecurityConverter s_visitor = new ForexSecurityConverter();
   private final String _valueRequirementName;
 
   public ForexForwardFunction(final String valueRequirementName) {
     ArgumentChecker.notNull(valueRequirementName, "value requirement name");
     _valueRequirementName = valueRequirementName;
-  }
-
-  @Override
-  public void init(final FunctionCompilationContext context) {
-    _securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    _visitor = new ForexSecurityConverter(_securitySource);
   }
 
   @Override
@@ -69,7 +60,7 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
     final String payCurveCalculationMethod = desiredValue.getConstraint(PROPERTY_PAY_CURVE_CALCULATION_METHOD);
     final String receiveCurveCalculationMethod = desiredValue.getConstraint(PROPERTY_RECEIVE_CURVE_CALCULATION_METHOD);
     final FXForwardSecurity security = (FXForwardSecurity) target.getSecurity();
-    final InstrumentDefinition<?> definition = _visitor.visitFXForwardSecurity(security);
+    final InstrumentDefinition<?> definition = s_visitor.visitFXForwardSecurity(security);
     final Currency payCurrency = security.getPayCurrency();
     final Currency receiveCurrency = security.getReceiveCurrency();
     final String fullPayCurveName = payCurveName + "_" + payCurrency.getCode();
@@ -140,10 +131,6 @@ public abstract class ForexForwardFunction extends AbstractFunction.NonCompiledI
     final ValueRequirement payCurve = YieldCurveFunction.getCurveRequirement(fxForward.getPayCurrency(), payCurveName, null, null, payCurveCalculationMethod);
     final ValueRequirement receiveCurve = YieldCurveFunction.getCurveRequirement(fxForward.getReceiveCurrency(), receiveCurveName, null, null, receiveCurveCalculationMethod);
     return Sets.newHashSet(payCurve, receiveCurve);
-  }
-
-  protected SecuritySource getSecuritySource() {
-    return _securitySource;
   }
 
   private ValueProperties getResultProperties() {

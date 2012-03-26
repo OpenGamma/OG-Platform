@@ -30,14 +30,18 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
+import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.conversion.SwapSecurityConverter;
 import com.opengamma.financial.analytics.conversion.SwaptionSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
+import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.forex.ForexOptionBlackFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.daycount.DayCount;
+import com.opengamma.financial.convention.frequency.Frequency;
+import com.opengamma.financial.convention.frequency.PeriodFrequency;
+import com.opengamma.financial.convention.frequency.SimpleFrequency;
 import com.opengamma.financial.instrument.InstrumentDefinition;
-import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.index.GeneratorSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.swap.SwapFixedIborDefinition;
@@ -50,6 +54,9 @@ import com.opengamma.financial.model.option.definition.BlackSwaptionParameters;
 import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
+import com.opengamma.financial.security.swap.FixedInterestRateLeg;
+import com.opengamma.financial.security.swap.SwapSecurity;
+import com.opengamma.id.ExternalIdBundle;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
@@ -80,6 +87,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
+    final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
     final SwaptionSecurity security = (SwaptionSecurity) target.getSecurity();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
     final Currency currency = FinancialSecurityUtils.getCurrency(security);
@@ -107,7 +115,7 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     final ValueProperties properties = getResultProperties(currency.getCode(), forwardCurveName, fundingCurveName, curveCalculationMethod, surfaceName);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final YieldCurveBundle curves = new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
-    final BlackSwaptionParameters parameters = new BlackSwaptionParameters(volatilitySurface, getSwapGenerator(definition));
+    final BlackSwaptionParameters parameters = new BlackSwaptionParameters(volatilitySurface, getSwapGenerator(security, definition, securitySource));
     final YieldCurveWithBlackSwaptionBundle data = new YieldCurveWithBlackSwaptionBundle(parameters, curves);
     return getResult(swaption, data, spec);
   }
@@ -187,11 +195,12 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
 
   private ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {
     final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.SURFACE).get();
+        .with(ValuePropertyNames.SURFACE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM).get();
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
   }
 
-  private GeneratorSwap getSwapGenerator(final InstrumentDefinition<?> swaption) {
+  private GeneratorSwap getSwapGenerator(final SwaptionSecurity security, final InstrumentDefinition<?> swaption, final SecuritySource securitySource) {
     SwapFixedIborDefinition swap;
     if (swaption instanceof SwaptionPhysicalFixedIborDefinition) {
       swap = ((SwaptionPhysicalFixedIborDefinition) swaption).getUnderlyingSwap();
@@ -200,10 +209,25 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
     } else {
       throw new OpenGammaRuntimeException("Can only handle cash- and physically-settled ibor swaptions");
     }
+    final SwapSecurity underlyingSecurity = (SwapSecurity) securitySource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
+    final boolean payFixed = security.isPayer();
+    FixedInterestRateLeg fixedLeg;
+    if (payFixed) {
+      fixedLeg = (FixedInterestRateLeg) underlyingSecurity.getPayLeg();
+    } else {
+      fixedLeg = (FixedInterestRateLeg) underlyingSecurity.getReceiveLeg();
+    }
     final IborIndex iborIndex = swap.getIborLeg().getIborIndex();
-    final AnnuityCouponFixedDefinition fixedLeg = swap.getFixedLeg();
     final DayCount fixedLegDayCount = fixedLeg.getDayCount();
-    final Period fixedLegPeriod = fixedLeg.getPaymentPeriod();
+    final Frequency frequency = fixedLeg.getFrequency();
+    final Period fixedLegPeriod;
+    if (frequency instanceof PeriodFrequency) {
+      fixedLegPeriod = ((PeriodFrequency) frequency).getPeriod();
+    } else if (frequency instanceof SimpleFrequency) {
+      fixedLegPeriod = ((SimpleFrequency) frequency).toPeriodFrequency().getPeriod();
+    } else {
+      throw new OpenGammaRuntimeException("Can only handle PeriodFrequency or SimpleFrequency");
+    }
     return new GeneratorSwap(fixedLegPeriod, fixedLegDayCount, iborIndex);
   }
 }
