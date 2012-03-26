@@ -6,6 +6,7 @@
 package com.opengamma.financial.generator;
 
 import java.text.DecimalFormat;
+import java.util.List;
 import java.util.Random;
 
 import javax.time.calendar.DateProvider;
@@ -17,7 +18,9 @@ import javax.time.calendar.format.DateTimeFormatterBuilder;
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
+import com.opengamma.core.region.RegionSource;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.money.Currency;
 
@@ -53,6 +56,8 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private ConfigSource _configSource;
   private HolidaySource _holidaySource;
   private HistoricalTimeSeriesSource _historicalSource;
+  private RegionSource _regionSource;
+  private ExchangeMaster _exchangeMaster;
 
   public Random getRandom() {
     return _random;
@@ -72,6 +77,10 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   protected <X> X getRandom(final X[] xs) {
     return xs[getRandom(xs.length)];
+  }
+
+  protected <X> X getRandom(final List<X> xs) {
+    return xs.get(getRandom(xs.size()));
   }
 
   protected int getRandom(final int[] xs) {
@@ -112,6 +121,22 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   public void setHistoricalSource(final HistoricalTimeSeriesSource historicalSource) {
     _historicalSource = historicalSource;
+  }
+
+  public ExchangeMaster getExchangeMaster() {
+    return _exchangeMaster;
+  }
+
+  public void setExchangeMaster(final ExchangeMaster exchangeMaster) {
+    _exchangeMaster = exchangeMaster;
+  }
+
+  public RegionSource getRegionSource() {
+    return _regionSource;
+  }
+
+  public void setRegionSource(final RegionSource regionSource) {
+    _regionSource = regionSource;
   }
 
   public static Currency[] getDefaultCurrencies() {
