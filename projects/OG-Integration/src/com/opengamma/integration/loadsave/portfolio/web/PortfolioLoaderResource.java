@@ -13,11 +13,13 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.StreamingOutput;
 
+import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -44,7 +46,7 @@ public class PortfolioLoaderResource {
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderResource.class);
   private final ResolvingPortfolioLoader _loader;
 
-  public PortfolioLoaderResource(BloombergSecurityMaster bbgSecurityMaster,
+  /*public PortfolioLoaderResource(BloombergSecurityMaster bbgSecurityMaster,
                                  HistoricalTimeSeriesMaster htsMaster,
                                  HistoricalTimeSeriesSource bbgHtsSource,
                                  ReferenceDataProvider bbgRefDataProvider,
@@ -62,18 +64,23 @@ public class PortfolioLoaderResource {
                                            portfolioMaster,
                                            positionMaster,
                                            securityMaster);
+  }*/
+
+  public PortfolioLoaderResource() {
+    _loader = null;
   }
 
   @Path("{updatePeriod}/{updateCount}")
   @POST
   @Consumes(MediaType.MULTIPART_FORM_DATA)
-  public StreamingOutput uploadPortfolio(FormDataMultiPart formData,
-                                         // TODO according to the docs this should work but jersey won't start with them uncommented
-                                         //@FormDataParam("file") FormDataBodyPart fileBodyPart,
-                                         //@FormDataParam("portfolioName") String portfolioName,
-                                         //@FormDataParam("dataField") String dataField,
-                                         @PathParam("updatePeriod") final long updatePeriod,
-                                         @PathParam("updateCount") final int updateCount) throws IOException {
+  @Produces(MediaType.TEXT_PLAIN)
+  public Response uploadPortfolio(FormDataMultiPart formData,
+                                  // TODO according to the docs this should work but jersey won't start with them uncommented
+                                  //@FormDataParam("file") FormDataBodyPart fileBodyPart,
+                                  //@FormDataParam("portfolioName") String portfolioName,
+                                  //@FormDataParam("dataField") String dataField,
+                                  @PathParam("updatePeriod") final long updatePeriod,
+                                  @PathParam("updateCount") final int updateCount) throws IOException {
     FormDataBodyPart fileBodyPart = getBodyPart(formData, "file");
     FormDataBodyPart dataFieldBodyPart = getBodyPart(formData, "dataField");
     FormDataBodyPart bodyPart = getBodyPart(formData, "portfolioName");
@@ -85,13 +92,13 @@ public class PortfolioLoaderResource {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
     InputStream fileStream = ((BodyPartEntity) fileEntity).getInputStream();
-    /*String fileContent = IOUtils.toString(fileStream);
+    String fileContent = IOUtils.toString(fileStream);
     s_logger.warn("Portfolio uploaded. fileName: {}, portfolioName: {}, dataField: {}, portfolio: {}",
-                  new Object[]{fileName, portfolioName, dataField, fileContent});*/
+                  new Object[]{fileName, portfolioName, dataField, fileContent});
     // TODO fix the args
     // TODO stream the output back to the web
-    _loader.loadPortfolio(portfolioName, fileName, fileStream, "", "", new String[]{dataField}, "", true);
-    return new StreamingOutput() {
+    //_loader.loadPortfolio(portfolioName, fileName, fileStream, "", "", new String[]{dataField}, "", true);
+    StreamingOutput streamingOutput = new StreamingOutput() {
       @Override
       public void write(OutputStream output) throws IOException, WebApplicationException {
         for (int i = 0; i < updateCount; i++) {
@@ -105,6 +112,7 @@ public class PortfolioLoaderResource {
         }
       }
     };
+    return Response.ok(streamingOutput).build();
   }
 
   private static FormDataBodyPart getBodyPart(FormDataMultiPart formData, String fieldName) {
