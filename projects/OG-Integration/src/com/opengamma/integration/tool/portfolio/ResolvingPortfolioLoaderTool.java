@@ -5,11 +5,17 @@
  */
 package com.opengamma.integration.tool.portfolio;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.integration.loadsave.portfolio.ResolvingPortfolioLoader;
 import com.opengamma.integration.tool.AbstractIntegrationTool;
+import com.opengamma.integration.tool.IntegrationToolContext;
 
 /**
  * The portfolio loader tool
@@ -48,19 +54,40 @@ public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
    */
   @Override
   protected void doRun() {      
+    IntegrationToolContext context = getToolContext();
+    ResolvingPortfolioLoader loader = new ResolvingPortfolioLoader(context.getBloombergSecuritySource(),
+                                                                   context.getHistoricalTimeSeriesMaster(),
+                                                                   context.getBloombergHistoricalTimeSeriesSource(),
+                                                                   context.getBloombergReferenceDataProvider(),
+                                                                   context.getPortfolioMaster(),
+                                                                   context.getPositionMaster(),
+                                                                   context.getSecurityMaster());
+    String[] dataFields = getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT);
+    if (dataFields == null) {
+      dataFields = new String[]{"PX_LAST"};
+    }
     // Call the portfolio loader with the supplied arguments
-    new ResolvingPortfolioLoader().run(
-        getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT), 
-        getCommandLine().getOptionValue(FILE_NAME_OPT), 
-        getCommandLine().getOptionValue(TIME_SERIES_DATASOURCE_OPT) == null ? "BLOOMBERG" : getCommandLine().getOptionValue(TIME_SERIES_DATASOURCE_OPT), 
-        getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT) == null ? "CMPL" : getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT),
-        getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT) == null ? new String[] {"PX_LAST"} : getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT), 
-        getCommandLine().getOptionValue(TIME_SERIES_OBSERVATIONTIME_OPT) == null ? "LONDON_CLOSE" : getCommandLine().getOptionValue(TIME_SERIES_OBSERVATIONTIME_OPT), 
-        getCommandLine().hasOption(WRITE_OPT), 
-        getToolContext()
-    );
+    String fileName = getCommandLine().getOptionValue(FILE_NAME_OPT);
+    try {
+      loader.loadPortfolio(
+          getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT),
+          fileName,
+          new BufferedInputStream(new FileInputStream(fileName)),
+          getOptionValue(TIME_SERIES_DATASOURCE_OPT, "BLOOMBERG"),
+          getOptionValue(TIME_SERIES_DATAPROVIDER_OPT, "CMPL"),
+          dataFields,
+          getOptionValue(TIME_SERIES_OBSERVATIONTIME_OPT, "LONDON_CLOSE"),
+          getCommandLine().hasOption(WRITE_OPT)
+      );
+    } catch (FileNotFoundException e) {
+      throw new OpenGammaRuntimeException("Portfolio file not found: " + fileName, e);
+    }
   }
-  
+
+  private String getOptionValue(String optionName, String defaultValue) {
+    return getCommandLine().getOptionValue(optionName) == null ? defaultValue : getCommandLine().getOptionValue(optionName);
+  }
+
   @Override
   protected Options createOptions(boolean contextProvided) {
     

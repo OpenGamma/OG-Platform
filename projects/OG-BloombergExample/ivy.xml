@@ -12,8 +12,6 @@
         <dependency name="og-engine" rev="latest.integration" />
         <dependency name="og-livedata" rev="latest.integration" />
         <dependency name="og-bloomberg" rev="latest.integration" />
-        <dependency name="og-activ" rev="latest.integration" />
-        <dependency name="og-reuters" rev="latest.integration" />
         <dependency name="og-master" rev="latest.integration" />
         <dependency name="og-masterdb" rev="latest.integration" />
         <dependency name="og-financial" rev="latest.integration" />

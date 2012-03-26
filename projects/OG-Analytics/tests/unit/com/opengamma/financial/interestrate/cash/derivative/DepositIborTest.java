@@ -16,8 +16,7 @@ import org.testng.annotations.Test;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.instrument.index.iborindex.EURIBOR3M;
-import com.opengamma.financial.instrument.index.iborindex.EURIBOR6M;
+import com.opengamma.financial.instrument.index.iborindex.IndexIborTestsMaster;
 import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
@@ -26,7 +25,7 @@ import com.opengamma.util.time.TimeCalculator;
 public class DepositIborTest {
 
   private static final Calendar TARGET = new MondayToFridayCalendar("TARGET");
-  private static final IborIndex INDEX = new EURIBOR6M(TARGET);
+  private static final IborIndex INDEX = IndexIborTestsMaster.getInstance().getIndex("EURIBOR6M", TARGET);
   private static final Currency EUR = INDEX.getCurrency();
 
   private static final ZonedDateTime TRADE_DATE = DateUtils.getUTCDate(2011, 12, 12);
@@ -73,7 +72,7 @@ public class DepositIborTest {
     assertTrue("DepositIbor: equal hash", DEPOSIT_IBOR.equals(depositIbor2));
     assertEquals("DepositIbor: equal hash", DEPOSIT_IBOR.hashCode(), depositIbor2.hashCode());
     DepositIbor other;
-    other = new DepositIbor(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, new EURIBOR3M(TARGET), CURVE_NAME);
+    other = new DepositIbor(EUR, SPOT_TIME, END_TIME, NOTIONAL, NOTIONAL, RATE, DEPOSIT_AF, IndexIborTestsMaster.getInstance().getIndex("EURIBOR3M", TARGET), CURVE_NAME);
     assertFalse("DepositIbor: equal hash", DEPOSIT_IBOR.equals(other));
   }
 

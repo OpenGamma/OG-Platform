@@ -10,7 +10,7 @@ import javax.time.calendar.Period;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.GeneratorSwap;
-import com.opengamma.financial.instrument.index.iborindex.GBPLIBOR6M;
+import com.opengamma.financial.instrument.index.iborindex.IndexIborTestsMaster;
 
 /**
  * Swap generator for the GBP Semi-annual ACT/365 vs Libor 6M.
@@ -22,7 +22,7 @@ public class GBP6MLIBOR6M extends GeneratorSwap {
    * @param calendar A GBP calendar.
    */
   public GBP6MLIBOR6M(Calendar calendar) {
-    super(Period.ofMonths(6), DayCountFactory.INSTANCE.getDayCount("ACT/365"), new GBPLIBOR6M(calendar));
+    super(Period.ofMonths(6), DayCountFactory.INSTANCE.getDayCount("ACT/365"), IndexIborTestsMaster.getInstance().getIndex("GBPLIBOR6M", calendar));
   }
 
 }

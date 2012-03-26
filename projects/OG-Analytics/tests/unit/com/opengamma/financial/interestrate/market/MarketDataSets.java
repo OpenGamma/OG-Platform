@@ -14,9 +14,7 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.IndexPrice;
-import com.opengamma.financial.instrument.index.iborindex.EURIBOR3M;
-import com.opengamma.financial.instrument.index.iborindex.EURIBOR6M;
-import com.opengamma.financial.instrument.index.iborindex.USDLIBOR3M;
+import com.opengamma.financial.instrument.index.iborindex.IndexIborTestsMaster;
 import com.opengamma.financial.model.interestrate.curve.PriceIndexCurve;
 import com.opengamma.financial.model.interestrate.curve.SeasonalCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -49,9 +47,9 @@ public class MarketDataSets {
   private static final YieldAndDiscountCurve CURVE_GBP_30 = new YieldCurve(ConstantDoublesCurve.from(0.0400, "GBP 3.00"));
   private static final YieldAndDiscountCurve CURVE_USD_35 = new YieldCurve(ConstantDoublesCurve.from(0.0350, "USD 3.50"));
   private static final YieldAndDiscountCurve CURVE_USD_30 = new YieldCurve(ConstantDoublesCurve.from(0.0300, "USD 3.00"));
-  private static final IborIndex EURIBOR_3M = new EURIBOR3M(CALENDAR_EUR);
-  private static final IborIndex EURIBOR_6M = new EURIBOR6M(CALENDAR_EUR);
-  private static final IborIndex USDLIBOR_3M = new USDLIBOR3M(CALENDAR_USD);
+  private static final IborIndex EURIBOR_3M = IndexIborTestsMaster.getInstance().getIndex("EURIBOR3M", CALENDAR_EUR);
+  private static final IborIndex EURIBOR_6M = IndexIborTestsMaster.getInstance().getIndex("EURIBOR6M", CALENDAR_EUR);
+  private static final IborIndex USDLIBOR_3M = IndexIborTestsMaster.getInstance().getIndex("USDLIBOR3M", CALENDAR_USD);
 
   private static final String NAME_EUR_PRICE_INDEX = "Euro HICP x";
   private static final Period LAG_EUR = Period.ofDays(14);

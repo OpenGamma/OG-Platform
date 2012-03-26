@@ -41,7 +41,7 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
     
     Map<String, RowParser> rowParsers = new HashMap<String, RowParser>();
     for (String s : securityTypes) {
-      rowParsers.put(s, RowParser.newRowParser(s, toolContext));
+      rowParsers.put(s, RowParser.newRowParser(s));
     }
     Set<String> columns = initParsers(rowParsers);
     

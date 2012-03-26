@@ -34,9 +34,9 @@ import com.opengamma.master.security.SecuritySearchSortOrder;
  */
 public class MasterPortfolioWriter implements PortfolioWriter {
 
-  private PortfolioMaster _portfolioMaster;
-  private PositionMaster _positionMaster;
-  private SecurityMaster _securityMaster;
+  private final PortfolioMaster _portfolioMaster;
+  private final PositionMaster _positionMaster;
+  private final SecurityMaster _securityMaster;
   
   private PortfolioDocument _portfolioDocument;
   private ManageablePortfolioNode _currentNode;
@@ -48,7 +48,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     _portfolioMaster = toolContext.getPortfolioMaster();
     _positionMaster = toolContext.getPositionMaster();
     _securityMaster = toolContext.getSecurityMaster();
-    
+
     _portfolioDocument = createPortfolio(portfolioName);
   }
   

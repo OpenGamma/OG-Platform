@@ -5,8 +5,9 @@
  */
 package com.opengamma.bloombergexample.tool;
 
-import static com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper.getWithException;
-import static com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper.normaliseHeaders;
+
+import static com.opengamma.bloombergexample.loader.PortfolioLoaderHelper.getWithException;
+import static com.opengamma.bloombergexample.loader.PortfolioLoaderHelper.normaliseHeaders;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
