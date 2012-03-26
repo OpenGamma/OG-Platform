@@ -5,8 +5,8 @@
  */
 package com.opengamma.core.position;
 
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.PublicSPI;
@@ -42,7 +42,7 @@ public interface Position extends PositionOrTrade {
    * 
    * @return the trades, unmodifiable, not null
    */
-  Set<Trade> getTrades();
+  Collection<Trade> getTrades();
   
   /**
    * Gets the attributes to use for position aggregation.

@@ -13,7 +13,6 @@ import org.testng.annotations.Test;
 
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
-import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
  * Test Fudge encoding.

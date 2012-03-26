@@ -6,8 +6,8 @@
 package com.opengamma.financial.filtering;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 
 import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
@@ -60,13 +60,13 @@ public class ExpressionPortfolioFilter extends AbstractFilteringFunction {
 
   private static class AnyTradeAttribute implements Trade {
 
-    private final Set<Trade> _trades;
+    private final Collection<Trade> _trades;
 
-    public AnyTradeAttribute(final Set<Trade> trades) {
+    public AnyTradeAttribute(final Collection<Trade> trades) {
       _trades = trades;
     }
 
-    public Set<Trade> getTrades() {
+    public Collection<Trade> getTrades() {
       return _trades;
     }
 
@@ -162,7 +162,7 @@ public class ExpressionPortfolioFilter extends AbstractFilteringFunction {
       if (object instanceof Position) {
         final Position position = (Position) object;
         if ("trade".equals(name)) {
-          final Set<Trade> trades = position.getTrades();
+          final Collection<Trade> trades = position.getTrades();
           if (trades.size() == 1) {
             return trades.iterator().next();
           } else if (trades.isEmpty()) {

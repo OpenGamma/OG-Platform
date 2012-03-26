@@ -211,7 +211,7 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final YieldCurveBundle curves = TestsDataSetsSABR.createCurves1();
     final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
-    final InterestRateCurveSensitivity pvsMethod = METHOD.presentValueSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
+    final InterestRateCurveSensitivity pvsMethod = METHOD.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
     final Map<String, List<DoublesPair>> pvsCalculator = PVCSC_SABR.visit(SWAPTION_LONG_PAYER, sabrBundle);
     assertEquals("Swaption physical SABR: present value curve sensitivity: method and calculator", pvsMethod.getSensitivities(), pvsCalculator);
   }
@@ -222,8 +222,8 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final SABRInterestRateParameters sabrParameter = TestsDataSetsSABR.createSABR1();
     final SABRInterestRateDataBundle sabrBundle = new SABRInterestRateDataBundle(sabrParameter, curves);
     // Swaption sensitivity
-    final InterestRateCurveSensitivity pvsLongPayer = METHOD.presentValueSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
-    final InterestRateCurveSensitivity pvsShortPayer = METHOD.presentValueSensitivity(SWAPTION_SHORT_PAYER, sabrBundle);
+    final InterestRateCurveSensitivity pvsLongPayer = METHOD.presentValueCurveSensitivity(SWAPTION_LONG_PAYER, sabrBundle);
+    final InterestRateCurveSensitivity pvsShortPayer = METHOD.presentValueCurveSensitivity(SWAPTION_SHORT_PAYER, sabrBundle);
     // Long/short parity
     final InterestRateCurveSensitivity pvsShortPayer_1 = pvsShortPayer.multiply(-1);
     assertEquals(pvsLongPayer.getSensitivities(), pvsShortPayer_1.getSensitivities());
@@ -234,9 +234,9 @@ public class SwaptionPhysicalFixedIborSABRMethodTest {
     final double deltaTolerance = 1E+2; //Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
     final double deltaShift = 1e-9;
     InterestRateCurveSensitivity pvsSwapPayer = new InterestRateCurveSensitivity(PVSC.visit(SWAP_PAYER, sabrBundle));
-    pvsSwapPayer = pvsSwapPayer.clean();
+    pvsSwapPayer = pvsSwapPayer.cleaned();
     InterestRateCurveSensitivity sensi = new InterestRateCurveSensitivity(pvscLongPayer);
-    sensi = sensi.clean();
+    sensi = sensi.cleaned();
     final double pv = PVC.visit(SWAPTION_LONG_PAYER, sabrBundle);
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";

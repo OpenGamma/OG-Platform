@@ -7,8 +7,6 @@ package com.opengamma.util.money;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.util.money.Currency;
-import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**

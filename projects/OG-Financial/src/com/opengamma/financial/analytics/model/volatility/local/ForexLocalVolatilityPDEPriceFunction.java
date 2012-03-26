@@ -49,7 +49,7 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.volatility.smile.fitting.sabr.SurfaceArrayUtils;
+import com.opengamma.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.id.UniqueId;

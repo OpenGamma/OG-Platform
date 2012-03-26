@@ -312,7 +312,7 @@ public class HullWhiteMonteCarloMethod extends MonteCarloMethod {
         }
       }
     }
-    result = result.clean();
+    result = result.cleaned();
     return result;
   }
 

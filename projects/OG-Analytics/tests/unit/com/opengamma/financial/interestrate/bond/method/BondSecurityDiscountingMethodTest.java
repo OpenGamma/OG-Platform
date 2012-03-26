@@ -461,7 +461,7 @@ public class BondSecurityDiscountingMethodTest {
   @Test
   public void dirtyPriceCurveSensitivity() {
     InterestRateCurveSensitivity sensi = METHOD.dirtyPriceCurveSensitivity(BOND_FIXED_SECURITY_1, CURVES);
-    sensi = sensi.clean();
+    sensi = sensi.cleaned();
     final double pv = METHOD.presentValue(BOND_FIXED_SECURITY_1, CURVES);
     final double dfSettle = CURVES.getCurve(REPO_CURVE_NAME).getDiscountFactor(BOND_FIXED_SECURITY_1.getSettlementTime());
     assertEquals("Fixed coupon bond security: dirty price curve sensitivity: repo curve", BOND_FIXED_SECURITY_1.getSettlementTime(), sensi.getSensitivities().get(REPO_CURVE_NAME).get(0).first, 1E-8);

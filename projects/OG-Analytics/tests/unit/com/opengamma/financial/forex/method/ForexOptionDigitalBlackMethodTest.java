@@ -8,6 +8,8 @@ package com.opengamma.financial.forex.method;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Map;
+
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -66,7 +68,8 @@ public class ForexOptionDigitalBlackMethodTest {
   // Methods and curves
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
   private static final String[] CURVES_NAME = TestsDataSetsForex.curveNames();
-  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(CURVES, FX_MATRIX, SMILE_TERM, Pair.of(EUR, USD));
+  private static final Map<String, Currency> CURVE_CURRENCY = TestsDataSetsForex.curveCurrency();
+  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(FX_MATRIX, CURVE_CURRENCY, CURVES, SMILE_TERM, Pair.of(EUR, USD));
   private static final ProbabilityDistribution<Double> NORMAL = new NormalDistribution(0, 1);
   private static final ForexOptionDigitalBlackMethod METHOD_OPTION = ForexOptionDigitalBlackMethod.getInstance();
   private static final PresentValueBlackForexCalculator PVC_BLACK = PresentValueBlackForexCalculator.getInstance();

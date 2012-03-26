@@ -282,6 +282,10 @@ public class TestsDataSetsSABR {
     return new String[] {FUNDING_CURVE_NAME, FORWARD_CURVE_NAME};
   }
 
+  /**
+   * Creates a yield curve bundle with 3 interpolated curves: Discounting, Forward 3M, and Forward 6M.
+   * @return The bundle.
+   */
   public static YieldCurveBundle createCurves2() {
     final String discountingCurvename = "Discounting";
     final String forward3MCurveName = "Forward 3M";
@@ -289,9 +293,9 @@ public class TestsDataSetsSABR {
     InterpolatedDoublesCurve dscC = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 20.0}, new double[] {0.0050, 0.0100, 0.0150, 0.0200, 0.0200, 0.0300},
         CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, "Curve dsc");
     InterpolatedDoublesCurve fwd3C = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 25.0}, new double[] {0.0070, 0.0120, 0.0165, 0.0215, 0.0210, 0.0310},
-        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, "Curve dsc");
+        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, "Curve fwd3");
     InterpolatedDoublesCurve fwd6C = new InterpolatedDoublesCurve(new double[] {0.05, 1.0, 2.0, 5.0, 10.0, 30.0}, new double[] {0.0075, 0.0125, 0.0170, 0.0220, 0.0212, 0.0312},
-        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, "Curve dsc");
+        CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC, Interpolator1DFactory.LINEAR_EXTRAPOLATOR), true, "Curve fwd6");
     final YieldCurveBundle curves = new YieldCurveBundle();
     curves.setCurve(discountingCurvename, new YieldCurve(dscC));
     curves.setCurve(forward3MCurveName, new YieldCurve(fwd3C));

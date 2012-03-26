@@ -13,9 +13,10 @@ import org.apache.commons.lang.Validate;
 
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.option.definition.SmileDeltaParameter;
-import com.opengamma.financial.model.volatility.smile.fitting.PiecewiseSABRFitter;
+import com.opengamma.financial.model.volatility.smile.fitting.sabr.PiecewiseSABRFitter;
 import com.opengamma.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.math.function.Function;
+import com.opengamma.math.function.Function1D;
 import com.opengamma.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.interpolation.Interpolator1DFactory;
@@ -37,8 +38,11 @@ public class PiecewiseSABRSurfaceFitter {
   private final double[][] _vols;
   private final int _nExpiries;
 
-  private final PiecewiseSABRFitter[] _fitters;
+  private final Function1D<Double, Double>[] _smileFunctions;
 
+  // private final PiecewiseSABRFitter[] _fitters;
+
+  @SuppressWarnings("unchecked")
   public PiecewiseSABRSurfaceFitter(final double[] deltas, final double[] forwards, final double[] expiries,
       final double[] atms, final double[][] riskReversals, final double[][] strangle) {
     Validate.notNull(deltas, "null delta");
@@ -73,16 +77,19 @@ public class PiecewiseSABRSurfaceFitter {
     }
 
     checkVols();
-
+    final PiecewiseSABRFitter fitter = new PiecewiseSABRFitter();
     //fit each time slice with piecewise SABR
-    _fitters = new PiecewiseSABRFitter[_nExpiries];
+    //  _fitters = new PiecewiseSABRFitter[_nExpiries];
+    _smileFunctions = new Function1D[_nExpiries];
     for (int i = 0; i < _nExpiries; i++) {
-      _fitters[i] = new PiecewiseSABRFitter(_forwards[i], _strikes[i], _expiries[i], _vols[i]);
+      //   _fitters[i] = new PiecewiseSABRFitter(_forwards[i], _strikes[i], _expiries[i], _vols[i]);
+      _smileFunctions[i] = fitter.getVolatilityFunction(_forwards[i], _strikes[i], _expiries[i], _vols[i]);
     }
 
     checkMoneyness();
   }
 
+  @SuppressWarnings("unchecked")
   public PiecewiseSABRSurfaceFitter(final double[] forwards, final double[] expiries, final double[][] strikes, final double[][] impliedVols) {
     Validate.notNull(forwards, "null forwards");
     Validate.notNull(expiries, "null expiries");
@@ -99,11 +106,14 @@ public class PiecewiseSABRSurfaceFitter {
     _vols = impliedVols;
 
     checkVols();
+    final PiecewiseSABRFitter fitter = new PiecewiseSABRFitter();
     _logExpiries = new double[_nExpiries];
     //fit each time slice with piecewise SABR
-    _fitters = new PiecewiseSABRFitter[_nExpiries];
+    // _fitters = new PiecewiseSABRFitter[_nExpiries];
+    _smileFunctions = new Function1D[_nExpiries];
     for (int i = 0; i < _nExpiries; i++) {
-      _fitters[i] = new PiecewiseSABRFitter(_forwards[i], _strikes[i], _expiries[i], _vols[i]);
+      // _fitters[i] = new PiecewiseSABRFitter(_forwards[i], _strikes[i], _expiries[i], _vols[i]);
+      _smileFunctions[i] = fitter.getVolatilityFunction(_forwards[i], _strikes[i], _expiries[i], _vols[i]);
       _logExpiries[i] = Math.log(_expiries[i]);
     }
 
@@ -133,7 +143,7 @@ public class PiecewiseSABRSurfaceFitter {
       final double[] intVar = new double[_nExpiries];
       for (int j = 0; j < _nExpiries; j++) {
         final double k = _forwards[j] * Math.exp(Math.sqrt(_expiries[0]) * x);
-        final double vol = _fitters[j].getVol(k);
+        final double vol = _smileFunctions[j].evaluate(k);
         intVar[j] = vol * vol * _expiries[j];
         if (j > 0) {
           Validate.isTrue(intVar[j] >= intVar[j - 1], "trouble in x space");
@@ -142,6 +152,7 @@ public class PiecewiseSABRSurfaceFitter {
     }
   }
 
+  @SuppressWarnings("unchecked")
   private PiecewiseSABRSurfaceFitter(final PiecewiseSABRSurfaceFitter from) {
     _nExpiries = from._nExpiries;
     _forwards = Arrays.copyOf(from._forwards, from._nExpiries);
@@ -150,11 +161,13 @@ public class PiecewiseSABRSurfaceFitter {
     _forwardCurve = new ForwardCurve(InterpolatedDoublesCurve.from(_expiries, _forwards, EXTRAPOLATOR));
     _strikes = new double[_nExpiries][];
     _vols = new double[_nExpiries][];
-    _fitters = new PiecewiseSABRFitter[_nExpiries];
+    // _fitters = new PiecewiseSABRFitter[_nExpiries];
+    _smileFunctions = new Function1D[_nExpiries];
     for (int i = 0; i < _nExpiries; i++) {
       _strikes[i] = Arrays.copyOf(from._strikes[i], from._nExpiries);
       _vols[i] = Arrays.copyOf(from._vols[i], from._nExpiries);
-      _fitters[i] = from._fitters[i]; //shallow copy of fitters
+      //_fitters[i] = from._fitters[i]; //shallow copy of fitters
+      _smileFunctions[i] = from._smileFunctions[i]; //shallow copy of smile functions
     }
   }
 
@@ -166,10 +179,10 @@ public class PiecewiseSABRSurfaceFitter {
     final double[] vols = new double[nStrikes];
     System.arraycopy(_vols[expiryIndex], 0, vols, 0, nStrikes);
     vols[strikeIndex] += amount;
-    final PiecewiseSABRFitter fitters = new PiecewiseSABRFitter(_forwards[expiryIndex], _strikes[expiryIndex], _expiries[expiryIndex], vols);
+    final PiecewiseSABRFitter fitter = new PiecewiseSABRFitter();
 
     final PiecewiseSABRSurfaceFitter res = new PiecewiseSABRSurfaceFitter(this);
-    res._fitters[expiryIndex] = fitters;
+    res._smileFunctions[expiryIndex] = fitter.getVolatilityFunction(_forwards[expiryIndex], _strikes[expiryIndex], _expiries[expiryIndex], vols);
     res._vols[expiryIndex] = vols;
 
     return res;
@@ -192,14 +205,14 @@ public class PiecewiseSABRSurfaceFitter {
         if (t <= _expiries[0]) { //linear extrapolation in sigma
           final double k1 = x * _forwards[0];
           final double k2 = x * _forwards[1];
-          final double sigma1 = _fitters[0].getVol(k1);
-          final double sigma2 = _fitters[1].getVol(k2);
+          final double sigma1 = _smileFunctions[0].evaluate(k1);
+          final double sigma2 = _smileFunctions[1].evaluate(k2);
           final double dt = _expiries[1] - _expiries[0];
           return ((_expiries[1] - t) * sigma1 + (t - _expiries[0]) * sigma2) / dt;
         }
 
         if (t >= _expiries[_nExpiries - 1]) { //flat extrapolation
-          return _fitters[_nExpiries - 1].getVol(x * _forwards[_nExpiries - 1]);
+          return _smileFunctions[_nExpiries - 1].evaluate(x * _forwards[_nExpiries - 1]);
         }
         final double logT = Math.log(t);
         final int index = getLowerBoundIndex(t);
@@ -214,7 +227,7 @@ public class PiecewiseSABRSurfaceFitter {
           lower = index;
         }
         for (int i = 0; i < 2; i++) {
-          final double vol = _fitters[i + lower].getVol(x * _forwards[i + lower]);
+          final double vol = _smileFunctions[i + lower].evaluate(x * _forwards[i + lower]);
           sample[i] = Math.log(vol * vol * _expiries[i + lower]); //interpolate the variance
           if (i > 0) {
             Validate.isTrue(sample[i] >= sample[i - 1], "variance must increase");
@@ -261,7 +274,7 @@ public class PiecewiseSABRSurfaceFitter {
         //
         if (t <= _expiries[0]) {
           final double k1 = _forwards[0] * Math.exp(-d * Math.sqrt(1 + lambda * _expiries[0]));
-          return _fitters[0].getVol(k1);
+          return _smileFunctions[0].evaluate(k1);
         }
 
         final int index = getLowerBoundIndex(t);
@@ -296,7 +309,7 @@ public class PiecewiseSABRSurfaceFitter {
 
         for (int i = 0; i < 4; i++) {
           strikes[i] = _forwards[lower + i] * Math.exp(-d * Math.sqrt(1 + lambda * times[i]));
-          vols[i] = _fitters[lower + i].getVol(strikes[i]);
+          vols[i] = _smileFunctions[lower + i].evaluate(strikes[i]);
 
           intVar[i] = vols[i] * vols[i] * times[i];
           //     if (i > 0) {
@@ -358,7 +371,7 @@ public class PiecewiseSABRSurfaceFitter {
         //
         if (t <= _expiries[0]) {
           final double k1 = _forwards[0] * Math.exp(-d * Math.sqrt(1 + lambda * _expiries[0]));
-          return _fitters[0].getVol(k1);
+          return _smileFunctions[0].evaluate(k1);
         }
 
         final int index = getLowerBoundIndex(t);
@@ -393,7 +406,7 @@ public class PiecewiseSABRSurfaceFitter {
 
         for (int i = 0; i < 4; i++) {
           strikes[i] = _forwards[lower + i] * Math.exp(-d * Math.sqrt(1 + lambda * times[i]));
-          vols[i] = _fitters[lower + i].getVol(strikes[i]);
+          vols[i] = _smileFunctions[lower + i].evaluate(strikes[i]);
 
           intVar[i] = vols[i] * vols[i] * times[i];
           //the condition on increasing integrated variance need not hold along lines of constant modified log-moneyness, d = ln(f/k)/sqrt(1+lambda*t)
@@ -451,8 +464,8 @@ public class PiecewiseSABRSurfaceFitter {
         if (t <= _expiries[0]) {
           final double k1 = _forwards[0] * m;
           final double k2 = _forwards[1] * m;
-          final double var1 = square(_fitters[0].getVol(k1));
-          final double var2 = square(_fitters[1].getVol(k2));
+          final double var1 = square(_smileFunctions[0].evaluate(k1));
+          final double var2 = square(_smileFunctions[1].evaluate(k2));
           final double dt = _expiries[1] - _expiries[0];
           final double var = ((_expiries[1] - t) * var1 + (t - _expiries[0]) * var2) / dt;
           if (var >= 0.0) {
@@ -489,7 +502,7 @@ public class PiecewiseSABRSurfaceFitter {
         for (int i = 0; i < 4; i++) {
           final double time = _expiries[lower + i];
           final double k = _forwards[lower + i] * Math.pow(m, Math.sqrt(time / t));
-          double temp = square(_fitters[lower + i].getVol(k));
+          double temp = square(_smileFunctions[lower + i].evaluate(k));
 
           if (useIntegratedVariance) {
             temp *= time;

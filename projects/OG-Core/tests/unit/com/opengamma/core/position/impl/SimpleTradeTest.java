@@ -184,15 +184,5 @@ public class SimpleTradeTest {
     assertEquals(1, trade.getAttributes().size());
     assertNull(trade.getAttributes().get("A"));
   }
-  
-  public void test_clearAttributes() {
-    SimpleTrade trade = new SimpleTrade(POSITION_UID, new SimpleSecurityLink(ExternalId.of("A", "B")), BigDecimal.ONE, COUNTERPARTY, TRADE_OFFSET_DATETIME.toLocalDate(), TRADE_OFFSET_DATETIME.toOffsetTime());
-    assertTrue(trade.getAttributes().isEmpty());
-    trade.addAttribute("A", "B");
-    trade.addAttribute("C", "D");
-    assertEquals(2, trade.getAttributes().size());
-    trade.clearAttributes();
-    assertTrue(trade.getAttributes().isEmpty());
-  }
-  
+
 }

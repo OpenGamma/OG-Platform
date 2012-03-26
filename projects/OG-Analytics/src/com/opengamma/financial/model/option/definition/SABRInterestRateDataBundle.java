@@ -37,6 +37,15 @@ public class SABRInterestRateDataBundle extends YieldCurveBundle {
     _sabrParameter = data.getSABRParameter();
   }
 
+  @Override
+  /**
+   * Create a new copy of the bundle using a new map and the same curve and curve names. The same SABRInterestRateParameters is used.
+   * @return The bundle.
+   */
+  public SABRInterestRateDataBundle copy() {
+    return new SABRInterestRateDataBundle(_sabrParameter, this);
+  }
+
   /**
    * Gets the _sabrParameter field.
    * @return The SABR parameters.

@@ -26,7 +26,7 @@ import com.opengamma.util.OpenGammaClock;
 /**
  * 
  */
-public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implements SurfaceInstrumentProvider<Number, Double> {
+public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implements CallPutSurfaceInstrumentProvider<Number, Double> {
   private static final BiMap<MonthOfYear, Character> s_monthCode;
   private static final DateAdjuster NEXT_EXPIRY_ADJUSTER = new NextExpiryAdjuster();
   private static final ExternalScheme SCHEME = SecurityUtils.BLOOMBERG_TICKER_WEAK;
@@ -103,7 +103,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
     } else {
       futureOptionCode.append(Integer.toString(futureOptionExpiry.getYear() % 10));
     }
-    final String typeString = _useCallAboveStrike > strike ? "C " : "P "; // CASE: Bloomberg data seems to be populating prices for IN-the-money options!
+    final String typeString = strike > _useCallAboveStrike ? "C " : "P "; // TODO REVIEW CASE: Bloomberg data seems to be populating prices for IN-the-money options!
     futureOptionCode.append(typeString);
     futureOptionCode.append(FORMATTER.format(strike));
     futureOptionCode.append(" ");
@@ -118,6 +118,7 @@ public class BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider implemen
     return _postfix;
   }
 
+  @Override
   public Double useCallAboveStrike() {
     return _useCallAboveStrike;
   }

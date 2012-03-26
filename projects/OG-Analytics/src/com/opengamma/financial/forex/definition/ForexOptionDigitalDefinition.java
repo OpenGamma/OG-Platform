@@ -43,6 +43,8 @@ public class ForexOptionDigitalDefinition implements InstrumentDefinition<Instru
    */
   private final boolean _isLong;
 
+  // TODO: review description. Should we store the strike explicitly?
+
   /**
    * Constructor from the details.
    * @param forex The underlying Forex transaction.

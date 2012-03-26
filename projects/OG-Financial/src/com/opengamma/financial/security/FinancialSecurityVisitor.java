@@ -9,6 +9,9 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -59,8 +62,6 @@ public interface FinancialSecurityVisitor<T> {
 
   T visitSwaptionSecurity(SwaptionSecurity security);
 
-  //  T visitInterestRateFutureSecurity(InterestRateFutureSecurity security);
-
   T visitIRFutureOptionSecurity(IRFutureOptionSecurity security);
 
   T visitEquityIndexDividendFutureOptionSecurity(EquityIndexDividendFutureOptionSecurity security);
@@ -80,4 +81,10 @@ public interface FinancialSecurityVisitor<T> {
   T visitCapFloorCMSSpreadSecurity(CapFloorCMSSpreadSecurity security);
 
   T visitEquityVarianceSwapSecurity(EquityVarianceSwapSecurity security);
+
+  T visitSimpleZeroDepositSecurity(SimpleZeroDepositSecurity security);
+
+  T visitPeriodicZeroDepositSecurity(PeriodicZeroDepositSecurity security);
+
+  T visitContinuousZeroDepositSecurity(ContinuousZeroDepositSecurity security);
 }

@@ -13,16 +13,19 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
  */
 public abstract class MatrixValidate {
 
-  public static void noNaN(final DoubleMatrix2D x) {
+  public static void notNaNOrInfinite(final DoubleMatrix2D x) {
     final int rows = x.getNumberOfRows();
     final int cols = x.getNumberOfColumns();
     for (int i = 0; i < rows; i++) {
       for (int j = 0; j < cols; j++) {
-        if (Double.isNaN(x.getEntry(i, j))) {
+        final double temp = x.getEntry(i, j);
+        if (Double.isNaN(temp)) {
           throw new MathException("Matrix contains a NaN");
+        }
+        if (Double.isInfinite(temp)) {
+          throw new MathException("Matrix contains an infinite");
         }
       }
     }
   }
-
 }

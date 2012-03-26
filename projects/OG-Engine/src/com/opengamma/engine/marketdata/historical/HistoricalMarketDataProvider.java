@@ -53,7 +53,8 @@ public class HistoricalMarketDataProvider extends AbstractHistoricalMarketDataPr
   public MarketDataSnapshot snapshot(MarketDataSpecification marketDataSpec) {
     FixedHistoricalMarketDataSpecification historicalSpec = (FixedHistoricalMarketDataSpecification) marketDataSpec;
     // TODO something better thought-out here
-    Instant snapshotInstant = historicalSpec.getSnapshotDate().atMidnight().atZone(TimeZone.UTC).toInstant();
+    //Instant snapshotInstant = historicalSpec.getSnapshotDate().atMidnight().atZone(TimeZone.UTC).toInstant();
+    Instant snapshotInstant = historicalSpec.getSnapshotDate().atTime(16, 0).atZone(TimeZone.UTC).toInstant();
     LocalDate snapshotDate = historicalSpec.getSnapshotDate();
     return new HistoricalMarketDataSnapshot(getTimeSeriesSource(), snapshotInstant, snapshotDate, historicalSpec.getTimeSeriesFieldResolverKey());
   }

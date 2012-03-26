@@ -34,6 +34,7 @@
 <listEntry value="com.opengamma.util.timeseries"/>
 <listEntry value="com.opengamma.util.timeseries.object"/>
 <listEntry value="com.opengamma.util.tuple"/>
+<listEntry value="com.opengamma.core"/>
 <listEntry value="com.opengamma.core.change"/>
 <listEntry value="com.opengamma.core.config"/>
 <listEntry value="com.opengamma.core.config.impl"/>

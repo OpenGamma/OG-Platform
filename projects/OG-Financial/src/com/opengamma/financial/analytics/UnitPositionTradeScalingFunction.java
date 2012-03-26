@@ -70,7 +70,7 @@ public class UnitPositionTradeScalingFunction extends PropertyPreservingFunction
   @Override
   public Set<ValueRequirement> getRequirements(final FunctionCompilationContext context, final ComputationTarget target, final ValueRequirement desiredValue) {
     final Position position = target.getPosition();
-    final Set<Trade> trades = position.getTrades();
+    final Collection<Trade> trades = position.getTrades();
     if (trades.isEmpty()) {
       // Shouldn't happen; see canApplyTo
       throw new OpenGammaRuntimeException("Position has no trades");

@@ -106,13 +106,13 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
 
     } else if (surfaceQuoteUnits.equals(SurfacePropertyNames.PRICE_QUOTE)) {
 
-      NodalDoublesCurve futuresPrices = getFuturePricesCurve(target, curveName, inputs);
-      VolatilitySurfaceData<Number, Double> volSurface = getSurfaceFromPriceQuote(specification, surfaceData, futuresPrices, now, surfaceQuoteType);
+      final NodalDoublesCurve futuresPrices = getFuturePricesCurve(target, curveName, inputs);
+      final VolatilitySurfaceData<Number, Double> volSurface = getSurfaceFromPriceQuote(specification, surfaceData, futuresPrices, now, surfaceQuoteType);
       return Collections.singleton(new ComputedValue(spec, volSurface));
 
     } else {
 
-      throw new OpenGammaRuntimeException("Encountered an unexpected surfaceQuoteUnits. Valid values are found in SurfacePropertyNames as VOLATILITY_QUOTE or PRICE_QUOTE.");
+      throw new OpenGammaRuntimeException("Encountered an unexpected surfaceQuoteUnits. Valid values are found in SurfacePropertyNames as VolatilityQuote or PriceQuote.");
     }
 
   }
@@ -197,8 +197,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
   private static VolatilitySurfaceData<Number, Double> getSurfaceFromPriceQuote(final VolatilitySurfaceSpecification specification,
       final VolatilitySurfaceData<Number, Double> optionPrices, final NodalDoublesCurve futurePrices, final ZonedDateTime now, final String surfaceQuoteType) {
     double callAboveStrike = 0;
-    if (specification.getSurfaceInstrumentProvider() instanceof BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider) {
-      callAboveStrike = ((BloombergIRFutureOptionVolatilitySurfaceInstrumentProvider) specification.getSurfaceInstrumentProvider()).useCallAboveStrike();
+    if (specification.getSurfaceInstrumentProvider() instanceof CallPutSurfaceInstrumentProvider) {
+      callAboveStrike = ((CallPutSurfaceInstrumentProvider<?, ?>) specification.getSurfaceInstrumentProvider()).useCallAboveStrike();
     }
     final Map<Pair<Number, Double>, Double> volatilityValues = new HashMap<Pair<Number, Double>, Double>();
     final ObjectArrayList<Number> xList = new ObjectArrayList<Number>();
@@ -207,10 +207,11 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
       final Number t = IRFutureOptionUtils.getTime(x.doubleValue(), now);
       for (final Double y : optionPrices.getYs()) {
         final Double price = optionPrices.getVolatility(x, y);
-        final double forward = futurePrices.getYValue(x.doubleValue());
         if (price != null) {
           try {
-            final double volatility = getVolatility(surfaceQuoteType, y / 100, price, forward, t.doubleValue(), callAboveStrike / 100);
+            final double forward = futurePrices.getYValue(x.doubleValue());
+            final double volatility = getVolatility(surfaceQuoteType, y / 100.0, price, forward, t.doubleValue(), callAboveStrike / 100.);
+
             xList.add(x);
             yList.add(y);
             volatilityValues.put(Pair.of(x, y), volatility);
@@ -227,7 +228,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
   }
 
   /** Futures prices are required to form implied volatilities when the units of the input surface is quoted in prices. */
-  private static NodalDoublesCurve getFuturePricesCurve(final ComputationTarget target, String curveName, FunctionInputs inputs) {
+  private static NodalDoublesCurve getFuturePricesCurve(final ComputationTarget target, final String curveName, final FunctionInputs inputs) {
     if (curveName == null) {
       throw new OpenGammaRuntimeException("Could not get curve name");
     }
@@ -244,7 +245,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     return futurePrices;
   }
 
-  /** FIXME This function relies on calAboveStrike. Needs a rework */
+  /** FIXME This function relies on callAboveStrike. Needs a rework */
   private static double getVolatility(final String surfaceQuoteType, final double strike, final double price, final double forward, final double t, final Double callAboveStrike) {
     if (surfaceQuoteType.equals(SurfaceQuoteType.CALL_STRIKE)) {
       return BlackFormulaRepository.impliedVolatility(price, forward, strike, t, true);
@@ -254,12 +255,12 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     }
     if (surfaceQuoteType.equals(SurfaceQuoteType.CALL_AND_PUT_STRIKE)) {
       if (callAboveStrike == null) {
-        throw new OpenGammaRuntimeException("Value for call above strike was null");
+        throw new OpenGammaRuntimeException("No value specified for useCallAboveStrikeValue in VolatilitySurfaceSpecification. See Configuration.");
       }
-      if (strike > callAboveStrike) {
-        return BlackFormulaRepository.impliedVolatility(price, forward, strike, t, !true); // FIXME: I've put in the ! as Bloomberg wasn't providing call prices for way OTM options
-      }
-      return BlackFormulaRepository.impliedVolatility(price, forward, strike, t, !false); //FIXME: I've put in the ! as Bloomberg wasn't providing call prices for way OTM options
+      // Futures Options are priced as options on rates, not prices.
+      // A Call ON Futures PRICE is a PUT ON Futures RATE 
+      boolean callOnRates = strike < callAboveStrike;
+      return BlackFormulaRepository.impliedVolatility(price, 1 - forward, 1 - strike, t, callOnRates);
     }
     throw new OpenGammaRuntimeException("Cannot handle surface quote type " + surfaceQuoteType);
   }
