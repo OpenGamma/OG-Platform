@@ -13,6 +13,7 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.position.impl.SimpleTrade;
 import com.opengamma.core.region.RegionSource;
@@ -42,8 +43,7 @@ import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.option.definition.BlackSwaptionParameters;
-import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
+import com.opengamma.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
@@ -78,7 +78,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
-    final SecuritySource securitySource = OpenGammaExecutionContext.getSecuritySource(executionContext);
+    final HistoricalTimeSeriesSource dataSource = OpenGammaExecutionContext.getHistoricalTimeSeriesSource(executionContext);
     final SimpleTrade trade = (SimpleTrade) target.getTrade();
     final IRFutureOptionSecurity security = (IRFutureOptionSecurity) trade.getSecurity();
     final ValueRequirement desiredValue = desiredValues.iterator().next();
@@ -105,14 +105,13 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     }
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = (YieldAndDiscountCurve) fundingCurveObject;
-    final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) _converter.convert(trade);
+    final InstrumentDefinition<?> irFutureOptionDefinition = _converter.convert(trade);
     final InstrumentDerivative irFutureOption = _dataConverter.convert(security, irFutureOptionDefinition, now, new String[] {fundingCurveName, forwardCurveName}, dataSource);
     final ValueProperties properties = getResultProperties(currency.getCode(), forwardCurveName, fundingCurveName, curveCalculationMethod, surfaceName);
     final ValueSpecification spec = new ValueSpecification(_valueRequirementName, target.toSpecification(), properties);
     final YieldCurveBundle curves = new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
-    final BlackSwaptionParameters parameters = new BlackSwaptionParameters((InterpolatedDoublesSurface) volatilitySurface.getSurface(), getSwapGenerator(security, definition, securitySource));
-    final YieldCurveWithBlackSwaptionBundle data = new YieldCurveWithBlackSwaptionBundle(parameters, curves);
-    return getResult(swaption, data, spec);
+    final YieldCurveWithBlackCubeBundle data = new YieldCurveWithBlackCubeBundle((InterpolatedDoublesSurface) volatilitySurface.getSurface(), curves);
+    return getResult(irFutureOption, data, spec);
   }
 
   @Override
@@ -125,7 +124,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     if (target.getType() != ComputationTargetType.TRADE) {
       return false;
     }
-    return target..getTrade().getSecurity() instanceof IRFutureOptionSecurity;
+    return target.getTrade().getSecurity() instanceof IRFutureOptionSecurity;
   }
 
   @Override
@@ -165,7 +164,7 @@ public abstract class InterestRateFutureOptionBlackFunction extends AbstractFunc
     return requirements;
   }
 
-  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative swaption, final YieldCurveWithBlackSwaptionBundle data, final ValueSpecification spec);
+  protected abstract Set<ComputedValue> getResult(final InstrumentDerivative irFutureOption, final YieldCurveWithBlackCubeBundle data, final ValueSpecification spec);
 
   private ValueProperties getResultProperties(final String currency) {
     return createValueProperties()

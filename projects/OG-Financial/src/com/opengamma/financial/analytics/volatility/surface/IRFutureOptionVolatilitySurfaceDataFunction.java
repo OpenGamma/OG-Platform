@@ -174,7 +174,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final DoubleArrayList yList = new DoubleArrayList();
     for (final Number x : optionVolatilities.getXs()) {
       for (final Double y : optionVolatilities.getYs()) {
-        final Double volatility = optionVolatilities.getVolatility(x.doubleValue(), y);
+        final Double volatility = optionVolatilities.getVolatility(x, y);
         if (volatility != null) {
           xList.add(x.doubleValue());
           yList.add(y);
