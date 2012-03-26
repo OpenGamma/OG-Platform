@@ -5,6 +5,11 @@
  */
 package com.opengamma.integration.loadsave.portfolio.reader;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Stack;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -39,11 +44,27 @@ public class MasterPortfolioReader implements PortfolioReader {
   
   private PortfolioDocument _portfolioDocument;
 
+  private ManageablePortfolioNode _currentNode;
+  private Stack<Iterator<ManageablePortfolioNode>> _nodeIteratorStack;
+  private Iterator<ManageablePortfolioNode> _nodeIterator;
+  private Iterator<ObjectId> _positionIdIterator;
+  
   public MasterPortfolioReader(String portfolioName, ToolContext toolContext) {
     _portfolioMaster = toolContext.getPortfolioMaster();
     _positionMaster = toolContext.getPositionMaster();
     _securitySource = toolContext.getSecuritySource();
     _portfolioDocument = openPortfolio(portfolioName);
+    
+    _currentNode = _portfolioDocument.getPortfolio().getRootNode();
+
+    List<ManageablePortfolioNode> rootNodeList = new ArrayList<ManageablePortfolioNode>(); 
+    rootNodeList.add(_portfolioDocument.getPortfolio().getRootNode());
+    
+    _nodeIterator = rootNodeList.iterator();
+
+    _nodeIteratorStack = new Stack<Iterator<ManageablePortfolioNode>>();
+
+    _positionIdIterator = _nodeIterator.next().getPositionIds().iterator();
   }
   
   public MasterPortfolioReader(String portfolioName, PortfolioMaster portfolioMaster, 
@@ -106,6 +127,71 @@ public class MasterPortfolioReader implements PortfolioReader {
     }
     
   }
+  @Override
+  public ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext() {
+    
+    ObjectId positionId = getNextPositionId();    
+    if (positionId == null) {
+      return null;
+    } else {
+      ManageablePosition position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
+      
+      // Write the related security(ies) TODO handle writing multiple, for underlying securities
+      ManageableSecurityLink sLink = position.getSecurityLink();
+      Security security = sLink.resolveQuiet(_securitySource);
+      if ((security != null) && (security instanceof ManageableSecurity)) {
+        return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(
+            position, 
+            new ManageableSecurity[] {(ManageableSecurity) security});
+      } else {
+        s_logger.warn("Could not resolve security relating to position " + position.getName());
+        return new ObjectsPair<ManageablePosition, ManageableSecurity[]>(null, null);
+      }
+    }
+  }
+
+  public ObjectId getNextPositionId() {
+    
+    while (true) {
+      // Return the next position in the current portfolio node's list, if any there
+      if (_positionIdIterator.hasNext()) {
+        return _positionIdIterator.next();
+        
+      // Current node's positions exhausted, find another node
+      } else {
+        
+        // Go down to current node's child nodes to find more positions (depth-first)
+        _nodeIteratorStack.push(_nodeIterator);
+        _nodeIterator = _currentNode.getChildNodes().iterator();
+  
+        // If there are no more nodes here pop back up until a node is available
+        while (!_nodeIterator.hasNext()) {
+          if (!_nodeIteratorStack.isEmpty()) {
+            _nodeIterator = _nodeIteratorStack.pop();
+          } else {
+            return null;
+          }
+        }
+        
+        // Go to the next node and start fetching positions there
+        _currentNode = _nodeIterator.next();
+        _positionIdIterator = _currentNode.getPositionIds().iterator();
+      }
+    }
+  }
+        
+  @Override
+  public String[] getCurrentPath() {
+    Stack<ManageablePortfolioNode> stack = 
+        _portfolioDocument.getPortfolio().getRootNode().findNodeStackByObjectId(_currentNode.getUniqueId());
+    String[] result = new String[stack.size()];
+    int i = stack.size();
+    while (!stack.isEmpty()) {
+      result[--i] = stack.pop().getName();
+    }
+    return result;
+  }
+
   
   private PortfolioDocument openPortfolio(String portfolioName) {
     
@@ -116,16 +202,6 @@ public class MasterPortfolioReader implements PortfolioReader {
     PortfolioDocument portfolioDoc = portSearchResult.getFirstDocument();
    
     return portfolioDoc;
-  }
-
-  @Override
-  public ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext() {
-    throw new UnsupportedOperationException();
-  }
-
-  @Override
-  public ManageablePortfolioNode getCurrentNode() {
-    throw new UnsupportedOperationException();
   }
 
 }

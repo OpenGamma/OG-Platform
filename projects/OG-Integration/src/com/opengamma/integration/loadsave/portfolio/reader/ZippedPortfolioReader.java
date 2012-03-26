@@ -46,6 +46,8 @@ public class ZippedPortfolioReader implements PortfolioReader {
   private Map<String, Integer> _versionMap = new HashMap<String, Integer>();
 
   private Enumeration<ZipEntry> _zipEntries;
+  private PortfolioReader _currentReader;
+  private String[] _currentPath = new String[0];
   
   public ZippedPortfolioReader(String filename, ToolContext toolContext) {
     _toolContext = toolContext;
@@ -143,59 +145,74 @@ public class ZippedPortfolioReader implements PortfolioReader {
     }
   }
 
-  // TODO
   @Override
   public ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext() {
-    throw new UnsupportedOperationException();
-//    if (!_zipEntries.hasMoreElements()) {
-//      return null;
-//    }
-//    
-//    ZipEntry entry = _zipEntries.nextElement();
-//    
-//    if (!entry.isDirectory() && entry.getName().substring(entry.getName().lastIndexOf('.')).equalsIgnoreCase(SHEET_EXTENSION)) {
-//      try {
-//        // Extract full path
-//        String[] path = entry.getName().split("/");
-//
-//        // Extract security name
-//        String secType = path[path.length - 1].substring(0, path[path.length - 1].lastIndexOf('.'));
-//
-//        // Set up a sheet reader for the current CSV file in the ZIP archive
-//        SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
-//
-//        RowParser parser = RowParser.newRowParser(secType, _toolContext);
-//        if (parser == null) {
-//          s_logger.error("Could not build a row parser for security type '" + secType + "'");
-//          return null; 
-//        }
-//        if (_versionMap.get(secType) == null) {
-//          s_logger.error("Versioning hash for security type '" + secType + "' could not be found");
-//          return null;
-//        }
-//        if (parser.getSecurityHashCode() != _versionMap.get(secType)) {
-//          s_logger.error("The parser version for the '" + secType + "' security (hash " + 
-//              Integer.toHexString(parser.getSecurityHashCode()) + 
-//              ") does not match the data stored in the archive (hash " + 
-//              Integer.toHexString(_versionMap.get(secType)) + ")");
-//          return null;
-//        }
-//        
-//        // Create a generic simple portfolio loader for the current sheet, using a dynamically loaded row parser class
-//        SingleSheetPortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(sheet, sheet.getColumns(), parser);
-//
-//        s_logger.info("Processing rows in archive entry " + entry.getName() + " as " + secType);
-//
-//      } catch (Throwable ex) {
-//        s_logger.warn("Could not import from " + entry.getName() + ", skipping file (exception is " + ex + ")");
-//      }
-//    }
-//
-//    return null;
+   
+    while (true) {      
+      // Try to get the next row from the current csv in the zip archive
+      ObjectsPair<ManageablePosition, ManageableSecurity[]> next = 
+          _currentReader == null ? null : _currentReader.readNext();
+      
+      if (next != null) {
+        return next;
+     
+      // If no more rows to get in the current csv, and no more zip entries, then we've reached the end
+      } else if (!_zipEntries.hasMoreElements()) {
+        return null;
+      
+      // More zip entries, try get another csv and return a row from it
+      } else {
+        // Get the portfolio reader for this csv file
+        _currentReader = getReader(_zipEntries.nextElement());            
+      }
+    }
   }
- 
-  
-  
+
+  private PortfolioReader getReader(ZipEntry entry) {
+    
+    if (!entry.isDirectory() && entry.getName().substring(entry.getName().lastIndexOf('.')).equalsIgnoreCase(SHEET_EXTENSION)) {
+      try {
+        // Extract full path
+        _currentPath = entry.getName().split("/");
+
+        // Extract security name
+        String secType = _currentPath[_currentPath.length - 1].substring(0, _currentPath[_currentPath.length - 1].lastIndexOf('.'));
+
+
+        // Set up a sheet reader and a row parser for the current CSV file in the ZIP archive
+        SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
+        
+        RowParser parser = RowParser.newRowParser(secType, _toolContext);
+        if (parser == null) {
+          s_logger.error("Could not build a row parser for security type '" + secType + "'");
+          return null; 
+        }
+        if (_versionMap.get(secType) == null) {
+          s_logger.error("Versioning hash for security type '" + secType + "' could not be found");
+          return null;
+        }
+        if (parser.getSecurityHashCode() != _versionMap.get(secType)) {
+          s_logger.error("The parser version for the '" + secType + "' security (hash " + 
+              Integer.toHexString(parser.getSecurityHashCode()) + 
+              ") does not match the data stored in the archive (hash " + 
+              Integer.toHexString(_versionMap.get(secType)) + ")");
+          return null;
+        }
+
+        s_logger.info("Processing rows in archive entry " + entry.getName() + " as " + secType);
+
+        // Create a simple portfolio reader for the current sheet
+        return new SingleSheetSimplePortfolioReader(sheet, sheet.getColumns(), parser);
+        
+      } catch (Throwable ex) {
+        s_logger.warn("Could not import from " + entry.getName() + ", skipping file (exception is " + ex + ")");
+        return null;
+      }
+    } else {
+      return null;
+    }
+  }
+
   private void readMetaData(String filename) {
 
     InputStream cfgInputStream;
@@ -231,10 +248,9 @@ public class ZippedPortfolioReader implements PortfolioReader {
     }
   }
 
-  // TODO
   @Override
-  public ManageablePortfolioNode getCurrentNode() {
-    throw new UnsupportedOperationException();
+  public String[] getCurrentPath() {
+    return _currentPath;
   }
- 
+
 }

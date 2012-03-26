@@ -145,4 +145,8 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
     return columns;
   }
 
+  @Override
+  public void setPath(String[] newPath) {
+  }
+
 }

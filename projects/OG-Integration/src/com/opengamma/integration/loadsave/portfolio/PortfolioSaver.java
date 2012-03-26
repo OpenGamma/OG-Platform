@@ -5,17 +5,25 @@
  */
 package com.opengamma.integration.loadsave.portfolio;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.financial.tool.ToolContext;
+import com.opengamma.id.ExternalId;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.integration.loadsave.portfolio.reader.MasterPortfolioReader;
 import com.opengamma.integration.loadsave.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.loadsave.portfolio.writer.DummyPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.SingleSheetPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.ZippedPortfolioWriter;
+import com.opengamma.master.position.ManageablePosition;
+import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * Provides portfolio saving functionality
@@ -39,8 +47,34 @@ public class PortfolioSaver {
         toolContext);
     
     // Load in and write the securities, positions and trades
-    portfolioReader.writeTo(portfolioWriter);
-    
+    //portfolioReader.writeTo(portfolioWriter);
+    while (true) { 
+      // Read in next row
+      ObjectsPair<ManageablePosition, ManageableSecurity[]> next = portfolioReader.readNext();
+      
+      // Check for EOF
+      if (next == null) {
+        break;
+      }
+      
+      // If position and security data is available, send it to the writer
+      if (next.getFirst() != null && next.getSecond() != null) {
+        
+        System.out.print("Path: ");
+        for (String s : portfolioReader.getCurrentPath()) {
+          System.out.print("/" + s);
+        }
+        System.out.println();
+        
+        // TODO set current node
+        
+        for (ManageableSecurity security : next.getSecond()) {
+          portfolioWriter.writeSecurity(security);
+        }
+        portfolioWriter.writePosition(next.getFirst());
+      }
+    }
+
     // Flush changes to portfolio master & close
     portfolioWriter.flush();
     portfolioWriter.close();

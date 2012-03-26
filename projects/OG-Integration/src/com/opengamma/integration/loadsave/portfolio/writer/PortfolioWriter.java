@@ -26,6 +26,7 @@ public interface PortfolioWriter {
   ManageablePortfolioNode getCurrentNode();
   
   ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node);
+  void setPath(String[] newPath);
   
   void flush();
   

@@ -13,13 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.bbg.BloombergIdentifierProvider;
-import com.opengamma.bbg.livedata.BloombergIdResolver;
-import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.bbg.loader.BloombergHistoricalLoader;
-import com.opengamma.bbg.util.BloombergDataUtils;
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
@@ -36,7 +31,6 @@ import com.opengamma.util.tuple.ObjectsPair;
 
 /**
  * This is a portfolio loader that also attempts to resolve and load related time series 
- * (such as PX_LAST, and normally supplied on the tool's command line) will be pre-loaded.
  */
 public class ResolvingPortfolioLoader {
 
@@ -84,9 +78,8 @@ public class ResolvingPortfolioLoader {
             for (String dataField : dataFields) {
               Set<ExternalId> id = new HashSet<ExternalId>();
               id.add(security.getExternalIdBundle().getExternalId(ExternalScheme.of("BLOOMBERG_TICKER")));
-              s_logger.warn("Loading historical time series " + id.toString() + ", fields " + dataField + " from " + dataProvider + ": " + 
-                  bbgLoader.addTimeSeries(id, dataProvider, dataField, null, null)
-              );
+              s_logger.warn("Loading historical time series " + id.toString() + ", fields " + dataField + 
+                  " from " + dataProvider + ": " + bbgLoader.addTimeSeries(id, dataProvider, dataField, null, null));
             }
           }
         }

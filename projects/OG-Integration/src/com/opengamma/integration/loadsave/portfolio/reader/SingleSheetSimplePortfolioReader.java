@@ -135,8 +135,8 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
   }
 
   @Override
-  public ManageablePortfolioNode getCurrentNode() {
-    return new ManageablePortfolioNode("Root");
+  public String[] getCurrentPath() {
+    return new String[0];
   }
 
 }

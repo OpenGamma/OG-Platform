@@ -265,5 +265,10 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
       throw new OpenGammaRuntimeException("Could not write METADATA.INI to zip archive");
     }
   }
+
+  @Override
+  public void setPath(String[] newPath) {
+    
+  }
   
 }
