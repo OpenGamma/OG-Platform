@@ -133,7 +133,7 @@ public abstract class AbstractPortfolioGeneratorTool {
   }
 
   private AbstractPortfolioGeneratorTool getInstance(final String security) {
-    return getInstance(getClass(), security, getClass().getSimpleName());
+    return getInstance(getClass(), getClass().getSimpleName(), security);
   }
 
   public void run(final ToolContext context, final String portfolioName, final String security, final boolean write) {

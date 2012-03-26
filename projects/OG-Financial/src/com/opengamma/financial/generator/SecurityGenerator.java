@@ -78,6 +78,10 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     return xs[getRandom(xs.length)];
   }
 
+  protected double getRandom(final double[] xs) {
+    return xs[getRandom(xs.length)];
+  }
+
   public ConventionBundleSource getConventionSource() {
     return _conventionSource;
   }
