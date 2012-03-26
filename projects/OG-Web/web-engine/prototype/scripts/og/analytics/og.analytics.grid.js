@@ -13,7 +13,7 @@ $.register_module({
             templates = null,
             scrollbar_size = 19;
         return function (config) {
-            var selector = config.selector;
+            var selector = config.selector, total_width = config.width, total_height = config.height;
             $.when(css_tmpl(), header_tmpl(), container_tmpl()).then(function (css_tmpl, header_tmpl, container_tmpl) {
                 var gen_rows, gen_head, gen_data, gen_css, viewport, header, width, columns,
                     data = new og.analytics.Data, id = '#analytics_grid_' + counter++, col_css;
@@ -27,27 +27,28 @@ $.register_module({
                         return (Math.random() * 1000);
                     };
                     while (i--) {
-                      k = 17;
+                      k = cols;
                       matrix.push(function () {
                           var row = [];
-                          while(k--) row.push(gen_num());
+                          while (k--) row.push(gen_num());
                           return row;
                       }());
                     }
                     return matrix;
                 };
-                gen_rows = function (config) {
-                    var fixed = config.fixed,
-                        data = gen_data(17), html, len = data.length * 20;
+                gen_rows = function (fixed) {
+                    var data = gen_data(19), html,
+                        col_from = fixed ? 0 : columns.fixed.length,
+                        col_to = fixed ? columns.fixed.length : columns.fixed.length + columns.scroll.length,
+                        height = data.length * 20;
                     html = data.reduce(function (acc, row, idx) {
-                        var value = data[idx], lcv = fixed ? 0 : columns.columns_fixed.length,
-                            len = fixed ? columns.columns_fixed.length : value.length;
                         acc.push('<div class="OG-g-row r'+ idx +'" style="top: ' + (idx * 20) + 'px">');
-                        for (; lcv < len; lcv += 1)
-                            acc.push('<div class="OG-g-cell c' + lcv + '">' + value[lcv] + '</div>');
+                        acc.push.apply(acc, row.slice(col_from, col_to).reduce(function (acc, val, idx) {
+                            return acc.concat('<div class="OG-g-cell c' + (col_from + idx) + '">' + val + '</div>');
+                        }, []));
                         acc.push('</div>\n\n');
                         return acc;
-                    }, ['<div class="OG-g-rows" style="height: ' + (len + scrollbar_size) + 'px">']);
+                    }, ['<div class="OG-g-rows" style="height: ' + (height + (fixed ? scrollbar_size : 0)) + 'px">']);
                     html.push('</div>');
                     return html.join('');
                 };
@@ -66,14 +67,15 @@ $.register_module({
                     if ($style[0].styleSheet) $style[0].styleSheet.cssText = css; // IE
                     else $style[0].appendChild(document.createTextNode(css));
                 };
-                col_css = function (columns, cols_preceding) {
+                col_css = function (columns, col_offset) {
                     var partial_width = 0, total_width = columns.reduce(function (acc, val) {
                         return +val.width + acc;
                     }, 0);
-                    cols_preceding = cols_preceding || 0;
+                    col_offset = col_offset || 0;
                     return columns.map(function (val, idx) {
                         var width = +val.width, css = {
-                            selector: 'c' + (idx + cols_preceding),
+                            prefix: id,
+                            selector: 'c' + (idx + col_offset),
                             left: partial_width, right: total_width - partial_width - width
                         };
                         partial_width += width;
@@ -82,38 +84,41 @@ $.register_module({
                 };
                 data.init(function (result) {
                     columns = result;
-                    viewport = {width: '800', height: '600'}; // Stub
                     header = {height: '51'}; // Stub
                     width = (function (columns) { // width of fixed and scrollable column areas
                         return {
-                            fixed: columns.columns_fixed.reduce(function (acc, val) {return acc + val.width;}, 0),
-                            scroll: columns.columns_scroll.reduce(function (acc, val) {return acc + val.width;}, 0)
+                            fixed: columns.fixed.reduce(function (acc, val) {return acc + val.width;}, 0),
+                            scroll: columns.scroll.reduce(function (acc, val) {return acc + val.width;}, 0)
                         };
                     })(columns);
-                    load_css(templates.css({
+                    viewport = {width: total_width - width.fixed, height: total_height};
+                    var css_data = {
                         id: id,
                         height: viewport.height,
-                        width: viewport.width,
+                        viewport_width: viewport.width,
+                        scroll_width: width.scroll,
                         header_height: header.height,
                         fixed_width: width.fixed,
-                        scroll_width: width.scroll,
-                        columns: col_css(columns.columns_fixed)
-                            .concat(col_css(columns.columns_scroll, columns.columns_fixed.length))
+                        columns: col_css(columns.fixed)
+                            .concat(col_css(columns.scroll, columns.fixed.length))
+                    };
+                    load_css(templates.css(css_data));
+                    $(selector).html(templates.container({
+                        id: id.substring(1), height: viewport.height, width: total_width
                     }));
-                    $(selector).html(templates.container({id: id.substring(1)}));
                     $(id + ' .OG-g-b-scroll').scroll(function (e) { // sync scroll
                         $(id + ' .OG-g-b-fixed').scrollTop(e.target.scrollTop);
                         $(id + ' .OG-g-h-scroll').scrollLeft(e.target.scrollLeft);
                     });
-                    $(id + ' .OG-g-b-fixed').html(gen_rows({fixed: true}));
-                    $(id + ' .OG-g-b-scroll').html(gen_rows(columns.columns_scroll.length, columns.columns_fixed.length));
-                    $(id + ' .OG-g-h-fixed').html(gen_head(columns.columns_fixed));
-                    $(id + ' .OG-g-h-scroll').html(gen_head(columns.columns_scroll, columns.columns_fixed.length));
-                    var scroll_len = columns.columns_scroll.length;
-                    var fixed_num = columns.columns_fixed.length;
+                    $(id + ' .OG-g-b-fixed').html(gen_rows(true));
+                    $(id + ' .OG-g-b-scroll').html(gen_rows(false));
+                    $(id + ' .OG-g-h-fixed').html(gen_head(columns.fixed));
+                    $(id + ' .OG-g-h-scroll').html(gen_head(columns.scroll, columns.fixed.length));
+                    var scroll_len = columns.scroll.length;
+                    var fixed_num = columns.fixed.length;
                     setInterval(function () {
-                      $(id + ' .OG-g-b-scroll').html(gen_rows({}));
-                    }, 1000);
+                      $(id + ' .OG-g-b-scroll').html(gen_rows(false));
+                    }, 30000);
                 });
             });
         };
