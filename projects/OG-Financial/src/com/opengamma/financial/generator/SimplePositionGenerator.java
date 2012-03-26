@@ -32,6 +32,10 @@ public class SimplePositionGenerator<T extends ManageableSecurity> implements Po
     _securityPersister = securityPersister;
   }
 
+  public SimplePositionGenerator(final SecurityGenerator<? extends T> securityGenerator, final SecurityPersister securityPersister) {
+    this(new StaticQuantityGenerator(1), securityGenerator, securityPersister);
+  }
+
   protected QuantityGenerator getQuantityGenerator() {
     return _quantityGenerator;
   }
