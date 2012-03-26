@@ -63,7 +63,7 @@ public class MultipleCurrencyInterestRateCurveSensitivityTest {
     assertEquals("MultipleCurrencyInterestRateCurveSensitivity", IRCS, mcIRCS.getSensitivity(USD));
     assertEquals("MultipleCurrencyInterestRateCurveSensitivity", IRCS_EMPTY, mcIRCS.getSensitivity(EUR));
     mcIRCS = mcIRCS.plus(USD, IRCS);
-    assertTrue("MultipleCurrencyInterestRateCurveSensitivity", InterestRateCurveSensitivity.compare(IRCS.multiply(2.0), mcIRCS.getSensitivity(USD).clean(), tolerance));
+    assertTrue("MultipleCurrencyInterestRateCurveSensitivity", InterestRateCurveSensitivity.compare(IRCS.multiply(2.0), mcIRCS.getSensitivity(USD).cleaned(), tolerance));
     assertEquals("MultipleCurrencyInterestRateCurveSensitivity", IRCS_EMPTY, mcIRCS.getSensitivity(EUR));
   }
 

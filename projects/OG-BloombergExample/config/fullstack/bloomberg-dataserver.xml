@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:aop="http://www.springframework.org/schema/aop"
+  xmlns:tx="http://www.springframework.org/schema/tx"
+  xmlns:context="http://www.springframework.org/schema/context"
+  xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+      http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx-2.5.xsd
+      http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd
+      http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-2.5.xsd">
+    
+  <bean id="activeMQConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+    <property name="brokerURL" value="${opengamma.bloomberg.jms.brokerurl}" />
+    <property name="transportListener" ref="activeMqTransportListener" />
+    <property name="sendTimeout" value="${opengamma.bloomberg.jms.sendtimeout}" />
+  </bean>
+  
+  <bean id="jmsConnectionFactory" class="org.apache.activemq.pool.PooledConnectionFactory">
+    <constructor-arg ref="activeMQConnectionFactory"/>          
+  </bean>
+  
+  <bean id="jmsConnector" class="com.opengamma.util.jms.JmsConnectorFactoryBean"> 
+    <property name="name" value="LiveDataServerContext"/>
+    <property name="connectionFactory" ref="jmsConnectionFactory"/>
+  </bean>
+  
+  <bean id="jmsSenderFactory" class="com.opengamma.livedata.server.distribution.JmsSenderFactory">
+    <property name="jmsConnector" ref="jmsConnector"/>
+  </bean>
+    
+  <bean id="activeMqTransportListener" class="com.opengamma.livedata.server.distribution.ActiveMQTransportListener">
+    <constructor-arg index="0" ref="jmsSenderFactory"/>
+  </bean>
+      
+  <bean id="subscriptionRequestDispatcher" class="com.opengamma.transport.FudgeRequestDispatcher">
+    <constructor-arg index="0" ref="subscriptionRequestReceiver"/>
+  </bean>
+  
+  <bean id="subscriptionRequestJmsReceiver" class="com.opengamma.transport.jms.JmsByteArrayRequestDispatcher">
+    <constructor-arg index="0" ref="subscriptionRequestDispatcher"/>  
+  </bean>
+
+  <bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer" init-method="start">
+    <property name="connectionFactory" ref="jmsConnectionFactory"/>
+    <property name="destination">
+      <bean class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="${opengamma.bloomberg.live.request.topic}" />
+      </bean>
+    </property>
+    <property name="messageListener" ref="subscriptionRequestJmsReceiver" />
+  </bean>
+  
+  <bean id="activeSecurityPublicationManager" class="com.opengamma.livedata.server.ExpirationManager">
+    <constructor-arg ref="liveDataServer"/>
+  </bean>
+  
+  <bean id="heartbeatReceiver" class="com.opengamma.livedata.server.HeartbeatReceiver">
+    <constructor-arg ref="activeSecurityPublicationManager"/>
+  </bean>
+  
+  <bean id="heartbeatJmsReceiver" class="com.opengamma.transport.jms.JmsByteArrayMessageDispatcher">
+    <constructor-arg index="0" ref="heartbeatReceiver"/>  
+  </bean>
+
+  <bean id="heartbeatJmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer" init-method="start">
+    <property name="connectionFactory" ref="jmsConnectionFactory"/>
+    <property name="destination">
+      <bean class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="${opengamma.bloomberg.live.heartbeat.topic}" />
+      </bean>
+    </property>
+    <property name="messageListener" ref="heartbeatJmsReceiver" />
+  </bean>
+
+  <bean id="entitlementJmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer" init-method="start">
+    <property name="connectionFactory" ref="jmsConnectionFactory"/>
+    <property name="destination">
+      <bean class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="${opengamma.bloomberg.live.entitlement.topic}" />
+      </bean>
+    </property>
+    <property name="messageListener" ref="entitlementRequestJmsReceiver" />
+  </bean>
+    
+  <bean id="entitlementRequestJmsReceiver" class="com.opengamma.transport.jms.JmsByteArrayRequestDispatcher">
+    <constructor-arg index="0" ref="entitlementRequestDispatcher"/> 
+  </bean>
+    
+  <bean id="entitlementRequestDispatcher" class="com.opengamma.transport.FudgeRequestDispatcher">
+    <constructor-arg index="0" ref="entitlementServer"/>
+  </bean>
+    
+  <bean id="entitlementServer" class="com.opengamma.livedata.entitlement.EntitlementServer">
+    <constructor-arg index="0" ref="entitlementChecker"/>
+  </bean>
+
+
+  <bean id="reconnectManager" class="com.opengamma.livedata.server.ReconnectManager"
+        depends-on="liveDataServer" init-method="start">
+    <constructor-arg index="0" ref="liveDataServer"/>
+  </bean>
+
+  <bean id="jmxAttributeSource" class="org.springframework.jmx.export.annotation.AnnotationJmxAttributeSource"/>
+
+  <bean id="jmxAssembler" class="org.springframework.jmx.export.assembler.MetadataMBeanInfoAssembler">
+    <property name="attributeSource" ref="jmxAttributeSource"/>
+  </bean>
+
+  <bean id="jmxNamingStrategy" class="org.springframework.jmx.export.naming.MetadataNamingStrategy">
+    <property name="attributeSource" ref="jmxAttributeSource"/>
+  </bean>
+
+  <bean id="jmxExporter" class="org.springframework.jmx.export.MBeanExporter">
+    <property name="assembler" ref="jmxAssembler"/>
+    <property name="namingStrategy" ref="jmxNamingStrategy"/>
+    <property name="autodetect" value="true"/>
+  </bean>
+
+  <bean id="mbeanServer" class="org.springframework.jmx.support.MBeanServerFactoryBean">
+    <property name="locateExistingServerIfPossible" value="true" />
+  </bean>
+
+  <bean id="cacheManager" class="org.springframework.cache.ehcache.EhCacheManagerFactoryBean">
+    <property name="shared" value="true"/>
+  </bean>
+  <bean class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+    <property name="staticMethod" value="net.sf.ehcache.management.ManagementService.registerMBeans"/>
+    <property name="arguments">
+      <list>
+        <ref bean="cacheManager" />
+        <ref bean="mbeanServer" />
+        <value>true</value>
+        <value>true</value>
+        <value>true</value>
+        <value>true</value>
+      </list>
+    </property>
+  </bean>
+
+  <bean id="serverMBean" class="com.opengamma.livedata.server.LiveDataServerMBean">
+    <constructor-arg ref="liveDataServer"/>
+  </bean>
+  
+  <!-- BLOOMBERG SPECIFIC -->
+  
+  <!-- Common -->
+  
+  <bean id="fudgeContext" class="com.opengamma.util.fudgemsg.OpenGammaFudgeContext" factory-method="getInstance" />
+  
+  <bean id="sessionOptions" class="com.bloomberglp.blpapi.SessionOptions">
+    <property name="serverHost" value="${opengamma.bloomberg.sapi.host}" />
+    <property name="serverPort" value="${opengamma.bloomberg.sapi.port}" />
+  </bean>
+  
+  <!-- Reference data -->   
+  <bean id="refDataProvider" class="com.opengamma.bbg.BloombergReferenceDataProvider" init-method="start" destroy-method="stop">
+    <constructor-arg index="0" ref="sessionOptions" />
+  </bean>
+  
+  <bean id="bbgReferenceDataProvider" class="com.opengamma.bbg.EHCachingReferenceDataProvider">
+    <constructor-arg ref="refDataProvider"/>
+    <constructor-arg ref="cacheManager"/>
+  </bean>   
+  
+  <bean id="refDataRequestReceiver" class="com.opengamma.bbg.server.ReferenceDataProviderRequestReceiver">
+    <constructor-arg ref="bbgReferenceDataProvider" />
+  </bean>
+  
+  <bean id="refDataRequestDispatcher" class="com.opengamma.transport.FudgeRequestDispatcher">
+    <constructor-arg ref="refDataRequestReceiver" />
+    <constructor-arg ref="fudgeContext" />
+  </bean>
+  
+  <bean id="refDataJmsReceiver" class="com.opengamma.transport.jms.JmsByteArrayRequestDispatcher">
+    <constructor-arg ref="refDataRequestDispatcher" />
+  </bean>
+  
+  <bean id="refDataMessageListenerContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+    <property name="connectionFactory" ref="jmsConnectionFactory"/>
+    <property name="destination">
+      <bean class="org.apache.activemq.command.ActiveMQTopic">
+        <constructor-arg value="${opengamma.bloomberg.reference.request.topic}" />
+      </bean>
+    </property>
+    <property name="messageListener" ref="refDataJmsReceiver" />
+  </bean>
+  
+  <!-- Bloomberg-backed HTS Source -->
+  
+  <bean id="bbgTimeSeriesStatistics" class="com.opengamma.bbg.referencedata.statistics.DailyBloombergReferenceDataStatistics" />
+  
+  <bean id="historicalTimeSeriesSource" class="com.opengamma.bbg.BloombergHistoricalTimeSeriesSource" init-method="start">
+    <constructor-arg ref="sessionOptions" />
+    <constructor-arg ref="bbgTimeSeriesStatistics" />
+  </bean>
+  
+  <bean id="historicalTimeSeriesSourceRestBean" class="com.opengamma.core.historicaltimeseries.impl.DataHistoricalTimeSeriesSourceResource">
+    <constructor-arg ref="historicalTimeSeriesSource" />
+  </bean>
+  
+  <!-- Live data -->
+
+  <bean id="distributionSpecificationResolver" factory-bean="bloombergLiveDataServer" factory-method="getDefaultDistributionSpecificationResolver" />
+
+  <bean id="entitlementChecker" class="com.opengamma.livedata.entitlement.PermissiveLiveDataEntitlementChecker">    
+  </bean>
+  
+  <bean id="bloombergLiveDataServer" class="com.opengamma.bbg.livedata.BloombergLiveDataServer" init-method="start">
+    <constructor-arg index="0" ref="sessionOptions" />
+    <constructor-arg index="1" ref="bbgReferenceDataProvider" />
+    
+    <property name="distributionSpecificationResolver" ref="distributionSpecificationResolver"/>
+    <property name="entitlementChecker" ref="entitlementChecker"/>
+    <property name="marketDataSenderFactory" ref="jmsSenderFactory"/>
+    <property name="subscriptionLimit" value="1000"/> 
+  </bean>
+  
+  <bean id="fakeBloombergLiveDataServer" class="com.opengamma.bbg.livedata.faketicks.FakeSubscriptionBloombergLiveDataServer" init-method="start">
+    <constructor-arg index="0" ref="bloombergLiveDataServer" />
+    
+    <!-- NOTE: do not set distributionSpecificationResolver, it is derived from the underlying servers resolved-->
+    <property name="entitlementChecker" ref="entitlementChecker"/>
+    <property name="marketDataSenderFactory" ref="jmsSenderFactory"/> 
+  </bean>
+  
+  
+  
+  <!-- TODO: stop using this, everything should switch to explicit weak, but we have to wait for that change to propagate -->
+  <bean id="volatilitySubscriptionSelector" class="com.opengamma.bbg.livedata.faketicks.ByTypeFakeSubscriptionSelector">
+    <constructor-arg>
+      <list>
+          <value>SWAPTION VOLATILITY</value>
+          <value>OPTION VOLATILITY</value>
+      </list>
+    </constructor-arg>
+  </bean>
+  <bean id="weakSubscriptionSelector" class="com.opengamma.bbg.livedata.faketicks.BySchemeFakeSubscriptionSelector">
+    <constructor-arg>
+      <list>
+          <value>BLOOMBERG_BUID_WEAK</value>
+          <value>BLOOMBERG_TICKER_WEAK</value>
+      </list>
+    </constructor-arg>
+  </bean>
+  <bean id="fakeSubscriptionSelector" class="com.opengamma.bbg.livedata.faketicks.UnionFakeSubscriptionSelector">
+    <constructor-arg>
+      <list>
+          <ref bean="volatilitySubscriptionSelector" />
+          <ref bean="weakSubscriptionSelector" />
+      </list>
+    </constructor-arg>
+  </bean>
+
+  <bean id="liveDataServer" class="com.opengamma.bbg.livedata.faketicks.CombiningBloombergLiveDataServer" init-method="start">
+    <constructor-arg index="0" ref="fakeBloombergLiveDataServer" />
+    <constructor-arg index="1" ref="bloombergLiveDataServer" />
+    <constructor-arg index="2" ref="fakeSubscriptionSelector" />
+    
+    <!-- TODO stop setting these properties on everything -->
+    <property name="distributionSpecificationResolver" ref="distributionSpecificationResolver"/>
+    <property name="entitlementChecker" ref="entitlementChecker"/>
+    <property name="marketDataSenderFactory" ref="jmsSenderFactory"/>
+    <!-- TODO expiration management -->
+  </bean>
+  
+  <bean id="subscriptionRequestReceiver" class="com.opengamma.livedata.server.SubscriptionRequestReceiver">
+    <constructor-arg index="0" ref="liveDataServer"/>
+  </bean>
+  
+  <!-- Configuration resource -->
+  
+  <bean id="configurationResource" class="com.opengamma.util.rest.DataConfigurationResource">
+    <constructor-arg ref="fudgeContext" />
+    <constructor-arg>
+      <map>
+        <entry key="0">
+          <map>
+            <entry key="historicalTimeSeriesSource">
+              <bean class="com.opengamma.transport.jaxrs.UriEndPointDescriptionProviderFactoryBean">
+                <property name="local" value="/jax/htsSource/" />
+                <property name="port" value="${jetty.port}" />
+              </bean>
+            </entry>
+          </map>
+        </entry>
+      </map>
+    </constructor-arg>
+  </bean>
+
+  <!-- JMX -->
+  <bean id="bbgTimeSeriesDataStatisticsMBean" class="com.opengamma.bbg.referencedata.statistics.DailyBloombergReferenceDataStatisticsMBean">
+    <constructor-arg ref="bbgTimeSeriesStatistics" />
+  </bean>
+
+  <bean id="bbgServerMBean" class="com.opengamma.livedata.server.LiveDataServerMBean">
+    <constructor-arg ref="liveDataServer"/>
+  </bean>
+    
+  <bean id="fakeBbgServerMBean" class="com.opengamma.livedata.server.LiveDataServerMBean">
+    <constructor-arg ref="fakeBloombergLiveDataServer"/>
+  </bean>
+    
+  <bean id="realBbgServerMBean" class="com.opengamma.bbg.livedata.BloombergLiveDataServerMBean">
+    <constructor-arg ref="bloombergLiveDataServer"/>
+  </bean>
+  
+</beans>

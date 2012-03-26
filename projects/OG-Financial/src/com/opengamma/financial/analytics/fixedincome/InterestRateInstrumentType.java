@@ -13,6 +13,9 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -170,11 +173,6 @@ public enum InterestRateInstrumentType {
       return null;
     }
 
-    /*@Override
-    public InterestRateInstrumentType visitFXSecurity(final FXSecurity security) {
-      return null;
-    }*/
-
     @Override
     public InterestRateInstrumentType visitFXForwardSecurity(final FXForwardSecurity security) {
       return null;
@@ -205,9 +203,19 @@ public enum InterestRateInstrumentType {
       return null;
     }
 
-    //    @Override
-    //    public InterestRateInstrumentType visitInterestRateFutureSecurity(InterestRateFutureSecurity security) {
-    //      return IR_FUTURE;
-    //    }
+    @Override
+    public InterestRateInstrumentType visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+      return null;
+    }
+
+    @Override
+    public InterestRateInstrumentType visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+      return null;
+    }
+
+    @Override
+    public InterestRateInstrumentType visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
+      return null;
+    }
   }
 }

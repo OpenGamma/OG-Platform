@@ -15,12 +15,6 @@
 		</unzip>
 		<delete dir="${dist.dir}/${dist.name}/lib/webapp" failonerror="false" />
 
-		<replace file="${dist.dir}/${dist.name}/config/${engine.overridefile.name}" token="webAppContext.resourceBase=../OG-Web/web-engine" value="webAppContext.resourceBase=web-engine"/>
-		<replace file="${dist.dir}/${dist.name}/config/${engine.overridefile.name}" token="webAppContext.descriptor=../OG-Web/web-engine/WEB-INF/web.xml" value="webAppContext.descriptor=web-engine/WEB-INF/web.xml"/>
-
-		<replace file="${dist.dir}/${dist.name}/config/${marketdata.overridefile.name}" token="webAppContext.resourceBase=../OG-Web/web-marketdata" value="webAppContext.resourceBase=web-marketdata"/>
-		<replace file="${dist.dir}/${dist.name}/config/${marketdata.overridefile.name}" token="webAppContext.descriptor=../OG-Web/web-marketdata/WEB-INF/web.xml" value="webAppContext.descriptor=web-marketdata/WEB-INF/web.xml"/>
-
 		<copy todir="${dist.dir}/${dist.name}/temp/hsqldb" failonerror="true">
 			<fileset dir="${basedir}/temp/hsqldb">
 				<include name="og-fin-user*" />
@@ -143,7 +137,7 @@
 			<jvmarg value="-Dopengamma.platform.os=posix" />
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
-			<arg value="start.class=com.opengamma.production.startup.EngineServer" />
+			<arg value="start.class=com.opengamma.integration.startup.EngineServer" />
 			<arg value="${basedir}${file.separator}config${file.separator}engine-spring.xml" />
 			<arg value="path=${toString:jetty.run.path}" />
 		</java>
@@ -158,7 +152,7 @@
 			<jvmarg value="-Dopengamma.platform.os=posix" />
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
-			<arg value="start.class=com.opengamma.production.startup.EngineServer" />
+			<arg value="start.class=com.opengamma.integration.startup.EngineServer" />
 			<arg value="${basedir}${file.separator}config${file.separator}engine-spring.xml" />
 			<arg value="path=${toString:jetty.run.path}" />
 		</java>

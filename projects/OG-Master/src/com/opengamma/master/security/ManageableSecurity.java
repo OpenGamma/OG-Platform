@@ -115,12 +115,7 @@ public class ManageableSecurity extends DirectBean implements Serializable, Secu
     setExternalIdBundle(getExternalIdBundle().withExternalId(externalId));
   }
 
-  /**
-   * Adds a key value pair to attributes
-   *
-   * @param key  the key to add, not null
-   * @param value  the value to add, not null
-   */
+  @Override
   public void addAttribute(String key, String value) {
     ArgumentChecker.notNull(key, "key");
     ArgumentChecker.notNull(value, "value");

@@ -7,7 +7,6 @@ package com.opengamma.id;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.id.ObjectId;
 import com.opengamma.util.test.AbstractFudgeBuilderTestCase;
 
 /**

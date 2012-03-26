@@ -147,6 +147,30 @@ public class InterestRateCurveSensitivityUtils {
     return result;
   }
 
+  /**
+   * Add the list representing the sensitivity to one curve to the map of sensitivities to several curves.
+   * @param sensi The multi-curves sensitivity. Not null.
+   * @param curveName  The name of the curve the sensitivity of which is added. Not null.
+   * @param list The sensitivity as a list. Not null.
+   * @return The total sensitivity, not null
+   */
+  public static Map<String, List<DoublesPair>> addSensitivity(final Map<String, List<DoublesPair>> sensi, final String curveName, final List<DoublesPair> list) {
+    Validate.notNull(sensi, "sensitivity");
+    Validate.notNull(list, "sensitivity");
+    final Map<String, List<DoublesPair>> result = new HashMap<String, List<DoublesPair>>();
+    for (final String name : sensi.keySet()) {
+      if (name.equals(curveName)) {
+        result.put(name, addSensitivity(sensi.get(name), list));
+      } else {
+        result.put(name, sensi.get(name));
+      }
+    }
+    if (!result.containsKey(curveName)) {
+      result.put(curveName, list);
+    }
+    return result;
+  }
+
   //TODO smarter way to do this?
   public static Map<String, List<DoublesPair>> addSensitivity(final Map<String, List<DoublesPair>> sensi1, final Map<String, List<DoublesPair>> sensi2, final Map<String, List<DoublesPair>> sensi3) {
     return addSensitivity(addSensitivity(sensi1, sensi2), sensi3);

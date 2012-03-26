@@ -206,7 +206,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     final double deltaTolerance = 5.0E+4;
     //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move. Tolerance increased to cope with numerical imprecision of finite difference.
     final double deltaShift = 1.0E-5;
-    pvsLongPayerExtra = pvsLongPayerExtra.clean();
+    pvsLongPayerExtra = pvsLongPayerExtra.cleaned();
     final double pv = METHOD_EXTRAPOLATION.presentValue(swaptionLongPayerHighStrike, sabrBundle);
     // 1. Forward curve sensitivity
     final String bumpedCurveName = "Bumped Curve";
@@ -359,7 +359,7 @@ public class SwaptionPhysicalFixedIborSABRExtrapolationRightMethodTest {
     startTime = System.currentTimeMillis();
     for (int looptest = 0; looptest < nbTest; looptest++) {
       methodNoExtrapolation.presentValue(swaptionLongPayerHighStrike, sabrBundle);
-      methodNoExtrapolation.presentValueSensitivity(swaptionLongPayerHighStrike, sabrBundle);
+      methodNoExtrapolation.presentValueCurveSensitivity(swaptionLongPayerHighStrike, sabrBundle);
       methodExtrapolation.presentValueSABRSensitivity(swaptionLongPayerHighStrike, sabrBundle);
     }
     endTime = System.currentTimeMillis();

@@ -5,9 +5,15 @@
  */
 package com.opengamma.web.server.push;
 
-import com.opengamma.core.change.ChangeType;
-import com.opengamma.id.UniqueId;
-import com.opengamma.util.tuple.Pair;
+import static com.opengamma.web.server.push.WebPushTestUtils.checkJsonResults;
+import static com.opengamma.web.server.push.WebPushTestUtils.createJettyServer;
+import static com.opengamma.web.server.push.WebPushTestUtils.handshake;
+import static com.opengamma.web.server.push.WebPushTestUtils.readFromPath;
+
+import java.io.IOException;
+
+import javax.time.Instant;
+
 import org.eclipse.jetty.server.Server;
 import org.json.JSONException;
 import org.springframework.web.context.WebApplicationContext;
@@ -15,13 +21,9 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import javax.time.Instant;
-import java.io.IOException;
-
-import static com.opengamma.web.server.push.WebPushTestUtils.checkJsonResults;
-import static com.opengamma.web.server.push.WebPushTestUtils.createJettyServer;
-import static com.opengamma.web.server.push.WebPushTestUtils.handshake;
-import static com.opengamma.web.server.push.WebPushTestUtils.readFromPath;
+import com.opengamma.core.change.ChangeType;
+import com.opengamma.id.UniqueId;
+import com.opengamma.util.tuple.Pair;
 
 public class RestMasterSubscriptionTest {
 

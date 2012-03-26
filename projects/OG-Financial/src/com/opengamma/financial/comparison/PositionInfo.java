@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.comparison;
 
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -21,7 +22,7 @@ import com.opengamma.core.position.Trade;
 
   public PositionInfo(final ComparisonContext context, final Position position) {
     super(context, position);
-    final Set<Trade> trades = position.getTrades();
+    final Collection<Trade> trades = position.getTrades();
     if (trades.isEmpty()) {
       _trades = Collections.emptySet();
     } else {

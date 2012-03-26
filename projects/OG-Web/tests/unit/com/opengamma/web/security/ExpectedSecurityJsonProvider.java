@@ -19,6 +19,9 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -270,6 +273,21 @@ import com.opengamma.util.time.Expiry;
 
   @Override
   public JSONObject visitNonDeliverableFXForwardSecurity(NonDeliverableFXForwardSecurity security) {
+    return null;
+  }
+  
+  @Override
+  public JSONObject visitSimpleZeroDepositSecurity(SimpleZeroDepositSecurity security) {
+    return null;
+  }
+
+  @Override
+  public JSONObject visitPeriodicZeroDepositSecurity(PeriodicZeroDepositSecurity security) {
+    return null;
+  }
+
+  @Override
+  public JSONObject visitContinuousZeroDepositSecurity(ContinuousZeroDepositSecurity security) {
     return null;
   }
   

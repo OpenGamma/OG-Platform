@@ -16,7 +16,7 @@
     </property>
     <property name="securitySource" ref="combinedSecuritySource" />
     <property name="availabilityProvider">
-      <bean class="com.opengamma.production.server.DemoLiveDataAvailabilityProviderFactoryBean">
+      <bean class="com.opengamma.integration.server.DemoLiveDataAvailabilityProviderFactoryBean">
         <constructor-arg ref="combinedSecuritySource" />
       </bean>    
     </property>

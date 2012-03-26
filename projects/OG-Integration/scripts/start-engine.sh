@@ -39,5 +39,5 @@ $JAVA $JMX_OPTS $MEM_OPTS -jar lib/org.eclipse-jetty-jetty-start-7.0.1.v20091125
   -Dopengamma.platform.os=posix -Dopengamma.platform.runmode=$RUN_MODE \
   -Dopengamma.platform.marketdatasource=opengamma \
   -Dlogback.configurationFile=engine-logback.xml \
-  start.class=com.opengamma.production.startup.EngineServer \
+  start.class=com.opengamma.integration.startup.EngineServer \
   config/engine-spring.xml "path=$CLASSPATH"

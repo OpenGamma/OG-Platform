@@ -1,0 +1,33 @@
+<ivy-module version="2.0">
+    <info organisation="com.opengamma" module="og-bloombergexample" status="integration"/>
+    <publications>
+      <artifact name="og-bloombergexample" type="jar"/>
+    </publications>
+    <dependencies>
+        <dependency name="og-util" rev="latest.integration" />
+        <dependency name="og-security" rev="latest.integration" />
+        <dependency name="og-analytics" rev="latest.integration" />
+        <dependency name="og-component" rev="latest.integration" />
+        <dependency name="og-core" rev="latest.integration" />
+        <dependency name="og-engine" rev="latest.integration" />
+        <dependency name="og-livedata" rev="latest.integration" />
+        <dependency name="og-bloomberg" rev="latest.integration" />
+        <dependency name="og-master" rev="latest.integration" />
+        <dependency name="og-masterdb" rev="latest.integration" />
+        <dependency name="og-financial" rev="latest.integration" />
+        <dependency name="og-web" rev="latest.integration" />
+        <dependency name="og-integration" rev="latest.integration" />
+
+        <dependency org="com.opengamma" name="region" rev="20110127"/>
+        
+        <dependency org="org.apache.poi" name="poi" rev="3.7"/>
+        <dependency org="org.jcsp" name="jcsp" rev="1.1-rc2"/>
+        <dependency org="org.jfree" name="jfreechart" rev="1.0.13"/>
+        <dependency org="org.jdesktop" name="appframework" rev="1.0.3"/>
+        <dependency org="org.jdesktop" name="swingx" rev="1.0"/>
+        <dependency org="net.sourceforge.ehcache" name="ehcache" rev="[1.6.0,2.0["/>                        
+
+        <exclude org="org.apache.log4j" module="log4j" />
+        <exclude org="org.junit" />
+    </dependencies>
+</ivy-module>
