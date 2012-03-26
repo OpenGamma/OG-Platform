@@ -274,7 +274,7 @@ public class LiveResultsService extends BayeuxService implements ClientBayeuxLis
         continue;
       }
       Map<String, String> resultEntry = new HashMap<String, String>();
-      resultEntry.put("id", entry.getKey().toString());
+      resultEntry.put("id", entry.getKey().toLatest().toString());
       resultEntry.put("name", entry.getValue());
       result.add(resultEntry);
     }

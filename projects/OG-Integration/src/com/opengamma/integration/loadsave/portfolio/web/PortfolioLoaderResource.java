@@ -13,6 +13,7 @@ import javax.ws.rs.Consumes;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.Produces;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -72,6 +73,7 @@ public class PortfolioLoaderResource {
   @Path("{updatePeriod}/{updateCount}")
   @POST
   @Consumes(MediaType.MULTIPART_FORM_DATA)
+  @Produces(MediaType.TEXT_PLAIN)
   public Response uploadPortfolio(FormDataMultiPart formData,
                                   // TODO according to the docs this should work but jersey won't start with them uncommented
                                   //@FormDataParam("file") FormDataBodyPart fileBodyPart,
