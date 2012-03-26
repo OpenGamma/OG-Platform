@@ -93,7 +93,7 @@ public class PortfolioLoader {
     // Multi-asset ZIP file extension
     } else if (extension.equalsIgnoreCase(".zip")) {
       // Create zipped multi-asset class loader
-    return new ZippedPortfolioReader(filename);
+      return new ZippedPortfolioReader(filename);
     } else {
       throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
     }
