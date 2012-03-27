@@ -14,6 +14,7 @@ import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.CompareUtils;
 
 /**
@@ -41,7 +42,7 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double price(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall) {
-    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative volatility; have {}", lognormalVol);
     if (strike < SMALL) {
       return isCall ? forward : 0.0;
     }
@@ -59,7 +60,6 @@ public abstract class BlackFormulaRepository {
     return sign * (forward * NORMAL.getCDF(sign * d1) - strike * NORMAL.getCDF(sign * d2));
 
   }
-
 
   public static double price(final SimpleOptionData data, final double lognormalVol) {
     return data.getDiscountFactor() * price(data.getForward(), data.getStrike(), data.getTimeToExpiry(), lognormalVol, data.isCall());
