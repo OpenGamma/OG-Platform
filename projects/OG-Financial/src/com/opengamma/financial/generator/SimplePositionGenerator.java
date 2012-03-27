@@ -9,6 +9,7 @@ import java.math.BigDecimal;
 
 import com.opengamma.core.position.Position;
 import com.opengamma.core.position.impl.SimplePosition;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
 
@@ -48,22 +49,32 @@ public class SimplePositionGenerator<T extends ManageableSecurity> implements Po
     return _securityPersister;
   }
 
-  protected void addTrades(final BigDecimal quantity, final T security, final SimplePosition position) {
+  protected static Position createPositionFromTrade(final ManageableTrade trade) {
+    if (trade != null) {
+      final SimplePosition position = new SimplePosition(trade.getQuantity(), trade.getSecurityLink().getExternalId());
+      position.addTrade(trade);
+      return position;
+    } else {
+      return null;
+    }
   }
 
   @Override
   public Position createPosition() {
-    final BigDecimal quantity = getQuantityGenerator().createQuantity();
-    if (quantity == null) {
-      return null;
+    final ManageableTrade trade = getSecurityGenerator().createSecurityTrade(getQuantityGenerator(), getSecurityPersister());
+    if (trade == null) {
+      final BigDecimal quantity = getQuantityGenerator().createQuantity();
+      if (quantity == null) {
+        return null;
+      }
+      final T security = getSecurityGenerator().createSecurity();
+      if (security == null) {
+        return null;
+      }
+      return new SimplePosition(quantity, getSecurityPersister().storeSecurity(security));
+    } else {
+      return createPositionFromTrade(trade);
     }
-    final T security = getSecurityGenerator().createSecurity();
-    if (security == null) {
-      return null;
-    }
-    final SimplePosition position = new SimplePosition(quantity, getSecurityPersister().storeSecurity(security));
-    addTrades(quantity, security, position);
-    return position;
   }
 
 }

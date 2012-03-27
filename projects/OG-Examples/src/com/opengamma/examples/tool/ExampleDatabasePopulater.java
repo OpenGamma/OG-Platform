@@ -160,7 +160,7 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
   private void loadBondPortfolio() {
     final Log log = new Log("Creating example bond portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "Example Bond Portfolio", "Bond", true);
+      // TODO: load from CSV file
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
@@ -200,7 +200,7 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
   private void loadEquityOptionPortfolio() {
     final Log log = new Log("Creating example equity option portfolio");
     try {
-      (new PortfolioGeneratorTool()).run(getToolContext(), "Example Equity Option Portfolio", "EquityOption", true);
+      // TODO: load from CSV file
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);

@@ -45,7 +45,7 @@ public class TreePortfolioNodeGenerator implements PortfolioNodeGenerator {
     final SimplePortfolioNode node = new SimplePortfolioNode(getNameGenerator().createName());
     for (PortfolioNodeGenerator childNodeGenerator : _childNodes) {
       final PortfolioNode childNode = childNodeGenerator.createPortfolioNode();
-      if (node != null) {
+      if (childNode != null) {
         node.addChildNode(childNode);
       }
     }

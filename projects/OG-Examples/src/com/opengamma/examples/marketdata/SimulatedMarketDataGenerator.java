@@ -13,8 +13,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
 
-import javax.time.calendar.LocalDate;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.context.Lifecycle;
@@ -23,13 +21,9 @@ import org.springframework.core.io.Resource;
 import au.com.bytecode.opencsv.CSVReader;
 
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.engine.marketdata.MarketDataInjector;
 import com.opengamma.id.ExternalId;
-import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
-import com.opengamma.master.security.SecuritySearchRequest;
-import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.tuple.Pair;
 
 /**
@@ -53,7 +47,6 @@ public class SimulatedMarketDataGenerator implements Runnable, Lifecycle {
   public SimulatedMarketDataGenerator(final MarketDataInjector marketDataInjector, final Resource initialValuesFile, final SecurityMaster securities, final HistoricalTimeSeriesSource timeSeries) {
     _marketDataInjector = marketDataInjector;
     readInitialValues(initialValuesFile);
-    loadGeneratedValues(securities, timeSeries);
   }
   
   public void readInitialValues(Resource initialValuesFile) {
@@ -89,29 +82,6 @@ public class SimulatedMarketDataGenerator implements Runnable, Lifecycle {
     }    
   }
   
-  private void loadGeneratedValues(final String securityType, final SecurityMaster securities, final HistoricalTimeSeriesSource timeSeries) {
-    final SecuritySearchRequest request = new SecuritySearchRequest();
-    request.setSecurityType(securityType);
-    request.setFullDetail(false);
-    final SecuritySearchResult result = securities.search(request);
-    securityLoop: for (ManageableSecurity security : result.getSecurities()) { //CSIGNORE
-      for (ExternalId identifier : security.getExternalIdBundle()) {
-        if (_initialValues.containsKey(Pair.of(identifier, MarketDataRequirementNames.MARKET_VALUE))) {
-          continue securityLoop;
-        }
-      }
-      final Pair<LocalDate, Double> lastValue = timeSeries.getLatestDataPoint("CLOSE", security.getExternalIdBundle(), null);
-      if (lastValue != null) {
-        _initialValues.put(Pair.of(security.getExternalIdBundle().iterator().next(), MarketDataRequirementNames.MARKET_VALUE), lastValue.getSecond());
-      }
-    }
-  }
-
-  private void loadGeneratedValues(final SecurityMaster securities, final HistoricalTimeSeriesSource timeSeries) {
-    loadGeneratedValues("EQUITY", securities, timeSeries);
-    loadGeneratedValues("EQUITY_OPTION", securities, timeSeries);
-  }
-
   @Override
   public void start() {
     _running = true;

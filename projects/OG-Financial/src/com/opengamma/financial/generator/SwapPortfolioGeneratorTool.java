@@ -5,6 +5,8 @@
  */
 package com.opengamma.financial.generator;
 
+import com.opengamma.financial.security.swap.SwapSecurity;
+
 
 /**
  * Utility for constructing a random swap portfolio.
@@ -19,7 +21,7 @@ public class SwapPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
   public PortfolioGenerator createPortfolioGenerator(final NameGenerator portfolioNameGenerator) {
     final SwapSecurityGenerator securities = createSwapSecurityGenerator();
     configure(securities);
-    final PositionGenerator positions = new SwapPositionGenerator(securities, getSecurityPersister());
+    final PositionGenerator positions = new SimplePositionGenerator<SwapSecurity>(securities, getSecurityPersister());
     final PortfolioNodeGenerator rootNode = new LeafPortfolioNodeGenerator(new StaticNameGenerator("Swaps"), positions, PORTFOLIO_SIZE);
     return new PortfolioGenerator(rootNode, portfolioNameGenerator);
   }

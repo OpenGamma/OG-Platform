@@ -25,6 +25,7 @@ import com.opengamma.financial.security.swap.InterestRateNotional;
 import com.opengamma.financial.security.swap.SwapLeg;
 import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
+import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
 
@@ -155,6 +156,13 @@ public class SwapSecurityGenerator extends SecurityGenerator<SwapSecurity> {
     final SwapSecurity swap = new SwapSecurity(tradeDateTime, tradeDateTime, maturityDateTime, counterparty, payLeg, receiveLeg);
     swap.setName("IR Swap " + ccy + " " + NOTIONAL_FORMATTER.format(notional) + " " + maturityDateTime.toString(DATE_FORMATTER) + " - " + payLegDescription + " / " + receiveLegDescription);
     return swap;
+  }
+
+  @Override
+  public ManageableTrade createSecurityTrade(final QuantityGenerator quantity, final SecurityPersister persister) {
+    final SwapSecurity swap = createSecurity();
+    return new ManageableTrade(quantity.createQuantity(), persister.storeSecurity(swap), swap.getTradeDate().toLocalDate(), swap.getTradeDate().toOffsetTime(), ExternalId.of("CParty",
+        swap.getCounterparty()));
   }
 
 }

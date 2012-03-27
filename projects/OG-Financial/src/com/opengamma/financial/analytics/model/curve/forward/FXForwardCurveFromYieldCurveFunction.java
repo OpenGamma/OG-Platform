@@ -148,10 +148,15 @@ public class FXForwardCurveFromYieldCurveFunction extends AbstractFunction.NonCo
     if (fxForwardCurveNames == null || fxForwardCurveNames.size() != 1) {
       throw new OpenGammaRuntimeException("Null or non-unique FX forward curve names: " + fxForwardCurveNames);
     }
-    final ExternalId spotIdentifier = SecurityUtils.bloombergTickerSecurityId(payCurrency.getCode() + receiveCurrency.getCode() + " Curncy");
-    final Object spotObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier));
+    ExternalId spotIdentifier = SecurityUtils.bloombergTickerSecurityId(payCurrency.getCode() + receiveCurrency.getCode() + " Curncy");
+    Object spotObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier));
     if (spotObject == null) {
-      throw new OpenGammaRuntimeException("Could not get spot");
+      // TODO: this is a hack; don't hard code the bbg ticker reference - use the convention bundle perhaps
+      spotIdentifier = ExternalId.of(SecurityUtils.OG_SYNTHETIC_TICKER, payCurrency.getCode() + receiveCurrency.getCode());
+      spotObject = inputs.getValue(new ValueRequirement(MarketDataRequirementNames.MARKET_VALUE, spotIdentifier));
+      if (spotObject == null) {
+        throw new OpenGammaRuntimeException("Could not get spot");
+      }
     }
     final double spot = (Double) spotObject;
     final YieldCurve payCurve = (YieldCurve) payCurveObject;
