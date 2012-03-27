@@ -124,7 +124,7 @@ public class RemoteBloombergSecuritySourceWithActiveMQTest {
     assertNotNull(cachingProvider);
 
     BloombergSecuritySource secSource = (BloombergSecuritySource) _serverContext
-        .getBean("bloombergSecurityMaster");
+        .getBean("bloombergSecuritySource");
     assertNotNull(secSource);
 
     SecurityMasterRequestReceiver requestDispatcher = (SecurityMasterRequestReceiver) _serverContext

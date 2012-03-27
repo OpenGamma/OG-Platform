@@ -23,7 +23,6 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.bbg.BloombergSecurityMaster;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.integration.loadsave.portfolio.ResolvingPortfolioCopier;
@@ -46,7 +45,7 @@ public class PortfolioLoaderResource {
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderResource.class);
   private final ResolvingPortfolioCopier _copier;
 
-  /*public PortfolioLoaderResource(BloombergSecurityMaster bbgSecurityMaster,
+  /*public PortfolioLoaderResource(BloombergSecuritySource bbgSecuritySource,
                                  HistoricalTimeSeriesMaster htsMaster,
                                  HistoricalTimeSeriesSource bbgHtsSource,
                                  ReferenceDataProvider bbgRefDataProvider,
