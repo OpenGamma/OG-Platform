@@ -18,6 +18,7 @@ import com.opengamma.integration.loadsave.sheet.reader.SheetReader;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.ObjectsPair;
 
 /**
@@ -39,18 +40,27 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
 
   public SingleSheetSimplePortfolioReader(String filename, InputStream portfolioFileStream, RowParser rowParser) {
     super(SheetReader.newSheetReader(filename, portfolioFileStream));
+    
+    ArgumentChecker.notNull(rowParser, "rowParser");
+    
     _columns = getSheet().getColumns();
     _rowParser = rowParser;
   }
 
-  public SingleSheetSimplePortfolioReader(SheetReader sheet, String[] columns, RowParser rowParser) {
-    super(sheet);    
+  public SingleSheetSimplePortfolioReader(SheetReader sheet, String[] columns, RowParser rowParser) {   
+    super(sheet);
+    
+    ArgumentChecker.notNull(rowParser, "rowParser");
+
     _columns = getSheet().getColumns();
     _rowParser = rowParser;
   }
 
   public SingleSheetSimplePortfolioReader(String filename, InputStream portfolioFileStream, String securityClass) {
     super(SheetReader.newSheetReader(filename, portfolioFileStream));
+    
+    ArgumentChecker.notNull(securityClass, "securityClass");
+    
     _columns = getSheet().getColumns();
     _rowParser = RowParser.newRowParser(securityClass);
     if (_rowParser == null) {
@@ -60,6 +70,9 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
 
   public SingleSheetSimplePortfolioReader(SheetReader sheet, String[] columns, String securityClass, ToolContext toolContext) {
     super(sheet);
+
+    ArgumentChecker.notNull(securityClass, "securityClass");
+
     _columns = getSheet().getColumns();
     _rowParser = RowParser.newRowParser(securityClass);
     if (_rowParser == null) {

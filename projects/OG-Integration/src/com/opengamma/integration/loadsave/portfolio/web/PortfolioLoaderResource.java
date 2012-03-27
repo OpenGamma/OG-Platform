@@ -73,7 +73,7 @@ public class PortfolioLoaderResource {
   @Path("{updatePeriod}/{updateCount}")
   @POST
   @Consumes(MediaType.MULTIPART_FORM_DATA)
-  @Produces(MediaType.TEXT_PLAIN)
+  @Produces(MediaType.TEXT_HTML)
   public Response uploadPortfolio(FormDataMultiPart formData,
                                   // TODO according to the docs this should work but jersey won't start with them uncommented
                                   //@FormDataParam("file") FormDataBodyPart fileBodyPart,
@@ -101,15 +101,25 @@ public class PortfolioLoaderResource {
     StreamingOutput streamingOutput = new StreamingOutput() {
       @Override
       public void write(OutputStream output) throws IOException, WebApplicationException {
+        output.write("<html><head><style type=text/css>".getBytes());
+        output.write(("body {font: normal 12px/160% arial, helvetica, sans-serif;}" +
+            "div {position: absolute; top: 30px; left: 0; right: 0; background: #fff;}").getBytes());
+        output.write("</style></head><body>".getBytes());
+        output.write("<header>Please wait, this may take a few minutes...</header>".getBytes());
         for (int i = 0; i < updateCount; i++) {
           try {
             Thread.sleep(updatePeriod);
           } catch (InterruptedException e) {
             s_logger.warn("This shouldn't happen");
           }
-          output.write("uploading portfolio...".getBytes());
+          if (i == updateCount - 1) {
+            output.write(("<div>Done</div>").getBytes());
+          } else {
+            output.write(("<div>uploading " + i + " ...</div>").getBytes());
+          }
           output.flush();
         }
+        output.write("</body></html>".getBytes());
       }
     };
     return Response.ok(streamingOutput).build();

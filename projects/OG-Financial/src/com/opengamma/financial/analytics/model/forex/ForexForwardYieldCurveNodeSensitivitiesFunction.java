@@ -26,8 +26,8 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.ircurve.InterpolatedYieldCurveSpecificationWithSecurities;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.FunctionUtils;
+import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
 import com.opengamma.financial.analytics.model.YieldCurveNodeSensitivitiesHelper;
-import com.opengamma.financial.analytics.model.curve.interestrate.InterpolatedYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.interestrate.MarketInstrumentImpliedYieldCurveFunction;
 import com.opengamma.financial.forex.calculator.PresentValueYieldCurveNodeSensitivityForexCalculator;
 import com.opengamma.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
@@ -78,7 +78,7 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends AbstractFun
     final InterestRateCurveSensitivity curveSensitivities = ((MultipleCurrencyInterestRateCurveSensitivity) curveSensitivitiesObject).getSensitivity(currency);
     final InterpolatedYieldCurveSpecificationWithSecurities curveSpec = (InterpolatedYieldCurveSpecificationWithSecurities) curveSpecObject;
     final YieldCurveBundle bundle = getYieldCurves(inputs, forwardCurveName, fundingCurveName, calculationMethod, currency);
-    if (calculationMethod.equals(InterpolatedYieldCurveFunction.CALCULATION_METHOD_NAME)) {
+    if (calculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
       final DoubleMatrix1D sensitivities = CALCULATOR.calculateFromSimpleInterpolatedCurve(curveSensitivities.getSensitivities(), bundle);
       return YieldCurveNodeSensitivitiesHelper.getInstrumentLabelledSensitivitiesForCurve(curveName, bundle, sensitivities, curveSpec,
           getResultSpec(target, currencyName, calculationMethod, curveName, forwardCurveName, fundingCurveName));
@@ -191,7 +191,7 @@ public class ForexForwardYieldCurveNodeSensitivitiesFunction extends AbstractFun
     //TODO this is not right
     requirements.add(getCurveSensitivitiesRequirement(target, fundingCurveName, fundingCurveName, curveCalculationMethod, curveCalculationMethod));
     ///////////////////////
-    if (!curveCalculationMethod.equals(InterpolatedYieldCurveFunction.CALCULATION_METHOD_NAME)) {
+    if (!curveCalculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
       requirements.add(YieldCurveFunction.getJacobianRequirement(currency, forwardCurveName, fundingCurveName, curveCalculationMethod));
       if (curveCalculationMethod.equals(MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING)) {
         requirements.add(YieldCurveFunction.getCouponSensitivityRequirement(currency, forwardCurveName, fundingCurveName));

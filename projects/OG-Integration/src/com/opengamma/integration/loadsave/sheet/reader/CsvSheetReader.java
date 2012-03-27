@@ -13,6 +13,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
 
 import au.com.bytecode.opencsv.CSVReader;
 
@@ -25,6 +26,9 @@ public class CsvSheetReader extends SheetReader {
   
   public CsvSheetReader(String filename, String[] columns) {
 
+    ArgumentChecker.notEmpty(filename, "filename");
+    ArgumentChecker.notNull(columns, "columns");
+    
     // Open file
     InputStream inputStream = openFile(filename);
 
@@ -37,6 +41,8 @@ public class CsvSheetReader extends SheetReader {
   
   public CsvSheetReader(String filename) {
     
+    ArgumentChecker.notEmpty(filename, "filename");
+
     // Open file
     InputStream fileInputStream = openFile(filename);
     
@@ -49,6 +55,9 @@ public class CsvSheetReader extends SheetReader {
   
   public CsvSheetReader(InputStream inputStream, String[] columns) {
     
+    ArgumentChecker.notNull(inputStream, "inputStream");
+    ArgumentChecker.notNull(columns, "columns");
+
     // Set up CSV reader
     _csvReader = new CSVReader(new InputStreamReader(inputStream));
     
@@ -58,6 +67,8 @@ public class CsvSheetReader extends SheetReader {
  
   public CsvSheetReader(InputStream inputStream) {
     
+    ArgumentChecker.notNull(inputStream, "inputStream");
+
     // Set up CSV reader
     _csvReader = new CSVReader(new InputStreamReader(inputStream));
     
