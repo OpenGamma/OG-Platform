@@ -5,9 +5,11 @@
  */
 package com.opengamma.financial.generator;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.security.SecurityUtils;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.option.AmericanExerciseType;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
@@ -18,16 +20,17 @@ import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Expiry;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Source of random, but reasonable, equity option security instances.
  */
-public abstract class AbstractEquityOptionSecurityGenerator extends SecurityGenerator<EquityOptionSecurity> {
+public class EquityOptionSecurityGenerator extends SecurityGenerator<EquityOptionSecurity> {
 
   private final EquitySecurity _underlying;
   private final Sequence _sequence = new Sequence();
 
-  public AbstractEquityOptionSecurityGenerator(final EquitySecurity underlying) {
+  public EquityOptionSecurityGenerator(final EquitySecurity underlying) {
     ArgumentChecker.notNull(underlying, "underlying");
     _underlying = underlying;
   }
@@ -39,8 +42,6 @@ public abstract class AbstractEquityOptionSecurityGenerator extends SecurityGene
   protected Sequence.Entry getSequence() {
     return _sequence.entry();
   }
-
-  protected abstract String getPriceSeriesDataField();
 
   protected String createName(final EquitySecurity security, final ZonedDateTime expiry, final OptionType type, final double strike) {
     final StringBuilder sb = new StringBuilder((security.getShortName() != null) ? security.getShortName() : security.getName());
@@ -60,11 +61,11 @@ public abstract class AbstractEquityOptionSecurityGenerator extends SecurityGene
     final Sequence.Entry seq = getSequence();
     final EquitySecurity underlying = getUnderlying();
     final OptionType optionType = (seq.next(2) == 0) ? OptionType.CALL : OptionType.PUT;
-    final HistoricalTimeSeries underlyingSeries = getHistoricalSource().getHistoricalTimeSeries(getPriceSeriesDataField(), underlying.getExternalIdBundle(), null);
-    if (underlyingSeries == null) {
+    final Pair<LocalDate, Double> lastValue = getHistoricalSource().getLatestDataPoint(MarketDataRequirementNames.MARKET_VALUE, underlying.getExternalIdBundle(), null);
+    if (lastValue == null) {
       return null;
     }
-    final int atm = (int) ((double) underlyingSeries.getTimeSeries().getLatestValue() * 10);
+    final int atm = (int) (lastValue.getSecond() * 10);
     final int tick;
     if (atm < 250) {
       tick = 25;
@@ -82,7 +83,10 @@ public abstract class AbstractEquityOptionSecurityGenerator extends SecurityGene
       return null;
     }
     final Currency currency = underlying.getCurrency();
-    final ExternalId underlyingIdentifier = underlying.getExternalIdBundle().iterator().next();
+    ExternalId underlyingIdentifier = underlying.getExternalIdBundle().getExternalId(SecurityUtils.OG_SYNTHETIC_TICKER);
+    if (underlyingIdentifier == null) {
+      underlyingIdentifier = underlying.getExternalIdBundle().iterator().next();
+    }
     final ExerciseType exerciseType = Currency.GBP.equals(currency) ? new EuropeanExerciseType() : new AmericanExerciseType();
     final Expiry expiry = new Expiry(ZonedDateTime.now().plusMonths(seq.next(3) * 3 + 2));
     final double pointValue = 5; // TODO: vary this

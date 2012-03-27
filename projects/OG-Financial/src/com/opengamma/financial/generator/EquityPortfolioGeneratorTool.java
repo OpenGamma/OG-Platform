@@ -15,9 +15,13 @@ public class EquityPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool
   private static final int POSITION_GRANULARITY = 10;
   private static final int POSITION_RANGE = 100;
 
+  protected EquitySecurityGenerator createEquitySecurityGenerator() {
+    return new EquitySecurityGenerator();
+  }
+
   @Override
   public PortfolioNodeGenerator createPortfolioNodeGenerator(final int size) {
-    final EquitySecurityGenerator securities = new EquitySecurityGenerator();
+    final EquitySecurityGenerator securities = createEquitySecurityGenerator();
     configure(securities);
     final PositionGenerator positions = new SimplePositionGenerator<EquitySecurity>(new RandomQuantityGenerator(POSITION_GRANULARITY, POSITION_RANGE), securities, getSecurityPersister());
     return new LeafPortfolioNodeGenerator(new StaticNameGenerator("Equity"), positions, size);

@@ -15,6 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -27,7 +28,6 @@ import com.opengamma.financial.security.swap.SwapSecurity;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.Tenor;
-import com.opengamma.util.tuple.Pair;
 
 /**
  * Source of random, but reasonable, swap security instances.
@@ -65,12 +65,12 @@ public abstract class AbstractSwapSecurityGenerator extends SecurityGenerator<Sw
   protected abstract String getCurveConfigName();
 
   /**
-   * Return the time series identifier and data field.
+   * Return the time series identifier.
    * 
    * @param liborConvention the convention bundle, not null
-   * @return the time series identifier and data field name.
+   * @return the time series identifier
    */
-  protected abstract Pair<ExternalId, String> getTimeSeriesConvention(final ConventionBundle liborConvention);
+  protected abstract ExternalId getTimeSeriesIdentifier(final ConventionBundle liborConvention);
 
   private ExternalId getSwapRateFor(ConfigSource configSource, Currency ccy, LocalDate tradeDate, Tenor tenor) {
     CurveSpecificationBuilderConfiguration curveSpecConfig = configSource.getByName(CurveSpecificationBuilderConfiguration.class, getCurveConfigName() + "_" + ccy.getCode(), null);
@@ -108,11 +108,10 @@ public abstract class AbstractSwapSecurityGenerator extends SecurityGenerator<Sw
       return null;
     }
     // look up the rate timeseries identifier out of the bundle
-    final Pair<ExternalId, String> tsConvention = getTimeSeriesConvention(liborConvention);
-    final ExternalId tsIdentifier = tsConvention.getFirst();
-    final String dataField = tsConvention.getSecond();
+    final ExternalId tsIdentifier = getTimeSeriesIdentifier(liborConvention);
     // look up the value on our chosen trade date
-    final HistoricalTimeSeries initialRateSeries = getHistoricalSource().getHistoricalTimeSeries(dataField, tsIdentifier.toBundle(), getHistoricalConfigDoc(), tradeDate, true, tradeDate, true);
+    final HistoricalTimeSeries initialRateSeries = getHistoricalSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, tsIdentifier.toBundle(), getHistoricalConfigDoc(), tradeDate,
+        true, tradeDate, true);
     if (initialRateSeries == null || initialRateSeries.getTimeSeries().isEmpty()) {
       s_logger.error("couldn't get series for {} on {}", tsIdentifier, tradeDate);
       return null;
@@ -124,7 +123,8 @@ public abstract class AbstractSwapSecurityGenerator extends SecurityGenerator<Sw
       s_logger.error("Couldn't get swap rate identifier for {} [{}] from {}", new Object[] {ccy, maturity, tradeDate });
       return null;
     }
-    final HistoricalTimeSeries fixedRateSeries = getHistoricalSource().getHistoricalTimeSeries(dataField, swapRateForMaturityIdentifier.toBundle(), getHistoricalConfigDoc(), tradeDate, true,
+    final HistoricalTimeSeries fixedRateSeries = getHistoricalSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, swapRateForMaturityIdentifier.toBundle(),
+        getHistoricalConfigDoc(), tradeDate, true,
         tradeDate, true);
     if (fixedRateSeries == null) {
       s_logger.error("can't find time series for {} on {}", swapRateForMaturityIdentifier, tradeDate);

@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.core.position.PortfolioNode;
+import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.master.security.ManageableSecurity;
@@ -22,13 +23,15 @@ import com.opengamma.master.security.SecuritySearchResult;
 /**
  * Utility for constructing a random equity option portfolio for options already in the portfolio.
  */
-public abstract class AbstractEquityOptionPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
+public abstract class EquityOptionPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractEquityOptionPortfolioGeneratorTool.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(EquityOptionPortfolioGeneratorTool.class);
 
   private static final int OPTION_COUNT = 16;
 
-  protected abstract AbstractEquityOptionSecurityGenerator createEquityOptionSecurityGenerator(EquitySecurity underlying);
+  protected EquityOptionSecurityGenerator createEquityOptionSecurityGenerator(final EquitySecurity underlying) {
+    return new EquityOptionSecurityGenerator(underlying);
+  }
 
   @Override
   public PortfolioNodeGenerator createPortfolioNodeGenerator(final int size) {
@@ -48,8 +51,8 @@ public abstract class AbstractEquityOptionPortfolioGeneratorTool extends Abstrac
             continue;
           }
           final EquitySecurity equitySecurity = (EquitySecurity) security;
-          final AbstractEquityOptionSecurityGenerator options = createEquityOptionSecurityGenerator(equitySecurity);
-          if (getToolContext().getHistoricalTimeSeriesSource().getHistoricalTimeSeries(options.getPriceSeriesDataField(), security.getExternalIdBundle(), null) != null) {
+          if (getToolContext().getHistoricalTimeSeriesSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, security.getExternalIdBundle(), null) != null) {
+            final EquityOptionSecurityGenerator options = createEquityOptionSecurityGenerator(equitySecurity);
             s_logger.debug("Found price time series for {}", equitySecurity);
             configure(options);
             final PositionGenerator positions = new SimplePositionGenerator<EquityOptionSecurity>(new StaticQuantityGenerator(100), options, getSecurityPersister());

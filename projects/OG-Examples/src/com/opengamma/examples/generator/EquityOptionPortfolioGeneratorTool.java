@@ -5,18 +5,16 @@
  */
 package com.opengamma.examples.generator;
 
-import com.opengamma.financial.generator.AbstractEquityOptionPortfolioGeneratorTool;
-import com.opengamma.financial.generator.AbstractEquityOptionSecurityGenerator;
 import com.opengamma.financial.security.equity.EquitySecurity;
 
 /**
  * Utility for constructing a random equity option portfolio.
  */
-public class EquityOptionPortfolioGeneratorTool extends AbstractEquityOptionPortfolioGeneratorTool {
+public class EquityOptionPortfolioGeneratorTool extends com.opengamma.financial.generator.EquityOptionPortfolioGeneratorTool {
 
   @Override
-  protected AbstractEquityOptionSecurityGenerator createEquityOptionSecurityGenerator(final EquitySecurity underlying) {
-    return new EquityOptionSecurityGenerator(underlying);
+  protected EquityOptionSecurityGenerator createEquityOptionSecurityGenerator(final EquitySecurity underlying) {
+    return new EquityOptionSecurityGenerator(this, underlying);
   }
 
 }

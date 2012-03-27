@@ -25,6 +25,7 @@ import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
 import com.opengamma.financial.security.future.FutureSecurity;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
+import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.IRFutureOptionSecurity;
 import com.opengamma.financial.security.option.SwaptionSecurity;
@@ -67,6 +68,7 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
   @Override
   protected void doRun() {
     createEquityViewDefinition();
+    createEquityOptionViewDefinition();
     createSwapViewDefinition();
     createMultiCurrencySwapViewDefinition();
     createMixedPortfolioViewDefinition();
@@ -74,6 +76,10 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
 
   private void createEquityViewDefinition() {
     storeViewDefinition(getEquityViewDefinition(ExampleEquityPortfolioLoader.PORTFOLIO_NAME));
+  }
+
+  private void createEquityOptionViewDefinition() {
+    storeViewDefinition(getEquityOptionViewDefinition("Example Equity Option Portfolio"));
   }
 
   private void createSwapViewDefinition() {
@@ -220,6 +226,18 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
     return equityViewDefinition;
   }
 
+  private ViewDefinition getEquityOptionViewDefinition(final String portfolioName) {
+    final UniqueId portfolioId = getPortfolioId(portfolioName);
+    final ViewDefinition viewDefinition = new ViewDefinition(portfolioName + " View", portfolioId, UserPrincipal.getTestUser());
+    viewDefinition.setDefaultCurrency(Currency.USD);
+    viewDefinition.setMaxFullCalculationPeriod(500L);
+    viewDefinition.setMinFullCalculationPeriod(500L);
+    viewDefinition.setMinDeltaCalculationPeriod(500L);
+    viewDefinition.setMaxDeltaCalculationPeriod(500L);
+    viewDefinition.addPortfolioRequirement(DEFAULT_CALC_CONFIG, EquityOptionSecurity.SECURITY_TYPE, ValueRequirementNames.FAIR_VALUE, ValueProperties.none());
+    return viewDefinition;
+  }
+
   private UniqueId getPortfolioId(String portfolioName) {
     PortfolioSearchRequest searchRequest = new PortfolioSearchRequest();
     searchRequest.setName(portfolioName);
@@ -259,8 +277,8 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
   }
 
   private ViewDefinition getMultiCurrencySwapViewDefinition() {
-    UniqueId portfolioId = getPortfolioId(ExampleMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME);
-    ViewDefinition viewDefinition = new ViewDefinition(ExampleMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME + " View", portfolioId, UserPrincipal.getTestUser());
+    UniqueId portfolioId = getPortfolioId("Example MultiCurrency Swap Portfolio");
+    ViewDefinition viewDefinition = new ViewDefinition("Example MultiCurrency Swap View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);
