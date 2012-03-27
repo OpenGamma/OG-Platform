@@ -10,11 +10,11 @@ $.register_module({
             var data = this;
             data.init = function (handler) {
                 handler({
-                    'columns_fixed': [
+                    'fixed': [
                         {name: 'Fixed 1', width: 250},
                         {name: 'Fixed 2', width: 100}
                     ],
-                    'columns_scroll': [
+                    'scroll': [
                         {name: 'Column 3', width: 100},
                         {name: 'Column 4', width: 100},
                         {name: 'Column 5', width: 100},
