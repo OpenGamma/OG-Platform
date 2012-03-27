@@ -35,6 +35,7 @@ import com.opengamma.math.interpolation.GridInterpolator2D;
 import com.opengamma.math.interpolation.Interpolator1D;
 import com.opengamma.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.math.surface.Surface;
+import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 
 /**
@@ -74,10 +75,15 @@ public class InterpolatedVolatilitySurfaceFunction extends AbstractFunction.NonC
     for (int i = 0; i < n; i++) {
       for (int j = 0; j < m; j++) {
         final Double vol = volatilityData.getVolatility(xData[i], yData[j]);
-        x.add(xData[i]);
-        y.add(yData[j]);
-        sigma.add(vol);
+        if (vol != null && !CompareUtils.closeEquals(vol, 0)) {
+          x.add(xData[i]);
+          y.add(yData[j]);
+          sigma.add(vol);
+        }
       }
+    }
+    if (x.isEmpty()) {
+      throw new OpenGammaRuntimeException("Could not get any data for " + volatilityDataRequirement);
     }
     final Interpolator1D xInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(xInterpolatorName, leftXExtrapolatorName, rightXExtrapolatorName);
     final Interpolator1D yInterpolator = CombinedInterpolatorExtrapolatorFactory.getInterpolator(yInterpolatorName, leftYExtrapolatorName, rightYExtrapolatorName);

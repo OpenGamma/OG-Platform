@@ -7,22 +7,22 @@ package com.opengamma.bbg;
 
 import static com.opengamma.bbg.BloombergConstants.BBG_COMMON_STOCK_TYPE;
 import static com.opengamma.bbg.BloombergConstants.BLOOMBERG_EQUITY_OPTION_SECURITY_TYPE;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.AAPL_EQUITY_TICKER;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.APV_EQUITY_OPTION_TICKER;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.ATT_EQUITY_TICKER;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.EUR;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.SPX_INDEX_OPTION_TICKER;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeAPVLEquityOptionSecurity;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeAUDUSDCurrencyFuture;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeAgricultureFuture;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeEquityFuture;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeEthanolFuture;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeExchangeTradedFund;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeExpectedAAPLEquitySecurity;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeExpectedATTEquitySecurity;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeInterestRateFuture;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeSPXIndexOptionSecurity;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeSilverFuture;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.AAPL_EQUITY_TICKER;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.APV_EQUITY_OPTION_TICKER;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.ATT_EQUITY_TICKER;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.EUR;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.SPX_INDEX_OPTION_TICKER;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeAPVLEquityOptionSecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeAUDUSDCurrencyFuture;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeAgricultureFuture;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeEquityFuture;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeEthanolFuture;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeExchangeTradedFund;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeExpectedAAPLEquitySecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeExpectedATTEquitySecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeInterestRateFuture;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeSPXIndexOptionSecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeSilverFuture;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
 import static org.testng.AssertJUnit.assertNull;
@@ -46,7 +46,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Lists;
-import com.opengamma.bbg.util.BloombergSecurityMasterUtils;
+import com.opengamma.bbg.util.BloombergSecurityUtils;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.security.FinancialSecurity;
@@ -70,9 +70,9 @@ import com.opengamma.id.UniqueId;
 import com.opengamma.util.time.Expiry;
 
 /**
- * Base case for testing BloombergSecurityMaster
+ * Base case for testing BloombergSecuritySource
  */
-public abstract class BloombergSecurityMasterTestCase {
+public abstract class BloombergSecuritySourceTestCase {
 
   private static final EquitySecurity EXPECTED_AAPL_EQUITY_SEC = makeExpectedAAPLEquitySecurity();
   private static final EquitySecurity EXPECTED_ATT_EQUITY_SEC = makeExpectedATTEquitySecurity();
@@ -89,25 +89,25 @@ public abstract class BloombergSecurityMasterTestCase {
   private static final ExternalScheme[] EXPECTED_IDENTIFICATION_SCHEME = new ExternalScheme[] {
       SecurityUtils.BLOOMBERG_BUID, SecurityUtils.BLOOMBERG_TICKER, SecurityUtils.CUSIP};
 
-  private BloombergSecurityMaster _securityMaster = null;
+  private BloombergSecuritySource _securitySource = null;
 
   @BeforeMethod
-  public void setupBloombergSecurityMaster() throws Exception {
-    _securityMaster = createSecurityMaster();
+  public void setupBloombergSecuritySource() throws Exception {
+    _securitySource = createSecuritySource();
   }
 
-  protected abstract BloombergSecurityMaster createSecurityMaster() throws Exception;
+  protected abstract BloombergSecuritySource createSecuritySource() throws Exception;
 
   @AfterMethod
-  public void terminateSecurityMaster() throws Exception {
-    stopSecurityMaster();
+  public void terminateSecuritySource() throws Exception {
+    stopSecuritySource();
 
-    if (_securityMaster != null) {
-      _securityMaster = null;
+    if (_securitySource != null) {
+      _securitySource = null;
     }
   }
 
-  protected void stopSecurityMaster() throws Exception {
+  protected void stopSecuritySource() throws Exception {
   }
 
   @Test
@@ -115,10 +115,10 @@ public abstract class BloombergSecurityMasterTestCase {
   public void getSecurityType() throws Exception {
     String bbgEquitySecType = BBG_COMMON_STOCK_TYPE;
     String bbgEquityOptionSecType = BLOOMBERG_EQUITY_OPTION_SECURITY_TYPE;
-    assertEquals(bbgEquitySecType, _securityMaster.getSecurityType(AAPL_EQUITY_TICKER));
-    assertEquals(bbgEquityOptionSecType, _securityMaster.getSecurityType(APV_EQUITY_OPTION_TICKER));
-    assertEquals(bbgEquitySecType, _securityMaster.getSecurityType("T US Equity"));
-    assertNull(_securityMaster.getSecurityType("INVALID"));
+    assertEquals(bbgEquitySecType, _securitySource.getSecurityType(AAPL_EQUITY_TICKER));
+    assertEquals(bbgEquityOptionSecType, _securitySource.getSecurityType(APV_EQUITY_OPTION_TICKER));
+    assertEquals(bbgEquitySecType, _securitySource.getSecurityType("T US Equity"));
+    assertNull(_securitySource.getSecurityType("INVALID"));
   }
 
   @Test
@@ -126,7 +126,7 @@ public abstract class BloombergSecurityMasterTestCase {
   public void aaplEquityByBbgTicker() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC,
         SecurityUtils.BLOOMBERG_TICKER);
-    Security sec = _securityMaster.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
+    Security sec = _securitySource.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
     assertEquitySecurity(EXPECTED_AAPL_EQUITY_SEC, sec);
   }
 
@@ -140,7 +140,7 @@ public abstract class BloombergSecurityMasterTestCase {
   public void aaplEquityByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC,
         SecurityUtils.BLOOMBERG_BUID);
-    Security sec = _securityMaster.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
+    Security sec = _securitySource.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
     assertEquitySecurity(EXPECTED_AAPL_EQUITY_SEC, sec);
   }
 
@@ -149,7 +149,7 @@ public abstract class BloombergSecurityMasterTestCase {
   public void aaplEquitiesByBbgTicker() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC,
         SecurityUtils.BLOOMBERG_TICKER);
-    Collection<Security> securities = _securityMaster.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
+    Collection<Security> securities = _securitySource.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
@@ -161,7 +161,7 @@ public abstract class BloombergSecurityMasterTestCase {
   public void aaplEquitiesByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_AAPL_EQUITY_SEC,
         SecurityUtils.BLOOMBERG_BUID);
-    Collection<Security> securities = _securityMaster.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
+    Collection<Security> securities = _securitySource.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
@@ -173,14 +173,14 @@ public abstract class BloombergSecurityMasterTestCase {
   public void attEquityByBbgTicker() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC,
         SecurityUtils.BLOOMBERG_TICKER);
-    Security sec = _securityMaster.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
+    Security sec = _securitySource.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
     assertEquitySecurity(EXPECTED_ATT_EQUITY_SEC, sec);
   }
 
   @Test
   //@Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void exchangeTradedFund() throws Exception {
-    Security security = _securityMaster.getSecurity(US_NATURAL_GAS_FUND.getExternalIdBundle());
+    Security security = _securitySource.getSecurity(US_NATURAL_GAS_FUND.getExternalIdBundle());
     assertEquitySecurity(US_NATURAL_GAS_FUND, security);
   }
 
@@ -189,7 +189,7 @@ public abstract class BloombergSecurityMasterTestCase {
   public void attEquitiesByBbgTicker() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC,
         SecurityUtils.BLOOMBERG_TICKER);
-    Collection<Security> securities = _securityMaster.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
+    Collection<Security> securities = _securitySource.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
@@ -201,7 +201,7 @@ public abstract class BloombergSecurityMasterTestCase {
   public void attEquityByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC,
         SecurityUtils.BLOOMBERG_BUID);
-    Security sec = _securityMaster.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
+    Security sec = _securitySource.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
     assertEquitySecurity(EXPECTED_ATT_EQUITY_SEC, sec);
   }
 
@@ -210,7 +210,7 @@ public abstract class BloombergSecurityMasterTestCase {
   public void attEquitiesByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_ATT_EQUITY_SEC,
         SecurityUtils.BLOOMBERG_BUID);
-    Collection<Security> securities = _securityMaster.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
+    Collection<Security> securities = _securitySource.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
@@ -220,7 +220,7 @@ public abstract class BloombergSecurityMasterTestCase {
   @Test
   // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void apvEquityOptionByBbgTicker() throws Exception {
-    Security sec = _securityMaster.getSecurity(EXPECTED_APVL_EQUITYOPTION_SEC.getExternalIdBundle());
+    Security sec = _securitySource.getSecurity(EXPECTED_APVL_EQUITYOPTION_SEC.getExternalIdBundle());
     assertAmericanVanillaEquityOptionSecurity(EXPECTED_APVL_EQUITYOPTION_SEC, sec);
   }
 
@@ -229,7 +229,7 @@ public abstract class BloombergSecurityMasterTestCase {
   public void apvEquityOptionsByBbgTicker() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_APVL_EQUITYOPTION_SEC,
         SecurityUtils.BLOOMBERG_TICKER);
-    Collection<Security> securities = _securityMaster.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
+    Collection<Security> securities = _securitySource.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
@@ -241,7 +241,7 @@ public abstract class BloombergSecurityMasterTestCase {
   public void apvEquityOptionsByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_APVL_EQUITYOPTION_SEC,
         SecurityUtils.BLOOMBERG_BUID);
-    Collection<Security> securities = _securityMaster.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
+    Collection<Security> securities = _securitySource.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
@@ -253,7 +253,7 @@ public abstract class BloombergSecurityMasterTestCase {
   public void apvEquityOptionByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_APVL_EQUITYOPTION_SEC,
         SecurityUtils.BLOOMBERG_BUID);
-    Security sec = _securityMaster.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
+    Security sec = _securitySource.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
     assertAmericanVanillaEquityOptionSecurity(EXPECTED_APVL_EQUITYOPTION_SEC, sec);
   }
 
@@ -262,7 +262,7 @@ public abstract class BloombergSecurityMasterTestCase {
   public void spxIndexOptionByBbgTicker() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_SPX_INDEXOPTION_SEC,
         SecurityUtils.BLOOMBERG_TICKER);
-    Security sec = _securityMaster.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
+    Security sec = _securitySource.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
     assertEuropeanVanillaEquityIndexOptionSecurity(EXPECTED_SPX_INDEXOPTION_SEC, sec);
   }
 
@@ -271,7 +271,7 @@ public abstract class BloombergSecurityMasterTestCase {
   public void spxIndexOptionsByBbgTicker() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_SPX_INDEXOPTION_SEC,
         SecurityUtils.BLOOMBERG_TICKER);
-    Collection<Security> securities = _securityMaster.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
+    Collection<Security> securities = _securitySource.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
@@ -284,7 +284,7 @@ public abstract class BloombergSecurityMasterTestCase {
   public void spxIndexOptionByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_SPX_INDEXOPTION_SEC,
         SecurityUtils.BLOOMBERG_BUID);
-    Security sec = _securityMaster.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
+    Security sec = _securitySource.getSecurity(ExternalIdBundle.of(bloombergIdentifier));
     assertEuropeanVanillaEquityIndexOptionSecurity(EXPECTED_SPX_INDEXOPTION_SEC, sec);
   }
 
@@ -294,7 +294,7 @@ public abstract class BloombergSecurityMasterTestCase {
   public void spxIndexOptionsByBbgUnique() throws Exception {
     ExternalId bloombergIdentifier = getBloombergIdentifier(EXPECTED_SPX_INDEXOPTION_SEC,
         SecurityUtils.BLOOMBERG_BUID);
-    Collection<Security> securities = _securityMaster.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
+    Collection<Security> securities = _securitySource.getSecurities(ExternalIdBundle.of(bloombergIdentifier));
     assertNotNull(securities);
     assertEquals(1, securities.size());
     Security sec = securities.iterator().next();
@@ -304,7 +304,7 @@ public abstract class BloombergSecurityMasterTestCase {
   @Test
   // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void agricultureFuture() throws Exception {
-    Security wheat = _securityMaster.getSecurity(EXPECTED_WHEAT_FUTURE_SEC.getExternalIdBundle());
+    Security wheat = _securitySource.getSecurity(EXPECTED_WHEAT_FUTURE_SEC.getExternalIdBundle());
     assertNotNull(wheat);
     assertTrue(wheat instanceof AgricultureFutureSecurity);
     assertEquals(EXPECTED_WHEAT_FUTURE_SEC, wheat);
@@ -313,7 +313,7 @@ public abstract class BloombergSecurityMasterTestCase {
   @Test
   // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void equityFuture() throws Exception {
-    Security spIndex = _securityMaster.getSecurity(EXPECTED_EQUITY_FUTURE_SEC.getExternalIdBundle());
+    Security spIndex = _securitySource.getSecurity(EXPECTED_EQUITY_FUTURE_SEC.getExternalIdBundle());
     assertNotNull(spIndex);
     assertTrue(spIndex instanceof EquityFutureSecurity);
     assertEquals(EXPECTED_EQUITY_FUTURE_SEC, spIndex);
@@ -322,7 +322,7 @@ public abstract class BloombergSecurityMasterTestCase {
   @Test(enabled = false)
   public void currencyFuture() throws Exception {
     ExternalIdBundle id = ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("LNM0 Curncy"));
-    Security audUsd = _securityMaster.getSecurity(id);
+    Security audUsd = _securitySource.getSecurity(id);
     assertNotNull(audUsd);
     assertTrue(audUsd instanceof FXFutureSecurity);
     assertEquals(EXPECTED_AUDUSD_FUTURE_SEC, audUsd);
@@ -332,7 +332,7 @@ public abstract class BloombergSecurityMasterTestCase {
   //@Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void euroBondFuture() throws Exception {
     ExternalIdBundle euroBund = ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("RXA Comdty"));
-    Security bond = _securityMaster.getSecurity(euroBund);
+    Security bond = _securitySource.getSecurity(euroBund);
     assertNotNull(bond);
     assertTrue(bond instanceof BondFutureSecurity);
     BondFutureSecurity euroBondFuture = (BondFutureSecurity) bond;
@@ -374,7 +374,7 @@ public abstract class BloombergSecurityMasterTestCase {
   @Test
   //@Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void metalFuture() throws Exception {
-    Security silverFuture = _securityMaster.getSecurity(EXPECTED_SILVER_FUTURE.getExternalIdBundle());
+    Security silverFuture = _securitySource.getSecurity(EXPECTED_SILVER_FUTURE.getExternalIdBundle());
     assertNotNull(silverFuture);
     assertTrue(silverFuture instanceof MetalFutureSecurity);
     assertEquals(EXPECTED_SILVER_FUTURE, silverFuture);
@@ -383,7 +383,7 @@ public abstract class BloombergSecurityMasterTestCase {
   @Test
   //@Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void energyFuture() throws Exception {
-    Security ethanolFuture = _securityMaster.getSecurity(EXPECTED_ETHANOL_FUTURE.getExternalIdBundle());
+    Security ethanolFuture = _securitySource.getSecurity(EXPECTED_ETHANOL_FUTURE.getExternalIdBundle());
     assertNotNull(ethanolFuture);
     assertTrue(ethanolFuture instanceof EnergyFutureSecurity);
     assertEquals(EXPECTED_ETHANOL_FUTURE, ethanolFuture);
@@ -391,7 +391,7 @@ public abstract class BloombergSecurityMasterTestCase {
 
   @Test
   public void interestRateFuture() throws Exception {
-    Security euroDollar = _securityMaster.getSecurity(EXPECTED_EURODOLLAR_FUTURE.getExternalIdBundle());
+    Security euroDollar = _securitySource.getSecurity(EXPECTED_EURODOLLAR_FUTURE.getExternalIdBundle());
     assertNotNull(euroDollar);
     assertTrue(euroDollar instanceof InterestRateFutureSecurity);
     assertEquals(EXPECTED_EURODOLLAR_FUTURE, euroDollar);
@@ -401,7 +401,7 @@ public abstract class BloombergSecurityMasterTestCase {
   // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void invalidSecurity() throws Exception {
     ExternalIdBundle invalidKey = ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("INVALID"));
-    Security sec = _securityMaster.getSecurity(invalidKey);
+    Security sec = _securitySource.getSecurity(invalidKey);
     assertNull(sec);
   }
 
@@ -409,7 +409,7 @@ public abstract class BloombergSecurityMasterTestCase {
   // @Ignore("Because this contacts Bloomberg, we don't want to run all the time")
   public void invalidSecurities() throws Exception {
     ExternalIdBundle invalidKey = ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("INVALID"));
-    Collection<Security> securities = _securityMaster.getSecurities(invalidKey);
+    Collection<Security> securities = _securitySource.getSecurities(invalidKey);
     assertNotNull(securities);
     assertTrue(securities.isEmpty());
   }
@@ -596,16 +596,16 @@ public abstract class BloombergSecurityMasterTestCase {
     }
 
     public Security call() throws Exception {
-      return _securityMaster.getSecurity(_secKey);
+      return _securitySource.getSecurity(_secKey);
     }
   }
   
   @Test
   public void test_getBulkSecurity() throws Exception {
-    UniqueId aaplId = UniqueId.of(BloombergSecurityMaster.BLOOMBERG_SCHEME, BloombergSecurityMasterUtils.AAPL_BUID);
-    UniqueId attId = UniqueId.of(BloombergSecurityMaster.BLOOMBERG_SCHEME, BloombergSecurityMasterUtils.ATT_BUID);
+    UniqueId aaplId = UniqueId.of(BloombergSecuritySource.BLOOMBERG_SCHEME, BloombergSecurityUtils.AAPL_BUID);
+    UniqueId attId = UniqueId.of(BloombergSecuritySource.BLOOMBERG_SCHEME, BloombergSecurityUtils.ATT_BUID);
     
-    Map<UniqueId, Security> securities = _securityMaster.getSecurities(Lists.newArrayList(aaplId, attId));
+    Map<UniqueId, Security> securities = _securitySource.getSecurities(Lists.newArrayList(aaplId, attId));
     assertNotNull(securities);
     assertEquals(2, securities.size());
     assertTrue(securities.keySet().contains(aaplId));

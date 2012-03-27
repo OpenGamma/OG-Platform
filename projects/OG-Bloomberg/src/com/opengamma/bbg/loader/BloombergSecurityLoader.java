@@ -27,19 +27,19 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * Loads security from bloomberg and populates the security master
  */
-public class BloombergSecurityMasterLoader implements SecurityLoader {
+public class BloombergSecurityLoader implements SecurityLoader {
   
   private final SecurityMaster _secMaster;
   
   private final BloombergBulkSecurityLoader _bbgBulkSecLoader;
   
   /**
-   * Creates BloombergSecurityMasterLoader
+   * Creates BloombergSecurityLoader
    * 
    * @param secMaster the security master, not-null
    * @param bbgBulkSecLoader bloomberg security loader, not-null
    */
-  public BloombergSecurityMasterLoader(SecurityMaster secMaster, BloombergBulkSecurityLoader bbgBulkSecLoader) {
+  public BloombergSecurityLoader(SecurityMaster secMaster, BloombergBulkSecurityLoader bbgBulkSecLoader) {
     ArgumentChecker.notNull(secMaster, "HibernateSecMaster");
     ArgumentChecker.notNull(bbgBulkSecLoader, "BloombergBulkSecurityLoader");
     _secMaster = secMaster;

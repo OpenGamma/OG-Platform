@@ -14,7 +14,7 @@
 
   <alias name="securityLoader" alias="bbgSecurityLoader"/>
 
-  <bean id="bbgSecurityLoader" class="com.opengamma.bbg.loader.BloombergSecurityMasterLoader">
+  <bean id="bbgSecurityLoader" class="com.opengamma.bbg.loader.BloombergSecurityLoader">
     <constructor-arg ref="dbSecurityMaster" />
     <constructor-arg ref="bbgBulkSecLoader" />
   </bean>

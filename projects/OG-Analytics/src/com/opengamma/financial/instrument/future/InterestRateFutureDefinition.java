@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.instrument.future;
 
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
@@ -216,22 +217,24 @@ public class InterestRateFutureDefinition implements InstrumentDefinitionWithDat
   /**
    * @param lastMarginPrice The price on which the last margining was done.
    */
-  public InterestRateFuture toDerivative(ZonedDateTime date, Double lastMarginPrice, String... yieldCurveNames) {
-    Validate.notNull(date, "date");
+  public InterestRateFuture toDerivative(ZonedDateTime dateTime, Double lastMarginPrice, String... yieldCurveNames) {
+    Validate.notNull(dateTime, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
+    LocalDate date = dateTime.toLocalDate();
     Validate.isTrue(yieldCurveNames.length > 1, "at least two curves required");
-    Validate.isTrue(!date.isAfter(getFixingPeriodStartDate()), "Date is after last payment date");
+    LocalDate transactionDateLocal = _transactionDate.toLocalDate();
+    Validate.isTrue(!date.isAfter(getFixingPeriodStartDate().toLocalDate()), "Date is after last margin date");
     double referencePrice;
-    if (_transactionDate.isBefore(date)) { // Transaction was before last margining.
+    if (transactionDateLocal.isBefore(date)) { // Transaction was before last margining.
       referencePrice = lastMarginPrice;
     } else { // Transaction is today
       referencePrice = _transactionPrice;
     }
     final String discountingCurveName = yieldCurveNames[0];
     final String forwardCurveName = yieldCurveNames[1];
-    final double lastTradingTime = TimeCalculator.getTimeBetween(date, getLastTradingDate());
-    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(date, getFixingPeriodStartDate());
-    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(date, getFixingPeriodEndDate());
+    final double lastTradingTime = TimeCalculator.getTimeBetween(dateTime, getLastTradingDate());
+    final double fixingPeriodStartTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodStartDate());
+    final double fixingPeriodEndTime = TimeCalculator.getTimeBetween(dateTime, getFixingPeriodEndDate());
     InterestRateFuture future = new InterestRateFuture(lastTradingTime, _iborIndex, fixingPeriodStartTime, fixingPeriodEndTime, _fixingPeriodAccrualFactor, referencePrice, _notional,
         _paymentAccrualFactor, _quantity, _name, discountingCurveName, forwardCurveName);
     return future;

@@ -5,15 +5,16 @@
  */
 package com.opengamma.financial.instrument.future;
 
-import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
-import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
-import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
-import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
-
+import javax.time.calendar.LocalDate;
 import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
+
+import com.opengamma.financial.instrument.InstrumentDefinitionVisitor;
+import com.opengamma.financial.instrument.InstrumentDefinitionWithData;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
 
 /**
  * Description of transaction on an interest rate future option security with daily margining process (LIFFE and Eurex type).
@@ -94,14 +95,16 @@ public class InterestRateFutureOptionMarginTransactionDefinition implements Inst
   /**
    * The lastMarginPrice is the last closing price used for margining. It is usually the official closing price of the previous business day.
    */
-  public InterestRateFutureOptionMarginTransaction toDerivative(ZonedDateTime date, Double lastMarginPrice, String... yieldCurveNames) {
-    Validate.notNull(date, "date");
+  public InterestRateFutureOptionMarginTransaction toDerivative(ZonedDateTime dateTime, Double lastMarginPrice, String... yieldCurveNames) {
+    Validate.notNull(dateTime, "date");
     Validate.notNull(yieldCurveNames, "yield curve names");
-    Validate.isTrue(!date.isAfter(_underlyingOption.getExpirationDate()), "Date is after last payment date");
-    Validate.isTrue(!date.isBefore(_tradeDate), "Date is after trade date");
-    final InterestRateFutureOptionMarginSecurity underlyingOption = _underlyingOption.toDerivative(date, yieldCurveNames);
+    LocalDate date = dateTime.toLocalDate();
+    Validate.isTrue(!date.isAfter(_underlyingOption.getUnderlyingFuture().getFixingPeriodStartDate().toLocalDate()), "Date is after last margin date");
+    LocalDate tradeDateLocal = _tradeDate.toLocalDate();
+    Validate.isTrue(!date.isBefore(tradeDateLocal), "Date is after trade date");
+    final InterestRateFutureOptionMarginSecurity underlyingOption = _underlyingOption.toDerivative(dateTime, yieldCurveNames);
     double referencePrice;
-    if (_tradeDate.toLocalDate().isBefore(date.toLocalDate())) { // Transaction was before last margining.
+    if (tradeDateLocal.isBefore(dateTime.toLocalDate())) { // Transaction was before last margining.
       referencePrice = lastMarginPrice;
     } else { // Transaction is today
       referencePrice = _tradePrice;

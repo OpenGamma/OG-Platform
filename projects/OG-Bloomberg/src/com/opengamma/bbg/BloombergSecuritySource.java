@@ -37,10 +37,10 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * A security master based on the Bloomberg data source.
  */
-public final class BloombergSecurityMaster implements SecuritySource {
+public final class BloombergSecuritySource implements SecuritySource {
 
   /** Logger. */
-  private static final Logger s_logger = LoggerFactory.getLogger(BloombergSecurityMaster.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(BloombergSecuritySource.class);
   /**
    * Bloomberg scheme.
    */
@@ -70,7 +70,7 @@ public final class BloombergSecurityMaster implements SecuritySource {
    * @param refDataProvider  the reference data provider, not null
    * @param exchangeDataProvider  the data provider, not null
    */
-  public BloombergSecurityMaster(ReferenceDataProvider refDataProvider, ExchangeDataProvider exchangeDataProvider) {
+  public BloombergSecuritySource(ReferenceDataProvider refDataProvider, ExchangeDataProvider exchangeDataProvider) {
     ArgumentChecker.notNull(refDataProvider, "Reference Data Provider");
     ArgumentChecker.notNull(exchangeDataProvider, "Exchange Data Provider");
     _refDataProvider = refDataProvider;

@@ -11,21 +11,21 @@ import com.opengamma.financial.timeseries.exchange.DefaultExchangeDataProvider;
 /**
  * 
  */
-public class BloombergSecurityMasterWithEHCacheTest extends BloombergSecurityMasterTestCase {
+public class BloombergSecuritySourceWithEHCacheTest extends BloombergSecuritySourceTestCase {
   
   private CachingReferenceDataProvider _refDataProvider = null;
   
   @Override
-  protected BloombergSecurityMaster createSecurityMaster() {
-    _refDataProvider = BloombergLiveDataServerUtils.getCachingReferenceDataProvider(BloombergSecurityMasterWithEHCacheTest.class);
+  protected BloombergSecuritySource createSecuritySource() {
+    _refDataProvider = BloombergLiveDataServerUtils.getCachingReferenceDataProvider(BloombergSecuritySourceWithEHCacheTest.class);
     
     DefaultExchangeDataProvider exchangeProvider = new DefaultExchangeDataProvider();
     
-    return new BloombergSecurityMaster(_refDataProvider, exchangeProvider);
+    return new BloombergSecuritySource(_refDataProvider, exchangeProvider);
   }
 
   @Override
-  protected void stopSecurityMaster() {
+  protected void stopSecuritySource() {
     BloombergLiveDataServerUtils.stopCachingReferenceDataProvider(_refDataProvider);
   }
 
