@@ -5,16 +5,22 @@
  */
 package com.opengamma.integration.tool.timeseries;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.component.tool.AbstractTool;
 import com.opengamma.integration.loadsave.timeseries.TimeSeriesLoader;
 import com.opengamma.integration.tool.AbstractIntegrationTool;
 
 /**
  * The timeseries loader tool
  */
-public class TimeSeriesLoaderTool extends AbstractIntegrationTool {
+public class TimeSeriesLoaderTool extends AbstractTool {
 
   /** File name option flag */
   private static final String FILE_NAME_OPT = "f";
@@ -49,17 +55,21 @@ public class TimeSeriesLoaderTool extends AbstractIntegrationTool {
    */
   @Override 
   protected void doRun() {
-    new TimeSeriesLoader().run(
-        getCommandLine().getOptionValue(FILE_NAME_OPT), 
-        getCommandLine().getOptionValue(TIME_SERIES_DATASOURCE_OPT),
-        getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT),
-        getCommandLine().getOptionValue(TIME_SERIES_DATAFIELD_OPT),
-        getCommandLine().getOptionValue(TIME_SERIES_OBSERVATIONTIME_OPT),
-        getCommandLine().getOptionValue(TIME_SERIES_IDSCHEME_OPT),
-        getCommandLine().getOptionValue(TIME_SERIES_DATEFORMAT_OPT),
-        getCommandLine().hasOption(WRITE_OPT), 
-        getToolContext()
-    );
+    String fileName = getCommandLine().getOptionValue(FILE_NAME_OPT);
+    try {
+      new TimeSeriesLoader(getToolContext().getHistoricalTimeSeriesMaster()).run(
+          fileName,
+          new BufferedInputStream(new FileInputStream(fileName)),
+          getCommandLine().getOptionValue(TIME_SERIES_DATASOURCE_OPT),
+          getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT),
+          getCommandLine().getOptionValue(TIME_SERIES_DATAFIELD_OPT),
+          getCommandLine().getOptionValue(TIME_SERIES_OBSERVATIONTIME_OPT),
+          getCommandLine().getOptionValue(TIME_SERIES_IDSCHEME_OPT),
+          getCommandLine().getOptionValue(TIME_SERIES_DATEFORMAT_OPT),
+          getCommandLine().hasOption(WRITE_OPT));
+    } catch (FileNotFoundException e) {
+      throw new OpenGammaRuntimeException("Could not find portfolio file", e);
+    }
   }
 
   @Override

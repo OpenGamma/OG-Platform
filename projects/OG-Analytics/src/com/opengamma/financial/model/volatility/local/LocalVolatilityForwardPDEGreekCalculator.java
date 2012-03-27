@@ -25,9 +25,9 @@ import com.opengamma.financial.model.finitedifference.applications.PDEDataBundle
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
 import com.opengamma.financial.model.volatility.smile.fitting.sabr.PiecewiseSABRSurfaceFitter1;
 import com.opengamma.financial.model.volatility.smile.fitting.sabr.SmileSurfaceDataBundle;
-import com.opengamma.financial.model.volatility.smile.fitting.sabr.SurfaceArrayUtils;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurface;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceConverter;
 import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
