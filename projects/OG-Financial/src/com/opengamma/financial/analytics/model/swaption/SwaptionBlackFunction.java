@@ -214,9 +214,9 @@ public abstract class SwaptionBlackFunction extends AbstractFunction.NonCompiled
       throw new OpenGammaRuntimeException("Can only handle cash- and physically-settled ibor swaptions");
     }
     final SwapSecurity underlyingSecurity = (SwapSecurity) securitySource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
-    final boolean payFixed = security.isPayer();
+    final boolean isPayer = security.isPayer();
     FixedInterestRateLeg fixedLeg;
-    if (payFixed) {
+    if (isPayer) {
       fixedLeg = (FixedInterestRateLeg) underlyingSecurity.getPayLeg();
     } else {
       fixedLeg = (FixedInterestRateLeg) underlyingSecurity.getReceiveLeg();
