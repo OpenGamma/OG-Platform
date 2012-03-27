@@ -12,9 +12,13 @@ import com.opengamma.financial.security.cash.CashSecurity;
  */
 public class CashPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
+  protected CashSecurityGenerator createCashSecurityGenerator() {
+    return new CashSecurityGenerator();
+  }
+
   @Override
   public PortfolioNodeGenerator createPortfolioNodeGenerator(final int size) {
-    final CashSecurityGenerator securities = new CashSecurityGenerator();
+    final CashSecurityGenerator securities = createCashSecurityGenerator();
     configure(securities);
     final PositionGenerator positions = new SimplePositionGenerator<CashSecurity>(securities, getSecurityPersister());
     return new LeafPortfolioNodeGenerator(new StaticNameGenerator("Cash"), positions, size);

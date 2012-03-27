@@ -37,20 +37,20 @@ public class CapFloorSecurityGenerator extends SecurityGenerator<CapFloorSecurit
     return sb.toString();
   }
 
-  private ExternalId getUnderlying(final Currency ccy, final LocalDate tradeDate, final Tenor tenor) {
+  private ExternalId getUnderlying(final Currency ccy, final LocalDate tradeDate, final Tenor tenor, final boolean ibor) {
     final CurveSpecificationBuilderConfiguration curveSpecConfig = getCurrencyCurveConfig(ccy);
     if (curveSpecConfig == null) {
       return null;
     }
-    final ExternalId swapSecurity;
-    if (ccy.equals(Currency.USD)) {
-      // Standard (i.e. matches convention) floating leg tenor for USD is 3M
-      swapSecurity = curveSpecConfig.getSwap3MSecurity(tradeDate, tenor);
+    if (ibor) {
+      return curveSpecConfig.getLiborSecurity(tradeDate, tenor);
     } else {
-      // Standard (i.e. matches convention) floating leg tenor for CHF, JPY, GBP, EUR is 6M
-      swapSecurity = curveSpecConfig.getSwap6MSecurity(tradeDate, tenor);
+      if (ccy.equals(Currency.USD)) {
+        return curveSpecConfig.getSwap3MSecurity(tradeDate, tenor);
+      } else {
+        return curveSpecConfig.getSwap6MSecurity(tradeDate, tenor);
+      }
     }
-    return swapSecurity;
   }
 
   @Override
@@ -63,7 +63,7 @@ public class CapFloorSecurityGenerator extends SecurityGenerator<CapFloorSecurit
     final int length = getRandom(22) + 3;
     final ZonedDateTime maturityDate = nextWorkingDay(startDate.plusYears(length), currency);
     final double notional = (double) getRandom(100000) * 1000;
-    final ExternalId underlyingIdentifier = getUnderlying(currency, startDate.toLocalDate(), getRandom(TENORS));
+    final ExternalId underlyingIdentifier = getUnderlying(currency, startDate.toLocalDate(), getRandom(TENORS), ibor);
     if (underlyingIdentifier == null) {
       return null;
     }

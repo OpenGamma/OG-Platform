@@ -194,6 +194,13 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     return getHolidaySource().isHoliday(ldp.toLocalDate(), currency);
   }
 
+  /**
+   * Returns the date unchanged if this is a working day, otherwise advances the date.
+   * 
+   * @param zdt the date to consider
+   * @param currency the currency identifying the holiday zone
+   * @return the original or adjusted date
+   */
   // TODO: replace this with a date adjuster
   protected ZonedDateTime nextWorkingDay(ZonedDateTime zdt, final Currency currency) {
     while (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt, currency)) {
@@ -202,6 +209,13 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     return zdt;
   }
 
+  /**
+   * Returns the date unchanged if this is a working day, otherwise retreats the date.
+   * 
+   * @param zdt the date to consider
+   * @param currency the currency identifying the holiday zone
+   * @return the original or adjusted date
+   */
   // TODO: replace this with a date adjuster
   protected ZonedDateTime previousWorkingDay(ZonedDateTime zdt, final Currency currency) {
     while (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt, currency)) {
