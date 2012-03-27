@@ -22,6 +22,7 @@ import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.ObjectsPair;
 
 /**
@@ -44,6 +45,12 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
       String dataProvider,
       String[] dataFields) {
     
+    ArgumentChecker.notNull(htsMaster, "htsMaster");
+    ArgumentChecker.notNull(bbgHtsSource, "bbgHtsSource");
+    ArgumentChecker.notNull(bbgRefDataProvider, "bbgRefDataProvider");
+    ArgumentChecker.notNull(dataProvider, "dataProvider");
+    ArgumentChecker.notNull(dataFields, "dataFields");
+
     _htsMaster = htsMaster;
     _bbgHtsSource = bbgHtsSource;
     _bbgRefDataProvider = bbgRefDataProvider;
@@ -54,6 +61,9 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
   @Override
   public void copy(PortfolioReader portfolioReader, PortfolioWriter portfolioWriter) {
       
+    ArgumentChecker.notNull(portfolioWriter, "portfolioWriter");
+    ArgumentChecker.notNull(portfolioReader, "portfolioReader");
+
     // Get bbg hts loader
     BloombergIdentifierProvider bbgIdentifierProvider = new BloombergIdentifierProvider(_bbgRefDataProvider);
     BloombergHistoricalLoader bbgLoader = new BloombergHistoricalLoader(_htsMaster, _bbgHtsSource, bbgIdentifierProvider);

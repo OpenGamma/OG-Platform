@@ -9,6 +9,7 @@ import com.opengamma.integration.loadsave.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.ObjectsPair;
 
 /**
@@ -20,6 +21,9 @@ public class SimplePortfolioCopier implements PortfolioCopier {
   public void copy(PortfolioReader portfolioReader, PortfolioWriter portfolioWriter) {
     ObjectsPair<ManageablePosition, ManageableSecurity[]> next;
 
+    ArgumentChecker.notNull(portfolioWriter, "portfolioWriter");
+    ArgumentChecker.notNull(portfolioReader, "portfolioReader");
+    
     // Read in next row, checking for EOF
     while ((next = portfolioReader.readNext()) != null) { 
       

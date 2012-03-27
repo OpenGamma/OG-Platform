@@ -45,6 +45,9 @@ public class ExchangeTradedRowParser extends RowParser {
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> row) {
+    
+    ArgumentChecker.notNull(row, "row");
+    
     // Look up security using ticker
     ManageableSecurity security = _bbgSecSource.getSecurity(ExternalIdBundle.of(
         SecurityUtils.bloombergTickerSecurityId(getWithException(row, TICKER))));
@@ -58,6 +61,9 @@ public class ExchangeTradedRowParser extends RowParser {
   @Override
   public ManageablePosition constructPosition(Map<String, String> row, ManageableSecurity security) {
     // Create position using the quantity field
+    
+    ArgumentChecker.notNull(row, "row");
+    ArgumentChecker.notNull(security, "security");
     
     if (row.containsKey(QUANTITY)) {      
       return new ManageablePosition(
@@ -74,6 +80,10 @@ public class ExchangeTradedRowParser extends RowParser {
   
   @Override
   public ManageableTrade constructTrade(Map<String, String> row, ManageableSecurity security, ManageablePosition position) {
+    
+    ArgumentChecker.notNull(row, "row");
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(position, "position");
     
     // Create trade using trade date, premium and counterparty if available in current row
     if (row.containsKey(TRADE_DATE) && row.containsKey(PREMIUM) && row.containsKey(COUNTERPARTY)) {
