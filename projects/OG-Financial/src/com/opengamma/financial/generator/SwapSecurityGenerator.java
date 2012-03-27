@@ -13,7 +13,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
@@ -32,14 +31,13 @@ import com.opengamma.util.time.Tenor;
 /**
  * Source of random, but reasonable, swap security instances.
  */
-public abstract class AbstractSwapSecurityGenerator extends SecurityGenerator<SwapSecurity> {
+public class SwapSecurityGenerator extends SecurityGenerator<SwapSecurity> {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(AbstractSwapSecurityGenerator.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(SwapSecurityGenerator.class);
   private static final Tenor[] TENORS = new Tenor[] {Tenor.ONE_YEAR, Tenor.TWO_YEARS, Tenor.THREE_YEARS, Tenor.FIVE_YEARS, Tenor.ofYears(7), Tenor.ofYears(10), Tenor.ofYears(12), Tenor.ofYears(15),
       Tenor.ofYears(20) };
 
   private int _daysTrading = 60;
-  private String _historicalConfigDoc = "DEFAULT_TSS_CONFIG";
 
   public void setDaysTrading(final int daysTrading) {
     _daysTrading = daysTrading;
@@ -49,31 +47,18 @@ public abstract class AbstractSwapSecurityGenerator extends SecurityGenerator<Sw
     return _daysTrading;
   }
 
-  public void setHistoricalConfigDoc(final String historicalConfigDoc) {
-    _historicalConfigDoc = historicalConfigDoc;
-  }
-
-  public String getHistoricalConfigDoc() {
-    return _historicalConfigDoc;
-  }
-
-  /**
-   * Return the curve config name to use.
-   * 
-   * @return the curve config name
-   */
-  protected abstract String getCurveConfigName();
-
   /**
    * Return the time series identifier.
    * 
    * @param liborConvention the convention bundle, not null
    * @return the time series identifier
    */
-  protected abstract ExternalId getTimeSeriesIdentifier(final ConventionBundle liborConvention);
+  protected ExternalId getTimeSeriesIdentifier(final ConventionBundle liborConvention) {
+    return liborConvention.getIdentifiers().getExternalId(getPreferredScheme());
+  }
 
-  private ExternalId getSwapRateFor(ConfigSource configSource, Currency ccy, LocalDate tradeDate, Tenor tenor) {
-    CurveSpecificationBuilderConfiguration curveSpecConfig = configSource.getByName(CurveSpecificationBuilderConfiguration.class, getCurveConfigName() + "_" + ccy.getCode(), null);
+  private ExternalId getSwapRateFor(Currency ccy, LocalDate tradeDate, Tenor tenor) {
+    final CurveSpecificationBuilderConfiguration curveSpecConfig = getCurrencyCurveConfig(ccy);
     if (curveSpecConfig == null) {
       return null;
     }
@@ -110,7 +95,7 @@ public abstract class AbstractSwapSecurityGenerator extends SecurityGenerator<Sw
     // look up the rate timeseries identifier out of the bundle
     final ExternalId tsIdentifier = getTimeSeriesIdentifier(liborConvention);
     // look up the value on our chosen trade date
-    final HistoricalTimeSeries initialRateSeries = getHistoricalSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, tsIdentifier.toBundle(), getHistoricalConfigDoc(), tradeDate,
+    final HistoricalTimeSeries initialRateSeries = getHistoricalSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, tsIdentifier.toBundle(), null, tradeDate,
         true, tradeDate, true);
     if (initialRateSeries == null || initialRateSeries.getTimeSeries().isEmpty()) {
       s_logger.error("couldn't get series for {} on {}", tsIdentifier, tradeDate);
@@ -118,13 +103,13 @@ public abstract class AbstractSwapSecurityGenerator extends SecurityGenerator<Sw
     }
     Double initialRate = initialRateSeries.getTimeSeries().getEarliestValue();
     // get the identifier for the swap rate for the maturity we're interested in (assuming the fixed rate will be =~ swap rate)
-    final ExternalId swapRateForMaturityIdentifier = getSwapRateFor(getConfigSource(), ccy, tradeDate, maturity);
+    final ExternalId swapRateForMaturityIdentifier = getSwapRateFor(ccy, tradeDate, maturity);
     if (swapRateForMaturityIdentifier == null) {
       s_logger.error("Couldn't get swap rate identifier for {} [{}] from {}", new Object[] {ccy, maturity, tradeDate });
       return null;
     }
     final HistoricalTimeSeries fixedRateSeries = getHistoricalSource().getHistoricalTimeSeries(MarketDataRequirementNames.MARKET_VALUE, swapRateForMaturityIdentifier.toBundle(),
-        getHistoricalConfigDoc(), tradeDate, true,
+        null, tradeDate, true,
         tradeDate, true);
     if (fixedRateSeries == null) {
       s_logger.error("can't find time series for {} on {}", swapRateForMaturityIdentifier, tradeDate);

@@ -10,13 +10,15 @@ import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 /**
  * Utility for constructing a random Cap/Floor portfolio.
  */
-public abstract class AbstractCapFloorPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
+public class CapFloorPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
-  protected abstract AbstractCapFloorSecurityGenerator createCapFloorSecurityGenerator();
+  protected CapFloorSecurityGenerator createCapFloorSecurityGenerator() {
+    return new CapFloorSecurityGenerator();
+  }
 
   @Override
   public PortfolioNodeGenerator createPortfolioNodeGenerator(final int size) {
-    final AbstractCapFloorSecurityGenerator securities = createCapFloorSecurityGenerator();
+    final CapFloorSecurityGenerator securities = createCapFloorSecurityGenerator();
     configure(securities);
     final PositionGenerator positions = new SimplePositionGenerator<CapFloorSecurity>(securities, getSecurityPersister());
     return new LeafPortfolioNodeGenerator(new StaticNameGenerator("Cap/Floor"), positions, size);

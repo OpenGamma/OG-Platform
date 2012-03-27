@@ -19,7 +19,9 @@ import com.opengamma.core.config.ConfigSource;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
+import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
 import com.opengamma.financial.convention.ConventionBundleSource;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.master.exchange.ExchangeMaster;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
@@ -60,6 +62,8 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   private RegionSource _regionSource;
   private ExchangeMaster _exchangeMaster;
   private SecurityMaster _securityMaster;
+  private String _currencyCurveName;
+  private ExternalScheme _preferredScheme;
 
   public Random getRandom() {
     return _random;
@@ -147,6 +151,26 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
 
   public void setSecurityMaster(final SecurityMaster securityMaster) {
     _securityMaster = securityMaster;
+  }
+
+  public String getCurrencyCurveName() {
+    return _currencyCurveName;
+  }
+
+  public void setCurrencyCurveName(final String currencyCurveName) {
+    _currencyCurveName = currencyCurveName;
+  }
+
+  protected CurveSpecificationBuilderConfiguration getCurrencyCurveConfig(final Currency currency) {
+    return getConfigSource().getByName(CurveSpecificationBuilderConfiguration.class, getCurrencyCurveName() + "_" + currency.getCode(), null);
+  }
+
+  public ExternalScheme getPreferredScheme() {
+    return _preferredScheme;
+  }
+
+  public void setPreferredScheme(final ExternalScheme preferredScheme) {
+    _preferredScheme = preferredScheme;
   }
 
   public static Currency[] getDefaultCurrencies() {

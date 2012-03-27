@@ -10,13 +10,15 @@ import com.opengamma.financial.security.fra.FRASecurity;
 /**
  * Utility for constructing a random FRA portfolio.
  */
-public abstract class AbstractFRAPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
+public class FRAPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
-  protected abstract AbstractFRASecurityGenerator createFRASecurityGenerator();
+  protected FRASecurityGenerator createFRASecurityGenerator() {
+    return new FRASecurityGenerator();
+  }
 
   @Override
   public PortfolioGenerator createPortfolioGenerator(final NameGenerator portfolioNameGenerator) {
-    final AbstractFRASecurityGenerator securities = createFRASecurityGenerator();
+    final FRASecurityGenerator securities = createFRASecurityGenerator();
     configure(securities);
     final PositionGenerator positions = new SimplePositionGenerator<FRASecurity>(securities, getSecurityPersister());
     final PortfolioNodeGenerator rootNode = new LeafPortfolioNodeGenerator(new StaticNameGenerator("FRAs"), positions, PORTFOLIO_SIZE);

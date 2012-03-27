@@ -7,13 +7,21 @@ package com.opengamma.examples.generator;
 
 import org.apache.commons.cli.Options;
 
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.examples.tool.AbstractExampleTool;
 import com.opengamma.financial.generator.AbstractPortfolioGeneratorTool;
+import com.opengamma.financial.generator.SecurityGenerator;
 
 /**
  * Utility for generating a portfolio of securities.
  */
 public class PortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
+
+  protected void configure(final SecurityGenerator<?> securityGenerator) {
+    super.configure(securityGenerator);
+    securityGenerator.setCurrencyCurveName("SECONDARY");
+    securityGenerator.setPreferredScheme(SecurityUtils.OG_SYNTHETIC_TICKER);
+  }
 
   public static void main(final String[] args) { // CSIGNORE
     (new AbstractExampleTool() {

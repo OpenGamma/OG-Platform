@@ -21,7 +21,7 @@ import com.opengamma.util.time.Tenor;
 /**
  * Source of random, but reasonable, Cap/Floor securities.
  */
-public abstract class AbstractCapFloorSecurityGenerator extends SecurityGenerator<CapFloorSecurity> {
+public class CapFloorSecurityGenerator extends SecurityGenerator<CapFloorSecurity> {
 
   private static final DayCount[] DAY_COUNT = new DayCount[] {DayCountFactory.INSTANCE.getDayCount("Act/360"), DayCountFactory.INSTANCE.getDayCount("30U/360") };
   private static final Frequency[] FREQUENCY = new Frequency[] {SimpleFrequency.QUARTERLY, SimpleFrequency.SEMI_ANNUAL, SimpleFrequency.ANNUAL };
@@ -37,10 +37,8 @@ public abstract class AbstractCapFloorSecurityGenerator extends SecurityGenerato
     return sb.toString();
   }
 
-  protected abstract String getCurveConfigName();
-
   private ExternalId getUnderlying(final Currency ccy, final LocalDate tradeDate, final Tenor tenor) {
-    CurveSpecificationBuilderConfiguration curveSpecConfig = getConfigSource().getByName(CurveSpecificationBuilderConfiguration.class, getCurveConfigName() + "_" + ccy.getCode(), null);
+    final CurveSpecificationBuilderConfiguration curveSpecConfig = getCurrencyCurveConfig(ccy);
     if (curveSpecConfig == null) {
       return null;
     }

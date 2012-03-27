@@ -17,11 +17,11 @@ import com.opengamma.master.position.ManageableTrade;
  */
 public class SwapPositionGenerator extends SimplePositionGenerator<SwapSecurity> {
 
-  public SwapPositionGenerator(final QuantityGenerator quantityGenerator, final AbstractSwapSecurityGenerator securityGenerator, final SecurityPersister securityPersister) {
+  public SwapPositionGenerator(final QuantityGenerator quantityGenerator, final SwapSecurityGenerator securityGenerator, final SecurityPersister securityPersister) {
     super(quantityGenerator, securityGenerator, securityPersister);
   }
 
-  public SwapPositionGenerator(final AbstractSwapSecurityGenerator securityGenerator, final SecurityPersister securityPersister) {
+  public SwapPositionGenerator(final SwapSecurityGenerator securityGenerator, final SecurityPersister securityPersister) {
     super(securityGenerator, securityPersister);
   }
 
