@@ -274,10 +274,10 @@ CREATE TABLE sec_ndffxdigitaloption (
     is_long boolean NOT NULL,
     is_delivery_in_call_currency boolean NOT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT sec_fk_fxndfdigitaloption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
-    CONSTRAINT sec_fk_fxndfdigitaloption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
-    CONSTRAINT sec_fk_fxndfdigitaloption2callcurrency FOREIGN KEY (call_currency_id) REFERENCES sec_currency (id),
-    CONSTRAINT sec_fk_fxndfdigitaloption2paymentcurrency FOREIGN KEY (payment_currency_id) REFERENCES sec_currency (id)
+    CONSTRAINT sec_fk_ndffxdigitaloption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_ndffxdigitaloption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_ndffxdigitaloption2callcurrency FOREIGN KEY (call_currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_ndffxdigitaloption2paymentcurrency FOREIGN KEY (payment_currency_id) REFERENCES sec_currency (id)
 );
 
 CREATE INDEX ix_sec_ndffxdigitaloption_security_id ON sec_ndffxdigitaloption(security_id);
@@ -610,7 +610,7 @@ CREATE TABLE sec_swap (
     receive_notionalscheme varchar(255),
     receive_notionalid varchar(255),
     receive_rate double precision,
-    receive_iseom boolean NOT NULL, 
+    receive_iseom boolean NOT NULL,
     receive_spread double precision,
     receive_rateidentifierscheme varchar(255),
     receive_rateidentifierid varchar(255),

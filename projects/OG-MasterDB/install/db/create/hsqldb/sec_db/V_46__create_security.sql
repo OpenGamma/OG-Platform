@@ -250,7 +250,8 @@ CREATE TABLE sec_fxdigitaloption (
     PRIMARY KEY (id),
     CONSTRAINT sec_fk_fxdigitaloption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
     CONSTRAINT sec_fk_fxdigitaloption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
-    CONSTRAINT sec_fk_fxdigitaloption2callcurrency FOREIGN KEY (call_currency_id) REFERENCES sec_currency (id)
+    CONSTRAINT sec_fk_fxdigitaloption2callcurrency FOREIGN KEY (call_currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_fxdigitaloption2paymentcurrency FOREIGN KEY (payment_currency_id) REFERENCES sec_currency (id)
 );
 
 CREATE INDEX ix_sec_fxdigitaloption_security_id ON sec_fxdigitaloption(security_id);
@@ -271,9 +272,10 @@ CREATE TABLE sec_ndffxdigitaloption (
     is_long boolean NOT NULL,
     is_delivery_in_call_currency boolean NOT NULL,
     PRIMARY KEY (id),
-    CONSTRAINT sec_fk_fxndfdigitaloption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
-    CONSTRAINT sec_fk_fxndfdigitaloption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
-    CONSTRAINT sec_fk_fxndfdigitaloption2callcurrency FOREIGN KEY (call_currency_id) REFERENCES sec_currency (id)
+    CONSTRAINT sec_fk_ndffxdigitaloption2sec FOREIGN KEY (security_id) REFERENCES sec_security (id),
+    CONSTRAINT sec_fk_ndffxdigitaloption2putcurrency FOREIGN KEY (put_currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_ndffxdigitaloption2callcurrency FOREIGN KEY (call_currency_id) REFERENCES sec_currency (id),
+    CONSTRAINT sec_fk_ndffxdigitaloption2paymentcurrency FOREIGN KEY (payment_currency_id) REFERENCES sec_currency (id)
 );
 
 CREATE INDEX ix_sec_ndffxdigitaloption_security_id ON sec_ndffxdigitaloption(security_id);
