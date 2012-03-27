@@ -14,7 +14,7 @@ import com.opengamma.financial.interestrate.swaption.method.SwaptionPhysicalFixe
 import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 
 /**
- * Present value calculator for interest rate instruments using SABR volatility formula.
+ * Present value calculator for interest rate instruments using the Black function.
  */
 public final class PresentValueBlackSwaptionCalculator extends PresentValueCalculator {
 
