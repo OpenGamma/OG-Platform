@@ -75,6 +75,25 @@
   background-position: -44px -141px;
 }
 
+.OG-icon.og-icon-tools-import {
+  height: 22px;
+  width: 18px;
+  position: relative;
+  top: 5px;
+}
+
+.OG-icon.og-icon-tools-import:after {
+  background-position: -146px -116px;
+  background-color: transparent;
+  height: 22px;
+  width: 18px;
+  position: absolute;
+}
+
+.OG-icon.og-icon-tools-import.OG-disabled:after {
+  background-position: -146px -139px;
+}
+
 .OG-icon.og-icon-tools-versions {
   height: 22px;
   position: relative;
