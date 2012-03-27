@@ -177,7 +177,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
         final Double volatility = optionVolatilities.getVolatility(x, y);
         if (volatility != null) {
           xList.add(x.doubleValue());
-          yList.add(y);
+          yList.add(y / 100.);
           volatilityValues.put(Pair.of(x.doubleValue(), y / 100.), volatility / 100); // TODO Normalisation, could this be done elsewhere?
         }
       }
@@ -205,7 +205,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
             final double forward = futurePrices.getYValue(x.doubleValue());
             final double volatility = getVolatility(surfaceQuoteType, y / 100.0, price, forward, t.doubleValue(), callAboveStrike / 100.);
             xList.add(xVal);
-            yList.add(y);
+            yList.add(y / 100.);
             volatilityValues.put(Pair.of(xVal, y / 100.), volatility);
           } catch (final MathException e) {
             s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage() });

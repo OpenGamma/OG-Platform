@@ -12,6 +12,8 @@ import java.io.OutputStream;
 import java.util.Map;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.integration.loadsave.sheet.SheetFormat;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * This abstract class represents a sheet writer that, given a map from column names to data, writes out a row containing that
@@ -22,16 +24,25 @@ public abstract class SheetWriter {
   private String[] _columns; // The column names and order
   
   public static SheetWriter newSheetWriter(String filename, String[] columns) {
-    String extension = filename.substring(filename.lastIndexOf('.')).toLowerCase();
-    if (extension.equals(".csv")) {
-      return new CsvSheetWriter(filename, columns);
-//    } else if (extension.equals(".xls")) {
-//      return new SimpleXlsSheetWriter(filename, columns, 0);
-    } else {
-      throw new OpenGammaRuntimeException("Could not identify the input format from the file name extension");
-    }
+    ArgumentChecker.notEmpty(filename, "filename");
+    OutputStream outputStream = openFile(filename);
+    return newSheetWriter(SheetFormat.of(filename), outputStream, columns); 
   }
 
+  public static SheetWriter newSheetWriter(SheetFormat sheetFormat, OutputStream outputStream, String[] columns) {
+    
+    ArgumentChecker.notNull(sheetFormat, "sheetFormat");
+    ArgumentChecker.notNull(outputStream, "outputStream");
+    ArgumentChecker.notNull(columns, "columns");
+    
+    switch (sheetFormat) {
+      case CSV:
+        return new CsvSheetWriter(outputStream, columns);
+      default:
+        throw new OpenGammaRuntimeException("Could not create a writer for the sheet output format " + sheetFormat.toString());
+    }
+  }
+  
   public abstract void writeNextRow(Map<String, String> row);
 
   public abstract void flush();
@@ -46,7 +57,7 @@ public abstract class SheetWriter {
     _columns = columns;
   }
   
-  protected OutputStream openFile(String filename) {
+  protected static OutputStream openFile(String filename) {
     // Open input file for writing
     FileOutputStream fileOutputStream;
     try {

@@ -177,10 +177,13 @@ $.register_module({
          * Templates for rendering trades table
          */
         html.og_table = '\
-          <table class="OG-table">\
+          <table class="OG-table og-tablesorter">\
             <thead>\
               <tr>\
-                <th><span>Trades</span></th>\
+                <th colspan="6"><span>Trades</span></th>\
+              </tr>\
+              <tr>\
+                <th>ID</th>\
                 <th>Quantity</th>\
                 <th>Counterparty</th>\
                 <th>Trade Date / Time</th>\
@@ -190,8 +193,9 @@ $.register_module({
             </thead>\
             <tbody>{TBODY}</tbody>\
           </table>';
+        // expand-child class is for tablesorter
         html.attributes = '\
-          <tr class="og-js-attribute" style="display: none">\
+          <tr class="og-js-attribute expand-child" style="display: none">\
             <td colspan="6" style="padding: 0 10px 10px 24px; position: relative">\
               <table class="og-sub-list">{TBODY}</table>\
             </td>\
@@ -345,8 +349,7 @@ $.register_module({
                     } else $this.find('.og-icon-expand').css('visibility', 'hidden');
                 });
                 if (!version) attach_trades_link(selector);
-                $(selector + ' > .OG-table > tbody > tr:not(".og-js-attribute"):last td').css('padding-bottom', '10px');
-                $(selector + ' .OG-table').awesometable({height: 400});
+                $(selector + ' .OG-table').tablesorter().awesometable({height: 400});
                 /*
                  * Enable edit/delete trade
                  */

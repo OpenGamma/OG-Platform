@@ -121,11 +121,12 @@ $.register_module({
                         $obj.dialog('option', 'buttons')['OK']();
                     });
                 }
-                /*
-                 * Create advanced form via og.common.util.ui.Form
-                 */
+                // Create advanced form via og.common.util.ui.Form
                 if (obj.form) {obj.form(css_class);}
+                // Create custom content
+                if (obj.custom) {$obj.append(obj.custom);}
                 $obj.dialog($.extend(true, default_options.input.jquery, obj));
+
             }
             $obj.parent('.ui-dialog').addClass(class_name + '-container');
         }

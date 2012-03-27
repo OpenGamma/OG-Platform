@@ -22,6 +22,7 @@ import com.opengamma.integration.loadsave.portfolio.reader.ZippedPortfolioReader
 import com.opengamma.integration.loadsave.portfolio.writer.DummyPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.loadsave.sheet.SheetFormat;
 import com.opengamma.integration.tool.AbstractIntegrationTool;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -107,28 +108,31 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
   }
 
   private PortfolioReader constructPortfolioReader(String filename, String securityClass) {
-    
-    String extension = filename.substring(filename.lastIndexOf('.'));
-    // Single CSV or XLS file extension
-    if (extension.equalsIgnoreCase(".csv") || extension.equalsIgnoreCase(".xls")) {
-      // Check that the asset class was specified on the command line
-      if (securityClass == null) {
-        throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename + " (use '-a')");
-      } else {
-        InputStream inputStream;
-        try {
-          inputStream = new BufferedInputStream(new FileInputStream(filename));
-        } catch (FileNotFoundException e) {
-          throw new OpenGammaRuntimeException("Could not open file " + filename + " for reading: " + e);
+
+    SheetFormat sheetFormat = SheetFormat.of(filename);
+    switch (sheetFormat) {
+      
+      case CSV:
+      case XLS:
+        // Check that the asset class was specified on the command line
+        if (securityClass == null) {
+          throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename + " (use '-a')");
+        } else {
+          InputStream inputStream;
+          try {
+            inputStream = new BufferedInputStream(new FileInputStream(filename));
+          } catch (FileNotFoundException e) {
+            throw new OpenGammaRuntimeException("Could not open file " + filename + " for reading: " + e);
+          }
+          return new SingleSheetSimplePortfolioReader(sheetFormat, inputStream, securityClass);
         }
-        return new SingleSheetSimplePortfolioReader(filename, inputStream, securityClass);
-      }
-    // Multi-asset ZIP file extension
-    } else if (extension.equalsIgnoreCase(".zip")) {
-      // Create zipped multi-asset class loader
-      return new ZippedPortfolioReader(filename);
-    } else {
-      throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
+      
+      case ZIP:
+        // Create zipped multi-asset class loader
+        return new ZippedPortfolioReader(filename);
+        
+      default:
+        throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
     }
   }
 

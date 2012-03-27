@@ -1,0 +1,9 @@
+{{id}} .OG-g-b-scroll {width: {{viewport_width}}px; left: {{fixed_width}}px; height: {{height}}px}
+{{id}} .OG-g-h-scroll {width: {{viewport_width}}px; height: {{header_height}}px; left: {{fixed_width}}px}
+{{id}} .OG-g-b-scroll .OG-g-row {width: {{scroll_width}}px}
+{{id}} .OG-g-b-fixed {width: {{fixed_width}}px; height: {{height}}px}
+{{id}} .OG-g-h-fixed {width: {{fixed_width}}px}
+{{id}} .OG-g-b {top: {{header_height}}px}
+{{#each columns}}
+    {{this.prefix}} .OG-g .{{this.selector}} {left: {{this.left}}px; right: {{this.right}}px;}
+{{/each}}

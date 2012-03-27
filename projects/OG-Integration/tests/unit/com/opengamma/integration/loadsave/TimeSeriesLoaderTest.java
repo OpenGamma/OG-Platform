@@ -25,6 +25,7 @@ import org.testng.annotations.Test;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundleWithDates;
 import com.opengamma.id.ExternalIdSearch;
+import com.opengamma.integration.loadsave.sheet.SheetFormat;
 import com.opengamma.integration.loadsave.sheet.reader.SheetReader;
 import com.opengamma.integration.loadsave.timeseries.reader.SingleSheetMultiTimeSeriesReader;
 import com.opengamma.integration.loadsave.timeseries.reader.TimeSeriesReader;
@@ -200,7 +201,7 @@ public class TimeSeriesLoaderTest {
     // Set up the reader to read from file and the writer to write to the in-memory master, and do the import 
     InputStream fileStream = new BufferedInputStream(new FileInputStream(FILENAME));
     TimeSeriesReader reader = new SingleSheetMultiTimeSeriesReader(
-        FILENAME, fileStream, DATA_SOURCE, DATA_PROVIDER, DATA_FIELD, OBSERVATION_TIME, ID_SCHEME, DATE_FORMAT);
+        SheetFormat.of(FILENAME), fileStream, DATA_SOURCE, DATA_PROVIDER, DATA_FIELD, OBSERVATION_TIME, ID_SCHEME, DATE_FORMAT);
     HistoricalTimeSeriesMaster htsMaster = buildHistoricalTimeSeriesMaster(existingDataPoints);
     TimeSeriesWriter writer = new MasterTimeSeriesWriter(htsMaster);
     reader.writeTo(writer);
