@@ -42,6 +42,7 @@ import com.opengamma.financial.analytics.model.irfutureoption.IRFutureOptionUtil
 import com.opengamma.financial.model.volatility.BlackFormulaRepository;
 import com.opengamma.math.MathException;
 import com.opengamma.math.curve.NodalDoublesCurve;
+import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.Pair;
 
@@ -203,6 +204,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final Map<Pair<Number, Double>, Double> volatilityValues = new HashMap<Pair<Number, Double>, Double>();
     final ObjectArrayList<Number> xList = new ObjectArrayList<Number>();
     final DoubleArrayList yList = new DoubleArrayList();
+    // TODO Erase System.out.print("\n" + "nExpiry,tExpiry,Strike, Volatility\n");
     for (final Number x : optionPrices.getXs()) {
       final Number t = IRFutureOptionUtils.getTime(x.doubleValue(), now);
       for (final Double y : optionPrices.getYs()) {
@@ -212,9 +214,12 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
             final double forward = futurePrices.getYValue(x.doubleValue());
             final double volatility = getVolatility(surfaceQuoteType, y / 100.0, price, forward, t.doubleValue(), callAboveStrike / 100.);
 
-            xList.add(x);
-            yList.add(y);
-            volatilityValues.put(Pair.of(x, y), volatility);
+            // TODO Erase System.out.print(x + "," + t + "," + y + "," + volatility + "\n");
+            if (!CompareUtils.closeEquals(volatility, 0.0)) {
+              xList.add(x);
+              yList.add(y);
+              volatilityValues.put(Pair.of(x, y), volatility);
+            }
           } catch (final MathException e) {
             s_logger.info("Could not imply volatility for ({}, {}); error was {}", new Object[] {x, y, e.getMessage() });
           } catch (final IllegalArgumentException e) {
