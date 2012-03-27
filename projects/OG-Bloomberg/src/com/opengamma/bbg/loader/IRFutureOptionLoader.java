@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.ImmutableSet;
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.BloombergSecurityMaster;
+import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.util.BloombergDataUtils;
 import com.opengamma.core.security.SecurityUtils;
@@ -169,7 +169,7 @@ public class IRFutureOptionLoader extends SecurityLoader {
         optionStrikePrice / 100, // Strike in percent //TODO: use normalization (like in BloombergRateClassifier)?
         optionType);
     security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
-    security.setUniqueId(BloombergSecurityMaster.createUniqueId(bbgUniqueID));
+    security.setUniqueId(BloombergSecuritySource.createUniqueId(bbgUniqueID));
     //build option display name
     StringBuilder buf = new StringBuilder(rootTicker);
     buf.append(" ");

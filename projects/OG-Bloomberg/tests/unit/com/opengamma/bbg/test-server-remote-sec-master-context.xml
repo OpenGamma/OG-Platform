@@ -34,7 +34,7 @@
     <constructor-arg ref="mongoConnector"/>
   </bean>
 
-	<bean id="bloombergSecurityMaster" class="com.opengamma.bbg.BloombergSecurityMaster">
+	<bean id="bloombergSecurityMaster" class="com.opengamma.bbg.BloombergSecuritySource">
 		<constructor-arg ref="cachingProvider" />
         <constructor-arg ref="cachingProvider" />
 	</bean>

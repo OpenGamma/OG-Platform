@@ -13,7 +13,7 @@ import javax.time.calendar.OffsetTime;
 import javax.time.calendar.ZoneOffset;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.BloombergSecurityMaster;
+import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.ExternalId;
@@ -37,7 +37,7 @@ public class ExchangeTradedRowParser extends RowParser {
   
   private String[] _columns = {TICKER, QUANTITY, TRADE_DATE, PREMIUM, COUNTERPARTY };
   
-  private BloombergSecurityMaster _bbgSecSource;
+  private BloombergSecuritySource _bbgSecSource;
 
   public ExchangeTradedRowParser(IntegrationToolContext toolContext) {
     super(toolContext);

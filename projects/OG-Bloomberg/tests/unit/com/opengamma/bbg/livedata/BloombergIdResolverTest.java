@@ -32,12 +32,12 @@ public class BloombergIdResolverTest {
   private CachingReferenceDataProvider _refDataProvider = null;
 
   @BeforeMethod
-  public void setupBloombergSecurityMaster(Method m) {
+  public void setupBloombergSecuritySource(Method m) {
     _refDataProvider = BloombergLiveDataServerUtils.getCachingReferenceDataProvider(m);
   }
   
   @AfterMethod
-  public void terminateSecurityMaster() {
+  public void terminateSecuritySource() {
     BloombergLiveDataServerUtils.stopCachingReferenceDataProvider(_refDataProvider);
   }
 
