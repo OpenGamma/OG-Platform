@@ -166,7 +166,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction ex
 
   @Override
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
-    final String currency = FinancialSecurityUtils.getCurrency(target.getSecurity()).getCode();
+    final String currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()).getCode();
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, target.toSpecification(), getResultProperties(currency)));
   }
 
@@ -204,7 +204,7 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction ex
     final String surfaceName = surfaceNames.iterator().next();
     final String curveCalculationMethod = curveCalculationMethods.iterator().next();
     final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(4);
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
     requirements.add(YieldCurveFunction.getCurveRequirement(currency, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
     requirements.add(YieldCurveFunction.getCurveRequirement(currency, fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
     requirements.add(getCurveSpecRequirement(target, curveName));
@@ -224,7 +224,8 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction ex
         .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
         .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
         .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
-        .withAny(ValuePropertyNames.SURFACE).with(ValuePropertyNames.CURRENCY, currency)
+        .withAny(ValuePropertyNames.SURFACE)
+        .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.CURVE_CURRENCY, currency)
         .withAny(ValuePropertyNames.CURVE).get();
   }
@@ -250,15 +251,15 @@ public class InterestRateFutureOptionBlackYieldCurveNodeSensitivitiesFunction ex
   }
 
   private static ValueRequirement getJacobianRequirement(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName, final String calculationMethod) {
-    return YieldCurveFunction.getJacobianRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()), forwardCurveName, fundingCurveName, calculationMethod);
+    return YieldCurveFunction.getJacobianRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), forwardCurveName, fundingCurveName, calculationMethod);
   }
 
   private ValueRequirement getCouponSensitivityRequirement(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {
-    return YieldCurveFunction.getCouponSensitivityRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()), forwardCurveName, fundingCurveName);
+    return YieldCurveFunction.getCouponSensitivityRequirement(FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity()), forwardCurveName, fundingCurveName);
   }
 
   private ValueRequirement getCurveSpecRequirement(final ComputationTarget target, final String curveName) {
-    final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
+    final Currency currency = FinancialSecurityUtils.getCurrency(target.getTrade().getSecurity());
     final ValueProperties.Builder properties = ValueProperties.builder()
         .with(ValuePropertyNames.CURVE, curveName);
     return new ValueRequirement(ValueRequirementNames.YIELD_CURVE_SPEC, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
