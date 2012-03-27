@@ -101,17 +101,12 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
     return position;
   }
 
-  @Override
-  public ManageablePortfolio getPortfolio() {
-    return _portfolio;
-  }
-
-  @Override
+  // TODO REMOVE
   public ManageablePortfolioNode getCurrentNode() {
     return _currentNode;
   }
 
-  @Override
+  // TODO REMOVE
   public ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node) {
 
     ArgumentChecker.notNull(node, "node");
@@ -274,6 +269,12 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   @Override
   public void setPath(String[] newPath) {
     // TODO
+  }
+
+  @Override
+  public String[] getCurrentPath() {
+    // TODO
+    return null;
   }
   
 }

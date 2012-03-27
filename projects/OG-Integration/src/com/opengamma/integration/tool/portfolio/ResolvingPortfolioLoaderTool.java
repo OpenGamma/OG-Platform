@@ -22,6 +22,7 @@ import com.opengamma.integration.loadsave.portfolio.rowparser.ExchangeTradedRowP
 import com.opengamma.integration.loadsave.portfolio.writer.DummyPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.loadsave.sheet.SheetFormat;
 import com.opengamma.integration.tool.AbstractIntegrationTool;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -127,14 +128,16 @@ public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
     } catch (FileNotFoundException e) {
       throw new OpenGammaRuntimeException("Could not open file " + filename + " for reading: " + e);
     }
-    String extension = filename.substring(filename.lastIndexOf('.'));
-    // Single CSV or XLS file extension
-    if (extension.equalsIgnoreCase(".csv") || extension.equalsIgnoreCase(".xls")) {
-      // Check that the asset class was specified on the command line
-      return new SingleSheetSimplePortfolioReader(filename, stream, new ExchangeTradedRowParser(bbgSecurityMaster));
-      
-    } else {
-      throw new OpenGammaRuntimeException("Input filename should end in .CSV or .XLS");
+    
+    SheetFormat sheetFormat = SheetFormat.of(filename);
+    switch (sheetFormat) {
+      case XLS:
+      case CSV:
+        // Check that the asset class was specified on the command line
+        return new SingleSheetSimplePortfolioReader(sheetFormat, stream, new ExchangeTradedRowParser(bbgSecurityMaster));
+
+      default:
+        throw new OpenGammaRuntimeException("Input filename should end in .CSV or .XLS");
     }
   }
 

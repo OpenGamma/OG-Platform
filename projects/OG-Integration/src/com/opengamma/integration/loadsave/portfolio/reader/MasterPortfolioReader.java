@@ -17,7 +17,6 @@ import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.id.ObjectId;
 import com.opengamma.id.VersionCorrection;
-import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.portfolio.PortfolioDocument;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -68,63 +67,9 @@ public class MasterPortfolioReader implements PortfolioReader {
     rootNodeList.add(_portfolioDocument.getPortfolio().getRootNode());
     
     _nodeIterator = rootNodeList.iterator();
-
     _nodeIteratorStack = new Stack<Iterator<ManageablePortfolioNode>>();
-
     _positionIdIterator = _nodeIterator.next().getPositionIds().iterator();
   }
-
-//  @Override
-//  public void writeTo(PortfolioWriter portfolioWriter) {
-//    recursiveTraversePortfolioNodes(_portfolioDocument.getPortfolio().getRootNode(), portfolioWriter);
-//  }
-//
-//  private void recursiveTraversePortfolioNodes(ManageablePortfolioNode node, PortfolioWriter portfolioWriter) {
-//    
-//    // Extract and write rows for the current node's positions
-//    for (ObjectId positionId : node.getPositionIds()) {
-//      ManageablePosition position = _positionMaster.get(positionId, VersionCorrection.LATEST).getPosition();
-//      
-//      // Write the related security(ies) TODO handle writing multiple, for underlying securities
-//      ManageableSecurityLink sLink = position.getSecurityLink();
-//      Security security = sLink.resolveQuiet(_securitySource);
-//      if ((security != null) && (security instanceof ManageableSecurity)) {
-//        portfolioWriter.writeSecurity((ManageableSecurity) security);
-//        
-//        // write the current position (this will 'flush' the current row)
-//        portfolioWriter.writePosition(position);
-//      } else {
-//        //throw new OpenGammaRuntimeException("Could not resolve security relating to position " + position.getName());
-//        s_logger.warn("Could not resolve security relating to position " + position.getName());
-//      }
-//      
-//    }
-//    
-//    // Recursively traverse the child nodes
-//    for (ManageablePortfolioNode child : node.getChildNodes()) {
-//      
-//      // Find or create corresponding sub-node in destination portfolio and change to it
-//      ManageablePortfolioNode writeNode = portfolioWriter.getCurrentNode();
-//      ManageablePortfolioNode newNode = null;
-//      for (ManageablePortfolioNode n : writeNode.getChildNodes()) {
-//        if (n.getName().equals(child.getName())) {
-//          newNode = n;
-//          break;
-//        }
-//      }
-//      if (newNode == null) {
-//        newNode = new ManageablePortfolioNode(child.getName());
-//        writeNode.addChildNode(newNode);
-//      }
-//      portfolioWriter.setCurrentNode(newNode);
-//      
-//      // Recursive call
-//      recursiveTraversePortfolioNodes(child, portfolioWriter);
-//      
-//      // Change back up to parent node in destination portfolio
-//      portfolioWriter.setCurrentNode(writeNode);
-//    }
-//  }
   
   @Override
   public ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext() {

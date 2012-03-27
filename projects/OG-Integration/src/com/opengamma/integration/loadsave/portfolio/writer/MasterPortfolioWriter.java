@@ -168,17 +168,10 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     }
   }
   
-  @Override
-  public ManageablePortfolio getPortfolio() {
-    return _portfolioDocument.getPortfolio();
-  }
-  
-  @Override
   public ManageablePortfolioNode getCurrentNode() {
     return _currentNode;
   }
   
-  @Override
   public ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node) {
     
     ArgumentChecker.notNull(node, "node");
@@ -189,6 +182,12 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     }
     _currentNode = node;
     return _currentNode;
+  }
+
+
+  @Override
+  public String[] getCurrentPath() {
+    return null; // TODO FIXXXXXXXXXXXXXXXXXXXXXXXXXXX
   }
 
   @Override
