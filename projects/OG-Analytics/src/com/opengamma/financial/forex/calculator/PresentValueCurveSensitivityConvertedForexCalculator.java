@@ -5,8 +5,6 @@
  */
 package com.opengamma.financial.forex.calculator;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
 import com.opengamma.financial.forex.method.YieldCurveWithCcyBundle;
 import com.opengamma.financial.forex.method.YieldCurveWithFXBundle;
@@ -48,29 +46,30 @@ public class PresentValueCurveSensitivityConvertedForexCalculator extends Abstra
 
   /**
    * Constructor.
-   * @param pvcsc The present value curve sensitivity calculator (not converted).
+   * @param pvcsc The present value curve sensitivity calculator (not converted). Not null.
    */
   public PresentValueCurveSensitivityConvertedForexCalculator(final PresentValueCurveSensitivityForexCalculator pvcsc) {
+    ArgumentChecker.notNull(pvcsc, "present value curve sensitivity calculator");
     _pvcsc = pvcsc;
   }
 
   @Override
   public InterestRateCurveSensitivity visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(derivative);
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(derivative, "derivative");
     ArgumentChecker.isTrue(curves instanceof YieldCurveWithCcyBundle, "FX Conversion can be operated only when the curve currency is indicated.");
-    YieldCurveWithCcyBundle curvesCcy = (YieldCurveWithCcyBundle) curves;
-    MultipleCurrencyInterestRateCurveSensitivity pvcsMulti = _pvcsc.visit(derivative, curvesCcy);
+    final YieldCurveWithCcyBundle curvesCcy = (YieldCurveWithCcyBundle) curves;
+    final MultipleCurrencyInterestRateCurveSensitivity pvcsMulti = _pvcsc.visit(derivative, curvesCcy);
     InterestRateCurveSensitivity result = new InterestRateCurveSensitivity();
-    for (Currency ccy : pvcsMulti.getCurrencies()) {
-      InterestRateCurveSensitivity pvcs = pvcsMulti.getSensitivity(ccy);
-      for (String curve : pvcs.getCurves()) {
+    for (final Currency ccy : pvcsMulti.getCurrencies()) {
+      final InterestRateCurveSensitivity pvcs = pvcsMulti.getSensitivity(ccy);
+      for (final String curve : pvcs.getCurves()) {
         if (curvesCcy.getCcyMap().get(curve) == ccy) { // Identical currencies: no changes
           result = result.plus(curve, pvcs.getSensitivities().get(curve));
         } else { // Different currencies: exchange rate multiplication.
           ArgumentChecker.isTrue(curves instanceof YieldCurveWithFXBundle, "FX Conversion can be operated only if exchange rates are available.");
-          YieldCurveWithFXBundle curveFx = (YieldCurveWithFXBundle) curvesCcy;
-          double fxRate = curveFx.getFxRate(curvesCcy.getCcyMap().get(curve), ccy);
+          final YieldCurveWithFXBundle curveFx = (YieldCurveWithFXBundle) curvesCcy;
+          final double fxRate = curveFx.getFxRate(curvesCcy.getCcyMap().get(curve), ccy);
           result = result.plus(curve, InterestRateCurveSensitivityUtils.multiplySensitivity(pvcs.getSensitivities().get(curve), fxRate));
         }
       }

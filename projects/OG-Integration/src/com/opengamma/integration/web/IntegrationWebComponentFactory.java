@@ -27,7 +27,7 @@ import com.opengamma.integration.loadsave.portfolio.web.PortfolioLoaderResource;
 public class IntegrationWebComponentFactory extends AbstractComponentFactory {
 
   //@PropertyDefinition(validate = "notNull")
-  //private BloombergSecurityMaster _bloombergSecurityMaster;
+  //private BloombergSecuritySource _bloombergSecuritySource;
   //@PropertyDefinition(validate = "notNull")
   //private HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
   //@PropertyDefinition(validate = "notNull")
@@ -44,7 +44,7 @@ public class IntegrationWebComponentFactory extends AbstractComponentFactory {
     @Override
   public void init(ComponentRepository repo, LinkedHashMap<String, String> configuration) throws Exception {
       repo.getRestComponents().publishResource(new PortfolioLoaderResource());
-      /*repo.getRestComponents().publishResource(new PortfolioLoaderResource(_bloombergSecurityMaster,
+      /*repo.getRestComponents().publishResource(new PortfolioLoaderResource(_bloombergSecuritySource,
                                                                            _historicalTimeSeriesMaster,
                                                                            _bloombergHistoricalTimeSeriesSource,
                                                                            _bloombergReferenceDataProvider,
