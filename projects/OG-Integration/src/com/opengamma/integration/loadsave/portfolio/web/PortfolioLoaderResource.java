@@ -23,14 +23,10 @@ import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.bbg.BloombergSecurityMaster;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.integration.loadsave.portfolio.ResolvingPortfolioCopier;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
-import com.opengamma.master.portfolio.PortfolioMaster;
-import com.opengamma.master.position.PositionMaster;
-import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.util.ArgumentChecker;
 import com.sun.jersey.multipart.BodyPartEntity;
 import com.sun.jersey.multipart.FormDataBodyPart;
@@ -44,30 +40,19 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 public class PortfolioLoaderResource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderResource.class);
-  private final ResolvingPortfolioCopier _copier;
+  private final HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
+  private final HistoricalTimeSeriesSource _bloombergHistoricalTimeSeriesSource;
+  private final ReferenceDataProvider _bloombergReferenceDataProvider;
 
-  /*public PortfolioLoaderResource(BloombergSecurityMaster bbgSecurityMaster,
-                                 HistoricalTimeSeriesMaster htsMaster,
-                                 HistoricalTimeSeriesSource bbgHtsSource,
-                                 ReferenceDataProvider bbgRefDataProvider,
-                                 PortfolioMaster portfolioMaster,
-                                 PositionMaster positionMaster,
-                                 SecurityMaster securityMaster) {
-    ArgumentChecker.notNull(bbgSecurityMaster, "bbgSecurityMaster");
-    ArgumentChecker.notNull(htsMaster, "htsMaster");
-    ArgumentChecker.notNull(bbgHtsSource, "bbgHtsSource");
-    ArgumentChecker.notNull(bbgRefDataProvider, "bbgRefDataProvider");
-    _copier = new ResolvingPortfolioLoader(bbgSecurityMaster,
-                                           htsMaster,
-                                           bbgHtsSource,
-                                           bbgRefDataProvider,
-                                           portfolioMaster,
-                                           positionMaster,
-                                           securityMaster);
-  }*/
-
-  public PortfolioLoaderResource() {
-    _copier = null;
+  public PortfolioLoaderResource(HistoricalTimeSeriesMaster historicalTimeSeriesMaster,
+                                 HistoricalTimeSeriesSource bloombergHistoricalTimeSeriesSource,
+                                 ReferenceDataProvider bloombergReferenceDataProvider) {
+    ArgumentChecker.notNull(historicalTimeSeriesMaster, "historicalTimeSeriesMaster");
+    ArgumentChecker.notNull(bloombergHistoricalTimeSeriesSource, "bloombergHistoricalTimeSeriesSource");
+    ArgumentChecker.notNull(bloombergReferenceDataProvider, "bloombergReferenceDataProvider");
+    _historicalTimeSeriesMaster = historicalTimeSeriesMaster;
+    _bloombergHistoricalTimeSeriesSource = bloombergHistoricalTimeSeriesSource;
+    _bloombergReferenceDataProvider = bloombergReferenceDataProvider;
   }
 
   @Path("{updatePeriod}/{updateCount}")
@@ -85,6 +70,9 @@ public class PortfolioLoaderResource {
     FormDataBodyPart dataFieldBodyPart = getBodyPart(formData, "dataField");
     FormDataBodyPart bodyPart = getBodyPart(formData, "portfolioName");
     String dataField = dataFieldBodyPart.getValue();
+    // TODO real values
+    String dataProvider = null;
+    String[] dataFields = null;
     String portfolioName = bodyPart.getValue();
     String fileName = fileBodyPart.getFormDataContentDisposition().getFileName();
     Object fileEntity = fileBodyPart.getEntity();
@@ -98,6 +86,13 @@ public class PortfolioLoaderResource {
     // TODO fix the args
     // TODO stream the output back to the web
     //_copier.loadPortfolio(portfolioName, fileName, fileStream, "", "", new String[]{dataField}, "", true);
+    ResolvingPortfolioCopier copier = new ResolvingPortfolioCopier(_historicalTimeSeriesMaster,
+                                                                   _bloombergHistoricalTimeSeriesSource,
+                                                                   _bloombergReferenceDataProvider,
+                                                                   dataProvider,
+                                                                   dataFields);
+
+    copier.copy();
     StreamingOutput streamingOutput = new StreamingOutput() {
       @Override
       public void write(OutputStream output) throws IOException, WebApplicationException {
