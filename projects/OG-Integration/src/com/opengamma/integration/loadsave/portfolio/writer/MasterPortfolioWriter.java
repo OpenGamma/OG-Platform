@@ -194,7 +194,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
   @Override
   public void flush() {
-    _portfolioMaster.update(_portfolioDocument);
+    _portfolioDocument = _portfolioMaster.update(_portfolioDocument);
   }
   
   @Override
@@ -271,7 +271,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       portfolioDoc.setPortfolio(portfolio);
       portfolioDoc = _portfolioMaster.update(portfolioDoc);
     }
-
+    
     // Set current node to the root node
     _currentNode = portfolioDoc.getPortfolio().getRootNode();
     
