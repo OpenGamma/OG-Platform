@@ -11,14 +11,13 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
 import com.opengamma.integration.loadsave.sheet.writer.SheetWriter;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * This class writes a portfolio that might contain multiple security types into a single sheet. The columns are
@@ -37,7 +36,10 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
   private ManageablePortfolio _portfolio;
 
   
-  public SingleSheetPortfolioWriter(String filename, String[] securityTypes, ToolContext toolContext) {
+  public SingleSheetPortfolioWriter(String filename, String[] securityTypes) {
+    
+    ArgumentChecker.notEmpty(filename, "filename");
+    ArgumentChecker.notNull(securityTypes, "securityTypes");
     
     Map<String, RowParser> rowParsers = new HashMap<String, RowParser>();
     for (String s : securityTypes) {
@@ -55,6 +57,9 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
   
   public SingleSheetPortfolioWriter(String filename, Map<String, RowParser> rowParsers) {
     
+    ArgumentChecker.notEmpty(filename, "filename");
+    ArgumentChecker.notNull(rowParsers, "rowParsers");
+    
     Set<String> columns = initParsers(rowParsers);
     
     // create virtual manageable portfolio
@@ -67,6 +72,9 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
   
   public SingleSheetPortfolioWriter(SheetWriter sheet, Map<String, RowParser> rowParsers) {
     
+    ArgumentChecker.notNull(sheet, "sheet");
+    ArgumentChecker.notNull(rowParsers, "rowParsers");
+
     initParsers(rowParsers);
     
     // create virtual manageable portfolio
@@ -80,6 +88,8 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
   @Override
   public ManageableSecurity writeSecurity(ManageableSecurity security) {
     
+    ArgumentChecker.notNull(security, "security");
+    
     String className = security.getClass().toString();
     className = className.substring(className.lastIndexOf('.') + 1).replace("Security", "");
     if ((_currentParser = _parserMap.get(className)) != null) { //CSIGNORE
@@ -92,6 +102,8 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
   @Override
   public ManageablePosition writePosition(ManageablePosition position) {
 
+    ArgumentChecker.notNull(position, "position");
+    
     if (_currentParser != null) {
       _currentRow.putAll(_currentParser.constructRow(position));
     }
@@ -117,6 +129,9 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
 
   @Override
   public ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node) {
+    
+    ArgumentChecker.notNull(node, "node");
+    
     _currentNode = node;
     return node;
   }
@@ -143,6 +158,11 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
       }
     }
     return columns;
+  }
+
+  @Override
+  public void setPath(String[] newPath) {
+    // Nothing to do here (a specialised subclass might add a 'path' column to store the current path for each row)
   }
 
 }

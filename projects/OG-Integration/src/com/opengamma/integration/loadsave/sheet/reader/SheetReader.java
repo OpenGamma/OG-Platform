@@ -52,5 +52,6 @@ public abstract class SheetReader {
 
     return fileInputStream;
   }
-  
+    
+  public abstract void close();
 }
