@@ -6,11 +6,13 @@
 package com.opengamma.financial.interestrate.future.method;
 
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginSecurity;
 import com.opengamma.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
 import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
 import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.surface.SurfaceValue;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -19,7 +21,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * The Black parameters are represented by (expiration-strike-delay) surfaces. The "delay" is the time between option expiration and future last trading date,
  * i.e. 0 for quarterly options and x for x-year mid-curve options. The future prices are computed without convexity adjustments.
  */
-public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod {
+public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod extends InterestRateFutureOptionMarginSecurityMethod {
   // TODO: Change to a surface when available.
 
   /**
@@ -69,6 +71,12 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod {
     return priceSecurity;
   }
 
+  @Override
+  public double optionPriceFromFuturePrice(final InterestRateFutureOptionMarginSecurity security, final YieldCurveBundle curves, final double priceFuture) {
+    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
+    return optionPriceFromFuturePrice(security, (YieldCurveWithBlackCubeBundle) curves, priceFuture);
+  }
+
   /**
    * Computes the option security price. The future price is computed without convexity adjustment.
    * @param security The future option security.
@@ -78,6 +86,12 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod {
   public double optionPrice(final InterestRateFutureOptionMarginSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
     final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
     return optionPriceFromFuturePrice(security, blackData, priceFuture);
+  }
+
+  @Override
+  public double optionPrice(final InterestRateFutureOptionMarginSecurity security, final YieldCurveBundle curves) {
+    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
+    return optionPrice(security, (YieldCurveWithBlackCubeBundle) curves);
   }
 
   /**
@@ -105,6 +119,12 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod {
     return priceFutureDerivative.multiply(priceFutureBar);
   }
 
+  @Override
+  public InterestRateCurveSensitivity priceCurveSensitivity(final InterestRateFutureOptionMarginSecurity security, final YieldCurveBundle curves) {
+    ArgumentChecker.isTrue(curves instanceof YieldCurveWithBlackCubeBundle, "Yield curve bundle should contain Black cube");
+    return priceCurveSensitivity(security, (YieldCurveWithBlackCubeBundle) curves);
+  }
+
   /**
    * Computes the option security price volatility sensitivity. The future price is computed without convexity adjustment.
    * @param security The future option security.
@@ -114,7 +134,8 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod {
   public SurfaceValue priceBlackSensitivity(final InterestRateFutureOptionMarginSecurity security, final YieldCurveWithBlackCubeBundle blackData) {
     // Forward sweep
     final double priceFuture = METHOD_FUTURE.price(security.getUnderlyingFuture(), blackData);
-    final double rateStrike = 1.0 - security.getStrike();
+    final double strike = security.getStrike();
+    final double rateStrike = 1.0 - strike;
     final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
     final double forward = 1 - priceFuture;
     //    final double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();
@@ -124,7 +145,7 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod {
     // Backward sweep
     final double priceBar = 1.0;
     final double volatilityBar = priceAdjoint[2] * priceBar;
-    final DoublesPair expiryStrikeDelay = new DoublesPair(security.getExpirationTime(), rateStrike);
+    final DoublesPair expiryStrikeDelay = new DoublesPair(security.getExpirationTime(), strike);
     final SurfaceValue sensi = SurfaceValue.from(expiryStrikeDelay, volatilityBar);
     return sensi;
   }

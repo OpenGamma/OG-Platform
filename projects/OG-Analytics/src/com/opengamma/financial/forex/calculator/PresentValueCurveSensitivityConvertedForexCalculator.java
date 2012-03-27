@@ -22,18 +22,18 @@ import com.opengamma.util.money.Currency;
  * Calculator of the present value curve sensitivity for Forex derivatives with all the results converted in the currency of the curve using the relevant exchange rates.
  * The relevant exchange rates should be available in the data (YieldCurveWithFXBundle).
  */
-public class PresentValueCurveSensitivityConveretedForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> {
+public class PresentValueCurveSensitivityConvertedForexCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, InterestRateCurveSensitivity> {
 
   /**
    * The method unique instance.
    */
-  private static final PresentValueCurveSensitivityConveretedForexCalculator INSTANCE = new PresentValueCurveSensitivityConveretedForexCalculator();
+  private static final PresentValueCurveSensitivityConvertedForexCalculator INSTANCE = new PresentValueCurveSensitivityConvertedForexCalculator();
 
   /**
    * Return the unique instance of the class.
    * @return The instance.
    */
-  public static PresentValueCurveSensitivityConveretedForexCalculator getInstance() {
+  public static PresentValueCurveSensitivityConvertedForexCalculator getInstance() {
     return INSTANCE;
   }
 
@@ -42,14 +42,15 @@ public class PresentValueCurveSensitivityConveretedForexCalculator extends Abstr
   /**
    * Constructor.
    */
-  PresentValueCurveSensitivityConveretedForexCalculator() {
+  PresentValueCurveSensitivityConvertedForexCalculator() {
     _pvcsc = PresentValueCurveSensitivityForexCalculator.getInstance();
   }
 
   /**
    * Constructor.
+   * @param pvcsc The present value curve sensitivity calculator (not converted).
    */
-  public PresentValueCurveSensitivityConveretedForexCalculator(final PresentValueCurveSensitivityForexCalculator pvcsc) {
+  public PresentValueCurveSensitivityConvertedForexCalculator(final PresentValueCurveSensitivityForexCalculator pvcsc) {
     _pvcsc = pvcsc;
   }
 

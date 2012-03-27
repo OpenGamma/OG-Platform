@@ -10,6 +10,8 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionMarginTransaction;
+import com.opengamma.financial.interestrate.future.method.InterestRateFutureOptionMarginTransactionBlackSurfaceMethod;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.interestrate.swaption.method.SwaptionCashFixedIborBlackMethod;
@@ -20,32 +22,33 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * Present value curve sensitivity calculator for interest rate instruments using SABR volatility formula.
  */
-public final class PresentValueCurveSensitivityBlackSwaptionCalculator extends PresentValueCurveSensitivityCalculator {
+public final class PresentValueCurveSensitivityBlackCalculator extends PresentValueCurveSensitivityCalculator {
 
   /**
-   * The instance of the calculator.
+   * The method unique instance.
    */
-  private static final PresentValueCurveSensitivityBlackSwaptionCalculator s_instance = new PresentValueCurveSensitivityBlackSwaptionCalculator();
+  private static final PresentValueCurveSensitivityBlackCalculator INSTANCE = new PresentValueCurveSensitivityBlackCalculator();
 
   /**
-   * Return the instance of the calculator.
-   * @return The calculator.
+   * Return the unique instance of the class.
+   * @return The instance.
    */
-  public static PresentValueCurveSensitivityBlackSwaptionCalculator getInstance() {
-    return s_instance;
+  public static PresentValueCurveSensitivityBlackCalculator getInstance() {
+    return INSTANCE;
   }
 
   /**
-   * Private constructor.
+   * Constructor.
    */
-  private PresentValueCurveSensitivityBlackSwaptionCalculator() {
+  PresentValueCurveSensitivityBlackCalculator() {
   }
 
   /**
-   * Methods.
+   * The methods used in the calculator.
    */
   private static final SwaptionPhysicalFixedIborBlackMethod METHOD_SWAPTION_PHYSICAL = SwaptionPhysicalFixedIborBlackMethod.getInstance();
   private static final SwaptionCashFixedIborBlackMethod METHOD_SWAPTION_CASH = SwaptionCashFixedIborBlackMethod.getInstance();
+  private static final InterestRateFutureOptionMarginTransactionBlackSurfaceMethod METHOD_OPTIONFUTURESMARGIN_BLACK = InterestRateFutureOptionMarginTransactionBlackSurfaceMethod.getInstance();
 
   @Override
   public Map<String, List<DoublesPair>> visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
@@ -67,6 +70,13 @@ public final class PresentValueCurveSensitivityBlackSwaptionCalculator extends P
       return METHOD_SWAPTION_PHYSICAL.presentValueCurveSensitivity(swaption, curvesBlack).getSensitivities();
     }
     throw new UnsupportedOperationException("The PresentValueCurveSensitivityBlackSwaptionCalculator visitor visitSwaptionPhysicalFixedIbor requires a YieldCurveWithBlackSwaptionBundle as data.");
+  }
+
+  @Override
+  public Map<String, List<DoublesPair>> visitInterestRateFutureOptionMarginTransaction(final InterestRateFutureOptionMarginTransaction transaction, final YieldCurveBundle curves) {
+    Validate.notNull(transaction);
+    Validate.notNull(curves);
+    return METHOD_OPTIONFUTURESMARGIN_BLACK.presentValueCurveSensitivity(transaction, curves).getSensitivities();
   }
 
 }
