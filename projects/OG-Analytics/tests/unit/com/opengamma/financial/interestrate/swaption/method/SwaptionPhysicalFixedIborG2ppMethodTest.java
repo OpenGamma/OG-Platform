@@ -92,7 +92,7 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
   private static final SwapFixedDiscountingMethod METHOD_SWAP = SwapFixedDiscountingMethod.getInstance();
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
 
-  private static final G2ppPiecewiseConstantParameters PARAMETERS_G2PP = G2ppTestsDataSet.createG2ppParameters2();
+  private static final G2ppPiecewiseConstantParameters PARAMETERS_G2PP = G2ppTestsDataSet.createG2ppParameters1();
   private static final G2ppPiecewiseConstantDataBundle BUNDLE_G2PP = new G2ppPiecewiseConstantDataBundle(PARAMETERS_G2PP, CURVES);
   private static final PresentValueCalculator PVC = PresentValueCalculator.getInstance();
 
@@ -163,6 +163,8 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
    * Test the present value by approximation vs by numerical integration for a grid of expiry/tenor.
    */
   public void approximationNumericalIntegrationGrid() {
+    G2ppPiecewiseConstantParameters parametersG2pp = G2ppTestsDataSet.createG2ppParameters2();
+    G2ppPiecewiseConstantDataBundle bundleG2pp = new G2ppPiecewiseConstantDataBundle(parametersG2pp, CURVES);
     GeneratorSwap generator = new EUR1YEURIBOR6M(CALENDAR);
     Period[] expiry = new Period[] {Period.ofMonths(6), Period.ofYears(1), Period.ofYears(2), Period.ofYears(5), Period.ofYears(10), Period.ofYears(25)};
     int nbExpiry = expiry.length;
@@ -194,8 +196,8 @@ public class SwaptionPhysicalFixedIborG2ppMethodTest {
     for (int loopexp = 0; loopexp < nbExpiry; loopexp++) {
       for (int loopten = 0; loopten < nbTenor; loopten++) {
         for (int loopstrike = 0; loopstrike < nbStrike; loopstrike++) {
-          pvApprox[loopexp][loopten][loopstrike] = METHOD_G2PP_APPROXIMATION.presentValue(swaption[loopexp][loopten][loopstrike], BUNDLE_G2PP).getAmount();
-          pvNI[loopexp][loopten][loopstrike] = METHOD_G2PP_NI.presentValue(swaption[loopexp][loopten][loopstrike], BUNDLE_G2PP).getAmount();
+          pvApprox[loopexp][loopten][loopstrike] = METHOD_G2PP_APPROXIMATION.presentValue(swaption[loopexp][loopten][loopstrike], bundleG2pp).getAmount();
+          pvNI[loopexp][loopten][loopstrike] = METHOD_G2PP_NI.presentValue(swaption[loopexp][loopten][loopstrike], bundleG2pp).getAmount();
           pvDiff[loopexp][loopten][loopstrike] = pvApprox[loopexp][loopten][loopstrike] - pvNI[loopexp][loopten][loopstrike];
           double pvbp = METHOD_SWAP.presentValueBasisPoint(swaption[loopexp][loopten][loopstrike].getUnderlyingSwap(), CURVES);
           double forward = PRC.visit(swaption[loopexp][loopten][loopstrike].getUnderlyingSwap(), CURVES);
