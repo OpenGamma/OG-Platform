@@ -30,6 +30,7 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.master.security.SecuritySearchSortOrder;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A class that facilitates writing securities and portfolio positions and trades
@@ -47,18 +48,27 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   
   
   public MasterPortfolioWriter(String portfolioName, ToolContext toolContext) {
+    
+    ArgumentChecker.notEmpty(portfolioName, "portfolioName");
+    ArgumentChecker.notNull(toolContext, "toolContext");
+    
     _portfolioMaster = toolContext.getPortfolioMaster();
     _positionMaster = toolContext.getPositionMaster();
     _securityMaster = toolContext.getSecurityMaster();
-
     _portfolioDocument = createPortfolio(portfolioName);
   }
   
-  public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster, PositionMaster positionMaster, SecurityMaster securityMaster) {
+  public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster, 
+      PositionMaster positionMaster, SecurityMaster securityMaster) {
+
+    ArgumentChecker.notEmpty(portfolioName, "portfolioName");
+    ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
+    ArgumentChecker.notNull(positionMaster, "positionMaster");
+    ArgumentChecker.notNull(securityMaster, "securityMaster");
+    
     _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;
     _securityMaster = securityMaster;
-    
     _portfolioDocument = createPortfolio(portfolioName);
 
   }
@@ -69,6 +79,9 @@ public class MasterPortfolioWriter implements PortfolioWriter {
    */
   @Override
   public ManageableSecurity writeSecurity(ManageableSecurity security) {
+    
+    ArgumentChecker.notNull(security, "security");
+    
     SecuritySearchRequest searchReq = new SecuritySearchRequest();
     ExternalIdSearch idSearch = new ExternalIdSearch(security.getExternalIdBundle());  // match any one of the IDs
     searchReq.setVersionCorrection(VersionCorrection.ofVersionAsOf(ZonedDateTime.now())); // valid now
@@ -103,6 +116,8 @@ public class MasterPortfolioWriter implements PortfolioWriter {
    */
   @Override
   public ManageablePosition writePosition(ManageablePosition position) {
+    
+    ArgumentChecker.notNull(position, "position");
     
     ManageablePosition existingPosition = null;
     
@@ -166,6 +181,8 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   @Override
   public ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node) {
     
+    ArgumentChecker.notNull(node, "node");
+    
     // Attempt to find equivalent node in earlier version of portfolio
     if (_originalRoot != null) {
       _originalNode = _originalRoot.findNodeByName(node.getName());
@@ -176,6 +193,9 @@ public class MasterPortfolioWriter implements PortfolioWriter {
 
   @Override
   public void setPath(String[] newPath) {
+    
+    ArgumentChecker.notNull(newPath, "newPath");
+    
     if (newPath.length == 0) {
       return;
     }

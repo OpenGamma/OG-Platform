@@ -46,7 +46,9 @@ public class ZippedPortfolioReader implements PortfolioReader {
   private String[] _currentPath = new String[0];
   
   public ZippedPortfolioReader(String filename) {
+    
     ArgumentChecker.notNull(filename, "filename");
+    
     try {
       _zipFile = new ZipFile(filename);
       _zipEntries = (Enumeration<ZipEntry>) _zipFile.entries();

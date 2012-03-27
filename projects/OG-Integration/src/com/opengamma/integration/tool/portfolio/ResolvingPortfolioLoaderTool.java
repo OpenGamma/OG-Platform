@@ -14,7 +14,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.BloombergSecurityMaster;
+import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.integration.loadsave.portfolio.ResolvingPortfolioCopier;
 import com.opengamma.integration.loadsave.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.loadsave.portfolio.reader.SingleSheetSimplePortfolioReader;
@@ -120,7 +120,7 @@ public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
   }
   
   // TODO take a stream as well as the file name, BBG master
-  private static PortfolioReader constructPortfolioReader(String filename, BloombergSecurityMaster bbgSecurityMaster) {
+  private static PortfolioReader constructPortfolioReader(String filename, BloombergSecuritySource bbgSecurityMaster) {
     InputStream stream;
     try {
       stream = new BufferedInputStream(new FileInputStream(filename));

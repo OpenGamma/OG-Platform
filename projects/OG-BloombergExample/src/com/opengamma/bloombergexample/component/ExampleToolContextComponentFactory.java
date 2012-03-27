@@ -12,7 +12,7 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
-import com.opengamma.bbg.BloombergSecurityMaster;
+import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.component.factory.tool.ToolContextComponentFactory;
@@ -34,7 +34,7 @@ public class ExampleToolContextComponentFactory extends ToolContextComponentFact
    * The Bloomberg security source.
    */
   @PropertyDefinition(validate = "notNull")
-  private BloombergSecurityMaster _bloombergSecuritySource;
+  private BloombergSecuritySource _bloombergSecuritySource;
   /**
    * The Bloomberg reference data provider.
    */
@@ -95,7 +95,7 @@ public class ExampleToolContextComponentFactory extends ToolContextComponentFact
   protected void propertySet(String propertyName, Object newValue, boolean quiet) {
     switch (propertyName.hashCode()) {
       case -437041514:  // bloombergSecuritySource
-        setBloombergSecuritySource((BloombergSecurityMaster) newValue);
+        setBloombergSecuritySource((BloombergSecuritySource) newValue);
         return;
       case -245204181:  // bloombergReferenceDataProvider
         setBloombergReferenceDataProvider((ReferenceDataProvider) newValue);
@@ -144,7 +144,7 @@ public class ExampleToolContextComponentFactory extends ToolContextComponentFact
    * Gets the Bloomberg security source.
    * @return the value of the property, not null
    */
-  public BloombergSecurityMaster getBloombergSecuritySource() {
+  public BloombergSecuritySource getBloombergSecuritySource() {
     return _bloombergSecuritySource;
   }
 
@@ -152,7 +152,7 @@ public class ExampleToolContextComponentFactory extends ToolContextComponentFact
    * Sets the Bloomberg security source.
    * @param bloombergSecuritySource  the new value of the property, not null
    */
-  public void setBloombergSecuritySource(BloombergSecurityMaster bloombergSecuritySource) {
+  public void setBloombergSecuritySource(BloombergSecuritySource bloombergSecuritySource) {
     JodaBeanUtils.notNull(bloombergSecuritySource, "bloombergSecuritySource");
     this._bloombergSecuritySource = bloombergSecuritySource;
   }
@@ -161,7 +161,7 @@ public class ExampleToolContextComponentFactory extends ToolContextComponentFact
    * Gets the the {@code bloombergSecuritySource} property.
    * @return the property, not null
    */
-  public final Property<BloombergSecurityMaster> bloombergSecuritySource() {
+  public final Property<BloombergSecuritySource> bloombergSecuritySource() {
     return metaBean().bloombergSecuritySource().createProperty(this);
   }
 
@@ -230,8 +230,8 @@ public class ExampleToolContextComponentFactory extends ToolContextComponentFact
     /**
      * The meta-property for the {@code bloombergSecuritySource} property.
      */
-    private final MetaProperty<BloombergSecurityMaster> _bloombergSecuritySource = DirectMetaProperty.ofReadWrite(
-        this, "bloombergSecuritySource", ExampleToolContextComponentFactory.class, BloombergSecurityMaster.class);
+    private final MetaProperty<BloombergSecuritySource> _bloombergSecuritySource = DirectMetaProperty.ofReadWrite(
+        this, "bloombergSecuritySource", ExampleToolContextComponentFactory.class, BloombergSecuritySource.class);
     /**
      * The meta-property for the {@code bloombergReferenceDataProvider} property.
      */
@@ -290,7 +290,7 @@ public class ExampleToolContextComponentFactory extends ToolContextComponentFact
      * The meta-property for the {@code bloombergSecuritySource} property.
      * @return the meta-property, not null
      */
-    public final MetaProperty<BloombergSecurityMaster> bloombergSecuritySource() {
+    public final MetaProperty<BloombergSecuritySource> bloombergSecuritySource() {
       return _bloombergSecuritySource;
     }
 

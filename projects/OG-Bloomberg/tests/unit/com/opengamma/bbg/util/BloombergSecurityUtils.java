@@ -15,7 +15,7 @@ import javax.time.calendar.MonthOfYear;
 import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.bbg.BloombergSecurityMaster;
+import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -44,7 +44,7 @@ import com.opengamma.util.time.ExpiryAccuracy;
 /**
  * Bloomberg Security utility class to aid testing
  */
-public final class BloombergSecurityMasterUtils {
+public final class BloombergSecurityUtils {
 
   /**
    * USD Currency
@@ -91,7 +91,7 @@ public final class BloombergSecurityMasterUtils {
 
   private static int s_dst = java.util.TimeZone.getDefault().inDaylightTime(new Date()) ? 1 : 0; // this is a here until time-zones are implemented properly
 
-  private BloombergSecurityMasterUtils() {
+  private BloombergSecurityUtils() {
   }
 
   public static EquityFutureSecurity makeEquityFuture() {
@@ -106,7 +106,7 @@ public final class BloombergSecurityMasterUtils {
     identifiers.add(SecurityUtils.cusipSecurityId("SPM10"));
     identifiers.add(SecurityUtils.bloombergTickerSecurityId("SPM10 Index"));
     sec.setExternalIdBundle(ExternalIdBundle.of(identifiers));
-    sec.setUniqueId(BloombergSecurityMaster.createUniqueId("IX6835907-0"));
+    sec.setUniqueId(BloombergSecuritySource.createUniqueId("IX6835907-0"));
     return sec;
   }
 
@@ -122,7 +122,7 @@ public final class BloombergSecurityMasterUtils {
     identifiers.add(SecurityUtils.cusipSecurityId("VKM10"));
     identifiers.add(SecurityUtils.bloombergTickerSecurityId("VKM10 Comdty"));
     sec.setExternalIdBundle(ExternalIdBundle.of(identifiers));
-    sec.setUniqueId(BloombergSecurityMaster.createUniqueId("IX8114863-0"));
+    sec.setUniqueId(BloombergSecuritySource.createUniqueId("IX8114863-0"));
     return sec;
   }
 
@@ -235,7 +235,7 @@ public final class BloombergSecurityMasterUtils {
     identifiers.add(SecurityUtils.cusipSecurityId("SIM10"));
     identifiers.add(SecurityUtils.bloombergTickerSecurityId("SIM10 Comdty"));
     sec.setExternalIdBundle(ExternalIdBundle.of(identifiers));
-    sec.setUniqueId(BloombergSecurityMaster.createUniqueId("IX10217289-0"));
+    sec.setUniqueId(BloombergSecuritySource.createUniqueId("IX10217289-0"));
     return sec;
   }
 
@@ -251,7 +251,7 @@ public final class BloombergSecurityMasterUtils {
     identifiers.add(SecurityUtils.cusipSecurityId("DLM10"));
     identifiers.add(SecurityUtils.bloombergTickerSecurityId("DLM10 Comdty"));
     sec.setExternalIdBundle(ExternalIdBundle.of(identifiers));
-    sec.setUniqueId(BloombergSecurityMaster.createUniqueId("IX6054783-0"));
+    sec.setUniqueId(BloombergSecuritySource.createUniqueId("IX6054783-0"));
     return sec;
   }
 
@@ -265,7 +265,7 @@ public final class BloombergSecurityMasterUtils {
     identifiers.add(SecurityUtils.cusipSecurityId("EDM10"));
     identifiers.add(SecurityUtils.bloombergTickerSecurityId("EDM10 Comdty"));
     sec.setExternalIdBundle(ExternalIdBundle.of(identifiers));
-    sec.setUniqueId(BloombergSecurityMaster.createUniqueId("IX166549-0"));
+    sec.setUniqueId(BloombergSecuritySource.createUniqueId("IX166549-0"));
     return sec;
   }
 
@@ -278,7 +278,7 @@ public final class BloombergSecurityMasterUtils {
     equitySecurity.addExternalId(SecurityUtils.isinSecurityId("US00206R1023"));
     equitySecurity.addExternalId(SecurityUtils.sedol1SecurityId("2831811"));
 
-    equitySecurity.setUniqueId(BloombergSecurityMaster.createUniqueId(ATT_BUID));
+    equitySecurity.setUniqueId(BloombergSecuritySource.createUniqueId(ATT_BUID));
     equitySecurity.setShortName("T");
     equitySecurity.setName("AT&T INC");
     equitySecurity.setGicsCode(GICSCode.of("50101020"));
@@ -304,7 +304,7 @@ public final class BloombergSecurityMasterUtils {
     identifiers.add(SecurityUtils.bloombergBuidSecurityId("IX5801809-0-8980"));
     identifiers.add(SecurityUtils.bloombergTickerSecurityId(SPX_INDEX_OPTION_TICKER));
     security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
-    security.setUniqueId(BloombergSecurityMaster.createUniqueId("IX5801809-0-8980"));
+    security.setUniqueId(BloombergSecuritySource.createUniqueId("IX5801809-0-8980"));
     security.setName("SPX 2010-12-18 C 1100.0");
     return security;
   }
@@ -320,7 +320,7 @@ public final class BloombergSecurityMasterUtils {
     identifiers.add(SecurityUtils.bloombergTickerSecurityId(APV_EQUITY_OPTION_TICKER));
     identifiers.add(SecurityUtils.bloombergBuidSecurityId("EO1016952010010397C00001"));
     security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
-    security.setUniqueId(BloombergSecurityMaster.createUniqueId("EO1016952010010397C00001"));
+    security.setUniqueId(BloombergSecuritySource.createUniqueId("EO1016952010010397C00001"));
     security.setName("APV 2010-01-16 C 190.0");
 
     return security;
@@ -333,7 +333,7 @@ public final class BloombergSecurityMasterUtils {
     equitySecurity.addExternalId(SecurityUtils.cusipSecurityId("037833100"));
     equitySecurity.addExternalId(SecurityUtils.isinSecurityId("US0378331005"));
     equitySecurity.addExternalId(SecurityUtils.sedol1SecurityId("2046251"));
-    equitySecurity.setUniqueId(BloombergSecurityMaster.createUniqueId(AAPL_BUID));
+    equitySecurity.setUniqueId(BloombergSecuritySource.createUniqueId(AAPL_BUID));
     equitySecurity.setShortName("AAPL");
     equitySecurity.setName("APPLE INC");
     equitySecurity.setGicsCode(GICSCode.of("45202010"));
@@ -348,7 +348,7 @@ public final class BloombergSecurityMasterUtils {
     equitySecurity.addExternalId(SecurityUtils.cusipSecurityId("912318102"));
     equitySecurity.addExternalId(SecurityUtils.isinSecurityId("US9123181029"));
     equitySecurity.addExternalId(SecurityUtils.sedol1SecurityId("B1W5XX3"));
-    equitySecurity.setUniqueId(BloombergSecurityMaster.createUniqueId("EQ0000000003443730"));
+    equitySecurity.setUniqueId(BloombergSecuritySource.createUniqueId("EQ0000000003443730"));
     equitySecurity.setShortName("UNG");
     equitySecurity.setName("US NATURAL GAS FUND LP");
     addSecurityAttribute(equitySecurity, "preferred", "false");
@@ -357,7 +357,7 @@ public final class BloombergSecurityMasterUtils {
 
   public static Security makeAmericanGeneralEquity() {
     EquitySecurity equitySecurity = new EquitySecurity("LONDON STOCK EXCHANGE", "XLON", "AMERICAN GENERAL CORP", GBP);
-    equitySecurity.setUniqueId(BloombergSecurityMaster.createUniqueId("EQ0010006200001001"));
+    equitySecurity.setUniqueId(BloombergSecuritySource.createUniqueId("EQ0010006200001001"));
     equitySecurity.setName("AMERICAN GENERAL CORP");
     equitySecurity.setShortName("EQ0010006200001001");
     equitySecurity.addExternalId(SecurityUtils.bloombergBuidSecurityId("EQ0010006200001001"));
@@ -370,7 +370,7 @@ public final class BloombergSecurityMasterUtils {
   public static Security makeTHYSSENKRUPPEquity() {
     EquitySecurity equitySecurity = new EquitySecurity("LONDON STOCK EXCHANGE", "XLON", "THYSSENKRUPP AEROSPACE UK LT",
         GBP);
-    equitySecurity.setUniqueId(BloombergSecurityMaster.createUniqueId("EQ0011110200001000"));
+    equitySecurity.setUniqueId(BloombergSecuritySource.createUniqueId("EQ0011110200001000"));
     equitySecurity.setName("THYSSENKRUPP AEROSPACE UK LT");
     equitySecurity.setShortName("EQ0011110200001000");
     equitySecurity.addExternalId(SecurityUtils.bloombergBuidSecurityId("EQ0011110200001000"));
@@ -382,7 +382,7 @@ public final class BloombergSecurityMasterUtils {
 
   public static Security makePTSEquity() {
     EquitySecurity equitySecurity = new EquitySecurity("LONDON STOCK EXCHANGE", "XLON", "PTS GROUP PLC", GBP);
-    equitySecurity.setUniqueId(BloombergSecurityMaster.createUniqueId("EQ0015697400001000"));
+    equitySecurity.setUniqueId(BloombergSecuritySource.createUniqueId("EQ0015697400001000"));
     equitySecurity.setName("PTS GROUP PLC");
     equitySecurity.setShortName("EQ0015697400001000");
     equitySecurity.addExternalId(SecurityUtils.bloombergBuidSecurityId("EQ0015697400001000"));
@@ -413,7 +413,7 @@ public final class BloombergSecurityMasterUtils {
     identifiers.add(SecurityUtils.bloombergBuidSecurityId("IX11675985-0-8C70"));
     identifiers.add(SecurityUtils.bloombergTickerSecurityId("EDZ2C 99.500 Comdty"));
     security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
-    security.setUniqueId(BloombergSecurityMaster.createUniqueId("IX11675985-0-8C70"));
+    security.setUniqueId(BloombergSecuritySource.createUniqueId("IX11675985-0-8C70"));
     security.setName("EDZ2C 2012-12-17 P 99.5");
     return security;
   }
@@ -431,7 +431,7 @@ public final class BloombergSecurityMasterUtils {
     identifiers.add(SecurityUtils.bloombergBuidSecurityId("IX9494155-0-8B60"));
     identifiers.add(SecurityUtils.bloombergTickerSecurityId("L U1C 91.000 Comdty"));
     security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
-    security.setUniqueId(BloombergSecurityMaster.createUniqueId("IX9494155-0-8B60"));
+    security.setUniqueId(BloombergSecuritySource.createUniqueId("IX9494155-0-8B60"));
     security.setName("L U1C 2011-09-21 P 91.0");
     return security;
   }
@@ -449,7 +449,7 @@ public final class BloombergSecurityMasterUtils {
     identifiers.add(SecurityUtils.bloombergBuidSecurityId("IX10090132-0-8B9C"));
     identifiers.add(SecurityUtils.bloombergTickerSecurityId("FPU1C 92.875 Comdty"));
     security.setExternalIdBundle(ExternalIdBundle.of(identifiers));
-    security.setUniqueId(BloombergSecurityMaster.createUniqueId("IX10090132-0-8B9C"));
+    security.setUniqueId(BloombergSecuritySource.createUniqueId("IX10090132-0-8B9C"));
     security.setName("FPU1C 2011-09-19 P 92.875");
     return security;
   }
