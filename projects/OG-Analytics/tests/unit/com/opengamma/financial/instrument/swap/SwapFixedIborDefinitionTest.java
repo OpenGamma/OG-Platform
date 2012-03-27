@@ -21,8 +21,8 @@ import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponFixedDefinition;
 import com.opengamma.financial.instrument.annuity.AnnuityCouponIborDefinition;
-import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.IborIndex;
+import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.payment.CouponFixedDefinition;
 import com.opengamma.financial.instrument.payment.CouponIborDefinition;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -63,18 +63,18 @@ public class SwapFixedIborDefinitionTest {
 
   @Test
   public void test() {
-    double sign = FIXED_IS_PAYER ? -1.0 : 1.0;
+    final double sign = FIXED_IS_PAYER ? -1.0 : 1.0;
     // Fixed leg
-    CouponFixedDefinition[] couponsFixed = new CouponFixedDefinition[FIXED_PAYMENT_DATES.length];
+    final CouponFixedDefinition[] couponsFixed = new CouponFixedDefinition[FIXED_PAYMENT_DATES.length];
     couponsFixed[0] = new CouponFixedDefinition(CUR, FIXED_PAYMENT_DATES[0], SETTLEMENT_DATE, FIXED_PAYMENT_DATES[0], FIXED_DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, FIXED_PAYMENT_DATES[0]),
         sign * NOTIONAL, RATE);
     for (int loopcpn = 1; loopcpn < FIXED_PAYMENT_DATES.length; loopcpn++) {
       couponsFixed[loopcpn] = new CouponFixedDefinition(CUR, FIXED_PAYMENT_DATES[loopcpn], FIXED_PAYMENT_DATES[loopcpn - 1], FIXED_PAYMENT_DATES[loopcpn], FIXED_DAY_COUNT.getDayCountFraction(
           FIXED_PAYMENT_DATES[loopcpn - 1], FIXED_PAYMENT_DATES[loopcpn]), sign * NOTIONAL, RATE);
     }
-    AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(couponsFixed);
+    final AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(couponsFixed);
     // Ibor leg
-    CouponIborDefinition[] couponsIbor = new CouponIborDefinition[IBOR_PAYMENT_DATES.length];
+    final CouponIborDefinition[] couponsIbor = new CouponIborDefinition[IBOR_PAYMENT_DATES.length];
     CouponFixedDefinition coupon = new CouponFixedDefinition(CUR, IBOR_PAYMENT_DATES[0], SETTLEMENT_DATE, IBOR_PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, IBOR_PAYMENT_DATES[0]),
         -sign * NOTIONAL, 0.0);
     ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(SETTLEMENT_DATE, -SETTLEMENT_DAYS, CALENDAR);
@@ -85,24 +85,24 @@ public class SwapFixedIborDefinitionTest {
       fixingDate = ScheduleCalculator.getAdjustedDate(IBOR_PAYMENT_DATES[loopcpn - 1], -SETTLEMENT_DAYS, CALENDAR);
       couponsIbor[loopcpn] = CouponIborDefinition.from(coupon, fixingDate, IBOR_INDEX);
     }
-    AnnuityCouponIborDefinition iborAnnuity = new AnnuityCouponIborDefinition(couponsIbor);
+    final AnnuityCouponIborDefinition iborAnnuity = new AnnuityCouponIborDefinition(couponsIbor, IBOR_INDEX);
     //Swap
-    SwapFixedIborDefinition swap = new SwapFixedIborDefinition(fixedAnnuity, iborAnnuity);
+    final SwapFixedIborDefinition swap = new SwapFixedIborDefinition(fixedAnnuity, iborAnnuity);
     assertEquals(swap.getFixedLeg(), fixedAnnuity);
     assertEquals(swap.getIborLeg(), iborAnnuity);
     assertEquals(swap.getFirstLeg(), fixedAnnuity);
     assertEquals(swap.getSecondLeg(), iborAnnuity);
 
     // CMS index builder
-    IndexSwap cmsIndex = new IndexSwap(FIXED_PAYMENT_FREQUENCY.getPeriod(), FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR);
-    SwapFixedIborDefinition swapFromCMSIndex = SwapFixedIborDefinition.from(SETTLEMENT_DATE, cmsIndex, NOTIONAL, RATE, FIXED_IS_PAYER);
+    final IndexSwap cmsIndex = new IndexSwap(FIXED_PAYMENT_FREQUENCY.getPeriod(), FIXED_DAY_COUNT, IBOR_INDEX, ANNUITY_TENOR);
+    final SwapFixedIborDefinition swapFromCMSIndex = SwapFixedIborDefinition.from(SETTLEMENT_DATE, cmsIndex, NOTIONAL, RATE, FIXED_IS_PAYER);
     assertEquals(swap, swapFromCMSIndex);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullFixedLeg() {
     // Ibor leg
-    CouponIborDefinition[] couponsIbor = new CouponIborDefinition[IBOR_PAYMENT_DATES.length];
+    final CouponIborDefinition[] couponsIbor = new CouponIborDefinition[IBOR_PAYMENT_DATES.length];
     CouponFixedDefinition coupon = new CouponFixedDefinition(CUR, IBOR_PAYMENT_DATES[0], SETTLEMENT_DATE, IBOR_PAYMENT_DATES[0], DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, IBOR_PAYMENT_DATES[0]),
         NOTIONAL, 0.0);
     ZonedDateTime fixingDate = ScheduleCalculator.getAdjustedDate(SETTLEMENT_DATE, -SETTLEMENT_DAYS, CALENDAR);
@@ -113,7 +113,7 @@ public class SwapFixedIborDefinitionTest {
       fixingDate = ScheduleCalculator.getAdjustedDate(IBOR_PAYMENT_DATES[loopcpn - 1], -SETTLEMENT_DAYS, CALENDAR);
       couponsIbor[loopcpn] = CouponIborDefinition.from(coupon, fixingDate, IBOR_INDEX);
     }
-    AnnuityCouponIborDefinition iborAnnuity = new AnnuityCouponIborDefinition(couponsIbor);
+    final AnnuityCouponIborDefinition iborAnnuity = new AnnuityCouponIborDefinition(couponsIbor, IBOR_INDEX);
 
     new SwapFixedIborDefinition(null, iborAnnuity);
   }
@@ -121,14 +121,14 @@ public class SwapFixedIborDefinitionTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullIborLeg() {
     // Fixed leg
-    CouponFixedDefinition[] couponsFixed = new CouponFixedDefinition[FIXED_PAYMENT_DATES.length];
+    final CouponFixedDefinition[] couponsFixed = new CouponFixedDefinition[FIXED_PAYMENT_DATES.length];
     couponsFixed[0] = new CouponFixedDefinition(CUR, FIXED_PAYMENT_DATES[0], SETTLEMENT_DATE, FIXED_PAYMENT_DATES[0], FIXED_DAY_COUNT.getDayCountFraction(SETTLEMENT_DATE, FIXED_PAYMENT_DATES[0]),
         NOTIONAL, RATE);
     for (int loopcpn = 1; loopcpn < FIXED_PAYMENT_DATES.length; loopcpn++) {
       couponsFixed[loopcpn] = new CouponFixedDefinition(CUR, FIXED_PAYMENT_DATES[loopcpn], FIXED_PAYMENT_DATES[loopcpn - 1], FIXED_PAYMENT_DATES[loopcpn], FIXED_DAY_COUNT.getDayCountFraction(
           FIXED_PAYMENT_DATES[loopcpn - 1], FIXED_PAYMENT_DATES[loopcpn]), NOTIONAL, RATE);
     }
-    AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(couponsFixed);
+    final AnnuityCouponFixedDefinition fixedAnnuity = new AnnuityCouponFixedDefinition(couponsFixed);
 
     new SwapFixedIborDefinition(fixedAnnuity, null);
   }

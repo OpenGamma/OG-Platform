@@ -14,7 +14,7 @@ import com.opengamma.financial.interestrate.swaption.method.SwaptionPhysicalFixe
 import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 
 /**
- * Present value sensitivity to SABR parameters calculator for interest rate instruments using SABR volatility formula.
+ * Present value sensitivity to SABR parameters calculator for interest rate instruments using the Black formula.
  */
 public final class PresentValueBlackSwaptionSensitivityBlackCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, PresentValueBlackSwaptionSensitivity> {
 

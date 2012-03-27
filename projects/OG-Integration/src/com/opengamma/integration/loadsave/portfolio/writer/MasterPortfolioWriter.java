@@ -7,6 +7,8 @@ package com.opengamma.integration.loadsave.portfolio.writer;
 
 import javax.time.calendar.ZonedDateTime;
 
+import org.apache.commons.lang.ArrayUtils;
+
 import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ExternalIdSearchType;
@@ -34,9 +36,9 @@ import com.opengamma.master.security.SecuritySearchSortOrder;
  */
 public class MasterPortfolioWriter implements PortfolioWriter {
 
-  private PortfolioMaster _portfolioMaster;
-  private PositionMaster _positionMaster;
-  private SecurityMaster _securityMaster;
+  private final PortfolioMaster _portfolioMaster;
+  private final PositionMaster _positionMaster;
+  private final SecurityMaster _securityMaster;
   
   private PortfolioDocument _portfolioDocument;
   private ManageablePortfolioNode _currentNode;
@@ -48,7 +50,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     _portfolioMaster = toolContext.getPortfolioMaster();
     _positionMaster = toolContext.getPositionMaster();
     _securityMaster = toolContext.getSecurityMaster();
-    
+
     _portfolioDocument = createPortfolio(portfolioName);
   }
   
@@ -171,7 +173,18 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     _currentNode = node;
     return _currentNode;
   }
-  
+
+  @Override
+  public void setPath(String[] newPath) {
+    if (newPath.length == 0) {
+      return;
+    }
+    if (_originalRoot != null) {
+      _originalNode = findNode(newPath, _originalRoot);
+    }
+    _currentNode = createNode(newPath, _portfolioDocument.getPortfolio().getRootNode());
+  }
+
   @Override
   public void flush() {
     _portfolioMaster.update(_portfolioDocument);
@@ -180,6 +193,46 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   @Override
   public void close() {
     flush();
+  }
+  
+  private ManageablePortfolioNode findNode(String[] path, ManageablePortfolioNode startNode) {
+    
+    // Degenerate case
+    if (path.length == 1) {
+      if (startNode.name().equals(path[0])) {
+        return startNode;
+      } else {
+        return null;
+      }
+    
+    // Recursive case, traverse all child nodes
+    } else {
+      for (ManageablePortfolioNode childNode : startNode.getChildNodes()) {
+        String[] newPath = (String[]) ArrayUtils.subarray(path, 1, path.length - 1);
+        ManageablePortfolioNode result = findNode(newPath, childNode);
+        if (result != null) {
+          return result;
+        }
+      }
+      return null;
+    }
+  }
+  
+  private ManageablePortfolioNode createNode(String[] path, ManageablePortfolioNode startNode) {
+    ManageablePortfolioNode node = startNode;
+    
+    for (String p : path) {
+      for (ManageablePortfolioNode n : node.getChildNodes()) {
+        if (n.getName().equals(p)) {
+          node = n;
+          break;
+        }
+        ManageablePortfolioNode newNode = new ManageablePortfolioNode(p);
+        node.addChildNode(newNode);
+        node = newNode;
+      }
+    }
+    return node;
   }
   
   private PortfolioDocument createPortfolio(String portfolioName) {

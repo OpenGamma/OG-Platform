@@ -20,7 +20,7 @@ import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwapti
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * Present value curve sensitivity calculator for interest rate instruments using SABR volatility formula.
+ * Present value curve sensitivity calculator for interest rate instruments using the Black formula.
  */
 public final class PresentValueCurveSensitivityBlackCalculator extends PresentValueCurveSensitivityCalculator {
 
