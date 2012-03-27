@@ -15,7 +15,7 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.PresentValueBlackSwaptionSensitivity;
-import com.opengamma.financial.interestrate.PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator;
+import com.opengamma.financial.interestrate.PresentValueBlackSwaptionSensitivityBlackCalculator;
 import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.util.tuple.DoublesPair;
 
@@ -23,7 +23,7 @@ import com.opengamma.util.tuple.DoublesPair;
  * 
  */
 public class SwaptionBlackVolatilitySensitivityFunction extends SwaptionBlackFunction {
-  private static final PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator CALCULATOR = PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator.getInstance();
+  private static final PresentValueBlackSwaptionSensitivityBlackCalculator CALCULATOR = PresentValueBlackSwaptionSensitivityBlackCalculator.getInstance();
 
   public SwaptionBlackVolatilitySensitivityFunction() {
     super(ValueRequirementNames.VALUE_VEGA);

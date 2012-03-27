@@ -16,29 +16,29 @@ import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwapti
 /**
  * Present value sensitivity to SABR parameters calculator for interest rate instruments using the Black formula.
  */
-public final class PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, PresentValueBlackSwaptionSensitivity> {
+public final class PresentValueBlackSwaptionSensitivityBlackCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, PresentValueBlackSwaptionSensitivity> {
 
   /**
-   * The unique instance of the SABR sensitivity calculator.
+   * The method unique instance.
    */
-  private static final PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator s_instance = new PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator();
+  private static final PresentValueBlackSwaptionSensitivityBlackCalculator INSTANCE = new PresentValueBlackSwaptionSensitivityBlackCalculator();
 
   /**
-   * Returns the instance of the calculator.
+   * Return the unique instance of the class.
    * @return The instance.
    */
-  public static PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator getInstance() {
-    return s_instance;
+  public static PresentValueBlackSwaptionSensitivityBlackCalculator getInstance() {
+    return INSTANCE;
   }
 
   /**
-   * Private constructor.
+   * Constructor.
    */
-  private PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator() {
+  PresentValueBlackSwaptionSensitivityBlackCalculator() {
   }
 
   /**
-   * Methods.
+   * The methods used in the calculator.
    */
   private static final SwaptionPhysicalFixedIborBlackMethod METHOD_SWAPTION_PHYSICAL = SwaptionPhysicalFixedIborBlackMethod.getInstance();
   private static final SwaptionCashFixedIborBlackMethod METHOD_SWAPTION_CASH = SwaptionCashFixedIborBlackMethod.getInstance();

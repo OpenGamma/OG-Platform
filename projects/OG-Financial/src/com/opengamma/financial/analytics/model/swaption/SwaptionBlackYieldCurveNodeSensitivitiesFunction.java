@@ -47,7 +47,7 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.InstrumentDefinition;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.InstrumentSensitivityCalculator;
-import com.opengamma.financial.interestrate.PresentValueCurveSensitivityBlackSwaptionCalculator;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityBlackCalculator;
 import com.opengamma.financial.interestrate.PresentValueNodeSensitivityCalculator;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
@@ -66,8 +66,7 @@ import com.opengamma.util.money.Currency;
  */
 public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(SwaptionBlackYieldCurveNodeSensitivitiesFunction.class);
-  private static final PresentValueNodeSensitivityCalculator NSC =
-      PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivityBlackSwaptionCalculator.getInstance());
+  private static final PresentValueNodeSensitivityCalculator NSC = PresentValueNodeSensitivityCalculator.using(PresentValueCurveSensitivityBlackCalculator.getInstance());
   private static final InstrumentSensitivityCalculator CALCULATOR = InstrumentSensitivityCalculator.getInstance();
   private SwaptionSecurityConverter _visitor;
 
@@ -197,7 +196,7 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends AbstractFu
     final String fundingCurveName = fundingCurveNames.iterator().next();
     final String curveName = curveNames.iterator().next();
     if (!(curveName.equals(forwardCurveName) || curveName.equals(fundingCurveName))) {
-      s_logger.error("Did not specify a curve to which this instrument is sensitive; asked for {}, {} and {} are allowed", new String[]{curveName, forwardCurveName, fundingCurveName});
+      s_logger.error("Did not specify a curve to which this instrument is sensitive; asked for {}, {} and {} are allowed", new String[] {curveName, forwardCurveName, fundingCurveName});
       return null;
     }
     final String surfaceName = surfaceNames.iterator().next();
@@ -218,40 +217,26 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends AbstractFu
   }
 
   private ValueProperties getResultProperties(final String currency) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
-        .withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
-        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE)
-        .withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD)
-        .withAny(ValuePropertyNames.SURFACE)
-        .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
-        .withAny(ValuePropertyNames.CURVE).get();
+    return createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD).withAny(YieldCurveFunction.PROPERTY_FORWARD_CURVE)
+        .withAny(YieldCurveFunction.PROPERTY_FUNDING_CURVE).withAny(ValuePropertyNames.CURVE_CALCULATION_METHOD).withAny(ValuePropertyNames.SURFACE).with(ValuePropertyNames.CURRENCY, currency)
+        .with(ValuePropertyNames.CURVE_CURRENCY, currency).withAny(ValuePropertyNames.CURVE).get();
   }
 
-  private ValueProperties getResultProperties(final String currency, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod,
-      final String surfaceName, final String curveName) {
-    return createValueProperties()
-        .with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD)
-        .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
-        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
-        .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod)
-        .with(ValuePropertyNames.SURFACE, surfaceName)
-        .with(ValuePropertyNames.CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE_CURRENCY, currency)
-        .with(ValuePropertyNames.CURVE, curveName).get();
+  private ValueProperties getResultProperties(final String currency, final String forwardCurveName, final String fundingCurveName, final String curveCalculationMethod, final String surfaceName,
+      final String curveName) {
+    return createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, ForexOptionBlackFunction.BLACK_METHOD).with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+        .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName).with(ValuePropertyNames.CURVE_CALCULATION_METHOD, curveCalculationMethod).with(ValuePropertyNames.SURFACE, surfaceName)
+        .with(ValuePropertyNames.CURRENCY, currency).with(ValuePropertyNames.CURVE_CURRENCY, currency).with(ValuePropertyNames.CURVE, curveName).get();
   }
 
   private ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {
-    final ValueProperties properties = ValueProperties.builder()
-        .with(ValuePropertyNames.SURFACE, surface)
+    final ValueProperties properties = ValueProperties.builder().with(ValuePropertyNames.SURFACE, surface)
         .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.SWAPTION_ATM).get();
     return new ValueRequirement(ValueRequirementNames.INTERPOLATED_VOLATILITY_SURFACE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties);
   }
 
   private static ValueRequirement getJacobianRequirement(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName, final String calculationMethod) {
-    return YieldCurveFunction.getJacobianRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()), forwardCurveName, fundingCurveName,
-        calculationMethod);
+    return YieldCurveFunction.getJacobianRequirement(FinancialSecurityUtils.getCurrency(target.getSecurity()), forwardCurveName, fundingCurveName, calculationMethod);
   }
 
   private ValueRequirement getCouponSensitivityRequirement(final ComputationTarget target, final String forwardCurveName, final String fundingCurveName) {

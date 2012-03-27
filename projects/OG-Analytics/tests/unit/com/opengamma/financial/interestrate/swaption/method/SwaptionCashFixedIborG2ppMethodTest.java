@@ -80,7 +80,7 @@ public class SwaptionCashFixedIborG2ppMethodTest {
   // Calculator
   private static final SwaptionPhysicalFixedIborG2ppApproximationMethod METHOD_G2PP_PHYS_APPROXIMATION = new SwaptionPhysicalFixedIborG2ppApproximationMethod();
   private static final SwaptionCashFixedIborG2ppNumericalIntegrationMethod METHOD_G2PP_NI = new SwaptionCashFixedIborG2ppNumericalIntegrationMethod();
-  private static final G2ppPiecewiseConstantParameters PARAMETERS_G2PP = G2ppTestsDataSet.createG2ppParameters();
+  private static final G2ppPiecewiseConstantParameters PARAMETERS_G2PP = G2ppTestsDataSet.createG2ppParameters1();
   private static final G2ppPiecewiseConstantDataBundle BUNDLE_G2PP = new G2ppPiecewiseConstantDataBundle(PARAMETERS_G2PP, CURVES);
 
   //  @Test(enabled = false)

@@ -15,22 +15,21 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.interestrate.PV01Calculator;
-import com.opengamma.financial.interestrate.PresentValueCurveSensitivityBlackSwaptionCalculator;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityBlackCalculator;
 import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 
 /**
  * 
  */
 public class SwaptionBlackPV01Function extends SwaptionBlackCurveSpecificFunction {
-  private static final PV01Calculator CALCULATOR = new PV01Calculator(PresentValueCurveSensitivityBlackSwaptionCalculator.getInstance());
+  private static final PV01Calculator CALCULATOR = new PV01Calculator(PresentValueCurveSensitivityBlackCalculator.getInstance());
 
   public SwaptionBlackPV01Function() {
     super(ValueRequirementNames.PV01);
   }
 
   @Override
-  protected Set<ComputedValue> getResult(final InstrumentDerivative swaption, final YieldCurveWithBlackSwaptionBundle data, final String curveName,
-      final ValueSpecification spec) {
+  protected Set<ComputedValue> getResult(final InstrumentDerivative swaption, final YieldCurveWithBlackSwaptionBundle data, final String curveName, final ValueSpecification spec) {
     final Map<String, Double> pv01 = CALCULATOR.visit(swaption, data);
     if (!pv01.containsKey(curveName)) {
       throw new OpenGammaRuntimeException("Could not get PV01 for " + curveName);
