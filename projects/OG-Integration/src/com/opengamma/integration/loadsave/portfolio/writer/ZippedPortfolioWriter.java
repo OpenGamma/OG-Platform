@@ -39,9 +39,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   private static final String DIRECTORY_SEPARATOR = "/";
 
   private ZipOutputStream _zipFile;
-//  private ManageablePortfolio _portfolio;
   private Map<String, Integer> _versionMap = new HashMap<String, Integer>();
-//  private ManageablePortfolioNode _currentNode;
   private String[] _currentPath = new String[] {};
   private SingleSheetPortfolioWriter _currentWriter;
   private Map<String, SingleSheetPortfolioWriter> _writerMap = new HashMap<String, SingleSheetPortfolioWriter>();
@@ -63,11 +61,6 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
     } catch (IOException ex) {
       throw new OpenGammaRuntimeException("Could not create zip archive " + filename + " for writing: " + ex.getMessage());
     }
-    
-    // Set up virtual portfolio and root node
-//    ManageablePortfolioNode root = new ManageablePortfolioNode("Root");
-//    _portfolio = new ManageablePortfolio("Virtual Portfolio", root);
-//    _currentNode = _portfolio.getRootNode();
   }
 
   @Override
@@ -100,43 +93,18 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
     return position;
   }
 
-  // TODO REMOVE
-//  public ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node) {
-//
-//    ArgumentChecker.notNull(node, "node");
-//    
-//    // First, write the current set of CSVs to the zip file and clear the map of writers
-//    flushCurrentBuffers();
-//
-//    // Change to the new path in the zip file (might need to create)
-//    if (_currentPath.length > 0) {
-//      String path = StringUtils.arrayToDelimitedString(_currentPath, DIRECTORY_SEPARATOR);
-//      ZipEntry entry = new ZipEntry(path);
-//      try {
-//        _zipFile.putNextEntry(entry);
-//        _zipFile.closeEntry();
-//      } catch (IOException ex) {
-//        // if failed, assume the directory already exists
-//        //throw new OpenGammaRuntimeException("Could not create folder " + entry.getName() + " in zip file: " + ex.getMessage());
-//      }
-//    }
-//
-//    _currentNode = node;
-//    return node;
-//  }
-
   @Override
   public void setPath(String[] newPath) {
 
     ArgumentChecker.notNull(newPath, "newPath");
 
     // First, write the current set of CSVs to the zip file and clear the map of writers
-    if (!newPath.equals(_currentPath)) {
+    if (!getPathString(newPath).equals(getPathString(_currentPath))) {
       flushCurrentBuffers();
           
       // Change to the new path in the zip file (might need to create)
-      if (_currentPath.length > 0) {
-        String path = StringUtils.arrayToDelimitedString(_currentPath, DIRECTORY_SEPARATOR) + DIRECTORY_SEPARATOR;
+      if (newPath.length > 0) {
+        String path = StringUtils.arrayToDelimitedString(newPath, DIRECTORY_SEPARATOR) + DIRECTORY_SEPARATOR;
         ZipEntry entry = new ZipEntry(path);
         try {
           _zipFile.putNextEntry(entry);
@@ -181,48 +149,18 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
     }
   }
 
-//  private String getPath(ManageablePortfolioNode node) {
-//    Stack<ManageablePortfolioNode> stack = findNodeStackByNode(_portfolio.getRootNode(), node);
-//    String path = "";
-//    
-//    // The stack should not be empty as the false 'Root' node is always there first: get rid of it immediately
-//    stack.pop();
-//    
-//    while (!stack.isEmpty()) {
-//      path += stack.pop().getName().replace(DIRECTORY_SEPARATOR + "", "<slash>") + DIRECTORY_SEPARATOR;
-//    }
-//
-//    return path;
-//  }
-//
-//  private Stack<ManageablePortfolioNode> findNodeStackByNode(final ManageablePortfolioNode start, final ManageablePortfolioNode treasure) {
-//
-//    // This node IS the treasure
-//    if (start == treasure) {
-//      Stack<ManageablePortfolioNode> stack = new Stack<ManageablePortfolioNode>();
-//      stack.push(start);
-//      return stack;
-//    }
-//
-//    // Look for treasure in the child nodes
-//    for (ManageablePortfolioNode childNode : start.getChildNodes()) {
-//      Stack<ManageablePortfolioNode> stack = findNodeStackByNode(childNode, treasure);
-//      if (stack != null) {
-//        stack.push(start);
-//        return stack;
-//      }
-//    }
-//
-//    // None of the child nodes contain treasure
-//    return null;
-//  }
-
+  
+  private String getPathString(String[] path) {
+    String pathString = StringUtils.arrayToDelimitedString(path, DIRECTORY_SEPARATOR);
+    if (pathString.length() > 0) {
+      pathString += DIRECTORY_SEPARATOR;
+    }
+    return pathString;
+  }
+  
   private void flushCurrentBuffers() {
 
-    String path = StringUtils.arrayToDelimitedString(_currentPath, DIRECTORY_SEPARATOR);
-    if (path.length() > 0) {
-      path += DIRECTORY_SEPARATOR;
-    }
+    String path = getPathString(_currentPath);
     
     s_logger.info("Flushing CSV buffers for ZIP directory " + path);
 
@@ -248,6 +186,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   }
 
   private PortfolioWriter identifyOrCreatePortfolioWriter(ManageableSecurity security) {
+    
     // Identify the correct portfolio writer for this security
     String className = security.getClass().toString();
     className = className.substring(className.lastIndexOf('.') + 1).replace("Security", "");
