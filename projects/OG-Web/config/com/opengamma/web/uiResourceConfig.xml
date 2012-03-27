@@ -307,4 +307,15 @@
       <fragment>/scripts/og/analytics/og.analytics.grid.js</fragment>
       <fragment>/scripts/og/views/og.views.analytics2.js</fragment>
   </bundle>
+  <bundle id="og_gadget.js">
+      <bundle idref="lib.js" />
+      <bundle idref="core.js" />
+      <bundle idref="api.js" />
+      <bundle idref="util.js" />
+      <bundle idref="util_ui.js" />
+      <bundle idref="common.js" />
+      <bundle idref="views_common.js" />
+      <bundle idref="common_module.js" />
+      <fragment>/scripts/og/views/og.views.gadget.js</fragment>
+  </bundle>
 </uiResourceConfig>
