@@ -59,9 +59,9 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
   public static final String SURFACE_FITTING_NAME = "SABR";
   @SuppressWarnings("unchecked")
   private static final VolatilityFunctionProvider<SABRFormulaData> SABR_FUNCTION = (VolatilityFunctionProvider<SABRFormulaData>) VolatilityFunctionFactory
-  .getCalculator(VolatilityFunctionFactory.HAGAN);
+      .getCalculator(VolatilityFunctionFactory.HAGAN);
   private InterestRateFutureOptionTradeConverter _converter;
-  private FixedIncomeConverterDataProvider _dataConverter;
+  private FixedIncomeConverterDataProvider _derivativeConverter;
 
   @Override
   public void init(final FunctionCompilationContext context) {
@@ -69,8 +69,8 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     final RegionSource regionSource = OpenGammaCompilationContext.getRegionSource(context);
     final ConventionBundleSource conventionSource = OpenGammaCompilationContext.getConventionBundleSource(context);
     final SecuritySource securitySource = OpenGammaCompilationContext.getSecuritySource(context);
-    _converter = new InterestRateFutureOptionTradeConverter(new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource));
-    _dataConverter = new FixedIncomeConverterDataProvider(conventionSource);
+    setConverter(new InterestRateFutureOptionTradeConverter(new InterestRateFutureOptionSecurityConverter(holidaySource, conventionSource, regionSource, securitySource)));
+    setDerivativeConverter(new FixedIncomeConverterDataProvider(conventionSource));
   }
 
   @Override
@@ -87,8 +87,8 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     final SABRInterestRateDataBundle data = new SABRInterestRateDataBundle(getModelParameters(target, inputs, surfaceName),
         getYieldCurves(target, inputs, forwardCurveName, fundingCurveName, curveCalculationMethod));
     @SuppressWarnings("unchecked")
-    final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) _converter.convert(trade);
-    final InstrumentDerivative irFutureOption = _dataConverter.convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {fundingCurveName, forwardCurveName}, dataSource);
+    final InstrumentDefinition<InstrumentDerivative> irFutureOptionDefinition = (InstrumentDefinition<InstrumentDerivative>) getConverter().convert(trade);
+    final InstrumentDerivative irFutureOption = getDerivativeConverter().convert(trade.getSecurity(), irFutureOptionDefinition, now, new String[] {fundingCurveName, forwardCurveName }, dataSource);
     return getResults(irFutureOption, data, target, inputs, forwardCurveName, fundingCurveName, surfaceName, curveCalculationMethod);
   }
 
@@ -140,7 +140,7 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     }
     final YieldAndDiscountCurve forwardCurve = (YieldAndDiscountCurve) forwardCurveObject;
     final YieldAndDiscountCurve fundingCurve = fundingCurveObject == null ? forwardCurve : (YieldAndDiscountCurve) fundingCurveObject;
-    return new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName}, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve});
+    return new YieldCurveBundle(new String[] {fundingCurveName, forwardCurveName }, new YieldAndDiscountCurve[] {fundingCurve, forwardCurve });
   }
 
   protected SABRInterestRateParameters getModelParameters(final ComputationTarget target, final FunctionInputs inputs,
@@ -161,6 +161,38 @@ public abstract class InterestRateFutureOptionFunction extends AbstractFunction.
     final InterpolatedDoublesSurface rhoSurface = surfaces.getRhoSurface();
     final DayCount dayCount = surfaces.getDayCount();
     return new SABRInterestRateParameters(alphaSurface, betaSurface, rhoSurface, nuSurface, dayCount, SABR_FUNCTION);
+  }
+
+  /**
+   * Sets the dataConverter.
+   * @param dataConverter  the dataConverter
+   */
+  public void setDerivativeConverter(FixedIncomeConverterDataProvider dataConverter) {
+    _derivativeConverter = dataConverter;
+  }
+
+  /**
+   * Gets the dataConverter.
+   * @return the dataConverter
+   */
+  public FixedIncomeConverterDataProvider getDerivativeConverter() {
+    return _derivativeConverter;
+  }
+
+  /**
+   * Sets the converter.
+   * @param converter  the converter
+   */
+  public void setConverter(InterestRateFutureOptionTradeConverter converter) {
+    _converter = converter;
+  }
+
+  /**
+   * Gets the converter.
+   * @return the converter
+   */
+  public InterestRateFutureOptionTradeConverter getConverter() {
+    return _converter;
   }
 
 }
