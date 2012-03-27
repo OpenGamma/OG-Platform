@@ -46,7 +46,7 @@ public class PresentValueCurveSensitivityConvertedForexCalculator extends Abstra
 
   /**
    * Constructor.
-   * @param pvcsc A present value curve sensitivity calculator, not null
+   * @param pvcsc The present value curve sensitivity calculator (not converted). Not null.
    */
   public PresentValueCurveSensitivityConvertedForexCalculator(final PresentValueCurveSensitivityForexCalculator pvcsc) {
     ArgumentChecker.notNull(pvcsc, "present value curve sensitivity calculator");
