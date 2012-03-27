@@ -15,6 +15,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.util.ArgumentChecker;
+
 import au.com.bytecode.opencsv.CSVWriter;
 
 /**
@@ -28,6 +30,9 @@ public class CsvSheetWriter extends SheetWriter {
   private CSVWriter _csvWriter;
   
   public CsvSheetWriter(String filename, String[] columns) {
+
+    ArgumentChecker.notEmpty(filename, "filename");
+    ArgumentChecker.notNull(columns, "columns");
 
     // Open file
     OutputStream fileOutputStream = openFile(filename);
@@ -45,6 +50,9 @@ public class CsvSheetWriter extends SheetWriter {
    
   public CsvSheetWriter(OutputStream outputStream, String[] columns) {
     
+    ArgumentChecker.notNull(outputStream, "outputStream");
+    ArgumentChecker.notNull(columns, "columns");
+
     // Set up CSV Writer
     _csvWriter = new CSVWriter(new OutputStreamWriter(outputStream));
     
@@ -57,6 +65,8 @@ public class CsvSheetWriter extends SheetWriter {
  
   @Override
   public void writeNextRow(Map<String, String> row) {
+    
+    ArgumentChecker.notNull(row, "row");
     
     String[] rawRow = new String[getColumns().length];
     

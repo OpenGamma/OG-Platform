@@ -28,6 +28,7 @@ import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * This class writes positions/securities to a zip file, using the zip file's directory structure to represent the portfolio
@@ -48,6 +49,8 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   private Map<String, ByteArrayOutputStream> _bufferMap = new HashMap<String, ByteArrayOutputStream>();
   
   public ZippedPortfolioWriter(String filename) {
+
+    ArgumentChecker.notEmpty(filename, "filename");
 
     // Confirm file doesn't already exist
     File file = new File(filename);
@@ -71,6 +74,8 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   @Override
   public ManageableSecurity writeSecurity(ManageableSecurity security) {
 
+    ArgumentChecker.notNull(security, "security");
+    
     identifyOrCreatePortfolioWriter(security);
 
     if (_currentWriter != null) {
@@ -85,6 +90,8 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   @Override
   public ManageablePosition writePosition(ManageablePosition position) {
 
+    ArgumentChecker.notNull(position, "position");
+    
     if (_currentWriter != null) {
       position = _currentWriter.writePosition(position);
     } else {
@@ -107,6 +114,8 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   @Override
   public ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node) {
 
+    ArgumentChecker.notNull(node, "node");
+    
     // First, write the current set of CSVs to the zip file and clear the map of writers
     flushCurrentBuffers();
 
@@ -264,7 +273,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
 
   @Override
   public void setPath(String[] newPath) {
-    
+    // TODO
   }
   
 }
