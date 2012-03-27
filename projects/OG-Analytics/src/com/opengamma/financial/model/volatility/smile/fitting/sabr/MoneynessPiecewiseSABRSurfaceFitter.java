@@ -10,6 +10,7 @@ import static com.opengamma.math.FunctionUtils.square;
 import java.util.Arrays;
 
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.Moneyness;
 import com.opengamma.math.function.Function;

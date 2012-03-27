@@ -24,7 +24,7 @@ import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalcul
 import com.opengamma.financial.forex.calculator.ForwardRateForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
-import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityConveretedForexCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityConvertedForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueForexVegaQuoteSensitivityCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueVolatilitySensitivityBlackForexCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
@@ -99,7 +99,7 @@ public class ForexOptionVanillaMethodTest {
   private static final PresentValueBlackForexCalculator PVC_BLACK = PresentValueBlackForexCalculator.getInstance();
   private static final CurrencyExposureBlackForexCalculator CEC_BLACK = CurrencyExposureBlackForexCalculator.getInstance();
   private static final PresentValueCurveSensitivityBlackForexCalculator PVCSC_BLACK = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
-  private static final PresentValueCurveSensitivityConveretedForexCalculator PVCSCC_BLACK = new PresentValueCurveSensitivityConveretedForexCalculator(PVCSC_BLACK);
+  private static final PresentValueCurveSensitivityConvertedForexCalculator PVCSCC_BLACK = new PresentValueCurveSensitivityConvertedForexCalculator(PVCSC_BLACK);
   private static final PresentValueVolatilitySensitivityBlackForexCalculator PVVSC_BLACK = PresentValueVolatilitySensitivityBlackForexCalculator.getInstance();
   // option
   private static final double STRIKE = 1.45;

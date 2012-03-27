@@ -23,4 +23,6 @@ public class SurfaceQuoteType {
   public static final String PAY_RECEIVE_DELTA = "PayReceiveDelta";
   /** Surfaces defined using strangles and risk reversals */
   public static final String MARKET_STRANGLE_RISK_REVERSAL = "MarketStrangleRiskReversal";
+  /** Surfaces defined using expiry / maturity ATM values (useful for swaptions) */
+  public static final String EXPIRY_MATURITY_ATM = "ExpiryMaturityATM";
 }

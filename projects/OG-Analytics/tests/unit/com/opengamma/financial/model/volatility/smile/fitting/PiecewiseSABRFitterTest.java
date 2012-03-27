@@ -27,7 +27,7 @@ public class PiecewiseSABRFitterTest {
   private static final PiecewiseSABRFitter FITTER = new PiecewiseSABRFitter();
 
   @Test
-  //(enabled = false)
+  (enabled = false)
   public void test() {
 
     Function1D<Double, Double> smile = FITTER.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, VOLS);
@@ -45,11 +45,11 @@ public class PiecewiseSABRFitterTest {
   public void bumpTest() {
     double bump = 5e-3;
     int index = 1;
-    double[] vols = Arrays.copyOf(VOLS,VOLS.length);
+    double[] vols = Arrays.copyOf(VOLS, VOLS.length);
     vols[index] += bump;
 
-    SABRFormulaData[] parms = FITTER.getFittedfModelParameters(FORWARD, STRIKES, EXPIRY, vols);
-    for(int i=0;i<parms.length;i++) {
+    SABRFormulaData[] parms = FITTER.getFittedModelParameters(FORWARD, STRIKES, EXPIRY, vols);
+    for (int i = 0; i < parms.length; i++) {
       System.out.println(parms[i].toString());
     }
     Function1D<Double, Double> smile = FITTER.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, vols);
@@ -61,7 +61,6 @@ public class PiecewiseSABRFitterTest {
       System.out.println(k + "\t" + vol);
     }
   }
-
 
   @Test
   public void FlatTest() {
@@ -75,7 +74,7 @@ public class PiecewiseSABRFitterTest {
     for (int i = 0; i < 200; i++) {
       final double k = 700 + 1300 * i / 199.;
       final double vol = smile.evaluate(k);
-      assertEquals(0.2, vol, 1e-9);
+      assertEquals(0.2, vol, 1e-8);
     }
   }
 
@@ -98,5 +97,22 @@ public class PiecewiseSABRFitterTest {
     }
   }
 
+  @Test(enabled=false)
+  public void badFitTest() {
+    final double forward = 1.30276013603506;
+    final double[] strikes = new double[] {1.080256504787705, 1.161299691076151, 1.329077636516407, 1.5210230159922162, 1.635211041136184 };
+    final double expiry = 1.0;
+    final double[] impVols = new double[] {0.2, 0.2, 0.2, 0.2, 0.2 };
+    double bump = 1e-3;
+    int index = 2;
+    impVols[index] += bump;
+    Function1D<Double, Double> smile = FITTER.getVolatilityFunction(forward, strikes, expiry, impVols);
+
+    for (int i = 0; i < 200; i++) {
+      final double k = 0.8 + 1.2 * i / 199.;
+      final double vol = smile.evaluate(k);
+      System.out.println(k + "\t" + vol);
+    }
+  }
 
 }

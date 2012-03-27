@@ -10,6 +10,7 @@ import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A dummy portfolio writer, which pretty-prints information instead of persisting
@@ -21,12 +22,18 @@ public class DummyPortfolioWriter implements PortfolioWriter {
   
   @Override
   public ManageableSecurity writeSecurity(ManageableSecurity security) {
+    
+    ArgumentChecker.notNull(security, "security");
+    
     System.out.println("Security: " + security.toString());
     return security;
   }
 
   @Override
   public ManageablePosition writePosition(ManageablePosition position) {
+    
+    ArgumentChecker.notNull(position, "position");
+    
     System.out.println("Position: " + position.toString());
     return position;
   }
@@ -43,6 +50,9 @@ public class DummyPortfolioWriter implements PortfolioWriter {
 
   @Override
   public ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node) {
+    
+    ArgumentChecker.notNull(node, "node");
+    
     System.out.println("Set node to: " + node.toString());
     _node = node;
     return _node;
@@ -56,6 +66,14 @@ public class DummyPortfolioWriter implements PortfolioWriter {
   @Override
   public void close() {
     System.out.println("Closed writer");
+  }
+
+  @Override
+  public void setPath(String[] newPath) {
+    
+    ArgumentChecker.notNull(newPath, "newPath");
+    
+    System.out.println("Set path to: " + newPath);
   }
   
 }

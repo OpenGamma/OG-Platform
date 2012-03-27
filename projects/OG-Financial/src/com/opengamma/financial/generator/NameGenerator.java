@@ -1,0 +1,15 @@
+/**
+ * Copyright (C) 2012 - present by OpenGamma Inc. and the OpenGamma group of companies
+ *
+ * Please see distribution for license.
+ */
+package com.opengamma.financial.generator;
+
+/**
+ * A source of names.
+ */
+public interface NameGenerator {
+
+  String createName();
+
+}

@@ -10,7 +10,6 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.core.security.SecuritySource;
 import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionDigitalDefinition;
 import com.opengamma.financial.forex.definition.ForexOptionSingleBarrierDefinition;
@@ -56,13 +55,6 @@ import com.opengamma.util.money.Currency;
  */
 //TODO use the visitor adapter
 public class ForexSecurityConverter implements FinancialSecurityVisitor<InstrumentDefinition<?>> {
-  @SuppressWarnings("unused")
-  private final SecuritySource _securitySource;
-
-  public ForexSecurityConverter(final SecuritySource securitySource) {
-    Validate.notNull(securitySource, "security source");
-    _securitySource = securitySource;
-  }
 
   @Override
   public InstrumentDefinition<?> visitFXDigitalOptionSecurity(final FXDigitalOptionSecurity fxDigitalOptionSecurity) {
