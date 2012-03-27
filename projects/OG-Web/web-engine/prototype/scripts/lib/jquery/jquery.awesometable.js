@@ -31,6 +31,9 @@
                 width: $self.parentsUntil('.js-awesometable').parent().find(' > table thead').width() + 'px'
             });
         }
+        $self.find('thead tr').hide().parent().find('tr:last').show(); // if multiple header rows, use last only
+        // cascade header click
+        $dup.find('tr:last th').click(function () {$($self.find('tr:last-child th')[$(this).index()]).click();});
         // resize the new header to mimic original
         (function () {
             var len = $self.find('th').length, $dup = $('.js-awesometable > table th'),
