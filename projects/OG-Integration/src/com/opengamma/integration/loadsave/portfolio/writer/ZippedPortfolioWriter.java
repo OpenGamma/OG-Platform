@@ -21,7 +21,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
 import com.opengamma.integration.loadsave.sheet.writer.CsvSheetWriter;
 import com.opengamma.integration.loadsave.sheet.writer.SheetWriter;
@@ -29,6 +28,7 @@ import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * This class writes positions/securities to a zip file, using the zip file's directory structure to represent the portfolio
@@ -41,7 +41,6 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   private static final char DIRECTORY_SEPARATOR = '/';
 
   private ZipOutputStream _zipFile;
-  private ToolContext _toolContext;
   private ManageablePortfolio _portfolio;
   private Map<String, Integer> _versionMap = new HashMap<String, Integer>();
   private ManageablePortfolioNode _currentNode;
@@ -49,9 +48,9 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   private Map<String, SingleSheetPortfolioWriter> _writerMap = new HashMap<String, SingleSheetPortfolioWriter>();
   private Map<String, ByteArrayOutputStream> _bufferMap = new HashMap<String, ByteArrayOutputStream>();
   
-  public ZippedPortfolioWriter(String filename, ToolContext toolContext) {
+  public ZippedPortfolioWriter(String filename) {
 
-    _toolContext = toolContext;
+    ArgumentChecker.notEmpty(filename, "filename");
 
     // Confirm file doesn't already exist
     File file = new File(filename);
@@ -75,6 +74,8 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   @Override
   public ManageableSecurity writeSecurity(ManageableSecurity security) {
 
+    ArgumentChecker.notNull(security, "security");
+    
     identifyOrCreatePortfolioWriter(security);
 
     if (_currentWriter != null) {
@@ -89,6 +90,8 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   @Override
   public ManageablePosition writePosition(ManageablePosition position) {
 
+    ArgumentChecker.notNull(position, "position");
+    
     if (_currentWriter != null) {
       position = _currentWriter.writePosition(position);
     } else {
@@ -111,6 +114,8 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   @Override
   public ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node) {
 
+    ArgumentChecker.notNull(node, "node");
+    
     // First, write the current set of CSVs to the zip file and clear the map of writers
     flushCurrentBuffers();
 
@@ -264,6 +269,11 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
     } catch (IOException ex) {
       throw new OpenGammaRuntimeException("Could not write METADATA.INI to zip archive");
     }
+  }
+
+  @Override
+  public void setPath(String[] newPath) {
+    // TODO
   }
   
 }
