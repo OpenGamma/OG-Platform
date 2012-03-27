@@ -9,7 +9,6 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.apache.commons.lang.ArrayUtils;
 
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.VersionCorrection;
@@ -46,18 +45,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   private ManageablePortfolioNode _originalNode;
   private ManageablePortfolioNode _originalRoot;
   
-  
-  public MasterPortfolioWriter(String portfolioName, ToolContext toolContext) {
     
-    ArgumentChecker.notEmpty(portfolioName, "portfolioName");
-    ArgumentChecker.notNull(toolContext, "toolContext");
-    
-    _portfolioMaster = toolContext.getPortfolioMaster();
-    _positionMaster = toolContext.getPositionMaster();
-    _securityMaster = toolContext.getSecurityMaster();
-    _portfolioDocument = createPortfolio(portfolioName);
-  }
-  
   public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster, 
       PositionMaster positionMaster, SecurityMaster securityMaster) {
 
