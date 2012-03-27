@@ -84,7 +84,7 @@ public final class CashLoader extends SecurityLoader {
       return null;
     }
 //    CashSecurity security = new CashSecurity(Currency.getInstance(currency), Identifier.of(InMemoryRegionRepository.ISO_COUNTRY_2, countryIso));
-//    security.setUniqueId(BloombergSecurityMaster.createUniqueId(bbgUniqueID));
+//    security.setUniqueId(BloombergSecuritySource.createUniqueId(bbgUniqueID));
 //    security.setName(name);
 //    //add other domain specific identifiers if available
 //    if (BloombergDataUtil.isValidField(marketSector)) {

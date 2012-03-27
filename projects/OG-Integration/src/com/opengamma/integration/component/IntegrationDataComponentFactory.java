@@ -25,7 +25,7 @@ import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.RemoteReferenceDataProviderFactoryBean;
 import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
 import com.opengamma.bbg.loader.BloombergHistoricalLoader;
-import com.opengamma.bbg.loader.BloombergSecurityMasterLoader;
+import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.component.ComponentInfo;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
@@ -127,7 +127,7 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
     BloombergBulkSecurityLoader bbgBulkSecLoader = new BloombergBulkSecurityLoader(refData, exchangeDataProvider);
     
     // security master loader
-    SecurityLoader bbgSecLoader = new BloombergSecurityMasterLoader(getSecurityMaster(), bbgBulkSecLoader);
+    SecurityLoader bbgSecLoader = new BloombergSecurityLoader(getSecurityMaster(), bbgBulkSecLoader);
     
     return bbgSecLoader;
   }
