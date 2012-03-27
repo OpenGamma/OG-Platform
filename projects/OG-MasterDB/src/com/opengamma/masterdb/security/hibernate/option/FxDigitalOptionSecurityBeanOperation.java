@@ -40,6 +40,7 @@ public final class FxDigitalOptionSecurityBeanOperation extends AbstractSecurity
     bean.setPutAmount(security.getPutAmount());
     bean.setCallCurrency(secMasterSession.getOrCreateCurrencyBean(security.getCallCurrency().getCode()));
     bean.setPutCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPutCurrency().getCode()));
+    bean.setPaymentCurrency(secMasterSession.getOrCreateCurrencyBean(security.getPaymentCurrency().getCode()));
     bean.setExpiry(expiryToExpiryBean(security.getExpiry()));
     bean.setSettlementDate(Converters.dateTimeWithZoneToZonedDateTimeBean(security.getSettlementDate()));
     bean.setIsLong(security.isLong());
@@ -50,9 +51,10 @@ public final class FxDigitalOptionSecurityBeanOperation extends AbstractSecurity
   public FXDigitalOptionSecurity createSecurity(OperationContext context, FXDigitalOptionSecurityBean bean) {
     Currency putCurrency = currencyBeanToCurrency(bean.getPutCurrency());
     Currency callCurrency = currencyBeanToCurrency(bean.getCallCurrency());
+    Currency paymentCurrency = currencyBeanToCurrency(bean.getPaymentCurrency());
     Expiry expiry = expiryBeanToExpiry(bean.getExpiry());
     ZonedDateTime settlementDate = Converters.zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate());
-    FXDigitalOptionSecurity sec = new FXDigitalOptionSecurity(putCurrency, callCurrency, bean.getPutAmount(), bean.getCallAmount(), expiry, settlementDate, bean.getIsLong());
+    FXDigitalOptionSecurity sec = new FXDigitalOptionSecurity(putCurrency, callCurrency, bean.getPutAmount(), bean.getCallAmount(), paymentCurrency, expiry, settlementDate, bean.getIsLong());
     return sec;
   }
 
