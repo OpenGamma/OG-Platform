@@ -15,6 +15,7 @@ $.register_module({
             var identifier = result.data.identifiers[0].value,
                 data = result.data,
                 selector = config.selector,
+                show_datapoints_link = 'datapoints_link' in config ? config.datapoints_link : true,
                 init_data_field = data.template_data.data_field,
                 init_ob_time = data.template_data.observation_time,
                 data_arr = [{
@@ -124,7 +125,7 @@ $.register_module({
                         </div>';
                 if (!$data_points.length) return;
                 if (!config.datapoints) {
-                    $data_points.css({'position': 'relative', 'top': '-35px', 'left': '3px'})
+                    if (show_datapoints_link) $data_points.css({'position': 'relative', 'top': '-35px', 'left': '3px'})
                         .html('<a href="#/timeseries/'+ config.id +'">View Timeseries with DataPoints</a>');
                     return;
                 }

@@ -65,7 +65,7 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod exte
     final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
     final double forward = 1 - priceFuture;
     //    final double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();
-    final double volatility = blackData.getVolatility(security.getExpirationTime(), rateStrike); // , delay
+    final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike()); // , delay
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double priceSecurity = BLACK_FUNCTION.getPriceFunction(option).evaluate(dataBlack);
     return priceSecurity;
@@ -108,7 +108,7 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod exte
     final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
     final double forward = 1 - priceFuture;
     //    final double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();
-    final double volatility = blackData.getVolatility(security.getExpirationTime(), rateStrike);
+    final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike());
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     // Backward sweep
@@ -139,7 +139,7 @@ public final class InterestRateFutureOptionMarginSecurityBlackSurfaceMethod exte
     final EuropeanVanillaOption option = new EuropeanVanillaOption(rateStrike, security.getExpirationTime(), !security.isCall());
     final double forward = 1 - priceFuture;
     //    final double delay = security.getUnderlyingFuture().getLastTradingTime() - security.getExpirationTime();
-    final double volatility = blackData.getVolatility(security.getExpirationTime(), rateStrike);
+    final double volatility = blackData.getVolatility(security.getExpirationTime(), security.getStrike());
     final BlackFunctionData dataBlack = new BlackFunctionData(forward, 1.0, volatility);
     final double[] priceAdjoint = BLACK_FUNCTION.getPriceAdjoint(option, dataBlack);
     // Backward sweep

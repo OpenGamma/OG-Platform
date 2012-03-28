@@ -34,7 +34,7 @@ public class SwaptionBlackVolatilitySensitivityFunction extends SwaptionBlackFun
     final PresentValueBlackSwaptionSensitivity sensitivities = swaption.accept(CALCULATOR, data);
     final HashMap<DoublesPair, Double> result = sensitivities.getSensitivity().getMap();
     if (result.size() != 1) {
-      throw new OpenGammaRuntimeException("Expecting only one result for value vega");
+      throw new OpenGammaRuntimeException("Expecting only one result for Black value vega");
     }
     return Collections.singleton(new ComputedValue(spec, result.values().iterator().next()));
   }

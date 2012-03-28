@@ -55,7 +55,7 @@ public class InterestRateFutureOptionBlackDefaultPropertiesFunction extends Defa
     if (!(target.getTrade().getSecurity() instanceof IRFutureOptionSecurity)) {
       return false;
     }
-    final IRFutureOptionSecurity irFutureOption = (IRFutureOptionSecurity) target.getSecurity();
+    final IRFutureOptionSecurity irFutureOption = (IRFutureOptionSecurity) target.getTrade().getSecurity();
     final String currency = irFutureOption.getCurrency().getCode();
     for (final String applicableCurrency : _applicableCurrencies) {
       if (applicableCurrency.equals(currency)) {

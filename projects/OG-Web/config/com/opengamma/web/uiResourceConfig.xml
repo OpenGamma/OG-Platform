@@ -155,10 +155,12 @@
     <fragment>/scripts/lib/js.ext.function.prototype.preload.js</fragment>
     <fragment>/scripts/lib/json2.js</fragment>
     <fragment>/scripts/lib/cometd.js</fragment>
+    <fragment>/scripts/lib/handlebars-1.0.0.beta.6.js</fragment>
     <fragment>/scripts/lib/jquery/jquery-1.7.1.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.cometd.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.tmpl.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.jsonp-1.1.0.min.js</fragment>
+    <fragment>/scripts/lib/jquery/jquery-tablesorter.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.core.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.widget.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.mouse.js</fragment>
@@ -235,6 +237,7 @@
   <bundle id="views_common.js">
     <fragment>/scripts/og/views/common/og.views.common.state.js</fragment>
     <fragment>/scripts/og/views/common/og.views.common.versions.js</fragment>
+    <fragment>/scripts/og/views/common/og.views.common.toolbar.upload.js</fragment>
     <fragment>/scripts/og/views/common/og.views.common.default_details.js</fragment>
     <fragment>/scripts/og/views/common/og.views.common.core.js</fragment>
   </bundle>
@@ -300,6 +303,19 @@
       <bundle idref="util_ui.js" />
       <bundle idref="common.js" />
       <bundle idref="views_common.js" />
+      <fragment>/scripts/og/analytics/og.analytics.data.js</fragment>
+      <fragment>/scripts/og/analytics/og.analytics.grid.js</fragment>
       <fragment>/scripts/og/views/og.views.analytics2.js</fragment>
-  </bundle>  
+  </bundle>
+  <bundle id="og_gadget.js">
+      <bundle idref="lib.js" />
+      <bundle idref="core.js" />
+      <bundle idref="api.js" />
+      <bundle idref="util.js" />
+      <bundle idref="util_ui.js" />
+      <bundle idref="common.js" />
+      <bundle idref="views_common.js" />
+      <bundle idref="common_module.js" />
+      <fragment>/scripts/og/views/og.views.gadget.js</fragment>
+  </bundle>
 </uiResourceConfig>

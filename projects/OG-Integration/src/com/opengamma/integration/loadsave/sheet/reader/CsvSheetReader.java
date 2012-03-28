@@ -23,22 +23,7 @@ import au.com.bytecode.opencsv.CSVReader;
 public class CsvSheetReader extends SheetReader {
 
   private CSVReader _csvReader;
-  
-  public CsvSheetReader(String filename, String[] columns) {
-
-    ArgumentChecker.notEmpty(filename, "filename");
-    ArgumentChecker.notNull(columns, "columns");
     
-    // Open file
-    InputStream inputStream = openFile(filename);
-
-    // Set up CSV reader
-    _csvReader = new CSVReader(new InputStreamReader(inputStream));
-    
-    // Set columns
-    setColumns(columns);
-  }
-  
   public CsvSheetReader(String filename) {
     
     ArgumentChecker.notEmpty(filename, "filename");
@@ -52,19 +37,7 @@ public class CsvSheetReader extends SheetReader {
     // Set columns
     setColumns(readHeaderRow());
   }
-  
-  public CsvSheetReader(InputStream inputStream, String[] columns) {
-    
-    ArgumentChecker.notNull(inputStream, "inputStream");
-    ArgumentChecker.notNull(columns, "columns");
-
-    // Set up CSV reader
-    _csvReader = new CSVReader(new InputStreamReader(inputStream));
-    
-    // Set columns
-    setColumns(columns);
-  }
- 
+   
   public CsvSheetReader(InputStream inputStream) {
     
     ArgumentChecker.notNull(inputStream, "inputStream");

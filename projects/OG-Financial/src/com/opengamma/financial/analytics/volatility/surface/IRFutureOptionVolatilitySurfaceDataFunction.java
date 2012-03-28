@@ -178,7 +178,7 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
         final Double volatility = optionVolatilities.getVolatility(x, y);
         if (volatility != null) {
           xList.add(x.doubleValue());
-          yList.add(y);
+          yList.add(y / 100.);
           volatilityValues.put(Pair.of(x.doubleValue(), y / 100.), volatility / 100); // TODO Normalisation, could this be done elsewhere?
         }
       }
