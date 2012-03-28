@@ -26,13 +26,15 @@ public enum SheetFormat {
   UNKNOWN;
  
   public static SheetFormat of(String filename) {
-    String extension = filename.substring(filename.lastIndexOf('.')).toLowerCase();
+    String extension = filename.substring(filename.lastIndexOf('.')).toLowerCase().trim();
     if (extension.equals(".csv")) {
       return SheetFormat.CSV;
     } else if (extension.equals(".xls")) {
       return SheetFormat.XLS;
     } else if (extension.equals(".xlsx")) {
       return SheetFormat.XLSX;
+    } else if (extension.equals(".zip")) {
+      return SheetFormat.ZIP;
     } else {
       return SheetFormat.UNKNOWN;
     }
