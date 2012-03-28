@@ -1029,7 +1029,7 @@ public class BloombergHistoricalLoader implements HistoricalTimeSeriesLoader {
 
   private Map<ExternalIdBundle, HistoricalTimeSeries> getTimeSeries(
       final String dataField, final LocalDate startDate, final LocalDate endDate, String bbgDataProvider, Set<ExternalIdBundle> identifierSet) {
-    s_logger.info("Loading time series {} ({}-{}) {}: {}", new Object[] {dataField, startDate, endDate, bbgDataProvider, identifierSet});
+    s_logger.debug("Loading time series {} ({}-{}) {}: {}", new Object[] {dataField, startDate, endDate, bbgDataProvider, identifierSet});
     return _bbgHistoricalTimeSeriesSource.getHistoricalTimeSeries(
         identifierSet, BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME, bbgDataProvider, dataField, startDate, true, endDate, true);
   }

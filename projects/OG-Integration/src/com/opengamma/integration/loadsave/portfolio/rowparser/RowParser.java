@@ -17,6 +17,7 @@ import javax.time.calendar.format.DateTimeFormatterBuilder;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * An abstract row parser class, to be specialised for parsing a specific security/trade/position type from a row's data
@@ -46,11 +47,13 @@ public abstract class RowParser {
   /**
    * Creates a new row parser for the specified security type and tool context
    * @param securityName  the type of the security for which a row parser is to be created
-   * @param toolContext   the tool context for the row parser (for access to masters and sources)
    * @return              the RowParser class for the specified security type, or null if unable to identify a suitable parser
    */
   public static RowParser newRowParser(String securityName) {
     // Now using the JodaBean parser
+    
+    ArgumentChecker.notEmpty(securityName, "securityName");
+    
     return new JodaBeanRowParser(securityName);
   }
 
@@ -89,6 +92,11 @@ public abstract class RowParser {
    * @return          The mapping from column names to contents of the current row
    */
   public Map<String, String> constructRow(ManageableSecurity security, ManageablePosition position, ManageableTrade trade) {
+    
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(position, "position");
+    ArgumentChecker.notNull(trade, "trade");
+    
     Map<String, String> result = new HashMap<String, String>();
     Map<String, String> securityRow = constructRow(security);
     Map<String, String> positionRow = constructRow(position);
@@ -120,6 +128,10 @@ public abstract class RowParser {
    * @return The constructed position
    */
   public ManageablePosition constructPosition(Map<String, String> row, ManageableSecurity security) {
+    
+    ArgumentChecker.notNull(row, "row");
+    ArgumentChecker.notNull(security, "security");
+    
     return new ManageablePosition(BigDecimal.ONE, security.getExternalIdBundle());
   }
   
@@ -146,6 +158,7 @@ public abstract class RowParser {
   
  
   public static String getWithException(Map<String, String> fieldValueMap, String fieldName) {
+    
     String result = fieldValueMap.get(fieldName);
     if (result == null) {
       System.err.println(fieldValueMap);

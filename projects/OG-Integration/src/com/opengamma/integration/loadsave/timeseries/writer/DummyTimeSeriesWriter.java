@@ -11,7 +11,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.ExternalId;
-import com.opengamma.integration.loadsave.portfolio.PortfolioLoader;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**
@@ -19,7 +18,7 @@ import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
  */
 public class DummyTimeSeriesWriter implements TimeSeriesWriter {
 
-  private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoader.class);
+  private static final Logger s_logger = LoggerFactory.getLogger(DummyTimeSeriesWriter.class);
 
   @Override
   public LocalDateDoubleTimeSeries writeDataPoints(ExternalId htsId, String dataSource, String dataProvider, String dataField, 

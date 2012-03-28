@@ -40,6 +40,7 @@ import com.opengamma.financial.security.swap.VarianceSwapLeg;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.ManageableSecurityLink;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A generic row parser for Joda beans that automatically identifies fields to be persisted to rows/populated from rows
@@ -87,7 +88,8 @@ public class JodaBeanRowParser extends RowParser {
     "objectid",
     "securitylink",
     "trades",
-    "attributes"
+    "attributes",
+    "gicscode"
   };
   
   /**
@@ -124,6 +126,9 @@ public class JodaBeanRowParser extends RowParser {
   }
   
   public JodaBeanRowParser(String securityName) throws OpenGammaRuntimeException {
+    
+    ArgumentChecker.notEmpty(securityName, "securityName");
+    
     // Find the corresponding security class
     _securityClass = getClass(securityName + CLASS_POSTFIX);
 
@@ -142,13 +147,20 @@ public class JodaBeanRowParser extends RowParser {
   
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> row) {
-    ArrayList<ManageableSecurity> securities = new ArrayList<ManageableSecurity>();    
+    
+    ArgumentChecker.notNull(row, "row");
+    
+    ArrayList<ManageableSecurity> securities = new ArrayList<ManageableSecurity>();
     securities.add((ManageableSecurity) recursiveConstructBean(row, _securityClass, ""));
     return securities.toArray(new ManageableSecurity[securities.size()]);
   }
   
   @Override
   public ManageablePosition constructPosition(Map<String, String> row, ManageableSecurity security) {
+    
+    ArgumentChecker.notNull(row, "row");
+    ArgumentChecker.notNull(security, "security");
+    
     ManageablePosition result = (ManageablePosition) recursiveConstructBean(row, ManageablePosition.class, "position:");
     result.setSecurityLink(new ManageableSecurityLink(security.getExternalIdBundle()));
     return result;
@@ -161,11 +173,13 @@ public class JodaBeanRowParser extends RowParser {
    
   @Override
   public Map<String, String> constructRow(ManageableSecurity security) {
+    ArgumentChecker.notNull(security, "security");
     return recursiveConstructRow(security, "");
   }
   
   @Override
   public Map<String, String> constructRow(ManageablePosition position) {
+    ArgumentChecker.notNull(position, "position");
     return recursiveConstructRow(position, "position:");
   }
 

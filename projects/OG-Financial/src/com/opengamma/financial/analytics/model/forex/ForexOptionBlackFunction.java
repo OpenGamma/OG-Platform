@@ -28,7 +28,6 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
@@ -66,7 +65,7 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
   public static final String PROPERTY_CALL_FORWARD_CURVE_NAME = "CallForwardCurve";
   /** The volatility surface name property */
   public static final String PROPERTY_FX_VOLATILITY_SURFACE_NAME = "FXVolatilitySurface";
-  private ForexSecurityConverter _visitor;
+  private static final ForexSecurityConverter s_visitor = new ForexSecurityConverter();
   private final String _valueRequirementName;
 
   public ForexOptionBlackFunction(final String valueRequirementName) {
@@ -75,16 +74,11 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
   }
 
   @Override
-  public void init(final FunctionCompilationContext context) {
-    _visitor = new ForexSecurityConverter(OpenGammaCompilationContext.getSecuritySource(context));
-  }
-
-  @Override
   public Set<ComputedValue> execute(final FunctionExecutionContext executionContext, final FunctionInputs inputs, final ComputationTarget target, final Set<ValueRequirement> desiredValues) {
     final Clock snapshotClock = executionContext.getValuationClock();
     final ZonedDateTime now = snapshotClock.zonedDateTime();
     final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
-    final InstrumentDefinition<?> definition = security.accept(_visitor);
+    final InstrumentDefinition<?> definition = security.accept(s_visitor);
     final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
     final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
     final ExternalId spotIdentifier = security.accept(ForexVisitors.getSpotIdentifierVisitor());
@@ -144,7 +138,7 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
     final YieldAndDiscountCurve callFundingCurve = getCurve(inputs, callCurrency, callFundingCurveName);
     final YieldAndDiscountCurve callForwardCurve = getCurve(inputs, callCurrency, callForwardCurveName);
     final YieldAndDiscountCurve[] curves;
-    Map<String, Currency> curveCurrency = new HashMap<String, Currency>();
+    final Map<String, Currency> curveCurrency = new HashMap<String, Currency>();
     curveCurrency.put(fullPutFundingCurveName, putCurrency);
     curveCurrency.put(fullPutForwardCurveName, putCurrency);
     curveCurrency.put(fullCallFundingCurveName, callCurrency);
@@ -293,15 +287,26 @@ public abstract class ForexOptionBlackFunction extends AbstractFunction.NonCompi
   }
 
   protected ValueProperties.Builder getResultProperties(final ComputationTarget target) {
-    return createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD).withAny(PROPERTY_PUT_FUNDING_CURVE_NAME).withAny(PROPERTY_PUT_FORWARD_CURVE_NAME)
-        .withAny(PROPERTY_CALL_FUNDING_CURVE_NAME).withAny(PROPERTY_CALL_FORWARD_CURVE_NAME).withAny(PROPERTY_FX_VOLATILITY_SURFACE_NAME).with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
+    return createValueProperties()
+        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .withAny(PROPERTY_PUT_FUNDING_CURVE_NAME)
+        .withAny(PROPERTY_PUT_FORWARD_CURVE_NAME)
+        .withAny(PROPERTY_CALL_FUNDING_CURVE_NAME)
+        .withAny(PROPERTY_CALL_FORWARD_CURVE_NAME)
+        .withAny(PROPERTY_FX_VOLATILITY_SURFACE_NAME)
+        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
   }
 
   protected ValueProperties.Builder getResultProperties(final String putFundingCurveName, final String putForwardCurveName, final String callFundingCurveName, final String callForwardCurveName,
       final String surfaceName, final ComputationTarget target) {
-    return createValueProperties().with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD).with(PROPERTY_PUT_FUNDING_CURVE_NAME, putFundingCurveName)
-        .with(PROPERTY_PUT_FORWARD_CURVE_NAME, putForwardCurveName).with(PROPERTY_CALL_FUNDING_CURVE_NAME, callFundingCurveName).with(PROPERTY_CALL_FORWARD_CURVE_NAME, callForwardCurveName)
-        .with(PROPERTY_FX_VOLATILITY_SURFACE_NAME, surfaceName).with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
+    return createValueProperties()
+        .with(ValuePropertyNames.CALCULATION_METHOD, BLACK_METHOD)
+        .with(PROPERTY_PUT_FUNDING_CURVE_NAME, putFundingCurveName)
+        .with(PROPERTY_PUT_FORWARD_CURVE_NAME, putForwardCurveName)
+        .with(PROPERTY_CALL_FUNDING_CURVE_NAME, callFundingCurveName)
+        .with(PROPERTY_CALL_FORWARD_CURVE_NAME, callForwardCurveName)
+        .with(PROPERTY_FX_VOLATILITY_SURFACE_NAME, surfaceName)
+        .with(ValuePropertyNames.CURRENCY, getResultCurrency(target));
   }
 
   protected static String getResultCurrency(final ComputationTarget target) {

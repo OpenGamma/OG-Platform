@@ -13,13 +13,14 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.component.tool.AbstractTool;
+import com.opengamma.integration.loadsave.sheet.SheetFormat;
 import com.opengamma.integration.loadsave.timeseries.TimeSeriesLoader;
-import com.opengamma.integration.tool.AbstractIntegrationTool;
 
 /**
  * The timeseries loader tool
  */
-public class TimeSeriesLoaderTool extends AbstractIntegrationTool {
+public class TimeSeriesLoaderTool extends AbstractTool {
 
   /** File name option flag */
   private static final String FILE_NAME_OPT = "f";
@@ -55,9 +56,10 @@ public class TimeSeriesLoaderTool extends AbstractIntegrationTool {
   @Override 
   protected void doRun() {
     String fileName = getCommandLine().getOptionValue(FILE_NAME_OPT);
+    SheetFormat sheetFormat = SheetFormat.of(fileName);
     try {
       new TimeSeriesLoader(getToolContext().getHistoricalTimeSeriesMaster()).run(
-          fileName,
+          sheetFormat,
           new BufferedInputStream(new FileInputStream(fileName)),
           getCommandLine().getOptionValue(TIME_SERIES_DATASOURCE_OPT),
           getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT),

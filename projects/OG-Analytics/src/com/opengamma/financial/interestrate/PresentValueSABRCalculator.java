@@ -32,14 +32,29 @@ import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundl
  */
 public final class PresentValueSABRCalculator extends PresentValueCalculator {
 
-  private static final PresentValueSABRCalculator s_instance = new PresentValueSABRCalculator();
+  /**
+   * Creates the method unique instance.
+   */
+  private static final PresentValueSABRCalculator INSTANCE = new PresentValueSABRCalculator();
 
+  /**
+   * Return the method unique instance.
+   * @return The instance.
+   */
   public static PresentValueSABRCalculator getInstance() {
-    return s_instance;
+    return INSTANCE;
   }
 
+  /**
+   * Constructor.
+   */
   private PresentValueSABRCalculator() {
   }
+
+  /**
+   * The methods used in the calculator.
+   */
+  private static final InterestRateFutureOptionMarginTransactionSABRMethod METHOD_OPTIONFUTURESMARGIN_SABR = InterestRateFutureOptionMarginTransactionSABRMethod.getInstance();
 
   @Override
   public Double visitCapFloorIbor(final CapFloorIbor cap, final YieldCurveBundle curves) {
@@ -123,8 +138,7 @@ public final class PresentValueSABRCalculator extends PresentValueCalculator {
     Validate.notNull(option);
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
-      final InterestRateFutureOptionMarginTransactionSABRMethod method = InterestRateFutureOptionMarginTransactionSABRMethod.getInstance();
-      return method.presentValue(option, sabrBundle).getAmount();
+      return METHOD_OPTIONFUTURESMARGIN_SABR.presentValue(option, sabrBundle).getAmount();
     }
     throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitInterestRateFutureOptionMarginTransaction requires a SABRInterestRateDataBundle as data.");
   }
@@ -136,11 +150,10 @@ public final class PresentValueSABRCalculator extends PresentValueCalculator {
     if (curves instanceof SABRInterestRateDataBundle) {
       final SABRInterestRateDataBundle sabrBundle = (SABRInterestRateDataBundle) curves;
       final InterestRateFutureOptionPremiumSecurity underlyingOption = option.getUnderlyingOption();
-      final InterestRateFutureOptionMarginSecurity underlyingMarginedOption = new InterestRateFutureOptionMarginSecurity(underlyingOption.getUnderlyingFuture(),
-          underlyingOption.getExpirationTime(), underlyingOption.getStrike(), underlyingOption.isCall());
+      final InterestRateFutureOptionMarginSecurity underlyingMarginedOption = new InterestRateFutureOptionMarginSecurity(underlyingOption.getUnderlyingFuture(), underlyingOption.getExpirationTime(),
+          underlyingOption.getStrike(), underlyingOption.isCall());
       final InterestRateFutureOptionMarginTransaction margined = new InterestRateFutureOptionMarginTransaction(underlyingMarginedOption, option.getQuantity(), option.getTradePrice());
-      final InterestRateFutureOptionMarginTransactionSABRMethod method = InterestRateFutureOptionMarginTransactionSABRMethod.getInstance();
-      return method.presentValue(margined, sabrBundle).getAmount();
+      return METHOD_OPTIONFUTURESMARGIN_SABR.presentValue(margined, sabrBundle).getAmount();
     }
     throw new UnsupportedOperationException("The PresentValueSABRCalculator visitor visitInterestRateFutureOptionPremiumTransaction requires a SABRInterestRateDataBundle as data.");
   }

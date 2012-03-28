@@ -14,7 +14,7 @@ import com.opengamma.math.rootfinding.BisectionSingleRootFinder;
 import com.opengamma.math.rootfinding.BracketRoot;
 import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.util.CompareUtils;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * This <b>SHOULD</b> be the repository for Black formulas - i.e. the price, common greeks (delta, gamma, vega) and implied volatility. Other
@@ -41,7 +41,7 @@ public abstract class BlackFormulaRepository {
    */
   @ExternalFunction
   public static double price(final double forward, final double strike, final double timeToExpiry, final double lognormalVol, final boolean isCall) {
-    Validate.isTrue(lognormalVol >= 0.0, "negative vol");
+    ArgumentChecker.isTrue(lognormalVol >= 0.0, "negative volatility; have {}", lognormalVol);
     if (strike < SMALL) {
       return isCall ? forward : 0.0;
     }
@@ -59,7 +59,6 @@ public abstract class BlackFormulaRepository {
     return sign * (forward * NORMAL.getCDF(sign * d1) - strike * NORMAL.getCDF(sign * d2));
 
   }
-
 
   public static double price(final SimpleOptionData data, final double lognormalVol) {
     return data.getDiscountFactor() * price(data.getForward(), data.getStrike(), data.getTimeToExpiry(), lognormalVol, data.isCall());
@@ -289,17 +288,12 @@ public abstract class BlackFormulaRepository {
   public static double impliedVolatility(final double price, final double forward, final double strike, final double timeToExpiry, final boolean isCall) {
     final double intrinsicPrice = Math.max(0, (isCall ? 1 : -1) * (forward - strike));
     Validate.isTrue(strike > 0, "Cannot find an implied volatility when strike is zero as there is no optionality");
-    if (!CompareUtils.closeEquals(price, intrinsicPrice, 1e-12)) {
-      Validate.isTrue(price >= intrinsicPrice, "option price (" + price + ") less than intrinsic value (" + intrinsicPrice + ")");
-    }
+    ArgumentChecker.isTrue(price > intrinsicPrice, "price of {} less that intrinsic price of {}", price, intrinsicPrice);
+
     if (isCall) {
       Validate.isTrue(price < forward, "call price must be less than forward");
     } else {
       Validate.isTrue(price < strike, "put price must be less than strike");
-    }
-
-    if (price == intrinsicPrice) {
-      return 0.0;
     }
 
     double sigma = 0.3;

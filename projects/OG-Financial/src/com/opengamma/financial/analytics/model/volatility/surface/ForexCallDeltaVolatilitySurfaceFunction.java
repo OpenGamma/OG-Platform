@@ -138,7 +138,7 @@ public class ForexCallDeltaVolatilitySurfaceFunction extends AbstractFunction.No
         resultProperties.with(VolatilitySurfaceShiftFunction.SHIFT, shifts.iterator().next());
       }
     }
-    return Collections.<ValueSpecification>singleton(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), resultProperties.get()));
+    return Collections.singleton(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(), resultProperties.get()));
   }
 
   private double getTime(final Tenor tenor) {

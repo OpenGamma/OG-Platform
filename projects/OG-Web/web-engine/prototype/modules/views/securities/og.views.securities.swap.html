@@ -49,11 +49,11 @@
             <tr><td><span>Frequency</span></td><td>${payLeg.frequency}</td></tr>
             <tr><td><span>Regional Identifier</span></td><td>${payLeg.regionId.value} (${payLeg.regionId.scheme})</td></tr>
             <tr><td><span>Business Day Convention</span></td><td>${payLeg.businessDayConvention}</td></tr>
-            <tr><td><span>Notional</span></td><td>${payLeg.notional.amount} - ${payLeg.notional.currency}</td></tr>
+            <tr><td><span>Notional</span></td><td>${payLeg.notional.amount} ${payLeg.notional.currency}</td></tr>
             <tr><td><span>Floating Reference Rate Id</span></td><td>${payLeg.floatingReferenceRateId}</td></tr>
             <tr><td><span>Initial Floating Rate</span></td><td>${payLeg.initialFloatingRate}</td></tr>
             <tr><td><span>Spread</span></td><td>${payLeg.spread}</td></tr>
-            <tr><td><span>Interest Rate Leg</span></td><td>${payLeg.interestRateLeg}</td></tr>
+            <tr><td><span>Interest Rate</span></td><td>${payLeg.interestRateLeg}</td></tr>
           </tbody>
         </table>
       </section>
@@ -75,7 +75,7 @@
           <tr><td><span>Floating Reference Rate Id</span></td><td>${receiveLeg.floatingReferenceRateId}</td></tr>
           <tr><td><span>Initial Floating Rate</span></td><td>${receiveLeg.initialFloatingRate}</td></tr>
           <tr><td><span>Spread</span></td><td>${receiveLeg.spread}</td></tr>
-          <tr><td><span>Interest Rate Leg</span></td><td>${receiveLeg.interestRateLeg}</td></tr>
+          <tr><td><span>Interest Rate</span></td><td>${receiveLeg.interestRateLeg}</td></tr>
           </tbody>
         </table>
       </section>

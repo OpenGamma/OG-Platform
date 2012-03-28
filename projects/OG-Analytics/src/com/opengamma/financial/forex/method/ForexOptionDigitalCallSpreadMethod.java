@@ -25,7 +25,7 @@ public class ForexOptionDigitalCallSpreadMethod implements ForexPricingMethod {
    */
   private final ForexPricingMethod _baseMethod;
   /**
-   * The relative spread used in the call-spread pricing.
+   * The relative spread used in the call-spread pricing. The call spread strikes are (for an original strike K), K*(1-spread) and K*(1+spread).
    */
   private final double _spread;
 
@@ -39,6 +39,16 @@ public class ForexOptionDigitalCallSpreadMethod implements ForexPricingMethod {
   }
 
   /**
+   * Constructor of the digital pricing method.
+   * @param baseMethod The base method for the pricing of standard vanilla options.
+   * @param spread The relative spread used in the call-spread pricing. The call spread strikes are (for an original strike K), K*(1-spread) and K*(1+spread).
+   */
+  public ForexOptionDigitalCallSpreadMethod(final ForexPricingMethod baseMethod, final double spread) {
+    _baseMethod = baseMethod;
+    _spread = spread;
+  }
+
+  /**
    * Computes the present value of a digital Forex option by call-spread.
    * @param optionDigital The option.
    * @param smile The curve and smile data.
@@ -48,19 +58,13 @@ public class ForexOptionDigitalCallSpreadMethod implements ForexPricingMethod {
     Validate.notNull(optionDigital, "Forex option difital");
     Validate.notNull(smile, "Curve and smile data");
     Validate.isTrue(smile.checkCurrencies(optionDigital.getCurrency1(), optionDigital.getCurrency2()), "Option currencies not compatible with smile data");
-    // Create call spread
-    double strike = optionDigital.getStrike();
-    double strikeM = strike * (1 - _spread);
-    double strikeP = strike * (1 + _spread);
-    Forex forexM = new Forex(optionDigital.getUnderlyingForex().getPaymentCurrency1().withAmount(1.0), optionDigital.getUnderlyingForex().getPaymentCurrency2().withAmount(-strikeM));
-    Forex forexP = new Forex(optionDigital.getUnderlyingForex().getPaymentCurrency1().withAmount(1.0), optionDigital.getUnderlyingForex().getPaymentCurrency2().withAmount(-strikeP));
-    ForexOptionVanilla vanillaM = new ForexOptionVanilla(forexM, optionDigital.getExpirationTime(), optionDigital.isCall(), optionDigital.isLong());
-    ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, optionDigital.getExpirationTime(), optionDigital.isCall(), optionDigital.isLong());
+    ForexOptionVanilla[] callSpread = callSpread(optionDigital, _spread);
     // Spread value
     double omega = optionDigital.isCall() ? +1.0 : -1.0;
-    MultipleCurrencyAmount pvP = _baseMethod.presentValue(vanillaP, smile);
-    MultipleCurrencyAmount pvM = _baseMethod.presentValue(vanillaM, smile);
-    return pvM.plus(pvP.multipliedBy(-1.0)).multipliedBy(omega / (strikeP - strikeM) * Math.abs(optionDigital.getUnderlyingForex().getPaymentCurrency2().getAmount()));
+    MultipleCurrencyAmount pvM = _baseMethod.presentValue(callSpread[0], smile);
+    MultipleCurrencyAmount pvP = _baseMethod.presentValue(callSpread[1], smile);
+    return pvM.plus(pvP.multipliedBy(-1.0)).multipliedBy(
+        omega / (callSpread[1].getStrike() - callSpread[0].getStrike()) * Math.abs(optionDigital.getUnderlyingForex().getPaymentCurrency2().getAmount()));
   }
 
   @Override
@@ -79,19 +83,13 @@ public class ForexOptionDigitalCallSpreadMethod implements ForexPricingMethod {
   public MultipleCurrencyAmount currencyExposure(final ForexOptionDigital optionDigital, final SmileDeltaTermStructureDataBundle smile) {
     Validate.notNull(optionDigital, "Forex option difital");
     Validate.notNull(smile, "Curve and smile data");
-    // Create call spread
-    double strike = optionDigital.getStrike();
-    double strikeM = strike * (1 - _spread);
-    double strikeP = strike * (1 + _spread);
-    Forex forexM = new Forex(optionDigital.getUnderlyingForex().getPaymentCurrency1().withAmount(1.0), optionDigital.getUnderlyingForex().getPaymentCurrency2().withAmount(-strikeM));
-    Forex forexP = new Forex(optionDigital.getUnderlyingForex().getPaymentCurrency1().withAmount(1.0), optionDigital.getUnderlyingForex().getPaymentCurrency2().withAmount(-strikeP));
-    ForexOptionVanilla vanillaM = new ForexOptionVanilla(forexM, optionDigital.getExpirationTime(), optionDigital.isCall(), optionDigital.isLong());
-    ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, optionDigital.getExpirationTime(), optionDigital.isCall(), optionDigital.isLong());
+    ForexOptionVanilla[] callSpread = callSpread(optionDigital, _spread);
     // Spread value
     double omega = optionDigital.isCall() ? +1.0 : -1.0;
-    MultipleCurrencyAmount ceP = _baseMethod.currencyExposure(vanillaP, smile);
-    MultipleCurrencyAmount ceM = _baseMethod.currencyExposure(vanillaM, smile);
-    return ceM.plus(ceP.multipliedBy(-1.0)).multipliedBy(omega / (strikeP - strikeM) * Math.abs(optionDigital.getUnderlyingForex().getPaymentCurrency2().getAmount()));
+    MultipleCurrencyAmount ceM = _baseMethod.currencyExposure(callSpread[0], smile);
+    MultipleCurrencyAmount ceP = _baseMethod.currencyExposure(callSpread[1], smile);
+    return ceM.plus(ceP.multipliedBy(-1.0)).multipliedBy(
+        omega / (callSpread[1].getStrike() - callSpread[0].getStrike()) * Math.abs(optionDigital.getUnderlyingForex().getPaymentCurrency2().getAmount()));
   }
 
   @Override
@@ -110,20 +108,13 @@ public class ForexOptionDigitalCallSpreadMethod implements ForexPricingMethod {
   public MultipleCurrencyInterestRateCurveSensitivity presentValueCurveSensitivity(final ForexOptionDigital optionDigital, final SmileDeltaTermStructureDataBundle smile) {
     Validate.notNull(optionDigital, "Forex option");
     Validate.notNull(smile, "Smile");
-    Validate.isTrue(smile.checkCurrencies(optionDigital.getCurrency1(), optionDigital.getCurrency2()), "Option currencies not compatible with smile data");
-    // Create call spread
-    double strike = optionDigital.getStrike();
-    double strikeM = strike * (1 - _spread);
-    double strikeP = strike * (1 + _spread);
-    Forex forexM = new Forex(optionDigital.getUnderlyingForex().getPaymentCurrency1().withAmount(1.0), optionDigital.getUnderlyingForex().getPaymentCurrency2().withAmount(-strikeM));
-    Forex forexP = new Forex(optionDigital.getUnderlyingForex().getPaymentCurrency1().withAmount(1.0), optionDigital.getUnderlyingForex().getPaymentCurrency2().withAmount(-strikeP));
-    ForexOptionVanilla vanillaM = new ForexOptionVanilla(forexM, optionDigital.getExpirationTime(), optionDigital.isCall(), optionDigital.isLong());
-    ForexOptionVanilla vanillaP = new ForexOptionVanilla(forexP, optionDigital.getExpirationTime(), optionDigital.isCall(), optionDigital.isLong());
+    ForexOptionVanilla[] callSpread = callSpread(optionDigital, _spread);
     // Spread value
     double omega = optionDigital.isCall() ? +1.0 : -1.0;
-    MultipleCurrencyInterestRateCurveSensitivity pvcsP = _baseMethod.presentValueCurveSensitivity(vanillaP, smile);
-    MultipleCurrencyInterestRateCurveSensitivity pvcsM = _baseMethod.presentValueCurveSensitivity(vanillaM, smile);
-    return pvcsM.plus(pvcsP.multipliedBy(-1.0)).multipliedBy(omega / (strikeP - strikeM) * Math.abs(optionDigital.getUnderlyingForex().getPaymentCurrency2().getAmount()));
+    MultipleCurrencyInterestRateCurveSensitivity pvcsM = _baseMethod.presentValueCurveSensitivity(callSpread[0], smile);
+    MultipleCurrencyInterestRateCurveSensitivity pvcsP = _baseMethod.presentValueCurveSensitivity(callSpread[1], smile);
+    return pvcsM.plus(pvcsP.multipliedBy(-1.0)).multipliedBy(
+        omega / (callSpread[1].getStrike() - callSpread[0].getStrike()) * Math.abs(optionDigital.getUnderlyingForex().getPaymentCurrency2().getAmount()));
   }
 
   @Override
@@ -131,6 +122,34 @@ public class ForexOptionDigitalCallSpreadMethod implements ForexPricingMethod {
     Validate.isTrue(instrument instanceof ForexOptionDigital, "Digital Forex option");
     Validate.isTrue(curves instanceof SmileDeltaTermStructureDataBundle, "Smile delta data bundle required");
     return presentValueCurveSensitivity((ForexOptionDigital) instrument, (SmileDeltaTermStructureDataBundle) curves);
+  }
+
+  protected ForexOptionVanilla[] callSpread(final ForexOptionDigital optionDigital, final double spread) {
+    ForexOptionVanilla[] callSpread = new ForexOptionVanilla[2];
+    double strike = optionDigital.getStrike();
+    double strikeM = strike * (1 - spread);
+    double strikeP = strike * (1 + spread);
+    Forex forexM = new Forex(optionDigital.getUnderlyingForex().getPaymentCurrency1().withAmount(1.0), optionDigital.getUnderlyingForex().getPaymentCurrency2().withAmount(-strikeM));
+    Forex forexP = new Forex(optionDigital.getUnderlyingForex().getPaymentCurrency1().withAmount(1.0), optionDigital.getUnderlyingForex().getPaymentCurrency2().withAmount(-strikeP));
+    callSpread[0] = new ForexOptionVanilla(forexM, optionDigital.getExpirationTime(), optionDigital.isCall(), optionDigital.isLong());
+    callSpread[1] = new ForexOptionVanilla(forexP, optionDigital.getExpirationTime(), optionDigital.isCall(), optionDigital.isLong());
+    return callSpread;
+  }
+
+  /**
+   * Gets the base pricing method.
+   * @return The method.
+   */
+  public ForexPricingMethod getBaseMethod() {
+    return _baseMethod;
+  }
+
+  /**
+   * Gets the spread used for call spread.
+   * @return The spread.
+   */
+  public double getSpread() {
+    return _spread;
   }
 
 }

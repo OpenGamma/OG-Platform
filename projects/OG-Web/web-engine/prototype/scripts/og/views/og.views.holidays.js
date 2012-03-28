@@ -81,6 +81,7 @@ $.register_module({
                     'default': {
                         buttons: [
                             {id: 'new', tooltip: 'New', enabled: 'OG-disabled'},
+                            {id: 'import', tooltip: 'Import Portfolio', enabled: 'OG-disabled'},
                             {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
                             {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
                             {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
@@ -90,6 +91,7 @@ $.register_module({
                     active: {
                         buttons: [
                             {id: 'new', tooltip: 'New', enabled: 'OG-disabled'},
+                            {id: 'import', tooltip: 'Import Portfolio', enabled: 'OG-disabled'},
                             {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
                             {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
                             {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
