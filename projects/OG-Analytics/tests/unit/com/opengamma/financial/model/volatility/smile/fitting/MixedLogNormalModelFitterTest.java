@@ -60,7 +60,7 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
   public void doNothingTest() {
   }
 
-  @Test
+  @Test(enabled = false)
   public void ExactFittingTest() {
     final double forward = 1172.011012;
     final double expiry = 1.5;

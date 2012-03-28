@@ -32,7 +32,7 @@ public class PiecewiseMixLogNormalFitterTest {
   private static final MixedLogNormalVolatilityFunction MODEL = new MixedLogNormalVolatilityFunction();
 
   @Test
-  //(enabled = false)
+  (enabled = false)
   public void test() {
 
     MixedLogNormalModelData[] modelParms = FITTER.getFittedfModelParameters(FORWARD, STRIKES, EXPIRY, VOLS);
@@ -52,7 +52,7 @@ public class PiecewiseMixLogNormalFitterTest {
   }
 
   @Test
-  //  (enabled = false)
+  (enabled = false)
   public void bumpTest() {
     double bump = 1e-2;
     int index = 1;
