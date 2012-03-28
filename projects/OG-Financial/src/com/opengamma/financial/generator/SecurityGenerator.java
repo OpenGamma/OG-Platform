@@ -64,6 +64,7 @@ import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.impl.MasterSecuritySource;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.functional.Function2;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.UnorderedCurrencyPair;
@@ -406,6 +407,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   }
 
   protected ZonedDateTime nextWorkingDay(ZonedDateTime zdt, final Currency... currencies) {
+    ArgumentChecker.isTrue(currencies.length > 0, "currencies");
     do {
       for (Currency currency : currencies) {
         if (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt, currency)) {
@@ -433,6 +435,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
   }
 
   protected ZonedDateTime previousWorkingDay(ZonedDateTime zdt, final Currency... currencies) {
+    ArgumentChecker.isTrue(currencies.length > 0, "currencies");
     do {
       for (Currency currency : currencies) {
         if (!isWorkday(zdt.getDayOfWeek(), currency) || isHoliday(zdt, currency)) {

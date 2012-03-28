@@ -38,8 +38,13 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
    * @param args the arguments, unused
    */
   public static void main(String[] args) { // CSIGNORE
-    new ExampleDatabasePopulater().initAndRun(args);
-    System.exit(0);
+    try {
+      new ExampleDatabasePopulater().initAndRun(args);
+      System.exit(0);
+    } catch (Exception e) {
+      e.printStackTrace();
+      System.exit(1);
+    }
   }
 
   //-------------------------------------------------------------------------
@@ -52,6 +57,7 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
     loadEquityOptionPortfolio();
     loadSwapPortfolio();
     loadMultiCurrencySwapPortfolio();
+    loadForwardSwapPortfolio();
     loadBondPortfolio();
     loadCapFloorCMSSpreadPortfolio();
     loadCapFloorPortfolio();
@@ -152,6 +158,16 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
     final Log log = new Log("Creating example multi currency swap portfolio");
     try {
       (new PortfolioGeneratorTool()).run(getToolContext(), "Example MultiCurrency Swap Portfolio", "Swap", true);
+      log.done();
+    } catch (RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadForwardSwapPortfolio() {
+    final Log log = new Log("Creating example forward swap portfolio");
+    try {
+      (new PortfolioGeneratorTool()).run(getToolContext(), "Example Forward Swap Portfolio", "ForwardSwap", true);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
