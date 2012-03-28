@@ -24,7 +24,7 @@ public interface HistoricalTimeSeries extends UniqueIdentifiable {
   /**
    * Gets the unique identifier of the historical time-series.
    * <p>
-   * This specifies a single version-correction of the security.
+   * This specifies a single version-correction of the time-series.
    * 
    * @return the unique identifier for this series, not null within the engine
    */
