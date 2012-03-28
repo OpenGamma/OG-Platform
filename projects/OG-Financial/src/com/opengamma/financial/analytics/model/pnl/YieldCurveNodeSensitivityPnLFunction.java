@@ -49,7 +49,6 @@ import com.opengamma.financial.schedule.TimeSeriesSamplingFunctionFactory;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.swap.SwapSecurity;
-import com.opengamma.financial.sensitivities.RawSecurityUtils;
 import com.opengamma.financial.timeseries.util.TimeSeriesDifferenceOperator;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
