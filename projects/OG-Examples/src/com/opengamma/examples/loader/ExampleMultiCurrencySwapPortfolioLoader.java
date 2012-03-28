@@ -76,7 +76,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
   /**
    * The name of the portfolio.
    */
-  public static final String PORTFOLIO_NAME = "Example MultiCurrency Swap Portfolio";
+  public static final String PORTFOLIO_NAME = "MultiCurrency Swap Portfolio";
   
   /**
    * The scheme used for an identifier which is added to each swap created from the CSV file

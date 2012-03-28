@@ -95,24 +95,28 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
     viewDefinition.setMinFullCalculationPeriod(500L);
     
     ViewCalculationConfiguration defaultCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
-    
+    final ValueProperties secondaryCurveProp = ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").get();
+    /*
     final ValueProperties fundingProp = ValueProperties.with(ValuePropertyNames.CURVE, FUNDING).get();
     final ValueProperties forward3MProp = ValueProperties.with(ValuePropertyNames.CURVE, FORWARD_3M).get();
     final ValueProperties forward6MProp = ValueProperties.with(ValuePropertyNames.CURVE, FORWARD_6M).get();
+    */
+    /*
     //BOND
     defaultCalc.addPortfolioRequirementName(BondSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
     defaultCalc.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, 
         fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.GBP.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
     defaultCalc.addPortfolioRequirement(BondSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, 
-        fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
+        fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get()); */
     //CAP-FLOOR
     defaultCalc.addPortfolioRequirementName(CapFloorSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
     defaultCalc.addPortfolioRequirement(CapFloorSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, 
-        fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
+        secondaryCurveProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
     defaultCalc.addPortfolioRequirement(CapFloorSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        forward3MProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
+        secondaryCurveProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
     defaultCalc.addPortfolioRequirement(CapFloorSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_CUBE,
         ValueProperties.with(ValuePropertyNames.CALCULATION_METHOD, "SABRNoExtrapolation").with("InstrumentType", "SWAPTION_CUBE").get());
+    /*
     //EQUITY VARIANCE SWAP
     defaultCalc.addPortfolioRequirementName(EquityVarianceSwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
     defaultCalc.addPortfolioRequirement(EquityVarianceSwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
@@ -135,15 +139,16 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
     defaultCalc.addPortfolioRequirement(FXForwardSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
         fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.EUR.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
     defaultCalc.addPortfolioRequirement(FXForwardSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
+        fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());*/
     //FX_OPTION
     defaultCalc.addPortfolioRequirementName(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
-    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.EUR.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
-    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
-    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX, 
-        ValueProperties.with("InstrumentType", "FX_VANILLA_OPTION").get());
+//    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+//        secondaryCurveProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.EUR.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
+//    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
+//        secondaryCurveProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
+//    defaultCalc.addPortfolioRequirement(FXOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX, 
+//        ValueProperties.with("InstrumentType", "FX_VANILLA_OPTION").get());
+    /*
     //IRFUTURE_OPTION
     defaultCalc.addPortfolioRequirementName(IRFutureOptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
     defaultCalc.addPortfolioRequirement(IRFutureOptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_MATRIX, 
@@ -152,46 +157,26 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
         forward3MProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
     defaultCalc.addPortfolioRequirement(IRFutureOptionSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
         fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
+        */
     //SWAP
     defaultCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
     defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_CUBE, 
         ValueProperties.parse("{CalculationMethod=[SABRNoExtrapolation],InstrumentType=[SWAPTION_CUBE]}"));
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        forward3MProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.NZD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        forward3MProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        forward6MProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.CHF.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        forward6MProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.DKK.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        forward6MProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.EUR.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        forward6MProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.GBP.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        forward6MProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.JPY.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.CHF.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.DKK.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.EUR.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.GBP.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.JPY.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.NZD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
-    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
+    defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").get());
+    for (Currency ccy : ExampleMultiAssetPortfolioLoader.s_currencies) {
+      defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, 
+          ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
+    }
+
     //SWAPTION
     defaultCalc.addPortfolioRequirementName(SwaptionSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
     defaultCalc.addPortfolioRequirement(SwaptionSecurity.SECURITY_TYPE, ValueRequirementNames.VEGA_QUOTE_CUBE, 
         ValueProperties.with(ValuePropertyNames.CALCULATION_METHOD, "SABRNoExtrapolation").with("InstrumentType", "SWAPTION_CUBE").get());
-    defaultCalc.addPortfolioRequirement(SwaptionSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        forward3MProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
-    defaultCalc.addPortfolioRequirement(SwaptionSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES,
-        fundingProp.copy().with(ValuePropertyNames.CURVE_CURRENCY, Currency.USD.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
+    defaultCalc.addPortfolioRequirement(SwaptionSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").get());
+    for (Currency ccy : ExampleMultiAssetPortfolioLoader.s_currencies) {
+      defaultCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, 
+          ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).withOptional(ValuePropertyNames.CURVE_CURRENCY).get());
+    }
     
     viewDefinition.addViewCalculationConfiguration(defaultCalc);
     return viewDefinition;
@@ -264,14 +249,14 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
     viewDefinition.setMinDeltaCalculationPeriod(500L);
     viewDefinition.setMinFullCalculationPeriod(500L);
 
-    ViewCalculationConfiguration nativeCurrencyCalc = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
-    nativeCurrencyCalc.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
-    addValueRequirements(nativeCurrencyCalc, SwapSecurity.SECURITY_TYPE, new String[] {ValueRequirementNames.PV01}, ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").get());
+    ViewCalculationConfiguration defaultCalConfig = new ViewCalculationConfiguration(viewDefinition, DEFAULT_CALC_CONFIG);
+    defaultCalConfig.addPortfolioRequirementName(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.PRESENT_VALUE);
+    addValueRequirements(defaultCalConfig, SwapSecurity.SECURITY_TYPE, new String[] {ValueRequirementNames.PV01}, ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").get());
     for (Currency ccy : ExampleMultiCurrencySwapPortfolioLoader.s_currencies) {
-      nativeCurrencyCalc.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, 
+      defaultCalConfig.addPortfolioRequirement(SwapSecurity.SECURITY_TYPE, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, 
           ValueProperties.with(ValuePropertyNames.CURVE, "SECONDARY").with(ValuePropertyNames.CURVE_CURRENCY, ccy.getCode()).get());
     }
-    viewDefinition.addViewCalculationConfiguration(nativeCurrencyCalc);
+    viewDefinition.addViewCalculationConfiguration(defaultCalConfig);
 
     return viewDefinition;
   }
