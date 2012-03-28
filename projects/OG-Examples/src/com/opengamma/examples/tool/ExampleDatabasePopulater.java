@@ -58,6 +58,7 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
     loadSwapPortfolio();
     loadMultiCurrencySwapPortfolio();
     loadForwardSwapPortfolio();
+    loadSwaptionPortfolio();
     loadBondPortfolio();
     loadCapFloorCMSSpreadPortfolio();
     loadCapFloorPortfolio();
@@ -168,6 +169,16 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
     final Log log = new Log("Creating example forward swap portfolio");
     try {
       (new PortfolioGeneratorTool()).run(getToolContext(), "Example Forward Swap Portfolio", "ForwardSwap", true);
+      log.done();
+    } catch (RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadSwaptionPortfolio() {
+    final Log log = new Log("Creating example swaption portfolio");
+    try {
+      (new PortfolioGeneratorTool()).run(getToolContext(), "Example Swaption Portfolio", "Swaption", true);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
