@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.aux;
+package com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.auxiliary;
 
 /**
  * Computes planar rotations (often called Given's or Jacobi rotations)

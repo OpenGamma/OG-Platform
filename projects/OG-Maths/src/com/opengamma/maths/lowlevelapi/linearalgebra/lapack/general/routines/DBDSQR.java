@@ -8,8 +8,8 @@ package com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.routines;
 import java.util.Arrays;
 
 import com.opengamma.maths.commonapi.MathsConstants;
-import com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.aux.DLARTG;
-import com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.aux.DLASV2;
+import com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.auxiliary.DLARTG;
+import com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.auxiliary.DLASV2;
 
 /**
  * Computes the singular values and possibly the singular vectors of   a bi-digaonal matrix.

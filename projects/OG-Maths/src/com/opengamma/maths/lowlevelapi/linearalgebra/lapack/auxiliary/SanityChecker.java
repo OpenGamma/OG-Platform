@@ -3,7 +3,7 @@
  * 
  * Please see distribution for license.
  */
-package com.opengamma.maths.lowlevelapi.linearalgebra.lapack.aux;
+package com.opengamma.maths.lowlevelapi.linearalgebra.lapack.auxiliary;
 
 import com.opengamma.maths.commonapi.exceptions.MathsExceptionInvalidMemoryAllocation;
 import com.opengamma.maths.commonapi.exceptions.MathsExceptionNullPointer;
