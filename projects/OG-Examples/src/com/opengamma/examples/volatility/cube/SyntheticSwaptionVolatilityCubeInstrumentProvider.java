@@ -39,9 +39,9 @@ public final class SyntheticSwaptionVolatilityCubeInstrumentProvider {
   //TODO: other ATM surfaces
   private static final Currency ATM_INSTRUMENT_PROVIDER_CURRENCY = Currency.USD;
   private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_INSTRUMENT_PROVIDER =
-      new ExampleSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", false, true, "SURFACEVOL", MarketDataRequirementNames.MARKET_VALUE);
+      new ExampleSwaptionVolatilitySurfaceInstrumentProvider("US", "SV", false, true, "INSTRUMENT", MarketDataRequirementNames.MARKET_VALUE);
   private static final SurfaceInstrumentProvider<Tenor, Tenor> ATM_STRIKE_INSTRUMENT_PROVIDER =
-      new ExampleSwaptionVolatilitySurfaceInstrumentProvider("US", "FS", false, true, "SURFACEVOL", MarketDataRequirementNames.MARKET_VALUE);
+      new ExampleSwaptionVolatilitySurfaceInstrumentProvider("US", "FS", false, true, "STRIKE", MarketDataRequirementNames.MARKET_VALUE);
 
   /**
    * Generates Example codes for volatilities given points.
