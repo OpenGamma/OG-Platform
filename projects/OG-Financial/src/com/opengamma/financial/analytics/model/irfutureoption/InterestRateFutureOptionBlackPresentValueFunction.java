@@ -12,14 +12,14 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.PresentValueBlackInterestRateFutureOptionCalculator;
+import com.opengamma.financial.interestrate.PresentValueBlackCalculator;
 import com.opengamma.financial.model.option.definition.YieldCurveWithBlackCubeBundle;
 
 /**
  * 
  */
 public class InterestRateFutureOptionBlackPresentValueFunction extends InterestRateFutureOptionBlackFunction {
-  private static final PresentValueBlackInterestRateFutureOptionCalculator s_calculator = PresentValueBlackInterestRateFutureOptionCalculator.getInstance();
+  private static final PresentValueBlackCalculator s_calculator = PresentValueBlackCalculator.getInstance();
 
   public InterestRateFutureOptionBlackPresentValueFunction() {
     super(ValueRequirementNames.PRESENT_VALUE);

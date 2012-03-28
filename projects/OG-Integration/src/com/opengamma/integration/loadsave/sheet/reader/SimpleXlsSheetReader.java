@@ -64,34 +64,6 @@ public class SimpleXlsSheetReader extends SheetReader {
     setColumns(getColumnNames(rawRow)); 
   }
 
-  
-  
-  public SimpleXlsSheetReader(String filename, int sheetIndex, String[] columns) {
-    
-    ArgumentChecker.notEmpty(filename, "filename");
-    ArgumentChecker.notNull(columns, "columns");
-
-    InputStream fileInputStream = openFile(filename);
-    _workbook = getWorkbook(fileInputStream);
-    _sheet = _workbook.getSheetAt(sheetIndex);
-    _currentRowNumber = _sheet.getFirstRowNum();
-    setColumns(columns);
-  }
-  
-  public SimpleXlsSheetReader(String filename, String sheetName, String[] columns) {
-    
-    ArgumentChecker.notEmpty(filename, "filename");
-    ArgumentChecker.notEmpty(sheetName, "sheetName");
-    ArgumentChecker.notNull(columns, "columns");
-
-    InputStream fileInputStream = openFile(filename);
-    _workbook = getWorkbook(fileInputStream);
-    _sheet = _workbook.getSheet(sheetName);
-    _currentRowNumber = _sheet.getFirstRowNum();
-    setColumns(columns);
-  }
-
-
   public SimpleXlsSheetReader(InputStream inputStream, int sheetIndex) {
     
     ArgumentChecker.notNull(inputStream, "inputStream");
@@ -121,28 +93,6 @@ public class SimpleXlsSheetReader extends SheetReader {
 
     String[] columns = getColumnNames(rawRow);
     setColumns(columns); 
-  }
-  
-  public SimpleXlsSheetReader(InputStream inputStream, int sheetIndex, String[] columns) {
-    
-    ArgumentChecker.notNull(inputStream, "inputStream");
-    ArgumentChecker.notNull(columns, "columns");
-
-    _workbook = getWorkbook(inputStream);
-    _sheet = _workbook.getSheetAt(sheetIndex);
-    _currentRowNumber = _sheet.getFirstRowNum();
-    setColumns(columns);
-  }
-  
-  public SimpleXlsSheetReader(InputStream inputStream, String sheetName, String[] columns) {
-    
-    ArgumentChecker.notNull(inputStream, "inputStream");
-    ArgumentChecker.notEmpty(sheetName, "sheetName");
-   
-    _workbook = getWorkbook(inputStream);
-    _sheet = _workbook.getSheet(sheetName);
-    _currentRowNumber = _sheet.getFirstRowNum();
-    setColumns(columns);
   }
 
   

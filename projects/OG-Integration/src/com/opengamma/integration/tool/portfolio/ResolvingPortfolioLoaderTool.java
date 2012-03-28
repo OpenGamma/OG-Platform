@@ -14,7 +14,7 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.BloombergSecurityMaster;
+import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.integration.loadsave.portfolio.ResolvingPortfolioCopier;
 import com.opengamma.integration.loadsave.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.loadsave.portfolio.reader.SingleSheetSimplePortfolioReader;
@@ -22,6 +22,7 @@ import com.opengamma.integration.loadsave.portfolio.rowparser.ExchangeTradedRowP
 import com.opengamma.integration.loadsave.portfolio.writer.DummyPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.loadsave.sheet.SheetFormat;
 import com.opengamma.integration.tool.AbstractIntegrationTool;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -112,7 +113,8 @@ public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
           portfolioName, 
           portfolioMaster, 
           positionMaster, 
-          securityMaster);
+          securityMaster,
+          false);
     } else {
       // Create a dummy portfolio writer to pretty-print instead of persisting
       return new DummyPortfolioWriter();         
@@ -120,21 +122,23 @@ public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
   }
   
   // TODO take a stream as well as the file name, BBG master
-  private static PortfolioReader constructPortfolioReader(String filename, BloombergSecurityMaster bbgSecurityMaster) {
+  private static PortfolioReader constructPortfolioReader(String filename, BloombergSecuritySource bbgSecurityMaster) {
     InputStream stream;
     try {
       stream = new BufferedInputStream(new FileInputStream(filename));
     } catch (FileNotFoundException e) {
       throw new OpenGammaRuntimeException("Could not open file " + filename + " for reading: " + e);
     }
-    String extension = filename.substring(filename.lastIndexOf('.'));
-    // Single CSV or XLS file extension
-    if (extension.equalsIgnoreCase(".csv") || extension.equalsIgnoreCase(".xls")) {
-      // Check that the asset class was specified on the command line
-      return new SingleSheetSimplePortfolioReader(filename, stream, new ExchangeTradedRowParser(bbgSecurityMaster));
-      
-    } else {
-      throw new OpenGammaRuntimeException("Input filename should end in .CSV or .XLS");
+    
+    SheetFormat sheetFormat = SheetFormat.of(filename);
+    switch (sheetFormat) {
+      case XLS:
+      case CSV:
+        // Check that the asset class was specified on the command line
+        return new SingleSheetSimplePortfolioReader(sheetFormat, stream, new ExchangeTradedRowParser(bbgSecurityMaster));
+
+      default:
+        throw new OpenGammaRuntimeException("Input filename should end in .CSV or .XLS");
     }
   }
 

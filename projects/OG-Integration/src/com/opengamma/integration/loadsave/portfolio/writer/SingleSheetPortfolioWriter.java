@@ -6,12 +6,14 @@
 
 package com.opengamma.integration.loadsave.portfolio.writer;
 
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
+import com.opengamma.integration.loadsave.sheet.SheetFormat;
 import com.opengamma.integration.loadsave.sheet.writer.SheetWriter;
 import com.opengamma.master.portfolio.ManageablePortfolio;
 import com.opengamma.master.portfolio.ManageablePortfolioNode;
@@ -36,55 +38,42 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
   private ManageablePortfolio _portfolio;
 
   
-  public SingleSheetPortfolioWriter(String filename, String[] securityTypes) {
-    
-    ArgumentChecker.notEmpty(filename, "filename");
-    ArgumentChecker.notNull(securityTypes, "securityTypes");
-    
-    Map<String, RowParser> rowParsers = new HashMap<String, RowParser>();
-    for (String s : securityTypes) {
-      rowParsers.put(s, RowParser.newRowParser(s));
-    }
-    Set<String> columns = initParsers(rowParsers);
-    
-    // create virtual manageable portfolio
-    _currentNode = new ManageablePortfolioNode("Root");
-    _portfolio = new ManageablePortfolio(filename, _currentNode);
-    _currentNode.setPortfolioId(_portfolio.getUniqueId());
-    
-    _sheet = SheetWriter.newSheetWriter(filename, columns.toArray(new String[columns.size()]));    
-  }
-  
-  public SingleSheetPortfolioWriter(String filename, Map<String, RowParser> rowParsers) {
-    
-    ArgumentChecker.notEmpty(filename, "filename");
-    ArgumentChecker.notNull(rowParsers, "rowParsers");
-    
-    Set<String> columns = initParsers(rowParsers);
-    
-    // create virtual manageable portfolio
-    _currentNode = new ManageablePortfolioNode("Root");
-    _portfolio = new ManageablePortfolio(filename, _currentNode);
-    _currentNode.setPortfolioId(_portfolio.getUniqueId());
-    
-    _sheet = SheetWriter.newSheetWriter(filename, columns.toArray(new String[columns.size()]));
-  }
-  
   public SingleSheetPortfolioWriter(SheetWriter sheet, Map<String, RowParser> rowParsers) {
     
     ArgumentChecker.notNull(sheet, "sheet");
     ArgumentChecker.notNull(rowParsers, "rowParsers");
 
-    initParsers(rowParsers);
-    
+    _parserMap = rowParsers;
+
     // create virtual manageable portfolio
     _currentNode = new ManageablePortfolioNode("Root");
-    _portfolio = new ManageablePortfolio("Virtual Portfolio", _currentNode);
+    _portfolio = new ManageablePortfolio("Portfolio", _currentNode);
     _currentNode.setPortfolioId(_portfolio.getUniqueId());
     
     _sheet = sheet;
   }
+    
+  public SingleSheetPortfolioWriter(SheetWriter sheet, String[] securityTypes) {
+    this(sheet, getParsers(securityTypes));    
+  }
+
+  public SingleSheetPortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, Map<String, RowParser> rowParsers) {
+    this(SheetWriter.newSheetWriter(sheetFormat, outputStream, getColumns(rowParsers)), rowParsers);
+  }  
+
+  public SingleSheetPortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, String[] securityTypes) {
+    this(SheetWriter.newSheetWriter(sheetFormat, outputStream, getColumns(getParsers(securityTypes))), getParsers(securityTypes));
+  }
   
+  public SingleSheetPortfolioWriter(String filename, Map<String, RowParser> rowParsers) {
+    this(SheetWriter.newSheetWriter(filename, getColumns(rowParsers)), rowParsers);
+  }
+  
+  public SingleSheetPortfolioWriter(String filename, String[] securityTypes) {
+    this(filename, getParsers(securityTypes));
+  }
+  
+
   @Override
   public ManageableSecurity writeSecurity(ManageableSecurity security) {
     
@@ -118,25 +107,6 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
   }
 
   @Override
-  public ManageablePortfolio getPortfolio() {
-    return _portfolio;
-  }
-
-  @Override
-  public ManageablePortfolioNode getCurrentNode() {
-    return _currentNode;
-  }
-
-  @Override
-  public ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node) {
-    
-    ArgumentChecker.notNull(node, "node");
-    
-    _currentNode = node;
-    return node;
-  }
-
-  @Override
   public void flush() {
     _sheet.flush();
   }
@@ -146,10 +116,17 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
     _sheet.close();
   }
 
-  private Set<String> initParsers(Map<String, RowParser> rowParsers) {
-    
-    _parserMap = rowParsers;
-    
+  private static Map<String, RowParser> getParsers(String[] securityTypes) {
+    Map<String, RowParser> rowParsers = new HashMap<String, RowParser>();
+    if (securityTypes != null) {
+      for (String s : securityTypes) {
+        rowParsers.put(s, RowParser.newRowParser(s));
+      }
+    }
+    return rowParsers;
+  }
+
+  private static String[] getColumns(Map<String, RowParser> rowParsers) {
     Set<String> columns = new HashSet<String>();
     for (RowParser rowParser : rowParsers.values()) {      
       // Combine columns from supplied row parsers
@@ -157,12 +134,17 @@ public class SingleSheetPortfolioWriter implements PortfolioWriter {
         columns.add(column);
       }
     }
-    return columns;
+    return columns.toArray(new String[columns.size()]);
   }
 
   @Override
   public void setPath(String[] newPath) {
     // Nothing to do here (a specialised subclass might add a 'path' column to store the current path for each row)
+  }
+
+  @Override
+  public String[] getCurrentPath() {
+    return new String[] {};
   }
 
 }

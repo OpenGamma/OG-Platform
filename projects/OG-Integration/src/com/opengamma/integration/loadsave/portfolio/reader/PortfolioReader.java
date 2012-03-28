@@ -23,7 +23,7 @@ public abstract interface PortfolioReader {
   ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext();
     
   /**
-   * Get the current portfolio path. This is normally root if reading from a simple sheet
+   * Get the current portfolio path.
    * @return  the current node
    */
   String[] getCurrentPath();

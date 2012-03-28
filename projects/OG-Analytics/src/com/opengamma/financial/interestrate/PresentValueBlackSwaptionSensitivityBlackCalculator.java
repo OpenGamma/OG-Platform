@@ -5,55 +5,54 @@
  */
 package com.opengamma.financial.interestrate;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionCashFixedIbor;
 import com.opengamma.financial.interestrate.swaption.derivative.SwaptionPhysicalFixedIbor;
 import com.opengamma.financial.interestrate.swaption.method.SwaptionCashFixedIborBlackMethod;
 import com.opengamma.financial.interestrate.swaption.method.SwaptionPhysicalFixedIborBlackMethod;
 import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * Present value sensitivity to SABR parameters calculator for interest rate instruments using the Black formula.
  */
-public final class PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, PresentValueBlackSwaptionSensitivity> {
+public final class PresentValueBlackSwaptionSensitivityBlackCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, PresentValueBlackSwaptionSensitivity> {
 
   /**
-   * The unique instance of the SABR sensitivity calculator.
+   * The method unique instance.
    */
-  private static final PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator s_instance = new PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator();
+  private static final PresentValueBlackSwaptionSensitivityBlackCalculator INSTANCE = new PresentValueBlackSwaptionSensitivityBlackCalculator();
 
   /**
-   * Returns the instance of the calculator.
+   * Return the unique instance of the class.
    * @return The instance.
    */
-  public static PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator getInstance() {
-    return s_instance;
+  public static PresentValueBlackSwaptionSensitivityBlackCalculator getInstance() {
+    return INSTANCE;
   }
 
   /**
-   * Private constructor.
+   * Constructor.
    */
-  private PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator() {
+  PresentValueBlackSwaptionSensitivityBlackCalculator() {
   }
 
   /**
-   * Methods.
+   * The methods used in the calculator.
    */
   private static final SwaptionPhysicalFixedIborBlackMethod METHOD_SWAPTION_PHYSICAL = SwaptionPhysicalFixedIborBlackMethod.getInstance();
   private static final SwaptionCashFixedIborBlackMethod METHOD_SWAPTION_CASH = SwaptionCashFixedIborBlackMethod.getInstance();
 
   @Override
   public PresentValueBlackSwaptionSensitivity visit(final InstrumentDerivative derivative, final YieldCurveBundle curves) {
-    Validate.notNull(curves);
-    Validate.notNull(derivative);
+    ArgumentChecker.notNull(curves, "curves");
+    ArgumentChecker.notNull(derivative, "derivative");
     return derivative.accept(this, curves);
   }
 
   @Override
   public PresentValueBlackSwaptionSensitivity visitSwaptionCashFixedIbor(final SwaptionCashFixedIbor swaption, final YieldCurveBundle curves) {
-    Validate.notNull(swaption);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(curves, "curves");
     if (curves instanceof YieldCurveWithBlackSwaptionBundle) {
       final YieldCurveWithBlackSwaptionBundle curveBlack = (YieldCurveWithBlackSwaptionBundle) curves;
       return METHOD_SWAPTION_CASH.presentValueBlackSensitivity(swaption, curveBlack);
@@ -63,8 +62,8 @@ public final class PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator e
 
   @Override
   public PresentValueBlackSwaptionSensitivity visitSwaptionPhysicalFixedIbor(final SwaptionPhysicalFixedIbor swaption, final YieldCurveBundle curves) {
-    Validate.notNull(swaption);
-    Validate.notNull(curves);
+    ArgumentChecker.notNull(swaption, "swaption");
+    ArgumentChecker.notNull(curves, "curves");
     if (curves instanceof YieldCurveWithBlackSwaptionBundle) {
       final YieldCurveWithBlackSwaptionBundle curveBlack = (YieldCurveWithBlackSwaptionBundle) curves;
       return METHOD_SWAPTION_PHYSICAL.presentValueBlackSensitivity(swaption, curveBlack);

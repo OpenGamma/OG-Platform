@@ -54,11 +54,11 @@ public class BloombergIRFutureOptionLoader {
     String bloombergKey = BloombergDomainIdentifierResolver.toBloombergKey(underlyingId);
     BloombergBulkSecurityLoader bulkSecurityLoader = appcontext.getBean("bbgBulkSecLoader", BloombergBulkSecurityLoader.class);
     DbSecurityMaster secMaster = appcontext.getBean("dbSecurityMaster", DbSecurityMaster.class);
-    BloombergSecurityMasterLoader masterLoader = new BloombergSecurityMasterLoader(secMaster, bulkSecurityLoader);
+    BloombergSecurityLoader loader = new BloombergSecurityLoader(secMaster, bulkSecurityLoader);
     
     Set<ExternalId> optionChain = BloombergDataUtils.getOptionChain(bbgRefDataProvider, bloombergKey);
     if (optionChain != null && !optionChain.isEmpty()) {
-      masterLoader.loadSecurity(toBundles(optionChain));
+      loader.loadSecurity(toBundles(optionChain));
     }
   }
 

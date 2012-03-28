@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalScheme;
+import com.opengamma.integration.loadsave.sheet.SheetFormat;
 import com.opengamma.integration.loadsave.sheet.reader.SheetReader;
 import com.opengamma.integration.loadsave.timeseries.TimeSeriesLoader;
 import com.opengamma.integration.loadsave.timeseries.writer.TimeSeriesWriter;
@@ -70,7 +71,7 @@ public class SingleSheetMultiTimeSeriesReader implements TimeSeriesReader {
     CSV_DATE_FORMATTER = builder.toFormatter();
   }
 
-  public SingleSheetMultiTimeSeriesReader(String filename,
+  public SingleSheetMultiTimeSeriesReader(SheetFormat sheetFormat,
                                           InputStream portfolioFileStream,
                                           String dataSource,
                                           String dataProvider,
@@ -78,7 +79,7 @@ public class SingleSheetMultiTimeSeriesReader implements TimeSeriesReader {
                                           String observationTime,
                                           String idScheme,
                                           String dateFormat) {
-    _sheet = SheetReader.newSheetReader(filename, portfolioFileStream);
+    _sheet = SheetReader.newSheetReader(sheetFormat, portfolioFileStream);
 
     _dataSource = dataSource;
     _dataProvider = dataProvider;

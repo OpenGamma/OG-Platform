@@ -6,8 +6,6 @@
 
 package com.opengamma.integration.loadsave.portfolio.writer;
 
-import com.opengamma.master.portfolio.ManageablePortfolio;
-import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -18,7 +16,7 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class DummyPortfolioWriter implements PortfolioWriter {
 
-  private ManageablePortfolioNode _node = new ManageablePortfolioNode();
+  private String[] _currentPath = new String[] {};
   
   @Override
   public ManageableSecurity writeSecurity(ManageableSecurity security) {
@@ -39,26 +37,6 @@ public class DummyPortfolioWriter implements PortfolioWriter {
   }
 
   @Override
-  public ManageablePortfolio getPortfolio() {
-    return null;
-  }
-
-  @Override
-  public ManageablePortfolioNode getCurrentNode() {
-    return _node;
-  }
-
-  @Override
-  public ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node) {
-    
-    ArgumentChecker.notNull(node, "node");
-    
-    System.out.println("Set node to: " + node.toString());
-    _node = node;
-    return _node;
-  }
-
-  @Override
   public void flush() {
     System.out.println("Flushed writer");
   }
@@ -72,8 +50,14 @@ public class DummyPortfolioWriter implements PortfolioWriter {
   public void setPath(String[] newPath) {
     
     ArgumentChecker.notNull(newPath, "newPath");
+    _currentPath = newPath;
     
     System.out.println("Set path to: " + newPath);
+  }
+
+  @Override
+  public String[] getCurrentPath() {
+    return _currentPath;
   }
   
 }

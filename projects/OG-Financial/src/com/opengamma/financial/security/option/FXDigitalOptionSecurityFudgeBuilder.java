@@ -11,6 +11,8 @@ import org.fudgemsg.mapping.FudgeBuilder;
 import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.opengamma.financial.security.FinancialSecurityFudgeBuilder;
 import com.opengamma.financial.security.LongShort;
@@ -25,10 +27,13 @@ import com.opengamma.util.time.ZonedDateTimeFudgeBuilder;
 @FudgeBuilderFor(FXDigitalOptionSecurity.class)
 public class FXDigitalOptionSecurityFudgeBuilder extends AbstractFudgeBuilder implements FudgeBuilder<FXDigitalOptionSecurity> {
 
+  private static final Logger s_logger = LoggerFactory.getLogger(FXDigitalOptionSecurityFudgeBuilder.class);
   /** Field name. */
   public static final String PUT_CURRENCY_FIELD_NAME = "putCurrency";
   /** Field name. */
   public static final String CALL_CURRENCY_FIELD_NAME = "callCurrency";
+  /** Field name. */
+  public static final String PAYMENT_CURRENCY_FIELD_NAME = "paymentCurrency";
   /** Field name. */
   public static final String PUT_AMOUNT_FIELD_NAME = "putAmount";
   /** Field name. */
@@ -51,6 +56,7 @@ public class FXDigitalOptionSecurityFudgeBuilder extends AbstractFudgeBuilder im
     FinancialSecurityFudgeBuilder.toFudgeMsg(serializer, object, msg);
     addToMessage(msg, PUT_CURRENCY_FIELD_NAME, object.getPutCurrency());
     addToMessage(msg, CALL_CURRENCY_FIELD_NAME, object.getCallCurrency());
+    addToMessage(msg, PAYMENT_CURRENCY_FIELD_NAME, object.getPaymentCurrency());
     addToMessage(msg, PUT_AMOUNT_FIELD_NAME, object.getPutAmount());
     addToMessage(msg, CALL_AMOUNT_FIELD_NAME, object.getCallAmount());
     addToMessage(msg, EXPIRY_FIELD_NAME, ExpiryFudgeBuilder.toFudgeMsg(serializer, object.getExpiry()));
@@ -69,6 +75,12 @@ public class FXDigitalOptionSecurityFudgeBuilder extends AbstractFudgeBuilder im
     FinancialSecurityFudgeBuilder.fromFudgeMsg(deserializer, msg, object);
     object.setPutCurrency(msg.getValue(Currency.class, PUT_CURRENCY_FIELD_NAME));
     object.setCallCurrency(msg.getValue(Currency.class, CALL_CURRENCY_FIELD_NAME));
+    if (msg.hasField(PAYMENT_CURRENCY_FIELD_NAME)) {
+      object.setPaymentCurrency(msg.getValue(Currency.class, PAYMENT_CURRENCY_FIELD_NAME));
+    } else {
+      s_logger.warn("Found old version of FXDigitalOption, setting payment currency to put currency - this should not happen, report to support@opengamma.com");
+      object.setPaymentCurrency(object.getPutCurrency());
+    }
     object.setPutAmount(msg.getDouble(PUT_AMOUNT_FIELD_NAME));
     object.setCallAmount(msg.getDouble(CALL_AMOUNT_FIELD_NAME));
     object.setExpiry(ExpiryFudgeBuilder.fromFudgeMsg(deserializer, msg.getMessage(EXPIRY_FIELD_NAME)));

@@ -20,7 +20,7 @@ import org.slf4j.LoggerFactory;
 
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
-import com.opengamma.bbg.loader.BloombergSecurityMasterLoader;
+import com.opengamma.bbg.loader.BloombergSecurityLoader;
 import com.opengamma.bbg.tool.BloombergToolContext;
 import com.opengamma.bloombergexample.tool.AbstractExampleTool;
 import com.opengamma.financial.security.equity.EquitySecurity;
@@ -160,7 +160,7 @@ public class ExampleEquityPortfolioLoader extends AbstractExampleTool {
     ReferenceDataProvider referenceDataProvider = ((BloombergToolContext) getToolContext()).getBloombergReferenceDataProvider();
     ExchangeDataProvider exchangeDataProvider = new DefaultExchangeDataProvider();
     BloombergBulkSecurityLoader bulkSecurityLoader = new BloombergBulkSecurityLoader(referenceDataProvider, exchangeDataProvider);
-    BloombergSecurityMasterLoader securityLoader = new BloombergSecurityMasterLoader(secMaster, bulkSecurityLoader);
+    BloombergSecurityLoader securityLoader = new BloombergSecurityLoader(secMaster, bulkSecurityLoader);
     securityLoader.loadSecurity(identifiers);
   }
 

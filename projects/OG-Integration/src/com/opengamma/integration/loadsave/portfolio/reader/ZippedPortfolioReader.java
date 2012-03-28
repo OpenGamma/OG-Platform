@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -62,86 +63,6 @@ public class ZippedPortfolioReader implements PortfolioReader {
     s_logger.info("Using ZIP archive " + filename);
   }
 
-//  @Override
-//  public void writeTo(PortfolioWriter portfolioWriter) {
-//
-//    ManageablePortfolioNode rootNode = portfolioWriter.getCurrentNode();
-//    
-//    // Iterate through the CSV file entries in the ZIP archive
-//    Enumeration<?> e = _zipFile.entries();
-//    while (e.hasMoreElements()) {
-//      ZipEntry entry = (ZipEntry) e.nextElement();
-//      if (!entry.isDirectory() && entry.getName().substring(entry.getName().lastIndexOf('.')).equalsIgnoreCase(SHEET_EXTENSION)) {
-//        try {
-//          // Extract full path
-//          String[] path = entry.getName().split("/");
-//
-//          // Extract security name
-//          String secType = path[path.length - 1].substring(0, path[path.length - 1].lastIndexOf('.'));
-//
-//          // Set up a sheet reader for the current CSV file in the ZIP archive
-//          SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
-//
-//          RowParser parser = RowParser.newRowParser(secType);
-//          if (parser == null) {
-//            s_logger.error("Could not build a row parser for security type '" + secType + "'");
-//            continue; 
-//          }
-//          if (_versionMap.get(secType) == null) {
-//            s_logger.error("Versioning hash for security type '" + secType + "' could not be found");
-//            continue;
-//          }
-//          if (parser.getSecurityHashCode() != _versionMap.get(secType)) {
-//            s_logger.error("The parser version for the '" + secType + "' security (hash " + 
-//                Integer.toHexString(parser.getSecurityHashCode()) + 
-//                ") does not match the data stored in the archive (hash " + 
-//                Integer.toHexString(_versionMap.get(secType)) + ")");
-//            continue;
-//          }
-//          
-//          // Create a generic simple portfolio loader for the current sheet, using a dynamically loaded row parser class
-//          SingleSheetPortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(sheet, sheet.getColumns(), parser);
-//
-//          s_logger.info("Processing rows in archive entry " + entry.getName() + " as " + secType);
-//
-//          // Replicate the zip entry's path in the portfolio node tree:
-//          // Start at root and traverse existing portfolio nodes that match,
-//          // Create the rest of the path with new portfolio nodes
-//          ManageablePortfolioNode currentNode = rootNode;
-//          for (String p : Arrays.copyOf(path, path.length - 1)) {
-//            ManageablePortfolioNode childNode = null;
-//            for (ManageablePortfolioNode n : currentNode.getChildNodes()) {
-//              if (n.getName().equals(p)) {
-//                childNode = n;
-//                break;
-//              }
-//            }
-//            if (childNode == null) {
-//              childNode = new ManageablePortfolioNode();
-//              childNode.setName(p);
-//              currentNode.addChildNode(childNode);
-//            }
-//            currentNode = childNode;
-//          }
-//          
-//          portfolioWriter.setCurrentNode(currentNode);
-//          
-//          // Persist the current sheet's trades/positions using the specified portfolio writer
-//          portfolioReader.writeTo(portfolioWriter);
-//          
-//          // Change back to the root portfolio node
-//          portfolioWriter.setCurrentNode(rootNode);
-//          
-//          // Flush changes to portfolio master
-//          portfolioWriter.flush();
-//
-//        } catch (Throwable ex) {
-//          s_logger.warn("Could not import from " + entry.getName() + ", skipping file (exception is " + ex + ")");
-//        }
-//      }
-//    }
-//  }
-
   @Override
   public ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext() {
    
@@ -170,12 +91,13 @@ public class ZippedPortfolioReader implements PortfolioReader {
     if (!entry.isDirectory() && entry.getName().substring(entry.getName().lastIndexOf('.')).equalsIgnoreCase(SHEET_EXTENSION)) {
       try {
         // Extract full path
-        _currentPath = entry.getName().split("/");
+        String[] fullPath = entry.getName().split("/");
 
         // Extract security name
-        String secType = _currentPath[_currentPath.length - 1].substring(0, _currentPath[_currentPath.length - 1].lastIndexOf('.'));
+        String secType = fullPath[fullPath.length - 1].substring(0, fullPath[fullPath.length - 1].lastIndexOf('.'));
 
-
+        _currentPath = (String[]) ArrayUtils.subarray(fullPath, 0, fullPath.length - 2);
+        
         // Set up a sheet reader and a row parser for the current CSV file in the ZIP archive
         SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
         
@@ -199,7 +121,7 @@ public class ZippedPortfolioReader implements PortfolioReader {
         s_logger.info("Processing rows in archive entry " + entry.getName() + " as " + secType);
 
         // Create a simple portfolio reader for the current sheet
-        return new SingleSheetSimplePortfolioReader(sheet, sheet.getColumns(), parser);
+        return new SingleSheetSimplePortfolioReader(sheet, parser);
         
       } catch (Throwable ex) {
         s_logger.warn("Could not import from " + entry.getName() + ", skipping file (exception is " + ex + ")");

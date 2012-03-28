@@ -7,6 +7,7 @@ package com.opengamma.integration.loadsave.timeseries;
 
 import java.io.InputStream;
 
+import com.opengamma.integration.loadsave.sheet.SheetFormat;
 import com.opengamma.integration.loadsave.timeseries.reader.SingleSheetMultiTimeSeriesReader;
 import com.opengamma.integration.loadsave.timeseries.reader.TimeSeriesReader;
 import com.opengamma.integration.loadsave.timeseries.writer.DummyTimeSeriesWriter;
@@ -27,7 +28,7 @@ public class TimeSeriesLoader {
     _htsMaster = htsMaster;
   }
 
-  public void run(String fileName,
+  public void run(SheetFormat sheetFormat,
                   InputStream portfolioFileStream,
                   String dataSource,
                   String dataProvider,
@@ -41,7 +42,7 @@ public class TimeSeriesLoader {
     TimeSeriesWriter timeSeriesWriter = constructTimeSeriesWriter(persist);
     
      // Set up reader
-    TimeSeriesReader timeSeriesReader = new SingleSheetMultiTimeSeriesReader(fileName,
+    TimeSeriesReader timeSeriesReader = new SingleSheetMultiTimeSeriesReader(sheetFormat,
                                                                              portfolioFileStream,
                                                                              dataSource,
                                                                              dataProvider,

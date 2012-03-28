@@ -17,13 +17,19 @@ import com.opengamma.util.time.Tenor;
  * 
  */
 public class ForexQuoteConvention {
+  /** Quote conventions for ATM values */
   public enum ATMType {
+    /** Forward */
     Forward,
+    /** Delta-neutral straddle */
     DeltaNeutralStraddle
   }
 
+  /** Quote conventions for delta values */
   public enum DeltaType {
+    /** Spot */
     Spot,
+    /** Forward */
     Forward
   }
 
@@ -45,10 +51,10 @@ public class ForexQuoteConvention {
     _ccy1 = ccy1;
     _ccy2 = ccy2;
     _premiumCurrency = firstCurrencyDominates ? ccy1 : ccy2;
-    _atmType = new ATMType[] {atmType};
+    _atmType = new ATMType[] {atmType };
     _atmTypeCutoff = null;
     _isPremiumAdjusted = isPremiumAdjusted;
-    _deltaType = new DeltaType[] {deltaType};
+    _deltaType = new DeltaType[] {deltaType };
     _deltaTypeCutoff = null;
   }
 
@@ -66,10 +72,10 @@ public class ForexQuoteConvention {
     _ccy1 = ccy1;
     _ccy2 = ccy2;
     _premiumCurrency = firstCurrencyDominates ? ccy1 : ccy2;
-    _atmType = new ATMType[] {atmTypeBelowCutoff, atmTypeAboveCutoff};
+    _atmType = new ATMType[] {atmTypeBelowCutoff, atmTypeAboveCutoff };
     _atmTypeCutoff = null;
     _isPremiumAdjusted = isPremiumAdjusted;
-    _deltaType = new DeltaType[] {deltaTypeBelowCutoff, deltaTypeAboveCutoff};
+    _deltaType = new DeltaType[] {deltaTypeBelowCutoff, deltaTypeAboveCutoff };
     _deltaTypeCutoff = null;
   }
 
@@ -158,6 +164,5 @@ public class ForexQuoteConvention {
     }
     return true;
   }
-
 
 }
