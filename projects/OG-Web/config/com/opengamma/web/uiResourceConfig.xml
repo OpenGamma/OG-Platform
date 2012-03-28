@@ -161,6 +161,7 @@
     <fragment>/scripts/lib/jquery/jquery.tmpl.js</fragment>
     <fragment>/scripts/lib/jquery/jquery.jsonp-1.1.0.min.js</fragment>
     <fragment>/scripts/lib/jquery/jquery-tablesorter.js</fragment>
+    <fragment>/scripts/lib/jquery/jquery-tablesorter.parsers.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.core.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.widget.js</fragment>
     <fragment>/scripts/lib/jquery/ui/jquery.ui.mouse.js</fragment>
@@ -202,7 +203,6 @@
     <fragment>/scripts/og/api/og.api.rest.js</fragment>
   </bundle>
   <bundle id="util.js">
-    <fragment>/scripts/og/common/util/og.common.util.tablesorter.parsers.js</fragment>
     <fragment>/scripts/og/common/util/og.common.util.hashqueue.js</fragment>
     <fragment>/scripts/og/common/util/og.common.util.history.js</fragment>
     <fragment>/scripts/og/common/util/og.common.util.date.js</fragment>
