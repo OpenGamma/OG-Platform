@@ -77,7 +77,7 @@ public class BloombergSecurityFileLoader {
   private static final String OPTION = "option";
   private static final String IDENTIFICATION_SCHEME = "scheme";
 
-  private final BloombergSecurityMasterLoader  _securityMasterLoader;
+  private final BloombergSecurityLoader _securityLoader;
   private ReferenceDataProvider _refDataProvider;
   private String[] _files;
   private int _optionSize;
@@ -90,7 +90,7 @@ public class BloombergSecurityFileLoader {
   public BloombergSecurityFileLoader(final SecurityMaster secMaster, final BloombergBulkSecurityLoader bbgBulkSecLoader) {
     ArgumentChecker.notNull(secMaster, "secMaster");
     ArgumentChecker.notNull(bbgBulkSecLoader, "BloombergBulkSecurityLoader");
-    _securityMasterLoader = new BloombergSecurityMasterLoader(secMaster, bbgBulkSecLoader);
+    _securityLoader = new BloombergSecurityLoader(secMaster, bbgBulkSecLoader);
   }
 
   //-------------------------------------------------------------------------
@@ -131,11 +131,11 @@ public class BloombergSecurityFileLoader {
     
     Set<ExternalIdBundle> identifiers = readInputFiles();
     
-    Map<ExternalIdBundle, UniqueId> loadedSecurities = _securityMasterLoader.loadSecurity(identifiers);
+    Map<ExternalIdBundle, UniqueId> loadedSecurities = _securityLoader.loadSecurity(identifiers);
     List<ExternalIdBundle> errors = findErrors(loadedSecurities);
     if (_optionSize > 0) {
       Set<ExternalIdBundle> optionIdentifiers = loadOptionIdentifiers(identifiers);
-      Map<ExternalIdBundle, UniqueId> loadedOptionSecurities = _securityMasterLoader.loadSecurity(optionIdentifiers);
+      Map<ExternalIdBundle, UniqueId> loadedOptionSecurities = _securityLoader.loadSecurity(optionIdentifiers);
       errors.addAll(findErrors(loadedOptionSecurities));
     }
    

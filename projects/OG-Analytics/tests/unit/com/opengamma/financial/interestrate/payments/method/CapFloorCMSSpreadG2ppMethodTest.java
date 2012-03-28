@@ -55,7 +55,7 @@ public class CapFloorCMSSpreadG2ppMethodTest {
   // Curves and parameters
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves2();
   private static final String[] CURVE_NAMES = TestsDataSetsSABR.curves2Names();
-  private static final G2ppPiecewiseConstantParameters PARAMETERS_G2PP = G2ppTestsDataSet.createG2ppParameters();
+  private static final G2ppPiecewiseConstantParameters PARAMETERS_G2PP = G2ppTestsDataSet.createG2ppParameters1();
   private static final G2ppPiecewiseConstantDataBundle BUNDLE_G2PP = new G2ppPiecewiseConstantDataBundle(PARAMETERS_G2PP, CURVES);
   // Derivatives
   private static final CapFloorCMSSpread CMS_SPREAD = (CapFloorCMSSpread) CMS_SPREAD_DEFINITION.toDerivative(REFERENCE_DATE, CURVE_NAMES);

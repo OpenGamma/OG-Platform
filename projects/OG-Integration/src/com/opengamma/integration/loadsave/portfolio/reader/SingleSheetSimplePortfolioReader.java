@@ -5,20 +5,19 @@
  */
 package com.opengamma.integration.loadsave.portfolio.reader;
 
+import java.io.InputStream;
 import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.financial.tool.ToolContext;
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
-import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.loadsave.sheet.SheetFormat;
 import com.opengamma.integration.loadsave.sheet.reader.SheetReader;
-import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.tuple.ObjectsPair;
 
 /**
@@ -38,69 +37,35 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
    */
   private String[] _columns;
 
-  public SingleSheetSimplePortfolioReader(String filename, RowParser rowParser) {
-    super(SheetReader.newSheetReader(filename));
-    _columns = getSheet().getColumns();
-    _rowParser = rowParser;
-  }
-
-  public SingleSheetSimplePortfolioReader(SheetReader sheet, String[] columns, RowParser rowParser) {
-    super(sheet);    
-    _columns = getSheet().getColumns();
-    _rowParser = rowParser;
-  }
-
-  public SingleSheetSimplePortfolioReader(String filename, String securityClass, ToolContext toolContext) {
-    super(SheetReader.newSheetReader(filename));
-    _columns = getSheet().getColumns();
-    _rowParser = RowParser.newRowParser(securityClass, toolContext);
-    if (_rowParser == null) {
-      throw new OpenGammaRuntimeException("Could not identify an appropriate row parser for security class " + securityClass);
-    }
-  }
-
-  public SingleSheetSimplePortfolioReader(SheetReader sheet, String[] columns, String securityClass, ToolContext toolContext) {
+  public SingleSheetSimplePortfolioReader(SheetReader sheet, RowParser rowParser) {   
     super(sheet);
-    _columns = getSheet().getColumns();
-    _rowParser = RowParser.newRowParser(securityClass, toolContext);
-    if (_rowParser == null) {
-      throw new OpenGammaRuntimeException("Could not identify an appropriate row parser for security class " + securityClass);
-    }
-  }
-
-  @Override
-  public void writeTo(PortfolioWriter portfolioWriter) {
-    Map<String, String> row;
-
-    // Get the next row from the sheet
-    while ((row = getSheet().loadNextRow()) != null) {
     
-      // Build the underlying security
-      ManageableSecurity[] security = _rowParser.constructSecurity(row);
-      if (security.length > 0) {
-        // Attempt to write securities and obtain the correct security (either newly written or original)
-        // Write array in reverse order as underlying is at position 0
-        for (int i = security.length - 1; i >= 0; i--) {
-          security[i] = portfolioWriter.writeSecurity(security[i]);        
-        }
-  
-        
-        // Build the position and trade(s) using security[0] (underlying)
-        ManageablePosition position = _rowParser.constructPosition(row, security[0]);
-        
-        ManageableTrade trade = _rowParser.constructTrade(row, security[0], position);
-        if (trade != null) { 
-          position.addTrade(trade);
-        }
-        
-        // Write positions/trade(s) to masters (trades are implicitly written with the position)
-        portfolioWriter.writePosition(position);
-      } else {
-        s_logger.warn("Row parser was unable to construct a security from row " + row);
-      }
-    }
+    ArgumentChecker.notNull(rowParser, "rowParser");
+
+    _columns = getSheet().getColumns();
+    _rowParser = rowParser;
   }
 
+  public SingleSheetSimplePortfolioReader(SheetReader sheet, String securityClass) {
+    this(sheet, RowParser.newRowParser(securityClass));    
+  }
+
+  public SingleSheetSimplePortfolioReader(SheetFormat sheetFormat, InputStream inputStream, RowParser rowParser) {
+    this(SheetReader.newSheetReader(sheetFormat, inputStream), rowParser);
+  }
+
+  public SingleSheetSimplePortfolioReader(SheetFormat sheetFormat, InputStream inputStream, String securityClass) {
+    this(SheetReader.newSheetReader(sheetFormat, inputStream), securityClass);    
+  }
+
+  public SingleSheetSimplePortfolioReader(String filename, RowParser rowParser) {
+    this(SheetReader.newSheetReader(filename), rowParser);
+  }
+
+  public SingleSheetSimplePortfolioReader(String filename, String securityClass) {
+    this(SheetReader.newSheetReader(filename), securityClass);
+  }
+  
   @Override
   public ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext() {
     
@@ -135,8 +100,13 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
   }
 
   @Override
-  public ManageablePortfolioNode getCurrentNode() {
-    return new ManageablePortfolioNode("Root");
+  public String[] getCurrentPath() {
+    return new String[0];
+  }
+
+  @Override
+  public void close() {
+    getSheet().close();
   }
 
 }

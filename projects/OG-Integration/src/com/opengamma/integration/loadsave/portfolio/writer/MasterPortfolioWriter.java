@@ -5,9 +5,12 @@
  */
 package com.opengamma.integration.loadsave.portfolio.writer;
 
+import java.util.Stack;
+
 import javax.time.calendar.ZonedDateTime;
 
-import com.opengamma.financial.tool.ToolContext;
+import org.apache.commons.lang.ArrayUtils;
+
 import com.opengamma.id.ExternalIdSearch;
 import com.opengamma.id.ExternalIdSearchType;
 import com.opengamma.id.VersionCorrection;
@@ -28,36 +31,37 @@ import com.opengamma.master.security.SecurityMaster;
 import com.opengamma.master.security.SecuritySearchRequest;
 import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.master.security.SecuritySearchSortOrder;
+import com.opengamma.util.ArgumentChecker;
 
 /**
- * A class that facilitates writing securities and portfolio positions and trades
+ * A class that writes securities and portfolio positions and trades to the OG masters
  */
 public class MasterPortfolioWriter implements PortfolioWriter {
 
-  private PortfolioMaster _portfolioMaster;
-  private PositionMaster _positionMaster;
-  private SecurityMaster _securityMaster;
+  private final PortfolioMaster _portfolioMaster;
+  private final PositionMaster _positionMaster;
+  private final SecurityMaster _securityMaster;
   
   private PortfolioDocument _portfolioDocument;
   private ManageablePortfolioNode _currentNode;
   private ManageablePortfolioNode _originalNode;
   private ManageablePortfolioNode _originalRoot;
   
-  
-  public MasterPortfolioWriter(String portfolioName, ToolContext toolContext) {
-    _portfolioMaster = toolContext.getPortfolioMaster();
-    _positionMaster = toolContext.getPositionMaster();
-    _securityMaster = toolContext.getSecurityMaster();
+  private boolean _overwrite;
     
-    _portfolioDocument = createPortfolio(portfolioName);
-  }
-  
-  public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster, PositionMaster positionMaster, SecurityMaster securityMaster) {
+  public MasterPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster, 
+      PositionMaster positionMaster, SecurityMaster securityMaster, boolean overwrite) {
+
+    ArgumentChecker.notEmpty(portfolioName, "portfolioName");
+    ArgumentChecker.notNull(portfolioMaster, "portfolioMaster");
+    ArgumentChecker.notNull(positionMaster, "positionMaster");
+    ArgumentChecker.notNull(securityMaster, "securityMaster");
+    
+    _overwrite = overwrite;
     _portfolioMaster = portfolioMaster;
     _positionMaster = positionMaster;
     _securityMaster = securityMaster;
-    
-    _portfolioDocument = createPortfolio(portfolioName);
+    createPortfolio(portfolioName);
 
   }
 
@@ -67,6 +71,9 @@ public class MasterPortfolioWriter implements PortfolioWriter {
    */
   @Override
   public ManageableSecurity writeSecurity(ManageableSecurity security) {
+    
+    ArgumentChecker.notNull(security, "security");
+    
     SecuritySearchRequest searchReq = new SecuritySearchRequest();
     ExternalIdSearch idSearch = new ExternalIdSearch(security.getExternalIdBundle());  // match any one of the IDs
     searchReq.setVersionCorrection(VersionCorrection.ofVersionAsOf(ZonedDateTime.now())); // valid now
@@ -74,10 +81,21 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     searchReq.setFullDetail(true);
     searchReq.setSortOrder(SecuritySearchSortOrder.VERSION_FROM_INSTANT_DESC);
     SecuritySearchResult searchResult = _securityMaster.search(searchReq);
-    for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {  
-      if (weakEquals(foundSecurity, security)) {
-        // It's already there, don't update or add it
-        return foundSecurity;
+    if (_overwrite) {
+      for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {
+        _securityMaster.remove(foundSecurity.getUniqueId());
+      }
+    } else {
+      for (ManageableSecurity foundSecurity : searchResult.getSecurities()) {
+        if (weakEquals(foundSecurity, security)) {
+          // It's already there, don't update or add it
+          return foundSecurity;
+        } else {
+          SecurityDocument updateDoc = new SecurityDocument(security);
+          updateDoc.setUniqueId(foundSecurity.getUniqueId().toLatest());
+          SecurityDocument result = _securityMaster.update(updateDoc);
+          return result.getSecurity();
+        }
       }
     }
     // Not found, so add it
@@ -87,7 +105,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   }
   
   // This weak equals does not actually compare the security's fields, just the type, external ids and attributes :(
-  private boolean weakEquals(ManageableSecurity sec1, ManageableSecurity sec2) {
+  protected boolean weakEquals(ManageableSecurity sec1, ManageableSecurity sec2) {
     return sec1.getName().equals(sec2.getName()) &&
            sec1.getSecurityType().equals(sec2.getSecurityType()) &&
            sec1.getExternalIdBundle().equals(sec2.getExternalIdBundle()) &&
@@ -101,6 +119,8 @@ public class MasterPortfolioWriter implements PortfolioWriter {
    */
   @Override
   public ManageablePosition writePosition(ManageablePosition position) {
+    
+    ArgumentChecker.notNull(position, "position");
     
     ManageablePosition existingPosition = null;
     
@@ -150,31 +170,38 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       return existingPosition;
     }
   }
-  
+
   @Override
-  public ManageablePortfolio getPortfolio() {
-    return _portfolioDocument.getPortfolio();
-  }
-  
-  @Override
-  public ManageablePortfolioNode getCurrentNode() {
-    return _currentNode;
-  }
-  
-  @Override
-  public ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node) {
-    
-    // Attempt to find equivalent node in earlier version of portfolio
-    if (_originalRoot != null) {
-      _originalNode = _originalRoot.findNodeByName(node.getName());
+  public String[] getCurrentPath() {
+    Stack<ManageablePortfolioNode> stack = 
+        _portfolioDocument.getPortfolio().getRootNode().findNodeStackByObjectId(_currentNode.getUniqueId());
+    String[] result = new String[stack.size()];
+    int i = stack.size();
+    while (!stack.isEmpty()) {
+      result[--i] = stack.pop().getName();
     }
-    _currentNode = node;
-    return _currentNode;
+    return result;
   }
-  
+
+  @Override
+  public void setPath(String[] newPath) {
+    
+    ArgumentChecker.notNull(newPath, "newPath");
+    
+    if (newPath.length == 0) {
+      _currentNode = _portfolioDocument.getPortfolio().getRootNode();
+      _originalNode = _originalRoot;
+    } else {    
+      if (_originalRoot != null) {
+        _originalNode = findNode(newPath, _originalRoot);
+      }
+      _currentNode = createNode(newPath, _portfolioDocument.getPortfolio().getRootNode());
+    }
+  }
+
   @Override
   public void flush() {
-    _portfolioMaster.update(_portfolioDocument);
+    _portfolioDocument = _portfolioMaster.update(_portfolioDocument);
   }
   
   @Override
@@ -182,7 +209,47 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     flush();
   }
   
-  private PortfolioDocument createPortfolio(String portfolioName) {
+  private ManageablePortfolioNode findNode(String[] path, ManageablePortfolioNode startNode) {
+    
+    // Degenerate case
+    if (path.length == 1) {
+      if (startNode.name().equals(path[0])) {
+        return startNode;
+      } else {
+        return null;
+      }
+    
+    // Recursive case, traverse all child nodes
+    } else {
+      for (ManageablePortfolioNode childNode : startNode.getChildNodes()) {
+        String[] newPath = (String[]) ArrayUtils.subarray(path, 1, path.length - 1);
+        ManageablePortfolioNode result = findNode(newPath, childNode);
+        if (result != null) {
+          return result;
+        }
+      }
+      return null;
+    }
+  }
+  
+  private ManageablePortfolioNode createNode(String[] path, ManageablePortfolioNode startNode) {
+    ManageablePortfolioNode node = startNode;
+    
+    for (String p : path) {
+      for (ManageablePortfolioNode n : node.getChildNodes()) {
+        if (n.getName().equals(p)) {
+          node = n;
+          break;
+        }
+        ManageablePortfolioNode newNode = new ManageablePortfolioNode(p);
+        node.addChildNode(newNode);
+        node = newNode;
+      }
+    }
+    return node;
+  }
+  
+  protected void createPortfolio(String portfolioName) {
 
     // Create a new root node
     ManageablePortfolioNode rootNode = new ManageablePortfolioNode(portfolioName);
@@ -191,31 +258,30 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     PortfolioSearchRequest portSearchRequest = new PortfolioSearchRequest();
     portSearchRequest.setName(portfolioName);
     PortfolioSearchResult portSearchResult = _portfolioMaster.search(portSearchRequest);
-    PortfolioDocument portfolioDoc = portSearchResult.getFirstDocument();
+    _portfolioDocument = portSearchResult.getFirstDocument();
 
     // If it doesn't, create it (add) 
-    if (portfolioDoc == null) {
+    if (_portfolioDocument == null) {
       ManageablePortfolio portfolio = new ManageablePortfolio(portfolioName, rootNode);
-      portfolioDoc = new PortfolioDocument();
-      portfolioDoc.setPortfolio(portfolio);
-      portfolioDoc = _portfolioMaster.add(portfolioDoc);
+      _portfolioDocument = new PortfolioDocument();
+      _portfolioDocument.setPortfolio(portfolio);
+      _portfolioDocument = _portfolioMaster.add(_portfolioDocument);
       _originalRoot = null;
       _originalNode = null;
       
     // If it does, create a new version of the existing portfolio (update) with a new root node
     } else {
-      ManageablePortfolio portfolio = portfolioDoc.getPortfolio();
+      ManageablePortfolio portfolio = _portfolioDocument.getPortfolio();
       _originalRoot = portfolio.getRootNode();
       _originalNode = _originalRoot;
       portfolio.setRootNode(rootNode);
-      portfolioDoc.setPortfolio(portfolio);
-      portfolioDoc = _portfolioMaster.update(portfolioDoc);
+      _portfolioDocument.setPortfolio(portfolio);
+      _portfolioDocument = _portfolioMaster.update(_portfolioDocument);
     }
-
-    // Set current node to the root node
-    _currentNode = portfolioDoc.getPortfolio().getRootNode();
     
-    return portfolioDoc;
+    // Set current node to the root node
+    _currentNode = _portfolioDocument.getPortfolio().getRootNode();
+    
   }
 
 }

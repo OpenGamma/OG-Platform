@@ -12,16 +12,16 @@ import javax.time.calendar.LocalDate;
 import javax.time.calendar.OffsetTime;
 import javax.time.calendar.ZoneOffset;
 
-import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.bbg.BloombergSecurityMaster;
+
+import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
-import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
+import com.opengamma.util.ArgumentChecker;
 
 /**
  * A row parser that reads in a ticker for an exchange-traded security, a quantity for a position, and
@@ -37,18 +37,18 @@ public class ExchangeTradedRowParser extends RowParser {
   
   private String[] _columns = {TICKER, QUANTITY, TRADE_DATE, PREMIUM, COUNTERPARTY };
   
-  private BloombergSecurityMaster _bbgSecSource;
+  private BloombergSecuritySource _bbgSecSource;
 
-  public ExchangeTradedRowParser(IntegrationToolContext toolContext) {
-    super(toolContext);
-    _bbgSecSource = toolContext.getBloombergSecuritySource();
-    if (_bbgSecSource == null) {
-      throw new OpenGammaRuntimeException("A Bloomberg security source is not available in this tool context");
-    }
+  public ExchangeTradedRowParser(BloombergSecuritySource bbgSecSource) {
+    ArgumentChecker.notNull(bbgSecSource, "bbgSecSource");
+    _bbgSecSource = bbgSecSource;
   }
 
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> row) {
+    
+    ArgumentChecker.notNull(row, "row");
+    
     // Look up security using ticker
     ManageableSecurity security = _bbgSecSource.getSecurity(ExternalIdBundle.of(
         SecurityUtils.bloombergTickerSecurityId(getWithException(row, TICKER))));
@@ -62,6 +62,9 @@ public class ExchangeTradedRowParser extends RowParser {
   @Override
   public ManageablePosition constructPosition(Map<String, String> row, ManageableSecurity security) {
     // Create position using the quantity field
+    
+    ArgumentChecker.notNull(row, "row");
+    ArgumentChecker.notNull(security, "security");
     
     if (row.containsKey(QUANTITY)) {      
       return new ManageablePosition(
@@ -78,6 +81,10 @@ public class ExchangeTradedRowParser extends RowParser {
   
   @Override
   public ManageableTrade constructTrade(Map<String, String> row, ManageableSecurity security, ManageablePosition position) {
+    
+    ArgumentChecker.notNull(row, "row");
+    ArgumentChecker.notNull(security, "security");
+    ArgumentChecker.notNull(position, "position");
     
     // Create trade using trade date, premium and counterparty if available in current row
     if (row.containsKey(TRADE_DATE) && row.containsKey(PREMIUM) && row.containsKey(COUNTERPARTY)) {

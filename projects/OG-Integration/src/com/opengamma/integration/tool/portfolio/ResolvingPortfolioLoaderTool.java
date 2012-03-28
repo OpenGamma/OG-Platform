@@ -5,11 +5,29 @@
  */
 package com.opengamma.integration.tool.portfolio;
 
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.InputStream;
+
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
-import com.opengamma.integration.loadsave.portfolio.ResolvingPortfolioLoader;
+import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.bbg.BloombergSecuritySource;
+import com.opengamma.integration.loadsave.portfolio.ResolvingPortfolioCopier;
+import com.opengamma.integration.loadsave.portfolio.reader.PortfolioReader;
+import com.opengamma.integration.loadsave.portfolio.reader.SingleSheetSimplePortfolioReader;
+import com.opengamma.integration.loadsave.portfolio.rowparser.ExchangeTradedRowParser;
+import com.opengamma.integration.loadsave.portfolio.writer.DummyPortfolioWriter;
+import com.opengamma.integration.loadsave.portfolio.writer.MasterPortfolioWriter;
+import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.loadsave.sheet.SheetFormat;
 import com.opengamma.integration.tool.AbstractIntegrationTool;
+import com.opengamma.integration.tool.IntegrationToolContext;
+import com.opengamma.master.portfolio.PortfolioMaster;
+import com.opengamma.master.position.PositionMaster;
+import com.opengamma.master.security.SecurityMaster;
 
 /**
  * The portfolio loader tool
@@ -48,18 +66,87 @@ public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
    */
   @Override
   protected void doRun() {      
-    // Call the portfolio loader with the supplied arguments
-    new ResolvingPortfolioLoader().run(
+    IntegrationToolContext context = getToolContext();
+
+    // Create portfolio writer
+    PortfolioWriter portfolioWriter = constructPortfolioWriter(
         getCommandLine().getOptionValue(PORTFOLIO_NAME_OPT), 
-        getCommandLine().getOptionValue(FILE_NAME_OPT), 
-        getCommandLine().getOptionValue(TIME_SERIES_DATASOURCE_OPT) == null ? "BLOOMBERG" : getCommandLine().getOptionValue(TIME_SERIES_DATASOURCE_OPT), 
-        getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT) == null ? "CMPL" : getCommandLine().getOptionValue(TIME_SERIES_DATAPROVIDER_OPT),
-        getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT) == null ? new String[] {"PX_LAST"} : getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT), 
-        getCommandLine().getOptionValue(TIME_SERIES_OBSERVATIONTIME_OPT) == null ? "LONDON_CLOSE" : getCommandLine().getOptionValue(TIME_SERIES_OBSERVATIONTIME_OPT), 
-        getCommandLine().hasOption(WRITE_OPT), 
-        getToolContext()
+        context.getPortfolioMaster(), 
+        context.getPositionMaster(), 
+        context.getSecurityMaster(),
+        getCommandLine().hasOption(WRITE_OPT)
     );
+
+    // Construct portfolio reader
+    PortfolioReader portfolioReader = constructPortfolioReader(
+        getCommandLine().getOptionValue(FILE_NAME_OPT), 
+        context.getBloombergSecuritySource()
+    );
+    
+    // Create portfolio copier
+    ResolvingPortfolioCopier portfolioCopier = new ResolvingPortfolioCopier(
+        context.getHistoricalTimeSeriesMaster(),
+        context.getBloombergHistoricalTimeSeriesSource(),
+        context.getBloombergReferenceDataProvider(),
+        getOptionValue(TIME_SERIES_DATAPROVIDER_OPT, "CMPL"),
+        getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT) == null ? 
+            new String[]{"PX_LAST"} : getCommandLine().getOptionValues(TIME_SERIES_DATAFIELD_OPT)
+    );
+    
+    // Call the portfolio loader with the supplied arguments
+    portfolioCopier.copy(portfolioReader, portfolioWriter);
+    
+    // close stuff
+    portfolioReader.close();
+    portfolioWriter.close();
   }
+
+  private static PortfolioWriter constructPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster,
+      PositionMaster positionMaster, SecurityMaster securityMaster, boolean write) {
+    if (write) {  
+      // Check that the portfolio name was specified on the command line
+      if (portfolioName == null) {
+        throw new OpenGammaRuntimeException("Portfolio name omitted, cannot persist to OpenGamma masters");
+      }
+      // Create a portfolio writer to persist imported positions, trades and securities to the OG masters
+      return new MasterPortfolioWriter(
+          portfolioName, 
+          portfolioMaster, 
+          positionMaster, 
+          securityMaster,
+          false);
+    } else {
+      // Create a dummy portfolio writer to pretty-print instead of persisting
+      return new DummyPortfolioWriter();         
+    }  
+  }
+  
+  // TODO take a stream as well as the file name, BBG master
+  private static PortfolioReader constructPortfolioReader(String filename, BloombergSecuritySource bbgSecurityMaster) {
+    InputStream stream;
+    try {
+      stream = new BufferedInputStream(new FileInputStream(filename));
+    } catch (FileNotFoundException e) {
+      throw new OpenGammaRuntimeException("Could not open file " + filename + " for reading: " + e);
+    }
+    
+    SheetFormat sheetFormat = SheetFormat.of(filename);
+    switch (sheetFormat) {
+      case XLS:
+      case CSV:
+        // Check that the asset class was specified on the command line
+        return new SingleSheetSimplePortfolioReader(sheetFormat, stream, new ExchangeTradedRowParser(bbgSecurityMaster));
+
+      default:
+        throw new OpenGammaRuntimeException("Input filename should end in .CSV or .XLS");
+    }
+  }
+
+  
+  private String getOptionValue(String optionName, String defaultValue) {
+    return getCommandLine().getOptionValue(optionName) == null ? defaultValue : getCommandLine().getOptionValue(optionName);
+  }
+
   
   @Override
   protected Options createOptions(boolean contextProvided) {
@@ -98,5 +185,6 @@ public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
 
     return options;
   }
+
 
 }
