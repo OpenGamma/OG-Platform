@@ -8,7 +8,9 @@ package com.opengamma.financial.forex.method;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;
+import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.surface.SurfaceValue;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;
@@ -60,13 +62,22 @@ public class PresentValueForexBlackVolatilitySensitivity {
   }
 
   /**
+   * Return a new volatility sensitivity by adding another sensitivity. 
+   * @param other The Black volatility sensitivity. Not null.
+   * @return The new sensitivity.
+   */
+  public PresentValueForexBlackVolatilitySensitivity plus(final PresentValueForexBlackVolatilitySensitivity other) {
+    ArgumentChecker.isTrue(_currencyPair.equals(other._currencyPair), "Currency pairs incompatible");
+    return new PresentValueForexBlackVolatilitySensitivity(_currencyPair.getFirst(), _currencyPair.getSecond(), SurfaceValue.plus(_vega, other._vega));
+  }
+
+  /**
    * Return a new volatility sensitivity with all the exposures multiplied by a common factor.
-   * @param sensi The sensitivity.
    * @param factor The multiplicative factor.
    * @return The new sensitivity.
    */
-  public static PresentValueForexBlackVolatilitySensitivity multiplyBy(final PresentValueForexBlackVolatilitySensitivity sensi, final double factor) {
-    return new PresentValueForexBlackVolatilitySensitivity(sensi._currencyPair.getFirst(), sensi._currencyPair.getSecond(), SurfaceValue.multiplyBy(sensi._vega, factor));
+  public PresentValueForexBlackVolatilitySensitivity multipliedBy(final double factor) {
+    return new PresentValueForexBlackVolatilitySensitivity(_currencyPair.getFirst(), _currencyPair.getSecond(), SurfaceValue.multiplyBy(_vega, factor));
   }
 
   /**
@@ -77,6 +88,29 @@ public class PresentValueForexBlackVolatilitySensitivity {
    */
   public void add(final DoublesPair point, final double value) {
     _vega.add(point, value);
+  }
+
+  /**
+   * Compare two sensitivities with a given tolerance. Return "true" if the currency pairs are the same and all the sensitivities are within the tolerance.
+   * @param value1 The first sensitivity.
+   * @param value2 The second sensitivity.
+   * @param tolerance The tolerance.
+   * @return The comparison flag.
+   */
+  public static boolean compare(final PresentValueForexBlackVolatilitySensitivity value1, final PresentValueForexBlackVolatilitySensitivity value2, double tolerance) {
+    if (!value1._currencyPair.equals(value2._currencyPair)) {
+      return false;
+    }
+    return SurfaceValue.compare(value1._vega, value2._vega, tolerance);
+  }
+
+  /**
+   * Collapse the sensitivity to one CurrencyAmount. The points on which the sensitivities occur are ignored and the values summed.
+   * @return The amount.
+   */
+  public CurrencyAmount toSingleValue() {
+    Currency ccy = _currencyPair.getSecond();
+    return CurrencyAmount.of(ccy, _vega.toSingleValue());
   }
 
   @Override
