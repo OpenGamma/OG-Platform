@@ -127,8 +127,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(),
         createValueProperties()
-        .withAny(ValuePropertyNames.SURFACE)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get()));
+            .withAny(ValuePropertyNames.SURFACE)
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get()));
   }
 
   @Override
@@ -196,7 +196,6 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
     final Map<Pair<Double, Double>, Double> volatilityValues = new HashMap<Pair<Double, Double>, Double>();
     final DoubleArrayList xList = new DoubleArrayList();
     final DoubleArrayList yList = new DoubleArrayList();
-    // TODO Erase System.out.print("\n" + "nExpiry,tExpiry,Strike, Volatility\n");
     for (final Number x : optionPrices.getXs()) {
       final Number t = IRFutureOptionUtils.getTime(x.doubleValue(), now);
       for (final Double y : optionPrices.getYs()) {
@@ -206,11 +205,9 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
             final double xVal = x.doubleValue();
             final double forward = futurePrices.getYValue(x.doubleValue());
             final double volatility = getVolatility(surfaceQuoteType, y / 100.0, price, forward, t.doubleValue(), callAboveStrike / 100.);
-            
-            // TODO Erase System.out.print(x + "," + t + "," + y + "," + volatility + "\n");
             if (!CompareUtils.closeEquals(volatility, 0.0)) {
               xList.add(xVal);
-              yList.add(y);
+              yList.add(y / 100.0);
               volatilityValues.put(Pair.of(xVal, y / 100.), volatility);
             }
           } catch (final MathException e) {
@@ -233,8 +230,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
 
     final ValueRequirement futuresRequirement = new ValueRequirement(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA, target.toSpecification(),
         ValueProperties.builder()
-        .with(ValuePropertyNames.CURVE, curveName)
-        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_PRICE).get());
+            .with(ValuePropertyNames.CURVE, curveName)
+            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_PRICE).get());
     final Object futurePricesObject = inputs.getValue(futuresRequirement);
     if (futurePricesObject == null) {
       throw new OpenGammaRuntimeException("Could not get futures price data");
