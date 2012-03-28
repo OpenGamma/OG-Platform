@@ -5,6 +5,7 @@
  */
 package com.opengamma.integration.loadsave.portfolio.web;
 
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,6 +33,7 @@ import com.opengamma.integration.loadsave.portfolio.rowparser.ExchangeTradedRowP
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
 import com.opengamma.integration.loadsave.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.loadsave.sheet.SheetFormat;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
@@ -48,6 +50,7 @@ import com.sun.jersey.multipart.FormDataMultiPart;
 public class PortfolioLoaderResource {
 
   private static final Logger s_logger = LoggerFactory.getLogger(PortfolioLoaderResource.class);
+
   private final HistoricalTimeSeriesMaster _historicalTimeSeriesMaster;
   private final HistoricalTimeSeriesSource _bloombergHistoricalTimeSeriesSource;
   private final ReferenceDataProvider _bloombergReferenceDataProvider;
@@ -99,7 +102,7 @@ public class PortfolioLoaderResource {
     if (!(fileEntity instanceof BodyPartEntity)) {
       throw new WebApplicationException(Response.Status.BAD_REQUEST);
     }
-    InputStream fileStream = ((BodyPartEntity) fileEntity).getInputStream();
+    InputStream fileStream = new WorkaroundInputStream(((BodyPartEntity) fileEntity).getInputStream());
     //String fileContent = IOUtils.toString(fileStream);
     s_logger.info("Portfolio uploaded. fileName: {}, portfolioName: {}, dataField: {}, dataProvider: {}",
                   new Object[]{fileName, portfolioName, dataField, dataProvider});
@@ -109,8 +112,9 @@ public class PortfolioLoaderResource {
                                                                          dataProvider,
                                                                          dataFields);
     RowParser rowParser = new ExchangeTradedRowParser(_bloombergSecuritySource);
-    final PortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(fileName, fileStream, rowParser);
-    final PortfolioWriter portfolioWriter = new MasterPortfolioWriter(portfolioName, _portfolioMaster, _positionMaster, _securityMaster);
+    SheetFormat format = getFormatForFileName(fileName);
+    final PortfolioReader portfolioReader = new SingleSheetSimplePortfolioReader(format, fileStream, rowParser);
+    final PortfolioWriter portfolioWriter = new MasterPortfolioWriter(portfolioName, _portfolioMaster, _positionMaster, _securityMaster, false);
     StreamingOutput streamingOutput = new StreamingOutput() {
       @Override
       public void write(OutputStream output) throws IOException, WebApplicationException {
@@ -138,5 +142,43 @@ public class PortfolioLoaderResource {
       throw new WebApplicationException(response);
     }
     return value;
+  }
+
+  // TODO this belongs somewhere else
+  private static SheetFormat getFormatForFileName(String fileName) {
+    if (fileName.toLowerCase().endsWith("csv")) {
+      return SheetFormat.CSV;
+    }
+    Response response = Response.status(Response.Status.BAD_REQUEST).entity("Only CSV upload is suported").build();
+    throw new WebApplicationException(response);
+  }
+
+  /**
+   * This wraps the uploaded file input stream to work around a bug in the {@code org.jvnet.mimepull}
+   * library used by Jersey Multipart.  The bug causes the {@code read()} method to throw an exception if it is called
+   * twice at the end of the stream which violates the contract of {@link InputStream}.  It ought to
+   * keep returning {@code -1} indefinitely.  This class restores that behaviour.
+   * TODO Check if this can be removed when we move to a later version of Jersey
+   * @see <a href="http://java.net/jira/browse/JAX_WS-965">The bug report</a>
+   */
+  private static class WorkaroundInputStream extends BufferedInputStream {
+
+    private boolean _ended;
+
+    public WorkaroundInputStream(InputStream in) {
+      super(in);
+    }
+
+    @Override
+    public int read() throws IOException {
+      if (_ended) {
+        return -1;
+      }
+      int i = super.read();
+      if (i == -1) {
+        _ended = true;
+      }
+      return i;
+    }
   }
 }
