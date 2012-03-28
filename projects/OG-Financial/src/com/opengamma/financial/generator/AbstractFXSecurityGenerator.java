@@ -16,6 +16,7 @@ import com.opengamma.financial.security.option.BarrierDirection;
 import com.opengamma.financial.security.option.BarrierType;
 import com.opengamma.financial.security.option.EuropeanExerciseType;
 import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.financial.security.option.MonitoringType;
 import com.opengamma.financial.security.option.SamplingFrequency;
@@ -49,6 +50,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     private final boolean _up;
     private final Currency _firstCurrency;
     private final Currency _secondCurrency;
+    private final Currency _paymentCurrency;
     private final int _daysOffset;
     private final ZonedDateTime _tradeDate;
 
@@ -63,6 +65,7 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
       _secondCurrency = secondCurrency;
       _daysOffset = 100 + getRandom().nextInt(600);
       _tradeDate = previousWorkingDay(ZonedDateTime.now().minusDays(getRandom(30)), _firstCurrency, _secondCurrency);
+      _paymentCurrency = getRandom().nextBoolean() ? _firstCurrency : _secondCurrency;
     }
 
   }
@@ -100,9 +103,31 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
     return fxBarrierOptionSecurity;
   }
 
+  protected FXDigitalOptionSecurity createFXDigitalOptionSecurity(final Bundle bundle) {
+    final Currency putCurrency = bundle._firstCurrency;
+    final Currency callCurrency = bundle._secondCurrency;
+    final Currency paymentCurrency = bundle._paymentCurrency;
+    final double putAmount = putCurrency.equals(Currency.JPY) ? NOTIONAL * 100 : NOTIONAL;
+    final ZonedDateTime expiry = nextWorkingDay(bundle._tradeDate.plusDays(bundle._daysOffset), putCurrency, callCurrency);
+    final Double rate = getApproxFXRate(expiry.toLocalDate(), Pair.of(putCurrency, callCurrency));
+    if (rate == null) {
+      return null;
+    }
+    final double callAmount = rate * NOTIONAL;
+    final ZonedDateTime settlementDate = nextWorkingDay(expiry.plusDays(2), putCurrency, callCurrency);
+    final FXDigitalOptionSecurity security = new FXDigitalOptionSecurity(putCurrency, callCurrency, putAmount, callAmount, paymentCurrency, new Expiry(expiry), settlementDate, bundle._long);
+    final StringBuilder sb = new StringBuilder("Digital ");
+    sb.append(bundle._long ? "Long" : "Short");
+    sb.append(" put ").append(putCurrency).append(' ').append(NOTIONAL_FORMATTER.format(putAmount));
+    sb.append(", call ").append(callCurrency).append(' ').append(NOTIONAL_FORMATTER.format(callAmount));
+    sb.append(" on ").append(expiry.toString(DATE_FORMATTER));
+    security.setName(sb.toString());
+    return security;
+  }
+
   protected FXForwardSecurity createFXForwardSecurity(final Bundle bundle) {
     final double putAmount = bundle._firstCurrency.equals(Currency.JPY) ? NOTIONAL * 100 : NOTIONAL;
-    final ZonedDateTime forwardDate = nextWorkingDay(bundle._tradeDate.plusDays(bundle._daysOffset));
+    final ZonedDateTime forwardDate = nextWorkingDay(bundle._tradeDate.plusDays(bundle._daysOffset), bundle._firstCurrency, bundle._secondCurrency);
     final Double fxRate = getApproxFXRate(forwardDate.toLocalDate(), Pair.of(bundle._firstCurrency, bundle._secondCurrency));
     if (fxRate == null) {
       return null;
@@ -139,6 +164,14 @@ public abstract class AbstractFXSecurityGenerator<T extends ManageableSecurity> 
 
   protected ManageableTrade createFXBarrierOptionSecurityTrade(final Bundle bundle, final BigDecimal quantity, final SecurityPersister persister) {
     final FXBarrierOptionSecurity security = createFXBarrierOptionSecurity(bundle);
+    if (security == null) {
+      return null;
+    }
+    return new ManageableTrade(quantity, persister.storeSecurity(security), bundle._tradeDate.toLocalDate(), bundle._tradeDate.toOffsetTime(), ExternalId.of("ID", "COUNTERPARTY"));
+  }
+
+  protected ManageableTrade createFXDigitalOptionSecurityTrade(final Bundle bundle, final BigDecimal quantity, final SecurityPersister persister) {
+    final FXDigitalOptionSecurity security = createFXDigitalOptionSecurity(bundle);
     if (security == null) {
       return null;
     }

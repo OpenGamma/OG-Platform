@@ -42,6 +42,7 @@ public class MixedFXPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
       final SimplePortfolioNode node = new SimplePortfolioNode("Stragegy " + _count);
       final Bundle bundle = createBundle();
       add(node, createFXBarrierOptionSecurityTrade(bundle, BigDecimal.ONE, getSecurityPersister()));
+      add(node, createFXDigitalOptionSecurityTrade(bundle, BigDecimal.ONE, getSecurityPersister()));
       add(node, createFXForwardSecurityTrade(bundle, BigDecimal.ONE, getSecurityPersister()));
       add(node, createFXOptionSecurityTrade(bundle, BigDecimal.ONE, getSecurityPersister()));
       if (node.getPositions().isEmpty()) {
@@ -62,7 +63,7 @@ public class MixedFXPortfolioGeneratorTool extends AbstractPortfolioGeneratorToo
     final MixedFXSecurityGenerator<?> securities = createMixedFXSecurityGenerator();
     configure(securities);
     final TreePortfolioNodeGenerator rootNode = new TreePortfolioNodeGenerator(new StaticNameGenerator("Mixed FX"));
-    for (int i = 0; i < size / 3; i++) {
+    for (int i = 0; i < size / 4; i++) {
       rootNode.addChildNode(securities);
     }
     return rootNode;
