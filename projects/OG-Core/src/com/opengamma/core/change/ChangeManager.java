@@ -39,9 +39,10 @@ public interface ChangeManager {
   void removeChangeListener(ChangeListener listener);
 
   /**
-   * Handles an event.
+   * Handles an entity change event.
    * <p>
    * This method should only be called by the owner of the change manager.
+   * It is invoked whenever an entity has been successfully changed.
    * 
    * @param type  the type of change, not null
    * @param beforeId  the unique identifier of the entity before the change, may be null

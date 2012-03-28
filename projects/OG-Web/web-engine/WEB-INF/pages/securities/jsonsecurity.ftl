@@ -124,7 +124,7 @@
         <#if underlyingSecurity??>
           "underlyingName":"${underlyingSecurity.name}",
           "underlyingOid":"${underlyingSecurity.uniqueId.objectId}",
-        </#if>      
+        </#if>
         "barrierDirection":"${security.barrierDirection}",
         "barrierLevel":"${security.barrierLevel}",
         "barrierType":"${security.barrierType}",
@@ -145,6 +145,15 @@
             "zone": "${security.maturityDate.zone}"
         },
         "counterparty":"${security.counterparty}",
+        <#if securityAttributes??>
+        "attributes":{
+          <#list securityAttributes?keys as key>
+            <#assign value = securityAttributes[key]>
+              "${key}" : "${value}"
+            <#if key_has_next>,</#if>
+          </#list>
+        },
+        </#if>
         "payLeg":{
           "dayCount":"${security.payLeg.dayCount.conventionName}",
 	        "frequency":"${security.payLeg.frequency.conventionName}",
@@ -371,7 +380,7 @@
       <#case "CAP-FLOOR CMS SPREAD">
         "startDate":"${security.startDate.toLocalDate()} - ${security.startDate.zone}",
         "maturityDate":"${security.maturityDate.toLocalDate()} - ${security.maturityDate.zone}",
-        "notional":"${security.notional}",   
+        "notional":"${security.notional}",
         "longId":"${security.longId.scheme}-${security.longId.value}",
         <#if longSecurity??>
           "underlyingName":"${longSecurity.name}",
@@ -406,10 +415,10 @@
         "annualizationFactor":"${security.annualizationFactor}",
         "firstObservationDate":"${security.firstObservationDate.toLocalDate()} - ${security.firstObservationDate.zone}",
         "lastObservationDate":"${security.lastObservationDate.toLocalDate()} - ${security.lastObservationDate.zone}",
-        "settlementDate":"${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}",     
+        "settlementDate":"${security.settlementDate.toLocalDate()} - ${security.settlementDate.zone}",
         "regionId":"${security.regionId.scheme} - ${security.regionId.value}",
         "observationFrequency":"${security.observationFrequency.conventionName}",
-      <#break>  
+      <#break>
       <#case "EXTERNAL_SENSITIVITIES_SECURITY">
         "id":"${securityEntryData.id}",
         "currency":"${securityEntryData.currency}",
@@ -436,7 +445,7 @@
                 "exposureTsId":"${factorExposure.exposureTsId}",
                 "lastExposure":"${factorExposure.lastExposure}",
                 "convexityTsId":"${factorExposure.convexityTsId}",
-                "lastConvexity":"${factorExposure.lastConvexity}"   
+                "lastConvexity":"${factorExposure.lastConvexity}"
               }
               <#if factorExposure_has_next>,</#if>
             </#list>
@@ -444,6 +453,15 @@
         </#if>
       <#break>
       <#case "EXTERNAL_SENSITIVITY_RISK_FACTORS">
+        <#if securityAttributes??>
+          "attributes":{
+            <#list securityAttributes?keys as key>
+              <#assign value = securityAttributes[key]>
+                "${key}" : "${value}"
+              <#if key_has_next>,</#if>
+            </#list>
+          },
+        </#if>
         "factors":[
           <#list factorExposuresList as factorExposure>
             {
@@ -455,7 +473,7 @@
               "exposureTsId":"${factorExposure.exposureTsId}",
               "lastExposure":"${factorExposure.lastExposure}",
               "convexityTsId":"${factorExposure.convexityTsId}",
-              "lastConvexity":"${factorExposure.lastConvexity}"   
+              "lastConvexity":"${factorExposure.lastConvexity}"
             }
             <#if factorExposure_has_next>,</#if>
           </#list>

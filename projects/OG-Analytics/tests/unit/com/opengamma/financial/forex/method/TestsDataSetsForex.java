@@ -5,6 +5,9 @@
  */
 package com.opengamma.financial.forex.method;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -51,6 +54,15 @@ public class TestsDataSetsForex {
 
   public static String[] curveNames() {
     return new String[] {DISCOUNTING_EUR, DISCOUNTING_USD, DISCOUNTING_GBP, DISCOUNTING_KRW};
+  }
+
+  public static Map<String, Currency> curveCurrency() {
+    Map<String, Currency> map = new HashMap<String, Currency>();
+    map.put(DISCOUNTING_EUR, EUR);
+    map.put(DISCOUNTING_USD, USD);
+    map.put(DISCOUNTING_GBP, Currency.GBP);
+    map.put(DISCOUNTING_KRW, Currency.of("KRW"));
+    return map;
   }
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("A");

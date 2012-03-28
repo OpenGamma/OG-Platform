@@ -177,10 +177,13 @@ $.register_module({
          * Templates for rendering trades table
          */
         html.og_table = '\
-          <table class="OG-table">\
+          <table class="OG-table og-tablesorter">\
             <thead>\
               <tr>\
-                <th><span>Trades</span></th>\
+                <th colspan="6"><span>Trades</span></th>\
+              </tr>\
+              <tr>\
+                <th>ID</th>\
                 <th>Quantity</th>\
                 <th>Counterparty</th>\
                 <th>Trade Date / Time</th>\
@@ -190,8 +193,9 @@ $.register_module({
             </thead>\
             <tbody>{TBODY}</tbody>\
           </table>';
+        // expand-child class is for tablesorter
         html.attributes = '\
-          <tr class="og-js-attribute" style="display: none">\
+          <tr class="og-js-attribute expand-child" style="display: none">\
             <td colspan="6" style="padding: 0 10px 10px 24px; position: relative">\
               <table class="og-sub-list">{TBODY}</table>\
             </td>\
@@ -293,9 +297,14 @@ $.register_module({
                 if (result.error) return alert(result.message);
                 orig_config = config;
                 template_data = result.data.template_data;
-                var trades = result.data.trades, selector = config.selector, tbody, has_attributes = false,
+                var trades, selector = config.selector, tbody, has_attributes = false,
                     fields = ['id', 'quantity', 'counterParty', 'trade_date_time', 'premium', 'premium_date_time'];
-                if (!trades) return $(selector).html(html.og_table.replace('{TBODY}',
+                trades = (result.data.trades || []).sort(function (a, b) {
+                    return a['trade_date_time'] > b['trade_date_time'] ? -1
+                        : a['trade_date_time'] < b['trade_date_time'] ? 1
+                            : 0;
+                });
+                if (!trades.length) return $(selector).html(html.og_table.replace('{TBODY}',
                     '<tr><td colspan="6">No Trades</td></tr>')), attach_trades_link(selector);
                 tbody = trades.reduce(function (acc, trade) {
                     acc.push('<tr class="og-row"><td>', fields.map(function (field, i) {
@@ -340,8 +349,7 @@ $.register_module({
                     } else $this.find('.og-icon-expand').css('visibility', 'hidden');
                 });
                 if (!version) attach_trades_link(selector);
-                $(selector + ' > .OG-table > tbody > tr:not(".og-js-attribute"):last td').css('padding-bottom', '10px');
-                $(selector + ' .OG-table').awesometable({height: 400});
+                $(selector + ' .OG-table').tablesorter().awesometable({height: 400});
                 /*
                  * Enable edit/delete trade
                  */
@@ -371,7 +379,6 @@ $.register_module({
                 dependencies: dependencies, id: config.id, handler: handler, cache_for: 500, version: version
             });
         };
-        load.reload = load.partial(orig_config);
         load.format = format_trades;
         return load;
     }

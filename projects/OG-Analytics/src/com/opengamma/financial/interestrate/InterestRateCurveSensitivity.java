@@ -11,6 +11,7 @@ import static com.opengamma.financial.interestrate.InterestRateCurveSensitivityU
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
@@ -38,7 +39,7 @@ public class InterestRateCurveSensitivity {
    * Constructor from a map of sensitivity.
    * @param sensitivity The map.
    */
-  public InterestRateCurveSensitivity(Map<String, List<DoublesPair>> sensitivity) {
+  public InterestRateCurveSensitivity(final Map<String, List<DoublesPair>> sensitivity) {
     Validate.notNull(sensitivity, "sensitivity");
     this._sensitivity = sensitivity;
   }
@@ -52,12 +53,30 @@ public class InterestRateCurveSensitivity {
   }
 
   /**
+   * Returns the set of curve names in the interest rate sensitivities.
+   * @return The set of curve names.
+   */
+  public Set<String> getCurves() {
+    return _sensitivity.keySet();
+  }
+
+  /**
    * Create a copy of the sensitivity and add a given sensitivity to it.
    * @param other The sensitivity to add.
    * @return The total sensitivity.
    */
-  public InterestRateCurveSensitivity plus(InterestRateCurveSensitivity other) {
+  public InterestRateCurveSensitivity plus(final InterestRateCurveSensitivity other) {
     return new InterestRateCurveSensitivity(addSensitivity(_sensitivity, other._sensitivity));
+  }
+
+  /**
+   * Create a copy of the sensitivity and add a list representing the sensitivity to a specific curve.=.
+   * @param curveName  The name of the curve the sensitivity of which is added. Not null.
+   * @param list The sensitivity as a list. Not null.
+   * @return The total sensitivity.
+   */
+  public InterestRateCurveSensitivity plus(final String curveName, final List<DoublesPair> list) {
+    return new InterestRateCurveSensitivity(addSensitivity(_sensitivity, curveName, list));
   }
 
   /**
@@ -65,25 +84,25 @@ public class InterestRateCurveSensitivity {
    * @param factor The multiplicative factor.
    * @return The multiplied sensitivity.
    */
-  public InterestRateCurveSensitivity multiply(double factor) {
+  public InterestRateCurveSensitivity multiply(final double factor) {
     return new InterestRateCurveSensitivity(multiplySensitivity(_sensitivity, factor));
   }
 
   /**
-   * Return a clean sensitivity by sorting the times and adding the duplicate times.
+   * Return a new sensitivity cleaned by sorting the times and adding the values at the duplicate times.
    * @return The cleaned sensitivity.
    */
-  public InterestRateCurveSensitivity clean() {
+  public InterestRateCurveSensitivity cleaned() {
     return new InterestRateCurveSensitivity(InterestRateCurveSensitivityUtils.clean(_sensitivity, 0, 0));
   }
 
   /**
-   * Return a clean sensitivity by sorting the times and adding the duplicate times.
-   * @param relTol Relative tolerance - if the net divided by gross sensitivity is less than this it is ignored/removed 
-   * @param absTol Absolute tolerance  - is the net sensitivity is less than this it is ignored/removed 
+   * Return a new sensitivity cleaned by sorting the times and adding the values at the duplicate times.
+   * @param relTol Relative tolerance. If the net divided by gross sensitivity is less than this it is ignored/removed
+   * @param absTol Absolute tolerance. If the net sensitivity is less than this it is ignored/removed
    * @return The cleaned sensitivity.
    */
-  public InterestRateCurveSensitivity clean(final double relTol, final double absTol) {
+  public InterestRateCurveSensitivity cleaned(final double relTol, final double absTol) {
     return new InterestRateCurveSensitivity(InterestRateCurveSensitivityUtils.clean(_sensitivity, relTol, absTol));
   }
 
@@ -94,8 +113,13 @@ public class InterestRateCurveSensitivity {
    * @param tolerance The tolerance.
    * @return True if the difference is below the tolerance and False if not. If the curves are not the same it returns False.
    */
-  public static boolean compare(final InterestRateCurveSensitivity sensi1, final InterestRateCurveSensitivity sensi2, double tolerance) {
+  public static boolean compare(final InterestRateCurveSensitivity sensi1, final InterestRateCurveSensitivity sensi2, final double tolerance) {
     return InterestRateCurveSensitivityUtils.compare(sensi1.getSensitivities(), sensi2.getSensitivities(), tolerance);
+  }
+
+  @Override
+  public String toString() {
+    return _sensitivity.toString();
   }
 
   @Override
@@ -107,7 +131,7 @@ public class InterestRateCurveSensitivity {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -117,7 +141,7 @@ public class InterestRateCurveSensitivity {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    InterestRateCurveSensitivity other = (InterestRateCurveSensitivity) obj;
+    final InterestRateCurveSensitivity other = (InterestRateCurveSensitivity) obj;
     if (!ObjectUtils.equals(_sensitivity, other._sensitivity)) {
       return false;
     }

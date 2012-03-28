@@ -10,8 +10,6 @@ import static org.testng.AssertJUnit.assertSame;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.DataNotFoundException;
-
 /**
  * Test {@link DataNotFoundException}. 
  */

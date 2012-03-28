@@ -5,14 +5,14 @@
  */
 package com.opengamma.bbg.loader;
 
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeAPVLEquityOptionSecurity;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeEURIBORFutureOptionSecurity;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeEURODOLLARFutureOptionSecurity;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeExpectedAAPLEquitySecurity;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeInterestRateFuture;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeLIBORFutureOptionSecurity;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeSPXIndexOptionSecurity;
-import static com.opengamma.bbg.util.BloombergSecurityMasterUtils.makeUSBondFuture;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeAPVLEquityOptionSecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeEURIBORFutureOptionSecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeEURODOLLARFutureOptionSecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeExpectedAAPLEquitySecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeInterestRateFuture;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeLIBORFutureOptionSecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeSPXIndexOptionSecurity;
+import static com.opengamma.bbg.util.BloombergSecurityUtils.makeUSBondFuture;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertFalse;
 import static org.testng.AssertJUnit.assertNotNull;
@@ -40,6 +40,9 @@ import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -80,7 +83,7 @@ import com.opengamma.master.security.SecuritySearchResult;
 import com.opengamma.util.test.DbTest;
 
 /**
- * Test BloombergSecurityMasterLoader.
+ * Test BloombergSecurityLoader.
  */
 public class BloombergSecurityLoaderTest extends DbTest {
 
@@ -88,7 +91,7 @@ public class BloombergSecurityLoaderTest extends DbTest {
 
   private ConfigurableApplicationContext _context;
   private SecurityMaster _securityMaster;
-  private BloombergSecurityMasterLoader _securityLoader;
+  private BloombergSecurityLoader _securityLoader;
 
   /**
    * @param databaseType
@@ -109,7 +112,7 @@ public class BloombergSecurityLoaderTest extends DbTest {
     _context = context;
     BloombergBulkSecurityLoader bbgSecLoader = (BloombergBulkSecurityLoader) _context.getBean("bbgBulkSecurityLoader");
     _securityMaster = _context.getBean(getDatabaseType() + "DbSecurityMaster", SecurityMaster.class);
-    _securityLoader = new BloombergSecurityMasterLoader(_securityMaster, bbgSecLoader);
+    _securityLoader = new BloombergSecurityLoader(_securityMaster, bbgSecLoader);
   }
 
   @Override
@@ -439,6 +442,24 @@ public class BloombergSecurityLoaderTest extends DbTest {
         assertSecurity();
         return null;
       }
+
+	@Override
+	public Void visitSimpleZeroDepositSecurity(SimpleZeroDepositSecurity security) {
+		assertSecurity();
+		return null;
+	}
+
+	@Override
+	public Void visitPeriodicZeroDepositSecurity(PeriodicZeroDepositSecurity security) {
+		assertSecurity();
+		return null;
+	}
+
+	@Override
+	public Void visitContinuousZeroDepositSecurity(ContinuousZeroDepositSecurity security) {
+		assertSecurity();
+		return null;
+	}
 
     });
 

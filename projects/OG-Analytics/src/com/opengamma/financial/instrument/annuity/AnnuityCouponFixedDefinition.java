@@ -11,8 +11,6 @@ import java.util.List;
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
-import org.apache.commons.lang.Validate;
-
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.ActualActualICMA;
@@ -191,14 +189,14 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
   public static AnnuityCouponFixedDefinition fromAccrualUnadjusted(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Period period,
       final boolean stubShort, final boolean fromEnd, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM, final double notional,
       final double fixedRate, final boolean isPayer) {
-    Validate.notNull(currency, "currency");
-    Validate.notNull(settlementDate, "settlement date");
-    Validate.notNull(maturityDate, "maturity date");
-    Validate.notNull(period, "period");
-    Validate.notNull(calendar, "calendar");
-    Validate.notNull(dayCount, "day count");
-    Validate.notNull(businessDay, "business day convention");
-    Validate.isTrue(!(dayCount instanceof ActualActualICMA) | !(dayCount instanceof ActualActualICMANormal), "Coupon per year required for Actua lActual ICMA");
+    ArgumentChecker.notNull(currency, "currency");
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(maturityDate, "maturity date");
+    ArgumentChecker.notNull(period, "period");
+    ArgumentChecker.notNull(calendar, "calendar");
+    ArgumentChecker.notNull(dayCount, "day count");
+    ArgumentChecker.notNull(businessDay, "business day convention");
+    ArgumentChecker.isTrue(!(dayCount instanceof ActualActualICMA) | !(dayCount instanceof ActualActualICMANormal), "Coupon per year required for Actua lActual ICMA");
     final double sign = isPayer ? -1.0 : 1.0;
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, period, stubShort, fromEnd);
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar);
@@ -235,14 +233,14 @@ public class AnnuityCouponFixedDefinition extends AnnuityDefinition<CouponFixedD
   public static AnnuityCouponFixedDefinition fromAccrualUnadjusted(final Currency currency, final ZonedDateTime settlementDate, final ZonedDateTime maturityDate, final Period period,
       final int nbPaymentPerYear, final boolean stubShort, final boolean fromEnd, final Calendar calendar, final DayCount dayCount, final BusinessDayConvention businessDay, final boolean isEOM,
       final double notional, final double fixedRate, final boolean isPayer) {
-    Validate.notNull(currency, "currency");
-    Validate.notNull(settlementDate, "settlement date");
-    Validate.notNull(maturityDate, "maturity date");
-    Validate.notNull(period, "period");
-    Validate.isTrue(nbPaymentPerYear > 0, "need greater than zero payments per year");
-    Validate.notNull(calendar, "calendar");
-    Validate.notNull(dayCount, "day count");
-    Validate.notNull(businessDay, "business day convention");
+    ArgumentChecker.notNull(currency, "currency");
+    ArgumentChecker.notNull(settlementDate, "settlement date");
+    ArgumentChecker.notNull(maturityDate, "maturity date");
+    ArgumentChecker.notNull(period, "period");
+    ArgumentChecker.isTrue(nbPaymentPerYear > 0, "need greater than zero payments per year");
+    ArgumentChecker.notNull(calendar, "calendar");
+    ArgumentChecker.notNull(dayCount, "day count");
+    ArgumentChecker.notNull(businessDay, "business day convention");
     final double sign = isPayer ? -1.0 : 1.0;
     final ZonedDateTime[] paymentDatesUnadjusted = ScheduleCalculator.getUnadjustedDateSchedule(settlementDate, maturityDate, period, stubShort, fromEnd);
     final ZonedDateTime[] paymentDates = ScheduleCalculator.getAdjustedDateSchedule(paymentDatesUnadjusted, businessDay, calendar);

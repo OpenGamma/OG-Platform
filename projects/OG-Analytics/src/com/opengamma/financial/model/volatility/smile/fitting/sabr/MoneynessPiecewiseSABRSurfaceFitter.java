@@ -10,6 +10,7 @@ import static com.opengamma.math.FunctionUtils.square;
 import java.util.Arrays;
 
 import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
 import com.opengamma.financial.model.volatility.surface.Moneyness;
 import com.opengamma.math.function.Function;
@@ -26,7 +27,7 @@ import com.opengamma.util.serialization.InvokedSerializedForm;
  * 
  */
 public class MoneynessPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurfaceFitter1<Moneyness> {
-  private static final PiecewiseSABRFitter1 FITTER = new PiecewiseSABRFitter1();
+  private static final PiecewiseSABRFitter FITTER = new PiecewiseSABRFitter();
   private static final Interpolator1D EXTRAPOLATOR = CombinedInterpolatorExtrapolatorFactory.getInterpolator(Interpolator1DFactory.NATURAL_CUBIC_SPLINE, Interpolator1DFactory.LINEAR_EXTRAPOLATOR);
   private final boolean _useLogTime;
   private final boolean _useIntegratedVariance;

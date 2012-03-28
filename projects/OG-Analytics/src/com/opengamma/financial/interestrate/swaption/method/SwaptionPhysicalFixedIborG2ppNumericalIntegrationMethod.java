@@ -37,7 +37,7 @@ public class SwaptionPhysicalFixedIborG2ppNumericalIntegrationMethod implements 
   /**
    * Minimal number of integration steps in the integration.
    */
-  private static final int NB_INTEGRATION = 5;
+  private static final int NB_INTEGRATION = 50;
 
   /**
    * Computes the present value of the Physical delivery swaption through approximation..
@@ -72,9 +72,9 @@ public class SwaptionPhysicalFixedIborG2ppNumericalIntegrationMethod implements 
     double rhobar = rhog2pp * gamma[0][1] / Math.sqrt(gamma[0][0] * gamma[1][1]);
 
     final SwaptionIntegrant integrant = new SwaptionIntegrant(discountedCashFlow, alpha, tau2, rhobar);
-    final double limit = 10.0;
-    final double absoluteTolerance = 1.0E-0;
-    final double relativeTolerance = 1.0E-5;
+    final double limit = 12.0;
+    final double absoluteTolerance = 1.0E-1;
+    final double relativeTolerance = 1.0E-6;
     final RungeKuttaIntegrator1D integrator1D = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, NB_INTEGRATION);
     IntegratorRepeated2D integrator2D = new IntegratorRepeated2D(integrator1D);
     double pv = 0.0;

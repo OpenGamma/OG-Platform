@@ -65,6 +65,7 @@ $.register_module({
                         }
                     })
                 },
+                'import': og.views.common.toolbar.upload,
                 'delete': function () {
                     ui.dialog({
                         type: 'confirm',
@@ -148,8 +149,9 @@ $.register_module({
                         );
                         // Plot
                         common.gadgets.timeseries({
-                            selector: '.OG-timeseries .og-plots',
-                            id: result.data.template_data.object_id
+                            selector: '.OG-timeseries-gadget',
+                            id: result.data.template_data.object_id,
+                            datapoints: true
                         });
                         if (show_loading) view.notify(null);
                         setTimeout(view.layout.inner.resizeAll);
@@ -197,6 +199,7 @@ $.register_module({
                     'default':  {
                         buttons: [
                             {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'import', tooltip: 'Import Portfolio', enabled: 'OG-disabled'},
                             {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
                             {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
                             {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
@@ -206,6 +209,7 @@ $.register_module({
                     active: {
                         buttons: [
                             {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'import', tooltip: 'Import Portfolio', enabled: 'OG-disabled'},
                             {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
                             {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
                             {id: 'delete', tooltip: 'Delete', handler: toolbar_buttons['delete']}

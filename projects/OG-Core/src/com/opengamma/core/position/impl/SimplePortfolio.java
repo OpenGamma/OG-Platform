@@ -6,7 +6,6 @@
 package com.opengamma.core.position.impl;
 
 import java.io.Serializable;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
@@ -24,6 +23,7 @@ import org.joda.beans.impl.direct.DirectMetaBean;
 import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
+import com.google.common.collect.Maps;
 import com.opengamma.core.position.Portfolio;
 import com.opengamma.id.MutableUniqueIdentifiable;
 import com.opengamma.id.UniqueId;
@@ -56,9 +56,10 @@ public class SimplePortfolio extends DirectBean
   private SimplePortfolioNode _rootNode;
   /**
    * The general purpose portfolio attributes.
+   * These can be used to add arbitrary additional information to the object.
    */
-  @PropertyDefinition
-  private final Map<String, String> _attributes = new HashMap<String, String>();
+  @PropertyDefinition(validate = "notNull")
+  private final Map<String, String> _attributes = Maps.newHashMap();
 
   /**
    * Creates an instance.
@@ -133,12 +134,7 @@ public class SimplePortfolio extends DirectBean
   }
   
   //-------------------------------------------------------------------------
-  /**
-   * Adds a key value pair to attributes
-   * 
-   * @param key  the key to add, not null
-   * @param value  the value to add, not null
-   */
+  @Override
   public void addAttribute(String key, String value) {
     ArgumentChecker.notNull(key, "key");
     ArgumentChecker.notNull(value, "value");
@@ -258,6 +254,7 @@ public class SimplePortfolio extends DirectBean
     JodaBeanUtils.notNull(_uniqueId, "uniqueId");
     JodaBeanUtils.notNull(_name, "name");
     JodaBeanUtils.notNull(_rootNode, "rootNode");
+    JodaBeanUtils.notNull(_attributes, "attributes");
     super.validate();
   }
 
@@ -342,7 +339,8 @@ public class SimplePortfolio extends DirectBean
   //-----------------------------------------------------------------------
   /**
    * Gets the general purpose portfolio attributes.
-   * @return the value of the property
+   * These can be used to add arbitrary additional information to the object.
+   * @return the value of the property, not null
    */
   public Map<String, String> getAttributes() {
     return _attributes;
@@ -350,6 +348,7 @@ public class SimplePortfolio extends DirectBean
 
   /**
    * Sets the general purpose portfolio attributes.
+   * These can be used to add arbitrary additional information to the object.
    * @param attributes  the new value of the property
    */
   public void setAttributes(Map<String, String> attributes) {
@@ -359,6 +358,7 @@ public class SimplePortfolio extends DirectBean
 
   /**
    * Gets the the {@code attributes} property.
+   * These can be used to add arbitrary additional information to the object.
    * @return the property, not null
    */
   public final Property<Map<String, String>> attributes() {

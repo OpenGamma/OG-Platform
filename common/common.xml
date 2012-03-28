@@ -633,6 +633,10 @@
     depends="clean, clover-setup, compile, tests, clover-html-report">
 	</target>
 
+	<target name="publish-local-with-clover" description="build &amp; run all tests with local Clover reports generated"
+    depends="clean, clover-setup, publish-local">
+	</target>
+
 	<target name="deploy-dev" depends="upload-dev,kill-dev,extract-dev,start-dev" />
 
 	<target name="upload-dev" depends="zipfile" description="release the code to the dev server">

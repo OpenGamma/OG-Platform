@@ -5,7 +5,11 @@
  */
 package com.opengamma.web.server.push;
 
-import com.opengamma.util.tuple.Pair;
+import static org.testng.AssertJUnit.assertEquals;
+
+import java.io.IOException;
+import java.util.concurrent.ExecutionException;
+
 import org.eclipse.jetty.server.Server;
 import org.json.JSONException;
 import org.springframework.web.context.WebApplicationContext;
@@ -13,10 +17,7 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.util.concurrent.ExecutionException;
-
-import static org.testng.AssertJUnit.assertEquals;
+import com.opengamma.util.tuple.Pair;
 
 /**
  * Tests pushing results to a long polling HTTP connection.

@@ -28,7 +28,9 @@ import com.opengamma.financial.interestrate.bond.method.BillTransactionDiscounti
 import com.opengamma.financial.interestrate.bond.method.BondSecurityDiscountingMethod;
 import com.opengamma.financial.interestrate.bond.method.BondTransactionDiscountingMethod;
 import com.opengamma.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.financial.interestrate.cash.method.CashDiscountingMethod;
+import com.opengamma.financial.interestrate.cash.method.DepositZeroDiscountingMethod;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.fra.method.ForwardRateAgreementDiscountingMethod;
 import com.opengamma.financial.interestrate.future.derivative.BondFuture;
@@ -58,8 +60,8 @@ import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**
- * For an instrument, this calculates the sensitivity of the present value (PV) to points on the yield curve(s) (i.e. dPV/dR at every point the instrument has sensitivity). The return 
- * format is a map with curve names (String) as keys and List of DoublesPair as the values; each list holds set of time (corresponding to point of the yield curve) and sensitivity pairs 
+ * For an instrument, this calculates the sensitivity of the present value (PV) to points on the yield curve(s) (i.e. dPV/dR at every point the instrument has sensitivity). The return
+ * format is a map with curve names (String) as keys and List of DoublesPair as the values; each list holds set of time (corresponding to point of the yield curve) and sensitivity pairs
  * (i.e. dPV/dR at that time). <b>Note:</b> The length of the list is instrument dependent and may have repeated times (with the understanding the sensitivities should be summed).
  */
 public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDerivativeVisitor<YieldCurveBundle, Map<String, List<DoublesPair>>> {
@@ -89,6 +91,7 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
    */
   private static final CouponOISDiscountingMethod METHOD_OIS = new CouponOISDiscountingMethod();
   private static final CashDiscountingMethod METHOD_DEPOSIT = CashDiscountingMethod.getInstance();
+  private static final DepositZeroDiscountingMethod METHOD_DEPOSIT_ZERO = DepositZeroDiscountingMethod.getInstance();
   private static final BillSecurityDiscountingMethod METHOD_BILL_SECURITY = BillSecurityDiscountingMethod.getInstance();
   private static final BillTransactionDiscountingMethod METHOD_BILL_TRANSACTION = BillTransactionDiscountingMethod.getInstance();
 
@@ -103,6 +106,11 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
   }
 
   @Override
+  public Map<String, List<DoublesPair>> visitDepositZero(final DepositZero deposit, final YieldCurveBundle curves) {
+    return METHOD_DEPOSIT_ZERO.presentValueCurveSensitivity(deposit, curves).getSensitivities();
+  }
+
+  @Override
   public Map<String, List<DoublesPair>> visitForwardRateAgreement(final ForwardRateAgreement fra, final YieldCurveBundle curves) {
     final ForwardRateAgreementDiscountingMethod method = ForwardRateAgreementDiscountingMethod.getInstance();
     return method.presentValueCurveSensitivity(fra, curves).getSensitivities();
@@ -114,7 +122,7 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
    */
   @Override
   public Map<String, List<DoublesPair>> visitInterestRateFuture(final InterestRateFuture future, final YieldCurveBundle curves) {
-    InterestRateFutureDiscountingMethod method = InterestRateFutureDiscountingMethod.getInstance();
+    final InterestRateFutureDiscountingMethod method = InterestRateFutureDiscountingMethod.getInstance();
     return method.presentValueCurveSensitivity(future, curves).getSensitivities();
   }
 
@@ -183,16 +191,16 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
 
   @Override
   public Map<String, List<DoublesPair>> visitCrossCurrencySwap(final CrossCurrencySwap ccs, final YieldCurveBundle curves) {
-    Map<String, List<DoublesPair>> senseD = visit(ccs.getDomesticLeg(), curves);
-    Map<String, List<DoublesPair>> senseF = visit(ccs.getForeignLeg(), curves);
+    final Map<String, List<DoublesPair>> senseD = visit(ccs.getDomesticLeg(), curves);
+    final Map<String, List<DoublesPair>> senseF = visit(ccs.getForeignLeg(), curves);
     //Note the sensitivities subtract rather than add here because the CCS is set up as domestic FRN minus a foreign FRN
     return addSensitivity(senseD, multiplySensitivity(senseF, -ccs.getSpotFX()));
   }
 
   @Override
   public Map<String, List<DoublesPair>> visitForexForward(final ForexForward fx, final YieldCurveBundle curves) {
-    Map<String, List<DoublesPair>> senseP1 = visit(fx.getPaymentCurrency1(), curves);
-    Map<String, List<DoublesPair>> senseP2 = visit(fx.getPaymentCurrency2(), curves);
+    final Map<String, List<DoublesPair>> senseP1 = visit(fx.getPaymentCurrency1(), curves);
+    final Map<String, List<DoublesPair>> senseP2 = visit(fx.getPaymentCurrency2(), curves);
     //Note the sensitivities add rather than subtract here because the FX Forward is set up as a notional in one currency PLUS a notional in another  with the  opposite sign
     return InterestRateCurveSensitivityUtils.addSensitivity(senseP1, multiplySensitivity(senseP2, fx.getSpotForexRate()));
   }
@@ -271,7 +279,7 @@ public class PresentValueCurveSensitivityCalculator extends AbstractInstrumentDe
   @Override
   public Map<String, List<DoublesPair>> visitCouponOIS(final CouponOIS payment, final YieldCurveBundle data) {
 
-    Map<String, List<DoublesPair>> result = METHOD_OIS.presentValueCurveSensitivity(payment, data).getSensitivities();
+    final Map<String, List<DoublesPair>> result = METHOD_OIS.presentValueCurveSensitivity(payment, data).getSensitivities();
 
     return result;
   }

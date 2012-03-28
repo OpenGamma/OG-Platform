@@ -69,6 +69,7 @@ $.register_module({
                         'Cancel': function () {$(this).dialog('close');}
                     }
                 })},
+                'import': og.views.common.toolbar.upload,
                 'delete': function () {ui.dialog({
                     type: 'confirm',
                     title: 'Delete Security?',
@@ -167,7 +168,7 @@ $.register_module({
                             $('.OG-layout-admin-details-north').empty();
                         }
                         if (json.template_data.hts_id || args.timeseries) common.gadgets.timeseries({
-                            selector: '.OG-js-details-panel .og-js-timeseries',
+                            selector: '.OG-timeseries-gadget',
                             id: json.template_data.hts_id || args.timeseries
                         });
                         if (show_loading) view.notify(null);
@@ -209,6 +210,7 @@ $.register_module({
                     'default': {
                         buttons: [
                             {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'import', tooltip: 'Import Portfolio', enabled: 'OG-disabled'},
                             {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
                             {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
                             {id: 'delete', tooltip: 'Delete', enabled: 'OG-disabled'}
@@ -218,6 +220,7 @@ $.register_module({
                     active: {
                         buttons: [
                             {id: 'new', tooltip: 'New', handler: toolbar_buttons['new']},
+                            {id: 'import', tooltip: 'Import Portfolio', enabled: 'OG-disabled'},
                             {id: 'save', tooltip: 'Save', enabled: 'OG-disabled'},
                             {id: 'saveas', tooltip: 'Save as', enabled: 'OG-disabled'},
                             {id: 'delete', tooltip: 'Delete', divider: true, handler: toolbar_buttons['delete']},

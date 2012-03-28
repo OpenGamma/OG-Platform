@@ -43,6 +43,12 @@ public class PeriodicInterestRate extends InterestRate {
   }
 
   @Override
+  public double fromContinuousDerivative(final ContinuousInterestRate continuous) {
+    Validate.notNull(continuous);
+    return Math.exp(continuous.getRate() / getCompoundingPeriodsPerYear());
+  }
+
+  @Override
   public InterestRate fromPeriodic(final PeriodicInterestRate periodic) {
     Validate.notNull(periodic, "periodic");
     final int n = periodic.getCompoundingPeriodsPerYear();

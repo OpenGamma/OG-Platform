@@ -15,7 +15,7 @@ import com.opengamma.examples.loader.ExampleMultiCurrencySwapPortfolioLoader;
 import com.opengamma.examples.loader.ExampleSwapPortfolioLoader;
 import com.opengamma.examples.loader.ExampleTimeSeriesRatingLoader;
 import com.opengamma.examples.loader.ExampleViewsPopulater;
-import com.opengamma.financial.portfolio.loader.PortfolioLoaderHelper;
+import com.opengamma.examples.loader.PortfolioLoaderHelper;
 import com.opengamma.util.money.Currency;
 
 /**

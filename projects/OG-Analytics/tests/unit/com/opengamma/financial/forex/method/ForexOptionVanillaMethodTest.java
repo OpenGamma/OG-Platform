@@ -8,6 +8,8 @@ package com.opengamma.financial.forex.method;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Map;
+
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -22,6 +24,7 @@ import com.opengamma.financial.forex.calculator.CurrencyExposureBlackForexCalcul
 import com.opengamma.financial.forex.calculator.ForwardRateForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueBlackForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityBlackForexCalculator;
+import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityConvertedForexCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueForexVegaQuoteSensitivityCalculator;
 import com.opengamma.financial.forex.calculator.PresentValueVolatilitySensitivityBlackForexCalculator;
 import com.opengamma.financial.forex.definition.ForexDefinition;
@@ -29,6 +32,8 @@ import com.opengamma.financial.forex.definition.ForexOptionVanillaDefinition;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.forex.derivative.ForexOptionVanilla;
 import com.opengamma.financial.interestrate.InstrumentDerivative;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
+import com.opengamma.financial.interestrate.InterestRateCurveSensitivityUtils;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.interestrate.curve.YieldCurve;
@@ -86,13 +91,15 @@ public class ForexOptionVanillaMethodTest {
   // Methods and curves
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
   private static final String[] CURVES_NAME = TestsDataSetsForex.curveNames();
-  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(CURVES, FX_MATRIX, SMILE_TERM, Pair.of(EUR, USD));
+  private static final Map<String, Currency> CURVE_CURRENCY = TestsDataSetsForex.curveCurrency();
+  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(FX_MATRIX, CURVE_CURRENCY, CURVES, SMILE_TERM, Pair.of(EUR, USD));
   private static final BlackPriceFunction BLACK_FUNCTION = new BlackPriceFunction();
   private static final ForexOptionVanillaBlackMethod METHOD_OPTION = ForexOptionVanillaBlackMethod.getInstance();
   private static final ForexDiscountingMethod METHOD_DISC = ForexDiscountingMethod.getInstance();
   private static final PresentValueBlackForexCalculator PVC_BLACK = PresentValueBlackForexCalculator.getInstance();
   private static final CurrencyExposureBlackForexCalculator CEC_BLACK = CurrencyExposureBlackForexCalculator.getInstance();
   private static final PresentValueCurveSensitivityBlackForexCalculator PVCSC_BLACK = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
+  private static final PresentValueCurveSensitivityConvertedForexCalculator PVCSCC_BLACK = new PresentValueCurveSensitivityConvertedForexCalculator(PVCSC_BLACK);
   private static final PresentValueVolatilitySensitivityBlackForexCalculator PVVSC_BLACK = PresentValueVolatilitySensitivityBlackForexCalculator.getInstance();
   // option
   private static final double STRIKE = 1.45;
@@ -582,6 +589,30 @@ public class ForexOptionVanillaMethodTest {
     for (int loopexp = 0; loopexp < NB_EXP; loopexp++) {
       ArrayAsserts.assertArrayEquals("Forex option - quote sensitivity", sensiMethod[loopexp], sensiCalculator[loopexp], 1.0E-10);
     }
+  }
+
+  private static final double TOLERANCE_DELTA = 1.0E-0;
+
+  @Test
+  /**
+   * Tests the present value curve sensitivity.
+   */
+  public void presentValueCurveSensitivityConverted() {
+    final double strike = 1.45;
+    final boolean isCall = true;
+    final boolean isLong = true;
+    final double notional = 100000000;
+    final ZonedDateTime payDate = ScheduleCalculator.getAdjustedDate(REFERENCE_DATE, Period.ofMonths(9), BUSINESS_DAY, CALENDAR);
+    final ZonedDateTime expDate = ScheduleCalculator.getAdjustedDate(payDate, -SETTLEMENT_DAYS, CALENDAR);
+    final ForexDefinition forexUnderlyingDefinition = new ForexDefinition(EUR, USD, payDate, notional, strike);
+    final ForexOptionVanillaDefinition forexOptionDefinitionCall = new ForexOptionVanillaDefinition(forexUnderlyingDefinition, expDate, isCall, isLong);
+    final ForexOptionVanilla forexOptionCall = forexOptionDefinitionCall.toDerivative(REFERENCE_DATE, CURVES_NAME);
+    final MultipleCurrencyInterestRateCurveSensitivity sensi = PVCSC_BLACK.visit(forexOptionCall, SMILE_BUNDLE);
+    final InterestRateCurveSensitivity sensiConverted = PVCSCC_BLACK.visit(forexOptionCall, SMILE_BUNDLE);
+    InterestRateCurveSensitivity sensiComp = new InterestRateCurveSensitivity();
+    sensiComp = sensiComp.plus(CURVES_NAME[1], sensi.getSensitivity(USD).getSensitivities().get(CURVES_NAME[1]));
+    sensiComp = sensiComp.plus(CURVES_NAME[0], InterestRateCurveSensitivityUtils.multiplySensitivity(sensi.getSensitivity(USD).getSensitivities().get(CURVES_NAME[0]), SPOT));
+    assertTrue("Forex Option: present value curve sensitivity converted", InterestRateCurveSensitivity.compare(sensiConverted, sensiComp, TOLERANCE_DELTA));
   }
 
 }

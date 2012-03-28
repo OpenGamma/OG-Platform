@@ -28,13 +28,16 @@ import com.opengamma.financial.analytics.conversion.SwapSecurityUtils;
 import com.opengamma.financial.analytics.fixedincome.InterestRateInstrumentType;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
-import com.opengamma.financial.analytics.model.forex.ForexOptionFunction;
+import com.opengamma.financial.analytics.model.forex.ForexOptionBlackFunction;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.financial.security.FinancialSecurityVisitor;
 import com.opengamma.financial.security.bond.BondSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.cash.CashSecurity;
+import com.opengamma.financial.security.deposit.ContinuousZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.PeriodicZeroDepositSecurity;
+import com.opengamma.financial.security.deposit.SimpleZeroDepositSecurity;
 import com.opengamma.financial.security.equity.EquitySecurity;
 import com.opengamma.financial.security.equity.EquityVarianceSwapSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;
@@ -261,15 +264,15 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
   public Set<Pair<String, ValueProperties>> visitFXOptionSecurity(final FXOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
         .add(getFXPresentValue(ValueProperties
-            .with(ForexOptionFunction.PROPERTY_PUT_FUNDING_CURVE_NAME, getFundingCurve())
-            .with(ForexOptionFunction.PROPERTY_PUT_FORWARD_CURVE_NAME, getForwardCurve(security.getPutCurrency()))
-            .with(ForexOptionFunction.PROPERTY_CALL_FUNDING_CURVE_NAME, getFundingCurve())
-            .with(ForexOptionFunction.PROPERTY_CALL_FORWARD_CURVE_NAME, getForwardCurve(security.getCallCurrency()))))
+            .with(ForexOptionBlackFunction.PROPERTY_PUT_FUNDING_CURVE_NAME, getFundingCurve())
+            .with(ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE_NAME, getForwardCurve(security.getPutCurrency()))
+            .with(ForexOptionBlackFunction.PROPERTY_CALL_FUNDING_CURVE_NAME, getFundingCurve())
+            .with(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE_NAME, getForwardCurve(security.getCallCurrency()))))
             .add(getFXCurrencyExposure(ValueProperties
-                .with(ForexOptionFunction.PROPERTY_PUT_FUNDING_CURVE_NAME, getFundingCurve())
-                .with(ForexOptionFunction.PROPERTY_PUT_FORWARD_CURVE_NAME, getForwardCurve(security.getPutCurrency()))
-                .with(ForexOptionFunction.PROPERTY_CALL_FUNDING_CURVE_NAME, getFundingCurve())
-                .with(ForexOptionFunction.PROPERTY_CALL_FORWARD_CURVE_NAME, getForwardCurve(security.getCallCurrency()))))
+                .with(ForexOptionBlackFunction.PROPERTY_PUT_FUNDING_CURVE_NAME, getFundingCurve())
+                .with(ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE_NAME, getForwardCurve(security.getPutCurrency()))
+                .with(ForexOptionBlackFunction.PROPERTY_CALL_FUNDING_CURVE_NAME, getFundingCurve())
+                .with(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE_NAME, getForwardCurve(security.getCallCurrency()))))
                 .add(getVegaMatrix(ValueProperties
                     .with(ValuePropertyNames.SURFACE, "DEFAULT") //TODO this should not be hard-coded
                     .with(ValuePropertyNames.PAY_CURVE, getFundingCurve())
@@ -350,15 +353,15 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
   public Set<Pair<String, ValueProperties>> visitFXBarrierOptionSecurity(final FXBarrierOptionSecurity security) {
     return ImmutableSet.<Pair<String, ValueProperties>>builder()
         .add(getFXPresentValue(ValueProperties
-            .with(ForexOptionFunction.PROPERTY_PUT_FUNDING_CURVE_NAME, getFundingCurve())
-            .with(ForexOptionFunction.PROPERTY_PUT_FORWARD_CURVE_NAME, getForwardCurve(security.getPutCurrency()))
-            .with(ForexOptionFunction.PROPERTY_CALL_FUNDING_CURVE_NAME, getFundingCurve())
-            .with(ForexOptionFunction.PROPERTY_CALL_FORWARD_CURVE_NAME, getForwardCurve(security.getCallCurrency()))))
+            .with(ForexOptionBlackFunction.PROPERTY_PUT_FUNDING_CURVE_NAME, getFundingCurve())
+            .with(ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE_NAME, getForwardCurve(security.getPutCurrency()))
+            .with(ForexOptionBlackFunction.PROPERTY_CALL_FUNDING_CURVE_NAME, getFundingCurve())
+            .with(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE_NAME, getForwardCurve(security.getCallCurrency()))))
             .add(getFXCurrencyExposure(ValueProperties
-                .with(ForexOptionFunction.PROPERTY_PUT_FUNDING_CURVE_NAME, getFundingCurve())
-                .with(ForexOptionFunction.PROPERTY_PUT_FORWARD_CURVE_NAME, getForwardCurve(security.getPutCurrency()))
-                .with(ForexOptionFunction.PROPERTY_CALL_FUNDING_CURVE_NAME, getFundingCurve())
-                .with(ForexOptionFunction.PROPERTY_CALL_FORWARD_CURVE_NAME, getForwardCurve(security.getCallCurrency()))))
+                .with(ForexOptionBlackFunction.PROPERTY_PUT_FUNDING_CURVE_NAME, getFundingCurve())
+                .with(ForexOptionBlackFunction.PROPERTY_PUT_FORWARD_CURVE_NAME, getForwardCurve(security.getPutCurrency()))
+                .with(ForexOptionBlackFunction.PROPERTY_CALL_FUNDING_CURVE_NAME, getFundingCurve())
+                .with(ForexOptionBlackFunction.PROPERTY_CALL_FORWARD_CURVE_NAME, getForwardCurve(security.getCallCurrency()))))
                 .add(getVegaMatrix(ValueProperties.with(ValuePropertyNames.SURFACE, "DEFAULT")))
                 .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getCallCurrency()))
                 .add(getYieldCurveNodeSensitivities(getFundingCurve(), security.getPutCurrency()))
@@ -501,6 +504,21 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
         getPresentValue(ValueProperties.builder()));
   }
 
+  @Override
+  public Set<Pair<String, ValueProperties>> visitSimpleZeroDepositSecurity(final SimpleZeroDepositSecurity security) {
+    return ImmutableSet.of();
+  }
+
+  @Override
+  public Set<Pair<String, ValueProperties>> visitPeriodicZeroDepositSecurity(final PeriodicZeroDepositSecurity security) {
+    return ImmutableSet.of();
+  }
+
+  @Override
+  public Set<Pair<String, ValueProperties>> visitContinuousZeroDepositSecurity(final ContinuousZeroDepositSecurity security) {
+    return ImmutableSet.of();
+  }
+
   //-------------------------------------------------------------------------
   private Pair<String, ValueProperties> getYieldCurveNodeSensitivities(final String curve, final Currency currency) {
     final ValueProperties.Builder constraints = ValueProperties
@@ -604,5 +622,6 @@ public class DefaultRiskFactorsGatherer implements RiskFactorsGatherer, Financia
   private RiskFactorsConfigurationProvider getConfigProvider() {
     return _configProvider;
   }
+
 
 }

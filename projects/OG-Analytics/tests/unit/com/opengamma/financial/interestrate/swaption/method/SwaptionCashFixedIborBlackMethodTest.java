@@ -27,10 +27,10 @@ import com.opengamma.financial.interestrate.BlackSwaptionSensitivityNodeCalculat
 import com.opengamma.financial.interestrate.FDCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.InterestRateCurveSensitivity;
 import com.opengamma.financial.interestrate.ParRateCalculator;
-import com.opengamma.financial.interestrate.PresentValueBlackSwaptionCalculator;
+import com.opengamma.financial.interestrate.PresentValueBlackCalculator;
 import com.opengamma.financial.interestrate.PresentValueBlackSwaptionSensitivity;
-import com.opengamma.financial.interestrate.PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator;
-import com.opengamma.financial.interestrate.PresentValueCurveSensitivityBlackSwaptionCalculator;
+import com.opengamma.financial.interestrate.PresentValueBlackSwaptionSensitivityBlackCalculator;
+import com.opengamma.financial.interestrate.PresentValueCurveSensitivityBlackCalculator;
 import com.opengamma.financial.interestrate.TestsDataSetsBlack;
 import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.financial.interestrate.payments.CouponIbor;
@@ -72,9 +72,9 @@ public class SwaptionCashFixedIborBlackMethodTest {
   private static final double TOLERANCE_DELTA = 1.0E+2;
   //Testing note: Sensitivity is for a movement of 1. 1E+2 = 1 cent for a 1 bp move.
   private static final SwaptionCashFixedIborBlackMethod METHOD_BLACK = SwaptionCashFixedIborBlackMethod.getInstance();
-  private static final PresentValueBlackSwaptionCalculator PVC_BLACK = PresentValueBlackSwaptionCalculator.getInstance();
-  private static final PresentValueCurveSensitivityBlackSwaptionCalculator PVCSC_BLACK = PresentValueCurveSensitivityBlackSwaptionCalculator.getInstance();
-  private static final PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator PVBSC_BLACK = PresentValueBlackSwaptionSensitivityBlackSwaptionCalculator.getInstance();
+  private static final PresentValueBlackCalculator PVC_BLACK = PresentValueBlackCalculator.getInstance();
+  private static final PresentValueCurveSensitivityBlackCalculator PVCSC_BLACK = PresentValueCurveSensitivityBlackCalculator.getInstance();
+  private static final PresentValueBlackSwaptionSensitivityBlackCalculator PVBSC_BLACK = PresentValueBlackSwaptionSensitivityBlackCalculator.getInstance();
   private static final ParRateCalculator PRC = ParRateCalculator.getInstance();
   private static final BlackSwaptionSensitivityNodeCalculator BSSNC = new BlackSwaptionSensitivityNodeCalculator();
   private static final SwapFixedDiscountingMethod METHOD_SWAP = SwapFixedDiscountingMethod.getInstance();
@@ -110,7 +110,7 @@ public class SwaptionCashFixedIborBlackMethodTest {
    */
   public void presentValueCurveSensitivity() {
     InterestRateCurveSensitivity pvcsSwaption = METHOD_BLACK.presentValueCurveSensitivity(SWAPTION_LONG_REC, CURVES_BLACK);
-    pvcsSwaption = pvcsSwaption.clean();
+    pvcsSwaption = pvcsSwaption.cleaned();
     // 1. Forward curve sensitivity
     DoubleAVLTreeSet forwardTime = new DoubleAVLTreeSet();
     for (int loopcpn = 0; loopcpn < SWAPTION_LONG_REC.getUnderlyingSwap().getSecondLeg().getNumberOfPayments(); loopcpn++) {

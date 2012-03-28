@@ -1,3 +1,0 @@
-Expiry,"number of contracts","Trading Exchange","Settlement Exchange",Currency,"Unit Amount","Settlement Date","Underlying ID","Name","BBG Code"
-15/12/2011,"-80",CME,CME,USD,250.00,16/12/2011,"SPX Index","S&P 500 FUTURE Dec11","SPZ1 Index"
-15/12/2012,"75",CME,CME,USD,250.00,16/12/2012,"SPX Index","S&P 500 FUTURE Dec12","SPZ2 Index"

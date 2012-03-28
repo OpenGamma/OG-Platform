@@ -1,0 +1,140 @@
+<project name="og-bloombergexample" default="compile" xmlns:ivy="antlib:org.apache.ivy.ant">
+	
+	<property file="build.properties" />
+
+	<import file="${common.dir}/common.xml" />
+
+	<property name="webapp.dir" value="${lib.dir}/webapp/com.opengamma/og-web" />
+	<property name="sql.dir" value="${lib.dir}/sql/com.opengamma/og-masterdb" />
+
+	<target name="new-hsqldb" depends="jetty-stop, resolve" description="creates a new hsql database">
+		<unzip dest="${basedir}/temp" overwrite="true">
+			<fileset dir="${sql.dir}">
+				<include name="*.zip" />
+			</fileset>
+		</unzip>
+
+		<new-hsqldb-db path="${basedir}/install/db/hsqldb/example-db" scriptdir="${basedir}/temp" catalog="og-financial" />
+		<new-hsqldb-db path="${basedir}/temp/hsqldb/og-fin-user" scriptdir="${basedir}/temp" catalog="og-financial" />
+	</target>
+
+	<!-- NOTE jonathan 2011-02-04 - Note that that the following Jetty targets operate only on web-engine, not web-marketdata -->
+
+	<target name="jetty-resolve" depends="load-ivy">
+		<ivy:resolve inline="true" organisation="org.eclipse" module="jetty" revision="7.0.1+" conf="start" />
+		<ivy:retrieve pattern="${lib.dir}/[type]/[organization]/[module]/[artifact]-[revision].[ext]" />
+	</target>
+
+	<target name="jetty-properties" depends="jetty-resolve">
+		<property name="jetty.spawn" value="true" />
+		<property name="jetty.stopport" value="8079" />
+		<property name="jetty.stopkey" value="OpenGamma" />
+		<property name="jetty.config" value="standalone" />
+		<property name="jvm.xms" value="1024m" />
+		<property name="jvm.xmx" value="4096m" />
+		<path id="jetty.start.path">
+			<fileset dir="${lib.dir}/jar/org.eclipse/jetty">
+				<include name="jetty-start-*.jar" />
+			</fileset>
+		</path>
+		<property name="jetty.start" value="${toString:jetty.start.path}" />
+	</target>
+
+	<path id="jetty.run.path">
+		<pathelement path="${basedir}/config" />
+		<path refid="run.path.id" />
+		<fileset dir="${lib.dir}/resource/com.opengamma/og-component">
+			<include name="*.zip" />
+		</fileset>
+		<fileset dir="${lib.dir}/resource/com.opengamma/og-financial">
+			<include name="*.zip" />
+		</fileset>
+		<fileset dir="${lib.dir}/resource/com.opengamma/og-web">
+			<include name="*.zip" />
+		</fileset>
+	</path>
+
+	<target name="jetty-debug" depends="compile-src,jetty-stop" description="same as 'jetty' but block waiting for output">
+		<java classpathref="jetty.run.path" classname="com.opengamma.component.OpenGammaComponentServer" fork="true" spawn="false">
+			<jvmarg value="-Dlogback.configurationFile=com/opengamma/util/test/warn-logback.xml" />
+			<jvmarg value="-Dcommandmonitor.port=${jetty.stopport}" />
+			<jvmarg value="-Dcommandmonitor.secret=${jetty.stopkey}" />
+			<jvmarg value="-Xms${jvm.xms}" />
+			<jvmarg value="-Xmx${jvm.xmx}" />
+			<arg value="-v" />
+			<arg value="classpath:fullstack${file.separator}fullstack-example-dev.properties" />
+		</java>
+	</target>
+
+	<target name="jetty" depends="compile-src,jetty-stop" description="start the server using the project web-engine folder">
+		<java classpath="${toString:jetty.run.path}" classname="com.opengamma.component.OpenGammaComponentServer" fork="true" spawn="${jetty.spawn}">
+			<jvmarg value="-Dlogback.configurationFile=${junit.logback}" />
+			<jvmarg value="-Dcommandmonitor.port=${jetty.stopport}" />
+			<jvmarg value="-Dcommandmonitor.secret=${jetty.stopkey}" />
+			<jvmarg value="-Xms${jvm.xms}" />
+			<jvmarg value="-Xmx${jvm.xmx}" />
+			<arg value="-v" />
+			<arg value="classpath:fullstack${file.separator}fullstack-example-dev.properties" />
+		</java>
+	</target>
+
+	<target name="jetty-stop" depends="jetty-properties" description="stop the current Jetty runner">
+		<java classpath="${toString:jetty.run.path}" classname="com.opengamma.component.OpenGammaComponentServerMonitor" fork="true" outputproperty="jetty.stop.output">
+			<jvmarg value="-Dcommandmonitor.secret=${jetty.stopkey}" />
+			<jvmarg value="-Dcommandmonitor.port=${jetty.stopport}" />
+			<arg value="exit" />
+		</java>
+		<condition property="jetty.stop.status" value="Stopping Jetty server (stop port ${jetty.stopport})" else="">
+			<not>
+				<contains string="${jetty.stop.output}" substring="ERROR" />
+			</not>
+		</condition>
+		<echo>${jetty.stop.status}</echo>
+	</target>
+
+	<target name="init-database" depends="compile-src,jetty-stop" description="initialize example portfolio and view in database">
+		<java classname="com.opengamma.bloombergexample.tool.ExampleDatabasePopulater" classpathref="jetty.run.path" failonerror="true" fork="true">
+			<jvmarg value="-Dlogback.configurationFile=${jetty.logback}" />
+			<jvmarg value="-Xms${jvm.xms}" />
+			<jvmarg value="-Xmx${jvm.xmx}" />
+		</java>
+	</target>
+
+	<target name="dist-common" depends="common.dist-common">
+
+		<copy todir="${dist.dir}/${dist.name}" overwrite="true">
+			<fileset dir="${basedir}/install/docs">
+				<include name="LICENSE.txt" />
+				<include name="README.txt" />
+			</fileset>
+		</copy>
+
+		<unzip dest="${dist.dir}/${dist.name}" overwrite="false">
+			<fileset dir="${webapp.dir}">
+				<include name="*.zip" />
+			</fileset>
+		</unzip>
+
+		<unzip dest="${dist.dir}/${dist.name}" overwrite="false">
+			<fileset dir="${sql.dir}">
+				<include name="*.zip" />
+			</fileset>
+		</unzip>
+
+		<delete dir="${dist.dir}/${dist.name}/lib/webapp" failonerror="false" />
+		<delete dir="${dist.dir}/${dist.name}/lib/sql" failonerror="false" />
+
+		<!--
+		<copy todir="${dist.dir}/${dist.name}/install/db/hsqldb" failonerror="true">
+			<fileset dir="${basedir}/install/db/hsqldb">
+				<include name="**/*" />
+			</fileset>
+		</copy>
+		-->
+	</target>
+
+	<target name="ivy-report" description="generate ivy dependency report" depends="publish-local">
+		<ivy:report organisation="com.opengamma" module="og-bloombergexample" dot="true" />
+	</target>
+	
+</project>

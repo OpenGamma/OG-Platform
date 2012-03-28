@@ -9,6 +9,7 @@ import java.util.Arrays;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.financial.model.volatility.smile.fitting.interpolation.SurfaceArrayUtils;
 import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.financial.model.volatility.surface.Strike;
 import com.opengamma.math.MathException;
@@ -20,7 +21,7 @@ import com.opengamma.math.surface.FunctionalDoublesSurface;
  * 
  */
 public class LinearPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurfaceFitter1<Strike> {
-  private static final PiecewiseSABRFitter1 FITTER = new PiecewiseSABRFitter1();
+  private static final PiecewiseSABRFitter FITTER = new PiecewiseSABRFitter();
 
   /**
    * For a given expiry and strike, perform a linear interpolation between the integrated variances of points with

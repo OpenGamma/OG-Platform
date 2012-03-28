@@ -7,6 +7,8 @@ package com.opengamma.financial.model.volatility.smile.fitting.sabr;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.model.volatility.smile.fitting.interpolation.WeightingFunction;
+
 /**
  * 
  */

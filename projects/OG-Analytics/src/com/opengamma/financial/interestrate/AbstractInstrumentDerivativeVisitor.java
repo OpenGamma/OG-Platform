@@ -29,6 +29,7 @@ import com.opengamma.financial.interestrate.bond.definition.BondIborTransaction;
 import com.opengamma.financial.interestrate.cash.derivative.Cash;
 import com.opengamma.financial.interestrate.cash.derivative.DepositCounterpart;
 import com.opengamma.financial.interestrate.cash.derivative.DepositIbor;
+import com.opengamma.financial.interestrate.cash.derivative.DepositZero;
 import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
 import com.opengamma.financial.interestrate.future.derivative.BondFuture;
 import com.opengamma.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
@@ -649,12 +650,22 @@ public abstract class AbstractInstrumentDerivativeVisitor<S, T> implements Instr
 
   @Override
   public T visitDepositCounterpart(final DepositCounterpart deposit, final S data) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositIbor()");
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositCounterpart()");
   }
 
   @Override
   public T visitDepositCounterpart(final DepositCounterpart deposit) {
-    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositIbor()");
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositCounterpart()");
+  }
+
+  @Override
+  public T visitDepositZero(final DepositZero deposit, final S data) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositZero()");
+  }
+
+  @Override
+  public T visitDepositZero(final DepositZero deposit) {
+    throw new UnsupportedOperationException("This visitor (" + this.getClass() + ") does not support visitDepositZero()");
   }
 
 }

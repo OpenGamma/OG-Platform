@@ -18,7 +18,7 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.instrument.index.iborindex.EURIBOR3M;
+import com.opengamma.financial.instrument.index.iborindex.IndexIborTestsMaster;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
 import com.opengamma.financial.schedule.ScheduleCalculator;
@@ -30,7 +30,7 @@ import com.opengamma.util.time.DateUtils;
 public class InterestRateFutureOptionPremiumSecurityDefinitionTest {
 
   private static final Calendar CALENDAR = new MondayToFridayCalendar("TARGET");
-  private static final IborIndex IBOR_INDEX = new EURIBOR3M(CALENDAR);
+  private static final IborIndex IBOR_INDEX = IndexIborTestsMaster.getInstance().getIndex("EURIBOR3M", CALENDAR);
 
   // Future option mid-curve 1Y
   private static final ZonedDateTime SPOT_LAST_TRADING_DATE = DateUtils.getUTCDate(2012, 9, 19);

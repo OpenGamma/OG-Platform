@@ -7,13 +7,15 @@ package com.opengamma.financial.model.volatility.smile.fitting.sabr;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.financial.model.volatility.smile.fitting.interpolation.LinearWeightingFunction;
+
 
 /**
  * 
  */
 public class PiecewiseSABRFitter1Test {
   private static final double BETA = 0.75;
-  private static final PiecewiseSABRFitter1 FITTER = new PiecewiseSABRFitter1();
+  private static final PiecewiseSABRFitter FITTER = new PiecewiseSABRFitter();
   private static final double FORWARD = 1172.011012;
   private static final double EXPIRY = 1.5;
   private static final double[] STRIKES = new double[] {782.9777301, 982.3904005, 1242.99164, 1547.184937, 1854.305534 };
@@ -21,17 +23,17 @@ public class PiecewiseSABRFitter1Test {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testLowBeta() {
-    new PiecewiseSABRFitter1(-1, LinearWeightingFunction.getInstance());
+    new PiecewiseSABRFitter(-1, LinearWeightingFunction.getInstance());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testHighBeta() {
-    new PiecewiseSABRFitter1(1 + 1e-15, LinearWeightingFunction.getInstance());
+    new PiecewiseSABRFitter(1 + 1e-15, LinearWeightingFunction.getInstance());
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullWeightingFunction() {
-    new PiecewiseSABRFitter1(BETA, null);
+    new PiecewiseSABRFitter(BETA, null);
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

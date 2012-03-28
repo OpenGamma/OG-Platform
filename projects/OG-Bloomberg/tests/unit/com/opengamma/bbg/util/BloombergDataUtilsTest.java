@@ -59,7 +59,7 @@ public class BloombergDataUtilsTest {
       "BLOOMBERG_TCM~BLOOMBERG_TCM 1234"};
   
   @BeforeMethod
-  public void setupBloombergSecurityMaster(Method m) {
+  public void setupBloombergSecuritySource(Method m) {
     _refDataProvider = BloombergLiveDataServerUtils.getCachingReferenceDataProvider(m);
   }
   

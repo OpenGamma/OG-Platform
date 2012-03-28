@@ -46,7 +46,7 @@ $.register_module({
                         interpolator: master[INTR]
                     },
                     processor: function (data) {
-                        data.strip = data.strip.filter(function (v) {return v !== undefined;}); // remove undefineds
+                        data.strip = data.strip.filter(function (v) {return v !== void 0;}); // remove undefineds
                     }
                 }),
                 form_id = '#' + form.id,
@@ -117,7 +117,7 @@ $.register_module({
                     ';
                     $('.OG-layout-admin-details-center .ui-layout-header').html(header);
                     $(form_id + ' [name=currency]').val(master.currency);
-                    load_handler(form);
+                    setTimeout(load_handler.partial(form));
                 }},
                 {type: 'form:submit', handler: save_resource},
                 {type: 'change', selector: form_id + ' [name=currency]', handler: function (e) {
@@ -137,7 +137,7 @@ $.register_module({
                 {type: 'click', selector: form_id + ' .og-js-rem', handler: function (e) { // remove a strip
                     var $el = $(e.target).parents('.og-js-strip:first'),
                         data_idx = $el.find('input').attr('name').split('.').slice(1, -1);
-                        master.strip[data_idx] = undefined;
+                        master.strip[data_idx] = void 0;
                         $el.remove();
                 }},
                 {type: 'click', selector: form_id + ' .og-js-add', handler: function (e) { // add a strip

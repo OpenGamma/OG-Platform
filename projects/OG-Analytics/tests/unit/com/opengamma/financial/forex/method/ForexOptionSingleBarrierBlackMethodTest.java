@@ -8,6 +8,8 @@ package com.opengamma.financial.forex.method;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertTrue;
 
+import java.util.Map;
+
 import javax.time.calendar.Period;
 import javax.time.calendar.ZonedDateTime;
 
@@ -83,7 +85,8 @@ public class ForexOptionSingleBarrierBlackMethodTest {
   // Methods and curves
   private static final YieldCurveBundle CURVES = TestsDataSetsForex.createCurvesForex();
   private static final String[] CURVES_NAME = CURVES.getAllNames().toArray(new String[0]);
-  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(CURVES, FX_MATRIX, SMILE_TERM, Pair.of(CUR_1, CUR_2));
+  private static final Map<String, Currency> CURVE_CURRENCY = TestsDataSetsForex.curveCurrency();
+  private static final SmileDeltaTermStructureDataBundle SMILE_BUNDLE = new SmileDeltaTermStructureDataBundle(FX_MATRIX, CURVE_CURRENCY, CURVES, SMILE_TERM, Pair.of(CUR_1, CUR_2));
   private static final ForexOptionVanillaBlackMethod METHOD_VANILLA = ForexOptionVanillaBlackMethod.getInstance();
   private static final ForexOptionSingleBarrierBlackMethod METHOD_BARRIER = ForexOptionSingleBarrierBlackMethod.getInstance();
   private static final BlackBarrierPriceFunction BLACK_BARRIER_FUNCTION = BlackBarrierPriceFunction.getInstance();
@@ -192,7 +195,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     final double[][] sFlat = new double[][] { {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}, {0.0, 0.0}};
     final SmileDeltaTermStructureParameter smileTermFlat = new SmileDeltaTermStructureParameter(TIME_TO_EXPIRY, DELTA, atmFlat, rrFlat, sFlat);
     final FXMatrix fxMatrixShift = new FXMatrix(CUR_1, CUR_2, SPOT + shiftSpotEURUSD);
-    final SmileDeltaTermStructureDataBundle smileBumpedSpot = new SmileDeltaTermStructureDataBundle(CURVES, fxMatrixShift, smileTermFlat, Pair.of(CUR_1, CUR_2));
+    final SmileDeltaTermStructureDataBundle smileBumpedSpot = new SmileDeltaTermStructureDataBundle(fxMatrixShift, CURVE_CURRENCY, CURVES, smileTermFlat, Pair.of(CUR_1, CUR_2));
     final MultipleCurrencyAmount pvBumpedSpot = METHOD_BARRIER.presentValue(OPTION_BARRIER, smileBumpedSpot);
     final double ceDomesticFD = (pvBumpedSpot.getAmount(CUR_2) - pv.getAmount(CUR_2));
     assertEquals("Barrier currency exposure: domestic currency", ceDomesticFD, ce.getAmount(CUR_1) * shiftSpotEURUSD, 2.0E-4);
@@ -287,7 +290,7 @@ public class ForexOptionSingleBarrierBlackMethodTest {
     assertEquals("Forex single barrier option: curve sensitivity long/short parity", pvcsLong.getSensitivity(CUR_2), pvcsShort.getSensitivity(CUR_2).multiply(-1.0));
     final PresentValueForexBlackVolatilitySensitivity pvvsShort = METHOD_BARRIER.presentValueVolatilitySensitivity(BARRIER_SHORT, SMILE_BUNDLE);
     final PresentValueForexBlackVolatilitySensitivity pvvsLong = METHOD_BARRIER.presentValueVolatilitySensitivity(OPTION_BARRIER, SMILE_BUNDLE);
-    assertEquals("Forex single barrier option: volatility sensitivity long/short parity", pvvsLong, PresentValueForexBlackVolatilitySensitivity.multiplyBy(pvvsShort, -1.0));
+    assertEquals("Forex single barrier option: volatility sensitivity long/short parity", pvvsLong, pvvsShort.multipliedBy(-1.0));
   }
 
   @Test
