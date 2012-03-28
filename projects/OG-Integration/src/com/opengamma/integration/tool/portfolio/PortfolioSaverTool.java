@@ -8,12 +8,15 @@ package com.opengamma.integration.tool.portfolio;
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
+import com.google.common.collect.ImmutableMap;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.integration.loadsave.portfolio.PortfolioCopier;
 import com.opengamma.integration.loadsave.portfolio.SimplePortfolioCopier;
 import com.opengamma.integration.loadsave.portfolio.reader.MasterPortfolioReader;
 import com.opengamma.integration.loadsave.portfolio.reader.PortfolioReader;
+import com.opengamma.integration.loadsave.portfolio.rowparser.ExchangeTradedRowParser;
+import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
 import com.opengamma.integration.loadsave.portfolio.writer.DummyPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.SingleSheetPortfolioWriter;
@@ -92,9 +95,7 @@ public class PortfolioSaverTool extends AbstractIntegrationTool {
       String extension = filename.substring(filename.lastIndexOf('.'));
 
       if (extension.equalsIgnoreCase(".csv") || extension.equalsIgnoreCase(".xls")) {
-        
         return new SingleSheetPortfolioWriter(filename, securityTypes);
-            
       // Multi-asset ZIP file extension
       } else if (extension.equalsIgnoreCase(".zip")) {
         // Create zipped multi-asset class loader

@@ -21,6 +21,7 @@ import org.joda.beans.impl.direct.DirectMetaProperty;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.opengamma.bbg.BloombergIdentifierProvider;
+import com.opengamma.bbg.BloombergSecuritySource;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.RemoteReferenceDataProviderFactoryBean;
 import com.opengamma.bbg.loader.BloombergBulkSecurityLoader;
@@ -47,6 +48,9 @@ import com.opengamma.util.jms.JmsConnector;
  */
 @BeanDefinition
 public class IntegrationDataComponentFactory extends AbstractComponentFactory {
+
+  private static final String BBG_CLASSIFIER = "bbg";
+  private static final String STANDARD_CLASSIFIER = "standard";
 
   /**
    * The configuration URI.
@@ -87,6 +91,13 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
     HistoricalTimeSeriesSource bbgHtsSource = initTimeSeriesSource(repo);
     initSecurityLoader(repo, refData, bbgHtsSource);
     initHistoricalTimeSeriesLoader(repo, refData, bbgHtsSource);
+    initBloombergSecuritySource(repo, refData);
+  }
+
+  private void initBloombergSecuritySource(ComponentRepository repo, ReferenceDataProvider refData) {
+    BloombergSecuritySource bloombergSecuritySource = new BloombergSecuritySource(refData, new DefaultExchangeDataProvider());
+    ComponentInfo info = new ComponentInfo(BloombergSecuritySource.class, BBG_CLASSIFIER);
+    repo.registerComponent(info, bloombergSecuritySource);
   }
 
   protected ReferenceDataProvider initReferenceDataProvider(ComponentRepository repo) {
@@ -96,7 +107,7 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
     factory.setFudgeContext(getFudgeContext());
     
     ReferenceDataProvider refData = factory.getObjectCreating();
-    ComponentInfo info = new ComponentInfo(ReferenceDataProvider.class, "bbg");
+    ComponentInfo info = new ComponentInfo(ReferenceDataProvider.class, BBG_CLASSIFIER);
     repo.registerComponent(info, refData);
     return refData;
   }
@@ -107,16 +118,16 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
     URI uri = factory.getObjectCreating();
     
     RemoteHistoricalTimeSeriesSource bbgHtsSource = new RemoteHistoricalTimeSeriesSource(uri);
-    ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesSource.class, "bbg");
+    ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesSource.class, BBG_CLASSIFIER);
     repo.registerComponent(info, bbgHtsSource);
     return bbgHtsSource;
   }
 
   protected SecurityLoader initSecurityLoader(ComponentRepository repo, ReferenceDataProvider refData, HistoricalTimeSeriesSource bbgHtsSource) {
-    
+
     SecurityLoader secLoader = createSecurityLoader(refData, bbgHtsSource);
-    
-    ComponentInfo info = new ComponentInfo(SecurityLoader.class, "standard");
+
+    ComponentInfo info = new ComponentInfo(SecurityLoader.class, STANDARD_CLASSIFIER);
     repo.registerComponent(info, secLoader);
     return secLoader;
   }
@@ -125,17 +136,17 @@ public class IntegrationDataComponentFactory extends AbstractComponentFactory {
     // bulk loader
     ExchangeDataProvider exchangeDataProvider = initExchangeDataProvider();
     BloombergBulkSecurityLoader bbgBulkSecLoader = new BloombergBulkSecurityLoader(refData, exchangeDataProvider);
-    
+
     // security master loader
     SecurityLoader bbgSecLoader = new BloombergSecurityLoader(getSecurityMaster(), bbgBulkSecLoader);
-    
+
     return bbgSecLoader;
   }
   
   protected HistoricalTimeSeriesLoader initHistoricalTimeSeriesLoader(ComponentRepository repo, ReferenceDataProvider refData, HistoricalTimeSeriesSource bbgHtsSource) {
     ExternalIdResolver idProvider = new BloombergIdentifierProvider(refData);
     HistoricalTimeSeriesLoader htsLoader = new BloombergHistoricalLoader(getHistoricalTimeSeriesMaster(), bbgHtsSource, idProvider);
-    ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesLoader.class, "standard");
+    ComponentInfo info = new ComponentInfo(HistoricalTimeSeriesLoader.class, STANDARD_CLASSIFIER);
     repo.registerComponent(info, htsLoader);
     return htsLoader;
   }
