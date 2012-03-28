@@ -113,7 +113,8 @@ public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
           portfolioName, 
           portfolioMaster, 
           positionMaster, 
-          securityMaster);
+          securityMaster,
+          false);
     } else {
       // Create a dummy portfolio writer to pretty-print instead of persisting
       return new DummyPortfolioWriter();         
