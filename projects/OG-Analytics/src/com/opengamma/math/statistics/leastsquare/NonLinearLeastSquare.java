@@ -368,9 +368,9 @@ public class NonLinearLeastSquare {
       }
 
       //debug
-      if (lambda > 1e20) {
-        System.out.println("lambda: " + lambda);
-      }
+      //      if (lambda > 1e20) {
+      //        System.out.println("lambda: " + lambda);
+      //      }
 
       newError = getError(func, observedValues, sigma, trialTheta);
       newChiSqr = getChiSqr(newError);
