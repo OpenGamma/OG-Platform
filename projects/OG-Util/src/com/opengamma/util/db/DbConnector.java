@@ -263,7 +263,7 @@ public class DbConnector implements Closeable {
 
   //-------------------------------------------------------------------------
   /**
-   * The retrying template.
+   * A transaction template that retries the underlying Spring-based template.
    */
   public class TransactionTemplateRetrying {
     private final int _retries;
@@ -274,6 +274,14 @@ public class DbConnector implements Closeable {
       _transactionTemplate = getTransactionTemplate();
     }
 
+    /**
+     * Executes the template, which will retry the code in the event of failure.
+     * 
+     * @param <T> the type of the result
+     * @param action  the underlying Spring-based template containing the action to perform, not null
+     * @return the result of the underlying template
+     * @throws TransactionException if an error occurs
+     */
     public <T> T execute(TransactionCallback<T> action) throws TransactionException {
       // retry to handle concurrent conflicting inserts into unique content tables
       for (int retry = 0; true; retry++) {
@@ -290,8 +298,9 @@ public class DbConnector implements Closeable {
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * The standard template.
+   * A standard transaction template wrapping the underlying Hibernate template.
    */
   public class HibernateTransactionTemplate {
     private final TransactionTemplate _transactionTemplate;
@@ -302,6 +311,14 @@ public class DbConnector implements Closeable {
       _hibernateTemplate = getHibernateTemplate();
     }
 
+    /**
+     * Executes the underlying template in a transaction.
+     * 
+     * @param <T> the type of the result
+     * @param action  the underlying Hibernate template containing the action to perform, not null
+     * @return the result of the underlying template
+     * @throws TransactionException if an error occurs
+     */
     public <T> T execute(final HibernateCallback<T> action) throws TransactionException {
       try {
         return _transactionTemplate.execute(new TransactionCallback<T>() {
@@ -316,8 +333,9 @@ public class DbConnector implements Closeable {
     }
   }
 
+  //-------------------------------------------------------------------------
   /**
-   * The retrying template.
+   * A transaction template that retries the underlying Hibernate template.
    */
   public class HibernateTransactionTemplateRetrying {
     private final int _retries;
@@ -331,6 +349,14 @@ public class DbConnector implements Closeable {
       _hibernateTemplate.setAllowCreate(false);
     }
 
+    /**
+     * Executes the template, which will retry the code in the event of failure.
+     * 
+     * @param <T> the type of the result
+     * @param action  the underlying Hibernate template containing the action to perform, not null
+     * @return the result of the underlying template
+     * @throws TransactionException if an error occurs
+     */
     public <T> T execute(final HibernateCallback<T> action) throws TransactionException {
       // retry to handle concurrent conflicting inserts into unique content tables
       for (int retry = 0; true; retry++) {

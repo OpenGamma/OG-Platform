@@ -5,9 +5,11 @@
  */
 package com.opengamma.integration.loadsave.portfolio;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -19,7 +21,7 @@ import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalLoader;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.UniqueId;
 import com.opengamma.integration.loadsave.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -97,13 +99,26 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
           
           // Load this security's relevant HTSes
           for (String dataField : _dataFields) {
-            Set<ExternalId> id = new HashSet<ExternalId>();
-            id.add(security.getExternalIdBundle().getExternalId(ExternalScheme.of("BLOOMBERG_TICKER")));
-            String message = "Loading historical time series " + id.toString() + ", fields " + dataField + 
-                " from " + _dataProvider;
-            s_logger.info(message + ": " + bbgLoader.addTimeSeries(id, _dataProvider, dataField, null, null));
-            if (visitor != null) {
-              visitor.info(message);
+            Set<ExternalId> ids = new HashSet<ExternalId>();
+            ids = security.getExternalIdBundle().getExternalIds();
+            Map<ExternalId, UniqueId> tsMap = null;
+            for (ExternalId id : ids) {
+              tsMap = bbgLoader.addTimeSeries(Collections.singleton(id), _dataProvider, dataField, null, null);
+              String message = "historical time series " + id.toString() + ", fields " + dataField + 
+                  " from " + _dataProvider;
+              if (tsMap.size() > 0) {
+                s_logger.info("Loaded " + message + ": " + tsMap);
+                if (visitor != null) {
+                  visitor.info("Loaded " + message);
+                }
+                break;
+              }
+            }
+            if (tsMap == null || tsMap.size() == 0) {
+              s_logger.warn("Could not load historical time series for security " + security);
+              if (visitor != null) {
+                visitor.error("Could not load historical time series for security " + security);
+              }
             }
           }
         }
