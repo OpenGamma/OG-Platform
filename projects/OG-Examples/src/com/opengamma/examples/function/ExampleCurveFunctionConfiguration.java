@@ -8,7 +8,6 @@ package com.opengamma.examples.function;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,8 +18,6 @@ import com.opengamma.engine.function.config.RepositoryConfiguration;
 import com.opengamma.engine.function.config.RepositoryConfigurationSource;
 import com.opengamma.engine.function.config.SimpleRepositoryConfigurationSource;
 import com.opengamma.engine.function.config.StaticFunctionConfiguration;
-import com.opengamma.examples.volatility.cube.SyntheticSwaptionVolatilityCubeInstrumentProvider;
-import com.opengamma.examples.volatility.cube.SyntheticVolatilityCubeDefinitionSource;
 import com.opengamma.financial.analytics.ircurve.YieldCurveDefinition;
 import com.opengamma.financial.analytics.ircurve.YieldCurveInterpolatingFunction;
 import com.opengamma.financial.analytics.ircurve.YieldCurveMarketDataFunction;
@@ -28,15 +25,12 @@ import com.opengamma.financial.analytics.ircurve.YieldCurveSpecificationFunction
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.curve.forward.FXForwardCurveFromYieldCurveFunction;
 import com.opengamma.financial.analytics.model.curve.future.FuturePriceCurveFunction;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeFunction;
-import com.opengamma.financial.analytics.volatility.cube.VolatilityCubeMarketDataFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.master.config.ConfigDocument;
 import com.opengamma.master.config.ConfigMaster;
 import com.opengamma.master.config.ConfigSearchRequest;
 import com.opengamma.master.config.ConfigSearchResult;
 import com.opengamma.util.SingletonFactoryBean;
-import com.opengamma.util.money.Currency;
 
 /**
  * Creates function repository configuration for curve supplying functions.
@@ -83,22 +77,11 @@ public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<Repo
     } 
     s_logger.info("Created repository configuration with {} curve provider functions", configs.size());
 
-    addSwaptionVolCubeFunction(configs);
-    s_logger.info("Added swaption vol cube to repository configuration");
     addFXForwardCurveFunction(configs);
     s_logger.info("Added FX forward curve to repository configuration");
     addFutureCurveFunction(configs);
     s_logger.info("Added future curve to repository configuration");
     return new RepositoryConfiguration(configs);
-  }
-
-  private void addSwaptionVolCubeFunction(final List<FunctionConfiguration> configs) {
-    addVolatilityCubeFunction(configs, "USD", "SYNTHETIC");
-
-    Set<Currency> volCubeCurrencies = SyntheticSwaptionVolatilityCubeInstrumentProvider.INSTANCE.getAllCurrencies();
-    for (Currency currency : volCubeCurrencies) {
-      addVolatilityCubeFunction(configs, currency.getCode(), SyntheticVolatilityCubeDefinitionSource.DEFINITION_NAME);
-    }
   }
 
   private void addYieldCurveFunction(final List<FunctionConfiguration> configs, final String currency, final String curveName) {
@@ -109,26 +92,13 @@ public class ExampleCurveFunctionConfiguration extends SingletonFactoryBean<Repo
 
   private void addFXForwardCurveFunction(List<FunctionConfiguration> configs) {
     configs.add(new StaticFunctionConfiguration(FXForwardCurveFromYieldCurveFunction.class.getName()));
-    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurveDefaultPropertiesFunction.class.getName(), Arrays.asList("SYNTHETIC", "SECONDARY", "SECONDARY")));
+    configs.add(new ParameterizedFunctionConfiguration(FXForwardCurveFromYieldCurveDefaultPropertiesFunction.class.getName(), Arrays.asList("SECONDARY", "SECONDARY", "SECONDARY")));
   }
   
   private void addFutureCurveFunction(final List<FunctionConfiguration> configs) {
     configs.add(new StaticFunctionConfiguration(FuturePriceCurveFunction.class.getName()));
   }
   
-  private void addVolatilityCubeFunction(List<FunctionConfiguration> configs, String... parameters) {
-    addVolatilityCubeFunction(configs, Arrays.asList(parameters));
-  }
-
-  private void addVolatilityCubeFunction(final List<FunctionConfiguration> configs, List<String> parameters) {
-    if (parameters.size() != 2) {
-      throw new IllegalArgumentException();
-    }
-
-    configs.add(new ParameterizedFunctionConfiguration(VolatilityCubeFunction.class.getName(), parameters));
-    configs.add(new ParameterizedFunctionConfiguration(VolatilityCubeMarketDataFunction.class.getName(), parameters));
-  }
-
   //-------------------------------------------------------------------------
   public RepositoryConfigurationSource constructRepositoryConfigurationSource() {
     return new SimpleRepositoryConfigurationSource(constructRepositoryConfiguration());

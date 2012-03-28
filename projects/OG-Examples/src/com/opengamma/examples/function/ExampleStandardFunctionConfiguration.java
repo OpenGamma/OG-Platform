@@ -230,6 +230,7 @@ import com.opengamma.math.interpolation.Interpolator1DFactory;
 import com.opengamma.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.util.SingletonFactoryBean;
 import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
+import com.opengamma.util.money.Currency;
 
 /**
  * Constructs a standard function repository.
@@ -238,6 +239,8 @@ import com.opengamma.util.fudgemsg.OpenGammaFudgeContext;
  */
 public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<RepositoryConfigurationSource> {
 
+  private static final String USD = Currency.USD.getCode();
+  private static final String SECONDARY = "SECONDARY";
   private static final String COST_OF_CARRY_FIELD = "COST_OF_CARRY";
   private static final String HTS_PRICE_FIELD = "CLOSE";
   private static final boolean OUTPUT_REPO_CONFIGURATION = false;
@@ -382,8 +385,8 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     addFixedIncomeInstrumentCalculators(functionConfigs);
 
     functionConfigs.add(functionConfiguration(StandardEquityModelFunction.class));
-    functionConfigs.add(functionConfiguration(SimpleFuturePresentValueFunction.class, "SECONDARY"));
-    functionConfigs.add(functionConfiguration(SimpleFXFuturePresentValueFunction.class, "SECONDARY", "SECONDARY"));
+    functionConfigs.add(functionConfiguration(SimpleFuturePresentValueFunction.class, SECONDARY));
+    functionConfigs.add(functionConfiguration(SimpleFXFuturePresentValueFunction.class, SECONDARY, SECONDARY));
     addBondCalculators(functionConfigs);
     addBondFutureCalculators(functionConfigs);
     addSABRCalculators(functionConfigs);
@@ -511,7 +514,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     addDataShiftingFunctions(functionConfigs);
     addDefaultPropertyFunctions(functionConfigs);
     addHistoricalDataFunctions(functionConfigs);
-    functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, "SECONDARY"));
+    functionConfigs.add(functionConfiguration(AnalyticOptionDefaultCurveFunction.class, SECONDARY));
 
     RepositoryConfiguration repoConfig = new RepositoryConfiguration(functionConfigs);
 
@@ -548,12 +551,12 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(EquityPnLFunction.class));
     functionConfigs.add(functionConfiguration(EquityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName, defaultReturnCalculatorName));
     functionConfigs.add(functionConfiguration(SimpleFuturePnLFunction.class, DEFAULT_CONFIG_NAME));
-    functionConfigs.add(functionConfiguration(SimpleFuturePnLDefaultPropertiesFunction.class, "SECONDARY", defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
+    functionConfigs.add(functionConfiguration(SimpleFuturePnLDefaultPropertiesFunction.class, SECONDARY, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
     functionConfigs.add(functionConfiguration(SimpleFXFuturePnLFunction.class, DEFAULT_CONFIG_NAME));
-    functionConfigs.add(functionConfiguration(SimpleFXFuturePnLDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", 
+    functionConfigs.add(functionConfiguration(SimpleFXFuturePnLDefaultPropertiesFunction.class, SECONDARY, SECONDARY, 
         defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName));
     functionConfigs.add(functionConfiguration(YieldCurveNodeSensitivityPnLFunction.class, DEFAULT_CONFIG_NAME));
-    functionConfigs.add(functionConfiguration(YieldCurveNodeSensitivityPnLDefaultPropertiesFunction.class, "SECONDARY", "SECONDARY", defaultCurveCalculationMethod, defaultSamplingPeriodName,
+    functionConfigs.add(functionConfiguration(YieldCurveNodeSensitivityPnLDefaultPropertiesFunction.class, SECONDARY, SECONDARY, defaultCurveCalculationMethod, defaultSamplingPeriodName,
         defaultScheduleName, defaultSamplingCalculatorName));
     functionConfigs.add(functionConfiguration(ValueGreekSensitivityPnLFunction.class, DEFAULT_CONFIG_NAME));
     functionConfigs.add(functionConfiguration(ValueGreekSensitivityPnLDefaultPropertiesFunction.class, defaultSamplingPeriodName, defaultScheduleName, defaultSamplingCalculatorName,
@@ -584,42 +587,42 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
 
   private static void addEquityDerivativesCalculators(List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
-        Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.MARK_TO_MARKET, "SECONDARY")));
+        Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.MARK_TO_MARKET, SECONDARY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
-        Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.DIVIDEND_YIELD, "SECONDARY")));
+        Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.DIVIDEND_YIELD, SECONDARY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityIndexDividendFuturesFunction.class.getName(),
-        Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.MARK_TO_MARKET, "SECONDARY")));
+        Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.MARK_TO_MARKET, SECONDARY)));
     //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.COST_OF_CARRY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
-        Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.DIVIDEND_YIELD, "SECONDARY")));
+        Arrays.asList(ValueRequirementNames.PRESENT_VALUE, EquityFuturePricerFactory.DIVIDEND_YIELD, SECONDARY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
-        Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.MARK_TO_MARKET, "SECONDARY")));
+        Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.MARK_TO_MARKET, SECONDARY)));
     //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.COST_OF_CARRY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
-        Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.DIVIDEND_YIELD, "SECONDARY")));
+        Arrays.asList(ValueRequirementNames.PV01, EquityFuturePricerFactory.DIVIDEND_YIELD, SECONDARY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
-        Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.MARK_TO_MARKET, "SECONDARY")));
+        Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.MARK_TO_MARKET, SECONDARY)));
     //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.COST_OF_CARRY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
-        Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.DIVIDEND_YIELD, "SECONDARY")));
+        Arrays.asList(ValueRequirementNames.VALUE_RHO, EquityFuturePricerFactory.DIVIDEND_YIELD, SECONDARY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
-        Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.MARK_TO_MARKET, "SECONDARY")));
+        Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.MARK_TO_MARKET, SECONDARY)));
     //functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(), Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.COST_OF_CARRY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(EquityFuturesFunction.class.getName(),
-        Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.DIVIDEND_YIELD, "SECONDARY")));
-    functionConfigs.add(functionConfiguration(EquityFutureYieldCurveNodeSensitivityFunction.class, "SECONDARY"));
-    functionConfigs.add(functionConfiguration(EquityIndexDividendFutureYieldCurveNodeSensitivityFunction.class, "SECONDARY"));
-    functionConfigs.add(functionConfiguration(EquityForwardFromSpotAndYieldCurveFunction.class, "SECONDARY"));
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapPresentValueFunction.class, "SECONDARY", "DEFAULT", EquityForwardFromSpotAndYieldCurveFunction.FORWARD_FROM_SPOT_AND_YIELD_CURVE));
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapYieldCurveNodeSensitivityFunction.class, "SECONDARY", "DEFAULT",
+        Arrays.asList(ValueRequirementNames.VALUE_DELTA, EquityFuturePricerFactory.DIVIDEND_YIELD, SECONDARY)));
+    functionConfigs.add(functionConfiguration(EquityFutureYieldCurveNodeSensitivityFunction.class, SECONDARY));
+    functionConfigs.add(functionConfiguration(EquityIndexDividendFutureYieldCurveNodeSensitivityFunction.class, SECONDARY));
+    functionConfigs.add(functionConfiguration(EquityForwardFromSpotAndYieldCurveFunction.class, SECONDARY));
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapPresentValueFunction.class, SECONDARY, "DEFAULT", EquityForwardFromSpotAndYieldCurveFunction.FORWARD_FROM_SPOT_AND_YIELD_CURVE));
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapYieldCurveNodeSensitivityFunction.class, SECONDARY, "DEFAULT",
         EquityForwardFromSpotAndYieldCurveFunction.FORWARD_FROM_SPOT_AND_YIELD_CURVE));
-    functionConfigs.add(functionConfiguration(EquityVarianceSwapVegaFunction.class, "SECONDARY", "DEFAULT",
+    functionConfigs.add(functionConfiguration(EquityVarianceSwapVegaFunction.class, SECONDARY, "DEFAULT",
         EquityForwardFromSpotAndYieldCurveFunction.FORWARD_FROM_SPOT_AND_YIELD_CURVE));
   }
 
   private static void addBondFutureCalculators(List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(functionConfiguration(BondFutureGrossBasisFromCurvesFunction.class, "USD", "SECONDARY", "SECONDARY"));
-    functionConfigs.add(functionConfiguration(BondFutureNetBasisFromCurvesFunction.class, "USD", "SECONDARY", "SECONDARY"));
+    functionConfigs.add(functionConfiguration(BondFutureGrossBasisFromCurvesFunction.class, USD, SECONDARY, SECONDARY));
+    functionConfigs.add(functionConfiguration(BondFutureNetBasisFromCurvesFunction.class, USD, SECONDARY, SECONDARY));
   }
 
   private static void addBondCalculators(List<FunctionConfiguration> functionConfigs) {
@@ -642,7 +645,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(BondZSpreadPresentValueSensitivityFromCurveCleanPriceFunction.class));
     functionConfigs.add(functionConfiguration(BondZSpreadPresentValueSensitivityFromMarketCleanPriceFunction.class));
     functionConfigs.add(functionConfiguration(NelsonSiegelSvenssonBondCurveFunction.class));
-    functionConfigs.add(functionConfiguration(BondDefaultCurveNamesFunction.class, "SECONDARY", "SECONDARY", ValueRequirementNames.CLEAN_PRICE,
+    functionConfigs.add(functionConfiguration(BondDefaultCurveNamesFunction.class, SECONDARY, SECONDARY, ValueRequirementNames.CLEAN_PRICE,
         ValueRequirementNames.DIRTY_PRICE, ValueRequirementNames.MACAULAY_DURATION, ValueRequirementNames.MODIFIED_DURATION, ValueRequirementNames.YTM,
         ValueRequirementNames.Z_SPREAD, ValueRequirementNames.PRESENT_VALUE_Z_SPREAD_SENSITIVITY));
   }
@@ -655,19 +658,19 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
 //    functionConfigs.add(functionConfiguration(ForexOptionYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackVegaMatrixFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackVegaQuoteMatrixFunction.class));
-    functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, "SECONDARY", "SECONDARY", "SECONDARY", "SECONDARY", "DEFAULT",
+    functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, SECONDARY, SECONDARY, SECONDARY, SECONDARY, "DEFAULT",
         ValueRequirementNames.PRESENT_VALUE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, ValueRequirementNames.FX_CURVE_SENSITIVITIES,
         ValueRequirementNames.VALUE_VEGA, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ValueRequirementNames.VEGA_MATRIX,
         ValueRequirementNames.VEGA_QUOTE_MATRIX));
-    functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, "SECONDARY", "SECONDARY", "SECONDARY", "SECONDARY", "DEFAULT",
+    functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, SECONDARY, SECONDARY, SECONDARY, SECONDARY, "DEFAULT",
         ValueRequirementNames.PRESENT_VALUE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, ValueRequirementNames.FX_CURVE_SENSITIVITIES,
         ValueRequirementNames.VALUE_VEGA, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ValueRequirementNames.VEGA_MATRIX,
         ValueRequirementNames.VEGA_QUOTE_MATRIX));
-    functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, "SECONDARY", "SECONDARY", "SECONDARY", "SECONDARY", "DEFAULT", 
+    functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, SECONDARY, SECONDARY, SECONDARY, SECONDARY, "DEFAULT", 
         ValueRequirementNames.PRESENT_VALUE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, ValueRequirementNames.FX_CURVE_SENSITIVITIES, 
         ValueRequirementNames.VALUE_VEGA, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ValueRequirementNames.VEGA_MATRIX,
         ValueRequirementNames.VEGA_QUOTE_MATRIX));
-    functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, "SECONDARY", "SECONDARY", "SECONDARY", "SECONDARY", "DEFAULT", 
+    functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, SECONDARY, SECONDARY, SECONDARY, SECONDARY, "DEFAULT", 
         ValueRequirementNames.PRESENT_VALUE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, ValueRequirementNames.FX_CURVE_SENSITIVITIES, 
         ValueRequirementNames.VALUE_VEGA, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ValueRequirementNames.VEGA_MATRIX,
         ValueRequirementNames.VEGA_QUOTE_MATRIX));
@@ -678,23 +681,23 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(ForexForwardCurrencyExposureFunction.class));
     functionConfigs.add(functionConfiguration(ForexForwardYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(ForexForwardPresentValueCurveSensitivityFunction.class));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultPayCurveNamesFunction.class, "SECONDARY", "PresentValue", "USD", "EUR", "GBP", "JPY", "CHF"));
-    functionConfigs.add(functionConfiguration(ForexForwardDefaultReceiveCurveNamesFunction.class, "SECONDARY", "PresentValue", "USD", "EUR", "GBP", "JPY", "CHF"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultPayCurveNamesFunction.class, SECONDARY, "PresentValue", USD, "EUR", "GBP", "JPY", "CHF"));
+    functionConfigs.add(functionConfiguration(ForexForwardDefaultReceiveCurveNamesFunction.class, SECONDARY, "PresentValue", USD, "EUR", "GBP", "JPY", "CHF"));
     functionConfigs.add(functionConfiguration(ForexForwardDefaultPayCurveNamesYieldCurveNodeSensitivitiesFunction.class, 
-        "SECONDARY", "SECONDARY", "PresentValue", "USD", "AUD"));
+        SECONDARY, SECONDARY, "PresentValue", USD, "AUD"));
     functionConfigs.add(functionConfiguration(ForexForwardDefaultPayCurveNamesYieldCurveNodeSensitivitiesFunction.class, 
-        "SECONDARY", "SECONDARY", "PresentValue", "EUR", "GBP", "JPY"));
+        SECONDARY, SECONDARY, "PresentValue", "EUR", "GBP", "JPY"));
     functionConfigs.add(functionConfiguration(ForexForwardDefaultReceiveCurveNamesYieldCurveNodeSensitivitiesFunction.class, 
-        "SECONDARY", "SECONDARY", "PresentValue", "USD", "AUD"));
+        SECONDARY, SECONDARY, "PresentValue", USD, "AUD"));
     functionConfigs.add(functionConfiguration(ForexForwardDefaultReceiveCurveNamesYieldCurveNodeSensitivitiesFunction.class, 
-        "SECONDARY", "SECONDARY", "PresentValue", "EUR", "GBP", "JPY"));
+        SECONDARY, SECONDARY, "PresentValue", "EUR", "GBP", "JPY"));
   }
 
   private static void addInterestRateFutureCalculators(List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(InterestRateFuturePresentValueFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFuturePV01Function.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureDefaultValuesFunction.class, "SECONDARY", "SECONDARY", "PresentValue", "USD", "EUR"));
+    functionConfigs.add(functionConfiguration(InterestRateFutureDefaultValuesFunction.class, SECONDARY, SECONDARY, "PresentValue", USD, "EUR"));
   }
 
   private static void addInterestRateFutureOptionCalculators(List<FunctionConfiguration> functionConfigs) {
@@ -704,7 +707,7 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionSABRSensitivitiesFunction.class, ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionVegaFunction.class));
     functionConfigs.add(functionConfiguration(InterestRateFutureOptionYieldCurveNodeSensitivitiesFunction.class));
-    functionConfigs.add(functionConfiguration(InterestRateFutureOptionDefaultValuesFunction.class, "SECONDARY", "SECONDARY", "DEFAULT", "PresentValue", "USD", "EUR"));
+    functionConfigs.add(functionConfiguration(InterestRateFutureOptionDefaultValuesFunction.class, SECONDARY, SECONDARY, "DEFAULT", "PresentValue", USD, "EUR"));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureOptionSurfaceFittingFunction.class));
     functionConfigs.add(functionConfiguration(SABRNonLinearLeastSquaresIRFutureSurfaceDefaultValuesFunction.class, "DEFAULT"));
     //functionConfigs.add(functionConfiguration(HestonFourierIRFutureSurfaceFittingFunction.class, "USD", "DEFAULT"));
@@ -767,17 +770,17 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
   }
 
   private static void addSABRCalculators(List<FunctionConfiguration> functionConfigs) {
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class.getName(), Arrays.asList("USD", "SYNTHETIC")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueSABRCapFloorCMSSpreadFunction.class.getName(), Arrays.asList("USD", "SYNTHETIC", "SECONDARY", "SECONDARY")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueSABRFunction.class.getName(), Arrays.asList("USD", "SYNTHETIC", "SECONDARY", "SECONDARY")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueCapFloorCMSSpreadFunction.class.getName(), Arrays.asList("USD", "SYNTHETIC", "SECONDARY", "SECONDARY")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueFunction.class.getName(), Arrays.asList("USD", "SYNTHETIC", "false", "SECONDARY", "SECONDARY")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList("USD", "SYNTHETIC", "false", "SECONDARY", "SECONDARY")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueCurveSensitivityCapFloorCMSSpreadFunction.class.getName(), Arrays.asList("USD", "SYNTHETIC", "SECONDARY", "SECONDARY")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList("USD", "SYNTHETIC", "false", "SECONDARY", "SECONDARY")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction.class.getName(), Arrays.asList("USD", "SYNTHETIC", "SECONDARY", "SECONDARY")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRVegaCapFloorCMSSpreadFunction.class.getName(), Arrays.asList("USD", "SYNTHETIC", "SECONDARY", "SECONDARY")));
-    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRVegaFunction.class.getName(), Arrays.asList("USD", "SYNTHETIC", "false", "SECONDARY", "SECONDARY")));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRNonLinearLeastSquaresSwaptionCubeFittingFunction.class.getName(), Arrays.asList(USD, SECONDARY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueSABRCapFloorCMSSpreadFunction.class.getName(), Arrays.asList(USD, SECONDARY, SECONDARY, SECONDARY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueSABRFunction.class.getName(), Arrays.asList(USD, SECONDARY, SECONDARY, SECONDARY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueCapFloorCMSSpreadFunction.class.getName(), Arrays.asList(USD, SECONDARY, SECONDARY, SECONDARY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueFunction.class.getName(), Arrays.asList(USD, SECONDARY, "false", SECONDARY, SECONDARY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueCurveSensitivityFunction.class.getName(), Arrays.asList(USD, SECONDARY, "false", SECONDARY, SECONDARY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRPresentValueCurveSensitivityCapFloorCMSSpreadFunction.class.getName(), Arrays.asList(USD, SECONDARY, SECONDARY, SECONDARY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRYieldCurveNodeSensitivitiesFunction.class.getName(), Arrays.asList(USD, SECONDARY, "false", SECONDARY, SECONDARY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRYieldCurveNodeSensitivitiesCapFloorCMSSpreadFunction.class.getName(), Arrays.asList(USD, SECONDARY, SECONDARY, SECONDARY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRVegaCapFloorCMSSpreadFunction.class.getName(), Arrays.asList(USD, SECONDARY, SECONDARY, SECONDARY)));
+    functionConfigs.add(new ParameterizedFunctionConfiguration(SABRVegaFunction.class.getName(), Arrays.asList(USD, SECONDARY, "false", SECONDARY, SECONDARY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_ALPHA_SENSITIVITY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_NU_SENSITIVITY)));
     functionConfigs.add(new ParameterizedFunctionConfiguration(FilteringSummingFunction.class.getName(), Arrays.asList(ValueRequirementNames.PRESENT_VALUE_SABR_RHO_SENSITIVITY)));
@@ -793,13 +796,13 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
     functionConfigs.add(functionConfiguration(InterpolatedYieldCurveFunction.class));
     final String leftExtrapolatorName = Interpolator1DFactory.LINEAR_EXTRAPOLATOR;
     final String rightExtrapolatorName = Interpolator1DFactory.FLAT_EXTRAPOLATOR;
-    functionConfigs.add(functionConfiguration(InterpolatedYieldCurveDefaultPropertiesFunction.class, leftExtrapolatorName, rightExtrapolatorName, "USD", "EUR", "DKK", "AUD", "MYR"));
+    functionConfigs.add(functionConfiguration(InterpolatedYieldCurveDefaultPropertiesFunction.class, leftExtrapolatorName, rightExtrapolatorName, USD, "EUR", "DKK", "AUD", "MYR"));
     functionConfigs.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, MarketInstrumentImpliedYieldCurveFunction.PAR_RATE_STRING));
     functionConfigs.add(functionConfiguration(MarketInstrumentImpliedYieldCurveFunction.class, MarketInstrumentImpliedYieldCurveFunction.PRESENT_VALUE_STRING));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "PresentValue", "SECONDARY", "SECONDARY", "AUD", "USD", "CAD"));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "PresentValue", "SECONDARY", "SECONDARY", "DKK", "EUR", "GBP", "JPY", "NZD", "CHF"));
-    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "PresentValue", "SECONDARY", "SECONDARY", "AUD", "CAD", "CHF", "DKK", "EUR", 
-        "GBP", "JPY", "NZD", "USD"));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "PresentValue", SECONDARY, SECONDARY, "AUD", USD, "CAD"));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "PresentValue", SECONDARY, SECONDARY, "DKK", "EUR", "GBP", "JPY", "NZD", "CHF"));
+    functionConfigs.add(functionConfiguration(InterestRateInstrumentDefaultCurveNameFunction.class, "PresentValue", SECONDARY, SECONDARY, "AUD", "CAD", "CHF", "DKK", "EUR", 
+        "GBP", "JPY", "NZD", USD));
   }
 
   private static void addPortfolioAnalysisCalculators(final List<FunctionConfiguration> functionConfigs) {
