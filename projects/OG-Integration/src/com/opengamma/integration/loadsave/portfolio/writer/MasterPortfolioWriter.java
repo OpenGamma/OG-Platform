@@ -92,7 +92,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
           return foundSecurity;
         } else {
           SecurityDocument updateDoc = new SecurityDocument(security);
-          updateDoc.setUniqueId(foundSecurity.getUniqueId().toLatest());
+          updateDoc.setUniqueId(foundSecurity.getUniqueId());
           SecurityDocument result = _securityMaster.update(updateDoc);
           return result.getSecurity();
         }
@@ -122,37 +122,7 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     
     ArgumentChecker.notNull(position, "position");
     
-    ManageablePosition existingPosition = null;
-    
-    if (!(_originalNode == null) && !_originalNode.getPositionIds().isEmpty()) {
-      PositionSearchRequest searchReq = new PositionSearchRequest();
-      
-      // Filter positions in current node of original portfolio
-      searchReq.setPositionObjectIds(_originalNode.getPositionIds());
-
-      // Filter positions with same external ids
-      ExternalIdSearch externalIdSearch = new ExternalIdSearch();
-      externalIdSearch.addExternalIds(position.getSecurityLink().getExternalIds()); 
-      externalIdSearch.setSearchType(ExternalIdSearchType.ALL);
-      searchReq.setSecurityIdSearch(externalIdSearch);
-      
-      // Filter positions with the same quantity
-      searchReq.setMinQuantity(position.getQuantity());
-      searchReq.setMaxQuantity(position.getQuantity());
-
-      // Search
-      PositionSearchResult searchResult = _positionMaster.search(searchReq);
-      
-      // Get the first match if found
-      PositionDocument firstDocument = searchResult.getFirstDocument();
-      if (firstDocument != null) {        
-        existingPosition = firstDocument.getPosition();
-      }
-      
-      // TODO also confirm that all the associated trades are identical
-    }
- 
-    if (existingPosition == null) {
+    if (_overwrite) {
       // Add the new position to the position master
       PositionDocument addedDoc = _positionMaster.add(new PositionDocument(position));
 
@@ -161,13 +131,56 @@ public class MasterPortfolioWriter implements PortfolioWriter {
       
       // Return the new position
       return addedDoc.getPosition();
-      
     } else {
-      // Add the existing position to the portfolio
-      _currentNode.addPosition(existingPosition.getUniqueId());
+    
       
-      // Return the existing position
-      return existingPosition;
+      if (!(_originalNode == null) && !_originalNode.getPositionIds().isEmpty()) {
+        PositionSearchRequest searchReq = new PositionSearchRequest();
+        
+        // Filter positions in current node of original portfolio
+        searchReq.setPositionObjectIds(_originalNode.getPositionIds());
+  
+        // Filter positions with same external ids
+        ExternalIdSearch externalIdSearch = new ExternalIdSearch();
+        externalIdSearch.addExternalIds(position.getSecurityLink().getExternalIds()); 
+        externalIdSearch.setSearchType(ExternalIdSearchType.ALL);
+        searchReq.setSecurityIdSearch(externalIdSearch);
+        
+        // Filter positions with the same quantity
+        searchReq.setMinQuantity(position.getQuantity());
+        searchReq.setMaxQuantity(position.getQuantity());
+  
+        // Search
+        PositionSearchResult searchResult = _positionMaster.search(searchReq);
+        
+        if (_overwrite) {
+          for (ManageablePosition pos : searchResult.getPositions()) {
+            _positionMaster.remove(pos.getUniqueId());
+          }
+        } else {
+          // Get the first match if found
+          PositionDocument firstDocument = searchResult.getFirstDocument();
+          if (firstDocument != null) {        
+            ManageablePosition existingPosition = firstDocument.getPosition();
+            // Add the existing position to the portfolio
+            _currentNode.addPosition(existingPosition.getUniqueId());
+            
+            // Return the existing position
+            return existingPosition;
+          }
+        }
+        
+        // TODO also confirm that all the associated trades are identical
+      }
+   
+      // Add the new position to the position master
+      PositionDocument addedDoc = _positionMaster.add(new PositionDocument(position));
+
+      // Add the new position to the portfolio
+      _currentNode.addPosition(addedDoc.getUniqueId());
+      
+      // Return the new position
+      return addedDoc.getPosition();
     }
   }
 
@@ -234,16 +247,20 @@ public class MasterPortfolioWriter implements PortfolioWriter {
   
   private ManageablePortfolioNode createNode(String[] path, ManageablePortfolioNode startNode) {
     ManageablePortfolioNode node = startNode;
-    
     for (String p : path) {
+      ManageablePortfolioNode foundNode = null;
       for (ManageablePortfolioNode n : node.getChildNodes()) {
         if (n.getName().equals(p)) {
-          node = n;
+          foundNode = n;
           break;
         }
+      }
+      if (foundNode == null) {
         ManageablePortfolioNode newNode = new ManageablePortfolioNode(p);
         node.addChildNode(newNode);
         node = newNode;
+      } else {
+        node = foundNode;
       }
     }
     return node;
@@ -258,30 +275,42 @@ public class MasterPortfolioWriter implements PortfolioWriter {
     PortfolioSearchRequest portSearchRequest = new PortfolioSearchRequest();
     portSearchRequest.setName(portfolioName);
     PortfolioSearchResult portSearchResult = _portfolioMaster.search(portSearchRequest);
-    _portfolioDocument = portSearchResult.getFirstDocument();
 
-    // If it doesn't, create it (add) 
-    if (_portfolioDocument == null) {
+    if (_overwrite) {
+      for (PortfolioDocument doc : portSearchResult.getDocuments()) {
+        _portfolioMaster.remove(doc.getUniqueId());
+      }
       ManageablePortfolio portfolio = new ManageablePortfolio(portfolioName, rootNode);
       _portfolioDocument = new PortfolioDocument();
       _portfolioDocument.setPortfolio(portfolio);
       _portfolioDocument = _portfolioMaster.add(_portfolioDocument);
       _originalRoot = null;
       _originalNode = null;
-      
-    // If it does, create a new version of the existing portfolio (update) with a new root node
+
     } else {
-      ManageablePortfolio portfolio = _portfolioDocument.getPortfolio();
-      _originalRoot = portfolio.getRootNode();
-      _originalNode = _originalRoot;
-      portfolio.setRootNode(rootNode);
-      _portfolioDocument.setPortfolio(portfolio);
-      _portfolioDocument = _portfolioMaster.update(_portfolioDocument);
+      _portfolioDocument = portSearchResult.getFirstDocument();
+
+      // If it doesn't, create it (add) 
+      if (_portfolioDocument == null) {
+        ManageablePortfolio portfolio = new ManageablePortfolio(portfolioName, rootNode);
+        _portfolioDocument = new PortfolioDocument();
+        _portfolioDocument.setPortfolio(portfolio);
+        _portfolioDocument = _portfolioMaster.add(_portfolioDocument);
+        _originalRoot = null;
+        _originalNode = null;
+        
+      // If it does, create a new version of the existing portfolio (update) with a new root node
+      } else {
+        ManageablePortfolio portfolio = _portfolioDocument.getPortfolio();
+        _originalRoot = portfolio.getRootNode();
+        _originalNode = _originalRoot;
+        portfolio.setRootNode(rootNode);
+        _portfolioDocument.setPortfolio(portfolio);
+        _portfolioDocument = _portfolioMaster.update(_portfolioDocument);
+      }      
     }
-    
     // Set current node to the root node
     _currentNode = _portfolioDocument.getPortfolio().getRootNode();
-    
   }
 
 }

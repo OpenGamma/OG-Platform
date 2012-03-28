@@ -43,9 +43,8 @@ public class SwaptionUtils {
       throw new OpenGammaRuntimeException("Can only handle cash- and physically-settled ibor swaptions");
     }
     final SwapSecurity underlyingSecurity = (SwapSecurity) securitySource.getSecurity(ExternalIdBundle.of(security.getUnderlyingId()));
-    final boolean isPayer = security.isPayer();
     FixedInterestRateLeg fixedLeg;
-    if (isPayer) {
+    if (underlyingSecurity.getPayLeg() instanceof FixedInterestRateLeg) {
       fixedLeg = (FixedInterestRateLeg) underlyingSecurity.getPayLeg();
     } else {
       fixedLeg = (FixedInterestRateLeg) underlyingSecurity.getReceiveLeg();
