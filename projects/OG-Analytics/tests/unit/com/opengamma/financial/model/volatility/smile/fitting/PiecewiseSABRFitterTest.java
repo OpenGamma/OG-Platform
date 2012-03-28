@@ -43,7 +43,7 @@ public class PiecewiseSABRFitterTest {
   @Test
   (enabled = false)
   public void bumpTest() {
-    double bump = 5e-3;
+    double bump = 1e-2;
     int index = 1;
     double[] vols = Arrays.copyOf(VOLS, VOLS.length);
     vols[index] += bump;
@@ -84,7 +84,7 @@ public class PiecewiseSABRFitterTest {
     final double[] vols = new double[n];
     Arrays.fill(vols, 0.2);
     double bump = 1e-3;
-    int index = 0;
+    int index = 2;
     vols[index] += bump;
 
     Function1D<Double, Double> smile = FITTER.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, vols);

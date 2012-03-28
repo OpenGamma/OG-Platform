@@ -32,11 +32,11 @@
     <orderEntry type="module" module-name="OG-Core" />
     <orderEntry type="module" module-name="OG-Security" />
     <orderEntry type="module" module-name="OG-Master" />
-    <orderEntry type="module-library">
+    <orderEntry type="module-library" exported="">
       <library name="IvyIDEA-OG-Bloomberg-default">
         <CLASSES>
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sf.opencsv/opencsv/jars/opencsv-2.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/com.bloomberglp/blpapi/jars/blpapi-3.4.5.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/net.sf.opencsv/opencsv/jars/opencsv-2.1.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES>
