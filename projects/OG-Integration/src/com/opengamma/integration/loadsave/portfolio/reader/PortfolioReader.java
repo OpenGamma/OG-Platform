@@ -15,19 +15,19 @@ import com.opengamma.util.tuple.ObjectsPair;
  * (This tight linkage between reader and writer might have to change)
  */
 public abstract interface PortfolioReader {
-  
+
   /**
    * Read the next row as a position, possibly containing trades, and one or more securities
    * @return a pair containing the position and its securities
    */
   ObjectsPair<ManageablePosition, ManageableSecurity[]> readNext();
-    
+
   /**
    * Get the current portfolio path.
    * @return  the current node
    */
   String[] getCurrentPath();
-    
+
   void close();
 
 }

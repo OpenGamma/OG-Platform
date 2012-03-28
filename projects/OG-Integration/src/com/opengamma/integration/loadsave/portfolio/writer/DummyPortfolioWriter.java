@@ -6,6 +6,8 @@
 
 package com.opengamma.integration.loadsave.portfolio.writer;
 
+import org.springframework.util.StringUtils;
+
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 import com.opengamma.util.ArgumentChecker;
@@ -52,7 +54,7 @@ public class DummyPortfolioWriter implements PortfolioWriter {
     ArgumentChecker.notNull(newPath, "newPath");
     _currentPath = newPath;
     
-    System.out.println("Set path to: " + newPath);
+    System.out.println("Set path to: " + StringUtils.arrayToDelimitedString(newPath, "/"));
   }
 
   @Override
