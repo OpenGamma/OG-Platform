@@ -226,7 +226,7 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
     PortfolioSearchResult searchResult = getToolContext().getPortfolioMaster().search(searchRequest);
     if (searchResult.getFirstPortfolio() == null) {
       s_logger.error("Couldn't find portfolio {}", portfolioName);
-      throw new OpenGammaRuntimeException("Couldn't find portfolio" + portfolioName);
+      throw new OpenGammaRuntimeException("Couldn't find portfolio " + portfolioName);
     }
     return searchResult.getFirstPortfolio().getUniqueId();
   }
@@ -259,8 +259,8 @@ public class ExampleViewsPopulater extends AbstractExampleTool {
   }
 
   private ViewDefinition getMultiCurrencySwapViewDefinition() {
-    UniqueId portfolioId = getPortfolioId(ExampleMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME);
-    ViewDefinition viewDefinition = new ViewDefinition(ExampleMultiCurrencySwapPortfolioLoader.PORTFOLIO_NAME + " View", portfolioId, UserPrincipal.getTestUser());
+    UniqueId portfolioId = getPortfolioId("Example MultiCurrency Swap Portfolio");
+    ViewDefinition viewDefinition = new ViewDefinition("Example MultiCurrency Swap View", portfolioId, UserPrincipal.getTestUser());
     viewDefinition.setDefaultCurrency(Currency.USD);
     viewDefinition.setMaxDeltaCalculationPeriod(500L);
     viewDefinition.setMaxFullCalculationPeriod(500L);

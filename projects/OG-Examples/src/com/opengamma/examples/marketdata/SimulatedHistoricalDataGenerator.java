@@ -53,7 +53,7 @@ public class SimulatedHistoricalDataGenerator {
   private static final Logger s_logger = LoggerFactory.getLogger(SimulatedHistoricalDataGenerator.class);
   
   private final HistoricalTimeSeriesMaster _htsMaster;
-  private Map<Pair<ExternalId, String>, Double> _initialValues = new HashMap<Pair<ExternalId, String>, Double>();
+  private Map<Pair<ExternalId, String>, Double> _finishValues = new HashMap<Pair<ExternalId, String>, Double>();
 
   private static final int NUM_FIELDS = 4;
   private static final double SCALING_FACTOR = 0.005; // i.e. 0.5% * 1SD
@@ -62,10 +62,10 @@ public class SimulatedHistoricalDataGenerator {
   public SimulatedHistoricalDataGenerator(HistoricalTimeSeriesMaster htsMaster) {
     ArgumentChecker.notNull(htsMaster, "htsMaster");
     _htsMaster = htsMaster;
-    readInitialValues(_initialValues);
+    readFinishValues(_finishValues);
   }
 
-  private static void readInitialValues(Map<Pair<ExternalId, String>, Double> initialValues) {
+  private static void readFinishValues(Map<Pair<ExternalId, String>, Double> finishValues) {
     try {
       CSVReader reader = new CSVReader(new BufferedReader(new InputStreamReader(SimulatedHistoricalDataGenerator.class.getResourceAsStream("historical-data.csv"))));
       // Read header row
@@ -86,7 +86,7 @@ public class SimulatedHistoricalDataGenerator {
           String valueStr = line[3];
           Double value = Double.parseDouble(valueStr);
           ExternalId id = ExternalId.of(scheme, identifier);
-          initialValues.put(Pair.of(id, fieldName), value);
+          finishValues.put(Pair.of(id, fieldName), value);
         }
       }
     } catch (FileNotFoundException e) {
@@ -96,44 +96,49 @@ public class SimulatedHistoricalDataGenerator {
     }    
   }
 
-  //-------------------------------------------------------------------------
+  public static ManageableHistoricalTimeSeriesInfo getSimulatedTimeSeriesInfo(final String dataField, final ExternalId identifier) {
+    final ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
+    info.setName(dataField + " " + identifier);
+    info.setDataField(dataField);
+    info.setDataSource(OG_DATA_SOURCE);
+    info.setDataProvider(OG_DATA_PROVIDER);
+    info.setObservationTime("LONDON_CLOSE");
+    ExternalIdWithDates id = ExternalIdWithDates.of(identifier, null, null);
+    ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
+    info.setExternalIdBundle(bundle);
+    return info;
+  }
+
   public void run() {
-    Random random = new Random(); // noMarket need for SecureRandom here..
-    StringBuilder buf = new StringBuilder("loading ").append(_initialValues.size()).append(" timeseries");
-    for (Entry<Pair<ExternalId, String>, Double> entry : _initialValues.entrySet()) {
-      ExternalId identifier = entry.getKey().getFirst();
-      String dataField = entry.getKey().getSecond();
-      Double startValue = entry.getValue();
-      ManageableHistoricalTimeSeriesInfo info = new ManageableHistoricalTimeSeriesInfo();
-      info.setName(dataField + " " + identifier);
-      info.setDataField(dataField);
-      info.setDataSource(OG_DATA_SOURCE);
-      info.setDataProvider(OG_DATA_PROVIDER);
-      info.setObservationTime("LONDON_CLOSE");
-      ExternalIdWithDates id = ExternalIdWithDates.of(identifier, null, null);
-      ExternalIdBundleWithDates bundle = ExternalIdBundleWithDates.of(id);
-      info.setExternalIdBundle(bundle);
+    final Random random = new Random(); // noMarket need for SecureRandom here..
+    StringBuilder buf = new StringBuilder("loading ").append(_finishValues.size()).append(" timeseries");
+    for (Entry<Pair<ExternalId, String>, Double> entry : _finishValues.entrySet()) {
+      final ExternalId identifier = entry.getKey().getFirst();
+      final String dataField = entry.getKey().getSecond();
+      final Double finishValue = entry.getValue();
+      final ManageableHistoricalTimeSeriesInfo info = getSimulatedTimeSeriesInfo(dataField, identifier);
       buf.append("\t").append(identifier).append(" ").append(dataField).append("\n");
       HistoricalTimeSeriesInfoDocument addedDoc = _htsMaster.add(new HistoricalTimeSeriesInfoDocument(info));
-      LocalDateDoubleTimeSeries timeSeries = getHistoricalDataPoints(random, startValue, TS_LENGTH);
+      LocalDateDoubleTimeSeries timeSeries = getHistoricalDataPoints(random, finishValue, TS_LENGTH);
       _htsMaster.updateTimeSeriesDataPoints(addedDoc.getInfo().getTimeSeriesObjectId(), timeSeries);
     }
     s_logger.info(buf.toString());
   }
 
-  private LocalDateDoubleTimeSeries getHistoricalDataPoints(Random random, Double startValue, int tsLength) {
-    MapLocalDateDoubleTimeSeries result = new MapLocalDateDoubleTimeSeries();
-    LocalDate date = DateUtils.previousWeekDay(LocalDate.now().minusYears(tsLength));
-    double currentValue = startValue;
+  public static LocalDateDoubleTimeSeries getHistoricalDataPoints(final Random random, final Double finishValue, final int tsLength) {
+    final MapLocalDateDoubleTimeSeries result = new MapLocalDateDoubleTimeSeries();
+    LocalDate now = LocalDate.now();
+    final LocalDate stopDate = DateUtils.previousWeekDay(now.minusYears(tsLength));
+    double currentValue = finishValue;
     do {
       currentValue = wiggleValue(random, currentValue);
-      result.putDataPoint(date, currentValue);
-      date = DateUtils.nextWeekDay(date);
-    } while (date.isBefore(LocalDate.now()));
+      result.putDataPoint(now, currentValue);
+      now = DateUtils.previousWeekDay(now);
+    } while (now.isAfter(stopDate));
     return result;
   }
 
-  private double wiggleValue(Random random, double value) {
+  private static double wiggleValue(final Random random, final double value) {
     double result = value + (random.nextGaussian() * (value * SCALING_FACTOR));
     //s_logger.warn("wiggleValue = {}", result);
     return result;

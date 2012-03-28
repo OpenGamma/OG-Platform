@@ -20,7 +20,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
 </script>
 </head>
 <body>
-  <form action="http://localhost:8080/jax/portfolioupload/10/1000" enctype="multipart/form-data" method="post">
+  <form action="http://localhost:8080/jax/portfolioupload" enctype="multipart/form-data" method="post">
     <div>
       <label>
           Portfolio Name: <br /><input type="text" name="portfolioName"><br />
