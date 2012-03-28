@@ -48,6 +48,9 @@ public class FXDigitalOptionSecurityBean extends SecurityBean {
   private CurrencyBean _callCurrency;
   
   @PropertyDefinition
+  private CurrencyBean _paymentCurrency;
+  
+  @PropertyDefinition
   private ZonedDateTimeBean _settlementDate;
   
   @PropertyDefinition
@@ -128,6 +131,8 @@ public class FXDigitalOptionSecurityBean extends SecurityBean {
         return getPutCurrency();
       case 643534991:  // callCurrency
         return getCallCurrency();
+      case -225763273:  // paymentCurrency
+        return getPaymentCurrency();
       case -295948169:  // settlementDate
         return getSettlementDate();
       case -1180327226:  // isLong
@@ -153,6 +158,9 @@ public class FXDigitalOptionSecurityBean extends SecurityBean {
         return;
       case 643534991:  // callCurrency
         setCallCurrency((CurrencyBean) newValue);
+        return;
+      case -225763273:  // paymentCurrency
+        setPaymentCurrency((CurrencyBean) newValue);
         return;
       case -295948169:  // settlementDate
         setSettlementDate((ZonedDateTimeBean) newValue);
@@ -291,6 +299,31 @@ public class FXDigitalOptionSecurityBean extends SecurityBean {
 
   //-----------------------------------------------------------------------
   /**
+   * Gets the paymentCurrency.
+   * @return the value of the property
+   */
+  public CurrencyBean getPaymentCurrency() {
+    return _paymentCurrency;
+  }
+
+  /**
+   * Sets the paymentCurrency.
+   * @param paymentCurrency  the new value of the property
+   */
+  public void setPaymentCurrency(CurrencyBean paymentCurrency) {
+    this._paymentCurrency = paymentCurrency;
+  }
+
+  /**
+   * Gets the the {@code paymentCurrency} property.
+   * @return the property, not null
+   */
+  public final Property<CurrencyBean> paymentCurrency() {
+    return metaBean().paymentCurrency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
    * Gets the settlementDate.
    * @return the value of the property
    */
@@ -375,6 +408,11 @@ public class FXDigitalOptionSecurityBean extends SecurityBean {
     private final MetaProperty<CurrencyBean> _callCurrency = DirectMetaProperty.ofReadWrite(
         this, "callCurrency", FXDigitalOptionSecurityBean.class, CurrencyBean.class);
     /**
+     * The meta-property for the {@code paymentCurrency} property.
+     */
+    private final MetaProperty<CurrencyBean> _paymentCurrency = DirectMetaProperty.ofReadWrite(
+        this, "paymentCurrency", FXDigitalOptionSecurityBean.class, CurrencyBean.class);
+    /**
      * The meta-property for the {@code settlementDate} property.
      */
     private final MetaProperty<ZonedDateTimeBean> _settlementDate = DirectMetaProperty.ofReadWrite(
@@ -394,6 +432,7 @@ public class FXDigitalOptionSecurityBean extends SecurityBean {
         "expiry",
         "putCurrency",
         "callCurrency",
+        "paymentCurrency",
         "settlementDate",
         "isLong");
 
@@ -416,6 +455,8 @@ public class FXDigitalOptionSecurityBean extends SecurityBean {
           return _putCurrency;
         case 643534991:  // callCurrency
           return _callCurrency;
+        case -225763273:  // paymentCurrency
+          return _paymentCurrency;
         case -295948169:  // settlementDate
           return _settlementDate;
         case -1180327226:  // isLong
@@ -478,6 +519,14 @@ public class FXDigitalOptionSecurityBean extends SecurityBean {
      */
     public final MetaProperty<CurrencyBean> callCurrency() {
       return _callCurrency;
+    }
+
+    /**
+     * The meta-property for the {@code paymentCurrency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<CurrencyBean> paymentCurrency() {
+      return _paymentCurrency;
     }
 
     /**
