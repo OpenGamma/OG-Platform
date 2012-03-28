@@ -120,6 +120,7 @@ public class PortfolioLoaderResource {
       public void write(OutputStream output) throws IOException, WebApplicationException {
         // TODO callback for progress updates as portoflio is copied
         output.write("Starting upload...\n".getBytes());
+        output.flush();
         copier.copy(portfolioReader, portfolioWriter);
         output.write("Upload complete".getBytes());
       }
@@ -160,7 +161,7 @@ public class PortfolioLoaderResource {
    * Multipart.  The bug causes the {@code read()} method of the file upload stream to throw an exception if it is
    * called twice at the end of the stream which violates the contract of {@link InputStream}.  It ought to
    * keep returning {@code -1} indefinitely.  This class restores that behaviour.
-   * TODO Check if this can be removed when we upgrade Jersey. It is a problem when the CSV file doesn't end with a blank line
+   * TODO Check if this can be removed when we upgrade Jersey. It is a problem when the CSV file doesn't end with a new line
    * @see <a href="http://java.net/jira/browse/JAX_WS-965">The bug report</a>
    */
   private static class WorkaroundInputStream extends FilterInputStream {
