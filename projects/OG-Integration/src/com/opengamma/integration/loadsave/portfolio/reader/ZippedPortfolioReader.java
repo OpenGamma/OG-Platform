@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipFile;
 
+import org.apache.commons.lang.ArrayUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -90,12 +91,13 @@ public class ZippedPortfolioReader implements PortfolioReader {
     if (!entry.isDirectory() && entry.getName().substring(entry.getName().lastIndexOf('.')).equalsIgnoreCase(SHEET_EXTENSION)) {
       try {
         // Extract full path
-        _currentPath = entry.getName().split("/");
+        String[] fullPath = entry.getName().split("/");
 
         // Extract security name
-        String secType = _currentPath[_currentPath.length - 1].substring(0, _currentPath[_currentPath.length - 1].lastIndexOf('.'));
+        String secType = fullPath[fullPath.length - 1].substring(0, fullPath[fullPath.length - 1].lastIndexOf('.'));
 
-
+        _currentPath = (String[]) ArrayUtils.subarray(fullPath, 0, fullPath.length - 1);
+        
         // Set up a sheet reader and a row parser for the current CSV file in the ZIP archive
         SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
         
