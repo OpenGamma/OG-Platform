@@ -8,10 +8,10 @@ $.register_module({
     obj: function () {
         return function () {
             og.common.util.ui.dialog({
-                width: 600, height: 370,
+                width: 600, height: 420,
                 type: 'input',
                 title: 'Import Portfolio',
-                custom: '<iframe id="import" src="import.ftl" width="500" height="220" marginheight="0" marginwidth="0"\
+                custom: '<iframe id="import" src="import.ftl" width="500" height="270" marginheight="0" marginwidth="0"\
                          frameborder="0" />',
                 buttons: {
                     'Start Import': function () {

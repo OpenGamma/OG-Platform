@@ -32,6 +32,11 @@ ${ogStyle.print('og_all.css', 'all',false)}
     </div>
     <div>
       <label>
+        Data Provider: <br /><input type="text" name="dataProvider"><br />
+      </label>
+    </div>
+    <div>
+      <label>
         CSV Upload:<br />
         <input type="file" name="file"><br />
       </label>
