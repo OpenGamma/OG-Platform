@@ -35,7 +35,7 @@ public abstract class SecurityPersister {
 
   protected abstract void storeSecurityImpl(ManageableSecurity security);
 
-  protected ExternalScheme getScheme() {
+  public ExternalScheme getScheme() {
     return _scheme;
   }
 
