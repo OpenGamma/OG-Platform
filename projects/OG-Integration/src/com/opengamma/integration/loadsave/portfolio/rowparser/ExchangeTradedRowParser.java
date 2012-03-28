@@ -20,6 +20,7 @@ import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
@@ -46,19 +47,30 @@ public class ExchangeTradedRowParser extends RowParser {
     _bbgSecSource = bbgSecSource;
   }
 
+  private static final ExternalScheme[] s_schemeWaterfall = {
+    SecurityUtils.BLOOMBERG_TICKER,
+    SecurityUtils.BLOOMBERG_TCM,
+    SecurityUtils.BLOOMBERG_BUID,
+    SecurityUtils.CUSIP,
+    SecurityUtils.ISIN
+  };
+  
+  
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> row) {
     
     ArgumentChecker.notNull(row, "row");
     
-    // Look up security using ticker
-    ManageableSecurity security = _bbgSecSource.getSecurity(ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId(getWithException(row, TICKER))));
-    if (security != null) {
-      return new ManageableSecurity[] {security };
-    } else {
-      return new ManageableSecurity[] {};
+    for (ExternalScheme scheme : s_schemeWaterfall) {
+      ManageableSecurity security = _bbgSecSource.getSecurity(ExternalIdBundle.of(
+          ExternalId.of(scheme, getWithException(row, TICKER))
+      ));
+      if (security != null) {
+        return new ManageableSecurity[] {security };
+      }
     }
+
+    return new ManageableSecurity[] {};
   }
 
   @Override

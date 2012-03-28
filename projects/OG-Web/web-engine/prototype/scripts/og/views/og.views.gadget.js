@@ -4,7 +4,7 @@
  */
 $.register_module({
     name: 'og.views.gadget',
-    dependencies: ['og.common'],
+    dependencies: ['og.common', 'og.api'],
     obj: function () {
         var module = this, view, common = og.common, routes = common.routes;
         return view = {
@@ -12,7 +12,10 @@ $.register_module({
             timeseries: function (args) {
                 var options = {selector: '.OG-timeseries-gadget', datapoints_link: false};
                 $('#gadget_content').html('<section class="' + options.selector.substring(1) + '"></section>');
-                options.id = args.id;
+                if (args.id)
+                    options.id = args.id;
+                else
+                    options.data = og.api.common.get_cache(args.key) || {};
                 common.gadgets.timeseries(options);
             },
             rules: {

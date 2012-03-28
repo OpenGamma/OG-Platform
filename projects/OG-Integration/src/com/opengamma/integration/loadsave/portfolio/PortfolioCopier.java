@@ -16,4 +16,6 @@ public abstract interface PortfolioCopier {
  
   void copy(PortfolioReader portfolioReader, PortfolioWriter portfolioWriter);
 
+  void copy(PortfolioReader portfolioReader, PortfolioWriter portfolioWriter, PortfolioCopierVisitor visitor);
+
 }
