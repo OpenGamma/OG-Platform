@@ -6,7 +6,7 @@ $.register_module({
     name: 'og.api.common',
     dependencies: [],
     obj: function () {
-        var str = function (val) {
+        var module = this, cache = window['sessionStorage'], warn = og.dev.warn, str = function (val) {
             return val === void 0 ? ''
                 : $.isArray(val) ? val.join('\n')
                     : typeof val === 'object' ? JSON.stringify(val)
@@ -66,6 +66,29 @@ $.register_module({
             start_loading: function (loading_method) {
                 if (loading_method) loading_method();
                 /*global ajax loading events start here*/
+            },
+            get_cache: function (key) {
+                try { // if cache is restricted, bail
+                    return cache['getItem'](module.name + key) ? JSON.parse(cache['getItem'](module.name + key)) : null;
+                } catch (error) {
+                    return warn(module.name + ': get_cache failed\n', error);
+                    return null;
+                }
+            },
+            set_cache: function (key, value) {
+                try { // if the cache is too full, fail gracefully
+                    cache['setItem'](module.name + key, JSON.stringify(value));
+                } catch (error) {
+                    warn(module.name + ': set_cache failed\n', error);
+                    del_cache(key);
+                }
+            },
+            del_cache: function (key) {
+                try { // if cache is restricted, bail
+                    cache['removeItem'](module.name + key);
+                } catch (error) {
+                    warn(module.name + ': del_cache failed\n', error);
+                }
             },
             str: str
         };
