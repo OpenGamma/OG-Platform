@@ -349,7 +349,10 @@ $.register_module({
                     } else $this.find('.og-icon-expand').css('visibility', 'hidden');
                 });
                 if (!version) attach_trades_link(selector);
-                $(selector + ' .OG-table').tablesorter().awesometable({height: 400});
+                $(selector + ' .OG-table').tablesorter({
+                    headers: {1: {sorter:'numeric_string'}, 4: {sorter: 'currency_string'}},
+                    debug: true
+                }).awesometable({height: 400});
                 /*
                  * Enable edit/delete trade
                  */

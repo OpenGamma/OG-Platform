@@ -1,6 +1,7 @@
 .OG-layout-admin-container {
     height: 100%;
     margin: 0 5px;
+    visibility: hidden;
 }
 
 .OG-layout-admin-masthead {

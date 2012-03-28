@@ -6,6 +6,8 @@
 package com.opengamma.integration.loadsave.portfolio.rowparser;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -104,7 +106,41 @@ public class ExchangeTradedRowParser extends RowParser {
     }
     
   }
-  
+
+  private static void addValueIfNotNull(Map<String, String> map, String key, Object value) {
+    if (value != null) {
+      map.put(key, value.toString());
+    }
+  }
+
+  @Override
+  public Map<String, String> constructRow(ManageableTrade trade) {
+    Map<String, String> map = new HashMap<String, String>();
+    addValueIfNotNull(map, QUANTITY, trade.getQuantity());
+    addValueIfNotNull(map, TRADE_DATE, trade.getTradeDate());
+    addValueIfNotNull(map, PREMIUM, trade.getQuantity());
+    addValueIfNotNull(map, QUANTITY, trade.getQuantity());
+    return map;
+  }
+
+  @Override
+  public Map<String, String> constructRow(ManageablePosition position) {
+    BigDecimal quantity = position.getQuantity();
+    if (quantity != null) {
+      return Collections.singletonMap(QUANTITY, quantity.toString());
+    }
+    return null;
+  }
+
+  @Override
+  public Map<String, String> constructRow(ManageableSecurity security) {
+    String ticker = security.getExternalIdBundle().getValue(SecurityUtils.BLOOMBERG_TICKER);
+    if (ticker != null) {
+      return Collections.singletonMap(TICKER, ticker);
+    }
+    return null;
+  }
+
   @Override
   public String[] getColumns() {
     return _columns;
