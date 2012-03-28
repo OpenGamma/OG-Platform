@@ -5,7 +5,7 @@
  */
 package com.opengamma.integration.loadsave.portfolio.web;
 
-import java.io.BufferedInputStream;
+import java.io.FilterInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -163,7 +163,7 @@ public class PortfolioLoaderResource {
    * TODO Check if this can be removed when we upgrade Jersey. It is a problem when the CSV file doesn't end with a blank line
    * @see <a href="http://java.net/jira/browse/JAX_WS-965">The bug report</a>
    */
-  private static class WorkaroundInputStream extends BufferedInputStream {
+  private static class WorkaroundInputStream extends FilterInputStream {
 
     private boolean _ended;
 
@@ -177,6 +177,30 @@ public class PortfolioLoaderResource {
         return -1;
       }
       int i = super.read();
+      if (i == -1) {
+        _ended = true;
+      }
+      return i;
+    }
+
+    @Override
+    public int read(byte[] b) throws IOException {
+      if (_ended) {
+        return -1;
+      }
+      int i = super.read(b);
+      if (i == -1) {
+        _ended = true;
+      }
+      return i;
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) throws IOException {
+      if (_ended) {
+        return -1;
+      }
+      int i = super.read(b, off, len);
       if (i == -1) {
         _ended = true;
       }
