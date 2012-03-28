@@ -96,7 +96,7 @@ public class ZippedPortfolioReader implements PortfolioReader {
         // Extract security name
         String secType = fullPath[fullPath.length - 1].substring(0, fullPath[fullPath.length - 1].lastIndexOf('.'));
 
-        _currentPath = (String[]) ArrayUtils.subarray(fullPath, 0, fullPath.length - 2);
+        _currentPath = (String[]) ArrayUtils.subarray(fullPath, 0, fullPath.length - 1);
         
         // Set up a sheet reader and a row parser for the current CSV file in the ZIP archive
         SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));

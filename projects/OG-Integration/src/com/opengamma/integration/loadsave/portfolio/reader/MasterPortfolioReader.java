@@ -98,6 +98,7 @@ public class MasterPortfolioReader implements PortfolioReader {
   public String[] getCurrentPath() {
     Stack<ManageablePortfolioNode> stack = 
         _portfolioDocument.getPortfolio().getRootNode().findNodeStackByObjectId(_currentNode.getUniqueId());
+    stack.remove(0);
     String[] result = new String[stack.size()];
     int i = stack.size();
     while (!stack.isEmpty()) {

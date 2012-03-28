@@ -157,6 +157,13 @@ public class SurfaceValue {
     return new SurfaceValue(multiplied);
   }
 
+  /**
+   * Compare two objects with a given tolerance. Return "true" if all the values are within the tolerance.
+   * @param value1 The first object.
+   * @param value2 The second object.
+   * @param tolerance The tolerance.
+   * @return The comparison flag.
+   */
   public static boolean compare(final SurfaceValue value1, final SurfaceValue value2, double tolerance) {
     Set<DoublesPair> set1 = value1._data.keySet();
     Set<DoublesPair> set2 = value2._data.keySet();
@@ -169,6 +176,18 @@ public class SurfaceValue {
       }
     }
     return true;
+  }
+
+  /**
+   * Collapse the object to a single value. The points on which the amounts occur are ignored and the values summed.
+   * @return The value.
+   */
+  public double toSingleValue() {
+    double amount = 0;
+    for (DoublesPair point : _data.keySet()) {
+      amount += _data.get(point);
+    }
+    return amount;
   }
 
   @Override
