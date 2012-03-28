@@ -42,7 +42,7 @@ public class ExchangeTradedRowParser extends RowParser {
   private BloombergSecuritySource _bbgSecSource;
 
   public ExchangeTradedRowParser(BloombergSecuritySource bbgSecSource) {
-    //ArgumentChecker.notNull(bbgSecSource, "bbgSecSource");
+    ArgumentChecker.notNull(bbgSecSource, "bbgSecSource");
     _bbgSecSource = bbgSecSource;
   }
 
