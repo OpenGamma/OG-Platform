@@ -26,7 +26,7 @@ $.register_module({
                     object_id: data.template_data.object_id
                 }],
                 meta, // object that stores the structure and data of the different plots
-                state = {}, // keeps a record of the current active data sets in the plot along with zoom and pan data
+                state = window.state = {}, // keeps a record of the current active data sets in the plot along with zoom and pan data
                 colors_arr = ['#42669a', '#ff9c00', '#00e13a', '#313b44'], // line colours for plot 1 data sets
                 colors_arr_p2 = ['#ccc', '#b1b1b1', '#969696', '#858585'], // line colours for plot 2 data sets
                 $p1, p1_options, p1_selector = selector + ' .og-js-p1',
@@ -35,7 +35,8 @@ $.register_module({
                 plot_selector = selector + ' .og-plot-header',
                 $legend, panning, hover_pos = null,
                 x_max, initial_preset, reset_options,
-                load_plots, empty_plots, update_legend, rescale_yaxis, calculate_y_values, data_points, get_legend;
+                search_handler, load_plots, empty_plots, update_legend, rescale_yaxis,
+                calculate_y_values, data_points, get_legend;
             $(selector).html('\
                 <section class="og-plots">\
                   <div class="og-flot-top"></div>\
@@ -364,99 +365,99 @@ $.register_module({
                 }
             };
             load_plots();
+            search_handler = function (r) {
+                // build meta data object and populate it with the initial plot data
+                meta = r.data.data.reduce(function (acc, val) {
+                    var arr = val.split('|'), field = arr[4], time = arr[5], id = arr[0];
+                    if (!acc[field]) acc[field] = {};
+                    acc[field][time] = id;
+                    return acc;
+                }, {});
+                meta[init_data_field][init_ob_time] = result;
+                state.field = init_data_field, state.time = [init_ob_time];
+                (function () {
+                    // Helper function, returns a timeseries data object, or an id which can be used to get it
+                    // Takes a sub object of meta
+                    var get_data_or_id = function (obj) {return obj[Object.keys(obj)[0]];},
+                    // build select
+                    build_select = function () {
+                        var field, select = '';
+                        for (field in meta) select += '<option>'+ field +'</option>';
+                        return select = '<div class="og-field"><span>Timeseries:</span><select>' + select
+                            + '</select></div>';
+                    },
+                    // build checkboxes
+                    build_checkbox = function  () {
+                        var time, checkbox = '';
+                        for (time in meta[state.field]) {
+                            checkbox += '<label><input type="checkbox" /><span>' + time + '</span></label>';
+                        }
+                        return checkbox = '<div class="og-observation">' + checkbox + '</div>';
+                    },
+                    // build form
+                    build_form = function () {
+                        var $form = $(build_select() + build_checkbox()), ctr = 0;
+                        // Set selected options
+                        $form.find('select').val(state.field);
+                        $.each(state.time, function (i, time) {
+                            $form.find('label span').contents().each(function (i, node) {
+                                if (time === $(node).text())
+                                    $(this).parent().prev().prop('checked', 'checked').parent()
+                                        .css({'color': '#fff', 'background-color': colors_arr[ctr]}), ctr += 1;
+                            });
+                        });
+                        // attach handlers
+                        $form.find('select, input').change(function (e) {
+                            var meta_sub_obj, data = [], is_select = $(e.target).is('select'),
+                                handler = function (r) {
+                                    var td = r.data.template_data, field = td.data_field,
+                                        time = td.observation_time, t, cached_object;
+                                    state.field = field, meta[field][time] = r;
+                                    if (is_select) state.time = [time],
+                                        data.push({
+                                            data: r.data.timeseries.data,
+                                            label: time,
+                                            data_provider: r.data.template_data.data_provider,
+                                            data_source: r.data.template_data.data_source,
+                                            object_id: r.data.template_data.object_id
+                                        });
+                                    else for (t in state.time) {
+                                        if (!meta[state.field][state.time[t]]) continue;
+                                        cached_object = meta[state.field][state.time[t]].data;
+                                        data.push({
+                                            data: cached_object.timeseries.data,
+                                            label: state.time[t],
+                                            data_provider: cached_object.template_data.data_provider,
+                                            data_source: cached_object.template_data.data_source,
+                                            object_id: cached_object.template_data.object_id
+                                        });
+                                    }
+                                    data_arr = data;
+                                    load_plots();
+                                    $(plot_selector).html(build_form());
+                            };
+                            if (is_select) {
+                                state.from = state.to = void 0;
+                                meta_sub_obj = get_data_or_id(meta[$(e.target).val()]);
+                                if (typeof meta_sub_obj === 'object') handler(meta_sub_obj);
+                                else api.rest.timeseries.get({handler: function (r) {handler(r)}, id: meta_sub_obj});
+                            }
+                            if (!is_select) {
+                                var new_time = $(this).next().text(), index_of = state.time.indexOf(new_time);
+                                meta_sub_obj = meta[state.field][new_time];
+                                ~index_of ? state.time.splice(index_of, 1) : state.time.push(new_time);
+                                if (typeof meta_sub_obj === 'object') handler(meta_sub_obj);
+                                else api.rest.timeseries.get({handler: function (r) {handler(r)}, id: meta_sub_obj});
+                            }
+                        });
+                        return $form;
+                    };
+                    $(plot_selector).html(build_form());
+                }());
+            };
             // find related timeseries and create the menu
             api.rest.timeseries.get({
-                handler: function (r) {
-                    // build meta data object and populate it with the initial plot data
-                    meta = r.data.data.reduce(function (acc, val) {
-                        var arr = val.split('|'), field = arr[4], time = arr[5], id = arr[0];
-                        if (!acc[field]) acc[field] = {};
-                        acc[field][time] = id;
-                        return acc;
-                    }, {});
-                    meta[init_data_field][init_ob_time] = result;
-                    state.field = init_data_field, state.time = [init_ob_time];
-                    (function () {
-                        // Helper function, returns a timeseries data object, or an id which can be used to get it
-                        // Takes a sub object of meta
-                        var get_data_or_id = function (obj) {return obj[Object.keys(obj)[0]];},
-                        // build select
-                        build_select = function () {
-                            var field, select = '';
-                            for (field in meta) select += '<option>'+ field +'</option>';
-                            return select = '<div class="og-field"><span>Timeseries:</span><select>' + select
-                                + '</select></div>';
-                        },
-                        // build checkboxes
-                        build_checkbox = function  () {
-                            var time, checkbox = '';
-                            for (time in meta[state.field]) {
-                                checkbox += '<label><input type="checkbox" /><span>' + time + '</span></label>';
-                            }
-                            return checkbox = '<div class="og-observation">' + checkbox + '</div>';
-                        },
-                        // build form
-                        build_form = function () {
-                            var $form = $(build_select() + build_checkbox()), ctr = 0;
-                            // Set selected options
-                            $form.find('select').val(state.field);
-                            $.each(state.time, function (i, time) {
-                                $form.find('label span').contents().each(function (i, node) {
-                                    if (time === $(node).text())
-                                        $(this).parent().prev().prop('checked', 'checked').parent()
-                                            .css({'color': '#fff', 'background-color': colors_arr[ctr]}), ctr += 1;
-                                });
-                            });
-                            // attach handlers
-                            $form.find('select, input').change(function (e) {
-                                var meta_sub_obj, data = [], is_select = $(e.target).is('select'),
-                                    handler = function (r) {
-                                        var td = r.data.template_data, field = td.data_field,
-                                            time = td.observation_time, t, cached_object;
-                                        state.field = field, meta[field][time] = r;
-                                        if (is_select) state.time = [time],
-                                                data.push({
-                                                    data: r.data.timeseries.data,
-                                                    label: time,
-                                                    data_provider: r.data.template_data.data_provider,
-                                                    data_source: r.data.template_data.data_source,
-                                                    object_id: r.data.template_data.object_id
-                                                });
-                                        else for (t in state.time) {
-                                            if (!meta[state.field][state.time[t]]) continue;
-                                            cached_object = meta[state.field][state.time[t]].data;
-                                            data.push({
-                                                data: cached_object.timeseries.data,
-                                                label: state.time[t],
-                                                data_provider: cached_object.template_data.data_provider,
-                                                data_source: cached_object.template_data.data_source,
-                                                object_id: cached_object.template_data.object_id
-                                            });
-                                        }
-                                        data_arr = data;
-                                        load_plots();
-                                        $(plot_selector).html(build_form());
-                                };
-                                if (is_select) {
-                                    state.from = state.to = void 0;
-                                    meta_sub_obj = get_data_or_id(meta[$(e.target).val()]);
-                                    if (typeof meta_sub_obj === 'object') handler(meta_sub_obj);
-                                    else api.rest.timeseries.get({handler: function (r) {handler(r)}, id: meta_sub_obj});
-                                }
-                                if (!is_select) {
-                                    var new_time = $(this).next().text(), index_of = state.time.indexOf(new_time);
-                                    meta_sub_obj = meta[state.field][new_time];
-                                    ~index_of ? state.time.splice(index_of, 1) : state.time.push(new_time);
-                                    if (typeof meta_sub_obj === 'object') handler(meta_sub_obj);
-                                    else api.rest.timeseries.get({handler: function (r) {handler(r)}, id: meta_sub_obj});
-                                }
-                            });
-                            return $form;
-                        };
-                        $(plot_selector).html(build_form());
-                    }());
-                },
-                loading: function () {},
+                handler: search_handler,
                 identifier: identifier
             });
         };
@@ -466,8 +467,7 @@ $.register_module({
                 dependencies: ['id'],
                 handler: handler,
                 id: config.id,
-                cache_for: 10000,
-                loading: function () {}
+                cache_for: 10000
             });
         }
     }
