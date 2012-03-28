@@ -202,6 +202,7 @@
     <fragment>/scripts/og/api/og.api.rest.js</fragment>
   </bundle>
   <bundle id="util.js">
+    <fragment>/scripts/og/common/util/og.common.util.tablesorter.parsers.js</fragment>
     <fragment>/scripts/og/common/util/og.common.util.hashqueue.js</fragment>
     <fragment>/scripts/og/common/util/og.common.util.history.js</fragment>
     <fragment>/scripts/og/common/util/og.common.util.date.js</fragment>
