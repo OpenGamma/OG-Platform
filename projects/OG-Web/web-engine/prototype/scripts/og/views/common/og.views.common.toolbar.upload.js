@@ -15,7 +15,7 @@ $.register_module({
                          frameborder="0" />',
                 buttons: {
                     'Start Import': function () {
-                        $('#import').contents().find('form').submit();
+                        $('#import').load(og.views.portfolios.search).contents().find('form').submit();
                         $(this).dialog('option', 'buttons', {'Close': function () {$(this).dialog('close');}});
                     },
                     'Cancel': function () {$(this).dialog('close');}
