@@ -95,9 +95,7 @@ public class PortfolioSaverTool extends AbstractIntegrationTool {
       String extension = filename.substring(filename.lastIndexOf('.'));
 
       if (extension.equalsIgnoreCase(".csv") || extension.equalsIgnoreCase(".xls")) {
-        //return new SingleSheetPortfolioWriter(filename, securityTypes);
-        ImmutableMap<String, RowParser> parsers = ImmutableMap.<String, RowParser>of("Equity", new ExchangeTradedRowParser(null));
-        return new SingleSheetPortfolioWriter(filename, parsers);
+        return new SingleSheetPortfolioWriter(filename, securityTypes);
       // Multi-asset ZIP file extension
       } else if (extension.equalsIgnoreCase(".zip")) {
         // Create zipped multi-asset class loader
