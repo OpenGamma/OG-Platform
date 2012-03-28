@@ -42,7 +42,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
         CSV Upload:<br />
         <input type="file" name="file"><br />
       </label>
-      <small>CSV Format information is documented on the wiki</small>
+      <small><a href="/prototype/data/example-portfolio.csv">Example CSV Format</a></small>
     </div>
   </form>
 </body>
