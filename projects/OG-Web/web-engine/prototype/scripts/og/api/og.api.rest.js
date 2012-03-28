@@ -10,7 +10,7 @@ $.register_module({
     obj: function () {
         var module = this, live_data_root = module.live_data_root, api, warn = og.dev.warn,
             common = og.api.common, routes = og.common.routes, start_loading = common.start_loading,
-            end_loading = common.end_loading, encode = window['encodeURIComponent'], cache = window['sessionStorage'],
+            end_loading = common.end_loading, encode = window['encodeURIComponent'],
             outstanding_requests = {}, registrations = [], subscribe,
             meta_data = {configs: null, holidays: null, securities: null, viewrequirementnames: null},
             singular = {
@@ -26,6 +26,7 @@ $.register_module({
             MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, STALL = 500 /* 500ms */,
             INSTANT = 0 /* 0ms */, RESUBSCRIBE = 30000 /* 20s */,
             TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */,
+            get_cache = common.get_cache, set_cache = common.set_cache, del_cache = common.del_cache,
             /** @ignore */
             register = function (req) {
                 return !req.config.meta.update ? true
@@ -35,32 +36,6 @@ $.register_module({
                             config: req.config, method: req.method,
                             update: req.config.meta.update, url: req.url, current: req.current
                         });
-            },
-            /** @ignore */
-            get_cache = function (key) {
-                try { // if cache is restricted, bail
-                    return cache['getItem'](module.name + key) ? JSON.parse(cache['getItem'](module.name + key)) : null;
-                } catch (error) {
-                    return warn(module.name + ': get_cache failed\n', error);
-                    return null;
-                }
-            },
-            /** @ignore */
-            set_cache = function (key, value) {
-                try { // if the cache is too full, fail gracefully
-                    cache['setItem'](module.name + key, JSON.stringify(value));
-                } catch (error) {
-                    warn(module.name + ': set_cache failed\n', error);
-                    del_cache(key);
-                }
-            },
-            /** @ignore */
-            del_cache = function (key) {
-                try { // if cache is restricted, bail
-                    cache['removeItem'](module.name + key);
-                } catch (error) {
-                    warn(module.name + ': del_cache failed\n', error);
-                }
             },
             Promise = function () {
                 var deferred = new $.Deferred, promise = deferred.promise();
@@ -225,8 +200,6 @@ $.register_module({
             not_implemented = function (method) {
                 throw new Error(this.root + '#' + method + ' exists in the REST API, but does not have a JS version');
             };
-        // initialize cache so nothing leaks from other sessions (e.g. from a FF crash); if cache is restricted, bail
-        try {cache.clear();} catch (error) {warn(module.name + ': cache initalize failed\n', error);}
         api = {
             abort: function (promise) {
                 if (!promise) return;
