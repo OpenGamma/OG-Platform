@@ -227,6 +227,7 @@ public abstract class SecurityGenerator<T extends ManageableSecurity> {
     OpenGammaExecutionContext.setRegionSource(context, getRegionSource());
     OpenGammaExecutionContext.setConventionBundleSource(context, getConventionSource());
     OpenGammaExecutionContext.setSecuritySource(context, new MasterSecuritySource(getSecurityMaster()));
+    OpenGammaExecutionContext.setHistoricalTimeSeriesSource(context, getHistoricalSource());
     return context;
   }
 

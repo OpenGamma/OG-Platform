@@ -49,15 +49,16 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
     loadYieldCurves();
     loadSimulatedHistoricalData();
     loadEquityPortfolio();
+    loadEquityOptionPortfolio();
     loadSwapPortfolio();
     loadMultiCurrencySwapPortfolio();
     loadBondPortfolio();
     loadCapFloorCMSSpreadPortfolio();
     loadCapFloorPortfolio();
     loadCashPortfolio();
-    loadEquityOptionPortfolio();
     loadFRAPortfolio();
     loadLiborRawSecurities();
+    loadMixedFXPortfolio();
     loadMixedPortfolio();
     loadViews();
   }
@@ -211,6 +212,16 @@ public class ExampleDatabasePopulater extends AbstractExampleTool {
     final Log log = new Log("Creating example FRA portfolio");
     try {
       (new PortfolioGeneratorTool()).run(getToolContext(), "Example FRA Portfolio", "FRA", true);
+      log.done();
+    } catch (RuntimeException t) {
+      log.fail(t);
+    }
+  }
+
+  private void loadMixedFXPortfolio() {
+    final Log log = new Log("Creating mixed FX portfolio");
+    try {
+      (new PortfolioGeneratorTool()).run(getToolContext(), "Example Mixed FX Portfolio", "MixedFX", true);
       log.done();
     } catch (RuntimeException t) {
       log.fail(t);
