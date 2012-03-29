@@ -51,7 +51,7 @@ public class YieldCurveNodeSensitivitiesHelper {
   public static Set<ComputedValue> getInstrumentLabelledSensitivitiesForCurve(final String curveName, final YieldCurveBundle bundle,
       final DoubleMatrix1D sensitivitiesForCurve, final InterpolatedYieldCurveSpecificationWithSecurities curveSpec,
       final ValueSpecification resultSpec) {
-    final int nSensitivites = curveSpec.getStrips().size();
+    final int nSensitivities = curveSpec.getStrips().size();
     int startIndex = 0;
     for (final String name : bundle.getAllNames()) {
       if (curveName.equals(name)) {
@@ -61,9 +61,9 @@ public class YieldCurveNodeSensitivitiesHelper {
     }
     final YieldAndDiscountCurve curve = bundle.getCurve(curveName);
     final Double[] keys = curve.getCurve().getXData();
-    final double[] values = new double[nSensitivites];
+    final double[] values = new double[nSensitivities];
     final Object[] labels = YieldCurveLabelGenerator.getLabels(curveSpec);
-    for (int i = 0; i < nSensitivites; i++) {
+    for (int i = 0; i < nSensitivities; i++) {
       values[i] = sensitivitiesForCurve.getEntry(i + startIndex);
     }
     final DoubleLabelledMatrix1D labelledMatrix = new DoubleLabelledMatrix1D(keys, labels, values);
