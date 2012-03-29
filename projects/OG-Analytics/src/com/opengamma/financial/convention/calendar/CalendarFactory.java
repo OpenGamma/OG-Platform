@@ -44,7 +44,6 @@ public final class CalendarFactory {
     loadCountryDefinitions();
   }
 
-  @SuppressWarnings("unchecked")
   private void loadCalendarInstances() {
     final ResourceBundle calendars = ResourceBundle.getBundle(Calendar.class.getName());
     for (final String calendarName : calendars.keySet()) {
@@ -89,15 +88,15 @@ public final class CalendarFactory {
           throw new OpenGammaRuntimeException("No suitable constructor for '" + calendarName + "'");
         }
         _calendarMap.put(calendarName.toLowerCase(), instance);
-      } catch (InstantiationException ex) {
+      } catch (final InstantiationException ex) {
         throw new OpenGammaRuntimeException("Error initialising Calendars", ex);
-      } catch (IllegalAccessException ex) {
+      } catch (final IllegalAccessException ex) {
         throw new OpenGammaRuntimeException("Error initialising Calendars", ex);
-      } catch (ClassNotFoundException ex) {
+      } catch (final ClassNotFoundException ex) {
         throw new OpenGammaRuntimeException("Error initialising Calendars", ex);
-      } catch (IllegalArgumentException ex) {
+      } catch (final IllegalArgumentException ex) {
         throw new OpenGammaRuntimeException("Error initialising Calendars", ex);
-      } catch (InvocationTargetException ex) {
+      } catch (final InvocationTargetException ex) {
         throw new OpenGammaRuntimeException("Error initialising Calendars", ex);
       }
     }

@@ -20,16 +20,8 @@ import com.opengamma.financial.model.volatility.smile.fitting.interpolation.Weig
 import com.opengamma.financial.model.volatility.smile.function.MixedLogNormalModelData;
 import com.opengamma.financial.model.volatility.smile.function.MixedLogNormalVolatilityFunction;
 import com.opengamma.math.function.Function1D;
-import com.opengamma.math.linearalgebra.SVDecompositionCommons;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 import com.opengamma.math.matrix.DoubleMatrix2D;
-import com.opengamma.math.minimization.NonLinearParameterTransforms;
-import com.opengamma.math.minimization.NullTransform;
-import com.opengamma.math.minimization.ParameterLimitsTransform;
-import com.opengamma.math.minimization.ParameterLimitsTransform.LimitType;
-import com.opengamma.math.minimization.SingleRangeLimitTransform;
-import com.opengamma.math.minimization.UncoupledParameterTransforms;
-import com.opengamma.math.rootfinding.newton.BroydenVectorRootFinder;
 import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 import com.opengamma.util.ArgumentChecker;
 
@@ -38,13 +30,12 @@ import com.opengamma.util.ArgumentChecker;
  */
 public class PiecewiseMixedLogNormalFitter {
 
-  private static final ParameterLimitsTransform VOL_TRANSFORM = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN);// new DoubleRangeLimitTransform(0.01, 1.0);
-  private static final ParameterLimitsTransform DVOL_TRANSFORM = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN);//new  DoubleRangeLimitTransform(0.0, 5.0);
-  private static final ParameterLimitsTransform THETA_TRANSFORM = new NullTransform();// new DoubleRangeLimitTransform(0.0, Math.PI / 2);
-  private static final ParameterLimitsTransform PHI_TRANSFORM = new NullTransform();// new DoubleRangeLimitTransform(0.0, Math.PI / 2);
-  private static final NonLinearParameterTransforms TRANSFORM = new UncoupledParameterTransforms(new DoubleMatrix1D(4, 0.0), new ParameterLimitsTransform[] {VOL_TRANSFORM, DVOL_TRANSFORM,
-    THETA_TRANSFORM, PHI_TRANSFORM },
-    new BitSet());
+  //  private static final ParameterLimitsTransform VOL_TRANSFORM = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); // new DoubleRangeLimitTransform(0.01, 1.0);
+  //  private static final ParameterLimitsTransform DVOL_TRANSFORM = new SingleRangeLimitTransform(0, LimitType.GREATER_THAN); //new  DoubleRangeLimitTransform(0.0, 5.0);
+  //  private static final ParameterLimitsTransform THETA_TRANSFORM = new NullTransform(); // new DoubleRangeLimitTransform(0.0, Math.PI / 2);
+  //  private static final ParameterLimitsTransform PHI_TRANSFORM = new NullTransform(); // new DoubleRangeLimitTransform(0.0, Math.PI / 2);
+  //  private static final NonLinearParameterTransforms TRANSFORM = new UncoupledParameterTransforms(new DoubleMatrix1D(4, 0.0),
+  //      new ParameterLimitsTransform[] {VOL_TRANSFORM, DVOL_TRANSFORM, THETA_TRANSFORM, PHI_TRANSFORM }, new BitSet());
   private static final WeightingFunction DEFAULT_WEIGHTING_FUNCTION = SineWeightingFunction.getInstance();
 
   private static final Logger s_logger = LoggerFactory.getLogger(PiecewiseSABRFitterRootFinder.class);
@@ -79,7 +70,7 @@ public class PiecewiseMixedLogNormalFitter {
       averageVol += vol;
       averageVol2 += vol * vol;
     }
-    double temp = averageVol2 - averageVol * averageVol / n;
+    final double temp = averageVol2 - averageVol * averageVol / n;
     averageVol2 = temp <= 0.0 ? 0.0 : Math.sqrt(temp) / (n - 1); //while temp should never be negative, rounding errors can make it so
     averageVol /= n;
 
@@ -117,12 +108,12 @@ public class PiecewiseMixedLogNormalFitter {
       modelParams[0] = new MixedLogNormalModelData(gRes.getModelParameters().getData());
     } else {
       //impose a global beta on the remaining 3 point fits
-      double[] gFitParms = gRes.getModelParameters().getData();
-      final double theta = gFitParms[2];
+      //final double[] gFitParms = gRes.getModelParameters().getData();
+      //final double theta = gFitParms[2];
       //start = new DoubleMatrix1D(gFitParms[0], gFitParms[1], gFitParms[3]);
       start = gRes.getModelParameters();
       fixed.set(2); //fixed weight
-      BroydenVectorRootFinder rootFinder = new BroydenVectorRootFinder(1e-8, 1e-8, 100, new SVDecompositionCommons());
+      //final BroydenVectorRootFinder rootFinder = new BroydenVectorRootFinder(1e-8, 1e-8, 100, new SVDecompositionCommons());
 
       double[] tStrikes = new double[4];
       double[] tVols = new double[4];
@@ -160,15 +151,15 @@ public class PiecewiseMixedLogNormalFitter {
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
       @Override
-      public DoubleMatrix1D evaluate(DoubleMatrix1D x) {
-        double sigma = x.getEntry(0);
-        double dSigma = x.getEntry(1);
+      public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
+        final double sigma = x.getEntry(0);
+        final double dSigma = x.getEntry(1);
 
-        double phi = x.getEntry(2);
-        double[] params = new double[] {sigma, dSigma, theta, phi };
-        MixedLogNormalModelData data = new MixedLogNormalModelData(params);
-        double[] vols = func.evaluate(data);
-        double[] res = new double[n];
+        final double phi = x.getEntry(2);
+        final double[] params = new double[] {sigma, dSigma, theta, phi };
+        final MixedLogNormalModelData data = new MixedLogNormalModelData(params);
+        final double[] vols = func.evaluate(data);
+        final double[] res = new double[n];
         for (int i = 0; i < n; i++) {
           res[i] = vols[i] - impliedVols[i];
         }
@@ -184,16 +175,16 @@ public class PiecewiseMixedLogNormalFitter {
     return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
 
       @Override
-      public DoubleMatrix2D evaluate(DoubleMatrix1D x) {
-        double sigma = x.getEntry(0);
-        double dTheta = x.getEntry(1);
-        double phi = x.getEntry(2);
-        double[] params = new double[] {sigma, dTheta, theta, phi };
-        MixedLogNormalModelData data = new MixedLogNormalModelData(params);
+      public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
+        final double sigma = x.getEntry(0);
+        final double dTheta = x.getEntry(1);
+        final double phi = x.getEntry(2);
+        final double[] params = new double[] {sigma, dTheta, theta, phi };
+        final MixedLogNormalModelData data = new MixedLogNormalModelData(params);
 
-        double[][] temp = adjointFunc.evaluate(data);
+        final double[][] temp = adjointFunc.evaluate(data);
         //remove the theta sense
-        double[][] res = new double[3][3];
+        final double[][] res = new double[3][3];
         for (int i = 0; i < 3; i++) {
           res[i][0] = temp[i][0];
           res[i][1] = temp[i][1];
@@ -211,9 +202,10 @@ public class PiecewiseMixedLogNormalFitter {
 
     return new Function1D<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double strike) {
-        EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, true);
+        final EuropeanVanillaOption option = new EuropeanVanillaOption(strike, expiry, true);
         final int index = SurfaceArrayUtils.getLowerBoundIndex(strikes, strike);
         if (index == 0) {
           final MixedLogNormalModelData p = modelParams[0];

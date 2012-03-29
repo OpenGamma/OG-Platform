@@ -48,7 +48,7 @@ public class PiecewiseSABRFitter {
     double averageVol = 0;
     double averageVol2 = 0;
     for (int i = 0; i < n; i++) {
-      double vol = impliedVols[i];
+      final double vol = impliedVols[i];
       averageVol += vol;
       averageVol2 += vol * vol;
     }
@@ -95,7 +95,7 @@ public class PiecewiseSABRFitter {
         tStrikes = Arrays.copyOfRange(strikes, i, i + 3);
         tVols = Arrays.copyOfRange(impliedVols, i, i + 3);
         final SmileModelFitter<SABRFormulaData> fitter =
-          new SABRModelFitter(forward, tStrikes, timeToExpiry, tVols, errors, MODEL);
+            new SABRModelFitter(forward, tStrikes, timeToExpiry, tVols, errors, MODEL);
         final LeastSquareResultsWithTransform lRes = fitter.solve(start, fixed);
         if (lRes.getChiSq() > 3.0) {
           LOGGER.warn("chi^2 on SABR fit " + i + " is " + lRes.getChiSq());
@@ -132,7 +132,7 @@ public class PiecewiseSABRFitter {
       return MODEL.getVolatility(_forward, strike, _expiry, p2.getAlpha(), p2.getBeta(), p2.getRho(), p2.getNu());
     } else {
       return w * MODEL.getVolatility(_forward, strike, _expiry, p1.getAlpha(), p1.getBeta(), p1.getRho(), p1.getNu()) +
-      (1 - w) * MODEL.getVolatility(_forward, strike, _expiry, p2.getAlpha(), p2.getBeta(), p2.getRho(), p2.getNu());
+          (1 - w) * MODEL.getVolatility(_forward, strike, _expiry, p2.getAlpha(), p2.getBeta(), p2.getRho(), p2.getNu());
     }
   }
 

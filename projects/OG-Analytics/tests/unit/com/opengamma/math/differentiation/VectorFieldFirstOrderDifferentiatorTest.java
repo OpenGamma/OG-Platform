@@ -22,9 +22,9 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-      double x1 = x.getEntry(0);
-      double x2 = x.getEntry(1);
-      double[] y = new double[2];
+      final double x1 = x.getEntry(0);
+      final double x2 = x.getEntry(1);
+      final double[] y = new double[2];
       y[0] = x1 * x1 + 2 * x2 * x2 - x1 * x2 + x1 * Math.cos(x2) - x2 * Math.sin(x1);
       y[1] = 2 * x1 * x2 * Math.cos(x1 * x2) - x1 * Math.sin(x1) - x2 * Math.cos(x2);
       return new DoubleMatrix1D(y);
@@ -35,9 +35,9 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-      double x1 = x.getEntry(0);
-      double x2 = x.getEntry(1);
-      double[] y = new double[3];
+      final double x1 = x.getEntry(0);
+      final double x2 = x.getEntry(1);
+      final double[] y = new double[3];
       y[0] = x1 * x1 + 2 * x2 * x2 - x1 * x2 + x1 * Math.cos(x2) - x2 * Math.sin(x1);
       y[1] = 2 * x1 * x2 * Math.cos(x1 * x2) - x1 * Math.sin(x1) - x2 * Math.cos(x2);
       y[2] = x1 - x2;
@@ -49,9 +49,9 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
-      double x1 = x.getEntry(0);
-      double x2 = x.getEntry(1);
-      double[][] jac = new double[2][2];
+      final double x1 = x.getEntry(0);
+      final double x2 = x.getEntry(1);
+      final double[][] jac = new double[2][2];
       jac[0][0] = 2 * x1 - x2 + Math.cos(x2) - x2 * Math.cos(x1);
       jac[0][1] = 4 * x2 - x1 - x1 * Math.sin(x2) - Math.sin(x1);
       jac[1][0] = 2 * x2 * Math.cos(x1 * x2) - 2 * x1 * x2 * x2 * Math.sin(x1 * x2) - Math.sin(x1) - x1 * Math.cos(x1);
@@ -64,9 +64,9 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
-      double x1 = x.getEntry(0);
-      double x2 = x.getEntry(1);
-      double[][] jac = new double[3][2];
+      final double x1 = x.getEntry(0);
+      final double x2 = x.getEntry(1);
+      final double[][] jac = new double[3][2];
       jac[0][0] = 2 * x1 - x2 + Math.cos(x2) - x2 * Math.cos(x1);
       jac[0][1] = 4 * x2 - x1 - x1 * Math.sin(x2) - Math.sin(x1);
       jac[1][0] = 2 * x2 * Math.cos(x1 * x2) - 2 * x1 * x2 * x2 * Math.sin(x1 * x2) - Math.sin(x1) - x1 * Math.cos(x1);
@@ -80,9 +80,9 @@ public class VectorFieldFirstOrderDifferentiatorTest {
   private static final Function1D<DoubleMatrix1D, Boolean> DOMAIN = new Function1D<DoubleMatrix1D, Boolean>() {
 
     @Override
-    public Boolean evaluate(DoubleMatrix1D x) {
-      double x1 = x.getEntry(0);
-      double x2 = x.getEntry(1);
+    public Boolean evaluate(final DoubleMatrix1D x) {
+      final double x1 = x.getEntry(0);
+      final double x2 = x.getEntry(1);
       if (x1 < 0 || x1 > Math.PI || x2 < 0 || x2 > Math.PI) {
         return false;
       }
@@ -96,7 +96,6 @@ public class VectorFieldFirstOrderDifferentiatorTest {
   private static final VectorFieldFirstOrderDifferentiator CENTRAL = new VectorFieldFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
   private static final VectorFieldFirstOrderDifferentiator BACKWARD = new VectorFieldFirstOrderDifferentiator(FiniteDifferenceType.BACKWARD, EPS);
 
-  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDifferenceType() {
     new ScalarFirstOrderDifferentiator(null);
@@ -110,10 +109,10 @@ public class VectorFieldFirstOrderDifferentiatorTest {
   @Test
   public void test() {
     final DoubleMatrix1D x = new DoubleMatrix1D(new double[] {.2245, -1.2344 });
-    DoubleMatrix2D anJac = G.evaluate(x);
-    DoubleMatrix2D fdFwdJac = FORWARD.differentiate(F).evaluate(x);
-    DoubleMatrix2D fdCentGrad = CENTRAL.differentiate(F).evaluate(x);
-    DoubleMatrix2D fdBackGrad = BACKWARD.differentiate(F).evaluate(x);
+    final DoubleMatrix2D anJac = G.evaluate(x);
+    final DoubleMatrix2D fdFwdJac = FORWARD.differentiate(F).evaluate(x);
+    final DoubleMatrix2D fdCentGrad = CENTRAL.differentiate(F).evaluate(x);
+    final DoubleMatrix2D fdBackGrad = BACKWARD.differentiate(F).evaluate(x);
 
     for (int i = 0; i < 2; i++) {
       for (int j = 0; j < 2; j++) {
@@ -127,10 +126,10 @@ public class VectorFieldFirstOrderDifferentiatorTest {
   @Test
   public void test2() {
     final DoubleMatrix1D x = new DoubleMatrix1D(new double[] {1.3423, 0.235 });
-    DoubleMatrix2D anJac = G2.evaluate(x);
-    DoubleMatrix2D fdFwdJac = FORWARD.differentiate(F2).evaluate(x);
-    DoubleMatrix2D fdCentGrad = CENTRAL.differentiate(F2).evaluate(x);
-    DoubleMatrix2D fdBackGrad = BACKWARD.differentiate(F2).evaluate(x);
+    final DoubleMatrix2D anJac = G2.evaluate(x);
+    final DoubleMatrix2D fdFwdJac = FORWARD.differentiate(F2).evaluate(x);
+    final DoubleMatrix2D fdCentGrad = CENTRAL.differentiate(F2).evaluate(x);
+    final DoubleMatrix2D fdBackGrad = BACKWARD.differentiate(F2).evaluate(x);
 
     for (int i = 0; i < 3; i++) {
       for (int j = 0; j < 2; j++) {
@@ -143,7 +142,7 @@ public class VectorFieldFirstOrderDifferentiatorTest {
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void outsideDomainTest() {
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> fdJacFunc = CENTRAL.differentiate(F2, DOMAIN);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> fdJacFunc = CENTRAL.differentiate(F2, DOMAIN);
     fdJacFunc.evaluate(new DoubleMatrix1D(2.3, 3.2));
   }
 
@@ -159,11 +158,11 @@ public class VectorFieldFirstOrderDifferentiatorTest {
     x[5] = new DoubleMatrix1D(new double[] {0.0, 0.0 });
     x[6] = new DoubleMatrix1D(new double[] {Math.PI, Math.PI });
 
-    Function1D<DoubleMatrix1D, DoubleMatrix2D> fdJacFunc = CENTRAL.differentiate(F2, DOMAIN);
+    final Function1D<DoubleMatrix1D, DoubleMatrix2D> fdJacFunc = CENTRAL.differentiate(F2, DOMAIN);
 
     for (int k = 0; k < 7; k++) {
-      DoubleMatrix2D anJac = G2.evaluate(x[k]);
-      DoubleMatrix2D fdJac = fdJacFunc.evaluate(x[k]);
+      final DoubleMatrix2D anJac = G2.evaluate(x[k]);
+      final DoubleMatrix2D fdJac = fdJacFunc.evaluate(x[k]);
 
       for (int i = 0; i < 3; i++) {
         for (int j = 0; j < 2; j++) {

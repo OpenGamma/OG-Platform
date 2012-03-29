@@ -85,9 +85,8 @@ public class LinearPiecewiseSABRSurfaceFitter implements PiecewiseSABRSurfaceFit
         // double var = INTERPOLATOR_1D.interpolate(db, t);
         if (var >= 0) {
           return Math.sqrt(var / t);
-        } else {
-          throw new MathException("negative var " + var);
         }
+        throw new MathException("negative var " + var);
       }
     };
 

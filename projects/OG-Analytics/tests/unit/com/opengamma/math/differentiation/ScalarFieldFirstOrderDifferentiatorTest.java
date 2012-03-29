@@ -21,8 +21,8 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
 
     @Override
     public Double evaluate(final DoubleMatrix1D x) {
-      double x1 = x.getEntry(0);
-      double x2 = x.getEntry(1);
+      final double x1 = x.getEntry(0);
+      final double x2 = x.getEntry(1);
       return x1 * x1 + 2 * x2 * x2 - x1 * x2 + x1 * Math.cos(x2) - x2 * Math.sin(x1);
     }
   };
@@ -31,7 +31,7 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
 
     @Override
     public Boolean evaluate(final DoubleMatrix1D x) {
-      double x1 = x.getEntry(0);
+      final double x1 = x.getEntry(0);
       return x1 >= 0.0 && x1 <= Math.PI;
     }
   };
@@ -40,9 +40,9 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
 
     @Override
     public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
-      double x1 = x.getEntry(0);
-      double x2 = x.getEntry(1);
-      double[] y = new double[2];
+      final double x1 = x.getEntry(0);
+      final double x2 = x.getEntry(1);
+      final double[] y = new double[2];
       y[0] = 2 * x1 - x2 + Math.cos(x2) - x2 * Math.cos(x1);
       y[1] = 4 * x2 - x1 - x1 * Math.sin(x2) - Math.sin(x1);
       return new DoubleMatrix1D(y);
@@ -54,7 +54,6 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
   private static final ScalarFieldFirstOrderDifferentiator CENTRAL = new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.CENTRAL, EPS);
   private static final ScalarFieldFirstOrderDifferentiator BACKWARD = new ScalarFieldFirstOrderDifferentiator(FiniteDifferenceType.BACKWARD, EPS);
 
-  @SuppressWarnings("unused")
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void testNullDifferenceType() {
     new ScalarFirstOrderDifferentiator(null);
@@ -68,10 +67,10 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
   @Test
   public void test() {
     final DoubleMatrix1D x = new DoubleMatrix1D(.2245, -1.2344);
-    DoubleMatrix1D anGrad = G.evaluate(x);
-    DoubleMatrix1D fdFwdGrad = FORWARD.differentiate(F).evaluate(x);
-    DoubleMatrix1D fdCentGrad = CENTRAL.differentiate(F).evaluate(x);
-    DoubleMatrix1D fdBackGrad = BACKWARD.differentiate(F).evaluate(x);
+    final DoubleMatrix1D anGrad = G.evaluate(x);
+    final DoubleMatrix1D fdFwdGrad = FORWARD.differentiate(F).evaluate(x);
+    final DoubleMatrix1D fdCentGrad = CENTRAL.differentiate(F).evaluate(x);
+    final DoubleMatrix1D fdBackGrad = BACKWARD.differentiate(F).evaluate(x);
 
     for (int i = 0; i < 2; i++) {
       assertEquals(fdFwdGrad.getEntry(i), anGrad.getEntry(i), 10 * EPS);
@@ -87,11 +86,11 @@ public class ScalarFieldFirstOrderDifferentiatorTest {
     x[1] = new DoubleMatrix1D(0.0, 12.6);
     x[2] = new DoubleMatrix1D(Math.PI, 0.0);
 
-    Function1D<DoubleMatrix1D, DoubleMatrix1D> fdGradFunc = CENTRAL.differentiate(F, DOMAIN);
+    final Function1D<DoubleMatrix1D, DoubleMatrix1D> fdGradFunc = CENTRAL.differentiate(F, DOMAIN);
 
     for (int k = 0; k < 3; k++) {
-      DoubleMatrix1D fdRes = fdGradFunc.evaluate(x[k]);
-      DoubleMatrix1D alRes = G.evaluate(x[k]);
+      final DoubleMatrix1D fdRes = fdGradFunc.evaluate(x[k]);
+      final DoubleMatrix1D alRes = G.evaluate(x[k]);
       for (int i = 0; i < 2; i++) {
         assertEquals(fdRes.getEntry(i), alRes.getEntry(i), 1e-7);
       }

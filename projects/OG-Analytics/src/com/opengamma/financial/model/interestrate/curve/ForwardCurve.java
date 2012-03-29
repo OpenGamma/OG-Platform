@@ -141,7 +141,6 @@ public class ForwardCurve {
     final Function1D<Double, Double> drift = new Function1D<Double, Double>() {
       private final double _eps = 1e-3;
 
-      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double t) {
 
@@ -170,6 +169,7 @@ public class ForwardCurve {
     Validate.isTrue(shift > -1, "shift must be > -1");
 
     final Function<Double, Double> func = new Function<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... t) {
         return (1 + shift) * _fwdCurve.getYValue(t[0]);
