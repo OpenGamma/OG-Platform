@@ -11,14 +11,18 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
  * 
- * Calculates the confidence interval for a volatility estimate, where the percentage changes in the price are assumed to be normally distributed.
+ * Calculates the confidence interval for a volatility estimate, where the
+ * percentage changes in the price are assumed to be normally distributed.
+ * <p>
  * The estimate is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * P\\left[\\hat{\\sigma}\\sqrt{\\frac{n-1}{\\chi^2(n-1; \\frac{\\alpha}{2})}} \\leq \\sigma \\leq \\hat{\\sigma}\\sqrt{\\frac{n-1}{\\chi^2(n-1; 1 - \\frac{\\alpha}{2})}}\\right] = 1 - \\alpha
- * \\end{eqnarray*}}
- * where {@latex.inline %preamble{\\usepackage{amsmath}} $\\hat{\\sigma}$} is the volatility estimate and {@latex.inline %preamble{\\usepackage{amsmath}} $\\chi^2(n-1; \\frac{\\alpha}{2})$} 
- * is the value of the {@latex.inline $\\chi^2$} distribution with {@latex.inline $n-1$} degrees of freedom and a confidence level of {@latex.inline $1 - \\alpha$}.
+ * $$
+ * \begin{eqnarray*}
+ * P\left[\hat{\sigma}\sqrt{\frac{n-1}{\chi^2(n-1; \frac{\alpha}{2})}} \leq \sigma \leq \hat{\sigma}\sqrt{\frac{n-1}{\chi^2(n-1; 1 - \frac{\alpha}{2})}}\right] = 1 - \alpha
+ * \end{eqnarray*}
+ * $$
+ * where $\chi^2(n-1; \frac{\alpha}{2})$ is the value of the $\chi^2$
+ * distribution with $n-1$ degrees of freedom and a confidence level of
+ * $1 - * \alpha$.
  */
 public class LogNormalVolatilityEstimateConfidenceIntervalCalculator {
   private ProbabilityDistribution<Double> _chiSquare;

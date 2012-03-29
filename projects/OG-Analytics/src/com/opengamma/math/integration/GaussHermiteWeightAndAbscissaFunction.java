@@ -13,16 +13,17 @@ import com.opengamma.math.rootfinding.NewtonRaphsonSingleRootFinder;
 import com.opengamma.util.tuple.Pair;
 
 /**
- * Class that generates weights and abscissas for Gauss-Hermite quadrature. Orthonormal Hermite
- * polynomials {@latex.inline $H_N$} are used to generate the weights (see {@link com.opengamma.math.function.special.OrthonormalHermitePolynomialFunction})
+ * Class that generates weights and abscissas for Gauss-Hermite quadrature.
+ * Orthonormal Hermite polynomials $H_N$ are used to generate the weights (see
+ * {@link * com.opengamma.math.function.special.OrthonormalHermitePolynomialFunction})
  * using the formula:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * w_i = \\frac{2}{(H_n'(x_i))^2}
- * \\end{align*}
- * } 
- * where {@latex.inline $x_i$} is the {@latex.inline $i^{th}$} root of the orthogonal polynomial and {@latex.inline $H_i'$} is
- * the first derivative of the {@latex.inline $i^{th}$} polynomial.
+ * $$
+ * \begin{align*}
+ * w_i = \frac{2}{(H_n'(x_i))^2}
+ * \end{align*}
+ * $$
+ * where $x_i$ is the $i^{th}$ root of the orthogonal polynomial and $H_i'$ is
+ * the first derivative of the $i^{th}$ polynomial.
  */
 public class GaussHermiteWeightAndAbscissaFunction implements QuadratureWeightAndAbscissaFunction {
   private static final OrthonormalHermitePolynomialFunction HERMITE = new OrthonormalHermitePolynomialFunction();

@@ -12,26 +12,26 @@ import com.opengamma.math.function.DoubleFunction1D;
 import com.opengamma.math.function.Function1D;
 
 /**
- * Class for finding the real root of a function within a range of <i>x</i>-values using the one-dimensional version of Newton's method.
+ * Class for finding the real root of a function within a range of $x$-values using the one-dimensional version of Newton's method.
  * <p>
- * For a function {@latex.inline $f(x)$}, the Taylor series expansion is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * f(x + \\delta) \\approx f(x) + f'(x)\\delta + \\frac{f''(x)}{2}\\delta^2 + \\cdots
- * \\end{align*}
- * }
+ * For a function $f(x)$, the Taylor series expansion is given by:
+ * $$
+ * \begin{align*}
+ * f(x + \delta) \approx f(x) + f'(x)\delta + \frac{f''(x)}{2}\delta^2 + \cdots
+ * \end{align*}
+ * $$
  * As delta approaches zero (and if the function is well-behaved), this gives 
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\delta = -\\frac{f(x)}{f'(x)}
- * \\end{align*}
- * }
- * when {@latex.inline $f(x + \\delta) = 0$}.
+ * $$
+ * \begin{align*}
+ * \delta = -\frac{f(x)}{f'(x)}
+ * \end{align*}
+ * $$
+ * when $f(x + \delta) = 0$.
  * <p>
  * There are several well-known problems with Newton's method, in particular when the range of values given includes a local
- * maximum or minimum. In this situation, the next iterative step can shoot off to {@latex.inline $\\pm\\infty$}. This implementation
- * currently does not attempt to correct for this: if the value of <i>x</i> goes beyond the initial range of values <i>x<sub>low</sub></i>
- * and <i>x<sub>high</sub></i>, an exception is thrown.
+ * maximum or minimum. In this situation, the next iterative step can shoot off to $\pm\infty$. This implementation
+ * currently does not attempt to correct for this: if the value of $x$ goes beyond the initial range of values $x_low$
+ * and $x_high$, an exception is thrown.
  * <p>
  * If the function that is provided does not override the {@link com.opengamma.math.function.DoubleFunction1D#derivative()} method, then 
  * the derivative is approximated using finite difference. This is undesirable for several reasons: (i) the extra function evaluations will lead

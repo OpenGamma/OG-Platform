@@ -12,15 +12,20 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function1D;
 
 /**
- * The second moment of a series of asset return data can be used as a measure of the risk of that asset. However, in many instances 
- * a large positive return is not regarded as a risk. The partial moment can be used as an alternative.
+ * The second moment of a series of asset return data can be used as a measure
+ * of the risk of that asset. However, in many instances a large positive
+ * return is not regarded as a risk. The partial moment can be used as an
+ * alternative.
  * <p>
- * The lower (higher) partial moment considers only those values that are below (above) a threshold. Given a series of data {@latex.inline $x_1, x_2, \\dots, x_n$} sorted 
- * from lowest to highest, the first (last) {@latex.inline $k$} values are below (above) the threshold {@latex.inline $x_0$}. The partial moment is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}} 
- * \\begin{align*}
- * \\text{pm} = \\sqrt{\\frac{1}{k}\\sum\\limits_{i=1}^{k}(x_i - x_0)^2}
- * \\end{align*}}
+ * The lower (higher) partial moment considers only those values that are below
+ * (above) a threshold. Given a series of data $x_1, x_2, \dots, x_n$ sorted
+ * from lowest to highest, the first (last) $k$ values are below (above) the
+ * threshold $x_0$. The partial moment is given by:
+ * $$ 
+ * \begin{align*}
+ * \text{pm} = \sqrt{\frac{1}{k}\sum\limits_{i=1}^{k}(x_i - x_0)^2}
+ * \end{align*}
+ * $$
  */
 public class PartialMomentCalculator extends Function1D<double[], Double> {
   private final double _threshold;

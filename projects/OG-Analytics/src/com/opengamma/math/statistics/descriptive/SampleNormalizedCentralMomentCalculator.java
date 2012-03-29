@@ -10,14 +10,16 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function1D;
 
 /**
- * Calculates the n<sup>th</sup> normalized central moment of a series of data. Given the n<sup>th</sup> central moment {@latex.inline $\\mu_n$} of
- * a series of data with standard deviation {@latex.inline $\\sigma$}, the normalized central moment is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\mu_n' = \\frac{\\mu_n}{\\sigma^n}
- * \\end{align*}
- * }
- * The normalization gives a scale-invariant, dimensionless quantity. The normalized central moment is also known as the <i>standardized moment</i>.
+ * Calculates the $n^th$ normalized central moment of a series of data. Given
+ * the $n^th$ central moment $\mu_n$ of a series of data with standard
+ * deviation $\sigma$, the normalized central moment is given by:
+ * $$
+ * \begin{align*}
+ * \mu_n' = \frac{\mu_n}{\sigma^n}
+ * \end{align*}
+ * $$
+ * The normalization gives a scale-invariant, dimensionless quantity. The
+ * normalized central moment is also known as the _standardized moment_.
  */
 public class SampleNormalizedCentralMomentCalculator extends Function1D<double[], Double> {
   private static final Function1D<double[], Double> STD_DEV = new SampleStandardDeviationCalculator();

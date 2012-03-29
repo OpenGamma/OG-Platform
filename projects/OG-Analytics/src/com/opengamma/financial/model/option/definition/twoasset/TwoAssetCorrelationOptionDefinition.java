@@ -16,18 +16,21 @@ import com.opengamma.util.time.Expiry;
 /**
  * Defines a European-style two-asset correlation option.
  * <p>
- * The payoff of a two-asset correlation call option is  
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * max\\left(S_2 - P, 0\\right) \\quad\\quad\\text{if}\\quad S_1 > K
- * \\end{eqnarray*}}
- * and 0 otherwise. The payoff of a put is
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * max\\left(P - S_2, 0\\right) \\quad\\quad\\text{if}\\quad S_1 < K
- * \\end{eqnarray*}}
- * and 0 otherwise, where {@latex.inline $K$} is the strike, {@latex.inline $P$} is the payout level, {@latex.inline $S_1$} is the spot price of the first underlying and {@latex.inline $S_2$} 
- * is the spot price of the second underlying.
+ * The payoff of a two-asset correlation call option is:
+ * $$
+ * \begin{eqnarray*}
+ * max\left(S_2 - P, 0\right) \quad\quad\text{if}\quad S_1 > K
+ * \end{eqnarray*}
+ * $$
+ * and 0 otherwise. The payoff of a put is:
+ * $$
+ * \begin{eqnarray*}
+ * max\left(P - S_2, 0\right) \quad\quad\text{if}\quad S_1 < K
+ * \end{eqnarray*}
+ * $$
+ * and 0 otherwise, where $K$ is the strike, $P$ is the payout level, $S_1$ is
+ * the spot price of the first underlying and $S_2$ is the spot price of the
+ * second underlying.
  */
 public class TwoAssetCorrelationOptionDefinition extends OptionDefinition {
   private final OptionExerciseFunction<StandardTwoAssetOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardTwoAssetOptionDataBundle>();

@@ -20,15 +20,16 @@ import com.opengamma.math.function.special.GammaFunction;
 import com.opengamma.math.number.ComplexNumber;
 
 /**
- * This class represents the characteristic function of the Carr-Madan-Geman-Yor (CGMY) process. This process is a pure jump process (i.e.
- * there is no Brownian component).
+ * This class represents the characteristic function of the
+ * Carr-Madan-Geman-Yor (CGMY) process. This process is a pure jump process
+ * (i.e.  there is no Brownian component).
  * <p>
  * The characteristic function is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\phi(u; C, G, M, Y) = \\exp\\left(C \\Gamma(-Y)\\left[(M - iu)^Y - M^Y + (G + iu)^Y - G^Y\\right]\\right)
- * \\end{align*}
- * }
+ * $$
+ * \begin{align*}
+ * \phi(u; C, G, M, Y) = \exp\left(C \Gamma(-Y)\left[(M - iu)^Y - M^Y + (G + iu)^Y - G^Y\right]\right)
+ * \end{align*}
+ * $$
  */
 public class CGMYCharacteristicExponent implements CharacteristicExponent {
   private static final GammaFunction GAMMA_FUNCTION = new GammaFunction();
@@ -130,7 +131,7 @@ public class CGMYCharacteristicExponent implements CharacteristicExponent {
 
   /**
    * 
-   * @return {@latex.inline $M - 1$}
+   * @return $M - 1$
    */
   @Override
   public double getLargestAlpha() {
@@ -139,7 +140,7 @@ public class CGMYCharacteristicExponent implements CharacteristicExponent {
 
   /**
    * 
-   * @return {@latex.inline $-G - 1$}
+   * @return $-G - 1$
    */
   @Override
   public double getSmallestAlpha() {

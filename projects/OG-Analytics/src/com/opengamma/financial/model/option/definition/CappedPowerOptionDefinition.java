@@ -13,14 +13,14 @@ import com.opengamma.util.time.Expiry;
  * A capped power option is a power option with a cap on the maximum payoff.
  * <p>
  * The exercise style is European. The payoff of these options is:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * c &= \\min(\\max(S^i - K, 0), C)\\\\
- * p &= \\min(\\max(K - S^i, 0), C)
- * \\end{align*}
- * }
- * where {@latex.inline $K$} is the strike, {@latex.inline $i$} is the power ({@latex.inline $i > 0$}), {@latex.inline $C$} is the cap ({@latex.inline $C > 0$})
- * and {@latex.inline $S$} is the spot.
+ * $$
+ * \begin{align*}
+ * c &= \min(\max(S^i - K, 0), C) \\
+ * p &= \min(\max(K - S^i, 0), C)
+ * \end{align*}
+ * $$
+ * where $K$ is the strike, $i$ is the power ($i > 0$), $C$ is the cap ($C > 0$)
+ * and $S$ is the spot.
  */
 
 public class CappedPowerOptionDefinition extends OptionDefinition {

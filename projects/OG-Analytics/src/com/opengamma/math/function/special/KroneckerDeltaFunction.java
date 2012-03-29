@@ -11,15 +11,15 @@ import com.opengamma.math.function.Function2D;
 
 /**
  * Class implementing the Kronecker delta function, defined as:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\delta_{i, j}=
- * \\begin{cases}
- * 1 & i = j\\\\
- * 0 & i \\neq j
- * \\end{cases}
- * \\end{align*}
- * }
+ * $$
+ * \begin{align*}
+ * \delta_{i, j}=
+ * \begin{cases}
+ * 1 & i = j\\
+ * 0 & i \neq j
+ * \end{cases}
+ * \end{align*}
+ * $$
  */
 public class KroneckerDeltaFunction extends Function2D<Integer, Integer> {
 

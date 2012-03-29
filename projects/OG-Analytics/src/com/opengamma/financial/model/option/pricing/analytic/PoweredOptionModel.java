@@ -15,21 +15,21 @@ import com.opengamma.math.statistics.distribution.NormalDistribution;
 import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
 
 /**
- * Analytic pricing model for powered options. <b>This model is only valid for options with an integer power.</b>
+ * Analytic pricing model for powered options. *This model is only valid for options with an integer power.*
  * <p>
- * The price of a powered option is
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * c &= \\sum_{j=0}^i \\frac{i!}{j!(i-j)!}S^{i-j}(-K)^j e^{(i-j-1)(r + (i-j)\\frac{\\sigma^2}{2})T - (i-j)(r-b)T}N(d_{i,j})\\\\
- * p &= \\sum_{j=0}^i \\frac{i!}{j!(i-j)!}(-S)^{i-j}K^j e^{(i-j-1)(r + (i-j)\\frac{\\sigma^2}{2})T - (i-j)(r-b)T}N(-d_{i,j})\\\\
- * \\end{align*}
- * }
+ * The price of a powered option is:
+ * $$
+ * \begin{align*}
+ * c &= \sum_{j=0}^i \frac{i!}{j!(i-j)!}S^{i-j}(-K)^j e^{(i-j-1)(r + (i-j)\frac{\sigma^2}{2})T - (i-j)(r-b)T}N(d_{i,j})\\
+ * p &= \sum_{j=0}^i \frac{i!}{j!(i-j)!}(-S)^{i-j}K^j e^{(i-j-1)(r + (i-j)\frac{\sigma^2}{2})T - (i-j)(r-b)T}N(-d_{i,j})\\
+ * \end{align*}
+ * $$
  * where
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * d_{i,j} = \\frac{\\ln(\\frac{S}{K}) + (b + (i - j - \\frac{1}{2})\\sigma^2)T}{\\sigma\\sqrt{T}}
- * \\end{align*}
- * }
+ * $$
+ * \begin{align*}
+ * d_{i,j} = \frac{\ln(\frac{S}{K}) + (b + (i - j - \frac{1}{2})\sigma^2)T}{\sigma\sqrt{T}}
+ * \end{align*}
+ * $$
  * 
  */
 public class PoweredOptionModel extends AnalyticOptionModel<PoweredOptionDefinition, StandardOptionDataBundle> {
