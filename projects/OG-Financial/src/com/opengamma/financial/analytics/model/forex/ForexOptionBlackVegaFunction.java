@@ -22,7 +22,7 @@ import com.opengamma.util.tuple.DoublesPair;
 /**
  * 
  */
-public class ForexOptionBlackVegaFunction extends ForexOptionBlackFunction {
+public class ForexOptionBlackVegaFunction extends ForexOptionBlackSingleValuedFunction {
   private static final PresentValueVolatilitySensitivityBlackForexCalculator CALCULATOR = PresentValueVolatilitySensitivityBlackForexCalculator.getInstance();
 
   public ForexOptionBlackVegaFunction() {
