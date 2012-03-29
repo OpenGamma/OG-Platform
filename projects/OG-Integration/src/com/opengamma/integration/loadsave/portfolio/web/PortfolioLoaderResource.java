@@ -119,8 +119,6 @@ public class PortfolioLoaderResource {
       @Override
       public void write(OutputStream output) throws IOException, WebApplicationException {
         // TODO callback for progress updates as portoflio is copied
-        output.write("Starting upload...\n".getBytes());
-        output.flush();
         copier.copy(portfolioReader, portfolioWriter);
         output.write("Upload complete".getBytes());
       }
