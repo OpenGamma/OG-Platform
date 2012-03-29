@@ -7,6 +7,7 @@ package com.opengamma.examples.tool;
 
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.AssertJUnit.assertNotNull;
+import static org.testng.AssertJUnit.fail;
 
 import org.testng.annotations.Test;
 
@@ -42,7 +43,9 @@ public class ExampleDatabasePopulaterTest {
     for (int i = 0; i < 2; i++) {
       DBTestUtils.createTestHsqlDB(CONFIG_RESOURCE_LOCATION);
       
-      new ExampleDatabasePopulater().run(AbstractExampleTool.TOOLCONTEXT_EXAMPLE_PROPERTIES);
+      if (new ExampleDatabasePopulater().run(AbstractExampleTool.TOOLCONTEXT_EXAMPLE_PROPERTIES) == false) {
+        fail();
+      }
       
       ToolContext toolContext = getToolContext();
       try {

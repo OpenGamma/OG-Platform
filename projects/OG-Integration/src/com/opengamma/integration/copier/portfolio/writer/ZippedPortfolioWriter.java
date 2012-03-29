@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,6 +24,7 @@ import org.springframework.util.StringUtils;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.integration.copier.portfolio.rowparser.JodaBeanRowParser;
 import com.opengamma.integration.copier.portfolio.rowparser.RowParser;
+import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.integration.copier.sheet.writer.CsvSheetWriter;
 import com.opengamma.integration.copier.sheet.writer.SheetWriter;
 import com.opengamma.master.position.ManageablePosition;
@@ -45,6 +47,15 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   private SingleSheetMultiParserPortfolioWriter _currentWriter;
   private Map<String, SingleSheetMultiParserPortfolioWriter> _writerMap = new HashMap<String, SingleSheetMultiParserPortfolioWriter>();
   private Map<String, ByteArrayOutputStream> _bufferMap = new HashMap<String, ByteArrayOutputStream>();
+
+  public ZippedPortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream) {
+  
+    ArgumentChecker.notNull(sheetFormat, "sheetFormat");
+    ArgumentChecker.notNull(outputStream, "outputStream");
+
+    // Create zip file
+    _zipFile = new ZipOutputStream(outputStream);
+  }
   
   public ZippedPortfolioWriter(String filename) {
 
