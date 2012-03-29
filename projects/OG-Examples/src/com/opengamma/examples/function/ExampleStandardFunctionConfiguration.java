@@ -6,6 +6,7 @@
 package com.opengamma.examples.function;
 
 import static com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesRatingFieldNames.DEFAULT_CONFIG_NAME;
+import static com.opengamma.web.spring.DemoStandardFunctionConfiguration.functionConfiguration;
 
 import java.io.OutputStreamWriter;
 import java.lang.reflect.Modifier;
@@ -122,7 +123,9 @@ import com.opengamma.financial.analytics.model.forex.ForexOptionBlackPresentValu
 import com.opengamma.financial.analytics.model.forex.ForexOptionBlackVegaFunction;
 import com.opengamma.financial.analytics.model.forex.ForexOptionBlackVegaMatrixFunction;
 import com.opengamma.financial.analytics.model.forex.ForexOptionBlackVegaQuoteMatrixFunction;
-import com.opengamma.financial.analytics.model.forex.ForexOptionDefaultCurveNamesFunction;
+import com.opengamma.financial.analytics.model.forex.ForexOptionBlackYieldCurveNodeSensitivitiesFunction;
+import com.opengamma.financial.analytics.model.forex.ForexOptionPresentValueCurveSensitivityFunction;
+import com.opengamma.financial.analytics.model.forex.defaultproperties.ForexOptionBlackDefaultPropertiesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureGrossBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.BondFutureNetBasisFromCurvesFunction;
 import com.opengamma.financial.analytics.model.future.InterestRateFutureDefaultValuesFunction;
@@ -653,27 +656,15 @@ public class ExampleStandardFunctionConfiguration extends SingletonFactoryBean<R
   private static void addForexOptionCalculators(List<FunctionConfiguration> functionConfigs) {
     functionConfigs.add(functionConfiguration(ForexOptionBlackPresentValueFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackCurrencyExposureFunction.class));
-//    functionConfigs.add(functionConfiguration(ForexOptionPresentValueCurveSensitivityFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackVegaFunction.class));
-//    functionConfigs.add(functionConfiguration(ForexOptionYieldCurveNodeSensitivitiesFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackVegaMatrixFunction.class));
     functionConfigs.add(functionConfiguration(ForexOptionBlackVegaQuoteMatrixFunction.class));
-    functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, SECONDARY, SECONDARY, SECONDARY, SECONDARY, "DEFAULT",
-        ValueRequirementNames.PRESENT_VALUE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, ValueRequirementNames.FX_CURVE_SENSITIVITIES,
-        ValueRequirementNames.VALUE_VEGA, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ValueRequirementNames.VEGA_MATRIX,
-        ValueRequirementNames.VEGA_QUOTE_MATRIX));
-    functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, SECONDARY, SECONDARY, SECONDARY, SECONDARY, "DEFAULT",
-        ValueRequirementNames.PRESENT_VALUE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, ValueRequirementNames.FX_CURVE_SENSITIVITIES,
-        ValueRequirementNames.VALUE_VEGA, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ValueRequirementNames.VEGA_MATRIX,
-        ValueRequirementNames.VEGA_QUOTE_MATRIX));
-    functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, SECONDARY, SECONDARY, SECONDARY, SECONDARY, "DEFAULT", 
-        ValueRequirementNames.PRESENT_VALUE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, ValueRequirementNames.FX_CURVE_SENSITIVITIES, 
-        ValueRequirementNames.VALUE_VEGA, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ValueRequirementNames.VEGA_MATRIX,
-        ValueRequirementNames.VEGA_QUOTE_MATRIX));
-    functionConfigs.add(functionConfiguration(ForexOptionDefaultCurveNamesFunction.class, SECONDARY, SECONDARY, SECONDARY, SECONDARY, "DEFAULT", 
-        ValueRequirementNames.PRESENT_VALUE, ValueRequirementNames.FX_CURRENCY_EXPOSURE, ValueRequirementNames.FX_CURVE_SENSITIVITIES, 
-        ValueRequirementNames.VALUE_VEGA, ValueRequirementNames.YIELD_CURVE_NODE_SENSITIVITIES, ValueRequirementNames.VEGA_MATRIX,
-        ValueRequirementNames.VEGA_QUOTE_MATRIX));
+    functionConfigs.add(functionConfiguration(ForexOptionPresentValueCurveSensitivityFunction.class));
+    functionConfigs.add(functionConfiguration(ForexOptionBlackYieldCurveNodeSensitivitiesFunction.class));
+    functionConfigs.add(functionConfiguration(ForexOptionBlackDefaultPropertiesFunction.class, SECONDARY, SECONDARY, "PresentValue", SECONDARY, 
+        SECONDARY, "Interpolated", "DEFAULT", "USD", "EUR"));
+    functionConfigs.add(functionConfiguration(ForexOptionBlackDefaultPropertiesFunction.class, SECONDARY, SECONDARY, "Interpolated", SECONDARY, 
+        SECONDARY, "PresentValue", "DEFAULT", "EUR", "USD"));
   }
 
   private static void addForexForwardCalculators(List<FunctionConfiguration> functionConfigs) {
