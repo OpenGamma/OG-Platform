@@ -15,9 +15,14 @@ import com.opengamma.engine.value.ValuePropertyNames;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.financial.analytics.model.forex.ForexOptionBlackFunction;
+import com.opengamma.financial.analytics.model.forex.ForexVisitors;
 import com.opengamma.financial.property.DefaultPropertyFunction;
+import com.opengamma.financial.security.FinancialSecurity;
+import com.opengamma.financial.security.option.FXBarrierOptionSecurity;
+import com.opengamma.financial.security.option.FXDigitalOptionSecurity;
 import com.opengamma.financial.security.option.FXOptionSecurity;
 import com.opengamma.util.ArgumentChecker;
+import com.opengamma.util.money.Currency;
 
 /**
  * 
@@ -70,11 +75,16 @@ public class ForexOptionBlackDefaultPropertiesFunction extends DefaultPropertyFu
     if (target.getType() != ComputationTargetType.SECURITY) {
       return false;
     }
-    if (!(target.getSecurity() instanceof FXOptionSecurity)) {
+    if (!(target.getSecurity() instanceof FinancialSecurity)) {
       return false;
     }
-    final FXOptionSecurity fxOption = (FXOptionSecurity) target.getSecurity();
-    return fxOption.getCallCurrency().getCode().equals(_callCurrency) && fxOption.getPutCurrency().getCode().equals(_putCurrency);
+    final FinancialSecurity security = (FinancialSecurity) target.getSecurity();
+    if (!(security instanceof FXOptionSecurity || security instanceof FXBarrierOptionSecurity || security instanceof FXDigitalOptionSecurity)) {
+      return false;
+    }
+    final Currency putCurrency = security.accept(ForexVisitors.getPutCurrencyVisitor());
+    final Currency callCurrency = security.accept(ForexVisitors.getCallCurrencyVisitor());
+    return callCurrency.getCode().equals(_callCurrency) && putCurrency.getCode().equals(_putCurrency);
   }
 
   @Override
