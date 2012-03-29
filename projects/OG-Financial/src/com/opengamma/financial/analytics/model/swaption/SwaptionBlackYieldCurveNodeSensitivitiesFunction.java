@@ -203,8 +203,8 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends AbstractFu
     final String curveCalculationMethod = curveCalculationMethods.iterator().next();
     final Set<ValueRequirement> requirements = Sets.newHashSetWithExpectedSize(4);
     final Currency currency = FinancialSecurityUtils.getCurrency(target.getSecurity());
-    requirements.add(YieldCurveFunction.getCurveRequirement(currency, forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
-    requirements.add(YieldCurveFunction.getCurveRequirement(currency, fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod));
+    requirements.add(getCurveRequirement(forwardCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency));
+    requirements.add(getCurveRequirement(fundingCurveName, forwardCurveName, fundingCurveName, curveCalculationMethod, currency));
     requirements.add(getCurveSpecRequirement(target, curveName));
     if (!curveCalculationMethod.equals(InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME)) {
       requirements.add(getJacobianRequirement(target, forwardCurveName, fundingCurveName, curveCalculationMethod));
@@ -237,6 +237,24 @@ public class SwaptionBlackYieldCurveNodeSensitivitiesFunction extends AbstractFu
         .with(ValuePropertyNames.CURRENCY, currency)
         .with(ValuePropertyNames.CURVE_CURRENCY, currency)
         .with(ValuePropertyNames.CURVE, curveName).get();
+  }
+
+  private ValueRequirement getCurveRequirement(final String curveName, final String forwardCurveName, final String fundingCurveName, final String calculationMethod, final Currency currency) {
+    final ValueProperties.Builder properties;
+    if (calculationMethod == InterpolatedCurveAndSurfaceProperties.CALCULATION_METHOD_NAME) {
+      properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, curveName)
+          .withAny(InterpolatedCurveAndSurfaceProperties.LEFT_X_EXTRAPOLATOR_NAME)
+          .withAny(InterpolatedCurveAndSurfaceProperties.RIGHT_X_EXTRAPOLATOR_NAME)
+          .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod);
+    } else {
+      properties = ValueProperties.builder()
+          .with(ValuePropertyNames.CURVE, curveName)
+          .with(YieldCurveFunction.PROPERTY_FORWARD_CURVE, forwardCurveName)
+          .with(YieldCurveFunction.PROPERTY_FUNDING_CURVE, fundingCurveName)
+          .with(ValuePropertyNames.CURVE_CALCULATION_METHOD, calculationMethod);
+    }
+    return new ValueRequirement(ValueRequirementNames.YIELD_CURVE, ComputationTargetType.PRIMITIVE, currency.getUniqueId(), properties.get());
   }
 
   private ValueRequirement getVolatilityRequirement(final String surface, final Currency currency) {

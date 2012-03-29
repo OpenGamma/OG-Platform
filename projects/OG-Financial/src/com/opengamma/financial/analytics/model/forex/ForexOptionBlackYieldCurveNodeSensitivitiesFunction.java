@@ -53,7 +53,7 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class ForexOptionBlackYieldCurveNodeSensitivitiesFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(ForexOptionBlackYieldCurveNodeSensitivitiesFunction.class);
-  public static final String PROPERTY_RESULT = "Leg"; //TODO rename this
+  public static final String PROPERTY_PUT_OR_CALL_CURRENCY = "CurrencyLeg"; //TODO rename this
   public static final String PUT_RESULT = "Put";
   public static final String CALL_RESULT = "Call";
   private static final PresentValueYieldCurveNodeSensitivityForexCalculator CALCULATOR = PresentValueYieldCurveNodeSensitivityForexCalculator.getInstance();
@@ -84,7 +84,7 @@ public class ForexOptionBlackYieldCurveNodeSensitivitiesFunction extends Abstrac
     final String callCurveCalculationMethod = desiredValue.getConstraint(ForexOptionBlackFunction.PROPERTY_CALL_CURVE_CALCULATION_METHOD);
     final String surfaceName = desiredValue.getConstraint(ValuePropertyNames.SURFACE);
     final Currency fxSensitivityCurrency = Currency.of(ForexOptionBlackSingleValuedFunction.getResultCurrency(target));
-    final String leg = desiredValue.getConstraint(PROPERTY_RESULT);
+    final String leg = desiredValue.getConstraint(PROPERTY_PUT_OR_CALL_CURRENCY);
     final String calculationMethod;
     final String forwardCurveName;
     final Currency curveCurrency;
@@ -164,7 +164,7 @@ public class ForexOptionBlackYieldCurveNodeSensitivitiesFunction extends Abstrac
       s_logger.error("Did not specify a curve name for requirement {}", desiredValue);
       return null;
     }
-    final Set<String> results = constraints.getValues(PROPERTY_RESULT);
+    final Set<String> results = constraints.getValues(PROPERTY_PUT_OR_CALL_CURRENCY);
     if (results == null || results.size() != 1) {
       s_logger.error("Did not specify a result for requirement {}", desiredValue);
       return null;
@@ -246,7 +246,7 @@ public class ForexOptionBlackYieldCurveNodeSensitivitiesFunction extends Abstrac
 
   private ValueProperties getResultProperties() {
     return createValueProperties()
-        .withAny(PROPERTY_RESULT)
+        .withAny(PROPERTY_PUT_OR_CALL_CURRENCY)
         .withAny(ValuePropertyNames.CURVE)
         .withAny(ValuePropertyNames.CURVE_CURRENCY)
         .withAny(ValuePropertyNames.CURRENCY)
@@ -264,7 +264,7 @@ public class ForexOptionBlackYieldCurveNodeSensitivitiesFunction extends Abstrac
       final String putCurveCalculationMethod, final String callCurveName, final String callForwardCurveName, final String callCurveCalculationMethod,
       final String surfaceName, final String leg) {
     return createValueProperties()
-        .with(PROPERTY_RESULT, leg)
+        .with(PROPERTY_PUT_OR_CALL_CURRENCY, leg)
         .with(ValuePropertyNames.CURVE, curveName)
         .with(ValuePropertyNames.CURVE_CURRENCY, ccy)
         .with(ValuePropertyNames.CURRENCY, ccy)
