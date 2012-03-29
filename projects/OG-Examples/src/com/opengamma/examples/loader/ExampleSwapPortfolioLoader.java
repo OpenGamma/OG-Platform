@@ -79,7 +79,7 @@ public class ExampleSwapPortfolioLoader extends AbstractExampleTool {
   /**
    * The name of the portfolio.
    */
-  public static final String PORTFOLIO_NAME = "Example Swap Portfolio";
+  public static final String PORTFOLIO_NAME = "Swap Portfolio";
   
   /**
    * The scheme used for an identifier which is added to each swap created from the CSV file

@@ -126,7 +126,7 @@ public final class JodaBeanConverters {
     @Override
     public String convertToString(ExternalIdBundle object) {
       String str = object.toString();
-      return str.substring(str.indexOf('[') + 1, str.lastIndexOf(']') - 1);
+      return str.substring(str.indexOf('[') + 1, str.lastIndexOf(']'));
     }
     
     @Override

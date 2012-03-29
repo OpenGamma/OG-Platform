@@ -1,4 +1,4 @@
-package com.opengamma.integration.loadsave;
+package com.opengamma.integration.copier;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
