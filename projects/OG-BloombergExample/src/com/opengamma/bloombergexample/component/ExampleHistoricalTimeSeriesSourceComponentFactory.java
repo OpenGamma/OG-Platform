@@ -16,8 +16,8 @@ import org.joda.beans.impl.direct.DirectBeanBuilder;
 import org.joda.beans.impl.direct.DirectMetaPropertyMap;
 
 import com.google.common.collect.ImmutableList;
-import com.opengamma.component.factory.source.HistoricalTimeSeriesSourceComponentFactory;
 import com.opengamma.bloombergexample.historical.normalization.MockHistoricalTimeSeriesFieldAdjustmentMapFactoryBean;
+import com.opengamma.component.factory.source.HistoricalTimeSeriesSourceComponentFactory;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesResolver;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesSelector;
 import com.opengamma.master.historicaltimeseries.impl.DefaultHistoricalTimeSeriesSelector;

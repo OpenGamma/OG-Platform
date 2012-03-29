@@ -35,6 +35,7 @@ import au.com.bytecode.opencsv.CSVReader;
 import com.opengamma.OpenGammaRuntimeException;
 import com.opengamma.core.region.RegionUtils;
 import com.opengamma.bloombergexample.tool.AbstractExampleTool;
+import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -240,9 +241,8 @@ public class ExampleSwapPortfolioLoader extends AbstractExampleTool {
     Currency floatingCurrency = Currency.of(getWithException(swapDetails, FLOATING_LEG_CURRENCY));
     double floatingNotionalAmount = Double.parseDouble(getWithException(swapDetails, FLOATING_LEG_NOTIONAL));
     Notional floatingNotional = new InterestRateNotional(floatingCurrency, floatingNotionalAmount);
-    // TODO: not sure that this actually does anything, or what identifier we're looking for - just invented something for now
-    String floatingReferenceRate = getWithException(swapDetails, FLOATING_LEG_REFERENCE);
-    ExternalId floatingReferenceRateIdentifier = ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, floatingReferenceRate);
+    String bbgFloatingReferenceRate = getWithException(swapDetails, FLOATING_LEG_REFERENCE);
+    ExternalId floatingReferenceRateIdentifier = ExternalId.of(SecurityUtils.BLOOMBERG_TICKER, bbgFloatingReferenceRate);
     double floatingInitialRate = Double.parseDouble(getWithException(swapDetails, FLOATING_LEG_RATE));
     FloatingInterestRateLeg floatingLeg = new FloatingInterestRateLeg(floatingDayCount, floatingFrequency,
         floatingRegionIdentifier, floatingBusinessDayConvention, floatingNotional, false, floatingReferenceRateIdentifier, FloatingRateType.IBOR);
@@ -253,7 +253,7 @@ public class ExampleSwapPortfolioLoader extends AbstractExampleTool {
     LocalDateTime terminationDate = LocalDateTime.of(LocalDate.parse(getWithException(swapDetails, TERMINATION_DATE), CSV_DATE_FORMATTER), LocalTime.MIDNIGHT);
     
     String fixedLegDescription = RATE_FORMATTER.format(fixedRate);
-    String floatingLegDescription = floatingReferenceRate;
+    String floatingLegDescription = bbgFloatingReferenceRate;
     
     boolean isPayFixed = Boolean.parseBoolean(getWithException(swapDetails, PAY_FIXED));
     SwapLeg payLeg;
