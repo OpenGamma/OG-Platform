@@ -125,7 +125,7 @@ public class JodaBeanRowParser extends RowParser {
     FloatingVarianceSwapLeg.meta();
   }
   
-  public JodaBeanRowParser(String securityName) throws OpenGammaRuntimeException {
+  protected JodaBeanRowParser(String securityName) throws OpenGammaRuntimeException {
     
     ArgumentChecker.notEmpty(securityName, "securityName");
     
@@ -140,6 +140,22 @@ public class JodaBeanRowParser extends RowParser {
 
   }
 
+  /**
+   * Creates a new row parser for the specified security type and tool context
+   * @param securityName  the type of the security for which a row parser is to be created
+   * @return              the RowParser class for the specified security type, or null if unable to identify a suitable parser
+   */
+  public static JodaBeanRowParser newJodaBeanRowParser(String securityName) {
+    // Now using the JodaBean parser
+    
+    ArgumentChecker.notEmpty(securityName, "securityName");
+    
+    try {
+      return new JodaBeanRowParser(securityName);
+    } catch (Throwable e) {
+      return null;
+    }
+  }
 
   //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
   // Import routines: construct security(ies), position, trade

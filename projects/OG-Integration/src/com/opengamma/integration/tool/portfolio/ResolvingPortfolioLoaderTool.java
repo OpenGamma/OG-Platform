@@ -47,14 +47,10 @@ public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
   private static final String OVERWRITE_OPT = "o";
   /** Verbose option flag */
   private static final String VERBOSE_OPT = "v";
-  /** Time series data source option flag*/
-  private static final String TIME_SERIES_DATASOURCE_OPT = "s";
   /** Time series data provider option flag*/
   private static final String TIME_SERIES_DATAPROVIDER_OPT = "p";
   /** Time series data field option flag*/
   private static final String TIME_SERIES_DATAFIELD_OPT = "d";
-  /** Time series observation time option flag*/
-  private static final String TIME_SERIES_OBSERVATIONTIME_OPT = "o";
   
   //-------------------------------------------------------------------------
   /**
@@ -198,11 +194,7 @@ public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
         VERBOSE_OPT, "verbose", false, 
         "Displays progress messages on the terminal");
     options.addOption(verboseOption);
-
-    Option timeSeriesDataSourceOption = new Option(
-        TIME_SERIES_DATASOURCE_OPT, "source", true, "The name of the time series data source");
-    options.addOption(timeSeriesDataSourceOption);
-    
+   
     Option timeSeriesDataProviderOption = new Option(
         TIME_SERIES_DATAPROVIDER_OPT, "provider", true, "The name of the time series data provider");
     options.addOption(timeSeriesDataProviderOption);
@@ -211,10 +203,6 @@ public class ResolvingPortfolioLoaderTool extends AbstractIntegrationTool {
         TIME_SERIES_DATAFIELD_OPT, "field", true, "The name of the time series data field");
     options.addOption(timeSeriesDataFieldOption);
     
-    Option timeSeriesObservationTimeOption = new Option(
-        TIME_SERIES_OBSERVATIONTIME_OPT, "time", true, "The time series observation time");
-    options.addOption(timeSeriesObservationTimeOption);
-
     return options;
   }
 

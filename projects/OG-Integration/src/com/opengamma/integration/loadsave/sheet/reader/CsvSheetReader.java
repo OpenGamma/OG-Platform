@@ -71,7 +71,9 @@ public class CsvSheetReader extends SheetReader {
       if (i >= rawRow.length) {
         break;
       }
-      result.put(getColumns()[i], rawRow[i]);
+      if (rawRow[i] != null && rawRow[i].trim().length() > 0) {
+        result.put(getColumns()[i], rawRow[i]);
+      }
     }
 
     return result;

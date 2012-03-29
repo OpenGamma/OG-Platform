@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.integration.loadsave.portfolio.rowparser.JodaBeanRowParser;
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
 import com.opengamma.integration.loadsave.sheet.writer.CsvSheetWriter;
 import com.opengamma.integration.loadsave.sheet.writer.SheetWriter;
@@ -41,8 +42,8 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
   private ZipOutputStream _zipFile;
   private Map<String, Integer> _versionMap = new HashMap<String, Integer>();
   private String[] _currentPath = new String[] {};
-  private SingleSheetPortfolioWriter _currentWriter;
-  private Map<String, SingleSheetPortfolioWriter> _writerMap = new HashMap<String, SingleSheetPortfolioWriter>();
+  private SingleSheetMultiParserPortfolioWriter _currentWriter;
+  private Map<String, SingleSheetMultiParserPortfolioWriter> _writerMap = new HashMap<String, SingleSheetMultiParserPortfolioWriter>();
   private Map<String, ByteArrayOutputStream> _bufferMap = new HashMap<String, ByteArrayOutputStream>();
   
   public ZippedPortfolioWriter(String filename) {
@@ -182,7 +183,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
     }
 
     _bufferMap = new HashMap<String, ByteArrayOutputStream>();
-    _writerMap = new HashMap<String, SingleSheetPortfolioWriter>();
+    _writerMap = new HashMap<String, SingleSheetMultiParserPortfolioWriter>();
   }
 
   private PortfolioWriter identifyOrCreatePortfolioWriter(ManageableSecurity security) {
@@ -198,7 +199,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
 
       s_logger.info("Creating a new row parser for " + className + " securities");
 
-      parser = RowParser.newRowParser(className);
+      parser = JodaBeanRowParser.newJodaBeanRowParser(className);
       if (parser == null) {
         return null;
       }
@@ -208,7 +209,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
       ByteArrayOutputStream out = new ByteArrayOutputStream();
       SheetWriter sheet = new CsvSheetWriter(out, parser.getColumns());
 
-      _currentWriter = new SingleSheetPortfolioWriter(sheet, parserMap);
+      _currentWriter = new SingleSheetMultiParserPortfolioWriter(sheet, parserMap);
 
       _writerMap.put(className, _currentWriter);
       _bufferMap.put(className, out);
