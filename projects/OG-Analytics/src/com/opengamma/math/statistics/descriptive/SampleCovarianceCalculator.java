@@ -11,15 +11,16 @@ import com.opengamma.math.function.Function;
 import com.opengamma.math.function.Function1D;
 
 /**
- * Calculates the sample covariance of two series of data, {@latex.inline $x_1, x_2, \\dots, x_n$} and {@latex.inline $y_1, y_2, \\dots, y_n$}.
+ * Calculates the sample covariance of two series of data, $x_1, x_2, \dots, x_n$ and $y_1, y_2, \dots, y_n$.
+ *
  * <p>
  * The sample covariance is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\text{cov} = \\frac{1}{n-1}\\sum_{i=1}^n (x_i - \\overline{x})(y_i - \\overline{y})
- * \\end{align*}
- * } 
- * where {@latex.inline $\\overline{x}$ and $\\overline{y}$} are the means of the two series.
+ * $$
+ * \begin{align*}
+ * \text{cov} = \frac{1}{n-1}\sum_{i=1}^n (x_i - \overline{x})(y_i - \overline{y})
+ * \end{align*}
+ * $$
+ * where $\overline{x}$ and $\overline{y}$ are the means of the two series.
  */
 public class SampleCovarianceCalculator implements Function<double[], Double> {
   private static final Function1D<double[], Double> MEAN_CALCULATOR = new MeanCalculator();

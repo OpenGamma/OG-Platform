@@ -40,7 +40,7 @@ public class StandardTwoAssetOptionDataBundle {
    * @param spot2 The spot value of the second underlying
    * @param rho The correlation between the spot rates of the underlying
    * @param date The date of this data
-   * @throws IllegalArgumentException If {@latex.inline $\\rho < -1$} or {@latex.inline $\\rho > 1$} 
+   * @throws IllegalArgumentException If $\rho < -1$ or $\rho > 1$ 
    */
   public StandardTwoAssetOptionDataBundle(final YieldAndDiscountCurve interestRateCurve, final double b1, final double b2, final VolatilitySurface volatilitySurface1,
       final VolatilitySurface volatilitySurface2, final double spot1, final double spot2, final double rho, final ZonedDateTime date) {
@@ -251,7 +251,7 @@ public class StandardTwoAssetOptionDataBundle {
    * Returns a new data bundle with the correlation between the two spot prices replaced by the argument
    * @param correlation The correlation
    * @return The new data bundle
-   * @throws IllegalArgumentException If {@latex.inline $\\rho < -1$} or {@latex.inline $\\rho > 1$} 
+   * @throws IllegalArgumentException If $\rho < -1$ or $\rho > 1$ 
    */
   public StandardTwoAssetOptionDataBundle withCorrelation(final double correlation) {
     if (!ArgumentChecker.isInRangeInclusive(-1, 1, correlation)) {

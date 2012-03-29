@@ -17,24 +17,24 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * Class for pricing gap options (see {@link com.opengamma.financial.model.option.definition.GapOptionDefinition}).
  * <p>
  * The price is calculated using the Reiner-Rubenstein formula:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * c &= S e^{(b-r)T}N(d_1) - K_2 e^{-rT}N(d_2)\\\\
+ * $$
+ * \begin{align*}
+ * c &= S e^{(b-r)T}N(d_1) - K_2 e^{-rT}N(d_2)\\
  * p &= K_2 e^{-rT}N(-d_2) - S e^{(b-r)T}N(-d_1)
- * \\end{align*}
- * }
+ * \end{align*}
+ * $$
  * where
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * d_1 = \\frac{\\ln{\\frac{S}{K_1}} + (b + \\frac{\\sigma^2}{2})T}{\\sigma\\sqrt{T}}
- * \\end{align*}
- * }
+ * $$
+ * \begin{align*}
+ * d_1 = \frac{\ln{\frac{S}{K_1}} + (b + \frac{\sigma^2}{2})T}{\sigma\sqrt{T}}
+ * \end{align*}
+ * $$
  * and
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * d_2 = d_1 - \\sigma\\sqrt{T}
- * \\end{align*}
- * }
+ * $$
+ * \begin{align*}
+ * d_2 = d_1 - \sigma\sqrt{T}
+ * \end{align*}
+ * $$
  * 
  */
 public class GapOptionModel extends AnalyticOptionModel<GapOptionDefinition, StandardOptionDataBundle> {

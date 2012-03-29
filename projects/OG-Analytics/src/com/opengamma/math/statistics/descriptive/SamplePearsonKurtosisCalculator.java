@@ -10,13 +10,14 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function1D;
 
 /**
- * The sample Pearson kurtosis gives a measure of how heavy the tails of a distribution are with respect to the normal distribution (which
- * has a Pearson kurtosis of three). It is calculated using
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\text{Pearson kurtosis} = \\text{Fisher kurtosis} + 3
- * \\end{align*}
- * }
+ * The sample Pearson kurtosis gives a measure of how heavy the tails of a
+ * distribution are with respect to the normal distribution (which has a
+ * Pearson kurtosis of three). It is calculated using
+ * $$
+ * \begin{align*}
+ * \text{Pearson kurtosis} = \text{Fisher kurtosis} + 3
+ * \end{align*}
+ * $$
  * where the Fisher kurtosis is calculated using {@link SampleFisherKurtosisCalculator}.
  */
 public class SamplePearsonKurtosisCalculator extends Function1D<double[], Double> {

@@ -25,26 +25,26 @@ import com.opengamma.math.number.ComplexNumber;
 
 /**
  * The Heston stochastic volatility model is defined as:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * dS_t &= \\mu S_t dt + \\sqrt{V_t}S_t dW_S(t)\\\\
- * dV_t &= \\kappa(\\theta - V_0)dt + \\omega\\sqrt{V_t} dW_V(t)\\\\
- * \\text{with}\\\\
- * dW_S(t) dW_V(t) = \\rho dt
- * \\end{align*}
- * }
+ * $$
+ * \begin{align*}
+ * dS_t &= \mu S_t dt + \sqrt{V_t}S_t dW_S(t)\\
+ * dV_t &= \kappa(\theta - V_0)dt + \omega\sqrt{V_t} dW_V(t)\\
+ * \text{with}\\
+ * dW_S(t) dW_V(t) = \rho dt
+ * \end{align*}
+ * $$
  * This class represents the characteristic function of the Heston model:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\phi(u) &= e^{C(t, u) + D(t, u)V_0 + iu\\ln F}\\\\
- * \\text{where}\\\\
- * C(t, u) &= \\frac{\\kappa\\theta}{\\omega^2} \\left((\\kappa - \\rho \\omega ui + d(u))t - 2\\ln\\left(\\frac{c(u)e^{d(u)t} - 1}{c(u) - 1}\\right) \\right)\\\\
- * D(t, u) &= \\frac{\\kappa - \\rho \\omega ui + d(u)}{\\omega^2}\\left(\\frac{e^{d(u)t} - 1}{c(u)e^{d(u)t} - 1}\\right)\\\\
- * c(u) &= \\frac{\\kappa - \\rho \\omega ui + d(u)}{\\kappa - \\rho \\omega ui - d(u)}\\\\
- * \\text{and}\\\\
- * d(u) &= \\sqrt{(\\rho \\omega ui - \\kappa)^2 + iu\\omega^2 + \\omega^2 u^2}
- * \\end{align*}
- * }
+ * $$
+ * \begin{align*}
+ * \phi(u) &= e^{C(t, u) + D(t, u)V_0 + iu\ln F}\\
+ * \text{where}\\
+ * C(t, u) &= \frac{\kappa\theta}{\omega^2} \left((\kappa - \rho \omega ui + d(u))t - 2\ln\left(\frac{c(u)e^{d(u)t} - 1}{c(u) - 1}\right) \right)\\
+ * D(t, u) &= \frac{\kappa - \rho \omega ui + d(u)}{\omega^2}\left(\frac{e^{d(u)t} - 1}{c(u)e^{d(u)t} - 1}\right)\\
+ * c(u) &= \frac{\kappa - \rho \omega ui + d(u)}{\kappa - \rho \omega ui - d(u)}\\
+ * \text{and}\\
+ * d(u) &= \sqrt{(\rho \omega ui - \kappa)^2 + iu\omega^2 + \omega^2 u^2}
+ * \end{align*}
+ * $$
  */
 public class HestonCharacteristicExponent implements MartingaleCharacteristicExponent {
   private final double _kappa;
@@ -354,34 +354,33 @@ public class HestonCharacteristicExponent implements MartingaleCharacteristicExp
   }
 
   /**
-   * The maximum allowable value of {@latex.inline $alpha$} which is given by
-   * {@latex.ilb %preamble{\\usepackage{amsmath}}
-   * \\begin{align*}
-   * t &= \\omega - 2 \\kappa \\rho \\\\
-   * \\rho^* &= 1 - \\rho^2\\\\
-   * r &= \\sqrt{t^2 + 4\\kappa^2\\rho^*}\\\\
-   * \\alpha_{max} &= \\frac{t + r}{\\omega(\\rho^* - 1)}
-   * \\end{align*}
-   * }
+   * The maximum allowable value of $alpha$ which is given by
+   * $$
+   * \begin{align*}
+   * t &= \omega - 2 \kappa \rho \\
+   * \rho^* &= 1 - \rho^2\\
+   * r &= \sqrt{t^2 + 4\kappa^2\rho^*}\\
+   * \alpha_{max} &= \frac{t + r}{\omega(\rho^* - 1)}
+   * \end{align*}
+   * $$
    * 
-   * @return {@latex.inline $alpha_{max}$}
+   * @return $alpha_{max}$
    */
   @Override
   public double getLargestAlpha() {
     return _alphaMax;
   }
 
-  /** The maximum allowable value of {@latex.inline $alpha$} which is given by
-   * {@latex.ilb %preamble{\\usepackage{amsmath}}
-   * \\begin{align*}
-   * t &= \\omega - 2 \\kappa \\rho \\\\
-   * \\rho^* &= 1 - \\rho^2\\\\
-   * r &= \\sqrt{t^2 + 4\\kappa^2\\rho^*}\\\\
-   * \\alpha_{min} &= \\frac{t - r}{\\omega(\\rho^* - 1)}
-   * \\end{align*}
-   * }
-   * 
-   * @return {@latex.inline $alpha_{min}$}
+  /** The maximum allowable value of $alpha$ which is given by
+   * $$
+   * \begin{align*}
+   * t &= \omega - 2 \kappa \rho \\
+   * \rho^* &= 1 - \rho^2\\
+   * r &= \sqrt{t^2 + 4\kappa^2\rho^*}\\
+   * \alpha_{min} &= \frac{t - r}{\omega(\rho^* - 1)}
+   * \end{align*}
+   * $$
+   * @return $alpha_{min}$
    */
   @Override
   public double getSmallestAlpha() {

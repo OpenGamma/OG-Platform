@@ -13,26 +13,26 @@ import com.opengamma.util.time.Expiry;
  * Class defining a cash-or-nothing option.
  * <p>
  * Cash-or-nothing options have European-style exercise with payoff
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\mathrm{payoff} = 
- * \\begin{cases}
- * 0 \\quad & \\mathrm{if} \\quad S \\leq K\\\\
- * P \\quad & \\mathrm{otherwise}
- * \\end{cases}
- * \\end{align*}
- * }
+ * $$
+ * \begin{align*}
+ * \mathrm{payoff} = 
+ * \begin{cases}
+ * 0 \quad & \mathrm{if} \quad S \leq K\\
+ * P \quad & \mathrm{otherwise}
+ * \end{cases}
+ * \end{align*}
+ * $$
  * and
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\mathrm{payoff} = 
- * \\begin{cases}
- * 0 \\quad & \\mathrm{if} \\quad S \\geq K\\\\
- * P \\quad & \\mathrm{otherwise}
- * \\end{cases}
- * \\end{align*}
- * }
- * for a put, where {@latex.inline $K$} is the strike, {@latex.inline $P$} is the payment amount and {@latex.inline $S$} is the spot.
+ * $$
+ * \begin{align*}
+ * \mathrm{payoff} = 
+ * \begin{cases}
+ * 0 \quad & \mathrm{if} \quad S \geq K\\
+ * P \quad & \mathrm{otherwise}
+ * \end{cases}
+ * \end{align*}
+ * $$
+ * for a put, where $K$ is the strike, $P$ is the payment amount and $S$ is the spot.
  */
 public class CashOrNothingOptionDefinition extends OptionDefinition {
   private final OptionExerciseFunction<StandardOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardOptionDataBundle>();

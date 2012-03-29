@@ -11,31 +11,34 @@ import com.opengamma.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
 import com.opengamma.util.serialization.InvokedSerializedForm;
 
 /**
- * This class defines a 1-D function that takes both its argument and parameters inputs into the {@link #evaluate} method. The
- * function can also be converted into a 1-D function of the arguments or a 1-D function of the parameters.
- * <p>
- * For example, assume that there is a function {@latex.inline $f(x, \\underline{a})$} defined as:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * f(x, \\underline{a}) = a_0 + a_1 x + a_2 x^2 + a_3 x^6
- * \\end{align*}
- * }
- * The {@link #evaluate} method takes the value {@latex.inline $x$} and the parameters {@latex.inline $\\underline{a}$} and returns the
- * result. If the function is converted into a function of the arguments, the resulting function {@latex.inline $g(x)$} is:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
+ * This class defines a 1-D function that takes both its argument and
+ * parameters inputs into the {@link #evaluate} method. The function can also
+ * be converted into a 1-D function of the arguments or a 1-D function of the
+ * parameters.
+ *
+ * For example, assume that there is a function $f(x, \overline{a})$ defined as:
+ * $$
+ * \begin{align*}
+ * f(x, \overline{a}) = a_0 + a_1 x + a_2 x^2 + a_3 x^6
+ * \end{align*}
+ * $$
+ * The {@link #evaluate} method takes the value $x$ and the parameters
+ * $\overline{a}$ and returns the result. If the function is converted into a
+ * function of the arguments, the resulting function $g(x)$ is:
+ * $$
+ * \begin{align*}
  * g(x) = a_0 + a_1 x + a_2 x^2 + a_3 x^6
- * \\end{align*}
- * }
- * with {@latex.inline $\\underline{a}$} constant. If the function is converted into a function of the parameters, the resulting function
- * {@latex.inline $h(\\underline{a})$} is:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * h(\\underline{a}) = a_0 + a_1 x + a_2 x^2 + a_3 x^6
- * \\end{align*}
- * }
- * with {@latex.inline $x$} constant.
- * <p>
+ * \end{align*}
+ * $$
+ * with $\overline{a}$ constant. If the function is converted into a function
+ * of the parameters, the resulting function $h(\overline{a})$ is:
+ * $$
+ * \begin{align*}
+ * h(\overline{a}) = a_0 + a_1 x + a_2 x^2 + a_3 x^6
+ * \end{align*}
+ * $$
+ * with $x$ constant.
+ *
  * This class is particularly useful when trying to fit the parameters of a model (as in {@link NelsonSiegelSvennsonBondCurveModel}).
  * 
  * @param <S> Type of arguments

@@ -12,8 +12,8 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.math.function.Function1D;
 
 /**
- * For a series of data {@latex.inline $x_1, x_2, \\dots, x_n$}, the percentile is the value {@latex.inline $x$} below which a certain percentage of
- * the data fall. 
+ * For a series of data $x_1, x_2, \dots, x_n$, the percentile is the value $x$
+ * below which a certain percentage of the data fall. 
  */
 public class PercentileCalculator extends Function1D<double[], Double> {
   private double _percentile;

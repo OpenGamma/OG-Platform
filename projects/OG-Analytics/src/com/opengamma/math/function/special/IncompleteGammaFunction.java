@@ -14,13 +14,14 @@ import com.opengamma.util.ArgumentChecker;
 /**
  * 
  * The incomplete gamma function is defined as:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{equation*}
- * P(a, x) = \\frac{\\gamma(a, x)}{\\Gamma(a)}\\int_0^x e^{-t}t^{a-1}dt
- * \\end{equation*}}
- * where {@latex.inline $a > 0$}.
+ * $$
+ * \begin{equation*}
+ * P(a, x) = \frac{\gamma(a, x)}{\Gamma(a)}\int_0^x e^{-t}t^{a-1}dt
+ * \end{equation*}
+ * $$
+ * where $a > 0$.
  * <p>
- * This class is a wrapper for the Commons Math library implementation of the incomplete gamma function <a href="http://commons.apache.org/math/api-2.1/index.html">
+ * This class is a wrapper for the Commons Math library implementation of the incomplete gamma function <a href="http://commons.apache.org/math/api-2.1/index.html">link</a>
  *
  */
 public class IncompleteGammaFunction extends Function1D<Double, Double> {

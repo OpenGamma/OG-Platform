@@ -26,7 +26,9 @@ $.register_module({
             MAX_INT = Math.pow(2, 31) - 1, PAGE_SIZE = 50, PAGE = 1, STALL = 500 /* 500ms */,
             INSTANT = 0 /* 0ms */, RESUBSCRIBE = 30000 /* 20s */,
             TIMEOUTSOON = 120000 /* 2m */, TIMEOUTFOREVER = 7200000 /* 2h */,
-            get_cache = common.get_cache, set_cache = common.set_cache, del_cache = common.del_cache,
+            get_cache = function (key) {return common.get_cache(module.name + key);},
+            set_cache = function (key, value) {return common.set_cache(module.name + key, value);},
+            del_cache = function (key) {return common.del_cache(module.name + key);},
             /** @ignore */
             register = function (req) {
                 return !req.config.meta.update ? true
@@ -519,6 +521,7 @@ $.register_module({
                 del: not_available.partial('del')
             }
         };
+        common.clear_cache(module.name); // empty the cache from another session or window if it still exists
         (subscribe = api.handshake.get.partial({handler: function (result) {
             var listen, fire_updates;
             if (result.error)
