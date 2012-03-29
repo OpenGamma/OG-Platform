@@ -50,8 +50,8 @@ public class DKConventions {
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO02M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 2m")), "DKK CIBOR 2m", act360,
         following, Period.ofMonths(2), 2, false, dk);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO03M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 3m")), "DKK CIBOR 3m", act360,
-        following, Period.ofMonths(3), 2, false, dk);
+        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO03M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 3m"), 
+            ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "DKKLIBORP3M")), "DKK CIBOR 3m", act360, following, Period.ofMonths(3), 2, false, dk);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO04M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 4m")), "DKK CIBOR 4m", act360,
         following, Period.ofMonths(4), 2, false, dk);
@@ -59,8 +59,8 @@ public class DKConventions {
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO05M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 5m")), "DKK CIBOR 5m", act360,
         following, Period.ofMonths(5), 2, false, dk);
     conventionMaster.addConventionBundle(
-        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO06M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 6m")), "DKK CIBOR 6m", act360,
-        following, Period.ofMonths(6), 2, false, dk);
+        ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO06M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 6m"), 
+            ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "DKKLIBORP6M")), "DKK CIBOR 6m", act360, following, Period.ofMonths(6), 2, false, dk);
     conventionMaster.addConventionBundle(
         ExternalIdBundle.of(SecurityUtils.bloombergTickerSecurityId("CIBO07M Index"), ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 7m")), "DKK CIBOR 7m", act360,
         following, Period.ofMonths(7), 2, false, dk);
@@ -163,32 +163,32 @@ public class DKConventions {
         modified, semiAnnual, 2, ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKK CIBOR 6m"), dk, true);
 
     //Identifiers for external data 
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP1D")), "DKKCASHP1D", act360, following, Period.ofDays(1), 0,
-        false, null);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP1M")), "DKKCASHP1M", act360, modified, Period.ofMonths(1), 2,
-        false, null);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP2M")), "DKKCASHP2M", act360, modified, Period.ofMonths(2), 2,
-        false, null);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP3M")), "DKKCASHP3M", act360, modified, Period.ofMonths(3), 2,
-        false, null);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP4M")), "DKKCASHP4M", act360, modified, Period.ofMonths(4), 2,
-        false, null);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP5M")), "DKKCASHP5M", act360, modified, Period.ofMonths(5), 2,
-        false, null);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP6M")), "DKKCASHP6M", act360, modified, Period.ofMonths(6), 2,
-        false, null);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP7M")), "DKKCASHP7M", act360, modified, Period.ofMonths(7), 2,
-        false, null);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP8M")), "DKKCASHP8M", act360, modified, Period.ofMonths(8), 2,
-        false, null);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP9M")), "DKKCASHP9M", act360, modified, Period.ofMonths(9), 2,
-        false, null);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP10M")), "DKKCASHP10M", act360, modified, Period.ofMonths(10), 2,
-        false, null);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP11M")), "DKKCASHP11M", act360, modified, Period.ofMonths(11), 2,
-        false, null);
-    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP12M")), "DKKCASHP12M", act360, modified, Period.ofMonths(12), 2,
-        false, null);
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP1D"), 
+        ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "DKKCASHP1D")), "DKKCASHP1D", act360, following, Period.ofDays(1), 0, false, dk);
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP1M"), 
+        ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "DKKCASHP1M")), "DKKCASHP1M", act360, modified, Period.ofMonths(1), 2, false, dk);
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP2M"), 
+        ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "DKKCASHP2M")), "DKKCASHP2M", act360, modified, Period.ofMonths(2), 2, false, dk);
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP3M"), 
+        ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "DKKCASHP3M")), "DKKCASHP3M", act360, modified, Period.ofMonths(3), 2, false, dk);
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP4M"), 
+        ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "DKKCASHP4M")), "DKKCASHP4M", act360, modified, Period.ofMonths(4), 2, false, dk);
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP5M"), 
+        ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "DKKCASHP5M")), "DKKCASHP5M", act360, modified, Period.ofMonths(5), 2, false, dk);
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP6M"), 
+        ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "DKKCASHP6M")), "DKKCASHP6M", act360, modified, Period.ofMonths(6), 2, false, dk);
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP7M"), 
+        ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "DKKCASHP7M")), "DKKCASHP7M", act360, modified, Period.ofMonths(7), 2, false, dk);
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP8M"), 
+        ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "DKKCASHP8M")), "DKKCASHP8M", act360, modified, Period.ofMonths(8), 2, false, dk);
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP9M"), 
+        ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "DKKCASHP9M")), "DKKCASHP9M", act360, modified, Period.ofMonths(9), 2, false, dk);
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP10M"), 
+        ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "DKKCASHP10M")), "DKKCASHP10M", act360, modified, Period.ofMonths(10), 2, false, dk);
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP11M"), 
+        ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "DKKCASHP11M")), "DKKCASHP11M", act360, modified, Period.ofMonths(11), 2, false, dk);
+    conventionMaster.addConventionBundle(ExternalIdBundle.of(ExternalId.of(InMemoryConventionBundleMaster.SIMPLE_NAME_SCHEME, "DKKCASHP12M"), 
+        ExternalId.of(InMemoryConventionBundleMaster.OG_SYNTHETIC_TICKER, "DKKCASHP12M")), "DKKCASHP12M", act360, modified, Period.ofMonths(12), 2, false, dk);
   }
 
   //TODO all of the conventions named treasury need to be changed

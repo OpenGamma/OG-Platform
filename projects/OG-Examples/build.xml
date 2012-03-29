@@ -7,7 +7,7 @@
 	<property name="webapp.dir" value="${lib.dir}/webapp/com.opengamma/og-web" />
 	<property name="sql.dir" value="${lib.dir}/sql/com.opengamma/og-masterdb" />
 
-	<target name="new-hsqldb" depends="jetty-stop, resolve" description="creates a new hsql database">
+	<target name="new-hsqldb" depends="jetty-stop" description="creates a new hsql database">
 		<unzip dest="${basedir}/temp" overwrite="true">
 			<fileset dir="${sql.dir}">
 				<include name="*.zip" />

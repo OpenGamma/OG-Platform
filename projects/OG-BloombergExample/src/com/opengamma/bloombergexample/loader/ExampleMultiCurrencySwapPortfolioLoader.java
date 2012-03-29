@@ -27,7 +27,6 @@ import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNames;
 import com.opengamma.bloombergexample.tool.AbstractExampleTool;
 import com.opengamma.financial.analytics.ircurve.CurveSpecificationBuilderConfiguration;
-import com.opengamma.financial.analytics.ircurve.YieldCurveConfigPopulator;
 import com.opengamma.financial.convention.ConventionBundle;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
@@ -77,7 +76,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
   /**
    * The name of the portfolio.
    */
-  public static final String PORTFOLIO_NAME = "Example MultiCurrency Swap Portfolio";
+  public static final String PORTFOLIO_NAME = "MultiCurrency Swap Portfolio";
   
   /**
    * The scheme used for an identifier which is added to each swap created from the CSV file
@@ -116,7 +115,7 @@ public class ExampleMultiCurrencySwapPortfolioLoader extends AbstractExampleTool
   //-------------------------------------------------------------------------
   @Override
   protected void doRun() {
-    YieldCurveConfigPopulator.populateCurveConfigMaster(getToolContext().getConfigMaster());
+//    YieldCurveConfigPopulator.populateCurveConfigMaster(getToolContext().getConfigMaster());
     Collection<SwapSecurity> swaps = createRandomSwaps();
     if (swaps.size() == 0) {
       throw new OpenGammaRuntimeException("No (valid) swaps were generated.");
