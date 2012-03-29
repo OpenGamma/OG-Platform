@@ -81,7 +81,6 @@ import com.opengamma.math.statistics.distribution.ProbabilityDistribution;
  * \end{align*}
  * $$
  * and $\rho = \sqrt{\frac{t_1}{T}}$ and $M(\cdot, \cdot, \cdot)$ is the CDF of the bivariate
- * and {@latex.inline $\\rho = \\sqrt{\\frac{t_1}{T}}$} and {@latex.inline $M(\\;\\cdot\\;, \\;\\cdot\\;, \\;\\cdot\\;)$} is the CDF of the bivariate
  * normal distribution (see {@link com.opengamma.math.statistics.distribution.BivariateNormalDistribution}).
  *
  * The price of puts is calculated using the Bjerksund-Stensland put-call transformation 
