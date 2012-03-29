@@ -23,7 +23,7 @@ import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.component.ComponentRepository;
 import com.opengamma.component.factory.AbstractComponentFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
-import com.opengamma.integration.loadsave.portfolio.web.PortfolioLoaderResource;
+import com.opengamma.integration.copier.portfolio.web.PortfolioLoaderResource;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
 import com.opengamma.master.portfolio.PortfolioMaster;
 import com.opengamma.master.position.PositionMaster;
