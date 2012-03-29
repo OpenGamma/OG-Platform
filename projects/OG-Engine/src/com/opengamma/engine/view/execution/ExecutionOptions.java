@@ -57,7 +57,8 @@ public class ExecutionOptions implements ViewExecutionOptions {
 
   //-------------------------------------------------------------------------
   /**
-   * Creates an infinite execution sequence with a valuation time driven by the market data and all triggers enabled.
+   * Creates an infinite execution sequence with a valuation time driven by
+   * the market data and all triggers enabled.
    * Execution will continue for as long as there is demand.
    * <p>
    * For the classic execution sequence for real-time calculations against live market data, use
@@ -73,8 +74,8 @@ public class ExecutionOptions implements ViewExecutionOptions {
   }
 
   /**
-   * Creates an infinite execution sequence with a valuation time driven by the market data. Execution will continue
-   * for as long as there is demand.
+   * Creates an infinite execution sequence with a valuation time driven by the market data.
+   * Execution will continue for as long as there is demand.
    * 
    * @param marketDataSpec  the market data specification, not null
    * @param flags  the execution flags, not null
@@ -149,23 +150,61 @@ public class ExecutionOptions implements ViewExecutionOptions {
   }
 
   //-------------------------------------------------------------------------
+  /**
+   * Creates an instance.
+   * It is recommended to use a factory method instead of this constructor.
+   * 
+   * @param executionSequence  the execution sequence, not null
+   * @param flags  the execution flags, not null
+   */
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags) {
     this(executionSequence, flags, null, null);
   }
 
+  /**
+   * Creates an instance.
+   * It is recommended to use a factory method instead of this constructor.
+   * 
+   * @param executionSequence  the execution sequence, not null
+   * @param flags  the execution flags, not null
+   * @param maxSuccessiveDeltaCycles  the maximum cycles, may be null
+   */
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags, Integer maxSuccessiveDeltaCycles) {
     this(executionSequence, flags, maxSuccessiveDeltaCycles, null);
   }
 
+  /**
+   * Creates an instance.
+   * It is recommended to use a factory method instead of this constructor.
+   * 
+   * @param executionSequence  the execution sequence, not null
+   * @param flags  the execution flags, not null
+   * @param defaultExecutionOptions  the default view cycle execution options, may be null
+   */
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags, ViewCycleExecutionOptions defaultExecutionOptions) {
     this(executionSequence, flags, null, defaultExecutionOptions);
   }
 
+  /**
+   * 
+   * @param executionSequence  the execution sequence, not null
+   * @param flags  the execution flags, not null
+   * @param maxSuccessiveDeltaCycles  the maximum cycles, may be null
+   * @param defaultExecutionOptions  the default view cycle execution options, may be null
+   */
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags,
       Integer maxSuccessiveDeltaCycles, ViewCycleExecutionOptions defaultExecutionOptions) {
     this(executionSequence, flags, maxSuccessiveDeltaCycles, defaultExecutionOptions, VersionCorrection.LATEST);
   }
 
+  /**
+   * 
+   * @param executionSequence  the execution sequence, not null
+   * @param flags  the execution flags, not null
+   * @param maxSuccessiveDeltaCycles  the maximum cycles, may be null
+   * @param defaultExecutionOptions  the default view cycle execution options, may be null
+   * @param versionCorrection  the version-correction instants, not null
+   */
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags,
       Integer maxSuccessiveDeltaCycles, ViewCycleExecutionOptions defaultExecutionOptions, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(executionSequence, "executionSequence");
