@@ -19,7 +19,6 @@ public class ConstantRecombiningBinomialTree<T> extends RecombiningBinomialTree<
     _value = value;
   }
 
-  @SuppressWarnings("unchecked")
   private static <T> T[][] make2DArray(final T value) {
     final T[][] arr = (T[][]) Array.newInstance(value.getClass(), 1, 1);
     arr[0][0] = value;

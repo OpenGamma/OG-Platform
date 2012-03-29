@@ -49,21 +49,23 @@ public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
   public CurrencyAmount presentValue(final CapFloorCMSSpread cmsSpread, final G2ppPiecewiseConstantDataBundle g2Data) {
     Validate.notNull(cmsSpread, "CMS spread");
     Validate.notNull(g2Data, "Yield curves and G2++ parameters");
-    YieldAndDiscountCurve dsc = g2Data.getCurve(cmsSpread.getUnderlyingSwap1().getFixedLeg().getDiscountCurve());
-    double strike = cmsSpread.getStrike();
-    double theta = cmsSpread.getFixingTime();
-    double tp = cmsSpread.getPaymentTime();
-    double dftp = dsc.getDiscountFactor(tp);
-    int[] nbCfFixed = new int[] {cmsSpread.getUnderlyingSwap1().getFixedLeg().getNumberOfPayments(), cmsSpread.getUnderlyingSwap2().getFixedLeg().getNumberOfPayments()};
-    double[][] tFixed = new double[2][];
-    double[][] dfFixed = new double[2][];
-    double[][] discountedCashFlowFixed = new double[2][];
-    double[][] tIbor = new double[2][];
-    double[][] dfIbor = new double[2][];
-    double[][] discountedCashFlowIbor = new double[2][];
-    AnnuityPaymentFixed[] cfeIbor = new AnnuityPaymentFixed[] {CFEC.visit(cmsSpread.getUnderlyingSwap1().getSecondLeg(), g2Data), CFEC.visit(cmsSpread.getUnderlyingSwap2().getSecondLeg(), g2Data)};
-    int[] nbCfIbor = new int[] {cfeIbor[0].getNumberOfPayments(), cfeIbor[1].getNumberOfPayments()};
-    double[] notionalSwap = new double[] {cmsSpread.getUnderlyingSwap1().getFixedLeg().getNthPayment(0).getNotional(), cmsSpread.getUnderlyingSwap2().getFixedLeg().getNthPayment(0).getNotional()};
+    final YieldAndDiscountCurve dsc = g2Data.getCurve(cmsSpread.getUnderlyingSwap1().getFixedLeg().getDiscountCurve());
+    final double strike = cmsSpread.getStrike();
+    final double theta = cmsSpread.getFixingTime();
+    final double tp = cmsSpread.getPaymentTime();
+    final double dftp = dsc.getDiscountFactor(tp);
+    final int[] nbCfFixed = new int[] {cmsSpread.getUnderlyingSwap1().getFixedLeg().getNumberOfPayments(), cmsSpread.getUnderlyingSwap2().getFixedLeg().getNumberOfPayments() };
+    final double[][] tFixed = new double[2][];
+    final double[][] dfFixed = new double[2][];
+    final double[][] discountedCashFlowFixed = new double[2][];
+    final double[][] tIbor = new double[2][];
+    final double[][] dfIbor = new double[2][];
+    final double[][] discountedCashFlowIbor = new double[2][];
+    final AnnuityPaymentFixed[] cfeIbor = new AnnuityPaymentFixed[] {CFEC.visit(cmsSpread.getUnderlyingSwap1().getSecondLeg(), g2Data),
+        CFEC.visit(cmsSpread.getUnderlyingSwap2().getSecondLeg(), g2Data) };
+    final int[] nbCfIbor = new int[] {cfeIbor[0].getNumberOfPayments(), cfeIbor[1].getNumberOfPayments() };
+    final double[] notionalSwap = new double[] {cmsSpread.getUnderlyingSwap1().getFixedLeg().getNthPayment(0).getNotional(),
+        cmsSpread.getUnderlyingSwap2().getFixedLeg().getNthPayment(0).getNotional() };
     // Swaps - Float
     for (int loopswap = 0; loopswap < 2; loopswap++) {
       tIbor[loopswap] = new double[nbCfIbor[loopswap]];
@@ -92,15 +94,15 @@ public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
       discountedCashFlowFixed[1][loopcf] = dfFixed[1][loopcf] * cmsSpread.getUnderlyingSwap2().getFixedLeg().getNthPayment(loopcf).getPaymentYearFraction();
     }
     // Model parameters
-    double rhog2pp = g2Data.getG2ppParameter().getCorrelation();
-    double[][] gamma = MODEL_G2PP.gamma(g2Data.getG2ppParameter(), 0, theta);
-    double rhobar = rhog2pp * gamma[0][1] / Math.sqrt(gamma[0][0] * gamma[1][1]);
-    double[][][] alphaFixed = new double[2][][];
-    double[][] tau2Fixed = new double[2][];
-    double[][][] alphaIbor = new double[2][][];
-    double[][] tau2Ibor = new double[2][];
+    final double rhog2pp = g2Data.getG2ppParameter().getCorrelation();
+    final double[][] gamma = MODEL_G2PP.gamma(g2Data.getG2ppParameter(), 0, theta);
+    final double rhobar = rhog2pp * gamma[0][1] / Math.sqrt(gamma[0][0] * gamma[1][1]);
+    final double[][][] alphaFixed = new double[2][][];
+    final double[][] tau2Fixed = new double[2][];
+    final double[][][] alphaIbor = new double[2][][];
+    final double[][] tau2Ibor = new double[2][];
     for (int loopswap = 0; loopswap < 2; loopswap++) {
-      double[][] hthetaFixed = MODEL_G2PP.volatilityMaturityPart(g2Data.getG2ppParameter(), theta, tFixed[loopswap]);
+      final double[][] hthetaFixed = MODEL_G2PP.volatilityMaturityPart(g2Data.getG2ppParameter(), theta, tFixed[loopswap]);
       alphaFixed[loopswap] = new double[nbCfFixed[loopswap]][2];
       tau2Fixed[loopswap] = new double[nbCfFixed[loopswap]];
       for (int loopcf = 0; loopcf < nbCfFixed[loopswap]; loopcf++) {
@@ -109,7 +111,7 @@ public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
         tau2Fixed[loopswap][loopcf] = alphaFixed[loopswap][loopcf][0] * alphaFixed[loopswap][loopcf][0] + alphaFixed[loopswap][loopcf][1] * alphaFixed[loopswap][loopcf][1] + 2 * rhog2pp * gamma[0][1]
             * hthetaFixed[0][loopcf] * hthetaFixed[1][loopcf];
       }
-      double[][] hthetaIbor = MODEL_G2PP.volatilityMaturityPart(g2Data.getG2ppParameter(), theta, tIbor[loopswap]);
+      final double[][] hthetaIbor = MODEL_G2PP.volatilityMaturityPart(g2Data.getG2ppParameter(), theta, tIbor[loopswap]);
       alphaIbor[loopswap] = new double[nbCfIbor[loopswap]][2];
       tau2Ibor[loopswap] = new double[nbCfIbor[loopswap]];
       for (int loopcf = 0; loopcf < nbCfIbor[loopswap]; loopcf++) {
@@ -119,9 +121,9 @@ public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
             * hthetaIbor[0][loopcf] * hthetaIbor[1][loopcf];
       }
     }
-    double[] hthetaTp = MODEL_G2PP.volatilityMaturityPart(g2Data.getG2ppParameter(), theta, tp);
-    double[] alphaTp = new double[] {Math.sqrt(gamma[0][0]) * hthetaTp[0], Math.sqrt(gamma[1][1]) * hthetaTp[1]};
-    double tau2Tp = alphaTp[0] * alphaTp[0] + alphaTp[1] * alphaTp[1] + 2 * rhog2pp * gamma[0][1] * hthetaTp[0] * hthetaTp[1];
+    final double[] hthetaTp = MODEL_G2PP.volatilityMaturityPart(g2Data.getG2ppParameter(), theta, tp);
+    final double[] alphaTp = new double[] {Math.sqrt(gamma[0][0]) * hthetaTp[0], Math.sqrt(gamma[1][1]) * hthetaTp[1] };
+    final double tau2Tp = alphaTp[0] * alphaTp[0] + alphaTp[1] * alphaTp[1] + 2 * rhog2pp * gamma[0][1] * hthetaTp[0] * hthetaTp[1];
 
     // Integration
     final SpreadIntegrant integrant = new SpreadIntegrant(discountedCashFlowFixed, alphaFixed, tau2Fixed, discountedCashFlowIbor, alphaIbor, tau2Ibor, alphaTp, tau2Tp, rhobar, strike,
@@ -129,11 +131,11 @@ public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
     final double absoluteTolerance = 1.0E-6; // 1.0E-5;
     final double relativeTolerance = 1.0E-6; // 1.0E-5
     final RungeKuttaIntegrator1D integrator1D = new RungeKuttaIntegrator1D(absoluteTolerance, relativeTolerance, NB_INTEGRATION);
-    IntegratorRepeated2D integrator2D = new IntegratorRepeated2D(integrator1D);
+    final IntegratorRepeated2D integrator2D = new IntegratorRepeated2D(integrator1D);
     double pv = 0.0;
     try {
       pv = 1.0 / (2.0 * Math.PI * Math.sqrt(1 - rhobar * rhobar))
-          * integrator2D.integrate(integrant, new Double[] {-INTEGRATION_LIMIT, -INTEGRATION_LIMIT}, new Double[] {INTEGRATION_LIMIT, INTEGRATION_LIMIT});
+          * integrator2D.integrate(integrant, new Double[] {-INTEGRATION_LIMIT, -INTEGRATION_LIMIT }, new Double[] {INTEGRATION_LIMIT, INTEGRATION_LIMIT });
     } catch (final Exception e) {
       throw new RuntimeException(e);
     }
@@ -158,7 +160,7 @@ public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
     private final double _omega;
 
     public SpreadIntegrant(final double[][] discountedCashFlowFixed, final double[][][] alphaFixed, final double[][] tau2Fixed, final double[][] discountedCashFlowIbor, final double[][][] alphaIbor,
-        final double[][] tau2Ibor, final double[] alphaTp, double tau2Tp, final double rhobar, double strike, boolean isCall) {
+        final double[][] tau2Ibor, final double[] alphaTp, final double tau2Tp, final double rhobar, final double strike, final boolean isCall) {
       _discountedCashFlowFixed = discountedCashFlowFixed;
       _alphaFixed = alphaFixed;
       _tau2Fixed = tau2Fixed;
@@ -172,14 +174,15 @@ public class CapFloorCMSSpreadG2ppNumericalIntegrationMethod {
       _omega = (isCall ? 1.0 : -1.0);
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Double evaluate(final Double x0, final Double x1) {
-      double[] rate = new double[2];
-      double[] x = new double[] {x0, x1};
+      final double[] rate = new double[2];
+      final double[] x = new double[] {x0, x1 };
       rate[0] = MODEL_G2PP.swapRate(x, _discountedCashFlowFixed[0], _alphaFixed[0], _tau2Fixed[0], _discountedCashFlowIbor[0], _alphaIbor[0], _tau2Ibor[0]);
       rate[1] = MODEL_G2PP.swapRate(x, _discountedCashFlowFixed[1], _alphaFixed[1], _tau2Fixed[1], _discountedCashFlowIbor[1], _alphaIbor[1], _tau2Ibor[1]);
-      double densityPart = -(x0 * x0 + x1 * x1 - 2 * _rhobar * x0 * x1) / (2.0 * (1 - _rhobar * _rhobar));
-      double discounting = Math.exp(-_alphaTp[0] * x0 - _alphaTp[1] * x1 - _tau2Tp / 2.0 + densityPart);
+      final double densityPart = -(x0 * x0 + x1 * x1 - 2 * _rhobar * x0 * x1) / (2.0 * (1 - _rhobar * _rhobar));
+      final double discounting = Math.exp(-_alphaTp[0] * x0 - _alphaTp[1] * x1 - _tau2Tp / 2.0 + densityPart);
       return discounting * Math.max(_omega * (rate[0] - rate[1] - _strike), 0.0);
     }
 

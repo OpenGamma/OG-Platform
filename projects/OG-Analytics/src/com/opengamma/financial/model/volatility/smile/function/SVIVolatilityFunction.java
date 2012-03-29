@@ -25,6 +25,7 @@ public class SVIVolatilityFunction extends VolatilityFunctionProvider<SVIFormula
     final double kappa = Math.log(strike / forward);
 
     return new Function1D<SVIFormulaData, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final SVIFormulaData data) {
         return getVolatility(kappa, data);
@@ -40,7 +41,7 @@ public class SVIVolatilityFunction extends VolatilityFunctionProvider<SVIFormula
     return getVolatility(forward, strike, data);
   }
 
-  public double getVolatility(final double forward, final double strike, SVIFormulaData data) {
+  public double getVolatility(final double forward, final double strike, final SVIFormulaData data) {
     Validate.isTrue(forward > 0, "Need forward >= 0");
     Validate.isTrue(strike > 0, "Need strike >= 0");
     Validate.notNull(data, "null SVI parameters");
@@ -65,9 +66,10 @@ public class SVIVolatilityFunction extends VolatilityFunctionProvider<SVIFormula
     final double kappa = Math.log(strike / forward);
 
     return new Function1D<SVIFormulaData, double[]>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public double[] evaluate(final SVIFormulaData data) {
-        return getVolatilityAjoint(forward, strike, kappa, data);
+        return getVolatilityAdjoint(forward, strike, kappa, data);
       }
     };
   }
@@ -86,9 +88,10 @@ public class SVIVolatilityFunction extends VolatilityFunctionProvider<SVIFormula
     final double kappa = Math.log(strike / forward);
 
     return new Function1D<SVIFormulaData, double[]>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public double[] evaluate(final SVIFormulaData data) {
-        return getModelAjoint(kappa, data);
+        return getModelAdjoint(kappa, data);
       }
     };
   }
@@ -110,10 +113,10 @@ public class SVIVolatilityFunction extends VolatilityFunctionProvider<SVIFormula
     Validate.isTrue(strike > 0, "Need strike >= 0");
 
     final double kappa = Math.log(strike / forward);
-    return getVolatilityAjoint(forward, strike, kappa, data);
+    return getVolatilityAdjoint(forward, strike, kappa, data);
   }
 
-  private double[] getVolatilityAjoint(final double forward, final double strike, final double kappa, final SVIFormulaData data) {
+  private double[] getVolatilityAdjoint(final double forward, final double strike, final double kappa, final SVIFormulaData data) {
     Validate.notNull(data, "null data");
 
     final double b = data.getB();
@@ -127,7 +130,7 @@ public class SVIVolatilityFunction extends VolatilityFunctionProvider<SVIFormula
 
     final double kappaBar = b * (rho + d / r) / 2 / sigma;
 
-    double[] res = new double[8];
+    final double[] res = new double[8];
     res[0] = sigma;
     res[1] = -kappaBar / forward; //fBar
     res[2] = kappaBar / strike; //strikebar
@@ -140,7 +143,7 @@ public class SVIVolatilityFunction extends VolatilityFunctionProvider<SVIFormula
     return res;
   }
 
-  private double[] getModelAjoint(final double kappa, final SVIFormulaData data) {
+  private double[] getModelAdjoint(final double kappa, final SVIFormulaData data) {
     Validate.notNull(data, "null data");
 
     final double b = data.getB();
@@ -154,7 +157,7 @@ public class SVIVolatilityFunction extends VolatilityFunctionProvider<SVIFormula
 
     final double kappaBar = b * (rho + d / r) / 2 / sigma;
 
-    double[] res = new double[5];
+    final double[] res = new double[5];
 
     res[0] = 1. / 2. / sigma; //aBar
     res[1] = s / 2 / sigma; //bBar

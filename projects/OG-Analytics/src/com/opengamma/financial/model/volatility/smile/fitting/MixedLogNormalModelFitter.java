@@ -26,8 +26,9 @@ public class MixedLogNormalModelFitter extends SmileModelFitter<MixedLogNormalMo
   private final boolean _useShiftedMean;
   private final int _nNormals;
 
-  public MixedLogNormalModelFitter(double forward, double[] strikes, double timeToExpiry, double[] impliedVols, double[] error, VolatilityFunctionProvider<MixedLogNormalModelData> model,
-      int numNormals, boolean useShiftedMeans) {
+  public MixedLogNormalModelFitter(final double forward, final double[] strikes, final double timeToExpiry, final double[] impliedVols, final double[] error,
+      final VolatilityFunctionProvider<MixedLogNormalModelData> model,
+      final int numNormals, final boolean useShiftedMeans) {
     super(forward, strikes, timeToExpiry, impliedVols, error, model);
 
     final int n = useShiftedMeans ? 3 * numNormals - 2 : 2 * numNormals - 1;
@@ -45,26 +46,27 @@ public class MixedLogNormalModelFitter extends SmileModelFitter<MixedLogNormalMo
   }
 
   @Override
-  protected NonLinearParameterTransforms getTransform(DoubleMatrix1D start) {
-    BitSet fixed = new BitSet();
+  protected NonLinearParameterTransforms getTransform(final DoubleMatrix1D start) {
+    final BitSet fixed = new BitSet();
     return new UncoupledParameterTransforms(start, _transforms, fixed);
   }
 
   @Override
-  protected NonLinearParameterTransforms getTransform(DoubleMatrix1D start, BitSet fixed) {
+  protected NonLinearParameterTransforms getTransform(final DoubleMatrix1D start, final BitSet fixed) {
     return new UncoupledParameterTransforms(start, _transforms, fixed);
   }
 
   @Override
-  protected MixedLogNormalModelData toSmileModelData(DoubleMatrix1D modelParameters) {
+  protected MixedLogNormalModelData toSmileModelData(final DoubleMatrix1D modelParameters) {
     return new MixedLogNormalModelData(modelParameters.getData(), _useShiftedMean);
   }
 
   @Override
   protected Function1D<DoubleMatrix1D, Boolean> getConstraintFunction(final NonLinearParameterTransforms t) {
     return new Function1D<DoubleMatrix1D, Boolean>() {
+      @SuppressWarnings("synthetic-access")
       @Override
-      public Boolean evaluate(DoubleMatrix1D x) {
+      public Boolean evaluate(final DoubleMatrix1D x) {
         if (x.getEntry(0) <= 1e-4) {
           return false;
         }

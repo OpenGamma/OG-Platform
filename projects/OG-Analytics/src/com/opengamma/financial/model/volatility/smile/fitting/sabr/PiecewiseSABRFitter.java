@@ -72,7 +72,7 @@ public class PiecewiseSABRFitter {
       averageVol += vol;
       averageVol2 += vol * vol;
     }
-    double temp = averageVol2 - averageVol * averageVol / n;
+    final double temp = averageVol2 - averageVol * averageVol / n;
     averageVol2 = temp <= 0.0 ? 0.0 : Math.sqrt(temp) / (n - 1); //while temp should never be negative, rounding errors can make it so
     averageVol /= n;
 
@@ -137,6 +137,7 @@ public class PiecewiseSABRFitter {
     final int n = strikes.length;
     return new Function1D<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double strike) {
         final int index = SurfaceArrayUtils.getLowerBoundIndex(strikes, strike);

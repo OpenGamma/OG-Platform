@@ -20,14 +20,14 @@ public abstract class TimeSeriesFilter extends Function1D<LocalDateDoubleTimeSer
 
   protected FilteredTimeSeries getFilteredSeries(final LocalDateDoubleTimeSeries x, final int[] filteredDates, final double[] filteredData, final int i, final int[] rejectedDates,
       final double[] rejectedData, final int j) {
-    
-    FastArrayIntDoubleTimeSeries filtered = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, 
-                                                                             (int[]) Arrays.trimToCapacity(filteredDates, i), 
-                                                                             Arrays.trimToCapacity(filteredData, i));
-    FastArrayIntDoubleTimeSeries rejected = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS, 
-                                                                             (int[]) Arrays.trimToCapacity(rejectedDates, j), 
-                                                                             Arrays.trimToCapacity(rejectedData, j));
-    return new FilteredTimeSeries(new ArrayLocalDateDoubleTimeSeries(filtered), 
-                                  new ArrayLocalDateDoubleTimeSeries(rejected));
+
+    final FastArrayIntDoubleTimeSeries filtered = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS,
+        Arrays.trimToCapacity(filteredDates, i),
+        Arrays.trimToCapacity(filteredData, i));
+    final FastArrayIntDoubleTimeSeries rejected = new FastArrayIntDoubleTimeSeries(DateTimeNumericEncoding.DATE_EPOCH_DAYS,
+        Arrays.trimToCapacity(rejectedDates, j),
+        Arrays.trimToCapacity(rejectedData, j));
+    return new FilteredTimeSeries(new ArrayLocalDateDoubleTimeSeries(filtered),
+        new ArrayLocalDateDoubleTimeSeries(rejected));
   }
 }

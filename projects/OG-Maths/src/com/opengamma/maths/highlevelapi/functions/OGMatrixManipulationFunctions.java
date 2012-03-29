@@ -457,8 +457,8 @@ public class OGMatrixManipulationFunctions {
 
   /**
    * Diag performs operations on the matrix diagonals.
-   * @param thisArray
-   * @return
+   * @param thisArray the array from which the diagonal will be extracted or a diagonal matrix can be created from 
+   * @return a diag or a diagonal matrix, TODO: Fix with better explanation, add in DIAG matrix type 
    */
   public static OGArrayType diag(OGArrayType thisArray) {
     catchNull(thisArray);
@@ -485,8 +485,8 @@ public class OGMatrixManipulationFunctions {
 
   /**
    * Diag performs operations on the matrix diagonals.
-   * @param thisArray
-   * @return
+   * @param thisArray the array from which the diagonal will be extracted or a diagonal matrix can be created from 
+   * @return a diag or a diagonal matrix, TODO: Fix with better explanation, add in DIAG matrix type 
    */
   public static OGIndexType diag(OGIndexType thisArray) {
     catchNull(thisArray);
@@ -512,8 +512,9 @@ public class OGMatrixManipulationFunctions {
 
   /**
    * Diag performs operations on the matrix diagonals.
-   * @param thisArray
-   * @return
+   * @param thisArray the array from which the diagonal will be extracted or a diagonal matrix can be created from 
+   * @param k the offset from the diagonal to be used
+   * @return a diag or a diagonal matrix, TODO: Fix with better explanation, add in DIAG matrix type 
    */
   public static OGArrayType diag(OGArrayType thisArray, int k) {
     catchNull(thisArray);
@@ -567,8 +568,9 @@ public class OGMatrixManipulationFunctions {
 
   /**
    * Diag performs operations on the matrix diagonals.
-   * @param thisArray
-   * @return
+   * @param thisArray the array from which the diagonal will be extracted or a diagonal matrix can be created from 
+   * @param k the offset from the diagonal to be used
+   * @return a diag or a diagonal matrix, TODO: Fix with better explanation, add in DIAG matrix type 
    */
   public static OGIndexType diag(OGIndexType thisArray, int k) {
     catchNull(thisArray);
@@ -621,13 +623,23 @@ public class OGMatrixManipulationFunctions {
   }
 
   // printin
+  /**
+   * @deprecated
+   * debug routine
+   * @param thisInt an int to print
+   */
   @Deprecated
   public static void print(int thisInt) {
     System.out.format("Integer = %12d%n", thisInt);
   }
 
+  // printin
+  /**
+   * @deprecated
+   * debug routine
+   * @param thisArray an array to print
+   */
   @Deprecated
-  //CSIGNORE
   public static void print(OGArrayType thisArray) {
     final int rows = thisArray.getNumberOfRows();
     final int cols = thisArray.getNumberOfColumns();
@@ -642,8 +654,13 @@ public class OGMatrixManipulationFunctions {
     System.out.println("}");
   }
 
+  // printin
+  /**
+   * @deprecated
+   * debug routine
+   * @param thisArray an array to print
+   */
   @Deprecated
-  //CSIGNORE
   public static void print(OGIndexType thisArray) {
     final int rows = thisArray.getNumberOfRows();
     final int cols = thisArray.getNumberOfColumns();

@@ -32,17 +32,16 @@ public class PiecewiseMixLogNormalFitterTest {
   private static final MixedLogNormalVolatilityFunction MODEL = new MixedLogNormalVolatilityFunction();
 
   @Test
-  (enabled = false)
-  public void test() {
+      (enabled = false)
+      public void test() {
 
-    MixedLogNormalModelData[] modelParms = FITTER.getFittedfModelParameters(FORWARD, STRIKES, EXPIRY, VOLS);
+    final MixedLogNormalModelData[] modelParms = FITTER.getFittedfModelParameters(FORWARD, STRIKES, EXPIRY, VOLS);
     final int n = modelParms.length;
     for (int i = 0; i < n; i++) {
       System.out.println(modelParms[i].toString());
     }
 
-    Function1D<Double, Double> smile = FITTER.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, VOLS);
-    double debug = smile.evaluate(1300.0);
+    final Function1D<Double, Double> smile = FITTER.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, VOLS);
 
     for (int i = 0; i < 200; i++) {
       final double k = 700 + 1300 * i / 199.;
@@ -52,18 +51,18 @@ public class PiecewiseMixLogNormalFitterTest {
   }
 
   @Test
-  (enabled = false)
-  public void bumpTest() {
-    double bump = 1e-2;
-    int index = 1;
-    double[] vols = Arrays.copyOf(VOLS, VOLS.length);
+      (enabled = false)
+      public void bumpTest() {
+    final double bump = 1e-2;
+    final int index = 1;
+    final double[] vols = Arrays.copyOf(VOLS, VOLS.length);
     vols[index] += bump;
 
-    MixedLogNormalModelData[] parms = FITTER.getFittedfModelParameters(FORWARD, STRIKES, EXPIRY, vols);
-    for (int i = 0; i < parms.length; i++) {
-      System.out.println(parms[i].toString());
+    final MixedLogNormalModelData[] parms = FITTER.getFittedfModelParameters(FORWARD, STRIKES, EXPIRY, vols);
+    for (final MixedLogNormalModelData parm : parms) {
+      System.out.println(parm.toString());
     }
-    Function1D<Double, Double> smile = FITTER.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, vols);
+    final Function1D<Double, Double> smile = FITTER.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, vols);
 
     for (int i = 0; i < 200; i++) {
       final double k = 700 + 1300 * i / 199.;
@@ -73,13 +72,13 @@ public class PiecewiseMixLogNormalFitterTest {
   }
 
   @Test
-  (enabled = false)
-  public void FlatTest() {
+      (enabled = false)
+      public void FlatTest() {
     final int n = STRIKES.length;
     final double[] vols = new double[n];
     Arrays.fill(vols, 0.2);
 
-    Function1D<Double, Double> smile = FITTER.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, vols);
+    final Function1D<Double, Double> smile = FITTER.getVolatilityFunction(FORWARD, STRIKES, EXPIRY, vols);
     //double vol = fitter.getVol(1550);
 
     for (int i = 0; i < 200; i++) {
@@ -95,10 +94,10 @@ public class PiecewiseMixLogNormalFitterTest {
     final double[] strikes = new double[] {1.080256504787705, 1.161299691076151, 1.329077636516407, 1.5210230159922162, 1.635211041136184 };
     final double expiry = 1.0;
     final double[] impVols = new double[] {0.2, 0.2, 0.2, 0.2, 0.2 };
-    double bump = 1e-3;
-    int index = 2;
+    final double bump = 1e-3;
+    final int index = 2;
     impVols[index] += bump;
-    Function1D<Double, Double> smile = FITTER.getVolatilityFunction(forward, strikes, expiry, impVols);
+    final Function1D<Double, Double> smile = FITTER.getVolatilityFunction(forward, strikes, expiry, impVols);
 
     for (int i = 0; i < 200; i++) {
       final double k = 0.8 + 1.2 * i / 199.;
@@ -113,18 +112,18 @@ public class PiecewiseMixLogNormalFitterTest {
     final double[] strikes = new double[] {782.9777301, 982.3904005, 1242.99164, 1547.184937, 1854.305534 };
     final double expiry = 1.0;
     final double[] impVols = new double[] {0.2, 0.2, 0.2, 0.2, 0.2 };
-    double bump = 1e-3;
-    int index = 1;
+    final double bump = 1e-3;
+    final int index = 1;
     impVols[index] += bump;
     final double[] errors = new double[5];
     Arrays.fill(errors, 1e-4);
     errors[0] = 1e-1;
     errors[1] = 1e-1;
     final SmileModelFitter<MixedLogNormalModelData> fitter = new MixedLogNormalModelFitter(forward, strikes, expiry, impVols, errors, MODEL, 2, true);
-    DoubleMatrix1D start = new DoubleMatrix1D(0.15, 0.1, 0.5, 0.5);
-    LeastSquareResultsWithTransform lsres = fitter.solve(start);
+    final DoubleMatrix1D start = new DoubleMatrix1D(0.15, 0.1, 0.5, 0.5);
+    final LeastSquareResultsWithTransform lsres = fitter.solve(start);
     System.out.println(lsres.toString());
-    MixedLogNormalModelData data = new MixedLogNormalModelData(lsres.getModelParameters().getData());
+    final MixedLogNormalModelData data = new MixedLogNormalModelData(lsres.getModelParameters().getData());
     System.out.println(data.toString());
     for (int i = 0; i < 200; i++) {
       final double k = 700 + 1300 * i / 199.;

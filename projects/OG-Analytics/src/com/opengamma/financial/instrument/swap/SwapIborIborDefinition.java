@@ -58,7 +58,6 @@ public class SwapIborIborDefinition extends SwapDefinition {
     return visitor.visitSwapIborIborDefinition(this);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public TenorSwap<Payment> toDerivative(final ZonedDateTime date, final String... yieldCurveNames) {
     final GenericAnnuity<Payment> fixedLeg = (GenericAnnuity<Payment>) getLegWithoutSpread().toDerivative(date, yieldCurveNames);
@@ -66,7 +65,6 @@ public class SwapIborIborDefinition extends SwapDefinition {
     return new TenorSwap<Payment>(fixedLeg, iborLeg);
   }
 
-  @SuppressWarnings("unchecked")
   @Override
   public TenorSwap<Payment> toDerivative(final ZonedDateTime date, final DoubleTimeSeries<ZonedDateTime>[] indexDataTS, final String... yieldCurveNames) {
     Validate.notNull(indexDataTS, "index data time series array");

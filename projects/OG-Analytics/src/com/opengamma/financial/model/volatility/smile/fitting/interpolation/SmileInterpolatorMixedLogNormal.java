@@ -34,38 +34,35 @@ public class SmileInterpolatorMixedLogNormal extends SmileInterpolator<MixedLogN
   //  }
 
   @Override
-  protected DoubleMatrix1D getGlobalStart(double forward, double[] strikes, double expiry, double[] impliedVols) {
-    DoubleMatrix1D fitP = getPolynomialFit(forward, strikes, impliedVols);
+  protected DoubleMatrix1D getGlobalStart(final double forward, final double[] strikes, final double expiry, final double[] impliedVols) {
+    final DoubleMatrix1D fitP = getPolynomialFit(forward, strikes, impliedVols);
 
-    double a = fitP.getEntry(0);
-    double b = fitP.getEntry(1);
-    double c = fitP.getEntry(2);
+    final double a = fitP.getEntry(0);
+    final double b = fitP.getEntry(1);
+    final double c = fitP.getEntry(2);
 
     if (Math.abs(b) < 1e-3 && Math.abs(c) < 1e-3) { //almost flat smile
       final double theta = Math.PI / 2 - 0.01;
       return new DoubleMatrix1D(a, 0.01, theta, theta);
-    } else {
-      double theta = Math.PI / 2 * RANDOM.nextDouble();
-      return new DoubleMatrix1D(a * (0.8 + 0.4 * RANDOM.nextDouble()), a * 0.5 * RANDOM.nextDouble(), theta, theta);
     }
+    final double theta = Math.PI / 2 * RANDOM.nextDouble();
+    return new DoubleMatrix1D(a * (0.8 + 0.4 * RANDOM.nextDouble()), a * 0.5 * RANDOM.nextDouble(), theta, theta);
   }
-
-
 
   @Override
   protected BitSet getLocalFixedValues() {
-    BitSet res = new BitSet();
+    final BitSet res = new BitSet();
     res.set(2); //fit vol 0 for local (3-point) fit
     return res;
   }
 
   @Override
-  protected MixedLogNormalModelData toSmileModelData(DoubleMatrix1D modelParameters) {
+  protected MixedLogNormalModelData toSmileModelData(final DoubleMatrix1D modelParameters) {
     return new MixedLogNormalModelData(modelParameters.getData());
   }
 
   @Override
-  protected SmileModelFitter<MixedLogNormalModelData> getFitter(double forward, double[] strikes, double expiry, double[] impliedVols, double[] errors) {
+  protected SmileModelFitter<MixedLogNormalModelData> getFitter(final double forward, final double[] strikes, final double expiry, final double[] impliedVols, final double[] errors) {
     return new MixedLogNormalModelFitter(forward, strikes, expiry, impliedVols, errors, MODEL, 2, true);
   }
 

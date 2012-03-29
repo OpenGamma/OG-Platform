@@ -97,6 +97,7 @@ public class DupireLocalVolatilityTest {
         final double k = tk[1];
         final double sigma = sabrSurface.evaluate(tk);
         final double df = Math.exp(-RATE * t);
+        @SuppressWarnings("synthetic-access")
         final double price = BlackFormulaRepository.price(FORWARD_CURVE.getForward(t), k, t, sigma, true);
         if (Double.isNaN(price)) {
           System.out.println("Error");
@@ -111,7 +112,6 @@ public class DupireLocalVolatilityTest {
     ABS_LOCAL_VOL = DUPIRE.getAbsoluteLocalVolatilitySurface(SABR_SURFACE, SPOT, RATE);
 
   }
-
 
   @Test
   public void testImpliedVolCal() {
@@ -146,11 +146,10 @@ public class DupireLocalVolatilityTest {
     PDEUtilityTools.printSurface("ABs Loc Vol", ABS_LOCAL_VOL.getSurface(), 0., 5., 0.1 * SPOT, 3 * SPOT);
   }
 
-
   @Test
   public void pdePriceTest() {
     final PDEDataBundleProvider provider = new PDEDataBundleProvider();
-    final ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(STRIKE, EXPIRY, true, LOCAL_VOL,FORWARD_CURVE);
+    final ConvectionDiffusionPDEDataBundle db = provider.getBackwardsLocalVol(STRIKE, EXPIRY, true, LOCAL_VOL, FORWARD_CURVE);
     final ConvectionDiffusionPDESolver solver = new ThetaMethodFiniteDifference(0.5, false);
     final double forward = FORWARD_CURVE.getForward(EXPIRY);
 
