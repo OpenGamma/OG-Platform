@@ -9,10 +9,11 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.interestrate.swap.VanillaSwapPresentValueCalculator;
+import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 
 /**
  * 

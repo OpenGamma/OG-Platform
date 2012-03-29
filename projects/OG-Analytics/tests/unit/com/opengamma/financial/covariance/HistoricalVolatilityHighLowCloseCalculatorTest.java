@@ -10,8 +10,10 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.timeseries.returns.SimpleNetRelativeTimeSeriesReturnCalculator;
-import com.opengamma.financial.timeseries.returns.SimpleNetTimeSeriesReturnCalculator;
+import com.opengamma.analytics.financial.covariance.HistoricalVolatilityCalculator;
+import com.opengamma.analytics.financial.covariance.HistoricalVolatilityHighLowCloseCalculator;
+import com.opengamma.analytics.financial.timeseries.returns.SimpleNetRelativeTimeSeriesReturnCalculator;
+import com.opengamma.analytics.financial.timeseries.returns.SimpleNetTimeSeriesReturnCalculator;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 

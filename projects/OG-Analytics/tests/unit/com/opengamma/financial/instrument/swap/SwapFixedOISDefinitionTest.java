@@ -8,12 +8,13 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.instrument.index.GeneratorOIS;
+import com.opengamma.analytics.financial.instrument.swap.SwapFixedOISDefinition;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.instrument.index.GeneratorOIS;
 import com.opengamma.financial.instrument.index.generator.AUD1YRBAON;
 import com.opengamma.financial.instrument.index.generator.EUR1YEONIA;
-import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.time.DateUtils;
 
 public class SwapFixedOISDefinitionTest {

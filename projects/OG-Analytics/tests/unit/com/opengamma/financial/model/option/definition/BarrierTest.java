@@ -10,9 +10,10 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.model.option.definition.Barrier.BarrierType;
-import com.opengamma.financial.model.option.definition.Barrier.KnockType;
-import com.opengamma.financial.model.option.definition.Barrier.ObservationType;
+import com.opengamma.analytics.financial.model.option.definition.Barrier;
+import com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType;
+import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockType;
+import com.opengamma.analytics.financial.model.option.definition.Barrier.ObservationType;
 
 /**
  * 

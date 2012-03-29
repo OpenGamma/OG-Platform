@@ -5,6 +5,10 @@
  */
 package com.opengamma.financial.interestrate;
 
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwap;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
@@ -13,11 +17,8 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.instrument.index.GeneratorSwap;
 import com.opengamma.financial.instrument.index.generator.EUR1YEURIBOR3M;
 import com.opengamma.financial.instrument.index.generator.EUR1YEURIBOR6M;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.option.definition.BlackSwaptionParameters;
 
 /**
  * Sets of market data used in tests.

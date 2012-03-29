@@ -12,8 +12,11 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.pnl.UnderlyingType;
+import com.opengamma.analytics.financial.greeks.Greek;
+import com.opengamma.analytics.financial.pnl.UnderlyingType;
+import com.opengamma.analytics.financial.sensitivity.Sensitivity;
+import com.opengamma.analytics.financial.sensitivity.ValueGreek;
+import com.opengamma.analytics.financial.sensitivity.ValueGreekSensitivity;
 
 /**
  * 

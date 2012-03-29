@@ -14,17 +14,18 @@ import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.option.definition.EuropeanVanillaOptionDefinition;
+import com.opengamma.analytics.financial.model.option.definition.OptionDefinition;
+import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.BlackScholesMertonModel;
+import com.opengamma.analytics.financial.model.option.pricing.montecarlo.EuropeanMonteCarloOptionModel;
+import com.opengamma.analytics.financial.model.stochastic.BlackScholesGeometricBrownianMotionProcess;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.random.NormalRandomNumberGenerator;
 import com.opengamma.analytics.math.random.RandomNumberGenerator;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
-import com.opengamma.financial.model.option.definition.OptionDefinition;
-import com.opengamma.financial.model.option.definition.StandardOptionDataBundle;
-import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
-import com.opengamma.financial.model.stochastic.BlackScholesGeometricBrownianMotionProcess;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 

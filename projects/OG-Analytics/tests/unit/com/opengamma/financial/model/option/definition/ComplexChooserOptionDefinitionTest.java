@@ -15,13 +15,19 @@ import javax.time.calendar.ZonedDateTime;
 import org.testng.annotations.Test;
 
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.greeks.Greek;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.option.definition.ComplexChooserOptionDefinition;
+import com.opengamma.analytics.financial.model.option.definition.EuropeanVanillaOptionDefinition;
+import com.opengamma.analytics.financial.model.option.definition.OptionDefinition;
+import com.opengamma.analytics.financial.model.option.definition.OptionExerciseFunction;
+import com.opengamma.analytics.financial.model.option.definition.OptionPayoffFunction;
+import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.AnalyticOptionModel;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.BlackScholesMertonModel;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
-import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.option.pricing.analytic.AnalyticOptionModel;
-import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 

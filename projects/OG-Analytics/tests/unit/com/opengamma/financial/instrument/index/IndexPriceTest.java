@@ -12,6 +12,7 @@ import javax.time.calendar.Period;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.instrument.index.IndexPrice;
 import com.opengamma.util.money.Currency;
 
 /**

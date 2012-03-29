@@ -5,6 +5,14 @@
  */
 package com.opengamma.financial.interestrate;
 
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateExtrapolationParameters;
+import com.opengamma.analytics.financial.model.option.definition.SABRInterestRateParameters;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
@@ -14,13 +22,6 @@ import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.option.definition.SABRInterestRateExtrapolationParameters;
-import com.opengamma.financial.model.option.definition.SABRInterestRateParameters;
-import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
-import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 
 /**
  * Sets of market data used in tests.

@@ -13,15 +13,17 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureDefinition;
+import com.opengamma.analytics.financial.instrument.future.InterestRateFutureOptionPremiumSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.iborindex.IndexIborTestsMaster;
-import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
-import com.opengamma.financial.interestrate.future.derivative.InterestRateFutureOptionPremiumSecurity;
-import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.time.DateUtils;
 
 /**

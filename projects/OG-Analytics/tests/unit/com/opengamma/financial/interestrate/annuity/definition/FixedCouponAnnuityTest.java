@@ -10,7 +10,8 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
 import com.opengamma.util.money.Currency;
 
 /**

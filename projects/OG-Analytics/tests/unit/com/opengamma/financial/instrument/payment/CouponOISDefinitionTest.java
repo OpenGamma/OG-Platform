@@ -14,6 +14,15 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.instrument.index.GeneratorOIS;
+import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.instrument.payment.CouponOISDefinition;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.derivative.CouponOIS;
+import com.opengamma.analytics.financial.interestrate.payments.method.CouponFixedDiscountingMethod;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.time.TimeCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
@@ -21,16 +30,8 @@ import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.index.GeneratorOIS;
-import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.financial.instrument.index.generator.USD1YFEDFUND;
 import com.opengamma.financial.interestrate.TestsDataSetsSABR;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.payments.CouponFixed;
-import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.payments.derivative.CouponOIS;
-import com.opengamma.financial.interestrate.payments.method.CouponFixedDiscountingMethod;
-import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
@@ -70,7 +71,7 @@ public class CouponOISDefinitionTest {
 
   private static final YieldCurveBundle CURVES = TestsDataSetsSABR.createCurves1();
   private static final String[] CURVES_NAMES = CURVES.getAllNames().toArray(new String[0]);
-s
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void nullIndex() {
     new CouponOISDefinition(EUR_CUR, EUR_PAYMENT_DATE, START_ACCRUAL_DATE, EUR_END_ACCRUAL_DATE, EUR_PAYMENT_YEAR_FRACTION, NOTIONAL, null, START_ACCRUAL_DATE, EUR_END_ACCRUAL_DATE);

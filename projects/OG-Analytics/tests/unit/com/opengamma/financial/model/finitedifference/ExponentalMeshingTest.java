@@ -10,6 +10,9 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
+import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
+
 /**
  * 
  */

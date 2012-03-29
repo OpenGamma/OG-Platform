@@ -10,7 +10,7 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.var.NormalVaRParameters;
+import com.opengamma.analytics.financial.var.NormalVaRParameters;
 
 /**
  * 

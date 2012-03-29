@@ -7,6 +7,9 @@ package com.opengamma.financial.model.finitedifference;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
+import com.opengamma.analytics.financial.model.finitedifference.ExplicitFiniteDifference;
+
 public class ExplicitFiniteDifferenceTest {
 
   private static final ConvectionDiffusionPDESolverTestCase TESTER = new ConvectionDiffusionPDESolverTestCase();

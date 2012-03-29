@@ -12,6 +12,15 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.instrument.bond.BondFixedSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.interestrate.RateReplacingInterestRateDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.analytics.financial.interestrate.bond.definition.BondFixedSecurity;
+import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.analytics.financial.interestrate.fra.ForwardRateAgreement;
+import com.opengamma.analytics.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
@@ -20,14 +29,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.yield.SimpleYieldConvention;
 import com.opengamma.financial.convention.yield.YieldConvention;
-import com.opengamma.financial.instrument.bond.BondFixedSecurityDefinition;
-import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
-import com.opengamma.financial.interestrate.bond.definition.BondFixedSecurity;
-import com.opengamma.financial.interestrate.cash.derivative.Cash;
-import com.opengamma.financial.interestrate.fra.ForwardRateAgreement;
-import com.opengamma.financial.interestrate.future.derivative.InterestRateFuture;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 

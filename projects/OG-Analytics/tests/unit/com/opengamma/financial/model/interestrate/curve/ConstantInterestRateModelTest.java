@@ -10,7 +10,8 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.model.interestrate.InterestRateModel;
+import com.opengamma.analytics.financial.model.interestrate.InterestRateModel;
+import com.opengamma.analytics.financial.model.interestrate.curve.ConstantInterestRateModel;
 
 /**
  * 

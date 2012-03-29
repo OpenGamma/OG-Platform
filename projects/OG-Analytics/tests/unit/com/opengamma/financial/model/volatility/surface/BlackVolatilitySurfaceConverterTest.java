@@ -9,9 +9,12 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceConverter;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceDelta;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
-import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 
 /**
  * 

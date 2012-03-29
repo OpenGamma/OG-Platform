@@ -18,8 +18,11 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
-import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
+import com.opengamma.analytics.financial.timeseries.filter.ExtremeReturnDoubleTimeSeriesFilter;
+import com.opengamma.analytics.financial.timeseries.filter.ExtremeValueDoubleTimeSeriesFilter;
+import com.opengamma.analytics.financial.timeseries.filter.FilteredTimeSeries;
+import com.opengamma.analytics.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
+import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;
 import com.opengamma.util.timeseries.localdate.ListLocalDateDoubleTimeSeries;

@@ -10,6 +10,8 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.volatility.BlackFormula;
+
 /**
  * 
  */

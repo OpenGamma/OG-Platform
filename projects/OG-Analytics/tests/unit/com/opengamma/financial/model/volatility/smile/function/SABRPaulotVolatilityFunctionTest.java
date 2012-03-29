@@ -8,6 +8,10 @@ package com.opengamma.financial.model.volatility.smile.function;
 import org.apache.commons.lang.NotImplementedException;
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRPaulotVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
+
 /**
  * 
  */

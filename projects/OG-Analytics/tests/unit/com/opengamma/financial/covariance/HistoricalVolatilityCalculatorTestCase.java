@@ -10,10 +10,11 @@ import javax.time.calendar.LocalDate;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator;
-import com.opengamma.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
-import com.opengamma.financial.timeseries.returns.RelativeTimeSeriesReturnCalculator;
-import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
+import com.opengamma.analytics.financial.covariance.HistoricalVolatilityCalculator;
+import com.opengamma.analytics.financial.timeseries.returns.ContinuouslyCompoundedRelativeTimeSeriesReturnCalculator;
+import com.opengamma.analytics.financial.timeseries.returns.ContinuouslyCompoundedTimeSeriesReturnCalculator;
+import com.opengamma.analytics.financial.timeseries.returns.RelativeTimeSeriesReturnCalculator;
+import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculator;
 import com.opengamma.util.CalculationMode;
 import com.opengamma.util.timeseries.TimeSeriesException;
 import com.opengamma.util.timeseries.localdate.ArrayLocalDateDoubleTimeSeries;

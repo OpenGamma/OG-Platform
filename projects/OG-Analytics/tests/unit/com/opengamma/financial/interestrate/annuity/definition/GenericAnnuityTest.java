@@ -16,9 +16,10 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.interestrate.payments.CouponFixed;
-import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.GenericAnnuity;
+import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.Payment;
+import com.opengamma.analytics.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.Currency;
 
 /**

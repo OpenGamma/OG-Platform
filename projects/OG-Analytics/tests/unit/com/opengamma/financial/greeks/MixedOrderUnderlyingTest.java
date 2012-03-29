@@ -16,7 +16,9 @@ import java.util.TreeMap;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.pnl.UnderlyingType;
+import com.opengamma.analytics.financial.greeks.MixedOrderUnderlying;
+import com.opengamma.analytics.financial.greeks.NthOrderUnderlying;
+import com.opengamma.analytics.financial.pnl.UnderlyingType;
 
 public class MixedOrderUnderlyingTest {
 

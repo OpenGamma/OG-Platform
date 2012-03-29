@@ -13,14 +13,16 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.option.definition.ConstantElasticityOfVarianceModelDataBundle;
+import com.opengamma.analytics.financial.model.option.definition.EuropeanVanillaOptionDefinition;
+import com.opengamma.analytics.financial.model.option.definition.OptionDefinition;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.BlackScholesMertonModel;
+import com.opengamma.analytics.financial.model.volatility.surface.ConstantElasticityOfVarianceBlackEquivalentVolatilitySurfaceModel;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.option.definition.ConstantElasticityOfVarianceModelDataBundle;
-import com.opengamma.financial.model.option.definition.EuropeanVanillaOptionDefinition;
-import com.opengamma.financial.model.option.definition.OptionDefinition;
-import com.opengamma.financial.model.option.pricing.analytic.BlackScholesMertonModel;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 

@@ -11,8 +11,10 @@ import static org.testng.AssertJUnit.assertTrue;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.option.definition.BlackSwaptionParameters;
+import com.opengamma.analytics.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
 import com.opengamma.financial.interestrate.TestsDataSetsBlack;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
 
 public class YieldCurveWithBlackSwaptionBundleTest {
 

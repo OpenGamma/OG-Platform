@@ -10,9 +10,11 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.apache.commons.lang.Validate;
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.analytics.financial.model.finitedifference.MarkovChain;
+import com.opengamma.analytics.financial.model.finitedifference.MarkovChainApprox;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
 
 /**
  * 

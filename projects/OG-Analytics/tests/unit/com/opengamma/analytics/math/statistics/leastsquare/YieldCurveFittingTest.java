@@ -14,6 +14,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderFunction;
+import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderJacobian;
+import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
+import com.opengamma.analytics.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
@@ -22,10 +26,6 @@ import com.opengamma.analytics.math.rootfinding.YieldCurveFittingFromSwapsTest;
 import com.opengamma.analytics.math.rootfinding.YieldCurveFittingTestDataBundle;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.NonLinearLeastSquare;
-import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
-import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
-import com.opengamma.financial.interestrate.ParRateCalculator;
-import com.opengamma.financial.interestrate.ParRateCurveSensitivityCalculator;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**

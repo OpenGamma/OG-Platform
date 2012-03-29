@@ -13,9 +13,11 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.forex.definition.ForexDefinition;
+import com.opengamma.analytics.financial.forex.derivative.Forex;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionDigital;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.forex.definition.ForexDefinition;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 

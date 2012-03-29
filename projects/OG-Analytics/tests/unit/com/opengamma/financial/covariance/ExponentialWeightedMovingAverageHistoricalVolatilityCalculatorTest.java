@@ -10,6 +10,8 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.covariance.ExponentialWeightedMovingAverageHistoricalVolatilityCalculator;
+import com.opengamma.analytics.financial.covariance.HistoricalVolatilityCalculator;
 import com.opengamma.util.CalculationMode;
 
 /**

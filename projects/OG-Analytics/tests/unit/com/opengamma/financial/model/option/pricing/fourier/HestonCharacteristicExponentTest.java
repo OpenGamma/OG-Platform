@@ -17,6 +17,7 @@ import org.testng.annotations.Test;
 
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.analytics.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
 import com.opengamma.analytics.math.number.ComplexNumber;
 
 /**

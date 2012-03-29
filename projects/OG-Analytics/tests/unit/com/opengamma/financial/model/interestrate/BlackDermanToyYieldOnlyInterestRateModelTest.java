@@ -11,11 +11,12 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.interestrate.BlackDermanToyYieldOnlyInterestRateModel;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.interestrate.definition.StandardDiscountBondModelDataBundle;
+import com.opengamma.analytics.financial.model.tree.RecombiningBinomialTree;
+import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.interestrate.definition.StandardDiscountBondModelDataBundle;
-import com.opengamma.financial.model.tree.RecombiningBinomialTree;
-import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.tuple.Triple;
 

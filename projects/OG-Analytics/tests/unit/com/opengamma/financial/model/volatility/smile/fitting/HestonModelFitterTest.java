@@ -13,9 +13,11 @@ import org.slf4j.LoggerFactory;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
 
-import com.opengamma.financial.model.volatility.smile.function.HestonModelData;
-import com.opengamma.financial.model.volatility.smile.function.HestonVolatilityFunction;
-import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.HestonModelFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.SmileModelFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.function.HestonModelData;
+import com.opengamma.analytics.financial.model.volatility.smile.function.HestonVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 
 /**
  * 

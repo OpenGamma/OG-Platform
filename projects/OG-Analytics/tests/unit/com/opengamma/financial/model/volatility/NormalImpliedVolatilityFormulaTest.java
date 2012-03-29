@@ -9,9 +9,10 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.NormalPriceFunction;
+import com.opengamma.analytics.financial.model.volatility.NormalImpliedVolatilityFormula;
 
 /**
  * Test related to the implied volatility from the price in a normally distributed asset price world.

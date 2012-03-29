@@ -1,21 +1,21 @@
 package com.opengamma.analytics.example.curveconstruction;
 
 // @export "imports"
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.analytics.financial.interestrate.payments.CouponFloating;
+import com.opengamma.analytics.financial.interestrate.payments.Payment;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
-import com.opengamma.financial.interestrate.payments.Payment;
-import com.opengamma.financial.interestrate.payments.CouponFloating;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.schedule.NoHolidayCalendar;
 import com.opengamma.util.money.Currency;
 import java.io.PrintStream;
 import java.util.Arrays;

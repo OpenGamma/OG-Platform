@@ -13,10 +13,12 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.instrument.future.FederalFundsFutureSecurityDefinition;
+import com.opengamma.analytics.financial.instrument.index.IndexON;
+import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureSecurity;
+import com.opengamma.analytics.financial.interestrate.future.derivative.FederalFundsFutureTransaction;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.instrument.future.FederalFundsFutureSecurityDefinition;
-import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.financial.instrument.index.indexon.FEDFUND;
 import com.opengamma.util.time.DateUtils;
 

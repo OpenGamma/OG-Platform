@@ -3,6 +3,21 @@ package com.opengamma.analytics.example.curveconstruction;
 // @export "matrix-imports"
 
 /// @export "imports"
+import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderDataBundle;
+import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderFunction;
+import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderJacobian;
+import com.opengamma.analytics.financial.interestrate.ParRateCalculator;
+import com.opengamma.analytics.financial.interestrate.PresentValueCalculator;
+import com.opengamma.analytics.financial.interestrate.PresentValueNodeSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponIbor;
+import com.opengamma.analytics.financial.interestrate.cash.derivative.Cash;
+import com.opengamma.analytics.financial.interestrate.swap.definition.FixedCouponSwap;
+import com.opengamma.analytics.financial.interestrate.swap.definition.FixedFloatSwap;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.schedule.NoHolidayCalendar;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.RealPolynomialFunction1D;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolator;
@@ -13,21 +28,6 @@ import com.opengamma.analytics.math.matrix.DoubleMatrix2D;
 import com.opengamma.analytics.math.rootfinding.BrentSingleRootFinder;
 import com.opengamma.analytics.math.rootfinding.CubicRealRootFinder;
 import com.opengamma.analytics.math.rootfinding.newton.BroydenVectorRootFinder;
-import com.opengamma.financial.schedule.NoHolidayCalendar;
-import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
-import com.opengamma.financial.interestrate.MultipleYieldCurveFinderFunction;
-import com.opengamma.financial.interestrate.MultipleYieldCurveFinderJacobian;
-import com.opengamma.financial.interestrate.PresentValueCalculator;
-import com.opengamma.financial.interestrate.ParRateCalculator;
-import com.opengamma.financial.interestrate.PresentValueNodeSensitivityCalculator;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponIbor;
-import com.opengamma.financial.interestrate.cash.derivative.Cash;
-import com.opengamma.financial.interestrate.swap.definition.FixedCouponSwap;
-import com.opengamma.financial.interestrate.swap.definition.FixedFloatSwap;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.util.money.Currency;
 import java.util.LinkedHashMap;
 

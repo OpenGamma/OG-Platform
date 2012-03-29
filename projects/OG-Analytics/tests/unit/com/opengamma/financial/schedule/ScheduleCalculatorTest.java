@@ -15,6 +15,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.businessday.BusinessDayConvention;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.businessday.FollowingBusinessDayConvention;
@@ -26,8 +29,6 @@ import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.ThirtyEThreeSixty;
 import com.opengamma.financial.convention.frequency.Frequency;
 import com.opengamma.financial.convention.frequency.PeriodFrequency;
-import com.opengamma.financial.instrument.index.GeneratorDeposit;
-import com.opengamma.financial.instrument.index.IborIndex;
 import com.opengamma.financial.instrument.index.generator.EURDeposit;
 import com.opengamma.financial.instrument.index.iborindex.IndexIborTestsMaster;
 import com.opengamma.util.time.DateUtils;

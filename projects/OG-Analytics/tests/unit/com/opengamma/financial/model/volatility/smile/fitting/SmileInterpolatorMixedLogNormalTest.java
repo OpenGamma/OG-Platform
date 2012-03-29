@@ -12,14 +12,14 @@ import java.util.List;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolator;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorMixedLogNormal;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSABR;
+import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalModelData;
+import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.volatility.smile.fitting.interpolation.SmileInterpolator;
-import com.opengamma.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorMixedLogNormal;
-import com.opengamma.financial.model.volatility.smile.fitting.interpolation.SmileInterpolatorSABR;
-import com.opengamma.financial.model.volatility.smile.function.MixedLogNormalModelData;
-import com.opengamma.financial.model.volatility.smile.function.MixedLogNormalVolatilityFunction;
-import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
 
 /**
  * 

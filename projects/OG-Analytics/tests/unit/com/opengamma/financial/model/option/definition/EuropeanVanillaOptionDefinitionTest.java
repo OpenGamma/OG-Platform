@@ -12,10 +12,16 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.option.definition.AmericanVanillaOptionDefinition;
+import com.opengamma.analytics.financial.model.option.definition.EuropeanVanillaOptionDefinition;
+import com.opengamma.analytics.financial.model.option.definition.OptionDefinition;
+import com.opengamma.analytics.financial.model.option.definition.OptionExerciseFunction;
+import com.opengamma.analytics.financial.model.option.definition.OptionPayoffFunction;
+import com.opengamma.analytics.financial.model.option.definition.StandardOptionDataBundle;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.surface.ConstantDoublesSurface;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.time.DateUtils;
 import com.opengamma.util.time.Expiry;
 

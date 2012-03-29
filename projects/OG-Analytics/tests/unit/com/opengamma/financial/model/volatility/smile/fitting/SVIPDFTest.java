@@ -9,17 +9,18 @@ import java.util.BitSet;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.option.DistributionFromImpliedVolatility;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.SABRNonLinearLeastSquareFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SVIFormulaData;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SVIVolatilityFunction;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
-import com.opengamma.financial.model.option.DistributionFromImpliedVolatility;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
-import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.financial.model.volatility.smile.function.SVIFormulaData;
-import com.opengamma.financial.model.volatility.smile.function.SVIVolatilityFunction;
 
 /**
  * 

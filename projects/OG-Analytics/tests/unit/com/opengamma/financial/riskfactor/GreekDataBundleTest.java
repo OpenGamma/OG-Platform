@@ -14,10 +14,11 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.greeks.GreekResultCollection;
-import com.opengamma.financial.pnl.UnderlyingType;
-import com.opengamma.financial.trade.OptionTradeData;
+import com.opengamma.analytics.financial.greeks.Greek;
+import com.opengamma.analytics.financial.greeks.GreekResultCollection;
+import com.opengamma.analytics.financial.pnl.UnderlyingType;
+import com.opengamma.analytics.financial.riskfactor.GreekDataBundle;
+import com.opengamma.analytics.financial.trade.OptionTradeData;
 
 /**
  * 

@@ -14,8 +14,11 @@ import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalModelData;
+import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.function.VolatilityFunctionProvider;
 import com.opengamma.analytics.math.function.Function1D;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 
 /**
  * 

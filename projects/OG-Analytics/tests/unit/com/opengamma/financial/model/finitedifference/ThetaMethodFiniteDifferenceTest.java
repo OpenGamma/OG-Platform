@@ -9,6 +9,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifference;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**

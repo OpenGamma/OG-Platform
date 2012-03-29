@@ -8,7 +8,9 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.forex.derivative.ForexNonDeliverableOption;
+import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableForwardDefinition;
+import com.opengamma.analytics.financial.forex.definition.ForexNonDeliverableOptionDefinition;
+import com.opengamma.analytics.financial.forex.derivative.ForexNonDeliverableOption;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 

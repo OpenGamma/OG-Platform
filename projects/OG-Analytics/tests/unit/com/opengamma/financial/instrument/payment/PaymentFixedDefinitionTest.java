@@ -14,9 +14,10 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
+import com.opengamma.analytics.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.interestrate.payments.PaymentFixed;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.time.DateUtils;
 

@@ -6,9 +6,9 @@
 package com.opengamma.financial.interestrate;
 
 import static org.testng.AssertJUnit.assertEquals;
-import static com.opengamma.financial.interestrate.InterestRateCurveSensitivityUtils.clean;
-import static com.opengamma.financial.interestrate.InterestRateCurveSensitivityUtils.addSensitivity;
-import static com.opengamma.financial.interestrate.InterestRateCurveSensitivityUtils.multiplySensitivity;
+import static com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils.addSensitivity;
+import static com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils.clean;
+import static com.opengamma.analytics.financial.interestrate.InterestRateCurveSensitivityUtils.multiplySensitivity;
 
 import java.util.ArrayList;
 import java.util.HashMap;

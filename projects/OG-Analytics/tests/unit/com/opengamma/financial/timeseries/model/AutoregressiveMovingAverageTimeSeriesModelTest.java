@@ -14,10 +14,13 @@ import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.MersenneTwister64;
 
+import com.opengamma.analytics.financial.timeseries.analysis.AutocorrelationFunctionCalculator;
+import com.opengamma.analytics.financial.timeseries.analysis.AutocovarianceFunctionCalculator;
+import com.opengamma.analytics.financial.timeseries.model.AutoregressiveMovingAverageTimeSeriesModel;
+import com.opengamma.analytics.financial.timeseries.model.AutoregressiveTimeSeriesModel;
+import com.opengamma.analytics.financial.timeseries.model.MovingAverageTimeSeriesModel;
 import com.opengamma.analytics.math.statistics.distribution.NormalDistribution;
 import com.opengamma.analytics.math.statistics.distribution.ProbabilityDistribution;
-import com.opengamma.financial.timeseries.analysis.AutocorrelationFunctionCalculator;
-import com.opengamma.financial.timeseries.analysis.AutocovarianceFunctionCalculator;
 import com.opengamma.util.timeseries.localdate.LocalDateDoubleTimeSeries;
 
 /**

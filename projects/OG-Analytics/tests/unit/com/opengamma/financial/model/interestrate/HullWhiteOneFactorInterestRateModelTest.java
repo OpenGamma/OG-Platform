@@ -11,11 +11,12 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.interestrate.HullWhiteOneFactorInterestRateModel;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.interestrate.definition.HullWhiteOneFactorDataBundle;
+import com.opengamma.analytics.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.interestrate.definition.HullWhiteOneFactorDataBundle;
-import com.opengamma.financial.model.volatility.curve.VolatilityCurve;
 import com.opengamma.util.time.DateUtils;
 
 /**

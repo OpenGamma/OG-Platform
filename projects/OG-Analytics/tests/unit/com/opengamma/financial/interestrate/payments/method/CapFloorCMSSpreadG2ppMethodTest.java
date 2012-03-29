@@ -7,23 +7,24 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
+import com.opengamma.analytics.financial.instrument.index.GeneratorSwap;
+import com.opengamma.analytics.financial.instrument.index.IndexSwap;
+import com.opengamma.analytics.financial.instrument.payment.CapFloorCMSSpreadDefinition;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.payments.CapFloorCMSSpread;
+import com.opengamma.analytics.financial.interestrate.payments.method.CapFloorCMSSpreadG2ppNumericalIntegrationMethod;
+import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantDataBundle;
+import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.index.GeneratorDeposit;
-import com.opengamma.financial.instrument.index.GeneratorSwap;
-import com.opengamma.financial.instrument.index.IndexSwap;
 import com.opengamma.financial.instrument.index.generator.USD6MLIBOR3M;
 import com.opengamma.financial.instrument.index.generator.USDDeposit;
-import com.opengamma.financial.instrument.payment.CapFloorCMSSpreadDefinition;
 import com.opengamma.financial.interestrate.TestsDataSetsSABR;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.payments.CapFloorCMSSpread;
 import com.opengamma.financial.model.interestrate.G2ppTestsDataSet;
-import com.opengamma.financial.model.interestrate.definition.G2ppPiecewiseConstantDataBundle;
-import com.opengamma.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
-import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 

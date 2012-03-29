@@ -11,13 +11,15 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.MixedLogNormalModelFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.SmileModelFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.sabr.PiecewiseMixedLogNormalFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalModelData;
+import com.opengamma.analytics.financial.model.volatility.smile.function.MixedLogNormalVolatilityFunction;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.volatility.smile.fitting.sabr.PiecewiseMixedLogNormalFitter;
-import com.opengamma.financial.model.volatility.smile.function.MixedLogNormalModelData;
-import com.opengamma.financial.model.volatility.smile.function.MixedLogNormalVolatilityFunction;
 
 /**
  * 

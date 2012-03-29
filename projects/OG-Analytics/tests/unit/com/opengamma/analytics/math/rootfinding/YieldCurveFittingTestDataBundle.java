@@ -12,12 +12,12 @@ import java.util.Map;
 
 import org.apache.commons.lang.Validate;
 
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivativeVisitor;
+import com.opengamma.analytics.financial.interestrate.MultipleYieldCurveFinderDataBundle;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.InstrumentDerivativeVisitor;
-import com.opengamma.financial.interestrate.MultipleYieldCurveFinderDataBundle;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

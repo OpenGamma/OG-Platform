@@ -17,6 +17,16 @@ import javax.time.calendar.Period;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.instrument.index.IborIndex;
+import com.opengamma.analytics.financial.interestrate.SABRTermStructureParameters;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.capletstripping.CapFloor;
+import com.opengamma.analytics.financial.interestrate.capletstripping.CapFloorPricer;
+import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStrippingFunction;
+import com.opengamma.analytics.financial.interestrate.capletstripping.CapletStrippingJacobian;
+import com.opengamma.analytics.financial.interestrate.payments.CapFloorIbor;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.analytics.math.curve.AddCurveSpreadFunction;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
@@ -43,12 +53,6 @@ import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
 import com.opengamma.financial.convention.frequency.SimpleFrequency;
-import com.opengamma.financial.instrument.index.IborIndex;
-import com.opengamma.financial.interestrate.SABRTermStructureParameters;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.payments.CapFloorIbor;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.volatility.VolatilityModel1D;
 import com.opengamma.util.money.Currency;
 
 /**

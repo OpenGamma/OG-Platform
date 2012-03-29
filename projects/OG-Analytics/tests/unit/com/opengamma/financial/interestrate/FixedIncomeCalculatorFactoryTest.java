@@ -10,6 +10,8 @@ import static org.testng.AssertJUnit.assertNull;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.interestrate.FixedIncomeCalculatorFactory;
+
 /**
  * 
  */

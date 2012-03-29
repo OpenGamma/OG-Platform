@@ -9,6 +9,8 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.timeseries.returns.ContinuouslyCompoundedGeometricMeanReturnCalculator;
+import com.opengamma.analytics.financial.timeseries.returns.SimplyCompoundedGeometricMeanReturnCalculator;
 import com.opengamma.analytics.math.function.Function1D;
 
 /**

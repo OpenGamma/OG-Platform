@@ -9,8 +9,9 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.interestrate.annuity.definition.AnnuityCouponFixed;
-import com.opengamma.financial.interestrate.payments.CouponFixed;
+import com.opengamma.analytics.financial.interestrate.annuity.YieldSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.annuity.definition.AnnuityCouponFixed;
+import com.opengamma.analytics.financial.interestrate.payments.CouponFixed;
 import com.opengamma.util.money.Currency;
 
 /**

@@ -7,6 +7,8 @@ package com.opengamma.financial.model.volatility.smile.fitting;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.HestonFFTSmileFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.LeastSquareSmileFitter;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 

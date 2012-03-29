@@ -10,11 +10,14 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.interestrate.payments.PaymentFixed;
-import com.opengamma.financial.model.option.definition.Barrier;
-import com.opengamma.financial.model.option.definition.Barrier.BarrierType;
-import com.opengamma.financial.model.option.definition.Barrier.KnockType;
-import com.opengamma.financial.model.option.definition.Barrier.ObservationType;
+import com.opengamma.analytics.financial.forex.derivative.Forex;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionSingleBarrier;
+import com.opengamma.analytics.financial.forex.derivative.ForexOptionVanilla;
+import com.opengamma.analytics.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.analytics.financial.model.option.definition.Barrier;
+import com.opengamma.analytics.financial.model.option.definition.Barrier.BarrierType;
+import com.opengamma.analytics.financial.model.option.definition.Barrier.KnockType;
+import com.opengamma.analytics.financial.model.option.definition.Barrier.ObservationType;
 import com.opengamma.util.money.Currency;
 
 /**

@@ -17,6 +17,8 @@ import java.util.Set;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.greeks.BucketedGreekResultCollection;
+import com.opengamma.analytics.financial.greeks.Greek;
 import com.opengamma.util.tuple.Pair;
 
 /**

@@ -10,6 +10,11 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.interestrate.AnnualInterestRate;
+import com.opengamma.analytics.financial.interestrate.ContinuousInterestRate;
+import com.opengamma.analytics.financial.interestrate.InterestRate;
+import com.opengamma.analytics.financial.interestrate.PeriodicInterestRate;
+
 /**
  * 
  */

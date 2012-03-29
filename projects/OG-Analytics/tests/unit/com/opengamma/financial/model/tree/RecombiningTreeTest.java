@@ -13,6 +13,8 @@ import java.util.Arrays;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.tree.RecombiningTree;
+
 /**
  * 
  */

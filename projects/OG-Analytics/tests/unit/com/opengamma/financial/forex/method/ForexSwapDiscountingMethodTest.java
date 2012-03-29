@@ -12,13 +12,16 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.forex.calculator.CurrencyExposureForexCalculator;
-import com.opengamma.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
-import com.opengamma.financial.forex.calculator.PresentValueForexCalculator;
-import com.opengamma.financial.forex.definition.ForexSwapDefinition;
-import com.opengamma.financial.forex.derivative.ForexSwap;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.forex.calculator.CurrencyExposureForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueCurveSensitivityForexCalculator;
+import com.opengamma.analytics.financial.forex.calculator.PresentValueForexCalculator;
+import com.opengamma.analytics.financial.forex.definition.ForexSwapDefinition;
+import com.opengamma.analytics.financial.forex.derivative.ForexSwap;
+import com.opengamma.analytics.financial.forex.method.ForexDiscountingMethod;
+import com.opengamma.analytics.financial.forex.method.ForexSwapDiscountingMethod;
+import com.opengamma.analytics.financial.forex.method.MultipleCurrencyInterestRateCurveSensitivity;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.money.MultipleCurrencyAmount;
 import com.opengamma.util.time.DateUtils;

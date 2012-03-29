@@ -15,6 +15,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.interestrate.market.PresentValueCurveSensitivityMarket;
 import com.opengamma.util.tuple.DoublesPair;
 
 /**

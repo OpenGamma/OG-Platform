@@ -15,19 +15,24 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.option.pricing.fourier.FourierPricer;
+import com.opengamma.analytics.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
+import com.opengamma.analytics.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
+import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.HestonFFTPriceFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.HestonFFTSmileFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.HestonFourierSmileFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.HestonModelFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.LeastSquareSmileFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.function.HestonVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResults;
 import com.opengamma.analytics.math.statistics.leastsquare.LeastSquareResultsWithTransform;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackPriceFunction;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.option.pricing.fourier.FourierPricer;
-import com.opengamma.financial.model.option.pricing.fourier.HestonCharacteristicExponent;
-import com.opengamma.financial.model.option.pricing.fourier.MartingaleCharacteristicExponent;
-import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
-import com.opengamma.financial.model.volatility.smile.function.HestonVolatilityFunction;
-import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
-import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.util.monitor.OperationTimer;
 
 /**

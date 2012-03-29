@@ -9,13 +9,15 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.model.finitedifference.ExponentialMeshing;
-import com.opengamma.financial.model.finitedifference.HyperbolicMeshing;
-import com.opengamma.financial.model.finitedifference.MarkovChain;
-import com.opengamma.financial.model.finitedifference.MeshingFunction;
-import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
-import com.opengamma.financial.model.finitedifference.PDEGrid1D;
-import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
+import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
+import com.opengamma.analytics.financial.model.finitedifference.MarkovChain;
+import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
+import com.opengamma.analytics.financial.model.finitedifference.PDEFullResults1D;
+import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
+import com.opengamma.analytics.financial.model.finitedifference.applications.TwoStateMarkovChainDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.applications.TwoStateMarkovChainPricer;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 
 /**
  * 

@@ -13,6 +13,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.forex.method.PresentValueForexBlackVolatilitySensitivity;
 import com.opengamma.analytics.util.surface.SurfaceValue;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;

@@ -5,9 +5,9 @@
  */
 package com.opengamma.financial.instrument.index.indexon;
 
+import com.opengamma.analytics.financial.instrument.index.IndexON;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.index.IndexON;
 import com.opengamma.util.money.Currency;
 
 /**

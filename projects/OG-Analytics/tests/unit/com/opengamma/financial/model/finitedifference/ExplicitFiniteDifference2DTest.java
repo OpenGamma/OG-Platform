@@ -7,6 +7,9 @@ package com.opengamma.financial.model.finitedifference;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver2D;
+import com.opengamma.analytics.financial.model.finitedifference.ExplicitFiniteDifference2D;
+
 /**
  * 
  */

@@ -10,6 +10,7 @@ import static org.testng.AssertJUnit.assertFalse;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.var.conditional.NormalLinearConditionalVaRCalculator;
 import com.opengamma.analytics.math.function.Function;
 
 /**

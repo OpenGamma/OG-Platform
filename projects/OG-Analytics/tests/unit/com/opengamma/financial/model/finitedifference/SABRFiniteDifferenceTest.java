@@ -9,29 +9,40 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
+import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
+import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
+import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
+import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
+import com.opengamma.analytics.financial.model.finitedifference.NeumannBoundaryCondition;
+import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
+import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
+import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifference;
+import com.opengamma.analytics.financial.model.finitedifference.applications.PDEDataBundleProvider;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.BlackFormulaRepository;
+import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
+import com.opengamma.analytics.financial.model.volatility.local.DupireLocalVolatilityCalculator;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRFormulaData;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
+import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceConverter;
+import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
+import com.opengamma.analytics.financial.model.volatility.surface.LocalVolatilitySurfaceStrike;
+import com.opengamma.analytics.financial.model.volatility.surface.PriceSurface;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.DoubleQuadraticInterpolator1D;
 import com.opengamma.analytics.math.interpolation.data.Interpolator1DDoubleQuadraticDataBundle;
 import com.opengamma.analytics.math.surface.FunctionalDoublesSurface;
-import com.opengamma.financial.model.finitedifference.applications.PDEDataBundleProvider;
-import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.volatility.BlackFormulaRepository;
-import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
-import com.opengamma.financial.model.volatility.local.DupireLocalVolatilityCalculator;
-import com.opengamma.financial.model.volatility.smile.function.SABRFormulaData;
-import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceMoneyness;
-import com.opengamma.financial.model.volatility.surface.BlackVolatilitySurfaceStrike;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceConverter;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceMoneyness;
-import com.opengamma.financial.model.volatility.surface.LocalVolatilitySurfaceStrike;
-import com.opengamma.financial.model.volatility.surface.PriceSurface;
 
 /**
  * 

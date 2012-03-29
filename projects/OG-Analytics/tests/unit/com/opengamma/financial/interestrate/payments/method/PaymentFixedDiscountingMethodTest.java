@@ -13,17 +13,18 @@ import javax.time.calendar.ZonedDateTime;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.instrument.index.GeneratorDeposit;
+import com.opengamma.analytics.financial.instrument.payment.PaymentFixedDefinition;
+import com.opengamma.analytics.financial.interestrate.PresentValueParallelCurveSensitivityCalculator;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.interestrate.payments.PaymentFixed;
+import com.opengamma.analytics.financial.interestrate.payments.method.PaymentFixedDiscountingMethod;
+import com.opengamma.analytics.financial.schedule.ScheduleCalculator;
 import com.opengamma.analytics.util.surface.StringValue;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.calendar.MondayToFridayCalendar;
-import com.opengamma.financial.instrument.index.GeneratorDeposit;
 import com.opengamma.financial.instrument.index.generator.EURDeposit;
-import com.opengamma.financial.instrument.payment.PaymentFixedDefinition;
-import com.opengamma.financial.interestrate.PresentValueParallelCurveSensitivityCalculator;
 import com.opengamma.financial.interestrate.TestsDataSetsSABR;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.interestrate.payments.PaymentFixed;
-import com.opengamma.financial.schedule.ScheduleCalculator;
 import com.opengamma.util.money.CurrencyAmount;
 import com.opengamma.util.time.DateUtils;
 

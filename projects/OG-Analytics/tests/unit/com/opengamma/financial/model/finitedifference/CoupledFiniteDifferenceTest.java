@@ -9,15 +9,26 @@ import static org.testng.AssertJUnit.assertEquals;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.finitedifference.BoundaryCondition;
+import com.opengamma.analytics.financial.model.finitedifference.CoupledFiniteDifference;
+import com.opengamma.analytics.financial.model.finitedifference.CoupledPDEDataBundle;
+import com.opengamma.analytics.financial.model.finitedifference.DirichletBoundaryCondition;
+import com.opengamma.analytics.financial.model.finitedifference.ExponentialMeshing;
+import com.opengamma.analytics.financial.model.finitedifference.HyperbolicMeshing;
+import com.opengamma.analytics.financial.model.finitedifference.MarkovChain;
+import com.opengamma.analytics.financial.model.finitedifference.MeshingFunction;
+import com.opengamma.analytics.financial.model.finitedifference.NeumannBoundaryCondition;
+import com.opengamma.analytics.financial.model.finitedifference.PDEGrid1D;
+import com.opengamma.analytics.financial.model.finitedifference.PDEResults1D;
+import com.opengamma.analytics.financial.model.finitedifference.applications.PDEDataBundleProvider;
+import com.opengamma.analytics.financial.model.finitedifference.applications.TwoStateMarkovChainDataBundle;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.BlackFunctionData;
+import com.opengamma.analytics.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
+import com.opengamma.analytics.financial.model.volatility.BlackImpliedVolatilityFormula;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
-import com.opengamma.financial.model.finitedifference.applications.PDEDataBundleProvider;
-import com.opengamma.financial.model.finitedifference.applications.TwoStateMarkovChainDataBundle;
-import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
-import com.opengamma.financial.model.option.pricing.analytic.formula.BlackFunctionData;
-import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
-import com.opengamma.financial.model.volatility.BlackImpliedVolatilityFormula;
 
 /**
  * Tests on a pair of backwards Black-Scholes PDEs. The model is a Black-Scholes SDE where the volatility can take one of two values

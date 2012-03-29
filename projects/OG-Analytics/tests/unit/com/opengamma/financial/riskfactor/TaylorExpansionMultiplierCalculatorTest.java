@@ -5,8 +5,8 @@
  */
 package com.opengamma.financial.riskfactor;
 
-import static com.opengamma.financial.riskfactor.TaylorExpansionMultiplierCalculator.getMultiplier;
-import static com.opengamma.financial.riskfactor.TaylorExpansionMultiplierCalculator.getTimeSeries;
+import static com.opengamma.analytics.financial.riskfactor.TaylorExpansionMultiplierCalculator.getMultiplier;
+import static com.opengamma.analytics.financial.riskfactor.TaylorExpansionMultiplierCalculator.getTimeSeries;
 import static org.testng.AssertJUnit.assertEquals;
 import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
@@ -18,10 +18,10 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.greeks.MixedOrderUnderlying;
-import com.opengamma.financial.greeks.NthOrderUnderlying;
-import com.opengamma.financial.greeks.Underlying;
-import com.opengamma.financial.pnl.UnderlyingType;
+import com.opengamma.analytics.financial.greeks.MixedOrderUnderlying;
+import com.opengamma.analytics.financial.greeks.NthOrderUnderlying;
+import com.opengamma.analytics.financial.greeks.Underlying;
+import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.fast.DateTimeNumericEncoding;
 import com.opengamma.util.timeseries.fast.longint.FastArrayLongDoubleTimeSeries;

@@ -7,6 +7,10 @@ package com.opengamma.financial.model.finitedifference;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.model.finitedifference.ConvectionDiffusionPDESolver;
+import com.opengamma.analytics.financial.model.finitedifference.RichardsonExtrapolationFiniteDifference;
+import com.opengamma.analytics.financial.model.finitedifference.ThetaMethodFiniteDifference;
+
 /**
  * 
  */

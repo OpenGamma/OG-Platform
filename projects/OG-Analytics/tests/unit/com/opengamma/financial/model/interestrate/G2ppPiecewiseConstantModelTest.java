@@ -10,7 +10,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 import org.testng.internal.junit.ArrayAsserts;
 
-import com.opengamma.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
+import com.opengamma.analytics.financial.model.interestrate.G2ppPiecewiseConstantModel;
+import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
 
 /**
  * Tests related to the construction of the G2++ model with piecewise constant volatility. The computation of several model related factors are also tested.

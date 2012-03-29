@@ -5,7 +5,7 @@
  */
 package com.opengamma.financial.model.interestrate;
 
-import com.opengamma.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
+import com.opengamma.analytics.financial.model.interestrate.definition.G2ppPiecewiseConstantParameters;
 
 /**
  * Data used for the G2++ model tests.

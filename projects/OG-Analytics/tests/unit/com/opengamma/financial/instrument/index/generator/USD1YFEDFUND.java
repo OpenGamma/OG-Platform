@@ -7,10 +7,10 @@ package com.opengamma.financial.instrument.index.generator;
 
 import javax.time.calendar.Period;
 
+import com.opengamma.analytics.financial.instrument.index.GeneratorOIS;
 import com.opengamma.financial.convention.businessday.BusinessDayConventionFactory;
 import com.opengamma.financial.convention.calendar.Calendar;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.instrument.index.GeneratorOIS;
 import com.opengamma.financial.instrument.index.indexon.FEDFUND;
 
 /**

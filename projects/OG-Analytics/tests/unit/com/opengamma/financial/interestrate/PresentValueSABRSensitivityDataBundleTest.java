@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.testng.annotations.Test;
 
+import com.opengamma.analytics.financial.interestrate.PresentValueSABRSensitivityDataBundle;
 import com.opengamma.util.tuple.DoublesPair;
 
 public class PresentValueSABRSensitivityDataBundleTest {
