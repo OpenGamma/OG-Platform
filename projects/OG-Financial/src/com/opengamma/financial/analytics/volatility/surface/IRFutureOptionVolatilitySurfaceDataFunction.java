@@ -127,8 +127,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
   public Set<ValueSpecification> getResults(final FunctionCompilationContext context, final ComputationTarget target) {
     return Collections.singleton(new ValueSpecification(ValueRequirementNames.STANDARD_VOLATILITY_SURFACE_DATA, target.toSpecification(),
         createValueProperties()
-            .withAny(ValuePropertyNames.SURFACE)
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get()));
+        .withAny(ValuePropertyNames.SURFACE)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_OPTION).get()));
   }
 
   @Override
@@ -230,8 +230,8 @@ public class IRFutureOptionVolatilitySurfaceDataFunction extends AbstractFunctio
 
     final ValueRequirement futuresRequirement = new ValueRequirement(ValueRequirementNames.FUTURE_PRICE_CURVE_DATA, target.toSpecification(),
         ValueProperties.builder()
-            .with(ValuePropertyNames.CURVE, curveName)
-            .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_PRICE).get());
+        .with(ValuePropertyNames.CURVE, curveName)
+        .with(InstrumentTypeProperties.PROPERTY_SURFACE_INSTRUMENT_TYPE, InstrumentTypeProperties.IR_FUTURE_PRICE).get());
     final Object futurePricesObject = inputs.getValue(futuresRequirement);
     if (futurePricesObject == null) {
       throw new OpenGammaRuntimeException("Could not get futures price data");
