@@ -44,16 +44,16 @@ public class DGEBRD {
     SanityChecker.checkMatrixMallocIsAsExpected(matrixA, m, n, "matrixA");
 
     // Test UT sanity
-    SanityChecker.checkMatrixMallocIsAsExpected(matrixUT, m, n, "matrixUT");
+    SanityChecker.checkMatrixMallocIsAsExpected(matrixUT, m, m, "matrixUT");
 
     // Test D sanity
     SanityChecker.checkVectorMallocIsAsExpected(vectorD, n, "vectorD");
 
     // Test DP! sanity
-    SanityChecker.checkVectorMallocIsAsExpected(vectorDP1, n, "vectorDP1");
+    SanityChecker.checkVectorMallocIsAsExpected(vectorDP1, (n - 1), "vectorDP1");
 
     // Test V sanity
-    SanityChecker.checkMatrixMallocIsAsExpected(matrixV, m, n, "matrixV");
+    SanityChecker.checkMatrixMallocIsAsExpected(matrixV, n, n, "matrixV");
 
     // seems the mallocs are sane, proceed
 

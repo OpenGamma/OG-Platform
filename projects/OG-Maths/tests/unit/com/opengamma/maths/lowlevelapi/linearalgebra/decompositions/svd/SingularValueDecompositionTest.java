@@ -14,7 +14,7 @@ import com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.routines.DGE
 import com.opengamma.maths.lowlevelapi.linearalgebra.lapack.general.types.SingularValueDecomposition.SingularValueDecompositionFullUSV;
 
 /**
- * 
+ * TODO: remove this comment: Currently being debugged!
  */
 public class SingularValueDecompositionTest {
   
@@ -49,19 +49,19 @@ public class SingularValueDecompositionTest {
   @Test
   public void svdTestThinMat(){
     SingularValueDecompositionFullUSV tmp = DGESVD.full(_DMAthinmat);
-    System.out.println("U="+Arrays.toString(tmp.getMatrixU()));
-    System.out.println("S="+Arrays.toString(tmp.getMatrixS()));
-    System.out.println("V=");
-    printToMatrix(tmp.getMatrixV(), 4, 4);  
+//    System.out.println("U="+Arrays.toString(tmp.getMatrixU()));
+//    System.out.println("S="+Arrays.toString(tmp.getMatrixS()));
+//    System.out.println("V=");
+//    printToMatrix(tmp.getMatrixV(), 4, 4);  
   }
 
   @Test
   public void svdTestLargerThinMat(){
     SingularValueDecompositionFullUSV tmp = DGESVD.full(_DMAlargerthinmat);
-    System.out.println("U="+Arrays.toString(tmp.getMatrixU()));
-    System.out.println("S="+Arrays.toString(tmp.getMatrixS()));
-    System.out.println("V=");
-    printToMatrix(tmp.getMatrixV(), 4, 4);  
+//    System.out.println("U="+Arrays.toString(tmp.getMatrixU()));
+//    System.out.println("S="+Arrays.toString(tmp.getMatrixS()));
+//    System.out.println("V=");
+//    printToMatrix(tmp.getMatrixV(), 4, 4);  
   }  
   
   

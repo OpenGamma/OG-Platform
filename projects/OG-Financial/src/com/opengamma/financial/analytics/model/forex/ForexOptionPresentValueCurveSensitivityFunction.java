@@ -22,7 +22,7 @@ import com.opengamma.util.money.Currency;
 /**
  * 
  */
-public class ForexOptionPresentValueCurveSensitivityFunction extends ForexOptionBlackFunction {
+public class ForexOptionPresentValueCurveSensitivityFunction extends ForexOptionBlackSingleValuedFunction {
   private static final PresentValueCurveSensitivityBlackForexCalculator CALCULATOR = PresentValueCurveSensitivityBlackForexCalculator.getInstance();
 
   public ForexOptionPresentValueCurveSensitivityFunction() {
