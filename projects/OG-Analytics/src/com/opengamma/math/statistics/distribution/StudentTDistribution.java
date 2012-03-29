@@ -18,12 +18,12 @@ import com.opengamma.math.function.special.InverseIncompleteBetaFunction;
 
 /**
  * Student's T-distribution is a continuous probability distribution with probability density function
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * f(x) = \\frac{\\Gamma\\left(\\frac{\\nu + 1}{2}\\right)}{\\sqrt{\\nu\\pi}\\Gamma(\\left(\\frac{\\nu}{2}\\right)}\\left(1 + \\frac{x^2}{\\nu}\\right)^{-\\frac{1}{2}(\\nu + 1)}
- * \\end{align*}
- * }
- * where {@latex.inline $\\nu$} is the number of degrees of freedom and {@latex.inline $\\Gamma$} is the Gamma function ({@link com.opengamma.math.function.special.GammaFunction}).
+ * $$
+ * \begin{align*}
+ * f(x) = \frac{\Gamma\left(\frac{\nu + 1}{2}\right)}{\sqrt{\nu\pi}\Gamma(\left(\frac{\nu}{2}\right)}\left(1 + \frac{x^2}{\nu}\right)^{-\frac{1}{2}(\nu + 1)}
+ * \end{align*}
+ * $$
+ * where $\nu$ is the number of degrees of freedom and $\Gamma$ is the Gamma function ({@link com.opengamma.math.function.special.GammaFunction}).
  * <p>
  * This class is a wrapper for the <a href="http://acs.lbl.gov/software/colt/api/cern/jet/random/StudentT.html">Colt</a> implementation of Student's T-distribution for cdf and pdf calculations
  * and Student's T-distributed random number generation.
@@ -82,13 +82,13 @@ public class StudentTDistribution implements ProbabilityDistribution<Double> {
   /**
    * {@inheritDoc}
    * The inverse cdf is given by:
-   * {@latex.ilb %preamble{\\usepackage{amsmath}}
-   * \\begin{align*}
-   * F(P) &= \\mathrm{sign}(p - \\frac{1}{2})\\sqrt{\\frac{\\nu}{x - 1}}\\\\
-   * x &= B(2 \\min(p, 1-p)) 
-   * \\end{align*}
-   * }
-   * where {@latex.inline $B$} is the inverse incomplete Beta function ({@link com.opengamma.math.function.special.InverseIncompleteBetaFunction}).
+   * $$
+   * \begin{align*}
+   * F(P) &= \mathrm{sign}(p - \frac{1}{2})\sqrt{\frac{\nu}{x - 1}}\\
+   * x &= B(2 \min(p, 1-p)) 
+   * \end{align*}
+   * $$
+   * where $B$ is the inverse incomplete Beta function ({@link com.opengamma.math.function.special.InverseIncompleteBetaFunction}).
    */
   @Override
   public double getInverseCDF(final Double p) {

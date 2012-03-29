@@ -19,14 +19,15 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.util.time.TimeCalculator;
 
 /**
- * Parameters related to a multi-factor Libor Market Model with separable displaced diffusion dynamic.
- * The equations underlying the Libor Market Model in the probability space with numeraire  {@latex.inline $P(.,t_{j+1})$} are
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{equation*}
- * dL_t^j = \\alpha(t) (L+a_{j}) \\gamma_{j} . dW_t^{j+1}
- * \\end{equation*}
- * }
- * with {@latex.inline $\\alpha(t) = \\exp(a t)$}. The {@latex.inline $\\gamma_j$} are m-dimensional vectors.
+ * Parameters related to a multi-factor Libor Market Model with separable
+ * displaced diffusion dynamic.  The equations underlying the Libor Market
+ * Model in the probability space with numeraire $P(.,t_{j+1})$ are
+ * $$
+ * \begin{equation*}
+ * dL_t^j = \alpha(t) (L+a_{j}) \gamma_{j} . dW_t^{j+1}
+ * \end{equation*}
+ * $$
+ * with $\alpha(t) = \exp(a t)$. The $\gamma_j$ are m-dimensional vectors.
  */
 public class LiborMarketModelDisplacedDiffusionParameters {
 

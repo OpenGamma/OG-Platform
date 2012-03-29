@@ -13,12 +13,12 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * Calculates the quartile skewness coefficient, which is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\text{QS} = \\frac{Q_1 - 2Q_2 + Q_3}{Q_3 - Q_1}
- * \\end{align*}
- * }
- * where {@latex.inline $Q_1$}, {@latex.inline $Q_2$} and {@latex.inline $Q_3$} are the first, second and third quartiles.
+ * $$
+ * \begin{align*}
+ * \text{QS} = \frac{Q_1 - 2Q_2 + Q_3}{Q_3 - Q_1}
+ * \end{align*}
+ * $$
+ * where $Q_1$, $Q_2$ and $Q_3$ are the first, second and third quartiles.
  * <p> 
  * The quartile skewness coefficient is also known as the Bowley skewness.
  */

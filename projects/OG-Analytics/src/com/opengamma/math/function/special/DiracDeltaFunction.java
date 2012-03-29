@@ -12,15 +12,15 @@ import com.opengamma.util.CompareUtils;
 
 /**
  * Class implementing the Dirac delta function, defined as:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\delta(x)=
- * \\begin{cases}
- * \\infty & \\text{ when } x = 0\\\\
- * 0       & \\text{ otherwise}
- * \\end{cases}
- * \\end{align*}
- * }
+ * $$
+ * \begin{align*}
+ * \delta(x)=
+ * \begin{cases}
+ * \infty & \text{ when } x = 0\\
+ *  0     & \text{ otherwise}
+ * \end{cases}
+ * \end{align*}
+ * $$
  */
 public class DiracDeltaFunction extends Function1D<Double, Double> {
 

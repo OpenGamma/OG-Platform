@@ -11,20 +11,20 @@ import com.opengamma.math.function.Function1D;
 
 /**
  * Class representing the top-hat function, defined as:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
+ * $$
+ * \begin{align*}
  * T(x)=
- * \\begin{cases}
- * 0 & x < x_1\\\\
- * y & x_1 < x < x_2\\\\
+ * \begin{cases}
+ * 0 & x < x_1\\
+ * y & x_1 < x < x_2\\
  * 0 & x > x_2
- * \\end{cases}
- * \\end{align*}
- * }
- * where {@latex.inline $x_1$} is the lower edge of the "hat", {@latex.inline $x_2$} is the upper edge and {@latex.inline $y$}
+ * \end{cases}
+ * \end{align*}
+ * $$
+ * where $x_1$ is the lower edge of the "hat", $x_2$ is the upper edge and $y$
  * is the height of the function.
  * 
- * This function is discontinuous at {@latex.inline $x_1$} and {@latex.inline $x_2$}.
+ * This function is discontinuous at $x_1$ and $x_2$.
  */
 public class TopHatFunction extends Function1D<Double, Double> {
   private final double _x1;
@@ -44,7 +44,7 @@ public class TopHatFunction extends Function1D<Double, Double> {
   }
 
   /**
-   * @param x The argument of the function, not null. Must have {@latex.inline $x_1 < x < x_2$}
+   * @param $x$ The argument of the function, not null. Must have $x_1 < x < x_2$
    * @return The value of the function
    */
   @Override

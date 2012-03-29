@@ -15,21 +15,21 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 public interface DecompositionResult {
 
   /**
-   * Solves {@latex.inline $\\mathbf{A}x = b$} where {@latex.inline $\\mathbf{A}$} is a (decomposed) matrix and {@latex.inline $b$} is a vector. 
+   * Solves $\mathbf{A}x = b$ where $\mathbf{A}$ is a (decomposed) matrix and $b$ is a vector. 
    * @param b a vector, not null
    * @return the vector x
    */
   DoubleMatrix1D solve(final DoubleMatrix1D b);
 
   /**
-   * Solves {@latex.inline $\\mathbf{A}x = b$} where {@latex.inline $\\mathbf{A}$} is a (decomposed) matrix and {@latex.inline $b$} is a vector. 
+   * Solves $\mathbf{A}x = b$ where $\mathbf{A}$ is a (decomposed) matrix and $b$ is a vector. 
    * @param b vector, not null
    * @return the vector x 
    */
   double[] solve(final double[] b);
 
   /**
-   * Solves {@latex.inline $\\mathbf{A}x = \\mathbf{B}$} where {@latex.inline $\\mathbf{A}$} is a (decomposed) matrix and {@latex.inline $\\mathbf{B}$} is a matrix.
+   * Solves $\mathbf{A}x = \mathbf{B}$ where $\mathbf{A}$ is a (decomposed) matrix and $\mathbf{B}$ is a matrix.
    * @param b matrix, not null
    * @return the matrix x
    */

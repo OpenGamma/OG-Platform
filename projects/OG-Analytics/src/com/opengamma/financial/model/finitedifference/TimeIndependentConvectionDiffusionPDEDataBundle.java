@@ -11,9 +11,11 @@ import com.opengamma.math.curve.Curve;
 import com.opengamma.math.function.Function1D;
 
 /**
- * Describes a partial differential for a function V(t,x), with the initial condition V(0,x) = f(x)
- * {@latex.inline $\\frac{\\partial V}{\\partial t} + a(x) \\frac{\\partial^2 V}{\\partial x^2} + b(x) \\frac{\\partial V}{\\partial x} + c(x)V = 0$}
- * Note that a, b and c are functions of x only so the matrix system of the PDE solver need only be solved once (provided that the boundary conditions are only time independent) 
+ * Describes a partial differential for a function $V(t,x)$, with the initial
+ * $\frac{\partial V}{\partial t} + a(x) \frac{\partial^2 V}{\partial x^2} + b(x) \frac{\partial V}{\partial x} + c(x)V = 0$
+ * Note that $a$, $b$ and $c$ are functions of $x$ only so the matrix system of the PDE
+ * solver need only be solved once (provided that the boundary conditions are
+ * only time independent) 
  */
 public class TimeIndependentConvectionDiffusionPDEDataBundle implements ParabolicPDEDataBundle {
 

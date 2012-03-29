@@ -11,8 +11,8 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.matrix.DoubleMatrix1D;
 
 /**
- * Parent class for root-finders that calculate a root for a vector function (i.e. {@latex.inline $\\mathbf{y} = f(\\mathbf{x})$}, where 
- * {@latex.inline $\\mathbf{x}$} and {@latex.inline $\\mathbf{y}$} are vectors). 
+ * Parent class for root-finders that calculate a root for a vector function (i.e. $\mathbf{y} = f(\mathbf{x})$, where 
+ * $\mathbf{x}$ and $\mathbf{y}$ are vectors). 
  */
 public abstract class VectorRootFinder implements SingleRootFinder<DoubleMatrix1D, DoubleMatrix1D> {
 

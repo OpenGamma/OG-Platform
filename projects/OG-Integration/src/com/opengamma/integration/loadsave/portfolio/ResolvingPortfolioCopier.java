@@ -5,18 +5,23 @@
  */
 package com.opengamma.integration.loadsave.portfolio;
 
+import java.util.Collections;
 import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.util.StringUtils;
 
 import com.opengamma.bbg.BloombergIdentifierProvider;
 import com.opengamma.bbg.ReferenceDataProvider;
 import com.opengamma.bbg.loader.BloombergHistoricalLoader;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.id.ExternalId;
-import com.opengamma.id.ExternalScheme;
+import com.opengamma.id.UniqueId;
 import com.opengamma.integration.loadsave.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesMaster;
@@ -60,38 +65,77 @@ public class ResolvingPortfolioCopier implements PortfolioCopier {
   
   @Override
   public void copy(PortfolioReader portfolioReader, PortfolioWriter portfolioWriter) {
-      
+    copy(portfolioReader, portfolioWriter, null);
+  }
+
+  @Override
+  public void copy(PortfolioReader portfolioReader, PortfolioWriter portfolioWriter, PortfolioCopierVisitor visitor) {
+
     ArgumentChecker.notNull(portfolioWriter, "portfolioWriter");
     ArgumentChecker.notNull(portfolioReader, "portfolioReader");
-
+    
     // Get bbg hts loader
     BloombergIdentifierProvider bbgIdentifierProvider = new BloombergIdentifierProvider(_bbgRefDataProvider);
     BloombergHistoricalLoader bbgLoader = new BloombergHistoricalLoader(_htsMaster, _bbgHtsSource, bbgIdentifierProvider);
 
-    // Load in and write the securities, positions and trades, additionally loading related time series
     ObjectsPair<ManageablePosition, ManageableSecurity[]> next;
 
     // Read in next row, checking for EOF
-    while ((next = portfolioReader.readNext()) != null) { 
+    while ((next = portfolioReader.readNext()) != null) {
       
-      // If position and security data is available, send it to the writer
+      ManageablePosition writtenPosition;
+      List<ManageableSecurity> writtenSecurities = new LinkedList<ManageableSecurity>();
+      
+      // Is position and security data is available for the current row?
       if (next.getFirst() != null && next.getSecond() != null) {
+        
+        // Set current path
+        String[] path = portfolioReader.getCurrentPath();
+        portfolioWriter.setPath(path);
+        
+        // Write position and security data
         for (ManageableSecurity security : next.getSecond()) {
-          portfolioWriter.writeSecurity(security);
+          writtenSecurities.add(portfolioWriter.writeSecurity(security));
           
           // Load this security's relevant HTSes
           for (String dataField : _dataFields) {
-            Set<ExternalId> id = new HashSet<ExternalId>();
-            id.add(security.getExternalIdBundle().getExternalId(ExternalScheme.of("BLOOMBERG_TICKER")));
-            s_logger.warn("Loading historical time series " + id.toString() + ", fields " + dataField + 
-                " from " + _dataProvider + ": " + bbgLoader.addTimeSeries(id, _dataProvider, dataField, null, null));
+            Set<ExternalId> ids = new HashSet<ExternalId>();
+            ids = security.getExternalIdBundle().getExternalIds();
+            Map<ExternalId, UniqueId> tsMap = null;
+            for (ExternalId id : ids) {
+              tsMap = bbgLoader.addTimeSeries(Collections.singleton(id), _dataProvider, dataField, null, null);
+              String message = "historical time series " + id.toString() + ", fields " + dataField + 
+                  " from " + _dataProvider;
+              if (tsMap.size() > 0) {
+                s_logger.info("Loaded " + message + ": " + tsMap);
+                if (visitor != null) {
+                  visitor.info("Loaded " + message);
+                }
+                break;
+              }
+            }
+            if (tsMap == null || tsMap.size() == 0) {
+              s_logger.warn("Could not load historical time series for security " + security);
+              if (visitor != null) {
+                visitor.error("Could not load historical time series for security " + security);
+              }
+            }
           }
         }
-        portfolioWriter.writePosition(next.getFirst());
+        writtenPosition = portfolioWriter.writePosition(next.getFirst());
+        
+        if (visitor != null) {
+          visitor.info(StringUtils.arrayToDelimitedString(path, "/"), writtenPosition, writtenSecurities);
+        }
+      } else {
+        if (visitor != null) {
+          visitor.error("Could not load" + (next.getFirst() == null ? " position" : "") + (next.getSecond() == null ? " security" : ""));
+        }
       }
+      
     }
-    
-    // Flush changes to portfolio master & close
+
+    // Flush changes to portfolio master
     portfolioWriter.flush();
   }
   

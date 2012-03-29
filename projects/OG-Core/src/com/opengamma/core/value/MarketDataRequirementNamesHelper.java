@@ -12,10 +12,15 @@ import java.util.Set;
 import com.opengamma.OpenGammaRuntimeException;
 
 /**
+ * Utility methods to simplify managing market data requirement names.
+ * <p>
+ * This is a static thread-safe utility class.
+ */
+/**
  * Constructs a list of all valid {@link MarketDataRequirementNames}.
  */
 public class MarketDataRequirementNamesHelper {
-  
+
   /**
    * Constructs a list of all valid {@link MarketDataRequirementNames}.
    * 
@@ -36,8 +41,7 @@ public class MarketDataRequirementNamesHelper {
     } catch (Exception e) { 
       throw new OpenGammaRuntimeException("Error querying fields of " + MarketDataRequirementNames.class);
     }
-    
     return result;
   }
-  
+
 }

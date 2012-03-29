@@ -180,9 +180,9 @@ public class OGMatrixAlgebra extends MatrixAlgebra {
    * {@inheritDoc}
    * The following combinations of input matrices m1 and m2 are allowed:
    * <ul>
-   * <li> m1 = 2-D matrix, m2 = 2-D matrix, returns {@latex.inline $\\mathbf{C} = \\mathbf{AB}$}
-   * <li> m1 = 2-D matrix, m2 = 1-D matrix, returns {@latex.inline $\\mathbf{C} = \\mathbf{A}b$}
-   * <li> m1 = 1-D matrix, m2 = 2-D matrix, returns {@latex.inline $\\mathbf{C} = a^T\\mathbf{B}$}
+   * <li> m1 = 2-D matrix, m2 = 2-D matrix, returns $\mathbf{C} = \mathbf{AB}$
+   * <li> m1 = 2-D matrix, m2 = 1-D matrix, returns $\mathbf{C} = \mathbf{A}b$
+   * <li> m1 = 1-D matrix, m2 = 2-D matrix, returns $\mathbf{C} = a^T\mathbf{B}$
    * </ul>
    */
   @Override

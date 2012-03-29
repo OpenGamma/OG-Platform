@@ -1,12 +1,4 @@
-<!doctype html>
-<!--[if IE 8 ]><html lang="en" class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html lang="en" class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
-<head>
-<meta charset="utf-8">
-<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-<meta name="SKYPE_TOOLBAR" content="SKYPE_TOOLBAR_PARSER_COMPATIBLE" />
-<meta name="google" value="notranslate">
+<#include "modules/common/og.common.header.ftl">
 <title>Import</title>
 ${ogStyle.print('og_all.css', 'all',false)}
 <style type="text/css">
@@ -20,7 +12,7 @@ ${ogStyle.print('og_all.css', 'all',false)}
 </script>
 </head>
 <body>
-  <form action="http://localhost:8080/jax/portfolioupload/10/1000" enctype="multipart/form-data" method="post">
+  <form action="http://localhost:8080/jax/portfolioupload" enctype="multipart/form-data" method="post">
     <div>
       <label>
           Portfolio Name: <br /><input type="text" name="portfolioName"><br />

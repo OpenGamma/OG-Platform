@@ -13,17 +13,17 @@ import com.opengamma.math.matrix.DoubleMatrix2D;
 
 /**
  * Class representing a tridiagonal matrix:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\begin{pmatrix}
- * a_1     & b_1     & 0       & \\cdots & 0       & 0       & 0       \\\\
- * c_1     & a_2     & b_2     & \\cdots & 0       & 0       & 0       \\\\
- * 0       &         & \\ddots &         & \\vdots & \\vdots & \\vdots \\\\
- * 0       & 0       & 0       &         & c_{n-2} & a_{n-1} & b_{n-1} \\\\
- * 0       & 0       & 0       & \\cdots & 0       & c_{n-1} & a_n     
- * \\end{pmatrix}
- * \\end{align*}
- * }
+ * $$
+ * \begin{align*}
+ * \begin{pmatrix}
+ * a_1     & b_1     & 0       & \cdots  & 0       & 0       & 0        \\
+ * c_1     & a_2     & b_2     & \cdots  & 0       & 0       & 0        \\
+ * 0       &         & \ddots  &         & \vdots  & \vdots  & \vdots   \\
+ * 0       & 0       & 0       &         & c_{n-2} & a_{n-1} & b_{n-1}  \\
+ * 0       & 0       & 0       & \cdots  & 0       & c_{n-1} & a_n     
+ * \end{pmatrix}
+ * \end{align*}
+ * $$
  */
 public class TridiagonalMatrix {
   private final double[] _a;

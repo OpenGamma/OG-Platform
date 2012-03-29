@@ -52,14 +52,14 @@
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring/jars/spring-jdbc-3.0.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/jars/commons-logging-1.1.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.aopalliance/aopalliance/jars/aopalliance-1.0.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring-security/jars/spring-security-core-2.0.5.jar!/" />
-          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring-security/jars/spring-security-core-tiger-2.0.5.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-collections/jars/commons-collections-3.2.1.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-codec/jars/commons-codec-1.6.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-lang/jars/commons-lang-2.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.aspectj/aspectj/jars/aspectj-lib-1.5.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.aspectj/aspectj/jars/aspectj-rt-1.5.4.jar!/" />
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.mindrot/jBCrypt/jars/jBCrypt-0.3.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring-security/jars/spring-security-core-2.0.5.jar!/" />
+          <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.springframework/spring-security/jars/spring-security-core-tiger-2.0.5.jar!/" />
         </CLASSES>
         <JAVADOC>
           <root url="jar://$USER_HOME$/.ivy2/cache-chris/org.apache.commons/commons-logging/javadocs/commons-logging-javadoc-1.1.1.jar!/" />

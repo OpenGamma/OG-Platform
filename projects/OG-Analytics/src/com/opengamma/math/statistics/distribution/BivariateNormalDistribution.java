@@ -9,16 +9,16 @@ import org.apache.commons.lang.NotImplementedException;
 import org.apache.commons.lang.Validate;
 
 /**
- * The bivariate normal distribution is a continuous probability distribution of two variables, {@latex.inline $x$} and {@latex.inline $y$}, with
- * cdf
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * M(x, y, \\rho) = \\frac{1}{2\\pi\\sqrt{1 - \\rho^2}}\\int_{-\\infty}^x\\int_{-\\infty}^{y} e^{\\frac{-(X^2 - 2\\rho XY + Y^2)}{2(1 - \\rho^2)}} dX dY
- * \\end{align*}
- * }
- * where {@latex.inline $\\rho$} is the correlation between {@latex.inline $x$} and {@latex.inline $y$}.
+ * The bivariate normal distribution is a continuous probability distribution
+ * of two variables, $x$ and $y$, with cdf
+ * $$
+ * \begin{align*}
+ * M(x, y, \rho) = \frac{1}{2\pi\sqrt{1 - \rho^2}}\int_{-\infty}^x\int_{-\infty}^{y} e^{\frac{-(X^2 - 2\rho XY + Y^2)}{2(1 - \rho^2)}} dX dY
+ * \end{align*}
+ * $$
+ * where $\rho$ is the correlation between $x$ and $y$.
  * <p>
- * The implementation of the cdf is taken from <i>"Better Approximations to Cumulative Normal Functions", West</i> 
+ * The implementation of the cdf is taken from "Better Approximations to Cumulative Normal Functions", West
  * (<a href="www.codeplanet.eu/files/download/accuratecumnorm.pdf">link</a>).
  */
 public class BivariateNormalDistribution implements ProbabilityDistribution<double[]> {
@@ -28,7 +28,7 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<doub
   private static final double[] Y = new double[] {0.018854042, 0.038088059, 0.0452707394, 0.038088059, 0.018854042};
 
   /**
-   * @param x The parameters for the function, {@latex.inline $(x, y, \\rho$}, with {@latex.inline $-1 \\geq \\rho \\geq 1$}, not null 
+   * @param x The parameters for the function, $(x, y, \rho$, with $-1 \geq \rho \geq 1$, not null 
    * @return The cdf
    */
   @Override
@@ -102,7 +102,7 @@ public class BivariateNormalDistribution implements ProbabilityDistribution<doub
   }
 
   /**
-   * @param x The parameters for the function, {@latex.inline $(x, y, \\rho$}, with {@latex.inline $-1 \\geq \\rho \\geq 1$}, not null
+   * @param x The parameters for the function, $(x, y, \rho$, with $-1 \geq \rho \geq 1$, not null
    * @return The pdf  
    */
   @Override

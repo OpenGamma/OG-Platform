@@ -10,22 +10,23 @@ import com.opengamma.math.number.ComplexNumber;
 
 /**
  * 
- * By definition, the characteristic function {@latex.inline $\\phi(u)$} of a distribution {@latex.inline $X$} is the Fourier transform of 
- * the probability density function {@latex.inline $\\rho(x)$}:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\phi_X(u) = E\\left[e^{iuX}\\right] = \\int_{-\\infty}^{\\infty} e^{iux}\\rho(x)dx
- * \\end{align*}
- * }
+ * By definition, the characteristic function $\phi(u)$ of a distribution $X$
+ * is the Fourier transform of the probability density function $\rho(x)$:
+ * $$
+ * \begin{align*}
+ * \phi_X(u) = E\left[e^{iuX}\right] = \int_{-\infty}^{\infty} e^{iux}\rho(x)dx
+ * \end{align*}
+ * $$
  * <p>
- * The cumulant characteristic function (characteristic exponent) is defined as {@latex.inline $\\psi(u) = \\ln(\\phi(u))$} and is given by the Levy-Khintchine formula
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\psi(u) = i\\gamma u - \\tfrac{1}{2}\\sigma^2 u^2 + \\int_{-\\infty}^{\\infty}\\left(e^{iux} - 1 - iux\\mathbf{1}_{|x|<1}\\right)\\nu(dx)
- * \\end{align*}
- * }
- * where {@latex.inline $\\gamma$} is a pure drift term, {@latex.inline $\\sigma^2$} is the Brownian volatility and {@latex.inline $\\nu(dx)$} is the Levy measure and 
- * controls how jumps occur.
+ * The cumulant characteristic function (characteristic exponent) is defined as
+ * $\psi(u) = \ln(\phi(u))$ and is given by the Levy-Khintchine formula:
+ * $$
+ * \begin{align*}
+ * \psi(u) = i\gamma u - \tfrac{1}{2}\sigma^2 u^2 + \int_{-\infty}^{\infty}\left(e^{iux} - 1 - iux\mathbf{1}_{|x|<1}\right)\nu(dx)
+ * \end{align*}
+ * $$
+ * where $\gamma$ is a pure drift term, $\sigma^2$ is the Brownian volatility
+ * and $\nu(dx)$ is the Levy measure and controls how jumps occur.
  */
 public interface CharacteristicExponent {
 
@@ -61,14 +62,16 @@ public interface CharacteristicExponent {
   Function1D<ComplexNumber, ComplexNumber[]> getAdjointFunction(final double t);
 
   /**
-   * Returns the largest allowable value of {@latex.inline $\\alpha$}, the contour along which the characteristic function is integrated.
-   * @return Returns the largest allowable value of {@latex.inline $\\alpha$}  
+   * Returns the largest allowable value of $\alpha$, the contour along which
+   * the characteristic function is integrated.
+   * @return Returns the largest allowable value of $\alpha$  
    */
   double getLargestAlpha();
 
   /**
-   * Returns the largest allowable value of {@latex.inline $\\alpha$}, the contour along which the characteristic function is integrated.
-   * @return Returns the smallest allowable value of {@latex.inline $\\alpha$}
+   * Returns the largest allowable value of $\alpha$, the contour along which
+   * the characteristic function is integrated.
+   * @return Returns the smallest allowable value of $\alpha$
    */
   double getSmallestAlpha();
 

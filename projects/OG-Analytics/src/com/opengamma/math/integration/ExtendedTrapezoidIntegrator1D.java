@@ -17,13 +17,13 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.util.wrapper.CommonsMathWrapper;
 
 /**
- * The trapezoid integration rule is a two-point Newton-Cotes formula that approximates the area under the curve
- * as a trapezoid. For a function {@latex.inline $f(x)$},
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\int^{x_2} _{x_1} f(x)dx \\approx \\frac{1}{2}(x_2 - x_1)(f(x_1) + f(x_2))
- * \\end{align*}
- * }
+ * The trapezoid integration rule is a two-point Newton-Cotes formula that
+ * approximates the area under the curve as a trapezoid. For a function $f(x)$,
+ * $$
+ * \begin{align*}
+ * \int^{x_2} _{x_1} f(x)dx \approx \frac{1}{2}(x_2 - x_1)(f(x_1) + f(x_2))
+ * \end{align*}
+ * $$
  * <p> 
  * This class is a wrapper for the <a href="http://commons.apache.org/math/api-2.1/org/apache/commons/math/analysis/integration/TrapezoidIntegrator.html">Commons Math library implementation</a> 
  * of trapezoidal integration.

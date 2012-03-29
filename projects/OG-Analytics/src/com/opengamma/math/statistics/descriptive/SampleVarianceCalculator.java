@@ -12,12 +12,13 @@ import com.opengamma.math.function.Function1D;
 /**
  * Calculates the sample variance of a series of data. 
  * <p> 
- * The unbiased sample variance {@latex.inline $\\mathrm{var}$} of a series {@latex.inline $x_1, x_2, \\dots, x_n$} is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\text{var} = \\frac{1}{n-1}\\sum_{i=1}^{n}(x_i - \\overline{x})^2
- * \\end{align*}}
- * where {@latex.inline $\\overline{x}$} is the sample mean. For the population variance, see {@link PopulationVarianceCalculator}.
+ * The unbiased sample variance $\mathrm{var}$ of a series $x_1, x_2, \dots, x_n$ is given by:
+ * $$
+ * \begin{align*}
+ * \text{var} = \frac{1}{n-1}\sum_{i=1}^{n}(x_i - \overline{x})^2
+ * \end{align*}
+ * $$
+ * where $\overline{x}$ is the sample mean. For the population variance, see {@link PopulationVarianceCalculator}.
  */
 public class SampleVarianceCalculator extends Function1D<double[], Double> {
   private static final Function1D<double[], Double> MEAN = new MeanCalculator();

@@ -12,12 +12,15 @@ import org.apache.commons.lang.Validate;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * Calculates the historical covariance of two return series. The covariance is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * \\frac{1}{n(n-1)}\\sum\\limits_{i=1}^n (x_i - \\overline{x})(y_i - \\overline{y})
- * \\end{eqnarray*}}
- * where {@latex.inline $x$} is the first return series, {@latex.inline $y$} is the second return series and {@latex.inline $n$} is the number of data points.
+ * Calculates the historical covariance of two return series. The covariance is
+ * given by:
+ * $$
+ * \begin{eqnarray*}
+ * \frac{1}{n(n-1)}\sum\limits_{i=1}^n (x_i - \overline{x})(y_i - \overline{y})
+ * \end{eqnarray*}
+ * $$
+ * where $x$ is the first return series, $y$ is the second return series and
+ * $n$ is the number of data points.
  */
 public class HistoricalCovarianceCalculator extends CovarianceCalculator {
 

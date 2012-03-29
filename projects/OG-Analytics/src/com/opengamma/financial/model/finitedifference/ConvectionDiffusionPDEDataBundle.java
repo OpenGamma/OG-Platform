@@ -11,8 +11,8 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.surface.Surface;
 
 /**
- * Describes a partial differential for a function V(t,x), with the initial condition V(0,x) = f(x)
- *  {@latex.inline $\\frac{\\partial V}{\\partial t} + a(t,x) \\frac{\\partial^2 V}{\\partial x^2} + b(t,x) \\frac{\\partial V}{\\partial x} + c(t,x)V = 0$}
+ * Describes a partial differential for a function $V(t,x)$, with the initial condition $V(0,x) = f(x)$
+ *  $\frac{\partial V}{\partial t} + a(t,x) \frac{\partial^2 V}{\partial x^2} + b(t,x) \frac{\partial V}{\partial x} + c(t,x)V = 0$
  */
 public class ConvectionDiffusionPDEDataBundle implements ParabolicPDEDataBundle {
 

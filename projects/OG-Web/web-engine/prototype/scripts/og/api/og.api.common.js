@@ -6,13 +6,13 @@ $.register_module({
     name: 'og.api.common',
     dependencies: [],
     obj: function () {
-        var module = this, cache = window['sessionStorage'], warn = og.dev.warn, str = function (val) {
+        var module = this, cache = window['sessionStorage'], common, warn = og.dev.warn, str = function (val) {
             return val === void 0 ? ''
                 : $.isArray(val) ? val.join('\n')
                     : typeof val === 'object' ? JSON.stringify(val)
                         : '' + val;
         };
-        return {
+        return common = {
             check: (function () {
                 var check_dependencies = function (bundle, dependencies) {
                         var config = bundle.config, method = bundle.method, self = 'check_dependencies';
@@ -67,17 +67,27 @@ $.register_module({
                 if (loading_method) loading_method();
                 /*global ajax loading events start here*/
             },
+            clear_cache: function (prefix) {
+                try { // if cache is restricted, bail
+                    if (!prefix) return cache.clear();
+                    Object.keys(cache).forEach(function (key) {
+                        if (key.indexOf(prefix) === 0) common.del_cache(key);
+                        });
+                } catch (error) {
+                    return warn(module.name + ': clear_cache failed\n', error);
+                }
+            },
             get_cache: function (key) {
                 try { // if cache is restricted, bail
-                    return cache['getItem'](module.name + key) ? JSON.parse(cache['getItem'](module.name + key)) : null;
+                    return cache['getItem'](key) ? JSON.parse(cache['getItem'](key)) : null;
                 } catch (error) {
-                    return warn(module.name + ': get_cache failed\n', error);
+                    warn(module.name + ': get_cache failed\n', error);
                     return null;
                 }
             },
             set_cache: function (key, value) {
                 try { // if the cache is too full, fail gracefully
-                    cache['setItem'](module.name + key, JSON.stringify(value));
+                    cache['setItem'](key, JSON.stringify(value));
                 } catch (error) {
                     warn(module.name + ': set_cache failed\n', error);
                     del_cache(key);
@@ -85,7 +95,7 @@ $.register_module({
             },
             del_cache: function (key) {
                 try { // if cache is restricted, bail
-                    cache['removeItem'](module.name + key);
+                    cache['removeItem'](key);
                 } catch (error) {
                     warn(module.name + ': del_cache failed\n', error);
                 }

@@ -49,6 +49,7 @@ public abstract class AbstractPortfolioGeneratorTool {
   private SecurityPersister _securityPersister;
   private ToolContext _toolContext;
   private Class<? extends AbstractPortfolioGeneratorTool> _classContext;
+  private AbstractPortfolioGeneratorTool _objectContext;
 
   public AbstractPortfolioGeneratorTool() {
     _classContext = getClass();
@@ -82,12 +83,17 @@ public abstract class AbstractPortfolioGeneratorTool {
     _random = random;
   }
 
-  private void setClassContext(final Class<? extends AbstractPortfolioGeneratorTool> classContext) {
+  private void setContext(final Class<? extends AbstractPortfolioGeneratorTool> classContext, final AbstractPortfolioGeneratorTool objectContext) {
     _classContext = classContext;
+    _objectContext = objectContext;
   }
 
   private Class<? extends AbstractPortfolioGeneratorTool> getClassContext() {
     return _classContext;
+  }
+
+  private AbstractPortfolioGeneratorTool getObjectContext() {
+    return _objectContext;
   }
 
   public SecurityPersister getSecurityPersister() {
@@ -106,7 +112,7 @@ public abstract class AbstractPortfolioGeneratorTool {
     _toolContext = toolContext;
   }
 
-  protected void configure(final SecurityGenerator<?> securityGenerator) {
+  protected final void configure(final SecurityGenerator<?> securityGenerator) {
     if (getRandom() != null) {
       securityGenerator.setRandom(getRandom());
     }
@@ -115,6 +121,16 @@ public abstract class AbstractPortfolioGeneratorTool {
       securityGenerator.setConventionSource(getToolContext().getConventionBundleSource());
       securityGenerator.setHolidaySource(getToolContext().getHolidaySource());
       securityGenerator.setHistoricalSource(getToolContext().getHistoricalTimeSeriesSource());
+      securityGenerator.setExchangeMaster(getToolContext().getExchangeMaster());
+      securityGenerator.setRegionSource(getToolContext().getRegionSource());
+      securityGenerator.setSecurityMaster(getToolContext().getSecurityMaster());
+    }
+    configureChain(securityGenerator);
+  }
+
+  protected void configureChain(final SecurityGenerator<?> securityGenerator) {
+    if (getObjectContext() != null) {
+      getObjectContext().configureChain(securityGenerator);
     }
   }
 
@@ -164,7 +180,7 @@ public abstract class AbstractPortfolioGeneratorTool {
       }
       s_logger.info("Loading {}", className);
       final AbstractPortfolioGeneratorTool tool = (AbstractPortfolioGeneratorTool) instanceClass.newInstance();
-      tool.setClassContext(getClassContext());
+      tool.setContext(getClassContext(), this);
       return tool;
     } catch (Exception e) {
       throw new OpenGammaRuntimeException("Couldn't create generator tool instance for " + security, e);
