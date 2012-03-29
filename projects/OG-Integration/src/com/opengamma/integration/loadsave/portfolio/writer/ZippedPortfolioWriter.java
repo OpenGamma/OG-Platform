@@ -21,6 +21,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.util.StringUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.integration.loadsave.portfolio.rowparser.JodaBeanRowParser;
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
 import com.opengamma.integration.loadsave.sheet.writer.CsvSheetWriter;
 import com.opengamma.integration.loadsave.sheet.writer.SheetWriter;
@@ -198,7 +199,7 @@ public class ZippedPortfolioWriter implements PortfolioWriter {
 
       s_logger.info("Creating a new row parser for " + className + " securities");
 
-      parser = RowParser.newRowParser(className);
+      parser = JodaBeanRowParser.newJodaBeanRowParser(className);
       if (parser == null) {
         return null;
       }

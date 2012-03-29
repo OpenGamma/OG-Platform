@@ -11,6 +11,7 @@ import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.opengamma.integration.loadsave.portfolio.rowparser.JodaBeanRowParser;
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
 import com.opengamma.integration.loadsave.sheet.SheetFormat;
 import com.opengamma.integration.loadsave.sheet.reader.SheetReader;
@@ -47,7 +48,7 @@ public class SingleSheetSimplePortfolioReader extends SingleSheetPortfolioReader
   }
 
   public SingleSheetSimplePortfolioReader(SheetReader sheet, String securityClass) {
-    this(sheet, RowParser.newRowParser(securityClass));    
+    this(sheet, JodaBeanRowParser.newJodaBeanRowParser(securityClass));    
   }
 
   public SingleSheetSimplePortfolioReader(SheetFormat sheetFormat, InputStream inputStream, RowParser rowParser) {

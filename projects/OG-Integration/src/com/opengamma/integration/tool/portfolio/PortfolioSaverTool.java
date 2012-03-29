@@ -105,7 +105,7 @@ public class PortfolioSaverTool extends AbstractIntegrationTool {
         if (securityType.equalsIgnoreCase("exchangetraded")) {
           return new SingleSheetSimplePortfolioWriter(filename, new ExchangeTradedRowParser(s_context.getBloombergSecuritySource()));
         } else {
-          return new SingleSheetSimplePortfolioWriter(filename, new JodaBeanRowParser(securityType));
+          return new SingleSheetSimplePortfolioWriter(filename, JodaBeanRowParser.newJodaBeanRowParser(securityType));
         }
       } else if (SheetFormat.of(filename) == SheetFormat.ZIP) {
         return new ZippedPortfolioWriter(filename);

@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import com.opengamma.integration.loadsave.portfolio.rowparser.JodaBeanRowParser;
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
 import com.opengamma.integration.loadsave.sheet.SheetFormat;
 import com.opengamma.integration.loadsave.sheet.writer.SheetWriter;
@@ -107,7 +108,10 @@ public class SingleSheetMultiParserPortfolioWriter extends SingleSheetPortfolioW
     Map<String, RowParser> rowParsers = new HashMap<String, RowParser>();
     if (securityTypes != null) {
       for (String s : securityTypes) {
-        rowParsers.put(s, RowParser.newRowParser(s));
+        JodaBeanRowParser parser = JodaBeanRowParser.newJodaBeanRowParser(s);
+        if (parser != null) {
+          rowParsers.put(s, parser);
+        }
       }
     }
     return rowParsers;

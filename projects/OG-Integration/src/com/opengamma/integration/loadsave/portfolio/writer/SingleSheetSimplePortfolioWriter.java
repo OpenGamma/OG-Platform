@@ -8,6 +8,8 @@ package com.opengamma.integration.loadsave.portfolio.writer;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import com.opengamma.integration.loadsave.portfolio.rowparser.JodaBeanRowParser;
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
 import com.opengamma.integration.loadsave.sheet.SheetFormat;
 import com.opengamma.integration.loadsave.sheet.writer.SheetWriter;
@@ -43,7 +45,7 @@ public class SingleSheetSimplePortfolioWriter extends SingleSheetPortfolioWriter
   }
 
   public SingleSheetSimplePortfolioWriter(SheetWriter sheet, String securityType) {
-    this(sheet, RowParser.newRowParser(securityType));    
+    this(sheet, JodaBeanRowParser.newJodaBeanRowParser(securityType));    
   }
 
   public SingleSheetSimplePortfolioWriter(SheetFormat sheetFormat, OutputStream outputStream, RowParser rowParser) {
@@ -55,7 +57,7 @@ public class SingleSheetSimplePortfolioWriter extends SingleSheetPortfolioWriter
   }
   
   public SingleSheetSimplePortfolioWriter(String filename, String securityType) {
-    this(filename, RowParser.newRowParser(securityType));
+    this(filename, JodaBeanRowParser.newJodaBeanRowParser(securityType));
   }
   
   @Override

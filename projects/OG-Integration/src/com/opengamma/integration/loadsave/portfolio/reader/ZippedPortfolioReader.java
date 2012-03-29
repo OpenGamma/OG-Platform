@@ -20,6 +20,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.integration.loadsave.portfolio.rowparser.JodaBeanRowParser;
 import com.opengamma.integration.loadsave.portfolio.rowparser.RowParser;
 import com.opengamma.integration.loadsave.sheet.reader.CsvSheetReader;
 import com.opengamma.integration.loadsave.sheet.reader.SheetReader;
@@ -46,6 +47,7 @@ public class ZippedPortfolioReader implements PortfolioReader {
   private PortfolioReader _currentReader;
   private String[] _currentPath = new String[0];
   
+  @SuppressWarnings("unchecked")
   public ZippedPortfolioReader(String filename) {
     
     ArgumentChecker.notNull(filename, "filename");
@@ -101,7 +103,7 @@ public class ZippedPortfolioReader implements PortfolioReader {
         // Set up a sheet reader and a row parser for the current CSV file in the ZIP archive
         SheetReader sheet = new CsvSheetReader(_zipFile.getInputStream(entry));
         
-        RowParser parser = RowParser.newRowParser(secType);
+        RowParser parser = JodaBeanRowParser.newJodaBeanRowParser(secType);
         if (parser == null) {
           s_logger.error("Could not build a row parser for security type '" + secType + "'");
           return null; 

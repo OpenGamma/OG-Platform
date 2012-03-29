@@ -45,19 +45,6 @@ public abstract class RowParser {
   }
   
   /**
-   * Creates a new row parser for the specified security type and tool context
-   * @param securityName  the type of the security for which a row parser is to be created
-   * @return              the RowParser class for the specified security type, or null if unable to identify a suitable parser
-   */
-  public static RowParser newRowParser(String securityName) {
-    // Now using the JodaBean parser
-    
-    ArgumentChecker.notEmpty(securityName, "securityName");
-    
-    return new JodaBeanRowParser(securityName);
-  }
-
-  /**
    * Constructs a row from the supplied trade.
    * @param trade The trade to convert
    * @return      The mapping from column names to contents of the current row
