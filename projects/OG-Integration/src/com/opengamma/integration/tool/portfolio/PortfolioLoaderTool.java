@@ -9,12 +9,12 @@ import java.io.BufferedInputStream;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
-
 import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
-
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.integration.loadsave.portfolio.PortfolioCopier;
+import com.opengamma.integration.loadsave.portfolio.PortfolioCopierVisitor;
+import com.opengamma.integration.loadsave.portfolio.QuietPortfolioCopierVisitor;
+import com.opengamma.integration.loadsave.portfolio.VerbosePortfolioCopierVisitor;
 import com.opengamma.integration.loadsave.portfolio.SimplePortfolioCopier;
 import com.opengamma.integration.loadsave.portfolio.reader.PortfolioReader;
 import com.opengamma.integration.loadsave.portfolio.reader.SingleSheetSimplePortfolioReader;
@@ -22,6 +22,7 @@ import com.opengamma.integration.loadsave.portfolio.reader.ZippedPortfolioReader
 import com.opengamma.integration.loadsave.portfolio.writer.DummyPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.MasterPortfolioWriter;
 import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.loadsave.sheet.SheetFormat;
 import com.opengamma.integration.tool.AbstractIntegrationTool;
 import com.opengamma.integration.tool.IntegrationToolContext;
 import com.opengamma.master.portfolio.PortfolioMaster;
@@ -39,6 +40,10 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
   private static final String PORTFOLIO_NAME_OPT = "n";
   /** Write option flag */
   private static final String WRITE_OPT = "w";
+  /** Overwrite option flag */
+  private static final String OVERWRITE_OPT = "o";
+  /** Verbose option flag */
+  private static final String VERBOSE_OPT = "v";
   /** Asset class flag */
   private static final String SECURITY_TYPE_OPT = "s";
 
@@ -67,7 +72,8 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
         context.getPortfolioMaster(), 
         context.getPositionMaster(), 
         context.getSecurityMaster(),
-        getCommandLine().hasOption(WRITE_OPT)
+        getCommandLine().hasOption(WRITE_OPT),
+        getCommandLine().hasOption(OVERWRITE_OPT)
     );
 
     // Construct portfolio reader
@@ -77,10 +83,18 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
     );
 
     // Construct portfolio copier
-    PortfolioCopier portfolioCopier = new SimplePortfolioCopier();
+    SimplePortfolioCopier portfolioCopier = new SimplePortfolioCopier();
         
-    // Copy portfolio
-    portfolioCopier.copy(portfolioReader, portfolioWriter);
+    // Create visitor for verbose/quiet mode
+    PortfolioCopierVisitor portfolioCopierVisitor; 
+    if (getCommandLine().hasOption(VERBOSE_OPT)) {
+      portfolioCopierVisitor = new VerbosePortfolioCopierVisitor();
+    } else {
+      portfolioCopierVisitor = new QuietPortfolioCopierVisitor();
+    }
+    
+    // Call the portfolio loader with the supplied arguments
+    portfolioCopier.copy(portfolioReader, portfolioWriter, portfolioCopierVisitor);
 
     // close stuff
     portfolioReader.close();
@@ -88,8 +102,14 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
   }
  
   private static PortfolioWriter constructPortfolioWriter(String portfolioName, PortfolioMaster portfolioMaster,
-      PositionMaster positionMaster, SecurityMaster securityMaster, boolean write) {
+      PositionMaster positionMaster, SecurityMaster securityMaster, boolean write, boolean overwrite) {
     if (write) {  
+      if (overwrite) {
+        System.out.println("Write and overwrite options specified, will persist to OpenGamma masters"); 
+      } else {
+        System.out.println("Write option specified, persisting to OpenGamma masters");
+
+      }
       // Check that the portfolio name was specified on the command line
       if (portfolioName == null) {
         throw new OpenGammaRuntimeException("Portfolio name omitted, cannot persist to OpenGamma masters");
@@ -99,36 +119,42 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
           portfolioName, 
           portfolioMaster, 
           positionMaster, 
-          securityMaster);
+          securityMaster,
+          overwrite);
     } else {
+      System.out.println("Write option not specified, not persisting to OpenGamma masters");
+
       // Create a dummy portfolio writer to pretty-print instead of persisting
       return new DummyPortfolioWriter();         
     }  
   }
 
   private PortfolioReader constructPortfolioReader(String filename, String securityClass) {
-    
-    String extension = filename.substring(filename.lastIndexOf('.'));
-    // Single CSV or XLS file extension
-    if (extension.equalsIgnoreCase(".csv") || extension.equalsIgnoreCase(".xls")) {
-      // Check that the asset class was specified on the command line
-      if (securityClass == null) {
-        throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename + " (use '-a')");
-      } else {
-        InputStream inputStream;
-        try {
-          inputStream = new BufferedInputStream(new FileInputStream(filename));
-        } catch (FileNotFoundException e) {
-          throw new OpenGammaRuntimeException("Could not open file " + filename + " for reading: " + e);
+
+    SheetFormat sheetFormat = SheetFormat.of(filename);
+    switch (sheetFormat) {
+      
+      case CSV:
+      case XLS:
+        // Check that the asset class was specified on the command line
+        if (securityClass == null) {
+          throw new OpenGammaRuntimeException("Could not import as no asset class was specified for file " + filename + " (use '-a')");
+        } else {
+          InputStream inputStream;
+          try {
+            inputStream = new BufferedInputStream(new FileInputStream(filename));
+          } catch (FileNotFoundException e) {
+            throw new OpenGammaRuntimeException("Could not open file " + filename + " for reading: " + e);
+          }
+          return new SingleSheetSimplePortfolioReader(sheetFormat, inputStream, securityClass);
         }
-        return new SingleSheetSimplePortfolioReader(filename, inputStream, securityClass);
-      }
-    // Multi-asset ZIP file extension
-    } else if (extension.equalsIgnoreCase(".zip")) {
-      // Create zipped multi-asset class loader
-      return new ZippedPortfolioReader(filename);
-    } else {
-      throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
+      
+      case ZIP:
+        // Create zipped multi-asset class loader
+        return new ZippedPortfolioReader(filename);
+        
+      default:
+        throw new OpenGammaRuntimeException("Input filename should end in .CSV, .XLS or .ZIP");
     }
   }
 
@@ -156,6 +182,16 @@ public class PortfolioLoaderTool extends AbstractIntegrationTool {
         "The security type expected in the input CSV/XLS file (ignored if ZIP file is specified)");
     options.addOption(assetClassOption);
     
+    Option overwriteOption = new Option(
+        OVERWRITE_OPT, "overwrite", false, 
+        "Deletes any existing matching securities, positions and portfolios and recreates them from input data");
+    options.addOption(overwriteOption);
+
+    Option verboseOption = new Option(
+        VERBOSE_OPT, "verbose", false, 
+        "Displays progress messages on the terminal");
+    options.addOption(verboseOption);
+
     return options;
   }
 

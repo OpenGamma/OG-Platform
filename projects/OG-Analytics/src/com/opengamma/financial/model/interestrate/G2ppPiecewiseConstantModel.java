@@ -99,7 +99,8 @@ public class G2ppPiecewiseConstantModel {
   }
 
   /**
-   * Computes the swap rate for a given value of the standard normal random variables in the {@latex.inline $P(.,\\theta)$} numeraire.
+   * Computes the swap rate for a given value of the standard normal random
+   * variables in the $P(.,\theta)$ numeraire.
    * @param x The random variable values.
    * @param discountedCashFlowFixed The discounted cash flows equivalent of the swap fixed leg. Dimensions: cash flow - factor
    * @param alphaFixed The zero-coupon bond volatilities for each random variable for the swap fixed leg.
@@ -123,7 +124,9 @@ public class G2ppPiecewiseConstantModel {
   }
 
   /**
-   * Computes the swap rate and its first order derivatives with respect to the value of the standard normal random variables in the {@latex.inline $P(.,\\theta)$} numeraire.
+   * Computes the swap rate and its first order derivatives with respect to the
+   * value of the standard normal random variables in the $P(.,\theta)$
+   * numeraire.
    * @param x The random variable values.
    * @param discountedCashFlowFixed The discounted cash flows equivalent of the swap fixed leg. Dimensions: cash flow - factor
    * @param alphaFixed The zero-coupon bond volatilities for each random variable for the swap fixed leg.
@@ -162,7 +165,9 @@ public class G2ppPiecewiseConstantModel {
   }
 
   /**
-   * Computes the swap rate and its first and second order derivatives with respect to the value of the standard normal random variables in the {@latex.inline $P(.,\\theta)$} numeraire.
+   * Computes the swap rate and its first and second order derivatives with
+   * respect to the value of the standard normal random variables in the
+   * $P(.,\theta)$ numeraire.
    * @param x The random variable values.
    * @param discountedCashFlowFixed The discounted cash flows equivalent of the swap fixed leg. Dimensions: cash flow - factor
    * @param alphaFixed The zero-coupon bond volatilities for each random variable for the swap fixed leg.

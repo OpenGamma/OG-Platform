@@ -5,6 +5,7 @@
  */
 package com.opengamma.financial.model.volatility.smile.fitting;
 
+import java.util.Arrays;
 import java.util.BitSet;
 
 import org.slf4j.Logger;
@@ -14,10 +15,13 @@ import org.testng.annotations.Test;
 import cern.jet.random.engine.MersenneTwister;
 import cern.jet.random.engine.RandomEngine;
 
+import com.opengamma.financial.model.option.pricing.analytic.formula.EuropeanVanillaOption;
 import com.opengamma.financial.model.volatility.smile.function.MixedLogNormalModelData;
 import com.opengamma.financial.model.volatility.smile.function.MixedLogNormalVolatilityFunction;
 import com.opengamma.financial.model.volatility.smile.function.VolatilityFunctionProvider;
+import com.opengamma.math.MathException;
 import com.opengamma.math.matrix.DoubleMatrix1D;
+import com.opengamma.math.statistics.leastsquare.LeastSquareResultsWithTransform;
 
 /**
  * 
@@ -56,6 +60,77 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
   public void doNothingTest() {
   }
 
+  @Test(enabled = false)
+  public void ExactFittingTest() {
+    final double forward = 1172.011012;
+    final double expiry = 1.5;
+    final double[] strikes = new double[] {700, 782.9777301, 982.3904005, 1242.99164, 1547.184937, 1854.305534, 2000 };
+    final double[] vols = new double[] {0.311, 0.311, 0.298, 0.267, 0.271, 0.276, 0.276 };
+    final int n = vols.length;
+    double[] errors = new double[n];
+    Arrays.fill(errors, 1e-4);
+    errors[0] = 1e5;
+    errors[n - 1] = 1e5;
+    MixedLogNormalVolatilityFunction model = new MixedLogNormalVolatilityFunction();
+
+    MixedLogNormalModelFitter fitter = new MixedLogNormalModelFitter(forward, strikes, expiry, vols, errors, model, 3, true);
+
+    double bestChi2 = Double.POSITIVE_INFINITY;
+    LeastSquareResultsWithTransform best = null;
+    final int tries = 10;
+    int fails = 0;
+    for (int i = 0; i < tries; i++) {
+      DoubleMatrix1D start = getRandomStart();
+      try {
+        LeastSquareResultsWithTransform res = fitter.solve(start);
+        if (res.getChiSq() < bestChi2) {
+          bestChi2 = res.getChiSq();
+          best = res;
+        }
+      } catch (MathException e) {
+        fails++;
+      } catch (IllegalArgumentException e) {
+        System.out.print(e.toString());
+        System.out.println(start);
+      }
+    }
+    System.out.println("fail rate:" + (100.0 * fails) / tries + "%");
+
+    // DoubleMatrix1D start = new DoubleMatrix1D(0.1653806454982462, 0.2981998932366687, 1.298321083180569, 0.16115590666749585);
+    //  best = fitter.solve(start);
+    System.out.println(best.toString());
+    MixedLogNormalModelData data = new MixedLogNormalModelData(best.getModelParameters().getData());
+    System.out.println(data.toString());
+    for (int i = 0; i < 200; i++) {
+      final double k = 500 + 1700 * i / 199.;
+
+      EuropeanVanillaOption option = new EuropeanVanillaOption(k, expiry, true);
+      double vol = model.getVolatility(option, forward, data);
+      System.out.println(k + "\t" + vol);
+    }
+
+    //    BitSet fixed = new BitSet();
+    //    fixed.set(0);
+    //    MixedLogNormalModelData[] localFits = new MixedLogNormalModelData[3];
+    //    for(int i=0;i<3;i++) {
+    //      double[] tStrikes = Arrays.copyOfRange(strikes, i, i + 3);
+    //      double[] tVols = Arrays.copyOfRange(vols, i, i + 3);
+    //      errors = new double[3];
+    //      Arrays.fill(errors, 0.0001); //1bps
+    //
+    //      fitter = new MixedLogNormalModelFitter(forward, tStrikes, expiry, tVols, errors, model, 2, true);
+    //      LeastSquareResultsWithTransform res = fitter.solve(best.getFitParameters(),fixed);
+    //      localFits[i] = new MixedLogNormalModelData(res.getModelParameters().getData());
+    //      System.out.println("chi2:"+res.getChiSq()+localFits[i].toString());
+    //    }
+  }
+
+  private DoubleMatrix1D getRandomStart() {
+    double theta1 = Math.PI / 2 * RANDOM.nextDouble();
+    double theta2 = Math.PI / 2 * RANDOM.nextDouble();
+    return new DoubleMatrix1D(0.5 * RANDOM.nextDouble(), 0.5 * RANDOM.nextDouble(), 0.5 * RANDOM.nextDouble(), theta1, theta2, theta1, theta2);
+  }
+
   @Override
   MixedLogNormalVolatilityFunction getModel() {
     return new MixedLogNormalVolatilityFunction();
@@ -74,7 +149,7 @@ public class MixedLogNormalModelFitterTest extends SmileModelFitterTest<MixedLog
 
   @Override
   double[][] getStartValues() {
-    return new double[][] {{0.2, 0.4, 0.4, 0.1, 0.1 }, {0.2, 0.4, 0.8, 0.8, 0.8 } };
+    return new double[][] { {0.2, 0.4, 0.4, 0.1, 0.1 }, {0.2, 0.4, 0.8, 0.8, 0.8 } };
   }
 
   @Override

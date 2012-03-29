@@ -46,7 +46,7 @@ public abstract class HistoricalVolatilityCalculator implements VolatilityCalcul
    * 
    * @param mode The calculation mode
    * @param percentBadDataPoints The acceptable percentage of bad data points
-   * @throws IllegalArgumentException If the percentage of bad data points {@latex.inline $p$} does not satisfy {@latex.inline $0 \\leq p \\leq 1$}
+   * @throws IllegalArgumentException If the percentage of bad data points $p$ does not satisfy $0 \leq p \leq 1$
    */
   public HistoricalVolatilityCalculator(final CalculationMode mode, final double percentBadDataPoints) {
     ArgumentChecker.isInRangeInclusive(0, 1, percentBadDataPoints);

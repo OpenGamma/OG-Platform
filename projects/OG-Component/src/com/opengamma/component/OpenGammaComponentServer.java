@@ -267,13 +267,17 @@ public class OpenGammaComponentServer {
       super.loadIni(resource);
     }
     @Override
-    protected void initComponent(String groupName, LinkedHashMap<String, String> groupData) {
-      long startInstant = System.nanoTime();
+    protected void initComponent(String groupName, LinkedHashMap<String, String> remainingConfig) {
+      String typeStr = remainingConfig.get("factory");
       log("--- Initializing " + groupName + " ---");
+      if (typeStr != null) {
+        log(" Using factory " + typeStr);
+      }
       
-      super.initComponent(groupName, groupData);
-      
+      long startInstant = System.nanoTime();
+      super.initComponent(groupName, remainingConfig);
       long endInstant = System.nanoTime();
+      
       log("--- Initialized " + groupName + " in " + ((endInstant - startInstant) / 1000000L) + "ms ---");
     }
     @Override

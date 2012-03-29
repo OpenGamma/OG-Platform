@@ -12,18 +12,19 @@ import org.apache.commons.math.special.Gamma;
 import com.opengamma.math.MathException;
 
 /**
- * The non-central chi-squared distribution is a continuous probability distribution with probability
- * density function
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * f_r(x) = \\frac{e^-\\frac{x + \\lambda}{2}x^{\\frac{r}{2} - 1}}{2^{\\frac{r}{2}}}\\sum_{k=0}^\\infty \\frac{(\\lambda k)^k}{2^{2k}k!\\Gamma(k + \\frac{r}{2})}
- * \\end{align*}
- * }
- * where {@latex.inline $r$} is the number of degrees of freedom, {@latex.inline $\\lambda$} is the non-centrality parameter and {@latex.inline $\\Gamma$} is the Gamma
- * function ({@link com.opengamma.math.function.special.GammaFunction}).
+ * The non-central chi-squared distribution is a continuous probability
+ * distribution with probability density function
+ * $$
+ * \begin{align*}
+ * f_r(x) = \frac{e^-\frac{x + \lambda}{2}x^{\frac{r}{2} - 1}}{2^{\frac{r}{2}}}\sum_{k=0}^\infty \frac{(\lambda k)^k}{2^{2k}k!\Gamma(k + \frac{r}{2})}
+ * \end{align*}
+ * $$
+ * where $r$ is the number of degrees of freedom, $\lambda$ is the
+ * non-centrality parameter and $\Gamma$ is the Gamma function ({@link
+ * com.opengamma.math.function.special.GammaFunction}).
  * <p>
- * For the case where {@latex.inline $r + \\lambda > 2000$}, the implementation of the cdf is taken from <i>"An Approximation for the Noncentral Chi-Squared Distribution", Fraser et al.</i>
- * (<a href="fisher.utstat.toronto.edu/dfraser/documents/192.pdf">link</a>). Otherwise, the algorithm is taken from <i>"Computing the Non-Central Chi-Squared Distribution Function", Ding</i>.
+ * For the case where $r + \lambda > 2000$, the implementation of the cdf is taken from "An Approximation for the Noncentral Chi-Squared Distribution", Fraser et al.
+ * (<a href="fisher.utstat.toronto.edu/dfraser/documents/192.pdf">link</a>). Otherwise, the algorithm is taken from "Computing the Non-Central Chi-Squared Distribution Function", Ding.
  */
 public class NonCentralChiSquaredDistribution implements ProbabilityDistribution<Double> {
   private final double _lambdaOverTwo;

@@ -69,8 +69,8 @@ public abstract class InterestRateFutureOptionMarginTransactionMethod implements
     ArgumentChecker.isTrue(instrument instanceof InterestRateFutureOptionMarginTransaction, "The instrument should be a InterestRateFutureOptionMarginTransaction");
     final InterestRateFutureOptionMarginTransaction transaction = (InterestRateFutureOptionMarginTransaction) instrument;
     double priceSecurity = _securityMethod.optionPrice(transaction.getUnderlyingOption(), curves);
-    CurrencyAmount priceTransaction = presentValueFromPrice(transaction, priceSecurity);
-    return priceTransaction;
+    CurrencyAmount pvTransaction = presentValueFromPrice(transaction, priceSecurity);
+    return pvTransaction;
   }
 
   /**

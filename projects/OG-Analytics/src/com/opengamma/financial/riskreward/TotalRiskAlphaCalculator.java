@@ -11,16 +11,19 @@ import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCal
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**
- * The total risk alpha measures the performance of an asset by comparing its returns with those of a benchmark portfolio. The benchmark portfolio represents the
- * market risk matched to the total risk of the fund.
+ * The total risk alpha measures the performance of an asset by comparing its
+ * returns with those of a benchmark portfolio. The benchmark portfolio
+ * represents the market risk matched to the total risk of the fund.
  * <p>
  * The total risk alpha is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * TRA_i = R_i - \\left(R_f + \\frac{\\mu_M - R_f}{\\sigma_M}\\sigma_i\\right)
- * \\end{eqnarray*}}
- * where {@latex.inline $R_i$} is the asset return, {@latex.inline $R_f$} is the risk-free return, {@latex.inline $\\mu_M$} is the market return, {@latex.inline $\\sigma_M$} is
- * the standard deviation of market returns and {@latex.inline $\\sigma_i$} is the standard deviation of the asset returns.
+ * $$
+ * \begin{eqnarray*}
+ * TRA_i = R_i - \left(R_f + \frac{\mu_M - R_f}{\sigma_M}\sigma_i\right)
+ * \end{eqnarray*}
+ * $$
+ * where $R_i$ is the asset return, $R_f$ is the risk-free return, $\mu_M$ is
+ * the market return, $\sigma_M$ is the standard deviation of market returns
+ * and $\sigma_i$ is the standard deviation of the asset returns.
  */
 public class TotalRiskAlphaCalculator {
   private final DoubleTimeSeriesStatisticsCalculator _expectedAssetReturnCalculator;

@@ -17,8 +17,10 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
   private static final double EPS = 1e-5;
 
   /**
-   * Returns a function that calculates the first derivative. The method used is central finite difference, with {@latex.inline $\\epsilon = 10^{-5}$}. 
-   * Implementing classes can override this method to return a function that is the exact functional representation of the first derivative.
+   * Returns a function that calculates the first derivative. The method used
+   * is central finite difference, with $\epsilon = 10^{-5}$.  Implementing
+   * classes can override this method to return a function that is the exact
+   * functional representation of the first derivative.
    * @return A function that calculates the first derivative of this function
    */
   public DoubleFunction1D derivative() {
@@ -27,10 +29,11 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
   
 
   /**
-   * Returns a function that calculates the first derivative. The method used is finite difference, with the differencing type and {@latex.inline $\\epsilon$} 
-   * as arguments
+   * Returns a function that calculates the first derivative. The method used
+   * is finite difference, with the differencing type and $\epsilon$ as
+   * arguments
    * @param differenceType The differencing type to use 
-   * @param eps The {@latex.inline $\\epsilon$} to use
+   * @param eps The $\epsilon$ to use
    * @return A function that calculates the first derivative of this function
    */
   public DoubleFunction1D derivative(final FiniteDifferenceType differenceType, final double eps) {
@@ -70,10 +73,10 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
   
 
   /**
-   * For a DoubleFunction1D {@latex.inline $g(x)$}, adding a function {@latex.inline $f(x)$} returns the function
-   * {@latex.inline $h(x) = f(x) + g(x)$}.
+   * For a DoubleFunction1D $g(x)$, adding a function $f(x)$ returns the
+   * function $h(x) = f(x) + g(x)$.
    * @param f The function to add, not null
-   * @return A function {@latex.inline $h(x) = f(x) + g(x)$}
+   * @return A function $h(x) = f(x) + g(x)$
    */
   public DoubleFunction1D add(final DoubleFunction1D f) {
     Validate.notNull(f, "f");
@@ -89,10 +92,10 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
   
 
   /**
-   * For a DoubleFunction1D {@latex.inline $g(x)$}, adding a constant {@latex.inline $a$} returns the function
-   * {@latex.inline $h(x) = g(x) + a$}.
+   * For a DoubleFunction1D $g(x)$, adding a constant $a$ returns the function
+   * $h(x) = g(x) + a$.
    * @param a The constant to add
-   * @return A function {@latex.inline $h(x) = g(x) + a$}
+   * @return A function $h(x) = g(x) + a$
    */
   public DoubleFunction1D add(final double a) {
     return new DoubleFunction1D() {
@@ -106,10 +109,10 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
   }
   
   /**
-   * For a DoubleFunction1D {@latex.inline $g(x)$}, dividing by a function {@latex.inline $f(x)$} returns the function
-   * {@latex.inline $h(x) = \\frac{g(x)}{f(x)}$}.
+   * For a DoubleFunction1D $g(x)$, dividing by a function $f(x)$ returns the
+   * function $h(x) = \frac{g(x)}{f(x)}$.
    * @param f The function to divide by, not null
-   * @return A function {@latex.inline $h(x) = \\frac{f(x)}{g(x)}$}
+   * @return A function $h(x) = \frac{f(x)}{g(x)}$
    */
 
   public DoubleFunction1D divide(final DoubleFunction1D f) {
@@ -125,10 +128,10 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
   }
 
   /**
-   * For a DoubleFunction1D {@latex.inline $g(x)$}, dividing by a constant {@latex.inline $a$} returns the function
-   * {@latex.inline $h(x) = \\frac{g(x)}{a}$}.
+   * For a DoubleFunction1D $g(x)$, dividing by a constant $a$ returns the
+   * function $h(x) = \frac{g(x)}{a}$.
    * @param a The constant to add
-   * @return A function {@latex.inline $h(x) = \\frac{g(x)}{a}$}
+   * @return A function $h(x) = \frac{g(x)}{a}$
    */
   public DoubleFunction1D divide(final double a) {
     return new DoubleFunction1D() {
@@ -142,10 +145,10 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
   }
 
   /**
-   * For a DoubleFunction1D {@latex.inline $g(x)$}, multiplying by a function {@latex.inline $f(x)$} returns the function
-   * {@latex.inline $h(x) = f(x) g(x)$}.
+   * For a DoubleFunction1D $g(x)$, multiplying by a function $f(x)$ returns
+   * the function $h(x) = f(x) g(x)$.
    * @param f The function to multiply by, not null
-   * @return A function {@latex.inline $h(x) = f(x) g(x)$}
+   * @return A function $h(x) = f(x) g(x)$
    */
   public DoubleFunction1D multiply(final DoubleFunction1D f) {
     Validate.notNull(f, "f");
@@ -160,10 +163,10 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
   }
 
   /**
-   * For a DoubleFunction1D {@latex.inline $g(x)$}, multiplying by a constant {@latex.inline $a$} returns the function
-   * {@latex.inline $h(x) = a g(x)$}.
+   * For a DoubleFunction1D $g(x)$, multiplying by a constant $a$ returns the
+   * function $h(x) = a g(x)$.
    * @param a The constant to add
-   * @return A function {@latex.inline $h(x) = a g(x)$}
+   * @return A function $h(x) = a g(x)$
    */
   public DoubleFunction1D multiply(final double a) {
     return new DoubleFunction1D() {
@@ -177,10 +180,10 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
   }
 
   /**
-   * For a DoubleFunction1D {@latex.inline $g(x)$}, subtracting a function {@latex.inline $f(x)$} returns the function
-   * {@latex.inline $h(x) = f(x) - g(x)$}.
+   * For a DoubleFunction1D $g(x)$, subtracting a function $f(x)$ returns the
+   * function $h(x) = f(x) - g(x)$.
    * @param f The function to subtract, not null
-   * @return A function {@latex.inline $h(x) = g(x) - f(x)$}
+   * @return A function $h(x) = g(x) - f(x)$
    */
   public DoubleFunction1D subtract(final DoubleFunction1D f) {
     Validate.notNull(f, "f");
@@ -195,10 +198,10 @@ public abstract class DoubleFunction1D extends Function1D<Double, Double> {
   }
 
   /**
-   * For a DoubleFunction1D {@latex.inline $g(x)$}, subtracting a constant {@latex.inline $a$} returns the function
-   * {@latex.inline $h(x) = g(x) - a$}.
+   * For a DoubleFunction1D $g(x)$, subtracting a constant $a$ returns the
+   * function $h(x) = g(x) - a$.
    * @param a The constant to add
-   * @return A function {@latex.inline $h(x) = g(x) - a$}
+   * @return A function $h(x) = g(x) - a$
    */
   public DoubleFunction1D subtract(final double a) {
     return new DoubleFunction1D() {

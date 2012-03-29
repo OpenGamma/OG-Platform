@@ -16,7 +16,7 @@ public final class DoubleMatrixUtils {
   }
 
   /**
-   * The transpose of a matrix {@latex.inline $\\mathbf{A}$} with elements {@latex.inline $A_{ij}$} is {@latex.inline $A_{ji}$}.
+   * The transpose of a matrix $\mathbf{A}$ with elements $A_{ij}$ is $A_{ji}$.
    * @param matrix The matrix to transpose, not null
    * @return The transposed matrix
    */

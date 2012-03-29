@@ -50,6 +50,11 @@ public class NonDeliverableFXDigitalOptionSecurity extends FinancialSecurity {
   @PropertyDefinition(validate = "notNull")
   private Currency _callCurrency;
   /**
+   * The payment currency.
+   */
+  @PropertyDefinition(validate = "notNull")
+  private Currency _paymentCurrency;  
+  /**
    * The put amount.
    */
   @PropertyDefinition(validate = "notNull")
@@ -84,13 +89,14 @@ public class NonDeliverableFXDigitalOptionSecurity extends FinancialSecurity {
     super();
   }
 
-  public NonDeliverableFXDigitalOptionSecurity(Currency putCurrency, Currency callCurrency, double putAmount, double callAmount, Expiry expiry,
+  public NonDeliverableFXDigitalOptionSecurity(Currency putCurrency, Currency callCurrency, double putAmount, double callAmount, Currency paymentCurrency, Expiry expiry,
       ZonedDateTime settlementDate, boolean isLong, boolean deliverInCallCurrency) {
     super(SECURITY_TYPE);
     setPutCurrency(putCurrency);
     setCallCurrency(callCurrency);
     setPutAmount(putAmount);
     setCallAmount(callAmount);
+    setPaymentCurrency(paymentCurrency);
     setExpiry(expiry);
     setSettlementDate(settlementDate);
     setLongShort(LongShort.ofLong(isLong));
@@ -158,6 +164,8 @@ public class NonDeliverableFXDigitalOptionSecurity extends FinancialSecurity {
         return getPutCurrency();
       case 643534991:  // callCurrency
         return getCallCurrency();
+      case -225763273:  // paymentCurrency
+        return getPaymentCurrency();
       case -984864697:  // putAmount
         return getPutAmount();
       case 1066661974:  // callAmount
@@ -182,6 +190,9 @@ public class NonDeliverableFXDigitalOptionSecurity extends FinancialSecurity {
         return;
       case 643534991:  // callCurrency
         setCallCurrency((Currency) newValue);
+        return;
+      case -225763273:  // paymentCurrency
+        setPaymentCurrency((Currency) newValue);
         return;
       case -984864697:  // putAmount
         setPutAmount((Double) newValue);
@@ -209,6 +220,7 @@ public class NonDeliverableFXDigitalOptionSecurity extends FinancialSecurity {
   protected void validate() {
     JodaBeanUtils.notNull(_putCurrency, "putCurrency");
     JodaBeanUtils.notNull(_callCurrency, "callCurrency");
+    JodaBeanUtils.notNull(_paymentCurrency, "paymentCurrency");
     JodaBeanUtils.notNull(_putAmount, "putAmount");
     JodaBeanUtils.notNull(_callAmount, "callAmount");
     JodaBeanUtils.notNull(_expiry, "expiry");
@@ -226,6 +238,7 @@ public class NonDeliverableFXDigitalOptionSecurity extends FinancialSecurity {
       NonDeliverableFXDigitalOptionSecurity other = (NonDeliverableFXDigitalOptionSecurity) obj;
       return JodaBeanUtils.equal(getPutCurrency(), other.getPutCurrency()) &&
           JodaBeanUtils.equal(getCallCurrency(), other.getCallCurrency()) &&
+          JodaBeanUtils.equal(getPaymentCurrency(), other.getPaymentCurrency()) &&
           JodaBeanUtils.equal(getPutAmount(), other.getPutAmount()) &&
           JodaBeanUtils.equal(getCallAmount(), other.getCallAmount()) &&
           JodaBeanUtils.equal(getExpiry(), other.getExpiry()) &&
@@ -242,6 +255,7 @@ public class NonDeliverableFXDigitalOptionSecurity extends FinancialSecurity {
     int hash = 7;
     hash += hash * 31 + JodaBeanUtils.hashCode(getPutCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCallCurrency());
+    hash += hash * 31 + JodaBeanUtils.hashCode(getPaymentCurrency());
     hash += hash * 31 + JodaBeanUtils.hashCode(getPutAmount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getCallAmount());
     hash += hash * 31 + JodaBeanUtils.hashCode(getExpiry());
@@ -301,6 +315,32 @@ public class NonDeliverableFXDigitalOptionSecurity extends FinancialSecurity {
    */
   public final Property<Currency> callCurrency() {
     return metaBean().callCurrency().createProperty(this);
+  }
+
+  //-----------------------------------------------------------------------
+  /**
+   * Gets the payment currency.
+   * @return the value of the property, not null
+   */
+  public Currency getPaymentCurrency() {
+    return _paymentCurrency;
+  }
+
+  /**
+   * Sets the payment currency.
+   * @param paymentCurrency  the new value of the property, not null
+   */
+  public void setPaymentCurrency(Currency paymentCurrency) {
+    JodaBeanUtils.notNull(paymentCurrency, "paymentCurrency");
+    this._paymentCurrency = paymentCurrency;
+  }
+
+  /**
+   * Gets the the {@code paymentCurrency} property.
+   * @return the property, not null
+   */
+  public final Property<Currency> paymentCurrency() {
+    return metaBean().paymentCurrency().createProperty(this);
   }
 
   //-----------------------------------------------------------------------
@@ -479,6 +519,11 @@ public class NonDeliverableFXDigitalOptionSecurity extends FinancialSecurity {
     private final MetaProperty<Currency> _callCurrency = DirectMetaProperty.ofReadWrite(
         this, "callCurrency", NonDeliverableFXDigitalOptionSecurity.class, Currency.class);
     /**
+     * The meta-property for the {@code paymentCurrency} property.
+     */
+    private final MetaProperty<Currency> _paymentCurrency = DirectMetaProperty.ofReadWrite(
+        this, "paymentCurrency", NonDeliverableFXDigitalOptionSecurity.class, Currency.class);
+    /**
      * The meta-property for the {@code putAmount} property.
      */
     private final MetaProperty<Double> _putAmount = DirectMetaProperty.ofReadWrite(
@@ -515,6 +560,7 @@ public class NonDeliverableFXDigitalOptionSecurity extends FinancialSecurity {
       this, (DirectMetaPropertyMap) super.metaPropertyMap(),
         "putCurrency",
         "callCurrency",
+        "paymentCurrency",
         "putAmount",
         "callAmount",
         "expiry",
@@ -535,6 +581,8 @@ public class NonDeliverableFXDigitalOptionSecurity extends FinancialSecurity {
           return _putCurrency;
         case 643534991:  // callCurrency
           return _callCurrency;
+        case -225763273:  // paymentCurrency
+          return _paymentCurrency;
         case -984864697:  // putAmount
           return _putAmount;
         case 1066661974:  // callAmount
@@ -581,6 +629,14 @@ public class NonDeliverableFXDigitalOptionSecurity extends FinancialSecurity {
      */
     public final MetaProperty<Currency> callCurrency() {
       return _callCurrency;
+    }
+
+    /**
+     * The meta-property for the {@code paymentCurrency} property.
+     * @return the meta-property, not null
+     */
+    public final MetaProperty<Currency> paymentCurrency() {
+      return _paymentCurrency;
     }
 
     /**

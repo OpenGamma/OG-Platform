@@ -28,14 +28,6 @@
     position: relative;
 }
 
-.OG-table tr:first-child td {
-    padding-top: 10px;
-}
-
-.OG-table tr:last-child td {
-    padding-bottom: 10px;
-}
-
 .OG-table th:last-child,
 .OG-table td:last-child {
     padding-right: 0;
@@ -88,6 +80,10 @@
 
     .OG-table thead tr + tr th:first-child {
         padding-left: 10px;
+    }
+
+    .OG-table thead tr + tr th:last-child {
+      border-right: none;
     }
 
 /* Sub list content */
@@ -149,3 +145,8 @@
         margin-top: -15px;
         right: 8px;
     }
+
+/* Tablesorter */
+.OG-table.og-tablesorter tr:last-child th {
+  cursor: pointer;
+}

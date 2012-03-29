@@ -10,7 +10,7 @@ package com.opengamma.financial.generator;
  */
 public class MixedPortfolioGeneratorTool extends AbstractPortfolioGeneratorTool {
 
-  private static final String[] CLASSES = new String[] {"Bond", "CapFloorCMSSpread", "CapFloor" };
+  private static final String[] CLASSES = new String[] {"CapFloorCMSSpread", "CapFloor", "Cash", "FRA", "MixedFX", "Swap", "Swaption" };
 
   @Override
   public PortfolioNodeGenerator createPortfolioNodeGenerator(final int size) {

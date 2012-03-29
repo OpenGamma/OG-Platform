@@ -6,6 +6,8 @@
 package com.opengamma.integration.loadsave.portfolio.rowparser;
 
 import java.math.BigDecimal;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 import javax.time.calendar.LocalDate;
@@ -18,6 +20,7 @@ import com.opengamma.core.position.Counterparty;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.id.ExternalId;
 import com.opengamma.id.ExternalIdBundle;
+import com.opengamma.id.ExternalScheme;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.position.ManageableTrade;
 import com.opengamma.master.security.ManageableSecurity;
@@ -44,19 +47,30 @@ public class ExchangeTradedRowParser extends RowParser {
     _bbgSecSource = bbgSecSource;
   }
 
+  private static final ExternalScheme[] s_schemeWaterfall = {
+    SecurityUtils.BLOOMBERG_TICKER,
+    SecurityUtils.BLOOMBERG_TCM,
+    SecurityUtils.BLOOMBERG_BUID,
+    SecurityUtils.CUSIP,
+    SecurityUtils.ISIN
+  };
+  
+  
   @Override
   public ManageableSecurity[] constructSecurity(Map<String, String> row) {
     
     ArgumentChecker.notNull(row, "row");
     
-    // Look up security using ticker
-    ManageableSecurity security = _bbgSecSource.getSecurity(ExternalIdBundle.of(
-        SecurityUtils.bloombergTickerSecurityId(getWithException(row, TICKER))));
-    if (security != null) {
-      return new ManageableSecurity[] {security };
-    } else {
-      return new ManageableSecurity[] {};
+    for (ExternalScheme scheme : s_schemeWaterfall) {
+      ManageableSecurity security = _bbgSecSource.getSecurity(ExternalIdBundle.of(
+          ExternalId.of(scheme, getWithException(row, TICKER))
+      ));
+      if (security != null) {
+        return new ManageableSecurity[] {security };
+      }
     }
+
+    return new ManageableSecurity[] {};
   }
 
   @Override
@@ -104,7 +118,41 @@ public class ExchangeTradedRowParser extends RowParser {
     }
     
   }
-  
+
+  private static void addValueIfNotNull(Map<String, String> map, String key, Object value) {
+    if (value != null) {
+      map.put(key, value.toString());
+    }
+  }
+
+  @Override
+  public Map<String, String> constructRow(ManageableTrade trade) {
+    Map<String, String> map = new HashMap<String, String>();
+    addValueIfNotNull(map, QUANTITY, trade.getQuantity());
+    addValueIfNotNull(map, TRADE_DATE, trade.getTradeDate());
+    addValueIfNotNull(map, PREMIUM, trade.getQuantity());
+    addValueIfNotNull(map, QUANTITY, trade.getQuantity());
+    return map;
+  }
+
+  @Override
+  public Map<String, String> constructRow(ManageablePosition position) {
+    BigDecimal quantity = position.getQuantity();
+    if (quantity != null) {
+      return Collections.singletonMap(QUANTITY, quantity.toString());
+    }
+    return null;
+  }
+
+  @Override
+  public Map<String, String> constructRow(ManageableSecurity security) {
+    String ticker = security.getExternalIdBundle().getValue(SecurityUtils.BLOOMBERG_TICKER);
+    if (ticker != null) {
+      return Collections.singletonMap(TICKER, ticker);
+    }
+    return null;
+  }
+
   @Override
   public String[] getColumns() {
     return _columns;

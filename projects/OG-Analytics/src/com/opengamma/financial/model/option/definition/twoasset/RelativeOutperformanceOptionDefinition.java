@@ -14,20 +14,23 @@ import com.opengamma.financial.model.option.definition.OptionPayoffFunction;
 import com.opengamma.util.time.Expiry;
 
 /**
- * Defines a European-style relative outperformance option (also known as quotient options).
+ * Defines a European-style relative outperformance option (also known as
+ * quotient options).
  * <p>
- * The payoff of a relative outperformance call option is  
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * max\\left(\\frac{S_1}{S_2} - K, 0\\right)
- * \\end{eqnarray*}}
- * and that of a put is
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
- * max\\left(K - \\frac{S_1}{S_2}, 0\\right)
- * \\end{eqnarray*}}
- * where {@latex.inline $K$} is the strike, {@latex.inline $S_1$} is the spot price of the first underlying and {@latex.inline $S_2$} is the spot price of 
- * the second underlying.
+ * The payoff of a relative outperformance call option is:
+ * $$
+ * \begin{eqnarray*}
+ * max\left(\frac{S_1}{S_2} - K, 0\right)
+ * \end{eqnarray*}
+ * $$
+ * and that of a put is:
+ * $$
+ * \begin{eqnarray*}
+ * max\left(K - \frac{S_1}{S_2}, 0\right)
+ * \end{eqnarray*}
+ * $$
+ * where $K$ is the strike, $S_1$ is the spot price of the first underlying and
+ * $S_2$ is the spot price of the second underlying.
  */
 public class RelativeOutperformanceOptionDefinition extends OptionDefinition {
   private final OptionExerciseFunction<StandardTwoAssetOptionDataBundle> _exerciseFunction = new EuropeanExerciseFunction<StandardTwoAssetOptionDataBundle>();

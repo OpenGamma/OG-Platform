@@ -16,19 +16,21 @@ import cern.jet.random.engine.RandomEngine;
 
 /**
  * The Gamma distribution is a continuous probability distribution with cdf
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * F(x)=\\frac{\\gamma\\left(k, \\frac{x}{\\theta}\\right)}{\\Gamma(k)}
- * \\end{align*}}
+ * $$
+ * \begin{align*}
+ * F(x)=\frac{\gamma\left(k, \frac{x}{\theta}\right)}{\Gamma(k)}
+ * \end{align*}
+ * $$
  * and pdf
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * f(x)=\\frac{x^{k-1}e^{-\\frac{x}{\\theta}}}{\\Gamma{k}\\theta^k}
- * \\end{align*}}
- * where {@latex.inline $k$} is the shape parameter and {@latex.inline $\\theta$} is the scale parameter.
+ * $$
+ * \begin{align*}
+ * f(x)=\frac{x^{k-1}e^{-\frac{x}{\theta}}}{\Gamma{k}\theta^k}
+ * \end{align*}
+ * $$
+ * where $k$ is the shape parameter and $\theta$ is the scale parameter.
  * <p>
  * This implementation uses the CERN <a href="http://acs.lbl.gov/~hoschek/colt/api/index.html">colt</a> package for the cdf, pdf
- * and {@latex.inline $\\Gamma$}-distributed random numbers.
+ * and $\Gamma$-distributed random numbers.
  * 
  */
 public class GammaDistribution implements ProbabilityDistribution<Double> {

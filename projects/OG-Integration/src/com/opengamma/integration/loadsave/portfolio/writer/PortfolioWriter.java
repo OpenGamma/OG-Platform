@@ -6,8 +6,6 @@
 
 package com.opengamma.integration.loadsave.portfolio.writer;
 
-import com.opengamma.master.portfolio.ManageablePortfolio;
-import com.opengamma.master.portfolio.ManageablePortfolioNode;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 
@@ -20,12 +18,17 @@ public interface PortfolioWriter {
   ManageableSecurity writeSecurity(ManageableSecurity security);
   
   ManageablePosition writePosition(ManageablePosition position);
+    
+  /**
+   * Get the current portfolio path.
+   * @return  the current node
+   */
+  String[] getCurrentPath();
   
-  ManageablePortfolio getPortfolio();
-  
-  ManageablePortfolioNode getCurrentNode();
-  
-  ManageablePortfolioNode setCurrentNode(ManageablePortfolioNode node);
+  /**
+   * Set the portfolio path, only makes sense in hierarchical portfolio writers
+   * @param newPath the new path represented as an array of node names starting from the top of the hierarchy
+   */
   void setPath(String[] newPath);
   
   void flush();

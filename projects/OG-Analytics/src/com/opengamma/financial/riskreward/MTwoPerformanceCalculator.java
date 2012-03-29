@@ -6,14 +6,18 @@
 package com.opengamma.financial.riskreward;
 
 /**
- * The M<sup>2</sup> performance measure is the excess of the risk-adjusted performance measure (see {@link RiskAdjustedPerformanceCalculator} of the asset over that of the market.
+ * The $M^2$ performance measure is the excess of the risk-adjusted performance
+ * measure (see {@link RiskAdjustedPerformanceCalculator} of the asset over
+ * that of the market.
  * <p>
  * It is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{eqnarray*}
+ * $$
+ * \begin{eqnarray*}
  * M^2 = RAP_i - RAP_M
- * \\end{eqnarray*}}
- * where {@latex.inline $RAP_i$} is the risk-adjusted performance measure of the asset and {@latex.inline $RAP_M$} is the risk-adjusted performance measure of the market.
+ * \end{eqnarray*}
+ * $$
+ * where $RAP_i$ is the risk-adjusted performance measure of the asset and
+ * $RAP_M$ is the risk-adjusted performance measure of the market.
  */
 public class MTwoPerformanceCalculator {
   private static final RiskAdjustedPerformanceCalculator RAP = new RiskAdjustedPerformanceCalculator();

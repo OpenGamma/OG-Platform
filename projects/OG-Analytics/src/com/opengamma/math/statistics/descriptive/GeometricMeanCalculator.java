@@ -12,11 +12,12 @@ import com.opengamma.math.function.Function1D;
 /**
  * Calculates the geometric mean of a series of data. 
  * <p>
- * The geometric mean {@latex.inline $\\mu$} of a series of elements {@latex.inline $x_1, x_2, \\dots, x_n$} is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\mu = \\left({\\prod\\limits_{i=1}^n x_i}\\right)^{\\frac{1}{n}}
- * \\end{align*}}
+ * The geometric mean $\mu$ of a series of elements $x_1, x_2, \dots, x_n$ is given by:
+ * $$
+ * \begin{align*}
+ * \mu = \left({\prod\limits_{i=1}^n x_i}\right)^{\frac{1}{n}}
+ * \end{align*}
+ * $$
  * 
  */
 public class GeometricMeanCalculator extends Function1D<double[], Double> {

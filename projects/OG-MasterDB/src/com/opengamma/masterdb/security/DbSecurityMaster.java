@@ -224,7 +224,7 @@ public class DbSecurityMaster extends AbstractDocumentDbMaster<SecurityDocument>
   //-------------------------------------------------------------------------
   @Override
   public SecurityDocument get(final ObjectIdentifiable objectId, final VersionCorrection versionCorrection) {
-    final SecurityDocument doc = doGetByOidInstants(objectId, versionCorrection, new SecurityDocumentExtractor(), "Holiday");
+    final SecurityDocument doc = doGetByOidInstants(objectId, versionCorrection, new SecurityDocumentExtractor(), "Security");
     loadDetail(getDetailProvider(), Collections.singletonList(doc));
     return doc;
   }

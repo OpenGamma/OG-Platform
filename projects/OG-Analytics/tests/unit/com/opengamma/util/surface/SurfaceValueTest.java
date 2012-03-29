@@ -79,4 +79,20 @@ public class SurfaceValueTest {
     assertTrue("Surface value - compare", SurfaceValue.compare(surfPlus1, surfPlus2, TOLERANCE));
   }
 
+  @Test
+  /**
+   * Tests the toSingleValue method.
+   */
+  public void toSingleValue() {
+    DoublesPair point1 = new DoublesPair(1.0, 2.0);
+    double value1 = 2345.678;
+    SurfaceValue surf1 = SurfaceValue.from(point1, value1);
+    DoublesPair point2 = new DoublesPair(2.0, Math.PI);
+    double value2 = 10 * Math.E;
+    SurfaceValue surf2 = SurfaceValue.from(point2, value2);
+    SurfaceValue surfPlus1 = SurfaceValue.plus(surf1, surf2);
+    double amountComputed = surfPlus1.toSingleValue();
+    assertEquals("Surface value - single value", amountComputed, value1 + value2, TOLERANCE);
+  }
+
 }

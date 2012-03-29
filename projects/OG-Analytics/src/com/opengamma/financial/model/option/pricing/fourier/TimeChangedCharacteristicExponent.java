@@ -16,24 +16,28 @@ import com.opengamma.math.function.Function1D;
 import com.opengamma.math.number.ComplexNumber;
 
 /**
- * This characteristic exponent converts a Levy process from calendar time to business time (where time moves at a stochastic rate relative to
- * calendar time). This has the effect of introducing stochastic changes to the model parameters of the original Levy process.
+ * This characteristic exponent converts a Levy process from calendar time to
+ * business time (where time moves at a stochastic rate relative to calendar
+ * time). This has the effect of introducing stochastic changes to the model
+ * parameters of the original Levy process.
  * <p>
- * If the time-changed Levy process is {@latex.inline $X_{Y_t}$}, with {@latex.inline $Y_t$} the business time, the characteristic function is given by:
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\phi(u, t) &= E\\left[e^{iuX_{Y_t}}\\right]\\\\ 
- * &= E\\left[e^{Y_t\\psi_X(u)}\\right]\\\\
- * &= E\\left[e^{i(-i\\psi_X(u))Y_t}\\right]\\\\
- * &= \\phi_{Y_t}(-i\\psi_X(u), t)
- * \\end{align*}
- * }
- * where {@latex.inline $\\psi_X(u)$} is the cumulant characteristic function of the Levy process. The drift correction then becomes
- * {@latex.ilb %preamble{\\usepackage{amsmath}}
- * \\begin{align*}
- * \\omega(t) = -\\frac{\\ln(\\phi(-i, t))}{t}
- * \\end{align*}
- * }
+ * If the time-changed Levy process is $X_{Y_t}$, with $Y_t$ the business time,
+ * the characteristic function is given by:
+ * $$
+ * \begin{align*}
+ * \phi(u, t) &= E\left[e^{iuX_{Y_t}}\right]\\
+ * &= E\left[e^{Y_t\psi_X(u)}\right]\\
+ * &= E\left[e^{i(-i\psi_X(u))Y_t}\right]\\
+ * &= \phi_{Y_t}(-i\psi_X(u), t)
+ * \end{align*}
+ * $$
+ * where $\psi_X(u)$ is the cumulant characteristic function of the Levy
+ * process. The drift correction then becomes:
+ * $$
+ * \begin{align*}
+ * \omega(t) = -\frac{\ln(\phi(-i, t))}{t}
+ * \end{align*}
+ * $$
  */
 public class TimeChangedCharacteristicExponent implements CharacteristicExponent {
   private final CharacteristicExponent _base;
@@ -73,7 +77,7 @@ public class TimeChangedCharacteristicExponent implements CharacteristicExponent
 
   /**
    * 
-   * @return the smaller {@latex.inline $alpha_{max}$} of the base characteristic exponent and the time-changed characteristic exponent
+   * @return the smaller $alpha_{max}$ of the base characteristic exponent and the time-changed characteristic exponent
    */
   @Override
   public double getLargestAlpha() {
@@ -82,7 +86,7 @@ public class TimeChangedCharacteristicExponent implements CharacteristicExponent
 
   /**
    * 
-   * @return the larger {@latex.inline $alpha_{min}$} of the base characteristic exponent and the time-changed characteristic exponent
+   * @return the larger $alpha_{min}$ of the base characteristic exponent and the time-changed characteristic exponent
    */
   @Override
   public double getSmallestAlpha() {

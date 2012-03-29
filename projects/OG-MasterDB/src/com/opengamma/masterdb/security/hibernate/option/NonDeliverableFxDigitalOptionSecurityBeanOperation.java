@@ -51,12 +51,13 @@ public final class NonDeliverableFxDigitalOptionSecurityBeanOperation extends Ab
   public NonDeliverableFXDigitalOptionSecurity createSecurity(OperationContext context, NonDeliverableFXDigitalOptionSecurityBean bean) {
     Currency putCurrency = currencyBeanToCurrency(bean.getPutCurrency());
     Currency callCurrency = currencyBeanToCurrency(bean.getCallCurrency());
+    Currency paymentCurrency = currencyBeanToCurrency(bean.getPaymentCurrency());
     Expiry expiry = expiryBeanToExpiry(bean.getExpiry());
     ZonedDateTime settlementDate = Converters.zonedDateTimeBeanToDateTimeWithZone(bean.getSettlementDate());
     boolean deliverInCallCurrency = bean.isDeliverInCallCurrency();
     NonDeliverableFXDigitalOptionSecurity sec = new NonDeliverableFXDigitalOptionSecurity(putCurrency, callCurrency, 
                                                                                           bean.getPutAmount(), bean.getCallAmount(), 
-                                                                                          expiry, settlementDate, bean.getIsLong(),
+                                                                                          paymentCurrency, expiry, settlementDate, bean.getIsLong(),
                                                                                           deliverInCallCurrency);
     return sec;
   }
