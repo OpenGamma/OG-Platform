@@ -98,17 +98,15 @@ public class ExampleMultiAssetPortfolioLoader extends AbstractExampleTool {
     ManageablePortfolio portfolio = new ManageablePortfolio(PORTFOLIO_NAME, rootNode);
     PortfolioDocument portfolioDoc = new PortfolioDocument();
     portfolioDoc.setPortfolio(portfolio);
-    /*
     addPortfolioNode(rootNode, getIborSwaps(), "Ibor swaps", BigDecimal.ONE);
-    addPortfolioNode(rootNode, getCMSwaps(), "CM swaps", BigDecimal.ONE);*/
+    addPortfolioNode(rootNode, getCMSwaps(), "CM swaps", BigDecimal.ONE);
 //    addPortfolioNode(rootNode, getSimpleFixedIncome(), "Fixed income", BigDecimal.ONE);
 //    addPortfolioNode(rootNode, getSimpleFX(), "FX forward", BigDecimal.ONE);
     addPortfolioNode(rootNode, getFXOptions(), "FX options", BigDecimal.ONE);
 //    addBondNode(rootNode);
-    /*
     addPortfolioNode(rootNode, getSwaptions(), "Swaptions", BigDecimal.ONE);
     addPortfolioNode(rootNode, getIborCapFloor(), "Ibor cap/floor", BigDecimal.ONE);
-    addPortfolioNode(rootNode, getCMCapFloor(), "CM cap/floor", BigDecimal.ONE);*/
+    addPortfolioNode(rootNode, getCMCapFloor(), "CM cap/floor", BigDecimal.ONE);
 //    addPortfolioNode(rootNode, getIRFutureOptions(), "IR future options", BigDecimal.valueOf(100));
 //    addEquityNode(rootNode);
     
