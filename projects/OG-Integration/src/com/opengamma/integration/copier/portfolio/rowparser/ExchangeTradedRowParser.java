@@ -119,19 +119,12 @@ public class ExchangeTradedRowParser extends RowParser {
     
   }
 
-  private static void addValueIfNotNull(Map<String, String> map, String key, Object value) {
-    if (value != null) {
-      map.put(key, value.toString());
-    }
-  }
-
   @Override
   public Map<String, String> constructRow(ManageableTrade trade) {
     Map<String, String> map = new HashMap<String, String>();
     addValueIfNotNull(map, QUANTITY, trade.getQuantity());
     addValueIfNotNull(map, TRADE_DATE, trade.getTradeDate());
-    addValueIfNotNull(map, PREMIUM, trade.getQuantity());
-    addValueIfNotNull(map, QUANTITY, trade.getQuantity());
+    addValueIfNotNull(map, PREMIUM, trade.getPremium());
     return map;
   }
 
