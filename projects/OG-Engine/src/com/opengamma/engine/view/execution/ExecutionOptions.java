@@ -26,24 +26,24 @@ public class ExecutionOptions implements ViewExecutionOptions {
   private final Integer _maxSuccessiveDeltaCycles;
   private final ViewCycleExecutionOptions _defaultExecutionOptions;
   private final VersionCorrection _versionCorrection;
-  
+
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags) {
     this(executionSequence, flags, null, null);
   }
-  
+
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags, Integer maxSuccessiveDeltaCycles) {
     this(executionSequence, flags, maxSuccessiveDeltaCycles, null);
   }
-  
+
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags, ViewCycleExecutionOptions defaultExecutionOptions) {
     this(executionSequence, flags, null, defaultExecutionOptions);
   }
-  
+
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags,
       Integer maxSuccessiveDeltaCycles, ViewCycleExecutionOptions defaultExecutionOptions) {
     this(executionSequence, flags, maxSuccessiveDeltaCycles, defaultExecutionOptions, VersionCorrection.LATEST);
   }
-    
+
   public ExecutionOptions(ViewCycleExecutionSequence executionSequence, EnumSet<ViewExecutionFlags> flags,
       Integer maxSuccessiveDeltaCycles, ViewCycleExecutionOptions defaultExecutionOptions, VersionCorrection versionCorrection) {
     ArgumentChecker.notNull(executionSequence, "executionSequence");
@@ -56,7 +56,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
     _defaultExecutionOptions = defaultExecutionOptions;
     _versionCorrection = versionCorrection;
   }
-  
+
   //-------------------------------------------------------------------------
   @Override
   public ViewCycleExecutionSequence getExecutionSequence() {
@@ -72,17 +72,18 @@ public class ExecutionOptions implements ViewExecutionOptions {
   public ViewCycleExecutionOptions getDefaultExecutionOptions() {
     return _defaultExecutionOptions;
   }
-  
+
   @Override
   public EnumSet<ViewExecutionFlags> getFlags() {
     return _flags;
   }
-  
+
   @Override
   public VersionCorrection getVersionCorrection() {
     return _versionCorrection;
   }
 
+  //-------------------------------------------------------------------------
   @Override
   public int hashCode() {
     final int prime = 31;
@@ -151,7 +152,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
     ArgumentChecker.notNull(flags, "flags");
     return of(cycleExecutionSequence, null, flags);
   }
-  
+
   /**
    * Creates a custom execution sequence.
    * 
@@ -165,7 +166,8 @@ public class ExecutionOptions implements ViewExecutionOptions {
     ArgumentChecker.notNull(flags, "flags");
     return new ExecutionOptions(cycleExecutionSequence, flags, defaultCycleOptions);
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
    * Creates an infinite execution sequence with a valuation time driven by the market data and all triggers enabled.
    * Execution will continue for as long as there is demand.
@@ -181,7 +183,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
   public static ViewExecutionOptions infinite(MarketDataSpecification marketDataSpec) {
     return infinite(marketDataSpec, ExecutionFlags.triggersEnabled().get());
   }
-  
+
   /**
    * Creates an infinite execution sequence with a valuation time driven by the market data. Execution will continue
    * for as long as there is demand.
@@ -195,12 +197,14 @@ public class ExecutionOptions implements ViewExecutionOptions {
     defaultExecutionOptions.setMarketDataSpecification(marketDataSpec);
     return of(new InfiniteViewCycleExecutionSequence(), defaultExecutionOptions, flags);
   }
-  
+
+  //-------------------------------------------------------------------------
   /**
-   * Creates an execution sequence designed for batch-mode operation. The typical next-cycle triggers are disabled; the
-   * sequence is instead configured to run as fast as possible.
+   * Creates an execution sequence designed for batch-mode operation.
+   * The typical next-cycle triggers are disabled; the sequence is instead configured to run as fast as possible.
    * 
-   * @param cycleExecutionSequence  the execution sequence, not null
+   * @param valuationTimeProvider  the valuation time provider, or null to use the market data time
+   * @param marketDataSpec  the market data specification, not null
    * @param defaultCycleOptions  the default view cycle execution options, may be null
    * @return the execution sequence, not null
    */
@@ -214,8 +218,8 @@ public class ExecutionOptions implements ViewExecutionOptions {
   }
 
   /**
-   * Creates an execution sequence designed for batch-mode operation. The typical next-cycle triggers are disabled; the
-   * sequence is instead configured to run as fast as possible.
+   * Creates an execution sequence designed for batch-mode operation.
+   * The typical next-cycle triggers are disabled; the sequence is instead configured to run as fast as possible.
    *
    * @param cycleExecutionSequence  the execution sequence, not null
    * @param defaultCycleOptions  the default view cycle execution options, may be null
@@ -225,6 +229,7 @@ public class ExecutionOptions implements ViewExecutionOptions {
     return of(cycleExecutionSequence, defaultCycleOptions, ExecutionFlags.none().batch().runAsFastAsPossible().awaitMarketData().get());
   }
 
+  //-------------------------------------------------------------------------
   /**
    * Creates an execution sequence to run a single cycle.
    * 
@@ -254,5 +259,5 @@ public class ExecutionOptions implements ViewExecutionOptions {
     ViewCycleExecutionSequence sequence = new ArbitraryViewCycleExecutionSequence(Arrays.asList(cycleOptions));
     return of(sequence, flags);
   }
-  
+
 }
