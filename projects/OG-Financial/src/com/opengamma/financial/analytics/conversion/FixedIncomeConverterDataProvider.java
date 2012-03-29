@@ -12,6 +12,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.Security;
@@ -29,7 +30,6 @@ import com.opengamma.financial.instrument.future.InterestRateFutureDefinition;
 import com.opengamma.financial.instrument.future.InterestRateFutureOptionMarginTransactionDefinition;
 import com.opengamma.financial.instrument.swap.SwapDefinition;
 import com.opengamma.financial.instrument.swap.SwapFixedOISSimplifiedDefinition;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.security.capfloor.CapFloorCMSSpreadSecurity;
 import com.opengamma.financial.security.capfloor.CapFloorSecurity;
 import com.opengamma.financial.security.fra.FRASecurity;

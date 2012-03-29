@@ -13,6 +13,7 @@ import javax.time.calendar.TimeZone;
 import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.function.Function2D;
 import com.opengamma.analytics.math.statistics.descriptive.LognormalPearsonKurtosisFromVolatilityCalculator;
 import com.opengamma.analytics.math.statistics.descriptive.LognormalSkewnessFromVolatilityCalculator;
@@ -26,7 +27,6 @@ import com.opengamma.engine.value.ComputedValue;
 import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.option.EquityOptionSecurity;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.time.DateUtils;

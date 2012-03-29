@@ -14,6 +14,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -34,7 +35,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProperties;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.CompareUtils;
 import com.opengamma.util.money.Currency;
 

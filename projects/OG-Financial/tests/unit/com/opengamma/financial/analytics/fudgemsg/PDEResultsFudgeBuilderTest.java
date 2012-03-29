@@ -10,8 +10,8 @@ import static org.testng.internal.junit.ArrayAsserts.assertArrayEquals;
 
 import org.testng.annotations.Test;
 
-import com.opengamma.financial.greeks.BucketedGreekResultCollection;
-import com.opengamma.financial.greeks.PDEResultCollection;
+import com.opengamma.analytics.financial.greeks.BucketedGreekResultCollection;
+import com.opengamma.analytics.financial.greeks.PDEResultCollection;
 import com.opengamma.financial.model.finitedifference.PDEFullResults1D;
 import com.opengamma.financial.model.finitedifference.PDEGrid1D;
 

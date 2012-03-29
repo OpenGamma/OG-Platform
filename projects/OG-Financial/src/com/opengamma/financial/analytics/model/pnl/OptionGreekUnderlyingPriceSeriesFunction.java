@@ -14,6 +14,8 @@ import java.util.Set;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.greeks.Greek;
+import com.opengamma.analytics.financial.pnl.UnderlyingType;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeriesSource;
 import com.opengamma.core.security.SecuritySource;
 import com.opengamma.engine.ComputationTarget;
@@ -29,8 +31,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaExecutionContext;
 import com.opengamma.financial.analytics.greeks.AvailableGreeks;
 import com.opengamma.financial.analytics.model.riskfactor.option.UnderlyingTimeSeriesProvider;
-import com.opengamma.financial.greeks.Greek;
-import com.opengamma.financial.pnl.UnderlyingType;
 import com.opengamma.financial.security.FinancialSecurity;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.tuple.Pair;

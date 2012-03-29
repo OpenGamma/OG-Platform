@@ -13,6 +13,8 @@ import javax.time.calendar.ZonedDateTime;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.ComputationTargetType;
 import com.opengamma.engine.function.AbstractFunction;
@@ -28,8 +30,6 @@ import com.opengamma.financial.analytics.conversion.ForexSecurityConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
 import com.opengamma.financial.forex.derivative.Forex;
 import com.opengamma.financial.instrument.InstrumentDefinition;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.fx.FXForwardSecurity;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.money.Currency;

@@ -11,6 +11,8 @@ import java.util.Set;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.var.NormalLinearVaRCalculator;
+import com.opengamma.analytics.financial.var.NormalVaRParameters;
 import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.engine.ComputationTarget;
 import com.opengamma.engine.function.AbstractFunction;
@@ -24,8 +26,6 @@ import com.opengamma.engine.value.ValueRequirement;
 import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
-import com.opengamma.financial.var.NormalLinearVaRCalculator;
-import com.opengamma.financial.var.NormalVaRParameters;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 
 /**

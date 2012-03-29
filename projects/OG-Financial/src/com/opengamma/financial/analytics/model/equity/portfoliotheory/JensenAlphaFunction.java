@@ -16,6 +16,8 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculator;
+import com.opengamma.analytics.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.statistics.descriptive.StatisticsCalculatorFactory;
 import com.opengamma.core.historicaltimeseries.HistoricalTimeSeries;
@@ -38,8 +40,6 @@ import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.convention.InMemoryConventionBundleMaster;
 import com.opengamma.financial.riskreward.JensenAlphaCalculator;
 import com.opengamma.financial.timeseries.analysis.DoubleTimeSeriesStatisticsCalculator;
-import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculator;
-import com.opengamma.financial.timeseries.returns.TimeSeriesReturnCalculatorFactory;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.timeseries.DoubleTimeSeries;
 import com.opengamma.util.timeseries.TimeSeriesIntersector;

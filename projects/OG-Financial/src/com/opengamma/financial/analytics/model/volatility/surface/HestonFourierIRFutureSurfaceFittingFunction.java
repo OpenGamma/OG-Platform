@@ -18,6 +18,8 @@ import org.apache.commons.lang.ObjectUtils;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.HestonModelFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.function.HestonVolatilityFunction;
 import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
@@ -43,8 +45,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.volatility.fittedresults.HestonFittedSurfaces;
-import com.opengamma.financial.model.volatility.smile.fitting.HestonModelFitter;
-import com.opengamma.financial.model.volatility.smile.function.HestonVolatilityFunction;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
 import com.opengamma.util.tuple.ObjectsPair;

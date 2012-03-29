@@ -16,6 +16,10 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
+import com.opengamma.analytics.financial.interestrate.YieldCurveBundle;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.surface.InterpolatedDoublesSurface;
 import com.opengamma.core.holiday.HolidaySource;
 import com.opengamma.core.region.RegionSource;
@@ -42,12 +46,8 @@ import com.opengamma.financial.analytics.model.InterpolatedCurveAndSurfaceProper
 import com.opengamma.financial.analytics.model.forex.ForexOptionBlackFunction;
 import com.opengamma.financial.convention.ConventionBundleSource;
 import com.opengamma.financial.instrument.InstrumentDefinition;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
-import com.opengamma.financial.interestrate.YieldCurveBundle;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.model.option.definition.BlackSwaptionParameters;
 import com.opengamma.financial.model.option.definition.YieldCurveWithBlackSwaptionBundle;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.financial.security.option.SwaptionSecurity;
 import com.opengamma.util.ArgumentChecker;

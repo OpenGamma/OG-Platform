@@ -11,9 +11,9 @@ import org.fudgemsg.mapping.FudgeBuilderFor;
 import org.fudgemsg.mapping.FudgeDeserializer;
 import org.fudgemsg.mapping.FudgeSerializer;
 
+import com.opengamma.analytics.financial.model.interestrate.curve.DiscountCurve;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldCurve;
 import com.opengamma.analytics.math.curve.Curve;
-import com.opengamma.financial.model.interestrate.curve.DiscountCurve;
-import com.opengamma.financial.model.interestrate.curve.YieldCurve;
 
 /**
  * Holds Fudge builders for the interest rate curve model.

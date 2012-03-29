@@ -11,6 +11,7 @@ import static org.testng.AssertJUnit.assertTrue;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
@@ -18,7 +19,6 @@ import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
-import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 
 /**
  * 

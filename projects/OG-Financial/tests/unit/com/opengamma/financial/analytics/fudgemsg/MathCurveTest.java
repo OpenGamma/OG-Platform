@@ -10,6 +10,8 @@ import static org.testng.AssertJUnit.assertEquals;
 import org.testng.annotations.Test;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.interestrate.NelsonSiegelBondCurveModel;
+import com.opengamma.analytics.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
 import com.opengamma.analytics.math.curve.ConstantDoublesCurve;
 import com.opengamma.analytics.math.curve.Curve;
 import com.opengamma.analytics.math.curve.FunctionalDoublesCurve;
@@ -18,8 +20,6 @@ import com.opengamma.analytics.math.function.Function;
 import com.opengamma.analytics.math.function.Function1D;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
 import com.opengamma.analytics.math.matrix.DoubleMatrix1D;
-import com.opengamma.financial.interestrate.NelsonSiegelBondCurveModel;
-import com.opengamma.financial.interestrate.NelsonSiegelSvennsonBondCurveModel;
 
 /**
  * 

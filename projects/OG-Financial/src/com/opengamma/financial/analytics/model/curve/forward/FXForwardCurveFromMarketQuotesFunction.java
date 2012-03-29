@@ -23,6 +23,7 @@ import javax.time.calendar.ZonedDateTime;
 import org.apache.commons.lang.ObjectUtils;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.analytics.math.curve.InterpolatedDoublesCurve;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -49,7 +50,6 @@ import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveInstrument
 import com.opengamma.financial.analytics.fxforwardcurve.FXForwardCurveSpecification;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.model.interestrate.curve.ForwardCurve;
 import com.opengamma.id.ExternalId;
 import com.opengamma.util.ArgumentChecker;
 import com.opengamma.util.time.Tenor;

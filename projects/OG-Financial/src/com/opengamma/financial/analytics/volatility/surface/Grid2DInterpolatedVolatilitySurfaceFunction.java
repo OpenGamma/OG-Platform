@@ -18,6 +18,7 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.Validate;
 
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.analytics.math.interpolation.CombinedInterpolatorExtrapolatorFactory;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1D;
@@ -41,7 +42,6 @@ import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.OpenGammaCompilationContext;
 import com.opengamma.financial.analytics.model.InstrumentTypeProperties;
 import com.opengamma.financial.analytics.model.equity.variance.EquityVarianceSwapFunction;
-import com.opengamma.financial.model.volatility.surface.VolatilitySurface;
 import com.opengamma.util.time.DateUtils;
 
 /**

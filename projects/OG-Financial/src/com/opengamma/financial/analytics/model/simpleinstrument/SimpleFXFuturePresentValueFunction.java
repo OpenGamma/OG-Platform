@@ -15,6 +15,7 @@ import org.apache.commons.lang.Validate;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.core.security.Security;
 import com.opengamma.core.security.SecurityUtils;
 import com.opengamma.core.value.MarketDataRequirementNames;
@@ -32,7 +33,6 @@ import com.opengamma.engine.value.ValueRequirementNames;
 import com.opengamma.engine.value.ValueSpecification;
 import com.opengamma.financial.analytics.conversion.SimpleFutureConverter;
 import com.opengamma.financial.analytics.ircurve.YieldCurveFunction;
-import com.opengamma.financial.model.interestrate.curve.YieldAndDiscountCurve;
 import com.opengamma.financial.security.future.FXFutureSecurity;
 import com.opengamma.financial.security.fx.FXUtils;
 import com.opengamma.financial.simpleinstruments.derivative.SimpleInstrument;

@@ -12,6 +12,7 @@ import java.util.Set;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.interestrate.InstrumentDerivative;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
 import com.opengamma.analytics.math.interpolation.Interpolator1DFactory;
 import com.opengamma.analytics.math.interpolation.LinearInterpolator1D;
@@ -38,7 +39,6 @@ import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurf
 import com.opengamma.financial.analytics.volatility.surface.ConfigDBVolatilitySurfaceDefinitionSource;
 import com.opengamma.financial.analytics.volatility.surface.VolatilitySurfaceDefinition;
 import com.opengamma.financial.analytics.volatility.surface.fitting.SurfaceFittedSmileDataPoints;
-import com.opengamma.financial.interestrate.InstrumentDerivative;
 import com.opengamma.financial.model.option.definition.SABRInterestRateDataBundle;
 import com.opengamma.financial.security.FinancialSecurityUtils;
 import com.opengamma.util.money.Currency;

@@ -23,6 +23,8 @@ import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Sets;
 import com.opengamma.OpenGammaRuntimeException;
+import com.opengamma.analytics.financial.model.volatility.smile.fitting.SABRModelFitter;
+import com.opengamma.analytics.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.analytics.math.curve.NodalDoublesCurve;
 import com.opengamma.analytics.math.interpolation.FlatExtrapolator1D;
 import com.opengamma.analytics.math.interpolation.GridInterpolator2D;
@@ -51,8 +53,6 @@ import com.opengamma.financial.analytics.volatility.fittedresults.SABRFittedSurf
 import com.opengamma.financial.analytics.volatility.surface.fitting.SurfaceFittedSmileDataPoints;
 import com.opengamma.financial.convention.daycount.DayCount;
 import com.opengamma.financial.convention.daycount.DayCountFactory;
-import com.opengamma.financial.model.volatility.smile.fitting.SABRModelFitter;
-import com.opengamma.financial.model.volatility.smile.function.SABRHaganVolatilityFunction;
 import com.opengamma.id.UniqueId;
 import com.opengamma.util.money.Currency;
 import com.opengamma.util.tuple.DoublesPair;
