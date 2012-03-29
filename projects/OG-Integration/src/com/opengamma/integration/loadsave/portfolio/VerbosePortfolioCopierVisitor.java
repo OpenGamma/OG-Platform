@@ -1,3 +1,8 @@
+/**
+ * Copyright (C) 2011 - present by OpenGamma Inc. and the OpenGamma group of companies
+ * 
+ * Please see distribution for license.
+ */
 package com.opengamma.integration.loadsave.portfolio;
 
 import java.util.List;
@@ -5,6 +10,9 @@ import java.util.List;
 import com.opengamma.master.position.ManageablePosition;
 import com.opengamma.master.security.ManageableSecurity;
 
+/**
+ * Portfolio copier visitor that prints messages to stdout
+ */
 public class VerbosePortfolioCopierVisitor implements PortfolioCopierVisitor {
 
   @Override
