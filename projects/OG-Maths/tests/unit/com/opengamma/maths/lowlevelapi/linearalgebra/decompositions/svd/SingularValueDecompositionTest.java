@@ -46,18 +46,18 @@ public class SingularValueDecompositionTest {
     printToMatrix(tmp.getMatrixV(), 5, 5);  
   }
   
-  @Test
+//  @Test
   public void svdTestThinMat(){
-    SingularValueDecompositionFullUSV tmp = DGESVD.full(_DMAthinmat);
+//    SingularValueDecompositionFullUSV tmp = DGESVD.full(_DMAthinmat);
 //    System.out.println("U="+Arrays.toString(tmp.getMatrixU()));
 //    System.out.println("S="+Arrays.toString(tmp.getMatrixS()));
 //    System.out.println("V=");
 //    printToMatrix(tmp.getMatrixV(), 4, 4);  
   }
 
-  @Test
+//  @Test
   public void svdTestLargerThinMat(){
-    SingularValueDecompositionFullUSV tmp = DGESVD.full(_DMAlargerthinmat);
+//    SingularValueDecompositionFullUSV tmp = DGESVD.full(_DMAlargerthinmat);
 //    System.out.println("U="+Arrays.toString(tmp.getMatrixU()));
 //    System.out.println("S="+Arrays.toString(tmp.getMatrixS()));
 //    System.out.println("V=");

@@ -5,8 +5,8 @@
  */
 package com.opengamma.bloombergexample.historical.normalization;
 
+import com.opengamma.bbg.BloombergConstants;
 import com.opengamma.core.value.MarketDataRequirementNames;
-import com.opengamma.bloombergexample.marketdata.SimulatedHistoricalDataGenerator;
 import com.opengamma.master.historicaltimeseries.HistoricalTimeSeriesAdjuster;
 import com.opengamma.master.historicaltimeseries.impl.HistoricalTimeSeriesFieldAdjustmentMap;
 import com.opengamma.util.spring.SpringFactoryBean;
@@ -27,7 +27,7 @@ public class MockHistoricalTimeSeriesFieldAdjustmentMapFactoryBean extends Sprin
   //-------------------------------------------------------------------------
   @Override
   protected HistoricalTimeSeriesFieldAdjustmentMap createObject() {
-    HistoricalTimeSeriesFieldAdjustmentMap fieldAdjustmentMap = new HistoricalTimeSeriesFieldAdjustmentMap(SimulatedHistoricalDataGenerator.OG_DATA_SOURCE);
+    HistoricalTimeSeriesFieldAdjustmentMap fieldAdjustmentMap = new HistoricalTimeSeriesFieldAdjustmentMap(BloombergConstants.BLOOMBERG_DATA_SOURCE_NAME);
     HistoricalTimeSeriesAdjuster mockNormalizer = new MockHistoricalTimeSeriesNormalizer();
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.MARKET_VALUE, null, LAST_PRICE, new SyntheticMarketDataNormalizer());
     fieldAdjustmentMap.addFieldAdjustment(MarketDataRequirementNames.VOLUME, null, VOLUME, mockNormalizer);

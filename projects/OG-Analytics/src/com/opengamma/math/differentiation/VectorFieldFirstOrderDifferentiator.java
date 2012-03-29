@@ -161,6 +161,7 @@ public class VectorFieldFirstOrderDifferentiator implements Differentiator<Doubl
     throw new IllegalArgumentException("Can only handle forward, backward and central differencing");
   }
 
+  @Override
   public Function1D<DoubleMatrix1D, DoubleMatrix2D> differentiate(final Function1D<DoubleMatrix1D, DoubleMatrix1D> function, final Function1D<DoubleMatrix1D, Boolean> domain) {
     Validate.notNull(function);
     Validate.notNull(domain);
@@ -184,7 +185,7 @@ public class VectorFieldFirstOrderDifferentiator implements Differentiator<Doubl
         double oldValue;
         final double[][] res = new double[m][n];
         int i, j;
-        DoubleMatrix1D[] y = new DoubleMatrix1D[3];
+        final DoubleMatrix1D[] y = new DoubleMatrix1D[3];
         double[] w;
 
         for (j = 0; j < n; j++) {
@@ -194,15 +195,14 @@ public class VectorFieldFirstOrderDifferentiator implements Differentiator<Doubl
             xData[j] = oldValue - _twoEps;
             if (!domain.evaluate(x)) {
               throw new MathException("cannot get derivative at point " + x.toString() + " in direction " + j);
-            } else {
-              y[2] = mid;
-              y[0] = function.evaluate(x);
-              xData[j] = oldValue - _eps;
-              y[1] = function.evaluate(x);
-              w = wBack;
             }
+            y[2] = mid;
+            y[0] = function.evaluate(x);
+            xData[j] = oldValue - _eps;
+            y[1] = function.evaluate(x);
+            w = wBack;
           } else {
-            DoubleMatrix1D temp = function.evaluate(x);
+            final DoubleMatrix1D temp = function.evaluate(x);
             xData[j] = oldValue - _eps;
             if (!domain.evaluate(x)) {
               y[0] = mid;

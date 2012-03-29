@@ -36,9 +36,9 @@ public final class SurfaceConverter {
     return INSTANCE;
   }
 
-
   Surface<Double, Double, Double> deltaToLogMoneyness(final Surface<Double, Double, Double> deltaSurf) {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... tx) {
         final double t = tx[0];
@@ -76,7 +76,6 @@ public final class SurfaceConverter {
     return FunctionalDoublesSurface.from(surFunc);
   }
 
-
   Surface<Double, Double, Double> deltaToMoneyness(final Surface<Double, Double, Double> deltaSurf) {
     final Surface<Double, Double, Double> logMoneynessSurf = deltaToLogMoneyness(deltaSurf);
     return logMoneynessToMoneyness(logMoneynessSurf);
@@ -94,6 +93,7 @@ public final class SurfaceConverter {
    */
   Surface<Double, Double, Double> logMoneynessToDelta(final Surface<Double, Double, Double> logMoneynessSurf) {
     final Function<Double, Double> surFunc = new Function<Double, Double>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... td) {
         final double t = td[0];

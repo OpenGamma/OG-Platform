@@ -455,13 +455,19 @@
     <mkdir dir="${docs.dir}/temp-src" />
     <copy toDir="${docs.dir}/temp-src">
       <fileset dir="${projects.dir}/OG-Analytics/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Bloomberg/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-BloombergExample/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Component/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Core/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Engine/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Examples/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Financial/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Integration/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Language/Client/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-LiveData/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Master/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-MasterDB/src" includes="**/*.java **/package.html"/>
+      <fileset dir="${projects.dir}/OG-Maths/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Security/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Util/src" includes="**/*.java **/package.html"/>
       <fileset dir="${projects.dir}/OG-Web/src" includes="**/*.java **/package.html"/>

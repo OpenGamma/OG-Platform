@@ -65,19 +65,19 @@ public class ShiftedLognormalVolModelTest {
   final YieldAndDiscountCurve curveDiscount = curves.getCurve("Funding");
 
   private static final double[] EXPIRIES = new double[] {0.5, 0.5, 0.5, 0.5,
-    1.0, 1.0, 1.0, 1.0,
-    5.0, 5.0, 5.0, 5.0 };
+      1.0, 1.0, 1.0, 1.0,
+      5.0, 5.0, 5.0, 5.0 };
   private static final double[] DELTAS = new double[] {0.75, 0.5, 0.25, 0.1,
-    0.75, 0.5, 0.25, 0.1,
-    0.75, 0.5, 0.25, 0.1 };
+      0.75, 0.5, 0.25, 0.1,
+      0.75, 0.5, 0.25, 0.1 };
 
   private static final double[] STRIKES = new double[] {10, 50, 105, 150,
-    10, 50, 105, 150,
-    10, 50, 105, 150 };
+      10, 50, 105, 150,
+      10, 50, 105, 150 };
 
   private static final double[] VOLS = new double[] {0.28, 0.28, 0.28, 0.28,
-    0.25, 0.25, 0.25, 0.25,
-    0.26, 0.24, 0.23, 0.25 };
+      0.25, 0.25, 0.25, 0.25,
+      0.26, 0.24, 0.23, 0.25 };
 
   private static final CombinedInterpolatorExtrapolator INTERPOLATOR_1D = getInterpolator(Interpolator1DFactory.DOUBLE_QUADRATIC,
       Interpolator1DFactory.LINEAR_EXTRAPOLATOR, Interpolator1DFactory.FLAT_EXTRAPOLATOR);
@@ -92,13 +92,13 @@ public class ShiftedLognormalVolModelTest {
   @Test
   public void testFlatSurfaceReproducesVolAndZeroShift() {
 
-    double delta1 = 0.75;
+    final double delta1 = 0.75;
     final double forward = FORWARD_CURVE.getForward(expiry1);
-    double vol1 = DELTA_VOLSURFACE.getVolatility(expiry1, delta1);
-    double strike1 = BlackFormulaRepository.impliedStrike(delta1, true, forward, expiry1, vol1);
-    double delta2 = 0.5;
-    double vol2 = DELTA_VOLSURFACE.getVolatility(expiry1, delta2);
-    double strike2 = BlackFormulaRepository.impliedStrike(delta2, true, forward, expiry1, vol2);
+    final double vol1 = DELTA_VOLSURFACE.getVolatility(expiry1, delta1);
+    final double strike1 = BlackFormulaRepository.impliedStrike(delta1, true, forward, expiry1, vol1);
+    final double delta2 = 0.5;
+    final double vol2 = DELTA_VOLSURFACE.getVolatility(expiry1, delta2);
+    final double strike2 = BlackFormulaRepository.impliedStrike(delta2, true, forward, expiry1, vol2);
     final ShiftedLognormalVolModel logBlack = new ShiftedLognormalVolModel(forward, expiry1, strike1, vol1, strike2, vol2);
 
     assertEquals(logBlack.getVol(), 0.25, 1e-9);
@@ -107,14 +107,14 @@ public class ShiftedLognormalVolModelTest {
 
   @Test
   public void testConstantDoublesSurface() {
-    BlackVolatilitySurface<?> constVolSurf = new BlackVolatilitySurfaceDelta(ConstantDoublesSurface.from(0.25), FORWARD_CURVE);
+    final BlackVolatilitySurface<?> constVolSurf = new BlackVolatilitySurfaceDelta(ConstantDoublesSurface.from(0.25), FORWARD_CURVE);
     final double forward = FORWARD_CURVE.getForward(expiry1);
-    double delta1 = 0.75;
-    double vol1 = constVolSurf.getVolatility(expiry1, delta1);
-    double strike1 = BlackFormulaRepository.impliedStrike(delta1, true, forward, expiry1, vol1);
-    double delta2 = 0.5;
-    double vol2 = constVolSurf.getVolatility(expiry1, delta2);
-    double strike2 = BlackFormulaRepository.impliedStrike(delta2, true, forward, expiry1, vol2);
+    final double delta1 = 0.75;
+    final double vol1 = constVolSurf.getVolatility(expiry1, delta1);
+    final double strike1 = BlackFormulaRepository.impliedStrike(delta1, true, forward, expiry1, vol1);
+    final double delta2 = 0.5;
+    final double vol2 = constVolSurf.getVolatility(expiry1, delta2);
+    final double strike2 = BlackFormulaRepository.impliedStrike(delta2, true, forward, expiry1, vol2);
     final ShiftedLognormalVolModel logBlack = new ShiftedLognormalVolModel(forward, expiry1, strike1, vol1, strike2, vol2);
 
     assertEquals(logBlack.getVol(), 0.25, 1e-9);
@@ -125,8 +125,8 @@ public class ShiftedLognormalVolModelTest {
   public void testOnSmileySurface() {
     final double forward = FORWARD_CURVE.getForward(expiry5);
     final VectorRootFinder testSolver = new BroydenVectorRootFinder(1.0e-6, 1.0e-6, 50000);
-    double vol1 = STRIKE_VOLSURFACE.getVolatility(expiry5, 40);
-    double vol2 = STRIKE_VOLSURFACE.getVolatility(expiry5, 41);
+    final double vol1 = STRIKE_VOLSURFACE.getVolatility(expiry5, 40);
+    final double vol2 = STRIKE_VOLSURFACE.getVolatility(expiry5, 41);
     final ShiftedLognormalVolModel logBlack = new ShiftedLognormalVolModel(forward, expiry5, 40, vol1, 41, vol2, 0.26, 0.01, testSolver);
 
     //TODO really - more magic numbers
@@ -143,22 +143,23 @@ public class ShiftedLognormalVolModelTest {
   public void testDisplacedDiffusionSmile() {
     final double displacement = -10.0;
     final double sigma = 0.2;
-    Function<Double, Double> surf = new Function<Double, Double>() {
+    final Function<Double, Double> surf = new Function<Double, Double>() {
 
       @Override
-      public Double evaluate(Double... x) {
+      public Double evaluate(final Double... x) {
         final double t = x[0];
         final double k = x[1];
+        @SuppressWarnings("synthetic-access")
         final double fwd = FORWARD_CURVE.getForward(t);
         final double price = BlackFormulaRepository.price(fwd + displacement, k + displacement, t, sigma, true);
         return BlackFormulaRepository.impliedVolatility(price, fwd, k, t, true);
       }
     };
 
-    BlackVolatilitySurface<?> volSurface = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surf));
+    final BlackVolatilitySurface<?> volSurface = new BlackVolatilitySurfaceStrike(FunctionalDoublesSurface.from(surf));
     final double forward = FORWARD_CURVE.getForward(expiry5);
-    double vol1 = volSurface.getVolatility(expiry5, 40);
-    double vol2 = volSurface.getVolatility(expiry5, 41);
+    final double vol1 = volSurface.getVolatility(expiry5, 40);
+    final double vol2 = volSurface.getVolatility(expiry5, 41);
     final ShiftedLognormalVolModel logBlackDef = new ShiftedLognormalVolModel(forward, expiry5, 40, vol1, 41, vol2);
     assertEquals(sigma, logBlackDef.getVol(), 1e-8);
     assertEquals(displacement, logBlackDef.getShift(), 1e-6);

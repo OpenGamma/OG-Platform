@@ -382,6 +382,7 @@ public class VarianceSwapStaticReplication {
     // strike surfaces
     //********************************************
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Double visitStrike(final BlackVolatilitySurfaceStrike surface, final DoublesPair data) {
 
@@ -392,9 +393,8 @@ public class VarianceSwapStaticReplication {
         if (data.first < _f && data.second > _f) {
           final double atmVol = surface.getVolatility(_t, _f);
           return atmVol * atmVol;
-        } else {
-          return 0.0;
         }
+        return 0.0;
       }
 
       final Function1D<Double, Double> integrand = getStrikeIntegrand(surface);
@@ -412,6 +412,7 @@ public class VarianceSwapStaticReplication {
       return 2 * res / _t;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Double visitStrike(final BlackVolatilitySurfaceStrike surface) {
 
@@ -424,7 +425,6 @@ public class VarianceSwapStaticReplication {
 
       final Function1D<Double, Double> integrand = getStrikeIntegrand(surface);
       final Function1D<Double, Double> remainder = new Function1D<Double, Double>() {
-        @SuppressWarnings("synthetic-access")
         @Override
         public Double evaluate(final Double strike) {
           if (strike == 0) {
@@ -494,6 +494,7 @@ public class VarianceSwapStaticReplication {
     // delta surfaces
     //********************************************
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Double visitDelta(final BlackVolatilitySurfaceDelta surface, final DoublesPair data) {
 
@@ -531,6 +532,7 @@ public class VarianceSwapStaticReplication {
       return 2 * res / _t;
     }
 
+    @SuppressWarnings("synthetic-access")
     @Override
     public Double visitDelta(final BlackVolatilitySurfaceDelta surface) {
 
@@ -621,6 +623,7 @@ public class VarianceSwapStaticReplication {
     /**
      * Only use if the integral limits have been calculated elsewhere, or you need the contribution from a specific range
      */
+    @SuppressWarnings("synthetic-access")
     @Override
     public Double visitLogMoneyness(final BlackVolatilitySurfaceLogMoneyness surface, final DoublesPair data) {
       final double lower = data.first;
@@ -630,9 +633,8 @@ public class VarianceSwapStaticReplication {
       if (_t < 1e-4) { //if less than a hour from expiry, only the ATM-vol will count, so must check the integral range spans ATM
         if (lower * upper < 0.0) {
           return atmVol * atmVol;
-        } else {
-          return 0.0;
         }
+        return 0.0;
       }
 
       final Function1D<Double, Double> integrand = getLogMoneynessIntegrand(surface);
@@ -652,6 +654,7 @@ public class VarianceSwapStaticReplication {
      * @param surface log-moneyness parametrised volatility surface
      * @return expected variance
      */
+    @SuppressWarnings("synthetic-access")
     @Override
     public Double visitLogMoneyness(final BlackVolatilitySurfaceLogMoneyness surface) {
       final double atmVol = surface.getVolatilityForLogMoneyness(_t, 0.0);

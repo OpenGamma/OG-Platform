@@ -113,18 +113,17 @@ public class ScalarFirstOrderDifferentiator implements Differentiator<Double, Do
         Validate.notNull(x, "x");
         ArgumentChecker.isTrue(domain.evaluate(x), "point {} is not in the function domain", x.toString());
 
-        double[] y = new double[3];
+        final double[] y = new double[3];
         double[] w;
 
         if (!domain.evaluate(x + _eps)) {
           if (!domain.evaluate(x - _eps)) {
             throw new MathException("cannot get derivative at point " + x.toString());
-          } else {
-            y[0] = function.evaluate(x - _twoEps);
-            y[1] = function.evaluate(x - _eps);
-            y[2] = function.evaluate(x);
-            w = wBack;
           }
+          y[0] = function.evaluate(x - _twoEps);
+          y[1] = function.evaluate(x - _eps);
+          y[2] = function.evaluate(x);
+          w = wBack;
         } else {
           if (!domain.evaluate(x - _eps)) {
             y[0] = function.evaluate(x);

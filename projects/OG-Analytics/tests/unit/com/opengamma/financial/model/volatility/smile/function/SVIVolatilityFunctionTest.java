@@ -33,8 +33,9 @@ public class SVIVolatilityFunctionTest {
 
   private static final VolatilityFunctionProvider<SVIFormulaData> FUNC_FD = new VolatilityFunctionProvider<SVIFormulaData>() {
 
+    @SuppressWarnings("synthetic-access")
     @Override
-    public Function1D<SVIFormulaData, Double> getVolatilityFunction(EuropeanVanillaOption option, double forward) {
+    public Function1D<SVIFormulaData, Double> getVolatilityFunction(final EuropeanVanillaOption option, final double forward) {
       return FUNC.getVolatilityFunction(option, forward);
     }
   };
@@ -58,24 +59,24 @@ public class SVIVolatilityFunctionTest {
 
   @Test
   public void testMEqualsKappa() {
-    double m = Math.log(STRIKE / FORWARD);
+    final double m = Math.log(STRIKE / FORWARD);
     assertEquals(VOL.evaluate(new SVIFormulaData(A, B, RHO, SIGMA, m)), Math.sqrt((A + B * SIGMA)), EPS);
   }
 
   @Test
   public void testZeroSigma() {
-    double kappa = Math.log(STRIKE / FORWARD);
+    final double kappa = Math.log(STRIKE / FORWARD);
     assertEquals(VOL.evaluate(new SVIFormulaData(A, B, RHO, 0, M)), Math.sqrt((A + B * (RHO * (kappa - M) + Math.abs(kappa - M)))), EPS);
   }
 
   @Test
   public void testVolAdjoint() {
-    SVIFormulaData data = new SVIFormulaData(0.05, 0.2, -0.4, 0.2, -0.1);
+    final SVIFormulaData data = new SVIFormulaData(0.05, 0.2, -0.4, 0.2, -0.1);
 
-    double[] res = VOL_ADJOINT.evaluate(data);
-    double[] resFD = VOL_ADJOINT_FD.evaluate(data);
+    final double[] res = VOL_ADJOINT.evaluate(data);
+    final double[] resFD = VOL_ADJOINT_FD.evaluate(data);
 
-    int n = resFD.length;
+    final int n = resFD.length;
     assertEquals(n, res.length);
     for (int i = 0; i < n; i++) {
       assertEquals("parameter " + i, resFD[i], res[i], 1e-6);

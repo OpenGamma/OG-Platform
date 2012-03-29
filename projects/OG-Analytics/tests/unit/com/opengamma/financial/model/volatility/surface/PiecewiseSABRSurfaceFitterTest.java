@@ -52,9 +52,9 @@ public class PiecewiseSABRSurfaceFitterTest {
   private static final double[] EXPIRIES = new double[] {7. / 365, 14 / 365., 21 / 365., 1 / 12., 3 / 12., 0.5, 0.75, 1, 5, 10 };
   private static final double[] ATM = new double[] {0.17045, 0.1688, 0.167425, 0.1697, 0.1641, 0.1642, 0.1641, 0.1642, 0.138, 0.12515 };
   private static final double[][] RR = new double[][] { {-0.0168, -0.02935, -0.039125, -0.047325, -0.058325, -0.06055, -0.0621, -0.063, -0.032775, -0.023925 },
-    {-0.012025, -0.02015, -0.026, -0.0314, -0.0377, -0.03905, -0.0396, -0.0402, -0.02085, -0.015175 } };
+      {-0.012025, -0.02015, -0.026, -0.0314, -0.0377, -0.03905, -0.0396, -0.0402, -0.02085, -0.015175 } };
   private static final double[][] BUTT = new double[][] { {0.00665, 0.00725, 0.00835, 0.009075, 0.013175, 0.01505, 0.01565, 0.0163, 0.009275, 0.007075, },
-    {0.002725, 0.00335, 0.0038, 0.004, 0.0056, 0.0061, 0.00615, 0.00635, 0.00385, 0.002575 } };
+      {0.002725, 0.00335, 0.0038, 0.004, 0.0056, 0.0061, 0.00615, 0.00635, 0.00385, 0.002575 } };
   //  private static final double[] ATM;
   // private static final double[][] RR;
   //private static final double[][] BUTT;
@@ -92,8 +92,8 @@ public class PiecewiseSABRSurfaceFitterTest {
 
   //For each expiry, print the expiry and the strikes and implied volatilities
   @Test
-  (enabled = false)
-  public void printMarketData() {
+      (enabled = false)
+      public void printMarketData() {
 
     for (int i = 0; i < N; i++) {
       System.out.println(EXPIRIES[i]);
@@ -118,8 +118,8 @@ public class PiecewiseSABRSurfaceFitterTest {
 
   //Fit the market data at each time slice and print the smiles and a functions of both strike and delta
   @Test
-  (enabled = false)
-  public void fitMarketData() {
+      (enabled = false)
+      public void fitMarketData() {
     final PiecewiseSABRFitter fitter = new PiecewiseSABRFitter();
     @SuppressWarnings("unchecked")
     final Function1D<Double, Double>[] smiles = new Function1D[N];
@@ -166,8 +166,8 @@ public class PiecewiseSABRSurfaceFitterTest {
    * Print the fitted implied vol surface and the derived implied vol
    */
   @Test
-  (enabled = false)
-  public void printSurface() {
+      (enabled = false)
+      public void printSurface() {
     final BlackVolatilitySurfaceMoneyness surface = SURFACE_FITTER.getImpliedVolatilityMoneynessSurface(true, true, true);
     PDEUtilityTools.printSurface("vol surface", surface.getSurface(), 0, 10, 0.2, 3.0, 200, 100);
     final LocalVolatilitySurfaceMoneyness lv = DUPIRE.getLocalVolatility(surface);
@@ -193,8 +193,8 @@ public class PiecewiseSABRSurfaceFitterTest {
    * Print the fitted implied vol surface and the derived implied vol as a function of moneyness m = log(k/f)/(1+lambda*sqrt(t))
    */
   @Test
-  (enabled = false)
-  public void printDeltaProxySurface() {
+      (enabled = false)
+      public void printDeltaProxySurface() {
     final double xMin = -0.5;
     final double xMax = 0.5;
     final BlackVolatilitySurfaceMoneyness surface = SURFACE_FITTER.getImpliedVolatilityMoneynessSurface(true, true, true);
@@ -208,22 +208,22 @@ public class PiecewiseSABRSurfaceFitterTest {
   }
 
   @Test
-  (enabled = false)
-  public void runPDESolver() {
+      (enabled = false)
+      public void runPDESolver() {
     final PrintStream ps = System.out;
     CAL.runPDESolver(ps);
   }
 
   @Test
-  (enabled = false)
-  public void runBackwardsPDESolver() {
+      (enabled = false)
+      public void runBackwardsPDESolver() {
     final PrintStream ps = System.out;
     CAL.runBackwardsPDESolver(ps, EXAMPLE_EXPIRY, EXAMPLE_STRIKE);
   }
 
   @Test
-  (enabled = false)
-  public void bucketedVega() {
+      (enabled = false)
+      public void bucketedVega() {
     final PrintStream ps = System.out;
     final EuropeanVanillaOption option = new EuropeanVanillaOption(EXAMPLE_STRIKE, EXAMPLE_EXPIRY, true);
     CAL.bucketedVegaForwardPDE(ps, option);
@@ -231,15 +231,15 @@ public class PiecewiseSABRSurfaceFitterTest {
   }
 
   @Test
-  (enabled = false)
-  public void deltaAndGamma() {
+      (enabled = false)
+      public void deltaAndGamma() {
     final PrintStream ps = System.out;
     CAL.deltaAndGamma(ps, EXAMPLE_EXPIRY, EXAMPLE_STRIKE);
   }
 
   @Test
-  (enabled = false)
-  public void smileDynamic() {
+      (enabled = false)
+      public void smileDynamic() {
     final PrintStream ps = System.out;
     CAL.smileDynamic(ps, EXAMPLE_EXPIRY, 0.1);
   }
@@ -248,8 +248,8 @@ public class PiecewiseSABRSurfaceFitterTest {
    * print out vega based greeks
    */
   @Test
-  (enabled = false)
-  public void vega() {
+      (enabled = false)
+      public void vega() {
     final PrintStream ps = System.out;
     final EuropeanVanillaOption option = new EuropeanVanillaOption(EXAMPLE_STRIKE, EXAMPLE_EXPIRY, true);
     CAL.vega(ps, option);
@@ -285,6 +285,7 @@ public class PiecewiseSABRSurfaceFitterTest {
 
     final Function<Double, Double> func = new Function<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... tx) {
         final double t = tx[0];
@@ -302,6 +303,7 @@ public class PiecewiseSABRSurfaceFitterTest {
 
     final Function<Double, Double> func = new Function<Double, Double>() {
 
+      @SuppressWarnings("synthetic-access")
       @Override
       public Double evaluate(final Double... tx) {
         final double t = tx[0];

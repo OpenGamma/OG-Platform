@@ -14,6 +14,6 @@ public class MathsConstants {
    * eps is the smallest representable difference between two double precision numbers.
    * In ULP terms it is 2ULP. 
    */
-  public static final double eps = 2 * Math.pow(2, -53);
+  public static final double eps = 2 * Math.pow(2, -53); //CSIGNORE
 
 }

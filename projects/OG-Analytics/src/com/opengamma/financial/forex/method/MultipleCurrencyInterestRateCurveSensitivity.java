@@ -30,7 +30,7 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
    * Private constructor from an exiting map.
    * @param sensitivity The sensitivity map.
    */
-  private MultipleCurrencyInterestRateCurveSensitivity(TreeMap<Currency, InterestRateCurveSensitivity> sensitivity) {
+  private MultipleCurrencyInterestRateCurveSensitivity(final TreeMap<Currency, InterestRateCurveSensitivity> sensitivity) {
     _sensitivity = sensitivity;
   }
 
@@ -43,7 +43,7 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
   public static MultipleCurrencyInterestRateCurveSensitivity of(final Currency ccy, final InterestRateCurveSensitivity sensitivity) {
     Validate.notNull(ccy, "Currency");
     Validate.notNull(sensitivity, "Sensitivity");
-    TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
+    final TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
     map.put(ccy, sensitivity);
     return new MultipleCurrencyInterestRateCurveSensitivity(map);
   }
@@ -58,9 +58,8 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
     Validate.notNull(ccy, "Currency");
     if (_sensitivity.containsKey(ccy)) {
       return _sensitivity.get(ccy);
-    } else {
-      return new InterestRateCurveSensitivity();
     }
+    return new InterestRateCurveSensitivity();
   }
 
   /**
@@ -75,10 +74,10 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
   public MultipleCurrencyInterestRateCurveSensitivity plus(final Currency ccy, final InterestRateCurveSensitivity sensitivity) {
     Validate.notNull(ccy, "Currency");
     Validate.notNull(sensitivity, "Sensitivity");
-    TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
+    final TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
     if (_sensitivity.containsKey(ccy)) {
       map.put(ccy, sensitivity.plus(_sensitivity.get(ccy)));
-      for (Currency loopccy : _sensitivity.keySet()) {
+      for (final Currency loopccy : _sensitivity.keySet()) {
         if (loopccy != ccy) {
           map.put(loopccy, _sensitivity.get(loopccy));
         }
@@ -98,10 +97,10 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
    */
   public MultipleCurrencyInterestRateCurveSensitivity plus(final MultipleCurrencyInterestRateCurveSensitivity other) {
     Validate.notNull(other, "Sensitivity");
-    TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
+    final TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
     map.putAll(_sensitivity);
-    MultipleCurrencyInterestRateCurveSensitivity result = new MultipleCurrencyInterestRateCurveSensitivity(map);
-    for (Currency loopccy : other._sensitivity.keySet()) {
+    final MultipleCurrencyInterestRateCurveSensitivity result = new MultipleCurrencyInterestRateCurveSensitivity(map);
+    for (final Currency loopccy : other._sensitivity.keySet()) {
       result.plus(loopccy, other.getSensitivity(loopccy));
     }
     return result;
@@ -113,8 +112,8 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
    * @return The new multiple currency sensitivity.
    */
   public MultipleCurrencyInterestRateCurveSensitivity multipliedBy(final double factor) {
-    TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
-    for (Currency loopccy : _sensitivity.keySet()) {
+    final TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
+    for (final Currency loopccy : _sensitivity.keySet()) {
       map.put(loopccy, _sensitivity.get(loopccy).multiply(factor));
     }
     return new MultipleCurrencyInterestRateCurveSensitivity(map);
@@ -125,11 +124,11 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
    * @return The cleaned sensitivity.
    */
   public MultipleCurrencyInterestRateCurveSensitivity clean() {
-    TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
-    for (Currency loopccy : _sensitivity.keySet()) {
+    final TreeMap<Currency, InterestRateCurveSensitivity> map = new TreeMap<Currency, InterestRateCurveSensitivity>();
+    for (final Currency loopccy : _sensitivity.keySet()) {
       map.put(loopccy, _sensitivity.get(loopccy).cleaned());
     }
-    MultipleCurrencyInterestRateCurveSensitivity result = new MultipleCurrencyInterestRateCurveSensitivity(map);
+    final MultipleCurrencyInterestRateCurveSensitivity result = new MultipleCurrencyInterestRateCurveSensitivity(map);
     return result;
   }
 
@@ -141,12 +140,12 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
    * @param tolerance The tolerance.
    * @return True if the difference is below the tolerance and False if not. If the currencies or the curves are not the same it returns False.
    */
-  public static boolean compare(final MultipleCurrencyInterestRateCurveSensitivity sensi1, final MultipleCurrencyInterestRateCurveSensitivity sensi2, double tolerance) {
-    boolean keycmp = sensi1._sensitivity.keySet().equals(sensi2._sensitivity.keySet());
+  public static boolean compare(final MultipleCurrencyInterestRateCurveSensitivity sensi1, final MultipleCurrencyInterestRateCurveSensitivity sensi2, final double tolerance) {
+    final boolean keycmp = sensi1._sensitivity.keySet().equals(sensi2._sensitivity.keySet());
     if (!keycmp) {
       return false;
     }
-    for (Currency loopccy : sensi1._sensitivity.keySet()) {
+    for (final Currency loopccy : sensi1._sensitivity.keySet()) {
       if (!InterestRateCurveSensitivity.compare(sensi1.getSensitivity(loopccy), sensi2.getSensitivity(loopccy), tolerance)) {
         return false;
       }
@@ -176,7 +175,7 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
   }
 
   @Override
-  public boolean equals(Object obj) {
+  public boolean equals(final Object obj) {
     if (this == obj) {
       return true;
     }
@@ -186,7 +185,7 @@ public final class MultipleCurrencyInterestRateCurveSensitivity {
     if (getClass() != obj.getClass()) {
       return false;
     }
-    MultipleCurrencyInterestRateCurveSensitivity other = (MultipleCurrencyInterestRateCurveSensitivity) obj;
+    final MultipleCurrencyInterestRateCurveSensitivity other = (MultipleCurrencyInterestRateCurveSensitivity) obj;
     if (!ObjectUtils.equals(_sensitivity, other._sensitivity)) {
       return false;
     }

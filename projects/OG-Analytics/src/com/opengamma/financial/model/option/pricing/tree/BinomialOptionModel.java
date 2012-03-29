@@ -84,7 +84,7 @@ public class BinomialOptionModel<T extends StandardOptionDataBundle> extends Tre
   public Function1D<T, RecombiningBinomialTree<DoublesPair>> getTreeGeneratingFunction(final OptionDefinition definition) {
     return new Function1D<T, RecombiningBinomialTree<DoublesPair>>() {
 
-      @SuppressWarnings({"synthetic-access", "unchecked" })
+      @SuppressWarnings({"synthetic-access" })
       @Override
       public RecombiningBinomialTree<DoublesPair> evaluate(final T data) {
         final DoublesPair[] tempResults = new DoublesPair[_j];

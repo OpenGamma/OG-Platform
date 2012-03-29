@@ -109,6 +109,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   protected Function1D<DoubleMatrix1D, DoubleMatrix1D> getModelValueFunction() {
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix1D>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix1D evaluate(final DoubleMatrix1D x) {
         final T data = toSmileModelData(x);
@@ -121,6 +122,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
   protected Function1D<DoubleMatrix1D, DoubleMatrix2D> getModelJacobianFunction() {
 
     return new Function1D<DoubleMatrix1D, DoubleMatrix2D>() {
+      @SuppressWarnings("synthetic-access")
       @Override
       public DoubleMatrix2D evaluate(final DoubleMatrix1D x) {
         final T data = toSmileModelData(x);
@@ -141,7 +143,7 @@ public abstract class SmileModelFitter<T extends SmileModelData> {
 
   protected abstract T toSmileModelData(final DoubleMatrix1D modelParameters);
 
-  protected Function1D<DoubleMatrix1D, Boolean> getConstraintFunction(@SuppressWarnings("unused") final NonLinearParameterTransforms t) {
+  protected Function1D<DoubleMatrix1D, Boolean> getConstraintFunction(final NonLinearParameterTransforms t) {
     return UNCONSTRAINED;
   }
 

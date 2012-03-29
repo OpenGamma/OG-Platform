@@ -53,8 +53,11 @@ import com.opengamma.util.tuple.DoublesPair;
  */
 public class ForexOptionBlackYieldCurveNodeSensitivitiesFunction extends AbstractFunction.NonCompiledInvoker {
   private static final Logger s_logger = LoggerFactory.getLogger(ForexOptionBlackYieldCurveNodeSensitivitiesFunction.class);
+  /** The name for a property indicating whether to get the sensitivities for the put currency leg or the call currency leg */
   public static final String PROPERTY_PUT_OR_CALL_CURRENCY = "CurrencyLeg"; //TODO rename this
+  /** The value indicating the put currency */
   public static final String PUT_RESULT = "Put";
+  /** The value indicating the call currency */
   public static final String CALL_RESULT = "Call";
   private static final PresentValueYieldCurveNodeSensitivityForexCalculator CALCULATOR = PresentValueYieldCurveNodeSensitivityForexCalculator.getInstance();
 
