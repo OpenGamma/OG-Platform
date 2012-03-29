@@ -66,8 +66,8 @@ public class MarketDataMultiplyOperation implements OverrideOperation {
     return msg;
   }
 
-  public static MarketDataAddOperation fromFudgeMsg(final FudgeMsg msg) {
-    return new MarketDataAddOperation(msg.getDouble(AMOUNT_KEY));
+  public static MarketDataMultiplyOperation fromFudgeMsg(final FudgeMsg msg) {
+    return new MarketDataMultiplyOperation(msg.getDouble(AMOUNT_KEY));
   }
 
 }

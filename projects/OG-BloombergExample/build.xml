@@ -61,6 +61,8 @@
 			<jvmarg value="-Dcommandmonitor.secret=${jetty.stopkey}" />
 			<jvmarg value="-Xms${jvm.xms}" />
 			<jvmarg value="-Xmx${jvm.xmx}" />
+      <jvmarg value="-XX:PermSize=256m" />
+      <jvmarg value="-XX:MaxPermSize=256m" />
 			<arg value="-v" />
 			<arg value="classpath:fullstack${file.separator}fullstack-example-dev.properties" />
 		</java>
