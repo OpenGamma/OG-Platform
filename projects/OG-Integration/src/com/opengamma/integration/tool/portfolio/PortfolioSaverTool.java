@@ -9,20 +9,20 @@ import org.apache.commons.cli.Option;
 import org.apache.commons.cli.Options;
 
 import com.opengamma.OpenGammaRuntimeException;
-import com.opengamma.integration.loadsave.portfolio.PortfolioCopierVisitor;
-import com.opengamma.integration.loadsave.portfolio.QuietPortfolioCopierVisitor;
-import com.opengamma.integration.loadsave.portfolio.VerbosePortfolioCopierVisitor;
-import com.opengamma.integration.loadsave.portfolio.PortfolioCopier;
-import com.opengamma.integration.loadsave.portfolio.SimplePortfolioCopier;
-import com.opengamma.integration.loadsave.portfolio.reader.MasterPortfolioReader;
-import com.opengamma.integration.loadsave.portfolio.reader.PortfolioReader;
-import com.opengamma.integration.loadsave.portfolio.rowparser.ExchangeTradedRowParser;
-import com.opengamma.integration.loadsave.portfolio.rowparser.JodaBeanRowParser;
-import com.opengamma.integration.loadsave.portfolio.writer.DummyPortfolioWriter;
-import com.opengamma.integration.loadsave.portfolio.writer.PortfolioWriter;
-import com.opengamma.integration.loadsave.portfolio.writer.SingleSheetSimplePortfolioWriter;
-import com.opengamma.integration.loadsave.portfolio.writer.ZippedPortfolioWriter;
-import com.opengamma.integration.loadsave.sheet.SheetFormat;
+import com.opengamma.integration.copier.portfolio.PortfolioCopier;
+import com.opengamma.integration.copier.portfolio.PortfolioCopierVisitor;
+import com.opengamma.integration.copier.portfolio.QuietPortfolioCopierVisitor;
+import com.opengamma.integration.copier.portfolio.SimplePortfolioCopier;
+import com.opengamma.integration.copier.portfolio.VerbosePortfolioCopierVisitor;
+import com.opengamma.integration.copier.portfolio.reader.MasterPortfolioReader;
+import com.opengamma.integration.copier.portfolio.reader.PortfolioReader;
+import com.opengamma.integration.copier.portfolio.rowparser.ExchangeTradedRowParser;
+import com.opengamma.integration.copier.portfolio.rowparser.JodaBeanRowParser;
+import com.opengamma.integration.copier.portfolio.writer.DummyPortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.PortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.SingleSheetSimplePortfolioWriter;
+import com.opengamma.integration.copier.portfolio.writer.ZippedPortfolioWriter;
+import com.opengamma.integration.copier.sheet.SheetFormat;
 import com.opengamma.integration.tool.AbstractIntegrationTool;
 import com.opengamma.integration.tool.IntegrationToolContext;
 
@@ -105,7 +105,7 @@ public class PortfolioSaverTool extends AbstractIntegrationTool {
         if (securityType.equalsIgnoreCase("exchangetraded")) {
           return new SingleSheetSimplePortfolioWriter(filename, new ExchangeTradedRowParser(s_context.getBloombergSecuritySource()));
         } else {
-          return new SingleSheetSimplePortfolioWriter(filename, new JodaBeanRowParser(securityType));
+          return new SingleSheetSimplePortfolioWriter(filename, JodaBeanRowParser.newJodaBeanRowParser(securityType));
         }
       } else if (SheetFormat.of(filename) == SheetFormat.ZIP) {
         return new ZippedPortfolioWriter(filename);
