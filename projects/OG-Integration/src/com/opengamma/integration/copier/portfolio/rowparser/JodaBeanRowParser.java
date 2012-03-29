@@ -140,8 +140,6 @@ public class JodaBeanRowParser extends RowParser {
     _columns = recursiveGetColumnMap(_securityClass, "");
     _columns.putAll(recursiveGetColumnMap(ManageablePosition.class, "position:"));
     _columns.putAll(recursiveGetColumnMap(ManageableTrade.class, "trade:"));
-
-    s_logger.info(securityName + " properties: " + _columns);
   }
 
   /**
@@ -336,7 +334,7 @@ public class JodaBeanRowParser extends RowParser {
               builder.set(metaProperty.name(), 
                   JodaBeanUtils.stringConverter().convertFromString(metaProperty.propertyType(), rawValue));
             } else {
-              s_logger.warn("Skipping empty or null value for " + prefix + metaProperty.name());
+              s_logger.info("Skipping empty or null value for " + prefix + metaProperty.name());
             }
           }
         }
@@ -381,7 +379,7 @@ public class JodaBeanRowParser extends RowParser {
           if (_columns.containsKey(prefix + metaProperty.name())) {
             result.put(prefix + metaProperty.name(), metaProperty.getString(bean));
           } else {
-            s_logger.warn("No matching column found for property " + prefix + metaProperty.name());
+            s_logger.info("No matching column found for property " + prefix + metaProperty.name());
           }
         }
       }
